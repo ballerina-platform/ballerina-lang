@@ -5,9 +5,10 @@ import bbeASTs from "../resources/bbe-asts.json";
 import { EditableDiagram } from "../src-ts";
 import { commonProps, MockLangClient } from "./utils";
 
-const bbeASTsArray = bbeASTs as Array<{ bbe: string, ast: BallerinaAST, title: string }>;
+const bbeASTsArray = bbeASTs as string[];
 
-bbeASTsArray.forEach((bbeAST) => {
+bbeASTsArray.forEach((bbeASTPath) => {
+    const bbeAST = require(`../resources/bbe-asts/${bbeASTPath}`);
     test(`Diagram for ${bbeAST.title} renders properly`, () => {
         const component = create(
             <EditableDiagram

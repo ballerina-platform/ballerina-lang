@@ -5,11 +5,11 @@
     position: object
     id: string
     name: string
-    topLevelNodes: (Import|Endpoint|Service|Variable|Function|TypeDefinition)[]
+    topLevelNodes: (Import|Function|Variable|Xmlns|Endpoint|Service|TypeDefinition)[]
     kind: string
 }
 export interface Import {
-    ws: (object)[]
+    ws?: (object)[]
     position: object
     id: string
     orgName: Identifier
@@ -17,6 +17,8 @@ export interface Import {
     packageName: (Identifier)[]
     kind: string
     packageVersion: Identifier
+    userDefinedAlias?: boolean
+    isInternal?: boolean
 }
 export interface Identifier {
     id: string
@@ -33,7 +35,7 @@ export interface TypeDefinition {
     name: Identifier
     deprecatedAttachments: any
     annotationAttachments: any
-    typeNode: ObjectType
+    typeNode: ObjectType|RecordType|UnionTypeNode|FiniteTypeNode
     kind: string
     public: boolean
     private: boolean
@@ -54,8 +56,11 @@ export interface TypeDefinition {
     abstract: boolean
     optional: boolean
     testable: boolean
-    isObjectType: boolean
+    isObjectType?: boolean
     isAbstractKeywordAvailable?: boolean
+    isRecordType?: boolean
+    isRecordKeywordAvailable?: boolean
+    markdownDocumentationAttachment?: MarkdownDocumentation
 }
 export interface ObjectType {
     position: object
@@ -66,7 +71,7 @@ export interface ObjectType {
     grouped: boolean
     nullable: boolean
     kind: string
-    typeReferences: any
+    typeReferences: (UserDefinedType)[]
     initFunction?: Function
 }
 export interface Function {
@@ -74,15 +79,15 @@ export interface Function {
     position: object
     id: string
     workers: (Worker)[]
-    returnTypeAnnotationAttachments: any
+    returnTypeAnnotationAttachments: (AnnotationAttachment)[]
     name: Identifier
     annotationAttachments: (AnnotationAttachment)[]
-    returnTypeNode: ValueType
+    returnTypeNode: ValueType|TupleTypeNode|UnionTypeNode|FunctionType|ArrayType|ConstrainedType|UserDefinedType|BuiltInRefType
     receiver?: Variable
-    defaultableParameters: any
+    defaultableParameters: (VariableDef)[]
     deprecatedAttachments: any
-    endpointNodes: any
-    parameters: (Variable)[]
+    endpointNodes: (Endpoint)[]
+    parameters: (Variable|VariableDef)[]
     kind: string
     public: boolean
     private: boolean
@@ -104,13 +109,16 @@ export interface Function {
     optional: boolean
     testable: boolean
     hasReturns?: boolean
-    allParams: (Variable)[]
+    allParams: (Variable|VariableDef)[]
     noVisibleReceiver?: boolean
     body?: Block
     isConstructor?: boolean
     objectOuterFunction?: boolean
     objectOuterFunctionTypeName?: Identifier
     restParameters?: Variable
+    hasRestParams?: boolean
+    markdownDocumentationAttachment?: MarkdownDocumentation
+    isStreamAction?: boolean
 }
 export interface ValueType {
     ws?: (object)[]
@@ -122,6 +130,8 @@ export interface ValueType {
     nullable: boolean
     kind: string
     withParantheses?: boolean
+    emptyParantheses?: boolean
+    nullableOperatorAvailable?: boolean
 }
 export interface Variable {
     position: object
@@ -129,7 +139,7 @@ export interface Variable {
     symbolType?: (string)[]
     safeAssignment: boolean
     deprecatedAttachments: any
-    annotationAttachments: any
+    annotationAttachments: (AnnotationAttachment)[]
     name: Identifier
     kind: string
     public: boolean
@@ -152,11 +162,11 @@ export interface Variable {
     optional: boolean
     testable: boolean
     ws?: (object)[]
-    typeNode?: ValueType|UserDefinedType|FunctionType|ArrayType|ConstrainedType|BuiltInRefType
+    typeNode?: ValueType|UserDefinedType|FunctionType|ArrayType|ConstrainedType|BuiltInRefType|TupleTypeNode|UnionTypeNode
     inObject?: boolean
     endWithSemicolon?: boolean
     noVisibleName?: boolean
-    initialExpression?: TypeInitExpr|Lambda|ArrowExpr|ArrayLiteralExpr|Literal|CheckExpr|SimpleVariableRef|Invocation|AwaitExpr|RecordLiteralExpr
+    initialExpression?: TypeInitExpr|Lambda|ArrowExpr|ArrayLiteralExpr|Literal|CheckExpr|SimpleVariableRef|Invocation|AwaitExpr|RecordLiteralExpr|XmlElementLiteral|Table|FieldBasedAccessExpr|TypeConversionExpr|BinaryExpr|MatchExpression|ElvisExpr|IndexBasedAccessExpr|StringTemplateLiteral|UnaryExpr|TableQueryExpression|BracedTupleExpr|XmlAttributeAccessExpr|XmlTextLiteral|XmlCommentLiteral|XmlPiLiteral
     arrowExprParam?: boolean
     global?: boolean
     rest?: boolean
@@ -164,47 +174,57 @@ export interface Variable {
 }
 export interface Block {
     id: string
-    statements: (VariableDef|ExpressionStatement|Assignment|CompoundAssignment|While|WorkerReceive|Return|WorkerSend|Match|If)[]
+    statements: (VariableDef|ExpressionStatement|Assignment|CompoundAssignment|Xmlns|Match|Throw|Return|Transaction|TupleDestructure|Foreach|If|Lock|WorkerReceive|WorkerSend|While|Next|Break|Done|Try|Abort|Forever|Retry|ForkJoin)[]
     kind: string
     position?: object
+    ws?: (object)[]
+    isElseBlock?: boolean
 }
 export interface Return {
     ws: (object)[]
     position: object
     id: string
-    expression: BinaryExpr|SimpleVariableRef
+    expression: BinaryExpr|SimpleVariableRef|Literal|Lambda|Invocation|FieldBasedAccessExpr|BracedTupleExpr|IndexBasedAccessExpr|ArrayLiteralExpr
     kind: string
+    noExpressionAvailable?: boolean
 }
 export interface BinaryExpr {
     ws: (object)[]
     position: object
     id: string
-    symbolType: (string)[]
-    rightExpression: SimpleVariableRef|Literal|Invocation
+    symbolType?: (string)[]
+    rightExpression: SimpleVariableRef|Literal|Invocation|CheckExpr|FieldBasedAccessExpr|BinaryExpr|UnaryExpr|IndexBasedAccessExpr|BracedTupleExpr|TypeConversionExpr
     operatorKind: string
     kind: string
-    leftExpression: BinaryExpr|SimpleVariableRef|FieldBasedAccessExpr|Literal
+    leftExpression: BinaryExpr|SimpleVariableRef|FieldBasedAccessExpr|Literal|Invocation|IndexBasedAccessExpr|UnaryExpr|BracedTupleExpr
+    isExpression?: boolean
 }
 export interface SimpleVariableRef {
-    ws: (object)[]
+    ws?: (object)[]
     position: object
     id: string
     symbolType?: (string)[]
     variableName: Identifier
-    packageAlias: Identifier
+    packageAlias?: Identifier
     kind: string
     isExpression?: boolean
+    inTemplateLiteral?: boolean
 }
 export interface Literal {
-    ws: (object)[]
+    ws?: (object)[]
     position: object
     id: string
-    symbolType: (string)[]
+    symbolType?: (string)[]
     value: string
     unescapedValue?: string
-    originalValue: string
+    originalValue?: string
     kind: string
     isExpression?: boolean
+    inTemplateLiteral?: boolean
+    emptyParantheses?: boolean
+    startTemplateLiteral?: boolean
+    endTemplateLiteral?: boolean
+    lastNodeValue?: boolean
 }
 export interface UserDefinedType {
     ws: (object)[]
@@ -235,6 +255,7 @@ export interface UserDefinedType {
     typeName: Identifier
     nullable: boolean
     kind: string
+    nullableOperatorAvailable?: boolean
 }
 export interface If {
     ws: (object)[]
@@ -243,13 +264,16 @@ export interface If {
     body: Block
     condition: BracedTupleExpr
     kind: string
+    elseStatement?: Block|If
+    ladderParent?: boolean
+    isElseIfBlock?: boolean
 }
 export interface Assignment {
     ws: (object)[]
     position: object
     id: string
-    variable: FieldBasedAccessExpr|IndexBasedAccessExpr|SimpleVariableRef
-    expression: SimpleVariableRef|IndexBasedAccessExpr|Literal|ArrayLiteralExpr|AwaitExpr
+    variable: FieldBasedAccessExpr|IndexBasedAccessExpr|SimpleVariableRef|XmlAttributeAccessExpr
+    expression: SimpleVariableRef|IndexBasedAccessExpr|Literal|ArrayLiteralExpr|AwaitExpr|Invocation|CheckExpr|TypeConversionExpr|MatchExpression|Lambda|BinaryExpr|RecordLiteralExpr|UnaryExpr|TypeInitExpr|FieldBasedAccessExpr|TernaryExpr|XmlElementLiteral
     declaredWithVar: boolean
     kind: string
 }
@@ -257,18 +281,21 @@ export interface FieldBasedAccessExpr {
     ws: (object)[]
     position: object
     id: string
-    symbolType: (string)[]
+    symbolType?: (string)[]
     fieldName: Identifier
-    expression: SimpleVariableRef
+    expression: SimpleVariableRef|Invocation|FieldBasedAccessExpr|IndexBasedAccessExpr
     kind: string
+    errorLifting?: boolean
+    isExpression?: boolean
 }
 export interface BracedTupleExpr {
     ws: (object)[]
     position: object
     id: string
-    symbolType: (string)[]
-    expressions: (Literal|BinaryExpr)[]
+    symbolType?: (string)[]
+    expressions: (BinaryExpr|SimpleVariableRef|Invocation|UnaryExpr|Literal|CheckExpr|FieldBasedAccessExpr|TypeConversionExpr)[]
     kind: string
+    isExpression?: boolean
 }
 export interface VariableDef {
     ws: (object)[]
@@ -276,18 +303,21 @@ export interface VariableDef {
     id: string
     variable: Variable
     kind: string
+    defaultable?: boolean
 }
 export interface TypeInitExpr {
     ws: (object)[]
     position: object
     id: string
     symbolType: (string)[]
-    expressions: (Literal)[]
-    type: UserDefinedType
+    expressions: (SimpleVariableRef|Literal|RecordLiteralExpr|NamedArgsExpr|Invocation)[]
+    type?: UserDefinedType
     kind: string
-    hasParantheses: boolean
-    typeName: Identifier
-    isExpression: boolean
+    hasParantheses?: boolean
+    typeName?: Identifier
+    isExpression?: boolean
+    noExpressionAvailable?: boolean
+    noTypeAttached?: boolean
 }
 export interface ExpressionStatement {
     ws: (object)[]
@@ -303,12 +333,12 @@ export interface Invocation {
     symbolType: any
     invocationType?: string
     iterableOperation: boolean
-    argumentExpressions: (Literal|NamedArgsExpr|SimpleVariableRef|IndexBasedAccessExpr|FieldBasedAccessExpr|Invocation|UnaryExpr|BinaryExpr)[]
+    argumentExpressions: (SimpleVariableRef|Literal|IndexBasedAccessExpr|RecordLiteralExpr|TypeConversionExpr|Invocation|NamedArgsExpr|FieldBasedAccessExpr|XmlAttributeAccessExpr|BinaryExpr|ArrayLiteralExpr|StringTemplateLiteral|UnaryExpr|MatchExpression|Lambda|RestArgsExpr|XmlElementLiteral)[]
     async: boolean
     packageAlias: Identifier
     actionInvocation: boolean
     name: Identifier
-    expression?: SimpleVariableRef
+    expression?: SimpleVariableRef|Invocation|FieldBasedAccessExpr|IndexBasedAccessExpr
     kind: string
     isExpression?: boolean
 }
@@ -320,10 +350,11 @@ export interface FunctionType {
     returnKeywordExists: boolean
     params: (Variable)[]
     grouped: boolean
-    returnTypeNode: ValueType
+    returnTypeNode: ValueType|FunctionType|UserDefinedType
     nullable: boolean
     kind: string
-    hasReturn: boolean
+    hasReturn?: boolean
+    withParantheses?: boolean
 }
 export interface Lambda {
     position: object
@@ -331,7 +362,7 @@ export interface Lambda {
     symbolType: (string)[]
     functionNode: Function
     kind: string
-    isExpression: boolean
+    isExpression?: boolean
 }
 export interface ArrowExpr {
     ws: (object)[]
@@ -350,7 +381,7 @@ export interface ArrayType {
     id: string
     symbolType: (string)[]
     dimensions: number
-    elementType: ValueType
+    elementType: ValueType|UserDefinedType|ArrayType|BuiltInRefType
     grouped: boolean
     sizes: (number)[]
     nullable: boolean
@@ -363,7 +394,7 @@ export interface ArrayLiteralExpr {
     position: object
     id: string
     symbolType: (string)[]
-    expressions: (Literal|ArrayLiteralExpr)[]
+    expressions: (Literal|RecordLiteralExpr|FieldBasedAccessExpr|ArrayLiteralExpr|SimpleVariableRef|TypeConversionExpr)[]
     kind: string
     isExpression?: boolean
 }
@@ -378,17 +409,17 @@ export interface AnnotationAttachment {
 }
 export interface RecordLiteralExpr {
     ws: (object)[]
-    position: object
+    position?: object
     id: string
-    symbolType: (string)[]
+    symbolType?: (string)[]
     keyValuePairs: (RecordLiteralKeyValue)[]
     kind: string
     isExpression?: boolean
 }
 export interface RecordLiteralKeyValue {
-    ws: (object)[]
+    ws?: (object)[]
     id: string
-    value: Literal
+    value: Literal|ArrayLiteralExpr|RecordLiteralExpr|Invocation|BinaryExpr|SimpleVariableRef|UnaryExpr|FieldBasedAccessExpr
     key: SimpleVariableRef|Literal
     kind: string
 }
@@ -396,16 +427,17 @@ export interface IndexBasedAccessExpr {
     ws: (object)[]
     position: object
     id: string
-    symbolType: (string)[]
-    expression: SimpleVariableRef|IndexBasedAccessExpr
-    index: SimpleVariableRef|Literal
+    symbolType?: (string)[]
+    expression: SimpleVariableRef|IndexBasedAccessExpr|FieldBasedAccessExpr
+    index: SimpleVariableRef|Literal|TypeConversionExpr|BinaryExpr|FieldBasedAccessExpr
     kind: string
+    isExpression?: boolean
 }
 export interface CompoundAssignment {
     ws: (object)[]
     position: object
     id: string
-    expression: Literal
+    expression: Literal|SimpleVariableRef|BinaryExpr
     operatorKind: string
     variable: SimpleVariableRef
     kind: string
@@ -418,17 +450,18 @@ export interface CheckExpr {
     symbolType: (string)[]
     operatorKind: string
     kind: string
-    expression: TypeConversionExpr
-    isExpression: boolean
+    expression: TypeConversionExpr|Invocation|FieldBasedAccessExpr
+    isExpression?: boolean
 }
 export interface TypeConversionExpr {
     ws: (object)[]
     position: object
     id: string
     symbolType: (string)[]
-    expression: SimpleVariableRef|IndexBasedAccessExpr
-    typeNode: ValueType|BuiltInRefType
+    expression: SimpleVariableRef|IndexBasedAccessExpr|Invocation|FieldBasedAccessExpr|XmlAttributeAccessExpr
+    typeNode: ValueType|BuiltInRefType|ArrayType|TupleTypeNode|UserDefinedType
     kind: string
+    isExpression?: boolean
 }
 export interface UnaryExpr {
     ws: (object)[]
@@ -437,16 +470,18 @@ export interface UnaryExpr {
     symbolType: (string)[]
     operatorKind: string
     kind: string
-    expression: SimpleVariableRef|IndexBasedAccessExpr|Invocation
+    expression: SimpleVariableRef|IndexBasedAccessExpr|Invocation|FieldBasedAccessExpr|CheckExpr
+    isExpression?: boolean
+    inTemplateLiteral?: boolean
 }
 export interface Endpoint {
     ws: (object)[]
     position: object
     id: string
     symbolType: (string)[]
-    configurationExpression: RecordLiteralExpr
+    configurationExpression?: RecordLiteralExpr|Invocation
     name: Identifier
-    annotationAttachments: any
+    annotationAttachments: (AnnotationAttachment)[]
     kind: string
     endPointType: UserDefinedType
     public: boolean
@@ -468,6 +503,7 @@ export interface Endpoint {
     abstract: boolean
     optional: boolean
     testable: boolean
+    isConfigAssignment?: boolean
 }
 export interface ConstrainedType {
     ws: (object)[]
@@ -476,7 +512,7 @@ export interface ConstrainedType {
     symbolType: (string)[]
     grouped: boolean
     nullable: boolean
-    constraint: ValueType|UnionTypeNode
+    constraint: ValueType|UnionTypeNode|BuiltInRefType|UserDefinedType
     type: BuiltInRefType
     kind: string
 }
@@ -492,13 +528,14 @@ export interface BuiltInRefType {
 }
 export interface UnionTypeNode {
     ws: (object)[]
-    position: object
+    position?: object
     id: string
     symbolType: (string)[]
-    memberTypeNodes: (UserDefinedType)[]
+    memberTypeNodes: (UserDefinedType|ValueType|ArrayType|TupleTypeNode)[]
     grouped: boolean
     nullable: boolean
     kind: string
+    withParantheses?: boolean
 }
 export interface AwaitExpr {
     ws: (object)[]
@@ -513,7 +550,7 @@ export interface Match {
     ws: (object)[]
     position: object
     id: string
-    expression: SimpleVariableRef
+    expression: SimpleVariableRef|BracedTupleExpr|Invocation
     kind: string
     patternClauses: (MatchPatternClause)[]
 }
@@ -524,7 +561,7 @@ export interface MatchPatternClause {
     variableNode: Variable
     statement: Block
     kind: string
-    withCurlies: boolean
+    withCurlies?: boolean
 }
 export interface Worker {
     ws: (object)[]
@@ -534,7 +571,7 @@ export interface Worker {
     returnTypeAnnotationAttachments: any
     name: Identifier
     annotationAttachments: any
-    returnTypeNode: ValueType
+    returnTypeNode?: ValueType
     defaultableParameters: any
     deprecatedAttachments: any
     endpointNodes: any
@@ -566,9 +603,10 @@ export interface WorkerSend {
     position: object
     id: string
     workerName: Identifier
-    expression: SimpleVariableRef
+    expression: SimpleVariableRef|BracedTupleExpr
     forkJoinedSend: boolean
     kind: string
+    keyExpression?: SimpleVariableRef
 }
 export interface WorkerReceive {
     ws: (object)[]
@@ -577,6 +615,7 @@ export interface WorkerReceive {
     expression: SimpleVariableRef
     workerName: Identifier
     kind: string
+    keyExpression?: SimpleVariableRef
 }
 export interface While {
     ws: (object)[]
@@ -590,17 +629,20 @@ export interface Service {
     ws: (object)[]
     position: object
     id: string
-    annotationAttachments: any
+    annotationAttachments: (AnnotationAttachment)[]
     initFunction: Function
     endpointNodes: any
     namespaceDeclarations: any
     boundEndpoints: (SimpleVariableRef)[]
     resources: (Resource)[]
     deprecatedAttachments: any
-    variables: any
+    variables: (VariableDef)[]
     name: Identifier
     kind: string
-    isServiceTypeUnavailable: boolean
+    isServiceTypeUnavailable?: boolean
+    serviceTypeStruct?: UserDefinedType
+    anonymousEndpointBind?: RecordLiteralExpr
+    bindNotAvailable?: boolean
 }
 export interface Resource {
     ws: (object)[]
@@ -609,11 +651,11 @@ export interface Resource {
     workers: any
     returnTypeAnnotationAttachments: any
     name: Identifier
-    annotationAttachments: any
+    annotationAttachments: (AnnotationAttachment)[]
     returnTypeNode: ValueType
     defaultableParameters: any
     deprecatedAttachments: any
-    endpointNodes: any
+    endpointNodes: (Endpoint)[]
     body: Block
     parameters: (Variable)[]
     kind: string
@@ -642,9 +684,10 @@ export interface MatchExpression {
     position: object
     id: string
     symbolType: (string)[]
-    expression: Invocation
+    expression: Invocation|SimpleVariableRef|FieldBasedAccessExpr
     kind: string
     patternClauses: (MatchExpressionPatternClause)[]
+    isExpression?: boolean
 }
 export interface MatchExpressionPatternClause {
     ws: (object)[]
@@ -652,14 +695,508 @@ export interface MatchExpressionPatternClause {
     id: string
     variableNode: Variable
     kind: string
-    statement: Invocation
+    statement: Invocation|SimpleVariableRef|Literal|BinaryExpr|FieldBasedAccessExpr
 }
 export interface NamedArgsExpr {
     ws: (object)[]
     position: object
     id: string
-    symbolType: (string)[]
-    expression: SimpleVariableRef
+    symbolType?: (string)[]
+    expression: SimpleVariableRef|Literal|RecordLiteralExpr|UnaryExpr
     name: Identifier
     kind: string
+}
+export interface TupleTypeNode {
+    ws: (object)[]
+    position: object
+    id: string
+    symbolType: (string)[]
+    grouped: boolean
+    memberTypeNodes: (ValueType|ArrayType|UserDefinedType)[]
+    nullable: boolean
+    kind: string
+}
+export interface Throw {
+    ws: (object)[]
+    position: object
+    id: string
+    kind: string
+    expressions: SimpleVariableRef
+}
+export interface Try {
+    ws: (object)[]
+    position: object
+    id: string
+    body: Block
+    catchBlocks: (Catch)[]
+    kind: string
+    finallyBody?: Block
+}
+export interface TupleDestructure {
+    ws: (object)[]
+    position: object
+    id: string
+    expression: Invocation|CheckExpr|SimpleVariableRef
+    declaredWithVar: boolean
+    variableRefs: (SimpleVariableRef)[]
+    kind: string
+}
+export interface Catch {
+    ws: (object)[]
+    position: object
+    id: string
+    body: Block
+    parameter: Variable
+    kind: string
+}
+export interface XmlElementLiteral {
+    ws: (object)[]
+    position: object
+    id: string
+    symbolType: (string)[]
+    startTagName: XmlQname|SimpleVariableRef
+    attributes: (XmlAttribute)[]
+    namespaces: string
+    content: (Literal|XmlElementLiteral|XmlCommentLiteral|SimpleVariableRef|UnaryExpr)[]
+    endTagName?: XmlQname|SimpleVariableRef
+    kind: string
+    inTemplateLiteral?: boolean
+    root?: boolean
+    startLiteral?: string
+    isExpression?: boolean
+}
+export interface XmlQname {
+    ws: (object)[]
+    position: object
+    id: string
+    symbolType: (string)[]
+    localname: Identifier
+    prefix: Identifier
+    kind: string
+    inTemplateLiteral?: boolean
+}
+export interface RecordType {
+    position: object
+    id: string
+    symbolType: (string)[]
+    fields: (Variable)[]
+    grouped: boolean
+    sealed: boolean
+    nullable: boolean
+    kind: string
+    typeReferences: any
+    ws?: (object)[]
+    restFieldType?: ValueType
+    isRestFieldAvailable?: boolean
+}
+export interface RestArgsExpr {
+    ws: (object)[]
+    position: object
+    id: string
+    symbolType?: (string)[]
+    expression: SimpleVariableRef
+    kind: string
+}
+export interface Foreach {
+    ws: (object)[]
+    position: object
+    id: string
+    variables: (SimpleVariableRef)[]
+    collection: SimpleVariableRef|Invocation|BinaryExpr|FieldBasedAccessExpr
+    kind: string
+    body: Block
+    withParantheses?: boolean
+}
+export interface Table {
+    ws: (object)[]
+    position: object
+    id: string
+    symbolType: (string)[]
+    dataRows: (SimpleVariableRef|RecordLiteralExpr)[]
+    tableColumns: (TableColumn)[]
+    kind: string
+    isExpression: boolean
+}
+export interface MarkdownDocumentation {
+    ws: (object)[]
+    position: object
+    id: string
+    documentationLines: (DocumentationDescription)[]
+    documentation: string
+    parameters: (DocumentationParameter)[]
+    parameterDocumentations: string
+    kind: string
+    returnParameterDocumentation?: string
+    returnParameter?: DocumentationParameter
+}
+export interface DocumentationDescription {
+    ws?: (object)[]
+    position: object
+    id: string
+    text: string
+    kind: string
+}
+export interface DocumentationParameter {
+    ws: (object)[]
+    position: object
+    id: string
+    parameterDocumentationLines?: (string)[]
+    parameterDocumentation?: string
+    parameterName?: Identifier
+    kind: string
+    returnParameterDocumentationLines?: (string)[]
+    returnParameterDocumentation?: string
+}
+export interface ElvisExpr {
+    ws: (object)[]
+    position: object
+    id: string
+    symbolType: (string)[]
+    leftExpression: SimpleVariableRef|Invocation|IndexBasedAccessExpr
+    rightExpression: Literal|SimpleVariableRef
+    kind: string
+    isExpression: boolean
+}
+export interface ForkJoin {
+    ws: (object)[]
+    position: object
+    id: string
+    joinType: string
+    joinedWorkerIdentifiers: any
+    joinResultVar: Variable
+    workers: (Worker)[]
+    joinBody: Block
+    kind: string
+    joinCount: number
+    timeOutExpression?: Literal
+    timeOutVariable?: Variable
+    timeoutBody?: Block
+}
+export interface StringTemplateLiteral {
+    ws: (object)[]
+    position: object
+    id: string
+    symbolType: (string)[]
+    kind: string
+    expressions: (Literal|SimpleVariableRef|UnaryExpr|FieldBasedAccessExpr)[]
+    startTemplate: string
+    isExpression?: boolean
+}
+export interface Done {
+    ws: (object)[]
+    position: object
+    id: string
+    kind: string
+}
+export interface Forever {
+    ws: (object)[]
+    position: object
+    id: string
+    siddhiRuntimeEnabled: boolean
+    kind: string
+    streamingQueryStatements: (StreamingQuery)[]
+}
+export interface StreamingQuery {
+    ws: (object)[]
+    position: object
+    id: string
+    streamingInput?: StreamingInput
+    streamingAction: StreamAction
+    selectClause: SelectClause
+    kind: string
+    patternClause?: PatternClause
+    joiningInput?: JoinStreamingInput
+}
+export interface StreamingInput {
+    position: object
+    id: string
+    windowTraversedAfterWhere: boolean
+    windowClause?: WindowClause
+    streamReference: SimpleVariableRef
+    kind: string
+    beforeStreamingCondition?: Where
+    ws?: (object)[]
+    alias?: string
+    aliasAvailable?: boolean
+    afterStreamingCondition?: Where
+}
+export interface WindowClause {
+    ws: (object)[]
+    position: object
+    id: string
+    functionInvocation: Invocation
+    kind: string
+}
+export interface Where {
+    ws: (object)[]
+    position: object
+    id: string
+    expression: BinaryExpr
+    kind: string
+}
+export interface StreamAction {
+    ws: (object)[]
+    position: object
+    id: string
+    invokableBody: Lambda
+    kind: string
+}
+export interface SelectClause {
+    ws: (object)[]
+    position: object
+    id: string
+    selectAll: boolean
+    groupBy?: GroupBy
+    having?: Having
+    selectExpressions?: (SelectExpression)[]
+    kind: string
+}
+export interface GroupBy {
+    ws: (object)[]
+    position: object
+    id: string
+    variables: (SimpleVariableRef|FieldBasedAccessExpr)[]
+    kind: string
+}
+export interface Having {
+    ws: (object)[]
+    position: object
+    id: string
+    expression: BinaryExpr
+    kind: string
+}
+export interface SelectExpression {
+    position: object
+    id: string
+    expression: SimpleVariableRef|Invocation|FieldBasedAccessExpr|TernaryExpr
+    kind: string
+    ws?: (object)[]
+    identifier?: string
+    identifierAvailable?: boolean
+}
+export interface TernaryExpr {
+    ws: (object)[]
+    position: object
+    id: string
+    thenExpression: Literal
+    kind: string
+    elseExpression: Literal
+    condition: BinaryExpr|BracedTupleExpr
+    symbolType?: (string)[]
+}
+export interface PatternClause {
+    ws: (object)[]
+    position: object
+    id: string
+    patternStreamingNode: PatternStreamingInput
+    forAllEvents: boolean
+    kind: string
+}
+export interface PatternStreamingInput {
+    ws?: (object)[]
+    position: object
+    id: string
+    followedBy: boolean
+    forWithNot: boolean
+    orOnly: boolean
+    andWithNot: boolean
+    patternStreamingEdgeInputs: (PatternStreamingEdgeInput)[]
+    patternStreamingInput?: PatternStreamingInput
+    andOnly: boolean
+    commaSeparated: boolean
+    kind: string
+}
+export interface PatternStreamingEdgeInput {
+    ws: (object)[]
+    position: object
+    id: string
+    aliasIdentifier: string
+    whereClause?: Where
+    kind: string
+    streamReference: SimpleVariableRef
+    expression?: IntRangeExpr
+}
+export interface Break {
+    ws: (object)[]
+    position: object
+    id: string
+    kind: string
+}
+export interface IntRangeExpr {
+    ws: (object)[]
+    position: object
+    id: string
+    startExpression: Literal
+    kind: string
+    isWrappedWithBracket: boolean
+}
+export interface JoinStreamingInput {
+    ws: (object)[]
+    position: object
+    id: string
+    unidirectionalAfterJoin: boolean
+    onExpression: BinaryExpr
+    unidirectionalBeforeJoin: boolean
+    streamingInput: StreamingInput
+    kind: string
+    joinType: string
+}
+export interface XmlAttribute {
+    ws: (object)[]
+    position: object
+    id: string
+    symbolType: (string)[]
+    name: XmlQname
+    value: XmlQuotedString
+    kind: string
+    inTemplateLiteral: boolean
+}
+export interface XmlQuotedString {
+    position: object
+    id: string
+    symbolType: (string)[]
+    textFragments: (Literal)[]
+    kind: string
+}
+export interface XmlCommentLiteral {
+    ws: (object)[]
+    position: object
+    id: string
+    symbolType: (string)[]
+    kind: string
+    textFragments: (Literal|BinaryExpr)[]
+    inTemplateLiteral?: boolean
+    root?: boolean
+    startLiteral?: string
+    isExpression?: boolean
+}
+export interface Transaction {
+    ws: (object)[]
+    position: object
+    id: string
+    onAbortFunction?: SimpleVariableRef
+    retryCount?: Literal
+    onRetryBody?: Block
+    onCommitFunction?: SimpleVariableRef
+    transactionBody: Block
+    kind: string
+}
+export interface Abort {
+    ws: (object)[]
+    position: object
+    id: string
+    kind: string
+}
+export interface Retry {
+    ws: (object)[]
+    position: object
+    id: string
+    kind: string
+}
+export interface Lock {
+    ws: (object)[]
+    position: object
+    id: string
+    body: Block
+    kind: string
+}
+export interface FiniteTypeNode {
+    ws: (object)[]
+    id: string
+    symbolType: (string)[]
+    valueSet: (Literal)[]
+    grouped: boolean
+    nullable: boolean
+    kind: string
+}
+export interface TableColumn {
+    ws: (object)[]
+    position: object
+    id: string
+    name: string
+    flagSet: (string)[]
+    kind: string
+}
+export interface TableQueryExpression {
+    position: object
+    id: string
+    symbolType: (string)[]
+    tableQuery: TableQuery
+    kind: string
+    isExpression: boolean
+}
+export interface TableQuery {
+    ws: (object)[]
+    position: object
+    id: string
+    selectClauseNode: SelectClause
+    streamingInput: StreamingInput
+    kind: string
+    orderByNode?: OrderBy
+    joinStreamingInput?: JoinStreamingInput
+}
+export interface OrderBy {
+    ws: (object)[]
+    position: object
+    id: string
+    variables: (OrderByVariable)[]
+    kind: string
+}
+export interface OrderByVariable {
+    position: object
+    id: string
+    orderByType: string
+    variableReference: SimpleVariableRef
+    kind: string
+    noVisibleType: boolean
+}
+export interface Next {
+    ws: (object)[]
+    position: object
+    id: string
+    kind: string
+}
+export interface XmlAttributeAccessExpr {
+    ws: (object)[]
+    position: object
+    id: string
+    symbolType: (string)[]
+    expression: FieldBasedAccessExpr|IndexBasedAccessExpr|SimpleVariableRef
+    index?: Literal|SimpleVariableRef
+    kind: string
+    isExpression?: boolean
+}
+export interface Xmlns {
+    ws?: (object)[]
+    position: object
+    id: string
+    symbolType?: (string)[]
+    namespaceURI?: Literal
+    kind: string
+    prefix?: Identifier
+    global?: boolean
+    namespaceDeclaration?: Xmlns
+}
+export interface XmlTextLiteral {
+    ws: (object)[]
+    position: object
+    id: string
+    symbolType: (string)[]
+    textFragments: (Literal)[]
+    kind: string
+    root: boolean
+    startLiteral: string
+    isExpression: boolean
+}
+export interface XmlPiLiteral {
+    ws: (object)[]
+    position: object
+    id: string
+    symbolType: (string)[]
+    kind: string
+    dataTextFragments: (Literal)[]
+    target: Literal
+    root: boolean
+    startLiteral: string
+    isExpression: boolean
 }

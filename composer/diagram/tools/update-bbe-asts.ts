@@ -2,11 +2,21 @@ import { BallerinaAST } from "@ballerina/ast-model";
 import { createStdioLangClient,
   getBBEs, StdioBallerinaLangServer } from "@ballerina/lang-service";
 import { ChildProcess } from "child_process";
-import { writeFileSync } from "fs";
+import { existsSync, mkdirSync, writeFileSync } from "fs";
 import * as path from "path";
+import { sync as rimrafSync } from "rimraf";
 
-let bbeASTs;
-const bbeASTJson = path.join(__dirname, "..", "..", "resources", "bbe-asts.json");
+const bbeASTsPath = path.join(__dirname, "..", "..", "resources", "bbe-asts");
+const bbeASTsIndexPath = path.join(__dirname, "..", "..", "resources", "bbe-asts.json");
+
+// tslint:disable-next-line:no-console
+console.log("Removing existing bbe ast jsons if any.");
+if (existsSync(bbeASTsPath)) {
+  rimrafSync(bbeASTsPath);
+}
+
+mkdirSync(bbeASTsPath);
+
 const server = new StdioBallerinaLangServer();
 server.start();
 
@@ -16,31 +26,33 @@ createStdioLangClient(server.lsProcess as ChildProcess, () => {}, () => {})
   if (client) {
     client.init()
     .then((result) => {
-      const bbes = getBBEs();
-      const promises: Array<Thenable<{ bbe: string, ast: BallerinaAST, title: string }>> = [];
+      const bbes = getBBEs(process.env.BALLERINA_HOME);
+      const promises: Array<Thenable<string>> = [];
       bbes.forEach((bbe, index) => {
-        if (index < 10) {
-          // tslint:disable-next-line:no-console
-          console.log("getting ast for ", bbe);
-          promises.push(
-            client.getAST({
-              documentIdentifier: {
-                uri: bbe,
-              },
-            }).then((resp) => ({ bbe, ast: resp.ast, title: path.basename(bbe)})),
-          );
-          }
-        });
+        // tslint:disable-next-line:no-console
+        console.log("getting ast for ", bbe);
+        promises.push(
+          client.getAST({
+            documentIdentifier: {
+              uri: bbe,
+            },
+          }).then((resp) => {
+            const bbeData = { bbe, ast: resp.ast, title: path.basename(bbe) };
+            const jsonFileName = `${path.parse(bbe).name}.json`;
+            const astPath = path.join(bbeASTsPath, jsonFileName);
+            // tslint:disable-next-line:no-console
+            console.log("Writing data to ", astPath);
+            writeFileSync(astPath, JSON.stringify(bbeData));
+            return jsonFileName;
+          }),
+        );
+      });
       Promise.all(promises)
         .then((responses) => {
-          bbeASTs = responses;
-          // tslint:disable-next-line:no-console
-          console.log("Writing data to ", bbeASTJson);
-          writeFileSync(bbeASTJson, JSON.stringify(bbeASTs));
+          writeFileSync(bbeASTsIndexPath, JSON.stringify(responses));
           client.close();
           server.shutdown();
         });
-
       });
     }
 });
