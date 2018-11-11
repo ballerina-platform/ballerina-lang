@@ -16,10 +16,9 @@
 package org.ballerinalang.langserver;
 
 import com.google.gson.internal.LinkedTreeMap;
-import org.ballerinalang.langserver.command.LSCommandExecutorProvider;
 import org.ballerinalang.langserver.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.client.ExtendedLanguageClientAware;
-import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.command.LSCommandExecutorProvider;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
