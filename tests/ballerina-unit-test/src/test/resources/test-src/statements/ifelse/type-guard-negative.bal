@@ -66,3 +66,11 @@ function testTypeGuardsWithAnd() returns string {
         return s;
     }
 }
+
+function testUndefinedSymbol() returns string {
+    if a is string {
+        return a;
+    }
+
+    return "";
+}
