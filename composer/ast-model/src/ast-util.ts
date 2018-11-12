@@ -142,4 +142,164 @@ export class ASTUtil {
             }
         });
     }
+
+    /**
+     * Get the start position to add the new node in given attachment point of the given node.
+     *
+     * @param node - parent node where the new node to be added
+     * @param {string} attachPoint - attachment point where new node going to be added in the node
+     * @param {number} insertBefore - if attachment point is a collection where the node to be added
+     * @returns {number} - start position for the new node
+     */
+    public static getStartPosition(node: any, attachPoint: string, insertBefore = -1): number {
+        let startPosition = 0;
+        let prevPosition = 0;
+        switch (node.kind) {
+            case "CompilationUnit":
+                // If attach point is given as top level nodes, calculate the start position to merge the node.
+                if (node.topLevelNodes != null
+                    && attachPoint === "topLevelNodes"
+                    && node.topLevelNodes.length > 0) {
+                    startPosition = ASTUtil.getPositionToInsertBefore(node.topLevelNodes, insertBefore);
+                }
+                break;
+            case "Function":
+            case "Resource":
+                let functionWS = node.ws;
+                let functionOpeningBrace = ASTUtil.findOpeningBrace(functionWS);
+
+                // TODO: handle calculation for start position.
+                prevPosition = functionOpeningBrace;
+
+                if (node.endpointNodes != null) {
+                    // If attachment point endpointNodes, calculate the position to add the new node in to endpoint
+                    // Else calculate the position of the last whitespace token.
+                    if (attachPoint === "endpointNodes") {
+                        startPosition = ASTUtil.getCollectionStartPosition(node.endpointNodes, functionOpeningBrace,
+                            insertBefore);
+                    } else if (node.endpointNodes.length > 0) {
+                        let endpointWS = ASTUtil.extractWS(node.endpointNodes[node.endpointNodes.length - 1]);
+                        prevPosition = endpointWS[endpointWS.length - 1].i;
+                    }
+                }
+
+                if (node.workers != null) {
+                    if (attachPoint === "workers") {
+                        startPosition = ASTUtil.getCollectionStartPosition(node.workers, prevPosition, insertBefore);
+                    } else if (node.workers.length > 0) {
+                        let workerWS = ASTUtil.extractWS(node.workers[node.workers.length - 1]);
+                        prevPosition = workerWS[workerWS.length - 1].i;
+                    }
+                }
+
+                if (node.body != null && attachPoint === "statements") {
+                    startPosition = ASTUtil.getCollectionStartPosition(node.body.statements, prevPosition,
+                        insertBefore);
+                }
+                break;
+            case "Worker":
+                let workerWS = node.ws;
+                prevPosition = ASTUtil.findOpeningBrace(workerWS);
+                if (node.body != null && attachPoint === "statements") {
+                    startPosition = ASTUtil.getCollectionStartPosition(node.body.statements, prevPosition,
+                        insertBefore);
+                }
+
+                break;
+            case "While":
+                let whileWS = node.ws;
+                prevPosition = ASTUtil.findOpeningBrace(whileWS);
+                if (node.body != null && attachPoint === "statements") {
+                    startPosition = ASTUtil.getCollectionStartPosition(node.body.statements, prevPosition,
+                        insertBefore);
+                }
+                break;
+            case "If":
+                let ifWS = node.ws;
+                prevPosition = ASTUtil.findOpeningBrace(ifWS);
+                if (node.body != null && attachPoint === "statements") {
+                    startPosition = ASTUtil.getCollectionStartPosition(node.body.statements, prevPosition,
+                        insertBefore);
+                }
+                break;
+            case "Block":
+                // If block is a else block continue.
+                // Else find the startPosition of the parent node of the block.
+                if (node.isElseBlock) {
+                    let elseWS = node.ws;
+                    prevPosition = ASTUtil.findOpeningBrace(elseWS);
+                    if (node.statements && attachPoint === "statements") {
+                        startPosition = ASTUtil.getCollectionStartPosition(node.statements, prevPosition,
+                            insertBefore);
+                    }
+                } else {
+                    startPosition = ASTUtil.getStartPosition(node.parent, attachPoint);
+                }
+                break;
+            default:
+                // If whitespaces available set the startPosition as the opening brace position.
+                if (node.ws) {
+                    startPosition = ASTUtil.findOpeningBrace(node.ws) + 1;
+                }
+                break;
+        }
+        return startPosition;
+    }
+
+    /**
+     * Get the start position for new node in a collection.
+     *
+     * @param {any[]} collection - collection which new node going to be added
+     * @param {number} entryPoint - position of a entry point such as `{` and `(`
+     * @param {number} insertBefore - target position where node to be added in the collection
+     * @returns {number}
+     */
+    private static getCollectionStartPosition(collection: any[], entryPoint: number, insertBefore: number): number {
+        let startPosition;
+        if (collection.length > 0) {
+            startPosition = ASTUtil.getPositionToInsertBefore(collection, insertBefore);
+        } else {
+            startPosition = entryPoint + 1;
+        }
+        return startPosition;
+    }
+
+    /**
+     * Get the position to insert the new node in to the given
+     * collection considering the position to add the node.
+     *
+     * @param {any[]} collection - collection where new node to be added
+     * @param {number} insertBefore - position where new node to be placed
+     * @returns {number} - start position for the new node
+     */
+    private static getPositionToInsertBefore(collection: any[], insertBefore: number): number {
+        let startPosition;
+        if (collection.length > 0) {
+            if (insertBefore === -1) {
+                let statementWS = ASTUtil.extractWS(collection[collection.length - 1]);
+                startPosition = statementWS[statementWS.length - 1].i + 1;
+            } else {
+                let statementWS = ASTUtil.extractWS(collection[insertBefore]);
+                startPosition = statementWS[0].i;
+            }
+        }
+        return startPosition;
+    }
+
+    /**
+     * Find the index position of the opening brace token.
+     *
+     * @param {any[]} ws - ws collection
+     * @returns {number} - start position
+     */
+    private static findOpeningBrace(ws: any[]): number {
+        let index = -1;
+        for (let i = 0; i < ws.length; i++) {
+            if (ws[i].text === "{") {
+                index = ws[i].i;
+                break;
+            }
+        }
+        return index;
+    }
 }

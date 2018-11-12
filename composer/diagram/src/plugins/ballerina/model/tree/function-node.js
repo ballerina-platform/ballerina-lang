@@ -51,11 +51,18 @@ class FunctionNode extends AbstractFunctionNode {
                 const statements = this.getBody().getStatements()
                     .filter((statement) => { return !TreeUtil.isEndpointTypeVariableDef(statement); });
                 this.getBody().setStatements(connectors, true);
-                defaultWorker.getBody().setStatements(statements);
-
                 // If endpoints are defined should be last of endpoint
-                ASTUtil.reconcileWS(node, this.getWorkers(), this.getRoot(), this.getBlockStartWs());
+                let defaultWorkerStartPosition = ASTUtil.getStartPosition(this, "workers");
+                ASTUtil.reconcileWS(defaultWorker, this.getWorkers(), this.getRoot(), defaultWorkerStartPosition);
                 this.addWorkers(defaultWorker, -1, true);
+
+                // Iterate statements and reconcile whitespaces to match the default worker.
+                for (let statement in statements) {
+                    let startPosition = ASTUtil.getStartPosition(defaultWorker, "statements");
+                    ASTUtil.reconcileWS(statements[statement], defaultWorker.getBody().getStatements(),
+                        this.getRoot(), startPosition);
+                    defaultWorker.getBody().addStatements(statements[statement], -1, true);
+                }
             }
             const index = !_.isNil(dropBefore) ? this.getIndexOfWorkers(dropBefore) : -1;
             TreeUtil.generateWorkerName(this, node);
@@ -64,25 +71,14 @@ class FunctionNode extends AbstractFunctionNode {
             ASTUtil.reconcileWS(node, this.getWorkers(), this.getRoot());
             this.addWorkers(node, index);
         } else if (TreeUtil.isEndpoint(node)) {
-            if (this.getEndpointNodes().length > 0) {
-                ASTUtil.reconcileWS(node, this.getEndpointNodes(), this.getRoot());
-            } else {
-                ASTUtil.reconcileWS(node, this.getEndpointNodes(), this.getRoot(), this.getBlockStartWs());
-            }
+            let startPosition = ASTUtil.getStartPosition(this, "endpointNodes");
+            ASTUtil.reconcileWS(node, this.getEndpointNodes(), this.getRoot(), startPosition);
             this.addEndpointNodes(node);
         }
     }
 
     getClientTitle() {
         return 'caller';
-    }
-
-    getBlockStartWs() {
-        const wsList = ASTUtil.extractWS(this.parent);
-        const startWs = _.find(wsList, (element) => {
-            return (element.text === "{");
-        });
-        return startWs.i + 1;
     }
 }
 
