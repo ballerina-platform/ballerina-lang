@@ -1363,7 +1363,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         ((BObjectTypeSymbol) typeDef.symbol).referencedFunctions.add(attachedFunc);
     }
 
-    private void defineInitFunctionParam(BLangVariable varNode) {
+    private void defineInitFunctionParam(BLangSimpleVariable varNode) {
         Name varName = names.fromIdNode(varNode.name);
 
         // Here it is assumed that initFunctions are always for objects.
