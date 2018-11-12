@@ -35,7 +35,7 @@ public type FailoverClient object {
     #
     # + return - The HTTP failover actions associated with the endpoint
     public function getCallerActions() returns FailoverActions {
-        return check <FailoverActions>httpEP.httpClient;
+        return check <FailoverActions> self.httpEP.httpClient;
     }
 };
 

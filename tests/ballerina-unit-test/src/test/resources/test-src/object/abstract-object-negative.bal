@@ -49,7 +49,7 @@ type Person4 abstract object {
     string month;
 
     public function getName() returns string {
-        return name;
+        return self.name;
     }
 };
 

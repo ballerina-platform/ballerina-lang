@@ -42,7 +42,7 @@ public type Response object {
     private mime:Entity entity;
 
     public new() {
-        self.entity = createNewEntity();
+        self.entity = self.createNewEntity();
     }
 
     # Create a new `Entity` and link it with the response.

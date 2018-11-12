@@ -157,7 +157,8 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
     returns http:Response {
 
     http:Response response = new;
-    string reqTopic = http:decode(intentVerificationRequest.topic, "UTF-8") but { error => topic };
+    var decodedTopic = http:decode(intentVerificationRequest.topic, "UTF-8");
+    string reqTopic = decodedTopic is string ? decodedTopic : topic;
 
     string reqMode = intentVerificationRequest.mode;
     string challenge = intentVerificationRequest.challenge;
@@ -177,7 +178,7 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
 # + serviceType - The type of the service for which the request was rceived
 # + return - `error`, if an error occurred in extraction or signature validation failed
 function processWebSubNotification(http:Request request, typedesc serviceType) returns error? {
-    string secret = retrieveSubscriberServiceAnnotations(serviceType).secret but { () => "" };
+    string secret = retrieveSubscriberServiceAnnotations(serviceType).secret ?: "";
 
     if (!request.hasHeader(X_HUB_SIGNATURE)) {
         if (secret != "") {
@@ -196,15 +197,15 @@ function processWebSubNotification(http:Request request, typedesc serviceType) r
     }
 
     string stringPayload = "";
-    match (request.getPayloadAsString()) {
-        string payloadAsString => { stringPayload = payloadAsString; }
-        error entityError => {
-            string errCause = <string> entityError.detail().message;
-            map errorDetail = { message : "Error extracting notification payload as string " +
-                                            "for signature validation: " + errCause };
-            error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
-            return webSubError;
-        }
+    var payload = request.getPayloadAsString();
+    if (payload is string) {
+        stringPayload = payload;
+    } else if (payload is error) {
+        string errCause = <string> payload.detail().message;
+        map errorDetail = { message : "Error extracting notification payload as string " +
+                                        "for signature validation: " + errCause };
+        error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
+        return webSubError;
     }
 
     return validateSignature(xHubSignature, stringPayload, secret);
@@ -251,14 +252,14 @@ public type Notification object {
     #
     # + return - String constrained map of query params
     public function getQueryParams() returns map<string> {
-        return request.getQueryParams();
+        return self.request.getQueryParams();
     }
 
     # Retrieves the `Entity` associated with the content delivery request.
     #
     # + return - The `Entity` of the request. An `error` is returned, if entity construction fails
     public function getEntity() returns mime:Entity|error {
-        return request.getEntity();
+        return self.request.getEntity();
     }
 
     # Returns whether the requested header key exists in the header map of the content delivery request.
@@ -266,7 +267,7 @@ public type Notification object {
     # + headerName - The header name
     # + return - Returns true if the specified header key exists
     public function hasHeader(string headerName) returns boolean {
-        return request.hasHeader(headerName);
+        return self.request.hasHeader(headerName);
     }
 
     # Returns the value of the specified header. If the specified header key maps to multiple values, the first of
@@ -276,7 +277,7 @@ public type Notification object {
     # + return - The first header value for the specified header name. An exception is thrown if no header is found.
     #            Ideally `hasHeader()` needs to be used to check the existence of header initially.
     public function getHeader(string headerName) returns string {
-        return request.getHeader(headerName);
+        return self.request.getHeader(headerName);
     }
 
     # Retrieves all the header values to which the specified header key maps to.
@@ -285,35 +286,35 @@ public type Notification object {
     # + return - The header values the specified header key maps to. An exception is thrown if no header is found.
     #            Ideally `hasHeader()` needs to be used to check the existence of header initially.
     public function getHeaders(string headerName) returns string[] {
-        return request.getHeaders(headerName);
+        return self.request.getHeaders(headerName);
     }
 
     # Retrieves all the names of the headers present in the content delivery request.
     #
     # + return - An array of all the header names
     public function getHeaderNames() returns string[] {
-        return request.getHeaderNames();
+        return self.request.getHeaderNames();
     }
 
     # Retrieves the type of the payload of the content delivery request (i.e: the `content-type` header value).
     #
     # + return - Returns the `content-type` header value as a string
     public function getContentType() returns string {
-        return request.getContentType();
+        return self.request.getContentType();
     }
 
     # Extracts `json` payload from the content delivery request.
     #
     # + return - The `json` payload or `error` in case of errors. If the content type is not JSON, an `error` is returned.
     public function getJsonPayload() returns json|error {
-        return request.getJsonPayload();
+        return self.request.getJsonPayload();
     }
 
     # Extracts `xml` payload from the content delivery request.
     #
     # + return - The `xml` payload or `error` in case of errors. If the content type is not XML, an `error` is returned.
     public function getXmlPayload() returns xml|error {
-        return request.getXmlPayload();
+        return self.request.getXmlPayload();
     }
 
     # Extracts `text` payload from the content delivery request.
@@ -321,7 +322,7 @@ public type Notification object {
     # + return - The `text` payload or `error` in case of errors.
     #            If the content type is not of type text, an `error` is returned.
     public function getTextPayload() returns string|error {
-        return request.getTextPayload();
+        return self.request.getTextPayload();
     }
 
     # Retrieves the content delivery request payload as a `string`. Content type is not checked during payload
@@ -329,28 +330,28 @@ public type Notification object {
     #
     # + return - The string representation of the message payload or `error` in case of errors
     public function getPayloadAsString() returns string|error {
-        return request.getPayloadAsString();
+        return self.request.getPayloadAsString();
     }
 
     # Retrieves the request payload as a `ByteChannel` except in the case of multiparts.
     #
     # + return - A byte channel from which the message payload can be read or `error` in case of errors
     public function getByteChannel() returns io:ReadableByteChannel|error {
-        return request.getByteChannel();
+        return self.request.getByteChannel();
     }
 
     # Retrieves the request payload as a `byte[]`.
     #
     # + return - The byte[] representation of the message payload or `error` in case of errors
     public function getBinaryPayload() returns byte[]|error {
-        return request.getBinaryPayload();
+        return self.request.getBinaryPayload();
     }
 
     # Retrieves the form parameters from the content delivery request as a `map`.
     #
     # + return - The map of form params or `error` in case of errors
     public function getFormParams() returns map<string>|error {
-        return request.getFormParams();
+        return self.request.getFormParams();
     }
 };
 
@@ -465,18 +466,18 @@ public function startHub(string? host = (), int port, int? leaseSeconds = (), st
                          boolean? topicRegistrationRequired = (), string? publicUrl = (),
                          boolean? sslEnabled = (), http:ServiceSecureSocket? serviceSecureSocket = (),
                          http:SecureSocket? clientSecureSocket = ()) returns WebSubHub|HubStartedUpError {
-    hubHost = config:getAsString("b7a.websub.hub.host", default = host but { () => DEFAULT_HOST });
+    hubHost = config:getAsString("b7a.websub.hub.host", default = host ?: DEFAULT_HOST);
     hubPort = config:getAsInt("b7a.websub.hub.port", default = port);
     hubLeaseSeconds = config:getAsInt("b7a.websub.hub.leasetime",
-                                      default = leaseSeconds but { () => DEFAULT_LEASE_SECONDS_VALUE });
+                                      default = leaseSeconds ?: DEFAULT_LEASE_SECONDS_VALUE);
     hubSignatureMethod = config:getAsString("b7a.websub.hub.signaturemethod",
-                                            default = signatureMethod but { () => DEFAULT_SIGNATURE_METHOD });
+                                   default = signatureMethod ?: DEFAULT_SIGNATURE_METHOD);
     hubRemotePublishingEnabled = config:getAsBoolean("b7a.websub.hub.remotepublish",
-                                                     default = remotePublishingEnabled but { () => false });
+                                     default = remotePublishingEnabled ?: false);
 
     string remotePublishModeAsConfig =  config:getAsString("b7a.websub.hub.remotepublish.mode");
     if (remotePublishModeAsConfig == "") {
-        hubRemotePublishMode = remotePublishMode but { () => PUBLISH_MODE_DIRECT };
+        hubRemotePublishMode = remotePublishMode ?: PUBLISH_MODE_DIRECT;
     } else {
         if (remotePublishModeAsConfig.equalsIgnoreCase(REMOTE_PUBLISHING_MODE_FETCH)) {
             hubRemotePublishMode = PUBLISH_MODE_FETCH;
@@ -486,15 +487,15 @@ public function startHub(string? host = (), int port, int? leaseSeconds = (), st
     }
 
     hubTopicRegistrationRequired = config:getAsBoolean("b7a.websub.hub.topicregistration",
-                                                       default = topicRegistrationRequired but { () => true });
-    hubSslEnabled = config:getAsBoolean("b7a.websub.hub.enablessl", default = sslEnabled but { () => true });
+                                    default = topicRegistrationRequired ?: true);
+    hubSslEnabled = config:getAsBoolean("b7a.websub.hub.enablessl", default = sslEnabled ?: true);
     //set serviceSecureSocket after hubSslEnabled is set
     if (hubSslEnabled) {
         hubServiceSecureSocket = getServiceSecureSocketConfig(serviceSecureSocket);
     }
     hubClientSecureSocket = getSecureSocketConfig(clientSecureSocket);
     //reset the hubUrl once the other parameters are set
-    hubPublicUrl = config:getAsString("b7a.websub.hub.url", default = publicUrl but { () => getHubUrl() });
+    hubPublicUrl = config:getAsString("b7a.websub.hub.url", default = publicUrl ?: getHubUrl());
     return startUpHubService(hubTopicRegistrationRequired, hubPublicUrl);
 }
 
@@ -562,20 +563,23 @@ function WebSubHub::publishUpdate(string topic, string|xml|json|byte[]|io:Readab
 
     WebSubContent content = {};
 
-    match(payload) {
-        io:ReadableByteChannel byteChannel => content.payload = constructByteArray(byteChannel);
-        string|xml|json|byte[] => content.payload = payload;
+    if (payload is io:ReadableByteChannel) {
+        content.payload = constructByteArray(payload);
+    } else {
+        content.payload = payload;
     }
 
-    match(contentType) {
-        string stringContentType => content.contentType = stringContentType;
-        () => {
-            match(payload) {
-                string => content.contentType = mime:TEXT_PLAIN;
-                xml => content.contentType = mime:APPLICATION_XML;
-                json => content.contentType = mime:APPLICATION_JSON;
-                byte[]|io:ReadableByteChannel => content.contentType = mime:APPLICATION_OCTET_STREAM;
-            }
+    if (contentType is string) {
+        content.contentType = contentType;
+    } else {
+        if (payload is string) {
+            content.contentType = mime:TEXT_PLAIN;
+        } else if (payload is xml) {
+            content.contentType = mime:APPLICATION_XML;
+        } else if (payload is json) {
+            content.contentType = mime:APPLICATION_JSON;
+        } else if (payload is byte[]|io:ReadableByteChannel) {
+            content.contentType = mime:APPLICATION_OCTET_STREAM;
         }
     }
 

@@ -30,15 +30,15 @@ public type ConfigJwtAuthProvider object {
     }
 
     public function authenticate(string username, string password) returns boolean {
-        boolean isAuthenticated = configAuthProvider.authenticate(username, password);
+        boolean isAuthenticated = self.configAuthProvider.authenticate(username, password);
         if (isAuthenticated){
-            setAuthToken(username, configJwtAuthProviderConfig);
+            setAuthToken(username, self.configJwtAuthProviderConfig);
         }
         return isAuthenticated;
     }
 
     public function getScopes(string username) returns string[] {
-        return configAuthProvider.getScopes(username);
+        return self.configAuthProvider.getScopes(username);
     }
 
 };

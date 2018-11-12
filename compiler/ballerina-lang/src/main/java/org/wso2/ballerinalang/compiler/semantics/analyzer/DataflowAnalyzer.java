@@ -274,8 +274,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
-        SymbolEnv tyeDefEnv = SymbolEnv.createTypeDefEnv(typeDefinition, typeDefinition.symbol.scope, env);
-        analyzeNode(typeDefinition.typeNode, tyeDefEnv);
+        analyzeNode(typeDefinition.typeNode, env);
     }
 
     @Override
@@ -820,24 +819,25 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
-        objectTypeNode.fields.forEach(field -> analyzeNode(field, env));
+        SymbolEnv objectEnv = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, env);
+        objectTypeNode.fields.forEach(field -> analyzeNode(field, objectEnv));
 
         // Visit the constructor with the same scope as the object
         if (objectTypeNode.initFunction != null) {
             objectTypeNode.initFunction.requiredParams.forEach(param -> {
-                analyzeParam(objectTypeNode, param);
+                analyzeParam(objectTypeNode, param, objectEnv);
             });
 
             objectTypeNode.initFunction.defaultableParams.forEach(param -> {
-                analyzeParam(objectTypeNode, param.var);
+                analyzeParam(objectTypeNode, param.var, objectEnv);
             });
 
             if (objectTypeNode.initFunction.restParam != null) {
-                analyzeParam(objectTypeNode, objectTypeNode.initFunction.restParam);
+                analyzeParam(objectTypeNode, objectTypeNode.initFunction.restParam, objectEnv);
             }
 
             // Body should be visited after the params
-            objectTypeNode.initFunction.body.stmts.forEach(statement -> analyzeNode(statement, env));
+            objectTypeNode.initFunction.body.stmts.forEach(statement -> analyzeNode(statement, objectEnv));
 
             objectTypeNode.fields.stream().filter(field -> !Symbols.isPrivate(field.symbol)).forEach(field -> {
                 if (this.uninitializedVars.containsKey(field.symbol)) {
@@ -1024,7 +1024,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.env = prevEnv;
     }
 
-    private void analyzeParam(BLangObjectTypeNode objectTypeNode, BLangSimpleVariable param) {
+    private void analyzeParam(BLangObjectTypeNode objectTypeNode, BLangSimpleVariable param, SymbolEnv env) {
         if (param.type == symTable.noType || param.type == symTable.semanticError) {
             return;
         }

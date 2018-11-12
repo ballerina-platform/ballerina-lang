@@ -64,12 +64,12 @@ public type HttpSecureClient object {
     public function post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message) returns (Response|error) {
         Request req = buildRequest(message);
-        check generateSecureRequest(req, config);
-        Response response = check httpClient.post(path, req);
-        boolean isRetry = isRetryRequired(response, config);
+        check generateSecureRequest(req, self.config);
+        Response response = check self.httpClient.post(path, req);
+        boolean isRetry = isRetryRequired(response, self.config);
         if (isRetry) {
-            check updateRequestAndConfig(req, config);
-            return httpClient.post(path, req);
+            check updateRequestAndConfig(req, self.config);
+            return self.httpClient.post(path, req);
         }
         return response;
     }
@@ -84,12 +84,12 @@ public type HttpSecureClient object {
     public function head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message = ()) returns (Response|error) {
         Request req = buildRequest(message);
-        check generateSecureRequest(req, config);
-        Response response = check httpClient.head(path, message = req);
-        boolean isRetry = isRetryRequired(response, config);
+        check generateSecureRequest(req, self.config);
+        Response response = check self.httpClient.head(path, message = req);
+        boolean isRetry = isRetryRequired(response, self.config);
         if (isRetry) {
-            check updateRequestAndConfig(req, config);
-            return httpClient.head(path, message = req);
+            check updateRequestAndConfig(req, self.config);
+            return self.httpClient.head(path, message = req);
         }
         return response;
     }
@@ -104,12 +104,12 @@ public type HttpSecureClient object {
     public function put(string path,  Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message) returns (Response|error) {
         Request req = buildRequest(message);
-        check generateSecureRequest(req, config);
-        Response response = check httpClient.put(path, req);
-        boolean isRetry = isRetryRequired(response, config);
+        check generateSecureRequest(req, self.config);
+        Response response = check self.httpClient.put(path, req);
+        boolean isRetry = isRetryRequired(response, self.config);
         if (isRetry) {
-            check updateRequestAndConfig(req, config);
-            return httpClient.put(path, req);
+            check updateRequestAndConfig(req, self.config);
+            return self.httpClient.put(path, req);
         }
         return response;
     }
@@ -125,12 +125,12 @@ public type HttpSecureClient object {
     public function execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                              message) returns (Response|error) {
         Request req = buildRequest(message);
-        check generateSecureRequest(req, config);
-        Response response = check httpClient.execute(httpVerb, path, req);
-        boolean isRetry = isRetryRequired(response, config);
+        check generateSecureRequest(req, self.config);
+        Response response = check self.httpClient.execute(httpVerb, path, req);
+        boolean isRetry = isRetryRequired(response, self.config);
         if (isRetry) {
-            check updateRequestAndConfig(req, config);
-            return httpClient.execute(httpVerb, path, req);
+            check updateRequestAndConfig(req, self.config);
+            return self.httpClient.execute(httpVerb, path, req);
         }
         return response;
     }
@@ -145,12 +145,12 @@ public type HttpSecureClient object {
     public function patch(string path,  Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                             message) returns (Response|error) {
         Request req = buildRequest(message);
-        check generateSecureRequest(req, config);
-        Response response = check httpClient.patch(path, req);
-        boolean isRetry = isRetryRequired(response, config);
+        check generateSecureRequest(req, self.config);
+        Response response = check self.httpClient.patch(path, req);
+        boolean isRetry = isRetryRequired(response, self.config);
         if (isRetry) {
-            check updateRequestAndConfig(req, config);
-            return httpClient.patch(path, req);
+            check updateRequestAndConfig(req, self.config);
+            return self.httpClient.patch(path, req);
         }
         return response;
     }
@@ -165,12 +165,12 @@ public type HttpSecureClient object {
     public function delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                             message) returns (Response|error) {
         Request req = buildRequest(message);
-        check generateSecureRequest(req, config);
-        Response response = check httpClient.delete(path, req);
-        boolean isRetry = isRetryRequired(response, config);
+        check generateSecureRequest(req, self.config);
+        Response response = check self.httpClient.delete(path, req);
+        boolean isRetry = isRetryRequired(response, self.config);
         if (isRetry) {
-            check updateRequestAndConfig(req, config);
-            return httpClient.delete(path, req);
+            check updateRequestAndConfig(req, self.config);
+            return self.httpClient.delete(path, req);
         }
         return response;
     }
@@ -185,12 +185,12 @@ public type HttpSecureClient object {
     public function get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message = ()) returns (Response|error) {
         Request req = buildRequest(message);
-        check generateSecureRequest(req, config);
-        Response response = check httpClient.get(path, message = req);
-        boolean isRetry = isRetryRequired(response, config);
+        check generateSecureRequest(req, self.config);
+        Response response = check self.httpClient.get(path, message = req);
+        boolean isRetry = isRetryRequired(response, self.config);
         if (isRetry) {
-            check updateRequestAndConfig(req, config);
-            return httpClient.get(path, message = req);
+            check updateRequestAndConfig(req, self.config);
+            return self.httpClient.get(path, message = req);
         }
         return response;
     }
@@ -205,12 +205,12 @@ public type HttpSecureClient object {
     public function options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                             message = ()) returns (Response|error) {
         Request req = buildRequest(message);
-        check generateSecureRequest(req, config);
-        Response response = check httpClient.options(path, message = req);
-        boolean isRetry = isRetryRequired(response, config);
+        check generateSecureRequest(req, self.config);
+        Response response = check self.httpClient.options(path, message = req);
+        boolean isRetry = isRetryRequired(response, self.config);
         if (isRetry) {
-            check updateRequestAndConfig(req, config);
-            return httpClient.options(path, message = req);
+            check updateRequestAndConfig(req, self.config);
+            return self.httpClient.options(path, message = req);
         }
         return response;
     }
@@ -222,12 +222,12 @@ public type HttpSecureClient object {
     # + request - An HTTP inbound request message
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
     public function forward(string path, Request request) returns (Response|error) {
-        check generateSecureRequest(request, config);
-        Response response = check httpClient.forward(path, request);
-        boolean isRetry = isRetryRequired(response, config);
+        check generateSecureRequest(request, self.config);
+        Response response = check self.httpClient.forward(path, request);
+        boolean isRetry = isRetryRequired(response, self.config);
         if (isRetry) {
-            check updateRequestAndConfig(request, config);
-            return httpClient.forward(path, request);
+            check updateRequestAndConfig(request, self.config);
+            return self.httpClient.forward(path, request);
         }
         return response;
     }
@@ -243,8 +243,8 @@ public type HttpSecureClient object {
     public function submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message) returns (HttpFuture|error) {
         Request req = buildRequest(message);
-        check generateSecureRequest(req, config);
-        return httpClient.submit(httpVerb, path, req);
+        check generateSecureRequest(req, self.config);
+        return self.httpClient.submit(httpVerb, path, req);
     }
 
     # This just pass the request to actual network call.
@@ -252,7 +252,7 @@ public type HttpSecureClient object {
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - An HTTP response message, or an error if the invocation fails
     public function getResponse(HttpFuture httpFuture) returns (Response|error) {
-        return httpClient.getResponse(httpFuture);
+        return self.httpClient.getResponse(httpFuture);
     }
 
     # This just pass the request to actual network call.
@@ -260,7 +260,7 @@ public type HttpSecureClient object {
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - A `boolean` that represents whether a `PushPromise` exists
     public function hasPromise(HttpFuture httpFuture) returns boolean {
-        return httpClient.hasPromise(httpFuture);
+        return self.httpClient.hasPromise(httpFuture);
     }
 
     # This just pass the request to actual network call.
@@ -268,7 +268,7 @@ public type HttpSecureClient object {
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - An HTTP Push Promise message, or an error if the invocation fails
     public function getNextPromise(HttpFuture httpFuture) returns (PushPromise|error) {
-        return httpClient.getNextPromise(httpFuture);
+        return self.httpClient.getNextPromise(httpFuture);
     }
 
     # This just pass the request to actual network call.
@@ -276,14 +276,14 @@ public type HttpSecureClient object {
     # + promise - The related `PushPromise`
     # + return - A promised HTTP `Response` message, or an error if the invocation fails
     public function getPromisedResponse(PushPromise promise) returns (Response|error) {
-        return httpClient.getPromisedResponse(promise);
+        return self.httpClient.getPromisedResponse(promise);
     }
 
     # This just pass the request to actual network call.
     #
     # + promise - The Push Promise to be rejected
     public function rejectPromise(PushPromise promise) {
-        return httpClient.rejectPromise(promise);
+        return self.httpClient.rejectPromise(promise);
     }
 };
 

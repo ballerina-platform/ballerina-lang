@@ -43,7 +43,7 @@ public type JWTAuthProvider object {
         if (self.authCache.hasKey(jwtToken)) {
             match self.authenticateFromCache(jwtToken) {
                 internal:JwtPayload payload => {
-                    setAuthContext(payload, jwtToken);
+                    self.setAuthContext(payload, jwtToken);
                     return true;
                 }
                 () => {
@@ -54,7 +54,7 @@ public type JWTAuthProvider object {
 
         match internal:validate(jwtToken, self.jwtAuthProviderConfig) {
             internal:JwtPayload payload => {
-                setAuthContext(payload, jwtToken);
+                self.setAuthContext(payload, jwtToken);
                 self.addToAuthenticationCache(jwtToken, payload.exp, payload);
                 return true;
             }

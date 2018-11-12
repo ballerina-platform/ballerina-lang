@@ -541,11 +541,11 @@ public class TypeChecker extends BLangNodeVisitor {
             BSymbol symbol = symResolver.lookupSymbolInPackage(varRefExpr.pos, env,
                     names.fromIdNode(varRefExpr.pkgAlias), varName, SymTag.VARIABLE_NAME);
             // if no symbol, check same for object attached function
-            if (symbol == symTable.notFoundSymbol && env.enclTypeDefinition != null) {
+            if (symbol == symTable.notFoundSymbol && env.enclType != null) {
                 Name objFuncName = names.fromString(Symbols
-                        .getAttachedFuncSymbolName(env.enclTypeDefinition.name.value, varName.value));
+                        .getAttachedFuncSymbolName(env.enclType.type.tsymbol.name.value, varName.value));
                 symbol = symResolver.resolveStructField(varRefExpr.pos, env, objFuncName,
-                        env.enclTypeDefinition.symbol.type.tsymbol);
+                        env.enclType.type.tsymbol);
             }
             if ((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) {
                 BVarSymbol varSym = (BVarSymbol) symbol;
@@ -1668,11 +1668,11 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BSymbol funcSymbol = symTable.notFoundSymbol;
         // if no package alias, check for same object attached function
-        if (pkgAlias == Names.EMPTY && env.enclTypeDefinition != null) {
+        if (pkgAlias == Names.EMPTY && env.enclType != null) {
             Name objFuncName = names.fromString(Symbols.getAttachedFuncSymbolName(
-                    env.enclTypeDefinition.name.value, iExpr.name.value));
+                    env.enclType.type.tsymbol.name.value, iExpr.name.value));
             funcSymbol = symResolver.resolveStructField(iExpr.pos, env, objFuncName,
-                    env.enclTypeDefinition.symbol.type.tsymbol);
+                    env.enclType.type.tsymbol);
             if (funcSymbol != symTable.notFoundSymbol) {
                 iExpr.exprSymbol = symResolver.lookupSymbol(env, Names.SELF, SymTag.VARIABLE);
             }
@@ -2562,6 +2562,9 @@ public class TypeChecker extends BLangNodeVisitor {
                 BLangTypeTestExpr typeTest = (BLangTypeTestExpr) expr;
                 if (typeTest.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                     BVarSymbol varSymbol = (BVarSymbol) ((BLangSimpleVarRef) typeTest.expr).symbol;
+                    if (varSymbol == null) {
+                        break;
+                    }
                     if (!typeGuards.containsKey(varSymbol)) {
                         typeGuards.put(varSymbol, typeTest.typeNode.type);
                     } else {
