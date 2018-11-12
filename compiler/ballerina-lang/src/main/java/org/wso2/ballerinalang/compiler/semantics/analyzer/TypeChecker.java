@@ -2550,6 +2550,9 @@ public class TypeChecker extends BLangNodeVisitor {
                 BLangTypeTestExpr typeTest = (BLangTypeTestExpr) expr;
                 if (typeTest.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                     BVarSymbol varSymbol = (BVarSymbol) ((BLangSimpleVarRef) typeTest.expr).symbol;
+                    if (varSymbol == null) {
+                        break;
+                    }
                     if (!typeGuards.containsKey(varSymbol)) {
                         typeGuards.put(varSymbol, typeTest.typeNode.type);
                     } else {

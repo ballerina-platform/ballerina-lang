@@ -47,49 +47,42 @@ service<http:Service> hubService {
     }
     hub(endpoint client, http:Request request) {
         http:Response response = new;
-        string mode;
-        string topic;
+        string topic = "";
 
-        map<string> params = {};
-        match (request.getFormParams()) {
-            map<string> reqFormParamMap => { params = reqFormParamMap; }
-            error => {}
-        }
+        var reqFormParamMap = request.getFormParams();
+        map<string> params = reqFormParamMap is map<string> ? reqFormParamMap : {};
 
-        mode = params[HUB_MODE] but { () => "" } ;
+        string mode = params[HUB_MODE] ?: "";
 
-        match (params[HUB_TOPIC]) {
-            string topicFromParams => {
-                topic = http:decode(topicFromParams, "UTF-8") but { error => topicFromParams };
-            }
-            () => {
-                topic = "";
-            }
+        var topicFromParams = params[HUB_TOPIC];
+        if topicFromParams is string {
+            var decodedValue = http:decode(topicFromParams, "UTF-8");
+            topic = decodedValue is string ? decodedValue : topicFromParams;
         }
 
         if (mode == MODE_SUBSCRIBE || mode == MODE_UNSUBSCRIBE) {
             boolean validSubscriptionChangeRequest = false;
             // TODO: check the non-existing key at this point and return the 400
-            string callbackFromParams = params[HUB_CALLBACK] but { () => ""};
-            string callback = http:decode(callbackFromParams, "UTF-8") but { error => callbackFromParams };
-            match (validateSubscriptionChangeRequest(mode, topic, callback)) {
-                error err => {
-                    response.statusCode = http:BAD_REQUEST_400;
-                    string errorMessage = <string> err.detail().message;
-                    response.setTextPayload(errorMessage);
-                }
-                () => {
-                    validSubscriptionChangeRequest = true;
-                    response.statusCode = http:ACCEPTED_202;
-                }
+            var result = params[HUB_CALLBACK];
+            string callbackFromParams = params[HUB_CALLBACK] ?: "";
+            var decodedCallbackFromParams = http:decode(callbackFromParams, "UTF-8");
+            string callback = decodedCallbackFromParams is string ? decodedCallbackFromParams : callbackFromParams;
+            var validationStatus = validateSubscriptionChangeRequest(mode, topic, callback);
+            if (validationStatus is error) {
+                response.statusCode = http:BAD_REQUEST_400;
+                string errorMessage = <string> validationStatus.detail().message;
+                response.setTextPayload(errorMessage);
+            } else {
+                validSubscriptionChangeRequest = true;
+                response.statusCode = http:ACCEPTED_202;
             }
+
             var responseError = client->respond(response);
-            match(responseError) {
-                error e => log:printError("Error responding to subscription change request", err = e);
-                () => {
-                    if (validSubscriptionChangeRequest) {
-                        verifyIntentAndAddSubscription(callback, topic, params);
-                    }
+            if (responseError is error) {
+                log:printError("Error responding to subscription change request", err = responseError);
+            } else {
+                if (validSubscriptionChangeRequest) {
+                    verifyIntentAndAddSubscription(callback, topic, params);
                 }
             }
             done;
@@ -99,29 +92,25 @@ service<http:Service> hubService {
                 response.setTextPayload("Remote topic registration not allowed/not required at the Hub");
                 log:printWarn("Remote topic registration denied at Hub");
                 var responseError = client->respond(response);
-                match(responseError) {
-                    error e => log:printError("Error responding on remote topic registration failure", err = e);
-                    () => {}
+                if (responseError is error) {
+                    log:printError("Error responding on remote topic registration failure", err = responseError);
                 }
                 done;
             }
 
-            match(registerTopicAtHub(topic)) {
-                error e => {
-                    string errorMessage = <string> e.detail().message;
-                    response.statusCode = http:BAD_REQUEST_400;
-                    response.setTextPayload(errorMessage);
-                    log:printWarn("Topic registration unsuccessful at Hub for Topic[" + topic + "]: " + errorMessage);
-                }
-                () => {
-                    response.statusCode = http:ACCEPTED_202;
-                    log:printInfo("Topic registration successful at Hub, for topic[" + topic + "]");
-                }
+            var registerStatus = registerTopicAtHub(topic);
+            if (registerStatus is error) {
+                string errorMessage = <string> registerStatus.detail().message;
+                response.statusCode = http:BAD_REQUEST_400;
+                response.setTextPayload(errorMessage);
+                log:printWarn("Topic registration unsuccessful at Hub for Topic[" + topic + "]: " + errorMessage);
+            } else {
+                response.statusCode = http:ACCEPTED_202;
+                log:printInfo("Topic registration successful at Hub, for topic[" + topic + "]");
             }
             var responseError = client->respond(response);
-            match(responseError) {
-                error e => log:printError("Error responding remote topic registration status", err = e);
-                () => {}
+            if (responseError is error) {
+                log:printError("Error responding remote topic registration status", err = responseError);
             }
         } else if (mode == MODE_UNREGISTER) {
             if (!hubRemotePublishingEnabled || !hubTopicRegistrationRequired) {
@@ -129,36 +118,33 @@ service<http:Service> hubService {
                 response.setTextPayload("Remote unregistration not allowed/not required at the Hub");
                 log:printWarn("Remote topic unregistration denied at Hub");
                 var responseError = client->respond(response);
-                match(responseError) {
-                    error e => log:printError("Error responding on remote topic unregistration failure", err = e);
-                    () => {}
+                if (responseError is error) {
+                    log:printError("Error responding on remote topic unregistration failure", err = responseError);
                 }
                 done;
             }
 
-            match(unregisterTopicAtHub(topic)) {
-                error e => {
-                    string errorMessage = <string> e.detail().message;
-                    response.statusCode = http:BAD_REQUEST_400;
-                    response.setTextPayload(errorMessage);
-                    log:printWarn("Topic unregistration unsuccessful at Hub for Topic[" + topic + "]: " + errorMessage);
-                }
-                () => {
-                    response.statusCode = http:ACCEPTED_202;
-                    log:printInfo("Topic unregistration successful at Hub, for topic[" + topic + "]");
-                }
+            var unregisterStatus = unregisterTopicAtHub(topic);
+            if (unregisterStatus is error) {
+                string errorMessage = <string> unregisterStatus.detail().message;
+                response.statusCode = http:BAD_REQUEST_400;
+                response.setTextPayload(errorMessage);
+                log:printWarn("Topic unregistration unsuccessful at Hub for Topic[" + topic + "]: " + errorMessage);
+            } else {
+                response.statusCode = http:ACCEPTED_202;
+                log:printInfo("Topic unregistration successful at Hub, for topic[" + topic + "]");
             }
             var responseError = client->respond(response);
-            match(responseError) {
-                error e => log:printError("Error responding remote topic unregistration status", err = e);
-                () => {}
+            if (responseError is error) {
+                log:printError("Error responding remote topic unregistration status", err = responseError);
             }
         } else {
             if (mode != MODE_PUBLISH) {
                 params = request.getQueryParams();
-                mode = params[HUB_MODE] but { () => "" };
-                string topicFromParams = params[HUB_TOPIC] but { () => "" };
-                topic = http:decode(topicFromParams, "UTF-8") but { error => topicFromParams };
+                mode = params[HUB_MODE] ?: "";
+                string topicValue = params[HUB_TOPIC] ?: "";
+                var decodedTopic = http:decode(topicValue, "UTF-8");
+                topic = decodedTopic is string ? decodedTopic : topicValue;
             }
 
             if (mode == MODE_PUBLISH && hubRemotePublishingEnabled) {
@@ -167,77 +153,68 @@ service<http:Service> hubService {
                     string stringPayload;
                     string contentType = "";
                     if (hubRemotePublishMode == PUBLISH_MODE_FETCH) {
-                        match (fetchTopicUpdate(topic)) {
-                            http:Response fetchResp => {
-                                binaryPayload = fetchResp.getBinaryPayload();
-                                if (fetchResp.hasHeader(CONTENT_TYPE)) {
-                                    contentType = fetchResp.getHeader(CONTENT_TYPE);
-                                }
-                                stringPayload = fetchResp.getPayloadAsString() but { error => "" };
+                        var fetchResponse = fetchTopicUpdate(topic);
+                        if (fetchResponse is http:Response) {
+                            binaryPayload = fetchResponse.getBinaryPayload();
+                            if (fetchResponse.hasHeader(CONTENT_TYPE)) {
+                                contentType = fetchResponse.getHeader(CONTENT_TYPE);
                             }
-                            error err => {
-                                string errorCause = <string> err.detail().message;
-                                string errorMessage = "Error fetching updates for topic URL [" + topic + "]: "
-                                                        + errorCause;
-                                log:printError(errorMessage);
-                                response.setTextPayload(errorMessage);
-                                response.statusCode = http:BAD_REQUEST_400;
-                                var responseError = client->respond(response);
-                                match(responseError) {
-                                    error e => log:printError("Error responding on update fetch failure", err = e);
-                                    () => {}
-                                }
-                                done;
+                            var fetchedPayload = fetchResponse.getPayloadAsString();
+                            stringPayload = fetchedPayload is string ? fetchedPayload : "";
+                        } else if (fetchResponse is error) {
+                            string errorCause = <string> fetchResponse.detail().message;
+                            string errorMessage = "Error fetching updates for topic URL [" + topic + "]: "
+                                                    + errorCause;
+                            log:printError(errorMessage);
+                            response.setTextPayload(errorMessage);
+                            response.statusCode = http:BAD_REQUEST_400;
+                            var responseError = client->respond(response);
+                            if (responseError is error) {
+                                log:printError("Error responding on update fetch failure", err = responseError);
                             }
+                            done;
                         }
                     } else {
                         binaryPayload = request.getBinaryPayload();
                         if (request.hasHeader(CONTENT_TYPE)) {
                             contentType = request.getHeader(CONTENT_TYPE);
                         }
-                        stringPayload = request.getPayloadAsString() but { error => "" };
+                        var result = request.getPayloadAsString();
+                        stringPayload = result is string ? result : "";
                     }
 
                     error? publishStatus = ();
-                    match (binaryPayload) {
-                        byte[] payload => {
-                            WebSubContent notification = { payload:payload, contentType:contentType };
-                            publishStatus = publishToInternalHub(topic, notification);
+                    if (binaryPayload is byte[]) {
+                        WebSubContent notification = { payload:binaryPayload, contentType:contentType };
+                        publishStatus = publishToInternalHub(topic, notification);
+                    } else if (binaryPayload is error) {
+                        string errorCause = <string> binaryPayload.detail().message;
+                        string errorMessage = "Error extracting payload: " + errorCause;
+                        log:printError(errorMessage);
+                        response.statusCode = http:BAD_REQUEST_400;
+                        response.setTextPayload(errorMessage);
+                        var responseError = client->respond(response);
+                        if (responseError is error) {
+                            log:printError("Error responding on payload extraction failure for"
+                                                    + " publish request", err = responseError);
                         }
-                        error err => {
-                            string errorCause = <string> err.detail().message;
-                            string errorMessage = "Error extracting payload: " + errorCause;
-                            log:printError(errorMessage);
-                            response.statusCode = http:BAD_REQUEST_400;
-                            response.setTextPayload(errorMessage);
-                            var responseError = client->respond(response);
-                            match(responseError) {
-                                error e => log:printError("Error responding on payload extraction failure for"
-                                                            + " publish request", err = e);
-                                () => {}
-                            }
-                            done;
-                        }
+                        done;
                     }
 
-                    match(publishStatus) {
-                        error err => {
-                            string errorCause = <string> err.detail().message;
-                            string errorMessage = "Update notification failed for Topic [" + topic + "]: " + errorCause;
-                            response.setTextPayload(errorMessage);
-                            log:printError(errorMessage);
+                    if (publishStatus is error) {
+                        string errorCause = <string> publishStatus.detail().message;
+                        string errorMessage = "Update notification failed for Topic [" + topic + "]: " + errorCause;
+                        response.setTextPayload(errorMessage);
+                        log:printError(errorMessage);
+                    } else {
+                        log:printInfo("Update notification done for Topic [" + topic + "]");
+                        response.statusCode = http:ACCEPTED_202;
+                        var responseError = client->respond(response);
+                        if (responseError is error) {
+                            log:printError("Error responding on update notification for topic[" + topic
+                                                    + "]", err = responseError);
                         }
-                        () => {
-                            log:printInfo("Update notification done for Topic [" + topic + "]");
-                            response.statusCode = http:ACCEPTED_202;
-                            var responseError = client->respond(response);
-                            match(responseError) {
-                                error e => log:printError("Error responding on update notification for topic[" + topic
-                                                            + "]", err = e);
-                                () => {}
-                            }
-                            done;
-                        }
+                        done;
                     }
                 } else {
                     string errorMessage = "Publish request denied for unregistered topic[" + topic + "]";
@@ -246,16 +223,14 @@ service<http:Service> hubService {
                 }
                 response.statusCode = http:BAD_REQUEST_400;
                 var responseError = client->respond(response);
-                match(responseError) {
-                    error e => log:printError("Error responding to publish request", err = e);
-                    () => {}
+                if (responseError is error) {
+                    log:printError("Error responding to publish request", err = responseError);
                 }
             } else {
                 response.statusCode = http:BAD_REQUEST_400;
                 var responseError = client->respond(response);
-                match(responseError) {
-                    error e => log:printError("Error responding to request", err = e);
-                    () => {}
+                if (responseError is error) {
+                    log:printError("Error responding to request", err = responseError);
                 }
             }
         }
@@ -298,8 +273,8 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
         secureSocket: hubClientSecureSocket
     };
 
-    string mode = params[HUB_MODE] but { () => "" };
-    string strLeaseSeconds = params[HUB_LEASE_SECONDS] but { () => "" };
+    string mode = params[HUB_MODE] ?: "";
+    string strLeaseSeconds = params[HUB_LEASE_SECONDS] ?: "";
     int leaseSeconds = <int>strLeaseSeconds but {error => 0};
 
     //measured from the time the verification request was made from the hub to the subscriber from the recommendation
@@ -322,63 +297,52 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
 
     var subscriberResponse = callbackEp->get(untaint ("?" + queryParams), message = request);
 
-    match (subscriberResponse) {
-        http:Response response => {
-            var respStringPayload = response.getTextPayload();
-            match (respStringPayload) {
-                string payload => {
-                    if (payload != challenge) {
-                        log:printInfo("Intent verification failed for mode: [" + mode + "], for callback URL: ["
-                                + callback + "]: Challenge not echoed correctly.");
-                    } else {
-                        SubscriptionDetails subscriptionDetails = {topic:topic, callback:callback};
-                        if (mode == MODE_SUBSCRIBE) {
-                            subscriptionDetails.leaseSeconds = leaseSeconds * 1000;
-                            subscriptionDetails.createdAt = createdAt;
-                            subscriptionDetails.secret = params[HUB_SECRET] but { () => "" };
-                            if (!isTopicRegistered(topic)) {
-                                match(registerTopicAtHub(topic)) {
-                                    error e => {
-                                        string errCause = <string> e.detail().message;
-                                        log:printError("Error registering topic for subscription: " + errCause);
-                                    }
-                                    () => {}
-                                }
-                            }
-                            addSubscription(subscriptionDetails);
-                        } else {
-                            removeSubscription(topic, callback);
+    if (subscriberResponse is http:Response) {
+        var respStringPayload = subscriberResponse.getTextPayload();
+        if (respStringPayload is string) {
+            if (respStringPayload != challenge) {
+                log:printInfo("Intent verification failed for mode: [" + mode + "], for callback URL: ["
+                        + callback + "]: Challenge not echoed correctly.");
+            } else {
+                SubscriptionDetails subscriptionDetails = {topic:topic, callback:callback};
+                if (mode == MODE_SUBSCRIBE) {
+                    subscriptionDetails.leaseSeconds = leaseSeconds * 1000;
+                    subscriptionDetails.createdAt = createdAt;
+                    subscriptionDetails.secret = params[HUB_SECRET] but { () => "" };
+                    if (!isTopicRegistered(topic)) {
+                        var registerStatus = registerTopicAtHub(topic);
+                        if (registerStatus is error) {
+                            string errCause = <string> registerStatus.detail().message;
+                            log:printError("Error registering topic for subscription: " + errCause);
                         }
-
-                        if (hubPersistenceEnabled) {
-                            changeSubscriptionInDatabase(mode, subscriptionDetails);
-                        }
-                        log:printInfo("Intent verification successful for mode: [" + mode + "], for callback URL: ["
-                                + callback + "]");
                     }
+                    addSubscription(subscriptionDetails);
+                } else {
+                    removeSubscription(topic, callback);
                 }
-                error payloadError => {
-                    string errCause = <string> payloadError.detail().message;
-                    log:printInfo("Intent verification failed for mode: [" + mode + "], for callback URL: [" + callback
-                            + "]: Error retrieving response payload: " + errCause);
+
+                if (hubPersistenceEnabled) {
+                    changeSubscriptionInDatabase(mode, subscriptionDetails);
                 }
+                log:printInfo("Intent verification successful for mode: [" + mode + "], for callback URL: ["
+                        + callback + "]");
             }
+        } else if (respStringPayload is error) {
+            string errCause = <string> respStringPayload.detail().message;
+            log:printInfo("Intent verification failed for mode: [" + mode + "], for callback URL: [" + callback
+                    + "]: Error retrieving response payload: " + errCause);
         }
-        error httpConnectorError => {
-            string errCause = <string> httpConnectorError.detail().message;
-            log:printInfo("Error sending intent verification request for callback URL: [" + callback
-                    + "]: " + errCause);
-        }
+    } else if (subscriberResponse is error) {
+        string errCause = <string> subscriberResponse.detail().message;
+        log:printInfo("Error sending intent verification request for callback URL: [" + callback + "]: " + errCause);
     }
     PendingSubscriptionChangeRequest pendingSubscriptionChangeRequest = new(mode, topic, callback);
     string key = generateKey(topic, callback);
-    match (pendingRequests[key]) {
-        PendingSubscriptionChangeRequest retrievedRequest => {
-            if (pendingSubscriptionChangeRequest.equals(retrievedRequest)) {
-                _ = pendingRequests.remove(key);
-            }
+    var retrievedRequest = pendingRequests[key];
+    if (retrievedRequest is PendingSubscriptionChangeRequest) {
+        if (pendingSubscriptionChangeRequest.equals(retrievedRequest)) {
+            _ = pendingRequests.remove(key);
         }
-        () => {}
     }
 }
 
@@ -397,22 +361,20 @@ function changeTopicRegistrationInDatabase(string mode, string topic) {
 
     sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:topic};
     if (mode == MODE_REGISTER) {
-        var updateStatus = subscriptionDbEp->update("INSERT INTO topics (topic) VALUES (?)", para1);
-        match (updateStatus) {
-            int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for registration");
-            error err => {
-                string errCause = <string> err.detail().message;
-                log:printError("Error occurred updating registration data: " + errCause);
-            }
+        var rowCount = subscriptionDbEp->update("INSERT INTO topics (topic) VALUES (?)", para1);
+        if (rowCount is int) {
+            log:printInfo("Successfully updated " + rowCount + " entries for registration");
+        } else if (rowCount is error) {
+            string errCause = <string> rowCount.detail().message;
+            log:printError("Error occurred updating registration data: " + errCause);
         }
     } else {
-        var updateStatus = subscriptionDbEp->update("DELETE FROM topics WHERE topic=?", para1);
-        match (updateStatus) {
-            int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for unregistration");
-            error err => {
-                string errCause = <string> err.detail().message;
-                log:printError("Error occurred updating unregistration data: " + errCause);
-            }
+        var rowCount = subscriptionDbEp->update("DELETE FROM topics WHERE topic=?", para1);
+        if (rowCount is int) {
+            log:printInfo("Successfully updated " + rowCount + " entries for unregistration");
+        } else if (rowCount is error) {
+            string errCause = <string> rowCount.detail().message;
+            log:printError("Error occurred updating unregistration data: " + errCause);
         }
     }
     subscriptionDbEp.stop();
@@ -437,27 +399,25 @@ function changeSubscriptionInDatabase(string mode, SubscriptionDetails subscript
         sql:Parameter para3 = {sqlType:sql:TYPE_VARCHAR, value:subscriptionDetails.secret};
         sql:Parameter para4 = {sqlType:sql:TYPE_BIGINT, value:subscriptionDetails.leaseSeconds};
         sql:Parameter para5 = {sqlType:sql:TYPE_BIGINT, value:subscriptionDetails.createdAt};
-        var updateStatus = subscriptionDbEp->update("INSERT INTO subscriptions"
+        var rowCount = subscriptionDbEp->update("INSERT INTO subscriptions"
                 + " (topic,callback,secret,lease_seconds,created_at) VALUES (?,?,?,?,?) ON"
                 + " DUPLICATE KEY UPDATE secret=?, lease_seconds=?,created_at=?",
             untaint para1, untaint para2, untaint para3, untaint para4, untaint para5);
-        match (updateStatus) {
-            int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for subscription");
-            error err => {
-                string errCause = <string> err.detail().message;
-                log:printError("Error occurred updating subscription data: " + errCause);
-            }
+        if (rowCount is int) {
+            log:printInfo("Successfully updated " + rowCount + " entries for subscription");
+        } else if (rowCount is error) {
+            string errCause = <string> rowCount.detail().message;
+            log:printError("Error occurred updating subscription data: " + errCause);
         }
     } else {
-        var updateStatus = subscriptionDbEp->update("DELETE FROM subscriptions WHERE topic=? AND callback=?",
+        var rowCount = subscriptionDbEp->update("DELETE FROM subscriptions WHERE topic=? AND callback=?",
             untaint para1, untaint para2);
 
-        match (updateStatus) {
-            int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for unsubscription");
-            error err => {
-                string errCause = <string> err.detail().message;
-                log:printError("Error occurred updating unsubscription data: " + errCause);
-            }
+        if (rowCount is int) {
+            log:printInfo("Successfully updated " + rowCount + " entries for unsubscription");
+        } else if (rowCount is error) {
+            string errCause = <string> rowCount.detail().message;
+            log:printError("Error occurred updating unsubscription data: " + errCause);
         }
     }
     subscriptionDbEp.stop();
@@ -482,30 +442,24 @@ function addTopicRegistrationsOnStartup() {
         poolOptions: { maximumPoolSize:5 }
     };
     var dbResult = subscriptionDbEp->select("SELECT * FROM topics", TopicRegistration);
-    match (dbResult) {
-        table dt => {
-            while (dt.hasNext()) {
-                match (<TopicRegistration>dt.getNext()) {
-                    TopicRegistration registrationDetails => {
-                        match(registerTopicAtHub(registrationDetails.topic, loadingOnStartUp = true)) {
-                            error e => {
-                                string errCause = <string> e.detail().message;
-                                log:printError("Error registering topic details retrieved from the database: " + errCause);
-                            }
-                            () => {}
-                        }
-                    }
-                    error convError => {
-                        string errCause = <string> convError.detail().message;
-                        log:printError("Error retreiving topic registration details from the database: " + errCause);
-                    }
+    if (dbResult is table) {
+        table dt = dbResult;
+        while (dt.hasNext()) {
+            var registrationDetails = <TopicRegistration>dt.getNext();
+            if (registrationDetails is TopicRegistration) {
+                var registerStatus = registerTopicAtHub(registrationDetails.topic, loadingOnStartUp = true);
+                if (registerStatus is error) {
+                    string errCause = <string> registerStatus.detail().message;
+                    log:printError("Error registering topic details retrieved from the database: "+ errCause);
                 }
+            } else if (registrationDetails is error) {
+                string errCause = <string> registrationDetails.detail().message;
+                log:printError("Error retreiving topic registration details from the database: " + errCause);
             }
         }
-        error sqlErr => {
-            string errCause = <string> sqlErr.detail().message;
-            log:printError("Error retreiving data from the database: " + errCause);
-        }
+    } else if (dbResult is error) {
+        string errCause = <string> dbResult.detail().message;
+        log:printError("Error retreiving data from the database: " + errCause);
     }
     subscriptionDbEp.stop();
 }
@@ -526,24 +480,20 @@ function addSubscriptionsOnStartup() {
 
     var dbResult = subscriptionDbEp->select("SELECT topic, callback, secret, lease_seconds, created_at"
             + " FROM subscriptions", SubscriptionDetails);
-    match (dbResult) {
-        table dt => {
-            while (dt.hasNext()) {
-                match (<SubscriptionDetails>dt.getNext()) {
-                    SubscriptionDetails subscriptionDetails => {
-                        addSubscription(subscriptionDetails);
-                    }
-                    error convError => {
-                        string errCause = <string> convError.detail().message;
-                        log:printError("Error retreiving subscription details from the database: " + errCause);
-                    }
-                }
+    if (dbResult is table) {
+        table dt = dbResult;
+        while (dt.hasNext()) {
+            var subscriptionDetails = <SubscriptionDetails>dt.getNext();
+            if (subscriptionDetails is SubscriptionDetails) {
+                addSubscription(subscriptionDetails);
+            } else if (subscriptionDetails is error) {
+                string errCause = <string> subscriptionDetails.detail().message;
+                log:printError("Error retreiving subscription details from the database: " + errCause);
             }
         }
-        error sqlErr => {
-            string errCause = <string> sqlErr.detail().message;
-            log:printError("Error retreiving data from the database: " + errCause);
-        }
+    } else if (dbResult is error) {
+        string errCause = <string> dbResult.detail().message;
+        log:printError("Error retreiving data from the database: " + errCause);
     }
     subscriptionDbEp.stop();
 }
@@ -559,21 +509,15 @@ function clearSubscriptionDataInDb() {
     };
 
     var dbResult = subscriptionDbEp->update("DELETE FROM subscriptions");
-    match(dbResult) {
-        int => {}
-        error sqlErr => {
-            string errCause = <string> sqlErr.detail().message;
-            log:printError("Error deleting subscription data from the database: " + errCause);
-        }
+    if (dbResult is error) {
+        string errCause = <string> dbResult.detail().message;
+        log:printError("Error deleting subscription data from the database: " + errCause);
     }
 
     dbResult = subscriptionDbEp->update("DELETE FROM topics");
-    match(dbResult) {
-        int => {}
-        error sqlErr => {
-            string errCause = <string> sqlErr.detail().message;
-            log:printError("Error deleting topic data from the database: " + errCause);
-        }
+    if (dbResult is error) {
+        string errCause = <string> dbResult.detail().message;
+        log:printError("Error deleting topic data from the database: " + errCause);
     }
 
     subscriptionDbEp.stop();
@@ -638,30 +582,27 @@ function distributeContent(string callback, SubscriptionDetails subscriptionDeta
         request.setHeader(X_HUB_UUID, system:uuid());
         request.setHeader(X_HUB_TOPIC, subscriptionDetails.topic);
         request.setHeader("Link", buildWebSubLinkHeader(hubPublicUrl, subscriptionDetails.topic));
-        var contentDistributionRequest = callbackEp->post("", request);
-        match (contentDistributionRequest) {
-            http:Response response => {
-                int respStatusCode = response.statusCode;
-                if (isSuccessStatusCode(respStatusCode)) {
-                    log:printDebug("Content delivery to callback[" + callback
-                                    + "] successful for topic[" + subscriptionDetails.topic + "]");
-                } else if (respStatusCode == http:GONE_410) {
-                    removeSubscription(subscriptionDetails.topic, callback);
-                    if (hubPersistenceEnabled) {
-                        changeSubscriptionInDatabase(MODE_UNSUBSCRIBE, subscriptionDetails);
-                    }
-                    log:printInfo("HTTP 410 response code received: Subscription deleted for callback[" + callback
-                                    + "], topic[" + subscriptionDetails.topic + "]");
-                } else {
-                    log:printError("Error delievering content to callback[" + callback + "] for topic["
-                                + subscriptionDetails.topic + "]: received response code " + respStatusCode);
+        var contentDistributionResponse = callbackEp->post("", request);
+        if (contentDistributionResponse is http:Response) {
+            int respStatusCode = contentDistributionResponse.statusCode;
+            if (isSuccessStatusCode(respStatusCode)) {
+                log:printDebug("Content delivery to callback[" + callback
+                                + "] successful for topic[" + subscriptionDetails.topic + "]");
+            } else if (respStatusCode == http:GONE_410) {
+                removeSubscription(subscriptionDetails.topic, callback);
+                if (hubPersistenceEnabled) {
+                    changeSubscriptionInDatabase(MODE_UNSUBSCRIBE, subscriptionDetails);
                 }
-            }
-            error err => {
-                string errCause = <string> err.detail().message;
+                log:printInfo("HTTP 410 response code received: Subscription deleted for callback[" + callback
+                                + "], topic[" + subscriptionDetails.topic + "]");
+            } else {
                 log:printError("Error delievering content to callback[" + callback + "] for topic["
-                                + subscriptionDetails.topic + "]: " + errCause);
+                            + subscriptionDetails.topic + "]: received response code " + respStatusCode);
             }
+        } else if (contentDistributionResponse is error) {
+            string errCause = <string> contentDistributionResponse.detail().message;
+            log:printError("Error delievering content to callback[" + callback + "] for topic["
+                            + subscriptionDetails.topic + "]: " + errCause);
         }
     }
 }
