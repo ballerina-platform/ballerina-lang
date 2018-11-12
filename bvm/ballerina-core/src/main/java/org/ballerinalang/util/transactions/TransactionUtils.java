@@ -54,11 +54,30 @@ public class TransactionUtils {
         return returns;
     }
 
-    public static void notifyTransactionEnd(WorkerExecutionContext ctx, String globalTransactionId,
+    @SuppressWarnings("unchecked")
+    public static CoordinatorCommit notifyTransactionEnd(WorkerExecutionContext ctx, String globalTransactionId,
             int transactionBlockId) {
         BValue[] args = {new BString(globalTransactionId), new BInteger(transactionBlockId)};
         BValue[] returns = invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_END_TRANSACTION, args);
         checkTransactionCoordinatorError(returns[0], ctx, "error in transaction end: ");
+
+        switch (returns[0].getType().getTag()) {
+            case TypeTags.STRING_TAG:
+                String statusMessage = returns[0].stringValue();
+                if (statusMessage.equals("committed")) {
+                    return CoordinatorCommit.COMMITTED;
+                }
+                return CoordinatorCommit.ABORTED;
+            case TypeTags.MAP_TAG:
+                // is this the error?
+                CoordinatorCommit error = CoordinatorCommit.ERROR;
+                BMap<String, BValue> errorMap = (BMap<String, BValue>) returns[0];
+                error.setStatus("error str taken from map");
+                return error;
+            default:
+                throw new IllegalStateException("Transaction coordinator returned unexpected result upon trx end: "
+                        + returns[0].stringValue());
+        }
     }
 
     public static void notifyTransactionAbort(WorkerExecutionContext ctx, String globalTransactionId,
@@ -90,5 +109,21 @@ public class TransactionUtils {
         PackageInfo packageInfo = ctx.programFile.getPackageInfo(TransactionConstants.COORDINATOR_PACKAGE);
         FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
         return BLangFunctions.invokeCallable(functionInfo, args);
+    }
+
+    public enum CoordinatorCommit {
+        COMMITTED,
+        ABORTED,
+        ERROR;
+
+        private String status;
+
+        public String getStatus() {
+            return this.status;
+        }
+
+        public void setStatus(String status) {
+            this.status = status;
+        }
     }
 }
