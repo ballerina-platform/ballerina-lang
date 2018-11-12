@@ -38,7 +38,7 @@ public class MatchStatementStaticPatternsTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/statements/matchstmt/static-match-patterns.bal");
+        result = BCompileUtil.compile("test-src/statements/matchstmt/static_match_patterns.bal");
         resultNegative = BCompileUtil.compile("test-src/statements/matchstmt/static_match_patterns_negative.bal");
         resultNegative2 = BCompileUtil.
                 compile("test-src/statements/matchstmt/unreachable_static_match_patterns_negative.bal");
