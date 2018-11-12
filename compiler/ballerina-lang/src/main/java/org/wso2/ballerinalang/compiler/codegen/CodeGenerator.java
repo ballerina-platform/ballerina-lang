@@ -2783,12 +2783,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             return;
         }
 
-        //check both a field and parent are in locked variables
-        if (!lockNode.lockVariables.isEmpty()) {
-            lockNode.fieldVariables.keySet().removeIf(expression -> lockNode.lockVariables.
-                    contains((expression).expr.symbol));
-        }
-
         //remove objects initialized within lock
         lockNode.fieldVariables.keySet().removeIf(expr -> (
                 (BVarSymbol) expr.expr.symbol).varIndex == null);
