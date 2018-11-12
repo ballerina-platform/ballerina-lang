@@ -28,7 +28,6 @@ import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
-import org.ballerinalang.model.types.ReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
@@ -169,6 +168,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStaticBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtTypedBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
@@ -2964,8 +2964,13 @@ public class Desugar extends BLangNodeVisitor {
         BLangIf parentIfNode = generateIfElseStmt(patterns.get(0), matchExprVar);
         BLangIf currentIfNode = parentIfNode;
         for (int i = 1; i < patterns.size(); i++) {
-            currentIfNode.elseStmt = generateIfElseStmt(patterns.get(i), matchExprVar);
-            currentIfNode = (BLangIf) currentIfNode.elseStmt;
+            BLangMatchStmtBindingPatternClause patternClause = patterns.get(i);
+            if (i == patterns.size() - 1 && patternClause.isLastPattern) { // This is the last pattern
+                currentIfNode.elseStmt = getMatchPatternBody(patternClause, matchExprVar);
+            } else {
+                currentIfNode.elseStmt = generateIfElseStmt(patternClause, matchExprVar);
+                currentIfNode = (BLangIf) currentIfNode.elseStmt;
+            }
         }
 
         // TODO handle json and any
@@ -2999,7 +3004,20 @@ public class Desugar extends BLangNodeVisitor {
 
         if (NodeKind.MATCH_STATIC_PATTERN_CLAUSE == pattern.getKind()) { // static match patterns
             body = pattern.body;
-        } else if (NodeKind.MATCH_TYPED_PATTERN_CLAUSE == pattern.getKind()) { // old match patterns
+        } else if (NodeKind.MATCH_STRUCTURED_PATTERN_CLAUSE == pattern.getKind()) { // structured match patterns
+            BLangMatchStmtStructuredBindingPatternClause structuredPattern =
+                    (BLangMatchStmtStructuredBindingPatternClause) pattern;
+            BLangStatement varDefStmt;
+            if (NodeKind.TUPLE_VARIABLE == structuredPattern.bindingPatternVariable.getKind()) {
+                varDefStmt = ASTBuilderUtil.createTupleVariableDef(pattern.pos,
+                        (BLangTupleVariable) structuredPattern.bindingPatternVariable);
+            } else {
+                varDefStmt = ASTBuilderUtil.createVariableDef(pattern.pos,
+                        (BLangSimpleVariable) structuredPattern.bindingPatternVariable);
+            }
+            structuredPattern.body.stmts.add(0, varDefStmt);
+            body = structuredPattern.body;
+        } else if (NodeKind.MATCH_TYPED_PATTERN_CLAUSE == pattern.getKind()) { // typed match patterns
             BLangMatchStmtTypedBindingPatternClause patternClause = (BLangMatchStmtTypedBindingPatternClause) pattern;
             // Add the variable definition to the body of the pattern clause
             if (patternClause.variable.name.value.equals(Names.IGNORE.value)) {
@@ -3067,18 +3085,21 @@ public class Desugar extends BLangNodeVisitor {
         BType patternType;
 
         switch (patternClause.getKind()) {
-            case MATCH_TYPED_PATTERN_CLAUSE:
-                BLangMatchStmtTypedBindingPatternClause simplePattern =
-                        (BLangMatchStmtTypedBindingPatternClause) patternClause;
-                patternType = simplePattern.variable.type;
-                break;
             case MATCH_STATIC_PATTERN_CLAUSE:
                 BLangMatchStmtStaticBindingPatternClause staticPattern =
                         (BLangMatchStmtStaticBindingPatternClause) patternClause;
                 patternType = staticPattern.literal.type;
                 break;
+            case MATCH_STRUCTURED_PATTERN_CLAUSE:
+                BLangMatchStmtStructuredBindingPatternClause structuredPattern =
+                        (BLangMatchStmtStructuredBindingPatternClause) patternClause;
+                patternType = structuredPattern.bindingPatternVariable.type;
+                break;
             default:
-                throw new UnsupportedOperationException("Unsupported match pattern");
+                BLangMatchStmtTypedBindingPatternClause simplePattern =
+                        (BLangMatchStmtTypedBindingPatternClause) patternClause;
+                patternType = simplePattern.variable.type;
+                break;
         }
 
         BLangExpression binaryExpr;
@@ -3138,6 +3159,10 @@ public class Desugar extends BLangNodeVisitor {
             }
 
             return binaryExpr;
+        }
+
+        if (NodeKind.MATCH_STRUCTURED_PATTERN_CLAUSE == patternClause.getKind()) {
+            return createIsAssignableExpression(pos, varSymbol, patternType);
         }
 
         if (patternType == symTable.nilType) {

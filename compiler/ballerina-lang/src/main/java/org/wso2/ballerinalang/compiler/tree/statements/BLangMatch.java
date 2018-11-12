@@ -78,6 +78,16 @@ public class BLangMatch extends BLangStatement implements MatchNode {
     }
 
     @Override
+    public List<BLangMatchStmtStructuredBindingPatternClause> getStructuredPatternClauses() {
+        return patternClauses
+                .stream()
+                .filter(pattern -> NodeKind.MATCH_STRUCTURED_PATTERN_CLAUSE == (pattern.getKind()))
+                .map(BLangMatchStmtStructuredBindingPatternClause.class::cast)
+                .collect(Collectors.toList());
+    }
+
+
+    @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
@@ -99,6 +109,12 @@ public class BLangMatch extends BLangStatement implements MatchNode {
 
         // pattern clause's body
         public BLangBlockStmt body;
+
+        // match stmt expr
+        public BLangExpression matchExpr;
+
+        // flag to set the last pattern clause
+        public boolean isLastPattern;
     }
 
     /**

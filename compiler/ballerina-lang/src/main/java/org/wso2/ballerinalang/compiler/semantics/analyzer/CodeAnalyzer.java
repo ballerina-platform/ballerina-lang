@@ -52,6 +52,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
@@ -113,6 +114,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStaticBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtTypedBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
@@ -524,6 +526,52 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!matchStmt.getStaticPatternClauses().isEmpty()) {
             analyzeStaticMatchPatterns(matchStmt);
         }
+
+        if (!matchStmt.getStructuredPatternClauses().isEmpty()) {
+            analyzeStructuredMatchPatterns(matchStmt);
+        }
+    }
+
+    private void analyzeStructuredMatchPatterns(BLangMatch matchStmt) {
+        if (matchStmt.exprTypes.isEmpty()) {
+            return;
+        }
+
+        List<BLangVariable> matchedSimplePatterns = new ArrayList<>();
+        List<BLangVariable> matchedRecordPatterns = new ArrayList<>();
+        List<BLangVariable> matchedTuplePatterns = new ArrayList<>();
+
+        for (BLangMatchStmtStructuredBindingPatternClause pattern : matchStmt.getStructuredPatternClauses()) {
+            if (pattern.bindingPatternVariable.type.tag == TypeTags.MAP) {
+                matchedRecordPatterns.add(pattern.bindingPatternVariable);
+                continue;
+            }
+
+            if (pattern.bindingPatternVariable.type.tag == TypeTags.TUPLE) {
+                matchedTuplePatterns.add(pattern.bindingPatternVariable);
+                continue;
+            }
+
+            matchedSimplePatterns.add(pattern.bindingPatternVariable);
+        }
+
+        analyseUnreachableStructuredBindingPatterns(matchedSimplePatterns, matchStmt.expr.type);
+        analyseUnreachableStructuredBindingPatterns(matchedRecordPatterns, matchStmt.expr.type);
+        analyseUnreachableStructuredBindingPatterns(matchedTuplePatterns, matchStmt.expr.type);
+    }
+
+    private void analyseUnreachableStructuredBindingPatterns(List<BLangVariable> matchedPatterns, BType matchExpType) {
+        for (int i = 0; i < matchedPatterns.size(); i++) {
+            for (int j = i + 1; j < matchedPatterns.size(); j++) {
+                BLangVariable precedingPattern = matchedPatterns.get(i);
+                BLangVariable currentPattern = matchedPatterns.get(j);
+                if (types.isAssignable(precedingPattern.type, matchExpType) &&
+                        types.isAssignable(currentPattern.type, matchExpType)) {
+                    dlog.error(currentPattern.pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN);
+                    matchedPatterns.remove(j--);
+                }
+            }
+        }
     }
 
     private void analyzeStaticMatchPatterns(BLangMatch matchStmt) {
@@ -654,8 +702,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
 
             return IntStream.range(0, literalTupleType.tupleTypes.size())
-                    .allMatch(i ->
-                            isValidMatchPattern(matchTupleType.tupleTypes.get(i), tupleLiteral.expressions.get(i)));
+                    .allMatch(i -> isValidMatchPattern(matchTupleType.tupleTypes.get(i),
+                            tupleLiteral.expressions.get(i)));
         }
 
         if (literal.type.tag == TypeTags.MAP && matchType.tag == TypeTags.MAP) {

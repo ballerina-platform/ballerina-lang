@@ -956,7 +956,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             exprTypes = Lists.of(exprType);
         }
 
-        matchNode.patternClauses.forEach(patternClause -> patternClause.accept(this));
+        matchNode.patternClauses.forEach(patternClause -> {
+            patternClause.matchExpr = matchNode.expr;
+            patternClause.accept(this);
+        });
         matchNode.exprTypes = exprTypes;
     }
 
@@ -987,7 +990,21 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangMatchStmtStructuredBindingPatternClause patternClause) {
-        /*ignore*/
+        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(patternClause.body, env);
+        if (TypeTags.TUPLE == patternClause.matchExpr.type.tag) {
+            patternClause.bindingPatternVariable.type = patternClause.matchExpr.type;
+        } else if (TypeTags.UNION == patternClause.matchExpr.type.tag) {
+            buildTypeModelFromUnionType(patternClause);
+        } else {
+            patternClause.bindingPatternVariable.type = symTable.noType;
+        }
+        patternClause.bindingPatternVariable.expr = patternClause.matchExpr;
+        analyzeDef(patternClause.bindingPatternVariable, blockEnv);
+        analyzeStmt(patternClause.body, blockEnv);
+    }
+
+    private void buildTypeModelFromUnionType(BLangMatchStmtStructuredBindingPatternClause patternClause) {
+        //todo implement
     }
 
     public void visit(BLangForeach foreach) {
