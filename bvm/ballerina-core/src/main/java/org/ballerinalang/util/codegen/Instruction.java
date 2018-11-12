@@ -318,7 +318,6 @@ public class Instruction {
                 sj.add(types[i].toString());
                 sj.add(String.valueOf(pkgRefs[i]));
                 sj.add(String.valueOf(varRegs[i]));
-                sj.add(fieldNames[i]);
             }
             return Mnemonics.getMnem(opcode) + " " + sj.toString();
         }

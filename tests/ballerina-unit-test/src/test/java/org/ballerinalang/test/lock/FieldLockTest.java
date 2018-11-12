@@ -33,10 +33,12 @@ import static org.testng.Assert.assertTrue;
 public class FieldLockTest {
 
     CompileResult compileResult;
+    CompileResult compileResult2;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/lock/locks-in-object.bal");
+        compileResult2 = BCompileUtil.compile("test-src/lock/locks-in-records.bal");
 
     }
 
@@ -49,16 +51,22 @@ public class FieldLockTest {
 
     }
 
-    @Test(description = "Test locking by passes object as param")
+    @Test(description = "Test locking by passing object as param")
     public void testObjectLock() {
-        BValue[] returns2 =
+        BValue[] returns =
                 BRunUtil.invoke(compileResult, "fieldLock");
-        assertTrue((returns2[0].stringValue().equals("1001000") || returns2[0].stringValue().equals("500500")));
+        assertTrue((returns[0].stringValue().equals("1001000") || returns[0].stringValue().equals("500500")));
 
-        BValue[] returns3 =
+        BValue[] returns2 =
                 BRunUtil.invoke(compileResult, "objectParamLock");
-        assertTrue((returns3[0].stringValue().equals("1001000") || returns3[0].stringValue().equals("500500")));
+        assertTrue((returns2[0].stringValue().equals("1001000") || returns2[0].stringValue().equals("500500")));
     }
 
+    @Test(description = "Test locking based on a record field")
+    public void testLockInRecords() {
+        BValue[] returns =
+                BRunUtil.invoke(compileResult2, "fieldLock");
+        assertTrue((returns[0].stringValue().equals("1001000") || returns[0].stringValue().equals("500500")));
+    }
 
 }

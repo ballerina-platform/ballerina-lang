@@ -823,11 +823,21 @@ public class Desugar extends BLangNodeVisitor {
             return o1FullName.compareTo(o2FullName);
         }).collect(Collectors.toSet());
 
-        //check both a field and it's field are in locked variables
+        //check both a field and parent are in locked variables
         if (!lockNode.lockVariables.isEmpty()) {
-            lockNode.fieldVariables.keySet().removeIf(symbol -> lockNode.lockVariables.contains(symbol));
+            lockNode.fieldVariables.keySet().removeIf(expression -> isParentLocked(lockNode,
+                    expression));
         }
         result = lockNode;
+    }
+
+    boolean isParentLocked(BLangLock lock, BLangVariableReference expr) {
+        if (lock.lockVariables.contains(expr.symbol)) {
+            return true;
+        } else if (expr instanceof BLangStructFieldAccessExpr) {
+            return isParentLocked(lock, ((BLangStructFieldAccessExpr) expr).expr);
+        }
+        return false;
     }
 
     @Override
@@ -1099,7 +1109,7 @@ public class Desugar extends BLangNodeVisitor {
                 if (!enclLocks.isEmpty() &&
                         (fieldAccessExpr.expr.symbol != null) &&
                         (fieldAccessExpr.expr.symbol.pkgID == env.enclPkg.packageID)) {
-                    enclLocks.peek().addFieldVariable((BVarSymbol) fieldAccessExpr.expr.symbol,
+                    enclLocks.peek().addFieldVariable((BLangStructFieldAccessExpr) targetVarRef,
                             fieldAccessExpr.field.value);
                 }
             }
@@ -1111,6 +1121,13 @@ public class Desugar extends BLangNodeVisitor {
             } else {
                 targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
                                                               (BVarSymbol) fieldAccessExpr.symbol, true);
+                //field refs to objects in other packages are skipped
+                if (!enclLocks.isEmpty() &&
+                        (fieldAccessExpr.expr.symbol != null) &&
+                        (fieldAccessExpr.expr.symbol.pkgID == env.enclPkg.packageID)) {
+                    enclLocks.peek().addFieldVariable((BLangStructFieldAccessExpr) targetVarRef,
+                            fieldAccessExpr.field.value);
+                }
             }
         } else if (varRefType.tag == TypeTags.MAP) {
             targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);

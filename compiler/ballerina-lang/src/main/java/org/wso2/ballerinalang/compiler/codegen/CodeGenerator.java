@@ -2783,8 +2783,15 @@ public class CodeGenerator extends BLangNodeVisitor {
             return;
         }
 
+        //check both a field and parent are in locked variables
+        if (!lockNode.lockVariables.isEmpty()) {
+            lockNode.fieldVariables.keySet().removeIf(expression -> lockNode.lockVariables.
+                    contains((expression).expr.symbol));
+        }
+
         //remove objects initialized within lock
-        lockNode.fieldVariables.keySet().removeIf(symbol -> symbol.varIndex == null);
+        lockNode.fieldVariables.keySet().removeIf(expr -> (
+                (BVarSymbol) expr.expr.symbol).varIndex == null);
 
         Operand gotoLockEndAddr = getOperand(-1);
         Instruction instructGotoLockEnd = InstructionFactory.get(InstructionCodes.GOTO, gotoLockEndAddr);
@@ -2809,6 +2816,9 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private Operand[] getOperands(BLangLock lockNode) {
+
+        //need to visit all the vars because parent node of a nested structure may not be loaded yet
+        lockNode.fieldVariables.keySet().forEach(expr -> visit((expr)));
 
         //count field vars
         int fieldVarCount = 0;
@@ -2843,8 +2853,8 @@ public class CodeGenerator extends BLangNodeVisitor {
             operands[i++] = varSymbol.varIndex;
         }
 
-        for (Entry<BVarSymbol, Set<String>> entry : lockNode.fieldVariables.entrySet()) {
-            BVarSymbol symbol = entry.getKey();
+        for (Entry<BLangStructFieldAccessExpr, Set<String>> entry : lockNode.fieldVariables.entrySet()) {
+            BSymbol symbol = (entry.getKey()).symbol;
             Set<String> fields = entry.getValue();
 
             int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, symbol.pkgID);
@@ -2854,7 +2864,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             for (String field : fields) {
                 operands[i++] = getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
                 operands[i++] = getOperand(pkgRefCPIndex);
-                operands[i++] = symbol.varIndex;
+                operands[i++] = (entry.getKey()).expr.regIndex;
 
                 int fieldNameCPEntry = addUTF8CPEntry(currentPkgInfo, field);
                 operands[i++] = getOperand(fieldNameCPEntry);
@@ -3548,7 +3558,8 @@ public class CodeGenerator extends BLangNodeVisitor {
                 }
             } else if (NodeKind.LOCK == parent.getKind()) {
                 BLangLock lockNode = (BLangLock) parent;
-                if (!lockNode.lockVariables.isEmpty() || !lockNode.fieldVariables.isEmpty()) {
+                if (!lockNode.lockVariables.isEmpty() || !lockNode.fieldVariables.isEmpty() ||
+                        !lockNode.selfVariables.isEmpty()) {
                     Operand[] operands = getOperands(lockNode);
                     emit((InstructionCodes.UNLOCK), operands);
                 }
