@@ -1,6 +1,6 @@
 import { ChildProcess, spawn } from "child_process";
-import * as net from "net";
 import * as path from "path";
+import * as treekill from "tree-kill";
 import { toSocket } from "vscode-ws-jsonrpc";
 // tslint:disable-next-line:no-submodule-imports
 import * as serverRPC from "vscode-ws-jsonrpc/lib/server";
@@ -30,16 +30,22 @@ export function spawnStdioServer(ballerinaHome: string): ChildProcess {
 }
 
 export function spawnWSServer(ballerinaHome: string, port: number)
-            : [ChildProcess, Server] {
-    // start lang-server process
-    const lsProcess = spawnStdioServer(ballerinaHome);
+            : Server {
     // start web-server
     const wsServer = new Server({ port });
     wsServer.on("connection", (socket: WebSocket) => {
+        // start lang-server process
+        const lsProcess = spawnStdioServer(ballerinaHome);
+        const serverConnection = serverRPC.createProcessStreamConnection(lsProcess);
         // forward websocket messages to stdio of ls process
         const clientConnection = serverRPC.createWebSocketConnection(toSocket(socket));
-        const serverConnection = serverRPC.createProcessStreamConnection(lsProcess);
         serverRPC.forward(clientConnection, serverConnection);
+        const killLSProcess = () => {
+            treekill(lsProcess.pid);
+            clientConnection.dispose();
+        };
+        socket.onclose = killLSProcess;
+        socket.onerror = killLSProcess;
     });
-    return [lsProcess, wsServer];
+    return wsServer;
 }
