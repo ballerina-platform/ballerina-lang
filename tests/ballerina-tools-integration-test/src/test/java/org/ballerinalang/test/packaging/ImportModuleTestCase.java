@@ -50,16 +50,15 @@ public class ImportModuleTestCase extends BaseTest {
         tempHomeDirectory = Files.createTempDirectory("bal-test-integration-repo-hierarchy-home-");
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-import-module-project-");
 
-        String projectPath = (new File("src/test/resources/importmodule")).getAbsolutePath();
+        String projectPath = (new File("src/test/resources/import-module")).getAbsolutePath();
         FileUtils.copyDirectory(Paths.get(projectPath).toFile(), tempProjectDirectory.toFile());
         Files.createDirectories(tempProjectDirectory.resolve(".ballerina"));
 
         envVariables = addEnvVariables(PackagingTestUtils.getEnvVariables());
     }
 
-
     /**
-     * Importing packages among the same project.
+     * Importing modules among the same project.
      *
      * @throws BallerinaTestException When an error occurs executing the command.
      */
@@ -73,7 +72,7 @@ public class ImportModuleTestCase extends BaseTest {
     }
 
     /**
-     * Importing packages with the same org-name installed in the home repository.
+     * Importing modules with the same org-name installed in the home repository.
      *
      * @throws BallerinaTestException When an error occurs executing the command.
      * @throws IOException            When an error occurs when deleting the module.
