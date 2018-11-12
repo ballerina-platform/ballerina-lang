@@ -1,5 +1,5 @@
-import { BallerinaAST } from "@ballerina/ast-model";
 import React from "react";
+import { CompilationUnit } from "../models";
 import { DiagramContext, DiagramMode, IDiagramContext } from "./diagram-context";
 import { EditToggleButton } from "./edit-toggle-button";
 import { ModeToggleButton } from "./mode-toggle-button";
@@ -11,7 +11,7 @@ export interface CommonDiagramProps {
     mode: DiagramMode;
 }
 export interface DiagramProps extends CommonDiagramProps {
-    ast?: BallerinaAST;
+    ast?: CompilationUnit;
 }
 
 export interface DiagramState {
