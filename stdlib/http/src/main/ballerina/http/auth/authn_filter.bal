@@ -35,7 +35,7 @@ public type AuthnFilter object {
     # + return - True if the filter succeeds
     public function filterRequest(Listener listener, Request request, FilterContext context) returns boolean {
         // get auth config for this resource
-        boolean authenticated;
+        boolean authenticated = false;
         var (isSecured, authProviders) = getResourceAuthConfig(context);
         if (isSecured) {
             // if auth providers are there, use those to authenticate
@@ -64,7 +64,7 @@ public type AuthnFilter object {
 # + return - Authorization result to indicate if the filter can proceed(true) or not(false)
 function isAuthnSuccesfull(Listener listener, boolean authenticated) returns boolean {
     endpoint Listener caller = listener;
-    Response response;
+    Response response = new;
     if (!authenticated) {
         response.statusCode = 401;
         response.setTextPayload("Authentication failure");
@@ -141,7 +141,7 @@ function getAuthAnnotation(string annotationModule, string annotationName, refle
     if (annData.length() == 0) {
         return ();
     }
-    reflect:annotationData|() authAnn;
+    reflect:annotationData|() authAnn = ();
     foreach ann in annData {
         if (ann.name == annotationName && ann.moduleName == annotationModule) {
             authAnn = ann;

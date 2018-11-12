@@ -22,7 +22,7 @@ import ballerina/log;
 # + config - Topic publisher endpoint configuration
 public type TopicPublisher object {
     public TopicPublisherActions producerActions;
-    public TopicPublisherEndpointConfiguration config;
+    public TopicPublisherEndpointConfiguration config = {};
 
     # Topic publisher contructor
     new() {

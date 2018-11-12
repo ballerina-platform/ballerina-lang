@@ -54,7 +54,7 @@ public type FailoverActions object {
     public string serviceUri;
     public ClientEndpointConfig config;
     public FailoverInferredConfig failoverInferredConfig;
-    public int succeededEndpointIndex;
+    public int succeededEndpointIndex = 0;
 
     # Failover caller actions which provides failover capabilities to an HTTP client endpoint.
     #
@@ -307,6 +307,7 @@ function performFailoverAction (string path, Request request, HttpOperation requ
         currentIndex = currentIndex + 1;
         var endpointResponse = invokeEndpoint(path, failoverRequest, requestAction, failoverClient);
         if (endpointResponse is Response) {
+            inResponse = endpointResponse;
             int httpStatusCode = endpointResponse.statusCode;
             // Check whether HTTP status code of the response falls into configued `failoverCodes`
             if (failoverCodeIndex[httpStatusCode] == true) {

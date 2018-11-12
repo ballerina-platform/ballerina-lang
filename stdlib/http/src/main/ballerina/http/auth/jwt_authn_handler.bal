@@ -44,8 +44,8 @@ public type HttpJwtAuthnHandler object {
     public function handle (Request req) returns (boolean);
 };
 
-function HttpJwtAuthnHandler.canHandle (Request req) returns (boolean) {
-    string authHeader;
+function HttpJwtAuthnHandler.canHandle(Request req) returns (boolean) {
+    string authHeader = "";
     var headerValue = trap req.getHeader(AUTH_HEADER);
     if (headerValue is string) {
         authHeader = headerValue;

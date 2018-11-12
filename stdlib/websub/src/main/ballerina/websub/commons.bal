@@ -157,7 +157,8 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
     returns http:Response {
 
     http:Response response = new;
-    string reqTopic = http:decode(intentVerificationRequest.topic, "UTF-8") but { error => topic };
+    var decodedTopic = http:decode(intentVerificationRequest.topic, "UTF-8");
+    string reqTopic = decodedTopic is string ? decodedTopic : topic;
 
     string reqMode = intentVerificationRequest.mode;
     string challenge = intentVerificationRequest.challenge;
@@ -177,7 +178,7 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
 # + serviceType - The type of the service for which the request was rceived
 # + return - `error`, if an error occurred in extraction or signature validation failed
 function processWebSubNotification(http:Request request, typedesc serviceType) returns error? {
-    string secret = retrieveSubscriberServiceAnnotations(serviceType).secret but { () => "" };
+    string secret = retrieveSubscriberServiceAnnotations(serviceType).secret ?: "";
 
     if (!request.hasHeader(X_HUB_SIGNATURE)) {
         if (secret != "") {
@@ -195,16 +196,16 @@ function processWebSubNotification(http:Request request, typedesc serviceType) r
         return;
     }
 
-    string stringPayload;
-    match (request.getPayloadAsString()) {
-        string payloadAsString => { stringPayload = payloadAsString; }
-        error entityError => {
-            string errCause = <string> entityError.detail().message;
-            map errorDetail = { message : "Error extracting notification payload as string " +
-                                            "for signature validation: " + errCause };
-            error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
-            return webSubError;
-        }
+    string stringPayload = "";
+    var payload = request.getPayloadAsString();
+    if (payload is string) {
+        stringPayload = payload;
+    } else if (payload is error) {
+        string errCause = <string> payload.detail().message;
+        map errorDetail = { message : "Error extracting notification payload as string " +
+                                        "for signature validation: " + errCause };
+        error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
+        return webSubError;
     }
 
     return validateSignature(xHubSignature, stringPayload, secret);
@@ -220,7 +221,7 @@ function validateSignature(string xHubSignature, string stringPayload, string se
     string[] splitSignature = xHubSignature.split("=");
     string method = splitSignature[0];
     string signature = xHubSignature.replace(method + "=", "");
-    string generatedSignature;
+    string generatedSignature = "";
 
     if (SHA1.equalsIgnoreCase(method)) {
         generatedSignature = crypto:hmac(stringPayload, secret, crypto:SHA1);
@@ -245,7 +246,7 @@ function validateSignature(string xHubSignature, string stringPayload, string se
 # + request - The HTTP POST request received as the notification
 public type Notification object {
 
-    private http:Request request;
+    private http:Request request = new;
 
     # Retrieves the query parameters of the content delivery request, as a map.
     #
@@ -359,7 +360,7 @@ public type Notification object {
 # + response - The `http:Response` received
 # + return - `(topic, hubs)` if parsing and extraction is successful, `error` if not
 public function extractTopicAndHubUrls(http:Response response) returns (string, string[])|error {
-    string[] linkHeaders;
+    string[] linkHeaders = [];
     if (response.hasHeader("Link")) {
         linkHeaders = response.getHeaders("Link");
     }
@@ -371,8 +372,8 @@ public function extractTopicAndHubUrls(http:Response response) returns (string, 
     }
 
     int hubIndex = 0;
-    string[] hubs;
-    string topic;
+    string[] hubs = [];
+    string topic = "";
     string[] linkHeaderConstituents = [];
     if (linkHeaders.length() == 1) {
         linkHeaderConstituents = linkHeaders[0].split(",");
@@ -465,18 +466,18 @@ public function startHub(string? host = (), int port, int? leaseSeconds = (), st
                          boolean? topicRegistrationRequired = (), string? publicUrl = (),
                          boolean? sslEnabled = (), http:ServiceSecureSocket? serviceSecureSocket = (),
                          http:SecureSocket? clientSecureSocket = ()) returns WebSubHub|HubStartedUpError {
-    hubHost = config:getAsString("b7a.websub.hub.host", default = host but { () => DEFAULT_HOST });
+    hubHost = config:getAsString("b7a.websub.hub.host", default = host ?: DEFAULT_HOST);
     hubPort = config:getAsInt("b7a.websub.hub.port", default = port);
     hubLeaseSeconds = config:getAsInt("b7a.websub.hub.leasetime",
-                                      default = leaseSeconds but { () => DEFAULT_LEASE_SECONDS_VALUE });
+                                      default = leaseSeconds ?: DEFAULT_LEASE_SECONDS_VALUE);
     hubSignatureMethod = config:getAsString("b7a.websub.hub.signaturemethod",
-                                            default = signatureMethod but { () => DEFAULT_SIGNATURE_METHOD });
+                                   default = signatureMethod ?: DEFAULT_SIGNATURE_METHOD);
     hubRemotePublishingEnabled = config:getAsBoolean("b7a.websub.hub.remotepublish",
-                                                     default = remotePublishingEnabled but { () => false });
+                                     default = remotePublishingEnabled ?: false);
 
     string remotePublishModeAsConfig =  config:getAsString("b7a.websub.hub.remotepublish.mode");
     if (remotePublishModeAsConfig == "") {
-        hubRemotePublishMode = remotePublishMode but { () => PUBLISH_MODE_DIRECT };
+        hubRemotePublishMode = remotePublishMode ?: PUBLISH_MODE_DIRECT;
     } else {
         if (REMOTE_PUBLISHING_MODE_FETCH.equalsIgnoreCase(remotePublishModeAsConfig)) {
             hubRemotePublishMode = PUBLISH_MODE_FETCH;
@@ -486,15 +487,15 @@ public function startHub(string? host = (), int port, int? leaseSeconds = (), st
     }
 
     hubTopicRegistrationRequired = config:getAsBoolean("b7a.websub.hub.topicregistration",
-                                                       default = topicRegistrationRequired but { () => true });
-    hubSslEnabled = config:getAsBoolean("b7a.websub.hub.enablessl", default = sslEnabled but { () => true });
+                                    default = topicRegistrationRequired ?: true);
+    hubSslEnabled = config:getAsBoolean("b7a.websub.hub.enablessl", default = sslEnabled ?: true);
     //set serviceSecureSocket after hubSslEnabled is set
     if (hubSslEnabled) {
         hubServiceSecureSocket = getServiceSecureSocketConfig(serviceSecureSocket);
     }
     hubClientSecureSocket = getSecureSocketConfig(clientSecureSocket);
     //reset the hubUrl once the other parameters are set
-    hubPublicUrl = config:getAsString("b7a.websub.hub.url", default = publicUrl but { () => getHubUrl() });
+    hubPublicUrl = config:getAsString("b7a.websub.hub.url", default = publicUrl ?: getHubUrl());
     return startUpHubService(hubTopicRegistrationRequired, hubPublicUrl);
 }
 
@@ -562,20 +563,23 @@ function WebSubHub.publishUpdate(string topic, string|xml|json|byte[]|io:Readabl
 
     WebSubContent content = {};
 
-    match(payload) {
-        io:ReadableByteChannel byteChannel => content.payload = constructByteArray(byteChannel);
-        string|xml|json|byte[] => content.payload = payload;
+    if (payload is io:ReadableByteChannel) {
+        content.payload = constructByteArray(payload);
+    } else {
+        content.payload = payload;
     }
 
-    match(contentType) {
-        string stringContentType => content.contentType = stringContentType;
-        () => {
-            match(payload) {
-                string => content.contentType = mime:TEXT_PLAIN;
-                xml => content.contentType = mime:APPLICATION_XML;
-                json => content.contentType = mime:APPLICATION_JSON;
-                byte[]|io:ReadableByteChannel => content.contentType = mime:APPLICATION_OCTET_STREAM;
-            }
+    if (contentType is string) {
+        content.contentType = contentType;
+    } else {
+        if (payload is string) {
+            content.contentType = mime:TEXT_PLAIN;
+        } else if (payload is xml) {
+            content.contentType = mime:APPLICATION_XML;
+        } else if (payload is json) {
+            content.contentType = mime:APPLICATION_JSON;
+        } else if (payload is byte[]|io:ReadableByteChannel) {
+            content.contentType = mime:APPLICATION_OCTET_STREAM;
         }
     }
 
@@ -609,7 +613,7 @@ function WebSubHub.unregisterTopic(string topic) returns error? {
 # + hubs - The hubs the publisher advertises as the hubs that it publishes updates to
 # + topic - The topic to which subscribers need to subscribe to, to receive updates for the resource
 public function addWebSubLinkHeader(http:Response response, string[] hubs, string topic) {
-    string hubLinkHeader;
+    string hubLinkHeader = "";
     foreach hub in hubs {
         hubLinkHeader = hubLinkHeader + "<" + hub + ">; rel=\"hub\", ";
     }
