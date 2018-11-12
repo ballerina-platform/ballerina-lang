@@ -51,15 +51,6 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"roundRobin(http:LoadBalancerActions lb, http:CallerActions[] loadBalanceConfigArray)(ballerina/http:CallerActions)",
-      "kind":"Function",
-      "detail":"Function",
-      "documentation":"Round Robin Algorithm implementation with respect to load balancing endpoints.\n",
-      "sortText":"120",
-      "insertText":"roundRobin(${1:lb}, ${2:loadBalanceConfigArray})",
-      "insertTextFormat":"Snippet"
-    },
-    {
       "label":"encode(string url, string charset)(string|error)",
       "kind":"Function",
       "detail":"Function",
