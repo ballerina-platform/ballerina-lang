@@ -137,17 +137,13 @@ function testToJson() returns (json) {
         password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
-
-    try {
-        table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
+    table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
                   boolean_type, string_type from DataTable WHERE row_id = 1", ());
-        json result = check <json>dt;
-        // Converting to string to make sure the json is built before returning.
-        _ = result.toString();
-        return result;
-    } finally {
-        testDB.stop();
-    }
+    json result = check <json>dt;
+    // Converting to string to make sure the json is built before returning.
+    _ = result.toString();
+    testDB.stop();
+    return result;
 }
 
 function testToXml() returns (xml) {
@@ -158,18 +154,14 @@ function testToXml() returns (xml) {
         password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
-
-    try {
-        table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
+    table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
                    boolean_type, string_type from DataTable WHERE row_id = 1", ());
 
-        xml convertedVal = check <xml>dt;
-        // Converting to string to make sure the xml is built before returning.
-        _ = io:sprintf("%s", convertedVal);
-        return convertedVal;
-    } finally {
-        testDB.stop();
-    }
+    xml convertedVal = check <xml>dt;
+    // Converting to string to make sure the xml is built before returning.
+    _ = io:sprintf("%s", convertedVal);
+    testDB.stop();
+    return convertedVal;
 }
 
 function testToXmlMultipleConsume() returns (xml) {
@@ -181,16 +173,13 @@ function testToXmlMultipleConsume() returns (xml) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    try {
-        table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
+    table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
         boolean_type, string_type from DataTable WHERE row_id = 1", ());
 
-        xml result = check <xml>dt;
-        io:println(result);
-        return result;
-    } finally {
-        testDB.stop();
-    }
+    xml result = check <xml>dt;
+    io:println(result);
+    testDB.stop();
+    return result;
 }
 
 function testToXmlWithAdd() returns (xml) {
@@ -201,21 +190,17 @@ function testToXmlWithAdd() returns (xml) {
         password: "",
         poolOptions: { maximumPoolSize: 2 }
     };
+    table dt1 = check testDB->select("SELECT int_type from DataTable WHERE row_id = 1", ());
+    xml result1 = check <xml>dt1;
 
-    try {
-        table dt1 = check testDB->select("SELECT int_type from DataTable WHERE row_id = 1", ());
-        xml result1 = check <xml>dt1;
+    table dt2 = check testDB->select("SELECT int_type from DataTable WHERE row_id = 1", ());
+    xml result2 = check <xml>dt2;
 
-        table dt2 = check testDB->select("SELECT int_type from DataTable WHERE row_id = 1", ());
-        xml result2 = check <xml>dt2;
+    xml result = result1 + result2;
 
-        xml result = result1 + result2;
-
-        table dt3 = check testDB->select("SELECT int_type from DataTable WHERE row_id = 1", ());
-        return result;
-    } finally {
-        testDB.stop();
-    }
+    table dt3 = check testDB->select("SELECT int_type from DataTable WHERE row_id = 1", ());
+    testDB.stop();
+    return result;
 }
 
 function testToJsonMultipleConsume() returns (json) {
@@ -226,17 +211,13 @@ function testToJsonMultipleConsume() returns (json) {
         password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
-
-    try {
-        table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
+    table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
         boolean_type, string_type from DataTable WHERE row_id = 1", ());
 
-        json result = check <json>dt;
-        io:println(result);
-        return result;
-    } finally {
-        testDB.stop();
-    }
+    json result = check <json>dt;
+    io:println(result);
+    testDB.stop();
+    return result;
 }
 
 
@@ -248,19 +229,15 @@ function toXmlComplex() returns (xml) {
         password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
-
-    try {
-        table dt = check testDB->select("SELECT int_type, int_array, long_type, long_array, float_type,
+    table dt = check testDB->select("SELECT int_type, int_array, long_type, long_array, float_type,
                     float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
                     from MixTypes where row_id =1", ());
 
-        xml convertedVal = check <xml>dt;
-        // Converting to string to make sure the xml is built before returning.
-        _ = io:sprintf("%s", convertedVal);
-        return convertedVal;
-    } finally {
-        testDB.stop();
-    }
+    xml convertedVal = check <xml>dt;
+    // Converting to string to make sure the xml is built before returning.
+    _ = io:sprintf("%s", convertedVal);
+    testDB.stop();
+    return convertedVal;
 }
 
 function testToXmlComplexWithStructDef() returns (xml) {
@@ -271,19 +248,15 @@ function testToXmlComplexWithStructDef() returns (xml) {
         password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
-
-    try {
-        table dt = check testDB->select("SELECT int_type, int_array, long_type, long_array, float_type,
+    table dt = check testDB->select("SELECT int_type, int_array, long_type, long_array, float_type,
                     float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
                     from MixTypes where row_id =1", TestTypeData);
 
-        xml convertedVal = check <xml>dt;
-        // Converting to string to make sure the xml is built before returning.
-        _ = io:sprintf("%s", convertedVal);
-        return convertedVal;
-    } finally {
-        testDB.stop();
-    }
+    xml convertedVal = check <xml>dt;
+    // Converting to string to make sure the xml is built before returning.
+    _ = io:sprintf("%s", convertedVal);
+    testDB.stop();
+    return convertedVal;
 }
 
 
@@ -295,19 +268,16 @@ function testToJsonComplex() returns (json) {
         password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
-
-    try {
-        table dt = check testDB->select("SELECT int_type, int_array, long_type, long_array, float_type,
+    table dt = check testDB->select("SELECT int_type, int_array, long_type, long_array, float_type,
                     float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
                     from MixTypes where row_id =1", ());
 
-        json convertedVal = check <json>dt;
-        // Converting to string to make sure the json is built before returning.
-        _ = convertedVal.toString();
-        return convertedVal;
-    } finally {
-        testDB.stop();
-    }
+    json convertedVal = check <json>dt;
+    // Converting to string to make sure the json is built before returning.
+    _ = convertedVal.toString();
+    testDB.stop();
+
+    return convertedVal;
 }
 
 function testToJsonComplexWithStructDef() returns (json) {
@@ -318,19 +288,16 @@ function testToJsonComplexWithStructDef() returns (json) {
         password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
-
-    try {
-        table dt = check testDB->select("SELECT int_type, int_array, long_type, long_array, float_type,
+    table dt = check testDB->select("SELECT int_type, int_array, long_type, long_array, float_type,
                     float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
                     from MixTypes where row_id =1", TestTypeData);
 
-        json convertedVal = check <json>dt;
-        // Converting to string to make sure the json is built before returning.
-        _ = convertedVal.toString();
-        return convertedVal;
-    } finally {
-        testDB.stop();
-    }
+    json convertedVal = check <json>dt;
+    // Converting to string to make sure the json is built before returning.
+    _ = convertedVal.toString();
+    testDB.stop();
+
+    return convertedVal;
 }
 
 function testJsonWithNull() returns (json) {
@@ -341,18 +308,15 @@ function testJsonWithNull() returns (json) {
         password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
-
-    try {
-        table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
+    table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
                   boolean_type, string_type from DataTable WHERE row_id = 2", ());
 
-        json convertedVal = check <json>dt;
-        // Converting to string to make sure the json is built before returning.
-        _ = convertedVal.toString();
-        return convertedVal;
-    } finally {
-        testDB.stop();
-    }
+    json convertedVal = check <json>dt;
+    // Converting to string to make sure the json is built before returning.
+    _ = convertedVal.toString();
+    testDB.stop();
+
+    return convertedVal;
 }
 
 function testXmlWithNull() returns (xml) {
@@ -363,18 +327,15 @@ function testXmlWithNull() returns (xml) {
         password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
-
-    try {
-        table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
+    table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
                    boolean_type, string_type from DataTable WHERE row_id = 2", ());
 
-        xml convertedVal = check <xml>dt;
-        // Converting to string to make sure the xml is built before returning.
-        _ = io:sprintf("%s", convertedVal);
-        return convertedVal;
-    } finally {
-        testDB.stop();
-    }
+    xml convertedVal = check <xml>dt;
+    // Converting to string to make sure the xml is built before returning.
+    _ = io:sprintf("%s", convertedVal);
+    testDB.stop();
+
+    return convertedVal;
 }
 
 function testToXmlWithinTransaction() returns (string, int) {
@@ -386,19 +347,21 @@ function testToXmlWithinTransaction() returns (string, int) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    int returnValue = 0;
-    string resultXml;
-    try {
-        transaction {
-            table dt = check testDB->select("SELECT int_type, long_type from DataTable WHERE row_id = 1", ());
+    int returnValue = -1;
+    string resultXml = "";
+    transaction {
+        table dt = check testDB->select("SELECT int_type, long_type from DataTable WHERE row_id = 1", ());
 
-            var result = check <xml>dt;
+        var result = <xml>dt;
+        if (result is xml) {
             resultXml = io:sprintf("%s", result);
+            returnValue = 0;
+        } else if (result is error) {
+            resultXml = "<fail>error</fail>";
         }
-        return (resultXml, returnValue);
-    } finally {
-        testDB.stop();
     }
+    testDB.stop();
+    return (resultXml, returnValue);
 }
 
 function testToJsonWithinTransaction() returns (string, int) {
@@ -410,19 +373,20 @@ function testToJsonWithinTransaction() returns (string, int) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    int returnValue = 0;
-    string result;
-    try {
-        transaction {
-            table dt = check testDB->select("SELECT int_type, long_type from DataTable WHERE row_id = 1", ());
-
-            var j = check <json>dt;
+    int returnValue = -1;
+    string result = "";
+    transaction {
+        table dt = check testDB->select("SELECT int_type, long_type from DataTable WHERE row_id = 1", ());
+        var j = <json>dt;
+        if (j is json) {
             result = io:sprintf("%s", j);
+            returnValue = 0;
+        } else if (j is error) {
+            result = "<fail>error</fail>";
         }
-        return (result, returnValue);
-    } finally {
-        testDB.stop();
     }
+    testDB.stop();
+    return (result, returnValue);
 }
 
 function testGetPrimitiveTypes() returns (int, int, float, float, boolean, string) {
@@ -1208,18 +1172,13 @@ function testComplexTypeInsertAndRetrieval() returns (int, int, string,
     dt = check testDB->select(selectSQL, ResultComplexTypes);
 
     str = "";
-    byte[][] expected;
+    byte[][] expected = [];
     int i = 0;
     while (dt.hasNext()) {
         var result = check <ResultComplexTypes>dt.getNext();
         string blobType;
-        match result.BLOB_TYPE {
-            byte[] b => {
-                expected[i] = b;
-                blobType = "nonNil";
-            }
-            () => blobType = "nil";
-        }
+        expected[i] = result.BLOB_TYPE ?: [];
+        blobType = result.BLOB_TYPE is () ? "nil" : "nonNil";
         str = str + result.ROW_ID + "|" + blobType + "|" + (result.CLOB_TYPE but { () => "nil" }) + "|";
         i += 1;
     }
@@ -1236,24 +1195,21 @@ function testJsonXMLConversionwithDuplicateColumnNames() returns (json,
         password: "",
         poolOptions: { maximumPoolSize: 2 }
     };
-
-    try {
-        table dt = check testDB->select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left
+    table dt = check testDB->select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left
             join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1", ());
-        json j = check <json>dt;
-        // Converting to string to make sure the json is built before returning.
-        _ = j.toString();
+    json j = check <json>dt;
+    // Converting to string to make sure the json is built before returning.
+    _ = j.toString();
 
-        table dt2 = check testDB->select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left
+    table dt2 = check testDB->select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left
             join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1", ());
-        xml x = check <xml>dt2;
+    xml x = check <xml>dt2;
 
-        // Converting to string to make sure the xml is built before returning.
-        _ = io:sprintf("%s", x);
-        return (j, x);
-    } finally {
-        testDB.stop();
-    }
+    // Converting to string to make sure the xml is built before returning.
+    _ = io:sprintf("%s", x);
+    testDB.stop();
+
+    return (j, x);
 }
 
 function testStructFieldNotMatchingColumnName() returns (int, int, int,
@@ -1360,17 +1316,15 @@ function testTableAddInvalid() returns string {
 
     table dt = check testDB->select("SELECT int_type from DataTableRep", ResultPrimitiveInt);
 
-    string s;
-    try {
-        ResultPrimitiveInt row = { INT_TYPE: 443 };
-        var ret = dt.add(row);
-        match (ret) {
-            error e => s = e.message;
-            () => s = "nil";
-        }
-    } finally {
-        testDB.stop();
+    string s = "";
+    ResultPrimitiveInt row = { INT_TYPE: 443 };
+    var ret = trap dt.add(row);
+    if (ret is error) {
+        s = <string> ret.detail().message;
+    } else if (ret is ()) {
+        s = "nil";
     }
+    testDB.stop();
     return s;
 }
 
@@ -1384,21 +1338,19 @@ function testTableRemoveInvalid() returns string {
     };
 
     table dt = check testDB->select("SELECT int_type from DataTableRep", ResultPrimitiveInt);
-    string s;
-    try {
-        ResultPrimitiveInt row = { INT_TYPE: 443 };
-        var ret = dt.remove(isDelete);
-        match (ret) {
-            int count => s = <string>count;
-            error e => s = e.message;
-        }
-    } finally {
-        testDB.stop();
+    string s = "";
+    ResultPrimitiveInt row = { INT_TYPE: 443 };
+    var ret = trap dt.remove(isDelete);
+    if (ret is int) {
+        s = <string> ret;
+    } else if (ret is error) {
+        s = <string> ret.detail().message;
     }
+    testDB.stop();
     return s;
 }
 
-function tableGetNextInvalid() {
+function tableGetNextInvalid() returns string {
     endpoint h2:Client testDB {
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1406,14 +1358,15 @@ function tableGetNextInvalid() {
         password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
-
-    try {
-        table dt = check testDB->select("SELECT * from DataTable WHERE row_id = 1", ());
-        dt.close();
-        any data = dt.getNext();
-    } finally {
-        testDB.stop();
+    table dt = check testDB->select("SELECT * from DataTable WHERE row_id = 1", ());
+    dt.close();
+    var ret = trap dt.getNext();
+    testDB.stop();
+    string retVal = "";
+    if (ret is error) {
+        retVal = <string> ret.reason();
     }
+    return retVal;
 }
 
 function isDelete(ResultPrimitiveInt p) returns (boolean) {
@@ -1428,17 +1381,13 @@ function testToJsonAndAccessFromMiddle() returns (json, int) {
         password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
-
-    try {
-        table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
+    table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
                   boolean_type, string_type from DataTable", ());
-        json result = check <json>dt;
+    json result = check <json>dt;
 
-        json j = result[1];
-        return (result, result.length());
-    } finally {
-        testDB.stop();
-    }
+    json j = result[1];
+    testDB.stop();
+    return (result, result.length());
 }
 
 function testToJsonAndIterate() returns (json, int) {
@@ -1449,22 +1398,17 @@ function testToJsonAndIterate() returns (json, int) {
         password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
-
-    try {
-        table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
+    table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
                   boolean_type, string_type from DataTable", ());
-        json result = check <json>dt;
-        json j = [];
-        int i = 0;
-        foreach row in result {
-            j[i] = row;
-            i += 1;
-        }
-
-        return (j, j.length());
-    } finally {
-        testDB.stop();
+    json result = check <json>dt;
+    json j = [];
+    int i = 0;
+    foreach row in result {
+        j[i] = row;
+        i += 1;
     }
+    testDB.stop();
+    return (j, j.length());
 }
 
 function testToJsonAndSetAsChildElement() returns json {
@@ -1475,16 +1419,12 @@ function testToJsonAndSetAsChildElement() returns json {
         password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
-
-    try {
-        table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
+    table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
                   boolean_type, string_type from DataTable", ());
-        json result = check <json>dt;
-        json j = { status: "SUCCESS", resp: { value: result } };
-        return j;
-    } finally {
-        testDB.stop();
-    }
+    json result = check <json>dt;
+    json j = { status: "SUCCESS", resp: { value: result } };
+    testDB.stop();
+    return j;
 }
 
 function testToJsonAndLengthof() returns (int, int) {
@@ -1495,21 +1435,16 @@ function testToJsonAndLengthof() returns (int, int) {
         password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
-
-    try {
-        table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
+    table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
                   boolean_type, string_type from DataTable", ());
-        json result = check <json>dt;
+    json result = check <json>dt;
 
-        // get the length before accessing
-        int beforeLen = result.length();
+    // get the length before accessing
+    int beforeLen = result.length();
 
-        // get the length after accessing
-        json j = result[0];
-        int afterLen = result.length();
-
-        return (beforeLen, afterLen);
-    } finally {
-        testDB.stop();
-    }
+    // get the length after accessing
+    json j = result[0];
+    int afterLen = result.length();
+    testDB.stop();
+    return (beforeLen, afterLen);
 }

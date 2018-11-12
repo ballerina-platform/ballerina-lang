@@ -245,6 +245,7 @@ valueTypeName
     |   TYPE_INT
     |   TYPE_BYTE
     |   TYPE_FLOAT
+    |   TYPE_DECIMAL
     |   TYPE_STRING
     ;
 

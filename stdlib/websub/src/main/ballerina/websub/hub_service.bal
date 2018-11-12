@@ -23,7 +23,7 @@ import ballerina/sql;
 import ballerina/system;
 import ballerina/time;
 
-map<PendingSubscriptionChangeRequest> pendingRequests;
+map<PendingSubscriptionChangeRequest> pendingRequests = {};
 
 @http:ServiceConfig {
     basePath:BASE_PATH
@@ -50,7 +50,7 @@ service<http:Service> hubService {
         string mode;
         string topic;
 
-        map<string> params;
+        map<string> params = {};
         match (request.getFormParams()) {
             map<string> reqFormParamMap => { params = reqFormParamMap; }
             error => {}
@@ -165,7 +165,7 @@ service<http:Service> hubService {
                 if (!hubTopicRegistrationRequired || isTopicRegistered(topic)) {
                     byte[]|error binaryPayload;
                     string stringPayload;
-                    string contentType;
+                    string contentType = "";
                     if (hubRemotePublishMode == PUBLISH_MODE_FETCH) {
                         match (fetchTopicUpdate(topic)) {
                             http:Response fetchResp => {
@@ -481,30 +481,30 @@ function addTopicRegistrationsOnStartup() {
         password: hubDatabasePassword,
         poolOptions: { maximumPoolSize:5 }
     };
-    table dt;
     var dbResult = subscriptionDbEp->select("SELECT * FROM topics", TopicRegistration);
     match (dbResult) {
-        table t => { dt = t; }
+        table dt => {
+            while (dt.hasNext()) {
+                match (<TopicRegistration>dt.getNext()) {
+                    TopicRegistration registrationDetails => {
+                        match(registerTopicAtHub(registrationDetails.topic, loadingOnStartUp = true)) {
+                            error e => {
+                                string errCause = <string> e.detail().message;
+                                log:printError("Error registering topic details retrieved from the database: " + errCause);
+                            }
+                            () => {}
+                        }
+                    }
+                    error convError => {
+                        string errCause = <string> convError.detail().message;
+                        log:printError("Error retreiving topic registration details from the database: " + errCause);
+                    }
+                }
+            }
+        }
         error sqlErr => {
             string errCause = <string> sqlErr.detail().message;
             log:printError("Error retreiving data from the database: " + errCause);
-        }
-    }
-    while (dt.hasNext()) {
-        match (<TopicRegistration>dt.getNext()) {
-            TopicRegistration registrationDetails => {
-                match(registerTopicAtHub(registrationDetails.topic, loadingOnStartUp = true)) {
-                    error e => {
-                        string errCause = <string> e.detail().message;
-                        log:printError("Error registering topic details retrieved from the database: "+ errCause);
-                    }
-                    () => {}
-                }
-            }
-            error convError => {
-                string errCause = <string> convError.detail().message;
-                log:printError("Error retreiving topic registration details from the database: " + errCause);
-            }
         }
     }
     subscriptionDbEp.stop();
@@ -523,25 +523,26 @@ function addSubscriptionsOnStartup() {
     int time = time:currentTime().time;
     sql:Parameter para1 = {sqlType:sql:TYPE_BIGINT, value:time};
     _ = subscriptionDbEp->update("DELETE FROM subscriptions WHERE ? - lease_seconds > created_at", para1);
-    table dt;
+
     var dbResult = subscriptionDbEp->select("SELECT topic, callback, secret, lease_seconds, created_at"
             + " FROM subscriptions", SubscriptionDetails);
     match (dbResult) {
-        table t => { dt = t; }
+        table dt => {
+            while (dt.hasNext()) {
+                match (<SubscriptionDetails>dt.getNext()) {
+                    SubscriptionDetails subscriptionDetails => {
+                        addSubscription(subscriptionDetails);
+                    }
+                    error convError => {
+                        string errCause = <string> convError.detail().message;
+                        log:printError("Error retreiving subscription details from the database: " + errCause);
+                    }
+                }
+            }
+        }
         error sqlErr => {
             string errCause = <string> sqlErr.detail().message;
             log:printError("Error retreiving data from the database: " + errCause);
-        }
-    }
-    while (dt.hasNext()) {
-        match (<SubscriptionDetails>dt.getNext()) {
-            SubscriptionDetails subscriptionDetails => {
-                addSubscription(subscriptionDetails);
-            }
-            error convError => {
-                string errCause = <string> convError.detail().message;
-                log:printError("Error retreiving subscription details from the database: " + errCause);
-            }
         }
     }
     subscriptionDbEp.stop();

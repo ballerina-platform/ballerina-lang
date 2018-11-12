@@ -26,7 +26,8 @@ public class TypeTags {
     public static final int INT_TAG = 1;
     public static final int BYTE_TAG = INT_TAG + 1;
     public static final int FLOAT_TAG = BYTE_TAG + 1;
-    public static final int STRING_TAG = FLOAT_TAG + 1;
+    public static final int DECIMAL_TAG = FLOAT_TAG + 1;
+    public static final int STRING_TAG = DECIMAL_TAG + 1;
     public static final int BOOLEAN_TAG = STRING_TAG + 1;
     public static final int JSON_TAG = BOOLEAN_TAG + 1;
     public static final int XML_TAG = JSON_TAG + 1;

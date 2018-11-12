@@ -31,8 +31,7 @@ public type NonListener object {
 function NonListener::init (ServiceEndpointConfiguration c) {
     self.config = c;
     var err = self.initEndpoint();
-    match err {
-        error e => panic e;
-        () => {}
+    if (err is error) {
+        panic err;
     }
 }
