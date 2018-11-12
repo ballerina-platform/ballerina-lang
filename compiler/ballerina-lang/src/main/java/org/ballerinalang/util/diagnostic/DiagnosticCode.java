@@ -323,7 +323,8 @@ public enum DiagnosticCode {
     // Dataflow analysis related error codes
     PARTIALLY_INITIALIZED_VARIABLE("partially.initialized.variable"),
 
-    INCOMPATIBLE_SEAL_TYPE("incompatible.seal.type"),
+    // Seal inbuilt function related codes
+    INCOMPATIBLE_SEAL_TYPE("incompatible.stamp.type"),
     ;
 
     private String value;

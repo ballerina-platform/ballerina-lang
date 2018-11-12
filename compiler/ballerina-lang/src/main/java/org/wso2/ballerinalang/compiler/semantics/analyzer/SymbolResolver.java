@@ -341,14 +341,20 @@ public class SymbolResolver extends BLangNodeVisitor {
 
                     sealType = new BTupleType(tupleTypeList);
                 } else {
-                    sealType = ((BLangSimpleVarRef) argumentExpression).symbol.type;
+                    BSymbol symbol = ((BLangSimpleVarRef) argumentExpression).symbol;
+                    if (symbol != null) {
+                        sealType = ((BLangSimpleVarRef) argumentExpression).symbol.type;
+                    } else {
+                        resultType = symTable.semanticError;
+                        return symTable.notFoundSymbol;
+                    }
                 }
 
                 //It is not allowed to seal a variable to union type.
                 if (isSealSupportedTargetType(sealType) && types.isSealable(sourceType, sealType)) {
                     List<BType> paramTypes = new ArrayList<>();
                     paramTypes.add(symTable.typeDesc);
-                    return symTable.createOperator(name, paramTypes, sealType, InstructionCodes.SEAL);
+                    return symTable.createOperator(name, paramTypes, sealType, InstructionCodes.STAMP);
                 } else {
                     dlog.error(pos, DiagnosticCode.INCOMPATIBLE_SEAL_TYPE, sourceType, sealType);
                     resultType = symTable.semanticError;
@@ -1001,21 +1007,22 @@ public class SymbolResolver extends BLangNodeVisitor {
      */
     private boolean isSealSupportedTargetType(BType targetType) {
         switch (targetType.tag) {
-            case TypeTags.INT:
-            case TypeTags.STRING:
-            case TypeTags.BOOLEAN:
-            case TypeTags.BYTE:
-            case TypeTags.FLOAT:
-            case TypeTags.UNION:
-                return false;
             case TypeTags.ARRAY:
                 // Primitive type array does not support seal because primitive arrays are not using ref registry.
                 int arrayConstraintTypeTag = ((BArrayType) targetType).eType.tag;
                 return !(arrayConstraintTypeTag == TypeTags.INT || arrayConstraintTypeTag == TypeTags.BOOLEAN ||
                         arrayConstraintTypeTag == TypeTags.FLOAT || arrayConstraintTypeTag == TypeTags.BYTE ||
                         arrayConstraintTypeTag == TypeTags.STRING);
+            case TypeTags.MAP:
+            case TypeTags.RECORD:
+            case TypeTags.OBJECT:
+            case TypeTags.JSON:
+            case TypeTags.XML:
+            case TypeTags.TUPLE:
+            case TypeTags.ANY:
+            case TypeTags.ANYDATA:
+                return true;
         }
-
-        return true;
+        return false;
     }
 }

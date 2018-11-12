@@ -38,7 +38,7 @@ public enum BLangBuiltInMethod {
 
     STACKTRACE("stackTrace"),
 
-    SEAL("seal"),
+    STAMP("stamp"),
 
     UNDEFINED("$undefined");
 

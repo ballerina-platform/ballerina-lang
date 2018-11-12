@@ -1895,7 +1895,12 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private boolean checkBuiltinFunctionInvocation(BLangInvocation iExpr, BLangBuiltInMethod function, BType... args) {
         Name funcName = names.fromString(iExpr.name.value);
-        BSymbol funcSymbol = symResolver.resolveBuiltinOperator(funcName, args);
+
+        if(iExpr.name.value.equals("stamp")) {
+            List<BLangExpression> functionArgList = iExpr.argExprs;
+            checkExpr(functionArgList.get(0), env, symTable.noType);
+        }
+        BSymbol funcSymbol = symResolver.resolveBuiltinOperator(iExpr.pos, funcName, iExpr.argExprs, args);
 
         if (funcSymbol == symTable.notFoundSymbol) {
             return false;

@@ -92,7 +92,7 @@ public interface InstructionCodes {
     int BGSTORE = 62;
     int RGSTORE = 63;
 
-    int SEAL = 64;
+    int STAMP = 64;
     int ERROR = 65;
     int PANIC = 66;
     int REASON = 67;
