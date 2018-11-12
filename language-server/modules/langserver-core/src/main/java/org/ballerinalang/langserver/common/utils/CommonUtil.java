@@ -105,7 +105,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.Stack;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -309,18 +308,18 @@ public class CommonUtil {
      * 
      * Note: If n is greater than stack, then all the elements of list will be returned
      * 
-     * @param itemStack         Item Stack to pop elements from     
+     * @param itemList          Item Stack to pop elements from     
      * @param n                 number of elements to pop
      * @param <T>               Type of the Elements
      * @return {@link List}     List of popped Items
      */
-    public static  <T> List<T> popNFromStack(Stack<T> itemStack, int n) {
-        List<T> poppedList = new ArrayList<>(itemStack);
+    public static  <T> List<T> popNFromList(List<T> itemList, int n) {
+        List<T> poppedList = new ArrayList<>(itemList);
         if (n > poppedList.size()) {
             return poppedList;
         }
         
-        return poppedList.subList(poppedList.size() - n, poppedList.size());
+        return itemList.subList(itemList.size() - n, itemList.size());
     }
 
     private static Token getDefaultTokenToLeftOrRight(TokenStream tokenStream, int startIndex, int direction) {
@@ -711,6 +710,18 @@ public class CommonUtil {
         return isTestSource(relativePath) ? parentPkg.getTestablePkg() : parentPkg;
     }
 
+    /**
+     * Get the string values list of forced consumed tokens, from the LSContext.
+     *
+     * @param ctx               Language Server context
+     * @return {@link List}     Token string list
+     */
+    public static List<String> getPoppedTokenStrings(LSContext ctx) {
+        return ctx.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY).stream()
+                .map(Token::getText)
+                .collect(Collectors.toList());
+    }
+
     static void populateIterableOperations(SymbolInfo variable, List<SymbolInfo> symbolInfoList, LSContext context) {
         BType bType = variable.getScopeEntry().symbol.getType();
         
@@ -797,7 +808,7 @@ public class CommonUtil {
         BLangCompilationUnit filteredCUnit = pkgNode.compUnits.stream()
                 .filter(cUnit -> cUnit.getPosition().getSource().cUnitName.equals(relativeFilePath))
                 .findAny().orElse(null);
-        return filteredCUnit == null ? new ArrayList<>() : filteredCUnit.getTopLevelNodes();
+        return filteredCUnit == null ? new ArrayList<>() : new ArrayList<>(filteredCUnit.getTopLevelNodes());
     }
     
     private static SymbolInfo getIterableOpSymbolInfo(SnippetBlock operation, @Nullable BType bType, String label,

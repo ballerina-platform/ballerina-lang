@@ -86,6 +86,9 @@ public class FunctionDefinition extends CompletionTest {
                 {"completionWithinRecord1.json", "function"},
                 {"completionWithinRecord2.json", "function"},
                 {"completionWithinRecord3.json", "function"},
+                {"anonFunctionSnippetSuggestion1.json", "function"},
+                {"anonFunctionSnippetSuggestion2.json", "function"},
+                {"anonFunctionSnippetSuggestion3.json", "function"},
         };
     }
 }
