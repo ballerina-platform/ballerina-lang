@@ -808,4 +808,12 @@ public abstract class BLangNodeVisitor {
     public void visit(BLangWaitForAllExpr waitForAllExpr) {
         throw new AssertionError();
     }
+
+    public void visit(BLangWaitForAllExpr.BLangWaitStructLiteral waitStructLiteral) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangWaitForAllExpr.BLangWaitMapLiteral waitMapLiteral) {
+        throw new AssertionError();
+    }
 }
