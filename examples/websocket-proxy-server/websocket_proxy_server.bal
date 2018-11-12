@@ -2,7 +2,7 @@ import ballerina/http;
 import ballerina/log;
 
 @final string ASSOCIATED_CONNECTION = "ASSOCIATED_CONNECTION";
-@final string REMOTE_BACKEND = "wss://echo.websocket.org";
+@final string REMOTE_BACKEND = "ws://echo.websocket.org";
 
 @http:WebSocketServiceConfig {
     path: "/proxy/ws"

@@ -65,6 +65,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -1253,12 +1254,37 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             ((BLangWhere) afterWhereNode).accept(this);
         }
 
-        //Create duplicate symbol for stream alias
-        if (streamingInput.getAlias() != null) {
-            BVarSymbol streamSymbol = (BVarSymbol) ((BLangSimpleVarRef) streamRef).symbol;
-            BVarSymbol streamAliasSymbol = ASTBuilderUtil.duplicateVarSymbol(streamSymbol);
-            streamAliasSymbol.name = names.fromString(streamingInput.getAlias());
-            symbolEnter.defineSymbol(streamingInput.pos, streamAliasSymbol, env);
+        if (isTableReference(streamingInput.getStreamReference())) {
+            if (streamingInput.getAlias() == null) {
+                dlog.error(streamingInput.pos, DiagnosticCode.UNDEFINED_INVOCATION_ALIAS, ((BLangInvocation) streamRef)
+                        .name.getValue());
+            }
+            if (streamingInput.getStreamReference().getKind() == NodeKind.INVOCATION) {
+                BInvokableSymbol functionSymbol = (BInvokableSymbol) ((BLangInvocation) streamRef).symbol;
+                symbolEnter.defineVarSymbol(streamingInput.pos, EnumSet.noneOf(Flag.class), ((BTableType) functionSymbol
+                        .retType).constraint, names.fromString(streamingInput.getAlias()), env);
+            } else {
+                BType constraint = ((BTableType) ((BLangVariableReference) streamingInput.getStreamReference()).type)
+                        .constraint;
+                symbolEnter.defineVarSymbol(streamingInput.pos, EnumSet.noneOf(Flag.class), constraint,
+                        names.fromString(streamingInput.getAlias()), env);
+            }
+        } else {
+            //Create duplicate symbol for stream alias
+            if (streamingInput.getAlias() != null) {
+                BVarSymbol streamSymbol = (BVarSymbol) ((BLangSimpleVarRef) streamRef).symbol;
+                BVarSymbol streamAliasSymbol = ASTBuilderUtil.duplicateVarSymbol(streamSymbol);
+                streamAliasSymbol.name = names.fromString(streamingInput.getAlias());
+                symbolEnter.defineSymbol(streamingInput.pos, streamAliasSymbol, env);
+            }
+        }
+    }
+
+    private boolean isTableReference(ExpressionNode streamReference) {
+        if (streamReference.getKind() == NodeKind.INVOCATION) {
+            return ((BLangInvocation) streamReference).type.tsymbol.type == symTable.tableType;
+        } else {
+            return ((BLangVariableReference) streamReference).type.tsymbol.type == symTable.tableType;
         }
     }
 

@@ -8,5 +8,6 @@
                 "log": "./src/log/log"
             }
         }]
-    ]
+    ],
+    "sourceMaps": true
 }

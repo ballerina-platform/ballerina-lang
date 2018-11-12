@@ -2,14 +2,18 @@
   "name": "@ballerina/diagram",
   "version": "0.982.1-SNAPSHOT",
   "description": "Provides a set of react components to draw Ballerina Diagrams.",
-  "keywords": ["ballerina", "ballerina-lang", "composer"],
+  "keywords": [
+    "ballerina",
+    "ballerina-lang",
+    "composer"
+  ],
   "repository": "ballerina-platform/ballerina-lang",
   "main": "lib/index.js",
   "scripts": {
     "test-coverage": "npm run test -- --coverage",
     "test": "echo \"Error: no test specified\"",
-    "build": "babel src -d lib --copy-files",
-    "watch": "babel src -d lib --copy-files --watch"
+    "build": "babel src -d lib --copy-files --source-maps",
+    "watch": "babel src -d lib --copy-files --watch --source-maps"
   },
   "author": "ballerina.io",
   "license": "Apache-2.0",
@@ -32,6 +36,7 @@
   },
   "dependencies": {
     "@ballerina/theme": "file:../theme",
+    "ast-model": "file:../ast-model",
     "axios": "^0.16.2",
     "babel-plugin-module-resolver": "^3.1.1",
     "jquery": "^3.3.1",

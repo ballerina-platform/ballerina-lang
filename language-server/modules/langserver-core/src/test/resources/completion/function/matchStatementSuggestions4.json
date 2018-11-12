@@ -46,14 +46,6 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"roundRobin(lb,loadBalanceConfigArray)",
-      "kind":"Function",
-      "detail":"Snippet",
-      "sortText":"120",
-      "insertText":"roundRobin(lb,loadBalanceConfigArray) {\n\thttp:CallerActions \u003d\u003e {\n\t\t\n\t}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
       "label":"encode(url,charset)",
       "kind":"Function",
       "detail":"Snippet",
