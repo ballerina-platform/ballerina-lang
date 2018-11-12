@@ -155,6 +155,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -1853,6 +1854,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             // We don't have any expected type in this case since the type node is not available. So we just visit
             // the value to set the proper type to it.
             typeChecker.checkExpr(value, env);
+        }
+
+        // We need to check types for the values in value spaces. Otherwise, float, decimal will not be identified in
+        // codegen when retrieving the default value.
+        BLangFiniteTypeNode typeNode = (BLangFiniteTypeNode) constant.associatedTypeDefinition.typeNode;
+        for (BLangExpression literal : typeNode.valueSpace) {
+            typeChecker.checkExpr(literal, env, literal.type);
         }
     }
 
