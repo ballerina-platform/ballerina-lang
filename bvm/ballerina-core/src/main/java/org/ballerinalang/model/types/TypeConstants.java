@@ -27,6 +27,7 @@ public class TypeConstants {
     public static final String INT_TNAME = "int";
     public static final String BYTE_TNAME = "byte";
     public static final String FLOAT_TNAME = "float";
+    public static final String DECIMAL_TNAME = "decimal";
     public static final String STRING_TNAME = "string";
     public static final String BOOLEAN_TNAME = "boolean";
     public static final String ARRAY_TNAME = "[]";

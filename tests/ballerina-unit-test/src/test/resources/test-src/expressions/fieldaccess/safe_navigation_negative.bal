@@ -51,7 +51,7 @@ function testSafeNavigateOnErrorOrNull_1() returns string{
 }
 
 function testSafeNavigateOnErrorOrNull_3() returns string {
-    error e;
+    error e = error("");
     return e!message;
 }
 

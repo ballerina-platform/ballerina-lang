@@ -307,6 +307,7 @@ function performFailoverAction (string path, Request request, HttpOperation requ
         currentIndex = currentIndex + 1;
         var endpointResponse = invokeEndpoint(path, failoverRequest, requestAction, failoverClient);
         if (endpointResponse is Response) {
+            inResponse = endpointResponse;
             int httpStatusCode = endpointResponse.statusCode;
             // Check whether HTTP status code of the response falls into configued `failoverCodes`
             if (failoverCodeIndex[httpStatusCode] == true) {
