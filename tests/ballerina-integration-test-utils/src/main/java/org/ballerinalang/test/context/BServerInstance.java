@@ -33,6 +33,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import static org.ballerinalang.test.context.Constant.BALLERINA_AGENT_PATH;
+import static org.ballerinalang.test.context.Constant.JACOCO_AGENT_ARG_LINE;
+
 /**
  * This class hold the server information and manage the a server instance.
  *
@@ -69,7 +72,7 @@ public class BServerInstance implements BServer {
     }
 
     private void configureAgentArgs() throws BallerinaTestException {
-        String balAgent = Paths.get(System.getProperty("ballerina.agent.path")).toString();
+        String balAgent = Paths.get(System.getProperty(BALLERINA_AGENT_PATH)).toString();
 
         if (balAgent == null || balAgent.isEmpty()) {
             throw new BallerinaTestException("Cannot start server, Ballerina agent not provided");
@@ -78,7 +81,7 @@ public class BServerInstance implements BServer {
         agentArgs = "-javaagent:" + balAgent + "=host=" + agentHost + ",port=" + agentPort
                 + ",exitStatus=1,timeout=15000,killStatus=5 ";
 
-        String jacocoArgLine = System.getProperty("jacoco.agent.argLine");
+        String jacocoArgLine = System.getProperty(JACOCO_AGENT_ARG_LINE);
         if (jacocoArgLine == null || jacocoArgLine.isEmpty()) {
             log.warn("Running integration test without jacoco test coverage");
             return;
