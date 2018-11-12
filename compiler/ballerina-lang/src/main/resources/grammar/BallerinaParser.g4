@@ -245,6 +245,7 @@ valueTypeName
     |   TYPE_INT
     |   TYPE_BYTE
     |   TYPE_FLOAT
+    |   TYPE_DECIMAL
     |   TYPE_STRING
     ;
 
@@ -286,6 +287,7 @@ statement
     :   variableDefinitionStatement
     |   assignmentStatement
     |   tupleDestructuringStatement
+    |   recordDestructuringStatement
     |   compoundAssignmentStatement
     |   ifElseStatement
     |   matchStatement
@@ -313,7 +315,8 @@ statement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier (ASSIGN expression)? SEMICOLON
+    :   typeName Identifier SEMICOLON
+    |   (typeName | VAR) bindingPattern ASSIGN expression SEMICOLON
     ;
 
 recordLiteral
@@ -359,12 +362,15 @@ arrayLiteral
     ;
 
 assignmentStatement
-    :   (VAR)? variableReference ASSIGN expression SEMICOLON
+    :   variableReference ASSIGN expression SEMICOLON
     ;
 
 tupleDestructuringStatement
-    :   VAR? LEFT_PARENTHESIS variableReferenceList RIGHT_PARENTHESIS ASSIGN expression SEMICOLON
-    |   LEFT_PARENTHESIS parameterList RIGHT_PARENTHESIS ASSIGN expression SEMICOLON
+    :   tupleRefBindingPattern ASSIGN expression SEMICOLON
+    ;
+
+recordDestructuringStatement
+    :   VAR? recordRefBindingPattern ASSIGN expression SEMICOLON
     ;
 
 compoundAssignmentStatement
@@ -411,6 +417,72 @@ matchStatement
 matchPatternClause
     :   typeName EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
     |   typeName Identifier EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
+    |   simpleLiteral EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
+    |   VAR bindingPattern EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
+    ;
+
+bindingPattern
+    :   Identifier
+    |   structuredBindingPattern
+    ;
+
+structuredBindingPattern
+    :   tupleBindingPattern
+    |   recordBindingPattern
+    ;
+
+tupleBindingPattern
+    :   LEFT_PARENTHESIS bindingPattern (COMMA bindingPattern)+ RIGHT_PARENTHESIS
+    ;
+
+recordBindingPattern
+    :   LEFT_BRACE entryBindingPattern RIGHT_BRACE
+    ;
+
+entryBindingPattern
+    :   fieldBindingPattern (COMMA fieldBindingPattern)* (COMMA restBindingPattern)?
+    |   restBindingPattern
+    ;
+
+fieldBindingPattern
+    :   Identifier (COLON bindingPattern)?
+    ;
+
+restBindingPattern
+    :   ELLIPSIS Identifier
+    |   sealedLiteral
+    ;
+
+bindingRefPattern
+    :   variableReference
+    |   structuredRefBindingPattern
+    ;
+
+structuredRefBindingPattern
+    :   tupleRefBindingPattern
+    |   recordRefBindingPattern
+    ;
+
+tupleRefBindingPattern
+    :   LEFT_PARENTHESIS bindingRefPattern (COMMA bindingRefPattern)+ RIGHT_PARENTHESIS
+    ;
+
+recordRefBindingPattern
+    :   LEFT_BRACE entryRefBindingPattern RIGHT_BRACE
+    ;
+
+entryRefBindingPattern
+    :   fieldRefBindingPattern (COMMA fieldRefBindingPattern)* (COMMA restRefBindingPattern)?
+    |   restRefBindingPattern
+    ;
+
+fieldRefBindingPattern
+    :   Identifier (COLON bindingRefPattern)?
+    ;
+
+restRefBindingPattern
+    :   ELLIPSIS variableReference
+    |   sealedLiteral
     ;
 
 foreachStatement

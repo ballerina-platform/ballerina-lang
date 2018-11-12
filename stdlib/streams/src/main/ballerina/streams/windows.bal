@@ -78,7 +78,7 @@ public type LengthWindow object {
                         (function (map e1Data, map e2Data) returns boolean)? conditionFunc,
                         boolean isLHSTrigger = true)
                         returns (StreamEvent?, StreamEvent?)[] {
-        (StreamEvent?, StreamEvent?)[] events;
+        (StreamEvent?, StreamEvent?)[] events = [];
         int i = 0;
         foreach e in self.linkedList.asArray() {
             match e {
@@ -244,8 +244,8 @@ public function timeWindow(int timeLength, function (StreamEvent[])? nextProcess
 
 public type LengthBatchWindow object {
     public int length;
-    public int count;
-    public StreamEvent? resetEvent;
+    public int count = 0;
+    public StreamEvent? resetEvent = ();
     public LinkedList currentEventQueue;
     public LinkedList? expiredEventQueue;
     public function (StreamEvent[])? nextProcessPointer;
@@ -362,8 +362,8 @@ public type TimeBatchWindow object {
     public int nextEmitTime = -1;
     public LinkedList currentEventQueue;
     public LinkedList? expiredEventQueue;
-    public StreamEvent? resetEvent;
-    public task:Timer? timer;
+    public StreamEvent? resetEvent = ();
+    public task:Timer? timer = ();
     public function (StreamEvent[])? nextProcessPointer;
 
     public new(nextProcessPointer, timeInMilliSeconds) {
@@ -554,7 +554,7 @@ public type ExternalTimeWindow object {
                         (function (map e1Data, map e2Data) returns boolean)? conditionFunc,
                         boolean isLHSTrigger = true)
                         returns (StreamEvent?, StreamEvent?)[] {
-        (StreamEvent?, StreamEvent?)[] events;
+        (StreamEvent?, StreamEvent?)[] events = [];
         int i = 0;
         foreach e in self.expiredEventQueue.asArray() {
             match e {
@@ -610,9 +610,9 @@ public type ExternalTimeBatchWindow object {
     public boolean flushed = false;
     public int endTime = -1;
     public int schedulerTimeout = 0;
-    public int lastScheduledTime;
+    public int lastScheduledTime = 0;
     public int lastCurrentEventTime = 0;
-    public task:Timer? timer;
+    public task:Timer? timer = ();
     public function (StreamEvent[])? nextProcessPointer;
     public string timeStamp;
     public boolean storeExpiredEvents = false;
@@ -728,7 +728,7 @@ public type ExternalTimeBatchWindow object {
                         (function (map e1Data, map e2Data) returns boolean)? conditionFunc,
                         boolean isLHSTrigger = true)
                         returns (StreamEvent?, StreamEvent?)[] {
-        (StreamEvent?, StreamEvent?)[] events;
+        (StreamEvent?, StreamEvent?)[] events = [];
         int i = 0;
         foreach e in self.currentEventChunk.asArray() {
             match e {
@@ -951,7 +951,7 @@ public type TimeLengthWindow object {
     public int count = 0;
     public LinkedList expiredEventChunk;
     public function (StreamEvent[])? nextProcessPointer;
-    public task:Timer? timer;
+    public task:Timer? timer = ();
 
     public new(nextProcessPointer, timeInMilliSeconds, length) {
         self.expiredEventChunk = new;
@@ -1041,7 +1041,7 @@ public type TimeLengthWindow object {
                         (function (map e1Data, map e2Data) returns boolean)? conditionFunc,
                         boolean isLHSTrigger = true)
                         returns (StreamEvent?, StreamEvent?)[] {
-        (StreamEvent?, StreamEvent?)[] events;
+        (StreamEvent?, StreamEvent?)[] events = [];
         int i = 0;
         foreach e in self.expiredEventChunk.asArray() {
             match e {
@@ -1085,7 +1085,7 @@ public type UniqueLengthWindow object {
     public string uniqueKey;
     public int length;
     public int count = 0;
-    public map uniqueMap;
+    public map uniqueMap = {};
     public LinkedList expiredEventChunk;
     public function (StreamEvent[])? nextProcessPointer;
 
@@ -1172,7 +1172,7 @@ public type UniqueLengthWindow object {
                         (function (map e1Data, map e2Data) returns boolean)? conditionFunc,
                         boolean isLHSTrigger = true)
                         returns (StreamEvent?, StreamEvent?)[] {
-        (StreamEvent?, StreamEvent?)[] events;
+        (StreamEvent?, StreamEvent?)[] events = [];
         int i = 0;
         foreach e in self.expiredEventChunk.asArray() {
             match e {
@@ -1211,7 +1211,7 @@ public type DelayWindow object {
     public int delayInMilliSeconds;
     public LinkedList delayedEventQueue;
     public int lastTimestamp = 0;
-    public task:Timer? timer;
+    public task:Timer? timer = ();
     public function (StreamEvent[])? nextProcessPointer;
 
     public new(nextProcessPointer, delayInMilliSeconds) {
@@ -1300,7 +1300,7 @@ public type DelayWindow object {
                         (function (map e1Data, map e2Data) returns boolean)? conditionFunc,
                         boolean isLHSTrigger = true)
                         returns (StreamEvent?, StreamEvent?)[] {
-        (StreamEvent?, StreamEvent?)[] events;
+        (StreamEvent?, StreamEvent?)[] events = [];
         int i = 0;
         foreach e in self.delayedEventQueue.asArray() {
             match e {

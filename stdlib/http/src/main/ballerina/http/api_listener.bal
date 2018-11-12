@@ -21,7 +21,7 @@
 # + secureListener - Secure HTTP Listener instance
 public type APIListener object {
 
-    public SecureEndpointConfiguration config;
+    public SecureEndpointConfiguration config = {};
     public SecureListener secureListener;
 
     new() {

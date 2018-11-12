@@ -17,7 +17,7 @@
 public type GroupBy object {
     public function (StreamEvent[]) nextProcessorPointer;
     public string[] groupByFields;
-    public map groupedStreamEvents;
+    public map groupedStreamEvents = {};
 
     new (nextProcessorPointer, groupByFields) {
     }
@@ -44,7 +44,7 @@ public type GroupBy object {
     }
 
     function generateGroupByKey(StreamEvent event) returns string {
-        string key;
+        string key = "";
 
         foreach field in self.groupByFields {
             key += ", ";

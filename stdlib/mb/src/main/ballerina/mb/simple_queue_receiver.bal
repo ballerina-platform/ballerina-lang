@@ -25,7 +25,7 @@ public type SimpleQueueReceiver object {
 
     public SimpleQueueListenerEndpointConfiguration config;
 
-    private jms:SimpleQueueReceiver receiver;
+    private jms:SimpleQueueReceiver receiver = new;
     private QueueReceiverActions? consumerActions;
 
     # Initialize the SimpleQueueReceiver endpoint

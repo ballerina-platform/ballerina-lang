@@ -217,6 +217,9 @@ public class Symbols {
             case TypeTags.STRING:
                 opcode = InstructionCodes.ANY2S;
                 break;
+            case TypeTags.DECIMAL:
+                opcode = InstructionCodes.ANY2D;
+                break;
             default:
                 opcode = InstructionCodes.ANY2B;
                 break;
@@ -243,7 +246,7 @@ public class Symbols {
     }
 
     public static boolean isPrivate(BSymbol sym) {
-        return (sym.flags & Flags.PUBLIC) != Flags.PUBLIC;
+        return (sym.flags & Flags.PRIVATE) == Flags.PRIVATE;
     }
 
     public static boolean isFlagOn(int mask, int flag) {

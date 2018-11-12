@@ -25,7 +25,7 @@ import ballerina/system;
 # + httpListener - HTTP Listener instance
 public type SecureListener object {
 
-    public SecureEndpointConfiguration config;
+    public SecureEndpointConfiguration config = {};
     public Listener httpListener;
     private string instanceId;
 
@@ -177,7 +177,7 @@ function addAuthFiltersForSecureListener(SecureEndpointConfiguration config, str
 # + return - Array of Filters comprising of authn and authz Filters
 function createAuthFiltersForSecureListener(SecureEndpointConfiguration config, string instanceId) returns (Filter[]) {
     // parse and create authentication handlers
-    AuthHandlerRegistry registry;
+    AuthHandlerRegistry registry = new;
     match config.authProviders {
         AuthProvider[] providers => {
             foreach provider in providers {
@@ -201,7 +201,7 @@ function createAuthFiltersForSecureListener(SecureEndpointConfiguration config, 
         config.positiveAuthzCache.capacity, evictionFactor = config.positiveAuthzCache.evictionFactor);
     cache:Cache negativeAuthzCache = new(expiryTimeMillis = config.negativeAuthzCache.expiryTimeMillis, capacity =
         config.negativeAuthzCache.capacity, evictionFactor = config.negativeAuthzCache.evictionFactor);
-    auth:AuthStoreProvider authStoreProvider;
+    auth:AuthStoreProvider authStoreProvider = new;
     match config.authProviders {
         AuthProvider[] providers => {
             foreach provider in providers {
@@ -248,7 +248,7 @@ function createBasicAuthHandler() returns HttpAuthnHandler {
 
 function createAuthHandler(AuthProvider authProvider, string instanceId) returns HttpAuthnHandler {
     if (authProvider.scheme == AUTHN_SCHEME_BASIC) {
-        auth:AuthStoreProvider authStoreProvider;
+        auth:AuthStoreProvider authStoreProvider = new;
         if (authProvider.authStoreProvider == AUTH_PROVIDER_CONFIG) {
             if (authProvider.propagateJwt) {
                 auth:ConfigJwtAuthProvider configAuthProvider = new(getInferredJwtAuthProviderConfig(authProvider));

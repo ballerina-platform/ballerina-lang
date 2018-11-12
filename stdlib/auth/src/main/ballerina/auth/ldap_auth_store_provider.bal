@@ -94,7 +94,7 @@ public type TrustStore record {
 public type LdapAuthStoreProvider object {
 
     public LdapAuthProviderConfig ldapAuthProviderConfig;
-    public string instanceId;
+    public string instanceId = "";
 
     # Create an LDAP auth store with the given configurations.
     #

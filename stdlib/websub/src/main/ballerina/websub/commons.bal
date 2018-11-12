@@ -195,7 +195,7 @@ function processWebSubNotification(http:Request request, typedesc serviceType) r
         return;
     }
 
-    string stringPayload;
+    string stringPayload = "";
     match (request.getPayloadAsString()) {
         string payloadAsString => { stringPayload = payloadAsString; }
         error entityError => {
@@ -220,7 +220,7 @@ function validateSignature(string xHubSignature, string stringPayload, string se
     string[] splitSignature = xHubSignature.split("=");
     string method = splitSignature[0];
     string signature = xHubSignature.replace(method + "=", "");
-    string generatedSignature;
+    string generatedSignature = "";
 
     if (SHA1.equalsIgnoreCase(method)) {
         generatedSignature = crypto:hmac(stringPayload, secret, crypto:SHA1);
@@ -245,7 +245,7 @@ function validateSignature(string xHubSignature, string stringPayload, string se
 # + request - The HTTP POST request received as the notification
 public type Notification object {
 
-    private http:Request request;
+    private http:Request request = new;
 
     # Retrieves the query parameters of the content delivery request, as a map.
     #
@@ -359,7 +359,7 @@ public type Notification object {
 # + response - The `http:Response` received
 # + return - `(topic, hubs)` if parsing and extraction is successful, `error` if not
 public function extractTopicAndHubUrls(http:Response response) returns (string, string[])|error {
-    string[] linkHeaders;
+    string[] linkHeaders = [];
     if (response.hasHeader("Link")) {
         linkHeaders = response.getHeaders("Link");
     }
@@ -371,8 +371,8 @@ public function extractTopicAndHubUrls(http:Response response) returns (string, 
     }
 
     int hubIndex = 0;
-    string[] hubs;
-    string topic;
+    string[] hubs = [];
+    string topic = "";
     string[] linkHeaderConstituents = [];
     if (linkHeaders.length() == 1) {
         linkHeaderConstituents = linkHeaders[0].split(",");
@@ -609,7 +609,7 @@ function WebSubHub::unregisterTopic(string topic) returns error? {
 # + hubs - The hubs the publisher advertises as the hubs that it publishes updates to
 # + topic - The topic to which subscribers need to subscribe to, to receive updates for the resource
 public function addWebSubLinkHeader(http:Response response, string[] hubs, string topic) {
-    string hubLinkHeader;
+    string hubLinkHeader = "";
     foreach hub in hubs {
         hubLinkHeader = hubLinkHeader + "<" + hub + ">; rel=\"hub\", ";
     }

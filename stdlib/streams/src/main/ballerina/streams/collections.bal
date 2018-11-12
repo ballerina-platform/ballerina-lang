@@ -428,7 +428,7 @@ public type LinkedList object {
     public function asArray() returns any[] {
         any[] arr = [self.size - 1];
         Node? temp;
-        int i;
+        int i = 0;
         if (!self.isEmpty()) {
             match self.first {
                 Node value => {

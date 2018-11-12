@@ -26,8 +26,8 @@ public type SimpleQueueReceiver object {
     public SimpleQueueReceiverEndpointConfiguration config;
 
     private Connection? connection;
-    private Session? session;
-    private QueueReceiver? queueReceiver;
+    private Session? session = ();
+    private QueueReceiver? queueReceiver = ();
 
     # Initialize the SimpleQueueReceiver endpoint
     #

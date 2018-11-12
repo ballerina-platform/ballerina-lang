@@ -19,7 +19,7 @@
 # + config - Used to store configurations related to a JMS connection
 public type Connection object {
 
-    public ConnectionConfiguration config;
+    public ConnectionConfiguration config = {};
 
     # JMS connection constructor
     public new(config) {

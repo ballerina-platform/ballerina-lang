@@ -24,8 +24,8 @@ public type SimpleTopicPublisher object {
     public SimpleTopicPublisherEndpointConfiguration config;
 
     private Connection? connection;
-    private Session? session;
-    private TopicPublisher? publisher;
+    private Session? session = ();
+    private TopicPublisher? publisher = ();
 
     # Initialize simple topic publisher endpoint
     #

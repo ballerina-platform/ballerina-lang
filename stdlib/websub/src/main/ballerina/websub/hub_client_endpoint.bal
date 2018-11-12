@@ -25,9 +25,9 @@ import ballerina/http;
 # + config - The configuration for the endpoint
 public type Client object {
 
-    public HubClientEndpointConfig config;
+    public HubClientEndpointConfig config = {};
 
-    private http:Client httpClientEndpoint;
+    private http:Client httpClientEndpoint = new;
 
     # Called when the endpoint is being initialized during module initialization.
     #

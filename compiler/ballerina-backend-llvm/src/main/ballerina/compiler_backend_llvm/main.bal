@@ -66,7 +66,7 @@ function arrayEq(byte[] x, byte[] y) returns boolean {
         return false;
     }
 
-    int i;
+    int i = 0;
     while i < xLen {
         if (x[i] != y[i]){
             return false;

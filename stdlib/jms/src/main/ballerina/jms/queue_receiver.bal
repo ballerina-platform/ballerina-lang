@@ -22,7 +22,7 @@ import ballerina/log;
 # + config - configurations related to the QueueReceiver
 public type QueueReceiver object {
 
-    public QueueReceiverActions consumerActions;
+    public QueueReceiverActions consumerActions = new;
     public QueueReceiverEndpointConfiguration config;
 
     # Initializes the QueueReceiver endpoint

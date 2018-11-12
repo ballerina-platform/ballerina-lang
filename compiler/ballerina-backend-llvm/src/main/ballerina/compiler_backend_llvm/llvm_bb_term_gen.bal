@@ -94,8 +94,8 @@ type BbTermGenrator object {
 };
 
 function stringMul(string str, int factor) returns string {
-    int i;
-    string result;
+    int i = 0;
+    string result = "";
     while i < factor {
         result = result + str;
         i += 1;

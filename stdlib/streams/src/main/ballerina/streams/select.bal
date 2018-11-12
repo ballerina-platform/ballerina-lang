@@ -20,7 +20,7 @@ public type Select object {
     private Aggregator [] aggregatorArr;
     private (function(StreamEvent o) returns string)? groupbyFunc;
     private function(StreamEvent o, Aggregator []  aggregatorArr1) returns map selectFunc;
-    private map<Aggregator[]> aggregatorsCloneMap;
+    private map<Aggregator[]> aggregatorsCloneMap = {};
 
 
     new(nextProcessorPointer, aggregatorArr, groupbyFunc, selectFunc) {
@@ -29,7 +29,7 @@ public type Select object {
     public function process(StreamEvent[] streamEvents) {
         StreamEvent[] outputStreamEvents = [];
         if (self.aggregatorArr.length() > 0) {
-            map<StreamEvent> groupedEvents;
+            map<StreamEvent> groupedEvents = {};
             foreach event in streamEvents {
 
                 if (event.eventType == RESET) {
@@ -40,7 +40,7 @@ public type Select object {
                     (function(StreamEvent o) returns string) groupbyFunction => groupbyFunction(event),
                     () => DEFAULT
                 };
-                Aggregator[] aggregatorsClone;
+                Aggregator[] aggregatorsClone = [];
                 match (self.aggregatorsCloneMap[groupbyKey]) {
                     Aggregator[] aggregators => {
                         aggregatorsClone = aggregators;

@@ -166,9 +166,8 @@ public type KeepAlive "AUTO"|"ALWAYS"|"NEVER";
 function Listener::init (ServiceEndpointConfiguration c) {
     self.config = c;
     var err = self.initEndpoint();
-    match err {
-        error e => panic e;
-        () => {}
+    if (err is error) {
+        panic err;
     }
 }
 
@@ -184,15 +183,15 @@ function Listener::init (ServiceEndpointConfiguration c) {
 # + attributes - A `map` to store connection related attributes
 public type WebSocketListener object {
 
-    @readonly public string id;
-    @readonly public string negotiatedSubProtocol;
-    @readonly public boolean isSecure;
-    @readonly public boolean isOpen;
-    @readonly public map attributes;
+    @readonly public string id = "";
+    @readonly public string negotiatedSubProtocol = "";
+    @readonly public boolean isSecure = false;
+    @readonly public boolean isOpen = false;
+    @readonly public map attributes = {};
 
-    private WebSocketConnector conn;
+    private WebSocketConnector conn = new;
     private ServiceEndpointConfiguration config;
-    private Listener httpEndpoint;
+    private Listener httpEndpoint = new;
 
     public new() {
     }

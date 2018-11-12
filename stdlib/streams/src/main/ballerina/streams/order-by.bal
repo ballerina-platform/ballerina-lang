@@ -35,7 +35,7 @@ public type OrderBy object {
     function topDownMergeSort(StreamEvent[] a, string[] tmpSortTypes) {
         int index = 0;
         int n = a.length();
-        StreamEvent[] b;
+        StreamEvent[] b = [];
         while (index < n) {
             b[index] = a[index];
             index += 1;
