@@ -12,16 +12,16 @@
   "scripts": {
     "clean": "rimraf lib && rimraf coverage",
     "prebuild": "npm run clean && npm run lint",
-    "compile": "tsc -p ./ && copyfiles resources/bbe-asts/* lib-ts",
+    "compile": "tsc -p ./ && copyfiles resources/bbe-asts/* lib",
     "build": "npm run compile",
     "watch": "tsc -watch -p ./",
     "test": "jest",
     "test-coverage": "npm run test -- --coverage",
     "storybook": "start-storybook -p 9001 -c .storybook",
     "lint": "tslint -t stylish --project .",
-    "start-ws-ls": "npm run compile && node lib-ts/tools/start-ws-lang-server.js",
-    "gen-bbe-asts": "npm run compile && node lib-ts/tools/update-bbe-asts.js",
-    "gen-models": "npm run compile && node lib-ts/tools/generate-models.js"
+    "start-ws-ls": "npm run compile && node lib/tools/start-ws-lang-server.js",
+    "gen-bbe-asts": "npm run compile && node lib/tools/update-bbe-asts.js",
+    "gen-models": "npm run compile && node lib/tools/generate-models.js"
   },
   "author": "ballerina.io",
   "license": "Apache-2.0",
