@@ -49,7 +49,7 @@ public type TopicSubscriber object {
     #
     # + serviceType - Type descriptor of the service
     public function register(typedesc serviceType) {
-        self.registerListener(serviceType, consumerActions);
+        self.registerListener(serviceType, self.consumerActions);
     }
 
     extern function registerListener(typedesc serviceType, TopicSubscriberActions actions);
@@ -65,12 +65,12 @@ public type TopicSubscriber object {
     #
     # + return - Topic subscriber actions
     public function getCallerActions() returns TopicSubscriberActions {
-        return consumerActions;
+        return self.consumerActions;
     }
 
     # Stop topic subscriber endpoint
     public function stop() {
-        self.closeSubscriber(consumerActions);
+        self.closeSubscriber(self.consumerActions);
     }
 
     extern function closeSubscriber(TopicSubscriberActions actions);

@@ -28,33 +28,33 @@ public type Select object {
 
     public function process(StreamEvent[] streamEvents) {
         StreamEvent[] outputStreamEvents = [];
-        if (aggregatorArr.length() > 0) {
+        if (self.aggregatorArr.length() > 0) {
             map<StreamEvent> groupedEvents = {};
             foreach event in streamEvents {
 
                 if (event.eventType == RESET) {
-                    aggregatorsCloneMap.clear();
+                    self.aggregatorsCloneMap.clear();
                 }
 
-                string groupbyKey = groupbyFunc but {
+                string groupbyKey = self.groupbyFunc but {
                     (function(StreamEvent o) returns string) groupbyFunction => groupbyFunction(event),
                     () => DEFAULT
                 };
                 Aggregator[] aggregatorsClone = [];
-                match (aggregatorsCloneMap[groupbyKey]) {
+                match (self.aggregatorsCloneMap[groupbyKey]) {
                     Aggregator[] aggregators => {
                         aggregatorsClone = aggregators;
                     }
                     () => {
                         int i = 0;
-                        foreach aggregator in aggregatorArr {
+                        foreach aggregator in self.aggregatorArr {
                             aggregatorsClone[i] = aggregator.clone();
                             i += 1;
                         }
-                        aggregatorsCloneMap[groupbyKey] = aggregatorsClone;
+                        self.aggregatorsCloneMap[groupbyKey] = aggregatorsClone;
                     }
                 }
-                StreamEvent e = new ((OUTPUT, selectFunc(event, aggregatorsClone)), event.eventType, event.timestamp);
+                StreamEvent e = new ((OUTPUT, self.selectFunc(event, aggregatorsClone)), event.eventType, event.timestamp);
                 groupedEvents[groupbyKey] = e;
             }
             foreach key in groupedEvents.keys() {
@@ -67,12 +67,12 @@ public type Select object {
             }
         } else {
             foreach event in streamEvents {
-                StreamEvent e = new ((OUTPUT, selectFunc(event, aggregatorArr)), event.eventType, event.timestamp);
+                StreamEvent e = new ((OUTPUT, self.selectFunc(event, self.aggregatorArr)), event.eventType, event.timestamp);
                 outputStreamEvents[outputStreamEvents.length()] = e;
             }
         }
         if (outputStreamEvents.length() > 0) {
-            nextProcessorPointer(outputStreamEvents);
+            self.nextProcessorPointer(outputStreamEvents);
         }
     }
 };

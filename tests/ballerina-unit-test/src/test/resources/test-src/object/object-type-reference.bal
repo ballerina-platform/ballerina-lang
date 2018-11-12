@@ -60,8 +60,8 @@ type Manager2 object {
     }
 
     new(age=20) {
-        name = "John";
-        salary = 1000.0;
+        self.name = "John";
+        self.salary = 1000.0;
     }
 };
 
@@ -80,7 +80,7 @@ type Manager3 object {
     *Employee2;
 
     new(age=20) {
-        salary = 2500.0;
+        self.salary = 2500.0;
     } 
 };
 
@@ -112,7 +112,7 @@ type Manager4 object {
     *Employee3;
 
     new(name, age=25) {
-        salary = 3000.0;
+        self.salary = 3000.0;
     }
 
     public function getBonus(float ratio, int months=6) returns float {

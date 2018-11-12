@@ -641,7 +641,7 @@ type A object {
     public string field;
     
     new () {
-        field = "value A"; 
+        self.field = "value A"; 
     }
 
     function foo(C c) returns A {
@@ -654,7 +654,7 @@ type B object {
     public string field;
     
     new () {
-        field = "value B"; 
+        self.field = "value B"; 
     }
 
     function foo(D d) returns B {
@@ -692,22 +692,22 @@ public type PersonInOrder object {
     public new (name, age) {}
 
     public function getName() returns (string) {
-        return name;
+        return self.name;
     }
 
     public function getAge() returns (int) {
-        return age;
+        return self.age;
     }
 
     public function getAddress() returns (string) {
-        return address;
+        return self.address;
     }
 };
 
 public type PersonNotInOrder object {
 
     public function getName() returns (string) {
-        return name;
+        return self.name;
     }
 
     public int age;
@@ -721,7 +721,7 @@ public type PersonNotInOrder object {
     public string name;
 
     public function getAddress() returns (string) {
-        return address;
+        return self.address;
     }
 
     public string address;

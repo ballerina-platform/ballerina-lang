@@ -28,7 +28,7 @@ public type HttpJwtAuthnHandler object {
     public auth:JWTAuthProvider jwtAuthenticator;
 
     public new (jwtAuthenticator) {
-        name = "jwt";
+        self.name = "jwt";
     }
 
     # Checks if the request can be authenticated with JWT
