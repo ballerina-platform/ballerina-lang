@@ -40,7 +40,7 @@ function stampTupleValueV1() returns (string, Teacher) {
     (string, Teacher) tupleValue = ("Mohan", { name: "Raja", age: 25, status: "single", batch: "LK2014", school:
     "Hindu College" });
 
-    (string, Teacher) returnValue = tupleValue.stamp((string, Teacher));
+    (string, Teacher) returnValue = (string, Teacher).stamp(tupleValue);
     return returnValue;
 }
 
@@ -48,22 +48,14 @@ function stampTupleValueV2() returns (string, Employee) {
     (string, Teacher) tupleValue = ("Mohan", { name: "Raja", age: 25, status: "single", batch: "LK2014", school:
     "Hindu College" });
 
-    (string, Employee) returnValue = tupleValue.stamp((string, Employee));
+    (string, Employee) returnValue = (string, Employee).stamp(tupleValue);
     return returnValue;
-}
-
-function stampTupleToAny() returns any {
-    (string, Teacher) tupleValue = ("Mohan", { name: "Raja", age: 25, status: "single", batch: "LK2014", school:
-    "Hindu College" });
-
-    any anyValue = tupleValue.stamp(any);
-    return anyValue;
 }
 
 function stampTupleToAnydata() returns anydata {
     (string, Teacher) tupleValue = ("Mohan", { name: "Raja", age: 25, status: "single", batch: "LK2014", school:
     "Hindu College" });
 
-    anydata anydataValue = tupleValue.stamp(anydata);
+    anydata anydataValue = anydata.stamp(tupleValue);
     return anydataValue;
 }

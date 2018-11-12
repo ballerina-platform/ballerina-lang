@@ -61,35 +61,29 @@ type Address object {
 function stampWithOpenRecords() returns Employee {
     Teacher t1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
 
-    Employee e = t1.stamp(Employee);
+    Employee e = Employee.stamp(t1);
     return e;
 }
 
 function stampWithOpenRecordsNonAssignable() returns Teacher {
     Employee e1 = { name: "Raja", status: "single", batch: "LK2014" };
 
-    Teacher t = e1.stamp(Teacher);
+    Teacher t = Teacher.stamp(e1);
     return t;
 }
 
 function stampClosedRecordWithOpenRecord() returns Employee {
     Person p1 = { name: "Raja", status: "single", batch: "LK2014", school: "Hindu College" };
 
-    Employee e = p1.stamp(Employee);
+    Employee e = Employee.stamp(p1);
     return e;
-}
-
-function stampRecordToAny() returns any {
-    Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
-    any anyValue = teacher.stamp(any);
-
-    return anyValue;
 }
 
 function stampRecordToJSON() returns json {
 
     Employee employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
-    json jsonValue = employee.stamp(json);
+    //typedesc jsonType = json;
+    json jsonValue = json.stamp(employee);
 
     return jsonValue;
 }
@@ -97,7 +91,7 @@ function stampRecordToJSON() returns json {
 function stampRecordToMap() returns map {
 
     Employee employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
-    map mapValue = employee.stamp(map);
+    map<anydata> mapValue = map<anydata>.stamp(employee);
 
     return mapValue;
 }
@@ -105,7 +99,7 @@ function stampRecordToMap() returns map {
 function stampRecordToMapV2() returns map<string> {
 
     Employee employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
-    map<string> mapValue = employee.stamp(map<string>);
+    map<string> mapValue = map<string>.stamp(employee);
 
     return mapValue;
 }
@@ -115,29 +109,21 @@ function stampRecordToMapV3() returns map {
     Employee employee = { name: "John", status: "single", batch: "LK2014" };
     Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College", emp: employee
     };
-    map mapValue = teacher.stamp(map);
+    map<anydata> mapValue = map<anydata>.stamp(teacher);
 
     return mapValue;
 }
 
 function stampRecordToAnydata() returns anydata {
     Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
-    anydata anydataValue = teacher.stamp(anydata);
+    anydata anydataValue = anydata.stamp(teacher);
 
     return anydataValue;
 }
 
-function stampExtendedRecordToAny() returns any {
-    Address addressObj = new Address();
-    ExtendedEmployee employee = { name: "Raja", status: "single", batch: "LK2014", address:addressObj};
-    any anyValue = employee.stamp(any);
-
-    return anyValue;
-}
-
 function stampFunctionReferenceWithOpenRecords() returns Employee {
 
-    Employee e = getTeacherRecord().stamp(Employee);
+    Employee e = Employee.stamp(getTeacherRecord());
     return e;
 }
 
@@ -162,19 +148,19 @@ function getTeacherRecord() returns Teacher {
 function stampOpenRecordToMap() returns map<string> {
 
     Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
-    map<string> mapValue = teacher.stamp(map<string>);
+    map<string> mapValue = map<string>.stamp(teacher);
 
     return mapValue;
 }
 
-function stampExtendedRecordToOpenRecord() returns Employee {
-    Address addressObj = new Address();
-    ExtendedEmployee extendedEmployee = { name: "Raja", status: "single", batch: "LK2014", address:addressObj};
-    Employee employee = extendedEmployee.stamp(Employee);
-
-    return employee;
-}
-
+//function stampExtendedRecordToOpenRecord() returns Employee {
+//    Address addressObj = new Address();
+//    ExtendedEmployee extendedEmployee = { name: "Raja", status: "single", batch: "LK2014", address:addressObj};
+//    Employee employee = Employee.stamp(extendedEmployee);
+//
+//    return employee;
+//}
+//
 //function stampNegativeOpenRecordToTypeClosedRecord() returns AcademicStaff {
 //    Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
 //    AcademicStaff returnValue = teacher.stamp(AcademicStaff);

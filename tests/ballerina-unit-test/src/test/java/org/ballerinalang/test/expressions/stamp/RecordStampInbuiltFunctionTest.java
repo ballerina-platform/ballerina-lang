@@ -20,7 +20,6 @@ package org.ballerinalang.test.expressions.stamp;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.types.BAnyType;
 import org.ballerinalang.model.types.BAnydataType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
@@ -101,19 +100,6 @@ public class RecordStampInbuiltFunctionTest {
     }
 
     @Test
-    public void testStampRecordToAny() {
-
-        BValue[] results = BRunUtil.invoke(compileResult, "stampRecordToAny");
-        BMap<String, BValue> mapValue = (BMap<String, BValue>) results[0];
-
-        Assert.assertEquals(results.length, 1);
-        Assert.assertEquals(mapValue.size(), 5);
-
-        Assert.assertEquals(mapValue.getType().getClass(), BAnyType.class);
-    }
-
-
-    @Test
     public void testStampRecordToJSON() {
 
         BValue[] results = BRunUtil.invoke(compileResult, "stampRecordToJSON");
@@ -141,16 +127,16 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue0.getType().getClass(), BMapType.class);
 
         Assert.assertEquals(mapValue0.get("name").stringValue(), "John");
-        Assert.assertEquals(mapValue0.get("name").getType().getClass(), BAnyType.class);
+        Assert.assertEquals(mapValue0.get("name").getType().getClass(), BAnydataType.class);
 
         Assert.assertEquals(mapValue0.get("status").stringValue(), "single");
-        Assert.assertEquals(mapValue0.get("status").getType().getClass(), BAnyType.class);
+        Assert.assertEquals(mapValue0.get("status").getType().getClass(), BAnydataType.class);
 
         Assert.assertEquals(mapValue0.get("batch").stringValue(), "LK2014");
-        Assert.assertEquals(mapValue0.get("batch").getType().getClass(), BAnyType.class);
+        Assert.assertEquals(mapValue0.get("batch").getType().getClass(), BAnydataType.class);
 
         Assert.assertEquals(mapValue0.get("school").stringValue(), "Hindu College");
-        Assert.assertEquals(mapValue0.get("school").getType().getClass(), BAnyType.class);
+        Assert.assertEquals(mapValue0.get("school").getType().getClass(), BAnydataType.class);
 
     }
 
@@ -191,22 +177,22 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue0.getType().getClass(), BMapType.class);
 
         Assert.assertEquals(mapValue0.get("name").stringValue(), "Raja");
-        Assert.assertEquals(mapValue0.get("name").getType().getClass(), BAnyType.class);
+        Assert.assertEquals(mapValue0.get("name").getType().getClass(), BAnydataType.class);
 
         Assert.assertEquals(mapValue0.get("age").stringValue(), "25");
-        Assert.assertEquals(mapValue0.get("age").getType().getClass(), BAnyType.class);
+        Assert.assertEquals(mapValue0.get("age").getType().getClass(), BAnydataType.class);
 
         Assert.assertEquals(mapValue0.get("status").stringValue(), "single");
-        Assert.assertEquals(mapValue0.get("status").getType().getClass(), BAnyType.class);
+        Assert.assertEquals(mapValue0.get("status").getType().getClass(), BAnydataType.class);
 
         Assert.assertEquals(mapValue0.get("batch").stringValue(), "LK2014");
-        Assert.assertEquals(mapValue0.get("batch").getType().getClass(), BAnyType.class);
+        Assert.assertEquals(mapValue0.get("batch").getType().getClass(), BAnydataType.class);
 
         Assert.assertEquals(mapValue0.get("school").stringValue(), "Hindu College");
-        Assert.assertEquals(mapValue0.get("school").getType().getClass(), BAnyType.class);
+        Assert.assertEquals(mapValue0.get("school").getType().getClass(), BAnydataType.class);
 
         Assert.assertEquals(((BMap) mapValue0.get("emp")).size(), 3);
-        Assert.assertEquals(mapValue0.get("emp").getType().getClass(), BAnyType.class);
+        Assert.assertEquals(mapValue0.get("emp").getType().getClass(), BAnydataType.class);
     }
 
     @Test
@@ -219,18 +205,6 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue.size(), 5);
 
         Assert.assertEquals(mapValue.getType().getClass(), BAnydataType.class);
-    }
-
-    @Test
-    public void testStampExtendedRecordToAny() {
-
-        BValue[] results = BRunUtil.invoke(compileResult, "stampExtendedRecordToAny");
-        BMap<String, BValue> mapValue = (BMap<String, BValue>) results[0];
-
-        Assert.assertEquals(results.length, 1);
-        Assert.assertEquals(mapValue.size(), 4);
-
-        Assert.assertEquals(mapValue.getType().getClass(), BAnyType.class);
     }
 
     @Test
@@ -279,13 +253,13 @@ public class RecordStampInbuiltFunctionTest {
         BRunUtil.invoke(compileResult, "stampOpenRecordToMap");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: incompatible stamp operation: 'ExtendedEmployee' value cannot " +
-                    "be stamped as 'Employee'.*")
-    public void testStampExtendedRecordToOpenRecord() {
-        BRunUtil.invoke(compileResult, "stampExtendedRecordToOpenRecord");
-    }
-
+//    @Test(expectedExceptions = BLangRuntimeException.class,
+//            expectedExceptionsMessageRegExp = "error: incompatible stamp operation: 'ExtendedEmployee' value cannot " +
+//                    "be stamped as 'Employee'.*")
+//    public void testStampExtendedRecordToOpenRecord() {
+//        BRunUtil.invoke(compileResult, "stampExtendedRecordToOpenRecord");
+//    }
+//
 //    @Test(expectedExceptions = BLangRuntimeException.class,
 //            expectedExceptionsMessageRegExp = "error: incompatible stamp operation: 'Teacher' value cannot be stamped " +
 //                    "as 'AcademicStaff'.*")

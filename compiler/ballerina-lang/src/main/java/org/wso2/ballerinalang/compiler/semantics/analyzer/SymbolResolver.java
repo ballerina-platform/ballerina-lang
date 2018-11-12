@@ -316,53 +316,61 @@ public class SymbolResolver extends BLangNodeVisitor {
         return bSymbol;
     }
 
-    private BSymbol createSymbolForSealOperator(DiagnosticPos pos, Name name, List<BLangExpression> functionArgList,
-                                                BType sourceType) {
-        if (canHaveSealInvocation(sourceType)) {
-            if (functionArgList.size() != 1) {
-                dlog.error(pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, name);
-                resultType = symTable.semanticError;
-            } else {
-                BLangExpression argumentExpression = functionArgList.get(0);
-                BType sealType;
-                if (argumentExpression instanceof BLangTypedescExpr) {
-                    sealType = ((BLangTypedescExpr) argumentExpression).resolvedType;
-                } else if (argumentExpression instanceof BLangBracedOrTupleExpr) {
-                    List<BLangExpression> expressionList = ((BLangBracedOrTupleExpr) argumentExpression).
-                            getExpressions();
-                    List<BType> tupleTypeList = new ArrayList<>();
-                    for (BLangExpression expression : expressionList) {
-                        if (expression instanceof BLangTypedescExpr) {
-                            tupleTypeList.add(((BLangTypedescExpr) expression).resolvedType);
+    BSymbol createSymbolForStampOperator(DiagnosticPos pos, Name name, List<BLangExpression> functionArgList,
+                                         BLangExpression targetTypeExpression) {
+        if (functionArgList.size() != 1) {
+            dlog.error(pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, name);
+            resultType = symTable.semanticError;
+        } else {
+            BLangExpression argumentExpression = functionArgList.get(0);
+            BType variableSourceType = argumentExpression.type;
+            if (isStampSupportedForSourceType(variableSourceType)) {
+                if (targetTypeExpression.type.tag == TypeTags.TYPEDESC) {
+                    BType targetType;
+                    if (targetTypeExpression instanceof BLangTypedescExpr) {
+                        targetType = ((BLangTypedescExpr) targetTypeExpression).resolvedType;
+                    } else if (targetTypeExpression instanceof BLangBracedOrTupleExpr) {
+                        List<BLangExpression> expressionList = ((BLangBracedOrTupleExpr) targetTypeExpression).
+                                getExpressions();
+                        List<BType> tupleTypeList = new ArrayList<>();
+                        for (BLangExpression expression : expressionList) {
+                            if (expression instanceof BLangTypedescExpr) {
+                                tupleTypeList.add(((BLangTypedescExpr) expression).resolvedType);
+                            } else {
+                                tupleTypeList.add(((BLangSimpleVarRef) expression).symbol.type);
+                            }
+                        }
+
+                        targetType = new BTupleType(tupleTypeList);
+                    } else {
+                        BSymbol symbol = ((BLangSimpleVarRef) targetTypeExpression).symbol;
+                        if (symbol != null) {
+                            targetType = symbol.type;
                         } else {
-                            tupleTypeList.add(((BLangSimpleVarRef) expression).symbol.type);
+                            resultType = symTable.semanticError;
+                            return symTable.notFoundSymbol;
                         }
                     }
 
-                    sealType = new BTupleType(tupleTypeList);
-                } else {
-                    BSymbol symbol = ((BLangSimpleVarRef) argumentExpression).symbol;
-                    if (symbol != null) {
-                        sealType = ((BLangSimpleVarRef) argumentExpression).symbol.type;
+                    //It is not allowed to seal a variable to union type.
+                    if (canHaveStampInvocation(targetType) &&
+                            types.isSealable(variableSourceType, targetType)) {
+                        List<BType> paramTypes = new ArrayList<>();
+                        paramTypes.add(variableSourceType);
+                        return symTable.createOperator(name, paramTypes, targetType, InstructionCodes.STAMP);
                     } else {
+                        dlog.error(pos, DiagnosticCode.INCOMPATIBLE_STAMP_TYPE, variableSourceType, targetType);
                         resultType = symTable.semanticError;
-                        return symTable.notFoundSymbol;
                     }
-                }
-
-                //It is not allowed to seal a variable to union type.
-                if (isSealSupportedTargetType(sealType) && types.isSealable(sourceType, sealType)) {
-                    List<BType> paramTypes = new ArrayList<>();
-                    paramTypes.add(symTable.typeDesc);
-                    return symTable.createOperator(name, paramTypes, sealType, InstructionCodes.STAMP);
                 } else {
-                    dlog.error(pos, DiagnosticCode.INCOMPATIBLE_SEAL_TYPE, sourceType, sealType);
+                    dlog.error(pos, DiagnosticCode.FUNC_DEFINED_ON_NOT_SUPPORTED_TYPE, name,
+                            variableSourceType.toString());
                     resultType = symTable.semanticError;
                 }
+            } else {
+                dlog.error(pos, DiagnosticCode.NOT_SUPPORTED_SOURCE_TYPE_FOR_STAMP, variableSourceType.toString());
+                resultType = symTable.semanticError;
             }
-        } else {
-            dlog.error(pos, DiagnosticCode.FUNC_DEFINED_ON_NOT_SUPPORTED_TYPE, name, sourceType.toString());
-            resultType = symTable.semanticError;
         }
 
         return symTable.notFoundSymbol;
@@ -972,56 +980,50 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     /**
-     * Returns the eligibility to use 'seal' inbuilt function against the respective expression.
+     * Returns the eligibility to use 'stamp' inbuilt function against the respective expression.
      *
-     * @param type expression that 'seal' function is used
-     * @return eligibility to use 'seal' function
+     * @param type expression that 'stamp' function is used
+     * @return eligibility to use 'stamp' function
      */
-    private boolean canHaveSealInvocation(BType type) {
-        switch (type.tag) {
-            case TypeTags.ARRAY:
-                // Primitive type array does not support seal because primitive arrays are not using ref registry.
-                int arrayConstraintTypeTag = ((BArrayType) type).eType.tag;
-                return !(arrayConstraintTypeTag == TypeTags.INT || arrayConstraintTypeTag == TypeTags.BOOLEAN ||
-                        arrayConstraintTypeTag == TypeTags.FLOAT || arrayConstraintTypeTag == TypeTags.BYTE ||
-                        arrayConstraintTypeTag == TypeTags.STRING);
-            case TypeTags.MAP:
-            case TypeTags.RECORD:
-            case TypeTags.OBJECT:
-            case TypeTags.JSON:
-            case TypeTags.XML:
-            case TypeTags.UNION:
-            case TypeTags.TUPLE:
-            case TypeTags.ANY:
-            case TypeTags.ANYDATA:
-                return true;
+    private boolean canHaveStampInvocation(BType type) {
+        if (types.isAnydata(type)) {
+            switch (type.tag) {
+                case TypeTags.ARRAY:
+                    //Primitive type array does not support stamp because primitive arrays aren't using ref registry.
+                    int arrayConstraintTypeTag = ((BArrayType) type).eType.tag;
+                    return !(arrayConstraintTypeTag == TypeTags.INT || arrayConstraintTypeTag == TypeTags.BOOLEAN ||
+                            arrayConstraintTypeTag == TypeTags.FLOAT || arrayConstraintTypeTag == TypeTags.BYTE ||
+                            arrayConstraintTypeTag == TypeTags.STRING);
+
+                case TypeTags.UNION:
+                    return false;
+                default:
+                    return true;
+            }
         }
         return false;
     }
 
     /**
-     * Returns the eligibility whether seal can be performed on given target type.
+     * Returns the eligibility whether stamp can be on the given value type.
      *
-     * @param targetType target type used for the seal operation
-     * @return eligibility to use as the target type for 'seal' function
+     * @param sourceType target type used for the stamp operation
+     * @return eligibility to use as the target type for 'stamp' function
      */
-    private boolean isSealSupportedTargetType(BType targetType) {
-        switch (targetType.tag) {
-            case TypeTags.ARRAY:
-                // Primitive type array does not support seal because primitive arrays are not using ref registry.
-                int arrayConstraintTypeTag = ((BArrayType) targetType).eType.tag;
-                return !(arrayConstraintTypeTag == TypeTags.INT || arrayConstraintTypeTag == TypeTags.BOOLEAN ||
-                        arrayConstraintTypeTag == TypeTags.FLOAT || arrayConstraintTypeTag == TypeTags.BYTE ||
-                        arrayConstraintTypeTag == TypeTags.STRING);
-            case TypeTags.MAP:
-            case TypeTags.RECORD:
-            case TypeTags.OBJECT:
-            case TypeTags.JSON:
-            case TypeTags.XML:
-            case TypeTags.TUPLE:
-            case TypeTags.ANY:
-            case TypeTags.ANYDATA:
-                return true;
+    private boolean isStampSupportedForSourceType(BType sourceType) {
+
+        if (types.isAnydata(sourceType)) {
+            switch (sourceType.tag) {
+                case TypeTags.ARRAY:
+                    // Primitive type array does not support stamp because primitive arrays are not using ref registry.
+                    int arrayConstraintTypeTag = ((BArrayType) sourceType).eType.tag;
+                    return !(arrayConstraintTypeTag == TypeTags.INT || arrayConstraintTypeTag == TypeTags.BOOLEAN ||
+                            arrayConstraintTypeTag == TypeTags.FLOAT || arrayConstraintTypeTag == TypeTags.BYTE ||
+                            arrayConstraintTypeTag == TypeTags.STRING);
+                default:
+                    return true;
+            }
+
         }
         return false;
     }

@@ -45,36 +45,25 @@ public class XMLStampInbuiltFunctionTest {
     //----------------------------- XML Stamp Test cases ------------------------------------------------------
 
     @Test
-    public void testStampXMLToAny() {
-
-        BValue[] results = BRunUtil.invoke(compileResult, "stampXMLToAny");
-        BValue anyValue = results[0];
-
-        Assert.assertEquals(results.length, 1);
-        Assert.assertEquals(anyValue.stringValue(), "<book>The Lost World</book>");
-        Assert.assertEquals(anyValue.getType().getClass(), BAnyType.class);
-    }
-
-    @Test
     public void testStampXMLToXML() {
 
         BValue[] results = BRunUtil.invoke(compileResult, "stampXMLToXML");
-        BValue anyValue = results[0];
+        BValue xmlValue = results[0];
 
         Assert.assertEquals(results.length, 1);
-        Assert.assertEquals(anyValue.stringValue(), "<book>The Lost World</book>");
-        Assert.assertEquals(anyValue.getType().getClass(), BXMLType.class);
+        Assert.assertEquals(xmlValue.stringValue(), "<book>The Lost World</book>");
+        Assert.assertEquals(xmlValue.getType().getClass(), BXMLType.class);
     }
 
     @Test
     public void testStampXMLToAnydata() {
 
         BValue[] results = BRunUtil.invoke(compileResult, "stampXMLToAnydata");
-        BValue anyValue = results[0];
+        BValue anydataValue = results[0];
 
         Assert.assertEquals(results.length, 1);
-        Assert.assertEquals(anyValue.stringValue(), "<book>The Lost World</book>");
-        Assert.assertEquals(anyValue.getType().getClass(), BAnydataType.class);
+        Assert.assertEquals(anydataValue.stringValue(), "<book>The Lost World</book>");
+        Assert.assertEquals(anydataValue.getType().getClass(), BAnydataType.class);
     }
 }
 

@@ -1340,6 +1340,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitFunctionInvocationReference(BallerinaParser.FunctionInvocationReferenceContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code typeDescExprInvocationReference}
+	 * labeled alternative in {@link BallerinaParser#variableReference}.
+	 * @param ctx the parse tree
+	 */
+	void enterTypeDescExprInvocationReference(BallerinaParser.TypeDescExprInvocationReferenceContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code typeDescExprInvocationReference}
+	 * labeled alternative in {@link BallerinaParser#variableReference}.
+	 * @param ctx the parse tree
+	 */
+	void exitTypeDescExprInvocationReference(BallerinaParser.TypeDescExprInvocationReferenceContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code fieldVariableReference}
 	 * labeled alternative in {@link BallerinaParser#variableReference}.
 	 * @param ctx the parse tree
@@ -2001,6 +2013,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitTypeInitExpression(BallerinaParser.TypeInitExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code typeDescExpression}
+	 * labeled alternative in {@link BallerinaParser#typeDescExpr}.
+	 * @param ctx the parse tree
+	 */
+	void enterTypeDescExpression(BallerinaParser.TypeDescExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code typeDescExpression}
+	 * labeled alternative in {@link BallerinaParser#typeDescExpr}.
+	 * @param ctx the parse tree
+	 */
+	void exitTypeDescExpression(BallerinaParser.TypeDescExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#typeInitExpr}.
 	 * @param ctx the parse tree

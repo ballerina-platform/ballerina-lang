@@ -20,7 +20,6 @@ package org.ballerinalang.test.expressions.stamp;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.types.BAnyType;
 import org.ballerinalang.model.types.BAnydataType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BRecordType;
@@ -51,22 +50,22 @@ public class ArrayStampInbuiltFunctionTest {
     //----------------------------- Array Stamp Test cases ------------------------------------------------------
 
     @Test
-    public void testStampRecordToAnyArray() {
+    public void testStampRecordToAnydataArray() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampRecordToAnyArray");
+        BValue[] results = BRunUtil.invoke(compileResult, "stampRecordToAnydataArray");
         BMap<String, BValue> mapValue0 = (BMap<String, BValue>) results[0];
         BMap<String, BValue> mapValue1 = (BMap<String, BValue>) results[1];
 
         Assert.assertEquals(results.length, 2);
 
-        Assert.assertEquals((mapValue0).getType().getClass(), BAnyType.class);
-        Assert.assertEquals((mapValue1).getType().getClass(), BAnyType.class);
+        Assert.assertEquals((mapValue0).getType().getClass(), BAnydataType.class);
+        Assert.assertEquals((mapValue1).getType().getClass(), BAnydataType.class);
     }
 
     @Test
-    public void testStampAnyToRecordArray() {
+    public void testStampAnydataToRecordArray() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampAnyToRecordArray");
+        BValue[] results = BRunUtil.invoke(compileResult, "stampAnydataToRecordArray");
         BMap<String, BValue> mapValue0 = (BMap<String, BValue>) results[0];
         BMap<String, BValue> mapValue1 = (BMap<String, BValue>) results[1];
 
@@ -77,9 +76,9 @@ public class ArrayStampInbuiltFunctionTest {
     }
 
     @Test
-    public void testStampAnyToSimilarOpenRecordArray() {
+    public void testStampAnydataToSimilarOpenRecordArray() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampAnyToSimilarOpenRecordArray");
+        BValue[] results = BRunUtil.invoke(compileResult, "stampAnydataToSimilarOpenRecordArray");
         BMap<String, BValue> mapValue0 = (BMap<String, BValue>) results[0];
         BMap<String, BValue> mapValue1 = (BMap<String, BValue>) results[1];
 
@@ -149,9 +148,9 @@ public class ArrayStampInbuiltFunctionTest {
     }
 
     @Test
-    public void testStampRecordToAnydataArray() {
+    public void testStampRecordToAnydataArrayV2() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampRecordToAnydataArray");
+        BValue[] results = BRunUtil.invoke(compileResult, "stampRecordToAnydataArrayV2");
         BMap<String, BValue> mapValue0 = (BMap<String, BValue>) results[0];
         BMap<String, BValue> mapValue1 = (BMap<String, BValue>) results[1];
 

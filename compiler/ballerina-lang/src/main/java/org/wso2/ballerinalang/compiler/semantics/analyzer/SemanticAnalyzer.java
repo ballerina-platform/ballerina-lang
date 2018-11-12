@@ -1598,9 +1598,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation invocationExpr) {
-        VariableReferenceNode variableReferenceNode = invocationExpr.getExpression();
+        BLangVariableReference variableReferenceNode = (BLangVariableReference) invocationExpr.getExpression();
         if (variableReferenceNode != null) {
-            ((BLangVariableReference) variableReferenceNode).accept(this);
+            variableReferenceNode.accept(this);
         }
         if (!isSiddhiRuntimeEnabled) {
             if ((isGroupByAvailable)) {
@@ -1750,8 +1750,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-        VariableReferenceNode variableReferenceNode = fieldAccessExpr.getExpression();
-        ((BLangVariableReference) variableReferenceNode).accept(this);
+        BLangVariableReference variableReferenceNode = (BLangVariableReference)fieldAccessExpr.getExpression();
+        variableReferenceNode.accept(this);
     }
 
     @Override

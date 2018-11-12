@@ -39,28 +39,28 @@ type EmployeeObj object {
 function stampUnionToRecord() returns Employee {
     int|float|Employee unionVar = { name: "Raja", status: "single", batch: "LK2014", school: "Hindu College" };
 
-    Employee employee = unionVar.stamp(Employee);
+    Employee employee = Employee.stamp(unionVar);
     return employee;
 }
 
 function stampUnionToJSON() returns json {
     int|float|json unionVar = { name: "Raja", status: "single", batch: "LK2014", school: "Hindu College" };
 
-    json jsonValue = unionVar.stamp(json);
+    json jsonValue = json.stamp(unionVar);
     return jsonValue;
 }
 
-function stampUnionToObject() returns EmployeeObj {
-    int|float|PersonObj unionVar = new PersonObj();
-
-    EmployeeObj employee = unionVar.stamp(EmployeeObj);
-    return employee;
-}
+//function stampUnionToObject() returns EmployeeObj {
+//    int|float|PersonObj unionVar = new PersonObj();
+//
+//    EmployeeObj employee = unionVar.stamp();
+//    return employee;
+//}
 
 function stampUnionToXML() returns xml {
     int|float|xml unionVar = xml `<book>The Lost World</book>`;
 
-    xml xmlValue = unionVar.stamp(xml);
+    xml xmlValue = xml.stamp(unionVar);
     return xmlValue;
 }
 
@@ -68,7 +68,7 @@ function stampUnionToXML() returns xml {
 function stampUnionToIntMap() returns map<int> {
     int|float|map<int> unionVar = { "a": 1, "b": 2 };
 
-    map<int> mapValue = unionVar.stamp(map<int>);
+    map<int> mapValue = map<int>.stamp(unionVar);
     return mapValue;
 }
 
@@ -80,30 +80,30 @@ function stampUnionToConstraintMap() returns map<Employee> {
 
     int|float|map<Teacher> unionVar = teacherMap;
 
-    map<Employee> mapValue = unionVar.stamp(map<Employee>);
+    map<Employee> mapValue = map<Employee>.stamp(unionVar);
     return mapValue;
-}
-
-function stampUnionToAny() returns any {
-
-    int|float|string|boolean unionValue = "mohan";
-    any anyValue = unionValue.stamp(any);
-
-    return anyValue;
-}
-
-function stampUnionToTuple() returns (string, string) {
-
-    int|float|(string, string) unionVar = ("mohan", "LK2014");
-    (string, string) tupleValue = unionVar.stamp((string, string));
-
-    return tupleValue;
 }
 
 function stampUnionToAnydata() returns anydata {
 
     int|float|string|boolean unionValue = "mohan";
-    anydata anydataValue = unionValue.stamp(anydata);
+    anydata anydataValue = anydata.stamp(unionValue);
+
+    return anydataValue;
+}
+
+function stampUnionToTuple() returns (string, string) {
+
+    int|float|(string, string) unionVar = ("mohan", "LK2014");
+    (string, string) tupleValue = (string, string).stamp(unionVar);
+
+    return tupleValue;
+}
+
+function stampUnionToAnydataV2() returns anydata {
+
+    int|float|string|boolean unionValue = "mohan";
+    anydata anydataValue = anydata.stamp(unionValue);
 
     return anydataValue;
 }
@@ -118,6 +118,6 @@ function stampNegativeUnionToConstraintMap() returns map<Person> {
 
     int|float|map<Teacher> unionVar = teacherMap;
 
-    map<Person> mapValue = unionVar.stamp(map<Person>);
+    map<Person> mapValue = map<Person>.stamp(unionVar);
     return mapValue;
 }

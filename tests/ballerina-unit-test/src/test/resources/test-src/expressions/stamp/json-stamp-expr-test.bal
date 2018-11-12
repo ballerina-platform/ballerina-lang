@@ -31,18 +31,18 @@ type Teacher record {
 //----------------------------JSON Stamp -------------------------------------------------------------
 
 
-function stampJSONToAny() returns any {
+function stampJSONToAnydata() returns anydata {
 
     json jsonValue = 3;
-    any anyValue = jsonValue.stamp(any);
+    anydata anydataValue = anydata.stamp(jsonValue);
 
-    return anyValue;
+    return anydataValue;
 }
 
-function stampJSONToAnyV2() returns any {
+function stampJSONToAnydataV2() returns anydata {
 
     json jsonValue = [1, false, null, "foo", { first: "John", last: "Pala" }];
-    any anyValue = jsonValue.stamp(any);
+    anydata anyValue = anydata.stamp(jsonValue);
 
     return anyValue;
 }
@@ -50,7 +50,7 @@ function stampJSONToAnyV2() returns any {
 function stampJSONToRecord() returns Employee {
 
     json employee = { name: "John", status: "single", batch: "LK2014" };
-    Employee employeeValue = employee.stamp(Employee);
+    Employee employeeValue = Employee.stamp(employee);
 
     return employeeValue;
 }
@@ -58,7 +58,7 @@ function stampJSONToRecord() returns Employee {
 function stampJSONToRecordV2() returns Employee {
 
     json employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
-    Employee employeeValue = employee.stamp(Employee);
+    Employee employeeValue = Employee.stamp(employee);
 
     return employeeValue;
 }
@@ -66,38 +66,38 @@ function stampJSONToRecordV2() returns Employee {
 function stampJSONToJSON() returns json {
 
     json employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
-    json jsonValue = employee.stamp(json);
+    json jsonValue = json.stamp(employee);
 
     return jsonValue;
 }
 
-function stampJSONToMap() returns map {
+function stampJSONToMap() returns map<anydata> {
 
     json employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
-    map mapValue = employee.stamp(map);
+    map<anydata> mapValue = map<anydata>.stamp(employee);
 
     return mapValue;
 }
 
-function stampJSONToMapV2() returns map {
+function stampJSONToMapV2() returns map<anydata> {
 
     json teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College",
         emp : { name: "John", status: "single", batch: "LK2014"} };
-    map mapValue = teacher.stamp(map);
+    map<anydata> mapValue = map<anydata>.stamp(teacher);
 
     return mapValue;
 }
 
-function stampConstraintJSONToAny() returns any {
+function stampConstraintJSONToAnydata() returns anydata {
 
     json<Student> student = { name: "John" };
     student.status = "Single";
     student.batch = "LK2014";
     student.school = "Hindu College";
 
-    any anyValue = student.stamp(any);
+    anydata anydataValue = anydata.stamp(student);
 
-    return anyValue;
+    return anydataValue;
 }
 
 function stampConstraintJSONToJSON() returns json {
@@ -107,7 +107,7 @@ function stampConstraintJSONToJSON() returns json {
     student.batch = "LK2014";
     student.school = "Hindu College";
 
-    json jsonValue  = student.stamp(json);
+    json jsonValue  = json.stamp(student);
 
     return jsonValue;
 }
@@ -119,7 +119,7 @@ function stampConstraintJSONToConstraintJSON() returns json<Person> {
     student.batch = "LK2014";
     student.school = "Hindu College";
 
-    json<Person> jsonValue = student.stamp(json<Person>);
+    json<Person> jsonValue = json<Person>.stamp(student);
 
     return jsonValue;
 }
@@ -131,7 +131,7 @@ function stampConstraintJSONToConstraintMapV2() returns map {
     student.batch = "LK2014";
     student.school = "Hindu College";
 
-    map mapValue = student.stamp(map);
+    map<anydata> mapValue = map<anydata>.stamp(student);
 
     return mapValue;
 }
@@ -140,23 +140,24 @@ function stampJSONArrayToConstraintArray() returns Student []{
 
     json employeeArray = [{ name: "John", status: "single", batch: "LK2014", school: "Hindu College" },
                             { name: "Raja", status: "married", batch: "LK2014", school: "Hindu College" }];
-    Student [] studentArray = employeeArray.stamp(Student []);
+
+    Student [] studentArray = Student[].stamp(employeeArray);
 
     return studentArray;
 }
 
-function stampJSONArrayToAnyTypeArray() returns any []{
+function stampJSONArrayToAnyTypeArray() returns anydata []{
 
     json jsonArray =  [1, false, "foo", { first: "John", last: "Pala" }];
-    any[] anyArray = jsonArray.stamp(any []);
+    anydata[] anydataArray = anydata[].stamp(jsonArray);
 
-    return anyArray;
+    return anydataArray;
 }
 
-function stampJSONToAnydata() returns anydata {
+function stampJSONToAnydataV3() returns anydata {
 
     json jsonValue = { name: "John", status: "single", batch: "LK2014" };
-    anydata anydataValue = jsonValue.stamp(anydata);
+    anydata anydataValue = anydata.stamp(jsonValue);
 
     return anydataValue;
 }
@@ -166,7 +167,7 @@ function stampJSONToAnydata() returns anydata {
 function stampJSONToRecordNegative() returns Student {
 
     json employee = { name: "John", age : 23, status: "single", batch: "LK2014", school: "Hindu College" };
-    Student student = employee.stamp(Student);
+    Student student = Student.stamp(employee);
 
     return student;
 
@@ -175,7 +176,7 @@ function stampJSONToRecordNegative() returns Student {
 function stampJSONToMapNegative() returns map<string> {
 
     json employee = { name: "John", age : 23, status: "single", batch: "LK2014", school: "Hindu College" };
-    map<string> mapValue = employee.stamp(map<string>);
+    map<string> mapValue = map<string>.stamp(employee);
 
     return mapValue;
 
