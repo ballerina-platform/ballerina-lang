@@ -2,7 +2,7 @@ import { BallerinaAST } from "@ballerina/ast-model";
 import { storiesOf } from "@storybook/react";
 import * as React from "react";
 import bbeASTs from "../resources/bbe-asts.json";
-import { Diagram, EditableDiagram } from "./../src-ts/";
+import { Diagram, EditableDiagram } from "./../src";
 import { commonProps, MockLangClient } from "./../tests/utils";
 
 const editableDiagramStories = storiesOf("Edtable Diagram", module);

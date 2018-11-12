@@ -3,7 +3,7 @@ import { BallerinaAST } from "@ballerina/ast-model";
 import { createWSLangClient } from "@ballerina/lang-service/lib/client/ws";
 import { storiesOf } from "@storybook/react";
 import * as React from "react";
-import { Diagram, EditableDiagram } from "./../src-ts/";
+import { Diagram, EditableDiagram } from "./../src";
 import { commonProps, MockLangClient } from "./../tests/utils";
 
 const editableDiagramStories = storiesOf("Edtable Diagram with LS", module);
