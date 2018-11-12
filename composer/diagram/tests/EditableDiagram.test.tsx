@@ -2,7 +2,7 @@ import { BallerinaAST } from "@ballerina/ast-model";
 import * as React from "react";
 import { create } from "react-test-renderer";
 import bbeASTs from "../resources/bbe-asts.json";
-import { EditableDiagram } from "../src-ts";
+import { EditableDiagram } from "../src";
 import { commonProps, MockLangClient } from "./utils";
 
 const bbeASTsArray = bbeASTs as string[];
