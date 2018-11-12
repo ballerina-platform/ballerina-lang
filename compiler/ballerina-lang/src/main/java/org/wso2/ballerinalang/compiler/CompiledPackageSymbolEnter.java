@@ -706,6 +706,12 @@ public class CompiledPackageSymbolEnter {
                 literal.value = floatCPEntry.getValue();
                 literal.typeTag = TypeTags.FLOAT;
                 break;
+            case TypeDescriptor.SIG_DECIMAL:
+                valueCPIndex = documentDataStream.readInt();
+                UTF8CPEntry decimalEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
+                literal.value = decimalEntry.getValue();
+                literal.typeTag = TypeTags.DECIMAL;
+                break;
             case TypeDescriptor.SIG_STRING:
                 valueCPIndex = documentDataStream.readInt();
                 UTF8CPEntry stringCPEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];

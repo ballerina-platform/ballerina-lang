@@ -107,6 +107,17 @@ function testFloatTypeWithoutType() returns FloatTypeWithoutType {
 
 // -----------------------------------------------------------
 
+const decimal decimalWithType = 4.0;
+
+type DecimalTypeWithType decimalWithType;
+
+function testDecimalTypeWithType() returns DecimalTypeWithType {
+    DecimalTypeWithType t = 4.0;
+    return t;
+}
+
+// -----------------------------------------------------------
+
 const string stringWithType = "Ballerina is awesome";
 
 type StringTypeWithType stringWithType;

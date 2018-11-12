@@ -1851,9 +1851,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             // Check the type of the value.
             typeChecker.checkExpr(value, env, constant.symbol.valueType);
         } else {
-            // We don't have any expected type in this case since the type node is not available. So we just visit
-            // the value to set the proper type to it.
-            typeChecker.checkExpr(value, env);
+            // We don't have any expected type in this case since the type node is not available. So we get the type
+            // from the type tag of the value.
+            typeChecker.checkExpr(value, env, symTable.getTypeFromTag(value.typeTag));
         }
 
         // We need to check types for the values in value spaces. Otherwise, float, decimal will not be identified in

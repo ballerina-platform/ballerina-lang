@@ -216,7 +216,7 @@ public class ConstantTests {
     public void testByteTypeWithType() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testByteTypeWithType");
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BByte) returns[0]).intValue(), 240);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 240);
     }
 
     @Test
@@ -231,6 +231,13 @@ public class ConstantTests {
         BValue[] returns = BRunUtil.invoke(compileResult, "testFloatTypeWithoutType");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 2.0);
+    }
+
+    @Test
+    public void testDecimalTypeWithType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testDecimalTypeWithType");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 4.0);
     }
 
     @Test

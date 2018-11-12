@@ -975,11 +975,11 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private boolean isAllowedConstantType(BConstantSymbol symbol) {
         switch (symbol.valueType.tag) {
-            // Todo - Add decimal type.
             case TypeTags.BOOLEAN:
             case TypeTags.INT:
             case TypeTags.BYTE:
             case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
             case TypeTags.STRING:
                 return true;
         }

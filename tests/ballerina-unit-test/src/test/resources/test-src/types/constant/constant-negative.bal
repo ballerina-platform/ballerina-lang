@@ -2,6 +2,7 @@ const boolean someBoolean = 10;
 const int someInt = "ABC";
 const byte someByte = 500;
 const float someFloat = true;
+const decimal someDeciaml = true;
 const string someString = 120;
 
 // Assigning var ref.
@@ -64,30 +65,6 @@ function testInvalidTypes() returns ACTION {
 // Built-in function invocation.
 function testInvalidInvocation() {
     string lowercase = xyz.toLower();
-}
-
-const aBoolean = true;
-
-function testBooleanConcat() returns string {
-    return aBoolean + " rocks";
-}
-
-const aInt = 24;
-
-function testIntConcat() returns string {
-    return aInt + " rocks";
-}
-
-const aByte = 12;
-
-function testByteConcat() returns string {
-    return aByte + " rocks";
-}
-
-const aFloat = 25.5;
-
-function testFloatConcat() returns string {
-    return aFloat + " rocks";
 }
 
 // -----------------------------------------------------------
@@ -237,6 +214,17 @@ type FloatTypeWithoutType floatWithoutType;
 
 function testFloatTypeWithoutType() returns FloatTypeWithoutType {
     FloatTypeWithoutType t = 10.0;
+    return t;
+}
+
+// -----------------------------------------------------------
+
+const decimal decimalWithType = 4.0;
+
+type DecimalTypeWithType decimalWithType;
+
+function testDecimalTypeWithType() returns DecimalTypeWithType {
+    DecimalTypeWithType t = 10.0;
     return t;
 }
 

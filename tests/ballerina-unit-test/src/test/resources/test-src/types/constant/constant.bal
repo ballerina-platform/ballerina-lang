@@ -191,6 +191,14 @@ function testFloatWithoutType() returns float {
 
 // -----------------------------------------------------------
 
+const decimal decimalWithType = 50.0;
+
+function testDecimalWithType() returns decimal {
+    return decimalWithType;
+}
+
+// -----------------------------------------------------------
+
 const string stringWithType = "Ballerina is awesome";
 
 function testStringWithType() returns string {
@@ -250,6 +258,11 @@ function testFloatConstInUnion() returns any {
     return v;
 }
 
+function testDecimalConstInUnion() returns any {
+    decimal|boolean v = decimalWithType;
+    return v;
+}
+
 function testStringConstInUnion() returns any {
     string|boolean v = stringWithType;
     return v;
@@ -274,6 +287,11 @@ function testByteConstInTuple() returns byte {
 
 function testFloatConstInTuple() returns float {
     (float, boolean) v = (floatWithType, true);
+    return v[0];
+}
+
+function testDecimalConstInTuple() returns decimal {
+    (decimal, boolean) v = (decimalWithType, true);
     return v[0];
 }
 
@@ -341,27 +359,45 @@ function testLabeling() returns string {
 // Todo - Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/11183.
 //type M record { string f; }|Z;
 //
-//M m1 = { f: "foo" };
+//Z z1 = "V";
 //
-//M m2 = "V";
+//Z z2 = "W";
 //
-//M m3 = "W";
+//Z z3 = "X";
 //
-//M m4 = "X";
+//
+//const string W = "W";
+//
+//const string X = "X";
 
-type Y X;
+// -----------------------------------------------------------
 
-type Z "V"|W|X;
+const aBoolean = true;
 
-Y y = "X";
+function testBooleanConcat() returns string {
+    return aBoolean + " rocks";
+}
 
-Z z1 = "V";
+const aInt = 24;
 
-Z z2 = "W";
+function testIntConcat() returns string {
+    return aInt + " rocks";
+}
 
-Z z3 = "X";
+const aByte = 12;
 
+function testByteConcat() returns string {
+    return aByte + " rocks";
+}
 
-const string W = "W";
+const aFloat = 25.5;
 
-const string X = "X";
+function testFloatConcat() returns string {
+    return aFloat + " rocks";
+}
+
+const decimal aDecimal = 25.5;
+
+function testDecimalConcat() returns string {
+    return aDecimal + " rocks";
+}

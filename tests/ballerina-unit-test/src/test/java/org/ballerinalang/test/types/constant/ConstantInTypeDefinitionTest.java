@@ -126,6 +126,13 @@ public class ConstantInTypeDefinitionTest {
     }
 
     @Test
+    public void testDecimalTypeWithType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testDecimalTypeWithType");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 4.0);
+    }
+
+    @Test
     public void testStringTypeWithType() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStringTypeWithType");
         Assert.assertNotNull(returns[0]);

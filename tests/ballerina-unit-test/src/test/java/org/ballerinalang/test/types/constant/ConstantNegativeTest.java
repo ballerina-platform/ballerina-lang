@@ -31,7 +31,7 @@ public class ConstantNegativeTest {
     @Test
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/constant-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 54);
+        Assert.assertEquals(compileResult.getErrorCount(), 56);
 
         int index = 0;
         int offset = 1;
@@ -43,6 +43,8 @@ public class ConstantNegativeTest {
                 offset += 1, 23);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'float', found 'boolean'",
                 offset += 1, 25);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'decimal', found 'boolean'",
+                offset += 1, 29);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'",
                 offset += 1, 27);
         BAssertUtil.validateError(compileResult, index++, "only simple literals can be assigned to a constant",
@@ -65,7 +67,7 @@ public class ConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'GET', found 'string'",
                 offset += 11, 21);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'byte', found 'int'",
-                offset += 38, 12);
+                offset += 14, 12);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'E|F', found 'string'",
                 offset += 18, 11);
         BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[UVW, UVW]'", offset += 7, 1);
@@ -115,6 +117,8 @@ public class ConstantNegativeTest {
                 offset += 11, 27);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '2.0', found 'float'",
                 offset += 9, 30);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '4.0', found 'float'",
+                offset += 11, 29);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'Ballerina is awesome', found" +
                 " 'string'", offset += 11, 28);
         BAssertUtil.validateError(compileResult, index, "incompatible types: expected 'Ballerina rocks', found " +

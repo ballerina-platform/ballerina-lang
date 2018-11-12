@@ -40,7 +40,7 @@ public class ConstantNegativeTests {
 
     @Test
     public void testNegative() {
-        Assert.assertEquals(compileResult.getErrorCount(), 9);
+        Assert.assertEquals(compileResult.getErrorCount(), 10);
 
         int index = 0;
         int offset = 1;
@@ -58,6 +58,8 @@ public class ConstantNegativeTests {
                 offset += 9, 27);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '2.0', found 'float'",
                 offset += 7, 30);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '4.0', found 'float'",
+                offset += 9, 29);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'Ballerina is awesome', found" +
                 " 'string'", offset += 9, 28);
         BAssertUtil.validateError(compileResult, index, "incompatible types: expected 'Ballerina rocks', found " +

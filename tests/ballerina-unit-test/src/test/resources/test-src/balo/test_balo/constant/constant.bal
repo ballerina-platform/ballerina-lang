@@ -212,6 +212,15 @@ function testFloatTypeWithoutType() returns FloatTypeWithoutType {
 
 // -----------------------------------------------------------
 
+type DecimalTypeWithType foo:decimalWithType;
+
+function testDecimalTypeWithType() returns DecimalTypeWithType {
+    DecimalTypeWithType t = 4.0;
+    return t;
+}
+
+// -----------------------------------------------------------
+
 type StringTypeWithType foo:stringWithType;
 
 function testStringTypeWithType() returns StringTypeWithType {

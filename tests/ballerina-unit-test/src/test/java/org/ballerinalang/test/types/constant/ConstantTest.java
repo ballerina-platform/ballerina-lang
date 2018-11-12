@@ -23,12 +23,16 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
 
 /**
  * Constant test cases.
@@ -227,6 +231,15 @@ public class ConstantTest {
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 2.0);
     }
 
+    // Note - Decimal without type cannot be specified.
+    @Test
+    public void testDecimalWithType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testDecimalWithType");
+        Assert.assertNotNull(returns[0]);
+        BigDecimal expected = new BigDecimal(50.0, MathContext.DECIMAL128);
+        Assert.assertEquals(((BDecimal) returns[0]).decimalValue().compareTo(expected), 0);
+    }
+
     @Test
     public void testStringWithType() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStringWithType");
@@ -298,6 +311,14 @@ public class ConstantTest {
     }
 
     @Test
+    public void testDecimalConstInUnion() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testDecimalConstInUnion");
+        Assert.assertNotNull(returns[0]);
+        BigDecimal expected = new BigDecimal(50.0, MathContext.DECIMAL128);
+        Assert.assertEquals(((BDecimal) returns[0]).decimalValue().compareTo(expected), 0);
+    }
+
+    @Test
     public void testStringConstInUnion() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStringConstInUnion");
         Assert.assertNotNull(returns[0]);
@@ -330,6 +351,14 @@ public class ConstantTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testFloatConstInTuple");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 4.0);
+    }
+
+    @Test
+    public void testDecimalConstInTuple() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testDecimalConstInTuple");
+        Assert.assertNotNull(returns[0]);
+        BigDecimal expected = new BigDecimal(50.0, MathContext.DECIMAL128);
+        Assert.assertEquals(((BDecimal) returns[0]).decimalValue().compareTo(expected), 0);
     }
 
     @Test
