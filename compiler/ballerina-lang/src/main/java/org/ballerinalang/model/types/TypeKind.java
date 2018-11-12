@@ -39,6 +39,11 @@ public enum TypeKind {
     FLOAT("float"),
 
     /**
+     * The <em>decimal</em> value type.
+     */
+    DECIMAL("decimal"),
+
+    /**
      * The <em>string</em> value type.
      */
     STRING("string"),
@@ -59,6 +64,7 @@ public enum TypeKind {
     JSON("json"),
     XML("xml"),
     ANY("any"),
+    ANYDATA("anydata"),
     MAP("map"),
     FUTURE("future"),
     PACKAGE("package"),

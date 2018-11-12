@@ -18,13 +18,13 @@
 package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.ForkJoinNode;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
@@ -46,10 +46,10 @@ public class BLangForkJoin extends BLangStatement implements ForkJoinNode {
     public BLangBlockStmt joinedBody;
 
     public BLangExpression timeoutExpression;
-    public BLangVariable timeoutVariable;
+    public BLangSimpleVariable timeoutVariable;
     public BLangBlockStmt timeoutBody;
     
-    public BLangVariable joinResultVar;
+    public BLangSimpleVariable joinResultVar;
 
     public BLangForkJoin() {
         this.workers = new ArrayList<>();
@@ -87,7 +87,7 @@ public class BLangForkJoin extends BLangStatement implements ForkJoinNode {
     }
 
     @Override
-    public VariableNode getTimeOutVariable() {
+    public SimpleVariableNode getTimeOutVariable() {
         return timeoutVariable;
     }
 
@@ -117,13 +117,13 @@ public class BLangForkJoin extends BLangStatement implements ForkJoinNode {
     }
 
     @Override
-    public VariableNode getJoinResultVar() {
-        return (BLangVariable) joinResultVar;
+    public SimpleVariableNode getJoinResultVar() {
+        return (BLangSimpleVariable) joinResultVar;
     }
 
     @Override
-    public void setJoinResultVar(VariableNode var) {
-        this.joinResultVar = (BLangVariable) var;
+    public void setJoinResultVar(SimpleVariableNode var) {
+        this.joinResultVar = (BLangSimpleVariable) var;
     }
     
 }

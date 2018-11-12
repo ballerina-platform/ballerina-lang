@@ -22,7 +22,7 @@ public class VariableShadowingNegativeTest {
 
         int index = 0;
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'name'", 7, 20);
-        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'name'", 10, 9);
+        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'name'", 10, 5);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'name'", 15, 13);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'ns'", 21, 5);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'name'", 31, 5);

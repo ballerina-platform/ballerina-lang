@@ -23,7 +23,7 @@ import org.ballerinalang.model.tree.expressions.MatchExpressionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -68,7 +68,7 @@ public class BLangMatchExpression extends BLangExpression implements MatchExpres
      */
     public static class BLangMatchExprPatternClause extends BLangNode implements MatchExpressionPatternNode {
 
-        public BLangVariable variable;
+        public BLangSimpleVariable variable;
         public BLangExpression expr;
 
         // This field is used to capture types that are matched to this pattern.
@@ -81,7 +81,7 @@ public class BLangMatchExpression extends BLangExpression implements MatchExpres
         }
 
         @Override
-        public BLangVariable getVariableNode() {
+        public BLangSimpleVariable getVariableNode() {
             return variable;
         }
 

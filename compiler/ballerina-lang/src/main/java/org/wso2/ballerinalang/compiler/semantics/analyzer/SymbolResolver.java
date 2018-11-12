@@ -285,6 +285,34 @@ public class SymbolResolver extends BLangNodeVisitor {
         return bSymbol;
     }
 
+    public BSymbol resolveBuiltinOperator(Name name, BType... args) {
+        BType type = args[0];
+        switch (type.tag) {
+            case TypeTags.RECORD:
+                type = symTable.recordType;
+                break;
+            case TypeTags.ARRAY:
+                type = symTable.arrayType;
+                break;
+            case TypeTags.TUPLE:
+                type = symTable.tupleType;
+                break;
+            case TypeTags.ERROR:
+                type = symTable.errorType;
+                break;
+            case TypeTags.MAP:
+                type = symTable.mapType;
+                break;
+        }
+
+        List<BType> argsList = Lists.of(type);
+        for (int i = 1; i < args.length; i++) {
+            argsList.add(args[i]);
+        }
+        BSymbol bSymbol = resolveOperator(name, argsList);
+        return bSymbol;
+    }
+
     private BSymbol getBinaryOpForNullChecks(OperatorKind opKind, BType lhsType,
                                              BType rhsType) {
         if (opKind != OperatorKind.EQUAL && opKind != OperatorKind.NOT_EQUAL) {
@@ -875,8 +903,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (!Symbols.isFlagOn(symbol.flags, Flags.PRIVATE)) {
             return env.enclPkg.symbol.pkgID == symbol.pkgID;
         }
-        if (env.enclTypeDefinition != null) {
-            return env.enclTypeDefinition.symbol == symbol.owner;
+        if (env.enclType != null) {
+            return env.enclType.type.tsymbol == symbol.owner;
         }
         return isMemberAllowed(env, symbol);
     }

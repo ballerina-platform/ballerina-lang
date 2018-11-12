@@ -24,7 +24,7 @@ function test1 () {
     endpoint DummyEndpoint ep {};
     foo(ep -> invoke2("val", 2));
 
-    if(lengthof ep -> invoke1("aa") > 5){
+    if(ep.length() -> invoke1("aa") > 5){
         int i = 10;
     }
 }

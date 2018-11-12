@@ -91,41 +91,41 @@ public type RequestCacheControl object {
         string[] directives = [];
         int i = 0;
 
-        if (noCache) {
+        if (self.noCache) {
             directives[i] = NO_CACHE;
             i = i + 1;
         }
 
-        if (noStore) {
+        if (self.noStore) {
             directives[i] = NO_STORE;
             i = i + 1;
         }
 
-        if (noTransform) {
+        if (self.noTransform) {
             directives[i] = NO_TRANSFORM;
             i = i + 1;
         }
 
-        if (onlyIfCached) {
+        if (self.onlyIfCached) {
             directives[i] = ONLY_IF_CACHED;
             i = i + 1;
         }
 
-        if (maxAge >= 0) {
-            directives[i] = MAX_AGE + "=" + maxAge;
+        if (self.maxAge >= 0) {
+            directives[i] = MAX_AGE + "=" + self.maxAge;
             i = i + 1;
         }
 
-        if (maxStale == MAX_STALE_ANY_AGE) {
+        if (self.maxStale == MAX_STALE_ANY_AGE) {
             directives[i] = MAX_STALE;
             i = i + 1;
-        } else if (maxStale >= 0) {
-            directives[i] = MAX_STALE + "=" + maxStale;
+        } else if (self.maxStale >= 0) {
+            directives[i] = MAX_STALE + "=" + self.maxStale;
             i = i + 1;
         }
 
-        if (minFresh >= 0) {
-            directives[i] = MIN_FRESH + "=" + minFresh;
+        if (self.minFresh >= 0) {
+            directives[i] = MIN_FRESH + "=" + self.minFresh;
             i = i + 1;
         }
 
@@ -249,7 +249,7 @@ function Request::parseCacheControlHeader () {
 }
 
 function appendFields (string[] fields) returns string {
-    if (lengthof fields > 0) {
+    if (fields.length() > 0) {
         return "=\"" + buildCommaSeparatedString(fields) + "\"";
     }
     return "";
@@ -259,7 +259,7 @@ function buildCommaSeparatedString (string[] values) returns string {
     string delimitedValues = values[0];
 
     int i = 1;
-    while (i < lengthof values) {
+    while (i < values.length()) {
         delimitedValues = delimitedValues + ", " + values[i];
         i = i + 1;
     }
@@ -271,34 +271,31 @@ function getExpirationDirectiveValue (string directive) returns int {
     string[] directiveParts = directive.split("=");
 
     // Disregarding the directive if a value isn't provided
-    if (lengthof directiveParts != 2) {
+    if (directiveParts.length() != 2) {
         return -1;
     }
 
-    match <int>directiveParts[1] {
-        int age => return age;
-        error => return -1; // Disregarding the directive if the value cannot be parsed
+    var age =  <int>directiveParts[1];
+    if (age is int) {
+        return age;
     }
+    return -1; // Disregarding the directive if the value cannot be parsed
 }
 
 function setRequestCacheControlHeader(Request request) {
-    match request.cacheControl {
-        RequestCacheControl cacheControl => {
-            if (!request.hasHeader(CACHE_CONTROL)) {
-                request.setHeader(CACHE_CONTROL, cacheControl.buildCacheControlDirectives());
-            }
+    var requestCacheControl = request.cacheControl;
+    if (requestCacheControl is RequestCacheControl) {
+        if (!request.hasHeader(CACHE_CONTROL)) {
+            request.setHeader(CACHE_CONTROL, requestCacheControl.buildCacheControlDirectives());
         }
-        () => {}
     }
 }
 
 function setResponseCacheControlHeader(Response response) {
-    match response.cacheControl {
-        ResponseCacheControl cacheControl => {
-            if (!response.hasHeader(CACHE_CONTROL)) {
-                response.setHeader(CACHE_CONTROL, cacheControl.buildCacheControlDirectives());
-            }
+    var responseCacheControl = response.cacheControl;
+    if (responseCacheControl is ResponseCacheControl) {
+        if (!response.hasHeader(CACHE_CONTROL)) {
+            response.setHeader(CACHE_CONTROL, responseCacheControl.buildCacheControlDirectives());
         }
-        () => {}
     }
 }

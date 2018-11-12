@@ -24,7 +24,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.List;
@@ -70,7 +70,7 @@ public class WebSocketResourceValidator {
     private static void validateOnOpenResource(String serviceName, BLangResource resource, DiagnosticLog dlog,
                                                boolean isClient) {
         if (!isClient || !resource.getName().getValue().equals(WebSocketConstants.RESOURCE_NAME_ON_OPEN)) {
-            List<BLangVariable> paramDetails = resource.getParameters();
+            List<BLangSimpleVariable> paramDetails = resource.getParameters();
             validateParamDetailsSize(paramDetails, 1, serviceName, resource, dlog);
             validateEndpointParameter(serviceName, resource, dlog, paramDetails, isClient);
         } else {
@@ -82,7 +82,7 @@ public class WebSocketResourceValidator {
 
     private static void validateOnTextResource(String serviceName, BLangResource resource, DiagnosticLog dlog,
                                                boolean isClient) {
-        List<BLangVariable> paramDetails = resource.getParameters();
+        List<BLangSimpleVariable> paramDetails = resource.getParameters();
         validateParamDetailsSize(paramDetails, 2, 3, serviceName, resource, dlog);
         validateEndpointParameter(serviceName, resource, dlog, paramDetails, isClient);
         if (paramDetails.size() < 2) {
@@ -115,7 +115,7 @@ public class WebSocketResourceValidator {
 
     private static void validateOnBinaryResource(String serviceName, BLangResource resource, DiagnosticLog dlog,
                                                  boolean isClient) {
-        List<BLangVariable> paramDetails = resource.getParameters();
+        List<BLangSimpleVariable> paramDetails = resource.getParameters();
         validateParamDetailsSize(paramDetails, 2, 3, serviceName, resource, dlog);
         validateEndpointParameter(serviceName, resource, dlog, paramDetails, isClient);
         if (paramDetails.size() < 2 || !"byte[]".equals(paramDetails.get(1).type.toString())) {
@@ -132,7 +132,7 @@ public class WebSocketResourceValidator {
 
     private static void validateOnPingPongResource(String serviceName, BLangResource resource, DiagnosticLog dlog,
                                                    boolean isClient) {
-        List<BLangVariable> paramDetails = resource.getParameters();
+        List<BLangSimpleVariable> paramDetails = resource.getParameters();
         validateParamDetailsSize(paramDetails, 2, serviceName, resource, dlog);
         validateEndpointParameter(serviceName, resource, dlog, paramDetails, isClient);
         if (paramDetails.size() < 2 || !"byte[]".equals(paramDetails.get(1).type.toString())) {
@@ -144,7 +144,7 @@ public class WebSocketResourceValidator {
 
     private static void validateOnCloseResource(String serviceName, BLangResource resource, DiagnosticLog dlog,
                                                 boolean isClient) {
-        List<BLangVariable> paramDetails = resource.getParameters();
+        List<BLangSimpleVariable> paramDetails = resource.getParameters();
         validateParamDetailsSize(paramDetails, 3, serviceName, resource, dlog);
         validateEndpointParameter(serviceName, resource, dlog, paramDetails, isClient);
         if (paramDetails.size() < 2 || TypeTags.INT != paramDetails.get(1).type.tag) {
@@ -161,7 +161,7 @@ public class WebSocketResourceValidator {
 
     private static void validateOnErrorResource(String serviceName, BLangResource resource, DiagnosticLog dlog,
                                                 boolean isClient) {
-        List<BLangVariable> paramDetails = resource.getParameters();
+        List<BLangSimpleVariable> paramDetails = resource.getParameters();
         validateParamDetailsSize(paramDetails, 2, serviceName, resource, dlog);
         validateEndpointParameter(serviceName, resource, dlog, paramDetails, isClient);
         if (paramDetails.size() < 2 || !"error".equals(paramDetails.get(1).type.toString())) {
@@ -171,8 +171,8 @@ public class WebSocketResourceValidator {
         }
     }
 
-    private static void validateParamDetailsSize(List<BLangVariable> paramDetails, int expectedSize, String serviceName,
-                                                 BLangResource resource, DiagnosticLog dlog) {
+    private static void validateParamDetailsSize(List<BLangSimpleVariable> paramDetails, int expectedSize,
+                                                 String serviceName, BLangResource resource, DiagnosticLog dlog) {
         if (paramDetails == null || paramDetails.size() != expectedSize) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
                     + resource.getName().getValue() + RESOURCE_IN_SERVICE + serviceName +
@@ -180,8 +180,8 @@ public class WebSocketResourceValidator {
         }
     }
 
-    private static void validateParamDetailsSize(List<BLangVariable> paramDetails, int min, int max, String serviceName,
-                                                 BLangResource resource, DiagnosticLog dlog) {
+    private static void validateParamDetailsSize(List<BLangSimpleVariable> paramDetails, int min, int max,
+                                                 String serviceName, BLangResource resource, DiagnosticLog dlog) {
         if (paramDetails == null || paramDetails.size() < min || paramDetails.size() > max) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
                     + resource.getName().getValue() + RESOURCE_IN_SERVICE + serviceName +
@@ -190,7 +190,7 @@ public class WebSocketResourceValidator {
     }
 
     private static void validateEndpointParameter(String serviceName, BLangResource resource, DiagnosticLog dlog,
-                                                  List<BLangVariable> paramDetails, boolean isClient) {
+                                                  List<BLangSimpleVariable> paramDetails, boolean isClient) {
         if (paramDetails == null || paramDetails.isEmpty() ||
                 (!isClient && !WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(
                         paramDetails.get(0).type.toString())) ||

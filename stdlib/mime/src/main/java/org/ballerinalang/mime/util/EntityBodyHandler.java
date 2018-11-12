@@ -19,8 +19,8 @@
 package org.ballerinalang.mime.util;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.StringUtils;
@@ -249,7 +249,7 @@ public class EntityBodyHandler {
         if (!bodyParts.isEmpty()) {
             BStructureType typeOfBodyPart = (BStructureType) bodyParts.get(FIRST_BODY_PART_INDEX).getType();
             BMap<String, BValue>[] result = bodyParts.toArray(new BMap[bodyParts.size()]);
-            BRefValueArray partsArray = new BRefValueArray(result, typeOfBodyPart);
+            BRefValueArray partsArray = new BRefValueArray(result, new BArrayType(typeOfBodyPart));
             entity.addNativeData(BODY_PARTS, partsArray);
         }
     }

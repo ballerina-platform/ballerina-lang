@@ -72,7 +72,7 @@ function startOrderBy() returns (Employee[]) {
         teacherStream.publish(teacher);
     }
 
-    while (lengthof globalEmployeeArray != 10 || index < 20) {
+    while (globalEmployeeArray.length() != 10 || index < 20) {
         index += 1;
         runtime:sleep(500);
     }
@@ -132,7 +132,7 @@ function startOrderBy2() returns (Employee[]) {
         teacherStream2.publish(teacher);
     }
 
-    while (lengthof globalEmployeeArray2 != 10 || index < 20) {
+    while (globalEmployeeArray2.length() != 10 || index < 20) {
         index += 1;
         runtime:sleep(500);
     }
@@ -191,7 +191,7 @@ function startOrderBy3() returns (Employee[]) {
         teacherStream3.publish(teacher);
     }
 
-    while (lengthof globalEmployeeArray3 != 10 || index < 20) {
+    while (globalEmployeeArray3.length() != 10 || index < 20) {
         index += 1;
         runtime:sleep(500);
     }
@@ -250,7 +250,7 @@ function startOrderBy4() returns (Employee[]) {
         teacherStream4.publish(teacher);
     }
 
-    while (lengthof globalEmployeeArray4 != 10 || index < 20) {
+    while (globalEmployeeArray4.length() != 10 || index < 20) {
         index += 1;
         runtime:sleep(500);
     }
@@ -309,7 +309,7 @@ function startOrderBy5() returns (Employee[]) {
         teacherStream5.publish(teacher);
     }
 
-    while (lengthof globalEmployeeArray5 != 10 || index < 20) {
+    while (globalEmployeeArray5.length() != 10 || index < 20) {
         index += 1;
         runtime:sleep(500);
     }

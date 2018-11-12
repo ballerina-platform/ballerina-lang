@@ -21,7 +21,7 @@ public type Path object {
     private string root;
 
     public new (root){
-        init(root);
+        self.init(root);
     }
 
     # Constructs the path.

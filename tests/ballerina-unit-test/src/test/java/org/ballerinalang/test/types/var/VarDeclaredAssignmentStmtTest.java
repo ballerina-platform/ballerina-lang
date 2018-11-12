@@ -149,7 +149,7 @@ public class VarDeclaredAssignmentStmtTest {
         //var type is not not allowed in variable def statements
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-type-variable-def-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 1);
-        BAssertUtil.validateError(res, 0, "mismatched input ';'. expecting {'.', '[', '=', '!', '@'}", 2, 12);
+        BAssertUtil.validateError(res, 0, "mismatched input ';'. expecting '='", 2, 12);
     }
 
     @Test(description = "Test var in global variable def.")
@@ -166,14 +166,14 @@ public class VarDeclaredAssignmentStmtTest {
     public void testVarTypeInServiceLevelVariableDefStatement() {
         //var type is not not allowed in service level variable def statements
         CompileResult res = BCompileUtil.compile("test-src/types/var/service-level-variable-def-with-var-negative.bal");
-        BAssertUtil.validateError(res, 0, "extraneous input 'var'", 9, 5);
+        BAssertUtil.validateError(res, 0, "extraneous input 'var'", 5, 5);
     }
 
     @Test
     public void testVarDeclarationWithStructFieldAssignmentLHSExpr() {
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-invalid-usage-struct-field-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 1);
-        BAssertUtil.validateError(res, 0, "invalid assignment in variable 'human.name'", 9, 8);
+        BAssertUtil.validateError(res, 0, "mismatched input '.'. expecting '='", 9, 13);
     }
 
     @Test
@@ -203,7 +203,7 @@ public class VarDeclaredAssignmentStmtTest {
     public void testVarDeclarationWithAllIgnoredSymbols() {
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-all-ignored-symbols-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 1);
-        BAssertUtil.validateError(res, 0, "no new variables on left side", 3, 5);
+        BAssertUtil.validateError(res, 0, "no new variables on left side", 3, 9);
     }
 
     @Test(description = "Test incompatible json to struct with errors.")

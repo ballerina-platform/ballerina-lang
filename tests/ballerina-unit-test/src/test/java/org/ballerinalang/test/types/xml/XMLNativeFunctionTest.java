@@ -39,6 +39,8 @@ import org.testng.annotations.Test;
  */
 public class XMLNativeFunctionTest {
 
+    private static final String ERROR_FAILED_TO_SLICE_XML_INDEX_OUT_OF_RANGE =
+            ".*error: Failed to slice xml: index out of range:";
     private CompileResult result;
 
     @BeforeClass
@@ -51,10 +53,10 @@ public class XMLNativeFunctionTest {
         BValue[] returns = BRunUtil.invoke(result, "testIsSingleton");
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
         
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
     }
 
     @Test
@@ -62,7 +64,7 @@ public class XMLNativeFunctionTest {
         BValue[] returns = BRunUtil.invoke(result, "testIsSingletonWithMultipleChildren");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
 
     }
     
@@ -71,7 +73,7 @@ public class XMLNativeFunctionTest {
         BValue[] returns = BRunUtil.invoke(result, "testIsEmpty");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test
@@ -79,7 +81,7 @@ public class XMLNativeFunctionTest {
         BValue[] returns = BRunUtil.invoke(result, "testIsEmptyWithNoElementTextValue");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test
@@ -87,7 +89,7 @@ public class XMLNativeFunctionTest {
         BValue[] returns = BRunUtil.invoke(result, "testIsEmptyWithMultipleChildren");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
     
     @Test
@@ -171,11 +173,11 @@ public class XMLNativeFunctionTest {
         
         // is element seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
         
         // is element seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
     }
 
     @Test
@@ -186,11 +188,11 @@ public class XMLNativeFunctionTest {
 
         // is element seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
 
         // is element seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
     
     @Test
@@ -203,11 +205,11 @@ public class XMLNativeFunctionTest {
         
         // is element seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
         
         // is element seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
     @Test
@@ -220,11 +222,11 @@ public class XMLNativeFunctionTest {
 
         // is element seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
 
         // is element seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
     @Test
@@ -237,11 +239,11 @@ public class XMLNativeFunctionTest {
 
         // is element seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
 
         // is element seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
     @Test
@@ -254,11 +256,11 @@ public class XMLNativeFunctionTest {
 
         // is element seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
 
         // is element seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
     @Test
@@ -272,11 +274,11 @@ public class XMLNativeFunctionTest {
 
         // is element seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
 
         // is element seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
     @Test
@@ -289,11 +291,11 @@ public class XMLNativeFunctionTest {
 
         // is element seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
 
         // is element seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
     @Test
@@ -308,19 +310,19 @@ public class XMLNativeFunctionTest {
 
         // is element seq one is empty?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
 
         // is element seq one is singleton?
         Assert.assertSame(returns[3].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[3]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returns[3]).booleanValue());
 
         // is element seq two is empty?
         Assert.assertSame(returns[4].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[4]).booleanValue());
 
         // is element seq two is singleton?
         Assert.assertSame(returns[5].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[5]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returns[5]).booleanValue());
     }
     
     @Test
@@ -331,11 +333,11 @@ public class XMLNativeFunctionTest {
         
         // is children seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
         
         // is children seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
     @Test
@@ -346,11 +348,11 @@ public class XMLNativeFunctionTest {
 
         // is children seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
 
         // is children seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
     
     @Test
@@ -361,11 +363,11 @@ public class XMLNativeFunctionTest {
         
         // is children seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
         
         // is children seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
     
     @Test
@@ -377,11 +379,11 @@ public class XMLNativeFunctionTest {
         
         // is children seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
         
         // is children seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
     @Test
@@ -393,11 +395,11 @@ public class XMLNativeFunctionTest {
 
         // is children seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
 
         // is children seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
     @Test
@@ -409,11 +411,11 @@ public class XMLNativeFunctionTest {
 
         // is children seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
 
         // is children seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
     @Test
@@ -425,11 +427,11 @@ public class XMLNativeFunctionTest {
 
         // is children seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
 
         // is children seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
     @Test
@@ -441,11 +443,11 @@ public class XMLNativeFunctionTest {
 
         // is children seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
 
         // is children seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
     @Test
@@ -460,19 +462,19 @@ public class XMLNativeFunctionTest {
 
         // is children seq one is empty?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
 
         // is children seq one is singleton?
         Assert.assertSame(returns[3].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[3]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returns[3]).booleanValue());
 
         // is children seq two is empty?
         Assert.assertSame(returns[4].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[4]).booleanValue());
 
         // is children seq two is singleton?
         Assert.assertSame(returns[5].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[5]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returns[5]).booleanValue());
     }
     
     @Test
@@ -488,11 +490,11 @@ public class XMLNativeFunctionTest {
         
         // is children seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
         
         // is children seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
     
     @Test
@@ -506,11 +508,11 @@ public class XMLNativeFunctionTest {
         
         // is children seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
         
         // is children seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
         
         // Check children
         Assert.assertTrue(returns[3] instanceof BXML);
@@ -532,11 +534,11 @@ public class XMLNativeFunctionTest {
 
         // is children seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
 
         // is children seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
 
         // Check children
         Assert.assertTrue(returns[3] instanceof BXML);
@@ -549,7 +551,7 @@ public class XMLNativeFunctionTest {
 
         // Check attribute value
         Assert.assertSame(returns[4].getClass(), BString.class);
-        Assert.assertEquals(((BString) returns[4]).stringValue(), "true");
+        Assert.assertEquals(returns[4].stringValue(), "true");
     }
 
     @Test
@@ -563,11 +565,11 @@ public class XMLNativeFunctionTest {
 
         // is children seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
 
         // is children seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
 
         // Check children
         Assert.assertTrue(returns[3] instanceof BXML);
@@ -579,7 +581,7 @@ public class XMLNativeFunctionTest {
 
         // Check attribute value
         Assert.assertSame(returns[4].getClass(), BString.class);
-        Assert.assertEquals(((BString) returns[4]).stringValue(), "true");
+        Assert.assertEquals(returns[4].stringValue(), "true");
     }
 
     @Test
@@ -593,15 +595,15 @@ public class XMLNativeFunctionTest {
 
         // is children seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
 
         // is children seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
 
         // Check attribute value
         Assert.assertSame(returns[3].getClass(), BString.class);
-        Assert.assertEquals(((BString) returns[3]).stringValue(), "true");
+        Assert.assertEquals(returns[3].stringValue(), "true");
     }
 
     @Test
@@ -616,15 +618,15 @@ public class XMLNativeFunctionTest {
 
         // is children seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
 
         // is children seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
 
         // Check attribute value
         Assert.assertSame(returns[3].getClass(), BString.class);
-        Assert.assertEquals(((BString) returns[3]).stringValue(), "true");
+        Assert.assertEquals(returns[3].stringValue(), "true");
     }
 
     @Test
@@ -639,15 +641,15 @@ public class XMLNativeFunctionTest {
 
         // is children seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
 
         // is children seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
 
         // Check attribute value
         Assert.assertSame(returns[3].getClass(), BString.class);
-        Assert.assertEquals(((BString) returns[3]).stringValue(), "yes");
+        Assert.assertEquals(returns[3].stringValue(), "yes");
     }
 
     @Test
@@ -663,15 +665,15 @@ public class XMLNativeFunctionTest {
 
         // is children seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
 
         // is children seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
 
         // Check attribute value
         Assert.assertSame(returns[3].getClass(), BString.class);
-        Assert.assertEquals(((BString) returns[3]).stringValue(), "yes");
+        Assert.assertEquals(returns[3].stringValue(), "yes");
     }
 
     @Test
@@ -687,15 +689,15 @@ public class XMLNativeFunctionTest {
 
         // is children seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
 
         // is children seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
 
         // Check attribute value
         Assert.assertSame(returns[3].getClass(), BString.class);
-        Assert.assertEquals(((BString) returns[3]).stringValue(), "yes");
+        Assert.assertEquals(returns[3].stringValue(), "yes");
     }
 
     @Test
@@ -711,15 +713,15 @@ public class XMLNativeFunctionTest {
 
         // is children seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
 
         // is children seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
 
         // Check attribute value
         Assert.assertSame(returns[3].getClass(), BString.class);
-        Assert.assertEquals(((BString) returns[3]).stringValue(), "yes");
+        Assert.assertEquals(returns[3].stringValue(), "yes");
     }
 
     @Test
@@ -734,15 +736,15 @@ public class XMLNativeFunctionTest {
 
         // is children seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
 
         // is children seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
 
         // Check attribute value
         Assert.assertSame(returns[3].getClass(), BString.class);
-        Assert.assertEquals(((BString) returns[3]).stringValue(), "yes");
+        Assert.assertEquals(returns[3].stringValue(), "yes");
     }
 
     @Test
@@ -764,11 +766,11 @@ public class XMLNativeFunctionTest {
         
         // is children seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
         
         // is children seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
         
         // Check children of the original xml
         Assert.assertTrue(returns[3] instanceof BXML);
@@ -822,7 +824,7 @@ public class XMLNativeFunctionTest {
         Assert.assertTrue(returns[1] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "");
         Assert.assertEquals(returns[1].stringValue(), "");
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
     }
     
     @Test
@@ -846,31 +848,27 @@ public class XMLNativeFunctionTest {
     }
     
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error, message: failed to slice xml: " +
-                    "invalid indices: 4 < 1.*")
+          expectedExceptionsMessageRegExp = ".*error: Failed to slice xml: invalid indices: 4 < 1.*")
     public void testSliceInvalidIndex() {
         BRunUtil.invoke(result, "testSliceInvalidIndex");
     }
     
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error, message: failed to slice xml: " +
-                    "index out of range: \\[4,10\\].*")
+          expectedExceptionsMessageRegExp = ERROR_FAILED_TO_SLICE_XML_INDEX_OUT_OF_RANGE + " \\[4,10\\].*")
     public void testSliceOutOfRangeIndex() {
         BValue[] params = new BValue[] { new BInteger(4), new BInteger(10) };
         BRunUtil.invoke(result, "testSliceOutOfRangeIndex", params);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error, message: failed to slice xml: "
-                    + "index out of range: \\[-4,10\\].*")
+          expectedExceptionsMessageRegExp = ERROR_FAILED_TO_SLICE_XML_INDEX_OUT_OF_RANGE + " \\[-4,10\\].*")
     public void testSliceOutOfRangeNegativeStartIndex() {
         BValue[] params = new BValue[] { new BInteger(-4), new BInteger(10) };
         BRunUtil.invoke(result, "testSliceOutOfRangeIndex", params);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error, message: failed to slice xml: "
-                    + "index out of range: \\[4,-10\\].*")
+          expectedExceptionsMessageRegExp = ERROR_FAILED_TO_SLICE_XML_INDEX_OUT_OF_RANGE + " \\[4,-10\\].*")
     public void testSliceOutOfRangeNegativeEndIndex() {
         BValue[] params = new BValue[] { new BInteger(4), new BInteger(-10) };
         BRunUtil.invoke(result, "testSliceOutOfRangeIndex", params);

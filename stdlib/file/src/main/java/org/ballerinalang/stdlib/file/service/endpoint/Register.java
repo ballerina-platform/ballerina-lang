@@ -118,7 +118,7 @@ public class Register extends BlockingNativeCallableUnit {
             }
         }
         if (registry.size() == 0) {
-            String msg = "At least a single resource requires from following: "
+            String msg = "At least a single resource required from following: "
                     + DirectoryListenerConstants.RESOURCE_NAME_ON_CREATE + " ,"
                     + DirectoryListenerConstants.RESOURCE_NAME_ON_DELETE + " ,"
                     + DirectoryListenerConstants.RESOURCE_NAME_ON_MODIFY + ". " + "Parameter should be of type - "

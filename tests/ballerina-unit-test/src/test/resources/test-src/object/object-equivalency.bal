@@ -386,9 +386,12 @@ function testRuntimeEqPublicStructsInSamePackage () returns (string) {
 
     // This is a unsafe cast
     var uB = <userPB>uA;
-    match uB {
-        error err => return err.message;
-        userPB user=> return user.name;
+    if(uB is error) {
+        return uB.reason();
+    } else if (uB is userPB) {
+        return uB.name;
+    } else {
+        return "";
     }
 }
 
@@ -400,9 +403,12 @@ function testRuntimeEqPublicStructs () returns (string) {
 
     // This is a unsafe cast
     var uB  = <userPB>uA;
-    match uB {
-        error err => return err.message;
-        userPB user=> return user.name;
+    if(uB is error) {
+        return uB.reason();
+    } else if (uB is userPB) {
+        return uB.name;
+    } else {
+        return "";
     }
 }
 
@@ -414,9 +420,12 @@ function testRuntimeEqPublicStructs1 () returns (string) {
 
     // This is a unsafe cast
     var uB  = <req2:userPB>uA;
-    match uB {
-        error err => return err.message;
-        req2:userPB user=> return user.getName();
+    if(uB is error) {
+        return uB.reason();
+    } else if (uB is req2:userPB) {
+        return uB.getName();
+    } else {
+        return "";
     }
 }
 
@@ -632,7 +641,7 @@ type A object {
     public string field;
     
     new () {
-        field = "value A"; 
+        self.field = "value A"; 
     }
 
     function foo(C c) returns A {
@@ -645,7 +654,7 @@ type B object {
     public string field;
     
     new () {
-        field = "value B"; 
+        self.field = "value B"; 
     }
 
     function foo(D d) returns B {
@@ -683,22 +692,22 @@ public type PersonInOrder object {
     public new (name, age) {}
 
     public function getName() returns (string) {
-        return name;
+        return self.name;
     }
 
     public function getAge() returns (int) {
-        return age;
+        return self.age;
     }
 
     public function getAddress() returns (string) {
-        return address;
+        return self.address;
     }
 };
 
 public type PersonNotInOrder object {
 
     public function getName() returns (string) {
-        return name;
+        return self.name;
     }
 
     public int age;
@@ -712,7 +721,7 @@ public type PersonNotInOrder object {
     public string name;
 
     public function getAddress() returns (string) {
-        return address;
+        return self.address;
     }
 
     public string address;

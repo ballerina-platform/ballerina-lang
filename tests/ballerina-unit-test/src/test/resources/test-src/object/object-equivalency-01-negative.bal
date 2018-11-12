@@ -356,29 +356,29 @@ public type PersonInOrder object {
     public new (name, age) {}
 
     public function getName() returns (string) {
-        return name;
+        return self.name;
     }
 
     public function getAge() returns (int) {
-        return age;
+        return self.age;
     }
 
     public function getAddress() returns (string) {
-        return address;
+        return self.address;
     }
 };
 
 public type PersonNotInOrder object {
 
     public function getName() returns (string) {
-        return name;
+        return self.name;
     }
 
     // This is not in order
     public string name;
 
     public function getAge() returns (int) {
-        return age;
+        return self.age;
     }
 
     public new (name, age) {}
@@ -386,7 +386,7 @@ public type PersonNotInOrder object {
     public int age;
 
     public function getAddress() returns (string) {
-        return address;
+        return self.address;
     }
 
     public string address;

@@ -20,7 +20,7 @@ type ChildFoo object {
     new (name) {}
 };
 
-type privatePerson object {
+type PrivatePerson object {
 
     public int age;
     public string name;
@@ -30,18 +30,18 @@ type privatePerson object {
     public function getPrivatePersonName() returns string;
 };
 
-public function newPrivatePerson() returns (privatePerson) {
-    return new privatePerson(12, "mad");
+public function newPrivatePerson() returns (PrivatePerson) {
+    return new PrivatePerson(12, "mad");
 }
 
-public function privatePersonAsParam(privatePerson p) returns (string){
+public function privatePersonAsParam(PrivatePerson p) returns (string){
     return p.name;
 }
 
-public function privatePersonAsParamAndReturn(privatePerson p) returns (privatePerson) {
+public function privatePersonAsParamAndReturn(PrivatePerson p) returns (PrivatePerson) {
     return p;
 }
 
-function privatePerson::getPrivatePersonName() returns (string) {
+function PrivatePerson::getPrivatePersonName() returns (string) {
     return self.name;
 }

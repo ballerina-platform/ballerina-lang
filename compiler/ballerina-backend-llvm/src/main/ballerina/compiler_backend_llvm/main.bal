@@ -21,7 +21,7 @@ function genObjectFileFromChannel(io:ReadableByteChannel byteChannel, string des
 }
 
 function parseArgs(string[] args) returns (string, string) {
-    var argLen = lengthof args;
+    var argLen = args.length();
     if (argLen != 2){
         error err = error("Usage: compiler_backend_llvm <path-to-bir> <part-to-output-obj>");
         panic err;
@@ -60,13 +60,13 @@ function openReadableFile(string filePath) returns io:ReadableByteChannel {
 }
 
 function arrayEq(byte[] x, byte[] y) returns boolean {
-    var xLen = lengthof x;
+    var xLen = x.length();
 
-    if xLen != lengthof y{
+    if xLen != y.length(){
         return false;
     }
 
-    int i;
+    int i = 0;
     while i < xLen {
         if (x[i] != y[i]){
             return false;

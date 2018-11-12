@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BByteArray;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -192,10 +193,8 @@ public class ClientSocketTest {
         int port = ThreadLocalRandom.current().nextInt(33000, 46000);
         BValue[] args = { new BInteger(port) };
         final BValue[] returns = BRunUtil.invokeStateful(socketClient, "bindSocketForSamePort", args);
-        final BMap<String, BValue> result = (BMap<String, BValue>) returns[0];
-        final BString message = (BString) result.get("message");
-        Assert.assertEquals(message.stringValue(),
-                "Error occurred while bind to the socket address: Address already in use",
+        BMap error = (BMap) ((BError) returns[0]).getDetails();
+        Assert.assertEquals(error.getMap().get("message").toString(), "Address already in use",
                 "Didn't get the expected error message for duplicate port open.");
     }
 
@@ -225,9 +224,8 @@ public class ClientSocketTest {
         contentBytes = content.getBytes();
         args = new BValue[] { socket, new BByteArray(contentBytes) };
         writeReturns = BRunUtil.invokeStateful(socketClient, "write", args);
-        final BMap<String, BValue> errorResult = (BMap) writeReturns[0];
-        final BString message = (BString) errorResult.get("message");
-        Assert.assertEquals(message.stringValue(), "Error occurred while writing to channel ",
+        BMap error = (BMap) ((BError) writeReturns[0]).getDetails();
+        Assert.assertEquals(error.getMap().get("message").toString(), "Error occurred while writing to channel ",
                 "Didn't get expected error message");
 
         args = new BValue[] { socket };

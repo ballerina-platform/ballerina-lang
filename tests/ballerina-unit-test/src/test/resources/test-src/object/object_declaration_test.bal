@@ -22,7 +22,7 @@ type Employee object {
     public string name;
 
     new (age = 6, string key = "abc") {
-        name = "sample value";
+        self.name = "sample value";
     }
 };
 

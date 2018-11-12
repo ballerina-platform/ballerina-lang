@@ -8,19 +8,19 @@ type ChildFoo record {
     string name;
 };
 
-type privatePerson record {
+type PrivatePerson record {
     int age;
     string name;
 };
 
-public function newPrivatePerson() returns privatePerson {
+public function newPrivatePerson() returns PrivatePerson {
     return {age:12, name:"mad"};
 }
 
-public function privatePersonAsParam(privatePerson p) returns string {
+public function privatePersonAsParam(PrivatePerson p) returns string {
     return p.name;
 }
 
-public function privatePersonAsParamAndReturn(privatePerson p) returns privatePerson {
+public function privatePersonAsParamAndReturn(PrivatePerson p) returns PrivatePerson {
     return p;
 }
