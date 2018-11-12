@@ -535,11 +535,10 @@ function testLocalTransactionFailed() returns (string, int) {
     if (ret is string) {
         a = ret;
     } else {
-        a = a + "trapped";
+        a = a + " trapped";
     }
     a = a + " afterTrx";
-    var dtRet = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 111", ResultCount
-    );
+    var dtRet = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 111", ResultCount);
     if (dtRet is table) {
         while (dtRet.hasNext()) {
             var rs = <ResultCount>dtRet.getNext();
@@ -555,7 +554,7 @@ function testLocalTransactionFailed() returns (string, int) {
 function testLocalTransactionFailedHelper(string status, h2:Client db) returns string {
     endpoint h2:Client testDB = db;
     string a = status;
-    transaction with retries = 0 {
+    transaction with retries = 4 {
         a = a + " inTrx";
         _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                         values ('James', 'Clerk', 111, 5000.75, 'USA')");
