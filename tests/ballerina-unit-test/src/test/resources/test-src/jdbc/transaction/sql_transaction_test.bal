@@ -347,19 +347,10 @@ function testTransactonErrorThrow() returns (int, int, int) {
     int returnVal = 0;
     int catchValue = 0;
     int count;
-    try {
-        transaction {
-            _ = testDB->update("Insert into Customers (firstName,lastName,
-                      registrationID,creditLimit,country) values ('James', 'Clerk', 260, 5000.75, 'USA')");
-            int i = 0;
-            if (i == 0) {
-                error err = error("error" );
-                panic err;
-            }
-        } onretry {
-            returnVal = -1;
-        }
-    } catch (error err) {
+    var ret = trap testTransactonErrorThrowHelper(testDB);
+    if (ret is int) {
+        returnVal = ret;
+    } else if (ret is error) {
         catchValue = -1;
     }
     //check whether update action is performed
@@ -371,6 +362,23 @@ function testTransactonErrorThrow() returns (int, int, int) {
     }
     testDB.stop();
     return (returnVal, catchValue, count);
+}
+
+function testTransactonErrorThrowHelper(h2:Client db) returns int {
+    endpoint h2:Client testDB = db;
+    int returnVal = 0;
+    transaction {
+        _ = testDB->update("Insert into Customers (firstName,lastName,
+                              registrationID,creditLimit,country) values ('James', 'Clerk', 260, 5000.75, 'USA')");
+        int i = 0;
+        if (i == 0) {
+            error e =  error("error");
+            panic e;
+        }
+    } onretry {
+        returnVal = -1;
+    }
+    return returnVal;
 }
 
 function testTransactionErrorThrowAndCatch() returns (int, int, int) {
@@ -388,13 +396,8 @@ function testTransactionErrorThrowAndCatch() returns (int, int, int) {
     transaction {
         _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,
                  creditLimit,country) values ('James', 'Clerk', 250, 5000.75, 'USA')");
-        int i = 0;
-        try {
-            if (i == 0) {
-                error err = error("error" );
-                panic err;
-            }
-        } catch (error err) {
+        var ret = trap testTransactionErrorThrowAndCatchHelper(0);
+        if (ret is error) {
             catchValue = -1;
         }
     } onretry {
@@ -409,6 +412,13 @@ function testTransactionErrorThrowAndCatch() returns (int, int, int) {
     }
     testDB.stop();
     return (returnVal, catchValue, count);
+}
+
+function testTransactionErrorThrowAndCatchHelper(int i) {
+    if (i == 0) {
+        error err = error("error" );
+        panic err;
+    }
 }
 
 function testTransactonCommitted() returns (int, int) {
@@ -520,30 +530,41 @@ function testLocalTransactionFailed() returns (string, int) {
 
     string a = "beforetx";
     int count = -1;
-    try {
-        transaction with retries = 4 {
-            a = a + " inTrx";
-            _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                        values ('James', 'Clerk', 111, 5000.75, 'USA')");
-            _ = testDB->update("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country)
-                        values ('Anne', 'Clerk', 111, 5000.75, 'USA')");
-        } onretry {
-            a = a + " inFld";
-        }
-    } catch (error e) {
-        io:println(e);
-        a = a + " inCatch";
 
+    var ret = trap testLocalTransactionFailedHelper(a, testDB);
+    if (ret is string) {
+        a = ret;
+    } else {
+        a = a + "trapped";
     }
     a = a + " afterTrx";
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 111", ResultCount
+    var dtRet = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 111", ResultCount
     );
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
+    if (dtRet is table) {
+        while (dtRet.hasNext()) {
+            var rs = <ResultCount>dtRet.getNext();
+            if (rs is ResultCount) {
+                count = rs.COUNTVAL;
+            }
+        }
     }
     testDB.stop();
     return (a, count);
+}
+
+function testLocalTransactionFailedHelper(string status, h2:Client db) returns string {
+    endpoint h2:Client testDB = db;
+    string a = status;
+    transaction with retries = 0 {
+        a = a + " inTrx";
+        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                        values ('James', 'Clerk', 111, 5000.75, 'USA')");
+        _ = testDB->update("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country)
+                        values ('Anne', 'Clerk', 111, 5000.75, 'USA')");
+    } onretry {
+        a = a + " inFld";
+    }
+    return a;
 }
 
 function testLocalTransactonSuccessWithFailed() returns (string, int) {
@@ -557,35 +578,47 @@ function testLocalTransactonSuccessWithFailed() returns (string, int) {
 
     string a = "beforetx";
     int count = -1;
-    int i = 0;
-    try {
-        transaction with retries = 4 {
-            a = a + " inTrx";
-            _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                            values ('James', 'Clerk', 222, 5000.75, 'USA')");
-            if (i == 2) {
-                _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                            values ('Anne', 'Clerk', 222, 5000.75, 'USA')");
-            } else {
-                _ = testDB->update("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country)
-                            values ('Anne', 'Clerk', 222, 5000.75, 'USA')");
-            }
-        } onretry {
-            a = a + " inFld";
-            i = i + 1;
-        }
-    } catch (error e) {
-        a = a + " inCatch";
+    string|error ret = trap testLocalTransactonSuccessWithFailedHelper(a, testDB);
+    if (ret is string) {
+        a = ret;
+    } else {
+        a =  a + "trapped";
     }
     a = a + " afterTrx";
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 222", ResultCount
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 222", ResultCount
     );
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
+    if (dt is table) {
+        while (dt.hasNext()) {
+            var rs = <ResultCount>dt.getNext();
+            if (rs is ResultCount) {
+                count = rs.COUNTVAL;
+            }
+        }
     }
     testDB.stop();
     return (a, count);
+}
+
+function testLocalTransactonSuccessWithFailedHelper(string status, h2:Client db) returns string {
+    endpoint h2:Client testDB = db;
+    int i = 0;
+    string a = status;
+    transaction with retries = 4 {
+        a = a + " inTrx";
+        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                    values ('James', 'Clerk', 222, 5000.75, 'USA')");
+        if (i == 2) {
+            _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                        values ('Anne', 'Clerk', 222, 5000.75, 'USA')");
+        } else {
+            _ = testDB->update("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country)
+                                        values ('Anne', 'Clerk', 222, 5000.75, 'USA')");
+        }
+    } onretry {
+        a = a + " inFld";
+        i = i + 1;
+    }
+    return a;
 }
 
 function testLocalTransactonFailedWithNextupdate() returns (int) {
@@ -606,17 +639,12 @@ function testLocalTransactonFailedWithNextupdate() returns (int) {
     };
 
     int i = 0;
-    try {
-        transaction {
-            _ = testDB1->update("Insert into Customers (firstNamess,lastName,registrationID,creditLimit,country)
-                            values ('James', 'Clerk', 1234, 5000.75, 'USA')");
-        }
-    } catch (error e){
+    var ret = trap testLocalTransactonFailedWithNextupdateHelper(testDB1);
+    if (ret is error) {
         i = -1;
     }
     _ = testDB1->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                             values ('James', 'Clerk', 12343, 5000.75, 'USA')");
-
     testDB1.stop();
 
     table dt = check testDB2->select("Select COUNT(*) as countval from Customers where registrationID = 12343",
@@ -627,6 +655,14 @@ function testLocalTransactonFailedWithNextupdate() returns (int) {
     }
     testDB2.stop();
     return i;
+}
+
+function testLocalTransactonFailedWithNextupdateHelper(h2:Client db) {
+    endpoint h2:Client testDB = db;
+    transaction {
+        _ = testDB->update("Insert into Customers (firstNamess,lastName,registrationID,creditLimit,country)
+                                    values ('James', 'Clerk', 1234, 5000.75, 'USA')");
+    }
 }
 
 function testNestedTwoLevelTransactonSuccess() returns (int, int) {
@@ -708,33 +744,43 @@ function testNestedThreeLevelTransactonFailed() returns (int, int) {
 
     int returnVal = 0;
     int count;
-    try {
-        transaction {
-            _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                values ('James', 'Clerk', 555, 5000.75, 'USA')");
-            transaction {
-                _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                values ('James', 'Clerk', 555, 5000.75, 'USA')");
-                transaction {
-                    _ = testDB->update("Insert into Customers (invalidColumn,lastName,registrationID,creditLimit,country)
-                                values ('James', 'Clerk', 555, 5000.75, 'USA')");
-                }
-            }
-        } onretry {
-            returnVal = -1;
-        }
-    } catch (error e) {
-        // ignore.
+    var ret = trap testNestedThreeLevelTransactonFailedHelper(testDB);
+    if (ret is int) {
+        returnVal =  ret;
     }
     //check whether update action is performed
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 555", ResultCount
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 555", ResultCount
     );
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
+    if (dt is table) {
+        while (dt.hasNext()) {
+            var rs = <ResultCount>dt.getNext();
+            if (rs is ResultCount) {
+                count = rs.COUNTVAL;
+            }
+        }
     }
     testDB.stop();
     return (returnVal, count);
+}
+
+function testNestedThreeLevelTransactonFailedHelper(h2:Client db) returns int {
+    endpoint h2:Client testDB = db;
+    int returnVal = 0;
+    transaction {
+        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                        values ('James', 'Clerk', 555, 5000.75, 'USA')");
+        transaction {
+            _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                            values ('James', 'Clerk', 555, 5000.75, 'USA')");
+            transaction {
+            _ = testDB->update("Insert into Customers (invalidColumn,lastName,registrationID,creditLimit,country)
+                                            values ('James', 'Clerk', 555, 5000.75, 'USA')");
+            }
+        }
+    } onretry {
+        returnVal = -1;
+    }
+    return returnVal;
 }
 
 function testNestedThreeLevelTransactonFailedWithRetrySuccess() returns (int, int, string) {
@@ -747,50 +793,61 @@ function testNestedThreeLevelTransactonFailedWithRetrySuccess() returns (int, in
     };
 
     int returnVal = 0;
-    int index = 0;
     string a = "start";
     int count;
-    try {
-        transaction {
-            a = a + " txL1";
-            _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                values ('James', 'Clerk', 666, 5000.75, 'USA')");
-            transaction {
-                a = a + " txL2";
-                _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                values ('James', 'Clerk', 666, 5000.75, 'USA')");
-                transaction with retries = 2{
-                    a = a + " txL3";
-                    if (index == 1) {
-                        a = a + " txL3_If";
-                        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                values ('James', 'Clerk', 666, 5000.75, 'USA')");
-                    } else {
-                        a = a + " txL3_Else";
-                        _ = testDB->update("Insert into Customers (invalidColumn,lastName,registrationID,creditLimit,country)
-                                values ('James', 'Clerk', 666, 5000.75, 'USA')");
-                    }
-                } onretry {
-                    a = a + " txL3_Failed";
-                    index = index + 1;
-                }
-            }
-        } onretry {
-            a = a + " txL1_Falied";
-            returnVal = -1;
-        }
-    } catch (error e) {
-        // ignore.
+    var ret = trap testNestedThreeLevelTransactonFailedWithRetrySuccessHelper(a, testDB);
+    if (ret is (string, int)) {
+        (a, returnVal) = ret;
     }
     //check whether update action is performed
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 666", ResultCount
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 666", ResultCount
     );
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
+    if (dt is table) {
+        while (dt.hasNext()) {
+            var rs = <ResultCount>dt.getNext();
+            if (rs is ResultCount) {
+                count = rs.COUNTVAL;
+            }
+        }
     }
     testDB.stop();
     return (returnVal, count, a);
+}
+
+function testNestedThreeLevelTransactonFailedWithRetrySuccessHelper(string status, h2:Client db) returns (string, int) {
+    endpoint h2:Client testDB = db;
+    int returnVal = 0;
+    int index = 0;
+    string a = status;
+    transaction {
+        a = a + " txL1";
+        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                        values ('James', 'Clerk', 666, 5000.75, 'USA')");
+        transaction {
+            a = a + " txL2";
+            _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                            values ('James', 'Clerk', 666, 5000.75, 'USA')");
+            transaction with retries = 2 {
+                a = a + " txL3";
+                if (index == 1) {
+                    a = a + " txL3_If";
+                    _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                                    values ('James', 'Clerk', 666, 5000.75, 'USA')");
+                } else {
+                    a = a + " txL3_Else";
+                    _ = testDB->update("Insert into Customers (invalidColumn,lastName,registrationID,creditLimit,country)
+                                                    values ('James', 'Clerk', 666, 5000.75, 'USA')");
+                }
+            } onretry {
+                a = a + " txL3_Failed";
+                index = index + 1;
+            }
+        }
+    } onretry {
+        a = a + " txL1_Falied";
+        returnVal = -1;
+    }
+    return (a, returnVal);
 }
 
 function testLocalTransactionWithSelectAndForeachIteration() returns (int, int) {
