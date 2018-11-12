@@ -61,11 +61,6 @@ public class BStreamType extends BType {
     }
 
     @Override
-    public TypeSignature getSig() {
-        return new TypeSignature(TypeSignature.SIG_STREAM, constraint.getSig());
-    }
-
-    @Override
     public int getTag() {
         return TypeTags.STREAM_TAG;
     }

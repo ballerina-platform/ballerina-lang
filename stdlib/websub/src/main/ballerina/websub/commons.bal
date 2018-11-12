@@ -73,6 +73,8 @@ const string SHA256 = "SHA256";
 const string ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "SubscriberServiceConfig";
 const string WEBSUB_MODULE_NAME = "ballerina/websub";
 
+# The constant used to represent error code of WebSub module.
+@final public string WEBSUB_ERROR_CODE = "{ballerina/websub}WebSubError";
 
 # The identifier to be used to identify the mode in which update content should be identified.
 public type RemotePublishMode PUBLISH_MODE_DIRECT|PUBLISH_MODE_FETCH;
@@ -179,8 +181,9 @@ function processWebSubNotification(http:Request request, typedesc serviceType) r
 
     if (!request.hasHeader(X_HUB_SIGNATURE)) {
         if (secret != "") {
-            error webSubError = {message: X_HUB_SIGNATURE + " header not present for subscription added" +
-                                            " specifying " + HUB_SECRET};
+            map errorDetail = { message : X_HUB_SIGNATURE + " header not present for subscription " +
+                                            "added specifying " + HUB_SECRET };
+            error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
         }
         return;
@@ -192,12 +195,14 @@ function processWebSubNotification(http:Request request, typedesc serviceType) r
         return;
     }
 
-    string stringPayload;
+    string stringPayload = "";
     match (request.getPayloadAsString()) {
         string payloadAsString => { stringPayload = payloadAsString; }
         error entityError => {
-            error webSubError = {message:"Error extracting notification payload as string for signature validation: "
-                                            + entityError.message, cause: entityError};
+            string errCause = <string> entityError.detail().message;
+            map errorDetail = { message : "Error extracting notification payload as string " +
+                                            "for signature validation: " + errCause };
+            error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
         }
     }
@@ -215,19 +220,21 @@ function validateSignature(string xHubSignature, string stringPayload, string se
     string[] splitSignature = xHubSignature.split("=");
     string method = splitSignature[0];
     string signature = xHubSignature.replace(method + "=", "");
-    string generatedSignature;
+    string generatedSignature = "";
 
     if (method.equalsIgnoreCase(SHA1)) {
         generatedSignature = crypto:hmac(stringPayload, secret, crypto:SHA1);
     } else if (method.equalsIgnoreCase(SHA256)) {
         generatedSignature = crypto:hmac(stringPayload, secret, crypto:SHA256);
     } else {
-        error webSubError = {message:"Unsupported signature method: " + method};
+        map errorDetail = { message : "Unsupported signature method: " + method };
+        error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
         return webSubError;
     }
 
     if (!signature.equalsIgnoreCase(generatedSignature)) {
-        error webSubError = {message:"Signature validation failed: Invalid Signature!"};
+        map errorDetail = { message : "Signature validation failed: Invalid Signature!" };
+        error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
         return webSubError;
     }
     return;
@@ -238,7 +245,7 @@ function validateSignature(string xHubSignature, string stringPayload, string se
 # + request - The HTTP POST request received as the notification
 public type Notification object {
 
-    private http:Request request;
+    private http:Request request = new;
 
     # Retrieves the query parameters of the content delivery request, as a map.
     #
@@ -352,21 +359,22 @@ public type Notification object {
 # + response - The `http:Response` received
 # + return - `(topic, hubs)` if parsing and extraction is successful, `error` if not
 public function extractTopicAndHubUrls(http:Response response) returns (string, string[])|error {
-    string[] linkHeaders;
+    string[] linkHeaders = [];
     if (response.hasHeader("Link")) {
         linkHeaders = response.getHeaders("Link");
     }
 
-    if (lengthof linkHeaders == 0) {
-        error websubError = { message: "Link header unavailable in discovery response" };
+    if (linkHeaders.length() == 0) {
+        map errorDetail = { message : "Link header unavailable in discovery response" };
+        error websubError = error(WEBSUB_ERROR_CODE, errorDetail);
         return websubError;
     }
 
     int hubIndex = 0;
-    string[] hubs;
-    string topic;
+    string[] hubs = [];
+    string topic = "";
     string[] linkHeaderConstituents = [];
-    if (lengthof linkHeaders == 1) {
+    if (linkHeaders.length() == 1) {
         linkHeaderConstituents = linkHeaders[0].split(",");
     } else {
         linkHeaderConstituents = linkHeaders;
@@ -383,7 +391,8 @@ public function extractTopicAndHubUrls(http:Response response) returns (string, 
                 hubIndex += 1;
             } else if (linkConstituents[1].contains("rel=\"self\"")) {
                 if (topic != "") {
-                    error websubError = { message: "Link Header contains > 1 self URLs" };
+                    map errorDetail = { message : "Link Header contains > 1 self URLs" };
+                    error websubError = error(WEBSUB_ERROR_CODE, errorDetail);
                     return websubError;
                 } else {
                     topic = url;
@@ -392,11 +401,12 @@ public function extractTopicAndHubUrls(http:Response response) returns (string, 
         }
     }
 
-    if (lengthof hubs > 0 && topic != "") {
+    if (hubs.length() > 0 && topic != "") {
         return (topic, hubs);
     }
 
-    error websubError = {message: "Hub and/or Topic URL(s) not identified in link header of discovery response"};
+    map errorDetail = { message : "Hub and/or Topic URL(s) not identified in link header of discovery response" };
+    error websubError = error(WEBSUB_ERROR_CODE, errorDetail);
     return websubError;
 }
 
@@ -545,7 +555,8 @@ function WebSubHub::stop() returns boolean {
 function WebSubHub::publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
                                   string? contentType = ()) returns error? {
     if (self.hubUrl == "") {
-        error webSubError = {message: "Internal Ballerina Hub not initialized or incorrectly referenced"};
+        map errorDetail = { message : "Internal Ballerina Hub not initialized or incorrectly referenced" };
+        error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
         return webSubError;
     }
 
@@ -573,7 +584,8 @@ function WebSubHub::publishUpdate(string topic, string|xml|json|byte[]|io:Readab
 
 function WebSubHub::registerTopic(string topic) returns error? {
     if (!hubTopicRegistrationRequired) {
-        error e = { message: "Remote topic registration not allowed/not required at the Hub" };
+        map errorDetail = { message : "Internal Ballerina Hub not initialized or incorrectly referenced" };
+        error e = error(WEBSUB_ERROR_CODE, errorDetail);
         return e;
     }
     return registerTopicAtHub(topic);
@@ -581,7 +593,8 @@ function WebSubHub::registerTopic(string topic) returns error? {
 
 function WebSubHub::unregisterTopic(string topic) returns error? {
     if (!hubTopicRegistrationRequired) {
-        error e = { message: "Remote topic unregistration not allowed/not required at the Hub" };
+        map errorDetail = { message : "Remote topic unregistration not allowed/not required at the Hub" };
+        error e = error(WEBSUB_ERROR_CODE, errorDetail);
         return e;
     }
     return unregisterTopicAtHub(topic);
@@ -596,7 +609,7 @@ function WebSubHub::unregisterTopic(string topic) returns error? {
 # + hubs - The hubs the publisher advertises as the hubs that it publishes updates to
 # + topic - The topic to which subscribers need to subscribe to, to receive updates for the resource
 public function addWebSubLinkHeader(http:Response response, string[] hubs, string topic) {
-    string hubLinkHeader;
+    string hubLinkHeader = "";
     foreach hub in hubs {
         hubLinkHeader = hubLinkHeader + "<" + hub + ">; rel=\"hub\", ";
     }
@@ -667,4 +680,8 @@ public type SubscriberDetails record {
     int leaseSeconds;
     int createdAt;
     !...
+};
+
+type WebSubError record {
+    string message;
 };

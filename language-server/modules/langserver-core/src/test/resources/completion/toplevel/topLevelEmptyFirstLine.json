@@ -7,6 +7,7 @@
   "items": [
     {
       "label":"import",
+      "kind":"Keyword",
       "detail":"Keyword",
       "sortText":"210",
       "insertText":"import ",
@@ -14,6 +15,7 @@
     },
     {
       "label":"function",
+      "kind":"Snippet",
       "detail":"Snippet",
       "sortText":"190",
       "insertText":"function ${1:name}(${2}) {\n\t${3}\n}",
@@ -21,6 +23,7 @@
     },
     {
       "label":"public main function",
+      "kind":"Snippet",
       "detail":"Snippet",
       "sortText":"190",
       "insertText":"public function main(string... args) {\n\t${1}\n}",
@@ -28,6 +31,7 @@
     },
     {
       "label":"service",
+      "kind":"Snippet",
       "detail":"Snippet",
       "sortText":"190",
       "insertText":"service\u003c${1:http:Service}\u003e ${2:serviceName} bind { port: 9090 } {\n\t${3:newResource} (endpoint ${4:caller}, http:Request ${5:request}) {\n\t}\n}",
@@ -35,6 +39,7 @@
     },
     {
       "label":"service/webSocket",
+      "kind":"Snippet",
       "detail":"Snippet",
       "sortText":"190",
       "insertText":"service\u003chttp:WebSocketService\u003e ${1:serviceName} bind { port: 9090 } {\n\tonOpen(endpoint caller) {\n\t\t\n\t}\n\tonText(endpoint caller, string text, boolean final) {\n\t\t\n\t}\n\tonClose(endpoint caller, int statusCode, string reason) {\n\t\t\n\t}\n}",
@@ -42,6 +47,7 @@
     },
     {
       "label":"service/webSub",
+      "kind":"Snippet",
       "detail":"Snippet",
       "sortText":"190",
       "insertText":"service\u003cwebsub:Service\u003e ${1:websubSubscriber} bind {port: 9090} {\n\tonIntentVerification(endpoint caller, websub:IntentVerificationRequest request) {\n\t\t\n\t}\n\tonNotification(websub:Notification notification) {\n\t\t\n\t}\n}",
@@ -49,6 +55,7 @@
     },
     {
       "label":"annotation",
+      "kind":"Snippet",
       "detail":"Snippet",
       "sortText":"190",
       "insertText":"annotation\u003c${1:attachmentPoint}\u003e ${2:name};",
@@ -56,6 +63,7 @@
     },
     {
       "label":"xmlns",
+      "kind":"Unit",
       "detail":"Snippet",
       "sortText":"190",
       "insertText":"xmlns \"${1}\" as ${2:ns};",
@@ -63,6 +71,7 @@
     },
     {
       "label":"type \u003cObjectName\u003e object",
+      "kind":"Snippet",
       "detail":"Snippet",
       "sortText":"190",
       "insertText":"type ${1:ObjectName} object {\n\t${2}\n};",
@@ -70,6 +79,7 @@
     },
     {
       "label":"type \u003cRecordName\u003e record",
+      "kind":"Snippet",
       "detail":"Snippet",
       "sortText":"190",
       "insertText":"type ${1:RecordName} record {\n\t${2}\n};",
@@ -77,6 +87,7 @@
     },
     {
       "label":"endpoint",
+      "kind":"Snippet",
       "detail":"Snippet",
       "sortText":"190",
       "insertText":"endpoint ${1:http:Listener} ${2:listener} {\n\t${3}\n};",
@@ -84,6 +95,7 @@
     },
     {
       "label":"type",
+      "kind":"Keyword",
       "detail":"Keyword",
       "sortText":"210",
       "insertText":"type ",
@@ -91,115 +103,142 @@
     },
     {
       "label":"public",
+      "kind":"Keyword",
       "detail":"Keyword",
       "sortText":"210",
       "insertText":"public ",
       "insertTextFormat":"Snippet"
     },
     {
+      "label":"error",
+      "kind":"Snippet",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"error ${1:name} \u003d error(\"${2:errorCode}\", { message: \"${3}\" });",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"channel",
+      "kind":"Reference",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"channel"
+    },
+    {
       "label":"xml",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"xml"
     },
     {
       "label":"TableConfig",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"TableConfig"
     },
     {
       "label":"byte",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"byte"
     },
     {
       "label":"stream",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"stream"
     },
     {
       "label":"map",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"map"
     },
     {
       "label":"table",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"table"
     },
     {
       "label":"future",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"future"
     },
     {
       "label":"typedesc",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"typedesc"
     },
     {
       "label":"float",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"float"
     },
     {
       "label":"null",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"null"
     },
     {
       "label":"string",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"string"
     },
     {
       "label":"error",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"error"
     },
     {
-      "label":"error",
-      "detail":"Snippet",
-      "sortText":"190",
-      "insertText":"error ${1:name} \u003d { description: \"${2}\" };"
-    },
-    {
       "label":"json",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"json"
     },
     {
       "label":"any",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"any"
     },
     {
       "label":"int",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"int"
     },
     {
       "label":"docData",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"docData"
     },
     {
       "label":"boolean",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"boolean"

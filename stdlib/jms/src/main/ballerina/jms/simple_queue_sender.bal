@@ -26,8 +26,8 @@ public type SimpleQueueSender object {
     public SimpleQueueSenderEndpointConfiguration config;
 
     private Connection? connection;
-    private Session? session;
-    private QueueSender? sender;
+    private Session? session = ();
+    private QueueSender? sender = ();
 
     # Initialize the SimpleQueueSender endpoint
     #
@@ -35,21 +35,21 @@ public type SimpleQueueSender object {
     public function init(SimpleQueueSenderEndpointConfiguration c) {
         self.config = c;
         Connection conn = new({
-                initialContextFactory:config.initialContextFactory,
-                providerUrl:config.providerUrl,
-                connectionFactoryName:config.connectionFactoryName,
-                properties:config.properties
+                initialContextFactory: config.initialContextFactory,
+                providerUrl: config.providerUrl,
+                connectionFactoryName: config.connectionFactoryName,
+                properties: config.properties
             });
         self.connection = conn;
 
         Session newSession = new(conn, {
-                acknowledgementMode:config.acknowledgementMode
+                acknowledgementMode: config.acknowledgementMode
             });
         self.session = newSession;
 
         QueueSender queueSender = new;
         QueueSenderEndpointConfiguration senderConfig = {
-            session:newSession,
+            session: newSession,
             queueName: c.queueName
         };
         queueSender.init(senderConfig);
@@ -76,8 +76,10 @@ public type SimpleQueueSender object {
         match (sender) {
             QueueSender s => return s.getCallerActions();
             () => {
-                error e = {message:"Queue sender cannot be nil"};
-                throw e;
+                string errorMessage = "Queue sender cannot be nil";
+                map errorDetail = { message: errorMessage };
+                error e = error(JMS_ERROR_CODE, errorDetail);
+                panic e;
             }
         }
     }
@@ -94,8 +96,10 @@ public type SimpleQueueSender object {
         match (session) {
             Session s => return s.createTextMessage(content);
             () => {
-                error e = {message:"Session cannot be nil"};
-                throw e;
+                string errorMessage = "Session cannot be nil";
+                map errorDetail = { message: errorMessage };
+                error e = error(JMS_ERROR_CODE, errorDetail);
+                panic e;
             }
         }
     }

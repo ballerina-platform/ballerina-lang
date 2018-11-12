@@ -35,7 +35,7 @@ public type StreamJoinProcessor object {
     }
 
     public function process(StreamEvent[] streamEvents) {
-        StreamEvent?[] joinedEvents;
+        StreamEvent?[] joinedEvents = [];
         int i = 0;
         foreach event in streamEvents {
             string originStream = event.data.keys()[0].split("\\.")[0];
@@ -55,7 +55,7 @@ public type StreamJoinProcessor object {
             }
 
             if (triggerJoin) {
-                (StreamEvent?, StreamEvent?)[] candidateEvents;
+                (StreamEvent?, StreamEvent?)[] candidateEvents = [];
                 // join events according to the triggered side
                 if (self.lhsStream.equalsIgnoreCase(originStream) ?: false) {
                     // triggered from LHS
@@ -63,7 +63,7 @@ public type StreamJoinProcessor object {
                         (StreamEvent?, StreamEvent?)[] evtArr => {
                             candidateEvents = evtArr;
                             // with left/full joins, we need to emit an event even there's no candidate events in rhs.
-                            if (lengthof candidateEvents == 0 && (joinType == "LEFTOUTERJOIN"
+                            if (candidateEvents.length() == 0 && (joinType == "LEFTOUTERJOIN"
                                     || joinType == "FULLOUTERJOIN")) {
                                 candidateEvents[0] = (event, ());
                             }
@@ -83,7 +83,7 @@ public type StreamJoinProcessor object {
                         (StreamEvent?, StreamEvent?)[] evtArr => {
                             candidateEvents = evtArr;
                             // with right/full joins, we need to emit an event even there's no candidate events in rhs.
-                            if (lengthof candidateEvents == 0 && (joinType == "RIGHTOUTERJOIN"
+                            if (candidateEvents.length() == 0 && (joinType == "RIGHTOUTERJOIN"
                                     || joinType == "FULLOUTERJOIN")) {
                                 candidateEvents[0] = ((), event);
                             }
@@ -102,7 +102,7 @@ public type StreamJoinProcessor object {
             }
         }
 
-        StreamEvent[] outputEvents;
+        StreamEvent[] outputEvents = [];
         i = 0;
         foreach e in joinedEvents {
             match e {

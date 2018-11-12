@@ -84,6 +84,7 @@ function readRecord(io:Socket socket) returns string[]|error {
             }
         }
     } else {
-        return { message: "No records found" };
+        error err = error("No records found");
+        return err;
     }
 }

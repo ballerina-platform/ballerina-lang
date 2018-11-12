@@ -34,8 +34,8 @@ public type OrderBy object {
 
     function topDownMergeSort(StreamEvent[] a, string[] tmpSortTypes) {
         int index = 0;
-        int n = lengthof a;
-        StreamEvent[] b;
+        int n = a.length();
+        StreamEvent[] b = [];
         while (index < n) {
             b[index] = a[index];
             index += 1;
@@ -106,8 +106,8 @@ public type OrderBy object {
         byte[] v1 = x.toByteArray("UTF-8");
         byte[] v2 = y.toByteArray("UTF-8");
 
-        int len1 = lengthof v1;
-        int len2 = lengthof v2;
+        int len1 = v1.length();
+        int len2 = v2.length();
         int lim = len1 < len2 ? len1 : len2;
         int k = 0;
         while (k < lim) {
@@ -138,9 +138,9 @@ public type OrderBy object {
                         return callNextSortFunc(x, y, c, sortFieldMetadata, fieldIndex + 1);
                     }
                     any a => {
-                        error err = { message: "Values to be orderred contain non-string values in fieldIndex: " +
-                            fieldIndex + ", sortType: " + sortFieldMetadata[fieldIndex]};
-                        throw err;
+                        error err = error("Values to be orderred contain non-string values in fieldIndex: " +
+                            fieldIndex + ", sortType: " + sortFieldMetadata[fieldIndex]);
+                        panic err;
                     }
                 }
             }
@@ -157,24 +157,24 @@ public type OrderBy object {
                         return callNextSortFunc(x, y, c, sortFieldMetadata,fieldIndex + 1);
                     }
                     any aa => {
-                        error err = { message: "Values to be orderred contain non-number values in fieldIndex: " +
-                            fieldIndex + ", sortType: " + sortFieldMetadata[fieldIndex]};
-                        throw err;
+                        error err = error("Values to be orderred contain non-number values in fieldIndex: " +
+                            fieldIndex + ", sortType: " + sortFieldMetadata[fieldIndex]);
+                        panic err;
                     }
                 }
 
             }
             any a => {
-                error err = { message: "Values of types other than strings and numbers cannot be sorted in fieldIndex:
-                 " + fieldIndex + ", sortType: " + sortFieldMetadata[fieldIndex]};
-                throw err;
+                error err = error("Values of types other than strings and numbers cannot be sorted in fieldIndex:
+                 " + fieldIndex + ", sortType: " + sortFieldMetadata[fieldIndex]);
+                panic err;
             }
         }
     }
 
     function callNextSortFunc(StreamEvent x, StreamEvent y, int c, string[] sortFieldMetadata, int fieldIndex) returns int {
         int result = c;
-        if (result == 0 && (lengthof sortFieldMetadata > fieldIndex)) {
+        if (result == 0 && (sortFieldMetadata.length() > fieldIndex)) {
             result = sortFunc(x, y, sortFieldMetadata, fieldIndex);
         }
         return result;

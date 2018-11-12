@@ -40,9 +40,8 @@ function testToXMLBooleanValue () returns (xml | error?) {
 function testToXMLString (json msg) returns (string) {
     var x = msg.toXML({});
     string retVal;
-    match(x){
-        error|() e => {}
-        xml xmlData => retVal = io:sprintf("%s", xmlData);
+    if (x is xml) {
+        retVal = io:sprintf("%s", x);
     }
     return retVal;
 }
@@ -50,9 +49,8 @@ function testToXMLString (json msg) returns (string) {
 function testToXMLWithXMLSequence (json msg) returns (string) {
     var x = msg.toXML({});
     string retVal;
-    match(x){
-        error|() e => {}
-        xml xmlData => retVal = io:sprintf("%s", xmlData);
+    if (x is xml) {
+        retVal = io:sprintf("%s", x);
     }
     return retVal;
 }

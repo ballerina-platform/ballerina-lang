@@ -17,14 +17,14 @@
 public type GroupBy object {
     public function (StreamEvent[]) nextProcessorPointer;
     public string[] groupByFields;
-    public map groupedStreamEvents;
+    public map groupedStreamEvents = {};
 
     new (nextProcessorPointer, groupByFields) {
 
     }
 
     public function process(StreamEvent[] streamEvents) {
-        if (lengthof groupByFields > 0) {
+        if (groupByFields.length() > 0) {
             foreach streamEvent in streamEvents {
                 string key = generateGroupByKey(streamEvent);
                 if (!groupedStreamEvents.hasKey(key)) {
@@ -32,7 +32,7 @@ public type GroupBy object {
                     groupedStreamEvents[key] = events;
                 }
                 StreamEvent[] groupedEvents = check <StreamEvent[]>groupedStreamEvents[key];
-                groupedEvents[lengthof groupedEvents] = streamEvent;
+                groupedEvents[groupedEvents.length()] = streamEvent;
             }
 
             foreach arr in groupedStreamEvents.values() {
@@ -45,7 +45,7 @@ public type GroupBy object {
     }
 
     function generateGroupByKey(StreamEvent event) returns string {
-        string key;
+        string key = "";
 
         foreach field in groupByFields {
             key += ", ";

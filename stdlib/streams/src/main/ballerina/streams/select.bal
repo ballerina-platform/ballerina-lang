@@ -20,7 +20,7 @@ public type Select object {
     private Aggregator [] aggregatorArr;
     private (function(StreamEvent o) returns string)? groupbyFunc;
     private function(StreamEvent o, Aggregator []  aggregatorArr1) returns map selectFunc;
-    private map<Aggregator[]> aggregatorsCloneMap;
+    private map<Aggregator[]> aggregatorsCloneMap = {};
 
 
     new(nextProcessorPointer, aggregatorArr, groupbyFunc, selectFunc) {
@@ -28,8 +28,8 @@ public type Select object {
 
     public function process(StreamEvent[] streamEvents) {
         StreamEvent[] outputStreamEvents = [];
-        if (lengthof aggregatorArr > 0) {
-            map<StreamEvent> groupedEvents;
+        if (aggregatorArr.length() > 0) {
+            map<StreamEvent> groupedEvents = {};
             foreach event in streamEvents {
 
                 if (event.eventType == RESET) {
@@ -40,7 +40,7 @@ public type Select object {
                     (function(StreamEvent o) returns string) groupbyFunction => groupbyFunction(event),
                     () => DEFAULT
                 };
-                Aggregator[] aggregatorsClone;
+                Aggregator[] aggregatorsClone = [];
                 match (aggregatorsCloneMap[groupbyKey]) {
                     Aggregator[] aggregators => {
                         aggregatorsClone = aggregators;
@@ -60,7 +60,7 @@ public type Select object {
             foreach key in groupedEvents.keys() {
                 match groupedEvents[key] {
                     StreamEvent e => {
-                        outputStreamEvents[lengthof outputStreamEvents] = e;
+                        outputStreamEvents[outputStreamEvents.length()] = e;
                     }
                     () => {}
                 }
@@ -68,10 +68,10 @@ public type Select object {
         } else {
             foreach event in streamEvents {
                 StreamEvent e = new ((OUTPUT, selectFunc(event, aggregatorArr)), event.eventType, event.timestamp);
-                outputStreamEvents[lengthof outputStreamEvents] = e;
+                outputStreamEvents[outputStreamEvents.length()] = e;
             }
         }
-        if (lengthof outputStreamEvents > 0) {
+        if (outputStreamEvents.length() > 0) {
             nextProcessorPointer(outputStreamEvents);
         }
     }

@@ -27,7 +27,7 @@ string[] coordinationTypes = [TWO_PHASE_COMMIT];
 map<string[]> coordinationTypeToProtocolsMap = getCoordinationTypeToProtocolsMap();
 function getCoordinationTypeToProtocolsMap() returns map<string[]> {
     string[] twoPhaseCommitProtocols = [PROTOCOL_COMPLETION, PROTOCOL_VOLATILE, PROTOCOL_DURABLE];
-    map<string[]> m;
+    map<string[]> m = {};
     m[TWO_PHASE_COMMIT] = twoPhaseCommitProtocols;
     return m;
 }

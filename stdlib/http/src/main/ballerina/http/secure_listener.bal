@@ -25,7 +25,7 @@ import ballerina/system;
 # + httpListener - HTTP Listener instance
 public type SecureListener object {
 
-    public SecureEndpointConfiguration config;
+    public SecureEndpointConfiguration config = {};
     public Listener httpListener;
     private string instanceId;
 
@@ -42,7 +42,7 @@ public type SecureListener object {
     # Initializes the endpoint.
     #
     # + return - An `error` if an error occurs during initialization of the endpoint
-    public function initEndpoint() returns (error);
+    public function initEndpoint() returns (error?);
 
     # Gets called every time a service attaches itself to this endpoint. Also happens at module initialization.
     #
@@ -156,15 +156,15 @@ function SecureListener::init(SecureEndpointConfiguration c) {
 function addAuthFiltersForSecureListener(SecureEndpointConfiguration config, string instanceId) {
     // add authentication and authorization filters as the first two filters.
     // if there are any other filters specified, those should be added after the authn and authz filters.
-    if (config.filters == null) {
+    if (config.filters.length() == 0) {
         // can add authn and authz filters directly
         config.filters = createAuthFiltersForSecureListener(config, instanceId);
     } else {
         Filter[] newFilters = createAuthFiltersForSecureListener(config, instanceId);
         // add existing filters next
         int i = 0;
-        while (i < lengthof config.filters) {
-            newFilters[i + (lengthof newFilters)] = config.filters[i];
+        while (i < config.filters.length()) {
+            newFilters[i + (newFilters.length())] = config.filters[i];
             i = i + 1;
         }
         config.filters = newFilters;
@@ -177,11 +177,11 @@ function addAuthFiltersForSecureListener(SecureEndpointConfiguration config, str
 # + return - Array of Filters comprising of authn and authz Filters
 function createAuthFiltersForSecureListener(SecureEndpointConfiguration config, string instanceId) returns (Filter[]) {
     // parse and create authentication handlers
-    AuthHandlerRegistry registry;
+    AuthHandlerRegistry registry = new;
     match config.authProviders {
         AuthProvider[] providers => {
             foreach provider in providers {
-                if (lengthof provider.id > 0) {
+                if (provider.id.length() > 0) {
                     registry.add(provider.id, createAuthHandler(provider, instanceId));
                 } else {
                     string providerId = system:uuid();
@@ -201,7 +201,7 @@ function createAuthFiltersForSecureListener(SecureEndpointConfiguration config, 
         config.positiveAuthzCache.capacity, evictionFactor = config.positiveAuthzCache.evictionFactor);
     cache:Cache negativeAuthzCache = new(expiryTimeMillis = config.negativeAuthzCache.expiryTimeMillis, capacity =
         config.negativeAuthzCache.capacity, evictionFactor = config.negativeAuthzCache.evictionFactor);
-    auth:AuthStoreProvider authStoreProvider;
+    auth:AuthStoreProvider authStoreProvider = new;
     match config.authProviders {
         AuthProvider[] providers => {
             foreach provider in providers {
@@ -214,16 +214,16 @@ function createAuthFiltersForSecureListener(SecureEndpointConfiguration config, 
                                 authStoreProvider = <auth:AuthStoreProvider>ldapAuthStoreProvider;
                             }
                             () => {
-                                error e = {message: "Authstore config not provided for : " + provider.authStoreProvider };
-                                throw e;
+                                error e = error("Authstore config not provided for : " + provider.authStoreProvider);
+                                panic e;
                             }
                         }
                     } else if (provider.authStoreProvider == AUTH_PROVIDER_CONFIG) {
                         auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
                         authStoreProvider = <auth:AuthStoreProvider>configAuthStoreProvider;
                     } else {
-                        error configError = {message: "Unsupported auth store provider : " + provider.authStoreProvider };
-                        throw configError;
+                        error configError = error("Unsupported auth store provider : " + provider.authStoreProvider);
+                        panic configError;
                     }
                 }
             }
@@ -248,7 +248,7 @@ function createBasicAuthHandler() returns HttpAuthnHandler {
 
 function createAuthHandler(AuthProvider authProvider, string instanceId) returns HttpAuthnHandler {
     if (authProvider.scheme == AUTHN_SCHEME_BASIC) {
-        auth:AuthStoreProvider authStoreProvider;
+        auth:AuthStoreProvider authStoreProvider = new;
         if (authProvider.authStoreProvider == AUTH_PROVIDER_CONFIG) {
             if (authProvider.propagateJwt) {
                 auth:ConfigJwtAuthProvider configAuthProvider = new(getInferredJwtAuthProviderConfig(authProvider));
@@ -270,14 +270,14 @@ function createAuthHandler(AuthProvider authProvider, string instanceId) returns
                     }
                 }
                 () => {
-                    error e = {message: "Authstore config not provided for : " + authProvider.authStoreProvider };
-                    throw e;
+                    error e = error("Authstore config not provided for : " + authProvider.authStoreProvider);
+                    panic e;
                 }
             }
         } else {
             // other auth providers are unsupported yet
-            error e = {message: "Invalid auth provider: " + authProvider.authStoreProvider };
-            throw e;
+            error e = error("Invalid auth provider: " + authProvider.authStoreProvider);
+            panic e;
         }
         HttpBasicAuthnHandler basicAuthHandler = new(authStoreProvider);
         return <HttpAuthnHandler>basicAuthHandler;
@@ -293,8 +293,9 @@ function createAuthHandler(AuthProvider authProvider, string instanceId) returns
         HttpJwtAuthnHandler jwtAuthnHandler = new(jwtAuthProvider);
         return <HttpAuthnHandler>jwtAuthnHandler;
     } else {
-        error e = {message: "Invalid auth scheme: " + authProvider.scheme};
-        throw e;
+        // TODO: create other HttpAuthnHandlers
+        error e = error("Invalid auth scheme: " + authProvider.scheme);
+        panic e;
     }
 }
 
@@ -302,7 +303,7 @@ function SecureListener::register(typedesc serviceType) {
     self.httpListener.register(serviceType);
 }
 
-function SecureListener::initEndpoint() returns (error) {
+function SecureListener::initEndpoint() returns (error?) {
     return self.httpListener.initEndpoint();
 }
 

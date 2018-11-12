@@ -63,8 +63,8 @@ public class GetBodyAsString extends BlockingNativeCallableUnit {
             }
             context.setReturnValues(result);
         } catch (Throwable e) {
-            context.setReturnValues(MimeUtil.createError(context,
-                    "Error occurred while retrieving text data from entity : " + e.getMessage()));
+            context.setReturnValues(MimeUtil.createError(context, "Error occurred while retrieving text " +
+                    "data from entity : " + e.getMessage()));
         }
     }
 }

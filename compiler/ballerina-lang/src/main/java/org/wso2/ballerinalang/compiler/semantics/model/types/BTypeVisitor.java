@@ -29,6 +29,8 @@ public interface BTypeVisitor<T, R> {
 
     R visit(BAnyType t, T s);
 
+    R visit(BAnydataType t, T s);
+
     R visit(BMapType t, T s);
 
     R visit(BXMLType t, T s);
@@ -50,6 +52,8 @@ public interface BTypeVisitor<T, R> {
     R visit(BInvokableType t, T s);
 
     R visit(BUnionType t, T s);
+
+    R visit(BSemanticErrorType t, T s);
 
     R visit(BErrorType t, T s);
     

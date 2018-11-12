@@ -104,11 +104,13 @@ extern function createSimpleHttpClient(string uri, ClientEndpointConfig config) 
 # + interval - Retry interval in milliseconds
 # + backOffFactor - Multiplier of the retry interval to exponentailly increase retry interval
 # + maxWaitInterval - Maximum time of the retry interval in milliseconds
+# + statusCodes - HTTP response status codes which are considered as failures
 public type RetryConfig record {
     int count;
     int interval;
     float backOffFactor;
     int maxWaitInterval;
+    int[] statusCodes;
     !...
 };
 
@@ -221,28 +223,22 @@ function Client::init(ClientEndpointConfig c) {
     }
     self.config = c;
     var cbConfig = c.circuitBreaker;
-    match cbConfig {
-        CircuitBreakerConfig cb => {
-            if (url.hasSuffix("/")) {
-                int lastIndex = url.length() - 1;
-                url = url.substring(0, lastIndex);
-            }
-            httpClientRequired = false;
+    if (cbConfig is CircuitBreakerConfig) {
+        if (url.hasSuffix("/")) {
+            int lastIndex = url.length() -1;
+            url = url.substring(0, lastIndex);
         }
-        () => {
-            httpClientRequired = true;
-        }
+        httpClientRequired = false;
+    } else {
+        httpClientRequired = true;
     }
 
     if (httpClientRequired) {
         var redirectConfigVal = c.followRedirects;
-        match redirectConfigVal {
-            FollowRedirects redirectConfig => {
-                self.httpClient = createRedirectClient(url, c);
-            }
-            () => {
-                self.httpClient = checkForRetry(url, c);
-            }
+        if (redirectConfigVal is FollowRedirects) {
+            self.httpClient = createRedirectClient(url, c);
+        } else {
+            self.httpClient = checkForRetry(url, c);
         }
     } else {
         self.httpClient = createCircuitBreakerClient(url, c);
@@ -250,107 +246,102 @@ function Client::init(ClientEndpointConfig c) {
 }
 
 function createRedirectClient(string url, ClientEndpointConfig configuration) returns CallerActions {
-    var redirectConfigVal = configuration.followRedirects;
-    match redirectConfigVal {
-        FollowRedirects redirectConfig => {
-            if (redirectConfig.enabled) {
-                return new RedirectClient(url, configuration, redirectConfig, createRetryClient(url, configuration));
-            } else {
-                return createRetryClient(url, configuration);
-            }
-        }
-        () => {
+    var redirectConfig = configuration.followRedirects;
+    if (redirectConfig is FollowRedirects) {
+        if (redirectConfig.enabled) {
+            return new RedirectClient(url, configuration, redirectConfig, createRetryClient(url, configuration));
+        } else {
             return createRetryClient(url, configuration);
         }
+    } else {
+        return createRetryClient(url, configuration);
     }
 }
 
 function checkForRetry(string url, ClientEndpointConfig config) returns CallerActions {
     var retryConfigVal = config.retryConfig;
-    match retryConfigVal {
-        RetryConfig retryConfig => {
-            return createRetryClient(url, config);
-        }
-        () => {
-            if (config.cache.enabled) {
-                return createHttpCachingClient(url, config, config.cache);
-            } else {
-                return createHttpSecureClient(url, config);
-            }
+    if (retryConfigVal is RetryConfig) {
+        return createRetryClient(url, config);
+    } else {
+        if (config.cache.enabled) {
+            return createHttpCachingClient(url, config, config.cache);
+        } else {
+            return createHttpSecureClient(url, config);
         }
     }
 }
 
 function createCircuitBreakerClient(string uri, ClientEndpointConfig configuration) returns CallerActions {
     var cbConfig = configuration.circuitBreaker;
-    match cbConfig {
-        CircuitBreakerConfig cb => {
-            validateCircuitBreakerConfiguration(cb);
-            boolean [] statusCodes = populateErrorCodeIndex(cb.statusCodes);
-            CallerActions cbHttpClient = new;
-            var redirectConfigVal = configuration.followRedirects;
-            match redirectConfigVal {
-                FollowRedirects redirectConfig => {
-                    cbHttpClient = createRedirectClient(uri, configuration);
-                }
-                () => {
-                    cbHttpClient = checkForRetry(uri, configuration);
-                }
-            }
-
-            time:Time circuitStartTime = time:currentTime();
-            int numberOfBuckets = (cb.rollingWindow.timeWindowMillis/ cb.rollingWindow.bucketSizeMillis);
-            Bucket[] bucketArray = [];
-            int bucketIndex = 0;
-            while (bucketIndex < numberOfBuckets) {
-                bucketArray[bucketIndex] = {};
-                bucketIndex = bucketIndex + 1;
-            }
-
-            CircuitBreakerInferredConfig circuitBreakerInferredConfig = {
-                                                                failureThreshold:cb.failureThreshold,
-                                                                resetTimeMillis:cb.resetTimeMillis,
-                                                                statusCodes:statusCodes,
-                                                                noOfBuckets:numberOfBuckets,
-                                                                rollingWindow:cb.rollingWindow
-                                                            };
-            CircuitHealth circuitHealth = {
-                                            startTime:circuitStartTime,
-                                            lastRequestTime:circuitStartTime,
-                                            lastErrorTime:circuitStartTime,
-                                            lastForcedOpenTime:circuitStartTime,
-                                            totalBuckets: bucketArray
-                                          };
-            return new CircuitBreakerClient(uri, configuration, circuitBreakerInferredConfig, cbHttpClient, circuitHealth);
+    if (cbConfig is CircuitBreakerConfig) {
+        validateCircuitBreakerConfiguration(cbConfig);
+        boolean [] statusCodes = populateErrorCodeIndex(cbConfig.statusCodes);
+        CallerActions cbHttpClient = new;
+        var redirectConfig = configuration.followRedirects;
+        if (redirectConfig is FollowRedirects) {
+            cbHttpClient = createRedirectClient(uri, configuration);
+        } else {
+            cbHttpClient = checkForRetry(uri, configuration);
         }
-        () => {
-            //remove following once we can ignore
-            if (configuration.cache.enabled) {
-                return createHttpCachingClient(uri, configuration, configuration.cache);
-            } else {
-                return createHttpSecureClient(uri, configuration);
-            }
+
+        time:Time circuitStartTime = time:currentTime();
+        int numberOfBuckets = (cbConfig.rollingWindow.timeWindowMillis/ cbConfig.rollingWindow.bucketSizeMillis);
+        Bucket[] bucketArray = [];
+        int bucketIndex = 0;
+        while (bucketIndex < numberOfBuckets) {
+            bucketArray[bucketIndex] = {};
+            bucketIndex = bucketIndex + 1;
+        }
+
+        CircuitBreakerInferredConfig circuitBreakerInferredConfig = {
+                                                            failureThreshold:cbConfig.failureThreshold,
+                                                            resetTimeMillis:cbConfig.resetTimeMillis,
+                                                            statusCodes:statusCodes,
+                                                            noOfBuckets:numberOfBuckets,
+                                                            rollingWindow:cbConfig.rollingWindow
+                                                        };
+        CircuitHealth circuitHealth = {
+                                        startTime:circuitStartTime,
+                                        lastRequestTime:circuitStartTime,
+                                        lastErrorTime:circuitStartTime,
+                                        lastForcedOpenTime:circuitStartTime,
+                                        totalBuckets: bucketArray
+                                      };
+        return new CircuitBreakerClient(uri, configuration, circuitBreakerInferredConfig, cbHttpClient, circuitHealth);
+    } else {
+        //remove following once we can ignore
+        if (configuration.cache.enabled) {
+            return createHttpCachingClient(uri, configuration, configuration.cache);
+        } else {
+            return createHttpSecureClient(uri, configuration);
         }
     }
 }
 
 function createRetryClient(string url, ClientEndpointConfig configuration) returns CallerActions {
-    var retryConfigVal = configuration.retryConfig;
-    match retryConfigVal {
-        RetryConfig retryConfig => {
-            if (configuration.cache.enabled) {
-                return new RetryClient(url, configuration, retryConfig, createHttpCachingClient(url, configuration, configuration.cache));
-            } else{
-                return new RetryClient(url, configuration, retryConfig, createHttpSecureClient(url, configuration));
-            }
+    var retryConfig = configuration.retryConfig;
+    if (retryConfig is RetryConfig) {
+        boolean[] statusCodes = populateErrorCodeIndex(retryConfig.statusCodes);
+        RetryInferredConfig retryInferredConfig = {
+            count: retryConfig.count,
+            interval: retryConfig.interval,
+            backOffFactor: retryConfig.backOffFactor,
+            maxWaitInterval: retryConfig.maxWaitInterval,
+            statusCodes: statusCodes
+        };
+        if (configuration.cache.enabled) {
+            return new RetryClient(url, configuration, retryInferredConfig,
+                createHttpCachingClient(url, configuration, configuration.cache));
+        } else{
+            return new RetryClient(url, configuration, retryInferredConfig,
+                createHttpSecureClient(url, configuration));
         }
-        () => {
-            //remove following once we can ignore
-            if (configuration.cache.enabled) {
-                return createHttpCachingClient(url, configuration, configuration.cache);
-            } else {
-                return createHttpSecureClient(url, configuration);
-            }
+    } else {
+        //remove following once we can ignore
+        if (configuration.cache.enabled) {
+            return createHttpCachingClient(url, configuration, configuration.cache);
+        } else {
+            return createHttpSecureClient(url, configuration);
         }
     }
 }

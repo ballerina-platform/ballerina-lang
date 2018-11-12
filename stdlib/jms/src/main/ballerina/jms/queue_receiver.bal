@@ -22,7 +22,7 @@ import ballerina/log;
 # + config - configurations related to the QueueReceiver
 public type QueueReceiver object {
 
-    public QueueReceiverActions consumerActions;
+    public QueueReceiverActions consumerActions = new;
     public QueueReceiverEndpointConfiguration config;
 
     # Initializes the QueueReceiver endpoint
@@ -141,11 +141,13 @@ function QueueReceiverActions::receiveFrom(Destination destination, int timeoutI
 function validateQueue(Destination destination) {
     if (destination.destinationName == "") {
         string errorMessage = "Destination name cannot be empty";
-        error queueReceiverConfigError = { message: errorMessage };
-        throw queueReceiverConfigError;
+        map errorDetail = { message: errorMessage };
+        error queueReceiverConfigError = error(JMS_ERROR_CODE, errorDetail);
+        panic queueReceiverConfigError;
     } else if (destination.destinationType != "queue") {
         string errorMessage = "Destination should should be a queue";
-        error queueReceiverConfigError = { message: errorMessage };
-        throw queueReceiverConfigError;
+        map errorDetail = { message: errorMessage };
+        error queueReceiverConfigError = error(JMS_ERROR_CODE, errorDetail);
+        panic queueReceiverConfigError;
     }
 }

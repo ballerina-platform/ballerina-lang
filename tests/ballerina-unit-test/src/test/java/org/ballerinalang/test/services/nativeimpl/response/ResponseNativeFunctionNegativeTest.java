@@ -20,12 +20,11 @@ package org.ballerinalang.test.services.nativeimpl.response;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
-
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -75,7 +74,7 @@ public class ResponseNativeFunctionNegativeTest {
             Assert.assertNull(returnVals[0]);
         } catch (Exception exception) {
             String errorMessage = exception.getMessage();
-            Assert.assertTrue(errorMessage.contains(" message: http Header does not exist!"));
+            Assert.assertTrue(errorMessage.contains("error: Http Header does not exist!"));
         }
     }
 
@@ -106,8 +105,8 @@ public class ResponseNativeFunctionNegativeTest {
         BValue[] inputArg = { inResponse };
         BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
         Assert.assertNotNull(returnVals[0]);
-        Assert.assertTrue((returnVals[0].stringValue().contains("{message:\"Entity body is not json compatible " +
-                "since the received content-type is : text/plain\", cause:null}")));
+        Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(),
+                "{\"message\":\"Entity body is not json compatible since the received content-type is : text/plain\"}");
     }
 
     @Test(description = "Test getTextPayload method without a paylaod")
@@ -136,8 +135,8 @@ public class ResponseNativeFunctionNegativeTest {
         inResponse.put(RESPONSE_ENTITY_FIELD, entity);
         BValue[] inputArg = { inResponse };
         BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
-        String errMsg = ((BMap<String, BValue>) returnVals[0]).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
-        Assert.assertTrue(errMsg.contains("Error occurred while retrieving xml data from entity : Empty xml payload"));
+        Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(),
+                "{\"message\":\"Error occurred while retrieving xml data from entity : Empty xml payload\"}");
     }
 
     @Test(description = "Test getEntity method on a response without a entity")

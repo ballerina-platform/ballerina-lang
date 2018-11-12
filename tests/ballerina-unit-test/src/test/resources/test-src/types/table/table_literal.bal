@@ -1,5 +1,21 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
+import ballerina/h2;
 import ballerina/io;
-import ballerina/jdbc;
 import ballerina/sql;
 
 type Person record {
@@ -59,25 +75,27 @@ function testEmptyTableCreate() returns (int, int) {
 }
 
 function checkTableCount(string tablePrefix) returns (int) {
-    endpoint jdbc:Client testDB {
-        url: "jdbc:h2:mem:TABLEDB",
-        username: "sa",
+    endpoint h2:Client testDB {
+        name: "TABLEDB",
+        username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
     sql:Parameter p1 = { sqlType: sql:TYPE_VARCHAR, value: tablePrefix };
 
-    int count;
-    try {
-        table dt = check testDB->select("SELECT count(*) as count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME like
+    int count = 0;
+    table dt = check testDB->select("SELECT count(*) as count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME like
          ?", ResultCount, p1);
-        while (dt.hasNext()) {
-            ResultCount rs = check <ResultCount>dt.getNext();
-            count = rs.COUNTVAL;
+    while (dt.hasNext()) {
+        var ret = <ResultCount>dt.getNext();
+        if (ret is ResultCount) {
+            count = ret.COUNTVAL;
+        } else if (ret is error) {
+            count = -1;
         }
-    } finally {
-        testDB.stop();
     }
+    testDB.stop();
     return count;
 }
 
@@ -133,11 +151,7 @@ function testTableAddInvalid() returns string {
 
     table<Person> dt3 = table{};
     var ret = dt3.add(c1);
-    string s;
-    match (ret) {
-        error e => s = e.message;
-        () => s = "nil";
-    }
+    string s = ret is error ? <string>ret.detail().message : "nil";
     return s;
 }
 
@@ -224,7 +238,7 @@ function testPrintData() {
     Person p3 = { id: 3, age: 32, salary: 100.50, name: "john", married: false };
 
     table<Person> dt = table{
-        { primarykey id, primarykey age,  salary, name, married }
+        { key id, key age,  salary, name, married }
     };
     _ = dt.add(p1);
     _ = dt.add(p2);
@@ -530,7 +544,6 @@ function testRemoveWithInvalidRecordType() returns string {
     Person p2 = { id: 2, age: 40, salary: 200.50, name: "martin", married: true };
     Person p3 = { id: 3, age: 42, salary: 100.50, name: "john", married: false };
 
-
     table<Person> dt = table{};
     _ = dt.add(p1);
     _ = dt.add(p2);
@@ -538,12 +551,11 @@ function testRemoveWithInvalidRecordType() returns string {
 
     string returnStr;
     var ret = dt.remove(isBelow35Invalid);
-
-    match ret {
-        int i => returnStr = <string>i;
-        error e => returnStr = e.message;
+    if (ret is int) {
+        returnStr = <string>ret;
+    } else if (ret is error) {
+        returnStr = <string>ret.detail().message;
     }
-
     return returnStr;
 }
 
@@ -558,14 +570,13 @@ function testRemoveWithInvalidParamType() returns string {
     _ = dt.add(p2);
     _ = dt.add(p3);
 
-    string returnStr;
+    string returnStr = "";
     var ret = dt.remove(isBelow35InvalidParam);
-
-    match ret {
-        int i => returnStr = <string>i;
-        error e => returnStr = e.message;
+    if (ret is int) {
+        returnStr = <string>ret;
+    } else if (ret is error) {
+        returnStr = <string>ret.detail().message;
     }
-
     return returnStr;
 }
 

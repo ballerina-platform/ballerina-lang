@@ -25,7 +25,7 @@ const int CACHE_CLEANUP_START_DELAY = 0;
 const int CACHE_CLEANUP_INTERVAL = 5000;
 
 # Map which stores all of the caches.
-map<Cache> cacheMap;
+map<Cache> cacheMap = {};
 
 # Cleanup task which cleans the cache periodically.
 task:Timer cacheCleanupTimer = createCacheCleanupTask();
@@ -44,7 +44,7 @@ type CacheEntry record {
 public type Cache object {
 
     private int capacity;
-    map<CacheEntry> entries;
+    map<CacheEntry> entries = {};
     int expiryTimeMillis;
     private float evictionFactor;
     private string uuid;
@@ -52,18 +52,18 @@ public type Cache object {
     public new(expiryTimeMillis = 900000, capacity = 100, evictionFactor = 0.25) {
         // Cache expiry time must be a positive value.
         if (expiryTimeMillis <= 0) {
-            error e = { message: "Expiry time must be greater than 0." };
-            throw e;
+            error e = error("Expiry time must be greater than 0.");
+            panic e;
         }
         // Cache capacity must be a positive value.
         if (capacity <= 0) {
-            error e = { message: "Capacity must be greater than 0." };
-            throw e;
+            error e = error("Capacity must be greater than 0.");
+            panic e;
         }
         // Cache eviction factor must be between 0.0 (exclusive) and 1.0 (inclusive).
         if (evictionFactor <= 0 || evictionFactor > 1) {
-            error e = { message: "Cache eviction factor must be between 0.0 (exclusive) and 1.0 (inclusive)." };
-            throw e;
+            error e = error("Cache eviction factor must be between 0.0 (exclusive) and 1.0 (inclusive).");
+            panic e;
         }
         // We remove empty caches to prevent OOM issues. So in such scenarios, the cache will not be in the `cacheMap`
         // when we are trying to add a new cache entry to that cache. So we need to create a new cache. For that, keep
@@ -83,7 +83,7 @@ public type Cache object {
     #
     # + return - The size of the cache
     public function size() returns (int) {
-        return lengthof entries;
+        return entries.length();
     }
 
     # Adds the given key, value pair to the provided cache.
@@ -94,7 +94,7 @@ public type Cache object {
         // We need to synchronize this process otherwise concurrecy might cause issues.
         lock {
             int cacheCapacity = capacity;
-            int cacheSize = lengthof entries;
+            int cacheSize = entries.length();
 
             // If the current cache is full, evict cache.
             if (cacheCapacity <= cacheSize) {
@@ -244,7 +244,7 @@ function runCacheExpiry() returns error? {
         }
 
         // If there are no entries, we add that cache key to the `emptyCacheKeys`.
-        int size = lengthof currentCache.entries;
+        int size = currentCache.entries.length();
         if (size == 0) {
             emptyCacheKeys[emptyCacheCount] = currentCacheKey;
             emptyCacheCount += 1;
@@ -268,7 +268,7 @@ function checkAndAdd(int numberOfKeysToEvict, string[] cacheKeys, int[] timestam
     foreach index in 0..<numberOfKeysToEvict {
         // If we have encountered the end of the array, that means we can add the new values to the end of the
         // array since we haven’t reached the numberOfKeysToEvict limit.
-        if (lengthof cacheKeys == index) {
+        if (cacheKeys.length() == index) {
             cacheKeys[index] = myKey;
             timestamps[index] = myLastAccessTime;
             // Break the loop since we don't have any more elements to compare since we are at the end

@@ -33,13 +33,13 @@ function openFile(function (string) returns(File | error) fp) returns (string) {
                         int a = 10;
                         return "file open success";
                    }
-        error e =>      return "file open error: " + e.message;
+        error e =>      return "file open error: " + e.reason();
     }
 
 }
 
 function openFileFailure(string path) returns (File | error) {
-    error e = {message: "file not found: " + path};
+    error e = error("file not found: " + path);
     return e;
 }
 

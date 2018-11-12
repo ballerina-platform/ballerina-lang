@@ -24,7 +24,7 @@ import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -58,7 +58,7 @@ public class ObjectTypeScopeResolver extends CursorPositionResolver {
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
         boolean isLastField = false;
 
-        if ((!ownerObject.fields.isEmpty() && node instanceof BLangVariable
+        if ((!ownerObject.fields.isEmpty() && node instanceof BLangSimpleVariable
                 && ownerObject.fields.indexOf(node) == ownerObject.fields.size() - 1
                 && ownerObject.functions.isEmpty())
                 || (!ownerObject.functions.isEmpty() && node instanceof BLangFunction 

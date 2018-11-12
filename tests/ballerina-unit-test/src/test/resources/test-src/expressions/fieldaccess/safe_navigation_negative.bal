@@ -27,7 +27,7 @@ function testErrorLiftingAcessWithoutErrorOnLHS () returns any {
 }
 
 function testFieldAcessWithoutErrorLifting () returns any {
-    error e = {message:"custom error"};
+    error e = error("custom error");
     Info inf = {address1 : e};
     Person prsn = {info1 : inf};
     Person|error p = prsn;
@@ -51,7 +51,7 @@ function testSafeNavigateOnErrorOrNull_1() returns string{
 }
 
 function testSafeNavigateOnErrorOrNull_3() returns string {
-    error e;
+    error e = error("");
     return e!message;
 }
 

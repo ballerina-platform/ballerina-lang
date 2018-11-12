@@ -26,8 +26,8 @@ public type SimpleQueueReceiver object {
     public SimpleQueueReceiverEndpointConfiguration config;
 
     private Connection? connection;
-    private Session? session;
-    private QueueReceiver? queueReceiver;
+    private Session? session = ();
+    private QueueReceiver? queueReceiver = ();
 
     # Initialize the SimpleQueueReceiver endpoint
     #
@@ -35,21 +35,21 @@ public type SimpleQueueReceiver object {
     public function init(SimpleQueueReceiverEndpointConfiguration c) {
         self.config = c;
         Connection conn = new({
-                initialContextFactory:config.initialContextFactory,
-                providerUrl:config.providerUrl,
-                connectionFactoryName:config.connectionFactoryName,
-                properties:config.properties
+                initialContextFactory: config.initialContextFactory,
+                providerUrl: config.providerUrl,
+                connectionFactoryName: config.connectionFactoryName,
+                properties: config.properties
             });
         self.connection = conn;
 
         Session newSession = new(conn, {
-                acknowledgementMode:config.acknowledgementMode
+                acknowledgementMode: config.acknowledgementMode
             });
         self.session = newSession;
 
         QueueReceiver receiver = new;
         QueueReceiverEndpointConfiguration queueReceiverConfig = {
-            session:newSession,
+            session: newSession,
             queueName: c.queueName,
             messageSelector: c.messageSelector
         };
@@ -66,8 +66,10 @@ public type SimpleQueueReceiver object {
                 c.register(serviceType);
             }
             () => {
-                error e = {message:"Queue receiver cannot be nil"};
-                throw e;
+                string errorMessage = "Queue receiver cannot be nil";
+                map errorDetail = { message: errorMessage };
+                error e = error(JMS_ERROR_CODE, errorDetail);
+                panic e;
             }
         }
     }
@@ -84,8 +86,10 @@ public type SimpleQueueReceiver object {
         match (queueReceiver) {
             QueueReceiver c => return c.getCallerActions();
             () => {
-                error e = {message:"Queue receiver cannot be nil"};
-                throw e;
+                string errorMessage = "Queue receiver cannot be nil";
+                map errorDetail = { message: errorMessage };
+                error e = error(JMS_ERROR_CODE, errorDetail);
+                panic e;
             }
         }
     }
@@ -103,8 +107,10 @@ public type SimpleQueueReceiver object {
         match (session) {
             Session s => return s.createTextMessage(content);
             () => {
-                error e = {message:"Session cannot be null"};
-                throw e;
+                string errorMessage = "Session cannot be nil";
+                map errorDetail = { message: errorMessage };
+                error e = error(JMS_ERROR_CODE, errorDetail);
+                panic e;
             }
         }
     }

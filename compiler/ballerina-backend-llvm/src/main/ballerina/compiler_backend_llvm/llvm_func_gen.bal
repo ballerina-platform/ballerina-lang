@@ -4,10 +4,10 @@ import ballerina/bir;
 
 type FuncGenrator object {
     bir:Function func;
-    llvm:LLVMValueRef funcRef;
+    llvm:LLVMValueRef funcRef = {};
     llvm:LLVMModuleRef mod;
-    map<llvm:LLVMValueRef> localVarRefs;
-    llvm:LLVMValueRef varAllocBB;
+    map<llvm:LLVMValueRef> localVarRefs = {};
+    llvm:LLVMValueRef varAllocBB = {};
     llvm:LLVMBuilderRef builder;
 
     new(mod, builder, func) {
@@ -75,7 +75,7 @@ type FuncGenrator object {
     }
 
     function genBbBodies() returns map<BbTermGenrator> {
-        map<BbTermGenrator> bbTermGenrators;
+        map<BbTermGenrator> bbTermGenrators = {};
         foreach bb in func.basicBlocks {
             BbBodyGenrator g = new(builder, self, bb);
             bbTermGenrators[bb.id.value] = g.genBasicBlockBody();
@@ -105,8 +105,8 @@ type FuncGenrator object {
         match localVarRefs[id] {
             llvm:LLVMValueRef varRef => return varRef;
             any => {
-                error err = { message: "Local var by name '" + id + "' dosn't exist in " + func.name.value };
-                throw err;
+                error err = error("Local var by name '" + id + "' dosn't exist in " + func.name.value);
+                panic err;
             }
         }
     }

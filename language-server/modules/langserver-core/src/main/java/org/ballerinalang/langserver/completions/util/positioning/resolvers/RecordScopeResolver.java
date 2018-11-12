@@ -25,7 +25,7 @@ import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
@@ -61,7 +61,7 @@ public class RecordScopeResolver extends CursorPositionResolver {
         int nodeStartLine = nodePos.getStartLine();
         int nodeStartCol = nodePos.getStartColumn();
         BLangRecordTypeNode bLangRecord = (BLangRecordTypeNode) recordNode;
-        List<BLangVariable> fields = bLangRecord.fields;
+        List<BLangSimpleVariable> fields = bLangRecord.fields;
         boolean isLastField = fields.indexOf(node) == fields.size() - 1;
         boolean isCursorBefore = ((nodeStartLine > line) || (nodeStartLine == line && nodeStartCol > col)) ||
                 (isLastField && ((line < ownerEndLine)

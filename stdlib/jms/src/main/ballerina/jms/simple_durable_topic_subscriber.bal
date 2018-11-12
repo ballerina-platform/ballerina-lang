@@ -22,12 +22,12 @@ import ballerina/log;
 # + config - configurations related to the endpoint
 public type SimpleDurableTopicSubscriber object {
 
-    public SimpleDurableTopicSubscriberEndpointConfiguration config;
+    public SimpleDurableTopicSubscriberEndpointConfiguration config = {};
 
-    private Connection? connection;
-    private Session? session;
-    private DurableTopicSubscriber? subscriber;
-    private SimpleDurableTopicSubscriberActions? consumerActions;
+    private Connection? connection = ();
+    private Session? session = ();
+    private DurableTopicSubscriber? subscriber = ();
+    private SimpleDurableTopicSubscriberActions? consumerActions = ();
 
     # Initializes the simple durable topic subscriber endpoint
     #
@@ -35,21 +35,21 @@ public type SimpleDurableTopicSubscriber object {
     public function init(SimpleDurableTopicSubscriberEndpointConfiguration c) {
         self.config = c;
         Connection conn = new({
-                initialContextFactory:config.initialContextFactory,
-                providerUrl:config.providerUrl,
-                connectionFactoryName:config.connectionFactoryName,
-                properties:config.properties
+                initialContextFactory: config.initialContextFactory,
+                providerUrl: config.providerUrl,
+                connectionFactoryName: config.connectionFactoryName,
+                properties: config.properties
             });
         self.connection = conn;
 
         Session newSession = new(conn, {
-                acknowledgementMode:config.acknowledgementMode
+                acknowledgementMode: config.acknowledgementMode
             });
         self.session = newSession;
 
         DurableTopicSubscriber topicSubscriber = new;
         DurableTopicSubscriberEndpointConfiguration consumerConfig = {
-            session:newSession,
+            session: newSession,
             topicPattern: c.topicPattern,
             messageSelector: c.messageSelector,
             identifier: c.identifier
@@ -57,7 +57,7 @@ public type SimpleDurableTopicSubscriber object {
         topicSubscriber.init(consumerConfig);
         self.subscriber = topicSubscriber;
         self.consumerActions = new SimpleDurableTopicSubscriberActions(topicSubscriber.getCallerActions(), newSession,
-                                                                       c.identifier);
+            c.identifier);
     }
 
     # Binds the endpoint to a service
@@ -69,8 +69,8 @@ public type SimpleDurableTopicSubscriber object {
                 c.register(serviceType);
             }
             () => {
-                error e = {message:"Topic Subscriber cannot be nil"};
-                throw e;
+                error e = error("{ballerina/jms}JMSError", { message: "Topic Subscriber cannot be nil" });
+                panic e;
             }
         }
     }
@@ -87,8 +87,10 @@ public type SimpleDurableTopicSubscriber object {
         match (consumerActions) {
             SimpleDurableTopicSubscriberActions c => return c;
             () => {
-                error e = {message:"Consumer actions cannot be nil"};
-                throw e;
+                string errorMessage = "Consumer actions cannot be nil";
+                map errorDetail = { message: errorMessage };
+                error e = error(JMS_ERROR_CODE, errorDetail);
+                panic e;
             }
         }
     }
@@ -106,8 +108,10 @@ public type SimpleDurableTopicSubscriber object {
         match (session) {
             Session s => return s.createTextMessage(message);
             () => {
-                error e = {message:"Session cannot be nil"};
-                throw e;
+                string errorMessage = "Session cannot be nil";
+                map errorDetail = { message: errorMessage };
+                error e = error(JMS_ERROR_CODE, errorDetail);
+                panic e;
             }
         }
     }

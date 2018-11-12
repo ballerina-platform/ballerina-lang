@@ -21,6 +21,7 @@ package org.ballerinalang.net.http.nativeimpl.connection;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
@@ -171,7 +172,7 @@ public class ResponseWriter {
 
         @Override
         public void onError(Throwable throwable) {
-            BMap<String, BValue> httpConnectorError = HttpUtil.getError(dataContext.context, throwable);
+            BError httpConnectorError = HttpUtil.getError(dataContext.context, throwable);
             if (outboundMsgDataStreamer != null) {
                 if (throwable instanceof IOException) {
                     this.dataContext.getOutboundRequest().setIoException((IOException) throwable);

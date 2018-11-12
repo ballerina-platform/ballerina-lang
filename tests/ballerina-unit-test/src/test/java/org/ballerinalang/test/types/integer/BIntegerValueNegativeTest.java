@@ -34,8 +34,8 @@ public class BIntegerValueNegativeTest {
         Assert.assertEquals(compileResult.getErrorCount(), 10);
 
         int index = 0;
-        String expectedError = "mismatched input 'int'. expecting {'but', ';', '?', '+', '-', '*', '/', '%', '==', " +
-                "'!=', '>', '<', '>=', '<=', '&&', '||', '&', '^', '...', '|', '?:', '..<'}";
+        String expectedError = "mismatched input 'int'. expecting {'but', 'is', ';', '?', '+', '-', '*', '/', '%', " +
+                "'==', '!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '...', '|', '?:', '..<'}";
         BAssertUtil.validateError(compileResult, index++, expectedError, 5, 5);
 
         expectedError = "Hexadecimal '0xFFFFFFFFFFFFFFFF' too large";
@@ -62,8 +62,8 @@ public class BIntegerValueNegativeTest {
         expectedError = "extraneous input '912'";
         BAssertUtil.validateError(compileResult, index++, expectedError, 14, 14);
 
-        expectedError = "mismatched input '}'. expecting {'but', ';', '?', '+', '-', '*', '/', '%', '==', '!=', '>', " +
-                "'<', '>=', '<=', '&&', '||', '&', '^', '...', '|', '?:', '..<'}";
+        expectedError = "mismatched input '}'. expecting {'but', 'is', ';', '?', '+', '-', '*', '/', '%', '==', " +
+                "'!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '...', '|', '?:', '..<'}";
         BAssertUtil.validateError(compileResult, index, expectedError, 18, 1);
     }
 }

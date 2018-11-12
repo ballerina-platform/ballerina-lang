@@ -184,11 +184,11 @@ service<http:Service> echo bind mockEP {
     }
     getJson(endpoint caller, http:Request request) {
         http:Response response = new;
-        match request.getJsonPayload() {
-            error err => response.setTextPayload(untaint err.message);
-            json requestJson => {
-                response.setJsonPayload(untaint requestJson);
-            }
+        var payload = request.getJsonPayload();
+        if (payload is json) {
+            response.setPayload(untaint payload);
+        } else if (payload is error) {
+            response.setPayload(untaint <string>payload.detail().message);
         }
         _ = caller->respond(response);
     }

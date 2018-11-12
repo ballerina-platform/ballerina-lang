@@ -20,6 +20,9 @@ const string HTTP_SCHEME = "http://";
 # Represents https protocol scheme
 const string HTTPS_SCHEME = "https://";
 
+# Constant for the http error code
+@final public string HTTP_ERROR_CODE = "{ballerina/http}HTTPError";
+
 # Constant for the default listener endpoint timeout
 const int DEFAULT_LISTENER_TIMEOUT = 120000; //2 mins
 
@@ -172,6 +175,10 @@ public type CompressionConfig record {
     !...
 };
 
+type HTTPError record {
+    string message;
+};
+
 //////////////////////////////
 /// Native implementations ///
 //////////////////////////////
@@ -185,30 +192,40 @@ public extern function parseHeader (string headerValue) returns (string, map)|er
 
 function buildRequest(Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns Request {
     Request request = new;
-    match message {
-        () => {}
-        Request req => {request = req;}
-        string textContent => {request.setTextPayload(textContent);}
-        xml xmlContent => {request.setXmlPayload(xmlContent);}
-        json jsonContent => {request.setJsonPayload(jsonContent);}
-        byte[] blobContent => {request.setBinaryPayload(blobContent);}
-        io:ReadableByteChannel byteChannelContent => {request.setByteChannel(byteChannelContent);}
-        mime:Entity[] bodyParts => {request.setBodyParts(bodyParts);}
+    if (message is Request) {
+        request = message;
+    } else if (message is string) {
+        request.setTextPayload(message);
+    } else if (message is xml) {
+        request.setXmlPayload(message);
+    } else if (message is json) {
+        request.setJsonPayload(message);
+    } else if (message is byte[]) {
+        request.setBinaryPayload(message);
+    } else if (message is io:ReadableByteChannel) {
+        request.setByteChannel(message);
+    } else if (message is mime:Entity[]) {
+        request.setBodyParts(message);
     }
     return request;
 }
 
 function buildResponse(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns Response {
     Response response = new;
-    match message {
-        () => {}
-        Response res => {response = res;}
-        string textContent => {response.setTextPayload(textContent);}
-        xml xmlContent => {response.setXmlPayload(xmlContent);}
-        json jsonContent => {response.setJsonPayload(jsonContent);}
-        byte[] blobContent => {response.setBinaryPayload(blobContent);}
-        io:ReadableByteChannel byteChannelContent => {response.setByteChannel(byteChannelContent);}
-        mime:Entity[] bodyParts => {response.setBodyParts(bodyParts);}
+    if (message is Response) {
+        response = message;
+    } else if (message is string) {
+        response.setTextPayload(message);
+    } else if (message is xml) {
+        response.setXmlPayload(message);
+    } else if (message is json) {
+        response.setJsonPayload(message);
+    } else if (message is byte[]) {
+        response.setBinaryPayload(message);
+    } else if (message is io:ReadableByteChannel) {
+        response.setByteChannel(message);
+    } else if (message is mime:Entity[]) {
+        response.setBodyParts(message);
     }
     return response;
 }
@@ -278,8 +295,7 @@ function populateErrorCodeIndex (int[] errorCode) returns boolean[] {
 }
 
 function getError() returns error {
-    error httpConnectorErr = {};
-    httpConnectorErr.message = "Unsupported connector action received.";
+    error httpConnectorErr = error("Unsupported connector action received.");
     return httpConnectorErr;
 }
 

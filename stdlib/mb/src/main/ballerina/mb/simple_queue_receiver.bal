@@ -25,7 +25,7 @@ public type SimpleQueueReceiver object {
 
     public SimpleQueueListenerEndpointConfiguration config;
 
-    private jms:SimpleQueueReceiver receiver;
+    private jms:SimpleQueueReceiver receiver = new;
     private QueueReceiverActions? consumerActions;
 
     # Initialize the SimpleQueueReceiver endpoint
@@ -66,8 +66,8 @@ public type SimpleQueueReceiver object {
         match (self.consumerActions) {
             QueueReceiverActions c => return c;
             () => {
-                error e = {message:"Queue receiver consumerActions cannot be nil."};
-                throw e;
+                error e = error("Queue receiver consumerActions cannot be nil.");
+                panic e;
             }
         }
     }

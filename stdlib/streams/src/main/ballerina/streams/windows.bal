@@ -45,7 +45,7 @@ public type LengthWindow object {
             if (linkedList.getSize() == size) {
                 match linkedList.removeFirst() {
                     StreamEvent streamEvent => {
-                        outputEvents[lengthof outputEvents] = streamEvent;
+                        outputEvents[outputEvents.length()] = streamEvent;
                     }
 
                     () => {
@@ -58,7 +58,7 @@ public type LengthWindow object {
                 }
             }
 
-            outputEvents[lengthof outputEvents] = event;
+            outputEvents[outputEvents.length()] = event;
             StreamEvent expiredVeresionOfEvent = event.clone();
             expiredVeresionOfEvent.eventType = "EXPIRED";
             linkedList.addLast(expiredVeresionOfEvent);
@@ -78,7 +78,7 @@ public type LengthWindow object {
                         (function (map e1Data, map e2Data) returns boolean)? conditionFunc,
                         boolean isLHSTrigger = true)
                         returns (StreamEvent?, StreamEvent?)[] {
-        (StreamEvent?, StreamEvent?)[] events;
+        (StreamEvent?, StreamEvent?)[] events = [];
         int i = 0;
         foreach e in linkedList.asArray() {
             match e {
@@ -176,7 +176,7 @@ public type TimeWindow object {
                     streamEventChunk.resetToFront();
                     while (streamEventChunk.hasNext()) {
                         StreamEvent streamEvent = check <StreamEvent>streamEventChunk.next();
-                        events[lengthof events] = streamEvent;
+                        events[events.length()] = streamEvent;
                     }
                     nxtProc(events);
                 }
@@ -200,7 +200,7 @@ public type TimeWindow object {
     }
 
     public function handleError(error e) {
-        io:println("Error occured", e);
+        io:println("Error occured", e.reason());
     }
 
     public function getCandidateEvents(
@@ -244,8 +244,8 @@ public function timeWindow(int timeLength, function (StreamEvent[])? nextProcess
 
 public type LengthBatchWindow object {
     public int length;
-    public int count;
-    public StreamEvent? resetEvent;
+    public int count = 0;
+    public StreamEvent? resetEvent = ();
     public LinkedList currentEventQueue;
     public LinkedList? expiredEventQueue;
     public function (StreamEvent[])? nextProcessPointer;
@@ -305,7 +305,7 @@ public type LengthBatchWindow object {
                     streamEventChunk.resetToFront();
                     while (streamEventChunk.hasNext()) {
                         StreamEvent streamEvent = check <StreamEvent>streamEventChunk.next();
-                        events[lengthof events] = streamEvent;
+                        events[events.length()] = streamEvent;
                     }
                     nxtProc(events);
                 }
@@ -362,8 +362,8 @@ public type TimeBatchWindow object {
     public int nextEmitTime = -1;
     public LinkedList currentEventQueue;
     public LinkedList? expiredEventQueue;
-    public StreamEvent? resetEvent;
-    public task:Timer? timer;
+    public StreamEvent? resetEvent = ();
+    public task:Timer? timer = ();
     public function (StreamEvent[])? nextProcessPointer;
 
     public new(nextProcessPointer, timeInMilliSeconds) {
@@ -431,7 +431,7 @@ public type TimeBatchWindow object {
                     outputStreamEvents.resetToFront();
                     while (outputStreamEvents.hasNext()) {
                         StreamEvent streamEvent = check <StreamEvent>outputStreamEvents.next();
-                        events[lengthof events] = streamEvent;
+                        events[events.length()] = streamEvent;
                     }
                     nxtProc(events);
                 }
@@ -475,7 +475,7 @@ public type TimeBatchWindow object {
     }
 
     public function handleError(error e) {
-        io:println("Error occured", e);
+        io:println("Error occured", e.reason());
     }
 };
 
@@ -538,7 +538,7 @@ public type ExternalTimeWindow object {
                     streamEventChunk.resetToFront();
                     while (streamEventChunk.hasNext()) {
                         StreamEvent streamEvent = check <StreamEvent>streamEventChunk.next();
-                        events[lengthof events] = streamEvent;
+                        events[events.length()] = streamEvent;
                     }
                     nxtProc(events);
                 }
@@ -554,7 +554,7 @@ public type ExternalTimeWindow object {
                         (function (map e1Data, map e2Data) returns boolean)? conditionFunc,
                         boolean isLHSTrigger = true)
                         returns (StreamEvent?, StreamEvent?)[] {
-        (StreamEvent?, StreamEvent?)[] events;
+        (StreamEvent?, StreamEvent?)[] events = [];
         int i = 0;
         foreach e in expiredEventQueue.asArray() {
             match e {
@@ -585,8 +585,8 @@ public type ExternalTimeWindow object {
         match val {
             int value => return value;
             any => {
-                error err = { message: "external timestamp should be of type int" };
-                throw err;
+                error err = error("external timestamp should be of type int");
+                panic err;
             }
         }
     }
@@ -610,9 +610,9 @@ public type ExternalTimeBatchWindow object {
     public boolean flushed = false;
     public int endTime = -1;
     public int schedulerTimeout = 0;
-    public int lastScheduledTime;
+    public int lastScheduledTime = 0;
     public int lastCurrentEventTime = 0;
-    public task:Timer? timer;
+    public task:Timer? timer = ();
     public function (StreamEvent[])? nextProcessPointer;
     public string timeStamp;
     public boolean storeExpiredEvents = false;
@@ -728,7 +728,7 @@ public type ExternalTimeBatchWindow object {
                         (function (map e1Data, map e2Data) returns boolean)? conditionFunc,
                         boolean isLHSTrigger = true)
                         returns (StreamEvent?, StreamEvent?)[] {
-        (StreamEvent?, StreamEvent?)[] events;
+        (StreamEvent?, StreamEvent?)[] events = [];
         int i = 0;
         foreach e in currentEventChunk.asArray() {
             match e {
@@ -756,7 +756,7 @@ public type ExternalTimeBatchWindow object {
     }
 
     public function handleError(error e) {
-        io:println("Error occured", e);
+        io:println("Error occured", e.reason());
     }
 
     public function cloneAppend(StreamEvent currStreamEvent) {
@@ -826,9 +826,9 @@ public type ExternalTimeBatchWindow object {
 
         StreamEvent[] streamEvents = [];
         while (newEventChunk.hasNext()) {
-            streamEvents[lengthof streamEvents] = check <StreamEvent>newEventChunk.next();
+            streamEvents[streamEvents.length()] = check <StreamEvent>newEventChunk.next();
         }
-        if (streamEvents != null) {
+        if (streamEvents.length() != 0) {
             complexEventChunks.addLast(streamEvents);
         }
     }
@@ -895,9 +895,9 @@ public type ExternalTimeBatchWindow object {
 
         StreamEvent[] streamEvents = [];
         while (newEventChunk.hasNext()) {
-            streamEvents[lengthof streamEvents] = check <StreamEvent>newEventChunk.next();
+            streamEvents[streamEvents.length()] = check <StreamEvent>newEventChunk.next();
         }
-        if (streamEvents != null) {
+        if (streamEvents.length() != 0) {
             complexEventChunks.addLast(streamEvents);
         }
 
@@ -928,8 +928,8 @@ public type ExternalTimeBatchWindow object {
         match val {
             int value => return value;
             any => {
-                error err = { message: "external timestamp should be of type int" };
-                throw err;
+                error err = error("external timestamp should be of type int");
+                panic err;
             }
         }
     }
@@ -951,7 +951,7 @@ public type TimeLengthWindow object {
     public int count = 0;
     public LinkedList expiredEventChunk;
     public function (StreamEvent[])? nextProcessPointer;
-    public task:Timer? timer;
+    public task:Timer? timer = ();
 
     public new(nextProcessPointer, timeInMilliSeconds, length) {
         expiredEventChunk = new;
@@ -1016,7 +1016,7 @@ public type TimeLengthWindow object {
                     streamEventChunk.resetToFront();
                     while (streamEventChunk.hasNext()) {
                         StreamEvent streamEvent = check <StreamEvent>streamEventChunk.next();
-                        events[lengthof events] = streamEvent;
+                        events[events.length()] = streamEvent;
                     }
                     nxtProc(events);
                 }
@@ -1041,7 +1041,7 @@ public type TimeLengthWindow object {
                         (function (map e1Data, map e2Data) returns boolean)? conditionFunc,
                         boolean isLHSTrigger = true)
                         returns (StreamEvent?, StreamEvent?)[] {
-        (StreamEvent?, StreamEvent?)[] events;
+        (StreamEvent?, StreamEvent?)[] events = [];
         int i = 0;
         foreach e in expiredEventChunk.asArray() {
             match e {
@@ -1069,7 +1069,7 @@ public type TimeLengthWindow object {
     }
 
     public function handleError(error e) {
-        io:println("Error occured", e);
+        io:println("Error occured", e.reason());
     }
 
 };
@@ -1085,7 +1085,7 @@ public type UniqueLengthWindow object {
     public string uniqueKey;
     public int length;
     public int count = 0;
-    public map uniqueMap;
+    public map uniqueMap = {};
     public LinkedList expiredEventChunk;
     public function (StreamEvent[])? nextProcessPointer;
 
@@ -1156,7 +1156,7 @@ public type UniqueLengthWindow object {
                     streamEventChunk.resetToFront();
                     while (streamEventChunk.hasNext()) {
                         StreamEvent streamEvent = check <StreamEvent>streamEventChunk.next();
-                        events[lengthof events] = streamEvent;
+                        events[events.length()] = streamEvent;
                     }
                     nxtProc(events);
                 }
@@ -1172,7 +1172,7 @@ public type UniqueLengthWindow object {
                         (function (map e1Data, map e2Data) returns boolean)? conditionFunc,
                         boolean isLHSTrigger = true)
                         returns (StreamEvent?, StreamEvent?)[] {
-        (StreamEvent?, StreamEvent?)[] events;
+        (StreamEvent?, StreamEvent?)[] events = [];
         int i = 0;
         foreach e in expiredEventChunk.asArray() {
             match e {
@@ -1211,7 +1211,7 @@ public type DelayWindow object {
     public int delayInMilliSeconds;
     public LinkedList delayedEventQueue;
     public int lastTimestamp = 0;
-    public task:Timer? timer;
+    public task:Timer? timer = ();
     public function (StreamEvent[])? nextProcessPointer;
 
     public new(nextProcessPointer, delayInMilliSeconds) {
@@ -1271,7 +1271,7 @@ public type DelayWindow object {
                     streamEventChunk.resetToFront();
                     while (streamEventChunk.hasNext()) {
                         StreamEvent streamEvent = check <StreamEvent>streamEventChunk.next();
-                        events[lengthof events] = streamEvent;
+                        events[events.length()] = streamEvent;
                     }
                     nxtProc(events);
                 }
@@ -1292,7 +1292,7 @@ public type DelayWindow object {
     }
 
     public function handleError(error e) {
-        io:println("Error occured", e);
+        io:println("Error occured", e.reason());
     }
 
     public function getCandidateEvents(
@@ -1300,7 +1300,7 @@ public type DelayWindow object {
                         (function (map e1Data, map e2Data) returns boolean)? conditionFunc,
                         boolean isLHSTrigger = true)
                         returns (StreamEvent?, StreamEvent?)[] {
-        (StreamEvent?, StreamEvent?)[] events;
+        (StreamEvent?, StreamEvent?)[] events = [];
         int i = 0;
         foreach e in delayedEventQueue.asArray() {
             match e {

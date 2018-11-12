@@ -23,12 +23,13 @@ import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.FunctionNode;
-import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TypeDefinition;
-import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -44,7 +45,11 @@ public abstract class AbstractCompilerPlugin implements CompilerPlugin {
     public abstract void init(DiagnosticLog diagnosticLog);
 
     @Override
-    public void process(PackageNode packageNode) {
+    public void process(BLangPackage packageNode) {
+    }
+
+    @Override
+    public void process(BLangTestablePackage packageNode) {
     }
 
     @Override
@@ -69,7 +74,7 @@ public abstract class AbstractCompilerPlugin implements CompilerPlugin {
     }
 
     @Override
-    public void process(VariableNode variableNode, List<AnnotationAttachmentNode> annotations) {
+    public void process(SimpleVariableNode variableNode, List<AnnotationAttachmentNode> annotations) {
     }
 
     @Override

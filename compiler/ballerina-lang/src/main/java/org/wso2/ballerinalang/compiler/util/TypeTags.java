@@ -25,14 +25,18 @@ public class TypeTags {
     public static final int INT = 1;
     public static final int BYTE = INT + 1;
     public static final int FLOAT = BYTE + 1;
-    public static final int STRING = FLOAT + 1;
+    public static final int DECIMAL = FLOAT + 1;
+    public static final int STRING = DECIMAL + 1;
     public static final int BOOLEAN = STRING + 1;
     // All the above types are values type
-    public static final int TYPEDESC = BOOLEAN + 1;
-    public static final int JSON = TYPEDESC + 1;
+    public static final int JSON = BOOLEAN + 1;
     public static final int XML = JSON + 1;
     public static final int TABLE = XML + 1;
-    public static final int STREAM = TABLE + 1;
+    public static final int NIL = TABLE + 1;
+    public static final int ANYDATA = NIL + 1;
+    public static final int RECORD = ANYDATA + 1;
+    public static final int TYPEDESC = RECORD + 1;
+    public static final int STREAM = TYPEDESC + 1;
     public static final int MAP = STREAM + 1;
     public static final int INVOKABLE = MAP + 1;
     // All the above types are branded types
@@ -41,22 +45,22 @@ public class TypeTags {
     public static final int SERVICE = ENDPOINT + 1;
     public static final int ARRAY = SERVICE + 1;
     public static final int UNION = ARRAY + 1;
-    public static final int NIL = UNION + 1;
-    public static final int PACKAGE = NIL + 1;
+    public static final int PACKAGE = UNION + 1;
     public static final int NONE = PACKAGE + 1;
     public static final int VOID = NONE + 1;
     public static final int XMLNS = VOID + 1;
     public static final int ANNOTATION = XMLNS + 1;
     public static final int XML_ATTRIBUTES = ANNOTATION + 1;
-    public static final int ERROR = XML_ATTRIBUTES + 1;
+    public static final int SEMANTIC_ERROR = XML_ATTRIBUTES + 1;
+    public static final int ERROR = SEMANTIC_ERROR + 1;
     public static final int ITERATOR = ERROR + 1;
     public static final int TUPLE = ITERATOR + 1;
     public static final int FUTURE = TUPLE + 1;
     public static final int INTERMEDIATE_COLLECTION = FUTURE + 1;
     public static final int FINITE = INTERMEDIATE_COLLECTION + 1;
     public static final int OBJECT = FINITE + 1;
-    public static final int RECORD = OBJECT + 1;
-    public static final int BYTE_ARRAY = RECORD + 1;
+    public static final int BYTE_ARRAY = OBJECT + 1;
+    public static final int FUNCTION_POINTER = BYTE_ARRAY + 1;
     public static final int CHANNEL = BYTE_ARRAY + 1;
 
     private TypeTags() {

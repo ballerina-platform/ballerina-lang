@@ -249,7 +249,7 @@ function Request::parseCacheControlHeader () {
 }
 
 function appendFields (string[] fields) returns string {
-    if (lengthof fields > 0) {
+    if (fields.length() > 0) {
         return "=\"" + buildCommaSeparatedString(fields) + "\"";
     }
     return "";
@@ -259,7 +259,7 @@ function buildCommaSeparatedString (string[] values) returns string {
     string delimitedValues = values[0];
 
     int i = 1;
-    while (i < lengthof values) {
+    while (i < values.length()) {
         delimitedValues = delimitedValues + ", " + values[i];
         i = i + 1;
     }
@@ -271,34 +271,31 @@ function getExpirationDirectiveValue (string directive) returns int {
     string[] directiveParts = directive.split("=");
 
     // Disregarding the directive if a value isn't provided
-    if (lengthof directiveParts != 2) {
+    if (directiveParts.length() != 2) {
         return -1;
     }
 
-    match <int>directiveParts[1] {
-        int age => return age;
-        error => return -1; // Disregarding the directive if the value cannot be parsed
+    var age =  <int>directiveParts[1];
+    if (age is int) {
+        return age;
     }
+    return -1; // Disregarding the directive if the value cannot be parsed
 }
 
 function setRequestCacheControlHeader(Request request) {
-    match request.cacheControl {
-        RequestCacheControl cacheControl => {
-            if (!request.hasHeader(CACHE_CONTROL)) {
-                request.setHeader(CACHE_CONTROL, cacheControl.buildCacheControlDirectives());
-            }
+    var requestCacheControl = request.cacheControl;
+    if (requestCacheControl is RequestCacheControl) {
+        if (!request.hasHeader(CACHE_CONTROL)) {
+            request.setHeader(CACHE_CONTROL, requestCacheControl.buildCacheControlDirectives());
         }
-        () => {}
     }
 }
 
 function setResponseCacheControlHeader(Response response) {
-    match response.cacheControl {
-        ResponseCacheControl cacheControl => {
-            if (!response.hasHeader(CACHE_CONTROL)) {
-                response.setHeader(CACHE_CONTROL, cacheControl.buildCacheControlDirectives());
-            }
+    var responseCacheControl = response.cacheControl;
+    if (responseCacheControl is ResponseCacheControl) {
+        if (!response.hasHeader(CACHE_CONTROL)) {
+            response.setHeader(CACHE_CONTROL, responseCacheControl.buildCacheControlDirectives());
         }
-        () => {}
     }
 }

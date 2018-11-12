@@ -106,8 +106,9 @@ public type LinkedList object {
             }
             return curr.data;
         } else {
-            error e = { message: "couldn't iterate to next node." };
-            return e;
+            error e = error("couldn't iterate to next node.");
+            // TODO : Fix this.
+            panic e;
         }
     }
 
@@ -126,8 +127,9 @@ public type LinkedList object {
             }
             return curr.data;
         } else {
-            error e = { message: "couldn't iterate to previous node." };
-            return e;
+            error e = error("couldn't iterate to previous node.");
+            // TODO : Fix this.
+            panic e;
         }
     }
 
@@ -426,7 +428,7 @@ public type LinkedList object {
     public function asArray() returns any[] {
         any[] arr = [size - 1];
         Node? temp;
-        int i;
+        int i = 0;
         if (!isEmpty()) {
             match first {
                 Node value => {

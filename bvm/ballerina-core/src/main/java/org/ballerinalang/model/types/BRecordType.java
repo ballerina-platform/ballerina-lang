@@ -62,12 +62,6 @@ public class BRecordType extends BStructureType {
     }
 
     @Override
-    public TypeSignature getSig() {
-        String packagePath = (pkgPath == null) ? "." : pkgPath;
-        return new TypeSignature(TypeSignature.SIG_STRUCT, packagePath, typeName);
-    }
-
-    @Override
     public int getTag() {
         return TypeTags.RECORD_TYPE_TAG;
     }

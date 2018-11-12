@@ -6,7 +6,7 @@ public type ConstPool record {
 
 public type ConstPoolParser object {
     ChannelReader reader;
-    ConstPool cp;
+    ConstPool cp = {};
     int i;
 
     public new(reader) {
@@ -32,8 +32,8 @@ public type ConstPoolParser object {
         } else if (cpType == 5){
             parsePackageId();
         } else {
-            error err = { message: "cp type " + cpType + " not supported.:" };
-            throw err;
+            error err = error("cp type " + cpType + " not supported.:");
+            panic err;
         }
     }
 

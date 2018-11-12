@@ -21,7 +21,7 @@ public type NonListener object {
     private ServiceEndpointConfiguration config;
 
     public function init (ServiceEndpointConfiguration c);
-    public extern function initEndpoint () returns (error);
+    public extern function initEndpoint () returns (error?);
     public extern function register (typedesc serviceType);
     public extern function start ();
     public extern function getCallerActions() returns Connection;
@@ -31,7 +31,7 @@ public type NonListener object {
 function NonListener::init (ServiceEndpointConfiguration c) {
     self.config = c;
     var err = self.initEndpoint();
-    if (err != null) {
-        throw err;
+    if (err is error) {
+        panic err;
     }
 }

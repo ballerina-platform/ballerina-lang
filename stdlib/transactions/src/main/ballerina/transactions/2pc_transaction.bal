@@ -23,9 +23,9 @@ type TwoPhaseCommitTransaction object {
     string transactionId;
     int transactionBlockId;
     string coordinationType;
-    boolean isInitiated; // Indicates whether this is a transaction that was initiated or is participated in
-    map<Participant> participants;
-    Protocol[] coordinatorProtocols;
+    boolean isInitiated = false; // Indicates whether this is a transaction that was initiated or is participated in
+    map<Participant> participants = {};
+    Protocol[] coordinatorProtocols = [];
     int createdTime = time:currentTime().time;
     TransactionState state = TXN_STATE_ACTIVE;
     private boolean possibleMixedOutcome;
@@ -43,8 +43,8 @@ type TwoPhaseCommitTransaction object {
         // Prepare local resource managers
         boolean localPrepareSuccessful = prepareResourceManagers(self.transactionId, self.transactionBlockId);
         if (!localPrepareSuccessful) {
-            ret = {message:"Local prepare failed"};
-            return ret;
+            error err = error("Local prepare failed");
+            return err;
         }
 
         // Prepare phase & commit phase
@@ -60,13 +60,16 @@ type TwoPhaseCommitTransaction object {
                 match result {
                     error => {
                         // return Hazard outcome if a participant cannot successfully end its branch of the transaction
-                        ret = {message:OUTCOME_HAZARD};
+                        error err = error(OUTCOME_HAZARD);
+                        ret = err;
                     }
                     NotifyResult => {
                         boolean localCommitSuccessful =
                             commitResourceManagers(self.transactionId, self.transactionBlockId);
                         if (!localCommitSuccessful) {
-                            ret = {message:OUTCOME_HAZARD}; // "Local commit failed"
+                            error err = error(OUTCOME_HAZARD);
+                            // "Local commit failed"
+                            ret = err;
                         } else {
                             ret = OUTCOME_COMMITTED;
                         }
@@ -79,13 +82,15 @@ type TwoPhaseCommitTransaction object {
                 match result {
                     error => {
                         // return Hazard outcome if a participant cannot successfully end its branch of the transaction
-                        ret = {message:OUTCOME_HAZARD};
+                        error err = error(OUTCOME_HAZARD);
+                        ret = err;
                     }
                     NotifyResult => {
                         boolean localAbortSuccessful =
                             abortResourceManagers(self.transactionId, self.transactionBlockId);
                         if (!localAbortSuccessful) {
-                            ret = {message:OUTCOME_HAZARD};
+                            error err = error(OUTCOME_HAZARD);
+                            ret = err;
                         } else {
                             if (self.possibleMixedOutcome) {
                                 ret = OUTCOME_MIXED;
@@ -103,12 +108,14 @@ type TwoPhaseCommitTransaction object {
             match result {
                 error => {
                     // return Hazard outcome if a participant cannot successfully end its branch of the transaction
-                    ret = {message:OUTCOME_HAZARD};
+                    error err = error(OUTCOME_HAZARD);
+                    ret = err;
                 }
                 NotifyResult => {
                     boolean localAbortSuccessful = abortResourceManagers(self.transactionId, self.transactionBlockId);
                     if (!localAbortSuccessful) {
-                        ret = {message:OUTCOME_HAZARD};
+                        error err = error(OUTCOME_HAZARD);
+                        ret = err;
                     } else {
                         if (self.possibleMixedOutcome) {
                             ret = OUTCOME_MIXED;
@@ -141,7 +148,7 @@ type TwoPhaseCommitTransaction object {
                 string msg = "Aborting local resource managers failed for participated transaction:" +
                     participatedTxnId;
                 log:printError(msg);
-                error err = {message:msg};
+                error err = error(msg);
                 return err;
             }
         }
@@ -151,11 +158,11 @@ type TwoPhaseCommitTransaction object {
     // The result of this function is whether we can commit or abort
     function prepareParticipants(string protocol) returns PrepareDecision {
         PrepareDecision prepareDecision = PREPARE_DECISION_COMMIT;
-        future<((PrepareResult|error)?, Participant)>[] results;
+        future<((PrepareResult|error)?, Participant)>[] results = [];
         foreach _, participant in self.participants {
             string participantId = participant.participantId;
             future<((PrepareResult|error)?, Participant)> f = start participant.prepare(protocol);
-            results[lengthof results] = f;
+            results[results.length()] = f;
         }
         foreach f in results {
             ((PrepareResult|error)?, Participant) r = await f;
@@ -204,10 +211,10 @@ type TwoPhaseCommitTransaction object {
 
     function notifyParticipants(string action, string? protocolName) returns NotifyResult|error {
         NotifyResult|error notifyResult = (action == COMMAND_COMMIT) ? NOTIFY_RESULT_COMMITTED : NOTIFY_RESULT_ABORTED;
-        future<(NotifyResult|error)?>[] results;
+        future<(NotifyResult|error)?>[] results = [];
         foreach _, participant in self.participants {
             future<(NotifyResult|error)?> f = start participant.notify(action, protocolName);
-            results[lengthof results] = f;
+            results[results.length()] = f;
 
         }
         foreach f in results {
@@ -229,12 +236,14 @@ type TwoPhaseCommitTransaction object {
         match result {
             error => {
                 // return Hazard outcome if a participant cannot successfully end its branch of the transaction
-                ret = {message:OUTCOME_HAZARD};
+                error err = error(OUTCOME_HAZARD);
+                ret = err;
             }
             NotifyResult => {
                 boolean localAbortSuccessful = abortResourceManagers(self.transactionId, self.transactionBlockId);
                 if (!localAbortSuccessful) {
-                    ret = {message:OUTCOME_HAZARD};
+                    error err = error(OUTCOME_HAZARD);
+                    ret = err;
                 } else {
                     if (self.possibleMixedOutcome) {
                         ret = OUTCOME_MIXED;
@@ -262,7 +271,8 @@ type TwoPhaseCommitTransaction object {
         } else {
             string msg = "Aborting local resource managers failed for transaction:" + participatedTxnId;
             log:printError(msg);
-            ret = {message:msg};
+            error err = error(msg);
+            ret = err;
         }
         return ret;
     }

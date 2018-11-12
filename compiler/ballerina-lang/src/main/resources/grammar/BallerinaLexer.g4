@@ -86,8 +86,10 @@ DESCENDING  : 'descending' ;
 TYPE_INT        : 'int' ;
 TYPE_BYTE       : 'byte' ;
 TYPE_FLOAT      : 'float' ;
+TYPE_DECIMAL    : 'decimal' ;
 TYPE_BOOL       : 'boolean' ;
 TYPE_STRING     : 'string' ;
+TYPE_ERROR      : 'error' ;
 TYPE_MAP        : 'map' ;
 TYPE_JSON       : 'json' ;
 TYPE_XML        : 'xml' ;
@@ -97,6 +99,7 @@ TYPE_ANY        : 'any' ;
 TYPE_DESC       : 'typedesc' ;
 TYPE            : 'type' ;
 TYPE_FUTURE     : 'future' ;
+TYPE_ANYDATA    : 'anydata' ;
 
 VAR         : 'var' ;
 NEW         : 'new' ;
@@ -116,6 +119,8 @@ TRY         : 'try' ;
 CATCH       : 'catch' ;
 FINALLY     : 'finally' ;
 THROW       : 'throw' ;
+PANIC       : 'panic' ;
+TRAP        : 'trap' ;
 RETURN      : 'return' ;
 TRANSACTION : 'transaction' ;
 ABORT       : 'abort' ;
@@ -138,6 +143,7 @@ SCOPE       : 'scope';
 COMPENSATION: 'compensation';
 COMPENSATE  : 'compensate' ;
 PRIMARYKEY  : 'primarykey' ;
+IS          : 'is' ;
 
 // Separators
 
@@ -170,15 +176,17 @@ MOD     : '%';
 
 // Relational operators
 
-NOT         : '!' ;
-EQUAL       : '==' ;
-NOT_EQUAL   : '!=' ;
-GT          : '>' ;
-LT          : '<' ;
-GT_EQUAL    : '>=' ;
-LT_EQUAL    : '<=' ;
-AND         : '&&' ;
-OR          : '||' ;
+NOT             : '!' ;
+EQUAL           : '==' ;
+NOT_EQUAL       : '!=' ;
+GT              : '>' ;
+LT              : '<' ;
+GT_EQUAL        : '>=' ;
+LT_EQUAL        : '<=' ;
+AND             : '&&' ;
+OR              : '||' ;
+REF_EQUAL       : '===' ;
+REF_NOT_EQUAL   : '!==' ;
 
 // Bitwise Operators
 
@@ -266,7 +274,7 @@ DottedHexNumber
 fragment
 DottedDecimalNumber
     :   DecimalNumeral DOT Digits
-    |   DOT Digit+
+    |   DOT Digits
     ;
 
 fragment

@@ -26,12 +26,14 @@ public class BTypes {
     public static BType typeInt = new BIntegerType(TypeConstants.INT_TNAME, null);
     public static BType typeByte = new BByteType(TypeConstants.BYTE_TNAME, null);
     public static BType typeFloat = new BFloatType(TypeConstants.FLOAT_TNAME, null);
+    public static BType typeDecimal = new BDecimalType(TypeConstants.DECIMAL_TNAME, null);
     public static BType typeString = new BStringType(TypeConstants.STRING_TNAME, null);
     public static BType typeBoolean = new BBooleanType(TypeConstants.BOOLEAN_TNAME, null);
     public static BType typeXML = new BXMLType(TypeConstants.XML_TNAME, null);
     public static BType typeJSON = new BJSONType(TypeConstants.JSON_TNAME, null);
     public static BType typeTable = new BTableType(TypeConstants.TABLE_TNAME, null);
     public static BType typeAny = new BAnyType(TypeConstants.ANY_TNAME, null);
+    public static BType typeAnydata = new BAnydataType(TypeConstants.ANYDATA_TNAME, null);
     public static BType typeStream = new BStreamType(TypeConstants.STREAM_TNAME, typeAny, null);
     public static BType typeDesc = new BTypeDesc(TypeConstants.TYPEDESC_TNAME, null);
     public static BType typeMap = new BMapType(TypeConstants.MAP_TNAME, typeAny, null);
@@ -40,6 +42,7 @@ public class BTypes {
     public static BType typeXMLAttributes = new BXMLAttributesType(TypeConstants.XML_ATTRIBUTES_TNAME, null);
     public static BType typeIterator = new BIteratorType(TypeConstants.ITERATOR_TNAME, null);
     public static BType typeChannel = new BChannelType(TypeConstants.CHANNEL, null);
+    public static BErrorType typeError = new BErrorType(TypeConstants.ERROR, typeString, typeMap, null);
 
     private BTypes() {
     }
@@ -48,6 +51,7 @@ public class BTypes {
         return type == BTypes.typeInt ||
                 type == BTypes.typeByte ||
                 type == BTypes.typeFloat ||
+                type == BTypes.typeDecimal ||
                 type == BTypes.typeString ||
                 type == BTypes.typeBoolean;
 
@@ -61,6 +65,8 @@ public class BTypes {
                 return typeByte;
             case TypeConstants.FLOAT_TNAME:
                 return typeFloat;
+            case TypeConstants.DECIMAL_TNAME:
+                return typeDecimal;
             case TypeConstants.STRING_TNAME:
                 return typeString;
             case TypeConstants.BOOLEAN_TNAME:
@@ -87,6 +93,10 @@ public class BTypes {
                 return typeNull;
             case TypeConstants.XML_ATTRIBUTES_TNAME:
                 return typeXMLAttributes;
+            case TypeConstants.ERROR:
+                return typeError;
+            case TypeConstants.ANYDATA_TNAME:
+                return typeAnydata;
             default:
                 throw new IllegalStateException("Unknown type name");
         }

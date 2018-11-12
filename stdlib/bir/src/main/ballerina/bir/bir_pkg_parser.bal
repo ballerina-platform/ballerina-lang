@@ -22,9 +22,9 @@ public type PackageParser object {
         var argsCount = reader.readInt32();
         var numLocalVars = reader.readInt32();
 
-        VariableDcl[] dcls;
-        map<VariableDcl> localVarMap;
-        int i;
+        VariableDcl[] dcls = [];
+        map<VariableDcl> localVarMap = {};
+        int i = 0;
         while (i < numLocalVars) {
             var dcl = parseVariableDcl();
             dcls[i] = dcl;
@@ -33,7 +33,7 @@ public type PackageParser object {
         }
         FuncBodyParser bodyParser = new(reader, localVarMap);
 
-        BasicBlock[] basicBlocks;
+        BasicBlock[] basicBlocks = [];
         var numBB = reader.readInt32();
         i = 0;
         while (i < numBB) {
@@ -55,8 +55,8 @@ public type PackageParser object {
     public function parsePackage() returns Package {
         var pkgIdCp = reader.readInt32();
         var numFuncs = reader.readInt32();
-        Function[] funcs;
-        int i;
+        Function[] funcs = [];
+        int i = 0;
         while (i < numFuncs) {
             funcs[i] = parseFunction();
             i += 1;
@@ -74,8 +74,8 @@ public type PackageParser object {
         } else if (b == 2){
             return "PUBLIC";
         }
-        error err = { message: "unknown variable visiblity tag " + b };
-        throw err;
+        error err = error("unknown variable visiblity tag " + b);
+        panic err;
     }
 
     public function parseVarKind() returns VarKind {
@@ -89,14 +89,14 @@ public type PackageParser object {
         } else if (b == 4){
             return "RETURN";
         }
-        error err = { message: "unknown var kind tag " + b };
-        throw err;
+        error err = error("unknown var kind tag " + b);
+        panic err;
     }
 
     public function parseSig(string sig) returns BInvokableType {
         BType returnType = "int";
         //TODO: add boolean
-        if (sig.lastIndexOf("(N)") == (lengthof sig - 3)){
+        if (sig.lastIndexOf("(N)") == (sig.length() - 3)){
             returnType = "()";
         }
         return {

@@ -70,9 +70,9 @@ function sendRequest(string url, http:Request req, http:Listener conn) {
         http:Response httpResponse => {
             _ = listenerEP->respond(httpResponse);
         }
-        http:error err => {
+        error err => {
             http:Response errorResponse = new;
-            errorResponse.setTextPayload(err.message);
+            errorResponse.setTextPayload(err.reason());
             _ = listenerEP->respond(errorResponse);
         }
     }

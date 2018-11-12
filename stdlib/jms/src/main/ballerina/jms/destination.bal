@@ -18,7 +18,7 @@
 #
 # `queue`: Destination type queue
 # `topic`: Destination type topic
-public type DestinationType "queue" | "topic";
+public type DestinationType "queue"|"topic";
 
 # Constant for jms destination type queue
 public const QUEUE = "queue";

@@ -9,8 +9,8 @@ public type FuncBodyParser object {
     public function parseBB() returns BasicBlock {
         var id = reader.readStringCpRef();
         var numInstruction = reader.readInt32() - 1;
-        Instruction[] instructions;
-        int i;
+        Instruction[] instructions = [];
+        int i = 0;
         while (i < numInstruction) {
             instructions[i] = parseInstruction();
             i += 1;
@@ -79,8 +79,8 @@ public type FuncBodyParser object {
             return new Call(args, kind, lhsOp, { value: name }, thenBB);
 
         }
-        error err = { message: "term instrucion kind " + kindTag + " not impl." };
-        throw err;
+        error err = error("term instrucion kind " + kindTag + " not impl.");
+        panic err;
     }
 
 
@@ -117,8 +117,8 @@ public type FuncBodyParser object {
         } else if (kindTag == 17){
             kind = "LESS_EQUAL";
         } else {
-            error err = { message: "instrucion kind " + kindTag + " not impl." };
-            throw err;
+            error err = error("instrucion kind " + kindTag + " not impl.");
+            panic err;
         }
 
         var rhsOp1 = parseVarRef();
@@ -136,8 +136,8 @@ function getDecl(map<VariableDcl> localVarMap, string varName) returns VariableD
     match posibalDcl {
         VariableDcl dcl => return dcl;
         () => {
-            error err = { message: "local var missing " + varName };
-            throw err;
+            error err = error("local var missing " + varName);
+            panic err;
         }
     }
 }

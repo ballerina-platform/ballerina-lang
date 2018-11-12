@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 // This is server implementation for bidirectional streaming scenario
-
 import ballerina/grpc;
 import ballerina/io;
 
@@ -38,20 +37,20 @@ service Chat bind ep5 {
         string msg = string `{{chatMsg.name}}: {{chatMsg.message}}`;
         io:println(msg);
         string[] conKeys = consMap.keys();
-        int len = lengthof conKeys;
+        int len = conKeys.length();
         int i = 0;
         while (i < len) {
             con = check <grpc:Listener>consMap[conKeys[i]];
             error? err = con->send(msg);
-            io:println(err.message but { () => "" });
+            if (err is error) {
+                io:println("Error from Connector: " + err.reason());
+            }
             i = i + 1;
         }
     }
 
     onError(endpoint client, error err) {
-        if (err != ()) {
-            io:println("Something unexpected happens at server : " + err.message);
-        }
+        io:println("Something unexpected happens at server : " + err.reason());
     }
 
     onComplete(endpoint client) {
@@ -60,12 +59,14 @@ service Chat bind ep5 {
         io:println(msg);
         var v = consMap.remove(<string>client.id);
         string[] conKeys = consMap.keys();
-        int len = lengthof conKeys;
+        int len = conKeys.length();
         int i = 0;
         while (i < len) {
             con = check <grpc:Listener>consMap[conKeys[i]];
             error? err = con->send(msg);
-            io:println(err.message but { () => "" });
+            if (err is error) {
+                io:println("Error from Connector: " + err.reason());
+            }
             i = i + 1;
         }
     }

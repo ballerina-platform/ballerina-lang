@@ -22,7 +22,7 @@ import ballerina/log;
 # + config - Topic subscriber endpoint configuration
 public type TopicSubscriber object {
 
-    public TopicSubscriberActions consumerActions;
+    public TopicSubscriberActions consumerActions = new;
     public TopicSubscriberEndpointConfiguration config;
 
     # Initialize topic subscriber endpoint
@@ -141,11 +141,13 @@ function TopicSubscriberActions::receiveFrom(Destination destination, int timeou
 function validateTopic(Destination destination) {
     if (destination.destinationName == "") {
         string errorMessage = "Destination name cannot be empty";
-        error topicSubscriberConfigError = { message: errorMessage };
-        throw topicSubscriberConfigError;
+        map errorDetail = { message: errorMessage };
+        error topicSubscriberConfigError = error(JMS_ERROR_CODE, errorDetail);
+        panic topicSubscriberConfigError;
     } else if (destination.destinationType != "topic") {
         string errorMessage = "Destination should should be a topic";
-        error topicSubscriberConfigError = { message: errorMessage };
-        throw topicSubscriberConfigError;
+        map errorDetail = { message: errorMessage };
+        error topicSubscriberConfigError = error(JMS_ERROR_CODE, errorDetail);
+        panic topicSubscriberConfigError;
     }
 }
