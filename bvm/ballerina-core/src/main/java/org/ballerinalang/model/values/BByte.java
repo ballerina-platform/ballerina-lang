@@ -21,6 +21,9 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+
 /**
  * The {@code BByte} represents a byte value in Ballerina.
  *
@@ -47,6 +50,11 @@ public final class BByte extends BValueType implements BRefType<Byte> {
     @Override
     public double floatValue() {
         return (double) this.value;
+    }
+
+    @Override
+    public BigDecimal decimalValue() {
+        return new BigDecimal(stringValue(), MathContext.DECIMAL128);
     }
 
     @Override

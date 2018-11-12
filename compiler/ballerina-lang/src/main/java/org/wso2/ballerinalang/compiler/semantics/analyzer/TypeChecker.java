@@ -244,23 +244,37 @@ public class TypeChecker extends BLangNodeVisitor {
         BType literalType = symTable.getTypeFromTag(literalExpr.typeTag);
 
         Object literalValue = literalExpr.value;
-        if (TypeTags.FLOAT == expType.tag && TypeTags.INT == literalType.tag) {
-            literalType = symTable.floatType;
-            literalExpr.value = ((Long) literalValue).doubleValue();
-        }
 
-        if (TypeTags.BYTE == expType.tag && TypeTags.INT == literalType.tag) {
-            if (!isByteLiteralValue((Long) literalValue)) {
-                dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, literalType);
-                return;
+        if (TypeTags.INT == literalType.tag) {
+            if (TypeTags.FLOAT == expType.tag) {
+                literalType = symTable.floatType;
+                literalExpr.value = ((Long) literalValue).doubleValue();
+            } else if (TypeTags.DECIMAL == expType.tag) {
+                literalType = symTable.decimalType;
+                literalExpr.value = String.valueOf(literalValue);
+            } else if (TypeTags.BYTE == expType.tag) {
+                if (!isByteLiteralValue((Long) literalValue)) {
+                    dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, literalType);
+                    return;
+                }
+                literalType = symTable.byteType;
+                literalExpr.value = ((Long) literalValue).byteValue();
             }
-            literalType = symTable.byteType;
-            literalExpr.value = ((Long) literalValue).byteValue();
         }
 
         // check whether this is a byte array
         if (TypeTags.BYTE_ARRAY == literalExpr.typeTag) {
             literalType = new BArrayType(symTable.byteType);
+        }
+
+        // Check whether this belongs to decimal type or float type
+        if (TypeTags.FLOAT == literalType.tag) {
+            if (TypeTags.DECIMAL == expType.tag) {
+                literalType = symTable.decimalType;
+                literalExpr.value = String.valueOf(literalValue);
+            } else if (TypeTags.FLOAT == expType.tag) {
+                literalExpr.value = Double.parseDouble(String.valueOf(literalValue));
+            }
         }
 
         if (this.expType.tag == TypeTags.FINITE) {
@@ -782,6 +796,7 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.STRING:
             case TypeTags.INT:
             case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
             case TypeTags.XML:
                 checkFunctionInvocationExpr(iExpr, varRefType);
                 break;
@@ -2539,6 +2554,9 @@ public class TypeChecker extends BLangNodeVisitor {
                 BLangTypeTestExpr typeTest = (BLangTypeTestExpr) expr;
                 if (typeTest.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                     BVarSymbol varSymbol = (BVarSymbol) ((BLangSimpleVarRef) typeTest.expr).symbol;
+                    if (varSymbol == null) {
+                        break;
+                    }
                     if (!typeGuards.containsKey(varSymbol)) {
                         typeGuards.put(varSymbol, typeTest.typeNode.type);
                     } else {

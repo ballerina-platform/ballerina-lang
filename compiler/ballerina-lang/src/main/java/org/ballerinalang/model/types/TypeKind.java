@@ -39,6 +39,11 @@ public enum TypeKind {
     FLOAT("float"),
 
     /**
+     * The <em>decimal</em> value type.
+     */
+    DECIMAL("decimal"),
+
+    /**
      * The <em>string</em> value type.
      */
     STRING("string"),

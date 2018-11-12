@@ -258,9 +258,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeDefinition typeDefinition) {
+        SymbolEnv typeDefEnv = SymbolEnv.createTypeDefEnv(typeDefinition, typeDefinition.symbol.scope, env);
         if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE
                 || typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
-            analyzeNode(typeDefinition.typeNode, env);
+            analyzeNode(typeDefinition.typeNode, typeDefEnv);
         }
         if (!Symbols.isPublic(typeDefinition.symbol) ||
                 typeDefinition.symbol.type != null && TypeKind.FINITE.equals(typeDefinition.symbol.type.getKind())) {
@@ -674,7 +675,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
         BSymbol symbol = type.tsymbol;
-        if (Symbols.isPrivate(symbol)) {
+        if (!Symbols.isPublic(symbol)) {
             dlog.error(pos, DiagnosticCode.ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL, symbol.name);
         }
     }
@@ -698,6 +699,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (((ownerSymTag & SymTag.INVOKABLE) != SymTag.INVOKABLE) || (varNode.type != null &&
                 varNode.parent != null && NodeKind.FUNCTION.equals(varNode.parent.getKind()))) {
             analyseType(varNode.type, varNode.pos);
+        }
+
+        if (varNode.expr == null && ownerSymTag == SymTag.PACKAGE) {
+            this.dlog.error(varNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varNode.name);
         }
     }
 
@@ -1257,7 +1262,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (env.enclPkg.symbol.pkgID != symbol.pkgID && Symbols.isPrivate(symbol)) {
+        if (env.enclPkg.symbol.pkgID != symbol.pkgID && !Symbols.isPublic(symbol)) {
             dlog.error(position, DiagnosticCode.ATTEMPT_REFER_NON_ACCESSIBLE_SYMBOL, symbol.name);
         }
     }
