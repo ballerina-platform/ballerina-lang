@@ -25,7 +25,8 @@ import org.ballerinalang.testerina.coverage.CoverageManager;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.debugger.LineNumberInfoHolder;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -67,7 +68,7 @@ public class CoverageInstructionHandlerImpl implements InstructionHandler {
         if (executedInstructionOrderMap.get(entryPkgPath) != null) {
             executedInstructionOrderMap.get(entryPkgPath).add(executedInstruction);
         } else {
-            List<ExecutedInstruction> executedInstructionOrder = new LinkedList<>();
+            List<ExecutedInstruction> executedInstructionOrder = Collections.synchronizedList(new ArrayList<>());
             executedInstructionOrder.add(executedInstruction);
             executedInstructionOrderMap.put(entryPkgPath, executedInstructionOrder);
         }
