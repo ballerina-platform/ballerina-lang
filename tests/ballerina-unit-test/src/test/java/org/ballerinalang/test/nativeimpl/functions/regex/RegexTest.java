@@ -16,11 +16,11 @@
 
 package org.ballerinalang.test.nativeimpl.functions.regex;
 
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
@@ -49,7 +49,7 @@ public class RegexTest {
         BValue[] args = { new BString(s1), new BString("WSO2.*") };
         BValue[] returns = BRunUtil.invoke(result, "matches", args);
         Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test(description = "Test for executing on matches regex method -  negative case")
@@ -57,7 +57,7 @@ public class RegexTest {
         BValue[] args = { new BString("Virtusa"), new BString("WSO2.*") };
         BValue[] returns = BRunUtil.invoke(result, "matches", args);
         Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test(description = "Test for executing on find all regex method")
@@ -95,10 +95,10 @@ public class RegexTest {
         BValue[] args = { new BString("[") };
         BValue[] returns = BRunUtil.invoke(result, "invalidPattern", args);
         Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BMap);
-        String errorMsg = ((BMap<String, BValue>) returns[0]).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+        Assert.assertTrue(returns[0] instanceof BError);
+        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue();
         Assert.assertEquals(errorMsg.replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
-                "Unclosed character class near index 0\n[\n^");
+                            "Unclosed character class near index 0\n[\n^");
     }
 
     @Test(description = "Test for executing regex functions on non-initialized pattern")
@@ -106,8 +106,8 @@ public class RegexTest {
         BValue[] args = { new BString(s1), new BString("[") };
         BValue[] returns = BRunUtil.invoke(result, "matches", args);
         Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BMap);
-        String errorMsg = ((BMap<String, BValue>) returns[0]).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+        Assert.assertTrue(returns[0] instanceof BError);
+        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue();
         Assert.assertEquals(errorMsg.replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
                 "Unclosed character class near index 0\n[\n^");
     }

@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.test.types.json;
 
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -94,13 +94,13 @@ public class BJSONValueTest {
     public void testBooleanAsJsonVal() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanAsJsonVal");
         Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test(description = "Test initializing json with a null")
     public void testNullAsJsonVal() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNullAsJsonVal");
-        Assert.assertEquals(returns[0], null);
+        Assert.assertNull(returns[0]);
     }
 
     @Test(description = "Test inline initializing of a json")
@@ -118,7 +118,7 @@ public class BJSONValueTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonWithNull");
         Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].stringValue(), "{\"name\":null}");
-        Assert.assertEquals(returns[1], null);
+        Assert.assertNull(returns[1]);
     }
 
     @Test
@@ -150,7 +150,7 @@ public class BJSONValueTest {
     public void testGetBoolean() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetBoolean");
         Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test
@@ -163,7 +163,7 @@ public class BJSONValueTest {
     @Test
     public void testGetNonExistingElement() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetNonExistingElement");
-        Assert.assertEquals(returns[0], null);
+        Assert.assertNull(returns[0]);
     }
 
     @Test
@@ -347,9 +347,9 @@ public class BJSONValueTest {
 
     public void testGetFromNonObjectWithKey() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetFromNonObjectWithKey");
-        Assert.assertEquals(returns[0], null);
-        Assert.assertEquals(returns[1], null);
-        Assert.assertEquals(returns[2], null);
+        Assert.assertNull(returns[0]);
+        Assert.assertNull(returns[1]);
+        Assert.assertNull(returns[2]);
     }
 
     @Test
@@ -417,8 +417,8 @@ public class BJSONValueTest {
     @Test
     public void testJsonToJsonArrayInvalidCasting() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToJsonArrayInvalidCasting");
-        Assert.assertTrue(returns[0] instanceof BMap);
-        String errorMsg = ((BMap<String, BValue>) returns[0]).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+        Assert.assertTrue(returns[0] instanceof BError);
+        String errorMsg = ((BError) returns[0]).getReason();
         Assert.assertEquals(errorMsg, "'json[]' cannot be cast to 'json[][][]'");
     }
 
@@ -453,37 +453,37 @@ public class BJSONValueTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: error, message: 'null' cannot be cast to 'int'.*")
+            expectedExceptionsMessageRegExp = "error: 'null' cannot be cast to 'int'.*")
     public void testNullJsonToInt() {
         BRunUtil.invoke(compileResult, "testNullJsonToInt");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: error, message: 'null' cannot be cast to 'float'.*")
+            expectedExceptionsMessageRegExp = "error: 'null' cannot be cast to 'float'.*")
     public void testNullJsonToFloat() {
         BRunUtil.invoke(compileResult, "testNullJsonToFloat");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: error, message: 'null' cannot be cast to 'string'.*")
+            expectedExceptionsMessageRegExp = "error: 'null' cannot be cast to 'string'.*")
     public void testNullJsonToString() {
         BRunUtil.invoke(compileResult, "testNullJsonToString");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: error, message: 'null' cannot be cast to 'boolean'.*")
+            expectedExceptionsMessageRegExp = "error: 'null' cannot be cast to 'boolean'.*")
     public void testNullJsonToBoolean() {
         BRunUtil.invoke(compileResult, "testNullJsonToBoolean");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: error, message: 'null' cannot be converted to 'map'.*")
+            expectedExceptionsMessageRegExp = "error: 'null' cannot be converted to 'map'.*")
     public void testNullJsonToMap() {
         BRunUtil.invoke(compileResult, "testNullJsonToMap");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: error, message: 'null' cannot be converted to 'int\\[\\].*")
+            expectedExceptionsMessageRegExp = "error: 'null' cannot be converted to 'int\\[\\].*")
     public void testNullJsonToArray() {
         BRunUtil.invoke(compileResult, "testNullJsonToArray");
     }

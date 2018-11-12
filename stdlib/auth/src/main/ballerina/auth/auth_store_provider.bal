@@ -39,6 +39,6 @@ function AuthStoreProvider::authenticate (string username, string password) retu
 
 //Dummy implementation, please fix
 function AuthStoreProvider::getScopes (string username) returns string[] {
-    string[] val;
+    string[] val = [];
     return val;
 }

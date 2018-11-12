@@ -22,12 +22,12 @@ import ballerina/log;
 # + config - configurations related to the endpoint
 public type SimpleDurableTopicSubscriber object {
 
-    public SimpleDurableTopicSubscriberEndpointConfiguration config;
+    public SimpleDurableTopicSubscriberEndpointConfiguration config = {};
 
-    private Connection? connection;
-    private Session? session;
-    private DurableTopicSubscriber? subscriber;
-    private SimpleDurableTopicSubscriberActions? consumerActions;
+    private Connection? connection = ();
+    private Session? session = ();
+    private DurableTopicSubscriber? subscriber = ();
+    private SimpleDurableTopicSubscriberActions? consumerActions = ();
 
     # Initializes the simple durable topic subscriber endpoint
     #

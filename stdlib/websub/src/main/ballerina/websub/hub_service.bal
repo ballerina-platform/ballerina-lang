@@ -23,7 +23,7 @@ import ballerina/sql;
 import ballerina/system;
 import ballerina/time;
 
-map<PendingSubscriptionChangeRequest> pendingRequests;
+map<PendingSubscriptionChangeRequest> pendingRequests = {};
 
 @http:ServiceConfig {
     basePath:BASE_PATH
@@ -47,14 +47,12 @@ service<http:Service> hubService {
     }
     hub(endpoint client, http:Request request) {
         http:Response response = new;
-        string mode;
         string topic = "";
 
-        map<string> params;
         var reqFormParamMap = request.getFormParams();
-        params = reqFormParamMap is map<string> ? reqFormParamMap : {};
+        map<string> params = reqFormParamMap is map<string> ? reqFormParamMap : {};
 
-        mode = params[HUB_MODE] ?: "";
+        string mode = params[HUB_MODE] ?: "";
 
         var topicFromParams = params[HUB_TOPIC];
         if topicFromParams is string {
@@ -153,7 +151,7 @@ service<http:Service> hubService {
                 if (!hubTopicRegistrationRequired || isTopicRegistered(topic)) {
                     byte[]|error binaryPayload;
                     string stringPayload;
-                    string contentType;
+                    string contentType = "";
                     if (hubRemotePublishMode == PUBLISH_MODE_FETCH) {
                         var fetchResponse = fetchTopicUpdate(topic);
                         if (fetchResponse is http:Response) {
@@ -443,26 +441,25 @@ function addTopicRegistrationsOnStartup() {
         password: hubDatabasePassword,
         poolOptions: { maximumPoolSize:5 }
     };
-    table dt;
     var dbResult = subscriptionDbEp->select("SELECT * FROM topics", TopicRegistration);
     if (dbResult is table) {
-        dt = dbResult;
+        table dt = dbResult;
+        while (dt.hasNext()) {
+            var registrationDetails = <TopicRegistration>dt.getNext();
+            if (registrationDetails is TopicRegistration) {
+                var registerStatus = registerTopicAtHub(registrationDetails.topic, loadingOnStartUp = true);
+                if (registerStatus is error) {
+                    string errCause = <string> registerStatus.detail().message;
+                    log:printError("Error registering topic details retrieved from the database: "+ errCause);
+                }
+            } else if (registrationDetails is error) {
+                string errCause = <string> registrationDetails.detail().message;
+                log:printError("Error retreiving topic registration details from the database: " + errCause);
+            }
+        }
     } else if (dbResult is error) {
         string errCause = <string> dbResult.detail().message;
         log:printError("Error retreiving data from the database: " + errCause);
-    }
-    while (dt.hasNext()) {
-        var registrationDetails = <TopicRegistration>dt.getNext();
-        if (registrationDetails is TopicRegistration) {
-            var registerStatus = registerTopicAtHub(registrationDetails.topic, loadingOnStartUp = true);
-            if (registerStatus is error) {
-                string errCause = <string> registerStatus.detail().message;
-                log:printError("Error registering topic details retrieved from the database: "+ errCause);
-            }
-        } else if (registrationDetails is error) {
-            string errCause = <string> registrationDetails.detail().message;
-            log:printError("Error retreiving topic registration details from the database: " + errCause);
-        }
     }
     subscriptionDbEp.stop();
 }
@@ -480,23 +477,23 @@ function addSubscriptionsOnStartup() {
     int time = time:currentTime().time;
     sql:Parameter para1 = {sqlType:sql:TYPE_BIGINT, value:time};
     _ = subscriptionDbEp->update("DELETE FROM subscriptions WHERE ? - lease_seconds > created_at", para1);
-    table dt;
+
     var dbResult = subscriptionDbEp->select("SELECT topic, callback, secret, lease_seconds, created_at"
             + " FROM subscriptions", SubscriptionDetails);
     if (dbResult is table) {
-        dt = dbResult;
+        table dt = dbResult;
+        while (dt.hasNext()) {
+            var subscriptionDetails = <SubscriptionDetails>dt.getNext();
+            if (subscriptionDetails is SubscriptionDetails) {
+                addSubscription(subscriptionDetails);
+            } else if (subscriptionDetails is error) {
+                string errCause = <string> subscriptionDetails.detail().message;
+                log:printError("Error retreiving subscription details from the database: " + errCause);
+            }
+        }
     } else if (dbResult is error) {
         string errCause = <string> dbResult.detail().message;
         log:printError("Error retreiving data from the database: " + errCause);
-    }
-    while (dt.hasNext()) {
-        var subscriptionDetails = <SubscriptionDetails>dt.getNext();
-        if (subscriptionDetails is SubscriptionDetails) {
-            addSubscription(subscriptionDetails);
-        } else if (subscriptionDetails is error) {
-            string errCause = <string> subscriptionDetails.detail().message;
-            log:printError("Error retreiving subscription details from the database: " + errCause);
-        }
     }
     subscriptionDbEp.stop();
 }

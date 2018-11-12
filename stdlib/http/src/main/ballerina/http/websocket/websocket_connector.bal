@@ -26,7 +26,7 @@ public type WebSocketConnector object {
     # + final - True if this is a final frame of a (long) message
     # + return  - `error` if an error occurs when sending
     public function pushText(string|json|xml|boolean|int|float|byte|byte[] data, boolean final = true) returns error? {
-        string text;
+        string text = "";
         if (data is byte) {
             text = <string>(<int>data);
         } else if (data is int) {

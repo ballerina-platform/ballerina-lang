@@ -24,6 +24,7 @@ public class TypeDescriptor {
     public static final String SIG_INT = "I";
     public static final String SIG_BYTE = "W";
     public static final String SIG_FLOAT = "F";
+    public static final String SIG_DECIMAL = "L";
     public static final String SIG_STRING = "S";
     public static final String SIG_BOOLEAN = "B";
     public static final String SIG_REFTYPE = "R";

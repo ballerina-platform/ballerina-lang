@@ -48,7 +48,7 @@ public class ParseJson extends BlockingNativeCallableUnit {
             String value = context.getStringArgument(0);
             BValue json = JsonParser.parse(value);
             context.setReturnValues(json);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             BError error = Utils.createConversionError(context, "Failed to parse json string: " + e.getMessage());
             context.setReturnValues(error);
         }
