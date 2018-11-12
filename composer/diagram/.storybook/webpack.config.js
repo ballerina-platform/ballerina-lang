@@ -7,5 +7,7 @@ module.exports = (baseConfig, env, config) => {
   });
   config.plugins.push(new TSDocgenPlugin()); // optional
   config.resolve.extensions.push(".ts", ".tsx");
+  config.node = {};
+  config.node.net = "mock";
   return config;
 };
