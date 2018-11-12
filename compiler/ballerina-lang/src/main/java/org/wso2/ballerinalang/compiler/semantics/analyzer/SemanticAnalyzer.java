@@ -1105,7 +1105,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             defaultableStatus = false;
             if (initFuncParams.stream().filter(p -> p.name.equals(field.symbol.name))
                     .collect(Collectors.toList()).size() == 0) {
-                dlog.error(typeDef.pos, DiagnosticCode.OBJECT_UN_INITIALIZABLE_FIELD, field);
+                dlog.error(typeDef.pos, DiagnosticCode.OBJECT_UNINITIALIZED_FIELD, field);
             }
         }
 

@@ -18,8 +18,8 @@
 # The caller actions for responding to client requests.
 public type Connection object {
 
-    private ServiceEndpointConfiguration config;
-    private FilterContext? filterContext;
+    private ServiceEndpointConfiguration config = {};
+    private FilterContext? filterContext = ();
 
     # Sends the outbound response to the caller.
     #
@@ -31,7 +31,7 @@ public type Connection object {
         if (filterContext is FilterContext) {
             foreach filter in config.filters {
                 if (!filter.filterResponse(response, filterContext)){
-                    Response res;
+                    Response res = new;
                     res.statusCode = 500;
                     res.setTextPayload("Failure when invoking response filter/s");
                     return nativeRespond(self, res);

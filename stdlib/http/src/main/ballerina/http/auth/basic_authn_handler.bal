@@ -28,7 +28,7 @@ import ballerina/runtime;
 # + authStoreProvider - AuthStoreProvider instance
 public type HttpBasicAuthnHandler object {
     public string name;
-    public auth:AuthStoreProvider authStoreProvider;
+    public auth:AuthStoreProvider authStoreProvider = new;
 
     public new(authStoreProvider) {
         name = "basic";
@@ -50,7 +50,7 @@ public type HttpBasicAuthnHandler object {
 function HttpBasicAuthnHandler::handle(Request req) returns (boolean) {
     // extract the header value
     var basicAuthHeader = extractBasicAuthHeaderValue(req);
-    string basicAuthHeaderValue;
+    string basicAuthHeaderValue = "";
     if (basicAuthHeader is string) {
         basicAuthHeaderValue = basicAuthHeader;
     } else {

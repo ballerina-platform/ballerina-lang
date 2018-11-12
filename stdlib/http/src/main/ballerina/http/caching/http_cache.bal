@@ -26,9 +26,9 @@ import ballerina/cache;
 # + isShared - Specifies whether the HTTP caching layer should behave as a public cache or a private cache
 public type HttpCache object {
 
-    public cache:Cache cache;
+    public cache:Cache cache = new;
     public CachingPolicy policy = CACHE_CONTROL_AND_VALIDATORS;
-    public boolean isShared;
+    public boolean isShared = false;
 
     function isAllowedToCache (Response response) returns boolean {
         if (self.policy == CACHE_CONTROL_AND_VALIDATORS) {

@@ -591,8 +591,8 @@ function validateCircuitBreakerConfiguration(CircuitBreakerConfig circuitBreaker
 # + circuitHealth - Circuit Breaker health status
 # + return - Current failure ratio
 function getCurrentFailureRatio(CircuitHealth circuitHealth) returns float {
-    int totalCount;
-    int totalFailures;
+    int totalCount = 0;
+    int totalFailures = 0;
 
     foreach bucket in circuitHealth.totalBuckets {
         totalCount =  totalCount + bucket.failureCount + (bucket.totalCount - (bucket.failureCount + bucket.rejectedCount));
@@ -610,7 +610,7 @@ function getCurrentFailureRatio(CircuitHealth circuitHealth) returns float {
 # + circuitHealth - Circuit Breaker health status
 # + return - Total requests count
 function getTotalRequestsCount(CircuitHealth circuitHealth) returns int {
-    int totalCount;
+    int totalCount = 0;
 
     foreach bucket in circuitHealth.totalBuckets {
         totalCount  =  totalCount + bucket.totalCount;
