@@ -1773,8 +1773,7 @@ public class Desugar extends BLangNodeVisitor {
                 // We need to get a copy of the literal value and set it as the result. Otherwise there will be
                 // issues because registry allocation will be only done one time.
                 BLangLiteral literal = ASTBuilderUtil.createLiteral(value.pos, value.type, value.value);
-                result = rewriteExpr(addConversionExprIfRequired(literal, varRefExpr.type, types, symTable,
-                        symResolver));
+                result = rewriteExpr(addConversionExprIfRequired(literal, varRefExpr.type));
                 return;
             } else {
                 // Package variable | service variable.

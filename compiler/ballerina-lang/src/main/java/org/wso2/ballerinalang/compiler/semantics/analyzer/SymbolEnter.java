@@ -775,7 +775,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         PackageID pkgID = env.enclPkg.symbol.pkgID;
 
         BConstantSymbol constantSymbol = new BConstantSymbol(Flags.asMask(constant.flagSet), name, pkgID,
-                symTable.errType, symTable.errType, env.scope.owner);
+                symTable.semanticError, symTable.semanticError, env.scope.owner);
 
         // Update the symbol of the node.
         constant.symbol = constantSymbol;
@@ -957,7 +957,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Resolve the type node and update the type of the typeNode.
         for (BLangConstant constant : constants) {
             // Constant symbol type will be an error type if the RHS of the constant definition node is invalid.
-            if (constant.symbol.type == symTable.errType) {
+            if (constant.symbol.type == symTable.semanticError) {
                 continue;
             }
 
