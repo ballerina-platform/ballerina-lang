@@ -20,6 +20,9 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+
 /**
  * The {@code BInteger} represents a int value in Ballerina.
  *
@@ -46,6 +49,11 @@ public final class BInteger extends BValueType implements BRefType<Long> {
     @Override
     public double floatValue() {
         return (double) this.value;
+    }
+
+    @Override
+    public BigDecimal decimalValue() {
+        return new BigDecimal(stringValue(), MathContext.DECIMAL128);
     }
 
     @Override

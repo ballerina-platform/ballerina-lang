@@ -32,6 +32,7 @@ public class DefaultValue {
     public double floatValue;
     public String stringValue;
     public boolean booleanValue;
+    public String decimalValue;
 
     public DefaultValue(int typeDescCPIndex, String desc) {
         this.typeDescCPIndex = typeDescCPIndex;

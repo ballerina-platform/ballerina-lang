@@ -563,6 +563,12 @@ public class CompiledPackageSymbolEnter {
                 litExpr.value = floatCPEntry.getValue();
                 litExpr.typeTag = TypeTags.FLOAT;
                 break;
+            case TypeDescriptor.SIG_DECIMAL:
+                valueCPIndex = dataInStream.readInt();
+                UTF8CPEntry decimalEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
+                litExpr.value = decimalEntry.getValue();
+                litExpr.typeTag = TypeTags.DECIMAL;
+                break;
             case TypeDescriptor.SIG_STRING:
                 valueCPIndex = dataInStream.readInt();
                 UTF8CPEntry stringCPEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
@@ -784,6 +790,10 @@ public class CompiledPackageSymbolEnter {
                 valueCPIndex = dataInStream.readInt();
                 FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[valueCPIndex];
                 return floatCPEntry.getValue();
+            case TypeDescriptor.SIG_DECIMAL:
+                valueCPIndex = dataInStream.readInt();
+                UTF8CPEntry decimalEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
+                return decimalEntry.getValue();
             case TypeDescriptor.SIG_STRING:
                 valueCPIndex = dataInStream.readInt();
                 UTF8CPEntry stringCPEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
@@ -885,6 +895,8 @@ public class CompiledPackageSymbolEnter {
                     return dataInStream.readInt();
                 case TypeDescriptor.SIG_FLOAT:
                     return dataInStream.readFloat();
+                case TypeDescriptor.SIG_DECIMAL:
+                    return dataInStream.readUTF();
                 case TypeDescriptor.SIG_BOOLEAN:
                     return dataInStream.readBoolean();
                 case TypeDescriptor.SIG_STRING:
@@ -1047,6 +1059,8 @@ public class CompiledPackageSymbolEnter {
                     return symTable.byteType;
                 case 'F':
                     return symTable.floatType;
+                case 'L':
+                    return symTable.decimalType;
                 case 'S':
                     return symTable.stringType;
                 case 'B':

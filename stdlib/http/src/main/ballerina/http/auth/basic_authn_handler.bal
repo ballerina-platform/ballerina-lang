@@ -48,49 +48,41 @@ public type HttpBasicAuthnHandler object {
 };
 
 function HttpBasicAuthnHandler::handle(Request req) returns (boolean) {
-
     // extract the header value
     var basicAuthHeader = extractBasicAuthHeaderValue(req);
     string basicAuthHeaderValue = "";
-    match basicAuthHeader {
-        string basicAuthHeaderStr => {
-            basicAuthHeaderValue = basicAuthHeaderStr;
-        }
-        () => {
-            log:printError("Error in extracting basic authentication header");
-            return false;
-        }
+    if (basicAuthHeader is string) {
+        basicAuthHeaderValue = basicAuthHeader;
+    } else {
+        log:printError("Error in extracting basic authentication header");
+        return false;
     }
     var credentials = extractBasicAuthCredentials(basicAuthHeaderValue);
-    match credentials {
-        (string, string) creds => {
-            var (username, password) = creds;
-            boolean isAuthenticated = self.authStoreProvider.authenticate(username, password);
-            if (isAuthenticated) {
-                // set username
-                runtime:getInvocationContext().userPrincipal.username = username;
-                // read scopes and set to the invocation context
-                string[] scopes = self.authStoreProvider.getScopes(username);
-                if (scopes.length() > 0) {
-                    runtime:getInvocationContext().userPrincipal.scopes = scopes;
-                }
+    if (credentials is (string, string)) {
+        var (username, password) = credentials;
+        boolean authenticated = self.authStoreProvider.authenticate(username, password);
+        if (authenticated) {
+            // set username
+            runtime:getInvocationContext().userPrincipal.username = username;
+            // read scopes and set to the invocation context
+            string[] scopes = self.authStoreProvider.getScopes(username);
+            if (scopes.length() > 0) {
+                runtime:getInvocationContext().userPrincipal.scopes = scopes;
             }
-            return isAuthenticated;
         }
-        error err => {
-            log:printError("Error in decoding basic authentication header", err = err);
-            return false;
-        }
+        return authenticated;
+    } else if (credentials is error) {
+        log:printError("Error in decoding basic authentication header", err = credentials);
     }
+    return false;
 }
 
 function HttpBasicAuthnHandler::canHandle(Request req) returns (boolean) {
-    match trap req.getHeader(AUTH_HEADER) {
-        string basicAuthHeader => {
-            return basicAuthHeader.hasPrefix(AUTH_SCHEME_BASIC);
-        }
-        error => return false;
+    var basicAuthHeader = trap req.getHeader(AUTH_HEADER);
+    if (basicAuthHeader is string) {
+        return basicAuthHeader.hasPrefix(AUTH_SCHEME_BASIC);
     }
+    return false;
 }
 
 # Extracts the basic authentication credentials from the header value.
