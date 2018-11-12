@@ -214,11 +214,6 @@ public class FormattingSourceGen {
             node.addProperty("noAttachmentPoints", true);
         }
 
-        if ("AnnotationAttachment".equals(kind) &&
-                node.getAsJsonObject("packageAlias").get("value").getAsString().equals("builtin")) {
-            node.addProperty("builtin", true);
-        }
-
         if ("Identifier".equals(kind)) {
             if (node.has("literal") && node.get("literal").getAsBoolean()) {
                 node.addProperty("valueWithBar", "^\"" + node.get("value").getAsString() + "\"");
