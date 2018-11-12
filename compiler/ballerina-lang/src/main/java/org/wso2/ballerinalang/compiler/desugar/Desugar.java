@@ -2012,7 +2012,13 @@ public class Desugar extends BLangNodeVisitor {
                 keyValue.keyExpr = rewriteExpr(keyValue.keyExpr);
             }
         });
-        result = waitExpr;
+        BLangExpression expr;
+        if (waitExpr.type.tag == TypeTags.RECORD) { // It can be a record
+            expr = new BLangWaitForAllExpr.BLangWaitStructLiteral(waitExpr.keyValuePairs, waitExpr.type);
+        } else { // Else it should be a map
+            expr = new BLangWaitForAllExpr.BLangWaitMapLiteral(waitExpr.keyValuePairs, waitExpr.type);
+        }
+        result = rewriteExpr(expr);
     }
 
     @Override
@@ -2416,6 +2422,16 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangStructLiteral structLiteral) {
         result = structLiteral;
+    }
+
+    @Override
+    public void visit(BLangWaitForAllExpr.BLangWaitStructLiteral waitStructLiteral) {
+        result = waitStructLiteral;
+    }
+
+    @Override
+    public void visit(BLangWaitForAllExpr.BLangWaitMapLiteral waitMapLiteral) {
+        result = waitMapLiteral;
     }
 
     @Override
