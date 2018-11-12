@@ -76,8 +76,11 @@ public class BRefValueArray extends BNewArray implements Serializable {
     }
 
     public void add(long index, BRefType<?> value) {
-        if (this.isFrozen()) {
-            throw new BLangFreezeException("modification not allowed on frozen value");
+        switch (this.freezeStatus.getState()) {
+            case FROZEN:
+                throw new BLangFreezeException("modification not allowed on frozen value");
+            case MID_FREEZE:
+                throw new BLangFreezeException("modification not allowed on '" + this.getType() + "' during freeze");
         }
         prepareForAdd(index, values.length);
         values[(int) index] = value;
@@ -175,9 +178,13 @@ public class BRefValueArray extends BNewArray implements Serializable {
      */
     @Override
     public void attemptFreeze(CPU.FreezeStatus freezeStatus) {
-        if (this.isFrozen()) {
-            return;
+        switch (this.freezeStatus.getState()) {
+            case FROZEN:
+                return;
+            case MID_FREEZE:
+                throw new BallerinaException("concurrent 'freeze()' attempts not allowed on '" + this.getType() + "'");
         }
+
         this.freezeStatus = freezeStatus;
         for (int i = 0; i < this.size; i++) {
             if (this.get(i) != null) {

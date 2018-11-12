@@ -58,9 +58,13 @@ public class BByteArray extends BNewArray {
     }
 
     public void add(long index, byte value) {
-        if (this.isFrozen()) {
-            throw new BLangFreezeException("modification not allowed on frozen value");
+        switch (this.freezeStatus.getState()) {
+            case FROZEN:
+                throw new BLangFreezeException("modification not allowed on frozen value");
+            case MID_FREEZE:
+                throw new BLangFreezeException("modification not allowed on '" + this.getType() + "' during freeze");
         }
+
         prepareForAdd(index, values.length);
         values[(int) index] = value;
     }

@@ -20,6 +20,7 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 import java.lang.reflect.Array;
@@ -33,7 +34,7 @@ import java.lang.reflect.Array;
 public abstract class BNewArray implements BRefType, BCollection {
 
     protected BType arrayType;
-    protected CPU.FreezeStatus freezeStatus = new CPU.FreezeStatus(false);
+    protected CPU.FreezeStatus freezeStatus = new CPU.FreezeStatus(CPU.FreezeStatus.State.UNFROZEN);
 
     /**
      * The maximum size of arrays to allocate.
@@ -169,8 +170,11 @@ public abstract class BNewArray implements BRefType, BCollection {
      */
     @Override
     public void attemptFreeze(CPU.FreezeStatus freezeStatus) {
-        if (this.isFrozen()) {
-            return;
+        switch (this.freezeStatus.getState()) {
+            case FROZEN:
+                return;
+            case MID_FREEZE:
+                throw new BallerinaException("concurrent 'freeze()' attempts not allowed on '" + this.getType() + "'");
         }
         this.freezeStatus = freezeStatus;
     }

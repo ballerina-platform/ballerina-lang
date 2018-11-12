@@ -50,7 +50,7 @@ public class BTable implements BRefType<Object>, BCollection {
     private BStringArray primaryKeys;
     private BStringArray indices;
     private boolean tableClosed;
-    private CPU.FreezeStatus freezeStatus = new CPU.FreezeStatus(false);
+    private CPU.FreezeStatus freezeStatus = new CPU.FreezeStatus(CPU.FreezeStatus.State.UNFROZEN);
 
     public BTable() {
         this.iterator = null;
@@ -204,8 +204,11 @@ public class BTable implements BRefType<Object>, BCollection {
      * @param context The context which represents the runtime state of the program that called "table.add"
      */
     public void performAddOperation(BMap<String, BValue> data, Context context) {
-        if (this.isFrozen()) {
-            throw new BLangFreezeException("modification not allowed on frozen value");
+        switch (this.freezeStatus.getState()) {
+            case FROZEN:
+                throw new BLangFreezeException("modification not allowed on frozen value");
+            case MID_FREEZE:
+                throw new BLangFreezeException("modification not allowed on '" + this.getType() + "' during freeze");
         }
 
         try {
@@ -240,8 +243,11 @@ public class BTable implements BRefType<Object>, BCollection {
      * @param lambdaFunction The function that decides the condition of data removal
      */
     public void performRemoveOperation(Context context, BFunctionPointer lambdaFunction) {
-        if (this.isFrozen()) {
-            throw new BLangFreezeException("modification not allowed on frozen value");
+        switch (this.freezeStatus.getState()) {
+            case FROZEN:
+                throw new BLangFreezeException("modification not allowed on frozen value");
+            case MID_FREEZE:
+                throw new BLangFreezeException("modification not allowed on '" + this.getType() + "' during freeze");
         }
 
         try {
@@ -412,8 +418,11 @@ public class BTable implements BRefType<Object>, BCollection {
      */
     @Override
     public void attemptFreeze(CPU.FreezeStatus freezeStatus) {
-        if (this.isFrozen()) {
-            return;
+        switch (this.freezeStatus.getState()) {
+            case FROZEN:
+                return;
+            case MID_FREEZE:
+                throw new BallerinaException("concurrent 'freeze()' attempts not allowed on '" + this.getType() + "'");
         }
         this.freezeStatus = freezeStatus;
     }

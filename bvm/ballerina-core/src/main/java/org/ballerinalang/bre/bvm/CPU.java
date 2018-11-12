@@ -862,16 +862,24 @@ public class CPU {
                     break;
                 }
 
-                FreezeStatus freezeStatus = new FreezeStatus(true);
+                FreezeStatus freezeStatus = new FreezeStatus(FreezeStatus.State.MID_FREEZE);
                 try {
                     value.attemptFreeze(freezeStatus);
 
-                    // if freeze is successful, set the value itself as the return value
+                    // if freeze is successful, set the status as frozen and the value itself as the return value
+                    freezeStatus.setFrozen();
                     sf.refRegs[j] = value;
                 } catch (BLangFreezeException e) {
-                    // if freeze is unsuccessful, set the frozen status of the value and its constituents to false
-                    freezeStatus.setFreezeFailed();
+                    // if freeze is unsuccessful due to an invalid value, set the frozen status of the value and its
+                    // constituents to false, and return an error
+                    freezeStatus.setUnfrozen();
                     sf.refRegs[j] = BLangVMErrors.createError(ctx, e.getMessage());
+                } catch (BallerinaException e) {
+                    // if freeze is unsuccessful due to concurrent freeze attempts, set the frozen status of the value
+                    // and its constituents to false, and panic
+                    freezeStatus.setUnfrozen();
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.IS_FROZEN:
@@ -4435,18 +4443,33 @@ public class CPU {
      * @since 0.985.0
      */
     public static class FreezeStatus {
-        private boolean frozen = false;
-
-        public FreezeStatus(boolean frozen) {
-            this.frozen = frozen;
+        /**
+         * Representation of the current state of a freeze attempt.
+         */
+        public enum State {
+            FROZEN, MID_FREEZE, UNFROZEN;
         }
 
-        private void setFreezeFailed() {
-            this.frozen = false;
+        private State currentState;
+
+        public FreezeStatus(State state) {
+            this.currentState = state;
+        }
+
+        private void setFrozen() {
+            this.currentState = State.FROZEN;
+        }
+
+        private void setUnfrozen() {
+            this.currentState = State.UNFROZEN;
+        }
+
+        public State getState() {
+            return currentState;
         }
 
         public boolean isFrozen() {
-            return frozen;
+            return currentState == State.FROZEN;
         }
     }
 

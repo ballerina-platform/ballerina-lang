@@ -61,7 +61,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
     private final Lock writeLock = lock.writeLock();
     private BType type = BTypes.typeMap;
     private HashMap<String, Object> nativeData = new HashMap<>();
-    private CPU.FreezeStatus freezeStatus = new CPU.FreezeStatus(false);
+    private CPU.FreezeStatus freezeStatus = new CPU.FreezeStatus(CPU.FreezeStatus.State.UNFROZEN);
 
     public BMap() {
         map =  new LinkedHashMap<>();
@@ -134,9 +134,14 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
     public void put(K key, V value) {
         writeLock.lock();
         try {
-            if (this.isFrozen()) {
-                throw new BLangFreezeException("modification not allowed on frozen value");
+            switch (this.freezeStatus.getState()) {
+                case FROZEN:
+                    throw new BLangFreezeException("modification not allowed on frozen value");
+                case MID_FREEZE:
+                    throw new BLangFreezeException("modification not allowed on '" + this.getType() +
+                                                           "' during freeze");
             }
+
             map.put(key, value);
         } finally {
             writeLock.unlock();
@@ -149,9 +154,14 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
     public void clear() {
         writeLock.lock();
         try {
-            if (this.isFrozen()) {
-                throw new BLangFreezeException("modification not allowed on frozen value");
+            switch (this.freezeStatus.getState()) {
+                case FROZEN:
+                    throw new BLangFreezeException("modification not allowed on frozen value");
+                case MID_FREEZE:
+                    throw new BLangFreezeException("modification not allowed on '" + this.getType() +
+                                                           "' during freeze");
             }
+
             map.clear();
         } finally {
             writeLock.unlock();
@@ -203,9 +213,14 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
     public boolean remove(K key) {
         writeLock.lock();
         try {
-            if (this.isFrozen()) {
-                throw new BLangFreezeException("modification not allowed on frozen value");
+            switch (this.freezeStatus.getState()) {
+                case FROZEN:
+                    throw new BLangFreezeException("modification not allowed on frozen value");
+                case MID_FREEZE:
+                    throw new BLangFreezeException("modification not allowed on '" + this.getType() +
+                                                           "' during freeze");
             }
+
             boolean hasKey = map.containsKey(key);
             if (hasKey) {
                 map.remove(key);
@@ -439,8 +454,12 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
                 throw new BLangFreezeException("'freeze()' not allowed on '" + getType() + "'");
             }
 
-            if (this.isFrozen()) {
-                return;
+            switch (this.freezeStatus.getState()) {
+                case FROZEN:
+                    return;
+                case MID_FREEZE:
+                    throw new BallerinaException("concurrent 'freeze()' attempts not allowed on '" + this.getType() +
+                                                         "'");
             }
 
             this.freezeStatus = freezeStatus;

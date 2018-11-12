@@ -350,8 +350,11 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public void setAttributes(BMap<String, ?> attributes) {
-        if (this.isFrozen()) {
-            throw new BLangFreezeException("modification not allowed on frozen value");
+        switch (this.freezeStatus.getState()) {
+            case FROZEN:
+                throw new BLangFreezeException("modification not allowed on frozen value");
+            case MID_FREEZE:
+                throw new BLangFreezeException("modification not allowed on '" + this.getType() + "' during freeze");
         }
 
         if (nodeType != XMLNodeType.ELEMENT || attributes == null) {
@@ -479,8 +482,11 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public void setChildren(BXML<?> seq) {
-        if (this.isFrozen()) {
-            throw new BLangFreezeException("modification not allowed on frozen value");
+        switch (this.freezeStatus.getState()) {
+            case FROZEN:
+                throw new BLangFreezeException("modification not allowed on frozen value");
+            case MID_FREEZE:
+                throw new BLangFreezeException("modification not allowed on '" + this.getType() + "' during freeze");
         }
 
         if (seq == null) {
@@ -513,8 +519,11 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public void addChildren(BXML<?> seq) {
-        if (this.isFrozen()) {
-            throw new BLangFreezeException("modification not allowed on frozen value");
+        switch (this.freezeStatus.getState()) {
+            case FROZEN:
+                throw new BLangFreezeException("modification not allowed on frozen value");
+            case MID_FREEZE:
+                throw new BLangFreezeException("modification not allowed on '" + this.getType() + "' during freeze");
         }
 
         if (seq == null) {
@@ -710,8 +719,11 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public void removeAttribute(String qname) {
-        if (this.isFrozen()) {
-            throw new BLangFreezeException("modification not allowed on frozen value");
+        switch (this.freezeStatus.getState()) {
+            case FROZEN:
+                throw new BLangFreezeException("modification not allowed on frozen value");
+            case MID_FREEZE:
+                throw new BLangFreezeException("modification not allowed on '" + this.getType() + "' during freeze");
         }
 
         if (nodeType != XMLNodeType.ELEMENT || qname.isEmpty()) {
@@ -738,8 +750,11 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public void removeChildren(String qname) {
-        if (this.isFrozen()) {
-            throw new BLangFreezeException("modification not allowed on frozen value");
+        switch (this.freezeStatus.getState()) {
+            case FROZEN:
+                throw new BLangFreezeException("modification not allowed on frozen value");
+            case MID_FREEZE:
+                throw new BLangFreezeException("modification not allowed on '" + this.getType() + "' during freeze");
         }
 
         switch (nodeType) {
@@ -849,8 +864,11 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public void attemptFreeze(CPU.FreezeStatus freezeStatus) {
-        if (this.isFrozen()) {
-            return;
+        switch (this.freezeStatus.getState()) {
+            case FROZEN:
+                return;
+            case MID_FREEZE:
+                throw new BallerinaException("concurrent 'freeze()' attempts not allowed on '" + this.getType() + "'");
         }
         this.freezeStatus = freezeStatus;
     }

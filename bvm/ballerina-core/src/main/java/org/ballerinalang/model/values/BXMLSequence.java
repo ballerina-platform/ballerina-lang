@@ -168,8 +168,11 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
 
     @Override
     public void setAttributes(BMap<String, ?> attributes) {
-        if (this.isFrozen()) {
-            throw new BLangFreezeException("modification not allowed on frozen value");
+        switch (this.freezeStatus.getState()) {
+            case FROZEN:
+                throw new BLangFreezeException("modification not allowed on frozen value");
+            case MID_FREEZE:
+                throw new BLangFreezeException("modification not allowed on '" + this.getType() + "' during freeze");
         }
 
         if (sequence.size() == 1) {
@@ -261,8 +264,11 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      */
     @Override
     public void setChildren(BXML<?> seq) {
-        if (this.isFrozen()) {
-            throw new BLangFreezeException("modification not allowed on frozen value");
+        switch (this.freezeStatus.getState()) {
+            case FROZEN:
+                throw new BLangFreezeException("modification not allowed on frozen value");
+            case MID_FREEZE:
+                throw new BLangFreezeException("modification not allowed on '" + this.getType() + "' during freeze");
         }
 
         if (sequence.size() != 1) {
@@ -277,8 +283,11 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      */
     @Override
     public void addChildren(BXML<?> seq) {
-        if (this.isFrozen()) {
-            throw new BLangFreezeException("modification not allowed on frozen value");
+        switch (this.freezeStatus.getState()) {
+            case FROZEN:
+                throw new BLangFreezeException("modification not allowed on frozen value");
+            case MID_FREEZE:
+                throw new BLangFreezeException("modification not allowed on '" + this.getType() + "' during freeze");
         }
 
         if (sequence.size() != 1) {
@@ -437,8 +446,11 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
 
     @Override
     public void removeAttribute(String qname) {
-        if (this.isFrozen()) {
-            throw new BLangFreezeException("modification not allowed on frozen value");
+        switch (this.freezeStatus.getState()) {
+            case FROZEN:
+                throw new BLangFreezeException("modification not allowed on frozen value");
+            case MID_FREEZE:
+                throw new BLangFreezeException("modification not allowed on '" + this.getType() + "' during freeze");
         }
 
         if (sequence.size() != 1) {
@@ -484,8 +496,11 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
 
     @Override
     public void removeChildren(String qname) {
-        if (this.isFrozen()) {
-            throw new BLangFreezeException("modification not allowed on frozen value");
+        switch (this.freezeStatus.getState()) {
+            case FROZEN:
+                throw new BLangFreezeException("modification not allowed on frozen value");
+            case MID_FREEZE:
+                throw new BLangFreezeException("modification not allowed on '" + this.getType() + "' during freeze");
         }
 
         if (sequence.size() != 1) {
@@ -500,8 +515,11 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      */
     @Override
     public void attemptFreeze(CPU.FreezeStatus freezeStatus) {
-        if (this.isFrozen()) {
-            return;
+        switch (this.freezeStatus.getState()) {
+            case FROZEN:
+                return;
+            case MID_FREEZE:
+                throw new BallerinaException("concurrent 'freeze()' attempts not allowed on '" + this.getType() + "'");
         }
         this.freezeStatus = freezeStatus;
         Arrays.stream(sequence.values).forEach(val -> val.attemptFreeze(freezeStatus));
