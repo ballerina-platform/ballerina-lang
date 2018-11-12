@@ -542,13 +542,18 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         List<BLangVariable> matchedTuplePatterns = new ArrayList<>();
 
         for (BLangMatchStmtStructuredBindingPatternClause pattern : matchStmt.getStructuredPatternClauses()) {
-            if (pattern.bindingPatternVariable.type.tag == TypeTags.MAP) {
+            if (TypeTags.MAP == pattern.bindingPatternVariable.type.tag) {
                 matchedRecordPatterns.add(pattern.bindingPatternVariable);
                 continue;
             }
 
-            if (pattern.bindingPatternVariable.type.tag == TypeTags.TUPLE) {
+            if (TypeTags.TUPLE == pattern.bindingPatternVariable.type.tag) {
                 matchedTuplePatterns.add(pattern.bindingPatternVariable);
+                continue;
+            }
+
+            if (TypeTags.UNION == pattern.bindingPatternVariable.type.tag) {
+                //todo
                 continue;
             }
 

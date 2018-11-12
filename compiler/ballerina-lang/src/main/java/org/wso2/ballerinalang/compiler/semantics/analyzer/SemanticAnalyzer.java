@@ -159,6 +159,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -174,9 +175,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.util.diagnostic.DiagnosticCode.INVALID_LITERAL_FOR_MATCH_PATTERN;
@@ -500,12 +503,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
         }
 
-        if (TypeTags.TUPLE != varNode.type.tag) {
-            dlog.error(varNode.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, varNode.type);
-            return;
-        }
-
-        if (!(checkTypeAndVarCountConsistency(varNode, (BTupleType) varNode.type))) {
+        if (!(checkTypeAndVarCountConsistency(varNode))) {
             return;
         }
 
@@ -556,7 +554,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
             tupleVariable.type = rhsType;
 
-            if (!(checkTypeAndVarCountConsistency(tupleVariable, (BTupleType) tupleVariable.type))) {
+            if (!(checkTypeAndVarCountConsistency(tupleVariable))) {
                 return;
             }
 
@@ -570,7 +568,45 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private boolean checkTypeAndVarCountConsistency(BLangTupleVariable varNode, BTupleType tupleTypeNode) {
+    private boolean checkTypeAndVarCountConsistency(BLangTupleVariable varNode) {
+
+        BTupleType tupleTypeNode;
+
+        switch (varNode.type.tag) {
+            case TypeTags.UNION:
+                BUnionType unionType = ((BUnionType) varNode.type);
+
+                if (!unionType.memberTypes.stream().allMatch(type -> TypeTags.TUPLE == type.tag)) {
+                    dlog.error(varNode.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, varNode.type);
+                    return false;
+                }
+
+                List<BTupleType> possibleTypes = unionType.memberTypes.stream()
+                        .map(BTupleType.class::cast)
+                        .collect(Collectors.toList());
+
+                if (possibleTypes.size() > 1) {
+                    List<BType> memberTupleTypes = new ArrayList<>();
+                    for (int i = 0; i < varNode.memberVariables.size(); i++) {
+                        Set<BType> memberTypes = new HashSet<>();
+                        for (BTupleType tupleType : possibleTypes) {
+                            memberTypes.add(tupleType.tupleTypes.get(i));
+                        }
+                        memberTupleTypes.add(new BUnionType(null, memberTypes, false));
+                    }
+                    tupleTypeNode = new BTupleType(memberTupleTypes);
+                } else {
+                    tupleTypeNode = possibleTypes.get(0);
+                }
+                break;
+            case TypeTags.TUPLE:
+                tupleTypeNode = (BTupleType) varNode.type;
+                break;
+            default:
+                dlog.error(varNode.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, varNode.type);
+                return false;
+        }
+
         if (tupleTypeNode.tupleTypes.size() != varNode.memberVariables.size()) {
             dlog.error(varNode.pos, DiagnosticCode.INVALID_TUPLE_BINDING_PATTERN);
             return false;
@@ -991,20 +1027,27 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangMatchStmtStructuredBindingPatternClause patternClause) {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(patternClause.body, env);
-        if (TypeTags.TUPLE == patternClause.matchExpr.type.tag) {
-            patternClause.bindingPatternVariable.type = patternClause.matchExpr.type;
-        } else if (TypeTags.UNION == patternClause.matchExpr.type.tag) {
-            buildTypeModelFromUnionType(patternClause);
+        if (TypeTags.UNION == patternClause.matchExpr.type.tag &&
+                NodeKind.TUPLE_VARIABLE == patternClause.bindingPatternVariable.getKind()) {
+            buildTypeForTupleVarFromUnionType(patternClause);
         } else {
-            patternClause.bindingPatternVariable.type = symTable.noType;
+            patternClause.bindingPatternVariable.type = patternClause.matchExpr.type;
         }
-        patternClause.bindingPatternVariable.expr = patternClause.matchExpr;
         analyzeDef(patternClause.bindingPatternVariable, blockEnv);
+        patternClause.bindingPatternVariable.expr = patternClause.matchExpr;
         analyzeStmt(patternClause.body, blockEnv);
     }
 
-    private void buildTypeModelFromUnionType(BLangMatchStmtStructuredBindingPatternClause patternClause) {
-        //todo implement
+    private void buildTypeForTupleVarFromUnionType(BLangMatchStmtStructuredBindingPatternClause patternClause) {
+        BUnionType unionType = (BUnionType) patternClause.matchExpr.type;
+        BLangTupleVariable tupleVariable = (BLangTupleVariable) patternClause.bindingPatternVariable;
+        int varCount = tupleVariable.memberVariables.size();
+
+        Set<BType> possibleTypes = unionType.memberTypes.stream()
+                .filter(type -> TypeTags.TUPLE == type.tag && varCount == ((BTupleType) type).tupleTypes.size())
+                .collect(Collectors.toSet());
+
+        tupleVariable.type = new BUnionType(null, possibleTypes, false);
     }
 
     public void visit(BLangForeach foreach) {
