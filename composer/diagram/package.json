@@ -19,6 +19,7 @@
     "test-coverage": "npm run test -- --coverage",
     "storybook": "start-storybook -p 9001 -c .storybook",
     "lint": "tslint -t stylish --project .",
+    "start-ws-ls": "npm run compile && node lib-ts/tools/start-ws-lang-server.js",
     "gen-bbe-asts": "npm run compile && node lib-ts/tools/update-bbe-asts.js",
     "gen-models": "npm run compile && node lib-ts/tools/generate-models.js"
   },
@@ -44,6 +45,7 @@
     "common-tags": "^1.8.0",
     "copyfiles": "^2.1.0",
     "jest": "^23.6.0",
+    "prettier-tslint": "^0.4.0",
     "react": "^16.2.0",
     "react-docgen-typescript-webpack-plugin": "^1.1.0",
     "react-dom": "^16.6.1",
@@ -63,6 +65,7 @@
     "jquery": "^3.3.1",
     "jsplumb": "2.3.5",
     "log4javascript": "^1.4.15",
+    "prettier": "^1.15.2",
     "react-autosuggest": "^9.0.1",
     "react-custom-scrollbars": "^4.1.2",
     "react-test-renderer": "^16.6.1",
