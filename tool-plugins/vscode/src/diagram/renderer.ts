@@ -57,107 +57,53 @@ function renderDiagram(context: ExtensionContext, docUri: Uri): string {
     `;
 
     const script = `
-        let docUri = ${JSON.stringify(docUri.toString())};
+        function loadedScript() {
+            console.log('loaded script')
+            let docUri = ${JSON.stringify(docUri.toString())};
+            
 
-        // Handle the message inside the webview
-        window.addEventListener('message', event => {
-
-            const message = event.data; // The JSON data our extension sent
-
-            switch (message.command) {
-                case 'update':
-                    docUri = message.docUri;
-                    drawDiagram();
-                    break;
-            }
-        });
-
-        function getAST(docUri) {
-
-            return new Promise((resolve, reject) => {
-                webViewRPCHandler.invokeRemoteMethod('getAST', [docUri], (resp) => {
-                    resolve(resp);
-                });
-            });
-        }
-
-        function onChange(evt) {
-            vscode.postMessage({
-                command: 'astModified',
-                ast: JSON.stringify(evt.newAST, (key, value) => {
-                    currentKey = key;
-                    if (key === 'parent' || key === 'viewState' || key === '_events'|| key === 'id') {
-                        return undefined;
-                    }
-                    return value;
-                })
-            })
-        }
-
-        function getEndpoints() {
-            return new Promise((resolve, reject) => {
-                webViewRPCHandler.invokeRemoteMethod('getEndpoints', [], (resp) => {
-                    resolve(resp);
-                });
-            })
-        }
-
-        function parseFragment(fragment) {
-            return new Promise((resolve, reject) => {
-                webViewRPCHandler.invokeRemoteMethod('parseFragment', [fragment], (resp) => {
-                    resolve(resp);
-                });
-            })
-        }
-
-        function goToSource(model) {
-            const pos = model.position;
-            if (pos) {
-                return new Promise((resolve, reject) => {
-                    webViewRPCHandler.invokeRemoteMethod(
-                        'revealRange', 
-                        [pos.startLine, pos.startColumn, pos.endLine, pos.endColumn], 
-                        (resp) => {
-                            resolve(resp);
+            function drawDiagram() {
+                try {
+                    let width = window.innerWidth - 6;
+                    let height = window.innerHeight;
+                    const options = {
+                        target: document.getElementById("diagram"),
+                        editorProps: {
+                            docUri,
+                            width,
+                            height,
+                            langClient: getLangClient()
                         }
-                    );
-                })
+                    };
+                    const diagram = ballerinaComposer.renderDiagramEditor(options);
+                    // Handle the message inside the webview
+                    window.addEventListener('message', event => {
+                        const message = event.data; // The JSON data our extension sent
+                        switch (message.command) {
+                            case 'update':
+                                diagram.updateAST(message.docUri);
+                                break;
+                        }
+                    });
+                } catch(e) {
+                    console.log(e.stack);
+                    drawError('Oops. Something went wrong. ' + e.message);
+                }
             }
-        }
-
-        function drawDiagram() {
-            try {
-                let width = window.innerWidth - 6;
-                let height = window.innerHeight;
-                console.log('rendering ' + width);
-                ballerinaComposer.renderEditableDiagram(document.getElementById("diagram"), docUri,
-                    width, height, getAST, onChange, getEndpoints, parseFragment, goToSource
-                );
-                console.log('Successfully rendered');
-            } catch(e) {
-                console.log(e.stack);
-                drawError('Oops. Something went wrong.');
+            function drawError(message) {
+                document.getElementById("diagram").innerHTML = \`
+                <div id="errors">
+                    <span>\$\{message\}</span>
+                </div>
+                \`;
             }
+            function showWarning(message) {
+                document.getElementById("warning").innerHTML = \`
+                    <p><span class="fw fw-warning"></span> \$\{message\}</p>
+                \`;
+            }
+            drawDiagram();
         }
-
-        function drawError(message) {
-            document.getElementById("diagram").innerHTML = \`
-            <div id="errors">
-                <span>\$\{message\}</span>
-            </div>
-            \`;
-        }
-
-        function showWarning(message) {
-            document.getElementById("warning").innerHTML = \`
-                <p><span class="fw fw-warning"></span> \$\{message\}</p>
-            \`;
-        }
-        
-        window.onresize = drawDiagram;
-        drawDiagram();
-        // Fix the need to do a React update here
-        drawDiagram();
     `;
 
     return getLibraryWebViewContent(context, body, script, styles);

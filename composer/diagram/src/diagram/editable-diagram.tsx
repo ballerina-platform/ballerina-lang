@@ -45,18 +45,30 @@ export class EditableDiagram extends React.Component<EdiatableDiagramProps, Edit
             </DiagramContext.Provider>;
     }
 
+    public componentWillReceiveProps(nextProps: EdiatableDiagramProps) {
+        if (this.props.docUri !== nextProps.docUri) {
+            this.updateAST(nextProps.docUri);
+        }
+    }
+
     public componentDidMount(): void {
+        this.updateAST();
+    }
+
+    public updateAST(uri: string = this.props.docUri) {
         // invoke the parser and get the AST
         this.props.langClient.getAST({
             documentIdentifier: {
-                uri: this.props.docUri,
+                uri,
             },
         }).then((resp) => {
             if (resp.ast) {
-               this.setState({
-                   ast: resp.ast,
-               });
+            this.setState({
+                ast: resp.ast,
+            });
             }
+        }, (err) => {
+            // TODO Handle the error
         });
     }
 
