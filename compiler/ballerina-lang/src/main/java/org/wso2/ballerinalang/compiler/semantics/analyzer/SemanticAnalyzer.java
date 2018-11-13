@@ -657,9 +657,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             boolean foundMatch = false;
             // Infer the type of each variable in recordVariable from the given record type
             // so that symbol enter is done recursively
+            BLangVariable value = (BLangVariable) variable.getValue();
             for (BField typeFields : recordVarType.getFields()) {
                 if (variable.getKey().getValue().equals(typeFields.name.value)) {
-                    BLangVariable value = (BLangVariable) variable.getValue();
                     value.type = typeFields.type;
                     value.accept(this);
                     foundMatch = true;
@@ -668,9 +668,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
 
             if (!foundMatch) {
-                dlog.error(recordVar.pos, DiagnosticCode.INVALID_FIELD_IN_RECORD_BINDING_PATTERN,
-                        variable.getKey().getValue(), recordVar.type);
-                return;
+                if (recordVarType.sealed) {
+                    dlog.error(recordVar.pos, DiagnosticCode.INVALID_FIELD_IN_RECORD_BINDING_PATTERN,
+                            variable.getKey().getValue(), recordVar.type);
+                } else {
+                    value.type = recordVarType.restFieldType;
+                    value.accept(this);
+                }
             }
         }
 
