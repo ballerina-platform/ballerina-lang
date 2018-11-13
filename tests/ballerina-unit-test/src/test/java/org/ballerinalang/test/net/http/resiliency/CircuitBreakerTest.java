@@ -89,7 +89,7 @@ public class CircuitBreakerTest {
             } else {
                 Assert.assertNotNull(errors.get(i)); // the request which resulted in an error
                 BError error = (BError) errors.get(i);
-                String errMsg = error.getReason();
+                String errMsg = ((BMap) error.getDetails()).getMap().get("message").toString();
                 Assert.assertTrue(errMsg != null && errMsg.startsWith(CB_ERROR_MSG),
                         "Invalid error message from circuit breaker.");
             }
@@ -127,7 +127,7 @@ public class CircuitBreakerTest {
             } else {
                 Assert.assertNotNull(errors.get(i)); // the request which resulted in an error
                 BError error = (BError) errors.get(i);
-                String msg = error.getReason();
+                String msg = ((BMap) error.getDetails()).getMap().get("message").toString();
                 Assert.assertTrue(msg != null && msg.startsWith(CB_ERROR_MSG),
                         "Invalid error message from circuit breaker.");
             }

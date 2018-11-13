@@ -37,13 +37,12 @@ function testSuccessScenario () returns (http:Response | error) {
     foClient.failoverInferredConfig.failoverClientsArray = httpClients;
 
     while (counter < 2) {
-       http:Request request = new;
-       match foClient.get("/hello", message = request) {
-            http:Response res => {
-                clientResponse = res;
-            }
-            error httpConnectorError => {
-            }
+        http:Request request = new;
+        var serviceResponse = foClient.get("/hello", message = request);
+        if (serviceResponse is http:Response) {
+            clientResponse = serviceResponse;
+        } else if (serviceResponse is error) {
+            // Ignore the error to verify failover scenario
         }
         counter = counter + 1;
     }
@@ -66,16 +65,14 @@ function testFailureScenario () returns (http:Response | error) {
     http:CallerActions[] httpClients = [<http:CallerActions> mockClient1, <http:CallerActions> mockClient2];
     foClient.failoverInferredConfig.failoverClientsArray = httpClients;
     while (counter < 1) {
-       http:Request request = new;
-       match foClient.get("/hello", message = request) {
-            http:Response res => {
-                counter = counter + 1;
-                response = res;
-            }
-            error httpConnectorError => {
-                counter = counter + 1;
-                return httpConnectorError;
-            }
+        http:Request request = new;
+        var serviceResponse = foClient.get("/hello", message = request);
+        if (serviceResponse is http:Response) {
+            counter = counter + 1;
+            response = serviceResponse;
+        } else if (serviceResponse is error) {
+            counter = counter + 1;
+            return serviceResponse;
         }
     }
     return response;
