@@ -124,6 +124,7 @@ service<http:Service> Ecommerce bind serviceEndpoint5 {
     }
     customerMgt (endpoint caller, http:Request req) {
         http:Request clientRequest = new;
+        var clientResponse = productsService -> post("/customerservice/customers", clientRequest);
         if (clientResponse is http:Response) {
             _ = caller -> respond(clientResponse);
         } else if (clientResponse is error) {
