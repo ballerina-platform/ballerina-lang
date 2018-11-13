@@ -33,6 +33,10 @@ class WebViewRPCHandler {
         }
     }
 
+    addMethod(methodName, handler = () => {}) {
+        this.methods.push({ methodName, handler });
+    }
+
     invokeRemoteMethod(methodName, args, onReply = () => {}) {
         const msg = {
             id: this._sequence,
