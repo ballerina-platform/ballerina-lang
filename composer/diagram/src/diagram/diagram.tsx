@@ -1,5 +1,7 @@
 import React from "react";
+import { traversNode } from "../model-utils";
 import { CompilationUnit } from "../models";
+import { visitor as sizingVisitor } from "../sizing/sizing-visitor";
 import { DiagramContext, DiagramMode, IDiagramContext } from "./diagram-context";
 import { EditToggleButton } from "./edit-toggle-button";
 import { ModeToggleButton } from "./mode-toggle-button";
@@ -30,6 +32,10 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
     public render() {
         const { ast } = this.props;
         const { currentMode } = this.state;
+
+        if (ast) {
+            traversNode(ast, sizingVisitor);
+        }
 
         return <DiagramContext.Provider value={this.createContext()}>
                 <div>{"Current Diagram Mode: " + DiagramMode[currentMode] }</div>
