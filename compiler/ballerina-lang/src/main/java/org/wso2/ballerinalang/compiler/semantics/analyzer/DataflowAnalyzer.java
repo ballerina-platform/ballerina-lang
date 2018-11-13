@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -169,6 +170,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -197,6 +199,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private Names names;
     private Map<BSymbol, InitStatus> uninitializedVars;
     private boolean flowTerminated = false;
+    private BLangAnonymousModelHelper anonymousModelHelper;
 
     private static final CompilerContext.Key<DataflowAnalyzer> DATAFLOW_ANALYZER_KEY = new CompilerContext.Key<>();
 
@@ -206,6 +209,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.names = Names.getInstance(context);
+        this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
     }
 
     public static DataflowAnalyzer getInstance(CompilerContext context) {
@@ -822,15 +826,18 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             objectTypeNode.initFunction.body.stmts.forEach(statement -> analyzeNode(statement, objectEnv));
         }
 
-        objectTypeNode.fields.stream().filter(field -> !Symbols.isPrivate(field.symbol)).forEach(field -> {
-            if (this.uninitializedVars.containsKey(field.symbol)) {
-                this.dlog.error(field.pos, DiagnosticCode.OBJECT_UNINITIALIZED_FIELD, field.name);
-            }
-        });
+        if (!anonymousModelHelper.isAnonymousType(objectTypeNode.symbol) &&
+                !Symbols.isFlagOn(objectTypeNode.symbol.flags, Flags.ABSTRACT)) {
+            objectTypeNode.fields.stream().filter(field -> !Symbols.isPrivate(field.symbol)).forEach(field -> {
+                if (this.uninitializedVars.containsKey(field.symbol)) {
+                    this.dlog.error(field.pos, DiagnosticCode.OBJECT_UNINITIALIZED_FIELD, field.name);
+                }
+            });
+        }
 
         objectTypeNode.functions.forEach(function -> analyzeNode(function, env));
     }
-
+    
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
     }
