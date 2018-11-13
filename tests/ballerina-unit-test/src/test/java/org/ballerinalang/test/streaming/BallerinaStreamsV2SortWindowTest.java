@@ -21,7 +21,6 @@ package org.ballerinalang.test.streaming;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -44,7 +43,7 @@ public class BallerinaStreamsV2SortWindowTest {
     }
 
     @Test(description = "Test sort window query")
-    public void testUniqueLengthQuery1() {
+    public void testSortWindowQuery1() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result1, "startSortWindowTest1");
         System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
