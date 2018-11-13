@@ -2681,7 +2681,7 @@ public class CPU {
                     trAbortedEnd(ctx, txBlockId, localTxInfo, statusRegIndex);
                     break;
                 case END: // 1
-                    trEndEnd(ctx, txBlockId, statusRegIndex, coordinatorStatusRegIndex, localTxInfo);
+                    trEndEnd(ctx, txBlockId, coordinatorStatusRegIndex, localTxInfo);
                     break;
                 default:
                     // todo: is this the proper thing to do, or do we create a ballerina error with a error code etc..
@@ -2693,7 +2693,8 @@ public class CPU {
         }
     }
 
-    private static void trAbortedEnd(WorkerExecutionContext ctx, int txBlockId, LocalTransactionInfo localTxInfo, int statusRegIndex) {
+    private static void trAbortedEnd(WorkerExecutionContext ctx, int txBlockId, LocalTransactionInfo localTxInfo,
+                                     int statusRegIndex) {
         trNotifyAbort(ctx, txBlockId, localTxInfo);
         setErrorRethrowReg(ctx, statusRegIndex);
     }
@@ -2712,25 +2713,30 @@ public class CPU {
         ctx.workerLocal.intRegs[statusRegIndex] = 0;
     }
 
-    private static void trEndEnd(WorkerExecutionContext ctx, int transactionBlockId, int statusReg,
-                                 int coordinatorStatusRegIndex, LocalTransactionInfo localTransactionInfo) {
+    private static void trEndEnd(WorkerExecutionContext ctx, int transactionBlockId, int coordinatorStatusRegIndex,
+                                 LocalTransactionInfo localTransactionInfo) {
         boolean isOuterTx = localTransactionInfo.onTransactionEnd(transactionBlockId);
 
         if (ctx.getGlobalTransactionEnabled()) {
             TransactionUtils.CoordinatorCommit coordinatorStatus = TransactionUtils.notifyTransactionEnd(ctx,
                     localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
-            if (coordinatorStatus == TransactionUtils.CoordinatorCommit.COMMITTED) {
-                // Execute committed block.
-                ctx.workerLocal.intRegs[coordinatorStatusRegIndex] = 1;
-            } else {
-                // Skip committed block.
-                ctx.workerLocal.intRegs[coordinatorStatusRegIndex] = 0;
-            }
+            setCoordinatorStatusReg(ctx, coordinatorStatusRegIndex, coordinatorStatus);
         }
-        // For local only transactions we keep *coordinatorStatusReg* intact which was set in tr_end block_end.
+        // Note: For local only transactions we keep *coordinatorStatusReg* intact which was set in first tr_end.
 
         if (isOuterTx) {
             BLangVMUtils.removeTransactionInfo(ctx);
+        }
+    }
+
+    private static void setCoordinatorStatusReg(WorkerExecutionContext ctx, int coordinatorStatusRegIndex,
+                                                TransactionUtils.CoordinatorCommit coordinatorStatus) {
+        if (coordinatorStatus == TransactionUtils.CoordinatorCommit.COMMITTED) {
+            // Execute committed block.
+            ctx.workerLocal.intRegs[coordinatorStatusRegIndex] = 1;
+        } else {
+            // Skip committed block.
+            ctx.workerLocal.intRegs[coordinatorStatusRegIndex] = 0;
         }
     }
 
@@ -2758,14 +2764,16 @@ public class CPU {
         }
     }
 
-    private static boolean notifyLocalPrepareAndCommit(int transactionBlockId, LocalTransactionInfo localTransactionInfo) {
+    private static boolean notifyLocalPrepareAndCommit(int transactionBlockId,
+                                                       LocalTransactionInfo localTransactionInfo) {
         TransactionResourceManager.getInstance()
                 .prepare(localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
         return TransactionResourceManager.getInstance()
                 .notifyCommit(localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
     }
 
-    private static void trNotifyAbort(WorkerExecutionContext ctx, int transactionBlockId, LocalTransactionInfo localTransactionInfo) {
+    private static void trNotifyAbort(WorkerExecutionContext ctx, int transactionBlockId, LocalTransactionInfo 
+            localTransactionInfo) {
         if (ctx.getGlobalTransactionEnabled()) {
             TransactionUtils.notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(),
                     transactionBlockId);
@@ -2775,7 +2783,8 @@ public class CPU {
         }
     }
 
-    private static void trFailedEnd(WorkerExecutionContext ctx, int transactionBlockId, LocalTransactionInfo localTransactionInfo) {
+    private static void trFailedEnd(WorkerExecutionContext ctx, int transactionBlockId,
+                                    LocalTransactionInfo localTransactionInfo) {
         // Invoking tr_end with transaction status of FAILED means tx has failed for some reason.
 
         // This could be a transaction failure from a native/std library. Or due to an an

@@ -52,4 +52,13 @@ public class LocalTransactionTest {
     public void inspectionTestTemporary() {
         Diagnostic[] diagnostics = programFile.getDiagnostics();
     }
+
+    @Test
+    public void localPartiFuncTest() {
+        BValue[] ret = BRunUtil.invoke(programFile, "initiatorFunc");
+        String result = ret[0].stringValue();
+        String target = "before foo returned:5 committed in bar[onabortFunc] after trx";
+        Assert.assertEquals(result, target);
+        int i = 0;
+    }
 }
