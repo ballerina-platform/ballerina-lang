@@ -67,7 +67,7 @@ public class CloneOperationTest {
         Assert.assertEquals(((BInteger) results[0]).intValue(), 12);
         Assert.assertEquals(((BInteger) results[1]).intValue(), 10);
         Assert.assertEquals(((BInteger) results[2]).intValue(), 13);
-        Assert.assertTrue( results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
+        Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 
     @Test
@@ -77,7 +77,7 @@ public class CloneOperationTest {
         Assert.assertEquals(((BFloat) results[0]).floatValue(), 12.01);
         Assert.assertEquals(((BFloat) results[1]).floatValue(), 10.01);
         Assert.assertEquals(((BFloat) results[2]).floatValue(), 13.01);
-        Assert.assertTrue( results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
+        Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 
     @Test
@@ -87,7 +87,7 @@ public class CloneOperationTest {
         Assert.assertEquals(((BByte) results[0]).byteValue(), (byte) 234);
         Assert.assertEquals(((BByte) results[1]).byteValue(), (byte) 100);
         Assert.assertEquals(((BByte) results[2]).byteValue(), (byte) 133);
-        Assert.assertTrue( results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
+        Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 
     @Test
@@ -97,7 +97,7 @@ public class CloneOperationTest {
         Assert.assertFalse(((BBoolean) results[0]).booleanValue());
         Assert.assertTrue(((BBoolean) results[1]).booleanValue());
         Assert.assertTrue(((BBoolean) results[2]).booleanValue());
-        Assert.assertTrue( results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
+        Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 
     @Test
@@ -107,7 +107,7 @@ public class CloneOperationTest {
         Assert.assertEquals((results[0]).stringValue(), "BBBB");
         Assert.assertEquals((results[1]).stringValue(), "AAAA");
         Assert.assertEquals((results[2]).stringValue(), "CCCC");
-        Assert.assertTrue( results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
+        Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 
     @Test
@@ -117,7 +117,7 @@ public class CloneOperationTest {
         testCloneOnXMLs((BXMLItem) results[0], "Charlos", 123, 21);
         testCloneOnXMLs((BXMLItem) results[1], "Alex", 123, 21);
         testCloneOnXMLs((BXMLItem) results[2], "Alex", 5000, 21);
-        Assert.assertTrue( results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
+        Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 
     private void testCloneOnXMLs(BXMLItem bxmlItem, String name, int id, int age) {
@@ -144,7 +144,7 @@ public class CloneOperationTest {
         testValuesInJSON((BMap) results[0], "Charlos", 21, 123, new Object[]{1, "EE", 12.3});
         testValuesInJSON((BMap) results[1], "Alex", 21, 123, new Object[]{1, "EE", 12.3});
         testValuesInJSON((BMap) results[2], "Alex", 21, 5000, new Object[]{1, "EE", 12.3});
-        Assert.assertTrue( results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
+        Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 
     private void testValuesInJSON(BMap bMap, String name, int age, int id, Object[] arr) {
@@ -162,7 +162,7 @@ public class CloneOperationTest {
         testJSONArray(new Object[]{100, "EE", 12.3}, (BRefValueArray) results[0]);
         testJSONArray(new Object[]{1, "EE", 12.3}, (BRefValueArray) results[1]);
         testJSONArray(new Object[]{1, "EE", 300.5}, (BRefValueArray) results[2]);
-        Assert.assertTrue( results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
+        Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 
     private void testJSONArray(Object[] arr, BRefValueArray array) {
@@ -181,7 +181,7 @@ public class CloneOperationTest {
         testIntArray(new long[]{100, 2, 3}, (BIntArray) results[0]);
         testIntArray(new long[]{1, 2, 3}, (BIntArray) results[1]);
         testIntArray(new long[]{1, 2, 300}, (BIntArray) results[2]);
-        Assert.assertTrue( results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
+        Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 
     private void testIntArray(long[] arr, BIntArray array) {
@@ -196,7 +196,7 @@ public class CloneOperationTest {
         testByteArray(new byte[]{100, 2, 3}, (BByteArray) results[0]);
         testByteArray(new byte[]{1, 2, 3}, (BByteArray) results[1]);
         testByteArray(new byte[]{1, 2, (byte) 234}, (BByteArray) results[2]);
-        Assert.assertTrue( results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
+        Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 
     private void testByteArray(byte[] arr, BByteArray array) {
@@ -211,7 +211,7 @@ public class CloneOperationTest {
         testFloatArray(new double[]{100.5, 2.0, 3.0}, (BFloatArray) results[0]);
         testFloatArray(new double[]{1.0, 2.0, 3.0}, (BFloatArray) results[1]);
         testFloatArray(new double[]{1.0, 2.0, 300.5}, (BFloatArray) results[2]);
-        Assert.assertTrue( results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
+        Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 
     private void testFloatArray(double[] arr, BFloatArray array) {
@@ -226,7 +226,7 @@ public class CloneOperationTest {
         testStringArray(new String[]{"XX", "B", "C"}, (BStringArray) results[0]);
         testStringArray(new String[]{"A", "B", "C"}, (BStringArray) results[1]);
         testStringArray(new String[]{"A", "B", "YY"}, (BStringArray) results[2]);
-        Assert.assertTrue( results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
+        Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 
     private void testStringArray(String[] arr, BStringArray array) {
@@ -241,7 +241,7 @@ public class CloneOperationTest {
         testRefArray(new Object[]{100, "EE", 12.3}, (BRefValueArray) results[0]);
         testRefArray(new Object[]{1, "EE", 12.3}, (BRefValueArray) results[1]);
         testRefArray(new Object[]{1, "EE", 300.5}, (BRefValueArray) results[2]);
-        Assert.assertTrue( results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
+        Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 
     @Test
@@ -250,7 +250,7 @@ public class CloneOperationTest {
         Assert.assertEquals(((BInteger) results[0]).intValue(), 100);
         Assert.assertEquals(((BInteger) results[1]).intValue(), 1);
         Assert.assertEquals(((BFloat) results[2]).floatValue(), 300.5);
-        Assert.assertTrue( results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
+        Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 
     @Test
@@ -260,7 +260,7 @@ public class CloneOperationTest {
         testConstrainedJSON((BMap) results[0], "Charlos", 1, 300.5);
         testConstrainedJSON((BMap) results[1], "Jane", 1, 300.5);
         testConstrainedJSON((BMap) results[2], "Jane", 1, 400.5);
-        Assert.assertTrue( results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
+        Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 
     private void testConstrainedJSON(BMap bMap, String name, int id, double salary) {
@@ -293,7 +293,7 @@ public class CloneOperationTest {
                 new Object[]{3, "John", 400.50},
                 };
         testValuesOnTable((BTable) results[2], expectedValues);
-        Assert.assertTrue( results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
+        Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 
     private void testValuesOnTable(BTable table, Object[][] expectedValues) {
@@ -315,7 +315,7 @@ public class CloneOperationTest {
         testCloneOnMaps(results[0], "Charlos", 123, 21);
         testCloneOnMaps(results[1], "Alex", 123, 21);
         testCloneOnMaps(results[2], "Alex", 5000, 21);
-        Assert.assertTrue( results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
+        Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 
     @Test
@@ -375,7 +375,7 @@ public class CloneOperationTest {
         Assert.assertEquals(((BIntArray) results[0]).get(0), 100);
         Assert.assertEquals(((BIntArray) results[1]).get(0), 20);
         Assert.assertEquals(((BIntArray) results[2]).get(0), 1000);
-        Assert.assertTrue( results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
+        Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 
     @Test
@@ -385,7 +385,7 @@ public class CloneOperationTest {
         Assert.assertEquals(((BIntArray) ((BRefValueArray) results[0]).get(0)).get(0), 400);
         Assert.assertEquals(((BIntArray) ((BRefValueArray) results[1]).get(0)).get(0), 200);
         Assert.assertEquals(((BIntArray) ((BRefValueArray) results[2]).get(0)).get(0), 500);
-        Assert.assertTrue( results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
+        Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 
     @Test
@@ -395,7 +395,7 @@ public class CloneOperationTest {
         testTupleValues((BRefValueArray) results[0], 100, 400);
         testTupleValues((BRefValueArray) results[1], 100, 200);
         testTupleValues((BRefValueArray) results[2], 100, 500);
-        Assert.assertTrue( results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
+        Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 
     private void testTupleValues(BRefValueArray result, int mapValue, int arrValue) {
@@ -412,7 +412,7 @@ public class CloneOperationTest {
         testCloneRecordValues((BMap) results[0], 100, "Charlos", 300.5);
         testCloneRecordValues((BMap) results[1], 100, "Alex", 300.5);
         testCloneRecordValues((BMap) results[2], 100, "Alex", 400.5);
-        Assert.assertTrue( results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
+        Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 
     private void testCloneRecordValues(BMap bMap, int id, String name, double salary) {
