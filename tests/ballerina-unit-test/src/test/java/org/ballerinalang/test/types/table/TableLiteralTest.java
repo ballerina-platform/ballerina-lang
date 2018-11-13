@@ -328,7 +328,7 @@ public class TableLiteralTest {
     @Test(priority = 1,
           description = "Test struct with any typed field",
           expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*message: unsupported column type for table : any.*")
+          expectedExceptionsMessageRegExp = ".*error: Unsupported column type for table : any.*")
     public void testTableWithAnyDataToJson() {
         BRunUtil.invoke(result, "testTableWithAnyDataToJson");
     }

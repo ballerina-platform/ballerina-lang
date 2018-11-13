@@ -27,7 +27,7 @@ public type ByteOrder "BE"|"LE";
 public type WritableDataChannel object {
 
     public new(WritableByteChannel byteChannel, ByteOrder bOrder = "BE") {
-        init(byteChannel, bOrder);
+        self.init(byteChannel, bOrder);
     }
 
     # Initializes data channel.

@@ -25,12 +25,11 @@ function testService () {
 
     // Send a GET request to the specified endpoint
     var response = httpEndpoint -> get("/pets");
-    match response {
-               http:Response resp => {
-                    var strRes = resp.getTextPayload();
-                    string expected = "Sample listPets Response";
-                    test:assertEquals(strRes, expected);
-               }
-               error err => test:assertFail(msg = "Failed to call the endpoint: "+uri);
+    if (response is http:Response) {
+        var strRes = response.getTextPayload();
+        string expected = "Sample listPets Response";
+        test:assertEquals(strRes, expected);
+    } else {
+        test:assertFail(msg = "Failed to call the endpoint: " + uri);
     }
 }

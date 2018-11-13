@@ -23,11 +23,11 @@ public type OutputProcess object {
 
     public function process(StreamEvent[] streamEvents) {
         int index = 0;
-        map[] events;
+        map[] events = [];
         int i = 0;
         foreach event in streamEvents {
             if (event.eventType == "CURRENT") {
-                map outputData;
+                map outputData  = {};
                 foreach k, v in event.data {
                     string[] s = k.split("\\.");
                     if (OUTPUT.equalsIgnoreCase(s[0])) {
@@ -38,7 +38,7 @@ public type OutputProcess object {
                 i += 1;
             }
         }
-        outputFunc(events);
+        self.outputFunc(events);
     }
 };
 

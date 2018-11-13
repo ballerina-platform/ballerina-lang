@@ -18,7 +18,7 @@ import ballerina/http;
 import ballerina/io;
 
 service<http:WebSocketService> onBinaryContinuation bind { port: 9088 } {
-    byte[] content;
+    byte[] content = [];
     onBinary(endpoint caller, byte[] data, boolean final) {
         if (final) {
             appendToArray(untaint data, content);

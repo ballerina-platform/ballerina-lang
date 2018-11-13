@@ -26,7 +26,7 @@ import ballerina/log;
 # + serviceEndpoint - The underlying HTTP service endpoint
 public type Listener object {
 
-    public SubscriberServiceEndpointConfiguration config;
+    public SubscriberServiceEndpointConfiguration config = {};
 
     private http:Listener serviceEndpoint;
 
@@ -124,22 +124,16 @@ function Listener::sendSubscriptionRequests() {
             string topic = <string>subscriptionDetails.topic;
 
             http:SecureSocket? newSecureSocket;
-            match (<http:SecureSocket>subscriptionDetails.secureSocket) {
-                http:SecureSocket s => { newSecureSocket = s; }
-                error => { newSecureSocket = (); }
-            }
+            var secureSocket = <http:SecureSocket>subscriptionDetails.secureSocket;
+            newSecureSocket = secureSocket is http:SecureSocket ? secureSocket : ();
 
             http:AuthConfig? auth;
-            match (<http:AuthConfig>subscriptionDetails.auth) {
-                http:AuthConfig httpAuth => { auth = httpAuth; }
-                error => { auth = (); }
-            }
+            var httpAuth = <http:AuthConfig>subscriptionDetails.auth;
+            auth = httpAuth is http:AuthConfig ? httpAuth : ();
 
             http:FollowRedirects? followRedirects;
-            match (<http:FollowRedirects>subscriptionDetails.followRedirects) {
-                http:FollowRedirects httpFollowRedirects => { followRedirects = httpFollowRedirects; }
-                error => { followRedirects = (); }
-            }
+            var httpFollowRedirects = <http:FollowRedirects>subscriptionDetails.followRedirects;
+            followRedirects = httpFollowRedirects is http:FollowRedirects ? httpFollowRedirects : ();
 
             if (hub == "" || topic == "") {
                 if (resourceUrl == "") {
@@ -147,22 +141,20 @@ function Listener::sendSubscriptionRequests() {
                         "Subscription Request not sent since hub and/or topic and resource URL are unavailable");
                     return;
                 }
-                match (retrieveHubAndTopicUrl(resourceUrl, auth, newSecureSocket, followRedirects)) {
-                    (string, string) discoveredDetails => {
-                        var (retHub, retTopic) = discoveredDetails;
-                        retHub = check http:decode(retHub, "UTF-8");
-                        retTopic = check http:decode(retTopic, "UTF-8");
-                        subscriptionDetails["hub"] = retHub;
-                        hub = retHub;
-                        subscriptionDetails["topic"] = retTopic;
-                        string webSubServiceName = <string>subscriptionDetails.webSubServiceName;
-                        self.setTopic(webSubServiceName, retTopic);
-                    }
-                    error websubError => {
-                        string errCause = <string> websubError.detail().message;
-                        log:printError("Error sending out subscription request on start up: " + errCause);
-                        continue;
-                    }
+                var discoveredDetails = retrieveHubAndTopicUrl(resourceUrl, auth, newSecureSocket, followRedirects);
+                if (discoveredDetails is (string, string)) {
+                    var (retHub, retTopic) = discoveredDetails;
+                    retHub = check http:decode(retHub, "UTF-8");
+                    retTopic = check http:decode(retTopic, "UTF-8");
+                    subscriptionDetails["hub"] = retHub;
+                    hub = retHub;
+                    subscriptionDetails["topic"] = retTopic;
+                    string webSubServiceName = <string>subscriptionDetails.webSubServiceName;
+                    self.setTopic(webSubServiceName, retTopic);
+                } else if (discoveredDetails is error) {
+                    string errCause = <string> discoveredDetails.detail().message;
+                    log:printError("Error sending out subscription request on start up: " + errCause);
+                    continue;
                 }
             }
             invokeClientConnectorForSubscription(hub, auth, newSecureSocket, followRedirects, subscriptionDetails);
@@ -245,24 +237,21 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:
     http:Request request = new;
     var discoveryResponse = resourceEP->get("", message = request);
     error websubError = error("Dummy");
-    match (discoveryResponse) {
-        http:Response response => {
-            match (extractTopicAndHubUrls(response)) {
-                (string, string[]) topicAndHubs => {
-                    string topic;
-                    string[] hubs;
-                    (topic, hubs) = topicAndHubs;
-                    return (hubs[0], topic); // guaranteed by `extractTopicAndHubUrls` for hubs to have length > 0
-                }
-                error e => return e;
-            }
+    if (discoveryResponse is http:Response) {
+        var topicAndHubs = extractTopicAndHubUrls(discoveryResponse);
+        if (topicAndHubs is (string, string[])) {
+            string topic = "";
+            string[] hubs = [];
+            (topic, hubs) = topicAndHubs;
+            return (hubs[0], topic); // guaranteed by `extractTopicAndHubUrls` for hubs to have length > 0
+        } else if (topicAndHubs is error) {
+            return topicAndHubs;
         }
-        error connErr => {
-            string errCause = <string> connErr.detail().message;
-            map errorDetail = { message : "Error occurred with WebSub discovery for Resource URL [" +
-                                    resourceUrl + "]: " + errCause };
-            websubError = error(WEBSUB_ERROR_CODE, errorDetail);
-        }
+    } else if (discoveryResponse is error) {
+        string errCause = <string> discoveryResponse.detail().message;
+        map errorDetail = { message : "Error occurred with WebSub discovery for Resource URL [" +
+                                resourceUrl + "]: " + errCause };
+        websubError = error(WEBSUB_ERROR_CODE, errorDetail);
     }
     return websubError;
 }
@@ -288,16 +277,16 @@ function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth,
         return;
     }
 
-    int leaseSeconds;
+    int leaseSeconds = 0;
 
     string strLeaseSeconds = <string>subscriptionDetails.leaseSeconds;
-    match (<int>strLeaseSeconds) {
-        int convIntLeaseSeconds => { leaseSeconds = convIntLeaseSeconds; }
-        error convError => {
-            string errCause = <string> convError.detail().message;
-            log:printError("Error retreiving specified lease seconds value: " + errCause);
-            return;
-        }
+    var convIntLeaseSeconds = <int>strLeaseSeconds;
+    if (convIntLeaseSeconds is int) {
+        leaseSeconds = convIntLeaseSeconds;
+    } else if (convIntLeaseSeconds is error) {
+        string errCause = <string> convIntLeaseSeconds.detail().message;
+        log:printError("Error retreiving specified lease seconds value: " + errCause);
+        return;
     }
 
     string secret = <string>subscriptionDetails.secret;
@@ -312,14 +301,11 @@ function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth,
     }
 
     var subscriptionResponse = websubHubClientEP->subscribe(subscriptionChangeRequest);
-    match (subscriptionResponse) {
-        SubscriptionChangeResponse subscriptionChangeResponse => {
-            log:printInfo("Subscription Request successful at Hub[" + subscriptionChangeResponse.hub +
-                    "], for Topic[" + subscriptionChangeResponse.topic + "], with Callback [" + callback + "]");
-        }
-        error webSubError => {
-            string errCause = <string> webSubError.detail().message;
-            log:printError("Subscription Request failed at Hub[" + hub + "], for Topic[" + topic + "]: " + errCause);
-        }
+    if (subscriptionResponse is SubscriptionChangeResponse) {
+        log:printInfo("Subscription Request successful at Hub[" + subscriptionResponse.hub +
+                "], for Topic[" + subscriptionResponse.topic + "], with Callback [" + callback + "]");
+    } else if (subscriptionResponse is error) {
+        string errCause = <string> subscriptionResponse.detail().message;
+        log:printError("Subscription Request failed at Hub[" + hub + "], for Topic[" + topic + "]: " + errCause);
     }
 }

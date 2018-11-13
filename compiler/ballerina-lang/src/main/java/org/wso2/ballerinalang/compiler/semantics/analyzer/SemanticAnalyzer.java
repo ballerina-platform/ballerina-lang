@@ -55,7 +55,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -320,12 +319,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
-        BTypeSymbol typeDefSymbol = typeDefinition.symbol;
-        SymbolEnv typeDefEnv = SymbolEnv.createTypeDefEnv(typeDefinition,
-                typeDefSymbol.scope, env);
         if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE
                 || typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
-            analyzeDef(typeDefinition.typeNode, typeDefEnv);
+            analyzeDef(typeDefinition.typeNode, env);
         }
 
         typeDefinition.annAttachments.forEach(annotationAttachment -> {
@@ -336,7 +332,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
-        objectTypeNode.fields.forEach(field -> analyzeDef(field, env));
+        SymbolEnv objectEnv = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, env);
+        objectTypeNode.fields.forEach(field -> analyzeDef(field, objectEnv));
+
+        // Visit functions as they are not in the same scope/env as the object fields
         objectTypeNode.functions.forEach(f -> analyzeDef(f, env));
 
         // Validate the referenced functions that don't have implementations within the function.
@@ -358,12 +357,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
-        BSymbol structSymbol = recordTypeNode.symbol;
-        SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(recordTypeNode, structSymbol.scope, env);
-        recordTypeNode.fields.forEach(field -> analyzeDef(field, structEnv));
-
-        analyzeDef(recordTypeNode.initFunction, structEnv);
-
+        SymbolEnv recordEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, env);
+        recordTypeNode.fields.forEach(field -> analyzeDef(field, recordEnv));
+        analyzeDef(recordTypeNode.initFunction, recordEnv);
         validateDefaultable(recordTypeNode);
     }
 
@@ -1105,7 +1101,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             defaultableStatus = false;
             if (initFuncParams.stream().filter(p -> p.name.equals(field.symbol.name))
                     .collect(Collectors.toList()).size() == 0) {
-                dlog.error(typeDef.pos, DiagnosticCode.OBJECT_UN_INITIALIZABLE_FIELD, field);
+                dlog.error(typeDef.pos, DiagnosticCode.OBJECT_UNINITIALIZED_FIELD, field);
             }
         }
 

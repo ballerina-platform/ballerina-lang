@@ -21,6 +21,9 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+
 /**
  * The {@code BString} represents a string in Ballerina.
  *
@@ -63,6 +66,17 @@ public final class BString extends BValueType implements BRefType<String> {
             result = Double.parseDouble(this.value);
         } catch (NumberFormatException e) {
             throw new BallerinaException("input value " + this.value + " cannot be cast to float");
+        }
+        return result;
+    }
+
+    @Override
+    public BigDecimal decimalValue() {
+        BigDecimal result;
+        try {
+            result = new BigDecimal(this.value, MathContext.DECIMAL128);
+        } catch (NumberFormatException e) {
+            throw new BallerinaException("input value " + this.value + " cannot be cast to decimal");
         }
         return result;
     }

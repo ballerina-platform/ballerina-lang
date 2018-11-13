@@ -29,19 +29,19 @@ import ballerina/mime;
 #                  on utilizing HTTP caching.
 public type Request object {
 
-    public string rawPath;
-    public string method;
-    public string httpVersion;
-    public string userAgent;
-    public string extraPathInfo;
-    public RequestCacheControl? cacheControl;
+    public string rawPath = "";
+    public string method = "";
+    public string httpVersion = "";
+    public string userAgent = "";
+    public string extraPathInfo = "";
+    public RequestCacheControl? cacheControl = ();
 
     private mime:Entity entity;
     private boolean dirtyRequest;
 
     public new() {
         self.dirtyRequest = false;
-        self.entity = createNewEntity();
+        self.entity = self.createNewEntity();
     }
 
     # Create a new `Entity` and link it with the request.
@@ -297,118 +297,57 @@ function Request::getContentType() returns string {
 }
 
 function Request::getJsonPayload() returns json|error {
-    match self.getEntity() {
-        error err => return err;
-        mime:Entity mimeEntity => {
-            match mimeEntity.getJson() {
-                error payloadErr => return payloadErr;
-                json jsonPayload => return jsonPayload;
-            }
-        }
-    }
+    return self.getEntity()!getJson();
 }
 
 function Request::getXmlPayload() returns xml|error {
-    match self.getEntity() {
-        error err => return err;
-        mime:Entity mimeEntity => {
-            match mimeEntity.getXml() {
-                error payloadErr => return payloadErr;
-                xml xmlPayload => return xmlPayload;
-            }
-        }
-    }
+    return self.getEntity()!getXml();
 }
 
 function Request::getTextPayload() returns string|error {
-    match self.getEntity() {
-        error err => return err;
-        mime:Entity mimeEntity => {
-            match mimeEntity.getText() {
-                error payloadErr => return payloadErr;
-                string textPayload => return textPayload;
-            }
-        }
-    }
+    return self.getEntity()!getText();
 }
 
 function Request::getPayloadAsString() returns string|error {
-    match self.getEntity() {
-        error err => return err;
-        mime:Entity mimeEntity => {
-            match mimeEntity.getBodyAsString() {
-                error payloadErr => return payloadErr;
-                string stringPayload => return stringPayload;
-            }
-        }
-    }
+    return self.getEntity()!getBodyAsString();
 }
 
 function Request::getBinaryPayload() returns byte[]|error {
-    match self.getEntity() {
-        error err => return err;
-        mime:Entity mimeEntity => {
-            match mimeEntity.getByteArray() {
-                error payloadErr => return payloadErr;
-                byte[] binaryPayload => return binaryPayload;
-            }
-        }
-    }
+    return self.getEntity()!getByteArray();
 }
 
 function Request::getByteChannel() returns io:ReadableByteChannel|error {
-    match self.getEntity() {
-        error err => return err;
-        mime:Entity mimeEntity => {
-            match mimeEntity.getByteChannel() {
-                error payloadErr => return payloadErr;
-                io:ReadableByteChannel byteChannel => return byteChannel;
-            }
-        }
-    }
-}
-
-function Request::getFormParams() returns map<string>|error {
-    var mimeEntity = self.getEntity();
-    match mimeEntity {
-        error err => return err;
-        mime:Entity entity => {
-
-            map<string> parameters;
-            var entityText = entity.getText();
-            match entityText {
-                error txtErr => return txtErr; // TODO: Check if this is ok
-
-                string formData => {
-                    if (formData != "") {
-                        string[] entries = formData.split("&");
-                        int entryIndex = 0;
-                        while (entryIndex < entries.length()) {
-                            int index = entries[entryIndex].indexOf("=");
-                            if (index != -1) {
-                                string name = entries[entryIndex].substring(0, index).trim();
-                                int size = entries[entryIndex].length();
-                                string value = entries[entryIndex].substring(index + 1, size).trim();
-                                if (value != "") {
-                                    parameters[name] = value;
-                                }
-                            }
-                            entryIndex = entryIndex + 1;
-                        }
-                    }
-                }
-            }
-            return parameters;
-        }
-    }
+    return self.getEntity()!getByteChannel();
 }
 
 function Request::getBodyParts() returns mime:Entity[]|error {
-    var mimeEntity = self.getEntity();
-    match mimeEntity {
-        mime:Entity entity => return entity.getBodyParts();
-        error err => return err;
+    return self.getEntity()!getBodyParts();
+}
+
+function Request::getFormParams() returns map<string>|error {
+    var formData = self.getEntity()!getText();
+    map<string> parameters = {};
+    if (formData is string) {
+        if (formData != "") {
+            string[] entries = formData.split("&");
+            int entryIndex = 0;
+            while (entryIndex < entries.length()) {
+                int index = entries[entryIndex].indexOf("=");
+                if (index != -1) {
+                    string name = entries[entryIndex].substring(0, index).trim();
+                    int size = entries[entryIndex].length();
+                    string value = entries[entryIndex].substring(index + 1, size).trim();
+                    if (value != "") {
+                        parameters[name] = value;
+                    }
+                }
+                entryIndex = entryIndex + 1;
+            }
+        }
+    } else if (formData is error) {
+        return formData;
     }
+    return parameters;
 }
 
 function Request::setJsonPayload(json payload, string contentType = "application/json") {
@@ -454,13 +393,18 @@ function Request::setByteChannel(io:ReadableByteChannel payload, string contentT
 }
 
 function Request::setPayload(string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[] payload) {
-    match payload {
-        string textContent => self.setTextPayload(textContent);
-        xml xmlContent => self.setXmlPayload(xmlContent);
-        json jsonContent => self.setJsonPayload(jsonContent);
-        byte[] blobContent => self.setBinaryPayload(blobContent);
-        io:ReadableByteChannel byteChannelContent => self.setByteChannel(byteChannelContent);
-        mime:Entity[] bodyParts => self.setBodyParts(bodyParts);
+    if (payload is string) {
+        self.setTextPayload(payload);
+    } else if (payload is xml) {
+        self.setXmlPayload(payload);
+    } else if (payload is json) {
+        self.setJsonPayload(payload);
+    } else if (payload is byte[]) {
+        self.setBinaryPayload(payload);
+    } else if (payload is io:ReadableByteChannel) {
+        self.setByteChannel(payload);
+    } else if (payload is mime:Entity[]) {
+        self.setBodyParts(payload);
     }
 }
 

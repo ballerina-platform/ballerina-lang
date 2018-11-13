@@ -26,6 +26,7 @@ public class BTypes {
     public static BType typeInt = new BIntegerType(TypeConstants.INT_TNAME, null);
     public static BType typeByte = new BByteType(TypeConstants.BYTE_TNAME, null);
     public static BType typeFloat = new BFloatType(TypeConstants.FLOAT_TNAME, null);
+    public static BType typeDecimal = new BDecimalType(TypeConstants.DECIMAL_TNAME, null);
     public static BType typeString = new BStringType(TypeConstants.STRING_TNAME, null);
     public static BType typeBoolean = new BBooleanType(TypeConstants.BOOLEAN_TNAME, null);
     public static BType typeXML = new BXMLType(TypeConstants.XML_TNAME, null);
@@ -50,6 +51,7 @@ public class BTypes {
         return type == BTypes.typeInt ||
                 type == BTypes.typeByte ||
                 type == BTypes.typeFloat ||
+                type == BTypes.typeDecimal ||
                 type == BTypes.typeString ||
                 type == BTypes.typeBoolean;
 
@@ -63,6 +65,8 @@ public class BTypes {
                 return typeByte;
             case TypeConstants.FLOAT_TNAME:
                 return typeFloat;
+            case TypeConstants.DECIMAL_TNAME:
+                return typeDecimal;
             case TypeConstants.STRING_TNAME:
                 return typeString;
             case TypeConstants.BOOLEAN_TNAME:
