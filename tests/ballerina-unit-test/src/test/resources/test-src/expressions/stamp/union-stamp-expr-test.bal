@@ -50,13 +50,6 @@ function stampUnionToJSON() returns json {
     return jsonValue;
 }
 
-//function stampUnionToObject() returns EmployeeObj {
-//    int|float|PersonObj unionVar = new PersonObj();
-//
-//    EmployeeObj employee = unionVar.stamp();
-//    return employee;
-//}
-
 function stampUnionToXML() returns xml {
     int|float|xml unionVar = xml `<book>The Lost World</book>`;
 
@@ -106,18 +99,4 @@ function stampUnionToAnydataV2() returns anydata {
     anydata anydataValue = anydata.stamp(unionValue);
 
     return anydataValue;
-}
-
-//-------------------- Negative Test cases ---------------------------------------------------
-
-function stampNegativeUnionToConstraintMap() returns map<Person> {
-    Teacher p1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
-    Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
-
-    map<Teacher> teacherMap = { "a": p1, "b": p2 };
-
-    int|float|map<Teacher> unionVar = teacherMap;
-
-    map<Person> mapValue = map<Person>.stamp(unionVar);
-    return mapValue;
 }

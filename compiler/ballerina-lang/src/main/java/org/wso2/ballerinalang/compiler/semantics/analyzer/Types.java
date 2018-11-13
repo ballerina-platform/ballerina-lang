@@ -287,12 +287,15 @@ public class Types {
             if (source.tag == TypeTags.MAP) {
                 return isStampingAllowed(((BMapType) source).getConstraint(), ((BMapType) target).getConstraint());
             } else if (source.tag == TypeTags.UNION) {
-                return true;
+                return checkUnionEquivalencyForStamping(source, target);
             }
         } else if (target.tag == TypeTags.ARRAY) {
             if (source.tag == TypeTags.JSON) {
-                return true;
+                return ((BJSONType) source).getConstraint().tag == TypeTags.NONE ||
+                        isStampingAllowed(((BJSONType) source).getConstraint(), ((BArrayType) target).eType);
             }
+        } else if (target.tag == TypeTags.UNION) {
+            return checkUnionEquivalencyForStamping(source, target);
         }
 
         return false;
@@ -353,6 +356,33 @@ public class Types {
         return true;
     }
 
+    private boolean checkUnionEquivalencyForStamping(BType source, BType target) {
+        Set<BType> sourceTypes = new HashSet<>();
+        Set<BType> targetTypes = new HashSet<>();
+
+        if (source.tag == TypeTags.UNION) {
+            BUnionType sourceUnionType = (BUnionType) source;
+            sourceTypes.addAll(sourceUnionType.memberTypes);
+        } else {
+            sourceTypes.add(source);
+        }
+
+        if (target.tag == TypeTags.UNION) {
+            BUnionType targetUnionType = (BUnionType) target;
+            targetTypes.addAll(targetUnionType.memberTypes);
+        } else {
+            targetTypes.add(target);
+        }
+
+        boolean notAssignable = sourceTypes
+                .stream()
+                .map(s -> targetTypes
+                        .stream()
+                        .anyMatch(t -> isStampingAllowed(s, t)))
+                .anyMatch(assignable -> !assignable);
+
+        return !notAssignable;
+    }
 
     private boolean isAssignable(BType source, BType target, List<TypePair> unresolvedTypes) {
         if (isSameType(source, target)) {

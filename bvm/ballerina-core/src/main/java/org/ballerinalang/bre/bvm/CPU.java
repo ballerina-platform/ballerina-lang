@@ -4015,7 +4015,7 @@ public class CPU {
                 }
                 return true;
             } else if (source.getTag() == TypeTags.RECORD_TYPE_TAG) {
-                return checkRecordEquivalencyForStamping((BRecordType) source, (BRecordType) target, new ArrayList<>());
+                return checkRecordEquivalencyForStamping((BRecordType) source, (BRecordType) target);
             }
         } else if (target.getTag() == TypeTags.MAP_TAG) {
             if (source.getTag() == TypeTags.MAP_TAG) {
@@ -4023,20 +4023,23 @@ public class CPU {
                         ((BMapType) target).getConstrainedType());
 
             } else if (source.getTag() == TypeTags.UNION_TAG) {
-                return true;
+                return checkUnionAssignableForStamping(source, target);
             }
         } else if (target.getTag() == TypeTags.ARRAY_TAG) {
-            if (source.getTag() == TypeTags.JSON_TAG ||
-                    ((BArrayType) source).getElementType().getTag() == TypeTags.JSON_TAG) {
-                return true;
+            if (source.getTag() == TypeTags.JSON_TAG) {
+                return ((BJSONType) source).getConstrainedType() == null ||
+                        isStampingAllowed(((BJSONType) source).getConstrainedType(),
+                                ((BArrayType) target).getElementType());
+            } else if (((BArrayType) source).getElementType().getTag() == TypeTags.JSON_TAG) {
+                return isStampingAllowed(((BArrayType) source).getElementType(),
+                        ((BArrayType) target).getElementType());
             }
         }
 
         return false;
     }
 
-    public static boolean checkRecordEquivalencyForStamping(BRecordType lhsType, BRecordType rhsType,
-                                                            List<TypePair> unresolvedTypes) {
+    private static boolean checkRecordEquivalencyForStamping(BRecordType lhsType, BRecordType rhsType) {
         // Both records should be public or private.
         // Get the XOR of both flags(masks)
         // If both are public, then public bit should be 0;
@@ -4085,6 +4088,25 @@ public class CPU {
             }
         }
         return true;
+    }
+
+    private static boolean checkUnionAssignableForStamping(BType sourceType, BType targetType) {
+        if (sourceType.getTag() == TypeTags.UNION_TAG) {
+            for (BType sourceMemberType : ((BUnionType) sourceType).getMemberTypes()) {
+                if (!checkUnionAssignableForStamping(sourceMemberType, targetType)) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            BUnionType targetUnionType = (BUnionType) targetType;
+            for (BType memberType : targetUnionType.getMemberTypes()) {
+                if (isStampingAllowed(sourceType, memberType)) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     public static boolean isAssignable(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {

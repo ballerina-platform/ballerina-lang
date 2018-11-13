@@ -351,17 +351,12 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void testUnionStampNegativeTest() {
 
-        Assert.assertEquals(unionNegativeTestCompileResult.getErrorCount(), 4);
-
-        //Negative test case to validate invalid stamp conversion from union to json.
-        BAssertUtil.validateError(unionNegativeTestCompileResult, 0,
-                "Incompatible stamp type: type 'int|float|Employee' cannot be stamped as type 'json'",
-                12, 21);
+        Assert.assertEquals(unionNegativeTestCompileResult.getErrorCount(), 2);
 
         //Negative test case to confirm tuple cannot be stamped as json.
-        BAssertUtil.validateError(unionNegativeTestCompileResult, 2,
+        BAssertUtil.validateError(unionNegativeTestCompileResult, 0,
                 "Incompatible stamp type: type 'int|float|xml' cannot be stamped as type 'Employee'",
-                19, 30);
+                12, 30);
 
     }
 

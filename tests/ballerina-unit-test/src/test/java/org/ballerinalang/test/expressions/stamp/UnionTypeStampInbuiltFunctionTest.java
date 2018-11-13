@@ -85,24 +85,6 @@ public class UnionTypeStampInbuiltFunctionTest {
         Assert.assertEquals(employee0.get("school").stringValue(), "Hindu College");
         Assert.assertEquals(employee0.get("school").getType().getClass(), BStringType.class);
     }
-//
-//    @Test
-//    public void testStampUnionToObject() {
-//
-//        BValue[] results = BRunUtil.invoke(compileResult, "stampUnionToObject");
-//        BMap<String, BValue> employee0 = (BMap<String, BValue>) results[0];
-//
-//        Assert.assertEquals(results.length, 1);
-//
-//        Assert.assertEquals(employee0.getMap().get("age").getType().getTag(), TypeTags.INT_TAG);
-//        Assert.assertEquals(employee0.get("age").stringValue(), "10");
-//
-//        Assert.assertEquals(employee0.get("year").getType().getClass(), BAnyType.class);
-//        Assert.assertEquals(employee0.get("year").stringValue(), "2014");
-//
-//        Assert.assertEquals(employee0.get("month").getType().getClass(), BAnyType.class);
-//        Assert.assertEquals(employee0.get("month").stringValue(), "february");
-//    }
 
     @Test
     public void testStampUnionToXML() {
@@ -189,15 +171,5 @@ public class UnionTypeStampInbuiltFunctionTest {
         Assert.assertEquals(results.length, 1);
         Assert.assertEquals(stampedValue.getType().getClass(), BAnydataType.class);
     }
-
-    //---------------------------------- Negative Test cases ----------------------------------------------
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: incompatible stamp operation: 'map<Teacher>' value cannot be " +
-                    "stamped as 'map<Person>'.*")
-    public void testStampOpenRecordToMap() {
-        BRunUtil.invoke(compileResult, "stampNegativeUnionToConstraintMap");
-    }
-
 }
 
