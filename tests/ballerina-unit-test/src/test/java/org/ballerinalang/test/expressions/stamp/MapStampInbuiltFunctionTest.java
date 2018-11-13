@@ -506,13 +506,6 @@ public class MapStampInbuiltFunctionTest {
     //---------------------------------- Negative Test cases ----------------------------------------------
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: incompatible stamp operation: 'map<int>' value cannot be stamped " +
-                    "as 'map<string>'.*")
-    public void testStampIntMapToStringMap() {
-        BRunUtil.invoke(compileResult, "stampIntMapToStringMap");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: incompatible stamp operation: 'map<string>' value cannot be " +
                     "stamped as 'EmployeeClosedRecord'.*")
     public void testStampMapToRecordNegative() {

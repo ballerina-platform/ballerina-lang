@@ -97,7 +97,7 @@ public class BRefValueArray extends BNewArray implements Serializable {
     @Override
     public void stamp(BType type) {
         if (type.getTag() == TypeTags.ANYDATA_TAG) {
-            if (!CPU.isAssignable(this.getType(), type, new ArrayList<>())) {
+            if (!CPU.isStampingAllowed(this.getType(), type)) {
                 throw new BallerinaException("Error in sealing the value type: " + this.getType() +
                         " cannot sealed as " + type);
             }

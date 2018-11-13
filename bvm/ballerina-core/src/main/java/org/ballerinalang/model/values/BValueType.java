@@ -94,7 +94,7 @@ public abstract class BValueType implements BValue {
     @Override
     public void stamp(BType type) {
         if (type.getTag() == TypeTags.ANYDATA_TAG) {
-            if (CPU.isAssignable(this.getType(), type, new ArrayList<>())) {
+            if (CPU.isStampingAllowed(this.getType(), type)) {
                 this.setType(BTypes.typeAnydata);
             } else {
                 throw new BallerinaException("Error in sealing the value type: " + this.getType() +

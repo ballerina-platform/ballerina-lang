@@ -50,10 +50,17 @@ type ExtendedEmployee record {
     Address address;
 };
 
-type Address object {
-    public int no = 10;
-    public string streetName = "Palm Grove";
-    public string city = "colombo";
+type Address record {
+    int no;
+    string streetName;
+    string city;
+};
+
+type ExtendedEmployeeWithMap record {
+    string name;
+    string status;
+    string batch;
+    map<anydata> address;
 };
 
 //-----------------------Record Stamp -------------------------------------------------------------------
@@ -138,6 +145,22 @@ function stampOpenRecordToTypeClosedRecord() returns NonAcademicStaff {
     NonAcademicStaff returnValue = NonAcademicStaff.stamp(teacher);
 
     return returnValue;
+}
+
+function stampExtendedRecordToOpenRecord() returns Employee {
+    Address addressValue = {no: 23, streetName: "Palm Grove", city:"Colombo"};
+    ExtendedEmployee extendedEmployee = { name: "Raja", status: "single", batch: "LK2014", address:addressValue};
+    Employee employee = Employee.stamp(extendedEmployee);
+
+    return employee;
+}
+
+function stampExtendedRecordToOpenRecordV2() returns ExtendedEmployeeWithMap {
+    Address addressValue = {no: 23, streetName: "Palm Grove", city:"Colombo"};
+    ExtendedEmployee extendedEmployee = { name: "Raja", status: "single", batch: "LK2014", address:addressValue};
+    ExtendedEmployeeWithMap employee = ExtendedEmployeeWithMap.stamp(extendedEmployee);
+
+    return employee;
 }
 
 //-------------------------------- Negative Test cases ------------------------------------------------------------

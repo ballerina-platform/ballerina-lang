@@ -36,7 +36,6 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -358,8 +357,9 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
                 String fieldName = valueEntry.getKey().toString();
 
                 if (fieldMap.containsKey(fieldName)) {
-                    if (!CPU.isAssignable(((BValue) valueEntry.getValue()).getType(), fieldMap.get(fieldName),
-                            new ArrayList<>())) {
+                    if (CPU.isStampingAllowed(((BValue) valueEntry.getValue()).getType(), fieldMap.get(fieldName))) {
+                        ((BValue) valueEntry.getValue()).stamp(fieldMap.get(fieldName));
+                    } else {
                         throw new BallerinaException("Seal failed due to invalid value assignment. Type " +
                                 fieldMap.get(fieldName) + " cannot assigned to type " +
                                 ((BValue) valueEntry.getValue()).getType());
@@ -381,7 +381,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
             }
 
         } else if (type.getTag() == TypeTags.ANYDATA_TAG) {
-            if (!CPU.isAssignable(this.getType(), type, new ArrayList<>())) {
+            if (!CPU.isStampingAllowed(this.getType(), type)) {
                 throw new BallerinaException("Seal failed due to invalid value assignment. Type " +
                         type + " cannot assigned to type " + this.getType());
             }

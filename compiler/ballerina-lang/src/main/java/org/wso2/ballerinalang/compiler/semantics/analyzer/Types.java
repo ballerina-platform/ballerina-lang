@@ -265,22 +265,32 @@ public class Types {
                 }
                 return true;
             }
-        }
-
-        if (target.tag == TypeTags.JSON) {
-            if (source.tag == TypeTags.JSON || source.tag == TypeTags.RECORD || source.tag == TypeTags.MAP) {
-                return true;
+        } else if (target.tag == TypeTags.JSON) {
+            if (((BJSONType) target).getConstraint().tag != TypeTags.NONE) {
+                if (source.tag == TypeTags.RECORD) {
+                    return isStampingAllowed(((BRecordType) source).restFieldType, ((BJSONType) target).getConstraint());
+                } else if (source.tag == TypeTags.JSON) {
+                    if (((BJSONType) source).getConstraint().tag != TypeTags.NONE) {
+                        return isStampingAllowed(((BJSONType) source).getConstraint(),
+                                ((BJSONType) target).getConstraint());
+                    }
+                } else if (source.tag == TypeTags.MAP) {
+                    return isStampingAllowed(((BMapType) source).getConstraint(),
+                            ((BJSONType) target).getConstraint());
+                }
+            } else {
+                if (source.tag == TypeTags.JSON || source.tag == TypeTags.RECORD || source.tag == TypeTags.MAP) {
+                    return true;
+                }
             }
         } else if (target.tag == TypeTags.MAP) {
-            if (source.tag == TypeTags.MAP || source.tag == TypeTags.UNION) {
+            if (source.tag == TypeTags.MAP) {
+                return isStampingAllowed(((BMapType) source).getConstraint(), ((BMapType) target).getConstraint());
+            } else if (source.tag == TypeTags.UNION) {
                 return true;
             }
         } else if (target.tag == TypeTags.ARRAY) {
             if (source.tag == TypeTags.JSON) {
-                return true;
-            }
-        } else if (target.tag == TypeTags.OBJECT) {
-            if (source.tag == TypeTags.UNION) {
                 return true;
             }
         }
@@ -289,7 +299,7 @@ public class Types {
     }
 
     private boolean checkRecordEquivalencyForStamping(BRecordType rhsType, BRecordType lhsType,
-                                              List<TypePair> unresolvedTypes) {
+                                                      List<TypePair> unresolvedTypes) {
         // Both records should be public or private.
         // Get the XOR of both flags(masks)
         // If both are public, then public bit should be 0;
@@ -318,14 +328,14 @@ public class Types {
     }
 
     private boolean checkFieldEquivalencyForStamping(BStructureType lhsType, BStructureType rhsType,
-                                          List<TypePair> unresolvedTypes) {
+                                                     List<TypePair> unresolvedTypes) {
         Map<Name, BField> rhsFields = rhsType.fields.stream().collect(
                 Collectors.toMap(BField::getName, field -> field));
 
         for (BField lhsField : lhsType.fields) {
             BField rhsField = rhsFields.get(lhsField.name);
 
-            if (rhsField == null || !isAssignable(rhsField.type, lhsField.type, unresolvedTypes)) {
+            if (rhsField == null || !isStampingAllowed(rhsField.type, lhsField.type)) {
                 return false;
             }
         }
@@ -335,8 +345,7 @@ public class Types {
         for (BField rhsField : rhsType.fields) {
             BField lhsField = lhsFields.get(rhsField.name);
 
-            if (lhsField == null && !isAssignable(rhsField.type, ((BRecordType) lhsType).restFieldType,
-                    unresolvedTypes)) {
+            if (lhsField == null && !isStampingAllowed(rhsField.type, ((BRecordType) lhsType).restFieldType)) {
                 return false;
             }
         }

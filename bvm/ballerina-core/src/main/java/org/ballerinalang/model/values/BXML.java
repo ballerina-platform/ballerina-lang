@@ -267,10 +267,8 @@ public abstract class BXML<T> implements BRefType<T>, BCollection {
 
     @Override
     public void stamp(BType type) {
-        if (type.getTag() == TypeTags.ANY_TAG) {
-            this.type = BTypes.typeAny;
-        } else if (type.getTag() == TypeTags.ANYDATA_TAG) {
-            if (CPU.isAssignable(this.getType(), type, new ArrayList<>())) {
+        if (type.getTag() == TypeTags.ANYDATA_TAG) {
+            if (CPU.isStampingAllowed(this.getType(), type)) {
                 this.type = BTypes.typeAnydata;
             } else {
                 throw new BallerinaException("Error in sealing the value type: " + this.getType() +

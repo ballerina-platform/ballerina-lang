@@ -30,7 +30,6 @@ type Teacher record {
 
 //----------------------------JSON Stamp -------------------------------------------------------------
 
-
 function stampJSONToAnydata() returns anydata {
 
     json jsonValue = 3;

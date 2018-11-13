@@ -861,7 +861,7 @@ public class CPU {
         }
 
         //mutate reference variable
-        if (isStampingAllowed(valueToBeStamped, stampType)) {
+        if (isStampingAllowed(valueToBeStamped.getType(), stampType)) {
             try {
                 valueToBeStamped.stamp(stampType);
                 sf.refRegs[k] = valueToBeStamped;
@@ -3977,16 +3977,29 @@ public class CPU {
         return checkCast(value, constraintType, new ArrayList<>());
     }
 
-    private static boolean isStampingAllowed(BRefType<?> valueToBeStamped, BType stampType) {
-        return (isAssignable(valueToBeStamped.getType(), stampType, new ArrayList<>()) ||
-                isAssignable(stampType, valueToBeStamped.getType(), new ArrayList<>()) ||
-                isStampingAllowedForExpr(valueToBeStamped.getType(), stampType) ||
-                isStampingAllowedForExpr(stampType, valueToBeStamped.getType()));
+    public static boolean isStampingAllowed(BType valueToBeStamped, BType stampType) {
+        return (isAssignable(valueToBeStamped, stampType, new ArrayList<>()) ||
+                isAssignable(stampType, valueToBeStamped, new ArrayList<>()) ||
+                isStampingAllowedForExpr(valueToBeStamped, stampType) ||
+                isStampingAllowedForExpr(stampType, valueToBeStamped));
     }
 
     private static boolean isStampingAllowedForExpr(BType source, BType target) {
         if (target.getTag() == TypeTags.JSON_TAG) {
-            if (source.getTag() == TypeTags.JSON_TAG || source.getTag() == TypeTags.RECORD_TYPE_TAG ||
+            if (((BJSONType) target).getConstrainedType() != null) {
+                if (source.getTag() == TypeTags.RECORD_TYPE_TAG) {
+                    isStampingAllowedForExpr(((BRecordType) source).restFieldType,
+                            ((BJSONType) target).getConstrainedType());
+                } else if (source.getTag() == TypeTags.JSON_TAG) {
+                    if (((BJSONType) source).getConstrainedType() != null) {
+                        return isStampingAllowed(((BJSONType) source).getConstrainedType(),
+                                ((BJSONType) target).getConstrainedType());
+                    }
+                } else if (source.getTag() == TypeTags.MAP_TAG) {
+                    return isStampingAllowed(((BMapType) source).getConstrainedType(),
+                            ((BJSONType) target).getConstrainedType());
+                }
+            } else if (source.getTag() == TypeTags.JSON_TAG || source.getTag() == TypeTags.RECORD_TYPE_TAG ||
                     source.getTag() == TypeTags.MAP_TAG) {
                 return true;
             }
@@ -4005,20 +4018,16 @@ public class CPU {
                 return checkRecordEquivalencyForStamping((BRecordType) source, (BRecordType) target, new ArrayList<>());
             }
         } else if (target.getTag() == TypeTags.MAP_TAG) {
-            if (source.getTag() == TypeTags.MAP_TAG || source.getTag() == TypeTags.UNION_TAG) {
+            if (source.getTag() == TypeTags.MAP_TAG) {
+                return isStampingAllowed(((BMapType) source).getConstrainedType(),
+                        ((BMapType) target).getConstrainedType());
+
+            } else if (source.getTag() == TypeTags.UNION_TAG) {
                 return true;
             }
         } else if (target.getTag() == TypeTags.ARRAY_TAG) {
             if (source.getTag() == TypeTags.JSON_TAG ||
                     ((BArrayType) source).getElementType().getTag() == TypeTags.JSON_TAG) {
-                return true;
-            }
-        } else if (target.getTag() == TypeTags.OBJECT_TYPE_TAG) {
-            if (source.getTag() == TypeTags.UNION_TAG) {
-                return true;
-            }
-        } else if (target.getTag() == TypeTags.TUPLE_TAG) {
-            if (source.getTag() == TypeTags.TUPLE_TAG) {
                 return true;
             }
         }
@@ -4061,7 +4070,7 @@ public class CPU {
         for (BField lhsField : lhsType.getFields()) {
             BField rhsField = rhsFields.get(lhsField.fieldName);
 
-            if (rhsField == null || !isSameType(rhsField.fieldType, lhsField.fieldType)) {
+            if (rhsField == null || !isStampingAllowed(rhsField.fieldType, lhsField.fieldType)) {
                 return false;
             }
         }
@@ -4071,7 +4080,7 @@ public class CPU {
         for (BField rhsField : rhsType.getFields()) {
             BField lhsField = lhsFields.get(rhsField.fieldName);
 
-            if (lhsField == null && !isSameType(rhsField.fieldType, lhsType.restFieldType)) {
+            if (lhsField == null && !isStampingAllowed(rhsField.fieldType, lhsType.restFieldType)) {
                 return false;
             }
         }

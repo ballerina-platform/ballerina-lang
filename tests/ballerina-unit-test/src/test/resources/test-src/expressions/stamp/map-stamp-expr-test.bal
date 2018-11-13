@@ -221,13 +221,6 @@ type EmployeeClosedRecord record {
     !...
 };
 
-function stampIntMapToStringMap() returns map<string> {
-    map<int> m = { "a": 1, "b": 2 };
-    map<string> mapValue = map<string>.stamp(m);
-
-    return mapValue;
-}
-
 function stampMapToRecordNegative() returns EmployeeClosedRecord {
     map<string> m = { name: "Raja", status: "single", batch: "LK2014", school: "Hindu College" };
     EmployeeClosedRecord employee = EmployeeClosedRecord.stamp(m);

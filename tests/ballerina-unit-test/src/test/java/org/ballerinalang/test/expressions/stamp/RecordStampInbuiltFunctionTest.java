@@ -246,6 +246,47 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue.get("school").stringValue(), "Hindu College");
     }
 
+    @Test
+    public void testStampExtendedRecordToOpenRecord() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampExtendedRecordToOpenRecord");
+        BMap<String, BValue> mapValue = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+        Assert.assertEquals(mapValue.size(), 4);
+
+
+        Assert.assertEquals(mapValue.getType().getClass(), BRecordType.class);
+        Assert.assertEquals(mapValue.getType().getName(), "Employee");
+
+        Assert.assertEquals(mapValue.get("batch").getType().getClass(), BStringType.class);
+        Assert.assertEquals(mapValue.get("batch").stringValue(), "LK2014");
+
+        Assert.assertEquals(mapValue.get("address").getType().getClass(), BAnydataType.class);
+    }
+
+    @Test
+    public void testStampExtendedRecordToOpenRecordV2() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampExtendedRecordToOpenRecordV2");
+        BMap<String, BValue> mapValue = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+        Assert.assertEquals(mapValue.size(), 4);
+
+
+        Assert.assertEquals(mapValue.getType().getClass(), BRecordType.class);
+        Assert.assertEquals(mapValue.getType().getName(), "ExtendedEmployeeWithMap");
+
+        Assert.assertEquals(mapValue.get("batch").getType().getClass(), BStringType.class);
+        Assert.assertEquals(mapValue.get("batch").stringValue(), "LK2014");
+
+        Assert.assertEquals(mapValue.get("address").getType().getClass(), BMapType.class);
+        Assert.assertEquals(((BMapType)mapValue.get("address").getType()).getConstrainedType().getClass(),
+                BAnydataType.class);
+    }
+
+
     //---------------------------------- Negative Test cases ----------------------------------------------
 
     @Test(expectedExceptions = BLangRuntimeException.class,
