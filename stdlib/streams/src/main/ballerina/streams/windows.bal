@@ -269,7 +269,7 @@ public type LengthBatchWindow object {
                 //    self.expiredEventQueue.clear();
                 //}
                 if (self.currentEventQueue.getFirst() != ()) {
-                    if (self.resetEvent != ()) {
+                    if (self.resetEvent !== ()) {
                         outputStreamEventChunk.addLast(self.resetEvent);
                         self.resetEvent = ();
                     }
@@ -411,7 +411,7 @@ public type TimeBatchWindow object {
         }
         if (sendEvents) {
             if (self.currentEventQueue.getFirst() != ()) {
-                if (self.resetEvent != ()) {
+                if (self.resetEvent !== ()) {
                     outputStreamEvents.addLast(self.resetEvent);
                     self.resetEvent = ();
                 }
@@ -603,7 +603,7 @@ public type ExternalTimeBatchWindow object {
     public int timeToKeep;
     public LinkedList currentEventChunk;
     public LinkedList expiredEventChunk;
-    public StreamEvent? resetEvent = null;
+    public StreamEvent? resetEvent = ();
     public int startTime = 0;
     public boolean isStartTimeEnabled = false;
     public boolean replaceTimestampWithBatchEndTime = false;
@@ -766,7 +766,7 @@ public type ExternalTimeBatchWindow object {
         }
         self.currentEventChunk.addLast(clonedEvent);
 
-        if (self.resetEvent == null) {
+        if (self.resetEvent === null) {
             self.resetEvent = currStreamEvent.clone();
             self.resetEvent.eventType = RESET;
         }
@@ -1119,16 +1119,16 @@ public type UniqueLengthWindow object {
                 }
                 self.uniqueMap[str] = eventClonedForMap;
 
-                if (oldEvent == null) {
+                if (oldEvent === null) {
                     self.count += 1;
                 }
-                if ((self.count <= self.length) && (oldEvent == null)) {
+                if ((self.count <= self.length) && (oldEvent === null)) {
                     self.expiredEventChunk.addLast(clonedEvent);
                 } else {
-                    if (oldEvent != null) {
+                    if (oldEvent !== null) {
                         while (self.expiredEventChunk.hasNext()) {
                             StreamEvent firstEventExpired = check <StreamEvent>self.expiredEventChunk.next();
-                            if (firstEventExpired.data[self.uniqueKey] == oldEvent.data[self.uniqueKey]) {
+                            if (firstEventExpired.data[self.uniqueKey] === oldEvent.data[self.uniqueKey]) {
                                 self.expiredEventChunk.removeCurrent();
                             }
                         }
