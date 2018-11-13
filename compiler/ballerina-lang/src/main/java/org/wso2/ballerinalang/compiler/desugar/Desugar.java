@@ -1105,10 +1105,8 @@ public class Desugar extends BLangNodeVisitor {
                 targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
                                                               (BVarSymbol) fieldAccessExpr.symbol, false);
 
-                //field refs to objects in other packages are skipped
-                if (!enclLocks.isEmpty() &&
-                        (fieldAccessExpr.expr.symbol != null) &&
-                        (fieldAccessExpr.expr.symbol.pkgID == env.enclPkg.packageID)) {
+                // expr symbol is null when their is a array as the field TODO: Need a proper fix
+                if (!enclLocks.isEmpty() && (fieldAccessExpr.expr.symbol != null)) {
                     enclLocks.peek().addFieldVariable((BLangStructFieldAccessExpr) targetVarRef);
                 }
             }
@@ -1120,10 +1118,8 @@ public class Desugar extends BLangNodeVisitor {
             } else {
                 targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
                                                               (BVarSymbol) fieldAccessExpr.symbol, true);
-                //field refs to objects in other packages are skipped
-                if (!enclLocks.isEmpty() &&
-                        (fieldAccessExpr.expr.symbol != null) &&
-                        (fieldAccessExpr.expr.symbol.pkgID == env.enclPkg.packageID)) {
+                // expr symbol is null when their is a array as the field TODO: Need a proper fix
+                if (!enclLocks.isEmpty() && (fieldAccessExpr.expr.symbol != null)) {
                     enclLocks.peek().addFieldVariable((BLangStructFieldAccessExpr) targetVarRef);
                 }
             }
