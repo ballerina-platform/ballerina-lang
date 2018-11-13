@@ -120,6 +120,13 @@ public class FreezeAndIsFrozenTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error: Failed to add element: modification not allowed on frozen " +
+                    "value.*")
+    public void testFrozenDecimalArrayModification() {
+        BRunUtil.invoke(result, "testFrozenDecimalArrayModification", new BValue[0]);
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*error: failed to set element to json: modification " +
                     "not allowed on frozen value.*")
     public void testFrozenJsonArrayModification() {

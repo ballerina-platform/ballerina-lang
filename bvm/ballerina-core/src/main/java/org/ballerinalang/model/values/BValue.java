@@ -61,7 +61,7 @@ public interface BValue {
      * @return Whether the value is frozen
      */
     default boolean isFrozen() {
-        throw new BLangFreezeException("isFrozen not allowed on '" + getType() + "'");
+        return false;
     }
 
     /**

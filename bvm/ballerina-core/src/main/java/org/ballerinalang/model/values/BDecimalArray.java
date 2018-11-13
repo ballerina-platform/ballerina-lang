@@ -21,6 +21,7 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.util.exceptions.BLangFreezeException;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -55,6 +56,13 @@ public class BDecimalArray extends BNewArray {
     }
 
     public void add(long index, BigDecimal value) {
+        switch (this.freezeStatus.getState()) {
+            case FROZEN:
+                throw new BLangFreezeException("modification not allowed on frozen value");
+            case MID_FREEZE:
+                throw new BLangFreezeException("modification not allowed on '" + this.getType() + "' during freeze");
+        }
+
         prepareForAdd(index, values.length);
         values[(int) index] = value;
     }

@@ -110,6 +110,12 @@ function testFrozenByteArrayModification() {
     a[5] = 200;
 }
 
+function testFrozenDecimalArrayModification() {
+    decimal[4] d = [1.0, 0.2, 310.0, 22222.3];
+    _ = d.freeze();
+    d[3] = 200.23;
+}
+
 function testFrozenFloatArrayModification() {
     float[] a = [1.0, 0.2, 300.23];
     _ = a.freeze();
