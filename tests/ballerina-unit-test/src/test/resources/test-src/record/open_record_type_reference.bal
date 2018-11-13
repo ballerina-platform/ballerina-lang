@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/foo version v1;
+import testorg/records version v1;
 
 // TESTS FOR RECORDS WHERE THE REFERENCED TYPE ONLY HAS VALUE TYPE FIELDS
 
@@ -155,7 +155,7 @@ function testReferenceChains() returns Foo4 {
     return f;
 }
 
-function testTypeReferencingInBALOs() returns foo:BManager {
-    foo:BManager m = {name:"John Doe", age:25, adr:{city:"Colombo", country:"Sri Lanka"}, company:"WSO2", dept:"Engineering"};
+function testTypeReferencingInBALOs() returns records:BManager {
+    records:BManager m = {name:"John Doe", age:25, adr:{city:"Colombo", country:"Sri Lanka"}, company:"WSO2", dept:"Engineering"};
     return m;
 }

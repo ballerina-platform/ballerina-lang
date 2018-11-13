@@ -47,7 +47,7 @@ public class OpenRecordTypeReferenceTest {
 
     @BeforeClass
     public void setup() {
-        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
+        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "records");
         compileResult = BCompileUtil.compile("test-src/record/open_record_type_reference.bal");
     }
 
