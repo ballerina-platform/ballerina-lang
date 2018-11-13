@@ -183,7 +183,6 @@ import static org.ballerinalang.model.tree.NodeKind.BRACED_TUPLE_EXPR;
 import static org.ballerinalang.model.tree.NodeKind.LITERAL;
 import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_EXPR;
 
-
 /**
  * @since 0.94
  */
@@ -987,11 +986,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
                 recordLiteral.type = new BMapType(TypeTags.MAP, symTable.anydataType, null);
                 for (BLangRecordLiteral.BLangRecordKeyValue recLiteralKeyValue : recordLiteral.keyValuePairs) {
-                    if (recLiteralKeyValue.key.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                        BType fieldType = checkStaticMatchPatternLiteralType(recLiteralKeyValue.valueExpr);
-                        types.setImplicitCastExpr(recLiteralKeyValue.valueExpr, fieldType, symTable.anyType);
-                    } else if (recLiteralKeyValue.key.expr.getKind() == NodeKind.LITERAL &&
-                            typeChecker.checkExpr(recLiteralKeyValue.key.expr, this.env).tag == TypeTags.STRING) {
+                    if (recLiteralKeyValue.key.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF ||
+                            (recLiteralKeyValue.key.expr.getKind() == NodeKind.LITERAL && typeChecker.checkExpr(
+                                    recLiteralKeyValue.key.expr, this.env).tag == TypeTags.STRING)) {
                         BType fieldType = checkStaticMatchPatternLiteralType(recLiteralKeyValue.valueExpr);
                         types.setImplicitCastExpr(recLiteralKeyValue.valueExpr, fieldType, symTable.anyType);
                     } else {
