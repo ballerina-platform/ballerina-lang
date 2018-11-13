@@ -266,6 +266,23 @@ function getIntValue(int[] val) returns int[] {
     return x;
 }
 
+function cloneDecimalValue() returns (any, any, any) {
+    decimal a = 10.000;
+    decimal b = a.clone();
+    decimal c = a.clone();
+    a = 20.0;
+    c = 30.0;
+    return (a, b, c);
+}
+function cloneDecimalArray() returns (any, any, any) {
+    decimal[] a = [1, 2, 3, 4];
+    decimal[] b = a.clone();
+    decimal[] c = a.clone();
+    a[2] = 30;
+    c[2] = 300;
+    return (a, b, c);
+}
+
 public function cloneReturnValues() returns (int[], int[], int[]) {
     int[] a = [10];
     int[] x = getIntValue(a).clone();

@@ -25,6 +25,7 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BByteArray;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
@@ -40,6 +41,8 @@ import org.ballerinalang.model.values.BXMLSequence;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.math.BigDecimal;
 
 /**
  * This class contains the test cases to clone operation
@@ -77,6 +80,16 @@ public class CloneOperationTest {
         Assert.assertEquals(((BFloat) results[0]).floatValue(), 12.01);
         Assert.assertEquals(((BFloat) results[1]).floatValue(), 10.01);
         Assert.assertEquals(((BFloat) results[2]).floatValue(), 13.01);
+        Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
+    }
+
+    @Test
+    public void testCloneDecimal() {
+        BValue[] results = BRunUtil.invoke(result, "cloneDecimalValue");
+        Assert.assertNotNull(results);
+        Assert.assertEquals(((BDecimal) results[0]).decimalValue(), new BigDecimal("20.0"));
+        Assert.assertEquals(((BDecimal) results[1]).decimalValue(), new BigDecimal("10.000"));
+        Assert.assertEquals(((BDecimal) results[2]).decimalValue(), new BigDecimal("30.0"));
         Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 
@@ -187,6 +200,24 @@ public class CloneOperationTest {
     private void testIntArray(long[] arr, BIntArray array) {
         for (int i = 0; i < arr.length; i++) {
             Assert.assertEquals(array.get(i), arr[i]);
+        }
+    }
+
+    @Test
+    public void testCloneDecimalArray() {
+        BValue[] results = BRunUtil.invoke(result, "cloneDecimalArray");
+        testDecimalArray(new BigDecimal[]{BigDecimal.valueOf(1), BigDecimal.valueOf(2), BigDecimal.valueOf(30),
+                                          BigDecimal.valueOf(4)}, (BRefValueArray) results[0]);
+        testDecimalArray(new BigDecimal[]{BigDecimal.valueOf(1), BigDecimal.valueOf(2), BigDecimal.valueOf(3),
+                                          BigDecimal.valueOf(4)}, (BRefValueArray) results[1]);
+        testDecimalArray(new BigDecimal[]{BigDecimal.valueOf(1), BigDecimal.valueOf(2), BigDecimal.valueOf(300),
+                                          BigDecimal.valueOf(4)}, (BRefValueArray) results[2]);
+        Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
+    }
+
+    private void testDecimalArray(BigDecimal[] arr, BRefValueArray array) {
+        for (int i = 0; i < arr.length; i++) {
+            Assert.assertEquals(array.get(i).value(), arr[i]);
         }
     }
 
