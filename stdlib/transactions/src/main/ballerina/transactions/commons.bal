@@ -85,14 +85,13 @@ function cleanupTransactions() returns error? {
                 if (twopcTxn.state != TXN_STATE_ABORTED) {
                     // Commit the transaction since prepare hasn't been received
                     var result = twopcTxn.twoPhaseCommit();
-                    match result {
-                        string str => {
-                            log:printInfo("Auto-committed initiated transaction: " + twopcTxn.transactionId +
-                                ". Result: " + str);
-                            removeInitiatedTransaction(twopcTxn.transactionId);
-                        }
-                        error err => log:printError("Auto-commit of participated transaction: " +
-                                twopcTxn.transactionId + " failed", err = err);
+                    if (result is string) {
+                        log:printInfo("Auto-committed initiated transaction: " + twopcTxn.transactionId +
+                                ". Result: " + result);
+                        removeInitiatedTransaction(twopcTxn.transactionId);
+                    } else if (result is error) {
+                        log:printError("Auto-commit of participated transaction: " +
+                        twopcTxn.transactionId + " failed", err = result);
                     }
                 }
             }
@@ -146,11 +145,10 @@ function respondToBadRequest(http:Listener conn, string msg) {
     json resPayload = check <json>err;
     res.setJsonPayload(untaint resPayload);
     var resResult = ep->respond(res);
-    match resResult {
-        error respondErr => {
-            log:printError("Could not send Bad Request error response to caller", err = respondErr);
-        }
-        () => return;
+    if (resResult is error) {
+        log:printError("Could not send Bad Request error response to caller", err = resResult);
+    } else {
+        return;
     }
 }
 
@@ -210,37 +208,39 @@ function registerLocalParticipantWithInitiator(string transactionId, int transac
     string participantId = getParticipantId(transactionBlockId);
     //TODO: Protocol name should be passed down from the transaction statement
     LocalProtocol participantProtocol = {name:PROTOCOL_DURABLE};
-    match (initiatedTransactions[transactionId]) {
-        () => {
-            error err = error("Transaction-Unknown. Invalid TID:" + transactionId);
+    var initiatedTxn = initiatedTransactions[transactionId];
+    if (initiatedTxn is ()) {
+        error err = error("Transaction-Unknown. Invalid TID:" + transactionId);
+        return err;
+    } else if (initiatedTxn is TwoPhaseCommitTransaction) {
+        if (isRegisteredParticipant(participantId, initiatedTxn.participants)) { // Already-Registered
+            error err = error("Already-Registered. TID:" + transactionId + ",participant ID:" + participantId);
             return err;
+        } else if (!protocolCompatible(initiatedTxn.coordinationType, [participantProtocol])) { // Invalid-Protocol
+            error err = error("Invalid-Protocol in local participant. TID:" + transactionId + ",participant ID:" +
+            participantId);
+            return err;
+        } else {
+            //Set initiator protocols
+            TwoPhaseCommitTransaction participatedTxn = new(transactionId, transactionBlockId);
+            //Protocol initiatorProto = {name: PROTOCOL_DURABLE, transactionBlockId:transactionBlockId};
+            //participatedTxn.coordinatorProtocols = [initiatorProto];
+
+            LocalParticipant participant = new(participantId, participatedTxn, [participantProtocol]);
+            initiatedTxn.participants[participantId] = <Participant>participant;
+
+            string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
+            participatedTransactions[participatedTxnId] = participatedTxn;
+            TransactionContext txnCtx = {transactionId:transactionId, transactionBlockId:transactionBlockId,
+            coordinationType:TWO_PHASE_COMMIT, registerAtURL:registerAtURL};
+            log:printInfo("Registered local participant: " + participantId + " for transaction:" + transactionId);
+            return txnCtx;
         }
-        TwoPhaseCommitTransaction initiatedTxn => {
-            if (isRegisteredParticipant(participantId, initiatedTxn.participants)) { // Already-Registered
-                error err = error("Already-Registered. TID:" + transactionId + ",participant ID:" + participantId);
-                return err;
-            } else if (!protocolCompatible(initiatedTxn.coordinationType, [participantProtocol])) { // Invalid-Protocol
-                error err = error("Invalid-Protocol in local participant. TID:" + transactionId + ",participant ID:" +
-                    participantId);
-                return err;
-            } else {
-    
-                //Set initiator protocols
-                TwoPhaseCommitTransaction participatedTxn = new(transactionId, transactionBlockId);
-                //Protocol initiatorProto = {name: PROTOCOL_DURABLE, transactionBlockId:transactionBlockId};
-                //participatedTxn.coordinatorProtocols = [initiatorProto];
-    
-                LocalParticipant participant = new(participantId, participatedTxn, [participantProtocol]);
-                initiatedTxn.participants[participantId] = <Participant>participant;
-    
-                string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
-                participatedTransactions[participatedTxnId] = participatedTxn;
-                TransactionContext txnCtx = {transactionId:transactionId, transactionBlockId:transactionBlockId,
-                    coordinationType:TWO_PHASE_COMMIT, registerAtURL:registerAtURL};
-                log:printInfo("Registered local participant: " + participantId + " for transaction:" + transactionId);
-                return txnCtx;
-            }
-        }
+    } else {
+        // TODO: Ideally there shouldn't be an `else if` above but else. Once the limitations in type checking are fixed
+        // this `else` block should be removed and the above `else if` block should be replaced with an else.
+        error e = error("Unreachable code");
+        panic e;
     }
 }
 
@@ -328,27 +328,29 @@ public function registerParticipantWithRemoteInitiator(string transactionId, int
     log:printInfo("Registering for transaction: " + participatedTxnId + " with coordinator: " + registerAtURL);
 
     var result = initiatorEP->register(transactionId, transactionBlockId, participantProtocols);
-    match result {
-        error e => {
-            string msg = "Cannot register with coordinator for transaction: " + transactionId;
-            log:printError(msg, err = e);
-            // TODO : Fix me.
-            //map data = { cause: err };
-            error err = error(msg);
-            return err;
-        }
-        RegistrationResponse regRes => {
-            RemoteProtocol[] coordinatorProtocols = regRes.coordinatorProtocols;
-            TwoPhaseCommitTransaction twopcTxn = new(transactionId, transactionBlockId);
-            twopcTxn.coordinatorProtocols = toProtocolArray(coordinatorProtocols);
-            participatedTransactions[participatedTxnId] = twopcTxn;
-            TransactionContext txnCtx = {
-                transactionId:transactionId, transactionBlockId:transactionBlockId,
-                coordinationType:TWO_PHASE_COMMIT, registerAtURL:registerAtURL
-            };
-            log:printInfo("Registered with coordinator for transaction: " + transactionId);
-            return txnCtx;
-        }
+    if (result is error) {
+        string msg = "Cannot register with coordinator for transaction: " + transactionId;
+        log:printError(msg, err = result);
+        // TODO : Fix me.
+        //map data = { cause: err };
+        error err = error(msg);
+        return err;
+    } else if (result is RegistrationResponse) {
+        RemoteProtocol[] coordinatorProtocols = result.coordinatorProtocols;
+        TwoPhaseCommitTransaction twopcTxn = new(transactionId, transactionBlockId);
+        twopcTxn.coordinatorProtocols = toProtocolArray(coordinatorProtocols);
+        participatedTransactions[participatedTxnId] = twopcTxn;
+        TransactionContext txnCtx = {
+            transactionId:transactionId, transactionBlockId:transactionBlockId,
+            coordinationType:TWO_PHASE_COMMIT, registerAtURL:registerAtURL
+        };
+        log:printInfo("Registered with coordinator for transaction: " + transactionId);
+        return txnCtx;
+    } else {
+        // TODO: Ideally there shouldn't be an `else if` above but else. Once the limitations in type checking are fixed
+        // this `else` block should be removed and the above `else if` block should be replaced with an else.
+        error e = error("Unreachable code");
+        panic e;
     }
 }
 
