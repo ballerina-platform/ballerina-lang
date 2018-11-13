@@ -1175,7 +1175,21 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
-        // TODO
+        boolean enclInvokableHasErrorReturn = false;
+        TypeKind enclInvokableReturnTypeKind = env.enclInvokable.getReturnTypeNode().type.getKind();
+        switch (enclInvokableReturnTypeKind) {
+            case ERROR:
+                enclInvokableHasErrorReturn = true;
+                break;
+            case UNION:
+                BUnionType unionType = (BUnionType) env.enclInvokable.getReturnTypeNode().type;
+                enclInvokableHasErrorReturn = unionType.memberTypes.stream()
+                        .anyMatch(memberType -> memberType.getKind() == TypeKind.ERROR);
+                break;
+        }
+        if (!enclInvokableHasErrorReturn) {
+            dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_NO_ERROR_RETURN_IN_ENCL_INVOKABLE);
+        }
     }
 
     @Override
