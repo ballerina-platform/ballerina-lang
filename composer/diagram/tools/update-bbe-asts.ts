@@ -17,7 +17,7 @@ if (existsSync(bbeASTsPath)) {
 
 mkdirSync(bbeASTsPath);
 
-const server = new StdioBallerinaLangServer();
+const server = new StdioBallerinaLangServer(process.env.BALLERINA_HOME);
 server.start();
 
 // tslint:disable-next-line:no-empty
