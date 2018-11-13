@@ -43,7 +43,7 @@ import java.util.Map;
 public class CoverageDataFormatterTest {
 
     private String sourceRoot = "src/test/resources/coverage/project";
-    private Path[] filePaths = { Paths.get("examples") };
+    private Path[] filePaths = { Paths.get("example_moduel1") };
 
     CoverageManager coverageManager = CoverageManager.getInstance();
     TesterinaRegistry registry = TesterinaRegistry.getInstance();
@@ -66,7 +66,7 @@ public class CoverageDataFormatterTest {
         List<LCovData> lCovDataList = coverageDataFormatter
                 .getFormattedCoverageData(executedInstructionOrderMap, testSuiteForProject);
         Assert.assertEquals(lCovDataList.get(0).getlCovSourceFileList().get(0).getSourceFilePath(),
-                "project/examples:0.0.1/hello_world.bal");
+                "project/example_moduel1:0.0.1/source.bal");
     }
 
     @AfterMethod
