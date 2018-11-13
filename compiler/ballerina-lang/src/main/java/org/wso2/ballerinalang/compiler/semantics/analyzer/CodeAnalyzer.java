@@ -1393,10 +1393,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!Symbols.isPublic(funcNode.symbol)) {
             this.dlog.error(funcNode.pos, DiagnosticCode.MAIN_SHOULD_BE_PUBLIC);
         }
-        if (!(funcNode.symbol.retType.tag == TypeTags.NIL || funcNode.symbol.retType.tag == TypeTags.INT)) {
-            this.dlog.error(funcNode.returnTypeNode.pos, DiagnosticCode.INVALID_RETURN_WITH_MAIN,
-                            funcNode.symbol.retType);
-        }
     }
 
     private void checkDuplicateNamedArgs(List<BLangExpression> args) {
