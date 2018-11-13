@@ -74,7 +74,7 @@ const string ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "SubscriberServiceConfi
 const string WEBSUB_MODULE_NAME = "ballerina/websub";
 
 # The constant used to represent error code of WebSub module.
-@final public string WEBSUB_ERROR_CODE = "{ballerina/websub}WebSubError";
+public const string WEBSUB_ERROR_CODE = "{ballerina/websub}WebSubError";
 
 # The identifier to be used to identify the mode in which update content should be identified.
 public type RemotePublishMode PUBLISH_MODE_DIRECT|PUBLISH_MODE_FETCH;

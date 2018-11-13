@@ -49,7 +49,7 @@ public const string CONTENT_TYPE = "content-type";
 public const string CONTENT_DISPOSITION = "content-disposition";
 
 # Represents MIME error code.
-@final string MIME_ERROR_CODE = "{ballerina/mime}MIMEError";
+const string MIME_ERROR_CODE = "{ballerina/mime}MIMEError";
 
 type MIMEError record {
     string message;
