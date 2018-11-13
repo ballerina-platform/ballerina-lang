@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.expressions.checkedexpr;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -254,5 +255,12 @@ public class CheckedExpressionOperatorTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test service resource that returns an error containing check expression")
+    public void testSemanticErrorsWithResources() {
+        CompileResult compile = BCompileUtil.compile(
+                "test-src/expressions/checkedexpr/checked_expr_within_resource.bal");
+        Assert.assertEquals(compile.getErrorCount(), 0);
     }
 }
