@@ -19,23 +19,21 @@
 import { workspace, commands, window, Uri, ViewColumn, ExtensionContext, TextEditor, WebviewPanel, TextDocumentChangeEvent, Position, Range, Selection } from 'vscode';
 import * as _ from 'lodash';
 import { render } from './renderer';
-import { BallerinaAST, ExtendedLangClient } from '../core/extended-language-client';
+import { ExtendedLangClient } from '../core/extended-language-client';
 import { BallerinaExtension } from '../core';
 import { WebViewRPCHandler } from '../utils';
 
 const DEBOUNCE_WAIT = 500;
 
-let previewPanel: WebviewPanel | undefined;
+let diagramViewPanel: WebviewPanel | undefined;
 let activeEditor: TextEditor | undefined;
 let preventDiagramUpdate = false;
 
-function updateWebView(ast: BallerinaAST, docUri: Uri, stale: boolean): void {
-	if (previewPanel) {
-		previewPanel.webview.postMessage({ 
+function updateWebView(docUri: Uri): void {
+	if (diagramViewPanel) {
+		diagramViewPanel.webview.postMessage({ 
 			command: 'update',
-			json: ast,
 			docUri: docUri.toString(),
-			stale
 		});
 	}
 }
@@ -48,15 +46,7 @@ function showDiagramEditor(context: ExtensionContext, langClient: ExtendedLangCl
 			if (preventDiagramUpdate) {
 				return;
 			}
-			const docUri = e.document.uri;
-			langClient.getAST(docUri)
-				.then((resp) => {
-					let stale = true;
-					if (resp.ast) {
-						stale = false;
-						updateWebView(resp.ast, docUri, stale);
-					}
-				});
+			updateWebView( e.document.uri);
 		}
 	}, DEBOUNCE_WAIT));
 
@@ -66,24 +56,16 @@ function showDiagramEditor(context: ExtensionContext, langClient: ExtendedLangCl
 					&& (activatedEditor.document === window.activeTextEditor.document) 
 					&& activatedEditor.document.fileName.endsWith('.bal')) {
 			activeEditor = window.activeTextEditor;
-			const docUri = activatedEditor.document.uri;
-			langClient.getAST(docUri)
-				.then((resp) => {
-					let stale = true;
-					if (resp.ast) {
-						stale = false;
-						updateWebView(resp.ast, docUri, stale);
-					}
-				});
+			updateWebView(activatedEditor.document.uri);
 		}
 	});
 
-	if (previewPanel) {
-		previewPanel.reveal(ViewColumn.Two, true);
+	if (diagramViewPanel) {
+		diagramViewPanel.reveal(ViewColumn.Two, true);
 		return;
 	}
 	// Create and show a new webview
-	previewPanel = window.createWebviewPanel(
+	diagramViewPanel = window.createWebviewPanel(
 		'ballerinaDiagram',
 		"Ballerina Diagram",
 		{ viewColumn: ViewColumn.Two, preserveFocus: true } ,
@@ -97,48 +79,13 @@ function showDiagramEditor(context: ExtensionContext, langClient: ExtendedLangCl
 		return;
 	}
 	activeEditor = editor;
-	WebViewRPCHandler.create([
-		{
-			methodName: 'getAST',
-			handler: (args: any[]) => {
-				return langClient.getAST(args[0]);
-			}
-		},
-		{
-			methodName: 'getEndpoints',
-			handler: (args: any[]) => {
-				return langClient.getEndpoints();
-			}
-		},
-		{
-			methodName: 'parseFragment',
-			handler: (args: any[]) => {
-				return langClient.parseFragment({
-					enclosingScope: args[0].enclosingScope,
-					expectedNodeType: args[0].expectedNodeType,
-					source: args[0].source
-				});
-			}
-		},
-		{
-			methodName: 'revealRange',
-			handler: (args: any[]) => {
-				if (activeEditor) {
-					const start = new Position(args[0] - 1, args[1] - 1);
-					const end = new Position(args[2] - 1, args[3]);
-					activeEditor.revealRange(new Range(start, end));
-					activeEditor.selection = new Selection(start, end);
-				}
-				return Promise.resolve();
-			}
-		}
-	], previewPanel.webview);
+	WebViewRPCHandler.create(diagramViewPanel.webview, langClient);
 	const html = render(context, langClient, editor.document.uri);
-	if (previewPanel && html) {
-		previewPanel.webview.html = html;
+	if (diagramViewPanel && html) {
+		diagramViewPanel.webview.html = html;
 	}
 	// Handle messages from the webview
-	previewPanel.webview.onDidReceiveMessage(message => {
+	diagramViewPanel.webview.onDidReceiveMessage(message => {
 		switch (message.command) {
 			case 'astModified':
 				if (activeEditor && activeEditor.document.fileName.endsWith('.bal')) {
@@ -153,8 +100,8 @@ function showDiagramEditor(context: ExtensionContext, langClient: ExtendedLangCl
 		}
 	}, undefined, context.subscriptions);
 
-	previewPanel.onDidDispose(() => {
-		previewPanel = undefined;
+	diagramViewPanel.onDidDispose(() => {
+		diagramViewPanel = undefined;
 		didChangeDisposable.dispose();
 		changeActiveEditorDisposable.dispose();
 	});
