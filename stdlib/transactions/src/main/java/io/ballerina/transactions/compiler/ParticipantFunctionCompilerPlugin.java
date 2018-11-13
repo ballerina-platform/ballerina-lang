@@ -21,14 +21,19 @@ import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
+import org.ballerinalang.model.tree.ResourceNode;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 
 import java.util.List;
 
 /**
  * Compiler plugin for processing transaction participant function annotations.
  *
- * @since 0.984.0
+ * @since 0.985.0
  */
 @SupportedAnnotationPackages(value = {"ballerina/transactions"})
 public class ParticipantFunctionCompilerPlugin extends AbstractCompilerPlugin {
@@ -45,5 +50,33 @@ public class ParticipantFunctionCompilerPlugin extends AbstractCompilerPlugin {
         super.process(functionNode, annotations);
     }
 
+    @Override
+    public void process(ResourceNode resourceNode, List<AnnotationAttachmentNode> annotations) {
+        switch (annotations.size()) {
+            case 1:
+                AnnotationAttachmentNode annotationAttachmentNode = annotations.get(0);
+                validateResourceAnnotation(annotationAttachmentNode, resourceNode);
+                break;
+            default:
+                dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
+                        "Participant resource cannot have more than one transaction annotation");
+                return;
+        }
+    }
 
+    private void validateResourceAnnotation(AnnotationAttachmentNode annotation, ResourceNode resourceNode) {
+        List<BLangRecordLiteral.BLangRecordKeyValue> annotationValues =
+                ((BLangRecordLiteral) annotation.getExpression()).keyValuePairs;
+        for (BLangRecordLiteral.BLangRecordKeyValue annotationValue : annotationValues) {
+            BLangSimpleVarRef key = (BLangSimpleVarRef) annotationValue.getKey();
+            // Participant resource cannot initiate a transaction.
+            if (key.variableName.value.equals("canInitiate") &&
+                    ((BLangLiteral) annotationValue.getValue()).value.equals(true)) {
+                dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
+                        "Participant resource cannot initiate a transaction");
+                return;
+            }
+        }
+
+    }
 }

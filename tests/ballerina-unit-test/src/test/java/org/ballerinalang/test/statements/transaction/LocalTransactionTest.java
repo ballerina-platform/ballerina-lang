@@ -31,21 +31,33 @@ import org.testng.annotations.Test;
 
 /**
  * Test cases for committed aborted clauses in TransactionStatement.
+ *
+ * @since 0.985.0
  */
 public class LocalTransactionTest {
 
     private CompileResult programFile;
+    private CompileResult negativeProgramFile;
     //private CompileResult negativeProgramFile;
 
     @BeforeClass
     public void setup() {
         programFile = BCompileUtil.compile("test-src/statements/transaction/transaction_local_participant_test.bal");
+        negativeProgramFile = BCompileUtil.compile("test-src/statements/transaction/transaction_participant_negative.bal");
         //negativeProgramFile = BCompileUtil.compile("test-src/statements/transaction/transaction_block_negative.bal");
     }
 
     private BValue[] runFunctionWithTxConfig(int txFailures, boolean abort) {
         BValue[] params = {new BInteger(txFailures), new BBoolean(abort)};
         return BRunUtil.invoke(programFile, "testTransactionStmtWithCommitedAndAbortedBlocks", params);
+    }
+
+    @Test
+    public void participantServiceCannotInitiateTransaction() {
+        Assert.assertTrue(negativeProgramFile.getDiagnostics().length > 0, "'canInitiate: true' annotation is illegal"
+                + " for participant resource");
+        BAssertUtil.validateError(negativeProgramFile, 0,
+                "Participant resource cannot initiate a transaction", 10, 5);
     }
 
     @Test

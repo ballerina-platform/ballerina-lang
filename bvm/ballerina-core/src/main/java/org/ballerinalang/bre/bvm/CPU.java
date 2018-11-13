@@ -2772,8 +2772,8 @@ public class CPU {
                 .notifyCommit(localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
     }
 
-    private static void trNotifyAbort(WorkerExecutionContext ctx, int transactionBlockId, LocalTransactionInfo 
-            localTransactionInfo) {
+    private static void trNotifyAbort(WorkerExecutionContext ctx, int transactionBlockId,
+                                      LocalTransactionInfo localTransactionInfo) {
         if (ctx.getGlobalTransactionEnabled()) {
             TransactionUtils.notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(),
                     transactionBlockId);

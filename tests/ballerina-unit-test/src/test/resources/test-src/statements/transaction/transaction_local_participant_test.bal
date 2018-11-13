@@ -2,12 +2,17 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/transactions;
 
-
+//
 //@http:ServiceConfig {
 //    basePath: "/hello"
 //}
 //service<http:Service> hello bind { port: 9090 } {
 //
+//    @transactions:Participant {
+//        oncommitFunc: baz,
+//        onabortFunc: bar,
+//        canInitiate: false
+//    }
 //    sayHello(endpoint caller, http:Request req) {
 //        http:Response res = new;
 //

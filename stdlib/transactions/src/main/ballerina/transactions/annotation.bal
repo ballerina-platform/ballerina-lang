@@ -30,8 +30,9 @@
 
 # Contains the configurations for local transaction participant function.
 #
-# + oncommitFunc -
-# + onabortFunc -
+# + oncommitFunc - Function to execute when transaction committed.
+# + onabortFunc - Function to execute when transaction aborted.
+# + canInitiate - Annotated entity can initiate a transaction if transaction is not present.
 public type TransactionParticipantConfig record {
     function (string) oncommitFunc;
     function (string) onabortFunc;
@@ -40,4 +41,4 @@ public type TransactionParticipantConfig record {
 };
 
 # The annotation which is used to configure local transaction participant function.
-public annotation <function> Participant TransactionParticipantConfig;
+public annotation <function, resource> Participant TransactionParticipantConfig;
