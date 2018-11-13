@@ -322,7 +322,6 @@ public enum DiagnosticCode {
     UNNECESSARY_CONDITION("unnecessary.condition"),
 
     INVALID_USAGE_OF_CLONE("clone.invocation.invalid"),
-    ;
 
     // Dataflow analysis related error codes
     PARTIALLY_INITIALIZED_VARIABLE("partially.initialized.variable");

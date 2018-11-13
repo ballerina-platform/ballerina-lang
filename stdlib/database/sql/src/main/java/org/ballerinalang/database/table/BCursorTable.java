@@ -26,6 +26,8 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.TableUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.util.Map;
+
 /**
  * Represents a cursor based table which is returned from a database as result of a query.
  *
@@ -70,7 +72,7 @@ public class BCursorTable extends BTable {
     }
 
     @Override
-    public BValue copy() {
+    public BValue copy(Map<BValue, BValue> refs) {
         throw new BallerinaException("A table returned from a database can not be cloned");
     }
 }
