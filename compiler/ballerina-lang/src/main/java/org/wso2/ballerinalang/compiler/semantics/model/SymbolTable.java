@@ -522,6 +522,7 @@ public class SymbolTable {
         defineBuiltinMethod(BLangBuiltInMethod.CLONE, anydataType, anydataType, InstructionCodes.CLONE);
         defineBuiltinMethod(BLangBuiltInMethod.CLONE, intType, intType, InstructionCodes.CLONE);
         defineBuiltinMethod(BLangBuiltInMethod.CLONE, floatType, floatType, InstructionCodes.CLONE);
+        defineBuiltinMethod(BLangBuiltInMethod.CLONE, decimalType, decimalType, InstructionCodes.CLONE);
         defineBuiltinMethod(BLangBuiltInMethod.CLONE, booleanType, booleanType, InstructionCodes.CLONE);
         defineBuiltinMethod(BLangBuiltInMethod.CLONE, stringType, stringType, InstructionCodes.CLONE);
         defineBuiltinMethod(BLangBuiltInMethod.CLONE, byteType, byteType, InstructionCodes.CLONE);

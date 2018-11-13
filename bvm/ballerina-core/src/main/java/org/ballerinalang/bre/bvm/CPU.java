@@ -833,7 +833,6 @@ public class CPU {
         TypeRefCPEntry typeEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
         if (isAnydata(typeEntry.getType())) {
             switch (typeEntry.getType().getTag()) {
-                //TODO: Decimal type to be added
                 case TypeTags.INT_TAG:
                     sf.longRegs[j] = sf.longRegs[i];
                     break;
@@ -847,6 +846,7 @@ public class CPU {
                 case TypeTags.STRING_TAG:
                     sf.stringRegs[j] = sf.stringRegs[i];
                     break;
+                case TypeTags.DECIMAL_TAG:
                 case TypeTags.XML_TAG:
                 case TypeTags.MAP_TAG:
                 case TypeTags.ARRAY_TAG:
