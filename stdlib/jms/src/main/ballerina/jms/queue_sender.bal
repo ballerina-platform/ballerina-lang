@@ -36,16 +36,15 @@ public type QueueSender object {
     public function init(QueueSenderEndpointConfiguration c) {
         self.config = c;
         self.producerActions.queueSender = self;
-        var sess = c.session;
-        if (sess is Session) {
-           Session s = sess;
-           var q = c.queueName;
-            if (q is string){
-                self.initQueueSender(s);
-            } else if (q is ()) {
+        var session = c.session;
+        if (session is Session) {
+           var queueName = c.queueName;
+            if (queueName is string){
+                self.initQueueSender(session);
+            } else {
 
             }
-        } else if (sess is ()){
+        } else if (session is ()){
            log:printInfo("Message producer not properly initialised for queue");
         }
     }
@@ -110,18 +109,16 @@ public type QueueSenderActions object {
 };
 
 function QueueSenderActions.sendTo(Destination destination, Message message) returns error? {
-    var q = self.queueSender;
-    if (q is QueueSender) {
-          QueueSender queueSender = q;
-          var sess = queueSender.config.session;
-          if (sess is Session) {
-             Session s = sess;
+    var queueSender = self.queueSender;
+    if (queueSender is QueueSender) {
+          var session = queueSender.config.session;
+          if (session is Session) {
              validateQueue(destination);
-             queueSender.initQueueSender(s, destination = destination);
-          } else if (sess is ()) {
+             queueSender.initQueueSender(session, destination = destination);
+          } else {
 
           }
-    } else if (q is ()) {
+    } else if (queueSender is ()) {
         log:printInfo("Message producer not properly initialised for queue " + destination.destinationName);
     }
     return self.send(message);

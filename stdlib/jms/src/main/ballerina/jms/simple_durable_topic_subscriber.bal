@@ -64,11 +64,10 @@ public type SimpleDurableTopicSubscriber object {
     #
     # + serviceType - type descriptor of the service to bind to
     public function register(typedesc serviceType) {
-        var s = self.subscriber;
-        if (s is DurableTopicSubscriber) {
-           DurableTopicSubscriber c = s;
-           c.register(serviceType);
-        } else if (s is ()){
+        var subscriber = self.subscriber;
+        if (subscriber is DurableTopicSubscriber) {
+           subscriber.register(serviceType);
+        } else {
            string errorMessage = "Topic Subscriber cannot be nil";
            map errorDetail = { message: errorMessage };
            error e = error(JMS_ERROR_CODE, errorDetail);
@@ -84,18 +83,16 @@ public type SimpleDurableTopicSubscriber object {
     # Retrieves the durable topic subscriber consumer actions
     #
     # + return - Durable topic subscriber actions
-    public function getCallerActions() returns SimpleDurableTopicSubscriberActions? {
-        var s = self.consumerActions;
-        if (s is SimpleDurableTopicSubscriberActions){
-             SimpleDurableTopicSubscriberActions c = s;
-             return c;
-        } else if (s is ()) {
+    public function getCallerActions() returns SimpleDurableTopicSubscriberActions {
+        var consumerActions = self.consumerActions;
+        if (consumerActions is SimpleDurableTopicSubscriberActions){
+             return consumerActions;
+        } else {
              string errorMessage = "Consumer actions cannot be nil";
              map errorDetail = { message: errorMessage };
              error e = error(JMS_ERROR_CODE, errorDetail);
              panic e;
         }
-        return ();
     }
 
     # Stops the endpoint. Function is ignored by the subscriber endpoint
@@ -108,16 +105,15 @@ public type SimpleDurableTopicSubscriber object {
     # + message - text content of the message
     # + return - the created message, or nil if the session is nil
     public function createTextMessage(string message) returns Message|error {
-        var sess = self.session;
-        if (sess is Session) {
-            Session s = sess;
-            return s.createTextMessage(message);
-        }
+        var session = self.session;
+        if (session is Session) {
+            return session.createTextMessage(message);
+        } else {
             string errorMessage = "Session cannot be nil";
             map errorDetail = { message: errorMessage };
             error e = error(JMS_ERROR_CODE, errorDetail);
             panic e;
-
+        }
     }
 };
 

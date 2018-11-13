@@ -24,7 +24,6 @@ import ballerina/log;
 public type SimpleQueueSender object {
 
     public SimpleQueueSenderEndpointConfiguration config;
-
     private Connection? connection;
     private Session? session = ();
     private QueueSender? sender = ();
@@ -72,18 +71,16 @@ public type SimpleQueueSender object {
     # Returns the caller action object of the SimpleQueueSender
     #
     # + return - Simple queue sender actions
-    public function getCallerActions() returns QueueSenderActions? {
-        var s = self.sender;
-        if (s is QueueSender){
-            QueueSender queueSender = s;
-            return queueSender.getCallerActions();
-        } else if (s is ()) {
+    public function getCallerActions() returns QueueSenderActions {
+        var sender = self.sender;
+        if (sender is QueueSender){
+            return sender.getCallerActions();
+        } else {
             string errorMessage = "Queue sender cannot be nil";
             map errorDetail = { message: errorMessage };
             error e = error(JMS_ERROR_CODE, errorDetail);
             panic e;
         }
-        return ();
     }
 
     # Stops the  SimpleQueueSender endpoint
@@ -95,16 +92,15 @@ public type SimpleQueueSender object {
     # + content - the text content used to initialize this message
     # + return - a message or nil if the session is nil
     public function createTextMessage(string content) returns Message|error {
-        var sess = self.session;
-        if (sess is Session) {
-            Session s = sess;
-            return s.createTextMessage(content);
-        }
+        var session = self.session;
+        if (session is Session) {
+            return session.createTextMessage(content);
+        } else {
             string errorMessage = "Session cannot be nil";
             map errorDetail = { message: errorMessage };
             error e = error(JMS_ERROR_CODE, errorDetail);
             panic e;
-
+        }
     }
 };
 

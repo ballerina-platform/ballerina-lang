@@ -22,7 +22,6 @@ import ballerina/log;
 public type SimpleTopicSubscriber object {
 
     public SimpleTopicSubscriberEndpointConfiguration config;
-
     private Connection? connection;
     private Session? session = ();
     private TopicSubscriber? subscriber = ();
@@ -59,11 +58,10 @@ public type SimpleTopicSubscriber object {
     #
     # + serviceType - Type descriptor of the service
     public function register(typedesc serviceType) {
-        var s = self.subscriber;
-        if (s is TopicSubscriber){
-           TopicSubscriber c = s;
-           c.register(serviceType);
-        } else if (s is ()){
+        var subscriber = self.subscriber;
+        if (subscriber is TopicSubscriber){
+           subscriber.register(serviceType);
+        } else {
            string errorMessage = "Topic Subscriber cannot be nil";
            map errorDetail = { message: errorMessage };
            error e = error(JMS_ERROR_CODE, errorDetail);
@@ -79,18 +77,16 @@ public type SimpleTopicSubscriber object {
     # Get simple topic subscriber actions
     #
     # + return - Topic subscriber actions
-    public function getCallerActions() returns TopicSubscriberActions? {
-        var s = self.subscriber;
-        if (s is TopicSubscriber) {
-            TopicSubscriber c = s;
-            return c.getCallerActions();
-        } else if (s is ()) {
+    public function getCallerActions() returns TopicSubscriberActions {
+        var subscriber = self.subscriber;
+        if (subscriber is TopicSubscriber) {
+            return subscriber.getCallerActions();
+        } else {
             string errorMessage = "Topic Subscriber cannot be nil";
             map errorDetail = { message: errorMessage };
             error e = error(JMS_ERROR_CODE, errorDetail);
             panic e;
         }
-        return ();
     }
 
     # Stop simple topic subsriber endpoint
@@ -103,16 +99,15 @@ public type SimpleTopicSubscriber object {
     # + message - A message body to create a text message
     # + return - a message or nil if the session is nil
     public function createTextMessage(string message) returns Message|error {
-        var sess = self.session;
-        if (sess is Session) {
-           Session s = sess;
-           return s.createTextMessage(message);
-        }
+        var session = self.session;
+        if (session is Session) {
+           return session.createTextMessage(message);
+        } else {
            string errorMessage = "Session cannot be nil";
            map errorDetail = { message: errorMessage };
            error e = error(JMS_ERROR_CODE, errorDetail);
            panic e;
-
+        }
     }
 
     # Create JMS map message
@@ -120,16 +115,15 @@ public type SimpleTopicSubscriber object {
     # + message - A message body to create a map message
     # + return - a message or nil if the session is nil.
     public function createMapMessage(map message) returns Message|error {
-        var sess = self.session;
-        if (sess is Session) {
-              Session s = sess;
-              return s.createMapMessage(message);
-        }
+        var session = self.session;
+        if (session is Session) {
+              return session.createMapMessage(message);
+        } else {
               string errorMessage = "Session cannot be nil";
               map errorDetail = { message: errorMessage };
               error e = error(JMS_ERROR_CODE, errorDetail);
               panic e;
-
+        }
     }
 };
 

@@ -61,11 +61,10 @@ public type SimpleQueueReceiver object {
     #
     # + serviceType - type descriptor of the service to bind to
     public function register(typedesc serviceType) {
-        var q = self.queueReceiver;
-        if (q is  QueueReceiver) {
-          QueueReceiver c = q;
-          c.register(serviceType);
-        } else if (q is ()){
+        var queueReceiver = self.queueReceiver;
+        if (queueReceiver is  QueueReceiver) {
+          queueReceiver.register(serviceType);
+        } else if (queueReceiver is ()){
             string errorMessage = "Queue receiver cannot be nil";
             map errorDetail = { message: errorMessage };
             error e = error(JMS_ERROR_CODE, errorDetail);
@@ -81,18 +80,16 @@ public type SimpleQueueReceiver object {
     # Retrieves the SimpleQueueReceiver consumer action handler
     #
     # + return - simple queue receiver action handler
-    public function getCallerActions() returns QueueReceiverActions? {
-        var q = self.queueReceiver;
-        if (q is QueueReceiver){
-            QueueReceiver c = q;
-            return c.getCallerActions();
-        } else if (q is ()){
+    public function getCallerActions() returns QueueReceiverActions {
+        var queueReceiver = self.queueReceiver;
+        if (queueReceiver is QueueReceiver){
+            return queueReceiver.getCallerActions();
+        } else {
             string errorMessage = "Queue receiver cannot be nil";
             map errorDetail = { message: errorMessage };
             error e = error(JMS_ERROR_CODE, errorDetail);
             panic e;
         }
-        return ();
     }
 
     # Stops consuming messages through QueueReceiver endpoint
@@ -105,16 +102,15 @@ public type SimpleQueueReceiver object {
     # + content - the text content used to initialize this message
     # + return - the created message, or nil if the session is nil
     public function createTextMessage(string content) returns Message|error {
-        var sess = self.session;
-        if (sess is Session) {
-            Session s = sess;
-            return s.createTextMessage(content);
+        var session = self.session;
+        if (session is Session) {
+            return session.createTextMessage(content);
+        } else {
+            string errorMessage = "Session cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
-           string errorMessage = "Session cannot be nil";
-           map errorDetail = { message: errorMessage };
-           error e = error(JMS_ERROR_CODE, errorDetail);
-           panic e;
-
     }
 };
 

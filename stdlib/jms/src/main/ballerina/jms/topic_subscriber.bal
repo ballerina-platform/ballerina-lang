@@ -31,18 +31,16 @@ public type TopicSubscriber object {
     public function init(TopicSubscriberEndpointConfiguration c) {
         self.config = c;
         self.consumerActions.topicSubscriber = self;
-        var sess = c.session;
-        if (sess is Session){
-           Session s = sess;
-             var t = c.topicPattern;
-             if (t is string){
-                string topicPattern = t;
-                self.createSubscriber(s, c.messageSelector);
+        var session = c.session;
+        if (session is Session){
+             var topicPattern = c.topicPattern;
+             if (topicPattern is string){
+                self.createSubscriber(session, c.messageSelector);
                 log:printInfo("Subscriber created for topic " + topicPattern);
-             } else if (t is ()){
+             } else if (topicPattern is ()){
 
              }
-        } else if (sess is ()){
+        } else if (session is ()){
             log:printInfo("Topic subscriber is not properly initialised for topic");
         }
     }
@@ -121,19 +119,17 @@ public type TopicSubscriberActions object {
 
 function TopicSubscriberActions.receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|
         error)? {
-    var t = self.topicSubscriber;
-    if (t is TopicSubscriber) {
-          TopicSubscriber topicSubscriber = t;
-          var sess = topicSubscriber.config.session;
-          if (sess is Session) {
-            Session s = sess;
+    var subscriber = self.topicSubscriber;
+    if (subscriber is TopicSubscriber) {
+          var session = subscriber.config.session;
+          if (session is Session) {
             validateTopic(destination);
-            topicSubscriber.createSubscriber(s, topicSubscriber.config.messageSelector, destination = destination);
+            topicSubscriber.createSubscriber(session, subscriber.config.messageSelector, destination = destination);
             log:printInfo("Subscriber created for topic " + destination.destinationName);
-          } else if (sess is ()) {
+          } else if (session is ()) {
 
           }
-    } else if (t is ()) {
+    } else if (subscriber is ()) {
        log:printInfo("Topic subscriber is not properly initialized.");
     }
     var result = self.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);

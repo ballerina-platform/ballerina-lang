@@ -69,18 +69,16 @@ public type SimpleTopicPublisher object {
     # Get simple topic pubilsher actions
     #
     # + return - Topic publisher actions
-    public function getCallerActions() returns TopicPublisherActions? {
-        var s = self.publisher;
-        if (s is TopicPublisher) {
-            TopicPublisher topicPublisher = s;
-            return topicPublisher.getCallerActions();
-        } else if (s is ()){
+    public function getCallerActions() returns TopicPublisherActions {
+        var publisher = self.publisher;
+        if (publisher is TopicPublisher) {
+            return publisher.getCallerActions();
+        } else {
             string errorMessage = "Topic publisher cannot be nil";
             map errorDetail = { message: errorMessage };
             error e = error(JMS_ERROR_CODE, errorDetail);
             panic e;
         }
-        return ();
     }
 
     # Stop simple topic pubilsher endpoint
@@ -93,32 +91,30 @@ public type SimpleTopicPublisher object {
     # + message - A message body to create a text message
     # + return - a message or nil if the session is nil
     public function createTextMessage(string message) returns Message|error {
-        var sess = self.session;
-        if (sess is Session){
-           Session s = sess;
-           return s.createTextMessage(message);
-        }
+        var session = self.session;
+        if (session is Session){
+           return session.createTextMessage(message);
+        } else {
            string errorMessage = "Session cannot be nil";
            map errorDetail = { message: errorMessage };
            error e = error(JMS_ERROR_CODE, errorDetail);
            panic e;
-
+        }
     }
     # Create JMS map message
     #
     # + message - A message body to create a map message
     # + return - a message or nil if the session is nil
     public function createMapMessage(map message) returns Message|error {
-        var sess = self.session;
-        if (sess is Session) {
-          Session s = sess;
-          return s.createMapMessage(message);
-        }
+        var session = self.session;
+        if (session is Session) {
+          return session.createMapMessage(message);
+        } else {
           string errorMessage = "Session cannot be nil";
           map errorDetail = { message: errorMessage };
           error e = error(JMS_ERROR_CODE, errorDetail);
           panic e;
-
+        }
     }
 };
 

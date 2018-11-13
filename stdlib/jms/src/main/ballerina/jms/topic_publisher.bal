@@ -35,16 +35,15 @@ public type TopicPublisher object {
     public function init(TopicPublisherEndpointConfiguration c) {
         self.config = c;
         self.producerActions.topicPublisher = self;
-        var sess = c.session;
-        if (sess is Session) {
-           Session s = sess;
-           var t = c.topicPattern;
-           if (t is string) {
-               self.initTopicPublisher(s);
-           } else if (t is ()){
+        var session = c.session;
+        if (session is Session) {
+           var topicPattern = c.topicPattern;
+           if (topicPattern is string) {
+               self.initTopicPublisher(session);
+           } else if (topicPattern is ()){
                log:printInfo("Topic publisher is not properly initialized for the topic");
            }
-        } else if (sess is ()) {
+        } else {
 
         }
     }
@@ -106,18 +105,16 @@ public type TopicPublisherActions object {
 };
 
 function TopicPublisherActions.sendTo(Destination destination, Message message) returns error? {
-    var p = self.topicPublisher;
-    if (p is TopicPublisher) {
-        TopicPublisher topicPublisher = p;
-        var sess = topicPublisher.config.session;
-        if (sess is Session) {
-            Session s = sess;
+    var publisher = self.topicPublisher;
+    if (publisher is TopicPublisher) {
+        var session = topicPublisher.config.session;
+        if (session is Session) {
             validateTopic(destination);
-            topicPublisher.initTopicPublisher(s, destination = destination);
-        } else if (sess is ()){
+            topicPublisher.initTopicPublisher(session, destination = destination);
+        } else if (session is ()){
 
         }
-    } else if (p is ()) {
+    } else if (publisher is ()) {
         log:printInfo("Topic publisher is not properly initialized.");
     }
     return self.send(message);
