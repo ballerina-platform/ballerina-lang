@@ -53,21 +53,19 @@ function testTypicalScenario() returns (http:Response[], error[]) {
     cbClient.httpClient = <http:CallerActions> mockClient;
 
     while (counter < 8) {
-       http:Request request = new;
-       request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_TYPICAL);
-       match cbClient.get("/hello", message = request) {
-            http:Response res => {
-                responses[counter] = res;
-            }
-            error httpConnectorError => {
-                errs[counter] = httpConnectorError;
-            }
+        http:Request request = new;
+        request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_TYPICAL);
+        var serviceResponse = cbClient.get("/hello", message = request);
+        if (serviceResponse is http:Response) {
+            responses[counter] = serviceResponse;
+        } else if (serviceResponse is error) {
+            errs[counter] = serviceResponse;
         }
-       counter = counter + 1;
-       // To ensure the reset timeout period expires
-       if (counter == 5) {
-           runtime:sleep(5000);
-       }
+        counter = counter + 1;
+        // To ensure the reset timeout period expires
+        if (counter == 5) {
+            runtime:sleep(5000);
+        }
     }
     return (responses, errs);
 }
@@ -97,20 +95,18 @@ function testTrialRunFailure() returns (http:Response[], error[]) {
 
     while (counter < 8) {
         http:Request request = new;
-       request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_TRIAL_RUN_FAILURE);
-       match cbClient.get("/hello", message = request) {
-            http:Response res => {
-                responses[counter] = res;
-            }
-            error httpConnectorError => {
-                errs[counter] = httpConnectorError; 
-            }
+        request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_TRIAL_RUN_FAILURE);
+        var serviceResponse = cbClient.get("/hello", message = request);
+        if (serviceResponse is http:Response) {
+            responses[counter] = serviceResponse;
+        } else if (serviceResponse is error) {
+            errs[counter] = serviceResponse;
         }
-       counter = counter + 1;
-       // To ensure the reset timeout period expires
-       if (counter == 5) {
-           runtime:sleep(5000);
-       }
+        counter = counter + 1;
+        // To ensure the reset timeout period expires
+        if (counter == 5) {
+            runtime:sleep(5000);
+        }
     }
     return (responses, errs);
 }
@@ -140,16 +136,14 @@ function testHttpStatusCodeFailure() returns (http:Response[], error[]) {
 
     while (counter < 8) {
         http:Request request = new;
-       request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_HTTP_SC_FAILURE);
-       match cbClient.get("/hello", message = request) {
-            http:Response res => {
-                responses[counter] = res;
-            }
-            error httpConnectorError => {
-                errs[counter] = httpConnectorError; 
-            }
+        request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_HTTP_SC_FAILURE);
+        var serviceResponse = cbClient.get("/hello", message = request);
+        if (serviceResponse is http:Response) {
+            responses[counter] = serviceResponse;
+        } else if (serviceResponse is error) {
+            errs[counter] = serviceResponse;
         }
-       counter = counter + 1;
+        counter = counter + 1;
     }
     return (responses, errs);
 }
@@ -183,13 +177,11 @@ function testForceOpenScenario() returns (http:Response[], error[]) {
         if (counter > 3) {
             cbClient.forceOpen();
         }
-        match cbClient.get("/hello", message = request) {
-            http:Response res => {
-                responses[counter] = res;
-            }
-            error httpConnectorError => {
-                errs[counter] = httpConnectorError;
-            }
+        var serviceResponse = cbClient.get("/hello", message = request);
+        if (serviceResponse is http:Response) {
+            responses[counter] = serviceResponse;
+        } else if (serviceResponse is error) {
+            errs[counter] = serviceResponse;
         }
         counter = counter + 1;
     }
@@ -225,13 +217,11 @@ function testForceCloseScenario() returns (http:Response[], error[]) {
         if (counter > 2) {
             cbClient.forceClose();
         }
-        match cbClient.get("/hello", message = request) {
-            http:Response res => {
-                responses[counter] = res;
-            }
-            error httpConnectorError => {
-                errs[counter] = httpConnectorError;
-            }
+        var serviceResponse = cbClient.get("/hello", message = request);
+        if (serviceResponse is http:Response) {
+            responses[counter] = serviceResponse;
+        } else if (serviceResponse is error) {
+            errs[counter] = serviceResponse;
         }
         counter = counter + 1;
     }
@@ -264,13 +254,11 @@ function testRequestVolumeThresholdSuccessResponseScenario() returns (http:Respo
     while (counter < 6) {
         http:Request request = new;
         request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_REQUEST_VOLUME_THRESHOLD_SUCCESS);
-        match cbClient.get("/hello", message = request) {
-            http:Response res => {
-                responses[counter] = res;
-            }
-            error httpConnectorError => {
-                errs[counter] = httpConnectorError;
-            }
+        var serviceResponse = cbClient.get("/hello", message = request);
+        if (serviceResponse is http:Response) {
+            responses[counter] = serviceResponse;
+        } else if (serviceResponse is error) {
+            errs[counter] = serviceResponse;
         }
         counter = counter + 1;
     }
@@ -303,13 +291,11 @@ function testRequestVolumeThresholdFailureResponseScenario() returns (http:Respo
     while (counter < 6) {
         http:Request request = new;
         request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_REQUEST_VOLUME_THRESHOLD_FAILURE);
-        match cbClient.get("/hello", message = request) {
-            http:Response res => {
-                responses[counter] = res;
-            }
-            error httpConnectorError => {
-                errs[counter] = httpConnectorError;
-            }
+        var serviceResponse = cbClient.get("/hello", message = request);
+        if (serviceResponse is http:Response) {
+            responses[counter] = serviceResponse;
+        } else if (serviceResponse is error) {
+            errs[counter] = serviceResponse;
         }
         counter = counter + 1;
     }
@@ -532,17 +518,25 @@ function getMockErrorStruct() returns error {
     return err;
 }
 
-function buildRequest(http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns http:Request {
+function buildRequest(http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns
+http:Request {
     http:Request request = new;
-    match message {
-        () => {}
-        http:Request req => {request = req;}
-        string textContent => {request.setTextPayload(textContent);}
-        xml xmlContent => {request.setXmlPayload(xmlContent);}
-        json jsonContent => {request.setJsonPayload(jsonContent);}
-        byte[] blobContent => {request.setBinaryPayload(blobContent);}
-        io:ReadableByteChannel byteChannelContent => {request.setByteChannel(byteChannelContent);}
-        mime:Entity[] bodyParts => {request.setBodyParts(bodyParts);}
+    if (message is ()) {
+        return request;
+    } else if (message is http:Request) {
+        request = message;
+    } else if (message is string) {
+        request.setTextPayload(message);
+    } else if (message is xml) {
+        request.setXmlPayload(message);
+    } else if (message is json) {
+        request.setJsonPayload(message);
+    } else if (message is byte[]) {
+        request.setBinaryPayload(message);
+    } else if (message is io:ReadableByteChannel) {
+        request.setByteChannel(message);
+    } else if (message is mime:Entity[]) {
+        request.setBodyParts(message);
     }
     return request;
 }
