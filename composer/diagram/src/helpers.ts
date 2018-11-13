@@ -7,7 +7,7 @@ import { Diagram, DiagramProps, EdiatableDiagramProps,
 
 export interface EditableDiagramArgs {
     target: HTMLElement;
-    diagramProps: EdiatableDiagramProps;
+    editorProps: EdiatableDiagramProps;
 }
 
 export interface StaticDiagramArgs {
@@ -16,8 +16,8 @@ export interface StaticDiagramArgs {
 }
 
 export const renderDiagramEditor = (args: EditableDiagramArgs) => {
-    const EditableDiagramElement = createElement(EditableDiagram, args.diagramProps);
-    ReactDOM.render(EditableDiagramElement, args.target);
+    const EditableDiagramElement = createElement(EditableDiagram, args.editorProps);
+    return ReactDOM.render(EditableDiagramElement, args.target);
 };
 
 export const renderStaticDiagram = (args: StaticDiagramArgs) => {
