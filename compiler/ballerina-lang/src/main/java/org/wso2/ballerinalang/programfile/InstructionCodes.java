@@ -265,6 +265,8 @@ public interface InstructionCodes {
     int RNEWARRAY = 205;
     int LENGTHOF = 208;
 
+    int WAITALL = 209;
+
     int NEWSTRUCT = 210;
     int NEWMAP = 212;
     int NEWTABLE = 215;
