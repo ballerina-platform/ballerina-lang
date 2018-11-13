@@ -23,11 +23,9 @@ function startupHub(int hubPort) returns websub:WebSubHub|websub:HubStartedUpErr
 
 function stopHub(websub:WebSubHub|websub:HubStartedUpError hubStartUpResult) returns boolean {
     if (hubStartUpResult is websub:WebSubHub) {
-        websub:WebSubHub hub = hubStartUpResult;
-        return hub.stop();
+        return hubStartUpResult.stop();
     } else if (hubStartUpResult is websub:HubStartedUpError) {
-        websub:WebSubHub hub = hubStartUpResult.startedUpHub;
-        return hub.stop();
+        return hubStartUpResult.startedUpHub.stop();
     }
     return false;
 }
