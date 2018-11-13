@@ -40,7 +40,7 @@ install:
   - cmd: node --version
   - cmd: npm --version
 build_script:
-  - SET MAVEN_OPTS="-Xms1024m"
+  - SET MAVEN_OPTS="-Xms2048m"
   - mvn clean install -B -V
 cache:
   - C:\maven\ -> appveyor.yml
