@@ -282,7 +282,7 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue.get("batch").stringValue(), "LK2014");
 
         Assert.assertEquals(mapValue.get("address").getType().getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType)mapValue.get("address").getType()).getConstrainedType().getClass(),
+        Assert.assertEquals(((BMapType) mapValue.get("address").getType()).getConstrainedType().getClass(),
                 BAnydataType.class);
     }
 
