@@ -6,6 +6,5 @@ public function main(string... args) {
 }
 
 function sourceFunc() {
-    workerInit();
     io:println("Hello, World! 2");
 }
