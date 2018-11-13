@@ -2584,12 +2584,10 @@ public class BLangPackageBuilder {
         addExpressionNode(workerFlushExpr);
     }
 
-    void addWorkerSendSyncExpr(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean isForkJoinSend,
-                               boolean hasKey) {
+    void addWorkerSendSyncExpr(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean hasKey) {
         BLangWorkerSyncSendExpr workerSendExpr = TreeBuilder.createWorkerSendSyncExprNode();
         workerSendExpr.setWorkerName(this.createIdentifier(workerName));
         workerSendExpr.expr = (BLangExpression) exprNodeStack.pop();
-        workerSendExpr.isForkJoinSend = isForkJoinSend;
         workerSendExpr.pos = pos;
         workerSendExpr.addWS(ws);
         //added to use for channels as well

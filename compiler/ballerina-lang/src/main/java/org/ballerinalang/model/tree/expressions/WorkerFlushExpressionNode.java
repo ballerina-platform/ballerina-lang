@@ -20,7 +20,7 @@ package org.ballerinalang.model.tree.expressions;
 import org.ballerinalang.model.tree.IdentifierNode;
 
 /**
- * Worker flush expression interface.
+ * This represents the worker flush expression node.
  *
  * @since 0.985
  */
