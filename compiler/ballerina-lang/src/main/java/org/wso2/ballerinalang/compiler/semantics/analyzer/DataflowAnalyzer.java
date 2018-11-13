@@ -167,6 +167,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -479,21 +480,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
-        InitStatus initStatus = this.uninitializedVars.get(varRefExpr.symbol);
-        if (initStatus == null) {
-            return;
-        }
-
-        if (initStatus == InitStatus.UN_INIT) {
-            this.dlog.error(varRefExpr.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varRefExpr.symbol.name);
-            return;
-        }
-
-        this.dlog.error(varRefExpr.pos, DiagnosticCode.PARTIALLY_INITIALIZED_VARIABLE, varRefExpr.symbol.name);
+        checkVarRef(varRefExpr.symbol, varRefExpr.pos);
     }
 
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
+        if(!fieldAccessExpr.lhsVar && isObjectMemberAccess(fieldAccessExpr)) {
+            checkVarRef(fieldAccessExpr.symbol, fieldAccessExpr.pos);
+        }
         analyzeNode(fieldAccessExpr.expr, env);
     }
 
@@ -833,13 +827,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
             // Body should be visited after the params
             objectTypeNode.initFunction.body.stmts.forEach(statement -> analyzeNode(statement, objectEnv));
-
-            objectTypeNode.fields.stream().filter(field -> !Symbols.isPrivate(field.symbol)).forEach(field -> {
-                if (this.uninitializedVars.containsKey(field.symbol)) {
-                    this.dlog.error(field.pos, DiagnosticCode.OBJECT_UNINITIALIZED_FIELD, field.name);
-                }
-            });
         }
+
+        objectTypeNode.fields.stream().filter(field -> !Symbols.isPrivate(field.symbol)).forEach(field -> {
+            if (this.uninitializedVars.containsKey(field.symbol)) {
+                this.dlog.error(field.pos, DiagnosticCode.OBJECT_UNINITIALIZED_FIELD, field.name);
+            }
+        });
 
         objectTypeNode.functions.forEach(function -> analyzeNode(function, env));
     }
@@ -927,7 +921,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorType errorType) {
     }
-
 
     @Override
     public void visit(BLangAction actionNode) {
@@ -1047,6 +1040,27 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
                             return InitStatus.UN_INIT;
                         }));
+    }
+
+    private void checkVarRef(BSymbol symbol, DiagnosticPos pos) {
+        InitStatus initStatus = this.uninitializedVars.get(symbol);
+        if (initStatus == null) {
+            return;
+        }
+
+        if (initStatus == InitStatus.UN_INIT) {
+            this.dlog.error(pos, DiagnosticCode.UNINITIALIZED_VARIABLE, symbol.name);
+            return;
+        }
+
+        this.dlog.error(pos, DiagnosticCode.PARTIALLY_INITIALIZED_VARIABLE, symbol.name);
+    }
+
+    private boolean isObjectMemberAccess(BLangFieldBasedAccess fieldAccessExpr) {
+        if (fieldAccessExpr.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+            return false;
+        }
+        return Names.SELF.value.equals(((BLangSimpleVarRef) fieldAccessExpr.expr).variableName.value);
     }
 
     private void terminateFlow() {

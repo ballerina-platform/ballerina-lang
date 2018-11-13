@@ -32,6 +32,7 @@ public type JWTAuthProvider object {
     #
     # + jwtAuthProviderConfig - JWT authentication provider configurations
     public new(jwtAuthProviderConfig) {
+        self.authCache = new;
     }
 
     # Authenticate with a jwt token

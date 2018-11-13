@@ -21,8 +21,8 @@
 # + loadBalanceClientConfig - The configurations for the load balance client endpoint
 public type LoadBalanceClient object {
 
-    public string epName;
-    public LoadBalanceClientEndpointConfiguration loadBalanceClientConfig;
+    public string epName = "";
+    public LoadBalanceClientEndpointConfiguration loadBalanceClientConfig = {};
 
     private Client httpEP = new;
 

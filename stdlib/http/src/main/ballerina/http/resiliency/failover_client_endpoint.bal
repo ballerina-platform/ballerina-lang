@@ -21,8 +21,8 @@
 # + failoverClientConfig - The configurations for the failover client endpoint
 public type FailoverClient object {
 
-    public string epName;
-    public FailoverClientEndpointConfiguration failoverClientConfig;
+    public string epName = "";
+    public FailoverClientEndpointConfiguration failoverClientConfig = {};
 
     private Client httpEP = new;
 

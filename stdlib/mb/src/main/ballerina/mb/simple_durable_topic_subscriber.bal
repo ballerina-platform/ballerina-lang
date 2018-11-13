@@ -22,10 +22,10 @@ import ballerina/log;
 # + config - configurations related to the endpoint
 public type SimpleDurableTopicSubscriber object {
 
-    public SimpleDurableTopicSubscriberEndpointConfiguration config;
+    public SimpleDurableTopicSubscriberEndpointConfiguration config = {};
 
-    private jms:SimpleDurableTopicSubscriber subscriber;
-    private DurableTopicSubscriberActions? consumerActions;
+    private jms:SimpleDurableTopicSubscriber subscriber = new;
+    private DurableTopicSubscriberActions? consumerActions = ();
 
     # Initializes the simple durable topic subscriber endpoint
     #

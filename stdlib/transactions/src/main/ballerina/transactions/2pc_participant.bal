@@ -42,7 +42,7 @@ public type RemoteProtocol record {
 
 type Participant abstract object {
 
-    string participantId;
+    string participantId = "";
 
     function prepare(string protocol) returns ((PrepareResult|error)?, Participant);
 

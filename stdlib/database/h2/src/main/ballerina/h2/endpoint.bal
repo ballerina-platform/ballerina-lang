@@ -44,7 +44,7 @@ public type ClientEndpointConfiguration record {
 # + config - The configurations associated with the SQL endpoint
 public type Client object {
     private ClientEndpointConfiguration config;
-    private sql:CallerActions h2Client;
+    private sql:CallerActions h2Client = new;
 
     # Gets called when the endpoint is being initialized during the module initialization.
     #

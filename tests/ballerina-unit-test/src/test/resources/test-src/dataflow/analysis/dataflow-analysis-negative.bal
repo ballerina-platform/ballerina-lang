@@ -313,8 +313,8 @@ type Foo object {
     int e;
 
     new (c, e=4, f, int x) {
-        a = globalVar;
-        b = e;
+        self.a = globalVar;
+        self.b = e;
     }
 
     function getGlobalVar() returns int {
@@ -322,20 +322,20 @@ type Foo object {
     }
 
     function getA() returns int {
-        return a;
+        return self.a;
     }
 
     function getB() returns int {
-        d = 46;
-        return b;
+        self.d = 46;
+        return self.b;
     }
 
     function getC() returns int {
-        return c;
+        return self.c;
     }
 
     function getD() returns int {
-        return d;
+        return self.d;
     }
 };
 
@@ -531,9 +531,9 @@ type A object {
     int c;
 
     new () {
-        a = 1;
-        b = 2;
-        c = 3;
+        self.a = 1;
+        self.b = 2;
+        self.c = 3;
     }
 };
 
@@ -591,7 +591,7 @@ service<http:Service> testService bind testEP {
     }
 }
 
-function testDataflowWithPanic() returns string {
+function testDataflowWithPanic_1() returns string {
     error e = error("some error");
     string msg;
     if (true) {
@@ -640,3 +640,9 @@ function testDataflowWithNestedPanic_2() returns string {
 
     return msg;
 }
+
+type E object {
+    public int a;
+    private int b;
+    int c;
+};

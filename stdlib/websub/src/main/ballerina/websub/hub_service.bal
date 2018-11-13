@@ -173,6 +173,9 @@ service<http:Service> hubService {
                                 log:printError("Error responding on update fetch failure", err = responseError);
                             }
                             done;
+                        } else {
+                            // should never reach here
+                            done;
                         }
                     } else {
                         binaryPayload = request.getBinaryPayload();

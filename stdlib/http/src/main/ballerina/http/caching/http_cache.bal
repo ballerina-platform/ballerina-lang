@@ -71,7 +71,7 @@ public type HttpCache object {
     }
 
     function get (string key) returns Response {
-        Response response;
+        Response response = new;
         var cacheEntry = <Response[]> self.cache.get(key);
         if (cacheEntry is Response[]) {
             response = cacheEntry[cacheEntry.length() - 1];

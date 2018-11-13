@@ -21,7 +21,7 @@ import ballerina/log;
 # + config - Simple topic subscrirber enpoint configuration
 public type SimpleTopicSubscriber object {
 
-    public SimpleTopicSubscriberEndpointConfiguration config;
+    public SimpleTopicSubscriberEndpointConfiguration config = {};
 
     private Connection? connection;
     private Session? session = ();
