@@ -2784,8 +2784,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
 
         //remove objects initialized within lock
-        lockNode.fieldVariables.keySet().removeIf(expr -> (
-                (BVarSymbol) expr.expr.symbol).varIndex == null);
+        lockNode.fieldVariables.keySet().removeIf(symbol -> symbol.varIndex == null);
 
         Operand gotoLockEndAddr = getOperand(-1);
         Instruction instructGotoLockEnd = InstructionFactory.get(InstructionCodes.GOTO, gotoLockEndAddr);
@@ -2812,7 +2811,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     private Operand[] getOperands(BLangLock lockNode) {
 
         //need to visit all the vars because parent node of a nested structure may not be loaded yet
-        lockNode.fieldVariables.keySet().forEach(expr -> visit((expr)));
+        lockNode.fieldVariables.values().forEach(exprList -> exprList.stream().forEach(expr ->visit(expr)));
 
         //count field vars
         int fieldVarCount = 0;
@@ -2847,20 +2846,20 @@ public class CodeGenerator extends BLangNodeVisitor {
             operands[i++] = varSymbol.varIndex;
         }
 
-        for (Entry<BLangStructFieldAccessExpr, Set<String>> entry : lockNode.fieldVariables.entrySet()) {
-            BSymbol symbol = (entry.getKey()).symbol;
-            Set<String> fields = entry.getValue();
+        for (Entry<BVarSymbol, Set<BLangStructFieldAccessExpr>> entry : lockNode.fieldVariables.entrySet()) {
+            BSymbol symbol = entry.getKey();
+            Set<BLangStructFieldAccessExpr> expressions = entry.getValue();
 
             int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, symbol.pkgID);
             int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, symbol.getType().getDesc());
             TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
 
-            for (String field : fields) {
+            for (BLangStructFieldAccessExpr expr : expressions) {
                 operands[i++] = getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
                 operands[i++] = getOperand(pkgRefCPIndex);
-                operands[i++] = (entry.getKey()).expr.regIndex;
+                operands[i++] = expr.expr.regIndex;
 
-                int fieldNameCPEntry = addUTF8CPEntry(currentPkgInfo, field);
+                int fieldNameCPEntry = addUTF8CPEntry(currentPkgInfo, (String)((BLangLiteral) expr.indexExpr).value);
                 operands[i++] = getOperand(fieldNameCPEntry);
             }
         }
@@ -2881,7 +2880,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             operands[i++] = getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
 
             operands[i++] = getOperand(pkgRefCPIndex);
-            //It is assumed that callee is referred by the first ref reg of local data, for locks within attached
+            // It is assumed that callee is referred by the first ref reg of local data, for locks within attached
             // functions
             operands[i++] = getOperand(0);
             int fieldNameCPEntry = addUTF8CPEntry(currentPkgInfo, varSymbol.name.value);

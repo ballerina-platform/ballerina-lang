@@ -825,8 +825,8 @@ public class Desugar extends BLangNodeVisitor {
 
         //check both a field and parent are in locked variables
         if (!lockNode.lockVariables.isEmpty()) {
-            lockNode.fieldVariables.keySet().removeIf(expression -> isParentLocked(lockNode,
-                    expression));
+            lockNode.fieldVariables.values().forEach(exprSet -> exprSet.removeIf(expr -> isParentLocked(lockNode,
+                    expr)));
         }
         result = lockNode;
     }
@@ -1109,8 +1109,7 @@ public class Desugar extends BLangNodeVisitor {
                 if (!enclLocks.isEmpty() &&
                         (fieldAccessExpr.expr.symbol != null) &&
                         (fieldAccessExpr.expr.symbol.pkgID == env.enclPkg.packageID)) {
-                    enclLocks.peek().addFieldVariable((BLangStructFieldAccessExpr) targetVarRef,
-                            fieldAccessExpr.field.value);
+                    enclLocks.peek().addFieldVariable((BLangStructFieldAccessExpr) targetVarRef);
                 }
             }
         } else if (varRefType.tag == TypeTags.RECORD) {
@@ -1125,8 +1124,7 @@ public class Desugar extends BLangNodeVisitor {
                 if (!enclLocks.isEmpty() &&
                         (fieldAccessExpr.expr.symbol != null) &&
                         (fieldAccessExpr.expr.symbol.pkgID == env.enclPkg.packageID)) {
-                    enclLocks.peek().addFieldVariable((BLangStructFieldAccessExpr) targetVarRef,
-                            fieldAccessExpr.field.value);
+                    enclLocks.peek().addFieldVariable((BLangStructFieldAccessExpr) targetVarRef);
                 }
             }
         } else if (varRefType.tag == TypeTags.MAP) {
