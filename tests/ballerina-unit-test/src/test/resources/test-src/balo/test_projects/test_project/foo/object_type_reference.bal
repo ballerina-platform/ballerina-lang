@@ -44,7 +44,7 @@ public type Manager1 object {
     }
 };
 
-function Manager1::getName(string greeting = "Hello") returns string {
+function Manager1.getName(string greeting = "Hello") returns string {
     return greeting + " " + self.name;
 }
 

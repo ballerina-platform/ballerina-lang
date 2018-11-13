@@ -15,7 +15,7 @@ type Employee object {
 
 
     new (age, int addVal) {
-        age = age + addVal;
+        self.age = self.age + addVal;
     }
 };
 

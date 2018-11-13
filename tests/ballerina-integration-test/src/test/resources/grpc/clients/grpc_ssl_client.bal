@@ -37,8 +37,8 @@ function testUnarySecuredBlockingWithCerts(string path) returns (string) {
             return result;
         }
         error err => {
-            io:println("Error from Connector: " + err.message);
-            return "Error from Connector: " + err.message;
+            io:println("Error from Connector: " + err.reason());
+            return "Error from Connector: " + err.reason();
         }
     }
 }

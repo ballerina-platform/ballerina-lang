@@ -22,7 +22,7 @@ import ballerina/log;
 # + config - configurations related to the QueueReceiver
 public type QueueReceiver object {
 
-    public QueueReceiverActions consumerActions;
+    public QueueReceiverActions consumerActions = new;
     public QueueReceiverEndpointConfiguration config;
 
     # Initializes the QueueReceiver endpoint
@@ -49,7 +49,7 @@ public type QueueReceiver object {
     #
     # + serviceType - type descriptor of the service to bind to
     public function register(typedesc serviceType) {
-        self.registerListener(serviceType, consumerActions);
+        self.registerListener(serviceType, self.consumerActions);
     }
 
     extern function registerListener(typedesc serviceType, QueueReceiverActions actions);
@@ -65,12 +65,12 @@ public type QueueReceiver object {
     #
     # + return - queue receiver action handler
     public function getCallerActions() returns QueueReceiverActions {
-        return consumerActions;
+        return self.consumerActions;
     }
 
     # Stops consuming messages through QueueReceiver endpoint
     public function stop() {
-        self.closeQueueReceiver(consumerActions);
+        self.closeQueueReceiver(self.consumerActions);
     }
 
     extern function closeQueueReceiver(QueueReceiverActions actions);
@@ -117,7 +117,7 @@ public type QueueReceiverActions object {
     public function receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|error)?;
 };
 
-function QueueReceiverActions::receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|
+function QueueReceiverActions.receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|
         error)? {
     match (self.queueReceiver) {
         QueueReceiver queueReceiver => {
@@ -141,11 +141,13 @@ function QueueReceiverActions::receiveFrom(Destination destination, int timeoutI
 function validateQueue(Destination destination) {
     if (destination.destinationName == "") {
         string errorMessage = "Destination name cannot be empty";
-        error queueReceiverConfigError = error(errorMessage);
+        map errorDetail = { message: errorMessage };
+        error queueReceiverConfigError = error(JMS_ERROR_CODE, errorDetail);
         panic queueReceiverConfigError;
     } else if (destination.destinationType != "queue") {
         string errorMessage = "Destination should should be a queue";
-        error queueReceiverConfigError = error(errorMessage);
+        map errorDetail = { message: errorMessage };
+        error queueReceiverConfigError = error(JMS_ERROR_CODE, errorDetail);
         panic queueReceiverConfigError;
     }
 }

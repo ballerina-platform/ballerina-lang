@@ -33,6 +33,7 @@ public class TreeUtils {
         stringTypeKindMap.put("int", TypeKind.INT);
         stringTypeKindMap.put("byte", TypeKind.BYTE);
         stringTypeKindMap.put("float", TypeKind.FLOAT);
+        stringTypeKindMap.put("decimal", TypeKind.DECIMAL);
         stringTypeKindMap.put("boolean", TypeKind.BOOLEAN);
         stringTypeKindMap.put("string", TypeKind.STRING);
         stringTypeKindMap.put("json", TypeKind.JSON);
@@ -40,6 +41,7 @@ public class TreeUtils {
         stringTypeKindMap.put("table", TypeKind.TABLE);
         stringTypeKindMap.put("stream", TypeKind.STREAM);
         stringTypeKindMap.put("any", TypeKind.ANY);
+        stringTypeKindMap.put("anydata", TypeKind.ANYDATA);
         stringTypeKindMap.put("map", TypeKind.MAP);
         stringTypeKindMap.put("future", TypeKind.FUTURE);
         stringTypeKindMap.put("typedesc", TypeKind.TYPEDESC);

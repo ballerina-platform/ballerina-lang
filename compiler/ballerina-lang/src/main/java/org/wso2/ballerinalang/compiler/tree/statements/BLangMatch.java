@@ -46,7 +46,7 @@ public class BLangMatch extends BLangStatement implements MatchNode {
     }
 
     public BLangExpression expr;
-    public List<BLangMatchStmtBindingPatternClause> patternClauses;
+    public List<BLangMatchBindingPatternClause> patternClauses;
     public List<BType> exprTypes;
 
     @Override
@@ -60,20 +60,20 @@ public class BLangMatch extends BLangStatement implements MatchNode {
     }
 
     @Override
-    public List<BLangMatchStmtTypedBindingPatternClause> getTypedPatternClauses() {
+    public List<BLangMatchTypedBindingPatternClause> getTypedPatternClauses() {
         return patternClauses
                 .stream()
                 .filter(pattern -> NodeKind.MATCH_TYPED_PATTERN_CLAUSE == (pattern.getKind()))
-                .map(BLangMatchStmtTypedBindingPatternClause.class::cast)
+                .map(BLangMatchTypedBindingPatternClause.class::cast)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<BLangMatchStmtStaticBindingPatternClause> getStaticPatternClauses() {
+    public List<BLangMatchStaticBindingPatternClause> getStaticPatternClauses() {
         return patternClauses
                 .stream()
                 .filter(pattern -> NodeKind.MATCH_STATIC_PATTERN_CLAUSE == (pattern.getKind()))
-                .map(BLangMatchStmtStaticBindingPatternClause.class::cast)
+                .map(BLangMatchStaticBindingPatternClause.class::cast)
                 .collect(Collectors.toList());
     }
 
@@ -100,12 +100,12 @@ public class BLangMatch extends BLangStatement implements MatchNode {
     }
 
     /**
-     * {@code BLangMatchStmtBindingPatternClause} is the parent class for all the pattern clauses.
+     * {@code BLangMatchBindingPatternClause} is the parent class for all the pattern clauses.
      *
      * @since 0.985.0
      */
-    public abstract static class BLangMatchStmtBindingPatternClause extends BLangNode implements
-            MatchStatementBindingPatternNode {
+    public abstract static class BLangMatchBindingPatternClause extends BLangNode implements
+            MatchBindingPatternNode {
 
         // pattern clause's body
         public BLangBlockStmt body;
@@ -118,12 +118,12 @@ public class BLangMatch extends BLangStatement implements MatchNode {
     }
 
     /**
-     * {@code BLangMatchStmtTypedBindingPatternClause} represents a pattern inside a type switch statement.
+     * {@code BLangMatchTypedBindingPatternClause} represents a pattern inside a type switch statement.
      *
      * @since 0.966.0
      */
-    public static class BLangMatchStmtTypedBindingPatternClause extends BLangMatchStmtBindingPatternClause
-            implements MatchStatementTypedBindingPatternNode {
+    public static class BLangMatchTypedBindingPatternClause extends BLangMatchBindingPatternClause
+            implements MatchTypedBindingPatternNode {
 
         public BLangSimpleVariable variable;
 
@@ -158,13 +158,13 @@ public class BLangMatch extends BLangStatement implements MatchNode {
     }
 
     /**
-     * {@code BLangMatchStmtStaticBindingPatternClause} represents a static/constant pattern inside a match
+     * {@code BLangMatchStaticBindingPatternClause} represents a static/constant pattern inside a match
      * statement.
      *
      * @since 0.985.0
      */
-    public static class BLangMatchStmtStaticBindingPatternClause extends BLangMatchStmtBindingPatternClause
-            implements MatchStatementStaticBindingPatternNode {
+    public static class BLangMatchStaticBindingPatternClause extends BLangMatchBindingPatternClause
+            implements MatchStaticBindingPatternNode {
 
         public BLangExpression literal;
 
@@ -195,13 +195,13 @@ public class BLangMatch extends BLangStatement implements MatchNode {
     }
 
     /**
-     * {@code BLangMatchStmtStructuredBindingPatternClause} represents a structured pattern inside a match
+     * {@code BLangMatchStructuredBindingPatternClause} represents a structured pattern inside a match
      * statement.
      *
      * @since 0.985.0
      */
-    public static class BLangMatchStmtStructuredBindingPatternClause extends BLangMatchStmtBindingPatternClause
-            implements MatchStatementStructuredBindingPatternNode {
+    public static class BLangMatchStructuredBindingPatternClause extends BLangMatchBindingPatternClause
+            implements MatchStructuredBindingPatternNode {
 
         public BLangVariable bindingPatternVariable;
 

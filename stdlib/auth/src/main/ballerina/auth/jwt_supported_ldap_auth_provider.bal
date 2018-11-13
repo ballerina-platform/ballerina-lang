@@ -44,9 +44,9 @@ public type LdapJwtAuthProvider object {
     # + password - password
     # + return - true if authentication is a success, else false
     public function authenticate(string username, string password) returns boolean {
-        boolean isAuthenticated = ldapAuthProvider.authenticate(username, password);
+        boolean isAuthenticated = self.ldapAuthProvider.authenticate(username, password);
         if (isAuthenticated){
-            setAuthToken(username, ldapJwtAuthProviderConfig);
+            setAuthToken(username, self.ldapJwtAuthProviderConfig);
         }
         return isAuthenticated;
     }
@@ -56,6 +56,6 @@ public type LdapJwtAuthProvider object {
     # + username - user name
     # + return - array of groups for the user denoted by the username
     public function getScopes(string username) returns string[] {
-        return ldapAuthProvider.getScopes(username);
+        return self.ldapAuthProvider.getScopes(username);
     }
 };

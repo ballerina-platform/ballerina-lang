@@ -304,7 +304,7 @@ function testJsonLength () returns (int, int) {
 
     json j2 = [[1, 2, 3, 4], [3, 4, 5, 6], [7, 8, 9, 10]];
 
-    return (lengthof j1, lengthof j2);
+    return (j1.length(), j2.length());
 }
 
 function testJsonArrayToJsonCasting () returns (json) {

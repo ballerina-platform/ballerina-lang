@@ -2101,6 +2101,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitBinaryRefEqualExpression(BallerinaParser.BinaryRefEqualExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.createBinaryExpr(getCurrentPos(ctx), getWS(ctx), ctx.getChild(1).getText());
+    }
+
+    @Override
     public void exitBinaryEqualExpression(BallerinaParser.BinaryEqualExpressionContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -2371,11 +2380,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, value, ctx.getText());
         } else if (ctx.floatingPointLiteral() != null) {
             if ((node = ctx.floatingPointLiteral().DecimalFloatingPointNumber()) != null) {
-                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, Double.parseDouble(getNodeValue(ctx, node)),
-                                                node.getText());
+                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, getNodeValue(ctx, node), node.getText());
             } else if ((node = ctx.floatingPointLiteral().HexadecimalFloatingPointLiteral()) != null) {
-                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, Double.parseDouble(getHexNodeValue(ctx, node)),
-                                                node.getText());
+                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, getHexNodeValue(ctx, node), node.getText());
             }
         } else if ((node = ctx.BooleanLiteral()) != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.BOOLEAN, Boolean.parseBoolean(node.getText()),

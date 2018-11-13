@@ -83,9 +83,90 @@ public class MatchStatementStaticPatternsTest {
         Assert.assertEquals(results.get(++i), msg + "'true'");
     }
 
+    @Test(description = "Test record static match pattern")
+    public void testRecordStaticMatch() {
+
+        BValue[] returns = BRunUtil.invoke(result, "testRecordStaticMatch");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+
+        BStringArray results = (BStringArray) returns[0];
+        Assert.assertEquals(5, results.size());
+
+        int i = -1;
+        String msg = "Value is ";
+        Assert.assertEquals(results.get(++i), msg + "'x: 12, y: Ballerina'");
+        Assert.assertEquals(results.get(++i), msg + "'x: 10, y: B'");
+        Assert.assertEquals(results.get(++i), msg + "'15'");
+        Assert.assertEquals(results.get(++i), msg + "'x: 12, y: Ballerina, z: true'");
+        Assert.assertEquals(results.get(++i), msg + "'Default'");
+    }
+
+    @Test(description = "Test tuple static match pattern")
+    public void testTupleStaticMatch() {
+
+        BValue[] returns = BRunUtil.invoke(result, "testTupleStaticMatch");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+
+        BStringArray results = (BStringArray) returns[0];
+        Assert.assertEquals(6, results.size());
+
+        int i = -1;
+        String msg = "Value is ";
+        Assert.assertEquals(results.get(++i), msg + "'(12, Ballerina)'");
+        Assert.assertEquals(results.get(++i), msg + "'(12, Ballerina)'");
+        Assert.assertEquals(results.get(++i), msg + "'(15)'");
+        Assert.assertEquals(results.get(++i), msg + "'(15, Bal, 100)'");
+        Assert.assertEquals(results.get(++i), msg + "'(15, Ballerina)'");
+        Assert.assertEquals(results.get(++i), msg + "'Default'");
+    }
+
+    @Test(description = "Test complex static match pattern")
+    public void testRecordAndTupleComplexStaticMatch() {
+
+        BValue[] returns = BRunUtil.invoke(result, "testRecordAndTupleComplexStaticMatch");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+
+        BStringArray results = (BStringArray) returns[0];
+        Assert.assertEquals(1, results.size());
+
+        int i = -1;
+        Assert.assertEquals(results.get(++i), "Value is 'Correct'");
+    }
+
+//    @Test(description = "Test matching finite type")
+//    public void testFiniteType() {
+//        BValue[] returns = BRunUtil.invoke(result, "testFiniteType");
+//        Assert.assertEquals(returns.length, 1);
+//        Assert.assertEquals(returns[0].stringValue(), "Value is '15.2'");
+//    }
+
+//    @Test(description = "Test matching finite type")
+//    public void testFiniteType2() {
+//        BValue[] returns = BRunUtil.invoke(result, "testFiniteType2");
+//        Assert.assertEquals(returns.length, 1);
+//        Assert.assertEquals(returns[0].stringValue(), "Value is 'true'");
+//    }
+
+    @Test(description = "Test matching non anydata type")
+    public void testNonAnyDataType() {
+        BValue[] returns = BRunUtil.invoke(result, "testNonAnyDataType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "Value is 'Default'");
+    }
+
+    @Test(description = "Test using string literal in record pattern")
+    public void testStringLiteralKeyInRecordMatch() {
+        BValue[] returns = BRunUtil.invoke(result, "testStringLiteralKeyInRecordMatch");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "Value is 'Correct'");
+    }
+
     @Test(description = "Test pattern will not be matched")
     public void testPatternNotMatched() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 51);
+        Assert.assertEquals(resultNegative.getErrorCount(), 62);
         int i = -1;
         String patternNotMatched = "pattern will not be matched";
 
@@ -146,6 +227,20 @@ public class MatchStatementStaticPatternsTest {
 
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 223, 9);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 224, 9);
+
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 236, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 239, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 242, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 243, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 244, 9);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "invalid literal for match pattern; allowed literals are simple, tuple and record only", 259, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 259, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 263, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 264, 9);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "invalid key: only identifiers are allowed for record literal keys", 265, 10);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 265, 9);
     }
     @Test(description = "Test unreachable pattern")
     public void testUnreachablePatterns() {

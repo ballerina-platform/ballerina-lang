@@ -55,7 +55,8 @@ public class ReturnStmtNegativeTest {
         Assert.assertEquals(result.getErrorCount(), 1);
         BAssertUtil.validateError(result, 0,
                 "mismatched input ','. expecting {'but', 'is', ';', '.', '[', '?', '+', '-', '*', '/', '%', '!', " +
-                "'==', '!=', '>', '<', '>=', '<=', '&&', '||', '&', '^', '@', '...', '|', '?:', '..<'}", 2, 20);
+                "'==', '!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '@', '...', '|', '?:', " +
+                        "'..<'}", 2, 20);
     }
 
     @Test(description = "Test too many arguments to return")
@@ -64,7 +65,8 @@ public class ReturnStmtNegativeTest {
         Assert.assertEquals(result.getErrorCount(), 1);
         BAssertUtil.validateError(result, 0,
                 "mismatched input ','. expecting {'but', 'is', ';', '.', '[', '?', '+', '-', '*', '/', '%', '!', " +
-                "'==', '!=', '>', '<', '>=', '<=', '&&', '||', '&', '^', '@', '...', '|', '?:', '..<'}", 2, 20);
+                "'==', '!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '@', '...', '|', '?:', " +
+                        "'..<'}", 2, 20);
     }
 
     @Test(description = "Test too many arguments to return")

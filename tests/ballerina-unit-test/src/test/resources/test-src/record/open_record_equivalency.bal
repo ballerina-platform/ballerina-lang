@@ -160,7 +160,7 @@ function testRuntimeEqPublicStructsInSamePackage () returns (string) {
     // This is a unsafe cast
     var uB = <userPB>uA;
     match uB {
-        error err => return err.message;
+        error err => return err.reason();
         userPB user=> return user.name;
     }
 }
@@ -174,7 +174,7 @@ function testRuntimeEqPublicStructs () returns (string) {
     // This is a unsafe cast
     var uB  = <userPB>uA;
     match uB {
-        error err => return err.message;
+        error err => return err.reason();
         userPB user=> return user.name;
     }
 }
@@ -188,7 +188,7 @@ function testRuntimeEqPublicStructs1 () returns (string) {
     // This is a unsafe cast
     var uB  = <req2:userPB>uA;
     match uB {
-        error err => return err.message;
+        error err => return err.reason();
         userPB user=> return user.name;
     }
 }

@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.service.grpc.sample;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
@@ -25,6 +26,7 @@ import org.testng.annotations.AfterGroups;
 import org.testng.annotations.BeforeGroups;
 
 import java.io.File;
+import java.nio.file.Paths;
 
 /**
  * Base test class for GRPC integration test cases which starts/stops the grpc services as ballerina package before
@@ -35,12 +37,10 @@ public class GrpcBaseTest extends BaseTest {
 
     @BeforeGroups(value = "grpc-test", alwaysRun = true)
     public void start() throws BallerinaTestException {
-        String privateKey = new File(
-                "src" + File.separator + "test" + File.separator + "resources" + File.separator + "certsAndKeys"
-                        + File.separator + "private.key").getAbsolutePath();
-        String publicCert = new File(
-                "src" + File.separator + "test" + File.separator + "resources" + File.separator + "certsAndKeys"
-                        + File.separator + "public.crt").getAbsolutePath();
+        String privateKey = StringEscapeUtils.escapeJava(Paths.get("src", "test", "resources", "certsAndKeys",
+                                                                   "private.key").toAbsolutePath().toString());
+        String publicCert = StringEscapeUtils.escapeJava(Paths.get("src", "test", "resources", "certsAndKeys",
+                                                                   "public.crt").toAbsolutePath().toString());
         int[] requiredPorts = new int[]{9090, 9092, 9095, 9096, 9098, 9099, 9100, 9101, 8085, 9317};
 
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +

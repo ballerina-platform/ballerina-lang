@@ -25,8 +25,8 @@ type Employee object {
     public Person? p6;
 
     new () {
-        p5 = new;
-        p6 = new();
+        self.p5 = new;
+        self.p6 = new();
     }
 };
 

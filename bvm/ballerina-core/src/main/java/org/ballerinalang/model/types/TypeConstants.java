@@ -27,6 +27,7 @@ public class TypeConstants {
     public static final String INT_TNAME = "int";
     public static final String BYTE_TNAME = "byte";
     public static final String FLOAT_TNAME = "float";
+    public static final String DECIMAL_TNAME = "decimal";
     public static final String STRING_TNAME = "string";
     public static final String BOOLEAN_TNAME = "boolean";
     public static final String ARRAY_TNAME = "[]";
@@ -38,6 +39,7 @@ public class TypeConstants {
     public static final String TABLE_TNAME = "table";
     public static final String STREAM_TNAME = "stream";
     public static final String ANY_TNAME = "any";
+    public static final String ANYDATA_TNAME = "anydata";
     public static final String TYPEDESC_TNAME = "typedesc";
     public static final String NULL_TNAME = "null";
     public static final String XML_ATTRIBUTES_TNAME = "xml-attributes";

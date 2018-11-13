@@ -10,37 +10,37 @@ type BbBodyGenrator object {
     }
 
     function genBasicBlockBody() returns BbTermGenrator {
-        llvm:LLVMBasicBlockRef bbRef = llvm:LLVMAppendBasicBlock(parent.funcRef, bb.id.value);
-        llvm:LLVMPositionBuilderAtEnd(builder, bbRef);
-        foreach i in bb.instructions {
-            genInstruction(i);
+        llvm:LLVMBasicBlockRef bbRef = llvm:LLVMAppendBasicBlock(self.parent.funcRef, self.bb.id.value);
+        llvm:LLVMPositionBuilderAtEnd(self.builder, bbRef);
+        foreach i in self.bb.instructions {
+            self.genInstruction(i);
         }
-        return new(builder, bb, bbRef, parent);
+        return new(self.builder, self.bb, bbRef, self.parent);
     }
 
     function genInstruction(bir:Instruction instruction) {
         match instruction {
-            bir:Move moveIns => genMoveIns(moveIns);
-            bir:BinaryOp binaryIns => genBinaryOpIns(binaryIns);
-            bir:ConstantLoad constIns => genConstantLoadIns(constIns);
+            bir:Move moveIns => self.genMoveIns(moveIns);
+            bir:BinaryOp binaryIns => self.genBinaryOpIns(binaryIns);
+            bir:ConstantLoad constIns => self.genConstantLoadIns(constIns);
         }
     }
 
     function genMoveIns(bir:Move moveIns) {
-        llvm:LLVMValueRef lhsRef = parent.getLocalVarRefById(moveIns.lhsOp.variableDcl.name.value);
+        llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRefById(moveIns.lhsOp.variableDcl.name.value);
         var rhsVarOp = moveIns.rhsOp;
-        llvm:LLVMValueRef rhsVarOpRef = parent.genLoadLocalToTempVar(rhsVarOp);
-        var loaded = llvm:LLVMBuildStore(builder, rhsVarOpRef, lhsRef);
+        llvm:LLVMValueRef rhsVarOpRef = self.parent.genLoadLocalToTempVar(rhsVarOp);
+        var loaded = llvm:LLVMBuildStore(self.builder, rhsVarOpRef, lhsRef);
     }
 
     function genBinaryOpIns(bir:BinaryOp binaryIns) {
         var lhsTmpName = localVarName(binaryIns.lhsOp.variableDcl) + "_temp";
-        var lhsRef = parent.getLocalVarRefById(binaryIns.lhsOp.variableDcl.name.value);
-        var rhsOp1 = parent.genLoadLocalToTempVar(binaryIns.rhsOp1);
-        var rhsOp2 = parent.genLoadLocalToTempVar(binaryIns.rhsOp2);
+        var lhsRef = self.parent.getLocalVarRefById(binaryIns.lhsOp.variableDcl.name.value);
+        var rhsOp1 = self.parent.genLoadLocalToTempVar(binaryIns.rhsOp1);
+        var rhsOp2 = self.parent.genLoadLocalToTempVar(binaryIns.rhsOp2);
         var kind = binaryIns.kind;
 
-        BinaryInsGenrator binaryGen = new(builder, lhsTmpName, lhsRef, rhsOp1, rhsOp2);
+        BinaryInsGenrator binaryGen = new(self.builder, lhsTmpName, lhsRef, rhsOp1, rhsOp2);
         match kind {
             bir:ADD => binaryGen.genAdd();
             bir:DIV => binaryGen.genDiv();
@@ -57,9 +57,9 @@ type BbBodyGenrator object {
     }
 
     function genConstantLoadIns(bir:ConstantLoad constLoad) {
-        llvm:LLVMValueRef lhsRef = parent.getLocalVarRefById(constLoad.lhsOp.variableDcl.name.value);
+        llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRefById(constLoad.lhsOp.variableDcl.name.value);
         var constRef = llvm:LLVMConstInt(llvm:LLVMInt64Type(), constLoad.value, 0);
-        var loaded = llvm:LLVMBuildStore(builder, constRef, lhsRef);
+        var loaded = llvm:LLVMBuildStore(self.builder, constRef, lhsRef);
     }
 
 };

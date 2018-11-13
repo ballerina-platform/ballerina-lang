@@ -166,10 +166,9 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtBindingPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStaticBindingPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStructuredBindingPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtTypedBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchTypedBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -255,7 +254,7 @@ public class Desugar extends BLangNodeVisitor {
     // Safe navigation related variables
     private Stack<BLangMatch> matchStmtStack = new Stack<>();
     Stack<BLangAccessExpression> accessExprStack = new Stack<>();
-    private BLangMatchStmtTypedBindingPatternClause successPattern;
+    private BLangMatchTypedBindingPatternClause successPattern;
     private BLangAssignment safeNavigationAssignment;
 
     public static Desugar getInstance(CompilerContext context) {
@@ -1164,10 +1163,13 @@ public class Desugar extends BLangNodeVisitor {
         final List<BLangExpression> expressions = parentTupleVariable.expressions;
         for (int index = 0; index < expressions.size(); index++) {
             BLangExpression expression = expressions.get(index);
-            if (NodeKind.SIMPLE_VARIABLE_REF == expression.getKind()) {
+            if (NodeKind.SIMPLE_VARIABLE_REF == expression.getKind() ||
+                    NodeKind.FIELD_BASED_ACCESS_EXPR == expression.getKind() ||
+                    NodeKind.INDEX_BASED_ACCESS_EXPR == expression.getKind() ||
+                    NodeKind.XML_ATTRIBUTE_ACCESS_EXPR == expression.getKind()) {
                 //if this is simple var, then create a simple var def stmt
                 BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(expression.pos, symTable.intType, (long) index);
-                createSimpleVarRefAssignmentStmt((BLangSimpleVarRef) expression, parentBlockStmt, indexExpr,
+                createSimpleVarRefAssignmentStmt((BLangVariableReference) expression, parentBlockStmt, indexExpr,
                         tupleVarSymbol, parentIndexAccessExpr);
             } else if (expression.getKind() == NodeKind.TUPLE_VARIABLE_REF) {
                 //else recursively create the var def statements for tuple var ref
@@ -1201,13 +1203,15 @@ public class Desugar extends BLangNodeVisitor {
      * This method creates a assignment statement and assigns and array expression based on the given indexExpr.
      *
      */
-    private void createSimpleVarRefAssignmentStmt(BLangSimpleVarRef simpleVarRef, BLangBlockStmt parentBlockStmt,
+    private void createSimpleVarRefAssignmentStmt(BLangVariableReference simpleVarRef, BLangBlockStmt parentBlockStmt,
                                                   BLangLiteral indexExpr, BVarSymbol tupleVarSymbol,
                                                   BLangIndexBasedAccess parentArrayAccessExpr) {
 
-        Name varName = names.fromIdNode(simpleVarRef.variableName);
-        if (varName == Names.IGNORE) {
-            return;
+        if (simpleVarRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            Name varName = names.fromIdNode(((BLangSimpleVarRef) simpleVarRef).variableName);
+            if (varName == Names.IGNORE) {
+                return;
+            }
         }
 
         final BLangExpression assignmentExpr = createIndexBasedAccessExpr(simpleVarRef.type, simpleVarRef.pos,
@@ -1268,14 +1272,18 @@ public class Desugar extends BLangNodeVisitor {
                                              BVarSymbol recordVarSymbol, BLangIndexBasedAccess parentIndexAccessExpr) {
         final List<BLangRecordVarRefKeyValue> variableRefList = parentRecordVarRef.recordRefFields;
         for (BLangRecordVarRefKeyValue varRefKeyValue : variableRefList) {
-            if (NodeKind.SIMPLE_VARIABLE_REF == varRefKeyValue.variableReference.getKind()) {
+            BLangExpression variableReference = varRefKeyValue.variableReference;
+            if (NodeKind.SIMPLE_VARIABLE_REF == variableReference.getKind() ||
+                    NodeKind.FIELD_BASED_ACCESS_EXPR == variableReference.getKind() ||
+                    NodeKind.INDEX_BASED_ACCESS_EXPR == variableReference.getKind() ||
+                    NodeKind.XML_ATTRIBUTE_ACCESS_EXPR == variableReference.getKind()) {
                 BLangLiteral indexExpr = ASTBuilderUtil.
-                        createLiteral(varRefKeyValue.variableReference.pos, symTable.stringType,
+                        createLiteral(variableReference.pos, symTable.stringType,
                                 varRefKeyValue.variableName.getValue());
-                createSimpleVarRefAssignmentStmt((BLangSimpleVarRef) varRefKeyValue.variableReference, parentBlockStmt,
+                createSimpleVarRefAssignmentStmt((BLangVariableReference) variableReference, parentBlockStmt,
                         indexExpr, recordVarSymbol, parentIndexAccessExpr);
-            } else if (NodeKind.RECORD_VARIABLE_REF == varRefKeyValue.variableReference.getKind()) {
-                BLangRecordVarRef recordVariable = (BLangRecordVarRef) varRefKeyValue.variableReference;
+            } else if (NodeKind.RECORD_VARIABLE_REF == variableReference.getKind()) {
+                BLangRecordVarRef recordVariable = (BLangRecordVarRef) variableReference;
                 BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(recordVariable.pos, symTable.stringType,
                         varRefKeyValue.variableName.getValue());
                 BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(
@@ -1285,8 +1293,8 @@ public class Desugar extends BLangNodeVisitor {
                     arrayAccessExpr.expr = parentIndexAccessExpr;
                 }
                 createVarRefAssignmentStmts(recordVariable, parentBlockStmt, recordVarSymbol, arrayAccessExpr);
-            } else if (NodeKind.TUPLE_VARIABLE_REF == varRefKeyValue.variableReference.getKind()) {
-                BLangTupleVarRef tupleVariable = (BLangTupleVarRef) varRefKeyValue.variableReference;
+            } else if (NodeKind.TUPLE_VARIABLE_REF == variableReference.getKind()) {
+                BLangTupleVarRef tupleVariable = (BLangTupleVarRef) variableReference;
                 BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(tupleVariable.pos, symTable.stringType,
                         varRefKeyValue.variableName.getValue());
                 BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(tupleVariable.pos,
@@ -1511,16 +1519,16 @@ public class Desugar extends BLangNodeVisitor {
         //  This will be desugared as below :
         //
         //  string | int | boolean _$$_matchexpr = expr;
-        //  if ( _$$_matchexpr isassignable int && (<int>_$$_matchexpr) == 12){
+        //  if ((<int>_$$_matchexpr) == 12){
         //      io:println("Matched Int Value 12");
         //
-        //  } else if (_$$_matchexpr isassignable int && (<int>_$$_matchexpr) == 35) {
+        //  } else if ((<int>_$$_matchexpr) == 35) {
         //      io:println("Matched Int Value 35");
         //
-        //  } else if (_$$_matchexpr isassignable boolean && (<boolean>_$$_matchexpr) == true) {
+        //  } else if ((<boolean>_$$_matchexpr) == true) {
         //      io:println("Matched Boolean Value true");
         //
-        //  } else if (_$$_matchexpr isassignable string && (<string>_$$_matchexpr) == "Hello") {
+        //  } else if ((<string>_$$_matchexpr) == "Hello") {
         //      io:println("Matched String Value Hello");
         //
         //  }
@@ -1925,6 +1933,7 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.STRING:
             case TypeTags.INT:
             case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
             case TypeTags.JSON:
             case TypeTags.XML:
             case TypeTags.MAP:
@@ -2008,39 +2017,72 @@ public class Desugar extends BLangNodeVisitor {
         binaryExpr.rhsExpr = rewriteExpr(binaryExpr.rhsExpr);
         result = binaryExpr;
 
+        int rhsExprTypeTag = binaryExpr.rhsExpr.type.tag;
+        int lhsExprTypeTag = binaryExpr.lhsExpr.type.tag;
+
         // Check for bitwise shift operator and add type conversion to int
-        if (isBitwiseShiftOperation(binaryExpr) && TypeTags.BYTE == binaryExpr.rhsExpr.type.tag) {
+        if (isBitwiseShiftOperation(binaryExpr) && TypeTags.BYTE == rhsExprTypeTag) {
             binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
                     symTable.intType);
             return;
         }
 
+        // Check for int and byte ==, != or === comparison and add type conversion to int for byte
+        if (rhsExprTypeTag != lhsExprTypeTag && (binaryExpr.opKind == OperatorKind.EQUAL ||
+                                                         binaryExpr.opKind == OperatorKind.NOT_EQUAL ||
+                                                         binaryExpr.opKind == OperatorKind.REF_EQUAL ||
+                                                         binaryExpr.opKind == OperatorKind.REF_NOT_EQUAL)) {
+            if (lhsExprTypeTag == TypeTags.INT && rhsExprTypeTag == TypeTags.BYTE) {
+                binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
+                                                              symTable.intType);
+                return;
+            }
+
+            if (lhsExprTypeTag == TypeTags.BYTE && rhsExprTypeTag == TypeTags.INT) {
+                binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr, binaryExpr.lhsExpr.type,
+                                                              symTable.intType);
+                return;
+            }
+        }
+
         // Check lhs and rhs type compatibility
-        if (binaryExpr.lhsExpr.type.tag == binaryExpr.rhsExpr.type.tag) {
+        if (lhsExprTypeTag == rhsExprTypeTag) {
             return;
         }
 
-        if (binaryExpr.lhsExpr.type.tag == TypeTags.STRING && binaryExpr.opKind == OperatorKind.ADD) {
-            binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr,
-                    binaryExpr.rhsExpr.type, binaryExpr.lhsExpr.type);
+        if (lhsExprTypeTag == TypeTags.STRING && binaryExpr.opKind == OperatorKind.ADD) {
+            binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
+                                                          binaryExpr.lhsExpr.type);
             return;
         }
 
-        if (binaryExpr.rhsExpr.type.tag == TypeTags.STRING && binaryExpr.opKind == OperatorKind.ADD) {
-            binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr,
-                    binaryExpr.lhsExpr.type, binaryExpr.rhsExpr.type);
+        if (rhsExprTypeTag == TypeTags.STRING && binaryExpr.opKind == OperatorKind.ADD) {
+            binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr, binaryExpr.lhsExpr.type,
+                                                          binaryExpr.rhsExpr.type);
             return;
         }
 
-        if (binaryExpr.lhsExpr.type.tag == TypeTags.FLOAT) {
-            binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr,
-                    binaryExpr.rhsExpr.type, binaryExpr.lhsExpr.type);
+        if (lhsExprTypeTag == TypeTags.DECIMAL) {
+            binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
+                                                          binaryExpr.lhsExpr.type);
             return;
         }
 
-        if (binaryExpr.rhsExpr.type.tag == TypeTags.FLOAT) {
-            binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr,
-                    binaryExpr.lhsExpr.type, binaryExpr.rhsExpr.type);
+        if (rhsExprTypeTag == TypeTags.DECIMAL) {
+            binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr, binaryExpr.lhsExpr.type,
+                                                          binaryExpr.rhsExpr.type);
+            return;
+        }
+
+        if (lhsExprTypeTag == TypeTags.FLOAT) {
+            binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
+                                                          binaryExpr.lhsExpr.type);
+            return;
+        }
+
+        if (rhsExprTypeTag == TypeTags.FLOAT) {
+            binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr, binaryExpr.lhsExpr.type,
+                                                          binaryExpr.rhsExpr.type);
         }
     }
 
@@ -2430,7 +2472,7 @@ public class Desugar extends BLangNodeVisitor {
         tempResultVarDef.desugared = true;
 
         BLangBlockStmt stmts = ASTBuilderUtil.createBlockStmt(bLangMatchExpression.pos, Lists.of(tempResultVarDef));
-        List<BLangMatchStmtTypedBindingPatternClause> patternClauses = new ArrayList<>();
+        List<BLangMatchTypedBindingPatternClause> patternClauses = new ArrayList<>();
 
         for (int i = 0; i < bLangMatchExpression.patternClauses.size(); i++) {
             BLangMatchExprPatternClause pattern = bLangMatchExpression.patternClauses.get(i);
@@ -2486,15 +2528,15 @@ public class Desugar extends BLangNodeVisitor {
         checkedExprVarDef.desugared = true;
 
         // Create the pattern to match the success case
-        BLangMatchStmtTypedBindingPatternClause patternSuccessCase =
+        BLangMatchTypedBindingPatternClause patternSuccessCase =
                 getSafeAssignSuccessPattern(checkedExprVar.pos, checkedExprVar.symbol.type, true,
                         checkedExprVar.symbol, null);
-        BLangMatchStmtTypedBindingPatternClause patternErrorCase =
+        BLangMatchTypedBindingPatternClause patternErrorCase =
                 getSafeAssignErrorPattern(checkedExpr.pos, this.env.scope.owner, checkedExpr.equivalentErrorTypeList);
 
         // Create the match statement
         BLangMatch matchStmt = ASTBuilderUtil.createMatchStatement(checkedExpr.pos,
-                checkedExpr.expr, new ArrayList<BLangMatchStmtTypedBindingPatternClause>() {{
+                checkedExpr.expr, new ArrayList<BLangMatchTypedBindingPatternClause>() {{
                     add(patternSuccessCase);
                     add(patternErrorCase);
                 }});
@@ -2522,7 +2564,7 @@ public class Desugar extends BLangNodeVisitor {
                 .orElseGet(() -> ASTBuilderUtil.createEmptyRecordLiteral(errConstExpr.pos, symTable.mapType)));
         result = errConstExpr;
     }
-    
+
     @Override
     public void visit(BLangTypeTestExpr typeTestExpr) {
         typeTestExpr.expr = rewriteExpr(typeTestExpr.expr);
@@ -2669,7 +2711,79 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void visitBuiltInMethodInvocation(BLangInvocation iExpr) {
-        result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
+        switch (iExpr.builtInMethod) {
+            case IS_NAN:
+                BOperatorSymbol notEqSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
+                        OperatorKind.NOT_EQUAL, symTable.floatType, symTable.floatType);
+                BLangBinaryExpr binaryExprNaN = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr, iExpr.expr,
+                                                                             symTable.booleanType,
+                                                                             OperatorKind.NOT_EQUAL, notEqSymbol);
+                result = rewriteExpr(binaryExprNaN);
+                break;
+            case IS_FINITE:
+                BOperatorSymbol equalSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.EQUAL,
+                                                                                                  symTable.floatType,
+                                                                                                  symTable.floatType);
+                BOperatorSymbol notEqualSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
+                        OperatorKind.NOT_EQUAL, symTable.floatType, symTable.floatType);
+                BOperatorSymbol andEqualSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
+                        OperatorKind.AND, symTable.booleanType, symTable.booleanType);
+                // v==v
+                BLangBinaryExpr binaryExprLHS = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr, iExpr.expr,
+                                                                                symTable.booleanType,
+                                                                                OperatorKind.EQUAL, equalSymbol);
+                // v != positive_infinity
+                BLangLiteral posInfLiteral = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.floatType,
+                                                                          Double.POSITIVE_INFINITY);
+                BLangBinaryExpr nestedLHSExpr = ASTBuilderUtil.createBinaryExpr(iExpr.pos, posInfLiteral, iExpr.expr,
+                                                                                symTable.booleanType,
+                                                                                OperatorKind.NOT_EQUAL, notEqualSymbol);
+
+                // v != negative_infinity
+                BLangLiteral negInfLiteral = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.floatType,
+                                                                          Double.NEGATIVE_INFINITY);
+                BLangBinaryExpr nestedRHSExpr = ASTBuilderUtil.createBinaryExpr(iExpr.pos, negInfLiteral, iExpr.expr,
+                                                                                symTable.booleanType,
+                                                                                OperatorKind.NOT_EQUAL, notEqualSymbol);
+                // v != positive_infinity && v != negative_infinity
+                BLangBinaryExpr binaryExprRHS = ASTBuilderUtil.createBinaryExpr(iExpr.pos, nestedLHSExpr, nestedRHSExpr,
+                                                                                symTable.booleanType, OperatorKind.AND,
+                                                                                andEqualSymbol);
+                // Final expression : v==v && v != positive_infinity && v != negative_infinity
+                BLangBinaryExpr binaryExpr = ASTBuilderUtil.createBinaryExpr(iExpr.pos, binaryExprLHS, binaryExprRHS,
+                                                                             symTable.booleanType, OperatorKind.AND,
+                                                                             andEqualSymbol);
+                result = rewriteExpr(binaryExpr);
+                break;
+            case IS_INFINITE:
+                BOperatorSymbol eqSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.EQUAL,
+                                                                                                  symTable.floatType,
+                                                                                                  symTable.floatType);
+                BOperatorSymbol orSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.OR,
+                                                                                               symTable.booleanType,
+                                                                                               symTable.booleanType);
+                // v == positive_infinity
+                BLangLiteral posInflitExpr = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.floatType,
+                                                                          Double.POSITIVE_INFINITY);
+                BLangBinaryExpr binaryExprPosInf = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr, posInflitExpr,
+                                                                                symTable.booleanType,
+                                                                                OperatorKind.EQUAL, eqSymbol);
+                // v == negative_infinity
+                BLangLiteral negInflitExpr = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.floatType,
+                                                                          Double.NEGATIVE_INFINITY);
+                BLangBinaryExpr binaryExprNegInf = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr, negInflitExpr,
+                                                                                symTable.booleanType,
+                                                                                OperatorKind.EQUAL, eqSymbol);
+                // v == positive_infinity || v == negative_infinity
+                BLangBinaryExpr binaryExprInf = ASTBuilderUtil.createBinaryExpr(iExpr.pos, binaryExprPosInf,
+                                                                                binaryExprNegInf, symTable.booleanType,
+                                                                                OperatorKind.OR, orSymbol);
+                result = rewriteExpr(binaryExprInf);
+                break;
+            default:
+                result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
+                break;
+        }
     }
 
     private void visitIterableOperationInvocation(BLangInvocation iExpr) {
@@ -2869,7 +2983,7 @@ public class Desugar extends BLangNodeVisitor {
             if (namedArgs.containsKey(param.name.value)) {
                 expr = namedArgs.get(param.name.value);
             } else {
-                expr = getDefaultValueLiteral(param.defaultValue);
+                expr = getDefaultValueLiteral(param.defaultValue, param.type.tag);
                 expr = addConversionExprIfRequired(expr, param.type);
             }
             args.add(expr);
@@ -2877,7 +2991,7 @@ public class Desugar extends BLangNodeVisitor {
         iExpr.namedArgs = args;
     }
 
-    private BLangMatchStmtTypedBindingPatternClause getSafeAssignErrorPattern(
+    private BLangMatchTypedBindingPatternClause getSafeAssignErrorPattern(
             DiagnosticPos pos, BSymbol invokableSymbol, List<BType> equivalentErrorTypes) {
         // From here onwards we assume that this function has only one return type
         // Owner of the variable symbol must be an invokable symbol
@@ -2924,11 +3038,11 @@ public class Desugar extends BLangNodeVisitor {
         return ASTBuilderUtil.createMatchStatementPattern(pos, patternFailureCaseVar, patternBlockFailureCase);
     }
 
-    private BLangMatchStmtTypedBindingPatternClause getSafeAssignSuccessPattern(DiagnosticPos pos,
-                                                                                           BType lhsType,
-                                                                                           boolean isVarDef,
-                                                                                           BVarSymbol varSymbol,
-                                                                                           BLangExpression lhsExpr) {
+    private BLangMatchTypedBindingPatternClause getSafeAssignSuccessPattern(DiagnosticPos pos,
+                                                                            BType lhsType,
+                                                                            boolean isVarDef,
+                                                                            BVarSymbol varSymbol,
+                                                                            BLangExpression lhsExpr) {
         //  File _$_f1 => f = _$_f1;
         // 1) Create the pattern variable
         String patternSuccessCaseVarName = GEN_VAR_PREFIX.value + "t_match";
@@ -2959,12 +3073,12 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangStatement generateIfElseStmt(BLangMatch matchStmt, BLangSimpleVariable matchExprVar) {
-        List<BLangMatchStmtBindingPatternClause> patterns = matchStmt.patternClauses;
+        List<BLangMatch.BLangMatchBindingPatternClause> patterns = matchStmt.patternClauses;
 
         BLangIf parentIfNode = generateIfElseStmt(patterns.get(0), matchExprVar);
         BLangIf currentIfNode = parentIfNode;
         for (int i = 1; i < patterns.size(); i++) {
-            BLangMatchStmtBindingPatternClause patternClause = patterns.get(i);
+            BLangMatchBindingPatternClause patternClause = patterns.get(i);
             if (i == patterns.size() - 1 && patternClause.isLastPattern) { // This is the last pattern
                 currentIfNode.elseStmt = getMatchPatternBody(patternClause, matchExprVar);
             } else {
@@ -2989,7 +3103,7 @@ public class Desugar extends BLangNodeVisitor {
      * @param matchExprVar  variable node of the match expression
      * @return if else statement node
      */
-    private BLangIf generateIfElseStmt(BLangMatchStmtBindingPatternClause patternClause,
+    private BLangIf generateIfElseStmt(BLangMatch.BLangMatchBindingPatternClause patternClause,
                                        BLangSimpleVariable matchExprVar) {
         BLangExpression patternIfCondition = createPatternIfCondition(patternClause, matchExprVar.symbol);
         BLangBlockStmt patternBody = getMatchPatternBody(patternClause, matchExprVar);
@@ -2997,7 +3111,7 @@ public class Desugar extends BLangNodeVisitor {
                 patternIfCondition, patternBody, null);
     }
 
-    private BLangBlockStmt getMatchPatternBody(BLangMatchStmtBindingPatternClause pattern,
+    private BLangBlockStmt getMatchPatternBody(BLangMatch.BLangMatchBindingPatternClause pattern,
                                                BLangSimpleVariable matchExprVar) {
 
         BLangBlockStmt body = null;
@@ -3005,8 +3119,8 @@ public class Desugar extends BLangNodeVisitor {
         if (NodeKind.MATCH_STATIC_PATTERN_CLAUSE == pattern.getKind()) { // static match patterns
             body = pattern.body;
         } else if (NodeKind.MATCH_STRUCTURED_PATTERN_CLAUSE == pattern.getKind()) { // structured match patterns
-            BLangMatchStmtStructuredBindingPatternClause structuredPattern =
-                    (BLangMatchStmtStructuredBindingPatternClause) pattern;
+            BLangMatchStructuredBindingPatternClause structuredPattern =
+                    (BLangMatchStructuredBindingPatternClause) pattern;
             BLangStatement varDefStmt;
             if (NodeKind.TUPLE_VARIABLE == structuredPattern.bindingPatternVariable.getKind()) {
                 varDefStmt = ASTBuilderUtil.createTupleVariableDef(pattern.pos,
@@ -3018,7 +3132,7 @@ public class Desugar extends BLangNodeVisitor {
             structuredPattern.body.stmts.add(0, varDefStmt);
             body = structuredPattern.body;
         } else if (NodeKind.MATCH_TYPED_PATTERN_CLAUSE == pattern.getKind()) { // typed match patterns
-            BLangMatchStmtTypedBindingPatternClause patternClause = (BLangMatchStmtTypedBindingPatternClause) pattern;
+            BLangMatchTypedBindingPatternClause patternClause = (BLangMatchTypedBindingPatternClause) pattern;
             // Add the variable definition to the body of the pattern clause
             if (patternClause.variable.name.value.equals(Names.IGNORE.value)) {
                 return patternClause.body;
@@ -3080,24 +3194,24 @@ public class Desugar extends BLangNodeVisitor {
         return conversionExpr;
     }
 
-    private BLangExpression createPatternIfCondition(BLangMatchStmtBindingPatternClause patternClause,
+    private BLangExpression createPatternIfCondition(BLangMatch.BLangMatchBindingPatternClause patternClause,
                                                      BVarSymbol varSymbol) {
         BType patternType;
 
         switch (patternClause.getKind()) {
             case MATCH_STATIC_PATTERN_CLAUSE:
-                BLangMatchStmtStaticBindingPatternClause staticPattern =
-                        (BLangMatchStmtStaticBindingPatternClause) patternClause;
+                BLangMatch.BLangMatchStaticBindingPatternClause staticPattern =
+                        (BLangMatchStaticBindingPatternClause) patternClause;
                 patternType = staticPattern.literal.type;
                 break;
             case MATCH_STRUCTURED_PATTERN_CLAUSE:
-                BLangMatchStmtStructuredBindingPatternClause structuredPattern =
-                        (BLangMatchStmtStructuredBindingPatternClause) patternClause;
+                BLangMatchStructuredBindingPatternClause structuredPattern =
+                        (BLangMatchStructuredBindingPatternClause) patternClause;
                 patternType = structuredPattern.bindingPatternVariable.type;
                 break;
             default:
-                BLangMatchStmtTypedBindingPatternClause simplePattern =
-                        (BLangMatchStmtTypedBindingPatternClause) patternClause;
+                BLangMatchTypedBindingPatternClause simplePattern =
+                        (BLangMatchTypedBindingPatternClause) patternClause;
                 patternType = simplePattern.variable.type;
                 break;
         }
@@ -3133,31 +3247,21 @@ public class Desugar extends BLangNodeVisitor {
         return binaryExpr;
     }
 
-    private BLangExpression createPatternMatchBinaryExpr(BLangMatchStmtBindingPatternClause patternClause,
+    private BLangExpression createPatternMatchBinaryExpr(BLangMatch.BLangMatchBindingPatternClause patternClause,
                                                          BVarSymbol varSymbol, BType patternType) {
         DiagnosticPos pos = patternClause.pos;
         if (NodeKind.MATCH_STATIC_PATTERN_CLAUSE == patternClause.getKind()) {
-
-            BLangMatchStmtStaticBindingPatternClause pattern = (BLangMatchStmtStaticBindingPatternClause) patternClause;
-
+            BLangMatch.BLangMatchStaticBindingPatternClause pattern = (BLangMatch.BLangMatchStaticBindingPatternClause) patternClause;
             BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, varSymbol);
+            BLangExpression binaryExpr = ASTBuilderUtil.createBinaryExpr(pos, varRef, pattern.literal,
+                    symTable.booleanType, OperatorKind.EQUAL, null);
 
-            BLangExpression conversionExpr = addConversionExprIfRequired(varRef, pattern.literal.type);
-
-            BLangExpression binaryExpr = ASTBuilderUtil.createBinaryExpr(pos, conversionExpr, pattern.literal,
-                    symTable.booleanType, OperatorKind.EQUAL,
-                    (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.EQUAL, patternType,
-                            pattern.literal.type));
-
-            if (!types.isValueType(varSymbol.type)) {
-                //todo should this be is-like check?
-                BLangIsAssignableExpr lhsExpr = createIsAssignableExpression(pos, varSymbol, patternType);
-
-                binaryExpr =  ASTBuilderUtil.createBinaryExpr(pos, lhsExpr, binaryExpr, symTable.booleanType,
-                        OperatorKind.AND, (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.AND,
-                                symTable.booleanType, symTable.booleanType));
+            BSymbol opSymbol = symResolver.resolveBinaryOperator(OperatorKind.EQUAL, varRef.type, pattern.literal.type);
+            if (opSymbol == symTable.notFoundSymbol) {
+                opSymbol = symResolver.getBinaryEqualityForTypeSets(OperatorKind.EQUAL, symTable.anyType,
+                        pattern.literal.type, (BLangBinaryExpr) binaryExpr);
             }
-
+            ((BLangBinaryExpr) binaryExpr).opSymbol = (BOperatorSymbol) opSymbol;
             return binaryExpr;
         }
 
@@ -3202,6 +3306,8 @@ public class Desugar extends BLangNodeVisitor {
                 return getIntLiteral(0);
             case TypeTags.FLOAT:
                 return getFloatLiteral(0);
+            case TypeTags.DECIMAL:
+                return getDecimalLiteral("0.0");
             case TypeTags.BOOLEAN:
                 return getBooleanLiteral(false);
             case TypeTags.STRING:
@@ -3424,7 +3530,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         // Create the pattern for success scenario. i.e: not null and not error (if applicable).
-        BLangMatchStmtTypedBindingPatternClause successPattern =
+        BLangMatchTypedBindingPatternClause successPattern =
                 getSuccessPattern(accessExpr, tempResultVar, accessExpr.safeNavigate);
         matchStmt.patternClauses.add(successPattern);
         this.matchStmtStack.push(matchStmt);
@@ -3434,8 +3540,8 @@ public class Desugar extends BLangNodeVisitor {
         this.successPattern = successPattern;
     }
 
-    private BLangMatchStmtTypedBindingPatternClause getMatchErrorPattern(BLangExpression expr,
-                                                                         BLangSimpleVariable tempResultVar) {
+    private BLangMatchTypedBindingPatternClause getMatchErrorPattern(BLangExpression expr,
+                                                                     BLangSimpleVariable tempResultVar) {
         String errorPatternVarName = GEN_VAR_PREFIX.value + "t_match_error";
         BLangSimpleVariable errorPatternVar = ASTBuilderUtil.createVariable(expr.pos, errorPatternVarName,
                 symTable.errorType, null, new BVarSymbol(0, names.fromString(errorPatternVarName),
@@ -3450,7 +3556,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // Create the pattern
         // R b => a = b;
-        BLangMatchStmtTypedBindingPatternClause errorPattern = ASTBuilderUtil
+        BLangMatchTypedBindingPatternClause errorPattern = ASTBuilderUtil
                 .createMatchStatementPattern(expr.pos, errorPatternVar, patternBody);
         return errorPattern;
     }
@@ -3470,8 +3576,8 @@ public class Desugar extends BLangNodeVisitor {
         return nullPattern;
     }
 
-    private BLangMatchStmtTypedBindingPatternClause getMatchNullPattern(BLangExpression expr,
-                                                                        BLangSimpleVariable tempResultVar) {
+    private BLangMatchTypedBindingPatternClause getMatchNullPattern(BLangExpression expr,
+                                                                    BLangSimpleVariable tempResultVar) {
         // TODO: optimize following by replacing var with underscore, and assigning null literal
         String nullPatternVarName = GEN_VAR_PREFIX.value + "t_match_null";
         BLangSimpleVariable nullPatternVar = ASTBuilderUtil.createVariable(expr.pos, nullPatternVarName,
@@ -3487,14 +3593,14 @@ public class Desugar extends BLangNodeVisitor {
 
         // Create the pattern
         // R b => a = b;
-        BLangMatchStmtTypedBindingPatternClause nullPattern = ASTBuilderUtil
+        BLangMatchTypedBindingPatternClause nullPattern = ASTBuilderUtil
                 .createMatchStatementPattern(expr.pos, nullPatternVar, patternBody);
         return nullPattern;
     }
 
-    private BLangMatchStmtTypedBindingPatternClause getSuccessPattern(BLangAccessExpression accessExpr,
-                                                                      BLangSimpleVariable tempResultVar,
-                                                                      boolean liftError) {
+    private BLangMatchTypedBindingPatternClause getSuccessPattern(BLangAccessExpression accessExpr,
+                                                                  BLangSimpleVariable tempResultVar,
+                                                                  boolean liftError) {
         BType type = getSafeType(accessExpr.expr.type, liftError);
         String successPatternVarName = GEN_VAR_PREFIX.value + "t_match_success";
         BLangSimpleVariable successPatternVar = ASTBuilderUtil.createVariable(accessExpr.pos, successPatternVarName,
@@ -3520,7 +3626,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // Create the pattern
         // R b => a = x.foo;
-        BLangMatchStmtTypedBindingPatternClause successPattern =
+        BLangMatchTypedBindingPatternClause successPattern =
                 ASTBuilderUtil.createMatchStatementPattern(accessExpr.pos, successPatternVar, patternBody);
         this.safeNavigationAssignment = assignmentStmt;
         return successPattern;
@@ -3730,20 +3836,36 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
-    private BLangExpression getDefaultValueLiteral(Object value) {
+    // TODO: Allowing decimal defaultable args may break some cases of the union type defaultable args.
+    // TODO: We need to preserve the literal type to resolve this.
+    private BLangExpression getDefaultValueLiteral(Object value, int typeTag) {
         if (value == null) {
             return getNullLiteral();
-        } else if (value instanceof Long) {
-            return getIntLiteral((Long) value);
-        } else if (value instanceof Double) {
-            return getFloatLiteral((Double) value);
-        } else if (value instanceof String) {
-            return getStringLiteral((String) value);
-        } else if (value instanceof Boolean) {
-            return getBooleanLiteral((Boolean) value);
-        } else {
-            throw new IllegalStateException("Unsupported default value type");
         }
+        if (value instanceof Long) {
+            switch (typeTag) {
+                case TypeTags.FLOAT:
+                    return getFloatLiteral(((Long) value).doubleValue());
+                case TypeTags.DECIMAL:
+                    return getDecimalLiteral(String.valueOf(value));
+                default:
+                    return getIntLiteral((Long) value);
+            }
+        }
+        if (value instanceof String) {
+            switch (typeTag) {
+                case TypeTags.FLOAT:
+                    return getFloatLiteral(Double.parseDouble((String) value));
+                case TypeTags.DECIMAL:
+                    return getDecimalLiteral(String.valueOf(value));
+                default:
+                    return getStringLiteral((String) value);
+            }
+        }
+        if (value instanceof Boolean) {
+            return getBooleanLiteral((Boolean) value);
+        }
+        throw new IllegalStateException("Unsupported default value type");
     }
 
     private BLangLiteral getStringLiteral(String value) {
@@ -3767,6 +3889,14 @@ public class Desugar extends BLangNodeVisitor {
         literal.value = value;
         literal.typeTag = TypeTags.FLOAT;
         literal.type = symTable.floatType;
+        return literal;
+    }
+
+    private BLangLiteral getDecimalLiteral(String value) {
+        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        literal.value = value;
+        literal.typeTag = TypeTags.FLOAT;
+        literal.type = symTable.decimalType;
         return literal;
     }
 

@@ -56,6 +56,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
@@ -285,6 +286,34 @@ public class SymbolResolver extends BLangNodeVisitor {
         return bSymbol;
     }
 
+    public BSymbol resolveBuiltinOperator(Name name, BType... args) {
+        BType type = args[0];
+        switch (type.tag) {
+            case TypeTags.RECORD:
+                type = symTable.recordType;
+                break;
+            case TypeTags.ARRAY:
+                type = symTable.arrayType;
+                break;
+            case TypeTags.TUPLE:
+                type = symTable.tupleType;
+                break;
+            case TypeTags.ERROR:
+                type = symTable.errorType;
+                break;
+            case TypeTags.MAP:
+                type = symTable.mapType;
+                break;
+        }
+
+        List<BType> argsList = Lists.of(type);
+        for (int i = 1; i < args.length; i++) {
+            argsList.add(args[i]);
+        }
+        BSymbol bSymbol = resolveOperator(name, argsList);
+        return bSymbol;
+    }
+
     private BSymbol getBinaryOpForNullChecks(OperatorKind opKind, BType lhsType,
                                              BType rhsType) {
         if (opKind != OperatorKind.EQUAL && opKind != OperatorKind.NOT_EQUAL) {
@@ -313,9 +342,19 @@ public class SymbolResolver extends BLangNodeVisitor {
         return symTable.notFoundSymbol;
     }
 
-    public BSymbol createReferenceEqualityOperator(OperatorKind opKind, BType lhsType,
-                                                   BType rhsType) {
-        int opcode = (opKind == OperatorKind.EQUAL) ? InstructionCodes.REQ : InstructionCodes.RNE;
+    BSymbol createEqualityOperator(OperatorKind opKind, BType lhsType, BType rhsType) {
+        int opcode;
+        if (opKind == OperatorKind.REF_EQUAL) {
+            opcode = InstructionCodes.REF_EQ;
+        } else if (opKind == OperatorKind.REF_NOT_EQUAL) {
+            opcode = InstructionCodes.REF_NEQ;
+        } else if (opKind == OperatorKind.EQUAL) {
+            opcode = InstructionCodes.REQ;
+        } else {
+            // OperatorKind.NOT_EQUAL
+            opcode = InstructionCodes.RNE;
+        }
+
         List<BType> paramTypes = Lists.of(lhsType, rhsType);
         BType retType = symTable.booleanType;
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
@@ -804,6 +843,49 @@ public class SymbolResolver extends BLangNodeVisitor {
         return visibleEntries;
     }
 
+    public BSymbol getBinaryEqualityForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType,
+                                                BLangBinaryExpr binaryExpr) {
+        boolean validEqualityIntersectionExists;
+        switch (opKind) {
+            case EQUAL:
+            case NOT_EQUAL:
+                validEqualityIntersectionExists = types.validEqualityIntersectionExists(lhsType, rhsType);
+                break;
+            case REF_EQUAL:
+            case REF_NOT_EQUAL:
+                validEqualityIntersectionExists =
+                        types.isAssignable(lhsType, rhsType) || types.isAssignable(rhsType, lhsType);
+                break;
+            default:
+                return symTable.notFoundSymbol;
+        }
+
+
+        if (validEqualityIntersectionExists) {
+            if ((!types.isValueType(lhsType) && !types.isValueType(rhsType)) ||
+                    (types.isValueType(lhsType) && types.isValueType(rhsType))) {
+                return createEqualityOperator(opKind, lhsType, rhsType);
+            } else {
+                types.setImplicitCastExpr(binaryExpr.rhsExpr, rhsType, symTable.anyType);
+                types.setImplicitCastExpr(binaryExpr.lhsExpr, lhsType, symTable.anyType);
+
+                switch (opKind) {
+                    case REF_EQUAL:
+                        // if one is a value type, consider === the same as ==
+                        return createEqualityOperator(OperatorKind.EQUAL, symTable.anyType,
+                                symTable.anyType);
+                    case REF_NOT_EQUAL:
+                        // if one is a value type, consider !== the same as !=
+                        return createEqualityOperator(OperatorKind.NOT_EQUAL, symTable.anyType,
+                                symTable.anyType);
+                    default:
+                        return createEqualityOperator(opKind, symTable.anyType, symTable.anyType);
+                }
+            }
+        }
+        return symTable.notFoundSymbol;
+    }
+
 
     // private methods
 
@@ -865,8 +947,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (!Symbols.isFlagOn(symbol.flags, Flags.PRIVATE)) {
             return env.enclPkg.symbol.pkgID == symbol.pkgID;
         }
-        if (env.enclTypeDefinition != null) {
-            return env.enclTypeDefinition.symbol == symbol.owner;
+        if (env.enclType != null) {
+            return env.enclType.type.tsymbol == symbol.owner;
         }
         return isMemberAllowed(env, symbol);
     }

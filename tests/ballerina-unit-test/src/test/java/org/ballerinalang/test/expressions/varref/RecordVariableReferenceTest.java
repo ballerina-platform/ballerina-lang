@@ -129,6 +129,14 @@ public class RecordVariableReferenceTest {
         Assert.assertEquals(returns[3].stringValue(), "Z");
     }
 
+    @Test(description = "Test record var ref with index based and field based var refs")
+    public void testFieldAndIndexBasedVarRefs() {
+        BValue[] returns = BRunUtil.invoke(result, "testFieldAndIndexBasedVarRefs");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns[0].stringValue(), "D");
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 2002);
+    }
+
     // TODO: Uncomment below tests once record literal is supported with var ref
 //
 //    @Test(description = "Test simple record variable definition")
