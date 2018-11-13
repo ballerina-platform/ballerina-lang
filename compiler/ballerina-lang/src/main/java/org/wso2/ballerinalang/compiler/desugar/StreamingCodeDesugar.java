@@ -142,6 +142,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private static final String VAR_OUTPUT_EVENTS = "$lambda$streaming$output$process$output$events$variable";
     private static final String VAR_RESULTS_TABLE = "$lambda$streaming$table$join$on$condition$result$variable";
     private static final String VAR_FOREACH_VAL = "$lambda$streaming$foreach$key$val$variable";
+    private static final String GROUP_BY_FUNC_ARRAY_REFERENCE = "$lambda$streaming$groupby$funcarray$variable";
     private static final String NEXT_PROCESS_METHOD_NAME = "process";
     private static final String STREAM_EVENT_OBJECT_NAME = "StreamEvent";
     private static final String FILTER_OBJECT_NAME = "Filter";
@@ -170,6 +171,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private static final CompilerContext.Key<StreamingCodeDesugar> STREAMING_DESUGAR_KEY =
             new CompilerContext.Key<>();
     private static final String ORDER_BY_FIELD_ATTR = "fieldFuncs";
+    private static final String GROUP_BY_FIELD_ATTR = "groupbyFuncArray";
     private static final String ORDER_TYPE_ASC = "ASCENDING";
     private static final String STR_ENDING = "ENDING";
     private static final String NEXT_PROCESS_POINTER_ARG_NAME = "nextProcessPointer";
@@ -188,6 +190,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private BLangVariableReference rhsStream, lhsStream;
     private BLangExpression conditionExpr;
     private BType outputEventType;
+    private String inputStreamName;
     private Stack<BVarSymbol> nextProcessVarSymbolStack = new Stack<>();
     private Stack<BVarSymbol> joinProcessorStack = new Stack<>();
     private boolean isInJoin = false;
@@ -246,6 +249,9 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         if (orderBy != null) {
             orderBy.accept(this);
         }
+
+        //set inputStream name to use in groupBy
+        inputStreamName = queryStmt.getStreamingInput().getStreamReference().toString();
 
         BLangSelectClause selectClause = (BLangSelectClause) queryStmt.getSelectClause();
         selectClause.accept(this);
@@ -626,11 +632,31 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangArrayLiteral aggregateArray = createAggregatorArray(selectClause);
 
         // (streams:StreamEvent e) => string, 3rd arg
-        BLangLambdaFunction groupingLambda = createGroupByLambda(selectClause);
+        //creating function pointer array which represents the group by fields
+        BObjectTypeSymbol groupByObjSymbol = (BObjectTypeSymbol) symResolver.
+                resolvePkgSymbol(selectClause.pos, env, Names.STREAMS_MODULE).
+                scope.lookup(new Name(SELECT_WITH_GROUP_BY_OBJECT_NAME)).symbol;
+        BType groupByFuncArrayType = getGroupByFuncArrayType((BObjectType) groupByObjSymbol.type);
+
+        //create symbol representing the group by function pointer array
+        BVarSymbol groupByFuncArrayVarSymbol =
+                new BVarSymbol(0, new Name(getVariableName(GROUP_BY_FUNC_ARRAY_REFERENCE)),
+                               groupByObjSymbol.pkgID, groupByFuncArrayType, env.scope.owner);
+
+        //create RHS expression for the group by function array
+        BLangArrayLiteral groupByFuncArrExpr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        groupByFuncArrExpr.exprs = new ArrayList<>();
+        groupByFuncArrExpr.type = groupByFuncArrayType;
+
+        BLangVariableDef groupByFuncArrayVarDef =
+                createGroupByFuncArrayVarDef(selectClause, groupByFuncArrayVarSymbol, groupByFuncArrExpr);
+        stmts.add(groupByFuncArrayVarDef);
+        groupByFuncArrExpr.exprs = createGroupByLambda(selectClause);
+        BLangSimpleVarRef groupByFuncPointerArr = ASTBuilderUtil.createVariableRef(selectClause.pos,
+                                                                                   groupByFuncArrayVarDef.var.symbol);
 
         // (streams:StreamEvent e, streams:Aggregator[] aggregatorArr)  => any, 4th arg of createSelect
         BLangLambdaFunction aggregatorLambda = createAggregatorLambda(selectClause);
-
 
         BInvokableSymbol groupBySelectInvokableSymbol = (BInvokableSymbol) symResolver.
                 resolvePkgSymbol(selectClause.pos, env, Names.STREAMS_MODULE).
@@ -645,7 +671,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         List<BLangExpression> args = new ArrayList<>();
         args.add(nextProcessMethodAccess);
         args.add(aggregateArray);
-        args.add(groupingLambda);
+        args.add(groupByFuncPointerArr);
         args.add(aggregatorLambda);
 
         // streams:createSelect( ... )
@@ -669,6 +695,27 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangVariableDef selectWithGroupByInvokableTypeVariableDef = ASTBuilderUtil.createVariableDef(selectClause.pos,
                 selectWithGroupByInvokableTypeVariable);
         stmts.add(selectWithGroupByInvokableTypeVariableDef);
+    }
+
+    private BType getGroupByFuncArrayType(BObjectType groupByType) {
+        BType groupByFuncArrayType;
+        List<BField> fields = groupByType.fields;
+        //get the group by functions array type
+        //e.g. (function (map)returns any)[] ...
+        groupByFuncArrayType = fields.stream().filter(field -> field.name.value.equals(GROUP_BY_FIELD_ATTR))
+                .findFirst().map(field -> field.type).orElse(null);
+        return groupByFuncArrayType;
+    }
+
+    private BLangVariableDef createGroupByFuncArrayVarDef(BLangSelectClause selectClause,
+                                                          BVarSymbol groupByFuncArrayVarSymbol,
+                                                          BLangArrayLiteral groupByFuncArrExpr) {
+        BLangVariable groupByFuncArrVariable = ASTBuilderUtil.
+                createVariable(selectClause.pos, getVariableName(GROUP_BY_FUNC_ARRAY_REFERENCE),
+                               groupByFuncArrExpr.type, groupByFuncArrExpr, groupByFuncArrayVarSymbol);
+
+        groupByFuncArrVariable.typeNode = ASTBuilderUtil.createTypeNode(groupByFuncArrExpr.type);
+        return ASTBuilderUtil.createVariableDef(selectClause.pos, groupByFuncArrVariable);
     }
 
     // [streams:sum(), streams:count(), .. etc ]
@@ -840,23 +887,74 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 selectLambdaClosureVarSymbols, selectLambdaReturnType);
     }
 
-    //TODO: change this to pass an array of lambdas
-    private BLangLambdaFunction createGroupByLambda(BLangSelectClause selectClause) {
-        BLangVariable varGroupByStreamEvent = this.createStreamEventArgVariable(
-                getVariableName(SELECT_LAMBDA_PARAM_REFERENCE), selectClause.pos, env);
-        // (streams:StreamEvent e) => string { .. }
-        BLangLambdaFunction groupingLambda = createLambdaWithVarArg(selectClause.pos, new BLangVariable[]{
-                varGroupByStreamEvent}, symTable.stringType);
-        BLangBlockStmt groupByLambda = groupingLambda.function.body;
+    private ArrayList<BLangExpression> createGroupByLambda(BLangSelectClause selectClause) {
+        ArrayList<BLangExpression> groupByFunctionArray = new ArrayList<>();
+        for (ExpressionNode node : selectClause.getGroupBy().getVariables()) {
+            BLangVariable varGroupByStreamEvent = this.createStreamEventArgVariable(
+                    getVariableName(SELECT_LAMBDA_PARAM_REFERENCE), selectClause.pos, env);
+            // (streams:StreamEvent e) => string { .. }
+            BLangLambdaFunction groupingLambda = createLambdaWithVarArg(selectClause.pos, new BLangVariable[]{
+                    varGroupByStreamEvent}, symTable.stringType);
+            BLangBlockStmt groupByLambda = groupingLambda.function.body;
 
-        //e.data;
-        BLangIndexBasedAccess mapFieldAccessExpr = createMapAccessExprFromStreamEvent(varGroupByStreamEvent,
-                (BLangExpression) selectClause.getGroupBy().getVariables().get(0));
-        // return check <string>e.data[<fieldName in string>];
-        BLangTypeConversionExpr conversionExpr = generateConversionExpr(mapFieldAccessExpr, symTable.stringType,
-                symResolver);
-        addReturnGroupByFieldStmt(groupByLambda, conversionExpr);
-        return groupingLambda;
+            //e.data; / getOrderByField(...);
+            BLangTypeConversionExpr conversionExpr = null;
+            if (node.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+                BLangIndexBasedAccess mapFieldAccessExpr = createMapAccessExprFromStreamEvent(varGroupByStreamEvent,
+                                                                                              (BLangExpression) node);
+                // return check <string>e.data[<fieldName in string>];
+                conversionExpr = generateConversionExpr(mapFieldAccessExpr, symTable.stringType, symResolver);
+            } else if (node.getKind() == NodeKind.INVOCATION) {
+                BLangInvocation invocation = (BLangInvocation) node;
+
+                conversionExpr = generateConversionExpr(refactorInvocationInGroupBy(invocation, varGroupByStreamEvent),
+                                                        symTable.stringType, symResolver);
+            }
+
+            addReturnGroupByFieldStmt(groupByLambda, conversionExpr);
+
+            groupByFunctionArray.add(groupingLambda);
+        }
+        return groupByFunctionArray;
+    }
+
+    private BLangInvocation refactorInvocationInGroupBy(BLangInvocation invocation,
+                                                        BLangVariable varGroupByStreamEvent) {
+        if (invocation.requiredArgs.size() <= 0) {
+            return invocation;
+        }
+        List<BLangExpression> expressionList = new ArrayList<>();
+        List<BLangExpression> functionArgsList = invocation.requiredArgs;
+        int count = 0;
+        for (BLangExpression expression : functionArgsList) {
+            if (expression.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+                BLangFieldBasedAccess varRef = (BLangFieldBasedAccess) expression;
+
+                BLangExpression refactoredVarRef;
+                if (inputStreamName.equals(varRef.expr.toString())) {
+                    BLangIndexBasedAccess funcVarMapFieldAccessExpr =
+                            createMapAccessExprFromStreamEvent(varGroupByStreamEvent, varRef);
+                    BType funcParameterType = ((BInvokableSymbol) (invocation.symbol)).params.get(count).type;
+                    BLangTypeConversionExpr funcVarConversionExpr =
+                            generateConversionExpr(funcVarMapFieldAccessExpr, funcParameterType, symResolver);
+                    BLangCheckedExpr funcVarCheckedExpr = createCheckedExpr(funcVarConversionExpr);
+                    refactoredVarRef = funcVarCheckedExpr;
+                } else {
+                    refactoredVarRef = varRef;
+                }
+
+                expressionList.add(refactoredVarRef);
+            } else if (expression.getKind() == NodeKind.INVOCATION) {
+                expressionList.add(refactorInvocationInGroupBy((BLangInvocation) expression,
+                                                               varGroupByStreamEvent));
+            } else {
+                expressionList.add(expression);
+            }
+            count += 1;
+        }
+        invocation.argExprs = expressionList;
+        invocation.requiredArgs = expressionList;
+        return invocation;
     }
 
     private BLangIndexBasedAccess createMapAccessExprFromStreamEvent(BLangVariable varGroupByStreamEvent,
