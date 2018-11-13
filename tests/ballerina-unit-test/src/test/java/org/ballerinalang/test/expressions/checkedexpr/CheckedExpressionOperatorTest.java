@@ -64,16 +64,24 @@ public class CheckedExpressionOperatorTest {
                 "Invalid error message value returned.");
     }
 
-    @Test(description = "Test basics of safe assignment statement", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: file not found error: /home/sameera/bar.txt.*")
+    @Test(description = "Test basics of safe assignment statement")
     public void testSafeAssignmentBasics3() {
-        BRunUtil.invoke(result, "testSafeAssignmentBasics3", new BValue[]{});
+        BValue[] returns = BRunUtil.invoke(result, "testSafeAssignmentBasics3", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BError.class);
+        BError errorStruct = (BError) returns[0];
+        Assert.assertEquals(errorStruct.getReason(), "file not found error: /home/sameera/bar.txt",
+                "Invalid error message value returned.");
     }
 
-    @Test(description = "Test basics of safe assignment statement", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: file not found error: /home/sameera/bar.txt.*")
+    @Test(description = "Test basics of safe assignment statement")
     public void testSafeAssignmentBasics4() {
-        BRunUtil.invoke(result, "testSafeAssignmentBasics4", new BValue[]{});
+        BValue[] returns = BRunUtil.invoke(result, "testSafeAssignmentBasics4", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BError.class);
+        BError errorStruct = (BError) returns[0];
+        Assert.assertEquals(errorStruct.getReason(), "file not found error: /home/sameera/bar.txt",
+                "Invalid error message value returned.");
     }
 
     @Test(description = "Test basics of safe assignment statement")
@@ -111,10 +119,14 @@ public class CheckedExpressionOperatorTest {
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true, "Invalid boolean value returned.");
     }
 
-    @Test(description = "Test basics of safe assignment statement", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: file not found error: /home/sameera/bar.txt.*")
+    @Test(description = "Test basics of safe assignment statement")
     public void testSafeAssignOpInAssignmentStatement5() {
-        BRunUtil.invoke(result, "testSafeAssignOpInAssignmentStatement5", new BValue[]{});
+        BValue[] returns = BRunUtil.invoke(result, "testSafeAssignOpInAssignmentStatement5", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BError.class);
+        BError errorStruct = (BError) returns[0];
+        Assert.assertEquals(errorStruct.getReason(), "file not found error: /home/sameera/bar.txt",
+                "Invalid error message value returned.");
     }
 
     @Test(description = "Test basics of safe assignment statement")
@@ -159,16 +171,22 @@ public class CheckedExpressionOperatorTest {
         Assert.assertEquals(returns[0].stringValue(), "hello, Ballerina", "Invalid string value returned.");
     }
 
-    @Test(description = "Test basics of safe assignment statement", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: io error.*")
+    @Test(description = "Test basics of safe assignment statement")
     public void testCheckExprInBinaryExpr4() {
-        BRunUtil.invoke(result, "testCheckExprInBinaryExpr4", new BValue[]{});
+        BValue[] returns = BRunUtil.invoke(result, "testCheckExprInBinaryExpr4", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BError.class);
+        BError errorStruct = (BError) returns[0];
+        Assert.assertEquals(errorStruct.getReason(), "io error", "Invalid error message value returned.");
     }
 
-    @Test(description = "Test basics of safe assignment statement", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: io error.*")
+    @Test(description = "Test basics of safe assignment statement")
     public void testCheckExprInBinaryExpr5() {
-        BRunUtil.invoke(result, "testCheckExprInBinaryExpr5", new BValue[]{});
+        BValue[] returns = BRunUtil.invoke(result, "testCheckExprInBinaryExpr5", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BError.class);
+        BError errorStruct = (BError) returns[0];
+        Assert.assertEquals(errorStruct.getReason(), "io error", "Invalid error message value returned.");
     }
 
     @Test(description = "Test basics of safe assignment statement")

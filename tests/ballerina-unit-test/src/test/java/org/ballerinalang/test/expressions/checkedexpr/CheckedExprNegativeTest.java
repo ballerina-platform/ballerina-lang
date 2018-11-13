@@ -32,7 +32,7 @@ public class CheckedExprNegativeTest {
     public void testSemanticErrors() {
         CompileResult compile = BCompileUtil.compile(
                 "test-src/expressions/checkedexpr/checked_expr_negative.bal");
-        Assert.assertEquals(compile.getErrorCount(), 4);
+        Assert.assertEquals(compile.getErrorCount(), 5);
         BAssertUtil.validateError(compile, 0, "invalid usage of the checked expression " +
                 "operator: no expression type is equivalent to error type", 11, 25);
         BAssertUtil.validateError(compile, 1, "invalid usage of the checked expression " +
@@ -41,5 +41,7 @@ public class CheckedExprNegativeTest {
                 "operator: all expression types are equivalent to error type", 28, 25);
         BAssertUtil.validateError(compile, 3, "invalid usage of the checked expression " +
                 "operator: no expression type is equivalent to error type", 36, 25);
+        BAssertUtil.validateError(compile, 4, "invalid usage of the checked expression " +
+                "operator: no error type return in enclosing invokable", 49, 25);
     }
 }
