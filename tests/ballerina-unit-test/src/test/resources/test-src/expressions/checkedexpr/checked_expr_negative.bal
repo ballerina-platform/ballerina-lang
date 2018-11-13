@@ -41,6 +41,7 @@ function readLineProper() returns string | myerror | customError {
     return e;
 }
 
+//TODO: This does not look like an error condition
 function testCheckedExprSemanticErrors5() {
     string line = check readLineProper();
 }
