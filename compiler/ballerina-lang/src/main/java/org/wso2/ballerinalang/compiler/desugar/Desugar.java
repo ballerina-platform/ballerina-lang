@@ -1107,6 +1107,7 @@ public class Desugar extends BLangNodeVisitor {
 
                 // expr symbol is null when their is a array as the field TODO: Need a proper fix
                 if (!enclLocks.isEmpty() && (fieldAccessExpr.expr.symbol != null)) {
+                    ((BLangStructFieldAccessExpr) targetVarRef).leafField = fieldAccessExpr.leafField;
                     enclLocks.peek().addFieldVariable((BLangStructFieldAccessExpr) targetVarRef);
                 }
             }
@@ -1120,6 +1121,7 @@ public class Desugar extends BLangNodeVisitor {
                                                               (BVarSymbol) fieldAccessExpr.symbol, true);
                 // expr symbol is null when their is a array as the field TODO: Need a proper fix
                 if (!enclLocks.isEmpty() && (fieldAccessExpr.expr.symbol != null)) {
+                    ((BLangStructFieldAccessExpr) targetVarRef).leafField = fieldAccessExpr.leafField;
                     enclLocks.peek().addFieldVariable((BLangStructFieldAccessExpr) targetVarRef);
                 }
             }

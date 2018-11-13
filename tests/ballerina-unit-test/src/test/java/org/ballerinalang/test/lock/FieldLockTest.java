@@ -67,6 +67,10 @@ public class FieldLockTest {
         BValue[] returns =
                 BRunUtil.invoke(compileResult2, "fieldLock");
         assertTrue((returns[0].stringValue().equals("1001000") || returns[0].stringValue().equals("500500")));
+
+        BValue[] returns2 =
+                BRunUtil.invoke(compileResult2, "arrayFieldLock");
+        assertTrue((returns2[0].stringValue().equals("1001000") || returns2[0].stringValue().equals("500500")));
     }
 
 }

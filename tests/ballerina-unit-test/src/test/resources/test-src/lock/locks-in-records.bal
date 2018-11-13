@@ -45,3 +45,38 @@ public type RollingWindow record {
     int bucketSizeMillis = 10000;
     !...
 };
+
+public type Bucket record {
+    int id;
+    RollingWindow[] windows;
+};
+
+//--------------------------------------------------------------------------
+
+function arrayFieldLock() returns int {
+        RollingWindow w = {};
+        w.requestVolumeThreshold = 0;
+        Bucket bucket = {};
+        bucket.windows[0] = w;
+        buckWorkerFuncParam(bucket);
+        return bucket.windows[0].requestVolumeThreshold;
+}
+
+function buckWorkerFuncParam(Bucket buck) {
+
+    worker w1 {
+        incrementParam2(buck);
+    }
+
+    worker w2 {
+        incrementParam2(buck);
+    }
+}
+
+function incrementParam2(Bucket buck) {
+   lock {
+       foreach i in 1 ... 1000 {
+            buck.windows[0].requestVolumeThreshold = buck.windows[0].requestVolumeThreshold + i;
+       }
+    }
+}

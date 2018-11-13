@@ -2815,8 +2815,12 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         //count field vars
         int fieldVarCount = 0;
-        for (Set fields : lockNode.fieldVariables.values()) {
-            fieldVarCount += fields.size();
+        for (Set<BLangStructFieldAccessExpr> fields : lockNode.fieldVariables.values()) {
+            for (BLangStructFieldAccessExpr expr : fields) {
+               if (expr.leafField) {
+                   fieldVarCount++;
+               }
+            }
         }
 
         //lockVarCount, fieldVarCount [typeRefCP, pkgRefCP, varIndex], fieldVars[typeRefCP, pkgRefCP,
@@ -2855,12 +2859,15 @@ public class CodeGenerator extends BLangNodeVisitor {
             TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
 
             for (BLangStructFieldAccessExpr expr : expressions) {
-                operands[i++] = getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
-                operands[i++] = getOperand(pkgRefCPIndex);
-                operands[i++] = expr.expr.regIndex;
+                if (expr.leafField) {
+                    operands[i++] = getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
+                    operands[i++] = getOperand(pkgRefCPIndex);
+                    operands[i++] = expr.expr.regIndex;
 
-                int fieldNameCPEntry = addUTF8CPEntry(currentPkgInfo, (String) ((BLangLiteral) expr.indexExpr).value);
-                operands[i++] = getOperand(fieldNameCPEntry);
+                    int fieldNameCPEntry = addUTF8CPEntry(currentPkgInfo,
+                            (String) ((BLangLiteral) expr.indexExpr).value);
+                    operands[i++] = getOperand(fieldNameCPEntry);
+                }
             }
         }
 

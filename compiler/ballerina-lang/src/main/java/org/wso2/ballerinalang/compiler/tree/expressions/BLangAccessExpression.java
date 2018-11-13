@@ -32,4 +32,5 @@ public abstract class BLangAccessExpression extends BLangVariableReference imple
     public boolean safeNavigate;
     public BType originalType;
     public boolean leafNode;
+    public boolean leafField;
 }

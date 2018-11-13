@@ -157,6 +157,7 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
     public static class BLangStructFieldAccessExpr extends BLangIndexBasedAccess {
 
         public boolean except;
+        public boolean leafField;
 
         public BLangStructFieldAccessExpr(DiagnosticPos pos, BLangVariableReference varRef, BLangExpression keyExpr,
                                           BVarSymbol fieldSymbol, boolean except) {

@@ -1156,6 +1156,10 @@ public class BLangPackageBuilder {
         fieldBasedAccess.expr = (BLangVariableReference) exprNodeStack.pop();
         fieldBasedAccess.fieldKind = fieldType;
         fieldBasedAccess.safeNavigate = safeNavigate;
+        fieldBasedAccess.leafField = true;
+        if (fieldBasedAccess.expr instanceof BLangFieldBasedAccess) {
+            ((BLangFieldBasedAccess) fieldBasedAccess.expr).leafField = false;
+        }
         addExpressionNode(fieldBasedAccess);
     }
 
