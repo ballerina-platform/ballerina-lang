@@ -8,7 +8,7 @@
     "composer"
   ],
   "repository": "ballerina-platform/ballerina-lang",
-  "main": "lib/index.js",
+  "main": "lib/src/index.js",
   "scripts": {
     "clean": "rimraf lib && rimraf coverage",
     "prebuild": "npm run clean && npm run lint",
