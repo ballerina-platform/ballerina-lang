@@ -163,7 +163,7 @@ public type KeepAlive "AUTO"|"ALWAYS"|"NEVER";
 # Closes the connection irrespective of the `connection` header value }
 @final public KeepAlive KEEPALIVE_NEVER = "NEVER";
 
-function Listener::init (ServiceEndpointConfiguration c) {
+function Listener.init (ServiceEndpointConfiguration c) {
     self.config = c;
     var err = self.initEndpoint();
     if (err is error) {
@@ -201,32 +201,32 @@ public type WebSocketListener object {
     # + c - The `ServiceEndpointConfiguration` of the endpoint
     public function init(ServiceEndpointConfiguration c) {
         self.config = c;
-        httpEndpoint.init(c);
+        self.httpEndpoint.init(c);
     }
 
     # Gets invoked when binding a service to the endpoint.
     #
     # + serviceType - The service type
     public function register(typedesc serviceType) {
-        httpEndpoint.register(serviceType);
+        self.httpEndpoint.register(serviceType);
     }
 
     # Starts the registered service.
     public function start() {
-        httpEndpoint.start();
+        self.httpEndpoint.start();
     }
 
     # Returns a WebSocket actions provider which can be used to communicate with the remote host.
     #
     # + return - The connector that listener endpoint uses
     public function getCallerActions() returns (WebSocketConnector) {
-        return conn;
+        return self.conn;
     }
 
     # Stops the registered service.
     public function stop() {
-        WebSocketConnector webSocketConnector = getCallerActions();
+        WebSocketConnector webSocketConnector = self.getCallerActions();
         check webSocketConnector.close(statusCode = 1001, reason = "going away", timeoutInSecs = 0);
-        httpEndpoint.stop();
+        self.httpEndpoint.stop();
     }
 };

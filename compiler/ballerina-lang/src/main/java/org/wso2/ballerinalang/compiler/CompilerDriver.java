@@ -228,12 +228,7 @@ public class CompilerDriver {
         if (compilerPhase.compareTo(nextPhase) < 0) {
             return true;
         }
-        if (pkgNode.containsTestablePkg()) {
-            // We have to check both the compilation unit nodes in the package and testable node
-            return checkNextPhase(nextPhase) && (dlog.errorCount > 0 || pkgNode.getCompilationUnits().isEmpty() ||
-                    pkgNode.getTestablePkg().getCompilationUnits().isEmpty());
-        }
-        return (checkNextPhase(nextPhase)) && (dlog.errorCount > 0 || pkgNode.getCompilationUnits().isEmpty());
+        return (checkNextPhase(nextPhase) && dlog.errorCount > 0);
     }
 
     private boolean checkNextPhase(CompilerPhase nextPhase) {

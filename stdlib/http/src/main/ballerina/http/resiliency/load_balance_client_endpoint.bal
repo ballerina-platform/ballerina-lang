@@ -35,7 +35,7 @@ public type LoadBalanceClient object {
     #
     # + return - The HTTP LoadBalancer actions associated with the endpoint
     public function getCallerActions() returns LoadBalancerActions {
-        return check <LoadBalancerActions> httpEP.httpClient;
+        return check <LoadBalancerActions> self.httpEP.httpClient;
     }
 };
 
@@ -77,7 +77,7 @@ public type LoadBalanceClientEndpointConfiguration record {
     !...
 };
 
-function LoadBalanceClient::init(LoadBalanceClientEndpointConfiguration lbClientConfig) {
+function LoadBalanceClient.init(LoadBalanceClientEndpointConfiguration lbClientConfig) {
     self.httpEP.httpClient = createLoadBalancerClient(lbClientConfig);
     self.httpEP.config.circuitBreaker = lbClientConfig.circuitBreaker;
     self.httpEP.config.timeoutMillis = lbClientConfig.timeoutMillis;

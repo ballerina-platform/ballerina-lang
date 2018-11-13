@@ -36,14 +36,14 @@ public type LengthWindow object {
     public function (StreamEvent[])? nextProcessPointer;
 
     public new(nextProcessPointer, size) {
-        linkedList = new;
+        self.linkedList = new;
     }
 
     public function process(StreamEvent[] streamEvents) {
         StreamEvent[] outputEvents = [];
         foreach event in streamEvents {
-            if (linkedList.getSize() == size) {
-                match linkedList.removeFirst() {
+            if (self.linkedList.getSize() == self.size) {
+                match self.linkedList.removeFirst() {
                     StreamEvent streamEvent => {
                         outputEvents[outputEvents.length()] = streamEvent;
                     }
@@ -59,11 +59,11 @@ public type LengthWindow object {
             }
 
             outputEvents[outputEvents.length()] = event;
-            StreamEvent expiredVeresionOfEvent = event.copy();
+            StreamEvent expiredVeresionOfEvent = event.clone();
             expiredVeresionOfEvent.eventType = "EXPIRED";
-            linkedList.addLast(expiredVeresionOfEvent);
+            self.linkedList.addLast(expiredVeresionOfEvent);
         }
-        match (nextProcessPointer) {
+        match (self.nextProcessPointer) {
             function (StreamEvent[]) nxtProc => {
                 nxtProc(outputEvents);
             }
@@ -80,7 +80,7 @@ public type LengthWindow object {
                         returns (StreamEvent?, StreamEvent?)[] {
         (StreamEvent?, StreamEvent?)[] events = [];
         int i = 0;
-        foreach e in linkedList.asArray() {
+        foreach e in self.linkedList.asArray() {
             match e {
                 StreamEvent s => {
                     StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;
@@ -121,8 +121,8 @@ public type TimeWindow object {
     public int lastTimestamp = -0x8000000000000000;
 
     public new(nextProcessPointer, timeInMillis) {
-        expiredEventQueue = new;
-        timerQueue = new;
+        self.expiredEventQueue = new;
+        self.timerQueue = new;
     }
 
     public function process(StreamEvent[] streamEvents) {
@@ -137,13 +137,13 @@ public type TimeWindow object {
             while (streamEventChunk.hasNext()) {
                 StreamEvent streamEvent = check <StreamEvent>streamEventChunk.next();
                 int currentTime = time:currentTime().time;
-                expiredEventQueue.resetToFront();
+                self.expiredEventQueue.resetToFront();
 
-                while (expiredEventQueue.hasNext()) {
-                    StreamEvent expiredEvent = check <StreamEvent>expiredEventQueue.next();
-                    int timeDiff = (expiredEvent.timestamp - currentTime) + timeInMillis;
+                while (self.expiredEventQueue.hasNext()) {
+                    StreamEvent expiredEvent = check <StreamEvent>self.expiredEventQueue.next();
+                    int timeDiff = (expiredEvent.timestamp - currentTime) + self.timeInMillis;
                     if (timeDiff <= 0) {
-                        expiredEventQueue.removeCurrent();
+                        self.expiredEventQueue.removeCurrent();
                         expiredEvent.timestamp = currentTime;
                         streamEventChunk.insertBeforeCurrent(expiredEvent);
                     } else {
@@ -152,24 +152,24 @@ public type TimeWindow object {
                 }
 
                 if (streamEvent.eventType == "CURRENT") {
-                    StreamEvent clonedEvent = streamEvent.copy();
+                    StreamEvent clonedEvent = streamEvent.clone();
                     clonedEvent.eventType = "EXPIRED";
-                    expiredEventQueue.addLast(clonedEvent);
+                    self.expiredEventQueue.addLast(clonedEvent);
 
-                    if (lastTimestamp < clonedEvent.timestamp) {
-                        task:Timer timer = new task:Timer(self.invokeProcess, self.handleError, timeInMillis,
-                            delay = timeInMillis - (time:currentTime().time - clonedEvent.timestamp));
+                    if (self.lastTimestamp < clonedEvent.timestamp) {
+                        task:Timer timer = new task:Timer(self.invokeProcess, self.handleError, self.timeInMillis,
+                            delay = self.timeInMillis - (time:currentTime().time - clonedEvent.timestamp));
                         _ = timer.start();
-                        timerQueue.addLast(timer);
-                        lastTimestamp = clonedEvent.timestamp;
+                        self.timerQueue.addLast(timer);
+                        self.lastTimestamp = clonedEvent.timestamp;
                     }
                 } else {
                     streamEventChunk.removeCurrent();
                 }
             }
-            expiredEventQueue.resetToFront();
+            self.expiredEventQueue.resetToFront();
         }
-        match (nextProcessPointer) {
+        match (self.nextProcessPointer) {
             function (StreamEvent[]) nxtProc => {
                 if (streamEventChunk.getSize() != 0) {
                     StreamEvent[] events = [];
@@ -191,9 +191,9 @@ public type TimeWindow object {
         StreamEvent timerEvent = new(("timer", {}), "TIMER", time:currentTime().time);
         StreamEvent[] timerEventWrapper = [];
         timerEventWrapper[0] = timerEvent;
-        process(timerEventWrapper);
-        if (!timerQueue.isEmpty()) {
-            task:Timer timer = check <task:Timer>timerQueue.removeFirst();
+        self.process(timerEventWrapper);
+        if (!self.timerQueue.isEmpty()) {
+            task:Timer timer = check <task:Timer>self.timerQueue.removeFirst();
             _ = timer.stop();
         }
         return ();
@@ -210,7 +210,7 @@ public type TimeWindow object {
                         returns (StreamEvent?, StreamEvent?)[] {
         (StreamEvent?, StreamEvent?)[] events = [];
         int i = 0;
-        foreach e in expiredEventQueue.asArray() {
+        foreach e in self.expiredEventQueue.asArray() {
             match e {
                 StreamEvent s => {
                     StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;
@@ -251,8 +251,8 @@ public type LengthBatchWindow object {
     public function (StreamEvent[])? nextProcessPointer;
 
     public new(nextProcessPointer, length) {
-        currentEventQueue = new();
-        expiredEventQueue = ();
+        self.currentEventQueue = new();
+        self.expiredEventQueue = ();
     }
 
     public function process(StreamEvent[] streamEvents) {
@@ -261,42 +261,42 @@ public type LengthBatchWindow object {
         int currentTime = time:currentTime().time;
 
         foreach event in streamEvents {
-            StreamEvent clonedStreamEvent = event.copy();
-            currentEventQueue.addLast(clonedStreamEvent);
-            count += 1;
-            if (count == length) {
-                //if (expiredEventQueue.getFirst() != ()) {
-                //    expiredEventQueue.clear();
+            StreamEvent clonedStreamEvent = event.clone();
+            self.currentEventQueue.addLast(clonedStreamEvent);
+            self.count += 1;
+            if (self.count == self.length) {
+                //if (self.expiredEventQueue.getFirst() != ()) {
+                //    self.expiredEventQueue.clear();
                 //}
-                if (currentEventQueue.getFirst() != ()) {
-                    if (resetEvent != ()) {
-                        outputStreamEventChunk.addLast(resetEvent);
-                        resetEvent = ();
+                if (self.currentEventQueue.getFirst() != ()) {
+                    if (self.resetEvent !== ()) {
+                        outputStreamEventChunk.addLast(self.resetEvent);
+                        self.resetEvent = ();
                     }
-                    //if (expiredEventQueue != ()) {
-                    //    currentEventQueue.resetToFront();
-                    //    while (currentEventQueue.hasNext()) {
-                    //        StreamEvent currentEvent = check <StreamEvent> currentEventQueue.next();
+                    //if (self.expiredEventQueue != ()) {
+                    //    self.currentEventQueue.resetToFront();
+                    //    while (self.currentEventQueue.hasNext()) {
+                    //        StreamEvent currentEvent = check <StreamEvent> self.currentEventQueue.next();
                     //        StreamEvent toBeExpired = {eventType: "EXPIRED", eventMap: currentEvent.eventMap,
                     //            timestamp: currentEvent.timestamp};
-                    //        expiredEventQueue.addLast(toBeExpired);
+                    //        self.expiredEventQueue.addLast(toBeExpired);
                     //    }
                     //}
-                    StreamEvent firstInCurrentEventQueue = check <StreamEvent>currentEventQueue.getFirst();
-                    resetEvent = createResetStreamEvent(firstInCurrentEventQueue);
-                    foreach currentEvent in currentEventQueue.asArray() {
+                    StreamEvent firstInCurrentEventQueue = check <StreamEvent>self.currentEventQueue.getFirst();
+                    self.resetEvent = createResetStreamEvent(firstInCurrentEventQueue);
+                    foreach currentEvent in self.currentEventQueue.asArray() {
                         outputStreamEventChunk.addLast(currentEvent);
                     }
                 }
-                currentEventQueue.clear();
-                count = 0;
+                self.currentEventQueue.clear();
+                self.count = 0;
                 if (outputStreamEventChunk.getFirst() != ()) {
                     streamEventChunks.addLast(outputStreamEventChunk);
                 }
             }
         }
 
-        match (nextProcessPointer) {
+        match (self.nextProcessPointer) {
             function (StreamEvent[]) nxtProc => {
                 streamEventChunks.resetToFront();
                 while streamEventChunks.hasNext() {
@@ -323,7 +323,7 @@ public type LengthBatchWindow object {
                         returns (StreamEvent?, StreamEvent?)[] {
         (StreamEvent?, StreamEvent?)[] events = [];
         int i = 0;
-        foreach e in currentEventQueue.asArray() {
+        foreach e in self.currentEventQueue.asArray() {
             match e {
                 StreamEvent s => {
                     StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;
@@ -367,36 +367,36 @@ public type TimeBatchWindow object {
     public function (StreamEvent[])? nextProcessPointer;
 
     public new(nextProcessPointer, timeInMilliSeconds) {
-        currentEventQueue = new();
-        expiredEventQueue = ();
+        self.currentEventQueue = new();
+        self.expiredEventQueue = ();
     }
 
     public function invokeProcess() returns error? {
         StreamEvent timerEvent = new(("timer", {}), "TIMER", time:currentTime().time);
         StreamEvent[] timerEventWrapper = [];
         timerEventWrapper[0] = timerEvent;
-        process(timerEventWrapper);
+        self.process(timerEventWrapper);
         return ();
     }
 
     public function process(StreamEvent[] streamEvents) {
         LinkedList outputStreamEvents = new();
-        if (nextEmitTime == -1) {
-            nextEmitTime = time:currentTime().time + timeInMilliSeconds;
-            timer = new task:Timer(self.invokeProcess, self.handleError, timeInMilliSeconds, delay =
-                timeInMilliSeconds);
-            _ = timer.start();
+        if (self.nextEmitTime == -1) {
+            self.nextEmitTime = time:currentTime().time + self.timeInMilliSeconds;
+            self.timer = new task:Timer(self.invokeProcess, self.handleError, self.timeInMilliSeconds, delay =
+                self.timeInMilliSeconds);
+            _ = self.timer.start();
         }
 
         int currentTime = time:currentTime().time;
         boolean sendEvents = false;
 
-        if (currentTime >= nextEmitTime) {
-            nextEmitTime += timeInMilliSeconds;
-            timer.stop();
-            timer = new task:Timer(self.invokeProcess, self.handleError, timeInMilliSeconds, delay =
-                timeInMilliSeconds);
-            _ = timer.start();
+        if (currentTime >= self.nextEmitTime) {
+            self.nextEmitTime += self.timeInMilliSeconds;
+            self.timer.stop();
+            self.timer = new task:Timer(self.invokeProcess, self.handleError, self.timeInMilliSeconds, delay =
+                self.timeInMilliSeconds);
+            _ = self.timer.start();
             sendEvents = true;
         } else {
             sendEvents = false;
@@ -406,25 +406,25 @@ public type TimeBatchWindow object {
             if (event.eventType != "CURRENT") {
                 continue;
             }
-            StreamEvent clonedEvent = event.copy();
-            currentEventQueue.addLast(clonedEvent);
+            StreamEvent clonedEvent = event.clone();
+            self.currentEventQueue.addLast(clonedEvent);
         }
         if (sendEvents) {
-            if (currentEventQueue.getFirst() != ()) {
-                if (resetEvent != ()) {
-                    outputStreamEvents.addLast(resetEvent);
-                    resetEvent = ();
+            if (self.currentEventQueue.getFirst() != ()) {
+                if (self.resetEvent !== ()) {
+                    outputStreamEvents.addLast(self.resetEvent);
+                    self.resetEvent = ();
                 }
-                resetEvent = createResetStreamEvent(check <StreamEvent>currentEventQueue.getFirst());
-                currentEventQueue.resetToFront();
-                while (currentEventQueue.hasNext()) {
-                    StreamEvent streamEvent = check <StreamEvent>currentEventQueue.next();
+                self.resetEvent = createResetStreamEvent(check <StreamEvent>self.currentEventQueue.getFirst());
+                self.currentEventQueue.resetToFront();
+                while (self.currentEventQueue.hasNext()) {
+                    StreamEvent streamEvent = check <StreamEvent>self.currentEventQueue.next();
                     outputStreamEvents.addLast(streamEvent);
                 }
             }
-            currentEventQueue.clear();
+            self.currentEventQueue.clear();
         }
-        match nextProcessPointer {
+        match self.nextProcessPointer {
             function (StreamEvent[]) nxtProc => {
                 if (outputStreamEvents.getSize() != 0) {
                     StreamEvent[] events = [];
@@ -449,7 +449,7 @@ public type TimeBatchWindow object {
                         returns (StreamEvent?, StreamEvent?)[] {
         (StreamEvent?, StreamEvent?)[] events = [];
         int i = 0;
-        foreach e in currentEventQueue.asArray() {
+        foreach e in self.currentEventQueue.asArray() {
             match e {
                 StreamEvent s => {
                     StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;
@@ -493,7 +493,7 @@ public type ExternalTimeWindow object {
     public string timeStamp;
 
     public new(nextProcessPointer, timeInMillis, timeStamp) {
-        expiredEventQueue = new;
+        self.expiredEventQueue = new;
     }
 
     public function process(StreamEvent[] streamEvents) {
@@ -507,31 +507,31 @@ public type ExternalTimeWindow object {
 
             while (streamEventChunk.hasNext()) {
                 StreamEvent streamEvent = check <StreamEvent>streamEventChunk.next();
-                int currentTime = getTimestamp(streamEvent.data[timeStamp]);
-                expiredEventQueue.resetToFront();
+                int currentTime = self.getTimestamp(streamEvent.data[self.timeStamp]);
+                self.expiredEventQueue.resetToFront();
 
-                while (expiredEventQueue.hasNext()) {
-                    StreamEvent expiredEvent = check <StreamEvent>expiredEventQueue.next();
-                    int timeDiff = (getTimestamp(expiredEvent.data[timeStamp]) - currentTime) + timeInMillis;
+                while (self.expiredEventQueue.hasNext()) {
+                    StreamEvent expiredEvent = check <StreamEvent>self.expiredEventQueue.next();
+                    int timeDiff = (self.getTimestamp(expiredEvent.data[self.timeStamp]) - currentTime) + self.timeInMillis;
                     if (timeDiff <= 0) {
-                        expiredEventQueue.removeCurrent();
+                        self.expiredEventQueue.removeCurrent();
                         expiredEvent.timestamp = currentTime;
                         streamEventChunk.insertBeforeCurrent(expiredEvent);
                     } else {
-                        expiredEventQueue.resetToFront();
+                        self.expiredEventQueue.resetToFront();
                         break;
                     }
                 }
 
                 if (streamEvent.eventType == CURRENT) {
-                    StreamEvent clonedEvent = streamEvent.copy();
+                    StreamEvent clonedEvent = streamEvent.clone();
                     clonedEvent.eventType = EXPIRED;
-                    expiredEventQueue.addLast(clonedEvent);
+                    self.expiredEventQueue.addLast(clonedEvent);
                 }
-                expiredEventQueue.resetToFront();
+                self.expiredEventQueue.resetToFront();
             }
         }
-        match nextProcessPointer {
+        match self.nextProcessPointer {
             function (StreamEvent[]) nxtProc => {
                 if (streamEventChunk.getSize() != 0) {
                     StreamEvent[] events = [];
@@ -556,7 +556,7 @@ public type ExternalTimeWindow object {
                         returns (StreamEvent?, StreamEvent?)[] {
         (StreamEvent?, StreamEvent?)[] events = [];
         int i = 0;
-        foreach e in expiredEventQueue.asArray() {
+        foreach e in self.expiredEventQueue.asArray() {
             match e {
                 StreamEvent s => {
                     StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;
@@ -603,7 +603,7 @@ public type ExternalTimeBatchWindow object {
     public int timeToKeep;
     public LinkedList currentEventChunk;
     public LinkedList expiredEventChunk;
-    public StreamEvent? resetEvent = null;
+    public StreamEvent? resetEvent = ();
     public int startTime = 0;
     public boolean isStartTimeEnabled = false;
     public boolean replaceTimestampWithBatchEndTime = false;
@@ -620,10 +620,10 @@ public type ExternalTimeBatchWindow object {
 
     public new(nextProcessPointer, timeToKeep, timeStamp, startTime, schedulerTimeout,
                replaceTimestampWithBatchEndTime) {
-        currentEventChunk = new();
-        expiredEventChunk = new;
-        if (startTime != -1) {
-            isStartTimeEnabled = true;
+        self.currentEventChunk = new();
+        self.expiredEventChunk = new;
+        if (self.startTime != -1) {
+            self.isStartTimeEnabled = true;
         }
     }
 
@@ -631,8 +631,8 @@ public type ExternalTimeBatchWindow object {
         StreamEvent timerEvent = new(("timer", {}), TIMER, time:currentTime().time);
         StreamEvent[] timerEventWrapper = [];
         timerEventWrapper[0] = timerEvent;
-        process(timerEventWrapper);
-        _ = timer.stop();
+        self.process(timerEventWrapper);
+        _ = self.timer.stop();
         return ();
     }
 
@@ -649,28 +649,28 @@ public type ExternalTimeBatchWindow object {
         LinkedList complexEventChunks = new;
 
         lock {
-            initTiming(check <StreamEvent>streamEventChunk.getFirst());
+            self.initTiming(check <StreamEvent>streamEventChunk.getFirst());
 
             while (streamEventChunk.hasNext()) {
 
                 StreamEvent currStreamEvent = check <StreamEvent>streamEventChunk.next();
 
                 if (currStreamEvent.eventType == TIMER) {
-                    if (lastScheduledTime <= currStreamEvent.timestamp) {
+                    if (self.lastScheduledTime <= currStreamEvent.timestamp) {
                         // implies that there have not been any more events after this schedule has been done.
-                        if (!flushed) {
-                            flushToOutputChunk(complexEventChunks, lastCurrentEventTime, true);
-                            flushed = true;
+                        if (!self.flushed) {
+                            self.flushToOutputChunk(complexEventChunks, self.lastCurrentEventTime, true);
+                            self.flushed = true;
                         } else {
-                            if (currentEventChunk.getFirst() != null) {
-                                appendToOutputChunk(complexEventChunks, lastCurrentEventTime, true);
+                            if (self.currentEventChunk.getFirst() != null) {
+                                self.appendToOutputChunk(complexEventChunks, self.lastCurrentEventTime, true);
                             }
                         }
 
                         // rescheduling to emit the current batch after expiring it if no further events arrive.
-                        lastScheduledTime = time:currentTime().time + schedulerTimeout;
-                        timer = new task:Timer(self.invokeProcess, self.handleError, schedulerTimeout);
-                        _ = timer.start();
+                        self.lastScheduledTime = time:currentTime().time + self.schedulerTimeout;
+                        self.timer = new task:Timer(self.invokeProcess, self.handleError, self.schedulerTimeout);
+                        _ = self.timer.start();
                     }
                     continue;
 
@@ -678,35 +678,35 @@ public type ExternalTimeBatchWindow object {
                     continue;
                 }
 
-                int currentEventTime = getTimestamp(currStreamEvent.data[timeStamp]);
-                if (lastCurrentEventTime < currentEventTime) {
-                    lastCurrentEventTime = currentEventTime;
+                int currentEventTime = self.getTimestamp(currStreamEvent.data[self.timeStamp]);
+                if (self.lastCurrentEventTime < currentEventTime) {
+                    self.lastCurrentEventTime = currentEventTime;
                 }
 
-                if (currentEventTime < endTime) {
-                    cloneAppend(currStreamEvent);
+                if (currentEventTime < self.endTime) {
+                    self.cloneAppend(currStreamEvent);
                 } else {
-                    if (flushed) {
-                        appendToOutputChunk(complexEventChunks, lastCurrentEventTime, false);
-                        flushed = false;
+                    if (self.flushed) {
+                        self.appendToOutputChunk(complexEventChunks, self.lastCurrentEventTime, false);
+                        self.flushed = false;
                     } else {
-                        flushToOutputChunk(complexEventChunks, lastCurrentEventTime, false);
+                        self.flushToOutputChunk(complexEventChunks, self.lastCurrentEventTime, false);
                     }
                     // update timestamp, call next processor
-                    endTime = findEndTime(lastCurrentEventTime, startTime, timeToKeep);
-                    cloneAppend(currStreamEvent);
+                    self.endTime = self.findEndTime(self.lastCurrentEventTime, self.startTime, self.timeToKeep);
+                    self.cloneAppend(currStreamEvent);
 
                     // triggering the last batch expiration.
-                    if (schedulerTimeout > 0) {
-                        lastScheduledTime = time:currentTime().time + schedulerTimeout;
-                        timer = new task:Timer(self.invokeProcess, self.handleError, schedulerTimeout);
-                        _ = timer.start();
+                    if (self.schedulerTimeout > 0) {
+                        self.lastScheduledTime = time:currentTime().time + self.schedulerTimeout;
+                        self.timer = new task:Timer(self.invokeProcess, self.handleError, self.schedulerTimeout);
+                        _ = self.timer.start();
                     }
                 }
             }
         }
 
-        match nextProcessPointer {
+        match self.nextProcessPointer {
             function (StreamEvent[]) nxtProc => {
                 if (complexEventChunks.getSize() != 0) {
                     while (complexEventChunks.hasNext()) {
@@ -730,7 +730,7 @@ public type ExternalTimeBatchWindow object {
                         returns (StreamEvent?, StreamEvent?)[] {
         (StreamEvent?, StreamEvent?)[] events = [];
         int i = 0;
-        foreach e in currentEventChunk.asArray() {
+        foreach e in self.currentEventChunk.asArray() {
             match e {
                 StreamEvent s => {
                     StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;
@@ -760,45 +760,45 @@ public type ExternalTimeBatchWindow object {
     }
 
     public function cloneAppend(StreamEvent currStreamEvent) {
-        StreamEvent clonedEvent = currStreamEvent.copy();
-        if (replaceTimestampWithBatchEndTime) {
-            clonedEvent.data[timeStamp] = endTime;
+        StreamEvent clonedEvent = currStreamEvent.clone();
+        if (self.replaceTimestampWithBatchEndTime) {
+            clonedEvent.data[self.timeStamp] = self.endTime;
         }
-        currentEventChunk.addLast(clonedEvent);
+        self.currentEventChunk.addLast(clonedEvent);
 
-        if (resetEvent == null) {
-            resetEvent = currStreamEvent.copy();
-            resetEvent.eventType = RESET;
+        if (self.resetEvent === null) {
+            self.resetEvent = currStreamEvent.clone();
+            self.resetEvent.eventType = RESET;
         }
     }
 
     public function flushToOutputChunk(LinkedList complexEventChunks, int currentTime, boolean preserveCurrentEvents) {
         LinkedList newEventChunk = new();
-        if (expiredEventChunk.getFirst() != null) {
+        if (self.expiredEventChunk.getFirst() != null) {
             // mark the timestamp for the expiredType event
-            expiredEventChunk.resetToFront();
-            while (expiredEventChunk.hasNext()) {
-                StreamEvent expiredEvent = check <StreamEvent>expiredEventChunk.next();
+            self.expiredEventChunk.resetToFront();
+            while (self.expiredEventChunk.hasNext()) {
+                StreamEvent expiredEvent = check <StreamEvent>self.expiredEventChunk.next();
                 expiredEvent.timestamp = currentTime;
             }
             // add expired event to newEventChunk.
-            expiredEventChunk.resetToFront();
-            while (expiredEventChunk.hasNext()) {
-                newEventChunk.addLast(expiredEventChunk.next());
+            self.expiredEventChunk.resetToFront();
+            while (self.expiredEventChunk.hasNext()) {
+                newEventChunk.addLast(self.expiredEventChunk.next());
             }
         }
 
-        if (expiredEventChunk != null) {
-            expiredEventChunk.clear();
+        if (self.expiredEventChunk != null) {
+            self.expiredEventChunk.clear();
         }
 
-        if (currentEventChunk.getFirst() != null) {
+        if (self.currentEventChunk.getFirst() != null) {
             // add reset event in front of current events
-            match resetEvent {
+            match self.resetEvent {
                 StreamEvent streamEvent => {
                     streamEvent.timestamp = currentTime;
                     newEventChunk.addLast(streamEvent);
-                    resetEvent = null;
+                    self.resetEvent = null;
                 }
                 () => {
 
@@ -806,23 +806,23 @@ public type ExternalTimeBatchWindow object {
             }
 
             // move to expired events
-            if (preserveCurrentEvents || storeExpiredEvents) {
-                currentEventChunk.resetToFront();
-                while (currentEventChunk.hasNext()) {
-                    StreamEvent currentEvent = check <StreamEvent>currentEventChunk.next();
-                    StreamEvent toExpireEvent = currentEvent.copy();
+            if (preserveCurrentEvents || self.storeExpiredEvents) {
+                self.currentEventChunk.resetToFront();
+                while (self.currentEventChunk.hasNext()) {
+                    StreamEvent currentEvent = check <StreamEvent>self.currentEventChunk.next();
+                    StreamEvent toExpireEvent = currentEvent.clone();
                     toExpireEvent.eventType = EXPIRED;
-                    expiredEventChunk.addLast(toExpireEvent);
+                    self.expiredEventChunk.addLast(toExpireEvent);
                 }
             }
 
             // add current event chunk to next processor
-            currentEventChunk.resetToFront();
-            while (currentEventChunk.hasNext()) {
-                newEventChunk.addLast(currentEventChunk.next());
+            self.currentEventChunk.resetToFront();
+            while (self.currentEventChunk.hasNext()) {
+                newEventChunk.addLast(self.currentEventChunk.next());
             }
         }
-        currentEventChunk.clear();
+        self.currentEventChunk.clear();
 
         StreamEvent[] streamEvents = [];
         while (newEventChunk.hasNext()) {
@@ -837,28 +837,28 @@ public type ExternalTimeBatchWindow object {
     public function appendToOutputChunk(LinkedList complexEventChunks, int currentTime, boolean preserveCurrentEvents) {
         LinkedList newEventChunk = new();
         LinkedList sentEventChunk = new();
-        if (currentEventChunk.getFirst() != null) {
-            if (expiredEventChunk.getFirst() != null) {
+        if (self.currentEventChunk.getFirst() != null) {
+            if (self.expiredEventChunk.getFirst() != null) {
                 // mark the timestamp for the expiredType event
-                expiredEventChunk.resetToFront();
-                while (expiredEventChunk.hasNext()) {
-                    StreamEvent expiredEvent = check <StreamEvent>expiredEventChunk.next();
+                self.expiredEventChunk.resetToFront();
+                while (self.expiredEventChunk.hasNext()) {
+                    StreamEvent expiredEvent = check <StreamEvent>self.expiredEventChunk.next();
 
-                    if (outputExpectsExpiredEvents) {
+                    if (self.outputExpectsExpiredEvents) {
                         // add expired event to newEventChunk.
-                        StreamEvent toExpireEvent = expiredEvent.copy();
+                        StreamEvent toExpireEvent = expiredEvent.clone();
                         toExpireEvent.timestamp = currentTime;
                         newEventChunk.addLast(toExpireEvent);
                     }
 
-                    StreamEvent toSendEvent = expiredEvent.copy();
+                    StreamEvent toSendEvent = expiredEvent.clone();
                     toSendEvent.eventType = CURRENT;
                     sentEventChunk.addLast(toSendEvent);
                 }
             }
 
             // add reset event in front of current events
-            match resetEvent {
+            match self.resetEvent {
                 StreamEvent streamEvent => {
                     streamEvent.timestamp = currentTime;
                     newEventChunk.addLast(streamEvent);
@@ -875,23 +875,23 @@ public type ExternalTimeBatchWindow object {
             }
 
             // move to expired events
-            if (preserveCurrentEvents || storeExpiredEvents) {
-                currentEventChunk.resetToFront();
-                while (currentEventChunk.hasNext()) {
-                    StreamEvent currentEvent = check <StreamEvent>currentEventChunk.next();
-                    StreamEvent toExpireEvent = currentEvent.copy();
+            if (preserveCurrentEvents || self.storeExpiredEvents) {
+                self.currentEventChunk.resetToFront();
+                while (self.currentEventChunk.hasNext()) {
+                    StreamEvent currentEvent = check <StreamEvent>self.currentEventChunk.next();
+                    StreamEvent toExpireEvent = currentEvent.clone();
                     toExpireEvent.eventType = EXPIRED;
-                    expiredEventChunk.addLast(toExpireEvent);
+                    self.expiredEventChunk.addLast(toExpireEvent);
                 }
             }
 
             // add current event chunk to next processor
-            currentEventChunk.resetToFront();
-            while (currentEventChunk.hasNext()) {
-                newEventChunk.addLast(currentEventChunk.next());
+            self.currentEventChunk.resetToFront();
+            while (self.currentEventChunk.hasNext()) {
+                newEventChunk.addLast(self.currentEventChunk.next());
             }
         }
-        currentEventChunk.clear();
+        self.currentEventChunk.clear();
 
         StreamEvent[] streamEvents = [];
         while (newEventChunk.hasNext()) {
@@ -909,17 +909,17 @@ public type ExternalTimeBatchWindow object {
     }
 
     public function initTiming(StreamEvent firstStreamEvent) {
-        if (endTime < 0) {
-            if (isStartTimeEnabled) {
-                endTime = startTime + timeToKeep;
+        if (self.endTime < 0) {
+            if (self.isStartTimeEnabled) {
+                self.endTime = self.startTime + self.timeToKeep;
             } else {
-                startTime = getTimestamp(firstStreamEvent.data[timeStamp]);
-                endTime = startTime + timeToKeep;
+                self.startTime = self.getTimestamp(firstStreamEvent.data[self.timeStamp]);
+                self.endTime = self.startTime + self.timeToKeep;
             }
-            if (schedulerTimeout > 0) {
-                lastScheduledTime = time:currentTime().time + schedulerTimeout;
-                timer = new task:Timer(self.invokeProcess, self.handleError, schedulerTimeout);
-                _ = timer.start();
+            if (self.schedulerTimeout > 0) {
+                self.lastScheduledTime = time:currentTime().time + self.schedulerTimeout;
+                self.timer = new task:Timer(self.invokeProcess, self.handleError, self.schedulerTimeout);
+                _ = self.timer.start();
             }
         }
     }
@@ -935,8 +935,8 @@ public type ExternalTimeBatchWindow object {
     }
 };
 
-public function externalTimeBatchWindow(string timestamp, int time, int
-    startTime = -1,                     int timeOut = -1, boolean replaceTimestampWithBatchEndTime = false, function (
+public function externalTimeBatchWindow(string timestamp, int time, int startTime = -1,                     
+                                        int timeOut = -1, boolean replaceTimestampWithBatchEndTime = false, function (
                                         StreamEvent[])?
                                         nextProcessPointer = ()) returns Window {
     ExternalTimeBatchWindow timeWindow1 = new(nextProcessPointer, time, timestamp, startTime, timeOut,
@@ -954,7 +954,7 @@ public type TimeLengthWindow object {
     public task:Timer? timer = ();
 
     public new(nextProcessPointer, timeInMilliSeconds, length) {
-        expiredEventChunk = new;
+        self.expiredEventChunk = new;
     }
 
     public function process(StreamEvent[] streamEvents) {
@@ -972,13 +972,13 @@ public type TimeLengthWindow object {
 
             while (streamEventChunk.hasNext()) {
                 StreamEvent streamEvent = check <StreamEvent>streamEventChunk.next();
-                expiredEventChunk.resetToFront();
-                while (expiredEventChunk.hasNext()) {
-                    StreamEvent expiredEvent = check <StreamEvent>expiredEventChunk.next();
-                    int timeDiff = expiredEvent.timestamp - currentTime + timeInMilliSeconds;
+                self.expiredEventChunk.resetToFront();
+                while (self.expiredEventChunk.hasNext()) {
+                    StreamEvent expiredEvent = check <StreamEvent>self.expiredEventChunk.next();
+                    int timeDiff = expiredEvent.timestamp - currentTime + self.timeInMilliSeconds;
                     if (timeDiff <= 0) {
-                        expiredEventChunk.removeCurrent();
-                        count -= 1;
+                        self.expiredEventChunk.removeCurrent();
+                        self.count -= 1;
                         expiredEvent.timestamp = currentTime;
                         streamEventChunk.insertBeforeCurrent(expiredEvent);
                     } else {
@@ -986,22 +986,22 @@ public type TimeLengthWindow object {
                     }
                 }
 
-                expiredEventChunk.resetToFront();
+                self.expiredEventChunk.resetToFront();
                 if (streamEvent.eventType == CURRENT) {
-                    StreamEvent clonedEvent = streamEvent.copy();
+                    StreamEvent clonedEvent = streamEvent.clone();
                     clonedEvent.eventType = EXPIRED;
-                    if (count < length) {
-                        count += 1;
-                        expiredEventChunk.addLast(clonedEvent);
+                    if (self.count < self.length) {
+                        self.count += 1;
+                        self.expiredEventChunk.addLast(clonedEvent);
                     } else {
-                        StreamEvent firstEvent = check <StreamEvent>expiredEventChunk.removeFirst();
+                        StreamEvent firstEvent = check <StreamEvent>self.expiredEventChunk.removeFirst();
                         if (firstEvent != null) {
                             firstEvent.timestamp = currentTime;
                             streamEventChunk.insertBeforeCurrent(firstEvent);
-                            expiredEventChunk.addLast(clonedEvent);
+                            self.expiredEventChunk.addLast(clonedEvent);
                         }
                     }
-                    timer = new task:Timer(self.invokeProcess, self.handleError, timeInMilliSeconds);
+                    self.timer = new task:Timer(self.invokeProcess, self.handleError, self.timeInMilliSeconds);
                 } else {
                     streamEventChunk.removeCurrent();
                 }
@@ -1009,7 +1009,7 @@ public type TimeLengthWindow object {
             }
         }
 
-        match nextProcessPointer {
+        match self.nextProcessPointer {
             function (StreamEvent[]) nxtProc => {
                 if (streamEventChunk.getSize() != 0) {
                     StreamEvent[] events = [];
@@ -1031,8 +1031,8 @@ public type TimeLengthWindow object {
         StreamEvent timerEvent = new(("timer", {}), "TIMER", time:currentTime().time);
         StreamEvent[] timerEventWrapper = [];
         timerEventWrapper[0] = timerEvent;
-        process(timerEventWrapper);
-        _ = timer.stop();
+        self.process(timerEventWrapper);
+        _ = self.timer.stop();
         return ();
     }
 
@@ -1043,7 +1043,7 @@ public type TimeLengthWindow object {
                         returns (StreamEvent?, StreamEvent?)[] {
         (StreamEvent?, StreamEvent?)[] events = [];
         int i = 0;
-        foreach e in expiredEventChunk.asArray() {
+        foreach e in self.expiredEventChunk.asArray() {
             match e {
                 StreamEvent s => {
                     StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;
@@ -1090,7 +1090,7 @@ public type UniqueLengthWindow object {
     public function (StreamEvent[])? nextProcessPointer;
 
     public new(nextProcessPointer, uniqueKey, length) {
-        expiredEventChunk = new;
+        self.expiredEventChunk = new;
     }
 
     public function process(StreamEvent[] streamEvents) {
@@ -1108,39 +1108,39 @@ public type UniqueLengthWindow object {
             streamEventChunk.resetToFront();
             while (streamEventChunk.hasNext()) {
                 StreamEvent streamEvent = check <StreamEvent>streamEventChunk.next();
-                StreamEvent clonedEvent = streamEvent.copy();
+                StreamEvent clonedEvent = streamEvent.clone();
                 clonedEvent.eventType = EXPIRED;
-                StreamEvent eventClonedForMap = clonedEvent.copy();
+                StreamEvent eventClonedForMap = clonedEvent.clone();
 
-                string str = <string>eventClonedForMap.data[uniqueKey];
+                string str = <string>eventClonedForMap.data[self.uniqueKey];
                 StreamEvent? oldEvent;
-                if (uniqueMap[str] != null) {
-                    oldEvent = check <StreamEvent>uniqueMap[str];
+                if (self.uniqueMap[str] != null) {
+                    oldEvent = check <StreamEvent>self.uniqueMap[str];
                 }
-                uniqueMap[str] = eventClonedForMap;
+                self.uniqueMap[str] = eventClonedForMap;
 
-                if (oldEvent == null) {
-                    count += 1;
+                if (oldEvent === null) {
+                    self.count += 1;
                 }
-                if ((count <= length) && (oldEvent == null)) {
-                    expiredEventChunk.addLast(clonedEvent);
+                if ((self.count <= self.length) && (oldEvent === null)) {
+                    self.expiredEventChunk.addLast(clonedEvent);
                 } else {
-                    if (oldEvent != null) {
-                        while (expiredEventChunk.hasNext()) {
-                            StreamEvent firstEventExpired = check <StreamEvent>expiredEventChunk.next();
-                            if (firstEventExpired.data[uniqueKey] == oldEvent.data[uniqueKey]) {
-                                expiredEventChunk.removeCurrent();
+                    if (oldEvent !== null) {
+                        while (self.expiredEventChunk.hasNext()) {
+                            StreamEvent firstEventExpired = check <StreamEvent>self.expiredEventChunk.next();
+                            if (firstEventExpired.data[self.uniqueKey] === oldEvent.data[self.uniqueKey]) {
+                                self.expiredEventChunk.removeCurrent();
                             }
                         }
-                        expiredEventChunk.addLast(clonedEvent);
+                        self.expiredEventChunk.addLast(clonedEvent);
                         streamEventChunk.insertBeforeCurrent(oldEvent);
                         oldEvent.timestamp = currentTime;
                     } else {
-                        StreamEvent firstEvent = check <StreamEvent>expiredEventChunk.removeFirst();
+                        StreamEvent firstEvent = check <StreamEvent>self.expiredEventChunk.removeFirst();
                         if (firstEvent != null) {
                             firstEvent.timestamp = currentTime;
                             streamEventChunk.insertBeforeCurrent(firstEvent);
-                            expiredEventChunk.addLast(clonedEvent);
+                            self.expiredEventChunk.addLast(clonedEvent);
                         } else {
                             streamEventChunk.insertBeforeCurrent(clonedEvent);
                         }
@@ -1149,7 +1149,7 @@ public type UniqueLengthWindow object {
             }
         }
 
-        match nextProcessPointer {
+        match self.nextProcessPointer {
             function (StreamEvent[]) nxtProc => {
                 if (streamEventChunk.getSize() != 0) {
                     StreamEvent[] events = [];
@@ -1174,7 +1174,7 @@ public type UniqueLengthWindow object {
                         returns (StreamEvent?, StreamEvent?)[] {
         (StreamEvent?, StreamEvent?)[] events = [];
         int i = 0;
-        foreach e in expiredEventChunk.asArray() {
+        foreach e in self.expiredEventChunk.asArray() {
             match e {
                 StreamEvent s => {
                     StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;
@@ -1215,7 +1215,7 @@ public type DelayWindow object {
     public function (StreamEvent[])? nextProcessPointer;
 
     public new(nextProcessPointer, delayInMilliSeconds) {
-        delayedEventQueue = new;
+        self.delayedEventQueue = new;
     }
 
     public function process(StreamEvent[] streamEvents) {
@@ -1234,12 +1234,12 @@ public type DelayWindow object {
                 StreamEvent streamEvent = check <StreamEvent>streamEventChunk.next();
                 int currentTime = time:currentTime().time;
 
-                delayedEventQueue.resetToFront();
-                while (delayedEventQueue.hasNext()) {
-                    StreamEvent delayedEvent = check <StreamEvent>delayedEventQueue.next();
+                self.delayedEventQueue.resetToFront();
+                while (self.delayedEventQueue.hasNext()) {
+                    StreamEvent delayedEvent = check <StreamEvent>self.delayedEventQueue.next();
                     //check if the event has delayed expected time period
-                    if (streamEvent.timestamp >= delayedEvent.timestamp + delayInMilliSeconds) {
-                        delayedEventQueue.removeCurrent();
+                    if (streamEvent.timestamp >= delayedEvent.timestamp + self.delayInMilliSeconds) {
+                        self.delayedEventQueue.removeCurrent();
                         //insert delayed event before the current event to stream chunk
                         streamEventChunk.insertBeforeCurrent(delayedEvent);
                     } else {
@@ -1248,23 +1248,23 @@ public type DelayWindow object {
                 }
 
                 if (streamEvent.eventType == CURRENT) {
-                    delayedEventQueue.addLast(streamEvent);
+                    self.delayedEventQueue.addLast(streamEvent);
 
-                    if (lastTimestamp < streamEvent.timestamp) {
+                    if (self.lastTimestamp < streamEvent.timestamp) {
                         //calculate the remaining time to delay the current event
-                        int delay = delayInMilliSeconds - (currentTime - streamEvent.timestamp);
-                        timer = new task:Timer(self.invokeProcess, self.handleError, delay);
-                        _ = timer.start();
-                        lastTimestamp = streamEvent.timestamp;
+                        int delay = self.delayInMilliSeconds - (currentTime - streamEvent.timestamp);
+                        self.timer = new task:Timer(self.invokeProcess, self.handleError, delay);
+                        _ = self.timer.start();
+                        self.lastTimestamp = streamEvent.timestamp;
                     }
                 }
                 //current events are not processed, so remove the current event from the stream chunk
                 streamEventChunk.removeCurrent();
             }
-            delayedEventQueue.resetToFront();
+            self.delayedEventQueue.resetToFront();
         }
 
-        match nextProcessPointer {
+        match self.nextProcessPointer {
             function (StreamEvent[]) nxtProc => {
                 if (streamEventChunk.getSize() != 0) {
                     StreamEvent[] events = [];
@@ -1286,13 +1286,13 @@ public type DelayWindow object {
         StreamEvent timerEvent = new(("timer", {}), "TIMER", time:currentTime().time);
         StreamEvent[] timerEventWrapper = [];
         timerEventWrapper[0] = timerEvent;
-        process(timerEventWrapper);
-        _ = timer.stop();
+        self.process(timerEventWrapper);
+        _ = self.timer.stop();
         return ();
     }
 
     public function handleError(error e) {
-        io:println("Error occured", e.reason());
+        io:println("Error occurred", e.reason());
     }
 
     public function getCandidateEvents(
@@ -1302,7 +1302,7 @@ public type DelayWindow object {
                         returns (StreamEvent?, StreamEvent?)[] {
         (StreamEvent?, StreamEvent?)[] events = [];
         int i = 0;
-        foreach e in delayedEventQueue.asArray() {
+        foreach e in self.delayedEventQueue.asArray() {
             match e {
                 StreamEvent s => {
                     StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;

@@ -192,7 +192,9 @@ public extern function parseHeader (string headerValue) returns (string, map)|er
 
 function buildRequest(Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns Request {
     Request request = new;
-    if (message is Request) {
+    if (message is ()) {
+        return request;
+    } else if (message is Request) {
         request = message;
     } else if (message is string) {
         request.setTextPayload(message);
@@ -212,7 +214,9 @@ function buildRequest(Request|string|xml|json|byte[]|io:ReadableByteChannel|mime
 
 function buildResponse(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns Response {
     Response response = new;
-    if (message is Response) {
+    if (message is ()) {
+        return response;
+    } else if (message is Response) {
         response = message;
     } else if (message is string) {
         response.setTextPayload(message);

@@ -25,13 +25,13 @@ public type ReadableCSVChannel object {
     # + nHeaders - Number of headers which should be skipped prior to reading records
     public new(ReadableCharacterChannel byteChannel, Separator fs = ",", int nHeaders = 0) {
         if (fs == TAB){
-            dc = new ReadableTextRecordChannel(byteChannel, fmt = "TDF");
+            self.dc = new ReadableTextRecordChannel(byteChannel, fmt = "TDF");
         } else if (fs == COLON){
-            dc = new ReadableTextRecordChannel(byteChannel, fs = FS_COLON, rs = CSV_RECORD_SEPERATOR);
+            self.dc = new ReadableTextRecordChannel(byteChannel, fs = FS_COLON, rs = CSV_RECORD_SEPERATOR);
         } else {
-            dc = new ReadableTextRecordChannel(byteChannel, fmt = "CSV");
+            self.dc = new ReadableTextRecordChannel(byteChannel, fmt = "CSV");
         }
-        skipHeaders(nHeaders);
+        self.skipHeaders(nHeaders);
     }
 
     # Skips the given number of headers.
@@ -40,7 +40,7 @@ public type ReadableCSVChannel object {
     function skipHeaders(int nHeaders) {
         int count = MINIMUM_HEADER_COUNT;
         while (count < nHeaders){
-            var result = getNext();
+            var result = self.getNext();
             count = count + 1;
         }
     }
@@ -49,7 +49,7 @@ public type ReadableCSVChannel object {
     #
     # + return - True if there's a record
     public function hasNext() returns boolean {
-        match dc{
+        match self.dc {
             ReadableTextRecordChannel delimitedChannel=>{
                 return delimitedChannel.hasNext();
             }
@@ -64,14 +64,14 @@ public type ReadableCSVChannel object {
     #
     # + return - List of fields in the CSV or error
     public function getNext() returns @tainted string[]|error? {
-        return dc.getNext();
+        return self.dc.getNext();
     }
 
     # Closes a given CSVChannel.
     #
     # + return - Returns if an error is encountered
     public function close() returns error? {
-        return dc.close();
+        return self.dc.close();
     }
 
     # Returns a table which coresponds to the CSV records.

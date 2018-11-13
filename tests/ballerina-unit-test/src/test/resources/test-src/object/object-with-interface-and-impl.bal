@@ -13,7 +13,7 @@ type Person object {
     function attachInterface(int add) returns int;
 };
 
-function Person::attachInterface(int add) returns int {
+function Person.attachInterface(int add) returns int {
     int count = self.age + add;
     return count;
 }

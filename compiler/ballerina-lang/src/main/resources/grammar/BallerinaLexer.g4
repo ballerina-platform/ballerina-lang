@@ -148,7 +148,6 @@ IS          : 'is' ;
 
 SEMICOLON           : ';' ;
 COLON               : ':' ;
-DOUBLE_COLON        : '::' ;
 DOT                 : '.' ;
 COMMA               : ',' ;
 LEFT_BRACE          : '{' ;

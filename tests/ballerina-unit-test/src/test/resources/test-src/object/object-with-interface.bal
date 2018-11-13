@@ -25,19 +25,19 @@ type Employee object {
     string month = "february";
 
     new (year, int count, name = "sample value1", string val1 = "default value") {
-        age = age + count + 50;
-        month = val1 + " uuuu";
+        self.age = self.age + count + 50;
+        self.month = val1 + " uuuu";
     }
 
     function attachFunc1(int add, string value1) returns (int, string) {
-        int count = age + add;
-        string val2 = value1 + month;
+        int count = self.age + add;
+        string val2 = value1 + self.month;
         return (count, val2);
     }
 
     function attachInterface(int add, string value1) returns (int, string){
-        int count = age + add;
-        string val2 = value1 + month;
+        int count = self.age + add;
+        string val2 = value1 + self.month;
         return (count, val2);
     }
 };
