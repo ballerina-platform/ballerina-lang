@@ -166,6 +166,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchTypedBindingPatternClause;
@@ -3073,7 +3074,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangStatement generateIfElseStmt(BLangMatch matchStmt, BLangSimpleVariable matchExprVar) {
-        List<BLangMatch.BLangMatchBindingPatternClause> patterns = matchStmt.patternClauses;
+        List<BLangMatchBindingPatternClause> patterns = matchStmt.patternClauses;
 
         BLangIf parentIfNode = generateIfElseStmt(patterns.get(0), matchExprVar);
         BLangIf currentIfNode = parentIfNode;
@@ -3103,7 +3104,7 @@ public class Desugar extends BLangNodeVisitor {
      * @param matchExprVar  variable node of the match expression
      * @return if else statement node
      */
-    private BLangIf generateIfElseStmt(BLangMatch.BLangMatchBindingPatternClause patternClause,
+    private BLangIf generateIfElseStmt(BLangMatchBindingPatternClause patternClause,
                                        BLangSimpleVariable matchExprVar) {
         BLangExpression patternIfCondition = createPatternIfCondition(patternClause, matchExprVar.symbol);
         BLangBlockStmt patternBody = getMatchPatternBody(patternClause, matchExprVar);
@@ -3111,7 +3112,7 @@ public class Desugar extends BLangNodeVisitor {
                 patternIfCondition, patternBody, null);
     }
 
-    private BLangBlockStmt getMatchPatternBody(BLangMatch.BLangMatchBindingPatternClause pattern,
+    private BLangBlockStmt getMatchPatternBody(BLangMatchBindingPatternClause pattern,
                                                BLangSimpleVariable matchExprVar) {
 
         BLangBlockStmt body = null;
@@ -3194,7 +3195,7 @@ public class Desugar extends BLangNodeVisitor {
         return conversionExpr;
     }
 
-    private BLangExpression createPatternIfCondition(BLangMatch.BLangMatchBindingPatternClause patternClause,
+    private BLangExpression createPatternIfCondition(BLangMatchBindingPatternClause patternClause,
                                                      BVarSymbol varSymbol) {
         BType patternType;
 
@@ -3247,7 +3248,7 @@ public class Desugar extends BLangNodeVisitor {
         return binaryExpr;
     }
 
-    private BLangExpression createPatternMatchBinaryExpr(BLangMatch.BLangMatchBindingPatternClause patternClause,
+    private BLangExpression createPatternMatchBinaryExpr(BLangMatchBindingPatternClause patternClause,
                                                          BVarSymbol varSymbol, BType patternType) {
         DiagnosticPos pos = patternClause.pos;
         if (NodeKind.MATCH_STATIC_PATTERN_CLAUSE == patternClause.getKind()) {
