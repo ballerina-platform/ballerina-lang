@@ -1769,10 +1769,12 @@ public class Desugar extends BLangNodeVisitor {
         } else if ((ownerSymbol.tag & SymTag.PACKAGE) == SymTag.PACKAGE ||
                 (ownerSymbol.tag & SymTag.SERVICE) == SymTag.SERVICE) {
             if (varRefExpr.symbol.tag == SymTag.CONSTANT) {
-                BLangLiteral value = ((BConstantSymbol) varRefExpr.symbol).value;
+                BConstantSymbol symbol = (BConstantSymbol) varRefExpr.symbol;
                 // We need to get a copy of the literal value and set it as the result. Otherwise there will be
                 // issues because registry allocation will be only done one time.
-                BLangLiteral literal = ASTBuilderUtil.createLiteral(value.pos, value.type, value.value);
+                BLangLiteral literal = ASTBuilderUtil.createLiteral(varRefExpr.pos, symbol.literalValueType,
+                        symbol.literalValue);
+                literal.typeTag = symbol.literalValueTypeTag;
                 result = rewriteExpr(addConversionExprIfRequired(literal, varRefExpr.type));
                 return;
             } else {

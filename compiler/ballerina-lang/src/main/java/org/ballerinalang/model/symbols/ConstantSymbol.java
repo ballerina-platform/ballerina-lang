@@ -18,12 +18,9 @@
 
 package org.ballerinalang.model.symbols;
 
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-
 /**
  * @since 0.985.0
  */
 public interface ConstantSymbol extends Symbol {
 
-    BLangLiteral getValue();
 }

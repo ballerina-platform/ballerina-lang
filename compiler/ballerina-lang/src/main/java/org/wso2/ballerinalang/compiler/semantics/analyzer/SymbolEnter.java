@@ -794,7 +794,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Get the type of the associated type definition and set it as the type of the symbol. This is needed to
         // resolve the types of any type definition which uses the constant in type node.
         constantSymbol.type = constant.associatedTypeDefinition.symbol.type;
-        constantSymbol.value = (BLangLiteral) constant.value;
+        constantSymbol.literalValue = ((BLangLiteral) constant.value).value;
+        constantSymbol.literalValueTypeTag = ((BLangLiteral) constant.value).typeTag;
         constantSymbol.markdownDocumentation = getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
 
         // Note - constant.typeNode.type will be resolved in a `resolveConstantTypeNode()` later since at this
@@ -933,9 +934,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
 
             if (constant.typeNode != null) {
-                constant.symbol.valueType = symResolver.resolveTypeNode(constant.typeNode, env);
+                constant.symbol.literalValueType = symResolver.resolveTypeNode(constant.typeNode, env);
             } else {
-                constant.symbol.valueType = symTable.getTypeFromTag(constant.symbol.value.typeTag);
+                constant.symbol.literalValueType = symTable.getTypeFromTag(constant.symbol.literalValueTypeTag);
             }
 
             if (!isAllowedConstantType(constant.symbol)) {
@@ -945,7 +946,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private boolean isAllowedConstantType(BConstantSymbol symbol) {
-        switch (symbol.valueType.tag) {
+        switch (symbol.literalValueType.tag) {
             case TypeTags.BOOLEAN:
             case TypeTags.INT:
             case TypeTags.BYTE:

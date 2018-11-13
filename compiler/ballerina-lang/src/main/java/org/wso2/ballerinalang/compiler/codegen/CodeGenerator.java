@@ -2070,13 +2070,19 @@ public class CodeGenerator extends BLangNodeVisitor {
         BConstantSymbol constantSymbol = constant.symbol;
         int constantNameCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.name.value);
         int finiteTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.type.getDesc());
-        int valueTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.valueType.getDesc());
+        int valueTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.literalValueType.getDesc());
 
         ConstantInfo constantInfo = new ConstantInfo(constantNameCPIndex, finiteTypeSigCPIndex, valueTypeSigCPIndex,
                 constantSymbol.flags);
         currentPkgInfo.constantInfoMap.put(constantSymbol.name.value, constantInfo);
 
-        DefaultValueAttributeInfo value = getDefaultValueAttributeInfo(constantSymbol.value);
+        BLangLiteral literal = new BLangLiteral();
+        literal.pos = constant.pos;
+        literal.value = ((BLangLiteral) constant.value).value;
+        literal.type = ((BLangLiteral) constant.value).type;
+        literal.typeTag = ((BLangLiteral) constant.value).typeTag;
+
+        DefaultValueAttributeInfo value = getDefaultValueAttributeInfo(literal);
         constantInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, value);
 
         // Add documentation attributes.

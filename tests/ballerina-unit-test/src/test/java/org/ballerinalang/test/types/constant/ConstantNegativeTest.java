@@ -67,8 +67,8 @@ public class ConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'GET', found 'string'",
                 offset += 11, 21);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'byte', found 'int'",
-                offset += 14, 12);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'E|F', found 'string'",
+                offset += 9, 12);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'E|F', found 'D|E'",
                 offset += 18, 11);
         BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[UVW, UVW]'", offset += 7, 1);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'SSS'", offset += 5, 18);

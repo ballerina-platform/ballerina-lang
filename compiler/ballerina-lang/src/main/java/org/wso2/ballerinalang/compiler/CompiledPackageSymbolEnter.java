@@ -671,7 +671,10 @@ public class CompiledPackageSymbolEnter {
         setDocumentation(constantSymbol, attrDataMap);
 
         // Read value of the constant and set it in the symbol.
-        constantSymbol.value = getConstantValue(attrDataMap);
+        BLangLiteral constantValue = getConstantValue(attrDataMap);
+        constantSymbol.literalValue = constantValue.value;
+        constantSymbol.literalValueType = constantValue.type;
+        constantSymbol.literalValueTypeTag = constantValue.typeTag;
     }
 
     private BLangLiteral getConstantValue(Map<Kind, byte[]> attrDataMap) throws IOException {
