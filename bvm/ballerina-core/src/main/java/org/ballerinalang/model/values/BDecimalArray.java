@@ -18,14 +18,16 @@
 
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.util.exceptions.BLangFreezeException;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.StringJoiner;
+
+import static org.ballerinalang.model.util.FreezeUtils.handleInvalidUpdate;
 
 /**
  * The {@code BDecimalArray} represents a decimal array in Ballerina.
@@ -56,11 +58,10 @@ public class BDecimalArray extends BNewArray {
     }
 
     public void add(long index, BigDecimal value) {
-        switch (this.freezeStatus.getState()) {
-            case FROZEN:
-                throw new BLangFreezeException("modification not allowed on frozen value");
-            case MID_FREEZE:
-                throw new BLangFreezeException("modification not allowed on '" + this.getType() + "' during freeze");
+        synchronized (this) {
+            if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
+                handleInvalidUpdate(freezeStatus.getState());
+            }
         }
 
         prepareForAdd(index, values.length);

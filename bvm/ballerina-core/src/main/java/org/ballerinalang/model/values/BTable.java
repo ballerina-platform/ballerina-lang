@@ -27,12 +27,14 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.util.TableProvider;
 import org.ballerinalang.util.TableUtils;
-import org.ballerinalang.util.exceptions.BLangFreezeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
 import java.util.List;
 import java.util.StringJoiner;
+
+import static org.ballerinalang.model.util.FreezeUtils.handleInvalidUpdate;
+import static org.ballerinalang.model.util.FreezeUtils.isOpenForFreeze;
 
 /**
  * The {@code BTable} represents a two dimensional data set in Ballerina.
@@ -50,7 +52,7 @@ public class BTable implements BRefType<Object>, BCollection {
     private BStringArray primaryKeys;
     private BStringArray indices;
     private boolean tableClosed;
-    private CPU.FreezeStatus freezeStatus = new CPU.FreezeStatus(CPU.FreezeStatus.State.UNFROZEN);
+    private volatile CPU.FreezeStatus freezeStatus = new CPU.FreezeStatus(CPU.FreezeStatus.State.UNFROZEN);
 
     public BTable() {
         this.iterator = null;
@@ -204,11 +206,10 @@ public class BTable implements BRefType<Object>, BCollection {
      * @param context The context which represents the runtime state of the program that called "table.add"
      */
     public void performAddOperation(BMap<String, BValue> data, Context context) {
-        switch (this.freezeStatus.getState()) {
-            case FROZEN:
-                throw new BLangFreezeException("modification not allowed on frozen value");
-            case MID_FREEZE:
-                throw new BLangFreezeException("modification not allowed on '" + this.getType() + "' during freeze");
+        synchronized (this) {
+            if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
+                handleInvalidUpdate(freezeStatus.getState());
+            }
         }
 
         try {
@@ -243,11 +244,10 @@ public class BTable implements BRefType<Object>, BCollection {
      * @param lambdaFunction The function that decides the condition of data removal
      */
     public void performRemoveOperation(Context context, BFunctionPointer lambdaFunction) {
-        switch (this.freezeStatus.getState()) {
-            case FROZEN:
-                throw new BLangFreezeException("modification not allowed on frozen value");
-            case MID_FREEZE:
-                throw new BLangFreezeException("modification not allowed on '" + this.getType() + "' during freeze");
+        synchronized (this) {
+            if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
+                handleInvalidUpdate(freezeStatus.getState());
+            }
         }
 
         try {
@@ -409,7 +409,7 @@ public class BTable implements BRefType<Object>, BCollection {
      * {@inheritDoc}
      */
     @Override
-    public boolean isFrozen() {
+    public synchronized boolean isFrozen() {
         return this.freezeStatus.isFrozen();
     }
 
@@ -417,16 +417,9 @@ public class BTable implements BRefType<Object>, BCollection {
      * {@inheritDoc}
      */
     @Override
-    public void attemptFreeze(CPU.FreezeStatus freezeStatus) {
-        switch (this.freezeStatus.getState()) {
-            case FROZEN:
-                return;
-            case MID_FREEZE:
-                if (this.freezeStatus == freezeStatus) {
-                    return;
-                }
-                throw new BallerinaException("concurrent 'freeze()' attempts not allowed on '" + this.getType() + "'");
+    public synchronized void attemptFreeze(CPU.FreezeStatus freezeStatus) {
+        if (isOpenForFreeze(this.freezeStatus, freezeStatus)) {
+            this.freezeStatus = freezeStatus;
         }
-        this.freezeStatus = freezeStatus;
     }
 }

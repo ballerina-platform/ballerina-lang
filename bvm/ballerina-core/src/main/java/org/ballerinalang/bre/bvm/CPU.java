@@ -1680,6 +1680,7 @@ public class CPU {
                                 break;
                             case TypeTags.MAP_TAG:
                                 errMessage = "Invalid map insertion: ";
+                                break;
                         }
                         ctx.setError(BLangVMErrors.createError(ctx,  errMessage + e.getMessage()));
                         handleError(ctx);

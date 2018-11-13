@@ -2615,7 +2615,7 @@ public class TypeChecker extends BLangNodeVisitor {
                                             false);
             }
         }
-        return defineBuiltinMethodSymbol(BLangBuiltInMethod.FREEZE, type, retType, InstructionCodes.FREEZE);
+        return symResolver.createBuiltinMethodSymbol(BLangBuiltInMethod.FREEZE, type, retType, InstructionCodes.FREEZE);
     }
 
     private BSymbol getSymbolForIsFrozenBuiltinMethod(BLangInvocation iExpr) {
@@ -2623,8 +2623,8 @@ public class TypeChecker extends BLangNodeVisitor {
         if (!isIsFrozenAllowedType(type)) {
             return symTable.notFoundSymbol;
         }
-        return defineBuiltinMethodSymbol(BLangBuiltInMethod.IS_FROZEN, type, symTable.booleanType,
-                                         InstructionCodes.IS_FROZEN);
+        return symResolver.createBuiltinMethodSymbol(BLangBuiltInMethod.IS_FROZEN, type, symTable.booleanType,
+                                                     InstructionCodes.IS_FROZEN);
     }
 
     private boolean isValidFreezeFunction(BType type) {
@@ -2651,10 +2651,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (type.tag == TypeTags.RECORD) {
             BRecordType recordType = (BRecordType) type;
-            return recordType.fields.stream().noneMatch(field ->
-                                                                !Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
-                                                                        !(isNonAnyDataFreezeAllowedType(field.type))) &&
-                    recordType.fields.stream().anyMatch(field -> isNonAnyDataFreezeAllowedType(field.type));
+            return recordType.fields.stream()
+                    .noneMatch(field -> !Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
+                            !(isNonAnyDataFreezeAllowedType(field.type)));
         }
 
         if (type.tag == TypeTags.UNION) {
@@ -2673,12 +2672,5 @@ public class TypeChecker extends BLangNodeVisitor {
     private boolean isIsFrozenAllowedType(BType type) {
         return type.tag != TypeTags.NIL && !types.isValueType(type) &&
                 (types.isAnydata(type) || isNonAnyDataFreezeAllowedType(type));
-    }
-
-    private BOperatorSymbol defineBuiltinMethodSymbol(BLangBuiltInMethod method, BType type, BType retType,
-                                                      int opcode) {
-        List<BType> paramTypes = Lists.of(type);
-        BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-        return new BOperatorSymbol(names.fromString(method.getName()), null, opType, null, opcode);
     }
 }

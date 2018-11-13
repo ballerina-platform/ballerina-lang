@@ -27,7 +27,6 @@ import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.serializable.reftypes.Serializable;
 import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
 import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBRefArray;
-import org.ballerinalang.util.exceptions.BLangFreezeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 
@@ -36,6 +35,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.StringJoiner;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.ballerinalang.model.util.FreezeUtils.handleInvalidUpdate;
+import static org.ballerinalang.model.util.FreezeUtils.isOpenForFreeze;
 
 /**
  * @since 0.87
@@ -76,12 +78,12 @@ public class BRefValueArray extends BNewArray implements Serializable {
     }
 
     public void add(long index, BRefType<?> value) {
-        switch (this.freezeStatus.getState()) {
-            case FROZEN:
-                throw new BLangFreezeException("modification not allowed on frozen value");
-            case MID_FREEZE:
-                throw new BLangFreezeException("modification not allowed on '" + this.getType() + "' during freeze");
+        synchronized (this) {
+            if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
+                handleInvalidUpdate(freezeStatus.getState());
+            }
         }
+
         prepareForAdd(index, values.length);
         values[(int) index] = value;
     }
@@ -177,21 +179,13 @@ public class BRefValueArray extends BNewArray implements Serializable {
      * {@inheritDoc}
      */
     @Override
-    public void attemptFreeze(CPU.FreezeStatus freezeStatus) {
-        switch (this.freezeStatus.getState()) {
-            case FROZEN:
-                return;
-            case MID_FREEZE:
-                if (this.freezeStatus == freezeStatus) {
-                    return;
+    public synchronized void attemptFreeze(CPU.FreezeStatus freezeStatus) {
+        if (isOpenForFreeze(this.freezeStatus, freezeStatus)) {
+            this.freezeStatus = freezeStatus;
+            for (int i = 0; i < this.size; i++) {
+                if (this.get(i) != null) {
+                    this.get(i).attemptFreeze(freezeStatus);
                 }
-                throw new BallerinaException("concurrent 'freeze()' attempts not allowed on '" + this.getType() + "'");
-        }
-
-        this.freezeStatus = freezeStatus;
-        for (int i = 0; i < this.size; i++) {
-            if (this.get(i) != null) {
-                this.get(i).attemptFreeze(freezeStatus);
             }
         }
     }
