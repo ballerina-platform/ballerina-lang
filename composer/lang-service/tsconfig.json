@@ -12,11 +12,11 @@
     "outDir": "./lib",
     "preserveConstEnums": true,
     "removeComments": true,
-    "inlineSourceMap": true,
     "stripInternal": true,
     "typeRoots": [
       "./node_modules/@types"
     ],
+    "sourceMap": true
   },
   "include": [
     "src/**/*"
