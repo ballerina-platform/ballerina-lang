@@ -24,6 +24,7 @@ import org.ballerinalang.model.types.BTypes;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.StringJoiner;
 
 /**
@@ -75,9 +76,14 @@ public class BDecimalArray extends BNewArray {
     }
 
     @Override
-    public BValue copy() {
+    public BValue copy(Map<BValue, BValue> refs) {
+        if (refs.containsKey(this)) {
+            return refs.get(this);
+        }
+
         BDecimalArray decimalArray = new BDecimalArray(Arrays.copyOf(values, values.length));
         decimalArray.size = size;
+        refs.put(this, decimalArray);
         return decimalArray;
     }
 

@@ -29,10 +29,10 @@ public type TableJoinProcessor object {
     }
 
     public function process(StreamEvent[] streamEvents) {
-        StreamEvent?[] joinedEvents;
+        StreamEvent?[] joinedEvents = [];
         int j = 0;
         foreach event in streamEvents {
-            (StreamEvent?, StreamEvent?)[] candidateEvents;
+            (StreamEvent?, StreamEvent?)[] candidateEvents = [];
             foreach i, m in tableQuery(event) {
                 StreamEvent resultEvent = new((tableName, m), "CURRENT", time:currentTime().time);
                 candidateEvents[i] = (event, resultEvent);
@@ -47,7 +47,7 @@ public type TableJoinProcessor object {
                 j += 1;
             }
         }
-        StreamEvent[] outputEvents;
+        StreamEvent[] outputEvents = [];
         int i = 0;
         foreach e in joinedEvents {
             match e {

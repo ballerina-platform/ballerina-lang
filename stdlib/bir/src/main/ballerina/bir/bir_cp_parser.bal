@@ -6,7 +6,7 @@ public type ConstPool record {
 
 public type ConstPoolParser object {
     ChannelReader reader;
-    ConstPool cp;
+    ConstPool cp = {};
     int i;
 
     public new(reader) {

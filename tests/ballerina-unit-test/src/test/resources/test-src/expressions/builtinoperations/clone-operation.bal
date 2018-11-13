@@ -33,6 +33,21 @@ type ConstrainedEmp record {
     !...
 };
 
+type A record {
+    int a;
+    int[] arr;
+};
+
+type B record {
+    int b;
+    A aa;
+};
+
+type C record {
+    B b;
+    A a;
+};
+
 public function cloneInt() returns (int, int, int) {
     int a = 10;
     int x = a.clone();
@@ -267,4 +282,28 @@ public function cloneAnydataRecord() returns (Person, Person, Person) {
     a.name = "Charlos";
     y.salary = 400.5;
     return (a, x, y);
+}
+
+public function cloneCyclicRecord() returns (any, any) {
+    A a = { a: 10, arr: [1, 2, 3, 4] };
+    B b = { b: 11, aa: a };
+    C c = { b: b, a: a };
+    C cc = c.clone();
+    cc.a.arr[0] = 10;
+    return (cc, c);
+}
+
+public function cloneCyclicArray() returns (any, any) {
+    A[] arr;
+    int[] x = [10, 20, 30, 40];
+    arr[0] = { a: 1, arr: [1, 2, 3, 4] };
+    arr[1] = { a: 2, arr: [1, 2, 3, 4, 5] };
+    arr[2] = { a: 3, arr: x};
+    arr[3] = { a: 4, arr: x};
+    A[] copy = arr.clone();
+    copy[2].arr[0] = 100;
+    copy[2].arr[1] = 200;
+    copy[2].arr[2] = 300;
+    copy[2].arr[3] = 400;
+    return (arr, copy);
 }

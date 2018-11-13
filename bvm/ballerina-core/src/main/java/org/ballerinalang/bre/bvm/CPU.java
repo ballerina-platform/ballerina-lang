@@ -130,6 +130,7 @@ import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -854,7 +855,8 @@ public class CPU {
                 case TypeTags.TUPLE_TAG:
                 case TypeTags.JSON_TAG:
                 case TypeTags.RECORD_TYPE_TAG:
-                    sf.refRegs[j] = (BRefType<?>) (sf.refRegs[i]).copy();
+
+                    sf.refRegs[j] = (BRefType<?>) (sf.refRegs[i]).copy(new HashMap<>());
                     break;
             }
         } else {
@@ -3651,7 +3653,7 @@ public class CPU {
         // TODO: do validation for type?
         BMap newMap = new BMap(BTypes.typeMap);
         ((BMap) sf.refRegs[i]).getMap().forEach((key, value)
-                -> newMap.put(key, value == null ? null : ((BValue) value).copy()));
+                -> newMap.put(key, value == null ? null : ((BValue) value).copy(new HashMap<>())));
         sf.refRegs[j] = newMap;
     }
 

@@ -20,7 +20,9 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.model.types.BType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * BError value.
@@ -53,7 +55,7 @@ public class BError implements BRefType {
     }
 
     @Override
-    public BValue copy() {
+    public BValue copy(Map<BValue, BValue> refs) {
         // Error values are immutable and frozen, copy give same value.
         return this;
     }
@@ -64,7 +66,7 @@ public class BError implements BRefType {
 
     public BRefType getDetails() {
         // TODO: Make details frozen.
-        return (BRefType) details.copy();
+        return (BRefType) details.copy(new HashMap<>());
     }
 
     @Override

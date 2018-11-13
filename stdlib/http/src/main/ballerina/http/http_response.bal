@@ -32,13 +32,13 @@ import ballerina/time;
 public type Response object {
 
     public int statusCode = 200;
-    public string reasonPhrase;
-    public string server;
-    public string resolvedRequestedURI;
-    public ResponseCacheControl? cacheControl;
+    public string reasonPhrase = "";
+    public string server = "";
+    public string resolvedRequestedURI = "";
+    public ResponseCacheControl? cacheControl = ();
 
-    int receivedTime;
-    int requestTime;
+    int receivedTime = 0;
+    int requestTime = 0;
     private mime:Entity entity;
 
     public new() {

@@ -20,6 +20,8 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
+import java.util.Map;
+
 /**
  * Represents a XML qualified name in ballerina.
  * 
@@ -68,7 +70,7 @@ public final class BXMLQName implements BRefType {
     }
 
     @Override
-    public BValue copy() {
+    public BValue copy(Map<BValue, BValue> refs) {
         return new BXMLQName(localName, uri, prefix);
     }
     

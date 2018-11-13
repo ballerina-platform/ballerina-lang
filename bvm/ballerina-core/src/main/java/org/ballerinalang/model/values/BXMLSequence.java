@@ -28,6 +28,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import javax.xml.namespace.QName;
 
 import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
@@ -387,10 +388,10 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      * {@inheritDoc}
      */
     @Override
-    public BXMLSequence copy() {
+    public BXMLSequence copy(Map<BValue, BValue> refs) {
         BRefType[] copiedVals = new BRefType[(int) sequence.size()];
         for (int i = 0; i < sequence.size(); i++) {
-            copiedVals[i] = ((BXML<?>) sequence.get(i)).copy();
+            copiedVals[i] = ((BXML<?>) sequence.get(i)).copy(refs);
         }
         return new BXMLSequence(new BRefValueArray(copiedVals, BTypes.typeXML));
     }

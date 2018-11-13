@@ -17,7 +17,7 @@
 public type StreamEvent object {
     public EventType eventType;
     public int timestamp;
-    public map data;
+    public map data = {};
 
     public new((string, map) | map eventData, eventType, timestamp) {
         match eventData {
@@ -44,7 +44,7 @@ public type StreamEvent object {
     }
 
     function cloneData() returns map {
-        map dataClone;
+        map dataClone = {};
         foreach k, v in data {
             dataClone[k] = v;
         }

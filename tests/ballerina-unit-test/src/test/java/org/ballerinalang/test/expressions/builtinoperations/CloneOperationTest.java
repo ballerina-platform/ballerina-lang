@@ -420,4 +420,66 @@ public class CloneOperationTest {
         Assert.assertEquals(bMap.get("name").stringValue(), name);
         Assert.assertEquals(((BFloat) bMap.get("salary")).floatValue(), salary);
     }
+
+    @Test
+    public void testCloneCyclicRecord() {
+        BValue[] results = BRunUtil.invoke(result, "cloneCyclicRecord");
+        Assert.assertNotNull(results);
+
+        BMap record = (BMap)  results[0];
+        BMap fieldA = (BMap) record.get("a");
+
+        BIntArray arr = (BIntArray) fieldA.get("arr");
+        BMap fieldB = (BMap) record.get("b");
+        BMap fieldAOfB = (BMap) fieldB.get("aa");
+        BIntArray arrOfAA = (BIntArray) fieldAOfB.get("arr");
+
+        Assert.assertEquals(arr.get(0), 10);
+        Assert.assertEquals(arrOfAA.get(0), 10);
+
+        record = (BMap)  results[1];
+        BMap fieldA1 = (BMap) record.get("a");
+
+        arr = (BIntArray) fieldA1.get("arr");
+        fieldB = (BMap) record.get("b");
+        BMap fieldAOfB1 = (BMap) fieldB.get("aa");
+        arrOfAA = (BIntArray) fieldAOfB1.get("arr");
+
+        Assert.assertEquals(arr.get(0), 1);
+        Assert.assertEquals(arrOfAA.get(0), 1);
+
+        Assert.assertSame(fieldA, fieldAOfB);
+        Assert.assertSame(fieldA1, fieldAOfB1);
+
+        Assert.assertNotSame(fieldA, fieldA1);
+        Assert.assertNotSame(fieldAOfB, fieldAOfB1);
+    }
+
+    @Test
+    public void testCloneCyclicArray() {
+        BValue[] results = BRunUtil.invoke(result, "cloneCyclicArray");
+        Assert.assertNotNull(results);
+
+        BRefValueArray[] arr = new BRefValueArray[2];
+        arr[0] = (BRefValueArray) results[0];
+        arr[1] = (BRefValueArray) results[1];
+
+        BMap record1 = (BMap) arr[0].getBValue(2);
+        BMap record2 = (BMap) arr[0].getBValue(3);
+
+        BMap record3 = (BMap) arr[1].getBValue(2);
+        BMap record4 = (BMap) arr[1].getBValue(3);
+
+        BIntArray intArr1 = (BIntArray) record1.get("arr");
+        BIntArray intArr2 = (BIntArray) record2.get("arr");
+
+        BIntArray intArr3 = (BIntArray) record3.get("arr");
+        BIntArray intArr4 = (BIntArray) record4.get("arr");
+
+        Assert.assertSame(intArr1, intArr2);
+        Assert.assertSame(intArr3, intArr4);
+
+        Assert.assertNotSame(intArr1, intArr3);
+        Assert.assertNotSame(intArr2, intArr4);
+    }
 }

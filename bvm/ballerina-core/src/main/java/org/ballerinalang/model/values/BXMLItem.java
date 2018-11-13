@@ -45,6 +45,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
@@ -631,7 +632,7 @@ public final class BXMLItem extends BXML<OMNode> {
      * {@inheritDoc}
      */
     @Override
-    public BXMLItem copy() {
+    public BXMLItem copy(Map<BValue, BValue> refs) {
         OMNode clonedNode = null;
         switch (nodeType) {
             case ELEMENT:

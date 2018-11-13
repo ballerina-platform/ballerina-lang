@@ -23,6 +23,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.Map;
 
 /**
  * {@code BValue} represents any value in Ballerina.
@@ -40,7 +41,7 @@ public interface BValue {
      * 
      * @return A copy of this {@link BValue}
      */
-    BValue copy();
+    BValue copy(Map<BValue, BValue> refs);
 
     /**
      * Default serialize implementation for {@link BValue}.

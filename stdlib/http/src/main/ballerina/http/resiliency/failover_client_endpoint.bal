@@ -24,7 +24,7 @@ public type FailoverClient object {
     public string epName;
     public FailoverClientEndpointConfiguration failoverClientConfig;
 
-    private Client httpEP;
+    private Client httpEP = new;
 
     # Initializes the endpoint using the configurations provided.
     #

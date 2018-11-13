@@ -22,6 +22,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.StringJoiner;
 
 /**
@@ -71,9 +72,14 @@ public class BIntArray extends BNewArray {
     }
 
     @Override
-    public BValue copy() {
+    public BValue copy(Map<BValue, BValue> refs) {
+        if (refs.containsKey(this)) {
+            return refs.get(this);
+        }
+
         BIntArray intArray = new BIntArray(Arrays.copyOf(values, values.length));
         intArray.size = this.size;
+        refs.put(this, intArray);
         return intArray;
     }
     
