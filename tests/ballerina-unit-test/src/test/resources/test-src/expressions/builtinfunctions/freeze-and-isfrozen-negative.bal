@@ -95,6 +95,11 @@ function testInvalidAssignmentWithFreeze() {
     string|PersonObj u2 = u1.freeze();
 }
 
+function testFreezeOnError() {
+    error e = error("test error");
+    _ = e.freeze();
+}
+
 type PersonObj object {
     string name;
 

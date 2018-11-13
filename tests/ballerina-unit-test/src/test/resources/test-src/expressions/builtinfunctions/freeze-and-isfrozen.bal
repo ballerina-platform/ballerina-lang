@@ -488,6 +488,14 @@ function testPreservingInnerArrayFrozenStatusOnFailedOuterFreeze() returns (stri
     return (errorOrSuccessMsg, a2.isFrozen(), a.isFrozen());
 }
 
+function testErrorValueFreeze() returns string {
+    error e = error("test error");
+    any|error val = e;
+
+    any|error res = val.freeze();
+    return (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
+}
+
 function isIdTwo(Employee e) returns boolean {
     return e.id == 2;
 }

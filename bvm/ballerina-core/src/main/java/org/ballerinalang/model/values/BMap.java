@@ -458,6 +458,9 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
                 case FROZEN:
                     return;
                 case MID_FREEZE:
+                    if (this.freezeStatus == freezeStatus) {
+                        return;
+                    }
                     throw new BallerinaException("concurrent 'freeze()' attempts not allowed on '" + this.getType() +
                                                          "'");
             }

@@ -1672,15 +1672,13 @@ public class CPU {
                     try {
                         bMap.put(sf.stringRegs[j], value);
                     } catch (BLangFreezeException e) {
-                        String errMessage;
+                        // we would only reach here for record or map, not for object
+                        String errMessage = "";
                         switch (bMap.getType().getTag()) {
                             case TypeTags.RECORD_TYPE_TAG:
                                 errMessage = "Invalid update of record field: ";
                                 break;
-                            case TypeTags.OBJECT_TYPE_TAG:
-                                errMessage = "Invalid update of object field: ";
-                                break;
-                            default:
+                            case TypeTags.MAP_TAG:
                                 errMessage = "Invalid map insertion: ";
                         }
                         ctx.setError(BLangVMErrors.createError(ctx,  errMessage + e.getMessage()));

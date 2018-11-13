@@ -474,8 +474,16 @@ public class FreezeAndIsFrozenTest {
     }
 
     @Test
+    public void testErrorValueFreeze() {
+        BValue[] returns = BRunUtil.invoke(result, "testErrorValueFreeze", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "error occurred on freeze: freeze not allowed on 'error'");
+    }
+
+    @Test
     public void testFreezeAndIsFrozenNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 22);
+        Assert.assertEquals(negativeResult.getErrorCount(), 23);
         validateError(negativeResult, 0, "function invocation on type '()' is not supported", 19, 9);
         validateError(negativeResult, 1, "undefined function 'freeze' in object 'PersonObj'", 24, 19);
         validateError(negativeResult, 2, "undefined function 'stream.freeze'", 27, 9);
@@ -508,6 +516,7 @@ public class FreezeAndIsFrozenTest {
                               "'FreezeAllowedDepartment|error'", 92, 35);
         validateError(negativeResult, 21, "incompatible types: expected 'string|PersonObj', found " +
                 "'string|PersonObj|error'", 95, 27);
+        validateError(negativeResult, 22, "function invocation on type 'error' is not supported", 100, 9);
     }
 
     @DataProvider(name = "booleanValues")

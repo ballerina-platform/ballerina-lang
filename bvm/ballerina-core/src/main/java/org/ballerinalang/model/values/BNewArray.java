@@ -174,6 +174,9 @@ public abstract class BNewArray implements BRefType, BCollection {
             case FROZEN:
                 return;
             case MID_FREEZE:
+                if (this.freezeStatus == freezeStatus) {
+                    return;
+                }
                 throw new BallerinaException("concurrent 'freeze()' attempts not allowed on '" + this.getType() + "'");
         }
         this.freezeStatus = freezeStatus;
