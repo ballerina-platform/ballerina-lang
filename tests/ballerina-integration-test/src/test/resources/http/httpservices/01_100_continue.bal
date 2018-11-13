@@ -31,7 +31,7 @@ service<http:Service> helloContinue bind { port: 9090 } {
             res.setPayload(untaint result);
             var responseError = caller->respond(untaint result);
             if (responseError is error) {
-            log:printError("Error sending response", err = responseError);
+                log:printError("Error sending response", err = responseError);
             }
         } else if (result is error) {
             res.statusCode = 500;
