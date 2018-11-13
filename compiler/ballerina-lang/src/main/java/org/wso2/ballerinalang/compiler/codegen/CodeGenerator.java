@@ -120,6 +120,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
@@ -871,6 +872,21 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
         // Emit the wait instruction by passing the map
         this.emit(InstructionCodes.WAITALL, operands.toArray(new Operand[operands.size()]));
+    }
+
+    @Override
+    public void visit(BLangWorkerFlushExpr workerFlushExpr) {
+        List<Operand> operands = new ArrayList<>();
+        for (BLangIdentifier wrkrName : workerFlushExpr.workerIdentifierList) {
+            WorkerDataChannelInfo workerDataChannelInfo = this.getWorkerDataChannelInfo
+                    (this.currentCallableUnitInfo, this.currentWorkerInfo.getWorkerName(), wrkrName.value);
+            WorkerDataChannelRefCPEntry wrkrInvRefCPEntry = new WorkerDataChannelRefCPEntry(
+                    workerDataChannelInfo.getUniqueNameCPIndex(), workerDataChannelInfo.getUniqueName());
+            wrkrInvRefCPEntry.setWorkerDataChannelInfo(workerDataChannelInfo);
+            Operand wrkrInvRefCPIndex = getOperand(currentPkgInfo.addCPEntry(wrkrInvRefCPEntry));
+            operands.add(wrkrInvRefCPIndex);
+        }
+        emit(InstructionCodes.FLUSH, operands.toArray(new Operand[operands.size()]));
     }
 
     @Override

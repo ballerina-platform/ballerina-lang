@@ -85,6 +85,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
@@ -155,6 +156,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.util.Constants.MAIN_FUNCTION_NAME;
 
@@ -979,6 +981,43 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         });
     }
 
+    @Override
+    public void visit(BLangWorkerFlushExpr workerFlushExpr) {
+        // Two scenarios should be handled
+        // 1) flush w1 -> Wait till all the asynchronous sends to worker w1 is completed
+        // 2) flush -> Wait till all asynchronous sends to all workers are completed
+        BLangIdentifier flushWrkIdentifier = workerFlushExpr.workerIdentifier;
+        Stack<WorkerActionSystem> workerActionSystems = this.workerActionSystemStack;
+        WorkerActionSystem currentWrkerAction = workerActionSystems.peek();
+        List<BLangWorkerSend> sendStmts = getAsyncSendStmtsOfWorker(currentWrkerAction);
+        if (flushWrkIdentifier != null) {
+            List<BLangWorkerSend> sendsToGivenWrkr = sendStmts.stream()
+                                                              .filter(bLangNode -> bLangNode.workerIdentifier
+                                                                      .equals(flushWrkIdentifier))
+                                                     .collect(Collectors.toList());
+            if (sendsToGivenWrkr.size() == 0) {
+                this.dlog.error(workerFlushExpr.pos, DiagnosticCode.INVALID_WORKER_FLUSH_FOR_WORKER, flushWrkIdentifier,
+                                currentWrkerAction.currentWorkerId);
+                return;
+            } else {
+                sendStmts = sendsToGivenWrkr;
+            }
+        } else {
+            if (sendStmts.size() == 0) {
+                this.dlog.error(workerFlushExpr.pos, DiagnosticCode.INVALID_WORKER_FLUSH,
+                                currentWrkerAction.currentWorkerId);
+                return;
+            }
+        }
+        workerFlushExpr.cachedWorkerSendStmts = sendStmts;
+    }
+
+    private List<BLangWorkerSend> getAsyncSendStmtsOfWorker(WorkerActionSystem currentWorkerAction) {
+        return currentWorkerAction.currentSM.actions.stream()
+                                                    .filter(CodeAnalyzer::isWorkerSend)
+                                                    .map(bLangNode -> (BLangWorkerSend) bLangNode)
+                                                    .collect(Collectors.toList());
+    }
     @Override
     public void visit(BLangTrapExpr trapExpr) {
         analyzeExpr(trapExpr.expr);
