@@ -49,7 +49,7 @@ service<http:Service> passthrough bind passthroughEP2 {
             var clientResponse = acceptEncodingEnableEP -> post("/",untaint req);
             if (clientResponse is http:Response) {
                 _ = caller -> respond(clientResponse);
-            }else if (clientResponse is error) {
+            } else if (clientResponse is error) {
                 http:Response res = new;
                 res.statusCode = 500;
                 res.setPayload(clientResponse.reason());
@@ -61,10 +61,10 @@ service<http:Service> passthrough bind passthroughEP2 {
         } else if (req.getHeader("AcceptValue") == "disable") {
             var clientResponse = acceptEncodingDisableEP -> post("/",untaint req);
             if (clientResponse is http:Response) {
-                _ = caller -> respond(clientResponse);
-            }else if (clientResponse is error) {
+                _ = caller->respond(clientResponse);
+            } else if (clientResponse is error) {
                 http:Response res = new;
-                res.statusCode = 500;
+                res.statusCode =500;
                 res.setPayload(clientResponse.reason());
                 var responseError = caller->respond(res);
                 if (responseError is error) {
