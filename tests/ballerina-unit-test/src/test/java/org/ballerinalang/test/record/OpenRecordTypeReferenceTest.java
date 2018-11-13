@@ -28,6 +28,7 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.balo.BaloCreator;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -46,6 +47,7 @@ public class OpenRecordTypeReferenceTest {
 
     @BeforeClass
     public void setup() {
+        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
         compileResult = BCompileUtil.compile("test-src/record/open_record_type_reference.bal");
     }
 
@@ -109,5 +111,35 @@ public class OpenRecordTypeReferenceTest {
         assertEquals(((BMap) foo2.get("crp")).get("name").stringValue(), "Jane Doe");
         assertEquals(foo2.get("cra").getType().getTag(), TypeTags.RECORD);
         assertEquals(foo2.get("cra").stringValue(), "{city:\"Colombo\", country:\"Sri Lanka\"}");
+    }
+
+    @Test(description = "Test case for order of resolving")
+    public void testOrdering() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testOrdering");
+        BMap foo3 = (BMap) returns[0];
+        assertEquals(foo3.get("s").stringValue(), "qwerty");
+        assertEquals(((BInteger) foo3.get("ri")).intValue(), 10);
+        assertEquals(foo3.get("rs").stringValue(), "asdf");
+    }
+
+    @Test(description = "Test case for reference chains")
+    public void testReferenceChains() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testReferenceChains");
+        BMap foo4 = (BMap) returns[0];
+        assertEquals(foo4.get("s").stringValue(), "qwerty");
+        assertEquals(((BInteger) foo4.get("abi")).intValue(), 10);
+        assertEquals(foo4.get("efs").stringValue(), "asdf");
+        assertEquals(foo4.get("cdr").stringValue(), "{abi:123}");
+    }
+
+    @Test(description = "Test case for type referencing in BALOs")
+    public void testTypeReferencingInBALOs() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTypeReferencingInBALOs");
+        BMap manager = (BMap) returns[0];
+        assertEquals(manager.get("name").stringValue(), "John Doe");
+        assertEquals(((BInteger) manager.get("age")).intValue(), 25);
+        assertEquals(manager.get("adr").stringValue(), "{city:\"Colombo\", country:\"Sri Lanka\"}");
+        assertEquals(manager.get("company").stringValue(), "WSO2");
+        assertEquals(manager.get("dept").stringValue(), "Engineering");
     }
 }

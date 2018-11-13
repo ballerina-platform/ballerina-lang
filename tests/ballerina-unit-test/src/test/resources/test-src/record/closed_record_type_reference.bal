@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import testorg/foo version v1;
+
 // TESTS FOR RECORDS WHERE THE REFERENCED TYPE ONLY HAS VALUE TYPE FIELDS
 
 type ValType record {
@@ -111,4 +113,56 @@ function testRefTypes() returns Foo2 {
     f.crx = xml `<book>Count of Monte Cristo</book>`;
 
     return f;
+}
+
+// Testing the order of resolving
+
+type Foo3 record {
+    *OrderTest;
+    string s;
+    !...
+};
+
+type OrderTest record {
+    int ri;
+    string rs;
+    !...
+};
+
+function testOrdering() returns Foo3 {
+    Foo3 f = {s:"qwerty", ri:10, rs:"asdf"};
+    return f;
+}
+
+type AB record {
+    int abi;
+};
+
+type CD record {
+    *EF;
+    AB cdr;
+    !...
+};
+
+type EF record {
+    *AB;
+    string efs;
+    !...
+};
+
+type Foo4 record {
+    string s;
+    *CD;
+    !...
+};
+
+function testReferenceChains() returns Foo4 {
+    AB ab = {abi:123};
+    Foo4 f = {s:"qwerty", abi:10, efs:"asdf", cdr:ab};
+    return f;
+}
+
+function testTypeReferencingInBALOs() returns foo:BClosedManager {
+    foo:BClosedManager m = {name:"John Doe", age:25, adr:{city:"Colombo", country:"Sri Lanka"}, company:"WSO2", dept:"Engineering"};
+    return m;
 }
