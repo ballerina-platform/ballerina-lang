@@ -651,9 +651,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangVariableDef groupByFuncArrayVarDef =
                 createGroupByFuncArrayVarDef(selectClause, groupByFuncArrayVarSymbol, groupByFuncArrExpr);
         stmts.add(groupByFuncArrayVarDef);
-
         groupByFuncArrExpr.exprs = createGroupByLambda(selectClause);
-
         BLangSimpleVarRef groupByFuncPointerArr = ASTBuilderUtil.createVariableRef(selectClause.pos,
                                                                                    groupByFuncArrayVarDef.var.symbol);
 
@@ -906,7 +904,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                                                                                               (BLangExpression) node);
                 // return check <string>e.data[<fieldName in string>];
                 conversionExpr = generateConversionExpr(mapFieldAccessExpr, symTable.stringType, symResolver);
-
             } else if (node.getKind() == NodeKind.INVOCATION) {
                 BLangInvocation invocation = (BLangInvocation) node;
 
@@ -923,39 +920,40 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
     private BLangInvocation refactorInvocationInGroupBy(BLangInvocation invocation,
                                                         BLangVariable varGroupByStreamEvent) {
-        if (invocation.requiredArgs.size() > 0) {
-            List<BLangExpression> expressionList = new ArrayList<>();
-            List<BLangExpression> functionArgsList = invocation.requiredArgs;
-            int count = 0;
-            for (BLangExpression expression : functionArgsList) {
-                if (expression.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
-                    BLangFieldBasedAccess varRef = (BLangFieldBasedAccess) expression;
-
-                    BLangExpression refactoredVarRef;
-                    if (inputStreamName.equals(varRef.expr.toString())) {
-                        BLangIndexBasedAccess funcVarMapFieldAccessExpr =
-                                createMapAccessExprFromStreamEvent(varGroupByStreamEvent, varRef);
-                        BType funcParameterType = ((BInvokableSymbol) (invocation.symbol)).params.get(count).type;
-                        BLangTypeConversionExpr funcVarConversionExpr =
-                                generateConversionExpr(funcVarMapFieldAccessExpr, funcParameterType, symResolver);
-                        BLangCheckedExpr funcVarCheckedExpr = createCheckedExpr(funcVarConversionExpr);
-                        refactoredVarRef = funcVarCheckedExpr;
-                    } else {
-                        refactoredVarRef = varRef;
-                    }
-
-                    expressionList.add(refactoredVarRef);
-                } else if (expression.getKind() == NodeKind.INVOCATION) {
-                    expressionList.add(refactorInvocationInGroupBy((BLangInvocation) expression,
-                                                                   varGroupByStreamEvent));
-                } else {
-                    expressionList.add(expression);
-                }
-                count += 1;
-            }
-            invocation.argExprs = expressionList;
-            invocation.requiredArgs = expressionList;
+        if (invocation.requiredArgs.size() <= 0) {
+            return invocation;
         }
+        List<BLangExpression> expressionList = new ArrayList<>();
+        List<BLangExpression> functionArgsList = invocation.requiredArgs;
+        int count = 0;
+        for (BLangExpression expression : functionArgsList) {
+            if (expression.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+                BLangFieldBasedAccess varRef = (BLangFieldBasedAccess) expression;
+
+                BLangExpression refactoredVarRef;
+                if (inputStreamName.equals(varRef.expr.toString())) {
+                    BLangIndexBasedAccess funcVarMapFieldAccessExpr =
+                            createMapAccessExprFromStreamEvent(varGroupByStreamEvent, varRef);
+                    BType funcParameterType = ((BInvokableSymbol) (invocation.symbol)).params.get(count).type;
+                    BLangTypeConversionExpr funcVarConversionExpr =
+                            generateConversionExpr(funcVarMapFieldAccessExpr, funcParameterType, symResolver);
+                    BLangCheckedExpr funcVarCheckedExpr = createCheckedExpr(funcVarConversionExpr);
+                    refactoredVarRef = funcVarCheckedExpr;
+                } else {
+                    refactoredVarRef = varRef;
+                }
+
+                expressionList.add(refactoredVarRef);
+            } else if (expression.getKind() == NodeKind.INVOCATION) {
+                expressionList.add(refactorInvocationInGroupBy((BLangInvocation) expression,
+                                                               varGroupByStreamEvent));
+            } else {
+                expressionList.add(expression);
+            }
+            count += 1;
+        }
+        invocation.argExprs = expressionList;
+        invocation.requiredArgs = expressionList;
         return invocation;
     }
 
