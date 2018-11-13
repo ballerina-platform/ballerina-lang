@@ -43,8 +43,6 @@ service<http:Service> passthrough bind passthroughEP2 {
                     log:printError("Error sending response", err = responseError);
                 }
             }
-
-
         } else if (req.getHeader("AcceptValue") == "enable") {
             var clientResponse = acceptEncodingEnableEP -> post("/",untaint req);
             if (clientResponse is http:Response) {

@@ -46,15 +46,6 @@ service<http:Service> Ecommerce bind serviceEndpoint5 {
         string reqPath = "/productsservice/" + untaint prodId;
         http:Request clientRequest = new;
         var clientResponse = productsService -> get(untaint reqPath, message = clientRequest);
-
-        //match clientResponse {
-        //    error err => {
-        //        io:println("Error occurred while reading product response");
-        //    }
-        //    http:Response product => {
-        //        _ = caller -> respond(product);
-        //    }
-        //}
         if (clientResponse is http:Response) {
             _ = caller -> respond(clientResponse);
         } else if (clientResponse is error) {
@@ -69,14 +60,6 @@ service<http:Service> Ecommerce bind serviceEndpoint5 {
     productMgt (endpoint caller, http:Request req) {
         http:Request clientRequest = new;
         var jsonReq = req.getJsonPayload();
-        //match jsonReq {
-        //    error err => {
-        //        io:println("Error occurred while reading products payload");
-        //    }
-        //    json products => {
-        //        clientRequest.setJsonPayload(untaint products);
-        //    }
-        //}
         if (jsonReq is json) {
             clientRequest.setPayload(untaint jsonReq);
         } else if (jsonReq is error) {
@@ -85,14 +68,6 @@ service<http:Service> Ecommerce bind serviceEndpoint5 {
 
         http:Response clientResponse = new;
         var clientRes = productsService -> post("/productsservice", clientRequest);
-        //match clientRes {
-        //    error err => {
-        //        io:println("Error occurred while reading locator response");
-        //    }
-        //    http:Response prod => {
-        //        clientResponse = prod;
-        //    }
-        //}
         if (clientRes is http:Response) {
             clientResponse = clientRes;
         } else if (clientRes is error) {
@@ -108,14 +83,6 @@ service<http:Service> Ecommerce bind serviceEndpoint5 {
     ordersInfo (endpoint caller, http:Request req) {
         http:Request clientRequest = new;
         var clientResponse = productsService -> get("/orderservice/orders", message = clientRequest);
-        //match clientResponse {
-        //    error err => {
-        //        io:println("Error occurred while reading orders response");
-        //    }
-        //    http:Response orders => {
-        //        _ = caller -> respond(orders);
-        //    }
-        //}
         if (clientResponse is http:Response) {
             _ = caller -> respond(clientResponse);
         } else if (clientResponse is error) {
@@ -130,14 +97,6 @@ service<http:Service> Ecommerce bind serviceEndpoint5 {
     ordersMgt (endpoint caller, http:Request req) {
         http:Request clientRequest = new;
         var clientResponse = productsService -> post("/orderservice/orders", clientRequest);
-        //match clientResponse {
-        //    error err => {
-        //        io:println("Error occurred while writing orders response");
-        //    }
-        //    http:Response orders => {
-        //        _ = caller -> respond(orders);
-        //    }
-        //}
         if (clientResponse is http:Response) {
             _ = caller -> respond(clientResponse);
         } else if (clientResponse is error) {
@@ -152,14 +111,6 @@ service<http:Service> Ecommerce bind serviceEndpoint5 {
     customersInfo (endpoint caller, http:Request req) {
         http:Request clientRequest = new;
         var clientResponse = productsService -> get("/customerservice/customers", message = clientRequest);
-        //match clientResponse {
-        //    error err => {
-        //        io:println("Error occurred while reading customers response");
-        //    }
-        //    http:Response customer => {
-        //        _ = caller -> respond(customer);
-        //    }
-        //}
         if (clientResponse is http:Response) {
             _ = caller -> respond(clientResponse);
         } else if (clientResponse is error) {
@@ -173,15 +124,6 @@ service<http:Service> Ecommerce bind serviceEndpoint5 {
     }
     customerMgt (endpoint caller, http:Request req) {
         http:Request clientRequest = new;
-        var clientResponse = productsService -> post("/customerservice/customers", clientRequest);
-        //match clientResponse {
-        //    error err => {
-        //        io:println("Error occurred while writing customers response");
-        //    }
-        //    http:Response customer => {
-        //        _ = caller -> respond(customer);
-        //    }
-        //}
         if (clientResponse is http:Response) {
             _ = caller -> respond(clientResponse);
         } else if (clientResponse is error) {
