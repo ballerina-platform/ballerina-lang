@@ -15,8 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
-import ballerina/streams;
 
 type Stock record {
     string symbol;
@@ -31,9 +29,9 @@ type Twitter record {
 };
 
 type StockWithPrice record {
-    string symbol;
-    string tweet;
-    float price;
+    string? symbol;
+    string? tweet;
+    float? price;
 };
 
 StockWithPrice[] globalEventsArray = [];
@@ -46,8 +44,8 @@ stream<StockWithPrice> stockWithPriceStream;
 function testJoinQuery() {
 
     forever {
-        from stockStream window lengthWindow(1) as stock
-        join twitterStream window lengthWindow(1) as twitter
+        from stockStream window lengthWindow([1]) as stock
+        join twitterStream window lengthWindow([1]) as twitter
         on stock.symbol == twitter.company
         select stock.symbol as symbol, twitter.tweet as tweet, stock.price as price
         => (StockWithPrice[] prices) {
@@ -77,9 +75,15 @@ function startJoinQuery() returns (StockWithPrice[]) {
     stockStream.publish(s2);
     runtime:sleep(100);
     stockStream.publish(s3);
-    runtime:sleep(1000);
 
-    io:println(globalEventsArray);
+    int count = 0;
+    while(true) {
+        runtime:sleep(500);
+        count += 1;
+        if((lengthof globalEventsArray) == 2 || count == 10) {
+            break;
+        }
+    }
     return globalEventsArray;
 }
 

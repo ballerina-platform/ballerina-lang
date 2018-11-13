@@ -21,7 +21,6 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 
@@ -38,22 +37,16 @@ public class FunctionContextResolver extends AbstractItemResolver {
         boolean isSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
         if (parserRuleContext == null) {
             List<CompletionItem> completionItems = new ArrayList<>();
-            CompletionItem workerItem = new CompletionItem();
-            workerItem.setLabel(ItemResolverConstants.WORKER);
-            Snippet.DEF_WORKER.getBlock().populateCompletionItem(workerItem, isSnippet);
-            workerItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
 
-            CompletionItem endpointItem = new CompletionItem();
-            endpointItem.setLabel(ItemResolverConstants.ENDPOINT);
-            Snippet.DEF_ENDPOINT.getBlock().populateCompletionItem(endpointItem, isSnippet);
-            endpointItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
-
+            CompletionItem workerItem = Snippet.DEF_WORKER.get().build(new CompletionItem(), isSnippet);
             completionItems.add(workerItem);
+
+            CompletionItem endpointItem = Snippet.DEF_ENDPOINT.get().build(new CompletionItem(), isSnippet);
             completionItems.add(endpointItem);
 
             return completionItems;
         }
-        AbstractItemResolver contextResolver = CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());
+        AbstractItemResolver contextResolver = CompletionItemResolver.get(parserRuleContext.getClass());
 
         if (contextResolver == null) {
             return new ArrayList<>();

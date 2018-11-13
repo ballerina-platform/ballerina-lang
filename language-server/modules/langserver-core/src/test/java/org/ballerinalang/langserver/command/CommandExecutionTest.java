@@ -65,9 +65,9 @@ public class CommandExecutionTest {
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
         List<Object> args = Arrays.asList(
-                new CommandUtil.CommandArgument("package", configJsonObject.get("package").getAsString()),
+                new CommandUtil.CommandArgument("module", configJsonObject.get("module").getAsString()),
                 new CommandUtil.CommandArgument("doc.uri", sourcePath.toUri().toString()));
-        JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_IMPORT_PACKAGE);
+        JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_IMPORT_MODULE);
         responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
                 .forEach(element -> element.getAsJsonObject().remove("textDocument"));
         Assert.assertTrue(responseJson.equals(expected));

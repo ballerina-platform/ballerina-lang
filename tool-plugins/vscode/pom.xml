@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.982.1-SNAPSHOT</version>
+        <version>0.983.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -56,8 +56,7 @@
     <dependencies>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-composer-web</artifactId>
-            <classifier>ballerina-composer-library</classifier>
+            <artifactId>composer-library</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
@@ -72,22 +71,29 @@
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.12</version>
+                <executions>
+                    <execution>
+                    <id>vscode-test-skip</id>
+                    <phase>test</phase>
+                    <goals>
+                        <goal>bsh-property</goal>
+                    </goals>
+                    <configuration>
+                        <source>vscodeTestSkip = ${skipTests} ||  ${maven.test.skip} || ${vscode.test.skip};</source>
+                        <properties>
+                        <property>vscodeTestSkip</property>
+                        </properties>
+                    </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>${maven.exec.plugin.version}</version>
                 <executions>
-                    <execution>
-                        <id>backup-package-lock</id>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <phase>validate</phase>
-                        <configuration>
-                            <executable>node</executable>
-                            <arguments>
-                                <argument>./scripts/npm-preinstall</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
                     <execution>
                         <id>npm-install</id>
                         <goals>
@@ -103,16 +109,18 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>replace-package-lock</id>
+                        <id>run tests</id>
                         <goals>
                             <goal>exec</goal>
                         </goals>
-                        <phase>generate-sources</phase>
+                        <phase>test</phase>
                         <configuration>
-                            <executable>node</executable>
+                            <executable>${npm.executable}</executable>
                             <arguments>
-                                <argument>./scripts/npm-postinstall</argument>
+                                <argument>run</argument>
+                                <argument>test</argument>
                             </arguments>
+                            <skip>${vscodeTestSkip}</skip>
                         </configuration>
                     </execution>
                     <execution>
@@ -187,9 +195,9 @@
                         </goals>
                         <configuration>
                             <target name="copy resources">
-                                <mkdir dir="${project.basedir}/resources/diagram" />
-                                <copy todir="${project.basedir}/resources/diagram" overwrite="true" flatten="true">
-                                    <fileset dir="${project.build.directory}/temp">
+                                <mkdir dir="${project.basedir}/resources/composer" />
+                                <copy todir="${project.basedir}/resources/composer" overwrite="true" flatten="true">
+                                    <fileset dir="${project.build.directory}/composer">
                                         <include name="**/*.js" />
                                         <include name="**/*.css" />
                                     </fileset>
@@ -227,9 +235,8 @@
                         </goals>
                         <configuration>
                             <includeGroupIds>org.ballerinalang</includeGroupIds>
-                            <includeClassifiers>ballerina-composer-library</includeClassifiers>
-                            <includeArtifactIds>ballerina-composer-web</includeArtifactIds>
-                            <outputDirectory>${project.build.directory}/temp</outputDirectory>
+                            <includeArtifactIds>composer-library</includeArtifactIds>
+                            <outputDirectory>${project.build.directory}/composer</outputDirectory>
                             <overWriteReleases>true</overWriteReleases>
                             <overWriteSnapshots>true</overWriteSnapshots>
                             <useSubDirectoryPerArtifact>false</useSubDirectoryPerArtifact>
@@ -265,4 +272,9 @@
             </plugin>
         </plugins>
     </build>
+    <properties>
+        <skipTests>false</skipTests>
+        <maven.test.skip>false</maven.test.skip>
+        <vscode.test.skip>false</vscode.test.skip>
+    </properties>
 </project>

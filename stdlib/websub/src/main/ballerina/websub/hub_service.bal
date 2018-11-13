@@ -16,7 +16,7 @@
 
 import ballerina/crypto;
 import ballerina/http;
-import ballerina/jdbc;
+import ballerina/h2;
 import ballerina/log;
 import ballerina/mime;
 import ballerina/sql;
@@ -87,7 +87,7 @@ service<http:Service> hubService {
                 error e => log:printError("Error responding to subscription change request", err = e);
                 () => {
                     if (validSubscriptionChangeRequest) {
-                        verifyIntent(callback, topic, params);
+                        verifyIntentAndAddSubscription(callback, topic, params);
                     }
                 }
             }
@@ -288,7 +288,7 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
 # + callback - The callback URL of the new subscription/unsubscription request
 # + topic - The topic specified in the new subscription/unsubscription request
 # + params - Parameters specified in the new subscription/unsubscription request
-function verifyIntent(string callback, string topic, map<string> params) {
+function verifyIntentAndAddSubscription(string callback, string topic, map<string> params) {
     endpoint http:Client callbackEp {
         url:callback,
         secureSocket: hubClientSecureSocket
@@ -332,6 +332,12 @@ function verifyIntent(string callback, string topic, map<string> params) {
                             subscriptionDetails.leaseSeconds = leaseSeconds * 1000;
                             subscriptionDetails.createdAt = createdAt;
                             subscriptionDetails.secret = params[HUB_SECRET] but { () => "" };
+                            if (!isTopicRegistered(topic)) {
+                                match(registerTopicAtHub(topic)) {
+                                    error e => log:printError("Error registering topic for subscription: " + e.message);
+                                    () => {}
+                                }
+                            }
                             addSubscription(subscriptionDetails);
                         } else {
                             removeSubscription(topic, callback);
@@ -372,11 +378,12 @@ function verifyIntent(string callback, string topic, map<string> params) {
 # + mode - Whether the change is for addition/removal
 # + topic - The topic for which registration is changing
 function changeTopicRegistrationInDatabase(string mode, string topic) {
-    endpoint jdbc:Client subscriptionDbEp {
-        url:hubDatabaseUrl,
-        username:hubDatabaseUsername,
-        password:hubDatabasePassword,
-        poolOptions:{maximumPoolSize:5}
+    endpoint h2:Client subscriptionDbEp {
+        path: hubDatabaseDirectory,
+        name: hubDatabaseName,
+        username: hubDatabaseUsername,
+        password: hubDatabasePassword,
+        poolOptions: { maximumPoolSize:5 }
     };
 
     sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:topic};
@@ -401,11 +408,12 @@ function changeTopicRegistrationInDatabase(string mode, string topic) {
 # + mode - Whether the subscription change is for unsubscription/unsubscription
 # + subscriptionDetails - The details of the subscription changing
 function changeSubscriptionInDatabase(string mode, SubscriptionDetails subscriptionDetails) {
-    endpoint jdbc:Client subscriptionDbEp {
-        url:hubDatabaseUrl,
-        username:hubDatabaseUsername,
-        password:hubDatabasePassword,
-        poolOptions:{maximumPoolSize:5}
+    endpoint h2:Client subscriptionDbEp {
+        path: hubDatabaseDirectory,
+        name: hubDatabaseName,
+        username: hubDatabaseUsername,
+        password: hubDatabasePassword,
+        poolOptions: { maximumPoolSize:5 }
     };
 
     sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:subscriptionDetails.topic};
@@ -437,9 +445,7 @@ function changeSubscriptionInDatabase(string mode, SubscriptionDetails subscript
 # Function to initiate set up activities on startup/restart.
 function setupOnStartup() {
     if (hubPersistenceEnabled) {
-        if (hubTopicRegistrationRequired) {
-            addTopicRegistrationsOnStartup();
-        }
+        addTopicRegistrationsOnStartup();
         addSubscriptionsOnStartup(); //TODO:verify against topics
     }
     return;
@@ -447,11 +453,12 @@ function setupOnStartup() {
 
 # Function to load topic registrations from the database.
 function addTopicRegistrationsOnStartup() {
-    endpoint jdbc:Client subscriptionDbEp {
-        url:hubDatabaseUrl,
-        username:hubDatabaseUsername,
-        password:hubDatabasePassword,
-        poolOptions:{maximumPoolSize:5}
+    endpoint h2:Client subscriptionDbEp {
+        path: hubDatabaseDirectory,
+        name: hubDatabaseName,
+        username: hubDatabaseUsername,
+        password: hubDatabasePassword,
+        poolOptions: { maximumPoolSize:5 }
     };
     table dt;
     var dbResult = subscriptionDbEp->select("SELECT * FROM topics", TopicRegistration);
@@ -480,11 +487,12 @@ function addTopicRegistrationsOnStartup() {
 
 # Function to add subscriptions to the broker on startup, if persistence is enabled.
 function addSubscriptionsOnStartup() {
-    endpoint jdbc:Client subscriptionDbEp {
-        url:hubDatabaseUrl,
-        username:hubDatabaseUsername,
-        password:hubDatabasePassword,
-        poolOptions:{maximumPoolSize:5}
+    endpoint h2:Client subscriptionDbEp {
+        path: hubDatabaseDirectory,
+        name: hubDatabaseName,
+        username: hubDatabaseUsername,
+        password: hubDatabasePassword,
+        poolOptions: { maximumPoolSize:5 }
     };
 
     int time = time:currentTime().time;
@@ -514,11 +522,12 @@ function addSubscriptionsOnStartup() {
 
 # Function to delete topic and subscription details from the database at shutdown, if persistence is enabled.
 function clearSubscriptionDataInDb() {
-    endpoint jdbc:Client subscriptionDbEp {
-        url:hubDatabaseUrl,
-        username:hubDatabaseUsername,
-        password:hubDatabasePassword,
-        poolOptions:{maximumPoolSize:5}
+    endpoint h2:Client subscriptionDbEp {
+        path: hubDatabaseDirectory,
+        name: hubDatabaseName,
+        username: hubDatabaseUsername,
+        password: hubDatabasePassword,
+        poolOptions: { maximumPoolSize:5 }
     };
 
     var dbResult = subscriptionDbEp->update("DELETE FROM subscriptions");

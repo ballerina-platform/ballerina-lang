@@ -3,9 +3,9 @@ import ballerina/test;
 
 // This is the mock function which will replace the real function.
 @test:Mock {
-    // Since we don't have a package declaration, `.` is the current package
-    // We can include any package here e.g : `ballerina/io`
-    packageName: ".",
+    // Since we don't have a module declaration, `.` is the current module
+    // We can include any module here e.g : `ballerina/io`
+    moduleName: ".",
     functionName: "intAdd"
 }
 // The mock function's signature should match with the actual function's signature.

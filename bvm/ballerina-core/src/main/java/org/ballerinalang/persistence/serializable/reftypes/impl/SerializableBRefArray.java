@@ -69,7 +69,7 @@ public class SerializableBRefArray implements SerializableRefType {
         if (packageInfo != null) {
             StructureTypeInfo structInfo = packageInfo.getStructInfo(structName);
             if (structInfo == null) {
-                throw new BallerinaException(structName + " not found in package " + pkgPath);
+                throw new BallerinaException(structName + " not found in module " + pkgPath);
             }
             type = new BArrayType(structInfo.getType());
         }

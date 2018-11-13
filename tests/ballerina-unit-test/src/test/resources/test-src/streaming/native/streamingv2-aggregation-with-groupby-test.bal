@@ -65,7 +65,15 @@ function startAggregationQuery() returns (OutputRecord[]) {
         inputStream.publish(r);
     }
 
-    runtime:sleep(1000);
+    int count = 0;
+    while(true) {
+        runtime:sleep(500);
+        count += 1;
+        if((lengthof outputDataArray) == 5 || count == 10) {
+            break;
+        }
+    }
+
     return outputDataArray;
 }
 
@@ -121,9 +129,9 @@ function streamFunc() {
     streams:Select select = streams:createSelect(
         outputProcess.process,
         aggregators,
-        function (streams:StreamEvent e) returns string {
+        [function (streams:StreamEvent e) returns string {
             return <string>e.data["inputStream.category"];
-        },
+        }],
         function (streams:StreamEvent e, streams:Aggregator[] aggregatorArray) returns map {
             streams:Sum iSumAggregator1 = check <streams:Sum>aggregatorArray[0];
             streams:Sum fSumAggregator1 = check <streams:Sum>aggregatorArray[1];

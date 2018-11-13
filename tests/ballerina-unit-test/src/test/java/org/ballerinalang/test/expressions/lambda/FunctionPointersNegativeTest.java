@@ -19,10 +19,7 @@ package org.ballerinalang.test.expressions.lambda;
 
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.exceptions.SemanticException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -52,23 +49,11 @@ public class FunctionPointersNegativeTest {
                 "(boolean)', found 'function (string,boolean) returns (boolean)'", 2, 53);
     }
 
-    @Test(expectedExceptions = SemanticException.class, enabled = false)
-    public void testAnyToFunctionPointer() {
-        // TODO : Fix this. This is not supported in 0.94 release. issue #2944
-        CompileResult result = BCompileUtil.compile("test-src/expressions/lambda/negative/fp2any-negative.bal");
-        BValue[] args = new BValue[0];
-        BValue[] returns = BRunUtil.invoke(result, "test1", args);
-        Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "test1");
-    }
-
     @Test()
     public void testFPInStruct() {
         CompileResult result = BCompileUtil.compile("test-src/expressions/lambda/negative/fp-struct-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "undefined function 'getFullName' in object 'Person'", 17, 16);
+        BAssertUtil.validateError(result, 0, "undefined field 'getFullName' in record 'Person'", 17, 16);
 
     }
 
@@ -77,9 +62,20 @@ public class FunctionPointersNegativeTest {
         CompileResult result =
                 BCompileUtil.compile("test-src/expressions/lambda/negative/fp-struct-incorrect-arg-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "incompatible types: expected 'string', found 'Person'", 16, 39);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected 'string', found 'Person'", 32, 39);
     }
 
-
-
+    @Test()
+    public void testFPWithNoImport() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/expressions/lambda/negative/fp-with-import-negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 6);
+        int i = -1;
+        BAssertUtil.validateError(result, ++i, "undefined module 'streams'", 19, 5);
+        BAssertUtil.validateError(result, ++i, "unknown type 'Select'", 19, 5);
+        BAssertUtil.validateError(result, ++i, "undefined module 'streams'", 19, 29);
+        BAssertUtil.validateError(result, ++i, "undefined function 'createSelect'", 19, 29);
+        BAssertUtil.validateError(result, ++i, "undefined symbol 'outputProcess'", 19, 50);
+        BAssertUtil.validateError(result, ++i, "array index out of range: index: '3', size: '2'", 23, 29);
+    }
 }

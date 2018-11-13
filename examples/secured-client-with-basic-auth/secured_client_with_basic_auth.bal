@@ -27,7 +27,7 @@ public function main() {
 }
 
 // Create a basic authentication provider with the relevant configurations.
-endpoint http:SecureListener ep {
+endpoint http:Listener ep {
     port: 9090,
     secureSocket: {
         keyStore: {

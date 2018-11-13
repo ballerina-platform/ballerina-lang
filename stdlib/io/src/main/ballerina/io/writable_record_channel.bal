@@ -31,7 +31,7 @@ public type WritableTextRecordChannel object {
 
     # Initializes delimited record channel.
 
-    # + characterChannel - Character channel which will be used for reading/writing records
+    # + cChannel - Character channel which will be used for reading/writing records
     # + fieldSeparator - Field separator which will separate between fields
     # + recordSeparator - Record separator which will separate between records
     # + fmt - Format which will be used to represent the type of record i.e csv

@@ -39,6 +39,8 @@ public class Flags {
     public static final int PRIVATE = 2048;
     public static final int COMPENSATE = 4096;
     public static final int ABSTRACT = 8192;
+    public static final int OPTIONAL = 16384;
+    public static final int TESTABLE = 32768;
 
     public static int asMask(Set<Flag> flagSet) {
         int mask = 0;
@@ -85,6 +87,12 @@ public class Flags {
                     break;
                 case ABSTRACT:
                     mask |= ABSTRACT;
+                    break;
+                case OPTIONAL:
+                    mask |= OPTIONAL;
+                    break;
+                case TESTABLE:
+                    mask |= TESTABLE;
                     break;
             }
         }
