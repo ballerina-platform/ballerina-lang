@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.WaitForAllExpressionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -101,17 +100,16 @@ public class BLangWaitForAllExpr extends BLangExpression implements WaitForAllEx
     }
 
     /**
-     * This class represents a wait struct literal expression.
+     * This class represents a wait literal expression.
      *
      * @since 0.985
      */
-    public static class BLangWaitStructLiteral extends BLangWaitForAllExpr {
+    public static class BLangWaitLiteral extends BLangWaitForAllExpr {
         public BAttachedFunction initializer;
 
-        public BLangWaitStructLiteral(List<BLangWaitKeyValue> keyValuePairs, BType structType) {
+        public BLangWaitLiteral(List<BLangWaitKeyValue> keyValuePairs, BType structType) {
             this.keyValuePairs = keyValuePairs;
             this.type = structType;
-            this.initializer = ((BRecordTypeSymbol) structType.tsymbol).initializerFunc;
         }
 
         @Override
@@ -119,23 +117,4 @@ public class BLangWaitForAllExpr extends BLangExpression implements WaitForAllEx
             visitor.visit(this);
         }
     }
-
-    /**
-     * This class represents a wait map literal expression.
-     *
-     * @since 0.985
-     */
-    public static class BLangWaitMapLiteral extends BLangWaitForAllExpr {
-
-        public BLangWaitMapLiteral(List<BLangWaitKeyValue> keyValuePairs, BType mapType) {
-            this.keyValuePairs = keyValuePairs;
-            this.type = mapType;
-        }
-
-        @Override
-        public void accept(BLangNodeVisitor visitor) {
-            visitor.visit(this);
-        }
-    }
-
 }
