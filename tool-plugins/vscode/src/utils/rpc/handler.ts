@@ -1,9 +1,80 @@
 import { WebViewMethod, WebViewRPCMessage } from './model';
-import { Webview } from 'vscode';
+import { Webview, Position, Range, Selection, window } from 'vscode';
+import { ExtendedLangClient } from 'src/core/extended-language-client';
+
+const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] => {
+    return [{
+        methodName: 'getAST',
+        handler: (args: any[]) => {
+            return langClient.onReady().then(() => {
+                return langClient.getAST(args[0]);
+            });
+        }
+    },
+    {
+        methodName: 'astDidChange',
+        handler: (args: any[]) => {
+            return langClient.onReady().then(() => {
+                return langClient.triggerASTDidChange(args[0], args[1]);
+            });
+        }
+    },
+    {
+        methodName: 'getEndpoints',
+        handler: (args: any[]) => {
+            return langClient.onReady().then(() => {
+                return langClient.getEndpoints();
+            });
+        }
+    },
+    {
+        methodName: 'parseFragment',
+        handler: (args: any[]) => {
+            return langClient.onReady().then(() => {
+                return langClient.parseFragment({
+                    enclosingScope: args[0].enclosingScope,
+                    expectedNodeType: args[0].expectedNodeType,
+                    source: args[0].source
+                });
+            });
+        }
+    },
+    {
+        methodName: 'revealRange',
+        handler: (args: any[]) => {
+            const activeEditor = window.activeTextEditor;
+            if (activeEditor) {
+                const start = new Position(args[0] - 1, args[1] - 1);
+                const end = new Position(args[2] - 1, args[3]);
+                activeEditor.revealRange(new Range(start, end));
+                activeEditor.selection = new Selection(start, end);
+            }
+            return Promise.resolve();
+        }
+    },
+    {
+        methodName: 'goToSource',
+        handler: (args: any[]) => {
+            const activeEditor = window.activeTextEditor;
+            if (activeEditor) {
+                // TODO
+            }
+            return Promise.resolve();
+        }
+    },
+    {
+        methodName: 'getExamples',
+        handler: (args: any[]) => {
+            return langClient.onReady().then(() => {
+                return langClient.fetchExamples();
+            });
+        }
+    }];
+};
 
 export class WebViewRPCHandler {
 
-    private _sequence: number = 0;
+    private _sequence: number = 1;
     private _callbacks: Map<number, Function> = new Map();
 
     constructor(public methods: Array<WebViewMethod>, public webView: Webview){
@@ -11,7 +82,7 @@ export class WebViewRPCHandler {
     }
 
     private _getMethod(methodName: string) {
-        return this.methods.find(method => method.methodName === methodName);
+        return this.methods.find(method => (method.methodName === methodName));
     }
     
     private _onRemoteMessage(msg: WebViewRPCMessage) {
@@ -48,8 +119,14 @@ export class WebViewRPCHandler {
         this._sequence++;
     }
 
-    static create(methods: Array<WebViewMethod>, webView: Webview) : WebViewRPCHandler {
-        return new WebViewRPCHandler(methods, webView);
+    static create(
+        webView: Webview,
+        langClient: ExtendedLangClient,
+        methods: Array<WebViewMethod> = [])
+            : WebViewRPCHandler {
+        return new WebViewRPCHandler(
+            [...methods, ...getLangClientMethods(langClient)],
+            webView);
     }
 
     dispose() {

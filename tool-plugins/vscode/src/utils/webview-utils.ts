@@ -26,11 +26,11 @@ export function getLibraryWebViewContent(context: ExtensionContext,
     
     <body style="overflow-y: scroll;">
         ${body}
-        <script charset="UTF-8" src="${resourceRoot}/utils/messaging.js"></script>
-        <script charset="UTF-8" src="${composerResourcesRoot}/composer.js"></script>
         <script>
             ${scripts}
         </script>
+        <script charset="UTF-8" src="${resourceRoot}/utils/messaging.js"></script>
+        <script charset="UTF-8" onload="loadedScript();" src="${composerResourcesRoot}/composer.js"></script>
     </body>
     </html>
     `;
