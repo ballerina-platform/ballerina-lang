@@ -606,8 +606,7 @@ public class CompiledPackageSymbolEnter {
         UnresolvedType unresolvedFieldType = new UnresolvedType(typeSig, type -> {
             varSymbol.type = type;
             varSymbol.varIndex = new RegIndex(memIndex, type.tag);
-            BField structField = new BField(varSymbol.name,
-                    varSymbol, varSymbol.defaultValue != null);
+            BField structField = new BField(varSymbol.name, varSymbol);
             objectType.fields.add(structField);
         });
 
