@@ -508,6 +508,27 @@
       ]
     },
     {
+      "label":"ballerina/mime",
+      "detail":"Package",
+      "sortText":"140",
+      "insertText":"mime",
+      "additionalTextEdits":[
+        {
+          "range":{
+            "start":{
+              "line":0,
+              "character":22
+            },
+            "end":{
+              "line":0,
+              "character":22
+            }
+          },
+          "newText":"\nimport ballerina/mime;\n"
+        }
+      ]
+    },
+    {
       "label":"ballerina/task",
       "detail":"Package",
       "sortText":"140",
