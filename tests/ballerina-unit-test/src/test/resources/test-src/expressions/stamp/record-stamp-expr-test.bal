@@ -79,13 +79,6 @@ function stampWithOpenRecords() returns Employee {
     return e;
 }
 
-function stampWithOpenRecordsNonAssignable() returns Teacher {
-    Employee e1 = { name: "Raja", status: "single", batch: "LK2014" };
-
-    Teacher t = Teacher.stamp(e1);
-    return t;
-}
-
 function stampClosedRecordWithOpenRecord() returns Employee {
     Person p1 = { name: "Raja", status: "single", batch: "LK2014", school: "Hindu College" };
 

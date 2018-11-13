@@ -3977,11 +3977,17 @@ public class CPU {
         return checkCast(value, constraintType, new ArrayList<>());
     }
 
-    public static boolean isStampingAllowed(BType valueToBeStamped, BType stampType) {
-        return (isAssignable(valueToBeStamped, stampType, new ArrayList<>()) ||
-                isAssignable(stampType, valueToBeStamped, new ArrayList<>()) ||
-                isStampingAllowedForExpr(valueToBeStamped, stampType) ||
-                isStampingAllowedForExpr(stampType, valueToBeStamped));
+    public static boolean isStampingAllowed(BType sourceType, BType stampType) {
+        if (sourceType.getTag() == TypeTags.RECORD_TYPE_TAG && stampType.getTag() == TypeTags.RECORD_TYPE_TAG) {
+            return (isAssignable(sourceType, stampType, new ArrayList<>()) ||
+                    isStampingAllowedForExpr(sourceType, stampType));
+
+        } else {
+            return (isAssignable(sourceType, stampType, new ArrayList<>()) ||
+                    isAssignable(stampType, sourceType, new ArrayList<>()) ||
+                    isStampingAllowedForExpr(sourceType, stampType) ||
+                    isStampingAllowedForExpr(stampType, sourceType));
+        }
     }
 
     private static boolean isStampingAllowedForExpr(BType source, BType target) {
@@ -4015,7 +4021,7 @@ public class CPU {
                 }
                 return true;
             } else if (source.getTag() == TypeTags.RECORD_TYPE_TAG) {
-                return checkRecordEquivalencyForStamping((BRecordType) source, (BRecordType) target);
+                return checkRecordEquivalencyForStamping((BRecordType) target, (BRecordType) source);
             }
         } else if (target.getTag() == TypeTags.MAP_TAG) {
             if (source.getTag() == TypeTags.MAP_TAG) {
@@ -4034,7 +4040,7 @@ public class CPU {
                 return isStampingAllowed(((BArrayType) source).getElementType(),
                         ((BArrayType) target).getElementType());
             }
-        } else if(target.getTag() == TypeTags.UNION_TAG) {
+        } else if (target.getTag() == TypeTags.UNION_TAG) {
             return checkUnionAssignableForStamping(source, target);
         }
 

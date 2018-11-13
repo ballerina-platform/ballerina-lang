@@ -71,21 +71,6 @@ public class RecordStampInbuiltFunctionTest {
     }
 
     @Test
-    public void testStampOpenRecordsNonAssignable() {
-
-        BValue[] results = BRunUtil.invoke(compileResult, "stampWithOpenRecordsNonAssignable");
-        BMap<String, BValue> employee0 = (BMap<String, BValue>) results[0];
-
-        Assert.assertEquals(results.length, 1);
-        Assert.assertEquals(employee0.size(), 3);
-        Assert.assertEquals((employee0.getType()).toString(), "Teacher");
-
-        Assert.assertEquals(employee0.get("batch").getType().getClass(), BStringType.class);
-        Assert.assertEquals(employee0.get("batch").stringValue(), "LK2014");
-
-    }
-
-    @Test
     public void testStampClosedRecordWithOpenRecord() {
 
         BValue[] results = BRunUtil.invoke(compileResult, "stampClosedRecordWithOpenRecord");
