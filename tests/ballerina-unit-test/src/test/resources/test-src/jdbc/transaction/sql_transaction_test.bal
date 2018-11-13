@@ -7,7 +7,7 @@ type ResultCount record {
     int COUNTVAL;
 };
 
-function testLocalTransacton() returns (int, int) {
+function testLocalTransaction() returns (int, int) {
     endpoint h2:Client testDB {
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -37,7 +37,7 @@ function testLocalTransacton() returns (int, int) {
     return (returnVal, count);
 }
 
-function testTransactonRollback() returns (int, int) {
+function testTransactionRollback() returns (int, int) {
     endpoint h2:Client testDB {
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -299,7 +299,7 @@ function testLocalTransactionRollbackBatchUpdate() returns (int, int) {
     return (returnVal, count);
 }
 
-function testTransactonAbort() returns (int, int) {
+function testTransactionAbort() returns (int, int) {
     endpoint h2:Client testDB {
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -335,7 +335,7 @@ function testTransactonAbort() returns (int, int) {
     return (returnVal, count);
 }
 
-function testTransactonErrorThrow() returns (int, int, int) {
+function testTransactionErrorPanic() returns (int, int, int) {
     endpoint h2:Client testDB {
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -347,7 +347,7 @@ function testTransactonErrorThrow() returns (int, int, int) {
     int returnVal = 0;
     int catchValue = 0;
     int count;
-    var ret = trap testTransactonErrorThrowHelper(testDB);
+    var ret = trap testTransactionErrorPanicHelper(testDB);
     if (ret is int) {
         returnVal = ret;
     } else if (ret is error) {
@@ -364,7 +364,7 @@ function testTransactonErrorThrow() returns (int, int, int) {
     return (returnVal, catchValue, count);
 }
 
-function testTransactonErrorThrowHelper(h2:Client db) returns int {
+function testTransactionErrorPanicHelper(h2:Client db) returns int {
     endpoint h2:Client testDB = db;
     int returnVal = 0;
     transaction {
@@ -381,7 +381,7 @@ function testTransactonErrorThrowHelper(h2:Client db) returns int {
     return returnVal;
 }
 
-function testTransactionErrorThrowAndCatch() returns (int, int, int) {
+function testTransactionErrorPanicAndTrap() returns (int, int, int) {
     endpoint h2:Client testDB {
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -396,7 +396,7 @@ function testTransactionErrorThrowAndCatch() returns (int, int, int) {
     transaction {
         _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,
                  creditLimit,country) values ('James', 'Clerk', 250, 5000.75, 'USA')");
-        var ret = trap testTransactionErrorThrowAndCatchHelper(0);
+        var ret = trap testTransactionErrorPanicAndTrapHelper(0);
         if (ret is error) {
             catchValue = -1;
         }
@@ -414,14 +414,14 @@ function testTransactionErrorThrowAndCatch() returns (int, int, int) {
     return (returnVal, catchValue, count);
 }
 
-function testTransactionErrorThrowAndCatchHelper(int i) {
+function testTransactionErrorPanicAndTrapHelper(int i) {
     if (i == 0) {
         error err = error("error" );
         panic err;
     }
 }
 
-function testTransactonCommitted() returns (int, int) {
+function testTransactionCommitted() returns (int, int) {
     endpoint h2:Client testDB {
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -451,7 +451,7 @@ function testTransactonCommitted() returns (int, int) {
     return (returnVal, count);
 }
 
-function testTwoTransactons() returns (int, int, int) {
+function testTwoTransactions() returns (int, int, int) {
     endpoint h2:Client testDB {
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -491,7 +491,7 @@ function testTwoTransactons() returns (int, int, int) {
     return (returnVal1, returnVal2, count);
 }
 
-function testTransactonWithoutHandlers() returns (int) {
+function testTransactionWithoutHandlers() returns (int) {
     endpoint h2:Client testDB {
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -566,7 +566,7 @@ function testLocalTransactionFailedHelper(string status, h2:Client db) returns s
     return a;
 }
 
-function testLocalTransactonSuccessWithFailed() returns (string, int) {
+function testLocalTransactionSuccessWithFailed() returns (string, int) {
     endpoint h2:Client testDB {
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -577,7 +577,7 @@ function testLocalTransactonSuccessWithFailed() returns (string, int) {
 
     string a = "beforetx";
     int count = -1;
-    string|error ret = trap testLocalTransactonSuccessWithFailedHelper(a, testDB);
+    string|error ret = trap testLocalTransactionSuccessWithFailedHelper(a, testDB);
     if (ret is string) {
         a = ret;
     } else {
@@ -598,7 +598,7 @@ function testLocalTransactonSuccessWithFailed() returns (string, int) {
     return (a, count);
 }
 
-function testLocalTransactonSuccessWithFailedHelper(string status, h2:Client db) returns string {
+function testLocalTransactionSuccessWithFailedHelper(string status, h2:Client db) returns string {
     endpoint h2:Client testDB = db;
     int i = 0;
     string a = status;
@@ -620,7 +620,7 @@ function testLocalTransactonSuccessWithFailedHelper(string status, h2:Client db)
     return a;
 }
 
-function testLocalTransactonFailedWithNextupdate() returns (int) {
+function testLocalTransactionFailedWithNextupdate() returns (int) {
     endpoint h2:Client testDB1 {
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -638,7 +638,7 @@ function testLocalTransactonFailedWithNextupdate() returns (int) {
     };
 
     int i = 0;
-    var ret = trap testLocalTransactonFailedWithNextupdateHelper(testDB1);
+    var ret = trap testLocalTransactionFailedWithNextupdateHelper(testDB1);
     if (ret is error) {
         i = -1;
     }
@@ -656,7 +656,7 @@ function testLocalTransactonFailedWithNextupdate() returns (int) {
     return i;
 }
 
-function testLocalTransactonFailedWithNextupdateHelper(h2:Client db) {
+function testLocalTransactionFailedWithNextupdateHelper(h2:Client db) {
     endpoint h2:Client testDB = db;
     transaction {
         _ = testDB->update("Insert into Customers (firstNamess,lastName,registrationID,creditLimit,country)
@@ -664,7 +664,7 @@ function testLocalTransactonFailedWithNextupdateHelper(h2:Client db) {
     }
 }
 
-function testNestedTwoLevelTransactonSuccess() returns (int, int) {
+function testNestedTwoLevelTransactionSuccess() returns (int, int) {
     endpoint h2:Client testDB {
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -696,7 +696,7 @@ function testNestedTwoLevelTransactonSuccess() returns (int, int) {
     return (returnVal, count);
 }
 
-function testNestedThreeLevelTransactonSuccess() returns (int, int) {
+function testNestedThreeLevelTransactionSuccess() returns (int, int) {
     endpoint h2:Client testDB {
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -732,7 +732,7 @@ function testNestedThreeLevelTransactonSuccess() returns (int, int) {
     return (returnVal, count);
 }
 
-function testNestedThreeLevelTransactonFailed() returns (int, int) {
+function testNestedThreeLevelTransactionFailed() returns (int, int) {
     endpoint h2:Client testDB {
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -743,7 +743,7 @@ function testNestedThreeLevelTransactonFailed() returns (int, int) {
 
     int returnVal = 0;
     int count;
-    var ret = trap testNestedThreeLevelTransactonFailedHelper(testDB);
+    var ret = trap testNestedThreeLevelTransactionFailedHelper(testDB);
     if (ret is int) {
         returnVal =  ret;
     }
@@ -762,7 +762,7 @@ function testNestedThreeLevelTransactonFailed() returns (int, int) {
     return (returnVal, count);
 }
 
-function testNestedThreeLevelTransactonFailedHelper(h2:Client db) returns int {
+function testNestedThreeLevelTransactionFailedHelper(h2:Client db) returns int {
     endpoint h2:Client testDB = db;
     int returnVal = 0;
     transaction {
@@ -782,7 +782,7 @@ function testNestedThreeLevelTransactonFailedHelper(h2:Client db) returns int {
     return returnVal;
 }
 
-function testNestedThreeLevelTransactonFailedWithRetrySuccess() returns (int, int, string) {
+function testNestedThreeLevelTransactionFailedWithRetrySuccess() returns (int, int, string) {
     endpoint h2:Client testDB {
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -794,7 +794,7 @@ function testNestedThreeLevelTransactonFailedWithRetrySuccess() returns (int, in
     int returnVal = 0;
     string a = "start";
     int count;
-    var ret = trap testNestedThreeLevelTransactonFailedWithRetrySuccessHelper(a, testDB);
+    var ret = trap testNestedThreeLevelTransactionFailedWithRetrySuccessHelper(a, testDB);
     if (ret is (string, int)) {
         (a, returnVal) = ret;
     }
@@ -813,7 +813,7 @@ function testNestedThreeLevelTransactonFailedWithRetrySuccess() returns (int, in
     return (returnVal, count, a);
 }
 
-function testNestedThreeLevelTransactonFailedWithRetrySuccessHelper(string status, h2:Client db) returns (string, int) {
+function testNestedThreeLevelTransactionFailedWithRetrySuccessHelper(string status, h2:Client db) returns (string, int) {
     endpoint h2:Client testDB = db;
     int returnVal = 0;
     int index = 0;
