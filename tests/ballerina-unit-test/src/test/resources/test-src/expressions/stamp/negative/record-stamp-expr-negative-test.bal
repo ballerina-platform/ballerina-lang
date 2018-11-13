@@ -39,14 +39,14 @@ function stampRecordToXML() returns xml {
 
     Employee employeeRecord = { name: "Raja", age: 25, salary: 20000 };
 
-    xml xmlValue = employeeRecord.stamp(xml);
+    xml xmlValue = xml.stamp(employeeRecord);
     return xmlValue;
 }
 
 function stampOpenRecordToClosedRecord() returns Employee {
 
     Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
-    Employee employee = teacher.stamp(Employee);
+    Employee employee = Employee.stamp(teacher);
 
     return employee;
 }
@@ -54,7 +54,7 @@ function stampOpenRecordToClosedRecord() returns Employee {
 function stampClosedRecordToClosedRecord() returns Student {
 
     Person person = { name: "Raja", age: 25, batch: "LK2014", school: "Hindu College" };
-    Student student = person.stamp(Student);
+    Student student = Student.stamp(person);
 
     return student;
 }
@@ -62,7 +62,7 @@ function stampClosedRecordToClosedRecord() returns Student {
 function stampRecordToObject() returns TeacherObj {
 
     Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
-    TeacherObj returnValue = teacher.stamp(TeacherObj);
+    TeacherObj returnValue = TeacherObj.stamp(teacher);
 
     return returnValue;
 }
@@ -70,14 +70,14 @@ function stampRecordToObject() returns TeacherObj {
 function stampClosedRecordToMap() returns map<string> {
 
     Person person = { name: "Raja", age: 25, batch: "LK2014", school: "Hindu College" };
-    map<string> mapValue = person.stamp(map<string>);
+    map<string> mapValue = map<string>.stamp(person);
 
     return mapValue;
 }
 
 function stampRecordToArray() returns string[] {
     Employee e1 = { name: "Raja", status: "single", batch: "LK2014" };
-    string[] stringArray = e1.stamp(string[]);
+    string[] stringArray = string[].stamp(e1);
 
     return stringArray;
 }
@@ -85,7 +85,7 @@ function stampRecordToArray() returns string[] {
 function stampRecordToTuple() returns (string, string) {
 
     Employee e1 = { name: "Raja", status: "single", batch: "LK2014" };
-    (string, string) tupleValue = e1.stamp((string, string));
+    (string, string) tupleValue = (string, string).stamp(e1);
 
     return tupleValue;
 }
@@ -106,7 +106,7 @@ type Address object {
 function stampExtendedRecordToAnydata() returns anydata {
     Address addressObj = new Address();
     ExtendedEmployee employee = { name: "Raja", status: "single", batch: "LK2014", address:addressObj};
-    anydata anydataValue = employee.stamp(anydata);
+    anydata anydataValue = anydata.stamp(employee);
 
     return anydataValue;
 }

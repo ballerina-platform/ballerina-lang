@@ -23,7 +23,7 @@ type Employee record {
 
 function stampObjectsToRecord() returns Employee {
     PersonObj p = new PersonObj();
-    Employee employee = p.stamp(Employee);
+    Employee employee = Employee.stamp(p);
 
     return employee;
 }
@@ -31,35 +31,35 @@ function stampObjectsToRecord() returns Employee {
 
 function stampObjectsToJSON() returns json {
     PersonObj p = new PersonObj();
-    json jsonValue = p.stamp(json);
+    json jsonValue = json.stamp(p);
 
     return jsonValue;
 }
 
 function stampObjectsToXML() returns xml {
     PersonObj p = new PersonObj();
-    xml xmlValue = p.stamp(xml);
+    xml xmlValue = xml.stamp(p);
 
     return xmlValue;
 }
 
 function stampObjectsToMap() returns map {
     PersonObj p = new PersonObj();
-    map mapValue = p.stamp(map);
+    map mapValue = map.stamp(p);
 
     return mapValue;
 }
 
 function stampObjectsToArray() returns any[] {
     PersonObj p = new PersonObj();
-    any[] anyValue = p.stamp(any[]);
+    any[] anyValue = any[].stamp(p);
 
     return anyValue;
 }
 
 function stampObjectsToTuple() returns (int,string) {
     PersonObj p = new PersonObj();
-    (int, string) tupleValue = p.stamp((int,string));
+    (int, string) tupleValue = (int,string).stamp(p);
 
     return tupleValue;
 }

@@ -133,15 +133,12 @@ function getTeacherRecord() returns Teacher {
 }
 
 
-//function stampOpenRecordToTypeClosedRecord() returns NonAcademicStaff {
-//    //Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
-//    //NonAcademicStaff returnValue = teacher.stamp(NonAcademicStaff);
-//
-//    Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
-//    NonAcademicStaff returnValue = teacher;
-//
-//    return returnValue;
-//}
+function stampOpenRecordToTypeClosedRecord() returns NonAcademicStaff {
+    Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
+    NonAcademicStaff returnValue = NonAcademicStaff.stamp(teacher);
+
+    return returnValue;
+}
 
 //-------------------------------- Negative Test cases ------------------------------------------------------------
 
@@ -153,20 +150,9 @@ function stampOpenRecordToMap() returns map<string> {
     return mapValue;
 }
 
-//function stampExtendedRecordToOpenRecord() returns Employee {
-//    Address addressObj = new Address();
-//    ExtendedEmployee extendedEmployee = { name: "Raja", status: "single", batch: "LK2014", address:addressObj};
-//    Employee employee = Employee.stamp(extendedEmployee);
-//
-//    return employee;
-//}
-//
-//function stampNegativeOpenRecordToTypeClosedRecord() returns AcademicStaff {
-//    Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
-//    AcademicStaff returnValue = teacher.stamp(AcademicStaff);
-//
-//    return returnValue;
-//}
+function stampOpenRecordToTypeClosedRecordNegative() returns NonAcademicStaff {
+    Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College", postalCode: 600};
+    NonAcademicStaff returnValue = NonAcademicStaff.stamp(teacher);
 
-
-
+    return returnValue;
+}

@@ -53,7 +53,7 @@ public class BError implements BRefType {
     }
 
     @Override
-    public void seal(BType type) {
+    public void stamp(BType type) {
 
     }
 

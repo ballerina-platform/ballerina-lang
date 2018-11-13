@@ -176,28 +176,6 @@ public class AnydataStampInbuiltFunctionTest {
     }
 
     @Test
-    public void testStampAnydataMapToAny() {
-
-        BValue[] results = BRunUtil.invoke(compileResult, "stampAnydataMapToAny");
-        BMap<String, BValue> mapValue = (BMap<String, BValue>) results[0];
-
-        Assert.assertEquals(results.length, 1);
-        Assert.assertEquals(mapValue.size(), 5);
-
-        Assert.assertEquals(mapValue.getType().getClass(), BAnyType.class);
-
-        Assert.assertEquals(mapValue.get("name").stringValue(), "Raja");
-        Assert.assertEquals(mapValue.get("name").getType().getClass(), BStringType.class);
-
-        Assert.assertEquals(mapValue.get("age").stringValue(), "25");
-        Assert.assertEquals(mapValue.get("age").getType().getTag(), TypeTags.INT_TAG);
-
-        Assert.assertEquals(mapValue.get("status").stringValue(), "single");
-        Assert.assertEquals(mapValue.get("status").getType().getClass(), BStringType.class);
-
-    }
-
-    @Test
     public void testStampAnydataMapToAnyMap() {
 
         BValue[] results = BRunUtil.invoke(compileResult, "stampAnydataMapToAnyMap");
@@ -207,16 +185,16 @@ public class AnydataStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue.size(), 5);
 
         Assert.assertEquals(mapValue.getType().getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) mapValue.getType()).getConstrainedType().getClass(), BAnyType.class);
+        Assert.assertEquals(((BMapType) mapValue.getType()).getConstrainedType().getClass(), BAnydataType.class);
 
         Assert.assertEquals(mapValue.get("name").stringValue(), "Raja");
-        Assert.assertEquals(mapValue.get("name").getType().getClass(), BAnyType.class);
+        Assert.assertEquals(mapValue.get("name").getType().getClass(), BAnydataType.class);
 
         Assert.assertEquals(mapValue.get("age").stringValue(), "25");
-        Assert.assertEquals(mapValue.get("age").getType().getClass(), BAnyType.class);
+        Assert.assertEquals(mapValue.get("age").getType().getClass(), BAnydataType.class);
 
         Assert.assertEquals(mapValue.get("status").stringValue(), "single");
-        Assert.assertEquals(mapValue.get("status").getType().getClass(), BAnyType.class);
+        Assert.assertEquals(mapValue.get("status").getType().getClass(), BAnydataType.class);
 
     }
 

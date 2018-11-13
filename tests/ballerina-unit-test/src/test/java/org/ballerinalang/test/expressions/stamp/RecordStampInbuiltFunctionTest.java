@@ -23,6 +23,7 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BAnydataType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
+import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStringType;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -225,24 +226,25 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(employee0.get("school").stringValue(), "Hindu College");
     }
 
-//    @Test
-//    public void testStampOpenRecordToTypeClosedRecord() {
-//
-//        BValue[] results = BRunUtil.invoke(compileResult, "stampOpenRecordToTypeClosedRecord");
-//        BMap<String, BValue> mapValue = (BMap<String, BValue>) results[0];
-//
-//        Assert.assertEquals(results.length, 1);
-//        Assert.assertEquals(mapValue.size(), 5);
-//
-//        Assert.assertEquals(mapValue.getType().getClass(), BRecordType.class);
-//        Assert.assertEquals(mapValue.getType().getName(), "NonAcademicStaff");
-//
-//        Assert.assertEquals(mapValue.get("batch").getType().getClass(), BStringType.class);
-//        Assert.assertEquals(mapValue.get("batch").stringValue(), "LK2014");
-//
-//        Assert.assertEquals(mapValue.get("school").getType().getClass(), BStringType.class);
-//        Assert.assertEquals(mapValue.get("school").stringValue(), "Hindu College");
-//    }
+    @Test
+    public void testStampOpenRecordToTypeClosedRecord() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampOpenRecordToTypeClosedRecord");
+        BMap<String, BValue> mapValue = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+        Assert.assertEquals(mapValue.size(), 5);
+
+
+        Assert.assertEquals(mapValue.getType().getClass(), BRecordType.class);
+        Assert.assertEquals(mapValue.getType().getName(), "NonAcademicStaff");
+
+        Assert.assertEquals(mapValue.get("batch").getType().getClass(), BStringType.class);
+        Assert.assertEquals(mapValue.get("batch").stringValue(), "LK2014");
+
+        Assert.assertEquals(mapValue.get("school").getType().getClass(), BStringType.class);
+        Assert.assertEquals(mapValue.get("school").stringValue(), "Hindu College");
+    }
 
     //---------------------------------- Negative Test cases ----------------------------------------------
 
@@ -253,18 +255,11 @@ public class RecordStampInbuiltFunctionTest {
         BRunUtil.invoke(compileResult, "stampOpenRecordToMap");
     }
 
-//    @Test(expectedExceptions = BLangRuntimeException.class,
-//            expectedExceptionsMessageRegExp = "error: incompatible stamp operation: 'ExtendedEmployee' value cannot " +
-//                    "be stamped as 'Employee'.*")
-//    public void testStampExtendedRecordToOpenRecord() {
-//        BRunUtil.invoke(compileResult, "stampExtendedRecordToOpenRecord");
-//    }
-//
-//    @Test(expectedExceptions = BLangRuntimeException.class,
-//            expectedExceptionsMessageRegExp = "error: incompatible stamp operation: 'Teacher' value cannot be stamped " +
-//                    "as 'AcademicStaff'.*")
-//    public void testStampNegativeOpenRecordToTypeClosedRecord() {
-//        BRunUtil.invoke(compileResult, "stampNegativeOpenRecordToTypeClosedRecord");
-//    }
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: incompatible stamp operation: 'Teacher' value cannot be " +
+                    "stamped as 'NonAcademicStaff'.*")
+    public void testStampOpenRecordToTypeClosedRecordNegative() {
+        BRunUtil.invoke(compileResult, "stampOpenRecordToTypeClosedRecordNegative");
+    }
 }
 

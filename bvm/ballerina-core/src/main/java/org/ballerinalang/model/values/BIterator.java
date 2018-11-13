@@ -55,7 +55,7 @@ public interface BIterator extends BRefType {
     }
 
     @Override
-    default void seal(BType type) {
+    default void stamp(BType type) {
 
     }
 

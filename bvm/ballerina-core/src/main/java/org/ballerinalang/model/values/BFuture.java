@@ -48,7 +48,7 @@ public interface BFuture extends BRefType<WorkerResponseContext> {
     boolean isCancelled();
 
     @Override
-    default void seal(BType type) {
+    default void stamp(BType type) {
 
     }
 }

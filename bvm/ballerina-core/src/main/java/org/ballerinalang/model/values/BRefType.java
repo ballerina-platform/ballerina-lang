@@ -30,7 +30,7 @@ public interface BRefType<T> extends BValue {
     T value();
 
     @Override
-    default void seal(BType type) {
+    default void stamp(BType type) {
 
     }
 }

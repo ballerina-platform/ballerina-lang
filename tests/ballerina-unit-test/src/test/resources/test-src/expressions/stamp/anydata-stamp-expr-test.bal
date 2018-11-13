@@ -15,7 +15,7 @@ type Teacher record {
 function stampAnydataToJSON() returns json? {
 
     anydata anydataValue = 3;
-    json? jsonValue = anydataValue.stamp(json);
+    json? jsonValue = json.stamp(anydataValue);
 
     return jsonValue;
 }
@@ -23,7 +23,7 @@ function stampAnydataToJSON() returns json? {
 function stampAnydataToRecord() returns Employee? {
     Teacher t1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
     anydata anydataValue = t1;
-    Employee? employee = anydataValue.stamp(Employee);
+    Employee? employee = Employee.stamp(anydataValue);
     return employee;
 }
 
@@ -31,7 +31,7 @@ function stampAnydataToJSONV2() returns json? {
     json t1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
     anydata anydataValue = t1;
 
-    json? jsonValue = anydataValue.stamp(json);
+    json? jsonValue = json.stamp(anydataValue);
     return jsonValue;
 }
 
@@ -39,7 +39,7 @@ function stampAnydataToXML() returns xml? {
 
     anydata anydataValue = xml `<book>The Lost World</book>`;
 
-    xml? xmlValue = anydataValue.stamp(xml);
+    xml? xmlValue = xml.stamp(anydataValue);
     return xmlValue;
 }
 
@@ -49,7 +49,7 @@ function stampAnydataToMap() returns map<Employee>? {
 
     map<Teacher> teacherMap = { "a": p1, "b": p2 };
     anydata anydataValue = teacherMap;
-    map<Employee>? mapValue = anydataValue.stamp(map<Employee>);
+    map<Employee>? mapValue = map<Employee>.stamp(anydataValue);
 
     return mapValue;
 }
@@ -61,7 +61,7 @@ function stampAnydataToRecordArray() returns Teacher[]? {
 
     Teacher[] teacherArray = [p1, p2];
     anydata anydataValue = teacherArray;
-    Teacher[]? returnValue = anydataValue.stamp(Teacher[]);
+    Teacher[]? returnValue = Teacher[].stamp(anydataValue);
 
     return returnValue;
 }
@@ -72,29 +72,22 @@ function stampAnydataToTuple() returns (string,Teacher)? {
     "Hindu College" });
 
     anydata anydataValue = tupleValue;
-    (string,Teacher)? returnValue = anydataValue.stamp((string, Teacher));
+    (string,Teacher)? returnValue = (string, Teacher).stamp(anydataValue);
 
     return returnValue;
 }
 
-function stampAnydataMapToAny() returns any {
+function stampAnydataMapToAnyMap() returns map<anydata> {
     map<anydata> anydataMap = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
 
-    any anyValue = anydataMap.stamp(any);
-    return anyValue;
-}
-
-function stampAnydataMapToAnyMap() returns map {
-    map<anydata> anydataMap = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
-
-    map mapValue = anydataMap.stamp(map);
+    map<anydata> mapValue = map<anydata>.stamp(anydataMap);
     return mapValue;
 }
 
 function stampAnydataToAnydata() returns anydata {
     json jsonValue = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
     anydata anydataValue = jsonValue;
-    anydata returnValue = anydataValue.stamp(anydata);
+    anydata returnValue = anydata.stamp(anydataValue);
 
     return returnValue;
 }

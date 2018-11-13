@@ -195,7 +195,7 @@ public class BStreamingJSON extends BRefValueArray {
         }
 
         @Override
-        public void seal(BType type) {
+        public void stamp(BType type) {
 
         }
     }

@@ -11,8 +11,8 @@ type PersonObj object {
 
 function stampAnyToObject() returns PersonObj? {
 
-    anydata anyValue = new PersonObj();
-    PersonObj? personObj = anyValue.stamp(PersonObj);
+    anydata anydataValue = new PersonObj();
+    PersonObj? personObj = PersonObj.stamp(anydataValue);
 
     return personObj;
 }

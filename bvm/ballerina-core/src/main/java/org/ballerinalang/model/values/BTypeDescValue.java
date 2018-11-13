@@ -55,7 +55,7 @@ public class BTypeDescValue implements BRefType<BType> {
     }
 
     @Override
-    public void seal(BType type) {
+    public void stamp(BType type) {
 
     }
 

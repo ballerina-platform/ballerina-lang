@@ -66,7 +66,7 @@ public class BBooleanArray extends BNewArray {
     }
 
     @Override
-    public void seal(BType type) {
+    public void stamp(BType type) {
 
     }
 

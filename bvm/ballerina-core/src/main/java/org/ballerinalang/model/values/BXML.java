@@ -266,7 +266,7 @@ public abstract class BXML<T> implements BRefType<T>, BCollection {
     }
 
     @Override
-    public void seal(BType type) {
+    public void stamp(BType type) {
         if (type.getTag() == TypeTags.ANY_TAG) {
             this.type = BTypes.typeAny;
         } else if (type.getTag() == TypeTags.ANYDATA_TAG) {

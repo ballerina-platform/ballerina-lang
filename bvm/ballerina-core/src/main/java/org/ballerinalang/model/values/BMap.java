@@ -337,13 +337,13 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
     }
 
     @Override
-    public void seal(BType type) {
+    public void stamp(BType type) {
 
         if (type.getTag() == TypeTags.JSON_TAG && ((BJSONType) type).getConstrainedType() != null) {
-            this.seal(((BJSONType) type).getConstrainedType());
+            this.stamp(((BJSONType) type).getConstrainedType());
         } else if (type.getTag() == TypeTags.MAP_TAG) {
             for (Object mapEntry : (this).values()) {
-                ((BValue) mapEntry).seal(((BMapType) type).getConstrainedType());
+                ((BValue) mapEntry).stamp(((BMapType) type).getConstrainedType());
             }
         } else if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
             Map<String, BType> fieldMap = new HashMap<>();
@@ -368,7 +368,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
                 } else {
                     if (!((BRecordType) type).sealed) {
                         if (restFieldType.getTag() == TypeTags.ANYDATA_TAG) {
-                            ((BValue) valueEntry.getValue()).seal(BTypes.typeAnydata);
+                            ((BValue) valueEntry.getValue()).stamp(BTypes.typeAnydata);
                         } else if (((BValue) valueEntry.getValue()).getType().getTag() != restFieldType.getTag()) {
                             throw new BallerinaException("Seal failed due to closed record type. Field " +
                                     fieldName + " does not belongs to the rest field type " + restFieldType);
@@ -380,28 +380,6 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
                 }
             }
 
-        } else if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
-            Map<String, BType> fieldMap = new HashMap<>();
-
-            for (BField field : ((BStructureType) type).getFields()) {
-                fieldMap.put(field.getFieldName(), field.fieldType);
-            }
-
-            for (Map.Entry valueEntry : this.getMap().entrySet()) {
-                String fieldName = valueEntry.getKey().toString();
-
-                if (fieldMap.containsKey(fieldName)) {
-                    if (!CPU.isAssignable(((BValue) valueEntry.getValue()).getType(), fieldMap.get(fieldName),
-                            new ArrayList<>())) {
-                        throw new BallerinaException("Seal failed due to invalid value assignment. Type " +
-                                fieldMap.get(fieldName) + " cannot assigned to type " +
-                                ((BValue) valueEntry.getValue()).getType());
-                    }
-
-                } else {
-                    ((BValue) valueEntry.getValue()).seal(BTypes.typeAny);
-                }
-            }
         } else if (type.getTag() == TypeTags.ANYDATA_TAG) {
             if (!CPU.isAssignable(this.getType(), type, new ArrayList<>())) {
                 throw new BallerinaException("Seal failed due to invalid value assignment. Type " +

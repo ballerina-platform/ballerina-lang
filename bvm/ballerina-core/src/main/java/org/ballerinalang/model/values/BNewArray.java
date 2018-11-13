@@ -55,7 +55,7 @@ public abstract class BNewArray implements BRefType, BCollection {
     }
 
     @Override
-    public void seal(BType type) {
+    public void stamp(BType type) {
 
     }
 
@@ -159,7 +159,7 @@ public abstract class BNewArray implements BRefType, BCollection {
         }
 
         @Override
-        public void seal(BType type) {
+        public void stamp(BType type) {
 
         }
     }

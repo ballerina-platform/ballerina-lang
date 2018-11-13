@@ -95,33 +95,30 @@ public class BRefValueArray extends BNewArray implements Serializable {
     }
 
     @Override
-    public void seal(BType type) {
-        if (type.getTag() != TypeTags.ANY_TAG) {
-            if (type.getTag() == TypeTags.ANYDATA_TAG) {
-                if (!CPU.isAssignable(this.getType(), type, new ArrayList<>())) {
-                    throw new BallerinaException("Error in sealing the value type: " + this.getType() +
-                            " cannot sealed as " + type);
-                }
-            } else if (type.getTag() == TypeTags.TUPLE_TAG) {
-                BRefType<?>[] arrayValues = this.getValues();
-                for (int i = 0; i < this.size(); i++) {
-                    arrayValues[i].seal(((BTupleType) type).getTupleTypes().get(i));
-                }
+    public void stamp(BType type) {
+        if (type.getTag() == TypeTags.ANYDATA_TAG) {
+            if (!CPU.isAssignable(this.getType(), type, new ArrayList<>())) {
+                throw new BallerinaException("Error in sealing the value type: " + this.getType() +
+                        " cannot sealed as " + type);
+            }
+        } else if (type.getTag() == TypeTags.TUPLE_TAG) {
+            BRefType<?>[] arrayValues = this.getValues();
+            for (int i = 0; i < this.size(); i++) {
+                arrayValues[i].stamp(((BTupleType) type).getTupleTypes().get(i));
+            }
 
-            } else if (type.getTag() == TypeTags.JSON_TAG) {
-                BRefType<?>[] arrayValues = this.getValues();
-                for (int i = 0; i < this.size(); i++) {
-                    arrayValues[i].seal(type);
-                }
-            } else {
-                BType arrayElementType = ((BArrayType) type).getElementType();
-                BRefType<?>[] arrayValues = this.getValues();
-                for (int i = 0; i < this.size(); i++) {
-                    arrayValues[i].seal(arrayElementType);
-                }
+        } else if (type.getTag() == TypeTags.JSON_TAG) {
+            BRefType<?>[] arrayValues = this.getValues();
+            for (int i = 0; i < this.size(); i++) {
+                arrayValues[i].stamp(type);
+            }
+        } else {
+            BType arrayElementType = ((BArrayType) type).getElementType();
+            BRefType<?>[] arrayValues = this.getValues();
+            for (int i = 0; i < this.size(); i++) {
+                arrayValues[i].stamp(arrayElementType);
             }
         }
-        this.arrayType = type;
     }
 
 

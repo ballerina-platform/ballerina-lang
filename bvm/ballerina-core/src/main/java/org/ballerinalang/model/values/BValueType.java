@@ -92,10 +92,8 @@ public abstract class BValueType implements BValue {
     public abstract void setType(BType type);
 
     @Override
-    public void seal(BType type) {
-        if (type.getTag() == TypeTags.ANY_TAG) {
-            this.setType(BTypes.typeAny);
-        } else if (type.getTag() == TypeTags.ANYDATA_TAG) {
+    public void stamp(BType type) {
+        if (type.getTag() == TypeTags.ANYDATA_TAG) {
             if (CPU.isAssignable(this.getType(), type, new ArrayList<>())) {
                 this.setType(BTypes.typeAnydata);
             } else {

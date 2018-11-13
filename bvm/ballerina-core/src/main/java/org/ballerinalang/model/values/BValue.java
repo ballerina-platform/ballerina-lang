@@ -35,7 +35,7 @@ public interface BValue {
 
     BType getType();
 
-    void seal(BType type);
+    void stamp(BType type);
 
     /**
      * Deep copy {@link BValue}.

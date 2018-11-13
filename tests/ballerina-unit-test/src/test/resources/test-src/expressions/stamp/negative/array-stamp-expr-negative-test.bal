@@ -15,40 +15,40 @@ type EmployeeObject object {
 
 function stampAnyArrayToRecord() returns Employee {
 
-    any[] anyArray = ["Mohan", "Single", "LK2014"];
-    Employee employee = anyArray.stamp(Employee);
+    anydata[] anyArray = ["Mohan", "Single", "LK2014"];
+    Employee employee = Employee.stamp(anyArray);
 
     return employee;
 }
 
 function stampAnyArrayToXML() returns xml {
 
-    any[] anyArray = ["Mohan", "Single", "LK2014"];
-    xml xmlValue = anyArray.stamp(xml);
+    anydata[] anyArray = ["Mohan", "Single", "LK2014"];
+    xml xmlValue = xml.stamp(anyArray);
 
     return xmlValue;
 }
 
 function stampAnyArrayToObject() returns EmployeeObject {
 
-    any[] anyArray = ["Mohan", "Single", "LK2014"];
-    EmployeeObject objectValue = anyArray.stamp(EmployeeObject);
+    anydata[] anyArray = ["Mohan", "Single", "LK2014"];
+    EmployeeObject objectValue = EmployeeObject.stamp(anyArray);
 
     return objectValue;
 }
 
 function stampAnyArrayToMap() returns map {
 
-    any[] anyArray = ["Mohan", "Single", "LK2014"];
-    map mapValue = anyArray.stamp(map);
+    anydata[] anyArray = ["Mohan", "Single", "LK2014"];
+    map mapValue = map.stamp(anyArray);
 
     return mapValue;
 }
 
 function stampAnyArrayToTuple() returns (string, string, string) {
 
-    any[] anyArray = ["Mohan", "Single", "LK2014"];
-    (string, string, string) tupleValue = anyArray.stamp((string, string, string));
+    anydata[] anyArray = ["Mohan", "Single", "LK2014"];
+    (string, string, string) tupleValue = (string, string, string).stamp(anyArray);
 
     return tupleValue;
 }

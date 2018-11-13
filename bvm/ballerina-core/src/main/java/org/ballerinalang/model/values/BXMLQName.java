@@ -55,7 +55,7 @@ public final class BXMLQName implements BRefType {
     }
 
     @Override
-    public void seal(BType type) {
+    public void stamp(BType type) {
 
     }
 

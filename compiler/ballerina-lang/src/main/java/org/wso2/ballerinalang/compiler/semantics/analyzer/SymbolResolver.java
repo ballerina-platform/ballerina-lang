@@ -352,9 +352,9 @@ public class SymbolResolver extends BLangNodeVisitor {
                         }
                     }
 
-                    //It is not allowed to seal a variable to union type.
+                    //It is not allowed to stamp a variable to union type.
                     if (canHaveStampInvocation(targetType) &&
-                            types.isSealable(variableSourceType, targetType)) {
+                            types.isStampingAllowed(variableSourceType, targetType)) {
                         List<BType> paramTypes = new ArrayList<>();
                         paramTypes.add(variableSourceType);
                         return symTable.createOperator(name, paramTypes, targetType, InstructionCodes.STAMP);
@@ -994,8 +994,13 @@ public class SymbolResolver extends BLangNodeVisitor {
                     return !(arrayConstraintTypeTag == TypeTags.INT || arrayConstraintTypeTag == TypeTags.BOOLEAN ||
                             arrayConstraintTypeTag == TypeTags.FLOAT || arrayConstraintTypeTag == TypeTags.BYTE ||
                             arrayConstraintTypeTag == TypeTags.STRING);
-
                 case TypeTags.UNION:
+                case TypeTags.INT:
+                case TypeTags.BOOLEAN:
+                case TypeTags.STRING:
+                case TypeTags.FLOAT:
+                case TypeTags.BYTE:
+                case TypeTags.TABLE:
                     return false;
                 default:
                     return true;
@@ -1020,6 +1025,13 @@ public class SymbolResolver extends BLangNodeVisitor {
                     return !(arrayConstraintTypeTag == TypeTags.INT || arrayConstraintTypeTag == TypeTags.BOOLEAN ||
                             arrayConstraintTypeTag == TypeTags.FLOAT || arrayConstraintTypeTag == TypeTags.BYTE ||
                             arrayConstraintTypeTag == TypeTags.STRING);
+                case TypeTags.INT:
+                case TypeTags.BOOLEAN:
+                case TypeTags.STRING:
+                case TypeTags.FLOAT:
+                case TypeTags.BYTE:
+                case TypeTags.TABLE:
+                    return false;
                 default:
                     return true;
             }

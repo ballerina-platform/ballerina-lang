@@ -95,7 +95,7 @@ public class BStream implements BRefType<Object> {
     }
 
     @Override
-    public void seal(BType type) {
+    public void stamp(BType type) {
 
     }
 
