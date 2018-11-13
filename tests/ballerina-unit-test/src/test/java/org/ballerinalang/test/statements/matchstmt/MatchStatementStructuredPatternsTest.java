@@ -100,4 +100,20 @@ public class MatchStatementStructuredPatternsTest {
         Assert.assertEquals(results.get(++i), msg + "two vars : 4.5, true");
         Assert.assertEquals(results.get(++i), msg + "three vars : 6.7, Test, false");
     }
+
+    @Test(description = "Test structured pattern match statement complex 1")
+    public void testStructuredMatchPatternComplex1() {
+        BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternComplex1", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+
+        BStringArray results = (BStringArray) returns[0];
+
+        int i = -1;
+        String msg = "Matched with ";
+        Assert.assertEquals(results.get(++i), msg + "single var : 66.6");
+        Assert.assertEquals(results.get(++i), msg + "two vars : Hello, 34");
+        Assert.assertEquals(results.get(++i), msg + "four vars : 66.6, Test, 456, true");
+        Assert.assertEquals(results.get(++i), msg + "three vars : 5.6, Ballerina, false");
+    }
 }
