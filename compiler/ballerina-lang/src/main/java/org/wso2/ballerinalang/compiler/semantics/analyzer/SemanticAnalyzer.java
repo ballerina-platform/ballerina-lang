@@ -1366,7 +1366,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangGroupBy groupBy) {
         List<? extends ExpressionNode> variableExpressionList = groupBy.getVariables();
         for (ExpressionNode expressionNode : variableExpressionList) {
-            ((BLangExpression) expressionNode).accept(this);
+            if (isSiddhiRuntimeEnabled || !(expressionNode.getKind() == NodeKind.INVOCATION)) {
+                ((BLangExpression) expressionNode).accept(this);
+                return;
+            }
+
+            BLangInvocation invocationExpr = (BLangInvocation) expressionNode;
+            VariableReferenceNode variableReferenceNode = invocationExpr.getExpression();
+            if (variableReferenceNode != null) {
+                ((BLangVariableReference) variableReferenceNode).accept(this);
+            }
+            typeChecker.checkExpr(invocationExpr, env);
         }
     }
 
