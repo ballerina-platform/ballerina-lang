@@ -150,11 +150,7 @@ function testTableAddOnConstrainedTableWithViolation2() returns (string) {
     };
 
     var ret = t1.add(p3);
-    string s;
-    match (ret) {
-        error e => s = e.message;
-        () => s = "nil";
-    }
+    string s = ret is error ? <string>ret.detail().message : "nil";
     return s;
 }
 

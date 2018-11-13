@@ -476,7 +476,7 @@ public class Types {
         }
 
         // If both objects are private, they should be in the same package.
-        if (Symbols.isPrivate(lhsType.tsymbol) && rhsType.tsymbol.pkgID != lhsType.tsymbol.pkgID) {
+        if (!Symbols.isPublic(lhsType.tsymbol) && rhsType.tsymbol.pkgID != lhsType.tsymbol.pkgID) {
             return false;
         }
 
@@ -485,7 +485,7 @@ public class Types {
             return false;
         }
 
-        return Symbols.isPrivate(lhsType.tsymbol) && rhsType.tsymbol.pkgID == lhsType.tsymbol.pkgID ?
+        return !Symbols.isPublic(lhsType.tsymbol) && rhsType.tsymbol.pkgID == lhsType.tsymbol.pkgID ?
                 checkPrivateObjectEquivalency(lhsType, rhsType, unresolvedTypes) :
                 checkPublicObjectEquivalency(lhsType, rhsType, unresolvedTypes);
     }
@@ -501,7 +501,7 @@ public class Types {
         }
 
         // If both records are private, they should be in the same package.
-        if (Symbols.isPrivate(lhsType.tsymbol) && rhsType.tsymbol.pkgID != lhsType.tsymbol.pkgID) {
+        if (!Symbols.isPublic(lhsType.tsymbol) && rhsType.tsymbol.pkgID != lhsType.tsymbol.pkgID) {
             return false;
         }
 
@@ -1307,13 +1307,13 @@ public class Types {
                 rhsType.fields.stream().collect(Collectors.toMap(BField::getName, field -> field));
 
         // Check the whether there is any private fields in RHS type
-        if (rhsType.fields.stream().anyMatch(field -> Symbols.isPrivate(field.symbol))) {
+        if (rhsType.fields.stream().anyMatch(field -> !Symbols.isPublic(field.symbol))) {
             return false;
         }
 
         for (BField lhsField : lhsType.fields) {
             BField rhsField = rhsFields.get(lhsField.name);
-            if (rhsField == null || Symbols.isPrivate(lhsField.symbol) || !isAssignable(rhsField.type, lhsField.type)) {
+            if (rhsField == null || !Symbols.isPublic(lhsField.symbol) || !isAssignable(rhsField.type, lhsField.type)) {
                 return false;
             }
         }
@@ -1331,19 +1331,19 @@ public class Types {
                 continue;
             }
 
-            if (Symbols.isPrivate(lhsFunc.symbol)) {
+            if (!Symbols.isPublic(lhsFunc.symbol)) {
                 return false;
             }
 
             BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes);
-            if (rhsFunc == null || Symbols.isPrivate(rhsFunc.symbol)) {
+            if (rhsFunc == null || !Symbols.isPublic(rhsFunc.symbol)) {
                 return false;
             }
         }
 
         // Check for private attached function of the RHS type
         for (BAttachedFunction rhsFunc : rhsFuncs) {
-            if (Symbols.isPrivate(rhsFunc.symbol)) {
+            if (!Symbols.isPublic(rhsFunc.symbol)) {
                 return false;
             }
         }

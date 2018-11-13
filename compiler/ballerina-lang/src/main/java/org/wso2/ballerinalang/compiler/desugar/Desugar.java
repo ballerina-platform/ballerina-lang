@@ -1932,6 +1932,7 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.STRING:
             case TypeTags.INT:
             case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
             case TypeTags.JSON:
             case TypeTags.XML:
             case TypeTags.MAP:
@@ -2055,6 +2056,18 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (rhsExprTypeTag == TypeTags.STRING && binaryExpr.opKind == OperatorKind.ADD) {
+            binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr, binaryExpr.lhsExpr.type,
+                                                          binaryExpr.rhsExpr.type);
+            return;
+        }
+
+        if (lhsExprTypeTag == TypeTags.DECIMAL) {
+            binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
+                                                          binaryExpr.lhsExpr.type);
+            return;
+        }
+
+        if (rhsExprTypeTag == TypeTags.DECIMAL) {
             binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr, binaryExpr.lhsExpr.type,
                                                           binaryExpr.rhsExpr.type);
             return;
@@ -2969,7 +2982,7 @@ public class Desugar extends BLangNodeVisitor {
             if (namedArgs.containsKey(param.name.value)) {
                 expr = namedArgs.get(param.name.value);
             } else {
-                expr = getDefaultValueLiteral(param.defaultValue);
+                expr = getDefaultValueLiteral(param.defaultValue, param.type.tag);
                 expr = addConversionExprIfRequired(expr, param.type);
             }
             args.add(expr);
@@ -3264,6 +3277,8 @@ public class Desugar extends BLangNodeVisitor {
                 return getIntLiteral(0);
             case TypeTags.FLOAT:
                 return getFloatLiteral(0);
+            case TypeTags.DECIMAL:
+                return getDecimalLiteral("0.0");
             case TypeTags.BOOLEAN:
                 return getBooleanLiteral(false);
             case TypeTags.STRING:
@@ -3792,20 +3807,36 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
-    private BLangExpression getDefaultValueLiteral(Object value) {
+    // TODO: Allowing decimal defaultable args may break some cases of the union type defaultable args.
+    // TODO: We need to preserve the literal type to resolve this.
+    private BLangExpression getDefaultValueLiteral(Object value, int typeTag) {
         if (value == null) {
             return getNullLiteral();
-        } else if (value instanceof Long) {
-            return getIntLiteral((Long) value);
-        } else if (value instanceof Double) {
-            return getFloatLiteral((Double) value);
-        } else if (value instanceof String) {
-            return getStringLiteral((String) value);
-        } else if (value instanceof Boolean) {
-            return getBooleanLiteral((Boolean) value);
-        } else {
-            throw new IllegalStateException("Unsupported default value type");
         }
+        if (value instanceof Long) {
+            switch (typeTag) {
+                case TypeTags.FLOAT:
+                    return getFloatLiteral(((Long) value).doubleValue());
+                case TypeTags.DECIMAL:
+                    return getDecimalLiteral(String.valueOf(value));
+                default:
+                    return getIntLiteral((Long) value);
+            }
+        }
+        if (value instanceof String) {
+            switch (typeTag) {
+                case TypeTags.FLOAT:
+                    return getFloatLiteral(Double.parseDouble((String) value));
+                case TypeTags.DECIMAL:
+                    return getDecimalLiteral(String.valueOf(value));
+                default:
+                    return getStringLiteral((String) value);
+            }
+        }
+        if (value instanceof Boolean) {
+            return getBooleanLiteral((Boolean) value);
+        }
+        throw new IllegalStateException("Unsupported default value type");
     }
 
     private BLangLiteral getStringLiteral(String value) {
@@ -3829,6 +3860,14 @@ public class Desugar extends BLangNodeVisitor {
         literal.value = value;
         literal.typeTag = TypeTags.FLOAT;
         literal.type = symTable.floatType;
+        return literal;
+    }
+
+    private BLangLiteral getDecimalLiteral(String value) {
+        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        literal.value = value;
+        literal.typeTag = TypeTags.FLOAT;
+        literal.type = symTable.decimalType;
         return literal;
     }
 

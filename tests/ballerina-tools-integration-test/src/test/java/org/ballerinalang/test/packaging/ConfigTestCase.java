@@ -17,15 +17,20 @@
  */
 package org.ballerinalang.test.packaging;
 
+import org.apache.commons.io.FileUtils;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.utils.PackagingTestUtils;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 /**
@@ -33,13 +38,19 @@ import java.util.Map;
  *
  * @since 0.982.0
  */
-public class BalRunWithConfigTestCase extends BaseTest {
+public class ConfigTestCase extends BaseTest {
     private Map<String, String> envVariables;
+    private Path tempProjectDirectory;
     private String balSourcePkgPath = (new File("src/test/resources/config")).getAbsolutePath();
 
     @BeforeClass()
     public void setUp() throws BallerinaTestException, IOException {
         envVariables = PackagingTestUtils.getEnvVariables();
+
+        tempProjectDirectory = Files.createTempDirectory("bal-test-integration-config-test-project-");
+        FileUtils.copyDirectory(Paths.get((new File("src/test/resources/project")).getAbsolutePath()).toFile(),
+                                tempProjectDirectory.toFile());
+        Files.createDirectories(tempProjectDirectory.resolve(".ballerina"));
     }
 
     @Test(description = "Test running a ballerina file with the default config from the same directory")
@@ -67,5 +78,38 @@ public class BalRunWithConfigTestCase extends BaseTest {
         LogLeecher clientLeecher = new LogLeecher("localhost");
         balClient.runMain("run", clientArgs, envVariables, new String[0], new LogLeecher[]{clientLeecher},
                           balSourcePkgPath);
+    }
+
+    @Test(description = "Execute tests in a ballerina module by specifying the config file path")
+    public void testModuleWithConfig() throws Exception {
+        String[] clientArgs = {"--config", "sample.conf"};
+        String msg = "http://localhost:9090/sample/hello";
+        LogLeecher clientLeecher = new LogLeecher(msg);
+        balClient.runMain("test", clientArgs, envVariables, new String[0], new LogLeecher[]{clientLeecher},
+                          tempProjectDirectory.toString());
+        clientLeecher.waitForText(3000);
+    }
+
+    @Test(description = "Execute tests in a ballerina module with the default config file")
+    public void testModuleWithDefaultConfig() throws Exception {
+        String msg = "http://localhost:9090/default/hello";
+        LogLeecher clientLeecher = new LogLeecher(msg);
+        balClient.runMain("test", new String[0], envVariables, new String[0], new LogLeecher[]{clientLeecher},
+                          tempProjectDirectory.toString());
+        clientLeecher.waitForText(3000);
+    }
+
+    @Test(description = "Execute tests in a ballerina module with a non-existing config file")
+    public void testModuleWithInvalidConfig() throws Exception {
+        String[] clientArgs = {"--config", "invalid.conf"};
+        LogLeecher clientLeecher = new LogLeecher("configuration file not found: invalid.conf");
+        balClient.runMain("test", clientArgs, envVariables, new String[0], new LogLeecher[]{clientLeecher},
+                          tempProjectDirectory.toString());
+        clientLeecher.waitForText(2000);
+    }
+
+    @AfterClass
+    private void cleanup() throws Exception {
+        PackagingTestUtils.deleteFiles(tempProjectDirectory);
     }
 }

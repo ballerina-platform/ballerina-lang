@@ -25,10 +25,10 @@ import ballerina/time;
 string localParticipantId = system:uuid();
 
 # This map is used for caching transaction that are initiated.
-map<TwoPhaseCommitTransaction> initiatedTransactions;
+map<TwoPhaseCommitTransaction> initiatedTransactions = {};
 
 # This map is used for caching transaction that are this Ballerina instance participates in.
-map<TwoPhaseCommitTransaction> participatedTransactions;
+map<TwoPhaseCommitTransaction> participatedTransactions = {};
 
 # This cache is used for caching HTTP connectors against the URL, since creating connectors is expensive.
 cache:Cache httpClientCache = new;

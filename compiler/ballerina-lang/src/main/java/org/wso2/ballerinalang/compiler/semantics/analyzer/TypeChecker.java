@@ -243,23 +243,37 @@ public class TypeChecker extends BLangNodeVisitor {
         BType literalType = symTable.getTypeFromTag(literalExpr.typeTag);
 
         Object literalValue = literalExpr.value;
-        if (TypeTags.FLOAT == expType.tag && TypeTags.INT == literalType.tag) {
-            literalType = symTable.floatType;
-            literalExpr.value = ((Long) literalValue).doubleValue();
-        }
 
-        if (TypeTags.BYTE == expType.tag && TypeTags.INT == literalType.tag) {
-            if (!isByteLiteralValue((Long) literalValue)) {
-                dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, literalType);
-                return;
+        if (TypeTags.INT == literalType.tag) {
+            if (TypeTags.FLOAT == expType.tag) {
+                literalType = symTable.floatType;
+                literalExpr.value = ((Long) literalValue).doubleValue();
+            } else if (TypeTags.DECIMAL == expType.tag) {
+                literalType = symTable.decimalType;
+                literalExpr.value = String.valueOf(literalValue);
+            } else if (TypeTags.BYTE == expType.tag) {
+                if (!isByteLiteralValue((Long) literalValue)) {
+                    dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, literalType);
+                    return;
+                }
+                literalType = symTable.byteType;
+                literalExpr.value = ((Long) literalValue).byteValue();
             }
-            literalType = symTable.byteType;
-            literalExpr.value = ((Long) literalValue).byteValue();
         }
 
         // check whether this is a byte array
         if (TypeTags.BYTE_ARRAY == literalExpr.typeTag) {
             literalType = new BArrayType(symTable.byteType);
+        }
+
+        // Check whether this belongs to decimal type or float type
+        if (TypeTags.FLOAT == literalType.tag) {
+            if (TypeTags.DECIMAL == expType.tag) {
+                literalType = symTable.decimalType;
+                literalExpr.value = String.valueOf(literalValue);
+            } else if (TypeTags.FLOAT == expType.tag) {
+                literalExpr.value = Double.parseDouble(String.valueOf(literalValue));
+            }
         }
 
         if (this.expType.tag == TypeTags.FINITE) {
@@ -525,11 +539,11 @@ public class TypeChecker extends BLangNodeVisitor {
             BSymbol symbol = symResolver.lookupSymbolInPackage(varRefExpr.pos, env,
                     names.fromIdNode(varRefExpr.pkgAlias), varName, SymTag.VARIABLE_NAME);
             // if no symbol, check same for object attached function
-            if (symbol == symTable.notFoundSymbol && env.enclTypeDefinition != null) {
+            if (symbol == symTable.notFoundSymbol && env.enclType != null) {
                 Name objFuncName = names.fromString(Symbols
-                        .getAttachedFuncSymbolName(env.enclTypeDefinition.name.value, varName.value));
+                        .getAttachedFuncSymbolName(env.enclType.type.tsymbol.name.value, varName.value));
                 symbol = symResolver.resolveStructField(varRefExpr.pos, env, objFuncName,
-                        env.enclTypeDefinition.symbol.type.tsymbol);
+                        env.enclType.type.tsymbol);
             }
             if ((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) {
                 BVarSymbol varSym = (BVarSymbol) symbol;
@@ -781,6 +795,7 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.STRING:
             case TypeTags.INT:
             case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
             case TypeTags.XML:
                 checkFunctionInvocationExpr(iExpr, varRefType);
                 break;
@@ -1598,11 +1613,11 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BSymbol funcSymbol = symTable.notFoundSymbol;
         // if no package alias, check for same object attached function
-        if (pkgAlias == Names.EMPTY && env.enclTypeDefinition != null) {
+        if (pkgAlias == Names.EMPTY && env.enclType != null) {
             Name objFuncName = names.fromString(Symbols.getAttachedFuncSymbolName(
-                    env.enclTypeDefinition.name.value, iExpr.name.value));
+                    env.enclType.type.tsymbol.name.value, iExpr.name.value));
             funcSymbol = symResolver.resolveStructField(iExpr.pos, env, objFuncName,
-                    env.enclTypeDefinition.symbol.type.tsymbol);
+                    env.enclType.type.tsymbol);
             if (funcSymbol != symTable.notFoundSymbol) {
                 iExpr.exprSymbol = symResolver.lookupSymbol(env, Names.SELF, SymTag.VARIABLE);
             }
@@ -2492,6 +2507,9 @@ public class TypeChecker extends BLangNodeVisitor {
                 BLangTypeTestExpr typeTest = (BLangTypeTestExpr) expr;
                 if (typeTest.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                     BVarSymbol varSymbol = (BVarSymbol) ((BLangSimpleVarRef) typeTest.expr).symbol;
+                    if (varSymbol == null) {
+                        break;
+                    }
                     if (!typeGuards.containsKey(varSymbol)) {
                         typeGuards.put(varSymbol, typeTest.typeNode.type);
                     } else {

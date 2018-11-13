@@ -22,7 +22,7 @@ import ballerina/log;
 # + config - Topic subscriber endpoint configuration
 public type TopicSubscriber object {
 
-    public TopicSubscriberActions consumerActions;
+    public TopicSubscriberActions consumerActions = new;
     public TopicSubscriberEndpointConfiguration config;
 
     # Initialize topic subscriber endpoint
@@ -49,7 +49,7 @@ public type TopicSubscriber object {
     #
     # + serviceType - Type descriptor of the service
     public function register(typedesc serviceType) {
-        self.registerListener(serviceType, consumerActions);
+        self.registerListener(serviceType, self.consumerActions);
     }
 
     extern function registerListener(typedesc serviceType, TopicSubscriberActions actions);
@@ -65,12 +65,12 @@ public type TopicSubscriber object {
     #
     # + return - Topic subscriber actions
     public function getCallerActions() returns TopicSubscriberActions {
-        return consumerActions;
+        return self.consumerActions;
     }
 
     # Stop topic subscriber endpoint
     public function stop() {
-        self.closeSubscriber(consumerActions);
+        self.closeSubscriber(self.consumerActions);
     }
 
     extern function closeSubscriber(TopicSubscriberActions actions);
@@ -117,7 +117,7 @@ public type TopicSubscriberActions object {
     public function receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|error)?;
 };
 
-function TopicSubscriberActions::receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|
+function TopicSubscriberActions.receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|
         error)? {
     match (self.topicSubscriber) {
         TopicSubscriber topicSubscriber => {

@@ -156,6 +156,9 @@ public class ASTBuilderUtil {
             case TypeTags.STRING:
                 opcode = InstructionCodes.S2ANY;
                 break;
+            case TypeTags.DECIMAL:
+                opcode = InstructionCodes.NOP;
+                break;
             default:
                 opcode = InstructionCodes.B2ANY;
                 break;
@@ -665,7 +668,7 @@ public class ASTBuilderUtil {
                 invokableSymbol.pkgID, invokableSymbol.type, invokableSymbol.owner, invokableSymbol.bodyExist);
         dupFuncSymbol.receiverSymbol = invokableSymbol.receiverSymbol;
         dupFuncSymbol.retType = invokableSymbol.retType;
-        dupFuncSymbol.defaultableParams = invokableSymbol.defaultableParams;
+        dupFuncSymbol.defaultableParams = new ArrayList<>(invokableSymbol.defaultableParams);
         dupFuncSymbol.restParam = invokableSymbol.restParam;
         dupFuncSymbol.params = new ArrayList<>(invokableSymbol.params);
         dupFuncSymbol.taintTable = invokableSymbol.taintTable;
@@ -673,6 +676,7 @@ public class ASTBuilderUtil {
         dupFuncSymbol.closure = invokableSymbol.closure;
         dupFuncSymbol.markdownDocumentation = invokableSymbol.markdownDocumentation;
         dupFuncSymbol.scope = invokableSymbol.scope;
+        dupFuncSymbol.tag = invokableSymbol.tag;
 
         BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;
         dupFuncSymbol.type = new BInvokableType(new ArrayList<>(prevFuncType.paramTypes),
@@ -700,6 +704,7 @@ public class ASTBuilderUtil {
         dupFuncSymbol.taintTable = invokableSymbol.taintTable;
         dupFuncSymbol.tainted = invokableSymbol.tainted;
         dupFuncSymbol.closure = invokableSymbol.closure;
+        dupFuncSymbol.tag = invokableSymbol.tag;
         dupFuncSymbol.markdownDocumentation = invokableSymbol.markdownDocumentation;
 
         BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;

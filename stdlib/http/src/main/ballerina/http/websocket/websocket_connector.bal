@@ -26,7 +26,7 @@ public type WebSocketConnector object {
     # + final - True if this is a final frame of a (long) message
     # + return  - `error` if an error occurs when sending
     public function pushText(string|json|xml|boolean|int|float|byte|byte[] data, boolean final = true) returns error? {
-        string text;
+        string text = "";
         if (data is byte) {
             text = <string>(<int>data);
         } else if (data is int) {
@@ -44,7 +44,7 @@ public type WebSocketConnector object {
         } else if (data is json) {
             text = data.toString();
         }
-        return externPushText(text, final);
+        return self.externPushText(text, final);
     }
 
     extern function externPushText(string text, boolean final) returns error?;
@@ -85,9 +85,9 @@ public type WebSocketConnector object {
                 error err = error("Failed to execute close. Invalid status code: " + statusCode);
                 return err;
             }
-            return externClose(statusCode, reason ?: "", timeoutInSecs);
+            return self.externClose(statusCode, reason ?: "", timeoutInSecs);
         } else {
-            return externClose(-1, "", timeoutInSecs);
+            return self.externClose(-1, "", timeoutInSecs);
         }
     }
 

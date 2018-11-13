@@ -18,22 +18,22 @@
 #
 # + key - The key to be removed
 # + return - A boolean to indicate whether the key is removed or not from map
-public extern function map::remove(string key) returns (boolean);
+public extern function map.remove(string key) returns (boolean);
 
 # Returns an array of keys contained in the specified map.
 #
 # + return - A string array of keys contained in the specified map
-public extern function map::keys() returns (string[]);
+public extern function map.keys() returns (string[]);
 
 # Check whether specific key exists from the given map.
 #
 # + key - The key to be find existence
-public extern function map::hasKey(string key) returns (boolean);
+public extern function map.hasKey(string key) returns (boolean);
 
 # Clear the items from given map.
-public extern function map::clear();
+public extern function map.clear();
 
 # Returns an array of values contained in the specified map.
 #
 # + return - An any array of values contained in the specified map
-public extern function map::values() returns (any[]);
+public extern function map.values() returns (any[]);

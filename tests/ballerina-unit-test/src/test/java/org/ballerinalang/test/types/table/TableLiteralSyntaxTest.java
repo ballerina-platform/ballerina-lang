@@ -115,14 +115,15 @@ public class TableLiteralSyntaxTest {
         BValue[] returns = BRunUtil.invoke(result, "testUnconstraintTable");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
         Assert.assertEquals(returns[1].stringValue(), "[]");
-        Assert.assertEquals(returns[2].stringValue(), "<results></results>");
+        Assert.assertTrue("<results></results>".equals(returns[2].stringValue()) || "<results/>"
+                .equals(returns[2].stringValue()));
         Assert.assertEquals(((BInteger) returns[3]).intValue(), 0);
         Assert.assertEquals(((BInteger) returns[4]).intValue(), 0);
         Assert.assertEquals(returns[5].stringValue(), "{}");
-        Assert.assertEquals(returns[6].stringValue(),
-                "{message:\"incompatible types: record of type:Person cannot be added to a table with no type\"}");
-        Assert.assertEquals(returns[7].stringValue(), "{message:\"incompatible types: function with record type:Person"
-                + " cannot be used to remove records from a table with no type\"}");
+        Assert.assertTrue(returns[6].stringValue()
+                .contains("incompatible types: record of type:Person cannot be added to a table with no type"));
+        Assert.assertTrue(returns[7].stringValue().contains("incompatible types: function with record type:Person"
+                + " cannot be used to remove records from a table with no type"));
     }
 
     @Test

@@ -98,11 +98,11 @@ public type MediaType object {
     public function toString() returns (string);
 };
 
-function MediaType::getBaseType() returns (string) {
+function MediaType.getBaseType() returns (string) {
     return self.primaryType + "/" + self.subType;
 }
 
-function MediaType::toString() returns (string) {
+function MediaType.toString() returns (string) {
     string contentType = self.getBaseType();
     // map<string> parameters = self.parameters;
     string[] arrKeys = self.parameters.keys();
@@ -150,7 +150,7 @@ public type Entity object {
     #
     # + return - Content type as a `string`
     public function getContentType() returns string {
-        string contentTypeHeaderValue;
+        string contentTypeHeaderValue = "";
         if (self.hasHeader(CONTENT_TYPE)) {
             contentTypeHeaderValue = self.getHeader(CONTENT_TYPE);
         }
@@ -169,7 +169,7 @@ public type Entity object {
     #
     # + return - Content ID as a `string`
     public function getContentId() returns string {
-        string contentId;
+        string contentId = "";
         if (self.hasHeader(CONTENT_ID)) {
             contentId = self.getHeader(CONTENT_ID);
         }
@@ -189,7 +189,7 @@ public type Entity object {
     #
     # + return - Content length as an `int`
     public function getContentLength() returns int|error {
-        string contentLength;
+        string contentLength = "";
         if (self.hasHeader(CONTENT_LENGTH)) {
             contentLength = self.getHeader(CONTENT_LENGTH);
         }
@@ -212,7 +212,7 @@ public type Entity object {
     #
     # + return - A `ContentDisposition` object
     public function getContentDisposition() returns ContentDisposition {
-        string contentDispositionVal;
+        string contentDispositionVal = "";
         if (self.hasHeader(CONTENT_DISPOSITION)) {
             contentDispositionVal = self.getHeader(CONTENT_DISPOSITION);
         }
@@ -383,13 +383,13 @@ public type Entity object {
     public extern function hasHeader(@sensitive string headerName) returns boolean;
 };
 
-function Entity::setFileAsEntityBody(@sensitive string filePath,
+function Entity.setFileAsEntityBody(@sensitive string filePath,
                                      @sensitive string contentType = "application/octet-stream") {
     io:ReadableByteChannel byteChannel = io:openReadableFile(filePath);
     self.setByteChannel(byteChannel, contentType = contentType);
 }
 
-function Entity::setBody(@sensitive (string|xml|json|byte[]|io:ReadableByteChannel|Entity[]) entityBody) {
+function Entity.setBody(@sensitive (string|xml|json|byte[]|io:ReadableByteChannel|Entity[]) entityBody) {
     if (entityBody is string) {
         self.setText(entityBody);
     } else if (entityBody is xml) {

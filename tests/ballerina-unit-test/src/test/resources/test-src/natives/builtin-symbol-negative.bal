@@ -10,6 +10,6 @@ function test1(){
     int error = 10;
 }
 
-function error::getMessage() returns (string){
+function error.getMessage() returns (string){
     return e.message;
 }

@@ -43,7 +43,7 @@ public enum DiagnosticCode {
     OBJECT_TYPE_NOT_ALLOWED("object.type.not.allowed"),
     UNDEFINED_STRUCTURE_FIELD("undefined.field.in.structure"),
     CANNOT_INFER_OBJECT_TYPE_FROM_LHS("cannot.infer.object.type.from.lhs"),
-    OBJECT_UN_INITIALIZABLE_FIELD("object.non.initialised.field"),
+    OBJECT_UNINITIALIZED_FIELD("object.uninitialized.field"),
     CYCLIC_TYPE_REFERENCE("cyclic.type.reference"),
     ATTEMPT_REFER_NON_ACCESSIBLE_SYMBOL("attempt.refer.non.accessible.symbol"),
     ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL("attempt.expose.non.public.symbol"),
@@ -319,10 +319,12 @@ public enum DiagnosticCode {
     ARROW_EXPRESSION_MISMATCHED_PARAMETER_LENGTH("arrow.expression.mismatched.parameter.length"),
     ARROW_EXPRESSION_CANNOT_INFER_TYPE_FROM_LHS("arrow.expression.cannot.infer.type.from.lhs"),
     ARROW_EXPRESSION_NOT_SUPPORTED_ITERABLE_OPERATION("arrow.expression.not.supported.iterable.operation"),
-    
+
     INCOMPATIBLE_TYPE_CHECK("incompatible.type.check"),
     UNNECESSARY_CONDITION("unnecessary.condition"),
-    ;
+
+    // Dataflow analysis related error codes
+    PARTIALLY_INITIALIZED_VARIABLE("partially.initialized.variable");
 
     private String value;
 
