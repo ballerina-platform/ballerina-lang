@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 /**
  * This contains methods to test uniqueLengthWindow behaviour in Ballerina Streaming V2.
  *
- * @since 0.982.1
+ * @since 0.985.0
  */
 public class BallerinaStreamsV2SortWindowTest {
 
