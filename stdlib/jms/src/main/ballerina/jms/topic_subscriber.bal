@@ -124,7 +124,7 @@ function TopicSubscriberActions.receiveFrom(Destination destination, int timeout
           var session = subscriber.config.session;
           if (session is Session) {
             validateTopic(destination);
-            topicSubscriber.createSubscriber(session, subscriber.config.messageSelector, destination = destination);
+            subscriber.createSubscriber(session, subscriber.config.messageSelector, destination = destination);
             log:printInfo("Subscriber created for topic " + destination.destinationName);
           } else if (session is ()) {
 

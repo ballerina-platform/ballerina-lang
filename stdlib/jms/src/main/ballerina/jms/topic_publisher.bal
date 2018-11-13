@@ -107,10 +107,10 @@ public type TopicPublisherActions object {
 function TopicPublisherActions.sendTo(Destination destination, Message message) returns error? {
     var publisher = self.topicPublisher;
     if (publisher is TopicPublisher) {
-        var session = topicPublisher.config.session;
+        var session = publisher.config.session;
         if (session is Session) {
             validateTopic(destination);
-            topicPublisher.initTopicPublisher(session, destination = destination);
+            publisher.initTopicPublisher(session, destination = destination);
         } else if (session is ()){
 
         }
