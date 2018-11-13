@@ -91,20 +91,15 @@ service<http:Service> testService bind { port: 9098 } {
         string value;
         //No Payload
         var clientResponse = clientEP2->post("/test1/directPayload", ());
-        match clientResponse {
-            error err => {
-                value = err.reason();
+        if (clientResponse is http:Response) {
+            var returnValue = clientResponse.getTextPayload();
+            if (returnValue is string) {
+                value = returnValue;
+            } else if (returnValue is error) {
+                value = <string> returnValue.detail().message;
             }
-            http:Response res => {
-                match res.getTextPayload() {
-                    string returnValue => {
-                        value = returnValue;
-                    }
-                    error payloadErr => {
-                        value = <string> payloadErr.detail().message;
-                    }
-                }
-            }
+        } else if (clientResponse is error) {
+            value = clientResponse.reason();
         }
 
         _ = client->respond(untaint value);
