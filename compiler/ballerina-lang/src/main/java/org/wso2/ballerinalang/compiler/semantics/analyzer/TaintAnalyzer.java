@@ -109,6 +109,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
@@ -1060,6 +1061,14 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
         this.taintedStatus = statusForWait;
     }
+
+    @Override
+    public void visit(BLangWorkerFlushExpr workerFlushExpr) {
+        // Need to handle this properly. The flush expression can only return error or nil. ATM tainted status is set to
+        // be untainted
+        this.taintedStatus = TaintedStatus.UNTAINTED;
+    }
+
 
     @Override
     public void visit(BLangTrapExpr trapExpr) {

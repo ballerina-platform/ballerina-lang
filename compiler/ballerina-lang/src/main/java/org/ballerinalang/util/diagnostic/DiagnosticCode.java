@@ -326,7 +326,12 @@ public enum DiagnosticCode {
     UNNECESSARY_CONDITION("unnecessary.condition"),
 
     // Dataflow analysis related error codes
-    PARTIALLY_INITIALIZED_VARIABLE("partially.initialized.variable");
+    PARTIALLY_INITIALIZED_VARIABLE("partially.initialized.variable"),
+
+    // Worker flush action related error codes
+    INVALID_WORKER_FLUSH("invalid.worker.flush.expression"),
+    INVALID_WORKER_FLUSH_FOR_WORKER("invalid.worker.flush.expression.for.worker");
+
 
     private String value;
 
