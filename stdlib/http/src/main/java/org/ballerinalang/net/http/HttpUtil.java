@@ -59,7 +59,6 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.observability.ObservabilityUtils;
 import org.ballerinalang.util.observability.ObserverContext;
-import org.ballerinalang.util.tracer.TraceConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -623,7 +622,7 @@ public class HttpUtil {
                 new BString((String) inboundRequestMsg.getProperty(HttpConstants.HTTP_VERSION)));
         Map<String, String> resourceArgValues =
                 (Map<String, String>) inboundRequestMsg.getProperty(HttpConstants.RESOURCE_ARGS);
-        if (resourceArgValues != null) {
+        if (resourceArgValues != null && resourceArgValues.get(HttpConstants.EXTRA_PATH_INFO) != null) {
             inboundRequestStruct.put(HttpConstants.REQUEST_EXTRA_PATH_INFO_FIELD,
                     new BString(resourceArgValues.get(HttpConstants.EXTRA_PATH_INFO)));
         }
@@ -1117,7 +1116,7 @@ public class HttpUtil {
     public static void checkAndObserveHttpRequest(Context context, HttpCarbonMessage message) {
         Optional<ObserverContext> observerContext = ObservabilityUtils.getParentContext(context);
         observerContext.ifPresent(ctx -> {
-            HttpUtil.injectHeaders(message, ObservabilityUtils.getContextProperties(ctx, TraceConstants.TRACE_HEADER));
+            HttpUtil.injectHeaders(message, ObservabilityUtils.getContextProperties(ctx));
             ctx.addTag(TAG_KEY_HTTP_METHOD, String.valueOf(message.getProperty(HttpConstants.HTTP_METHOD)));
             ctx.addTag(TAG_KEY_HTTP_URL, String.valueOf(message.getProperty(HttpConstants.TO)));
             ctx.addTag(TAG_KEY_PEER_ADDRESS,

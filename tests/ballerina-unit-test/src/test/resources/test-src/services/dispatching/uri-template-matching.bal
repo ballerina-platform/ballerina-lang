@@ -119,7 +119,7 @@ service<http:Service> echo11 bind testEP {
     }
     paramNeg (endpoint conn, http:Request req) {
         map<string> params = req.getQueryParams();
-        string bar = params["foo"] but { () => "" };
+        string bar = params["foo"] ?: "";
         json responseJson = {"echo125":bar};
 
         http:Response res = new;
@@ -133,7 +133,8 @@ service<http:Service> echo11 bind testEP {
     }
     echo13 (endpoint conn, http:Request req) {
         string barStr = req.getQueryParams().foo;
-        int bar = (<int> barStr) but {error => 0};
+        var result = <int> barStr;
+        int bar = (result is int) ? result : 0;
         json responseJson = {"echo13":bar};
 
         http:Response res = new;
@@ -147,7 +148,8 @@ service<http:Service> echo11 bind testEP {
     }
     echo14 (endpoint conn, http:Request req) {
         string barStr = req.getQueryParams().foo;
-        float bar = (<float> barStr) but {error => 0.0};
+        var result = <float> barStr;
+        float bar = (result is float) ? result : 0.0;
         json responseJson = {"echo14":bar};
 
         http:Response res = new;
@@ -292,7 +294,7 @@ service<http:Service> echo55 bind testEP {
     }
     echo5 (endpoint conn, http:Request req) {
         map<string> params = req.getQueryParams();
-        string foo = params["foo"] but {() => ""};
+        string foo = params["foo"] ?: "";
         json responseJson = {"echo55":"/foo/*"};
 
         http:Response res = new;
@@ -317,7 +319,7 @@ service<http:Service> echo66 bind testEP {
     }
     echo2 (endpoint conn, http:Request req) {
         http:Response res = new;
-        if (req.extraPathInfo == null) {
+        if (req.extraPathInfo == "") {
             req.extraPathInfo = "empty";
         }
         json responseJson = {"echo66":req.extraPathInfo};

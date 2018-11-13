@@ -57,15 +57,40 @@ public class DataChannel implements IOChannel {
     }
 
     /**
+     * Reverse the underlying array of the given ByteBuffer.
+     *
+     * @param buffer byte content in it's native order.
+     */
+    private byte[] reverse(ByteBuffer buffer) {
+        byte[] contentArr = buffer.array();
+        int length = buffer.limit();
+        byte[] reverseContent = new byte[length];
+        for (int count = 0; count < length; count++) {
+            reverseContent[count] = contentArr[(length - 1) - count];
+        }
+        return reverseContent;
+    }
+
+    /**
      * Recursively read bytes until the buffer is filled.
      *
-     * @param buffer buffer which will hold the read bytes.
+     * @param buffer         buffer which holds the byte[].
+     * @param representation specifies the representation.
      * @throws IOException during i/o error.
      */
-    private void readFull(ByteBuffer buffer) throws IOException {
+    private void readFull(ByteBuffer buffer, Representation representation) throws IOException {
         do {
             channel.read(buffer);
         } while (buffer.hasRemaining() && !channel.hasReachedEnd());
+        if (order.equals(ByteOrder.LITTLE_ENDIAN) && !representation.equals(Representation.VARIABLE)) {
+            int bufferPosition = buffer.position();
+            int limit = buffer.limit();
+            byte[] reverseContent = reverse(buffer);
+            buffer.rewind();
+            buffer.put(reverseContent, 0, limit);
+            buffer.position(bufferPosition);
+            buffer.limit(limit);
+        }
     }
 
     /**
@@ -82,7 +107,7 @@ public class DataChannel implements IOChannel {
         ByteBuffer buf = ByteBuffer.wrap(content);
         do {
             buf.limit(++bufferLimit);
-            readFull(buf);
+            readFull(buf, Representation.VARIABLE);
             buf.flip();
             byte b = buf.get(bufferLimit - 1);
             //We '&' with 10000000 and shift it by 7 to identify the msb
@@ -111,11 +136,16 @@ public class DataChannel implements IOChannel {
         int requiredNumberOfBytes;
         if (Representation.VARIABLE.equals(representation)) {
             buffer = readVarInt();
+            if (order.equals(ByteOrder.LITTLE_ENDIAN)) {
+                byte[] reverse = reverse(buffer);
+                buffer.rewind();
+                buffer.put(reverse);
+            }
         } else {
             requiredNumberOfBytes = representation.getNumberOfBytes();
             buffer = ByteBuffer.allocate(requiredNumberOfBytes);
             buffer.order(order);
-            readFull(buffer);
+            readFull(buffer, representation);
         }
         buffer.flip();
         return deriveLong(representation, buffer);
@@ -125,8 +155,8 @@ public class DataChannel implements IOChannel {
      * Converts var long to a fixed size long.
      *
      * @param value  var long value.
-     * @param nBytes number of bytes in varlong.
-     * @return corresponding long converted through varlong.
+     * @param nBytes number of bytes in VarLong.
+     * @return corresponding long converted through VarLong.
      */
     private long convertVarLongToFixedLong(long value, int nBytes) {
         int nBits = nBytes * Representation.VARIABLE.getBase() - 1;
@@ -176,6 +206,26 @@ public class DataChannel implements IOChannel {
     }
 
     /**
+     * Reverse the buffer content based on little-endian byte order.
+     *
+     * @param content original content which contains the byte[] information.
+     * @return content which is reversed.
+     */
+    private byte[] reverseOrder(byte[] content) {
+        byte[] reversedContent = new byte[content.length];
+        int length = content.length;
+        for (int count = 0; count < length; count++) {
+            //When we cast byte to a base 7 we need to omit the last bit being modified
+            reversedContent[count] = (byte) (content[(length - 1) - count] & 0x7F);
+            if (count < (length - 1)) {
+                //We indicated the most significant bit to be '1' since this is variable length
+                reversedContent[count] = (byte) (content[(length - 1) - count] | 0x80);
+            }
+        }
+        return reversedContent;
+    }
+
+    /**
      * Splits the long between several bytes.
      *
      * @param value          the value of the long which should be split.
@@ -198,7 +248,7 @@ public class DataChannel implements IOChannel {
         totalNumberOfBits = (nBytes * representation.getBase()) - representation.getBase();
         for (int count = 0; count < nBytes; count++) {
             content[count] = (byte) (value >> totalNumberOfBits);
-            if (Representation.VARIABLE.equals(representation)) {
+            if (Representation.VARIABLE.equals(representation) && order.equals(ByteOrder.BIG_ENDIAN)) {
                 //When we cast byte to a base 7 we need to omit the last bit being modified
                 content[count] = (byte) (content[count] & 0x7F);
                 if (count < (nBytes - 1)) {
@@ -212,6 +262,25 @@ public class DataChannel implements IOChannel {
     }
 
     /**
+     * Writes the given content to the channel.
+     *
+     * @param buffer         buffer which holds the content.
+     * @param representation whether this a var/fix int.
+     * @throws IOException occurs during i/o error.
+     */
+    private void write(ByteBuffer buffer, Representation representation) throws IOException {
+        if (order.equals(ByteOrder.LITTLE_ENDIAN) && !Representation.VARIABLE.equals(representation)) {
+            byte[] reverse = reverse(buffer);
+            channel.write(ByteBuffer.wrap(reverse));
+        } else if (order.equals(ByteOrder.LITTLE_ENDIAN) && Representation.VARIABLE.equals(representation)) {
+            byte[] reverse = reverseOrder(buffer.array());
+            channel.write(ByteBuffer.wrap(reverse));
+        } else {
+            channel.write(buffer);
+        }
+    }
+
+    /**
      * Writes fixed size long value.
      *
      * @param value          the value of the long which should be written.
@@ -220,7 +289,7 @@ public class DataChannel implements IOChannel {
      */
     public void writeLong(long value, Representation representation) throws IOException {
         byte[] bytes = encodeLong(value, representation);
-        channel.write(ByteBuffer.wrap(bytes));
+        write(ByteBuffer.wrap(bytes), representation);
     }
 
     /**
@@ -279,7 +348,7 @@ public class DataChannel implements IOChannel {
         byte booleanValue = (byte) (value ? 1 : 0);
         buffer.put(booleanValue);
         buffer.flip();
-        channel.write(buffer);
+        write(buffer, Representation.NONE);
     }
 
     /**
@@ -290,7 +359,7 @@ public class DataChannel implements IOChannel {
      */
     public boolean readBoolean() throws IOException {
         ByteBuffer buffer = ByteBuffer.allocate(1);
-        readFull(buffer);
+        readFull(buffer, Representation.NONE);
         buffer.flip();
         return buffer.get() == 1;
     }

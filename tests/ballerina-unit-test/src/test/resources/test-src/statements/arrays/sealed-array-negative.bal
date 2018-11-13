@@ -51,7 +51,7 @@ function functionParametersAndReturns() returns int {
 
     string[2] returnedStrArray = mockFunction(sealedArray);
 
-    return lengthof returnedStrArray;
+    return returnedStrArray.length();
 }
 
 function mockFunction(boolean[4] sealedArray) returns (string[]) {

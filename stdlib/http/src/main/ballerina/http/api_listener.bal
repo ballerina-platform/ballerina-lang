@@ -21,11 +21,11 @@
 # + secureListener - Secure HTTP Listener instance
 public type APIListener object {
 
-    public SecureEndpointConfiguration config;
+    public SecureEndpointConfiguration config = {};
     public SecureListener secureListener;
 
     new() {
-        secureListener = new;
+        self.secureListener = new;
     }
 
     # Gets called when the endpoint is being initialize during module init time.
@@ -50,24 +50,24 @@ public type APIListener object {
     public function stop();
 };
 
-function APIListener::init(SecureEndpointConfiguration c) {
+function APIListener.init(SecureEndpointConfiguration c) {
     self.secureListener.init(c);
 }
 
-function APIListener::register(typedesc serviceType) {
+function APIListener.register(typedesc serviceType) {
     self.secureListener.register(serviceType);
 }
 
-function APIListener::start() {
+function APIListener.start() {
     self.secureListener.start();
 }
 
-function APIListener::getCallerActions() returns (APIListenerActions) {
+function APIListener.getCallerActions() returns (APIListenerActions) {
     APIListenerActions apiListenerActions = new (self.secureListener.getCallerActions());
     return apiListenerActions;
 }
 
-function APIListener::stop() {
+function APIListener.stop() {
     self.secureListener.stop();
 }
 
@@ -89,7 +89,7 @@ public type APIListenerActions object {
     #             or `mime:Entity[]`
     # + return - Returns an `error` if failed to respond
     public function respond(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns error? {
-        return httpCallerActions.respond(message);
+        return self.httpCallerActions.respond(message);
     }
 
     # Pushes a promise to the caller.
@@ -97,7 +97,7 @@ public type APIListenerActions object {
     # + promise - Push promise message
     # + return - An `error` in case of failures
     public function promise(PushPromise promise) returns error? {
-        return httpCallerActions.promise(promise);
+        return self.httpCallerActions.promise(promise);
     }
 
     # Sends a promised push response to the caller.
@@ -106,7 +106,7 @@ public type APIListenerActions object {
     # + response - The outbound response
     # + return - An `error` in case of failures while responding with the promised response
     public function pushPromisedResponse(PushPromise promise, Response response) returns error? {
-        return httpCallerActions.pushPromisedResponse(promise, response);
+        return self.httpCallerActions.pushPromisedResponse(promise, response);
     }
 
     # Sends an upgrade request with custom headers.
@@ -114,7 +114,7 @@ public type APIListenerActions object {
     # + headers - A `map` of custom headers for handshake
     # + return - WebSocket service endpoint
     public function acceptWebSocketUpgrade(map<string> headers) returns WebSocketListener {
-        return httpCallerActions.acceptWebSocketUpgrade(headers);
+        return self.httpCallerActions.acceptWebSocketUpgrade(headers);
     }
 
     # Cancels the handshake.
@@ -124,14 +124,14 @@ public type APIListenerActions object {
     # + reason - Reason for cancelling the upgrade
     # + return - An `error` if an error occurs during cancelling the upgrade or nil
     public function cancelWebSocketUpgrade(int status, string reason) returns error|() {
-        return httpCallerActions.cancelWebSocketUpgrade(status, reason);
+        return self.httpCallerActions.cancelWebSocketUpgrade(status, reason);
     }
 
     # Sends a `100-continue` response to the caller.
     #
     # + return - Returns an `error` if failed to send the `100-continue` response
     public function continue() returns error? {
-        return httpCallerActions.continue();
+        return self.httpCallerActions.continue();
     }
 
     # Sends a redirect response to the user with the specified redirection status code.
@@ -141,6 +141,6 @@ public type APIListenerActions object {
     # + locations - An array of URLs to which the caller can redirect to
     # + return - Returns an `error` if failed to send the redirect response
     public function redirect(Response response, RedirectCode code, string[] locations) returns error? {
-        return httpCallerActions.redirect(response, code, locations);
+        return self.httpCallerActions.redirect(response, code, locations);
     }
 };

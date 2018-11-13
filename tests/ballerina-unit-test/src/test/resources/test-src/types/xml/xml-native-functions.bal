@@ -840,7 +840,7 @@ function testGetChildrenOfSequence() returns (int, xml) {
     xml x2 = xml `<name2><fname2>Jane</fname2><lname2>Doe</lname2></name2>`;
     xml x3 = x1 + x2 + xml `<foo>apple</foo>`;
     xml x4 = x3.*;
-    return (lengthof x4, x4);
+    return (x4.length(), x4);
 }
 
 function testAddChildren() returns (xml, xml) {

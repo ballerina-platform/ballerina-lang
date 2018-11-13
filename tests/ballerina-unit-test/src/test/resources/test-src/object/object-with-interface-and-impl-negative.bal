@@ -16,12 +16,12 @@ type Person object {
     function attachInterface(int add) returns int;
 };
 
-function Person::attachInterface(int add) returns int {
+function Person.attachInterface(int add) returns int {
     int count = age + add;
     return count;
 }
 
-function Person::attachInterface(int add) returns int {
+function Person.attachInterface(int add) returns int {
     return add;
 }
 
@@ -35,7 +35,7 @@ type Employee object {
 
 };
 
-function Employee::attachInterfaceFunc(int add) returns int {
+function Employee.attachInterfaceFunc(int add) returns int {
     int count = age + add;
     return count;
 }

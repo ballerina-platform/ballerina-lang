@@ -51,7 +51,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -62,7 +62,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 
 import java.io.IOException;
@@ -73,9 +73,11 @@ import java.util.List;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.ANN_ATTR_RESOURCE_SERVER_STREAM;
 import static org.ballerinalang.net.grpc.GrpcConstants.ANN_RESOURCE_CONFIG;
+import static org.ballerinalang.net.grpc.GrpcConstants.BYTE;
 import static org.ballerinalang.net.grpc.GrpcConstants.ON_COMPLETE_RESOURCE;
 import static org.ballerinalang.net.grpc.GrpcConstants.ON_MESSAGE_RESOURCE;
 import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_BOOL_MESSAGE;
+import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_BYTES_MESSAGE;
 import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_FLOAT_MESSAGE;
 import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_INT64_MESSAGE;
 import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_STRING_MESSAGE;
@@ -472,6 +474,10 @@ public class ServiceProtoUtils {
                 message = WrapperMessage.newBuilder(WRAPPER_BOOL_MESSAGE).build();
                 break;
             }
+            case ARRAY: {
+                message = WrapperMessage.newBuilder(WRAPPER_BYTES_MESSAGE).build();
+                break;
+            }
             case OBJECT:
             case RECORD: {
                 if (messageType instanceof org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType) {
@@ -512,7 +518,9 @@ public class ServiceProtoUtils {
                     messageBuilder.addMessageDefinition(getStructMessage((BStructureType) elementType));
                 }
                 fieldType = elementType;
-                fieldLabel = "repeated";
+                if (!fieldType.toString().equals(BYTE)) {
+                    fieldLabel = "repeated";
+                }
             } else if (fieldType instanceof FiniteType) {
                 UserDefinedEnumMessage.Builder enumBuilder = UserDefinedEnumMessage
                         .newBuilder(fieldType.tsymbol.name.value);
@@ -573,7 +581,7 @@ public class ServiceProtoUtils {
             //send inside match block.
             if (statementNode instanceof BLangMatch) {
                 BLangMatch langMatch = (BLangMatch) statementNode;
-                for (BLangMatch.BLangMatchStmtPatternClause patternClause : langMatch.patternClauses) {
+                for (BLangMatch.BLangMatchStmtBindingPatternClause patternClause : langMatch.patternClauses) {
                     BLangInvocation invocExp = getInvocationExpression(patternClause.body);
                     if (invocExp != null) {
                         return invocExp;
@@ -586,9 +594,9 @@ public class ServiceProtoUtils {
                 expression = assignment.getExpression();
             }
             // variable assignment.
-            if (statementNode instanceof BLangVariableDef) {
-                BLangVariableDef variableDef = (BLangVariableDef) statementNode;
-                BLangVariable variable = variableDef.getVariable();
+            if (statementNode instanceof BLangSimpleVariableDef) {
+                BLangSimpleVariableDef variableDef = (BLangSimpleVariableDef) statementNode;
+                BLangSimpleVariable variable = variableDef.getVariable();
                 expression = variable.getInitialExpression();
             }
             

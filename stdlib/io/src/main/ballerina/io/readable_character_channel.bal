@@ -26,7 +26,7 @@ public type ReadableCharacterChannel object {
     # + channel - ReadableByteChannel which would be used to read characters
     # + charset - Character-Set which would be used to encode/decode given bytes to characters
     public new(byteChannel, charset) {
-        init(byteChannel, charset);
+        self.init(byteChannel, charset);
     }
 
     # Initializes a character ReadableCharacterChannel.

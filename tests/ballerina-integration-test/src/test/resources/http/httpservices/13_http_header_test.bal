@@ -41,7 +41,7 @@ service<http:Service> headerService bind headerServiceEP {
                 json payload = {};
                 if (clientResponse.hasHeader("person")) {
                     string[] headers = clientResponse.getHeaders("person");
-                    if (lengthof(headers) == 2) {
+                    if (headers.length() == 2) {
                         payload = {header1:headers[0], header2:headers[1]};
                     } else {
                         payload = {"response":"expected number of 'person' headers not found"};
@@ -73,7 +73,7 @@ service<http:Service> quoteService1 bind stockServiceEP {
         json payload = {};
         if (req.hasHeader("core")) {
             string[] headers = req.getHeaders("core");
-            if (lengthof(headers) == 2) {
+            if (headers.length() == 2) {
                 payload = {header1:headers[0], header2:headers[1]};
             } else {
                 payload = {"response":"expected number of 'core' headers not found"};

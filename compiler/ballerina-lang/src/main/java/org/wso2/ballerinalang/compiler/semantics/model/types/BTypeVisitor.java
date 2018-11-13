@@ -29,6 +29,8 @@ public interface BTypeVisitor<T, R> {
 
     R visit(BAnyType t, T s);
 
+    R visit(BAnydataType t, T s);
+
     R visit(BMapType t, T s);
 
     R visit(BXMLType t, T s);

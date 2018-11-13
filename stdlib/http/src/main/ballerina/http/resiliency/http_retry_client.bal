@@ -19,18 +19,34 @@ import ballerina/math;
 import ballerina/mime;
 import ballerina/runtime;
 
+# Derived set of configurations from the `RetryConfig`.
+#
+# + count - Number of retry attempts before giving up
+# + interval - Retry interval in milliseconds
+# + backOffFactor - Multiplier of the retry interval to exponentailly increase retry interval
+# + maxWaitInterval - Maximum time of the retry interval in milliseconds
+# + statusCodes - HTTP response status codes which are considered as failures
+public type RetryInferredConfig record {
+    int count;
+    int interval;
+    float backOffFactor;
+    int maxWaitInterval;
+    boolean[] statusCodes;
+    !...
+};
+
 # Provides the HTTP actions for interacting with an HTTP endpoint. This is created by wrapping the HTTP client
 # to provide retrying over HTTP requests.
 #
 # + serviceUri - Target service url
 # + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
-# + retryConfig - Configurations associated with retry
+# + retryInferredConfig - Derived set of configurations associated with retry
 # + httpClient - HTTP client for outbound HTTP requests
 public type RetryClient object {
 
     public string serviceUri;
     public ClientEndpointConfig config;
-    public RetryConfig retryConfig;
+    public RetryInferredConfig retryInferredConfig;
     public CallerActions httpClient;
 
     # Provides the HTTP actions for interacting with an HTTP endpoint. This is created by wrapping the HTTP client
@@ -38,9 +54,9 @@ public type RetryClient object {
     #
     # + serviceUri - Target service url
     # + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
-    # + retryConfig - Configurations associated with retry
+    # + retryInferredConfig - Derived set of configurations associated with retry
     # + httpClient - HTTP client for outbound HTTP requests
-    public new(serviceUri, config, retryConfig, httpClient) {}
+    public new(serviceUri, config, retryInferredConfig, httpClient) {}
 
     # The `post()` function wraps the underlying HTTP actions in a way to provide
     # retrying functionality for a given endpoint to recover from network level failures.
@@ -165,81 +181,81 @@ public type RetryClient object {
     public function rejectPromise(PushPromise promise);
 };
 
-function RetryClient::post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function RetryClient.post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                 message) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_POST, self);
 }
 
-function RetryClient::head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function RetryClient.head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                 message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_HEAD, self);
 }
 
-function RetryClient::put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function RetryClient.put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                 message) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_PUT, self);
 }
 
-function RetryClient::forward(string path, Request request) returns Response|error {
+function RetryClient.forward(string path, Request request) returns Response|error {
     return performRetryAction(path, request, HTTP_FORWARD, self);
 }
 
-function RetryClient::execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel
+function RetryClient.execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel
                                                                     |mime:Entity[]|() message) returns Response|error {
     Request req = buildRequest(message);
     return performRetryClientExecuteAction(path, req, httpVerb, self);
 }
 
-function RetryClient::patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function RetryClient.patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                     message) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_PATCH, self);
 }
 
-function RetryClient::delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function RetryClient.delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                     message) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_DELETE, self);
 }
 
-function RetryClient::get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function RetryClient.get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                 message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_GET, self);
 }
 
-function RetryClient::options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function RetryClient.options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                     message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_OPTIONS, self);
 }
 
-function RetryClient::submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|
+function RetryClient.submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|
                                                                     mime:Entity[]|() message) returns HttpFuture|error {
     Request req = buildRequest(message);
     return self.httpClient.submit(httpVerb, path, req);
 }
 
-function RetryClient::getResponse(HttpFuture httpFuture) returns Response|error {
+function RetryClient.getResponse(HttpFuture httpFuture) returns Response|error {
     return self.httpClient.getResponse(httpFuture);
 }
 
-function RetryClient::hasPromise(HttpFuture httpFuture) returns boolean {
+function RetryClient.hasPromise(HttpFuture httpFuture) returns boolean {
     return self.httpClient.hasPromise(httpFuture);
 }
 
-function RetryClient::getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+function RetryClient.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
     return self.httpClient.getNextPromise(httpFuture);
 }
 
-function RetryClient::getPromisedResponse(PushPromise promise) returns Response|error {
+function RetryClient.getPromisedResponse(PushPromise promise) returns Response|error {
     return self.httpClient.getPromisedResponse(promise);
 }
 
-function RetryClient::rejectPromise(PushPromise promise) {
+function RetryClient.rejectPromise(PushPromise promise) {
     return self.httpClient.rejectPromise(promise);
 }
 
@@ -255,15 +271,15 @@ function performRetryClientExecuteAction(@sensitive string path, Request request
 function performRetryAction(@sensitive string path, Request request, HttpOperation requestAction,
                             RetryClient retryClient) returns Response|error {
     int currentRetryCount = 0;
-    int retryCount = retryClient.retryConfig.count;
-    int interval = retryClient.retryConfig.interval;
-    float backOffFactor = retryClient.retryConfig.backOffFactor;
-    int maxWaitInterval = retryClient.retryConfig.maxWaitInterval;
-    if (backOffFactor <= 0.0) {
-        backOffFactor = 1.0;
+    int retryCount = retryClient.retryInferredConfig.count;
+    int interval = retryClient.retryInferredConfig.interval;
+    boolean[] statusCodeIndex = retryClient.retryInferredConfig.statusCodes;
+
+    if (retryClient.retryInferredConfig.backOffFactor <= 0.0) {
+        retryClient.retryInferredConfig.backOffFactor = 1.0;
     }
-    if (maxWaitInterval == 0) {
-        maxWaitInterval = 60000;
+    if (retryClient.retryInferredConfig.maxWaitInterval == 0) {
+        retryClient.retryInferredConfig.maxWaitInterval = 60000;
     }
     CallerActions httpClient = retryClient.httpClient;
     Response response = new;
@@ -276,26 +292,39 @@ function performRetryAction(@sensitive string path, Request request, HttpOperati
 
     while (currentRetryCount < (retryCount + 1)) {
         inRequest = populateMultipartRequest(inRequest);
-        var invokedEndpoint = invokeEndpoint(path, inRequest, requestAction, httpClient);
-        match invokedEndpoint {
-            Response backendResponse => {
+        var backendResponse = invokeEndpoint(path, inRequest, requestAction, httpClient);
+        if (backendResponse is Response) {
+            int responseStatusCode = backendResponse.statusCode;
+            if (statusCodeIndex.length() > responseStatusCode && (statusCodeIndex[responseStatusCode] == true)
+                                                              && currentRetryCount < (retryCount)) {
+                (interval, currentRetryCount) =
+                                calculateEffectiveIntervalAndRetryCount(retryClient, currentRetryCount, interval);
+            } else {
                 return backendResponse;
             }
-            error errorResponse => {
-                httpConnectorErr = errorResponse;
-            }
-        }
-        if (currentRetryCount != 0) {
-            interval = getWaitTime(backOffFactor, maxWaitInterval, interval);
+        } else if (backendResponse is error) {
+            (interval, currentRetryCount) =
+                            calculateEffectiveIntervalAndRetryCount(retryClient, currentRetryCount, interval);
+            httpConnectorErr = backendResponse;
         }
         runtime:sleep(interval);
-        currentRetryCount = currentRetryCount + 1;
     }
     return httpConnectorErr;
 }
 
-function getWaitTime(float backOffFactor, int maxWaitTime, int interval) returns (int) {
+function getWaitTime(float backOffFactor, int maxWaitTime, int interval) returns int {
     int waitTime = math:round(interval * backOffFactor);
     waitTime = waitTime > maxWaitTime ? maxWaitTime : waitTime;
     return waitTime;
+}
+
+function calculateEffectiveIntervalAndRetryCount(RetryClient retryClient, int currentRetryCount, int currentDelay)
+                                                 returns (int, int) {
+    int interval = currentDelay;
+    if (currentRetryCount != 0) {
+        interval = getWaitTime(retryClient.retryInferredConfig.backOffFactor,
+                    retryClient.retryInferredConfig.maxWaitInterval, interval);
+    }
+    int retryCount = currentRetryCount + 1;
+    return (interval, retryCount);
 }
