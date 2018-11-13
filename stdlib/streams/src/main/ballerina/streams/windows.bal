@@ -59,7 +59,7 @@ public type LengthWindow object {
             }
 
             outputEvents[outputEvents.length()] = event;
-            StreamEvent expiredVeresionOfEvent = event.clone();
+            StreamEvent expiredVeresionOfEvent = event.copy();
             expiredVeresionOfEvent.eventType = "EXPIRED";
             self.linkedList.addLast(expiredVeresionOfEvent);
         }
@@ -152,7 +152,7 @@ public type TimeWindow object {
                 }
 
                 if (streamEvent.eventType == "CURRENT") {
-                    StreamEvent clonedEvent = streamEvent.clone();
+                    StreamEvent clonedEvent = streamEvent.copy();
                     clonedEvent.eventType = "EXPIRED";
                     self.expiredEventQueue.addLast(clonedEvent);
 
@@ -261,7 +261,7 @@ public type LengthBatchWindow object {
         int currentTime = time:currentTime().time;
 
         foreach event in streamEvents {
-            StreamEvent clonedStreamEvent = event.clone();
+            StreamEvent clonedStreamEvent = event.copy();
             self.currentEventQueue.addLast(clonedStreamEvent);
             self.count += 1;
             if (self.count == self.length) {
@@ -406,7 +406,7 @@ public type TimeBatchWindow object {
             if (event.eventType != "CURRENT") {
                 continue;
             }
-            StreamEvent clonedEvent = event.clone();
+            StreamEvent clonedEvent = event.copy();
             self.currentEventQueue.addLast(clonedEvent);
         }
         if (sendEvents) {
@@ -524,7 +524,7 @@ public type ExternalTimeWindow object {
                 }
 
                 if (streamEvent.eventType == CURRENT) {
-                    StreamEvent clonedEvent = streamEvent.clone();
+                    StreamEvent clonedEvent = streamEvent.copy();
                     clonedEvent.eventType = EXPIRED;
                     self.expiredEventQueue.addLast(clonedEvent);
                 }
@@ -760,14 +760,14 @@ public type ExternalTimeBatchWindow object {
     }
 
     public function cloneAppend(StreamEvent currStreamEvent) {
-        StreamEvent clonedEvent = currStreamEvent.clone();
+        StreamEvent clonedEvent = currStreamEvent.copy();
         if (self.replaceTimestampWithBatchEndTime) {
             clonedEvent.data[self.timeStamp] = self.endTime;
         }
         self.currentEventChunk.addLast(clonedEvent);
 
         if (self.resetEvent === null) {
-            self.resetEvent = currStreamEvent.clone();
+            self.resetEvent = currStreamEvent.copy();
             self.resetEvent.eventType = RESET;
         }
     }
@@ -810,7 +810,7 @@ public type ExternalTimeBatchWindow object {
                 self.currentEventChunk.resetToFront();
                 while (self.currentEventChunk.hasNext()) {
                     StreamEvent currentEvent = check <StreamEvent>self.currentEventChunk.next();
-                    StreamEvent toExpireEvent = currentEvent.clone();
+                    StreamEvent toExpireEvent = currentEvent.copy();
                     toExpireEvent.eventType = EXPIRED;
                     self.expiredEventChunk.addLast(toExpireEvent);
                 }
@@ -846,12 +846,12 @@ public type ExternalTimeBatchWindow object {
 
                     if (self.outputExpectsExpiredEvents) {
                         // add expired event to newEventChunk.
-                        StreamEvent toExpireEvent = expiredEvent.clone();
+                        StreamEvent toExpireEvent = expiredEvent.copy();
                         toExpireEvent.timestamp = currentTime;
                         newEventChunk.addLast(toExpireEvent);
                     }
 
-                    StreamEvent toSendEvent = expiredEvent.clone();
+                    StreamEvent toSendEvent = expiredEvent.copy();
                     toSendEvent.eventType = CURRENT;
                     sentEventChunk.addLast(toSendEvent);
                 }
@@ -879,7 +879,7 @@ public type ExternalTimeBatchWindow object {
                 self.currentEventChunk.resetToFront();
                 while (self.currentEventChunk.hasNext()) {
                     StreamEvent currentEvent = check <StreamEvent>self.currentEventChunk.next();
-                    StreamEvent toExpireEvent = currentEvent.clone();
+                    StreamEvent toExpireEvent = currentEvent.copy();
                     toExpireEvent.eventType = EXPIRED;
                     self.expiredEventChunk.addLast(toExpireEvent);
                 }
@@ -988,7 +988,7 @@ public type TimeLengthWindow object {
 
                 self.expiredEventChunk.resetToFront();
                 if (streamEvent.eventType == CURRENT) {
-                    StreamEvent clonedEvent = streamEvent.clone();
+                    StreamEvent clonedEvent = streamEvent.copy();
                     clonedEvent.eventType = EXPIRED;
                     if (self.count < self.length) {
                         self.count += 1;
@@ -1108,9 +1108,9 @@ public type UniqueLengthWindow object {
             streamEventChunk.resetToFront();
             while (streamEventChunk.hasNext()) {
                 StreamEvent streamEvent = check <StreamEvent>streamEventChunk.next();
-                StreamEvent clonedEvent = streamEvent.clone();
+                StreamEvent clonedEvent = streamEvent.copy();
                 clonedEvent.eventType = EXPIRED;
-                StreamEvent eventClonedForMap = clonedEvent.clone();
+                StreamEvent eventClonedForMap = clonedEvent.copy();
 
                 string str = <string>eventClonedForMap.data[self.uniqueKey];
                 StreamEvent? oldEvent;
