@@ -42,6 +42,7 @@ import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
+import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
@@ -595,6 +596,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 } else {
                     tupleTypeNode = possibleTypes.get(0);
                 }
+                break;
+            case TypeTags.ANY:
+                List<BType> memberTupleTypes = new ArrayList<>();
+                for (int i = 0; i < varNode.memberVariables.size(); i++) {
+                    memberTupleTypes.add(symTable.anyType);
+                }
+                tupleTypeNode = new BTupleType(memberTupleTypes);
                 break;
             case TypeTags.TUPLE:
                 tupleTypeNode = (BTupleType) varNode.type;

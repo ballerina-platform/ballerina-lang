@@ -526,10 +526,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!matchStmt.getStaticPatternClauses().isEmpty()) {
             analyzeStaticMatchPatterns(matchStmt);
         }
-
-        if (!matchStmt.getStructuredPatternClauses().isEmpty()) {
-            analyzeStructuredMatchPatterns(matchStmt);
-        }
     }
 
     private void analyzeStructuredMatchPatterns(BLangMatch matchStmt) {
