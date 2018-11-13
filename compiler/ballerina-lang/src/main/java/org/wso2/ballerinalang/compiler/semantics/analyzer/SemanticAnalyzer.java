@@ -576,13 +576,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             case TypeTags.UNION:
                 BUnionType unionType = ((BUnionType) varNode.type);
 
-                if (!unionType.memberTypes.stream().allMatch(type -> TypeTags.TUPLE == type.tag)) {
-                    dlog.error(varNode.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, varNode.type);
-                    return false;
-                }
-
                 List<BTupleType> possibleTypes = unionType.memberTypes.stream()
+                        .filter(type -> TypeTags.TUPLE == type.tag)
                         .map(BTupleType.class::cast)
+                        .filter(tupleType -> varNode.memberVariables.size() == tupleType.tupleTypes.size())
                         .collect(Collectors.toList());
 
                 if (possibleTypes.size() > 1) {
@@ -1027,27 +1024,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangMatchStmtStructuredBindingPatternClause patternClause) {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(patternClause.body, env);
-        if (TypeTags.UNION == patternClause.matchExpr.type.tag &&
-                NodeKind.TUPLE_VARIABLE == patternClause.bindingPatternVariable.getKind()) {
-            buildTypeForTupleVarFromUnionType(patternClause);
-        } else {
-            patternClause.bindingPatternVariable.type = patternClause.matchExpr.type;
-        }
-        analyzeDef(patternClause.bindingPatternVariable, blockEnv);
+        patternClause.bindingPatternVariable.type = patternClause.matchExpr.type;
         patternClause.bindingPatternVariable.expr = patternClause.matchExpr;
+        analyzeDef(patternClause.bindingPatternVariable, blockEnv);
         analyzeStmt(patternClause.body, blockEnv);
-    }
-
-    private void buildTypeForTupleVarFromUnionType(BLangMatchStmtStructuredBindingPatternClause patternClause) {
-        BUnionType unionType = (BUnionType) patternClause.matchExpr.type;
-        BLangTupleVariable tupleVariable = (BLangTupleVariable) patternClause.bindingPatternVariable;
-        int varCount = tupleVariable.memberVariables.size();
-
-        Set<BType> possibleTypes = unionType.memberTypes.stream()
-                .filter(type -> TypeTags.TUPLE == type.tag && varCount == ((BTupleType) type).tupleTypes.size())
-                .collect(Collectors.toSet());
-
-        tupleVariable.type = new BUnionType(null, possibleTypes, false);
     }
 
     public void visit(BLangForeach foreach) {
