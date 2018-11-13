@@ -41,7 +41,8 @@ function readLineProper() returns string | MyError | CustomError {
     return e;
 }
 
-//TODO: This does not look like an error condition
+// This will be a negative case only after implementing the compiler check to validate if an error is returned  from any
+// function or resource that uses check expression.
 function testCheckedExprSemanticErrors5() {
     string line = check readLineProper();
 }
