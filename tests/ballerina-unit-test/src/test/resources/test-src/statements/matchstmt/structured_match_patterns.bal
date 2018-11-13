@@ -80,17 +80,18 @@ function foo((string, int)|(float, boolean)|(float, string, boolean)|float a) re
 
 
 function testStructuredMatchPatternComplex1() returns string[] {
-    (string, int)|(float, (string, boolean))|(float, (string, (boolean, int)))|float a1 = 66.6;
-    (string, int)|(float, (string, boolean))|(float, (string, (boolean, int)))|float a2 = ("Hello", 34);
-    (string, int)|(float, (string, boolean))|(float, (string, (boolean, int)))|float a3 = (66.6, ("Test", (true, 456)));
-    (string, int)|(float, (string, boolean))|(float, (string, (boolean, int)))|float a4 = (5.6, ("Ballerina", false));
+    (string, int)|(float, (string, boolean))|(float, (string, (boolean, int)))|float|(string, int, float) a1 = 66.6;
+    (string, int)|(float, (string, boolean))|(float, (string, (boolean, int)))|float|(string, int, float) a2 = ("Hello", 34);
+    (string, int)|(float, (string, boolean))|(float, (string, (boolean, int)))|float|(string, int, float) a3 = (66.6, ("Test", (true, 456)));
+    (string, int)|(float, (string, boolean))|(float, (string, (boolean, int)))|float|(string, int, float) a4 = (5.6, ("Ballerina", false));
+    (string, int)|(float, (string, boolean))|(float, (string, (boolean, int)))|float|(string, int, float) a5 = ("Bal", 543, 67.8);
 
-    string[] result = [bar(a1), bar(a2), bar(a3), bar(a4)];
+    string[] result = [bar(a1), bar(a2), bar(a3), bar(a4), bar(a5)];
 
     return result;
 }
 
-function bar((string, int)|(float, (string, boolean))|(float, (string, (boolean, int)))|float a) returns string {
+function bar((string, int)|(float, (string, boolean))|(float, (string, (boolean, int)))|float|(string, int, float) a) returns string {
     match a {
         var (f, (s, (b, i))) => return "Matched with four vars : " + io:sprintf("%s", f) + ", " + io:sprintf("%s", s) +
                                     ", " + io:sprintf("%s", i) + ", " + io:sprintf("%s", b);
@@ -98,6 +99,29 @@ function bar((string, int)|(float, (string, boolean))|(float, (string, (boolean,
                                     io:sprintf("%s", i) + ", " + io:sprintf("%s", b);
         var (s, i) => return "Matched with two vars : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i);
         var s => return "Matched with single var : " + io:sprintf("%s", s);
+    }
+
+    return "Default";
+}
+
+
+function testStructuredMatchPatternComplex2() returns string[] {
+    (string, int)|(float, (string, boolean))|(float, (string, (boolean, int)))|float|(string, int, float) a1 = 66.6;
+    (string, int)|(float, (string, boolean))|(float, (string, (boolean, int)))|float|(string, int, float) a2 = ("Hello", 34);
+    (string, int)|(float, (string, boolean))|(float, (string, (boolean, int)))|float|(string, int, float) a3 = (66.6, ("Test", (true, 456)));
+    (string, int)|(float, (string, boolean))|(float, (string, (boolean, int)))|float|(string, int, float) a4 = (5.6, ("Ballerina", false));
+    (string, int)|(float, (string, boolean))|(float, (string, (boolean, int)))|float|(string, int, float) a5 = ("Bal", 543, 67.8);
+
+    string[] result = [baz(a1), baz(a2), baz(a3), baz(a4), baz(a5)];
+
+    return result;
+}
+
+function baz((string, int)|(float, (string, boolean))|(float, (string, (boolean, int)))|float|(string, int, float) a) returns string {
+    match a {
+        var (s, (i, b)) => return "Matched with three vars : " + io:sprintf("%s", s) + ", " +
+                                    io:sprintf("%s", i) + ", " + io:sprintf("%s", b);
+        var (s, i) => return "Matched with two vars : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i);
     }
 
     return "Default";
