@@ -40,8 +40,21 @@ import java.util.Set;
  */
 public class Symbols {
 
-    public static BPackageSymbol createPackageSymbol(PackageID packageID, SymbolTable symTable) {
+    public static BPackageSymbol createPackageSymbol(PackageID packageID,
+                                                     SymbolTable symTable) {
         BPackageSymbol pkgSymbol = new BPackageSymbol(packageID, symTable.rootPkgSymbol);
+        return createPackageSymbolScope(symTable, pkgSymbol);
+    }
+
+    public static BPackageSymbol createPackageSymbol(PackageID packageID,
+                                                     SymbolTable symTable,
+                                                     int flags) {
+        BPackageSymbol pkgSymbol = new BPackageSymbol(packageID, symTable.rootPkgSymbol, flags);
+        return createPackageSymbolScope(symTable, pkgSymbol);
+    }
+
+    private static BPackageSymbol createPackageSymbolScope(SymbolTable symTable,
+                                                           BPackageSymbol pkgSymbol) {
         if (pkgSymbol.name.value.startsWith(Names.BUILTIN_PACKAGE.value)) {
             pkgSymbol.scope = symTable.rootScope;
         } else {

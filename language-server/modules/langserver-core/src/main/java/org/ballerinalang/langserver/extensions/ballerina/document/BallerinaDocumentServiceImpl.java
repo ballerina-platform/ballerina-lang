@@ -21,7 +21,6 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSGlobalContext;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
-import org.ballerinalang.langserver.SourceGen;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
@@ -31,6 +30,8 @@ import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.formatting.FormattingSourceGen;
+import org.ballerinalang.langserver.formatting.FormattingVisitorEntry;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -49,6 +50,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
 
+import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getSourceRoot;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 
 /**
@@ -105,9 +107,12 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
             // generate source for the new ast.
             JsonObject ast = notification.getAst();
-            SourceGen sourceGen = new SourceGen(0);
-            sourceGen.build(ast, null, "CompilationUnit");
-            String textEditContent = sourceGen.getSourceOf(ast, false, false);
+            FormattingSourceGen.build(ast, null, "CompilationUnit");
+            // we are reformatting entire document upon each astChange
+            // until partial formatting is supported
+            FormattingVisitorEntry formattingUtil = new FormattingVisitorEntry();
+            formattingUtil.accept(ast);
+            String textEditContent = FormattingSourceGen.getSourceOf(ast);
 
             // create text edit
             TextEdit textEdit = new TextEdit(range, textEditContent);
@@ -132,6 +137,16 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         return CompletableFuture.supplyAsync(() -> reply);
     }
 
+    @Override
+    public CompletableFuture<BallerinaProject> project(BallerinaProjectParams params) {
+        return CompletableFuture.supplyAsync(() -> {
+            Path sourceFilePath = new LSDocument(params.getDocumentIdentifier().getUri()).getPath();
+            BallerinaProject project = new BallerinaProject();
+            project.setPath(getSourceRoot(sourceFilePath));
+            return project;
+        });
+    }
+
     private JsonElement getTreeForContent(String content) throws LSCompilerException, JSONGenerationException {
         BallerinaFile ballerinaFile = LSCompiler.compileContent(content, CompilerPhase.CODE_ANALYZE);
         Optional<BLangPackage> bLangPackage = ballerinaFile.getBLangPackage();
@@ -139,7 +154,9 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             BLangCompilationUnit compilationUnit = bLangPackage.get().getCompilationUnits().stream()
                     .findFirst()
                     .orElse(null);
-            return TextDocumentFormatUtil.generateJSON(compilationUnit, new HashMap<>());
+            JsonElement jsonAST = TextDocumentFormatUtil.generateJSON(compilationUnit, new HashMap<>());
+            FormattingSourceGen.build(jsonAST.getAsJsonObject(), null, "CompilationUnit");
+            return jsonAST;
         }
         return null;
     }

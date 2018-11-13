@@ -36,7 +36,7 @@ public enum LockFileField {
     VERSION(LockFile::setVersion),
     LOCKFILEVERSION(LockFile::setLockfileversion),
     BALLERINAVERSION(LockFile::setBallerinaVersion),
-    PACKAGES(null, LockFile::setPackages);
+    MODULES(null, LockFile::setPackages);
 
     private static final Map<String, LockFileField> LOOKUP = new HashMap<>();
 

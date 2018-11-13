@@ -232,20 +232,16 @@ public class HttpDispatcher {
                         BByteArray blobDataSource = EntityBodyHandler.constructBlobDataSource(inRequestEntity);
                         EntityBodyHandler.addMessageDataSource(inRequestEntity, blobDataSource);
                         return blobDataSource;
+                    } else if (((BArrayType) entityBodyType).getElementType().getTag() == TypeTags.RECORD_TYPE_TAG) {
+                        bjson = getBJsonValue(inRequestEntity);
+                        return getRecordArray(entityBodyType, bjson);
                     } else {
                         throw new BallerinaConnectorException("Incompatible Element type found inside an array " +
                                 ((BArrayType) entityBodyType).getElementType().getName());
                     }
-                case TypeTags.OBJECT_TYPE_TAG:
                 case TypeTags.RECORD_TYPE_TAG:
-                    bjson = EntityBodyHandler.constructJsonDataSource(inRequestEntity);
-                    EntityBodyHandler.addMessageDataSource(inRequestEntity, bjson);
-                    try {
-                        return JSONUtils.convertJSONToStruct(bjson, (BStructureType) entityBodyType);
-                    } catch (NullPointerException ex) {
-                        throw new BallerinaConnectorException("cannot convert payload to struct type: " +
-                                entityBodyType.getName());
-                    }
+                    bjson = getBJsonValue(inRequestEntity);
+                    return getRecord(entityBodyType, bjson);
                 default:
                         //Do nothing
             }
@@ -253,6 +249,50 @@ public class HttpDispatcher {
             throw new BallerinaConnectorException("Error in reading payload : " + ex.getMessage());
         }
         return null;
+    }
+
+    /**
+     * Convert a json to the relevant record type.
+     *
+     * @param entityBodyType Represents entity body type
+     * @param bjson          Represents the json value that needs to be converted
+     * @return the relevant ballerina record or object
+     */
+    private static BValue getRecord(BType entityBodyType, BValue bjson) {
+        try {
+            return JSONUtils.convertJSONToStruct(bjson, (BStructureType) entityBodyType);
+        } catch (NullPointerException ex) {
+            throw new BallerinaConnectorException("cannot convert payload to record type: " +
+                    entityBodyType.getName());
+        }
+    }
+
+    /**
+     * Convert a json array to the relevant record array.
+     *
+     * @param entityBodyType Represents entity body type
+     * @param bjson          Represents the json array that needs to be converted
+     * @return the relevant ballerina record or object array
+     */
+    private static BValue getRecordArray(BType entityBodyType, BValue bjson) {
+        try {
+            return JSONUtils.convertJSONToBArray(bjson, (BArrayType) entityBodyType);
+        } catch (NullPointerException ex) {
+            throw new BallerinaConnectorException("cannot convert payload to an array of type: " +
+                    entityBodyType.getName());
+        }
+    }
+
+    /**
+     * Given an inbound request entity construct the ballerina json.
+     *
+     * @param inRequestEntity Represents inbound request entity
+     * @return a ballerina json value
+     */
+    private static BValue getBJsonValue(BMap<String, BValue> inRequestEntity) {
+        BValue bjson = EntityBodyHandler.constructJsonDataSource(inRequestEntity);
+        EntityBodyHandler.addMessageDataSource(inRequestEntity, bjson);
+        return bjson;
     }
 
     public static boolean shouldDiffer(HttpResource httpResource) {

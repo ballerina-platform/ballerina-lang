@@ -34,6 +34,7 @@ public class ItemResolverConstants {
     public static final String RETRY = "retry";
     public static final String TRY = "try";
     public static final String WHILE = "while";
+    public static final String ERROR = "error";
     public static final String LOCK = "lock";
     public static final String BIND = "bind";
     public static final String ENDPOINT = "endpoint";
@@ -89,6 +90,7 @@ public class ItemResolverConstants {
     // Keyword constants
     public static final String VAR_KEYWORD = "var";
     public static final String CHECK_KEYWORD = "check";
+    public static final String EXTERN_KEYWORD = "extern";
     public static final String TRUE_KEYWORD = "true";
     public static final String FALSE_KEYWORD = "false";
     public static final String PUBLIC_KEYWORD = "public";

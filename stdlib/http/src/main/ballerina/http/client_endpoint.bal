@@ -104,11 +104,13 @@ extern function createSimpleHttpClient(string uri, ClientEndpointConfig config) 
 # + interval - Retry interval in milliseconds
 # + backOffFactor - Multiplier of the retry interval to exponentailly increase retry interval
 # + maxWaitInterval - Maximum time of the retry interval in milliseconds
+# + statusCodes - HTTP response status codes which are considered as failures
 public type RetryConfig record {
     int count;
     int interval;
     float backOffFactor;
     int maxWaitInterval;
+    int[] statusCodes;
     !...
 };
 
@@ -314,7 +316,13 @@ function createCircuitBreakerClient(string uri, ClientEndpointConfig configurati
                                                                 noOfBuckets:numberOfBuckets,
                                                                 rollingWindow:cb.rollingWindow
                                                             };
-            CircuitHealth circuitHealth = {startTime:circuitStartTime, totalBuckets: bucketArray};
+            CircuitHealth circuitHealth = {
+                                            startTime:circuitStartTime,
+                                            lastRequestTime:circuitStartTime,
+                                            lastErrorTime:circuitStartTime,
+                                            lastForcedOpenTime:circuitStartTime,
+                                            totalBuckets: bucketArray
+                                          };
             return new CircuitBreakerClient(uri, configuration, circuitBreakerInferredConfig, cbHttpClient, circuitHealth);
         }
         () => {
@@ -332,10 +340,20 @@ function createRetryClient(string url, ClientEndpointConfig configuration) retur
     var retryConfigVal = configuration.retryConfig;
     match retryConfigVal {
         RetryConfig retryConfig => {
+            boolean[] statusCodes = populateErrorCodeIndex(retryConfig.statusCodes);
+            RetryInferredConfig retryInferredConfig = {
+                count: retryConfig.count,
+                interval: retryConfig.interval,
+                backOffFactor: retryConfig.backOffFactor,
+                maxWaitInterval: retryConfig.maxWaitInterval,
+                statusCodes: statusCodes
+            };
             if (configuration.cache.enabled) {
-                return new RetryClient(url, configuration, retryConfig, createHttpCachingClient(url, configuration, configuration.cache));
+                return new RetryClient(url, configuration, retryInferredConfig,
+                    createHttpCachingClient(url, configuration, configuration.cache));
             } else{
-                return new RetryClient(url, configuration, retryConfig, createHttpSecureClient(url, configuration));
+                return new RetryClient(url, configuration, retryInferredConfig,
+                    createHttpSecureClient(url, configuration));
             }
         }
         () => {

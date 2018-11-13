@@ -109,7 +109,7 @@ public class BallerinaDocGenTest {
         }
     }
 
-    @Test(description = "Test doc creation for a package")
+    @Test(description = "Test doc creation for a module")
     public void testBalPackage() {
         try {
             String path = testResourceRoot + "/balFiles/balFolder";

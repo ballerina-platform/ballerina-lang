@@ -19,6 +19,7 @@
 #
 # + title - Title of the Swagger definition
 # + serviceVersion - Version of the Swagger API
+# + description - Description of the service
 # + termsOfService - Service usage terms and conditions
 # + contact - Contact information for the exposed API
 # + license - License information for the exposed API

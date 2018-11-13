@@ -10,5 +10,5 @@ Student:1|Peter|10
 Student:2|John|15
 Student:3|James|12
 
-The update operation - Drop the tables and procedures
+The update operation - Drop the student table
 Drop table student status: 0

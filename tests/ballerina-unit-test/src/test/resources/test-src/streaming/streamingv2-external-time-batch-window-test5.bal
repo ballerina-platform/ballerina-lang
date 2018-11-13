@@ -15,8 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
-import ballerina/streams;
 
 type Teacher record {
     int timestamp;
@@ -60,15 +58,22 @@ function startExternalTimeBatchwindowTest5() returns (TeacherOutput[]) {
         runtime:sleep(450);
     }
 
-    runtime:sleep(3000);
-    io:println(globalEmployeeArray);
+    int count = 0;
+    while(true) {
+        runtime:sleep(500);
+        count += 1;
+        if((lengthof globalEmployeeArray) == 2 || count == 10) {
+            break;
+        }
+    }
     return globalEmployeeArray;
 }
 
 function testExternalTimeBatchwindow5() {
 
     forever {
-        from inputStreamExternalTimeBatchTest5 window externalTimeBatchWindow(inputStreamExternalTimeBatchTest5.timestamp, 1000, startTime = 1000, timeOut = 1200)
+        from inputStreamExternalTimeBatchTest5 window externalTimeBatchWindow(
+                                                          [inputStreamExternalTimeBatchTest5.timestamp, 1000, 1000, 1200])
         select inputStreamExternalTimeBatchTest5.timestamp, inputStreamExternalTimeBatchTest5.name, count() as count
         group by inputStreamExternalTimeBatchTest5.school
         => (TeacherOutput [] teachers) {

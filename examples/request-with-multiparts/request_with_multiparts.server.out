@@ -1,3 +1,3 @@
 $ ballerina run request_with_multiparts.bal
 Initiating service(s) in 'request_with_multiparts.bal'
-ballerina: started HTTP/WS endpoint 0.0.0.0:9090
+[ballerina/http] started HTTP/WS endpoint 0.0.0.0:9090

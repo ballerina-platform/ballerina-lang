@@ -1,6 +1,0 @@
-/dist/**
-/node_modules/**
-/lib/**
-/public/**
-/src/plugins/ballerina/tests/resources/**
-js/ballerina/model/source-gen.js

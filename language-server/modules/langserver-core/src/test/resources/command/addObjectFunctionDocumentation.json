@@ -13,15 +13,15 @@
               {
                 "range":{
                   "start":{
-                    "line":0,
-                    "character":0
+                    "line":28,
+                    "character":4
                   },
                   "end":{
                     "line":28,
-                    "character":80
+                    "character":4
                   }
                 },
-                "newText":"import ballerina/io;\nimport ballerina/http;\n\nfunction testDocumentation() {\n    \n}\n\nendpoint http:Listener listener {\n    \n};\n\nservice<http:Service> testDocService bind { port: 9090 } {\n    testDocResource (endpoint caller, http:Request request) {\n        http:Response res = new;\n        _ = caller->respond(res);\n    }\n}\n\ntype testDocRecord record {\n    int field1 = 12;\n    string field2 = \"hello\";\n};\n\ntype testDocObject object {\n    int testField = 12;\n    private int testPrivate = 12;\n    public string testString = \"hello\";\n\n    # Description\n    #\n    # + param1 - param1 Parameter Description \n    # + param2 - param2 Parameter Description \n    # + return - Return Value Description\n    function testFunctionSignature(int param1, string param2) returns newReturn;"
+                "newText":"# Description\n    #\n    # + param1 - param1 Parameter Description \n    # + param2 - param2 Parameter Description \n    # + return - Return Value Description\n    "
               }
             ]
           }

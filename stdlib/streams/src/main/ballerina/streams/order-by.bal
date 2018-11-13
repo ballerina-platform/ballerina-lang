@@ -38,7 +38,7 @@ public type OrderBy object {
         StreamEvent[] b;
         while (index < n) {
             b[index] = a[index];
-            index++;
+            index += 1;
         }
         topDownSplitMerge(b, 0, n, a, sortFunc, tmpSortTypes);
     }
@@ -71,7 +71,7 @@ public type OrderBy object {
                 b[k] = a[j];
                 j = j + 1;
             }
-            k++;
+            k += 1;
         }
     }
 
@@ -116,7 +116,7 @@ public type OrderBy object {
             if (c1 != c2) {
                 return c1 - c2;
             }
-            k++;
+            k += 1;
         }
         return len1 - len2;
     }
@@ -138,7 +138,7 @@ public type OrderBy object {
                         return callNextSortFunc(x, y, c, sortFieldMetadata, fieldIndex + 1);
                     }
                     any a => {
-                        error err = { message: "Values to be orderred contain non-string values in field: " +
+                        error err = { message: "Values to be orderred contain non-string values in fieldIndex: " +
                             fieldIndex + ", sortType: " + sortFieldMetadata[fieldIndex]};
                         throw err;
                     }
@@ -165,8 +165,8 @@ public type OrderBy object {
 
             }
             any a => {
-                error err = { message: "Values of types other than strings and numbers cannot be sorted in field: " +
-                    fieldIndex + ", sortType: " + sortFieldMetadata[fieldIndex]};
+                error err = { message: "Values of types other than strings and numbers cannot be sorted in fieldIndex:
+                 " + fieldIndex + ", sortType: " + sortFieldMetadata[fieldIndex]};
                 throw err;
             }
         }

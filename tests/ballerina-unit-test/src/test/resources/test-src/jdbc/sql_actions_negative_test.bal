@@ -1,5 +1,5 @@
 import ballerina/sql;
-import ballerina/jdbc;
+import ballerina/h2;
 import ballerina/io;
 
 type ResultCustomers record {
@@ -16,11 +16,12 @@ type ResultCustomers2 record {
     string LASTNAME;
 };
 
-function testSelectData(string jdbcUrl, string userName, string password) returns (string) {
-    endpoint jdbc:Client testDB {
-        url: jdbcUrl,
-        username: userName,
-        password: password,
+function testSelectData() returns (string) {
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTOR_H2",
+        username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
     string returnData;
@@ -43,11 +44,12 @@ function testSelectData(string jdbcUrl, string userName, string password) return
     return returnData;
 }
 
-function testGeneratedKeyOnInsert(string jdbcUrl, string userName, string password) returns (string) {
-    endpoint jdbc:Client testDB {
-        url: jdbcUrl,
-        username: userName,
-        password: password,
+function testGeneratedKeyOnInsert() returns (string) {
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTOR_H2",
+        username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -73,11 +75,12 @@ function testGeneratedKeyOnInsert(string jdbcUrl, string userName, string passwo
     return id;
 }
 
-function testCallProcedure(string jdbcUrl, string userName, string password) returns (string) {
-    endpoint jdbc:Client testDB {
-        url: jdbcUrl,
-        username: userName,
-        password: password,
+function testCallProcedure() returns (string) {
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTOR_H2",
+        username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
     string returnData;
@@ -99,11 +102,12 @@ function testCallProcedure(string jdbcUrl, string userName, string password) ret
     return returnData;
 }
 
-function testBatchUpdate(string jdbcUrl, string userName, string password) returns (string) {
-    endpoint jdbc:Client testDB {
-        url: jdbcUrl,
-        username: userName,
-        password: password,
+function testBatchUpdate() returns (string) {
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTOR_H2",
+        username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -149,11 +153,12 @@ function testBatchUpdate(string jdbcUrl, string userName, string password) retur
     return returnVal;
 }
 
-function testInvalidArrayofQueryParameters(string jdbcUrl, string userName, string password) returns (string) {
-    endpoint jdbc:Client testDB {
-        url: jdbcUrl,
-        username: userName,
-        password: password,
+function testInvalidArrayofQueryParameters() returns (string) {
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTOR_H2",
+        username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -181,12 +186,13 @@ function testInvalidArrayofQueryParameters(string jdbcUrl, string userName, stri
     return returnData;
 }
 
-function testCallProcedureWithMultipleResultSetsAndLowerConstraintCount(string jdbcUrl, string userName, string password
+function testCallProcedureWithMultipleResultSetsAndLowerConstraintCount(
              ) returns ((string, string)|error) {
-    endpoint jdbc:Client testDB {
-        url: jdbcUrl,
-        username: userName,
-        password: password,
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTOR_H2",
+        username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -222,10 +228,11 @@ function testCallProcedureWithMultipleResultSetsAndLowerConstraintCount(string j
 
 function testCallProcedureWithMultipleResultSetsAndHigherConstraintCount(string jdbcUrl, string userName, string
     password) returns ((string, string)|error) {
-    endpoint jdbc:Client testDB {
-        url: jdbcUrl,
-        username: userName,
-        password: password,
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTOR_H2",
+        username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -260,12 +267,13 @@ function testCallProcedureWithMultipleResultSetsAndHigherConstraintCount(string 
     }
 }
 
-function testCallProcedureWithMultipleResultSetsAndNilConstraintCount(string jdbcUrl, string userName, string password)
+function testCallProcedureWithMultipleResultSetsAndNilConstraintCount()
              returns (string|(string, string)|error) {
-    endpoint jdbc:Client testDB {
-        url: jdbcUrl,
-        username: userName,
-        password: password,
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTOR_H2",
+        username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 

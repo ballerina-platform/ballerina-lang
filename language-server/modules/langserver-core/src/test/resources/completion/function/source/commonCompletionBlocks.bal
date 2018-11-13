@@ -1,15 +1,15 @@
 import ballerina/io;
 import ballerina/http;
-import ballerina/jdbc;
+import ballerina/h2;
 
-endpoint jdbc:Client testDB {
-    url: "jdbc:h2:file:./local-transactions/Testdb",
+endpoint h2:Client testDB {
+    path: "./local-transactions",
+    name: "Testdb",
     username: "root",
-    password: "root",
-    poolOptions: { maximumPoolSize: 5 }
+    password: "root"
 };
 
-function main(string... args) {
+public function main(string... args) {
     int a = 10;
     int b = 20;
     int checkValue = 20;
@@ -28,7 +28,7 @@ function main(string... args) {
     while(a > 5) {
         
         io:println(a);
-        a--;
+        a -= 1;
     }
 
 

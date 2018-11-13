@@ -57,20 +57,20 @@ public class ServiceContextItemSorter extends CompletionItemSorter {
     
     private void populateWhenCursorBeforeOrAfterEp(List<CompletionItem> completionItems, boolean snippetCapability) {
         CompletionItem epSnippet = this.getEndpointSnippet(snippetCapability);
+        CompletionItem xmlnsSnippet = Snippet.STMT_NAMESPACE_DECLARATION.get().
+                build(new CompletionItem(), snippetCapability);
         CompletionItem resSnippet = this.getResourceSnippet(snippetCapability);
         this.setPriorities(completionItems);
 
         epSnippet.setSortText(Priority.PRIORITY150.toString());
+        xmlnsSnippet.setSortText(Priority.PRIORITY150.toString());
         resSnippet.setSortText(Priority.PRIORITY160.toString());
         completionItems.add(epSnippet);
+        completionItems.add(xmlnsSnippet);
         completionItems.add(resSnippet);
     }
     
     private CompletionItem getResourceSnippet(boolean snippetCapability) {
-        CompletionItem resource = new CompletionItem();
-        Snippet.DEF_RESOURCE.getBlock().populateCompletionItem(resource, snippetCapability);
-        resource.setLabel(ItemResolverConstants.RESOURCE_TYPE);
-        resource.setDetail(ItemResolverConstants.SNIPPET_TYPE);
-        return resource;
+        return Snippet.DEF_RESOURCE.get().build(new CompletionItem(), snippetCapability);
     }
 }

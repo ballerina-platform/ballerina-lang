@@ -15,8 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
-import ballerina/streams;
 
 type Teacher record {
     string name;
@@ -56,15 +54,22 @@ function startTimeBatchwindowTest2() returns (TeacherOutput[]) {
     runtime:sleep(3000);
     inputStreamTimeBatchTest2.publish(t5);
 
-    runtime:sleep(1500);
-    io:println(globalEmployeeArray);
+    int count = 0;
+    while(true) {
+        runtime:sleep(500);
+        count += 1;
+        if((lengthof globalEmployeeArray) == 3 || count == 10) {
+            break;
+        }
+    }
+
     return globalEmployeeArray;
 }
 
 function testTimeBatchwindow() {
 
     forever {
-        from inputStreamTimeBatchTest2 window timeBatchWindow(1000)
+        from inputStreamTimeBatchTest2 window timeBatchWindow([1000])
         select inputStreamTimeBatchTest2.name, count() as count
         group by inputStreamTimeBatchTest2.school
         => (TeacherOutput [] emp) {
