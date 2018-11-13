@@ -42,11 +42,11 @@ type Person object {
 };
 
 
-function Person::attachedFn3(int a, float b) returns (int) {
+function Person.attachedFn3(int a, float b) returns (int) {
     return a + <int>b;
 }
 
-function Person::attachedFn4() returns (function (int, float) returns (int)) {
+function Person.attachedFn4() returns (function (int, float) returns (int)) {
     var foo = function (int a, float b) returns (int) {
         return 7 + a + <int>b;
     };
