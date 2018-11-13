@@ -61,12 +61,9 @@ service<http:Service> testRedirect bind serviceEndpoint1 {
         path: "/"
     }
     redirectClient(endpoint client, http:Request req) {
-        http:Request clientRequest = new;
         var response = endPoint1->get("/redirect1");
-        http:Response finalResponse = new;
         if (response is http:Response) {
-            finalResponse.setPayload(response.resolvedRequestedURI);
-            _ = client->respond(finalResponse);
+            _ = client->respond(response.resolvedRequestedURI);
         } else if (response is error) {
             io:println("Connector error!");
         }
@@ -77,7 +74,6 @@ service<http:Service> testRedirect bind serviceEndpoint1 {
         path: "/maxRedirect"
     }
     maxRedirectClient(endpoint client, http:Request req) {
-        http:Request clientRequest = new;
         var response = endPoint1->get("/redirect1/round1");
         if (response is http:Response) {
             string value;
@@ -96,7 +92,6 @@ service<http:Service> testRedirect bind serviceEndpoint1 {
         path: "/crossDomain"
     }
     crossDomain(endpoint client, http:Request req) {
-        http:Request clientRequest = new;
         var response = endPoint2->get("/redirect1/round1");
         if (response is http:Response) {
             string value = check response.getTextPayload();
@@ -112,7 +107,6 @@ service<http:Service> testRedirect bind serviceEndpoint1 {
         path: "/noRedirect"
     }
     NoRedirect(endpoint client, http:Request req) {
-        http:Request clientRequest = new;
         var response = endPoint3->get("/redirect2");
         if (response is http:Response) {
             string value = check response.getTextPayload();
@@ -128,7 +122,6 @@ service<http:Service> testRedirect bind serviceEndpoint1 {
         path: "/qpWithRelativePath"
     }
     qpWithRelativePath(endpoint client, http:Request req) {
-        http:Request clientRequest = new;
         var response = endPoint2->get("/redirect1/qpWithRelativePath");
         if (response is http:Response) {
             string value = check response.getTextPayload();
@@ -144,7 +137,6 @@ service<http:Service> testRedirect bind serviceEndpoint1 {
         path: "/qpWithAbsolutePath"
     }
     qpWithAbsolutePath(endpoint client, http:Request req) {
-        http:Request clientRequest = new;
         var response = endPoint2->get("/redirect1/qpWithAbsolutePath");
         if (response is http:Response) {
             string value = check response.getTextPayload();
@@ -160,7 +152,6 @@ service<http:Service> testRedirect bind serviceEndpoint1 {
         path: "/originalRequestWithQP"
     }
     originalRequestWithQP(endpoint client, http:Request req) {
-        http:Request clientRequest = new;
         var response = endPoint2->get("/redirect1/round4?key=value&lang=ballerina");
         if (response is http:Response) {
             string value = check response.getTextPayload();
@@ -176,7 +167,6 @@ service<http:Service> testRedirect bind serviceEndpoint1 {
         path: "/test303"
     }
     test303(endpoint client, http:Request req) {
-        http:Request clientRequest = new;
         var response = endPoint3->post("/redirect2/test303", "Test value!");
         if (response is http:Response) {
             string value = check response.getTextPayload();
@@ -288,9 +278,7 @@ service<http:Service> redirect2 bind serviceEndpoint3 {
         path: "/"
     }
     redirect2(endpoint client, http:Request req) {
-        http:Response res = new;
-        res.setPayload("hello world");
-        _ = client->respond(res);
+        _ = client->respond("hello world");
     }
 
     @http:ResourceConfig {
