@@ -20,10 +20,10 @@ import ballerina/runtime;
 import ballerina/time;
 import ballerina/io;
 
-@final string WARNING_AGENT = getWarningAgent();
+final string WARNING_AGENT = getWarningAgent();
 
-@final string WARNING_110_RESPONSE_IS_STALE = "110 " + WARNING_AGENT + " \"Response is Stale\"";
-@final string WARNING_111_REVALIDATION_FAILED = "111 " + WARNING_AGENT + " \"Revalidation Failed\"";
+final string WARNING_110_RESPONSE_IS_STALE = "110 " + WARNING_AGENT + " \"Response is Stale\"";
+final string WARNING_111_REVALIDATION_FAILED = "111 " + WARNING_AGENT + " \"Revalidation Failed\"";
 
 const string WEAK_VALIDATOR_TAG = "W/";
 const int STALE = 0;
