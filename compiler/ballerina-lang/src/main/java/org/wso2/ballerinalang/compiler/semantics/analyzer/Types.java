@@ -268,7 +268,8 @@ public class Types {
         } else if (target.tag == TypeTags.JSON) {
             if (((BJSONType) target).getConstraint().tag != TypeTags.NONE) {
                 if (source.tag == TypeTags.RECORD) {
-                    return isStampingAllowed(((BRecordType) source).restFieldType, ((BJSONType) target).getConstraint());
+                    return isStampingAllowed(((BRecordType) source).restFieldType,
+                            ((BJSONType) target).getConstraint());
                 } else if (source.tag == TypeTags.JSON) {
                     if (((BJSONType) source).getConstraint().tag != TypeTags.NONE) {
                         return isStampingAllowed(((BJSONType) source).getConstraint(),

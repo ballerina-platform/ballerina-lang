@@ -25,6 +25,7 @@ import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStringType;
+import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -286,6 +287,24 @@ public class RecordStampInbuiltFunctionTest {
                 BAnydataType.class);
     }
 
+    @Test
+    public void testStampExtendedRecordToOpenRecordV3() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampExtendedRecordToOpenRecordV3");
+        BMap<String, BValue> mapValue = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+        Assert.assertEquals(mapValue.size(), 4);
+
+
+        Assert.assertEquals(mapValue.getType().getClass(), BRecordType.class);
+        Assert.assertEquals(mapValue.getType().getName(), "ExtendedEmployeeWithUnion");
+
+        Assert.assertEquals(mapValue.get("batch").getType().getClass(), BStringType.class);
+        Assert.assertEquals(mapValue.get("batch").stringValue(), "LK2014");
+
+        Assert.assertEquals(mapValue.get("address").getType().getClass(), BUnionType.class);
+    }
 
     //---------------------------------- Negative Test cases ----------------------------------------------
 

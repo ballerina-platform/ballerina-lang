@@ -4034,6 +4034,8 @@ public class CPU {
                 return isStampingAllowed(((BArrayType) source).getElementType(),
                         ((BArrayType) target).getElementType());
             }
+        } else if(target.getTag() == TypeTags.UNION_TAG) {
+            return checkUnionAssignableForStamping(source, target);
         }
 
         return false;
