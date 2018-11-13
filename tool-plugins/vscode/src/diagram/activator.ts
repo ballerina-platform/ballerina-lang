@@ -28,13 +28,11 @@ const DEBOUNCE_WAIT = 500;
 let diagramViewPanel: WebviewPanel | undefined;
 let activeEditor: TextEditor | undefined;
 let preventDiagramUpdate = false;
+let rpcHandler: WebViewRPCHandler;
 
 function updateWebView(docUri: Uri): void {
-	if (diagramViewPanel) {
-		diagramViewPanel.webview.postMessage({ 
-			command: 'update',
-			docUri: docUri.toString(),
-		});
+	if (rpcHandler) {
+		rpcHandler.invokeRemoteMethod("updateAST", [docUri.toString()], () => {});
 	}
 }
 
@@ -79,7 +77,7 @@ function showDiagramEditor(context: ExtensionContext, langClient: ExtendedLangCl
 		return;
 	}
 	activeEditor = editor;
-	WebViewRPCHandler.create(diagramViewPanel.webview, langClient);
+	rpcHandler = WebViewRPCHandler.create(diagramViewPanel.webview, langClient);
 	const html = render(context, langClient, editor.document.uri);
 	if (diagramViewPanel && html) {
 		diagramViewPanel.webview.html = html;

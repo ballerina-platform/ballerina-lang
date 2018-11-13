@@ -58,10 +58,7 @@ function renderDiagram(context: ExtensionContext, docUri: Uri): string {
 
     const script = `
         function loadedScript() {
-            console.log('loaded script')
             let docUri = ${JSON.stringify(docUri.toString())};
-            
-
             function drawDiagram() {
                 try {
                     let width = window.innerWidth - 6;
@@ -76,14 +73,10 @@ function renderDiagram(context: ExtensionContext, docUri: Uri): string {
                         }
                     };
                     const diagram = ballerinaComposer.renderDiagramEditor(options);
-                    // Handle the message inside the webview
-                    window.addEventListener('message', event => {
-                        const message = event.data; // The JSON data our extension sent
-                        switch (message.command) {
-                            case 'update':
-                                diagram.updateAST(message.docUri);
-                                break;
-                        }
+                    webViewRPCHandler.addMethod("updateAST", (args) => {
+                        console.log(args);
+                        diagram.updateAST(args[0]);
+                        return Promise.resolve({});
                     });
                 } catch(e) {
                     console.log(e.stack);
