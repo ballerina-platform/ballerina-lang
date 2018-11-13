@@ -33,7 +33,8 @@ public interface WaitForAllExpressionNode extends ExpressionNode {
     List<BLangWaitForAllExpr.BLangWaitKeyValue> getKeyValuePairs();
 
     /**
-     * @since 0.94
+     * This represents the key-value node of wait for all expression.
+     * @since 0.985
      */
     interface WaitKeyValueNode {
 

@@ -20,7 +20,7 @@ package org.ballerinalang.model.tree.expressions;
 import org.ballerinalang.model.tree.IdentifierNode;
 
 /**
- * Worker synchronous send expression interface.
+ * This represents the worker synchronous send expression node.
  *
  * @since 0.985
  */
@@ -33,5 +33,4 @@ public interface WorkerSendSyncExpressionNode extends ExpressionNode {
 
     void setWorkerName(IdentifierNode identifierNode);
 
-    boolean isForkJoinedSend();
 }

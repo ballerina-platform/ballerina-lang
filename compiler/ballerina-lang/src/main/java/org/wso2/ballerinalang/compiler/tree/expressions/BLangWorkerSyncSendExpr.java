@@ -35,7 +35,6 @@ public class BLangWorkerSyncSendExpr extends BLangExpression implements WorkerSe
     public BLangIdentifier workerIdentifier;
     public BLangExpression expr;
     public BLangExpression keyExpr;
-    public boolean isForkJoinSend;
     public SymbolEnv env;
     public boolean isChannel = false;
 
@@ -79,10 +78,5 @@ public class BLangWorkerSyncSendExpr extends BLangExpression implements WorkerSe
     @Override
     public String toString() {
         return "BLangWorkerSyncSend: " + this.toActionString();
-    }
-
-    @Override
-    public boolean isForkJoinedSend() {
-        return isForkJoinSend;
     }
 }
