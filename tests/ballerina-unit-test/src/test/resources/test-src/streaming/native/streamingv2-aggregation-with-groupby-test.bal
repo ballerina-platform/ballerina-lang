@@ -129,9 +129,9 @@ function streamFunc() {
     streams:Select select = streams:createSelect(
         outputProcess.process,
         aggregators,
-        function (streams:StreamEvent e) returns string {
+        [function (streams:StreamEvent e) returns string {
             return <string>e.data["inputStream.category"];
-        },
+        }],
         function (streams:StreamEvent e, streams:Aggregator[] aggregatorArray) returns map {
             streams:Sum iSumAggregator1 = check <streams:Sum>aggregatorArray[0];
             streams:Sum fSumAggregator1 = check <streams:Sum>aggregatorArray[1];

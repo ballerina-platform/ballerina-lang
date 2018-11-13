@@ -1,42 +1,90 @@
-|Scenario Name|Heap Size|Concurrent Users|Message Size (Bytes)|Sleep Time (ms)|# Samples|Error Count|Error %|Average (ms)|Standard Deviation (ms)|Min (ms)|Max (ms)|75th Percentile (ms)|90th Percentile (ms)|95th Percentile (ms)|98th Percentile (ms)|99th Percentile (ms)|99.9th Percentile (ms)|Throughput (Requests/sec)|Received (KB/sec)|Sent (KB/sec)|Ballerina GC Throughput (%)|Ballerina Footprint (M)|Ballerina Average of Footprint After Full GC (M)|Ballerina Standard Deviation of Footprint After Full GC (M)|Ballerina Load Average - Last 1 minute|Ballerina Load Average - Last 5 minutes|Ballerina Load Average - Last 15 minutes|
-|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-|passthrough_http|1g|100|50|0|2575935|0|0|4.62|6.08|0|231|4|6|10|22|37|70|21454.15|3875.99|4860.71|99.21|1022.5|||6.30|3.36|1.37|
-|passthrough_http|1g|100|50|30|387967|0|0|30.89|1.89|30|270|31|31|31|31|32|60|3230.99|583.72|732.02|99.85|1022.5|||0.97|1.84|1.18|
-|passthrough_http|1g|100|1024|0|2410834|0|0|4.94|6.39|0|216|5|7|11|25|39|71|20078.07|22764.3|23685.85|99.23|1022.5|||5.94|4.11|2.22|
-|passthrough_http|1g|100|1024|30|386427|0|0|31.01|2.4|30|74|31|31|31|32|33|61|3218.08|3648.62|3796.33|99.85|1022.5|||0.84|2.31|1.91|
-|passthrough_http|1g|200|50|0|2842672|0|0|8.4|8.25|0|229|9|13|20|35|47|91|23674.53|4277.14|5363.76|98.61|1022|||5.31|4.42|2.87|
-|passthrough_http|1g|200|50|30|773160|0|0|31|1.62|30|264|31|31|32|32|34|63|6440.53|1163.57|1459.18|99.64|1021.5|||1.28|2.82|2.51|
-|passthrough_http|1g|200|1024|0|2657409|0|0|8.98|8.46|0|237|9|14|21|37|49|90|22135.11|25096.55|26112.52|98.73|1021.5|||7.17|4.45|3.16|
-|passthrough_http|1g|200|1024|30|769910|0|0|31.14|2.37|30|267|31|31|32|33|36|61|6411.43|7269.21|7563.48|99.64|1021.5|||1.75|3.07|2.91|
-|passthrough_http2_https|1g|100|50|0|2180471|0|0|5.32|7.41|0|234|5|9|16|31|43|74|18204.27|2097.76|0|99.15|1022.5|26.156|0|10.88|6.99|5.51|
-|passthrough_http2_https|1g|100|50|30|386873|0|0|30.86|1.03|30|266|31|31|31|31|32|42|3228.43|372.03|0|99.8|1021.5|26.195|0|1.83|4.07|4.66|
-|passthrough_http2_https|1g|100|1024|0|2087383|0|0|5.46|7.39|0|263|5|10|17|31|42|75|17428.84|2042.44|0|99.2|1022.5|26.157|0|10.90|6.72|5.48|
-|passthrough_http2_https|1g|100|1024|30|386034|0|0|30.9|1|30|237|31|31|31|32|32|46|3221.54|377.52|0|99.79|1022|26.156|0|1.12|3.62|4.49|
-|passthrough_http2_https|1g|200|50|0|2280402|0|0|10.19|10.86|0|224|11|19|30|47|60|99|19042.07|2194.3|0|98.73|1021.5|26.149|0|11.31|6.98|5.56|
-|passthrough_http2_https|1g|200|50|30|632710|0|0|37.74|12.46|30|268|32|60|61|61|61|66|5281.12|608.57|0|99.62|1021|26.198|0|2.66|4.16|4.68|
-|passthrough_http2_https|1g|200|1024|0|2229917|0|0|10.12|10.58|0|216|11|19|30|46|58|95|18621.75|2182.24|0|98.79|1021.5|26.157|0|12.15|7.77|5.94|
-|passthrough_http2_https|1g|200|1024|30|665425|0|0|35.86|10.98|30|239|31|60|61|61|61|66|5553.21|650.77|0|99.61|1021|26.156|0|2.75|4.54|4.98|
-|passthrough_https|1g|100|50|0|2526726|0|0|4.71|6.87|0|219|4|7|12|25|39|80|21046.75|3802.39|4768.41|99.14|1022.5|16.586|0|8.16|4.90|3.59|
-|passthrough_https|1g|100|50|30|385631|0|0|31.07|2.63|30|237|31|31|31|32|34|61|3211.26|580.16|727.55|99.83|1022.5|16.62|0|1.39|3.15|3.20|
-|passthrough_https|1g|100|1024|0|2080795|0|0|5.72|5.01|0|230|7|12|15|20|24|42|17327.54|19645.78|20441.08|99.25|1023|16.591|0|8.48|5.15|3.90|
-|passthrough_https|1g|100|1024|30|387194|0|0|30.95|0.98|30|74|31|31|31|32|32|44|3223.96|3655.29|3803.26|99.82|1022.5|16.596|0|0.66|2.88|3.29|
-|passthrough_https|1g|200|50|0|2627407|0|0|9.08|9.16|0|231|10|17|23|39|51|92|21877.01|3952.39|4956.51|98.69|1021.5|17.176|0|9.04|5.37|4.11|
-|passthrough_https|1g|200|50|30|768668|0|0|31.18|2.36|30|266|31|31|32|33|35|64|6399.06|1156.08|1449.79|99.61|1021.5|17.154|0|3.16|3.87|3.79|
-|passthrough_https|1g|200|1024|0|2134635|0|0|11.19|7.62|0|230|14|21|26|33|39|58|17781.36|20160.32|20976.45|98.88|1022|17.189|0|8.66|5.70|4.45|
-|passthrough_https|1g|200|1024|30|766921|0|0|31.25|2.24|30|237|31|32|32|33|35|63|6386.43|7240.87|7533.99|99.6|1021.5|17.141|0|2.73|3.87|3.98|
-|transformation_http|1g|100|50|0|1650636|0|0|7.23|9.25|0|254|7|13|18|33|53|104|13749.34|2859.97|3088.23|98.49|1022.5|24.924|0|6.38|4.81|4.28|
-|transformation_http|1g|100|50|30|387551|0|0|30.93|1.08|30|265|31|31|31|32|32|42|3226.9|671.22|724.79|99.64|1022|24.875|0|1.08|2.79|3.57|
-|transformation_http|1g|100|1024|0|1182143|0|0|10.11|9.43|1|247|11|18|25|36|50|101|9843.64|18639.48|11593.2|98.55|1022|24.891|0|9.01|5.23|4.28|
-|transformation_http|1g|100|1024|30|384839|0|0|31.14|1.14|30|238|31|32|32|32|34|43|3204.94|6068.72|3774.56|99.5|1020.5|24.889|0|1.98|3.21|3.65|
-|transformation_http|1g|200|50|0|1749977|0|0|13.67|11.49|1|259|15|24|31|46|64|122|14571.85|3031.06|3272.97|97.54|1021.5|24.897|0|6.28|4.82|4.16|
-|transformation_http|1g|200|50|30|764192|0|0|31.37|2.23|30|239|31|32|33|35|37|61|6363.49|1323.66|1429.3|99.04|1020|24.913|0|2.35|3.24|3.64|
-|transformation_http|1g|200|1024|0|1254581|0|0|19.08|14.29|1|268|23|33|43|59|77|149|10448.22|19784.28|12305.23|97.44|1020.5|15.539|0|8.53|6.06|4.64|
-|transformation_http|1g|200|1024|30|731013|0|0|32.78|2.55|30|79|33|35|37|40|43|61|6088.53|11528.96|7170.67|98.64|1018|24.92|0|2.64|3.96|4.07|
-|transformation_https|1g|100|50|0|1492829|0|0|8|7.74|1|234|9|14|19|29|43|87|12431.85|2585.92|2792.31|98.56|1022.5|24.517|0|7.07|5.57|4.65|
-|transformation_https|1g|100|50|30|386173|0|0|31.03|0.92|30|71|31|31|32|32|33|42|3216.31|669.02|722.41|99.61|1022|24.516|0|1.66|3.63|4.05|
-|transformation_https|1g|100|1024|0|1057338|0|0|11.3|9.85|1|224|12|21|29|42|54|94|8806.23|16675.08|10371.4|98.6|1022|24.502|0|9.22|5.31|4.51|
-|transformation_https|1g|100|1024|30|380575|0|0|31.49|2.96|30|236|31|32|32|34|49|61|3169.58|6001.78|3732.93|99.45|1020.5|25.035|0|1.94|3.64|4.04|
-|transformation_https|1g|200|50|0|1635223|0|0|14.63|11.77|1|257|16|25|34|50|65|117|13618.01|2832.65|3058.73|97.58|1021.5|24.507|0|10.01|5.95|4.76|
-|transformation_https|1g|200|50|30|760140|0|0|31.54|2.08|30|236|32|32|33|35|38|62|6327.33|1316.13|1421.18|98.97|1020|24.498|0|3.17|4.19|4.31|
-|transformation_https|1g|200|1024|0|1100788|0|0|21.75|14.24|1|242|26|38|49|64|77|127|9167.35|17358.88|10796.7|97.58|1020.5|24.851|0|11.21|6.60|5.13|
-|transformation_https|1g|200|1024|30|715618|0|0|33.5|2.97|30|270|34|36|38|42|46|62|5958.27|11282.31|7017.26|98.53|1018|24.526|0|3.71|4.80|4.72|
+# Ballerina Performance Test Results
+
+During each release, we execute various automated performance test scenarios and publish the results.
+
+| Test Scenarios | Description |
+| --- | --- |
+| Passthrough HTTP service | An HTTP Service, which forwards all requests to a back-end service. |
+| Passthrough HTTPS service | An HTTPS Service, which forwards all requests to a back-end service. |
+| JSON to XML transformation HTTP service | An HTTP Service, which transforms JSON requests to XML and then forwards all requests to a back-end service. |
+| JSON to XML transformation HTTPS service | An HTTPS Service, which transforms JSON requests to XML and then forwards all requests to a back-end service. |
+| Passthrough HTTP2 (HTTPS) service | An HTTPS Service exposed over HTTP2 protocol, which forwards all requests to a back-end service. |
+
+Our test client is [Apache JMeter](https://jmeter.apache.org/index.html). We test each scenario for a fixed duration of
+time. We split the test results into warmup and measurement parts and use the measurement part to compute the
+performance metrics.
+
+A majority of test scenarios use a [Netty](https://netty.io/) based back-end service which echoes back any request
+posted to it after a specified period of time.
+
+We run the performance tests under different numbers of concurrent users, message sizes (payloads) and back-end service
+delays.
+
+The main performance metrics:
+
+1. **Throughput**: The number of requests that the Ballerina service processes during a specific time interval (e.g. per second).
+2. **Response Time**: The end-to-end latency for an operation of invoking a Ballerina service. The complete distribution of response times was recorded.
+
+In addition to the above metrics, we measure the load average and several memory-related metrics.
+
+The following are the test parameters.
+
+| Test Parameter | Description | Values |
+| --- | --- | --- |
+| Scenario Name | The name of the test scenario. | Refer to the above table. |
+| Heap Size | The amount of memory allocated to the application | 2G |
+| Concurrent Users | The number of users accessing the application at the same time. | 50, 150, 500 |
+| Message Size (Bytes) | The request payload size in Bytes. | 50, 1024 |
+| Back-end Delay (ms) | The delay added by the back-end service. | 0 |
+
+The duration of each test is **900 seconds**. The warm-up period is **300 seconds**.
+The measurement results are collected after the warm-up period.
+
+A [**c5.xlarge** Amazon EC2 instance](https://aws.amazon.com/ec2/instance-types/) was used to install Ballerina.
+
+The following are the measurements collected from each performance test conducted for a given combination of
+test parameters.
+
+| Measurement | Description |
+| --- | --- |
+| Error % | Percentage of requests with errors |
+| Average Response Time (ms) | The average response time of a set of results |
+| Standard Deviation of Response Time (ms) | The “Standard Deviation” of the response time. |
+| 99th Percentile of Response Time (ms) | 99% of the requests took no more than this time. The remaining samples took at least as long as this |
+| Throughput (Requests/sec) | The throughput measured in requests per second. |
+| Average Memory Footprint After Full GC (M) | The average memory consumed by the application after a full garbage collection event. |
+
+The following is the summary of performance test results collected for the measurement period.
+
+|  Scenario Name | Concurrent Users | Message Size (Bytes) | Back-end Service Delay (ms) | Error % | Throughput (Requests/sec) | Average Response Time (ms) | Standard Deviation of Response Time (ms) | 99th Percentile of Response Time (ms) | Ballerina GC Throughput (%) | Average of Ballerina Memory Footprint After Full GC (M) |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+|  Passthrough HTTP service | 100 | 50 | 0 | 0 | 22774.51 | 4.35 | 5.95 | 34 | 99.51 |  |
+|  Passthrough HTTP service | 100 | 1024 | 0 | 0 | 21554.19 | 4.59 | 6.41 | 37 | 99.54 |  |
+|  Passthrough HTTP service | 300 | 50 | 0 | 0 | 23672.03 | 12.62 | 10.14 | 58 | 98.91 |  |
+|  Passthrough HTTP service | 300 | 1024 | 0 | 0 | 21899.7 | 13.64 | 11.24 | 66 | 99.03 |  |
+|  Passthrough HTTP service | 1000 | 50 | 0 | 0 | 22095.87 | 45.19 | 23.39 | 137 | 97.13 |  |
+|  Passthrough HTTP service | 1000 | 1024 | 0 | 0 | 21117.11 | 47.26 | 23.81 | 139 | 97.31 |  |
+|  Passthrough HTTP2 (HTTPS) service | 100 | 50 | 0 | 0 | 17191.4 | 5.6 | 7.67 | 41 | 99.56 | 25.65 |
+|  Passthrough HTTP2 (HTTPS) service | 100 | 1024 | 0 | 0 | 15982.96 | 5.99 | 6.9 | 34 | 99.6 | 25.675 |
+|  Passthrough HTTP2 (HTTPS) service | 300 | 50 | 0 | 0 | 17498.42 | 16.58 | 14.02 | 73 | 99.06 | 26.021 |
+|  Passthrough HTTP2 (HTTPS) service | 300 | 1024 | 0 | 0 | 16229.81 | 17.75 | 13.42 | 67 | 99.2 | 26.01 |
+|  Passthrough HTTP2 (HTTPS) service | 1000 | 50 | 0 | 1.98 | 9254.17 | 104.77 | 183.26 | 1023 | 98.45 | 26.736 |
+|  Passthrough HTTP2 (HTTPS) service | 1000 | 1024 | 0 | 0 | 15493.16 | 63.03 | 44.24 | 179 | 98.06 | 26.922 |
+|  Passthrough HTTPS service | 100 | 50 | 0 | 0 | 21126.54 | 4.68 | 6.68 | 38 | 99.5 | 25.466 |
+|  Passthrough HTTPS service | 100 | 1024 | 0 | 0 | 17246.29 | 5.74 | 5.63 | 25 | 99.57 | 25.708 |
+|  Passthrough HTTPS service | 300 | 50 | 0 | 0 | 21222.59 | 14.07 | 11.74 | 66 | 98.97 | 26.004 |
+|  Passthrough HTTPS service | 300 | 1024 | 0 | 0 | 17140.13 | 17.44 | 11.29 | 60 | 99.15 | 26.215 |
+|  Passthrough HTTPS service | 1000 | 50 | 0 | 0 | 19464.76 | 51.3 | 23.78 | 136 | 97.42 | 26.847 |
+|  Passthrough HTTPS service | 1000 | 1024 | 0 | 0 | 16207.92 | 61.61 | 25.52 | 145 | 97.7 | 26.772 |
+|  JSON to XML transformation HTTP service | 100 | 50 | 0 | 0 | 14133.86 | 7.03 | 8.19 | 43 | 99.1 | 24.93 |
+|  JSON to XML transformation HTTP service | 100 | 1024 | 0 | 0 | 9917.89 | 10.03 | 10.36 | 60 | 99.14 | 25.05 |
+|  JSON to XML transformation HTTP service | 300 | 50 | 0 | 0 | 15229.51 | 19.65 | 12.35 | 71 | 97.87 | 25.229 |
+|  JSON to XML transformation HTTP service | 300 | 1024 | 0 | 0 | 10793.63 | 27.73 | 14.21 | 81 | 97.79 | 25.262 |
+|  JSON to XML transformation HTTP service | 1000 | 50 | 0 | 0 | 14600.75 | 68.4 | 19.13 | 127 | 93.56 | 26.21 |
+|  JSON to XML transformation HTTP service | 1000 | 1024 | 0 | 0 | 10194.82 | 98.01 | 22.78 | 163 | 92.78 | 26.196 |
+|  JSON to XML transformation HTTPS service | 100 | 50 | 0 | 0 | 12918.43 | 7.69 | 7.66 | 41 | 99.12 | 24.459 |
+|  JSON to XML transformation HTTPS service | 100 | 1024 | 0 | 0 | 9010.8 | 11.05 | 9.36 | 52 | 99.17 | 24.479 |
+|  JSON to XML transformation HTTPS service | 300 | 50 | 0 | 0 | 13866.8 | 21.57 | 13.66 | 79 | 98 | 24.997 |
+|  JSON to XML transformation HTTPS service | 300 | 1024 | 0 | 0 | 9533.03 | 31.4 | 16.96 | 95 | 97.99 | 25.034 |
+|  JSON to XML transformation HTTPS service | 1000 | 50 | 0 | 0 | 13444.79 | 74.3 | 25.59 | 157 | 94.22 | 26.04 |
+|  JSON to XML transformation HTTPS service | 1000 | 1024 | 0 | 0 | 9010.88 | 110.9 | 40.1 | 238 | 93.89 | 26.116 |

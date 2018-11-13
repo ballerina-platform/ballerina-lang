@@ -40,7 +40,7 @@ public class ParserRuleWorkerInteractionContextResolver extends AbstractItemReso
             contextParent = contextParent.getParent();
         }
         if (contextParent != null) {
-            return CompletionItemResolver.getResolverByClass(contextParent.getClass()).resolveItems(context);
+            return CompletionItemResolver.get(contextParent.getClass()).resolveItems(context);
         }
 
         return new ArrayList<>();

@@ -96,6 +96,16 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Extern Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getExternKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.EXTERN_KEYWORD, "extern ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
      * Get Import Keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block

@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
-import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FilterUtils;
@@ -46,7 +45,6 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Completion Item resolver for the match statement parser rule context.
@@ -58,10 +56,7 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
     @Override
     public List<CompletionItem> resolveItems(LSServiceOperationContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        List<String> poppedTokens = CommonUtil.popNFromStack(ctx.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY), 3)
-                .stream()
-                .map(Token::getText)
-                .collect(Collectors.toList());
+        List<String> poppedTokens = CommonUtil.popNFromList(CommonUtil.getPoppedTokenStrings(ctx), 3);
         List<SymbolInfo> symbolInfoList = ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
         if (isInvocationOrInteractionOrFieldAccess(ctx)) {
             String delimiter = "";
