@@ -1744,49 +1744,6 @@ public class Types {
                 allRecordFieldsEqualityIntersectionExists(rhsType, lhsType);
     }
 
-    public BSymbol getBinaryEqualityForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType,
-                                                 BLangBinaryExpr binaryExpr) {
-        boolean validEqualityIntersectionExists;
-        switch (opKind) {
-            case EQUAL:
-            case NOT_EQUAL:
-                validEqualityIntersectionExists = validEqualityIntersectionExists(lhsType, rhsType);
-                break;
-            case REF_EQUAL:
-            case REF_NOT_EQUAL:
-                validEqualityIntersectionExists =
-                        isAssignable(lhsType, rhsType) || isAssignable(rhsType, lhsType);
-                break;
-            default:
-                return symTable.notFoundSymbol;
-        }
-
-
-        if (validEqualityIntersectionExists) {
-            if ((!isValueType(lhsType) && !isValueType(rhsType)) ||
-                    (isValueType(lhsType) && isValueType(rhsType))) {
-                return symResolver.createEqualityOperator(opKind, lhsType, rhsType);
-            } else {
-                setImplicitCastExpr(binaryExpr.rhsExpr, rhsType, symTable.anyType);
-                setImplicitCastExpr(binaryExpr.lhsExpr, lhsType, symTable.anyType);
-
-                switch (opKind) {
-                    case REF_EQUAL:
-                        // if one is a value type, consider === the same as ==
-                        return symResolver.createEqualityOperator(OperatorKind.EQUAL, symTable.anyType,
-                                symTable.anyType);
-                    case REF_NOT_EQUAL:
-                        // if one is a value type, consider !== the same as !=
-                        return symResolver.createEqualityOperator(OperatorKind.NOT_EQUAL, symTable.anyType,
-                                symTable.anyType);
-                    default:
-                        return symResolver.createEqualityOperator(opKind, symTable.anyType, symTable.anyType);
-                }
-            }
-        }
-        return symTable.notFoundSymbol;
-    }
-
     private boolean arrayTupleEqualityIntersectionExists(BArrayType arrayType, BTupleType tupleType) {
         Set<BType> elementTypes = expandAndGetMemberTypesRecursive(arrayType.eType);
 

@@ -246,3 +246,27 @@ function finiteTypes() returns string {
 
     return "Fail";
 }
+
+type Obj object {
+    int var1;
+};
+
+function nonAnydataTypes() returns string {
+    int[] x = [1, 2, 3];
+    Obj y = new;
+
+    match x {
+        [1, 2, 3] => return "a"; // pattern will not be matched and invalid literal for match pattern
+    }
+
+    match y {
+        {var1: 12} => return "a"; // pattern will not be matched
+        {"var1": 12} => return "a"; // pattern will not be matched
+        {foo(): 12} => return "a"; // pattern will not be matched and invalid key
+    }
+    return "Fail";
+}
+
+function foo() returns string {
+    return "var1";
+}

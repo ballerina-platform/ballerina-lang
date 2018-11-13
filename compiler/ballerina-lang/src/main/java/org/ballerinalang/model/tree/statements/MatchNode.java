@@ -32,48 +32,48 @@ import java.util.List;
 public interface MatchNode {
 
     /**
-     * {@code MatchStatementBindingPatternNode} is the base interface for any patterns inside a match statement.
+     * {@code MatchBindingPatternNode} is the base interface for any patterns inside a match statement.
      *
      * @since 0.966.0
      */
-    interface MatchStatementBindingPatternNode {
+    interface MatchBindingPatternNode {
 
         StatementNode getStatement();
     }
 
     /**
-     * {@code MatchStatementTypedBindingPatternNode} represents a pattern inside a type switch statement.
+     * {@code MatchTypedBindingPatternNode} represents a pattern inside a type switch statement.
      *
      * @since 0.966.0
      */
-    interface MatchStatementTypedBindingPatternNode extends MatchStatementBindingPatternNode {
+    interface MatchTypedBindingPatternNode extends MatchBindingPatternNode {
 
         SimpleVariableNode getVariableNode();
     }
 
     /**
-     * {@code MatchStatementStaticBindingPatternNode} represents a static pattern inside a match statement.
+     * {@code MatchStaticBindingPatternNode} represents a static pattern inside a match statement.
      *
      * @since 0.985.0
      */
-    interface MatchStatementStaticBindingPatternNode extends MatchStatementBindingPatternNode {
+    interface MatchStaticBindingPatternNode extends MatchBindingPatternNode {
 
         BLangExpression getLiteral();
     }
 
     /**
-     * {@code MatchStatementStructuredBindingPatternNode} represents a structured pattern inside a match statement.
+     * {@code MatchStructuredBindingPatternNode} represents a structured pattern inside a match statement.
      *
      * @since 0.985.0
      */
-    interface MatchStatementStructuredBindingPatternNode extends MatchStatementBindingPatternNode {
+    interface MatchStructuredBindingPatternNode extends MatchBindingPatternNode {
 
         VariableNode getVariableNode();
     }
 
     ExpressionNode getExpression();
 
-    List<? extends MatchStatementTypedBindingPatternNode> getTypedPatternClauses();
+    List<? extends MatchTypedBindingPatternNode> getTypedPatternClauses();
 
-    List<? extends MatchStatementStaticBindingPatternNode> getStaticPatternClauses();
+    List<? extends MatchStaticBindingPatternNode> getStaticPatternClauses();
 }

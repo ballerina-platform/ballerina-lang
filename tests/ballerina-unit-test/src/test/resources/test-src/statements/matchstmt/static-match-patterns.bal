@@ -196,3 +196,27 @@ function testFiniteType2() returns string {
     }
     return "Value is 'Default'";
 }
+
+type Obj object {
+    int var1;
+    new (var1) {}
+};
+
+function testNonAnyDataType() returns string {
+    Obj y = new(12);
+    any obj = y;
+
+    match obj {
+        {var1: 12} => return "Value is '12'";
+    }
+
+    return "Value is 'Default'";
+}
+
+function testStringLiteralKeyInRecordMatch() returns string {
+    Foo f = {x: 12, y: "B"};
+    match f {
+        {"x": 12, y: "B"} => return "Value is 'Correct'";
+    }
+    return "Value is 'Default'";
+}

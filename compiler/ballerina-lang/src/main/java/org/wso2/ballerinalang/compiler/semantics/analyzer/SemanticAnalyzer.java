@@ -138,9 +138,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStaticBindingPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStructuredBindingPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtTypedBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchTypedBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -180,6 +179,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+
+import static org.ballerinalang.model.tree.NodeKind.BRACED_TUPLE_EXPR;
+import static org.ballerinalang.model.tree.NodeKind.LITERAL;
+import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_EXPR;
 
 
 /**
@@ -676,7 +679,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangRecordVariableDef varDefNode) {
         // TODO: 10/18/18 Need to support record literals as well
-        if (varDefNode.var.expr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+        if (varDefNode.var.expr.getKind() == RECORD_LITERAL_EXPR) {
             dlog.error(varDefNode.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, "record binding pattern");
             return;
         }
@@ -744,7 +747,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         // recursively visit the var refs and create the record type
         typeChecker.checkExpr(recordDeStmt.varRef, env);
-        if (recordDeStmt.expr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+        if (recordDeStmt.expr.getKind() == RECORD_LITERAL_EXPR) {
             // TODO: 10/18/18 Need to support record literals as well
             dlog.error(recordDeStmt.expr.pos, DiagnosticCode.INVALID_RECORD_LITERAL_BINDING_PATTERN);
             return;
@@ -943,7 +946,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangMatch matchNode) {
 
         //first fail if both static and typed patterns have been defined in the match stmt
-        if (matchNode.getTypedPatternClauses().size() > 0 && matchNode.getStaticPatternClauses().size() > 0) {
+        if (!matchNode.getTypedPatternClauses().isEmpty() && !matchNode.getStaticPatternClauses().isEmpty()) {
             dlog.error(matchNode.pos, DiagnosticCode.INVALID_PATTERN_CLAUSES_IN_MATCH_STMT);
             return;
         }
@@ -961,7 +964,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         matchNode.exprTypes = exprTypes;
     }
 
-    public void visit(BLangMatchStmtTypedBindingPatternClause patternClause) {
+    public void visit(BLangMatchTypedBindingPatternClause patternClause) {
         // If the variable is not equal to '_', then define the variable in the block scope
         if (!patternClause.variable.name.value.endsWith(Names.IGNORE.value)) {
             SymbolEnv blockEnv = SymbolEnv.createBlockEnv(patternClause.body, env);
@@ -974,56 +977,57 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         analyzeStmt(patternClause.body, this.env);
     }
 
-    public void visit(BLangMatchStmtStaticBindingPatternClause patternClause) {
+    public void visit(BLangMatchStaticBindingPatternClause patternClause) {
         checkStaticMatchPatternLiteralType(patternClause.literal);
         analyzeStmt(patternClause.body, this.env);
     }
 
     private BType checkStaticMatchPatternLiteralType(BLangExpression expression) {
 
-        NodeKind literalNode = expression.getKind();
-
-        if (NodeKind.LITERAL == literalNode) {
-            return typeChecker.checkExpr(expression, this.env);
-        }
-
-        if (NodeKind.RECORD_LITERAL_EXPR == literalNode) {
-            BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
-            for (BLangRecordLiteral.BLangRecordKeyValue recLiteralKeyValue : recordLiteral.keyValuePairs) {
-                if (recLiteralKeyValue.key.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
-                    recLiteralKeyValue.key.expr.type = symTable.errorType;
-                    dlog.error(recLiteralKeyValue.key.expr.pos, DiagnosticCode.INVALID_RECORD_LITERAL_KEY);
+        switch (expression.getKind()) {
+            case LITERAL:
+                return typeChecker.checkExpr(expression, this.env);
+            case RECORD_LITERAL_EXPR:
+                BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
+                recordLiteral.type = new BMapType(TypeTags.MAP, symTable.anydataType, null);
+                for (BLangRecordLiteral.BLangRecordKeyValue recLiteralKeyValue : recordLiteral.keyValuePairs) {
+                    if (recLiteralKeyValue.key.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                        BType fieldType = checkStaticMatchPatternLiteralType(recLiteralKeyValue.valueExpr);
+                        types.setImplicitCastExpr(recLiteralKeyValue.valueExpr, fieldType, symTable.anyType);
+                    } else if (recLiteralKeyValue.key.expr.getKind() == NodeKind.LITERAL &&
+                            typeChecker.checkExpr(recLiteralKeyValue.key.expr, this.env).tag == TypeTags.STRING) {
+                        BType fieldType = checkStaticMatchPatternLiteralType(recLiteralKeyValue.valueExpr);
+                        types.setImplicitCastExpr(recLiteralKeyValue.valueExpr, fieldType, symTable.anyType);
+                    } else {
+                        recLiteralKeyValue.key.expr.type = symTable.errorType;
+                        dlog.error(recLiteralKeyValue.key.expr.pos, DiagnosticCode.INVALID_RECORD_LITERAL_KEY);
+                    }
+                }
+                return recordLiteral.type;
+            case BRACED_TUPLE_EXPR:
+                BLangBracedOrTupleExpr bracedOrTupleExpr = (BLangBracedOrTupleExpr) expression;
+                List<BType> results = new ArrayList<>();
+                for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
+                    results.add(checkStaticMatchPatternLiteralType(bracedOrTupleExpr.expressions.get(i)));
                 }
 
-                BType fieldType = checkStaticMatchPatternLiteralType(recLiteralKeyValue.valueExpr);
-                types.setImplicitCastExpr(recLiteralKeyValue.valueExpr, fieldType, symTable.anyType);
-            }
-            recordLiteral.type = new BMapType(TypeTags.MAP, symTable.anydataType, null);
-            return recordLiteral.type;
+                if (bracedOrTupleExpr.expressions.size() > 1) {
+                    bracedOrTupleExpr.type = new BTupleType(results);
+                    return bracedOrTupleExpr.type;
+                } else {
+                    bracedOrTupleExpr.isBracedExpr = true;
+                    bracedOrTupleExpr.type = results.get(0);
+                    return bracedOrTupleExpr.type;
+                }
+            default:
+                dlog.error(expression.pos, DiagnosticCode.INVALID_LITERAL_FOR_MATCH_PATTERN);
+                expression.type = symTable.errorType;
+                return expression.type;
 
-        } else if (NodeKind.BRACED_TUPLE_EXPR == literalNode) {
-            BLangBracedOrTupleExpr bracedOrTupleExpr = (BLangBracedOrTupleExpr) expression;
-            List<BType> results = new ArrayList<>();
-            for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
-                results.add(checkStaticMatchPatternLiteralType(bracedOrTupleExpr.expressions.get(i)));
-            }
-
-            if (bracedOrTupleExpr.expressions.size() > 1) {
-                bracedOrTupleExpr.type = new BTupleType(results);
-                return bracedOrTupleExpr.type;
-            } else {
-                bracedOrTupleExpr.isBracedExpr = true;
-                bracedOrTupleExpr.type = results.get(0);
-                return bracedOrTupleExpr.type;
-            }
         }
-
-        dlog.error(expression.pos, DiagnosticCode.INVALID_LITERAL_FOR_MATCH_PATTERN);
-        expression.type = symTable.errorType;
-        return expression.type;
     }
 
-    public void visit(BLangMatchStmtStructuredBindingPatternClause patternClause) {
+    public void visit(BLangMatch.BLangMatchStructuredBindingPatternClause patternClause) {
         /*ignore*/
     }
 
@@ -1405,7 +1409,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         BType configType = symTable.semanticError;
         if (endpointNode.symbol != null && endpointNode.symbol.type.tag == TypeTags.OBJECT) {
-            if (endpointNode.configurationExpr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+            if (endpointNode.configurationExpr.getKind() == RECORD_LITERAL_EXPR) {
                 // Init expression.
                 configType = endpointSPIAnalyzer.getEndpointConfigType(
                         (BObjectTypeSymbol) endpointNode.symbol.type.tsymbol);
@@ -1965,7 +1969,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private void checkRetryStmtValidity(BLangExpression retryCountExpr) {
         boolean error = true;
         NodeKind retryKind = retryCountExpr.getKind();
-        if (retryKind == NodeKind.LITERAL) {
+        if (retryKind == LITERAL) {
             if (retryCountExpr.type.tag == TypeTags.INT) {
                 int retryCount = Integer.parseInt(((BLangLiteral) retryCountExpr).getValue().toString());
                 if (retryCount >= 0) {
@@ -2032,15 +2036,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // var a = { x : y };
         // var a = new ;
         final NodeKind kind = expr.getKind();
-        if (kind == NodeKind.RECORD_LITERAL_EXPR || kind == NodeKind.ARRAY_LITERAL_EXPR
+        if (kind == RECORD_LITERAL_EXPR || kind == NodeKind.ARRAY_LITERAL_EXPR
                 || (kind == NodeKind.Type_INIT_EXPR && ((BLangTypeInit) expr).userDefinedType == null)) {
             dlog.error(expr.pos, DiagnosticCode.INVALID_ANY_VAR_DEF);
             return false;
         }
-        if (kind == NodeKind.BRACED_TUPLE_EXPR) {
+        if (kind == BRACED_TUPLE_EXPR) {
             BLangBracedOrTupleExpr bracedOrTupleExpr = (BLangBracedOrTupleExpr) expr;
             if (bracedOrTupleExpr.expressions.size() > 1 &&
-                    bracedOrTupleExpr.expressions.stream().anyMatch(literal -> literal.getKind() == NodeKind.LITERAL)) {
+                    bracedOrTupleExpr.expressions.stream().anyMatch(literal -> literal.getKind() == LITERAL)) {
                 dlog.error(expr.pos, DiagnosticCode.INVALID_ANY_VAR_DEF);
                 return false;
             }
