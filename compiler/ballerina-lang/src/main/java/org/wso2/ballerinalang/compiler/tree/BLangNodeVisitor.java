@@ -809,11 +809,7 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangWaitForAllExpr.BLangWaitStructLiteral waitStructLiteral) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangWaitForAllExpr.BLangWaitMapLiteral waitMapLiteral) {
+    public void visit(BLangWaitForAllExpr.BLangWaitLiteral waitLiteral) {
         throw new AssertionError();
     }
 }

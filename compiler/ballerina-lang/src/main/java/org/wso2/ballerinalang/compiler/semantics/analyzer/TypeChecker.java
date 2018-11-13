@@ -1025,7 +1025,7 @@ public class TypeChecker extends BLangNodeVisitor {
         // Check if the previously added list is empty i.e. if it contains any unmatched fields
         if (keyList.size() > 0) {
             keyList.forEach(identifier -> dlog.error(waitExpr.pos, DiagnosticCode.INVALID_FIELD_NAME_RECORD_LITERAL,
-                                                     identifier.value));
+                                                     identifier.value, expType));
             resultType = symTable.semanticError;
         } else {
             resultType = expType;

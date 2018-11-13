@@ -973,7 +973,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangWaitForAllExpr waitForAllExpr) {
-        // ToDo
+        waitForAllExpr.keyValuePairs.forEach(keyValue -> {
+            BLangExpression expr = keyValue.valueExpr != null ? keyValue.valueExpr : keyValue.keyExpr;
+            analyzeExpr(expr);
+        });
     }
 
     @Override

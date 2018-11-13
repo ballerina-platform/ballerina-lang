@@ -810,10 +810,35 @@ public class CodeGenerator extends BLangNodeVisitor {
         emit(InstructionCodes.NEWSTRUCT, structCPIndex, structRegIndex);
 
         // Invoke the struct default values init function here.
-        initStruct(structRegIndex, structSymbol.defaultsValuesInitFunc);
+        if (structSymbol.defaultsValuesInitFunc != null) {
+            int funcRefCPIndex = getFuncRefCPIndex(structSymbol.defaultsValuesInitFunc.symbol);
+            // call funcRefCPIndex 1 structRegIndex 0
+            Operand[] operands = new Operand[6];
+            operands[0] = getOperand(funcRefCPIndex);
+            operands[1] = getOperand(false);
+            operands[2] = getOperand(1);
+            operands[3] = structRegIndex;
+            // Earlier, init function did not return any value. But now all functions should return a value. So we add
+            // new two operands to indicate the return value of the init function. The first one is the number of
+            // return values and the second one is the type of the return value.
+            operands[4] = getOperand(1);
+            operands[5] = getRegIndex(TypeTags.NIL);
+            emit(InstructionCodes.CALL, operands);
+        }
 
         // Invoke the struct initializer here.
-        initStruct(structRegIndex, structLiteral.initializer);
+        if (structLiteral.initializer != null) {
+            int funcRefCPIndex = getFuncRefCPIndex(structLiteral.initializer.symbol);
+            // call funcRefCPIndex 1 structRegIndex 0
+            Operand[] operands = new Operand[6];
+            operands[0] = getOperand(funcRefCPIndex);
+            operands[1] = getOperand(false);
+            operands[2] = getOperand(1);
+            operands[3] = structRegIndex;
+            operands[4] = getOperand(1);
+            operands[5] = getRegIndex(TypeTags.NIL);
+            emit(InstructionCodes.CALL, operands);
+        }
 
         // Generate code the struct literal.
         for (BLangRecordKeyValue keyValue : structLiteral.keyValuePairs) {
@@ -826,72 +851,26 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangWaitForAllExpr.BLangWaitStructLiteral waitStructLiteral) {
-        BRecordTypeSymbol structSymbol = (BRecordTypeSymbol) waitStructLiteral.type.tsymbol;
-        int pkgCPIndex = addPackageRefCPEntry(currentPkgInfo, structSymbol.pkgID);
-        int structNameCPIndex = addUTF8CPEntry(currentPkgInfo, structSymbol.name.value);
-        StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
-        Operand structCPIndex = getOperand(currentPkgInfo.addCPEntry(structureRefCPEntry));
-
-        // Emit an instruction to create a new record.
-        RegIndex structRegIndex = calcAndGetExprRegIndex(waitStructLiteral);
-        emit(InstructionCodes.NEWSTRUCT, structCPIndex, structRegIndex);
-
-        // Invoke the struct initializer here.
-        BAttachedFunction initializer = waitStructLiteral.initializer;
-        initStruct(structRegIndex, initializer);
-
-        // Generate code the struct literal.
-        for (BLangWaitForAllExpr.BLangWaitKeyValue keyValue : waitStructLiteral.keyValuePairs) {
-            UTF8CPEntry waitKeyCPEntry = new UTF8CPEntry(keyValue.key.value);
-            Operand waitKeyCPIndex = getOperand(currentPkgInfo.addCPEntry(waitKeyCPEntry));
-            if (keyValue.valueExpr != null) {
-                genNode(keyValue.valueExpr, this.env);
-                storeStructField(keyValue.valueExpr, structRegIndex, waitKeyCPIndex);
-            } else {
-                genNode(keyValue.keyExpr, this.env);
-                storeStructField(keyValue.keyExpr, structRegIndex, waitKeyCPIndex);
-            }
-        }
-        // Emit the wait instruction by passing the struct
-        this.emit(InstructionCodes.WAIT, structRegIndex);
-    }
-
-    private void initStruct(RegIndex structRegIndex, BAttachedFunction initializer) {
-        if (initializer != null) {
-            int funcRefCPIndex = getFuncRefCPIndex(initializer.symbol);
-            // call funcRefCPIndex 1 structRegIndex 0
-            Operand[] operands = new Operand[6];
-            operands[0] = getOperand(funcRefCPIndex);
-            operands[1] = getOperand(false);
-            operands[2] = getOperand(1);
-            operands[3] = structRegIndex;
-            operands[4] = getOperand(1);
-            operands[5] = getRegIndex(TypeTags.NIL);
-            emit(InstructionCodes.CALL, operands);
-        }
-    }
-
-    @Override
-    public void visit(BLangWaitForAllExpr.BLangWaitMapLiteral waitMapLiteral) {
-        Operand mapVarRegIndex = calcAndGetExprRegIndex(waitMapLiteral);
-        Operand typeCPIndex = getTypeCPIndex(waitMapLiteral.type);
+    public void visit(BLangWaitForAllExpr.BLangWaitLiteral waitLiteral) {
+        Operand mapVarRegIndex = calcAndGetExprRegIndex(waitLiteral);
+        Operand typeCPIndex = getTypeCPIndex(waitLiteral.type);
         emit(InstructionCodes.NEWMAP, mapVarRegIndex, typeCPIndex);
-
-        // Handle Map init
-        for (BLangWaitForAllExpr.BLangWaitKeyValue keyValue : waitMapLiteral.keyValuePairs) {
-            // Get cpi index of the identifier
+        // Create a list to store the operands
+        List<Operand> operands = new ArrayList<>();
+        // Add the map index
+        operands.add(mapVarRegIndex);
+        for (BLangWaitForAllExpr.BLangWaitKeyValue keyValue : waitLiteral.keyValuePairs) {
+            // Get index of the identifier
             UTF8CPEntry waitKeyCPEntry = new UTF8CPEntry(keyValue.key.value);
             Operand waitKeyCPIndex = getOperand(currentPkgInfo.addCPEntry(waitKeyCPEntry));
-            // Get expression
+            operands.add(waitKeyCPIndex);
+            // Get index of the expression
             BLangExpression expr = keyValue.valueExpr != null ? keyValue.valueExpr : keyValue.keyExpr;
             genNode(expr, this.env);
-            // opcode is always NOP
-            emit(InstructionCodes.MAPSTORE, mapVarRegIndex, waitKeyCPIndex, expr.regIndex);
+            operands.add(expr.regIndex);
         }
-
         // Emit the wait instruction by passing the map
-        this.emit(InstructionCodes.WAIT, mapVarRegIndex);
+        this.emit(InstructionCodes.WAITALL, operands.toArray(new Operand[operands.size()]));
     }
 
     @Override
@@ -1431,21 +1410,17 @@ public class CodeGenerator extends BLangNodeVisitor {
             valueRegIndex = this.getOperand(-1);
         }
 
-        Operand [] operands = new Operand[waitExpr.exprList.size() + 1];
-        int index = 0;
+        List<Operand> operands = new ArrayList<>();
+        operands.add(valueRegIndex);
         for (BLangExpression expr : waitExpr.exprList) {
             genNode(expr, this.env);
-            operands[index] = expr.regIndex;
-            index++;
+            operands.add(expr.regIndex);
         }
-        // Add reg index of wait
-        operands[index] = valueRegIndex;
-        this.emit(InstructionCodes.WAIT, operands);
+        this.emit(InstructionCodes.WAIT, operands.toArray(new Operand[operands.size()]));
     }
 
     @Override
     public void visit(BLangWaitForAllExpr awaitExpr) {
-        // ToDo
     }
 
     @Override
