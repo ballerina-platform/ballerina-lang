@@ -49,7 +49,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
@@ -63,7 +62,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
@@ -74,7 +72,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -191,7 +188,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private SymbolResolver symResolver;
     private TypeChecker typeChecker;
     private Types types;
-    private EndpointSPIAnalyzer endpointSPIAnalyzer;
     private BLangDiagnosticLog dlog;
 
     private SymbolEnv env;
@@ -219,7 +215,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
         this.types = Types.getInstance(context);
-        this.endpointSPIAnalyzer = EndpointSPIAnalyzer.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
@@ -296,11 +291,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
             return;
         }
-
-        funcNode.endpoints.forEach(e -> {
-            symbolEnter.defineNode(e, funcEnv);
-            analyzeDef(e, funcEnv);
-        });
 
         if (funcNode.body != null) {
             analyzeStmt(funcNode.body, funcEnv);
@@ -988,75 +978,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangService serviceNode) {
         BServiceSymbol serviceSymbol = (BServiceSymbol) serviceNode.symbol;
         SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceSymbol.scope, env);
-        handleServiceTypeStruct(serviceNode);
-        handleServiceEndpointBinds(serviceNode, serviceSymbol);
-        handleAnonymousEndpointBind(serviceNode);
         serviceNode.annAttachments.forEach(a -> {
             a.attachPoint = AttachPoint.SERVICE;
             this.analyzeDef(a, serviceEnv);
         });
         serviceNode.nsDeclarations.forEach(xmlns -> this.analyzeDef(xmlns, serviceEnv));
         serviceNode.vars.forEach(v -> this.analyzeDef(v, serviceEnv));
-        serviceNode.endpoints.forEach(e -> {
-            symbolEnter.defineNode(e, serviceEnv);
-            analyzeDef(e, serviceEnv);
-        });
         this.analyzeDef(serviceNode.initFunction, serviceEnv);
         serviceNode.resources.forEach(r -> this.analyzeDef(r, serviceEnv));
-    }
-
-    private void handleServiceTypeStruct(BLangService serviceNode) {
-        if (serviceNode.serviceTypeStruct == null) {
-            return;
-        }
-        final BType serviceStructType = symResolver.resolveTypeNode(serviceNode.serviceTypeStruct, env);
-        serviceNode.endpointType = endpointSPIAnalyzer.getEndpointTypeFromServiceType(
-                serviceNode.serviceTypeStruct.pos, serviceStructType);
-        if (serviceNode.endpointType != null) {
-            serviceNode.endpointClientType = endpointSPIAnalyzer.getClientType(
-                    (BObjectTypeSymbol) serviceNode.endpointType.tsymbol);
-        }
-    }
-
-    private void handleServiceEndpointBinds(BLangService serviceNode, BServiceSymbol serviceSymbol) {
-        for (BLangSimpleVarRef ep : serviceNode.boundEndpoints) {
-            typeChecker.checkExpr(ep, env);
-            if (ep.symbol == null || (ep.symbol.tag & SymTag.ENDPOINT) != SymTag.ENDPOINT) {
-                dlog.error(ep.pos, DiagnosticCode.ENDPOINT_INVALID_TYPE, ep.variableName);
-                continue;
-            }
-            final BEndpointVarSymbol epSym = (BEndpointVarSymbol) ep.symbol;
-            if ((epSym.tag & SymTag.ENDPOINT) == SymTag.ENDPOINT) {
-                if (epSym.registrable) {
-                    serviceSymbol.boundEndpoints.add(epSym);
-                    if (serviceNode.endpointType == null) {
-                        serviceNode.endpointType = (BObjectType) epSym.type;
-                        serviceNode.endpointClientType = endpointSPIAnalyzer.getClientType(
-                                (BObjectTypeSymbol) serviceNode.endpointType.tsymbol);
-                    }
-                    // TODO : Validate serviceType endpoint type with bind endpoint types.
-                } else {
-                    dlog.error(ep.pos, DiagnosticCode.ENDPOINT_NOT_SUPPORT_REGISTRATION, epSym);
-                }
-            } else {
-                dlog.error(ep.pos, DiagnosticCode.ENDPOINT_INVALID_TYPE, epSym);
-            }
-        }
-        if (serviceNode.endpointType == null) {
-            dlog.error(serviceNode.pos, DiagnosticCode.SERVICE_INVALID_ENDPOINT_TYPE, serviceNode.name);
-        }
-    }
-
-    private void handleAnonymousEndpointBind(BLangService serviceNode) {
-        if (serviceNode.anonymousEndpointBind == null) {
-            return;
-        }
-        if (serviceNode.endpointType == null) {
-            dlog.error(serviceNode.pos, DiagnosticCode.SERVICE_SERVICE_TYPE_REQUIRED_ANONYMOUS, serviceNode.name);
-            return;
-        }
-        this.typeChecker.checkExpr(serviceNode.anonymousEndpointBind, env,
-                endpointSPIAnalyzer.getEndpointConfigType((BObjectTypeSymbol) serviceNode.endpointType.tsymbol));
     }
 
     private void validateConstructorAndCheckDefaultable(BLangTypeDefinition typeDef) {
@@ -1135,45 +1064,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             a.attachPoint = AttachPoint.RESOURCE;
             this.analyzeDef(a, resourceEnv);
         });
-        defineResourceEndpoint(resourceNode, resourceEnv);
         resourceNode.requiredParams.forEach(p -> analyzeDef(p, resourceEnv));
-        resourceNode.endpoints.forEach(e -> {
-            symbolEnter.defineNode(e, resourceEnv);
-            analyzeDef(e, resourceEnv);
-        });
         analyzeStmt(resourceNode.body, resourceEnv);
         this.processWorkers(resourceNode, resourceEnv);
-    }
-
-    private void defineResourceEndpoint(BLangResource resourceNode, SymbolEnv resourceEnv) {
-        if (!resourceNode.getParameters().isEmpty()) {
-            final BLangSimpleVariable variable = resourceNode.getParameters().get(0);
-            if (variable.type == symTable.endpointType) {
-                String actualVarName = variable.name.value.substring(1);
-                variable.name = new BLangIdentifier();
-                variable.name.value = actualVarName;
-                if (resourceEnv.enclService.endpointType != null) {
-                    variable.type = resourceEnv.enclService.endpointType;
-                    final BEndpointVarSymbol bEndpointVarSymbol = symbolEnter.defineEndpointVarSymbol(variable.pos,
-                            EnumSet.noneOf(Flag.class), variable.type, names.fromString(actualVarName), resourceEnv);
-                    variable.symbol = bEndpointVarSymbol;
-                    if (variable.type.tsymbol.kind == SymbolKind.OBJECT
-                            || variable.type.tsymbol.kind == SymbolKind.RECORD) {
-                        endpointSPIAnalyzer.populateEndpointSymbol((BObjectTypeSymbol) variable.type.tsymbol,
-                                bEndpointVarSymbol);
-                    }
-                } else {
-                    variable.type = symTable.semanticError;
-                    variable.symbol = symbolEnter.defineVarSymbol(variable.pos, EnumSet.noneOf(Flag.class),
-                            variable.type, names.fromString(actualVarName), resourceEnv);
-                }
-                // Replace old symbol with new one.
-                resourceNode.symbol.params.remove(0);
-                resourceNode.symbol.params.add(0, variable.symbol);
-                ((BInvokableType) resourceNode.symbol.type).paramTypes.remove(0);
-                ((BInvokableType) resourceNode.symbol.type).paramTypes.add(0, variable.type);
-            }
-        }
     }
 
     public void visit(BLangTryCatchFinally tryCatchFinally) {
@@ -1310,25 +1203,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangEndpoint endpointNode) {
-        endpointNode.annAttachments.forEach(annotationAttachment -> {
-            annotationAttachment.attachPoint = AttachPoint.ENDPOINT;
-            this.analyzeDef(annotationAttachment, env);
-        });
-        if (endpointNode.configurationExpr == null) {
-            return;
-        }
-        BType configType = symTable.semanticError;
-        if (endpointNode.symbol != null && endpointNode.symbol.type.tag == TypeTags.OBJECT) {
-            if (endpointNode.configurationExpr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
-                // Init expression.
-                configType = endpointSPIAnalyzer.getEndpointConfigType(
-                        (BObjectTypeSymbol) endpointNode.symbol.type.tsymbol);
-            } else {
-                // assign Expression.
-                configType = endpointNode.symbol.type;
-            }
-        }
-        this.typeChecker.checkExpr(endpointNode.configurationExpr, env, configType);
     }
 
     private boolean isInTopLevelWorkerEnv() {

@@ -323,7 +323,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (lhsType.tag == TypeTags.NIL &&
                 (rhsType.tag == TypeTags.OBJECT ||
                         rhsType.tag == TypeTags.RECORD ||
-                        rhsType.tag == TypeTags.ENDPOINT ||
                         rhsType.tag == TypeTags.INVOKABLE)) {
             BInvokableType opType = new BInvokableType(Lists.of(lhsType, rhsType), symTable.booleanType, null);
             return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
@@ -331,7 +330,6 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         if ((lhsType.tag == TypeTags.OBJECT ||
                 lhsType.tag == TypeTags.RECORD ||
-                lhsType.tag == TypeTags.ENDPOINT ||
                 lhsType.tag == TypeTags.INVOKABLE)
                 && rhsType.tag == TypeTags.NIL) {
             BInvokableType opType = new BInvokableType(Lists.of(lhsType, rhsType), symTable.booleanType, null);
@@ -573,29 +571,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         return symTable.notFoundSymbol;
-    }
-
-    /**
-     * Method to get all the action symbols of a connector.
-     *
-     * @param scope connector scope to search.
-     * @return action list.
-     */
-    public List<BInvokableSymbol> getConnectorActionSymbols(Scope scope) {
-        List<BInvokableSymbol> actions = new ArrayList<>();
-        scope.entries.values().forEach(entry -> {
-            while (entry != NOT_FOUND_ENTRY) {
-                if ((entry.symbol.tag & SymTag.ACTION) != SymTag.ACTION) {
-                    entry = entry.next;
-                    continue;
-                }
-
-                actions.add((BInvokableSymbol) entry.symbol);
-                break;
-            }
-        });
-
-        return actions;
     }
 
     /**

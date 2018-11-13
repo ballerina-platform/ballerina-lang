@@ -1728,7 +1728,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     private void analyzeReturnTaintedStatus(BLangInvokableNode invokableNode, SymbolEnv symbolEnv) {
         ignoredInvokableSymbol = null;
-        invokableNode.endpoints.forEach(endpoint -> endpoint.accept(this));
         if (invokableNode.workers.isEmpty()) {
             analyzeNode(invokableNode.body, symbolEnv);
         } else {
@@ -1746,7 +1745,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         boolean recurse = false;
         for (BLangWorker worker : workers) {
             blockedOnWorkerInteraction = false;
-            worker.endpoints.forEach(endpoint -> endpoint.accept(this));
             worker.accept(this);
             if (this.blockedNode != null || taintErrorSet.size() > 0) {
                 return;

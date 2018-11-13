@@ -35,7 +35,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -123,7 +122,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final Names names;
     private final SymbolResolver symResolver;
     private final BLangDiagnosticLog dlog;
-    private final EndpointSPIAnalyzer endpointSPIAnalyzer;
     private final Types types;
     private List<BLangTypeDefinition> unresolvedTypes;
     private int typePrecedence;
@@ -146,7 +144,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
-        this.endpointSPIAnalyzer = EndpointSPIAnalyzer.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.types = Types.getInstance(context);
     }
@@ -232,8 +229,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define annotation nodes.
         pkgNode.annotations.forEach(annot -> defineNode(annot, pkgEnv));
-
-        pkgNode.globalEndpoints.forEach(ep -> defineNode(ep, pkgEnv));
     }
 
     public void visit(BLangAnnotation annotationNode) {
@@ -628,12 +623,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                         env.enclPkg.symbol.pkgID, null, env.scope.owner);
         resourceSymbol.markdownDocumentation = getMarkdownDocAttachment(resourceNode.markdownDocumentationAttachment);
         SymbolEnv invokableEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceSymbol.scope, env);
-        if (!resourceNode.getParameters().isEmpty()
-                && resourceNode.getParameters().get(0) != null
-                && resourceNode.getParameters().get(0).typeNode == null) {
-            // This is endpoint variable. Setting temporary type for now till we find actual type at semantic phase.
-            resourceNode.getParameters().get(0).type = symTable.endpointType;
-        }
         defineInvokableSymbol(resourceNode, resourceSymbol, invokableEnv);
     }
 
@@ -719,11 +708,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangEndpoint endpoint) {
-        BType varType = symResolver.resolveTypeNode(endpoint.endpointTypeNode, env);
-        Name varName = names.fromIdNode(endpoint.name);
-        endpoint.type = varType;
-        endpoint.symbol = defineEndpointVarSymbol(endpoint.pos, endpoint.flagSet, varType, varName, env);
-        endpointSPIAnalyzer.resolveEndpointSymbol(endpoint);
     }
 
     public void visit(BLangXMLAttribute bLangXMLAttribute) {
@@ -859,9 +843,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 break;
             case XMLNS:
                 pkgNode.xmlnsList.add((BLangXMLNS) node);
-                break;
-            case ENDPOINT:
-                pkgNode.globalEndpoints.add((BLangEndpoint) node);
                 break;
         }
     }
@@ -1082,21 +1063,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             varSymbol = new BVarSymbol(Flags.asMask(flagSet), varName,
                     env.enclPkg.symbol.pkgID, varType, env.scope.owner);
         }
-        return varSymbol;
-    }
-
-    public BEndpointVarSymbol defineEndpointVarSymbol(DiagnosticPos pos, Set<Flag> flagSet, BType varType,
-                                                      Name varName, SymbolEnv env) {
-        // Create variable symbol
-        Scope enclScope = env.scope;
-        BEndpointVarSymbol varSymbol = new BEndpointVarSymbol(Flags.asMask(flagSet), varName,
-                env.enclPkg.symbol.pkgID, varType, enclScope.owner);
-        // Add it to the enclosing scope
-        // Find duplicates
-        if (!symResolver.checkForUniqueSymbol(pos, env, varSymbol, SymTag.VARIABLE_NAME)) {
-            varSymbol.type = symTable.semanticError;
-        }
-        enclScope.define(varSymbol.name, varSymbol);
         return varSymbol;
     }
 
