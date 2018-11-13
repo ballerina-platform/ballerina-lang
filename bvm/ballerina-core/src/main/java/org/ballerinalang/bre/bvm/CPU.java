@@ -855,7 +855,6 @@ public class CPU {
                 case TypeTags.TUPLE_TAG:
                 case TypeTags.JSON_TAG:
                 case TypeTags.RECORD_TYPE_TAG:
-
                     sf.refRegs[j] = (BRefType<?>) (sf.refRegs[i]).copy(new HashMap<>());
                     break;
             }
