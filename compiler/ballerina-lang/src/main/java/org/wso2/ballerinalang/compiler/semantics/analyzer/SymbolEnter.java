@@ -286,7 +286,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else if (importPkgNode.orgName.value.equals(enclPackageID.orgName.value)) {
             // means it's in 'import <org-name>/<pkg-name>' style and <org-name> is used to import within same project
             orgName = names.fromIdNode(importPkgNode.orgName);
-            version = (Names.DEFAULT_VERSION.equals(enclPackageID.version)) ? new Name("") : enclPackageID.version;
+            // Here we set the version as empty due to the following cases:
+            // 1) Suppose the import is from the same package, then the project version will be set later
+            // 2) Suppose the import is from Ballerina Central or another project which has the same org, then the
+            //    version is set when loading the import module
+            version = new Name("");
         } else {
             // means it's in 'import <org-name>/<pkg-name>' style
             orgName = names.fromIdNode(importPkgNode.orgName);

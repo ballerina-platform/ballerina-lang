@@ -163,7 +163,7 @@ public const KEEPALIVE_ALWAYS = "ALWAYS";
 # Closes the connection irrespective of the `connection` header value }
 public const KEEPALIVE_NEVER = "NEVER";
 
-function Listener::init (ServiceEndpointConfiguration c) {
+function Listener.init (ServiceEndpointConfiguration c) {
     self.config = c;
     var err = self.initEndpoint();
     if (err is error) {

@@ -31,15 +31,15 @@ type Person object {
 
 };
 
-function Person::getNameOut() returns string {
+function Person.getNameOut() returns string {
     return self.name;
 }
 
-function Person::getNameWrapperOutside1() returns string {
+function Person.getNameWrapperOutside1() returns string {
     return self.getName();
 }
 
-function Person::getNameWrapperOutside2() returns string {
+function Person.getNameWrapperOutside2() returns string {
     return self.getNameOut();
 }
 

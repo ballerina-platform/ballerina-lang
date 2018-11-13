@@ -89,7 +89,7 @@ public type Person object {
     }
 };
 
-function Person::test1(int a = 77, string n = "hello") returns (int, string) {
+function Person.test1(int a = 77, string n = "hello") returns (int, string) {
     string val = n + " world";
     int intVal = a + 10;
     return (intVal, val);

@@ -104,7 +104,7 @@ public type TopicPublisherActions object {
     public function sendTo(Destination destination, Message message) returns error?;
 };
 
-function TopicPublisherActions::sendTo(Destination destination, Message message) returns error? {
+function TopicPublisherActions.sendTo(Destination destination, Message message) returns error? {
     match (self.topicPublisher) {
         TopicPublisher topicPublisher => {
             match (topicPublisher.config.session) {

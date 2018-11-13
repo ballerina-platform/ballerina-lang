@@ -17,23 +17,23 @@
 # Removes each element that matches the given key.
 #
 # + key - Key of the field to remove
-public extern function json::remove(string key);
+public extern function json.remove(string key);
 
 # Converts a JSON object to a string representation.
 #
 # + return - String value of the converted JSON
-public extern function json::toString() returns (string);
+public extern function json.toString() returns (string);
 
 # Returns an array of keys contained in the specified JSON.
 #
 # + return - A string array of keys contained in the specified JSON
-public extern function json::getKeys() returns (string[]);
+public extern function json.getKeys() returns (string[]);
 
 # Converts a JSON object to a XML representation.
 #
 # + options - jsonOptions struct for JSON to XML conversion properties
 # + return - The XML representation of the JSON
-public extern function json::toXML(record {
+public extern function json.toXML(record {
                                          string attributePrefix = "@";
                                          string arrayEntryTag = "item";
                                      } options) returns (xml|error);
