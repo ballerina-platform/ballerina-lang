@@ -646,3 +646,31 @@ type E object {
     private int b;
     int c;
 };
+
+type Age record {
+    int age;
+    string format;
+};
+
+type Person record {
+    string name;
+    boolean married;
+    Age age;
+    (string, int) extra;
+    !...
+};
+
+function testVariableAssignment() returns (string, boolean, int, string) {
+    string fName;
+    boolean married;
+    int theAge;
+    string format;
+    map theMap;
+
+    {name: fName, married, age: {age: theAge, format}, ...theMap} = getPerson();
+    return (fName, married, theAge, format);
+}
+
+function getPerson() returns Person {
+    return {name: "Peter", married: true, age: {age:12, format: "Y"}};
+}
