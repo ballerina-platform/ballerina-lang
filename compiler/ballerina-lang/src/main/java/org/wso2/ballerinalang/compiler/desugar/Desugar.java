@@ -3201,7 +3201,7 @@ public class Desugar extends BLangNodeVisitor {
 
         switch (patternClause.getKind()) {
             case MATCH_STATIC_PATTERN_CLAUSE:
-                BLangMatch.BLangMatchStaticBindingPatternClause staticPattern =
+                BLangMatchStaticBindingPatternClause staticPattern =
                         (BLangMatchStaticBindingPatternClause) patternClause;
                 patternType = staticPattern.literal.type;
                 break;
@@ -3252,7 +3252,7 @@ public class Desugar extends BLangNodeVisitor {
                                                          BVarSymbol varSymbol, BType patternType) {
         DiagnosticPos pos = patternClause.pos;
         if (NodeKind.MATCH_STATIC_PATTERN_CLAUSE == patternClause.getKind()) {
-            BLangMatch.BLangMatchStaticBindingPatternClause pattern = (BLangMatch.BLangMatchStaticBindingPatternClause) patternClause;
+            BLangMatchStaticBindingPatternClause pattern = (BLangMatchStaticBindingPatternClause) patternClause;
             BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, varSymbol);
             BLangExpression binaryExpr = ASTBuilderUtil.createBinaryExpr(pos, varRef, pattern.literal,
                     symTable.booleanType, OperatorKind.EQUAL, null);
