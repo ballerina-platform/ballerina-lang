@@ -36,16 +36,17 @@ public type QueueSender object {
     public function init(QueueSenderEndpointConfiguration c) {
         self.config = c;
         self.producerActions.queueSender = self;
-        match (c.session) {
-            Session s => {
-                match (c.queueName) {
-                    string queueName => {
-                        self.initQueueSender(s);
-                    }
-                    () => {}
-                }
+        var sess = c.session;
+        if (sess is Session) {
+           Session s = sess;
+           var q = c.queueName;
+            if (q is string){
+                self.initQueueSender(s);
+            } else if (q is ()) {
+
             }
-            () => {log:printInfo("Message producer not properly initialised for queue");}
+        } else if (sess is ()){
+           log:printInfo("Message producer not properly initialised for queue");
         }
     }
 
@@ -109,17 +110,19 @@ public type QueueSenderActions object {
 };
 
 function QueueSenderActions.sendTo(Destination destination, Message message) returns error? {
-    match (self.queueSender) {
-        QueueSender queueSender => {
-            match (queueSender.config.session) {
-                Session s => {
-                    validateQueue(destination);
-                    queueSender.initQueueSender(s, destination = destination);
-                }
-                () => {}
-            }
-        }
-        () => {log:printInfo("Message producer not properly initialised for queue " + destination.destinationName);}
+    var q = self.queueSender;
+    if (q is QueueSender) {
+          QueueSender queueSender = q;
+          var sess = queueSender.config.session;
+          if (sess is Session) {
+             Session s = sess;
+             validateQueue(destination);
+             queueSender.initQueueSender(s, destination = destination);
+          } else if (sess is ()) {
+
+          }
+    } else if (q is ()) {
+        log:printInfo("Message producer not properly initialised for queue " + destination.destinationName);
     }
     return self.send(message);
 }

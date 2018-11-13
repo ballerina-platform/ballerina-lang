@@ -30,12 +30,13 @@ public type DurableTopicSubscriber object {
     # + c - Configurations for a durable topic subscriber
     public function init(DurableTopicSubscriberEndpointConfiguration c) {
         self.config = c;
-        match (c.session) {
-            Session s => {
-                self.createSubscriber(s, c.messageSelector);
-                log:printInfo("Durable subscriber created for topic " + c.topicPattern);
-            }
-            () => {}
+        var sess = c.session;
+        if (sess is Session){
+             Session s = sess;
+             self.createSubscriber(s, c.messageSelector);
+             log:printInfo("Durable subscriber created for topic " + c.topicPattern);
+        } else if (sess is ()){
+
         }
     }
 

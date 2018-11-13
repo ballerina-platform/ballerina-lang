@@ -61,16 +61,15 @@ public type SimpleQueueReceiver object {
     #
     # + serviceType - type descriptor of the service to bind to
     public function register(typedesc serviceType) {
-        match (self.queueReceiver) {
-            QueueReceiver c => {
-                c.register(serviceType);
-            }
-            () => {
-                string errorMessage = "Queue receiver cannot be nil";
-                map errorDetail = { message: errorMessage };
-                error e = error(JMS_ERROR_CODE, errorDetail);
-                panic e;
-            }
+        var q = self.queueReceiver;
+        if (q is  QueueReceiver) {
+          QueueReceiver c = q;
+          c.register(serviceType);
+        } else if (q is ()){
+            string errorMessage = "Queue receiver cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
 
@@ -82,16 +81,18 @@ public type SimpleQueueReceiver object {
     # Retrieves the SimpleQueueReceiver consumer action handler
     #
     # + return - simple queue receiver action handler
-    public function getCallerActions() returns QueueReceiverActions {
-        match (self.queueReceiver) {
-            QueueReceiver c => return c.getCallerActions();
-            () => {
-                string errorMessage = "Queue receiver cannot be nil";
-                map errorDetail = { message: errorMessage };
-                error e = error(JMS_ERROR_CODE, errorDetail);
-                panic e;
-            }
+    public function getCallerActions() returns QueueReceiverActions? {
+        var q = self.queueReceiver;
+        if (q is QueueReceiver){
+            QueueReceiver c = q;
+            return c.getCallerActions();
+        } else if (q is ()){
+            string errorMessage = "Queue receiver cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
+        return ();
     }
 
     # Stops consuming messages through QueueReceiver endpoint
@@ -104,15 +105,16 @@ public type SimpleQueueReceiver object {
     # + content - the text content used to initialize this message
     # + return - the created message, or nil if the session is nil
     public function createTextMessage(string content) returns Message|error {
-        match (self.session) {
-            Session s => return s.createTextMessage(content);
-            () => {
-                string errorMessage = "Session cannot be nil";
-                map errorDetail = { message: errorMessage };
-                error e = error(JMS_ERROR_CODE, errorDetail);
-                panic e;
-            }
+        var sess = self.session;
+        if (sess is Session) {
+            Session s = sess;
+            return s.createTextMessage(content);
         }
+           string errorMessage = "Session cannot be nil";
+           map errorDetail = { message: errorMessage };
+           error e = error(JMS_ERROR_CODE, errorDetail);
+           panic e;
+
     }
 };
 

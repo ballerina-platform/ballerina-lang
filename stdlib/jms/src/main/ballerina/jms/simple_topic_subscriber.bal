@@ -59,16 +59,15 @@ public type SimpleTopicSubscriber object {
     #
     # + serviceType - Type descriptor of the service
     public function register(typedesc serviceType) {
-        match (self.subscriber) {
-            TopicSubscriber c => {
-                c.register(serviceType);
-            }
-            () => {
-                string errorMessage = "Topic Subscriber cannot be nil";
-                map errorDetail = { message: errorMessage };
-                error e = error(JMS_ERROR_CODE, errorDetail);
-                panic e;
-            }
+        var s = self.subscriber;
+        if (s is TopicSubscriber){
+           TopicSubscriber c = s;
+           c.register(serviceType);
+        } else if (s is ()){
+           string errorMessage = "Topic Subscriber cannot be nil";
+           map errorDetail = { message: errorMessage };
+           error e = error(JMS_ERROR_CODE, errorDetail);
+           panic e;
         }
     }
 
@@ -80,16 +79,18 @@ public type SimpleTopicSubscriber object {
     # Get simple topic subscriber actions
     #
     # + return - Topic subscriber actions
-    public function getCallerActions() returns TopicSubscriberActions {
-        match (self.subscriber) {
-            TopicSubscriber c => return c.getCallerActions();
-            () => {
-                string errorMessage = "Topic Subscriber cannot be nil";
-                map errorDetail = { message: errorMessage };
-                error e = error(JMS_ERROR_CODE, errorDetail);
-                panic e;
-            }
+    public function getCallerActions() returns TopicSubscriberActions? {
+        var s = self.subscriber;
+        if (s is TopicSubscriber) {
+            TopicSubscriber c = s;
+            return c.getCallerActions();
+        } else if (s is ()) {
+            string errorMessage = "Topic Subscriber cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
+        return ();
     }
 
     # Stop simple topic subsriber endpoint
@@ -102,15 +103,16 @@ public type SimpleTopicSubscriber object {
     # + message - A message body to create a text message
     # + return - a message or nil if the session is nil
     public function createTextMessage(string message) returns Message|error {
-        match (self.session) {
-            Session s => return s.createTextMessage(message);
-            () => {
-                string errorMessage = "Session cannot be nil";
-                map errorDetail = { message: errorMessage };
-                error e = error(JMS_ERROR_CODE, errorDetail);
-                panic e;
-            }
+        var sess = self.session;
+        if (sess is Session) {
+           Session s = sess;
+           return s.createTextMessage(message);
         }
+           string errorMessage = "Session cannot be nil";
+           map errorDetail = { message: errorMessage };
+           error e = error(JMS_ERROR_CODE, errorDetail);
+           panic e;
+
     }
 
     # Create JMS map message
@@ -118,15 +120,16 @@ public type SimpleTopicSubscriber object {
     # + message - A message body to create a map message
     # + return - a message or nil if the session is nil.
     public function createMapMessage(map message) returns Message|error {
-        match (self.session) {
-            Session s => return s.createMapMessage(message);
-            () => {
-                string errorMessage = "Session cannot be nil";
-                map errorDetail = { message: errorMessage };
-                error e = error(JMS_ERROR_CODE, errorDetail);
-                panic e;
-            }
+        var sess = self.session;
+        if (sess is Session) {
+              Session s = sess;
+              return s.createMapMessage(message);
         }
+              string errorMessage = "Session cannot be nil";
+              map errorDetail = { message: errorMessage };
+              error e = error(JMS_ERROR_CODE, errorDetail);
+              panic e;
+
     }
 };
 

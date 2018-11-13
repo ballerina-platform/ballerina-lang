@@ -35,16 +35,17 @@ public type TopicPublisher object {
     public function init(TopicPublisherEndpointConfiguration c) {
         self.config = c;
         self.producerActions.topicPublisher = self;
-        match (c.session) {
-            Session s => {
-                match (c.topicPattern) {
-                    string topicPattern => {
-                        self.initTopicPublisher(s);
-                    }
-                    () => {log:printInfo("Topic publisher is not properly initialized for the topic");}
-                }
-            }
-            () => {}
+        var sess = c.session;
+        if (sess is Session) {
+           Session s = sess;
+           var t = c.topicPattern;
+           if (t is string) {
+               self.initTopicPublisher(s);
+           } else if (t is ()){
+               log:printInfo("Topic publisher is not properly initialized for the topic");
+           }
+        } else if (sess is ()) {
+
         }
     }
 
@@ -105,17 +106,19 @@ public type TopicPublisherActions object {
 };
 
 function TopicPublisherActions.sendTo(Destination destination, Message message) returns error? {
-    match (self.topicPublisher) {
-        TopicPublisher topicPublisher => {
-            match (topicPublisher.config.session) {
-                Session s => {
-                    validateTopic(destination);
-                    topicPublisher.initTopicPublisher(s, destination = destination);
-                }
-                () => {}
-            }
+    var p = self.topicPublisher;
+    if (p is TopicPublisher) {
+        TopicPublisher topicPublisher = p;
+        var sess = topicPublisher.config.session;
+        if (sess is Session) {
+            Session s = sess;
+            validateTopic(destination);
+            topicPublisher.initTopicPublisher(s, destination = destination);
+        } else if (sess is ()){
+
         }
-        () => {log:printInfo("Topic publisher is not properly initialized.");}
+    } else if (p is ()) {
+        log:printInfo("Topic publisher is not properly initialized.");
     }
     return self.send(message);
 }

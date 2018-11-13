@@ -31,17 +31,17 @@ public type QueueReceiver object {
     public function init(QueueReceiverEndpointConfiguration c) {
         self.config = c;
         self.consumerActions.queueReceiver = self;
-        match (c.session) {
-            Session s => {
-                match (c.queueName) {
-                    string queueName => {
-                        self.createQueueReceiver(s, c.messageSelector);
-                        log:printInfo("Message receiver created for queue " + queueName);
-                    }
-                    () => {}
-                }
-            }
-            () => { log:printInfo("Message receiver is not properly initialised for queue"); }
+        var sess = c.session;
+        if (sess is Session) {
+           Session s = sess;
+           var q = c.queueName;
+           if (q is string) {
+              string queueName = q;
+              self.createQueueReceiver(s, c.messageSelector);
+              log:printInfo("Message receiver created for queue " + queueName);
+           }
+        } else if (sess is ()){
+            log:printInfo("Message receiver is not properly initialised for queue");
         }
     }
 
@@ -119,19 +119,20 @@ public type QueueReceiverActions object {
 
 function QueueReceiverActions.receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|
         error)? {
-    match (self.queueReceiver) {
-        QueueReceiver queueReceiver => {
-            match (queueReceiver.config.session) {
-                Session s => {
-                    validateQueue(destination);
-                    queueReceiver.createQueueReceiver(s, queueReceiver.config.messageSelector, destination = destination
-                    );
-                }
-                () => {}
-            }
-        }
-        () => { log:printInfo("Message receiver is not properly initialised for queue " +
-                destination.destinationName); }
+    var q = self.queueReceiver;
+    if (q is QueueReceiver) {
+          QueueReceiver queueReceiver = q;
+          var sess = queueReceiver.config.session;
+          if (sess is Session) {
+              Session s = sess;
+              validateQueue(destination);
+              queueReceiver.createQueueReceiver(s, queueReceiver.config.messageSelector, destination = destination);
+          } else if (sess is ()) {
+
+          }
+    } else if (q is ()) {
+         log:printInfo("Message receiver is not properly initialised for queue " +
+         destination.destinationName);
     }
     var result = self.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
     self.queueReceiver.closeQueueReceiver(self);

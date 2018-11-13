@@ -72,16 +72,18 @@ public type SimpleQueueSender object {
     # Returns the caller action object of the SimpleQueueSender
     #
     # + return - Simple queue sender actions
-    public function getCallerActions() returns QueueSenderActions {
-        match (self.sender) {
-            QueueSender s => return s.getCallerActions();
-            () => {
-                string errorMessage = "Queue sender cannot be nil";
-                map errorDetail = { message: errorMessage };
-                error e = error(JMS_ERROR_CODE, errorDetail);
-                panic e;
-            }
+    public function getCallerActions() returns QueueSenderActions? {
+        var s = self.sender;
+        if (s is QueueSender){
+            QueueSender queueSender = s;
+            return queueSender.getCallerActions();
+        } else if (s is ()) {
+            string errorMessage = "Queue sender cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
+        return ();
     }
 
     # Stops the  SimpleQueueSender endpoint
@@ -93,15 +95,16 @@ public type SimpleQueueSender object {
     # + content - the text content used to initialize this message
     # + return - a message or nil if the session is nil
     public function createTextMessage(string content) returns Message|error {
-        match (self.session) {
-            Session s => return s.createTextMessage(content);
-            () => {
-                string errorMessage = "Session cannot be nil";
-                map errorDetail = { message: errorMessage };
-                error e = error(JMS_ERROR_CODE, errorDetail);
-                panic e;
-            }
+        var sess = self.session;
+        if (sess is Session) {
+            Session s = sess;
+            return s.createTextMessage(content);
         }
+            string errorMessage = "Session cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
+
     }
 };
 
