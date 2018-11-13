@@ -1735,8 +1735,8 @@ public class BLangPackageBuilder {
     }
 
     void addGlobalVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean isPublic, boolean isFinal,
-                           boolean isTypeAvailable, boolean isExpressionAvailable) {
-        BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, isTypeAvailable,
+                           boolean isDeclaredWithVar, boolean isExpressionAvailable) {
+        BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, isDeclaredWithVar,
                 isExpressionAvailable);
 
         if (isPublic) {

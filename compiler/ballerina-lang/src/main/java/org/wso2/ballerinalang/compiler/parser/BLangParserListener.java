@@ -708,10 +708,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
         boolean isPublic = ctx.PUBLIC() != null;
         boolean isFinal = ctx.FINAL() != null;
-        boolean isTypeAvailable = ctx.typeName() != null || ctx.channelType() != null;
+        boolean isDeclaredWithVar = ctx.VAR() != null;
         boolean isExpressionAvailable = ctx.expression() != null;
         this.pkgBuilder.addGlobalVariable(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), isPublic,
-                isFinal, isTypeAvailable, isExpressionAvailable);
+                isFinal, isDeclaredWithVar, isExpressionAvailable);
     }
 
     @Override
