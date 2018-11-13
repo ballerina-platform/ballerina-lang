@@ -17,7 +17,7 @@
 @final StatisticConfig[] DEFAULT_GAUGE_STATS_CONFIG = [{ timeWindow: 600000, buckets: 5,
     percentiles: [0.33, 0.5, 0.66, 0.99] }];
 
-@final map<string> DEFAULT_TAGS;
+@final map<string> DEFAULT_TAGS = {};
 
 
 # Start a span with no parent span.
@@ -80,13 +80,13 @@ public type Counter object {
     #          will be used.
     # + tags - The key/value pair of Tags. If no tags are provided, the default nil value will be used.
     public new(name, string? desc = "", map<string>? tags = ()) {
-        description = desc but {
+        self.description = desc but {
             () => ""
         };
-        metricTags = tags but {
+        self.metricTags = tags but {
             () => DEFAULT_TAGS
         };
-        initialize();
+        self.initialize();
     }
 
     # Performs the necessary native operations during the initialization of the counter.
@@ -145,16 +145,16 @@ public type Gauge object {
     #                     calculation.
     public new(name, string? desc = "", map<string>? tags = (),
                StatisticConfig[]? statisticConfig = ()) {
-        description = desc but {
+        self.description = desc but {
             () => ""
         };
-        metricTags = tags but {
+        self.metricTags = tags but {
             () => DEFAULT_TAGS
         };
-        statisticConfigs = statisticConfig but {
+        self.statisticConfigs = statisticConfig but {
             () => DEFAULT_GAUGE_STATS_CONFIG
         };
-        initialize();
+        self.initialize();
     }
 
     # Performs the necessary native operations during the initialization of the gauge.

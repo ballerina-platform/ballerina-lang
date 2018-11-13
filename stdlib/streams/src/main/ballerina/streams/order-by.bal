@@ -28,19 +28,19 @@ public type OrderBy object {
     }
 
     public function process(StreamEvent[] streamEvents) {
-        topDownMergeSort(streamEvents, sortTypes);
-        nextProcessorPointer(streamEvents);
+        self.topDownMergeSort(streamEvents, self.sortTypes);
+        self.nextProcessorPointer(streamEvents);
     }
 
     function topDownMergeSort(StreamEvent[] a, string[] tmpSortTypes) {
         int index = 0;
         int n = a.length();
-        StreamEvent[] b;
+        StreamEvent[] b = [];
         while (index < n) {
             b[index] = a[index];
             index += 1;
         }
-        topDownSplitMerge(b, 0, n, a, sortFunc, tmpSortTypes);
+        self.topDownSplitMerge(b, 0, n, a, self.sortFunc, tmpSortTypes);
     }
 
     function topDownSplitMerge(StreamEvent[] b, int iBegin, int iEnd, StreamEvent[] a,
@@ -51,9 +51,9 @@ public type OrderBy object {
             return;
         }
         int iMiddle = (iEnd + iBegin) / 2;
-        topDownSplitMerge(a, iBegin, iMiddle, b, sortFunc, tmpSortTypes);
-        topDownSplitMerge(a, iMiddle, iEnd, b, sortFunc, tmpSortTypes);
-        topDownMerge(b, iBegin, iMiddle, iEnd, a, sortFunc, tmpSortTypes);
+        self.topDownSplitMerge(a, iBegin, iMiddle, b, sortFunc, tmpSortTypes);
+        self.topDownSplitMerge(a, iMiddle, iEnd, b, sortFunc, tmpSortTypes);
+        self.topDownMerge(b, iBegin, iMiddle, iEnd, a, sortFunc, tmpSortTypes);
     }
 
     function topDownMerge(StreamEvent[] a, int iBegin, int iMiddle, int iEnd, StreamEvent[] b,
@@ -122,7 +122,7 @@ public type OrderBy object {
     }
 
     function sortFunc(StreamEvent x, StreamEvent y, string[] sortFieldMetadata, int fieldIndex) returns int {
-        var fieldFunc = fieldFuncs[fieldIndex];
+        var fieldFunc = self.fieldFuncs[fieldIndex];
         match fieldFunc(x.data) {
             string sx => {
                 match fieldFunc(y.data) {
@@ -130,12 +130,12 @@ public type OrderBy object {
                         int c;
                         //odd indices contain the sort type (ascending/descending)
                         if (sortFieldMetadata[fieldIndex].equalsIgnoreCase(ASCENDING)) {
-                            c = stringSort(sx, sy);
+                            c = self.stringSort(sx, sy);
                         } else {
-                            c = stringSort(sy, sx);
+                            c = self.stringSort(sy, sx);
                         }
                         // if c == 0 then check for the next sort field
-                        return callNextSortFunc(x, y, c, sortFieldMetadata, fieldIndex + 1);
+                        return self.callNextSortFunc(x, y, c, sortFieldMetadata, fieldIndex + 1);
                     }
                     any a => {
                         error err = error("Values to be orderred contain non-string values in fieldIndex: " +
@@ -150,11 +150,11 @@ public type OrderBy object {
                     int|float ay => {
                         int c;
                         if (sortFieldMetadata[fieldIndex].equalsIgnoreCase(ASCENDING)) {
-                            c = numberSort(ax, ay);
+                            c = self.numberSort(ax, ay);
                         } else {
-                            c = numberSort(ay, ax);
+                            c = self.numberSort(ay, ax);
                         }
-                        return callNextSortFunc(x, y, c, sortFieldMetadata,fieldIndex + 1);
+                        return self.callNextSortFunc(x, y, c, sortFieldMetadata,fieldIndex + 1);
                     }
                     any aa => {
                         error err = error("Values to be orderred contain non-number values in fieldIndex: " +
@@ -175,7 +175,7 @@ public type OrderBy object {
     function callNextSortFunc(StreamEvent x, StreamEvent y, int c, string[] sortFieldMetadata, int fieldIndex) returns int {
         int result = c;
         if (result == 0 && (sortFieldMetadata.length() > fieldIndex)) {
-            result = sortFunc(x, y, sortFieldMetadata, fieldIndex);
+            result = self.sortFunc(x, y, sortFieldMetadata, fieldIndex);
         }
         return result;
     }

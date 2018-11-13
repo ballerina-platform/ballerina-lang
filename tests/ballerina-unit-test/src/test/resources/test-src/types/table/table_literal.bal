@@ -84,17 +84,18 @@ function checkTableCount(string tablePrefix) returns (int) {
 
     sql:Parameter p1 = { sqlType: sql:TYPE_VARCHAR, value: tablePrefix };
 
-    int count;
-    try {
-        table dt = check testDB->select("SELECT count(*) as count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME like
+    int count = 0;
+    table dt = check testDB->select("SELECT count(*) as count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME like
          ?", ResultCount, p1);
-        while (dt.hasNext()) {
-            ResultCount rs = check <ResultCount>dt.getNext();
-            count = rs.COUNTVAL;
+    while (dt.hasNext()) {
+        var ret = <ResultCount>dt.getNext();
+        if (ret is ResultCount) {
+            count = ret.COUNTVAL;
+        } else if (ret is error) {
+            count = -1;
         }
-    } finally {
-        testDB.stop();
     }
+    testDB.stop();
     return count;
 }
 
@@ -150,11 +151,7 @@ function testTableAddInvalid() returns string {
 
     table<Person> dt3 = table{};
     var ret = dt3.add(c1);
-    string s;
-    match (ret) {
-        error e => s = e.message;
-        () => s = "nil";
-    }
+    string s = ret is error ? <string>ret.detail().message : "nil";
     return s;
 }
 
@@ -547,7 +544,6 @@ function testRemoveWithInvalidRecordType() returns string {
     Person p2 = { id: 2, age: 40, salary: 200.50, name: "martin", married: true };
     Person p3 = { id: 3, age: 42, salary: 100.50, name: "john", married: false };
 
-
     table<Person> dt = table{};
     _ = dt.add(p1);
     _ = dt.add(p2);
@@ -555,12 +551,11 @@ function testRemoveWithInvalidRecordType() returns string {
 
     string returnStr;
     var ret = dt.remove(isBelow35Invalid);
-
-    match ret {
-        int i => returnStr = <string>i;
-        error e => returnStr = e.message;
+    if (ret is int) {
+        returnStr = <string>ret;
+    } else if (ret is error) {
+        returnStr = <string>ret.detail().message;
     }
-
     return returnStr;
 }
 
@@ -575,14 +570,13 @@ function testRemoveWithInvalidParamType() returns string {
     _ = dt.add(p2);
     _ = dt.add(p3);
 
-    string returnStr;
+    string returnStr = "";
     var ret = dt.remove(isBelow35InvalidParam);
-
-    match ret {
-        int i => returnStr = <string>i;
-        error e => returnStr = e.message;
+    if (ret is int) {
+        returnStr = <string>ret;
+    } else if (ret is error) {
+        returnStr = <string>ret.detail().message;
     }
-
     return returnStr;
 }
 

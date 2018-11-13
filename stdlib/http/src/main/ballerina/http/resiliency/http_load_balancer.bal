@@ -182,84 +182,84 @@ public type LoadBalanceActionErrorData record {
 
 public type LoadBalanceActionError error<string, LoadBalanceActionErrorData>;
 
-function LoadBalancerActions::post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function LoadBalancerActions.post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                         message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_POST);
 }
 
-function LoadBalancerActions::head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function LoadBalancerActions.head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_HEAD);
 }
 
-function LoadBalancerActions::patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function LoadBalancerActions.patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_PATCH);
 }
 
-function LoadBalancerActions::put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function LoadBalancerActions.put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                         message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_PUT);
 }
 
-function LoadBalancerActions::options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function LoadBalancerActions.options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                         message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_OPTIONS);
 }
 
-function LoadBalancerActions::forward(string path, Request request) returns Response|error {
+function LoadBalancerActions.forward(string path, Request request) returns Response|error {
     return performLoadBalanceAction(self, path, request, HTTP_FORWARD);
 }
 
-function LoadBalancerActions::execute(string httpVerb, string path, Request|string|xml|json|byte[]|
+function LoadBalancerActions.execute(string httpVerb, string path, Request|string|xml|json|byte[]|
                                                         io:ReadableByteChannel|mime:Entity[]|() message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceExecuteAction(self, path, req, httpVerb);
 }
 
-function LoadBalancerActions::delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function LoadBalancerActions.delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_DELETE);
 }
 
-function LoadBalancerActions::get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function LoadBalancerActions.get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_GET);
 }
 
-function LoadBalancerActions::submit(string httpVerb, string path, Request|string|xml|json|byte[]|
+function LoadBalancerActions.submit(string httpVerb, string path, Request|string|xml|json|byte[]|
     io:ReadableByteChannel|mime:Entity[]|() message) returns HttpFuture|error {
     error err = error("Unsupported action for LoadBalancer client.");
     return err;
 }
 
-function LoadBalancerActions::getResponse(HttpFuture httpFuture) returns Response|error {
+function LoadBalancerActions.getResponse(HttpFuture httpFuture) returns Response|error {
     error err = error("Unsupported action for LoadBalancer client.");
     return err;
 }
 
-function LoadBalancerActions::hasPromise(HttpFuture httpFuture) returns (boolean) {
+function LoadBalancerActions.hasPromise(HttpFuture httpFuture) returns (boolean) {
     return false;
 }
 
-function LoadBalancerActions::getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+function LoadBalancerActions.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
     error err = error("Unsupported action for LoadBalancer client.");
     return err;
 }
 
-function LoadBalancerActions::getPromisedResponse(PushPromise promise) returns Response|error {
+function LoadBalancerActions.getPromisedResponse(PushPromise promise) returns Response|error {
     error err = error("Unsupported action for LoadBalancer client.");
     return err;
 }
 
-function LoadBalancerActions::rejectPromise(PushPromise promise) {
+function LoadBalancerActions.rejectPromise(PushPromise promise) {
 }
 
 // Performs execute action of the Load Balance connector. extract the corresponding http integer value representation
@@ -300,17 +300,16 @@ function performLoadBalanceAction(LoadBalancerActions lb, string path, Request r
     while (loadBalanceTermination < lb.loadBalanceClientsArray.length()) {
         CallerActions loadBalanceClient = roundRobin(lb, lb.loadBalanceClientsArray);
 
-        match invokeEndpoint(path, request, requestAction, loadBalanceClient) {
-            Response inResponse => return inResponse;
-
-            error httpActionErr => {
-                if (!lb.failover) {
-                    return httpActionErr;
-                } else {
-                    loadBlancerInRequest = createFailoverRequest(loadBlancerInRequest, requestEntity);
-                    loadBalanceActionErrorData.httpActionErr[lb.nextIndex] = httpActionErr;
-                    loadBalanceTermination = loadBalanceTermination + 1;
-                }
+        var serviceResponse = invokeEndpoint(path, request, requestAction, loadBalanceClient);
+        if (serviceResponse is Response) {
+            return serviceResponse;
+        } else if (serviceResponse is error) {
+            if (lb.failover) {
+                loadBlancerInRequest = createFailoverRequest(loadBlancerInRequest, requestEntity);
+                loadBalanceActionErrorData.httpActionErr[lb.nextIndex] = serviceResponse;
+                loadBalanceTermination = loadBalanceTermination + 1;
+            } else {
+                return serviceResponse;
             }
         }
     }

@@ -42,11 +42,11 @@ type Person object {
 };
 
 
-function Person::attachedFn3(int a, float b) returns (int) {
+function Person.attachedFn3(int a, float b) returns (int) {
     return a + <int>b;
 }
 
-function Person::attachedFn4() returns (function (int, float) returns (int)) {
+function Person.attachedFn4() returns (function (int, float) returns (int)) {
     var foo = function (int a, float b) returns (int) {
         return 7 + a + <int>b;
     };
@@ -111,11 +111,11 @@ public type FooObj object {
     }
 
     public function processStrArray(string[] vals) returns string{
-        return fp1(vals);
+        return self.fp1(vals);
     }
 
     public function processIntArray(int[] vals) returns int{
-        return fp2(vals);
+        return self.fp2(vals);
     }
 };
 
@@ -153,7 +153,7 @@ public type O1 object {
     }
 
     public function process(string[] vals) returns string{
-        return fpO1(vals);
+        return self.fpO1(vals);
     }
 };
 
@@ -163,7 +163,7 @@ public type O2 object {
     new (fpO2){}
 
     public function process(string[] vals) returns string{
-        return fpO2(vals);
+        return self.fpO2(vals);
     }
 };
 
@@ -173,7 +173,7 @@ public type O3 object {
     new (fpO3){}
 
     public function process(string[] vals) returns string{
-        return fpO3(vals);
+        return self.fpO3(vals);
     }
 };
 
@@ -183,7 +183,7 @@ public type O4 object {
     new (fpO4){}
 
     public function process(string[] vals) returns string{
-        return fpO4(vals);
+        return self.fpO4(vals);
     }
 };
 
@@ -193,6 +193,6 @@ public type O5 object {
     new (fpO5){}
 
     public function process(string[] vals) returns string{
-        return fpO5(vals);
+        return self.fpO5(vals);
     }
 };

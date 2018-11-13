@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BByteArray;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
@@ -34,6 +35,8 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
+
+import java.math.BigDecimal;
 
 /**
  * Common utility methods used for List manipulation.
@@ -59,6 +62,9 @@ public class ListUtils {
             case TypeTags.FLOAT_TAG:
                 BFloatArray bFloatArray = (BFloatArray) array;
                 return new BFloat(bFloatArray.get(index));
+            case TypeTags.DECIMAL_TAG:
+                BRefValueArray bDecimalArray = (BRefValueArray) array;
+                return new BDecimal(new BigDecimal(bDecimalArray.get(index).stringValue()));
             case TypeTags.INT_TAG:
                 BIntArray bIntArray = (BIntArray) array;
                 return new BInteger(bIntArray.get(index));
