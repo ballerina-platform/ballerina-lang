@@ -22,7 +22,7 @@ import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.LockNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangStructFieldAccessExpr;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,7 +40,7 @@ public class BLangLock extends BLangStatement implements LockNode {
 
     public Set<BVarSymbol> lockVariables = new HashSet<>();
 
-    public Map<BLangIndexBasedAccess.BLangStructFieldAccessExpr, Set<String>> fieldVariables = new HashMap<>();
+    public Map<BVarSymbol, Set<BLangStructFieldAccessExpr>> fieldVariables = new HashMap<>();
 
     public Set<BVarSymbol> selfVariables = new HashSet<>();
 
@@ -71,9 +71,9 @@ public class BLangLock extends BLangStatement implements LockNode {
         return lockVariables.add(variable);
     }
 
-    public void addFieldVariable(BLangIndexBasedAccess.BLangStructFieldAccessExpr expr, String field) {
-        fieldVariables.putIfAbsent(expr, new HashSet<>());
-        fieldVariables.get(expr).add(field);
+    public void addFieldVariable(BLangStructFieldAccessExpr expr) {
+        fieldVariables.putIfAbsent((BVarSymbol) expr.expr.symbol, new HashSet<>());
+        fieldVariables.get(expr.expr.symbol).add(expr);
     }
 
     public void addSelfVariable(BVarSymbol symbol) {
