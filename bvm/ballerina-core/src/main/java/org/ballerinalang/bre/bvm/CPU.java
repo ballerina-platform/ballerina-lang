@@ -1861,7 +1861,7 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.intRegs[k] = sf.refRegs[i] == sf.refRegs[j] ? 1 : 0;
+                sf.intRegs[k] = isReferenceEqual(sf.refRegs[i], sf.refRegs[j]) ? 1 : 0;
                 break;
             case InstructionCodes.TEQ:
                 i = operands[0];
@@ -1919,7 +1919,7 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.intRegs[k] = sf.refRegs[i] != sf.refRegs[j] ? 1 : 0;
+                sf.intRegs[k] = isReferenceInequal(sf.refRegs[i], sf.refRegs[j]) ? 1 : 0;
                 break;
             case InstructionCodes.TNE:
                 i = operands[0];
@@ -4363,6 +4363,57 @@ public class CPU {
             }
         }
         return true;
+    }
+
+    /**
+     * Reference equality check for values. If both the values are simple basic types, returns the same
+     * result as {@link CPU#isEqual(BValue, BValue)}
+     *
+     * @param lhsValue  The value on the left hand side
+     * @param rhsValue  The value on the right hand side
+     * @return True if values are reference equal or in the case of simple basic types if the values are equal,
+     * else false.
+     */
+    private static boolean isReferenceEqual(BValue lhsValue, BValue rhsValue) {
+        if (lhsValue == rhsValue) {
+            return true;
+        }
+
+        // if one is null, the other also needs to be null to be true
+        if (lhsValue == null || rhsValue == null) {
+            return false;
+        }
+
+        if (isSimpleBasicType(lhsValue.getType()) && isSimpleBasicType(rhsValue.getType())) {
+            return isEqual(lhsValue, rhsValue);
+        }
+
+        return false;
+    }
+
+    /**
+     * Reference inequality check for values. If both the values are simple basic types, returns the same
+     * result as the negation of {@link CPU#isEqual(BValue, BValue)}
+     *
+     * @param lhsValue  The value on the left hand side
+     * @param rhsValue  The value on the right hand side
+     * @return True if values are not reference equal or in the case of simple basic types if the values are not equal,
+     * else false.
+     */
+    private static boolean isReferenceInequal(BValue lhsValue, BValue rhsValue) {
+        if (lhsValue == null || rhsValue == null) {
+            return lhsValue != rhsValue;
+        }
+
+        if (isSimpleBasicType(lhsValue.getType()) && isSimpleBasicType(rhsValue.getType())) {
+            return !isEqual(lhsValue, rhsValue);
+        }
+
+        return lhsValue != rhsValue;
+    }
+
+    private static boolean isSimpleBasicType(BType type) {
+        return type.getTag() < TypeTags.JSON_TAG;
     }
 
     /**

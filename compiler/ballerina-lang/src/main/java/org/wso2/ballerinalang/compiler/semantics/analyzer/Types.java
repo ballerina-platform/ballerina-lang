@@ -1506,7 +1506,9 @@ public class Types {
     }
 
     boolean validEqualityIntersectionExists(BType lhsType, BType rhsType) {
-        // TODO: 10/19/18 if ==/!= return false if at least one is not anydata
+        if (!isAnydata(lhsType) || !isAnydata(rhsType)) {
+            return false;
+        }
 
         if (isAssignable(lhsType, rhsType) || isAssignable(rhsType, lhsType)) {
             return true;
@@ -1521,7 +1523,7 @@ public class Types {
     }
 
     private boolean equalityIntersectionExists(Set<BType> lhsTypes, Set<BType> rhsTypes) {
-        if (lhsTypes.contains(symTable.anyType) || rhsTypes.contains(symTable.anyType)) {
+        if (lhsTypes.contains(symTable.anydataType) || rhsTypes.contains(symTable.anydataType)) {
             return true;
         }
 
