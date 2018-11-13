@@ -145,6 +145,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
@@ -2335,6 +2336,13 @@ public class Desugar extends BLangNodeVisitor {
             workerReceiveNode.keyExpr = rewriteExpr(workerReceiveNode.keyExpr);
         }
         result = workerReceiveNode;
+    }
+
+    @Override
+    public void visit(BLangWorkerFlushExpr workerFlushExpr) {
+        workerFlushExpr.workerIdentifierList = workerFlushExpr.cachedWorkerSendStmts
+                .stream().map(send -> send.workerIdentifier).collect(Collectors.toList());
+        result = workerFlushExpr;
     }
 
     @Override

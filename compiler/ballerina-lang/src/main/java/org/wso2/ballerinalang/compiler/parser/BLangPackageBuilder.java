@@ -2578,7 +2578,9 @@ public class BLangPackageBuilder {
 
     void addWorkerFlushExpr(DiagnosticPos pos, Set<Whitespace> ws, String workerName) {
         BLangWorkerFlushExpr workerFlushExpr = TreeBuilder.createWorkerFlushExpressionNode();
-        workerFlushExpr.workerIdentifier = (BLangIdentifier) createIdentifier(workerName);
+        if (workerName != null) {
+            workerFlushExpr.workerIdentifier = (BLangIdentifier) createIdentifier(workerName);
+        }
         workerFlushExpr.pos = pos;
         workerFlushExpr.addWS(ws);
         addExpressionNode(workerFlushExpr);

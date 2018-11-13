@@ -22,6 +22,10 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.WorkerFlushExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Implementation of {@link BLangWorkerFlushExpr}.
@@ -31,6 +35,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 public class BLangWorkerFlushExpr extends BLangExpression implements WorkerFlushExpressionNode {
 
     public BLangIdentifier workerIdentifier;
+    public List<BLangIdentifier> workerIdentifierList = new ArrayList<>();
+    public List<BLangWorkerSend> cachedWorkerSendStmts = new ArrayList<>();
 
     @Override
     public NodeKind getKind() {
@@ -44,7 +50,10 @@ public class BLangWorkerFlushExpr extends BLangExpression implements WorkerFlush
 
     @Override
     public String toString() {
-        return "flush " + String.valueOf(workerIdentifier);
+        if (workerIdentifier != null) {
+            return "flush " + String.valueOf(workerIdentifier);
+        }
+        return "flush";
     }
 
     @Override
