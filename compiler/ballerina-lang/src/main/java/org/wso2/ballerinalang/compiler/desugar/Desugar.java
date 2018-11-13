@@ -3208,7 +3208,7 @@ public class Desugar extends BLangNodeVisitor {
             case MATCH_STRUCTURED_PATTERN_CLAUSE:
                 BLangMatchStructuredBindingPatternClause structuredPattern =
                         (BLangMatchStructuredBindingPatternClause) patternClause;
-                patternType = structuredPattern.bindingPatternVariable.type;
+                patternType = getStructuredBindingPatternType(structuredPattern.bindingPatternVariable);
                 break;
             default:
                 BLangMatchTypedBindingPatternClause simplePattern =
@@ -3246,6 +3246,19 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
         return binaryExpr;
+    }
+
+    private BType getStructuredBindingPatternType(BLangVariable bindingPatternVariable) {
+        if (NodeKind.TUPLE_VARIABLE == bindingPatternVariable.getKind()) {
+            BLangTupleVariable tupleVariable = (BLangTupleVariable) bindingPatternVariable;
+            List<BType> memberTypes = new ArrayList<>();
+            for (int i = 0; i < tupleVariable.memberVariables.size(); i++) {
+                memberTypes.add(getStructuredBindingPatternType(tupleVariable.memberVariables.get(i)));
+            }
+            return new BTupleType(memberTypes);
+        }
+
+        return bindingPatternVariable.type;
     }
 
     private BLangExpression createPatternMatchBinaryExpr(BLangMatchBindingPatternClause patternClause,
