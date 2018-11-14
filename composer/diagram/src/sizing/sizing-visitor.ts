@@ -1,5 +1,4 @@
-import { Visitor } from "../base-visitor";
-import { Assignment, Block, CompilationUnit } from "../models";
+import { Assignment, Block, Visitor } from "@ballerina/ast-model";
 
 export const visitor: Visitor = {
     beginVisitAssignment(node: Assignment) {

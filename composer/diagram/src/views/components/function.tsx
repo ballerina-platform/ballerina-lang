@@ -1,5 +1,6 @@
+// tslint:disable-next-line:no-submodule-imports
+import * as Ballerina from "@ballerina/ast-model/lib/models";
 import * as React from "react";
-import * as Ballerina from "../../models";
 
 export const Function = (props: {model: Ballerina.Function}) => {
     const { model } = props;
