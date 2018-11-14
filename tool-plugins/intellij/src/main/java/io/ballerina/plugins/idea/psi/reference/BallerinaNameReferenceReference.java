@@ -46,7 +46,7 @@ import io.ballerina.plugins.idea.psi.BallerinaRecordTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaServiceEndpointAttachments;
 import io.ballerina.plugins.idea.psi.BallerinaStatement;
 import io.ballerina.plugins.idea.psi.BallerinaTypeDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaTypeInitExpr;
+import io.ballerina.plugins.idea.psi.BallerinaTypeInitExpression;
 import io.ballerina.plugins.idea.psi.BallerinaTypes;
 import io.ballerina.plugins.idea.psi.BallerinaUserDefineTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaVariableDefinitionStatement;
@@ -85,7 +85,7 @@ public class BallerinaNameReferenceReference extends BallerinaCachedReference<Ba
         BallerinaScopeProcessorBase processor;
         PsiElement result;
 
-        BallerinaTypeInitExpr typeInitExpr = PsiTreeUtil.getParentOfType(myElement, BallerinaTypeInitExpr.class);
+        BallerinaTypeInitExpression typeInitExpr = PsiTreeUtil.getParentOfType(myElement, BallerinaTypeInitExpression.class);
         if (typeInitExpr != null) {
             // We need to check for user defined types for cases like "Person p = new Employee();" where we are
             // trying to resolve Employee.
