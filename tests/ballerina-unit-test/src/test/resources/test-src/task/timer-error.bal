@@ -1,6 +1,6 @@
 import ballerina/task;
 
-error err;
+error? err = ();
 string origErrMsg;
 task:Timer? timer;
 
@@ -23,8 +23,8 @@ function onError(error e) {
 
 function getError () returns (string) {
     string msg;
-    if (err != null) {
-        msg = err.message;
+    if (err is error) {
+        msg = err.reason();
     }
     return msg;
 }
