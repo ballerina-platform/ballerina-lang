@@ -67,7 +67,7 @@ callableUnitBody
 
 
 functionDefinition
-    :   (PUBLIC)? (EXTERN)? FUNCTION ((Identifier | typeName) DOUBLE_COLON)? callableUnitSignature (callableUnitBody | SEMICOLON)
+    :   (PUBLIC)? (EXTERN)? FUNCTION ((Identifier | typeName) DOT)? callableUnitSignature (callableUnitBody | SEMICOLON)
     ;
 
 lambdaFunction

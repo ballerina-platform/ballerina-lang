@@ -188,7 +188,7 @@ type Manager2 object {
     }
 };
 
-function Manager2::getName(string greeting = "Hello") returns string {
+function Manager2.getName(string greeting = "Hello") returns string {
     return greeting + " " + self.name;
 }
 
@@ -221,7 +221,7 @@ type Manager3 object {
     }
 };
 
-function Manager3::getName(string greeting = "Good morning") returns string {
+function Manager3.getName(string greeting = "Good morning") returns string {
     return greeting + " " + self.name;
 }
 

@@ -74,7 +74,7 @@ public type SimpleQueueReceiver object {
 
     # Stops consuming messages through QueueReceiver endpoint
     public function stop() {
-        receiver.stop();
+        self.receiver.stop();
     }
 
     # Creates a message which holds text content
@@ -135,7 +135,7 @@ public type QueueReceiverActions object {
     # + message - message to be acknowledged
     # + return - `error` if the acknowledgement fails
     public function acknowledge(Message message) returns error? {
-        return helper.acknowledge(message.getJMSMessage());
+        return self.helper.acknowledge(message.getJMSMessage());
     }
 
     # Synchronously receive a message from Ballerina message broker
@@ -143,7 +143,7 @@ public type QueueReceiverActions object {
     # + timeoutInMilliSeconds - time to wait until a message is received
     # + return - `Message` or nil if the timeout exceededs. Returns an `error` on broker internal error.
     public function receive(int timeoutInMilliSeconds = 0) returns (Message|error)? {
-        var result = helper.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
+        var result = self.helper.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
         match (result) {
             jms:Message m => return new Message(m);
             error e => return e;

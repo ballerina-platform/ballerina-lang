@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.service.grpc.sample;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -28,7 +29,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -49,8 +49,8 @@ public class GrpcMutualSslWithCertsTest extends GrpcBaseTest {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "grpc_ssl_client.bal");
         result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         final String serverMsg = "Hello WSO2";
-        String path = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator
-                + "certsAndKeys").getAbsolutePath();
+        String path = StringEscapeUtils.escapeJava(Paths.get("src", "test", "resources", "certsAndKeys")
+                                                           .toAbsolutePath().toString());
         BString pathTocerts = new BString(path);
 
         BValue[] responses = BRunUtil.invoke(result, "testUnarySecuredBlockingWithCerts", new BValue[] {pathTocerts});
