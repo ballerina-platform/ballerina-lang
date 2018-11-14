@@ -23,7 +23,7 @@ import ballerina/log;
 # + config - configurations related to the SimpleQueueReceiver endpoint
 public type SimpleQueueReceiver object {
 
-    public SimpleQueueReceiverEndpointConfiguration config;
+    public SimpleQueueReceiverEndpointConfiguration config = {};
 
     private Connection? connection;
     private Session? session = ();

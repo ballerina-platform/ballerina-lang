@@ -17,19 +17,16 @@ service<http:Service> echo1 bind echoEP1 {
     echo1 (endpoint caller, http:Request req) {
         var payload = req.getTextPayload();
         http:Response resp = new;
-        match payload {
-            string payloadValue => {
-                resp.setTextPayload(untaint payloadValue);
-                _ = caller -> respond(resp);
-            }
-            error payloadErr => {
-                resp.statusCode = 500;
-                string errMsg = <string> payloadErr.detail().message;
-                resp.setPayload(errMsg);
-                log:printError("Failed to retrieve payload from request: " + payloadErr.reason());
-                caller->respond(resp) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        if (payload is string) {
+            _ = caller -> respond(untaint payload);
+        } else if (payload is error) {
+            resp.statusCode = 500;
+            string errMsg = <string> payload.detail().message;
+            resp.setPayload(errMsg);
+            log:printError("Failed to retrieve payload from request: " + payload.reason());
+            var responseError = caller->respond(resp);
+            if (responseError is error) {
+                log:printError("Error sending response", err = responseError);
             }
         }
     }

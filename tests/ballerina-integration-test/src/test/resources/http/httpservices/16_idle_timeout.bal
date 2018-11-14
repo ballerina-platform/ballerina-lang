@@ -27,17 +27,16 @@ service<http:Service> idleTimeout bind { port: 9112, timeoutMillis: 1000 } {
         path: "/timeout408"
     }
     timeoutTest408(endpoint outboundEP, http:Request req) {
-        match req.getPayloadAsString() {
-            string s => {
-                log:printInfo(s);
-            }
-            error e => log:printError("Error reading request", err = e);
+        var result = req.getPayloadAsString();
+        if (result is string) {
+            log:printInfo(result);
+        } else if (result is error) {
+            log:printError("Error reading request", err = result);
         }
-        http:Response response = new;
-        response.setTextPayload("some");
-        outboundEP->respond(response) but {
-            error e => log:printError("Error sending response", err = e)
-        };
+        var responseError = outboundEP->respond("some");
+        if (responseError is error) {
+            log:printError("Error sending response", err = responseError);
+        }
     }
 
     @http:ResourceConfig {
@@ -46,10 +45,9 @@ service<http:Service> idleTimeout bind { port: 9112, timeoutMillis: 1000 } {
     }
     timeoutTest500(endpoint outboundEP, http:Request req) {
         runtime:sleep(3000);
-        http:Response response = new;
-        response.setTextPayload("some");
-        outboundEP->respond(response) but {
-            error e => log:printError("Error sending response", err = e)
-        };
+        var responseError = outboundEP->respond("some");
+        if (responseError is error) {
+            log:printError("Error sending response", err = responseError);
+        }
     }
 }

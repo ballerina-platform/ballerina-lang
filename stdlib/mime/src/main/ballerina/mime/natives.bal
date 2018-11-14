@@ -64,10 +64,10 @@ type MIMEError record {
 # + parameters - A set of parameters, specified in attribute=value notation
 public type ContentDisposition object {
 
-    public string fileName;
-    public string disposition;
-    public string name;
-    public map<string> parameters;
+    public string fileName = "";
+    public string disposition = "";
+    public string name = "";
+    public map<string> parameters = {};
 
     # Converts the `ContentDisposition` type to a string suitable for use as the value of a corresponding MIME header.
     # + return - The `string` represnetation of the `ContentDisposition` object
@@ -82,10 +82,10 @@ public type ContentDisposition object {
 # + parameters - A set of parameters, specified in an attribute=value notation
 public type MediaType object {
 
-    public string primaryType;
-    public string subType;
-    public string suffix;
-    public map<string> parameters;
+    public string primaryType = "";
+    public string subType = "";
+    public string suffix = "";
+    public map<string> parameters = {};
 
     # Gets “primaryType/subtype+suffix” combination in string format.
     #
