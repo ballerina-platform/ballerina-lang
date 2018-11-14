@@ -39,9 +39,9 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string md
     mime:Entity filePart = new;
     filePart.setContentDisposition(getContentDispositionForFormData("artifact"));
     filePart.setFileAsEntityBody(untaint dirPath);
-    match (filePart.setContentType(mime:APPLICATION_OCTET_STREAM)) {
-        error err => panic err;
-        () => {}
+    var contentTypeSetResult = filePart.setContentType(mime:APPLICATION_OCTET_STREAM);
+    if (contentTypeSetResult is error)  {
+        panic contentTypeSetResult;
     }
 
     mime:Entity[] bodyParts = [filePart, mdFileContentBodyPart, summaryBodyPart, homePageURLBodyPart, repositoryURLBodyPart,
@@ -64,14 +64,12 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string md
     if (statusCode.hasPrefix("5")) {
         io:println("remote registry failed for url :" + url);
     } else if (statusCode != "200") {
-        match (httpResponse.getJsonPayload()) {
-            error err => {
-                io:println("invalid response json");
-            }
-            json jsonResponse => {
-                string message = jsonResponse.message.toString();
-                io:println(message);
-            }
+        var jsonResponse = httpResponse.getJsonPayload();
+        if (jsonResponse is json) {
+            string message = jsonResponse.message.toString();
+            io:println(message);
+        } else {
+            io:println("invalid response json");
         }
     } else {
         io:println(msg);
@@ -85,22 +83,20 @@ public function main (string... args) {
     string host = args[13];
     string strPort = args[14];
     if (host != "" && strPort != "") {
-        int port;
-        match (<int> strPort) {
-            error err => {
-                io:println("invalid port : " + port);
+        var port = <int> strPort;
+        if (port is int) {
+            http:Client|error result = trap defineEndpointWithProxy(args[9], host, port, args[15], args[16]);
+            match result {
+                http:Client ep => {
+                    httpEndpoint = ep;
+                }
+                error e => {
+                    io:println("failed to resolve host : " + host + " with port " + port);
+                    return;
+                }
             }
-            int intPort => port = intPort;
-        }
-        http:Client|error result = trap defineEndpointWithProxy(args[9], host, port, args[15], args[16]);
-        match result {
-            http:Client ep => {
-                httpEndpoint = ep;
-            }
-            error e => {
-                io:println("failed to resolve host : " + host + " with port " + port);
-                return;
-            }
+        } else {
+            io:println("invalid port : " + strPort);
         }
     } else  if (host != "" || strPort != "") {
         io:println("both host and port should be provided to enable proxy");     
@@ -174,9 +170,9 @@ function addStringBodyParts (string key, string value) returns (mime:Entity) {
     mime:Entity stringBodyPart = new;
     stringBodyPart.setContentDisposition(getContentDispositionForFormData(key));
     stringBodyPart.setText(untaint value);
-    match (stringBodyPart.setContentType(mime:TEXT_PLAIN)) {
-        error err => panic err;
-        () => {}
+    var contentTypeSetResult = stringBodyPart.setContentType(mime:TEXT_PLAIN);
+    if (contentTypeSetResult is error)  {
+        panic contentTypeSetResult;
     }
     return stringBodyPart;
 }

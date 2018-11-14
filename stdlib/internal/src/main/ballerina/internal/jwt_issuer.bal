@@ -36,16 +36,8 @@ public type JWTIssuerConfig record {
 # + config - JWTIssuerConfig object
 # + return - JWT token string or an error if token validation fails
 public function issue(JwtHeader header, JwtPayload payload, JWTIssuerConfig config) returns (string|error) {
-    string jwtHeader = "";
-    match createHeader(header) {
-        error e => return e;
-        string result => jwtHeader = result;
-    }
-    string jwtPayload = "";
-    match createPayload(payload) {
-        error e => return e;
-        string result => jwtPayload = result;
-    }
+    string jwtHeader = check createHeader(header);
+    string jwtPayload = check createPayload(payload);
     string jwtAssertion = jwtHeader + "." + jwtPayload;
     KeyStore keyStore = {
         keyAlias : config.keyAlias,
