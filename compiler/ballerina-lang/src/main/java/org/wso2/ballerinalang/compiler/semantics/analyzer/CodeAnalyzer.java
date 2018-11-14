@@ -441,7 +441,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRetry retryNode) {
         if (this.transactionCount == 0) {
-            this.dlog.error(retryNode.pos, DiagnosticCode.FAIL_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
+            this.dlog.error(retryNode.pos, DiagnosticCode.RETRY_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
             return;
         }
         this.lastStatement = true;
