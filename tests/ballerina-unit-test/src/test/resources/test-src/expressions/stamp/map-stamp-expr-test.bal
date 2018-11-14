@@ -19,16 +19,16 @@ type IntRecord record{
 
 //----------------------------Map Stamp -------------------------------------------------------------
 
-function stampIntMapToRecord() returns IntRecord {
+function stampIntMapToRecord() returns IntRecord|error {
     map<int> m = { "a": 1, "b": 2 };
-    IntRecord intRecord = IntRecord.stamp(m);
+    IntRecord|error intRecord = IntRecord.stamp(m);
 
     return intRecord;
 }
 
-function stampIntMapToJSON() returns json {
+function stampIntMapToJSON() returns json|error {
     map<int> m = { "a": 1, "b": 2 };
-    json jsonValue = json.stamp(m);
+    json|error jsonValue = json.stamp(m);
 
     return jsonValue;
 }
@@ -55,41 +55,41 @@ function stampIntMapToAnydataMap() returns map<anydata> {
 }
 
 
-function stampAnydataMapToIntMap() returns map<int> {
+function stampAnydataMapToIntMap() returns map<int>|error {
     map<anydata> m = { "a": 1, "b": 2 };
-    map<int> mapValue = map<int>.stamp(m);
+    map<int>|error mapValue = map<int>.stamp(m);
 
     return mapValue;
 }
 
 
-function stampAnydataMapToStringMap() returns map<string> {
+function stampAnydataMapToStringMap() returns map<string>|error {
     map<anydata> m = { firstName: "mohan", lastName: "raj" };
-    map<string> mapValue = map<string>.stamp(m);
+    map<string>|error mapValue = map<string>.stamp(m);
 
     return mapValue;
 }
 
 
-function stampAnydataMapToStringMapWithoutExplicitConstraintType() returns map<string> {
+function stampAnydataMapToStringMapWithoutExplicitConstraintType() returns map<string>|error {
     map<anydata> m = { firstName: "mohan", lastName: "raj" };
-    map<string> mapValue = map<string>.stamp(m);
+    map<string>|error mapValue = map<string>.stamp(m);
 
     return mapValue;
 }
 
-function stampAnydataMapToRecord() returns Teacher {
+function stampAnydataMapToRecord() returns Teacher|error {
     map<anydata> anydataMap = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
 
-    Teacher teacherValue = Teacher.stamp(anydataMap);
+    Teacher|error teacherValue = Teacher.stamp(anydataMap);
 
     return teacherValue;
 }
 
-function stampAnydataMapToJSON() returns json {
+function stampAnydataMapToJSON() returns json|error {
     map<anydata> anydataMap = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
 
-    json jsonValue = json.stamp(anydataMap);
+    json|error jsonValue = json.stamp(anydataMap);
 
     return jsonValue;
 }
@@ -102,33 +102,33 @@ function stampAnydataMapToAnydata() returns anydata {
     return anydataValue;
 }
 
-function stampAnydataMapToSimilarOpenRecordMap() returns map<Employee> {
+function stampAnydataMapToSimilarOpenRecordMap() returns map<Employee>|error {
     Teacher p1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
     Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
 
     map<anydata> teacherMap = { "a": p1, "b": p2 };
-    map<Employee> mapValue = map<Employee>.stamp(teacherMap);
+    map<Employee>|error mapValue = map<Employee>.stamp(teacherMap);
 
     return mapValue;
 }
 
 
-function stampAnydataMapToRecordMap() returns map<Teacher> {
+function stampAnydataMapToRecordMap() returns map<Teacher>|error {
     Teacher p1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
     Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
 
     map<anydata> teacherMap = { "a": p1, "b": p2 };
-    map<Teacher> mapValue = map<Teacher>.stamp(teacherMap);
+    map<Teacher>|error mapValue = map<Teacher>.stamp(teacherMap);
 
     return mapValue;
 }
 
-function stampAnydataMapToJSONMap() returns map<json> {
+function stampAnydataMapToJSONMap() returns map<json>|error {
     Teacher p1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
     Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
 
     map<anydata> teacherMap = { "a": p1, "b": p2 };
-    map<json> jsonValue = map<json>.stamp(teacherMap);
+    map<json>|error jsonValue = map<json>.stamp(teacherMap);
 
     return jsonValue;
 }
@@ -154,21 +154,21 @@ function stampRecordMapToSimilarOpenRecordMap() returns map<Employee> {
     return mapValue;
 }
 
-function stampRecordMapToJSONMap() returns map<json> {
+function stampRecordMapToJSONMap() returns map<json>|error {
     Teacher p1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
     Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
 
     map<Teacher> teacherMap = { "a": p1, "b": p2 };
-    map<json> mapValue = map<json>.stamp(teacherMap);
+    map<json>|error mapValue = map<json>.stamp(teacherMap);
 
     return mapValue;
 
 }
 
-function stampJSONMapToRecordMap() returns map<Employee> {
+function stampJSONMapToRecordMap() returns map<Employee>|error {
     map<json> teacherMap = { "a": { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" },
         "b": { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" } };
-    map<Employee> mapValue = map<Employee>.stamp(teacherMap);
+    map<Employee>|error mapValue = map<Employee>.stamp(teacherMap);
 
     return mapValue;
 }
@@ -185,10 +185,10 @@ function stampRecordTypeMultiDimensionMap() returns map<map<Employee>> {
     return mapValue;
 }
 
-function stampAnydataToIntMultiDimensionMap() returns map<map<map<int>>> {
+function stampAnydataToIntMultiDimensionMap() returns map<map<map<int>>>|error {
     map<map<map<anydata>>> m = { "a": { "aa": { "aa": 11, "bb": 22 }, "bb": { "aa": 11, "bb": 22 } }, "b": { "aaa": { "aa":
     11, "bb": 22 }, "bbb": { "aa": 11, "bb": 22 } } };
-    map<map<map<int>>> mapValue = map<map<map<int>>>.stamp(m);
+    map<map<map<int>>>|error mapValue = map<map<map<int>>>.stamp(m);
 
     return mapValue;
 }
@@ -221,9 +221,9 @@ type EmployeeClosedRecord record {
     !...
 };
 
-function stampMapToRecordNegative() returns EmployeeClosedRecord {
+function stampMapToRecordNegative() returns EmployeeClosedRecord|error {
     map<string> m = { name: "Raja", status: "single", batch: "LK2014", school: "Hindu College" };
-    EmployeeClosedRecord employee = EmployeeClosedRecord.stamp(m);
+    EmployeeClosedRecord|error employee = EmployeeClosedRecord.stamp(m);
 
     return employee;
 }

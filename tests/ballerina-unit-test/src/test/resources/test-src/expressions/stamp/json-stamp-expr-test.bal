@@ -46,18 +46,18 @@ function stampJSONToAnydataV2() returns anydata {
     return anyValue;
 }
 
-function stampJSONToRecord() returns Employee {
+function stampJSONToRecord() returns Employee|error {
 
     json employee = { name: "John", status: "single", batch: "LK2014" };
-    Employee employeeValue = Employee.stamp(employee);
+    Employee|error employeeValue = Employee.stamp(employee);
 
     return employeeValue;
 }
 
-function stampJSONToRecordV2() returns Employee {
+function stampJSONToRecordV2() returns Employee|error {
 
     json employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
-    Employee employeeValue = Employee.stamp(employee);
+    Employee|error employeeValue = Employee.stamp(employee);
 
     return employeeValue;
 }
@@ -70,19 +70,19 @@ function stampJSONToJSON() returns json {
     return jsonValue;
 }
 
-function stampJSONToMap() returns map<anydata> {
+function stampJSONToMap() returns map<anydata>|error {
 
     json employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
-    map<anydata> mapValue = map<anydata>.stamp(employee);
+    map<anydata>|error mapValue = map<anydata>.stamp(employee);
 
     return mapValue;
 }
 
-function stampJSONToMapV2() returns map<anydata> {
+function stampJSONToMapV2() returns map<anydata>|error {
 
     json teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College",
         emp : { name: "John", status: "single", batch: "LK2014"} };
-    map<anydata> mapValue = map<anydata>.stamp(teacher);
+    map<anydata>|error mapValue = map<anydata>.stamp(teacher);
 
     return mapValue;
 }
@@ -111,44 +111,44 @@ function stampConstraintJSONToJSON() returns json {
     return jsonValue;
 }
 
-function stampConstraintJSONToConstraintJSON() returns json<Person> {
+function stampConstraintJSONToConstraintJSON() returns json<Person>|error {
 
     json<Student> student = { name: "Jon" };
     student.status = "Single";
     student.batch = "LK2014";
     student.school = "Hindu College";
 
-    json<Person> jsonValue = json<Person>.stamp(student);
+    json<Person>|error jsonValue = json<Person>.stamp(student);
 
     return jsonValue;
 }
 
-function stampConstraintJSONToConstraintMapV2() returns map {
+function stampConstraintJSONToConstraintMapV2() returns map|error {
 
     json<Student> student = { name: "Jon" };
     student.status = "Single";
     student.batch = "LK2014";
     student.school = "Hindu College";
 
-    map<anydata> mapValue = map<anydata>.stamp(student);
+    map<anydata>|error mapValue = map<anydata>.stamp(student);
 
     return mapValue;
 }
 
-function stampJSONArrayToConstraintArray() returns Student []{
+function stampJSONArrayToConstraintArray() returns Student []|error{
 
     json employeeArray = [{ name: "John", status: "single", batch: "LK2014", school: "Hindu College" },
                             { name: "Raja", status: "married", batch: "LK2014", school: "Hindu College" }];
 
-    Student [] studentArray = Student[].stamp(employeeArray);
+    Student []|error studentArray = Student[].stamp(employeeArray);
 
     return studentArray;
 }
 
-function stampJSONArrayToAnyTypeArray() returns anydata []{
+function stampJSONArrayToAnyTypeArray() returns anydata []|error{
 
     json jsonArray =  [1, false, "foo", { first: "John", last: "Pala" }];
-    anydata[] anydataArray = anydata[].stamp(jsonArray);
+    anydata[]|error anydataArray = anydata[].stamp(jsonArray);
 
     return anydataArray;
 }
@@ -163,19 +163,19 @@ function stampJSONToAnydataV3() returns anydata {
 
 //----------------------------- Negative Test cases ---------------------------------------------------------------
 
-function stampJSONToRecordNegative() returns Student {
+function stampJSONToRecordNegative() returns Student|error {
 
     json employee = { name: "John", age : 23, status: "single", batch: "LK2014", school: "Hindu College" };
-    Student student = Student.stamp(employee);
+    Student|error student = Student.stamp(employee);
 
     return student;
 
 }
 
-function stampJSONToMapNegative() returns map<string> {
+function stampJSONToMapNegative() returns map<string>|error {
 
     json employee = { name: "John", age : 23, status: "single", batch: "LK2014", school: "Hindu College" };
-    map<string> mapValue = map<string>.stamp(employee);
+    map<string>|error mapValue = map<string>.stamp(employee);
 
     return mapValue;
 

@@ -34,24 +34,24 @@ function stampRecordToAnydataArray() returns anydata[] {
     return anyArray;
 }
 
-function stampAnydataToRecordArray() returns Teacher[] {
+function stampAnydataToRecordArray() returns Teacher[]|error  {
 
     Teacher p1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
     Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
 
     anydata[] anydataArray = [p1, p2];
-    Teacher[] teacherArray = Teacher[].stamp(anydataArray);
+    Teacher[]|error teacherArray = Teacher[].stamp(anydataArray);
 
     return teacherArray;
 }
 
-function stampAnydataToSimilarOpenRecordArray() returns Employee[] {
+function stampAnydataToSimilarOpenRecordArray() returns Employee[]|error  {
 
     Teacher p1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
     Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
 
     anydata[] teacherArray = [p1, p2];
-    Employee[] employeeArray = Employee[].stamp(teacherArray);
+    Employee[]|error  employeeArray = Employee[].stamp(teacherArray);
 
     return employeeArray;
 }
@@ -67,12 +67,12 @@ function stampRecordToSimilarOpenRecordArray() returns Employee[] {
     return employeeArray;
 }
 
-function stampConstraintArrayToJSONArray() returns json{
+function stampConstraintArrayToJSONArray() returns json|error {
 
     Student [] studentArray = [{ name: "John", status: "single", batch: "LK2014", school: "Hindu College" },
     { name: "Raja", status: "married", batch: "LK2014", school: "Hindu College" }];
 
-    json jsonArray = json.stamp(studentArray);
+    json|error  jsonArray = json.stamp(studentArray);
 
     return jsonArray;
 }

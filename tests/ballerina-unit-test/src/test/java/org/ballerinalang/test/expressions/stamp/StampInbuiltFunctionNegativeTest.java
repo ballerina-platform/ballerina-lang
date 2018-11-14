@@ -373,7 +373,7 @@ public class StampInbuiltFunctionNegativeTest {
 
         BAssertUtil.validateError(anydataNegativeTestCompileResult, 1,
                 "Incompatible stamp type: type 'anydata' cannot be stamped as type 'PersonObj'",
-                15, 28);
+                15, 27);
 
     }
 }

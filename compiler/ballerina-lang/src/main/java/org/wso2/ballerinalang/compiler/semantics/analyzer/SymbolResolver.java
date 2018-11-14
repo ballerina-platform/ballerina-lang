@@ -353,11 +353,24 @@ public class SymbolResolver extends BLangNodeVisitor {
                     }
 
                     //It is not allowed to stamp a variable to union type.
-                    if (canHaveStampInvocation(targetType) &&
-                            types.isStampingAllowed(variableSourceType, targetType)) {
-                        List<BType> paramTypes = new ArrayList<>();
-                        paramTypes.add(variableSourceType);
-                        return symTable.createOperator(name, paramTypes, targetType, InstructionCodes.STAMP);
+                    if (canHaveStampInvocation(targetType)) {
+                        if (types.isAssignable(variableSourceType, targetType)) {
+                            List<BType> paramTypes = new ArrayList<>();
+                            paramTypes.add(variableSourceType);
+                            return symTable.createOperator(name, paramTypes, targetType, InstructionCodes.STAMP);
+                        } else if (types.isStampingAllowed(variableSourceType, targetType)) {
+                            List<BType> unionReturnTypes = new ArrayList<>();
+                            unionReturnTypes.add(targetType);
+                            unionReturnTypes.add(symTable.errorType);
+                            BType returnType =
+                                    new BUnionType(null, new LinkedHashSet<>(unionReturnTypes), false);
+                            List<BType> paramTypes = new ArrayList<>();
+                            paramTypes.add(variableSourceType);
+                            return symTable.createOperator(name, paramTypes, returnType, InstructionCodes.STAMP);
+                        } else {
+                            dlog.error(pos, DiagnosticCode.INCOMPATIBLE_STAMP_TYPE, variableSourceType, targetType);
+                            resultType = symTable.semanticError;
+                        }
                     } else {
                         dlog.error(pos, DiagnosticCode.INCOMPATIBLE_STAMP_TYPE, variableSourceType, targetType);
                         resultType = symTable.semanticError;

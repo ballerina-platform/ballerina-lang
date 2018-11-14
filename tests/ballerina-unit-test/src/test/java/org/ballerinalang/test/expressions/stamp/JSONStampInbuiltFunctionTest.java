@@ -21,10 +21,12 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BAnydataType;
+import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStringType;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -282,17 +284,23 @@ public class JSONStampInbuiltFunctionTest {
 
     //----------------------------------- Negative Test cases ----------------------------------------------------
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: incompatible stamp operation: 'json' value " +
-                    "cannot be stamped as 'Student'.*")
+    @Test
     public void testStampJSONToRecordNegative() {
-        BRunUtil.invoke(compileResult, "stampJSONToRecordNegative");
+        BValue[] results = BRunUtil.invoke(compileResult, "stampJSONToRecordNegative");
+        BValue error = results[0];
+
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BError) error).getReason(), "incompatible stamp operation: 'json' value " +
+                "cannot be stamped as 'Student'");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: incompatible stamp operation: 'json' value " +
-                    "cannot be stamped as 'map<string>'.*")
+    @Test
     public void testStampJSONToMapNegative() {
-        BRunUtil.invoke(compileResult, "stampJSONToMapNegative");
+        BValue[] results = BRunUtil.invoke(compileResult, "stampJSONToMapNegative");
+        BValue error = results[0];
+
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BError) error).getReason(), "incompatible stamp operation: 'json' value " +
+                "cannot be stamped as 'map<string>'");
     }
 }

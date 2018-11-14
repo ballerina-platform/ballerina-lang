@@ -21,14 +21,15 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BAnydataType;
+import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStringType;
 import org.ballerinalang.model.types.BUnionType;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -308,25 +309,36 @@ public class RecordStampInbuiltFunctionTest {
 
     //---------------------------------- Negative Test cases ----------------------------------------------
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: incompatible stamp operation: 'Teacher' value " +
-                    "cannot be stamped as 'map<string>'.*")
+    @Test
     public void testStampOpenRecordToMap() {
-        BRunUtil.invoke(compileResult, "stampOpenRecordToMap");
+        BValue[] results = BRunUtil.invoke(compileResult, "stampOpenRecordToMap");
+        BValue error = results[0];
+
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BError) error).getReason(), "incompatible stamp operation: 'Teacher' value cannot " +
+                "be stamped as 'map<string>'");
+
+
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: incompatible stamp operation: 'Teacher' value cannot be " +
-                    "stamped as 'NonAcademicStaff'.*")
+    @Test
     public void testStampOpenRecordToTypeClosedRecordNegative() {
-        BRunUtil.invoke(compileResult, "stampOpenRecordToTypeClosedRecordNegative");
+        BValue[] results = BRunUtil.invoke(compileResult, "stampOpenRecordToTypeClosedRecordNegative");
+        BValue error = results[0];
+
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BError) error).getReason(), "incompatible stamp operation: 'Teacher' value cannot " +
+                "be stamped as 'NonAcademicStaff'");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: incompatible stamp operation: 'Employee' value cannot be " +
-                    "stamped as 'Teacher'.*")
+    @Test
     public void testStampWithOpenRecordsNonAssignableNegative() {
-        BRunUtil.invoke(compileResult, "stampWithOpenRecordsNonAssignableNegative");
+        BValue[] results = BRunUtil.invoke(compileResult, "stampWithOpenRecordsNonAssignableNegative");
+        BValue error = results[0];
+
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BError) error).getReason(), "incompatible stamp operation: 'Employee' value cannot " +
+                "be stamped as 'Teacher'");
     }
 }
 

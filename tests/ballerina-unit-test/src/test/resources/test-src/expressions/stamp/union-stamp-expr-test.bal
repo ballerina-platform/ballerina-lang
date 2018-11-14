@@ -36,10 +36,10 @@ type EmployeeObj object {
 
 //-----------------------Union Type Stamp -------------------------------------------------------------------
 
-function stampUnionToRecord() returns Employee {
+function stampUnionToRecord() returns Employee|error  {
     int|float|Employee unionVar = { name: "Raja", status: "single", batch: "LK2014", school: "Hindu College" };
 
-    Employee employee = Employee.stamp(unionVar);
+    Employee|error  employee = Employee.stamp(unionVar);
     return employee;
 }
 
@@ -50,22 +50,22 @@ function stampUnionToJSON() returns json {
     return jsonValue;
 }
 
-function stampUnionToXML() returns xml {
+function stampUnionToXML() returns xml|error  {
     int|float|xml unionVar = xml `<book>The Lost World</book>`;
 
-    xml xmlValue = xml.stamp(unionVar);
+    xml|error  xmlValue = xml.stamp(unionVar);
     return xmlValue;
 }
 
 
-function stampUnionToIntMap() returns map<int> {
+function stampUnionToIntMap() returns map<int>|error  {
     int|float|map<int> unionVar = { "a": 1, "b": 2 };
 
-    map<int> mapValue = map<int>.stamp(unionVar);
+    map<int>|error  mapValue = map<int>.stamp(unionVar);
     return mapValue;
 }
 
-function stampUnionToConstraintMap() returns map<Employee> {
+function stampUnionToConstraintMap() returns map<Employee>|error  {
     Teacher p1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
     Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
 
@@ -73,7 +73,7 @@ function stampUnionToConstraintMap() returns map<Employee> {
 
     int|float|map<Teacher> unionVar = teacherMap;
 
-    map<Employee> mapValue = map<Employee>.stamp(unionVar);
+    map<Employee>|error  mapValue = map<Employee>.stamp(unionVar);
     return mapValue;
 }
 
@@ -85,10 +85,10 @@ function stampUnionToAnydata() returns anydata {
     return anydataValue;
 }
 
-function stampUnionToTuple() returns (string, string) {
+function stampUnionToTuple() returns (string, string)|error  {
 
     int|float|(string, string) unionVar = ("mohan", "LK2014");
-    (string, string) tupleValue = (string, string).stamp(unionVar);
+    (string, string)|error  tupleValue = (string, string).stamp(unionVar);
 
     return tupleValue;
 }

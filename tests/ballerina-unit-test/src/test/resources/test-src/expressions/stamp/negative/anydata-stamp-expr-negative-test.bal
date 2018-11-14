@@ -9,10 +9,10 @@ type PersonObj object {
 
 //-----------------------Anydata Type Stamp Negative Test cases --------------------------------------------------
 
-function stampAnyToObject() returns PersonObj? {
+function stampAnyToObject() returns PersonObj {
 
     anydata anydataValue = new PersonObj();
-    PersonObj? personObj = PersonObj.stamp(anydataValue);
+    PersonObj personObj = PersonObj.stamp(anydataValue);
 
     return personObj;
 }
