@@ -67,7 +67,7 @@ function simpleTypes() returns string {
         10.4 => return "10.4"; // pattern will not be matched
     }
 
-    any x6 = 15;
+    anydata x6 = 15;
     match x6 {
         20 => return "20";
         {a: 20} => return "{a: 20}";
@@ -79,7 +79,6 @@ function simpleTypes() returns string {
 
     return "Fail";
 }
-
 
 type Rec1 record {
     int | float a;
@@ -102,6 +101,7 @@ type Rec5 record {
     int | float | boolean a;
     !...
 };
+
 
 function recordTypes() returns string {
     Rec1 r1 = {a: 200};
@@ -138,7 +138,7 @@ function recordTypes() returns string {
         {a: 20.2} => return "{a: 20.2}";
         {a: false, b: 10} => return "{a: false, b: 10}";
         {a: true} => return "{a: 20, b: 10}";
-        {a: r1, b: 10} => return "{a: r1, b: 10}"; // pattern will not be matched
+        {a: "r1", b: 10} => return "{a: r1, b: 10}"; // pattern will not be matched
     }
 
     Rec1|Rec4 r5 = r1;
@@ -147,7 +147,7 @@ function recordTypes() returns string {
         {a: 20.2, b: true} => return "{a: 20.2}";
         {a: false, b: 10} => return "{a: false, b: 10}";
         {a: true} => return "{a: 20, b: 10}";
-        {a: r1, b: 10} => return "{a: r1, b: 10}"; // pattern will not be matched
+        {a: "r1", b: 10} => return "{a: r1, b: 10}"; // pattern will not be matched
     }
 
     Rec1|Rec5 r6 = r1;
@@ -156,7 +156,7 @@ function recordTypes() returns string {
         {a: 20.2} => return "{a: 20.2}";
         {a: false, b: 10} => return "{a: false, b: 10}"; // pattern will not be matched
         {a: true} => return "{a: 20, b: 10}";
-        {a: r1, b: 10} => return "{a: r1, b: 10}"; // pattern will not be matched
+        {a: "r1", b: 10} => return "{a: r1, b: 10}"; // pattern will not be matched
     }
     return "Fail";
 }
@@ -226,4 +226,47 @@ function recordRestParamAndOptionalFields() returns string {
     }
 
     return "Fail";
+}
+
+type Finite "A" | "B" | true | 15;
+
+function finiteTypes() returns string {
+    Finite f = "B";
+    match f {
+        16 => return "a"; // pattern will not be matched
+        15 => return "a";
+        "A" => return "a";
+        {a: "b"} => return "a"; // pattern will not be matched
+        "B" => return "a";
+        true => return "a";
+        false => return "a"; // pattern will not be matched
+        "C" => return "a"; // pattern will not be matched
+        (12, "B") => return "a"; // pattern will not be matched
+    }
+
+    return "Fail";
+}
+
+type Obj object {
+    int var1;
+};
+
+function nonAnydataTypes() returns string {
+    int[] x = [1, 2, 3];
+    Obj y = new;
+
+    match x {
+        [1, 2, 3] => return "a"; // pattern will not be matched and invalid literal for match pattern
+    }
+
+    match y {
+        {var1: 12} => return "a"; // pattern will not be matched
+        {"var1": 12} => return "a"; // pattern will not be matched
+        {foo(): 12} => return "a"; // pattern will not be matched and invalid key
+    }
+    return "Fail";
+}
+
+function foo() returns string {
+    return "var1";
 }

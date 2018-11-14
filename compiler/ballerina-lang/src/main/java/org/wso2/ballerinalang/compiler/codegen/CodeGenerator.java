@@ -597,6 +597,8 @@ public class CodeGenerator extends BLangNodeVisitor {
                 return InstructionCodes.BRET;
             case TypeTags.FLOAT:
                 return InstructionCodes.FRET;
+            case TypeTags.DECIMAL:
+                return InstructionCodes.DRET;
             case TypeTags.STRING:
                 return InstructionCodes.SRET;
             case TypeTags.BOOLEAN:
@@ -634,7 +636,9 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
 
             case TypeTags.FLOAT:
-                double doubleVal = (Double) literalExpr.value;
+                double doubleVal = literalExpr.value instanceof String ?
+                        Double.parseDouble((String) literalExpr.value) :
+                        (Double) literalExpr.value;
                 if (doubleVal == 0 || doubleVal == 1 || doubleVal == 2 ||
                         doubleVal == 3 || doubleVal == 4 || doubleVal == 5) {
                     opcode = InstructionCodes.FCONST_0 + (int) doubleVal;
@@ -643,6 +647,12 @@ public class CodeGenerator extends BLangNodeVisitor {
                     int floatCPEntryIndex = currentPkgInfo.addCPEntry(new FloatCPEntry(doubleVal));
                     emit(InstructionCodes.FCONST, getOperand(floatCPEntryIndex), regIndex);
                 }
+                break;
+
+            case TypeTags.DECIMAL:
+                String decimalVal = (String) literalExpr.value;
+                int decimalEntryIndex = currentPkgInfo.addCPEntry(new UTF8CPEntry(decimalVal));
+                emit(InstructionCodes.DCONST, getOperand(decimalEntryIndex), regIndex);
                 break;
 
             case TypeTags.STRING:
@@ -1107,9 +1117,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         } else if (OperatorKind.OR.equals(binaryExpr.opKind)) {
             visitOrExpression(binaryExpr);
         } else if (binaryExpr.opSymbol.opcode == InstructionCodes.REQ_NULL ||
-                binaryExpr.opSymbol.opcode == InstructionCodes.RNE_NULL ||
-                binaryExpr.opSymbol.opcode == InstructionCodes.SEQ_NULL ||
-                binaryExpr.opSymbol.opcode == InstructionCodes.SNE_NULL) {
+                binaryExpr.opSymbol.opcode == InstructionCodes.RNE_NULL) {
             BLangExpression expr = (binaryExpr.lhsExpr.type.tag == TypeTags.NIL) ?
                     binaryExpr.rhsExpr : binaryExpr.lhsExpr;
             genNode(expr, this.env);
@@ -1249,6 +1257,9 @@ public class CodeGenerator extends BLangNodeVisitor {
             emit(InstructionCodes.REASON, iExpr.expr.regIndex, regIndex);
         } else if (iExpr.builtInMethod == BLangBuiltInMethod.DETAIL) {
             emit(InstructionCodes.DETAIL, iExpr.expr.regIndex, regIndex);
+        } else if (iExpr.builtInMethod == BLangBuiltInMethod.LENGTH) {
+            Operand typeCPIndex = getTypeCPIndex(iExpr.expr.type);
+            emit(InstructionCodes.LENGTHOF, iExpr.expr.regIndex, typeCPIndex, regIndex);
         }
     }
 
@@ -1372,8 +1383,9 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         int fromIP = nextIP();
         genNode(trapExpr.expr, env);
-        int toIP = nextIP();
         RegIndex regIndex = calcAndGetExprRegIndex(trapExpr);
+        emit(InstructionCodes.RMOVE, trapExpr.expr.regIndex, regIndex);
+        int toIP = nextIP();
         errorTable.addErrorTableEntry(new ErrorTableEntry(fromIP, toIP, toIP, regIndex));
     }
 
@@ -2019,6 +2031,10 @@ public class CodeGenerator extends BLangNodeVisitor {
             case TypeTags.BOOLEAN:
                 defaultValue.booleanValue = (Boolean) value;
                 break;
+            case TypeTags.DECIMAL:
+                defaultValue.decimalValue = (String) value;
+                defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new UTF8CPEntry(defaultValue.decimalValue));
+                break;
             case TypeTags.NIL:
                 break;
             default:
@@ -2154,8 +2170,8 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Create variable count attribute info
         prepareIndexes(fieldIndexes);
-        int[] fieldCount = new int[]{fieldIndexes.tInt, fieldIndexes.tFloat,
-                fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tRef};
+        int[] fieldCount = new int[]{fieldIndexes.tInt, fieldIndexes.tFloat, fieldIndexes.tString,
+                fieldIndexes.tBoolean, fieldIndexes.tRef};
         addVariableCountAttributeInfo(currentPkgInfo, objInfo, fieldCount);
         fieldIndexes = new VariableIndex(FIELD);
 
@@ -2237,8 +2253,8 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Create variable count attribute info
         prepareIndexes(fieldIndexes);
-        int[] fieldCount = new int[]{fieldIndexes.tInt, fieldIndexes.tFloat,
-                fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tRef};
+        int[] fieldCount = new int[]{fieldIndexes.tInt, fieldIndexes.tFloat, fieldIndexes.tString,
+                fieldIndexes.tBoolean, fieldIndexes.tRef};
         addVariableCountAttributeInfo(currentPkgInfo, recordInfo, fieldCount);
         fieldIndexes = new VariableIndex(FIELD);
         typeDefInfo.typeInfo = recordInfo;
@@ -2485,7 +2501,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
 
         public int[] toArray() {
-            int[] result = new int[6];
+            int[] result = new int[5];
             result[0] = this.tInt;
             result[1] = this.tFloat;
             result[2] = this.tString;
@@ -3800,6 +3816,9 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
             case TypeTags.FLOAT:
                 opcode = InstructionCodes.ANY2F;
+                break;
+            case TypeTags.DECIMAL:
+                opcode = InstructionCodes.ANY2D;
                 break;
             case TypeTags.STRING:
                 opcode = InstructionCodes.ANY2S;

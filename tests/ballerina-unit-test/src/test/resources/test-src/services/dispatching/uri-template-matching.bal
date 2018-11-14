@@ -317,7 +317,7 @@ service<http:Service> echo66 bind testEP {
     }
     echo2 (endpoint conn, http:Request req) {
         http:Response res = new;
-        if (req.extraPathInfo == null) {
+        if (req.extraPathInfo == "") {
             req.extraPathInfo = "empty";
         }
         json responseJson = {"echo66":req.extraPathInfo};

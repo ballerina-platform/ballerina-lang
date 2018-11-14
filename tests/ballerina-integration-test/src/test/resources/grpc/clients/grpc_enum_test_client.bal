@@ -29,7 +29,7 @@ function testEnum() returns (string) {
             return result;
         }
         error err => {
-            return "Error from Connector: " + err.message;
+            return "Error from Connector: " + err.reason();
         }
     }
 }

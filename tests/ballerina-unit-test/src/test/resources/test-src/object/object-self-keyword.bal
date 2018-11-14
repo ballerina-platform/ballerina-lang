@@ -12,7 +12,7 @@ type Person object {
     private string month = "february";
 
     function getName() returns string {
-        return name;
+        return self.name;
     }
 
     function getNameWrapperInside1() returns string {
@@ -31,15 +31,15 @@ type Person object {
 
 };
 
-function Person::getNameOut() returns string {
+function Person.getNameOut() returns string {
     return self.name;
 }
 
-function Person::getNameWrapperOutside1() returns string {
+function Person.getNameWrapperOutside1() returns string {
     return self.getName();
 }
 
-function Person::getNameWrapperOutside2() returns string {
+function Person.getNameWrapperOutside2() returns string {
     return self.getNameOut();
 }
 

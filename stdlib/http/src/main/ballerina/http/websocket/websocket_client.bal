@@ -24,14 +24,14 @@
 # + attributes - A map to store connection related attributes
 public type WebSocketClient object {
 
-    @readonly public string id;
-    @readonly public string negotiatedSubProtocol;
-    @readonly public boolean isSecure;
-    @readonly public boolean isOpen;
-    @readonly public Response response;
-    @readonly public map attributes;
+    @readonly public string id = "";
+    @readonly public string negotiatedSubProtocol = "";
+    @readonly public boolean isSecure = false;
+    @readonly public boolean isOpen = false;
+    @readonly public Response response = new;
+    @readonly public map attributes = {};
 
-    private WebSocketConnector conn;
+    private WebSocketConnector conn = new;
     private WebSocketClientEndpointConfig config;
 
     # Gets called when the endpoint is being initialize during module init time.
@@ -39,7 +39,7 @@ public type WebSocketClient object {
     # + c - The `WebSocketClientEndpointConfig` of the endpoint
     public function init(WebSocketClientEndpointConfig c) {
         self.config = c;
-        initEndpoint();
+        self.initEndpoint();
     }
 
     # Initializes the endpoint.
@@ -49,12 +49,12 @@ public type WebSocketClient object {
     #
     # + return - The connector that client endpoint uses
     public function getCallerActions() returns (WebSocketConnector) {
-        return conn;
+        return self.conn;
     }
 
     # Stops the registered service.
     public function stop() {
-        WebSocketConnector webSocketConnector = getCallerActions();
+        WebSocketConnector webSocketConnector = self.getCallerActions();
         check webSocketConnector.close(statusCode = 1001, reason = "going away", timeoutInSecs = 0);
     }
 };

@@ -98,7 +98,7 @@ function testFolderContent(string rootPathValue) returns boolean {
             parentOfXmlFile.getPathValue() == childPath.getPathValue() &&
             xmlFilePath.getName() == "sample.xml" &&
             testReadFile(xmlFilePath.getPathValue()) &&
-            lengthof paths == 1;
+            paths.length() == 1;
 }
 
 function testGetModifiedTime(string pathValue) returns (string) {
@@ -163,7 +163,7 @@ function testReadFile(string pathValue) returns boolean {
     match readResult {
         (byte[], int) byteContent => {
             var (bytes, numberOfBytes) = byteContent;
-            return lengthof bytes == lengthof TEST_CONTENT.toByteArray("UTF-8");
+            return bytes.length() == TEST_CONTENT.toByteArray("UTF-8").length();
         }
         error err => {
             log:printError("Error occurred while reading content: " + pathValue, err = err);

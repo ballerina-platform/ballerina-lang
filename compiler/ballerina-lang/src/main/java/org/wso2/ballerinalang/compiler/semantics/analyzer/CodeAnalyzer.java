@@ -113,9 +113,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStaticBindingPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStructuredBindingPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtTypedBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -270,7 +268,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTypeDefinition typeDefinition) {
         if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE
                 || typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
-            analyzeNode(typeDefinition.typeNode, env);
+            analyzeNode(typeDefinition.typeNode, this.env);
         }
         if (!Symbols.isPublic(typeDefinition.symbol) ||
                 typeDefinition.symbol.type != null && TypeKind.FINITE.equals(typeDefinition.symbol.type.getKind())) {
@@ -537,7 +535,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         List<BLangVariable> matchedRecordPatterns = new ArrayList<>();
         List<BLangVariable> matchedTuplePatterns = new ArrayList<>();
 
-        for (BLangMatchStmtStructuredBindingPatternClause pattern : matchStmt.getStructuredPatternClauses()) {
+        for (BLangMatchStructuredBindingPatternClause pattern : matchStmt.getStructuredPatternClauses()) {
+            if (TypeTags.RECORD == pattern.bindingPatternVariable.type.tag) {
+                // todo
+                continue;
+            }
+
             if (TypeTags.MAP == pattern.bindingPatternVariable.type.tag) {
                 matchedRecordPatterns.add(pattern.bindingPatternVariable);
                 continue;
@@ -575,6 +578,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    /**
+     * This method is used to check the isLike test in a static match pattern.
+     * @param matchStmt the match statment containing static match patterns.
+     */
     private void analyzeStaticMatchPatterns(BLangMatch matchStmt) {
         if (matchStmt.exprTypes.isEmpty()) {
             return;
@@ -582,7 +589,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         List<BLangExpression> matchedSimplePatterns = new ArrayList<>();
         List<BLangExpression> matchedRecordPatterns = new ArrayList<>();
         List<BLangExpression> matchedTuplePatterns = new ArrayList<>();
-        for (BLangMatchStmtStaticBindingPatternClause pattern : matchStmt.getStaticPatternClauses()) {
+        for (BLangMatch.BLangMatchStaticBindingPatternClause pattern : matchStmt.getStaticPatternClauses()) {
             List<BType> matchedExpTypes = matchStmt.exprTypes
                     .stream()
                     .filter(exprType -> isValidMatchPattern(exprType, pattern.literal))
@@ -623,6 +630,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    /**
+     * This method will check if two patterns are similar to each other.
+     * Having similar patterns in the match block will result in unreachable pattern.
+     * @param precedingPattern pattern taken to compare similarity.
+     * @param pattern the pattern that the precedingPattern is checked for similarity.
+     * @return true if both patterns are similar..
+     */
     private boolean checkLiteralSimilarity(BLangExpression precedingPattern, BLangExpression pattern) {
         if (precedingPattern.type.tag == TypeTags.MAP && pattern.type.tag == TypeTags.MAP) {
             BLangRecordLiteral precedingRecordLiteral = (BLangRecordLiteral) precedingPattern;
@@ -649,6 +663,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (precedingPattern.type.tag == TypeTags.TUPLE && pattern.type.tag == TypeTags.TUPLE) {
             BLangBracedOrTupleExpr precedingTupleLiteral = (BLangBracedOrTupleExpr) precedingPattern;
             BLangBracedOrTupleExpr tupleLiteral = (BLangBracedOrTupleExpr) pattern;
+            if (precedingTupleLiteral.expressions.size() != tupleLiteral.expressions.size()) {
+                return false;
+            }
             for (int i = 0; i < precedingTupleLiteral.expressions.size(); i++) {
                 if (!checkLiteralSimilarity(precedingTupleLiteral.expressions.get(i),
                         tupleLiteral.expressions.get(i))) {
@@ -672,86 +689,101 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         return false;
     }
 
+    /**
+     * This method will check if the static match pattern is valid based on the matching type.
+     *
+     * @param matchType type of the expression being matched.
+     * @param literal   the static match pattern.
+     * @return true if the pattern is valid, else false.
+     */
     private boolean isValidMatchPattern(BType matchType, BLangExpression literal) {
-        // note: literalType can only be simple type, map type & tuple type
-        if (matchType.tag == TypeTags.ARRAY) {
-            // TODO: Support array type static match to array literal
-            return false;
-        }
 
-        if (matchType.tag == TypeTags.ANY || matchType.tag == TypeTags.JSON) {
-            // when matching any type or json type, all patterns are allowed
-            // TODO: 11/2/18 Change to Anydata and fail any
+        if (types.isSameType(literal.type, matchType)) {
             return true;
         }
 
-        if (matchType.tag == TypeTags.UNION) {
-            // check if at least one member in union type matches the literal type
-            BUnionType unionMatchType = (BUnionType) matchType;
-            return unionMatchType.memberTypes
-                    .stream()
-                    .anyMatch(memberMatchType -> isValidMatchPattern(memberMatchType, literal));
-        }
-
-        if (literal.type.tag == TypeTags.TUPLE && matchType.tag == TypeTags.TUPLE) {
-            BLangBracedOrTupleExpr tupleLiteral = (BLangBracedOrTupleExpr) literal;
-            BTupleType literalTupleType = (BTupleType) literal.type;
-            BTupleType matchTupleType = (BTupleType) matchType;
-
-            if (literalTupleType.tupleTypes.size() != matchTupleType.tupleTypes.size()) {
-                return false;
-            }
-
-            return IntStream.range(0, literalTupleType.tupleTypes.size())
-                    .allMatch(i -> isValidMatchPattern(matchTupleType.tupleTypes.get(i),
-                            tupleLiteral.expressions.get(i)));
-        }
-
-        if (literal.type.tag == TypeTags.MAP && matchType.tag == TypeTags.MAP) {
-            // if match type is map, check if literals match to the constraint
-            BLangRecordLiteral mapLiteral = (BLangRecordLiteral) literal;
-            return IntStream.range(0, mapLiteral.keyValuePairs.size())
-                    .allMatch(i -> isValidMatchPattern(((BMapType) matchType).constraint,
-                            mapLiteral.keyValuePairs.get(i).valueExpr));
-        }
-
-        if (literal.type.tag == TypeTags.MAP && matchType.tag == TypeTags.RECORD) {
-            // if match type is record, the fields must match to the static pattern fields
-            BLangRecordLiteral mapLiteral = (BLangRecordLiteral) literal;
-            BRecordType recordMatchType = (BRecordType) matchType;
-            Map<String, BType> recordFields = recordMatchType.fields
-                    .stream()
-                    .collect(Collectors.toMap(
-                            field -> field.getName().getValue(),
-                            BField::getType
-                    ));
-
-            for (BLangRecordKeyValue literalKeyValue : mapLiteral.keyValuePairs) {
-                if (recordFields.containsKey(((BLangSimpleVarRef) literalKeyValue.key.expr).variableName.value)) {
-                    if (!isValidMatchPattern(
-                            recordFields.get(((BLangSimpleVarRef) literalKeyValue.key.expr).variableName.value),
-                            literalKeyValue.valueExpr)) {
+        switch (matchType.tag) {
+            case TypeTags.ANY:
+            case TypeTags.ANYDATA:
+            case TypeTags.JSON:
+                return true;
+            case TypeTags.UNION:
+                BUnionType unionMatchType = (BUnionType) matchType;
+                return unionMatchType.memberTypes
+                        .stream()
+                        .anyMatch(memberMatchType -> isValidMatchPattern(memberMatchType, literal));
+            case TypeTags.TUPLE:
+                if (literal.type.tag == TypeTags.TUPLE) {
+                    BLangBracedOrTupleExpr tupleLiteral = (BLangBracedOrTupleExpr) literal;
+                    BTupleType literalTupleType = (BTupleType) literal.type;
+                    BTupleType matchTupleType = (BTupleType) matchType;
+                    if (literalTupleType.tupleTypes.size() != matchTupleType.tupleTypes.size()) {
                         return false;
                     }
-                } else if (recordMatchType.sealed) {
-                    return false;
-                } else if (!isValidMatchPattern(recordMatchType.restFieldType, literalKeyValue.valueExpr)) {
-                    return false;
+                    return IntStream.range(0, literalTupleType.tupleTypes.size())
+                            .allMatch(i ->
+                                    isValidMatchPattern(matchTupleType.tupleTypes.get(i),
+                                            tupleLiteral.expressions.get(i)));
                 }
-            }
+                break;
+            case TypeTags.MAP:
+                if (literal.type.tag == TypeTags.MAP) {
+                    // if match type is map, check if literals match to the constraint
+                    BLangRecordLiteral mapLiteral = (BLangRecordLiteral) literal;
+                    return IntStream.range(0, mapLiteral.keyValuePairs.size())
+                            .allMatch(i -> isValidMatchPattern(((BMapType) matchType).constraint,
+                                    mapLiteral.keyValuePairs.get(i).valueExpr));
+                }
+                break;
+            case TypeTags.RECORD:
+                if (literal.type.tag == TypeTags.MAP) {
+                    // if match type is record, the fields must match to the static pattern fields
+                    BLangRecordLiteral mapLiteral = (BLangRecordLiteral) literal;
+                    BRecordType recordMatchType = (BRecordType) matchType;
+                    Map<String, BType> recordFields = recordMatchType.fields
+                            .stream()
+                            .collect(Collectors.toMap(
+                                    field -> field.getName().getValue(),
+                                    BField::getType
+                            ));
 
-            return true;
+                    for (BLangRecordKeyValue literalKeyValue : mapLiteral.keyValuePairs) {
+                        String literalKeyName;
+                        if (literalKeyValue.key.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                            literalKeyName = ((BLangSimpleVarRef) literalKeyValue.key.expr).variableName.value;
+                        } else if (literalKeyValue.key.expr.getKind() == NodeKind.LITERAL) {
+                            literalKeyName = ((BLangLiteral) literalKeyValue.key.expr).value.toString();
+                        } else {
+                            return false;
+                        }
+
+                        if (recordFields.containsKey(literalKeyName)) {
+                            if (!isValidMatchPattern(recordFields.get(literalKeyName), literalKeyValue.valueExpr)) {
+                                return false;
+                            }
+                        } else if (recordMatchType.sealed ||
+                                !isValidMatchPattern(recordMatchType.restFieldType, literalKeyValue.valueExpr)) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+                break;
+            case TypeTags.BYTE:
+                if (literal.type.tag == TypeTags.INT) {
+                    return true;
+                }
+                break;
+            case TypeTags.FINITE:
+                if (literal.getKind() == NodeKind.LITERAL) {
+                    return types.isAssignableToFiniteType(matchType, (BLangLiteral) literal);
+                }
+                break;
         }
-
-        if (matchType.tag == TypeTags.BYTE && literal.type.tag == TypeTags.INT) {
-            return true;
-        }
-
-        return types.isSameType(literal.type, matchType);
+        return false;
     }
 
     private void analyzeTypeMatchPatterns(BLangMatch matchStmt) {
-
         if (matchStmt.exprTypes.isEmpty()) {
             return;
         }
@@ -765,7 +797,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         List<BType> unmatchedExprTypes = new ArrayList<>();
         for (BType exprType : matchStmt.exprTypes) {
             boolean assignable = false;
-            for (BLangMatchStmtTypedBindingPatternClause pattern : matchStmt.getTypedPatternClauses()) {
+            for (BLangMatch.BLangMatchTypedBindingPatternClause pattern : matchStmt.getTypedPatternClauses()) {
                 BType patternType = pattern.variable.type;
                 if (exprType.tag == TypeTags.SEMANTIC_ERROR || patternType.tag == TypeTags.SEMANTIC_ERROR) {
                     return;
@@ -804,7 +836,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         boolean matchedPatternsAvailable = false;
         for (int i = matchStmt.getTypedPatternClauses().size() - 1; i >= 0; i--) {
-            BLangMatch.BLangMatchStmtTypedBindingPatternClause pattern = matchStmt.getTypedPatternClauses().get(i);
+            BLangMatch.BLangMatchTypedBindingPatternClause pattern = matchStmt.getTypedPatternClauses().get(i);
             if (pattern.matchedTypesDirect.isEmpty() && pattern.matchedTypesIndirect.isEmpty()) {
                 if (matchedPatternsAvailable) {
                     dlog.error(pattern.pos, DiagnosticCode.MATCH_STMT_UNMATCHED_PATTERN);
@@ -820,7 +852,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!unmatchedExprTypesAvailable) {
             this.checkStatementExecutionValidity(matchStmt);
             boolean matchStmtReturns = true;
-            for (BLangMatchStmtTypedBindingPatternClause patternClause : matchStmt.getTypedPatternClauses()) {
+            for (BLangMatch.BLangMatchTypedBindingPatternClause patternClause : matchStmt.getTypedPatternClauses()) {
                 analyzeNode(patternClause.body, env);
                 matchStmtReturns = matchStmtReturns && this.statementReturns;
                 this.resetStatementReturns();
@@ -909,12 +941,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangObjectTypeNode objectTypeNode) {
+        SymbolEnv objectEnv = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, env);
         if (objectTypeNode.isFieldAnalyseRequired && Symbols.isPublic(objectTypeNode.symbol)) {
             objectTypeNode.fields.stream()
                     .filter(field -> (Symbols.isPublic(field.symbol)))
-                    .forEach(field -> analyzeNode(field, this.env));
+                    .forEach(field -> analyzeNode(field, objectEnv));
         }
-        objectTypeNode.functions.forEach(e -> this.analyzeNode(e, this.env));
+        objectTypeNode.functions.forEach(e -> this.analyzeNode(e, objectEnv));
     }
 
     private void analyseType(BType type, DiagnosticPos pos) {
@@ -922,16 +955,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
         BSymbol symbol = type.tsymbol;
-        if (Symbols.isPrivate(symbol)) {
+        if (!Symbols.isPublic(symbol)) {
             dlog.error(pos, DiagnosticCode.ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL, symbol.name);
         }
     }
 
     public void visit(BLangRecordTypeNode recordTypeNode) {
+        SymbolEnv recordEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, env);
         if (recordTypeNode.isFieldAnalyseRequired && Symbols.isPublic(recordTypeNode.symbol)) {
             recordTypeNode.fields.stream()
                     .filter(field -> (Symbols.isPublic(field.symbol)))
-                    .forEach(field -> analyzeNode(field, this.env));
+                    .forEach(field -> analyzeNode(field, recordEnv));
         }
     }
 
@@ -946,6 +980,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (((ownerSymTag & SymTag.INVOKABLE) != SymTag.INVOKABLE) || (varNode.type != null &&
                 varNode.parent != null && NodeKind.FUNCTION.equals(varNode.parent.getKind()))) {
             analyseType(varNode.type, varNode.pos);
+        }
+
+        if (varNode.expr == null && ownerSymTag == SymTag.PACKAGE) {
+            this.dlog.error(varNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varNode.name);
         }
     }
 
@@ -1505,7 +1543,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (env.enclPkg.symbol.pkgID != symbol.pkgID && Symbols.isPrivate(symbol)) {
+        if (env.enclPkg.symbol.pkgID != symbol.pkgID && !Symbols.isPublic(symbol)) {
             dlog.error(position, DiagnosticCode.ATTEMPT_REFER_NON_ACCESSIBLE_SYMBOL, symbol.name);
         }
     }

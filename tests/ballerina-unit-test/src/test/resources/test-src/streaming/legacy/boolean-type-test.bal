@@ -85,7 +85,7 @@ function startStreamingQuery() returns (RequestCount[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof globalRequestsArray) > 0 || count == 10) {
+        if((globalRequestsArray.length()) > 0 || count == 10) {
             break;
         }
     }

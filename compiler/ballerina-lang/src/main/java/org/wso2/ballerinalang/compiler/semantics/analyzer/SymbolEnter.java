@@ -273,7 +273,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else if (importPkgNode.orgName.value.equals(enclPackageID.orgName.value)) {
             // means it's in 'import <org-name>/<pkg-name>' style and <org-name> is used to import within same project
             orgName = names.fromIdNode(importPkgNode.orgName);
-            version = (Names.DEFAULT_VERSION.equals(enclPackageID.version)) ? new Name("") : enclPackageID.version;
+            // Here we set the version as empty due to the following cases:
+            // 1) Suppose the import is from the same package, then the project version will be set later
+            // 2) Suppose the import is from Ballerina Central or another project which has the same org, then the
+            //    version is set when loading the import module
+            version = new Name("");
         } else {
             // means it's in 'import <org-name>/<pkg-name>' style
             orgName = names.fromIdNode(importPkgNode.orgName);
@@ -430,7 +434,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 visitObjectAttachedFunction(funcNode);
                 return;
             }
-            SymbolEnv objectEnv = SymbolEnv.createTypeDefEnv(null, funcNode.receiver.type.
+            SymbolEnv objectEnv = SymbolEnv.createTypeEnv(null, funcNode.receiver.type.
                     tsymbol.scope, env);
             BSymbol funcSymbol = symResolver.lookupSymbol(objectEnv, getFuncSymbolName(funcNode), SymTag.FUNCTION);
             if (funcSymbol == symTable.notFoundSymbol) {
@@ -653,36 +657,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangSimpleVariable varNode) {
         // this is a field variable defined for object init function
         if (varNode.isField) {
-            Name varName = names.fromIdNode(varNode.name);
-            BSymbol symbol;
-            if (env.enclTypeDefinition != null) {
-                symbol = symResolver.resolveObjectField(varNode.pos, env, varName,
-                        env.enclTypeDefinition.symbol.type.tsymbol);
-            } else {
-                symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
-            }
-
-            if (symbol == symTable.notFoundSymbol) {
-                dlog.error(varNode.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, varName,
-                        env.enclTypeDefinition.symbol.type.getKind().typeName(), env.enclTypeDefinition.name);
-            }
-            varNode.type = symbol.type;
-            Name updatedVarName = varName;
-            if (((BLangFunction) env.enclInvokable).receiver != null) {
-                updatedVarName = getFieldSymbolName(((BLangFunction) env.enclInvokable).receiver, varNode);
-            }
-            BVarSymbol varSymbol = defineVarSymbol(varNode.pos, varNode.flagSet, varNode.type, updatedVarName, env);
-
-            // Reset the name of the symbol to the original var name
-            varSymbol.name = varName;
-
-            // This means enclosing type definition is a object type definition
-            if (env.enclTypeDefinition != null) {
-                BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) env.enclTypeDefinition.typeNode;
-                objectTypeNode.initFunction.initFunctionStmts
-                        .put(symbol, (BLangStatement) createAssignmentStmt(varNode, varSymbol, symbol));
-            }
-            varNode.symbol = varSymbol;
+            defineInitFunctionParam(varNode);
             return;
         }
 
@@ -888,7 +863,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             // Create typeDef type
             BStructureType structureType = (BStructureType) typeDef.symbol.type;
             BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDef.typeNode;
-            SymbolEnv typeDefEnv = SymbolEnv.createTypeDefEnv(typeDef, typeDef.symbol.scope, pkgEnv);
+            SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(structureTypeNode, typeDef.symbol.scope, pkgEnv);
 
             // Resolve and add the fields of the referenced types to this object.
             resolveReferencedFields(structureTypeNode, typeDefEnv);
@@ -918,7 +893,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     recordType.restFieldType = symTable.noType;
                     continue;
                 }
-                recordType.restFieldType = symTable.anyType;
+                recordType.restFieldType = symTable.anydataType;
                 continue;
             }
 
@@ -933,7 +908,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
             if (typeDef.symbol.kind == SymbolKind.OBJECT) {
                 BLangObjectTypeNode objTypeNode = (BLangObjectTypeNode) typeDef.typeNode;
-                SymbolEnv objEnv = SymbolEnv.createTypeDefEnv(typeDef, typeDef.symbol.scope, pkgEnv);
+                SymbolEnv objEnv = SymbolEnv.createTypeEnv(objTypeNode, typeDef.symbol.scope, pkgEnv);
 
                 // Define the functions defined within the object
                 defineObjectInitFunction(objTypeNode, objEnv);
@@ -1090,6 +1065,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (varType.tag == TypeTags.INVOKABLE) {
             varSymbol = new BInvokableSymbol(SymTag.VARIABLE, Flags.asMask(flagSet), varName,
                     env.enclPkg.symbol.pkgID, varType, env.scope.owner);
+            varSymbol.kind = SymbolKind.FUNCTION;
         } else {
             varSymbol = new BVarSymbol(Flags.asMask(flagSet), varName,
                     env.enclPkg.symbol.pkgID, varType, env.scope.owner);
@@ -1263,6 +1239,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 && funcNode.receiver.type.tag != TypeTags.STRING
                 && funcNode.receiver.type.tag != TypeTags.INT
                 && funcNode.receiver.type.tag != TypeTags.FLOAT
+                && funcNode.receiver.type.tag != TypeTags.DECIMAL
                 && funcNode.receiver.type.tag != TypeTags.JSON
                 && funcNode.receiver.type.tag != TypeTags.XML
                 && funcNode.receiver.type.tag != TypeTags.MAP
@@ -1388,5 +1365,38 @@ public class SymbolEnter extends BLangNodeVisitor {
                 new BAttachedFunction(function.funcName, funcSymbol, (BInvokableType) funcSymbol.type);
         ((BObjectTypeSymbol) typeDef.symbol).attachedFuncs.add(attachedFunc);
         ((BObjectTypeSymbol) typeDef.symbol).referencedFunctions.add(attachedFunc);
+    }
+
+    private void defineInitFunctionParam(BLangSimpleVariable varNode) {
+        Name varName = names.fromIdNode(varNode.name);
+
+        // Here it is assumed that initFunctions are always for objects.
+        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) env.enclType;
+        BTypeSymbol objectTypeSumbol = objectTypeNode.type.tsymbol;
+        BSymbol fieldSymbol = symResolver.resolveObjectField(varNode.pos, env, varName, objectTypeSumbol);
+
+        if (fieldSymbol == symTable.notFoundSymbol) {
+            dlog.error(varNode.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, varName,
+                    env.enclType.type.getKind().typeName(), env.enclType.type.tsymbol.name);
+        }
+
+        // Define a new symbol for the constructor param, with the same type as the object field.
+        varNode.type = fieldSymbol.type;
+        BVarSymbol paramSymbol;
+        if (fieldSymbol.kind == SymbolKind.FUNCTION) {
+            paramSymbol = ASTBuilderUtil.duplicateInvokableSymbol((BInvokableSymbol) fieldSymbol,
+                    objectTypeNode.initFunction.symbol, fieldSymbol.name, objectTypeSumbol.pkgID);
+        } else {
+            paramSymbol = new BVarSymbol(Flags.asMask(varNode.flagSet), varName, env.enclPkg.symbol.pkgID, varNode.type,
+                    env.scope.owner);
+        }
+        defineShadowedSymbol(varNode.pos, paramSymbol, env);
+
+        // Create an assignment to the actual field.
+        // i.e.: self.x = x
+        objectTypeNode.initFunction.initFunctionStmts.put(fieldSymbol,
+                (BLangStatement) createAssignmentStmt(varNode, paramSymbol, fieldSymbol));
+        varNode.symbol = paramSymbol;
+        return;
     }
 }

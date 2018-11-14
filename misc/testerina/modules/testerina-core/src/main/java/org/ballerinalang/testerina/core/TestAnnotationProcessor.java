@@ -90,10 +90,6 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
     }
 
     @Override
-    public void process(PackageNode packageNode) {
-    }
-
-    @Override
     public void process(FunctionNode functionNode, List<AnnotationAttachmentNode> annotations) {
         if (!enabled) {
             return;

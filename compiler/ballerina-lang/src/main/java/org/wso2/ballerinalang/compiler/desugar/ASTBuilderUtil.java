@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -67,6 +68,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
@@ -128,7 +130,7 @@ public class ASTBuilderUtil {
     }
 
     private static boolean isValueType(BType type) {
-        return type.tag < TypeTags.TYPEDESC;
+        return type.tag < TypeTags.JSON;
     }
 
     static BLangExpression wrapToConversionExpr(BType sourceType, BLangExpression exprToWrap,
@@ -158,6 +160,9 @@ public class ASTBuilderUtil {
                 break;
             case TypeTags.STRING:
                 opcode = InstructionCodes.S2ANY;
+                break;
+            case TypeTags.DECIMAL:
+                opcode = InstructionCodes.NOP;
                 break;
             default:
                 opcode = InstructionCodes.B2ANY;
@@ -301,11 +306,11 @@ public class ASTBuilderUtil {
         return blockNode;
     }
 
-    static BLangMatch.BLangMatchStmtTypedBindingPatternClause createMatchStatementPattern(DiagnosticPos pos,
-                                                                                          BLangSimpleVariable variable,
-                                                                                          BLangBlockStmt body) {
-        BLangMatch.BLangMatchStmtTypedBindingPatternClause patternClause =
-                (BLangMatch.BLangMatchStmtTypedBindingPatternClause)
+    static BLangMatch.BLangMatchTypedBindingPatternClause createMatchStatementPattern(DiagnosticPos pos,
+                                                                                      BLangSimpleVariable variable,
+                                                                                      BLangBlockStmt body) {
+        BLangMatch.BLangMatchTypedBindingPatternClause patternClause =
+                (BLangMatch.BLangMatchTypedBindingPatternClause)
                         TreeBuilder.createMatchStatementSimpleBindingPattern();
         patternClause.pos = pos;
         patternClause.variable = variable;
@@ -316,7 +321,7 @@ public class ASTBuilderUtil {
 
     static BLangMatch createMatchStatement(DiagnosticPos pos,
                                            BLangExpression expr,
-                                           List<BLangMatch.BLangMatchStmtTypedBindingPatternClause> patternClauses) {
+                                           List<BLangMatch.BLangMatchTypedBindingPatternClause> patternClauses) {
         BLangMatch matchStmt = (BLangMatch) TreeBuilder.createMatchStatement();
         matchStmt.pos = pos;
         matchStmt.expr = expr;
@@ -361,7 +366,7 @@ public class ASTBuilderUtil {
     }
 
     static BLangExpression generateConversionExpr(BLangExpression varRef, BType target, SymbolResolver symResolver) {
-        if (varRef.type.tag == target.tag || varRef.type.tag > TypeTags.TYPEDESC) {
+        if (varRef.type.tag == target.tag || varRef.type.tag > TypeTags.BOOLEAN) {
             return varRef;
         }
         // Box value using cast expression.
@@ -487,6 +492,13 @@ public class ASTBuilderUtil {
         return variableDef;
     }
 
+    static BLangRecordVariableDef createRecordVariableDef(DiagnosticPos pos, BLangRecordVariable variable) {
+        final BLangRecordVariableDef variableDef =
+                (BLangRecordVariableDef) TreeBuilder.createRecordVariableDefinitionNode();
+        variableDef.pos = pos;
+        variableDef.var = variable;
+        return variableDef;
+    }
 
     static BLangBinaryExpr createBinaryExpr(DiagnosticPos pos,
                                             BLangExpression lhsExpr,
@@ -686,7 +698,7 @@ public class ASTBuilderUtil {
                 invokableSymbol.pkgID, invokableSymbol.type, invokableSymbol.owner, invokableSymbol.bodyExist);
         dupFuncSymbol.receiverSymbol = invokableSymbol.receiverSymbol;
         dupFuncSymbol.retType = invokableSymbol.retType;
-        dupFuncSymbol.defaultableParams = invokableSymbol.defaultableParams;
+        dupFuncSymbol.defaultableParams = new ArrayList<>(invokableSymbol.defaultableParams);
         dupFuncSymbol.restParam = invokableSymbol.restParam;
         dupFuncSymbol.params = new ArrayList<>(invokableSymbol.params);
         dupFuncSymbol.taintTable = invokableSymbol.taintTable;
@@ -694,6 +706,7 @@ public class ASTBuilderUtil {
         dupFuncSymbol.closure = invokableSymbol.closure;
         dupFuncSymbol.markdownDocumentation = invokableSymbol.markdownDocumentation;
         dupFuncSymbol.scope = invokableSymbol.scope;
+        dupFuncSymbol.tag = invokableSymbol.tag;
 
         BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;
         dupFuncSymbol.type = new BInvokableType(new ArrayList<>(prevFuncType.paramTypes),
@@ -721,6 +734,7 @@ public class ASTBuilderUtil {
         dupFuncSymbol.taintTable = invokableSymbol.taintTable;
         dupFuncSymbol.tainted = invokableSymbol.tainted;
         dupFuncSymbol.closure = invokableSymbol.closure;
+        dupFuncSymbol.tag = invokableSymbol.tag;
         dupFuncSymbol.markdownDocumentation = invokableSymbol.markdownDocumentation;
 
         BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;

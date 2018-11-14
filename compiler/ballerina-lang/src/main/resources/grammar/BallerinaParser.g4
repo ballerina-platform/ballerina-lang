@@ -67,7 +67,7 @@ callableUnitBody
 
 
 functionDefinition
-    :   (PUBLIC)? (EXTERN)? FUNCTION ((Identifier | typeName) DOUBLE_COLON)? callableUnitSignature (callableUnitBody | SEMICOLON)
+    :   (PUBLIC)? (EXTERN)? FUNCTION ((Identifier | typeName) DOT)? callableUnitSignature (callableUnitBody | SEMICOLON)
     ;
 
 lambdaFunction
@@ -224,6 +224,7 @@ recordFieldDefinitionList
 // Temporary production rule name
 simpleTypeName
     :   TYPE_ANY
+    |   TYPE_ANYDATA
     |   TYPE_DESC
     |   valueTypeName
     |   referenceTypeName
@@ -244,6 +245,7 @@ valueTypeName
     |   TYPE_INT
     |   TYPE_BYTE
     |   TYPE_FLOAT
+    |   TYPE_DECIMAL
     |   TYPE_STRING
     ;
 
@@ -717,6 +719,7 @@ expression
     |   expression (shiftExpression) expression                             # bitwiseShiftExpression
     |   expression (LT_EQUAL | GT_EQUAL | GT | LT) expression               # binaryCompareExpression
     |   expression (EQUAL | NOT_EQUAL) expression                           # binaryEqualExpression
+    |   expression (REF_EQUAL | REF_NOT_EQUAL) expression                   # binaryRefEqualExpression
     |   expression (BIT_AND | BIT_XOR | PIPE) expression                    # bitwiseExpression
     |   expression AND expression                                           # binaryAndExpression
     |   expression OR expression                                            # binaryOrExpression

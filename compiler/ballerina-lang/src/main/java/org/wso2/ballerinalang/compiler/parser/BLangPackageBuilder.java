@@ -183,9 +183,9 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStaticBindingPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStructuredBindingPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtTypedBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchTypedBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -2447,8 +2447,8 @@ public class BLangPackageBuilder {
     }
 
     void addMatchStmtSimpleBindingPattern(DiagnosticPos pos, Set<Whitespace> ws, String identifier) {
-        BLangMatchStmtTypedBindingPatternClause patternClause =
-                (BLangMatchStmtTypedBindingPatternClause) TreeBuilder.createMatchStatementSimpleBindingPattern();
+        BLangMatchTypedBindingPatternClause patternClause =
+                (BLangMatchTypedBindingPatternClause) TreeBuilder.createMatchStatementSimpleBindingPattern();
         patternClause.pos = pos;
         patternClause.addWS(ws);
 
@@ -2469,8 +2469,8 @@ public class BLangPackageBuilder {
     }
 
     void addMatchStmtStaticBindingPattern(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangMatchStmtStaticBindingPatternClause patternClause =
-                (BLangMatchStmtStaticBindingPatternClause) TreeBuilder.createMatchStatementStaticBindingPattern();
+        BLangMatchStaticBindingPatternClause patternClause =
+                (BLangMatchStaticBindingPatternClause) TreeBuilder.createMatchStatementStaticBindingPattern();
         patternClause.pos = pos;
         patternClause.addWS(ws);
 
@@ -2481,9 +2481,8 @@ public class BLangPackageBuilder {
     }
 
     void addMatchStmtStructuredBindingPattern(DiagnosticPos pos, Set<Whitespace> ws, boolean isTypeGuardPresent) {
-        BLangMatchStmtStructuredBindingPatternClause patternClause =
-                (BLangMatchStmtStructuredBindingPatternClause)
-                        TreeBuilder.createMatchStatementStructuredBindingPattern();
+        BLangMatchStructuredBindingPatternClause patternClause =
+                (BLangMatchStructuredBindingPatternClause) TreeBuilder.createMatchStatementStructuredBindingPattern();
         patternClause.pos = pos;
         patternClause.addWS(ws);
 

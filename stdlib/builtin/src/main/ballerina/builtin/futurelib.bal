@@ -18,14 +18,14 @@
 # Checks if the given future is done.
 #
 # + return - true if the future is done; false otherwise
-public extern function future::isDone() returns boolean;
+public extern function future.isDone() returns boolean;
 
 # Checks if the given future is cancelled.
 #
 # + return - true if the future is cancelled; false otherwise
-public extern function future::isCancelled() returns boolean;
+public extern function future.isCancelled() returns boolean;
 
 # Cancels the given future.
 #
 # + return - true if the future was cancelled; false otherwise
-public extern function future::cancel() returns boolean;
+public extern function future.cancel() returns boolean;

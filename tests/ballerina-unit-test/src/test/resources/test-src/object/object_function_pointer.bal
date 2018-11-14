@@ -19,7 +19,7 @@ public type Window object {
     public int a = 1;
 
     public function process() returns int {
-        return 5 + a;
+        return 5 + self.a;
     }
 };
 
@@ -28,7 +28,7 @@ public type LengthWindow object {
     public int a = 2;
 
     public function process() returns int {
-        return 10 + a;
+        return 10 + self.a;
     }
 };
 
@@ -37,7 +37,7 @@ public type SampleWindow object {
     public int a = 3;
 
     public function process() returns int {
-        return 15 + a;
+        return 15 + self.a;
     }
 };
 

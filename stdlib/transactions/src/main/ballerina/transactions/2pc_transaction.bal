@@ -23,9 +23,9 @@ type TwoPhaseCommitTransaction object {
     string transactionId;
     int transactionBlockId;
     string coordinationType;
-    boolean isInitiated; // Indicates whether this is a transaction that was initiated or is participated in
-    map<Participant> participants;
-    Protocol[] coordinatorProtocols;
+    boolean isInitiated = false; // Indicates whether this is a transaction that was initiated or is participated in
+    map<Participant> participants = {};
+    Protocol[] coordinatorProtocols = [];
     int createdTime = time:currentTime().time;
     TransactionState state = TXN_STATE_ACTIVE;
     private boolean possibleMixedOutcome;
@@ -158,11 +158,11 @@ type TwoPhaseCommitTransaction object {
     // The result of this function is whether we can commit or abort
     function prepareParticipants(string protocol) returns PrepareDecision {
         PrepareDecision prepareDecision = PREPARE_DECISION_COMMIT;
-        future<((PrepareResult|error)?, Participant)>[] results;
+        future<((PrepareResult|error)?, Participant)>[] results = [];
         foreach _, participant in self.participants {
             string participantId = participant.participantId;
             future<((PrepareResult|error)?, Participant)> f = start participant.prepare(protocol);
-            results[lengthof results] = f;
+            results[results.length()] = f;
         }
         foreach f in results {
             ((PrepareResult|error)?, Participant) r = await f;
@@ -193,7 +193,7 @@ type TwoPhaseCommitTransaction object {
                         // Remove the participant who sent the abort since we don't want to do a notify(Abort) to that
                         // participant
                         self.removeParticipant(participantId, "Could not remove aborted participant: " + participantId +
-                                " from transaction: " + transactionId);
+                                " from transaction: " + self.transactionId);
                         prepareDecision = PREPARE_DECISION_ABORT;
                     }
                 }
@@ -211,10 +211,10 @@ type TwoPhaseCommitTransaction object {
 
     function notifyParticipants(string action, string? protocolName) returns NotifyResult|error {
         NotifyResult|error notifyResult = (action == COMMAND_COMMIT) ? NOTIFY_RESULT_COMMITTED : NOTIFY_RESULT_ABORTED;
-        future<(NotifyResult|error)?>[] results;
+        future<(NotifyResult|error)?>[] results = [];
         foreach _, participant in self.participants {
             future<(NotifyResult|error)?> f = start participant.notify(action, protocolName);
-            results[lengthof results] = f;
+            results[results.length()] = f;
 
         }
         foreach f in results {
