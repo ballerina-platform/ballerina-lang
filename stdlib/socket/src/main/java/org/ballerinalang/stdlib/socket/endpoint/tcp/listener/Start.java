@@ -19,9 +19,10 @@
 package org.ballerinalang.stdlib.socket.endpoint.tcp.listener;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -30,7 +31,10 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.socket.SocketConstants;
+import org.ballerinalang.stdlib.socket.exceptions.SelectorInitializeException;
+import org.ballerinalang.stdlib.socket.tcp.ChannelRegisterCallback;
 import org.ballerinalang.stdlib.socket.tcp.SelectorManager;
+import org.ballerinalang.stdlib.socket.tcp.SocketService;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,12 +42,15 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.AlreadyBoundException;
+import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.UnsupportedAddressTypeException;
 
+import static java.nio.channels.SelectionKey.OP_ACCEPT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_CONFIG;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SERVER_SOCKET_KEY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
+import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
 
 /**
  * Start server socket listener.
@@ -58,14 +65,15 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = SOCKET_PACKAGE),
         isPublic = true
 )
-public class Start extends BlockingNativeCallableUnit {
+public class Start implements NativeCallableUnit {
     private static final Logger log = LoggerFactory.getLogger(Start.class);
 
     @Override
-    public void execute(Context context) {
+    public void execute(Context context, CallableUnitCallback callback) {
         try {
             Struct listenerEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
             ServerSocketChannel channel = (ServerSocketChannel) listenerEndpoint.getNativeData(SERVER_SOCKET_KEY);
+
             BMap<String, BValue> config = (BMap<String, BValue>) listenerEndpoint.getNativeData(LISTENER_CONFIG);
             BInteger port = (BInteger) config.get(SocketConstants.CONFIG_FIELD_PORT);
             BString networkInterface = (BString) config.get(SocketConstants.CONFIG_FIELD_INTERFACE);
@@ -74,9 +82,19 @@ public class Start extends BlockingNativeCallableUnit {
             } else {
                 channel.bind(new InetSocketAddress(networkInterface.stringValue(), (int) port.intValue()));
             }
+            // Start selector
             final SelectorManager selectorManager = SelectorManager.getInstance();
             selectorManager.start();
-            context.setReturnValues();
+            SocketService socketService = (SocketService) listenerEndpoint.getNativeData(SOCKET_SERVICE);
+            ChannelRegisterCallback registerCallback = new ChannelRegisterCallback(socketService, callback, context,
+                    OP_ACCEPT);
+            selectorManager.registerChannel(registerCallback);
+            //            context.setReturnValues();
+        } catch (SelectorInitializeException e) {
+            log.error(e.getMessage(), e);
+            throw new BallerinaException("Unable to initialize the selector");
+        } catch (CancelledKeyException e) {
+            throw new BallerinaException("Server socket registration is failed");
         } catch (AlreadyBoundException e) {
             throw new BallerinaException("Server socket service is already bound to a port");
         } catch (UnsupportedAddressTypeException e) {
@@ -84,7 +102,12 @@ public class Start extends BlockingNativeCallableUnit {
             throw new BallerinaException("Provided address not supported");
         } catch (IOException e) {
             log.error(e.getMessage(), e);
-            throw new BallerinaException("Unable to start the socket service");
+            throw new BallerinaException("Unable to start the socket service: " + e.getMessage());
         }
+    }
+
+    @Override
+    public boolean isBlocking() {
+        return false;
     }
 }

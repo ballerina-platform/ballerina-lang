@@ -21,7 +21,6 @@ package org.ballerinalang.test.nativeimpl.functions.socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -35,44 +34,16 @@ import java.util.Set;
 /**
  * This server socket will use to mock the backend server.
  */
-public class MockSocketServer {
+public class MockSocketServer implements Runnable {
 
     private static final Logger log = LoggerFactory.getLogger(MockSocketServer.class);
 
-    public static final int SERVER_PORT = 47826;
+    static final int SERVER_PORT = 47826;
     static final String SERVER_HOST = "localhost";
-    public static final String POISON_PILL = "Bye";
+    private static final String POISON_PILL = "Bye";
+    private String receivedString;
 
-    public static void main(String[] args) throws IOException {
-        Selector selector = Selector.open();
-        ServerSocketChannel serverSocket = ServerSocketChannel.open();
-        serverSocket.bind(new InetSocketAddress("localhost", SERVER_PORT));
-        serverSocket.configureBlocking(false);
-        serverSocket.register(selector, SelectionKey.OP_ACCEPT);
-        ByteBuffer buffer = ByteBuffer.allocate(256);
-
-        while (true) {
-            try {
-                selector.select();
-                Set<SelectionKey> selectedKeys = selector.selectedKeys();
-                Iterator<SelectionKey> iter = selectedKeys.iterator();
-                while (iter.hasNext()) {
-                    SelectionKey key = iter.next();
-                    if (key.isAcceptable()) {
-                        register(selector, serverSocket);
-                    }
-                    if (key.isReadable()) {
-                        answerWithEcho(buffer, key);
-                    }
-                    iter.remove();
-                }
-            } catch (Throwable e) {
-                log.error("Error in MockSocketServer loop: " + e.getMessage());
-            }
-        }
-    }
-
-    private static void answerWithEcho(ByteBuffer buffer, SelectionKey key) throws IOException {
+    private void answerWithEcho(ByteBuffer buffer, SelectionKey key) throws IOException {
         SocketChannel client = (SocketChannel) key.channel();
         final int read = client.read(buffer);
         if (read == -1) {
@@ -80,6 +51,7 @@ public class MockSocketServer {
         }
         byte[] readBytes = buffer.array();
         String deserializeContent = new String(readBytes).trim();
+        receivedString = deserializeContent;
         if (POISON_PILL.equals(deserializeContent)) {
             client.close();
             log.info("Not accepting client messages anymore");
@@ -95,14 +67,43 @@ public class MockSocketServer {
         client.register(selector, SelectionKey.OP_READ);
     }
 
-    public static Process start() throws IOException, InterruptedException {
-        String javaHome = System.getProperty("java.home");
-        String javaBin = javaHome + File.separator + "bin" + File.separator + "java";
-        String classpath = System.getProperty("java.class.path");
-        String className = MockSocketServer.class.getCanonicalName();
-        ProcessBuilder builder = new ProcessBuilder(javaBin, "-cp", classpath, className);
-        builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-        builder.redirectError(ProcessBuilder.Redirect.INHERIT);
-        return builder.start();
+    String getReceivedString() {
+        return receivedString;
+    }
+
+    @Override
+    public void run() {
+        try {
+            Selector selector = Selector.open();
+            ServerSocketChannel serverSocket = ServerSocketChannel.open();
+            serverSocket.bind(new InetSocketAddress("localhost", SERVER_PORT));
+            serverSocket.configureBlocking(false);
+            serverSocket.register(selector, SelectionKey.OP_ACCEPT);
+            ByteBuffer buffer = ByteBuffer.allocate(256);
+
+            while (true) {
+                try {
+                    final int select = selector.select();
+                    if (select == 0) {
+                        continue;
+                    }
+                    Set<SelectionKey> selectedKeys = selector.selectedKeys();
+                    Iterator<SelectionKey> iter = selectedKeys.iterator();
+                    while (iter.hasNext()) {
+                        SelectionKey key = iter.next();
+                        iter.remove();
+                        if (key.isAcceptable()) {
+                            register(selector, serverSocket);
+                        } else if (key.isReadable()) {
+                            answerWithEcho(buffer, key);
+                        }
+                    }
+                } catch (Throwable e) {
+                    log.error("Error in MockSocketServer loop: " + e.getMessage());
+                }
+            }
+        } catch (Throwable e) {
+            log.error(e.getMessage());
+        }
     }
 }

@@ -31,7 +31,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -119,7 +119,7 @@ public class SocketCompilerPlugin extends AbstractCompilerPlugin {
     }
 
     private void validateOnError(String serviceName, BLangResource resource, DiagnosticLog diagnosticLog) {
-        final List<BLangVariable> readReadyParams = resource.getParameters();
+        final List<BLangSimpleVariable> readReadyParams = resource.getParameters();
         if (readReadyParams.size() != 2) {
             String msg = String.format("Invalid resource signature for %s in service %s. "
                             + "Parameters should be an 'endpoint' and 'error'",
@@ -142,7 +142,7 @@ public class SocketCompilerPlugin extends AbstractCompilerPlugin {
     }
 
     private void validateOnReadReady(String serviceName, BLangResource resource, DiagnosticLog diagnosticLog) {
-        final List<BLangVariable> readReadyParams = resource.getParameters();
+        final List<BLangSimpleVariable> readReadyParams = resource.getParameters();
         if (readReadyParams.size() != 2) {
             String msg = String.format("Invalid resource signature for %s in service %s. "
                             + "Parameters should be an 'endpoint' and 'byte[]'",
@@ -170,7 +170,7 @@ public class SocketCompilerPlugin extends AbstractCompilerPlugin {
     }
 
     private void validateOnAccept(String serviceName, BLangResource resource, DiagnosticLog diagnosticLog) {
-        final List<BLangVariable> acceptParams = resource.getParameters();
+        final List<BLangSimpleVariable> acceptParams = resource.getParameters();
         if (acceptParams.size() != 1) {
             String msg = String.format("Invalid resource signature for %s in service %s. "
                             + "The parameter should be an 'endpoint'",

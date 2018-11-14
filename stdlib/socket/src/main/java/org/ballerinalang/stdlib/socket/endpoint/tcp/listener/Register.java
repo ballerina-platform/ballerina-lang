@@ -28,15 +28,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.stdlib.socket.exceptions.SelectorInitializeException;
-import org.ballerinalang.stdlib.socket.tcp.SelectorManager;
 import org.ballerinalang.stdlib.socket.tcp.SocketService;
-import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.nio.channels.CancelledKeyException;
-import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ServerSocketChannel;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +40,7 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.RESOURCE_ON_ERROR;
 import static org.ballerinalang.stdlib.socket.SocketConstants.RESOURCE_ON_READ_READY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SERVER_SOCKET_KEY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
-import static java.nio.channels.SelectionKey.OP_ACCEPT;
+import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
 
 /**
  * Register socket listener service.
@@ -63,34 +56,18 @@ import static java.nio.channels.SelectionKey.OP_ACCEPT;
         isPublic = true
 )
 public class Register extends BlockingNativeCallableUnit {
-    private static final Logger log = LoggerFactory.getLogger(Register.class);
 
     @Override
     public void execute(Context context) {
-        try {
-            final SocketService socketService = getSocketService(context);
-            final SelectorManager selectorManager = SelectorManager.getInstance();
-            selectorManager.registerChannel(socketService, OP_ACCEPT);
-            context.setReturnValues();
-        } catch (SelectorInitializeException e) {
-            log.error(e.getMessage(), e);
-            throw new BallerinaException("Unable to initialize the selector");
-        } catch (ClosedChannelException e) {
-            throw new BallerinaException("Server socket not in an open state");
-        }  catch (CancelledKeyException e) {
-            throw new BallerinaException("Server socket registration is failed");
-        }
-    }
-
-    private SocketService getSocketService(Context context) {
-        Map<String, Resource> resources = getResourceMap(context);
-        ServerSocketChannel serverSocket = getServerSocketChannel(context);
-        return new SocketService(serverSocket, resources);
-    }
-
-    private ServerSocketChannel getServerSocketChannel(Context context) {
         Struct listenerEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        return (ServerSocketChannel) listenerEndpoint.getNativeData(SERVER_SOCKET_KEY);
+        final SocketService socketService = getSocketService(context, listenerEndpoint);
+        listenerEndpoint.addNativeData(SOCKET_SERVICE, socketService);
+    }
+
+    private SocketService getSocketService(Context context, Struct listenerEndpoint) {
+        Map<String, Resource> resources = getResourceMap(context);
+        ServerSocketChannel serverSocket = (ServerSocketChannel) listenerEndpoint.getNativeData(SERVER_SOCKET_KEY);
+        return new SocketService(serverSocket, resources);
     }
 
     private Map<String, Resource> getResourceMap(Context context) {

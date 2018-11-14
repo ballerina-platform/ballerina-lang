@@ -98,13 +98,13 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             }
             clientEndpoint.addNativeData(SOCKET_SERVICE, new SocketService(socketChannel, resourceMap));
             clientEndpoint.addNativeData(CLIENT_CONFIG, endpointConfig);
+            context.setReturnValues();
         } catch (SocketException e) {
             throw new BallerinaException("Unable to bind the local socket port");
         } catch (IOException e) {
             log.error("Unable to initiate the client socket", e);
             throw new BallerinaException("Unable to initiate the socket endpoint");
         }
-        context.setReturnValues();
     }
 
     private Map<String, Resource> getResourceMap(Service service) {

@@ -59,8 +59,8 @@ public class Close extends BlockingNativeCallableUnit {
         try {
             socketChannel.close();
             SelectorManager.getInstance().unRegisterChannel(socketChannel);
-            final Object isClient = clientEndpoint.getNativeData(IS_CLIENT);
-            if (isClient != null && Boolean.getBoolean(isClient.toString())) {
+            final Object client = clientEndpoint.getNativeData(IS_CLIENT);
+            if (client != null && Boolean.getBoolean(client.toString())) {
                 SelectorManager.getInstance().stop();
             }
         } catch (IOException e) {

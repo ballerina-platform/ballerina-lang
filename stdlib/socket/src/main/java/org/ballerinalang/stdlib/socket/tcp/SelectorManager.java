@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousCloseException;
-import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectableChannel;
@@ -36,6 +35,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -57,6 +57,7 @@ public class SelectorManager {
     private ThreadFactory threadFactory = new BLangThreadFactory("socket-selector");
     private ExecutorService executor = Executors.newSingleThreadExecutor(threadFactory);
     private boolean execution = true;
+    private ConcurrentLinkedQueue<ChannelRegisterCallback> registerPendingSockets = new ConcurrentLinkedQueue<>();
 
     private SelectorManager() throws IOException {
         selector = Selector.open();
@@ -87,17 +88,15 @@ public class SelectorManager {
     }
 
     /**
-     * Register the given SelectableChannel instance like ServerSocketChannel or SocketChannel in the selector instance.
+     * Add channel to register pending socket queue. Socket registration has to be happen in the same thread
+     * that selector loop execute.
      *
-     * @param socketService A {@link SocketService} instance which contains the resources,
+     * @param callback A {@link ChannelRegisterCallback} instance which contains the resources,
      *                      packageInfo and A {@link SelectableChannel}.
-     * @param interest The interest set for the resulting key
-     * @throws ClosedChannelException       {@inheritDoc}
-     * @throws CancelledKeyException        {@inheritDoc}
      */
-    public void registerChannel(SocketService socketService, int interest) throws ClosedChannelException {
-        SelectableChannel channel = socketService.getSocketChannel();
-        channel.register(selector, interest, socketService);
+    public void registerChannel(ChannelRegisterCallback callback) {
+        registerPendingSockets.add(callback);
+        selector.wakeup();
     }
 
     /**
@@ -126,6 +125,7 @@ public class SelectorManager {
     private void execute() {
         while (execution) {
             try {
+                registerChannels();
                 final int select = selector.select();
                 if (select == 0) {
                     continue;
@@ -133,12 +133,30 @@ public class SelectorManager {
                 Iterator<SelectionKey> keyIterator = selector.selectedKeys().iterator();
                 while (keyIterator.hasNext()) {
                     SelectionKey key = keyIterator.next();
-                    performAction(key);
                     keyIterator.remove();
+                    performAction(key);
                 }
             } catch (Throwable e) {
                 log.error("An error occurred in selector loop: " + e.getMessage(), e);
             }
+        }
+    }
+
+    /*
+    Channel registration has to be done in the same thread that selector loops runs.
+     */
+    private void registerChannels() {
+        ChannelRegisterCallback channelRegisterCallback;
+        while ((channelRegisterCallback = registerPendingSockets.poll()) != null) {
+            try {
+                SocketService socketService = channelRegisterCallback.getSocketService();
+                socketService.getSocketChannel()
+                        .register(selector, channelRegisterCallback.getInitialInterest(), socketService);
+            } catch (ClosedChannelException e) {
+                // TODO: use callback throwError once it's available
+            }
+            channelRegisterCallback
+                    .notifyRegister(channelRegisterCallback.getInitialInterest() == SelectionKey.OP_READ);
         }
     }
 
@@ -158,6 +176,8 @@ public class SelectorManager {
             ServerSocketChannel server = (ServerSocketChannel) socketService.getSocketChannel();
             SocketChannel client = server.accept();
             client.configureBlocking(false);
+            // Registering the channel against the selector directly without going through the queue,
+            // since we are in same thread.
             client.register(selector, OP_READ, new SocketService(client, socketService.getResources()));
             SelectorDispatcher.invokeOnAccept(socketService, client);
         } catch (ClosedByInterruptException e) {

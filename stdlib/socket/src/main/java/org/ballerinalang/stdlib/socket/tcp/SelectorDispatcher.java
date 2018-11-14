@@ -64,7 +64,7 @@ class SelectorDispatcher {
         try {
             Executor.submit(error, new TCPSocketCallableUnitCallback(), null, null, params);
         } catch (BallerinaConnectorException e) {
-            log.error("Error while exectuing onError resource", e);
+            log.error("Error while executing onError resource", e);
         }
     }
 
