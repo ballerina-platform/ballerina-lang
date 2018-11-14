@@ -15,12 +15,12 @@ function testCheckedExprSemanticErrors2() {
     string line = check readLineError();
 }
 
-public type myerror error<string, record { int code; }>;
+public type MyError error<string, record { int code; }>;
 
-public type customError error<string, record { int code; string data; }>;
+public type CustomError error<string, record { int code; string data; }>;
 
-function readLine() returns myerror | customError {
-    myerror e = error("io error");
+function readLine() returns MyError | CustomError {
+    MyError e = error("io error");
     return e;
 }
 
@@ -36,11 +36,13 @@ function testCheckedExprSemanticErrors4() {
     string line = check readLineInternal();
 }
 
-function readLineProper() returns string | myerror | customError {
-    myerror e = error("io error");
+function readLineProper() returns string | MyError | CustomError {
+    MyError e = error("io error");
     return e;
 }
 
+// This will be a negative case only after implementing the compiler check to validate if an error is returned  from any
+// function or resource that uses check expression.
 function testCheckedExprSemanticErrors5() {
     string line = check readLineProper();
 }

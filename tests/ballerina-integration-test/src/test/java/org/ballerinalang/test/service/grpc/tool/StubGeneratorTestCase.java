@@ -33,6 +33,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.TMP_DIRECTORY_PATH;
+
 /**
  * Protobuf to bal generation function testcase.
  */
@@ -284,7 +286,7 @@ public class StubGeneratorTestCase {
 
     @AfterClass
     public void clean() {
-        BalFileGenerationUtils.delete(new File(protoExeName));
+        BalFileGenerationUtils.delete(new File(TMP_DIRECTORY_PATH, protoExeName));
     }
 
 }

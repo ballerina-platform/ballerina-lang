@@ -3,8 +3,8 @@ import ballerina/io;
 
 int w1Count;
 int w2Count;
-error errorW1;
-error errorW2;
+error? errorW1;
+error? errorW2;
 string errorMsgW1;
 string errorMsgW2;
 
@@ -85,11 +85,11 @@ function getCounts() returns (int, int) {
 function getErrors() returns (string, string) {
     string w1ErrMsg;
     string w2ErrMsg;
-    if (errorW1 != null) {
-        w1ErrMsg = errorW1.message;
+    if (errorW1 is error) {
+        w1ErrMsg = errorW1.reason();
     }
-    if (errorW2 != null) {
-        w2ErrMsg = errorW2.message;
+    if (errorW2 is error) {
+        w2ErrMsg = errorW2.reason();
     }
     return (w1ErrMsg, w2ErrMsg);
 }
