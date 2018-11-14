@@ -118,14 +118,6 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
                 continue;
             }
 
-            // Skip var assignment.
-            BallerinaSimpleVariableReference variableReference = PsiTreeUtil.getParentOfType(identifier,
-                    BallerinaSimpleVariableReference.class);
-            if (variableReference != null && variableReference.getParent() instanceof BallerinaAssignmentStatement
-                    && assignmentStatement != null && assignmentStatement.getVar() != null) {
-                continue;
-            }
-
             // Skip object creation.
             if (identifier.getText().equals("new")) {
                 continue;
