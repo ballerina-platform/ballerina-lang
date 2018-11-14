@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
@@ -359,41 +358,13 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
                     throw new BallerinaException("Seal failed due to unavailability of required field " + fieldName +
                             " in type " + this.type);
                 }
-
             }
 
             for (Map.Entry valueEntry : this.getMap().entrySet()) {
                 String fieldName = valueEntry.getKey().toString();
-
-                if (targetTypeField.containsKey(fieldName)) {
-                    if (CPU.isStampingAllowed(((BValue) valueEntry.getValue()).getType(), targetTypeField.get(fieldName))) {
-                        ((BValue) valueEntry.getValue()).stamp(targetTypeField.get(fieldName));
-                    } else {
-                        throw new BallerinaException("Seal failed due to invalid value assignment. Type " +
-                                targetTypeField.get(fieldName) + " cannot assigned to type " +
-                                ((BValue) valueEntry.getValue()).getType());
-                    }
-
-                } else {
-                    if (!((BRecordType) type).sealed) {
-                        if (restFieldType.getTag() == TypeTags.ANYDATA_TAG) {
-                            ((BValue) valueEntry.getValue()).stamp(BTypes.typeAnydata);
-                        } else if (((BValue) valueEntry.getValue()).getType().getTag() != restFieldType.getTag()) {
-                            throw new BallerinaException("Seal failed due to closed record type. Field " +
-                                    fieldName + " does not belongs to the rest field type " + restFieldType);
-                        }
-                    } else {
-                        throw new BallerinaException("Seal failed due to closed record type. Field " +
-                                fieldName + " does not exist in Record type " + type.getName());
-                    }
-                }
+                ((BValue) valueEntry.getValue()).stamp(targetTypeField.getOrDefault(fieldName, restFieldType));
             }
 
-        } else if (type.getTag() == TypeTags.ANYDATA_TAG) {
-            if (!CPU.isStampingAllowed(this.getType(), type)) {
-                throw new BallerinaException("Seal failed due to invalid value assignment. Type " +
-                        type + " cannot assigned to type " + this.getType());
-            }
         }
 
         this.type = type;

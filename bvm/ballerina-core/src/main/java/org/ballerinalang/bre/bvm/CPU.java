@@ -130,6 +130,7 @@ import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -861,7 +862,7 @@ public class CPU {
         }
 
         //mutate reference variable
-        if (isStampingAllowed(valueToBeStamped.getType(), stampType)) {
+        if (checkIsLikeType(valueToBeStamped, stampType)) {
             try {
                 valueToBeStamped.stamp(stampType);
                 sf.refRegs[k] = valueToBeStamped;
@@ -3977,140 +3978,6 @@ public class CPU {
         return checkCast(value, constraintType, new ArrayList<>());
     }
 
-    public static boolean isStampingAllowed(BType sourceType, BType stampType) {
-        return (isAssignable(sourceType, stampType, new ArrayList<>()) ||
-                isAssignable(stampType, sourceType, new ArrayList<>()) ||
-                isStampingAllowedForExpr(sourceType, stampType) ||
-                isStampingAllowedForExpr(stampType, sourceType));
-    }
-
-    private static boolean isStampingAllowedForExpr(BType source, BType target) {
-        if (target.getTag() == TypeTags.JSON_TAG) {
-            if (((BJSONType) target).getConstrainedType() != null) {
-                if (source.getTag() == TypeTags.RECORD_TYPE_TAG) {
-                    isStampingAllowedForExpr(((BRecordType) source).restFieldType,
-                            ((BJSONType) target).getConstrainedType());
-                } else if (source.getTag() == TypeTags.JSON_TAG) {
-                    if (((BJSONType) source).getConstrainedType() != null) {
-                        return isStampingAllowed(((BJSONType) source).getConstrainedType(),
-                                ((BJSONType) target).getConstrainedType());
-                    }
-                } else if (source.getTag() == TypeTags.MAP_TAG) {
-                    return isStampingAllowed(((BMapType) source).getConstrainedType(),
-                            ((BJSONType) target).getConstrainedType());
-                }
-            } else if (source.getTag() == TypeTags.JSON_TAG || source.getTag() == TypeTags.RECORD_TYPE_TAG ||
-                    source.getTag() == TypeTags.MAP_TAG) {
-                return true;
-            }
-        } else if (target.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            if (source.getTag() == TypeTags.MAP_TAG) {
-                int mapConstraintTypeTag = ((BMapType) source).getConstrainedType().getTag();
-                if (mapConstraintTypeTag != TypeTags.ANY_TAG && ((BRecordType) target).sealed) {
-                    for (BField field : ((BStructureType) target).getFields()) {
-                        if (field.getFieldType().getTag() != mapConstraintTypeTag) {
-                            return false;
-                        }
-                    }
-                }
-                return true;
-            } else if (source.getTag() == TypeTags.RECORD_TYPE_TAG) {
-                return checkRecordEquivalencyForStamping((BRecordType) target, (BRecordType) source);
-            }
-        } else if (target.getTag() == TypeTags.MAP_TAG) {
-            if (source.getTag() == TypeTags.MAP_TAG) {
-                return isStampingAllowed(((BMapType) source).getConstrainedType(),
-                        ((BMapType) target).getConstrainedType());
-
-            } else if (source.getTag() == TypeTags.UNION_TAG) {
-                return checkUnionAssignableForStamping(source, target);
-            }
-        } else if (target.getTag() == TypeTags.ARRAY_TAG) {
-            if (source.getTag() == TypeTags.JSON_TAG) {
-                return ((BJSONType) source).getConstrainedType() == null ||
-                        isStampingAllowed(((BJSONType) source).getConstrainedType(),
-                                ((BArrayType) target).getElementType());
-            } else if (((BArrayType) source).getElementType().getTag() == TypeTags.JSON_TAG) {
-                return isStampingAllowed(((BArrayType) source).getElementType(),
-                        ((BArrayType) target).getElementType());
-            }
-        } else if (target.getTag() == TypeTags.UNION_TAG) {
-            return checkUnionAssignableForStamping(source, target);
-        }
-
-        return false;
-    }
-
-    private static boolean checkRecordEquivalencyForStamping(BRecordType lhsType, BRecordType rhsType) {
-        // Both records should be public or private.
-        // Get the XOR of both flags(masks)
-        // If both are public, then public bit should be 0;
-        // If both are private, then public bit should be 0;
-        // The public bit is on means, one is public, and the other one is private.
-        if (Flags.isFlagOn(lhsType.flags ^ rhsType.flags, Flags.PUBLIC)) {
-            return false;
-        }
-
-        // If both records are private, they should be in the same package.
-        if (!Flags.isFlagOn(lhsType.flags, Flags.PUBLIC) &&
-                !rhsType.getPackagePath().equals(lhsType.getPackagePath())) {
-            return false;
-        }
-
-        if (lhsType.getFields().length > rhsType.getFields().length) {
-            return false;
-        }
-
-        // If only one is a closed record, the records aren't equivalent
-        if (lhsType.sealed && !rhsType.sealed) {
-            return false;
-        }
-
-        return checkFieldEquivalencyForStamping(lhsType, rhsType);
-    }
-
-    private static boolean checkFieldEquivalencyForStamping(BRecordType lhsType, BRecordType rhsType) {
-        Map<String, BField> rhsFields = Arrays.stream(rhsType.getFields()).collect(
-                Collectors.toMap(BField::getFieldName, field -> field));
-        for (BField lhsField : lhsType.getFields()) {
-            BField rhsField = rhsFields.get(lhsField.fieldName);
-
-            if (rhsField == null || !isStampingAllowed(rhsField.fieldType, lhsField.fieldType)) {
-                return false;
-            }
-        }
-
-        Map<String, BField> lhsFields = Arrays.stream(lhsType.getFields()).collect(
-                Collectors.toMap(BField::getFieldName, field -> field));
-        for (BField rhsField : rhsType.getFields()) {
-            BField lhsField = lhsFields.get(rhsField.fieldName);
-
-            if (lhsField == null && !isStampingAllowed(rhsField.fieldType, lhsType.restFieldType)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private static boolean checkUnionAssignableForStamping(BType sourceType, BType targetType) {
-        if (sourceType.getTag() == TypeTags.UNION_TAG) {
-            for (BType sourceMemberType : ((BUnionType) sourceType).getMemberTypes()) {
-                if (!checkUnionAssignableForStamping(sourceMemberType, targetType)) {
-                    return false;
-                }
-            }
-            return true;
-        } else {
-            BUnionType targetUnionType = (BUnionType) targetType;
-            for (BType memberType : targetUnionType.getMemberTypes()) {
-                if (isStampingAllowed(sourceType, memberType)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
-
     public static boolean isAssignable(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
         if (isSameOrAnyType(sourceType, targetType)) {
             return true;
@@ -4229,6 +4096,132 @@ public class CPU {
         return checkIsType(sourceType, targetType, new ArrayList<>());
     }
 
+    private static boolean checkIsLikeType(BValue sourceValue, BType targetType) {
+        if(checkIsType(sourceValue, targetType)){
+            return true;
+        }
+
+        switch (targetType.getTag()) {
+            case TypeTags.INT_TAG:
+            case TypeTags.FLOAT_TAG:
+            case TypeTags.STRING_TAG:
+            case TypeTags.BOOLEAN_TAG:
+            case TypeTags.BYTE_TAG:
+            case TypeTags.XML_TAG:
+                return sourceValue.getType().getTag() == targetType.getTag();
+            case TypeTags.UNION_TAG:
+                return checkIsLikeUnionType(sourceValue, targetType);
+            case TypeTags.RECORD_TYPE_TAG:
+                return checkIsLikeRecordType(sourceValue, targetType);
+            case TypeTags.JSON_TAG:
+                return checkIsLikeJSONType(sourceValue, targetType);
+            case TypeTags.MAP_TAG:
+                return checkIsLikeMapType(sourceValue, targetType);
+            case TypeTags.ARRAY_TAG:
+                return checkIsLikeArrayType(sourceValue, targetType);
+            case TypeTags.TUPLE_TAG:
+                return checkIsLikeTupleType(sourceValue, targetType);
+            case TypeTags.ANYDATA_TAG:
+                return isAssignable(sourceValue.getType(), targetType, new ArrayList<>());
+            default:
+                return false;
+
+        }
+    }
+
+    private static boolean checkIsLikeTupleType(BValue sourceValue, BType targetType) {
+        BRefType<?>[] arrayValues = ((BRefValueArray) sourceValue).getValues();
+        for (int i = 0; i < ((BRefValueArray) sourceValue).size(); i++) {
+            if (!checkIsLikeType(arrayValues[i], ((BTupleType) targetType).getTupleTypes().get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean checkIsLikeArrayType(BValue sourceValue, BType targetType) {
+        BType arrayElementType = ((BArrayType) targetType).getElementType();
+        BRefType<?>[] arrayValues = ((BRefValueArray) sourceValue).getValues();
+        for (int i = 0; i < ((BRefValueArray) sourceValue).size(); i++) {
+            if (!checkIsLikeType(arrayValues[i], arrayElementType)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean checkIsLikeMapType(BValue sourceValue, BType targetType) {
+        for (Object mapEntry : ((BMap) sourceValue).values()) {
+            if (!checkIsLikeType((BValue) mapEntry, ((BMapType) targetType).getConstrainedType())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean checkIsLikeJSONType(BValue sourceValue, BType targetType) {
+        if (((BJSONType) targetType).getConstrainedType() != null) {
+            return checkIsLikeType(sourceValue, ((BJSONType) targetType).getConstrainedType());
+        } else if (sourceValue.getType().getTag() == TypeTags.ARRAY_TAG) {
+            BRefType<?>[] arrayValues = ((BRefValueArray) sourceValue).getValues();
+            for (int i = 0; i < ((BRefValueArray) sourceValue).size(); i++) {
+                if (!checkIsLikeType(arrayValues[i], targetType)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private static boolean checkIsLikeRecordType(BValue sourceValue, BType targetType) {
+        Map<String, BType> targetTypeField = new HashMap<>();
+        BType restFieldType = ((BRecordType) targetType).restFieldType;
+
+        for (BField field : ((BStructureType) targetType).getFields()) {
+            targetTypeField.put(field.getFieldName(), field.fieldType);
+        }
+
+        for (Map.Entry targetTypeEntry : targetTypeField.entrySet()) {
+            String fieldName = targetTypeEntry.getKey().toString();
+
+            if (!(((BMap) sourceValue).getMap().containsKey(fieldName))) {
+                return false;
+            }
+        }
+
+        for (Object object : ((BMap) sourceValue).getMap().entrySet()) {
+            Map.Entry valueEntry = (Map.Entry) object;
+            String fieldName = valueEntry.getKey().toString();
+
+            if (targetTypeField.containsKey(fieldName)) {
+                if (!checkIsLikeType(((BValue) valueEntry.getValue()), targetTypeField.get(fieldName))) {
+                    return false;
+                }
+            } else {
+                if (!((BRecordType) targetType).sealed) {
+                    if (!checkIsLikeType(((BValue) valueEntry.getValue()), restFieldType)) {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private static boolean checkIsLikeUnionType(BValue sourceValue, BType targetType) {
+        BUnionType targetUnionType = (BUnionType) targetType;
+        for (BType memberType : targetUnionType.getMemberTypes()) {
+            if (checkIsLikeType(sourceValue, memberType)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private static boolean checkIsType(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
         // First check whether both types are the same.
         if (sourceType == targetType || sourceType.equals(targetType)) {
@@ -4345,7 +4338,7 @@ public class CPU {
         }
 
         // If both are sealed (one is sealed means other is also sealed) check the rest field type
-        if (sourceRecordType.sealed &&
+        if (!sourceRecordType.sealed &&
                 !checkIsType(sourceRecordType.restFieldType, targetType.restFieldType, unresolvedTypes)) {
             return false;
         }

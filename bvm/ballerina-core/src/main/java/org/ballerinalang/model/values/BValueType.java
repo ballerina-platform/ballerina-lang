@@ -93,18 +93,6 @@ public abstract class BValueType implements BValue {
 
     @Override
     public void stamp(BType type) {
-        if (type.getTag() == TypeTags.ANYDATA_TAG) {
-            if (CPU.isStampingAllowed(this.getType(), type)) {
-                this.setType(BTypes.typeAnydata);
-            } else {
-                throw new BallerinaException("Error in sealing the value type: " + this.getType() +
-                        " cannot sealed as " + type);
-            }
-        } else if (type.getTag() == TypeTags.JSON_TAG) {
-            this.setType(BTypes.typeJSON);
-        } else if (this.getType().getTag() != type.getTag()) {
-            throw new BallerinaException("Error in sealing the value type: " + this.getType() +
-                    " cannot sealed as " + type);
-        }
+        this.setType(type);
     }
 }
