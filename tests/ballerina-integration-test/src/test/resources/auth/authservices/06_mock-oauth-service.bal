@@ -18,7 +18,13 @@ import ballerina/http;
 import ballerina/io;
 
 endpoint http:Listener tokenlistener {
-    port: 9095
+    port: 9095,
+    secureSocket: {
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        }
+    }
 };
 
 service<http:Service> foo bind tokenlistener {
@@ -39,9 +45,10 @@ service<http:Service> foo bind tokenlistener {
         string payload = check req.getTextPayload();
         boolean clientIdInBody = payload.contains("client_id");
         string authHeader;
-        try {
+        boolean hasHeader = req.hasHeader("Authorization");
+        if (hasHeader) {
             authHeader = req.getHeader("Authorization");
-        } catch (error e) {
+        } else {
             authHeader = "";
         }
         boolean tokenScope = false;

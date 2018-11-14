@@ -15,17 +15,21 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/io;
-import ballerina/auth;
 
-http:AuthProvider basicAuthProvider07 = {
-    scheme:"basic",
-    authStoreProvider:"config"
+http:AuthProvider jwtAuthProvider4 = {
+    scheme:"jwt",
+    issuer:"ballerina",
+    audience: "ballerina.io",
+    certificateAlias: "cert",
+    trustStore: {
+        path: "../../../src/test/resources/auth/testtruststore.p12",
+        password: "ballerina"
+    }
 };
 
-endpoint http:Listener listener07 {
-    port:9098,
-    authProviders:[basicAuthProvider07],
+endpoint http:Listener listener13 {
+    port:9101,
+    authProviders:[jwtAuthProvider4],
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -34,8 +38,8 @@ endpoint http:Listener listener07 {
     }
 };
 
-service<http:Service> echo7 bind listener07 {
-    test7 (endpoint caller, http:Request req) {
+service<http:Service> echo13 bind listener13 {
+    test13 (endpoint caller, http:Request req) {
         http:Response res = new;
         _ = caller -> respond(res);
     }
