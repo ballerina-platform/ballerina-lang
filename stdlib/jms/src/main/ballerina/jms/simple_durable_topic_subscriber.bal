@@ -66,12 +66,12 @@ public type SimpleDurableTopicSubscriber object {
     public function register(typedesc serviceType) {
         var subscriber = self.subscriber;
         if (subscriber is DurableTopicSubscriber) {
-           subscriber.register(serviceType);
+            subscriber.register(serviceType);
         } else {
-           string errorMessage = "Topic Subscriber cannot be nil";
-           map errorDetail = { message: errorMessage };
-           error e = error(JMS_ERROR_CODE, errorDetail);
-           panic e;
+            string errorMessage = "Topic Subscriber cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
 
@@ -85,13 +85,13 @@ public type SimpleDurableTopicSubscriber object {
     # + return - Durable topic subscriber actions
     public function getCallerActions() returns SimpleDurableTopicSubscriberActions {
         var consumerActions = self.consumerActions;
-        if (consumerActions is SimpleDurableTopicSubscriberActions){
-             return consumerActions;
+        if (consumerActions is SimpleDurableTopicSubscriberActions) {
+            return consumerActions;
         } else {
-             string errorMessage = "Consumer actions cannot be nil";
-             map errorDetail = { message: errorMessage };
-             error e = error(JMS_ERROR_CODE, errorDetail);
-             panic e;
+            string errorMessage = "Consumer actions cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
 

@@ -73,7 +73,7 @@ public type SimpleQueueSender object {
     # + return - Simple queue sender actions
     public function getCallerActions() returns QueueSenderActions {
         var sender = self.sender;
-        if (sender is QueueSender){
+        if (sender is QueueSender) {
             return sender.getCallerActions();
         } else {
             string errorMessage = "Queue sender cannot be nil";

@@ -33,12 +33,14 @@ public type QueueReceiver object {
         self.consumerActions.queueReceiver = self;
         var session = c.session;
         if (session is Session) {
-           var queueName = c.queueName;
-           if (queueName is string) {
-              self.createQueueReceiver(session, c.messageSelector);
-              log:printInfo("Message receiver created for queue " + queueName);
-           }
-        } else if (session is ()){
+            var queueName = c.queueName;
+            if (queueName is string) {
+                self.createQueueReceiver(session, c.messageSelector);
+                log:printInfo("Message receiver created for queue " + queueName);
+            } else {
+                log:printInfo("Message receiver is not properly initialised for queue");
+            }
+        } else {
             log:printInfo("Message receiver is not properly initialised for queue");
         }
     }
@@ -119,14 +121,16 @@ function QueueReceiverActions.receiveFrom(Destination destination, int timeoutIn
         error)? {
     var queueReceiver = self.queueReceiver;
     if (queueReceiver is QueueReceiver) {
-          var session = queueReceiver.config.session;
-          if (session is Session) {
-              validateQueue(destination);
-              queueReceiver.createQueueReceiver(session, queueReceiver.config.messageSelector, destination = destination);
-          } else {
-
-          }
-    } else if (queueReceiver is ()) {
+        var session = queueReceiver.config.session;
+        if (session is Session) {
+            validateQueue(destination);
+            queueReceiver.createQueueReceiver(session, queueReceiver.config.messageSelector,
+            destination = destination);
+        } else {
+            log:printInfo("Session is (), Message receiver is not properly initialised for queue " +
+            destination.destinationName);
+        }
+    } else {
          log:printInfo("Message receiver is not properly initialised for queue " + destination.destinationName);
     }
     var result = self.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);

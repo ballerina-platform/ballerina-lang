@@ -60,12 +60,12 @@ public type SimpleTopicSubscriber object {
     public function register(typedesc serviceType) {
         var subscriber = self.subscriber;
         if (subscriber is TopicSubscriber){
-           subscriber.register(serviceType);
+            subscriber.register(serviceType);
         } else {
-           string errorMessage = "Topic Subscriber cannot be nil";
-           map errorDetail = { message: errorMessage };
-           error e = error(JMS_ERROR_CODE, errorDetail);
-           panic e;
+            string errorMessage = "Topic Subscriber cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
 
@@ -101,12 +101,12 @@ public type SimpleTopicSubscriber object {
     public function createTextMessage(string message) returns Message|error {
         var session = self.session;
         if (session is Session) {
-           return session.createTextMessage(message);
+            return session.createTextMessage(message);
         } else {
-           string errorMessage = "Session cannot be nil";
-           map errorDetail = { message: errorMessage };
-           error e = error(JMS_ERROR_CODE, errorDetail);
-           panic e;
+            string errorMessage = "Session cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
 
@@ -117,12 +117,12 @@ public type SimpleTopicSubscriber object {
     public function createMapMessage(map message) returns Message|error {
         var session = self.session;
         if (session is Session) {
-              return session.createMapMessage(message);
+            return session.createMapMessage(message);
         } else {
-              string errorMessage = "Session cannot be nil";
-              map errorDetail = { message: errorMessage };
-              error e = error(JMS_ERROR_CODE, errorDetail);
-              panic e;
+            string errorMessage = "Session cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
 };

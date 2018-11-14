@@ -35,12 +35,12 @@ public type TopicSubscriber object {
         if (session is Session){
              var topicPattern = c.topicPattern;
              if (topicPattern is string){
-                self.createSubscriber(session, c.messageSelector);
-                log:printInfo("Subscriber created for topic " + topicPattern);
-             } else if (topicPattern is ()){
-
+                 self.createSubscriber(session, c.messageSelector);
+                 log:printInfo("Subscriber created for topic " + topicPattern);
+             } else {
+                 log:printInfo("Topic subscriber is not properly initialised for topic");
              }
-        } else if (session is ()){
+        } else {
             log:printInfo("Topic subscriber is not properly initialised for topic");
         }
     }
@@ -126,11 +126,11 @@ function TopicSubscriberActions.receiveFrom(Destination destination, int timeout
             validateTopic(destination);
             subscriber.createSubscriber(session, subscriber.config.messageSelector, destination = destination);
             log:printInfo("Subscriber created for topic " + destination.destinationName);
-          } else if (session is ()) {
-
+          } else {
+            log:printInfo("Session is (), Topic subscriber is not properly initialized");
           }
-    } else if (subscriber is ()) {
-       log:printInfo("Topic subscriber is not properly initialized.");
+    } else {
+        log:printInfo("Topic subscriber is not properly initialized");
     }
     var result = self.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
     self.topicSubscriber.closeSubscriber(self);

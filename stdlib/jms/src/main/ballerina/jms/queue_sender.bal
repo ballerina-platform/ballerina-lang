@@ -38,14 +38,14 @@ public type QueueSender object {
         self.producerActions.queueSender = self;
         var session = c.session;
         if (session is Session) {
-           var queueName = c.queueName;
+            var queueName = c.queueName;
             if (queueName is string){
                 self.initQueueSender(session);
             } else {
-
+                log:printInfo("Message producer not properly initialised for queue");
             }
-        } else if (session is ()){
-           log:printInfo("Message producer not properly initialised for queue");
+        } else {
+            log:printInfo("Message producer not properly initialised for queue");
         }
     }
 
@@ -111,14 +111,14 @@ public type QueueSenderActions object {
 function QueueSenderActions.sendTo(Destination destination, Message message) returns error? {
     var queueSender = self.queueSender;
     if (queueSender is QueueSender) {
-          var session = queueSender.config.session;
-          if (session is Session) {
-             validateQueue(destination);
-             queueSender.initQueueSender(session, destination = destination);
-          } else {
-
-          }
-    } else if (queueSender is ()) {
+        var session = queueSender.config.session;
+        if (session is Session) {
+            validateQueue(destination);
+            queueSender.initQueueSender(session, destination = destination);
+        } else {
+            log: printInfo("Message producer not properly initialised for queue " + destination.destinationName);
+        }
+    } else {
         log:printInfo("Message producer not properly initialised for queue " + destination.destinationName);
     }
     return self.send(message);

@@ -63,8 +63,8 @@ public type SimpleQueueReceiver object {
     public function register(typedesc serviceType) {
         var queueReceiver = self.queueReceiver;
         if (queueReceiver is  QueueReceiver) {
-          queueReceiver.register(serviceType);
-        } else if (queueReceiver is ()){
+            queueReceiver.register(serviceType);
+        } else {
             string errorMessage = "Queue receiver cannot be nil";
             map errorDetail = { message: errorMessage };
             error e = error(JMS_ERROR_CODE, errorDetail);
