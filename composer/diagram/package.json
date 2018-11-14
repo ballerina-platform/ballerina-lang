@@ -1,6 +1,6 @@
 {
   "name": "@ballerina/diagram",
-  "version": "0.982.1-SNAPSHOT",
+  "version": "0.983.1-SNAPSHOT",
   "description": "Provides a set of react components to draw Ballerina Diagrams.",
   "keywords": [
     "ballerina",
