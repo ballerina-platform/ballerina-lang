@@ -45,7 +45,13 @@ under the License.
         <packages>
             <package name="org.ballerinalang.test.vm.*"/>
             <package name="org.ballerinalang.test.annotations.*"/>
-            <package name="org.ballerinalang.test.expressions.*"/>
+            <package name="org.ballerinalang.test.expressions.*">
+                <exclude name="org.ballerinalang.test.expressions.binaryoperations.TypeTestExprTest"/>
+                <exclude name="org.ballerinalang.test.expressions.binaryoperations.DivisionOperationTest"/>
+                <exclude name="org.ballerinalang.test.expressions.lambda.IterableOperationsTests"/>
+                <exclude name="org.ballerinalang.test.expressions.lambda.FunctionPointersTest"/>
+                <exclude name="org.ballerinalang.test.expressions.match.MatchExpressionTest"/>
+            </package>
             <package name="org.ballerinalang.test.documentation.*"/>
             <package name="org.ballerinalang.test.statements.*">
                 <exclude name="org.ballerinalang.test.statements.transform.*"/>
