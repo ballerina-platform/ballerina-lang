@@ -146,13 +146,13 @@ function Listener.sendSubscriptionRequests() {
                     var (retHub, retTopic) = discoveredDetails;
                     var hubDecodeResponse = http:decode(retHub, "UTF-8");
                     if (hubDecodeResponse is string) {
-                        retHub = hubDecodeResponse
+                        retHub = hubDecodeResponse;
                     } else if (hubDecodeResponse is error) {
                         panic hubDecodeResponse;
                     }
                     var topicDecodeResponse = http:decode(retTopic, "UTF-8");
                     if (topicDecodeResponse is string) {
-                        retTopic = topicDecodeResponse
+                        retTopic = topicDecodeResponse;
                     } else if (topicDecodeResponse is error) {
                         panic topicDecodeResponse;
                     }
