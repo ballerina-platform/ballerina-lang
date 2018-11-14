@@ -886,7 +886,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         return symTable.notFoundSymbol;
     }
 
-
     // private methods
 
     private BSymbol resolveOperator(ScopeEntry entry, List<BType> types) {
