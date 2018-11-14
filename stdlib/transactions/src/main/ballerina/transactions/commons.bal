@@ -143,18 +143,18 @@ function respondToBadRequest(http:Listener conn, string msg) {
     log:printError(msg);
     http:Response res = new;  res.statusCode = http:BAD_REQUEST_400;
     RequestError requestError = {errorMessage:msg};
-    match (<json>requestError) {
-        error err => panic err;
-        json resPayload => {
-            res.setJsonPayload(untaint resPayload);
-            var resResult = ep->respond(res);
-            match resResult {
-                error respondErr => {
-                    log:printError("Could not send Bad Request error response to caller", err = respondErr);
-                }
-                () => return;
+    var resPayload = <json>requestError;
+    if (resPayload is json) {
+        res.setJsonPayload(untaint resPayload);
+        var resResult = ep->respond(res);
+        match resResult {
+            error respondErr => {
+                log:printError("Could not send Bad Request error response to caller", err = respondErr);
             }
+            () => return;
         }
+    } else if (resPayload is error) {
+        panic resPayload;
     }
 }
 
