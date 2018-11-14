@@ -1,7 +1,4 @@
-type Student record {
-    int score;
-};
-
+// Test field locking when a record is passed as a param
 function fieldLock() returns int {
         Student stParam = {};
         CircuitBreakerInferredConfig conf = {};
@@ -30,6 +27,10 @@ function incrementParam(Student param, CircuitBreakerInferredConfig conf) {
     }
 }
 
+type Student record {
+    int score;
+};
+
 public type CircuitBreakerInferredConfig record {
     float failureThreshold;
     int resetTimeMillis;
@@ -53,6 +54,7 @@ public type Bucket record {
 
 //--------------------------------------------------------------------------
 
+// Test when there is a array access during the field traverse
 function arrayFieldLock() returns int {
         RollingWindow w = {};
         w.requestVolumeThreshold = 0;
