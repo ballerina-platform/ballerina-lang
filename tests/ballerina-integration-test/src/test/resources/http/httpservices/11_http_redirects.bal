@@ -227,7 +227,7 @@ service<http:Service> testRedirect bind serviceEndpoint3 {
         http:Request clientRequest = new;
         var response = endPoint4->get("/redirect1/round1");
         if (response is http:Response) {
-            string value;
+            string value = "";
             if (response.hasHeader(http:LOCATION)) {
                 value = response.getHeader(http:LOCATION);
             }

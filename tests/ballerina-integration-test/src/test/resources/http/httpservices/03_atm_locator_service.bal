@@ -78,8 +78,7 @@ service<http:Service> Bankinfo bind serviceEnpoint {
         http:Response res = new;
         var jsonRequest = req.getJsonPayload();
         if (jsonRequest is json) {
-            string branchCode;
-            branchCode = extractFieldValue2(jsonRequest.BranchInfo.BranchCode);
+            string branchCode = extractFieldValue2(jsonRequest.BranchInfo.BranchCode);
             json payload = {};
             if (branchCode == "123") {
                 payload = {"ABC Bank":{"Address":"111 River Oaks Pkwy, San Jose, CA 95999"}};
@@ -107,8 +106,7 @@ service<http:Service> Banklocator bind serviceEnpoint {
         http:Response res = new;
         var jsonRequest = req.getJsonPayload();
         if (jsonRequest is json) {
-            string zipCode;
-            zipCode = extractFieldValue2(jsonRequest.BranchLocator.ZipCode);
+            string zipCode = extractFieldValue2(jsonRequest.BranchLocator.ZipCode);
             json payload = {};
             if (zipCode == "95999") {
                 payload = {"ABCBank":{"BranchCode":"123"}};
