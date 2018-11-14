@@ -2,11 +2,11 @@ function testXmlNull () returns (xml|(), xml|(), int) {
     xml|() x1;
     xml|() x2;
     int a;
-    match (x2){
-        () => a = 5;
-        any => a = 0;
+    if (x2 is ()) {
+        a = 5;
+    } else {
+        a = 0;
     }
-
     return (x1, x2, a);
 }
 
@@ -24,11 +24,11 @@ function testStructNull () returns (Person|(), Person|(), int) {
     Person|() p1;
     Person|() p2;
     int a;
-    match (p1){
-        () => a = 7;
-        any => a = 0;
+    if (p1 is ()) {
+        a = 7;
+    } else {
+        a = 0;
     }
-
     return (p1, p2, a);
 }
 
@@ -40,9 +40,10 @@ function testArrayNull () returns (string[]?, Person[]?, int) {
     string[]? s;
     Person[]? p;
     int a = 0;
-    match p {
-        () => a = 9;
-        any => a = 0;
+    if (p is ()) {
+        a = 9;
+    } else {
+        a = 0;
     }
     return (s, p, a);
 }
@@ -60,9 +61,10 @@ function testMapNull () returns (map?, map?, int) {
     map? m1;
     map? m2;
     int a = 0;
-    match m1 {
-        () => a = 10;
-        any => a = 0;
+    if (m1 is ()) {
+        a = 10;
+    } else {
+        a = 0;
     }
     return (m1, m2, a);
 }

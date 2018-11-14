@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.test.types.nullvalue;
 
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -174,7 +174,7 @@ public class BNullValueTest {
     }
 
     @Test(description = "Test accessing an element in a null array", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error:.*message: array index out of range.*")
+            expectedExceptionsMessageRegExp = ".*error: array index out of range.*")
     void testNullArrayAccess() {
         BRunUtil.invoke(positiveCompileResult, "testNullArrayAccess", new BValue[]{});
     }
@@ -191,8 +191,8 @@ public class BNullValueTest {
     void testNullMapAccessWithConversion() {
         BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testNullMapAccessWithConversion");
         Assert.assertEquals(vals.length, 1);
-        Assert.assertTrue(vals[0] instanceof BMap);
-        String errorMsg = ((BMap<String, BValue>) vals[0]).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+        Assert.assertTrue(vals[0] instanceof BError);
+        String errorMsg = ((BError) vals[0]).getReason();
         Assert.assertEquals(errorMsg, "'null' cannot be cast to 'int'");
     }
 
