@@ -1229,9 +1229,8 @@ public class PackageInfoReader {
 
                 case InstructionCodes.CLONE:
                     i = codeStream.readInt();
-                    j = codeStream.readInt();
                     k = codeStream.readInt();
-                    packageInfo.addInstruction(InstructionFactory.get(opcode, i, j, k));
+                    packageInfo.addInstruction(InstructionFactory.get(opcode, i, k));
                     break;
 
                 case InstructionCodes.IALOAD:

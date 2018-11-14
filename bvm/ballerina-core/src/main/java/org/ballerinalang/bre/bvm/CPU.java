@@ -563,7 +563,7 @@ public class CPU {
                         break;
 
                     case InstructionCodes.CLONE:
-                        createClone(ctx, operands, sf);
+                        createClone(operands, sf);
                         break;
 
                     case InstructionCodes.I2ANY:
@@ -826,42 +826,11 @@ public class CPU {
         }
     }
 
-    private static void createClone(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
+    private static void createClone(int[] operands, WorkerData sf) {
         int i = operands[0];
-        int cpIndex = operands[1];
-        int j = operands[2];
-        TypeRefCPEntry typeEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
-        if (isAnydata(typeEntry.getType())) {
-            switch (typeEntry.getType().getTag()) {
-                case TypeTags.INT_TAG:
-                    sf.longRegs[j] = sf.longRegs[i];
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                case TypeTags.BYTE_TAG:
-                    sf.intRegs[j] = sf.intRegs[i];
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    sf.doubleRegs[j] = sf.doubleRegs[i];
-                    break;
-                case TypeTags.STRING_TAG:
-                    sf.stringRegs[j] = sf.stringRegs[i];
-                    break;
-                case TypeTags.DECIMAL_TAG:
-                case TypeTags.XML_TAG:
-                case TypeTags.MAP_TAG:
-                case TypeTags.ARRAY_TAG:
-                case TypeTags.TABLE_TAG:
-                case TypeTags.UNION_TAG:
-                case TypeTags.TUPLE_TAG:
-                case TypeTags.JSON_TAG:
-                case TypeTags.RECORD_TYPE_TAG:
-                    sf.refRegs[j] = (BRefType<?>) (sf.refRegs[i]).copy(new HashMap<>());
-                    break;
-            }
-        } else {
-            ctx.setError(BLangVMErrors.createError(ctx, BLangExceptionHelper
-                    .getErrorMessage(RuntimeErrors.INVALID_USAGE_OF_CLONE, typeEntry.getType())));
-            handleError(ctx);
+        int j = operands[1];
+        if (isAnydata(sf.refRegs[i].getType())) {
+            sf.refRegs[j] = (BRefType<?>) sf.refRegs[i].copy(new HashMap<>());
         }
     }
 

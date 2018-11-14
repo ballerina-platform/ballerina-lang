@@ -124,6 +124,11 @@ public final class BString extends BValueType implements BRefType<String> {
 
     @Override
     public BValue copy(Map<BValue, BValue> refs) {
-        return new BString(value);
+        if (refs.containsKey(this)) {
+            return refs.get(this);
+        }
+
+        refs.put(this, new BString(value));
+        return refs.get(this);
     }
 }

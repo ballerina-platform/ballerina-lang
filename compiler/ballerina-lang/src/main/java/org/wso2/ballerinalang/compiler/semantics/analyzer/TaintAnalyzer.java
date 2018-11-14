@@ -997,8 +997,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 this.taintedStatus = TaintedStatus.UNTAINTED;
                 break;
             default:
-                dlog.error(invocationExpr.expr.pos, DiagnosticCode.UNABLE_TO_PERFORM_TAINT_CHECKING_FOR_BUILTIN_METHOD,
-                        builtInMethod);
+                throw new AssertionError("Taint checking failed for built-in method: " + builtInMethod);
         }
     }
 

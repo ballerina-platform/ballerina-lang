@@ -336,11 +336,11 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
             }
 
             BMap<K, BValue> newMap = new BMap<>(type);
+            refs.put(this, newMap);
             for (Map.Entry<K, V> entry: map.entrySet()) {
                 BValue value = entry.getValue();
                 newMap.put(entry.getKey(), value == null ? null : value.copy(refs));
             }
-            refs.put(this, newMap);
             return newMap;
         } finally {
             readLock.unlock();

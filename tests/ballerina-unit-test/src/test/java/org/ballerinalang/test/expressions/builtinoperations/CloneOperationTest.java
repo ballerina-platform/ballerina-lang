@@ -446,10 +446,28 @@ public class CloneOperationTest {
         Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 
+    @Test
+    public void testCloneAnyData() {
+        BValue[] results = BRunUtil.invoke(result, "cloneAnydata");
+        Assert.assertNotNull(results);
+        testCloneRecordValues((BMap) results[0], 100, "Charlos", 300.5);
+        testCloneRecordValues((BMap) results[1], 100, "Alex", 300.5);
+        testCloneRecordValues((BMap) results[2], 100, "Alex", 400.5);
+        Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
+    }
+
     private void testCloneRecordValues(BMap bMap, int id, String name, double salary) {
         Assert.assertEquals(((BInteger) bMap.get("id")).intValue(), id);
         Assert.assertEquals(bMap.get("name").stringValue(), name);
         Assert.assertEquals(((BFloat) bMap.get("salary")).floatValue(), salary);
+    }
+
+    @Test
+    public void testCloneCyclicMapsArray() {
+        BValue[] results = BRunUtil.invoke(result, "cloneCyclicMapsArray");
+        Assert.assertNotNull(results);
+        Assert.assertNotSame(((BRefValueArray) results[0]).get(0), ((BRefValueArray) results[1]).get(0));
+        Assert.assertNotSame(((BRefValueArray) results[0]).get(1), ((BRefValueArray) results[1]).get(1));
     }
 
     @Test

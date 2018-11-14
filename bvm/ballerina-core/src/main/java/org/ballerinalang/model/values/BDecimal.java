@@ -79,7 +79,12 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
 
     @Override
     public BValue copy(Map<BValue, BValue> refs) {
-        return new BDecimal(value);
+        if (refs.containsKey(this)) {
+            return refs.get(this);
+        }
+
+        refs.put(this, new BDecimal(value));
+        return refs.get(this);
     }
 
     @Override

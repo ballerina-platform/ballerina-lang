@@ -324,3 +324,26 @@ public function cloneCyclicArray() returns (any, any) {
     copy[2].arr[3] = 400;
     return (arr, copy);
 }
+
+public function cloneCyclicMapsArray() returns (any, any) {
+    map<anydata> x;
+    map<anydata> y;
+    x["1"] = y;
+    y["1"] = x;
+    map<anydata>[] xx = [x, y];
+    map<anydata>[] yy = xx.clone();
+    return (xx, yy);
+}
+
+public function cloneAnydata() returns (any, any, any) {
+    Person p = {id: 100, name: "Alex", salary: 300.5};
+    anydata a = p;
+    anydata x = a.clone();
+    anydata y = a.clone();
+    p.name = "Charlos";
+
+    if (y is Person) {
+        y.salary = 400.5;
+    }
+    return (a, x, y);
+}

@@ -100,6 +100,11 @@ public final class BFloat extends BValueType implements BRefType<Double> {
 
     @Override
     public BValue copy(Map<BValue, BValue> refs) {
-        return new BFloat(value);
+        if (refs.containsKey(this)) {
+            return refs.get(this);
+        }
+
+        refs.put(this, new BFloat(value));
+        return refs.get(this);
     }
 }

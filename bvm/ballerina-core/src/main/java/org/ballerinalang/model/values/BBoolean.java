@@ -109,6 +109,11 @@ public final class BBoolean extends BValueType implements BRefType<Boolean> {
     }
 
     public BValue copy(Map<BValue, BValue> refs) {
-        return new BBoolean(value);
+        if (refs.containsKey(this)) {
+            return refs.get(this);
+        }
+
+        refs.put(this, new BBoolean(value));
+        return refs.get(this);
     }
 }
