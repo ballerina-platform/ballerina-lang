@@ -69,7 +69,7 @@ service<http:Service> testService bind { port: 9098 } {
         path: "/clientGet"
     }
     testGet(endpoint client, http:Request req) {
-        string value;
+        string value = "";
         //No Payload
         http:Response response = check clientEP2->get("/test1/greeting");
         value = check response.getTextPayload();
@@ -88,23 +88,18 @@ service<http:Service> testService bind { port: 9098 } {
         path: "/clientPostWithoutBody"
     }
     testPost(endpoint client, http:Request req) {
-        string value;
+        string value = "";
         //No Payload
         var clientResponse = clientEP2->post("/test1/directPayload", ());
-        match clientResponse {
-            error err => {
-                value = err.reason();
+        if (clientResponse is http:Response) {
+            var returnValue = clientResponse.getTextPayload();
+            if (returnValue is string) {
+                value = returnValue;
+            } else if (returnValue is error) {
+                value = <string> returnValue.detail().message;
             }
-            http:Response res => {
-                match res.getTextPayload() {
-                    string returnValue => {
-                        value = returnValue;
-                    }
-                    error payloadErr => {
-                        value = <string> payloadErr.detail().message;
-                    }
-                }
-            }
+        } else if (clientResponse is error) {
+            value = clientResponse.reason();
         }
 
         _ = client->respond(untaint value);
@@ -115,7 +110,7 @@ service<http:Service> testService bind { port: 9098 } {
         path: "/clientPostWithBody"
     }
     testPostWithBody(endpoint client, http:Request req) {
-        string value;
+        string value = "";
         http:Response textResponse = check clientEP2->post("/test1/directPayload", "Sample Text");
         value = check textResponse.getTextPayload();
 
@@ -135,7 +130,7 @@ service<http:Service> testService bind { port: 9098 } {
         path: "/handleBinary"
     }
     testPostWithBinaryData(endpoint client, http:Request req) {
-        string value;
+        string value = "";
         string textVal = "Sample Text";
         byte[] binaryValue = textVal.toByteArray("UTF-8");
         http:Response textResponse = check clientEP2->post("/test1/directPayload", binaryValue);
@@ -149,7 +144,7 @@ service<http:Service> testService bind { port: 9098 } {
         path: "/handleByteChannel"
     }
     testPostWithByteChannel(endpoint client, http:Request req) {
-        string value;
+        string value = "";
         io:ReadableByteChannel byteChannel = check req.getByteChannel();
         http:Response res = check clientEP2->post("/test1/byteChannel", untaint byteChannel);
         value = check res.getPayloadAsString();
@@ -162,7 +157,7 @@ service<http:Service> testService bind { port: 9098 } {
         path: "/handleMultiparts"
     }
     testPostWithBodyParts(endpoint client, http:Request req) {
-        string value;
+        string value = "";
         mime:Entity part1 = new;
         part1.setJson({ "name": "wso2" });
         mime:Entity part2 = new;

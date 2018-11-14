@@ -21,16 +21,11 @@ service<http:Service> headQuoteService bind serviceEndpoint4 {
         http:Request clientRequest = new;
 
         var response = endPoint -> execute(untaint method, "/getQuote/stocks", clientRequest);
-        match response {
-            http:Response httpResponse => {
-                _ = caller -> respond(httpResponse);
-            }
-            error err => {
-                http:Response errorResponse = new;
-                json errMsg = {"error":"error occurred while invoking the service"};
-                errorResponse.setJsonPayload(errMsg);
-                _ = caller -> respond(errorResponse);
-            }
+        if (response is http:Response) {
+            _ = caller -> respond(response);
+        } else if (response is error) {
+            json errMsg = {"error":"error occurred while invoking the service"};
+            _ = caller -> respond(errMsg);
         }
     }
 
@@ -39,16 +34,11 @@ service<http:Service> headQuoteService bind serviceEndpoint4 {
     }
     forwardRes11 (endpoint caller, http:Request req) {
         var response = endPoint -> forward("/getQuote/stocks", req);
-        match response {
-            http:Response httpResponse => {
-                _ = caller -> respond(httpResponse);
-            }
-            error err => {
-                http:Response errorResponse = new;
-                json errMsg = {"error":"error occurred while invoking the service"};
-                errorResponse.setJsonPayload(errMsg);
-                _ = caller -> respond(errorResponse);
-            }
+        if (response is http:Response) {
+            _ = caller -> respond(response);
+        } else if (response is error) {
+            json errMsg = {"error":"error occurred while invoking the service"};
+            _ = caller -> respond(errMsg);
         }
     }
 
@@ -57,16 +47,11 @@ service<http:Service> headQuoteService bind serviceEndpoint4 {
     }
     forwardRes22 (endpoint caller, http:Request req) {
         var response = endPoint -> forward("/getQuote/stocks", req);
-        match response {
-            http:Response httpResponse => {
-                _ = caller -> respond(httpResponse);
-            }
-            error err => {
-                http:Response errorResponse = new;
-                json errMsg = {"error":"error occurred while invoking the service"};
-                errorResponse.setJsonPayload(errMsg);
-                _ = caller -> respond(errorResponse);
-            }
+        if (response is http:Response) {
+            _ = caller -> respond(response);
+        } else if (response is error) {
+            json errMsg = {"error":"error occurred while invoking the service"};
+            _ = caller -> respond(errMsg);
         }
     }
 
@@ -76,16 +61,11 @@ service<http:Service> headQuoteService bind serviceEndpoint4 {
     commonResource (endpoint caller, http:Request req, string method) {
         http:Request clientRequest = new;
         var response = endPoint -> execute(untaint method, "/getQuote/stocks", clientRequest);
-        match response {
-            http:Response httpResponse => {
-                _ = caller -> respond(httpResponse);
-            }
-            error err => {
-                http:Response errorResponse = new;
-                json errMsg = {"error":"error occurred while invoking the service"};
-                errorResponse.setJsonPayload(errMsg);
-                _ = caller -> respond(errorResponse);
-            }
+        if (response is http:Response) {
+            _ = caller -> respond(response);
+        } else if (response is error) {
+            json errMsg = {"error":"error occurred while invoking the service"};
+            _ = caller -> respond(errMsg);
         }
     }
 }
@@ -102,16 +82,11 @@ service<http:Service> testClientConHEAD bind serviceEndpoint4 {
     passthrough (endpoint caller, http:Request req) {
         http:Request clientRequest = new;
         var response = endPoint -> get("/getQuote/stocks", message = clientRequest);
-        match response {
-            http:Response httpResponse => {
-                _ = caller -> respond(httpResponse);
-            }
-            error err => {
-                http:Response errorResponse = new;
-                json errMsg = {"error":"error occurred while invoking the service"};
-                errorResponse.setJsonPayload(errMsg);
-                _ = caller -> respond(errorResponse);
-            }
+        if (response is http:Response) {
+            _ = caller -> respond(response);
+        } else if (response is error) {
+            json errMsg = {"error":"error occurred while invoking the service"};
+            _ = caller -> respond(errMsg);
         }
     }
 }
