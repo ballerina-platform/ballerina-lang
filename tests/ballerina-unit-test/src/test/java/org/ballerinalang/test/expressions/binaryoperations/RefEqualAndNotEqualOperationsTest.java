@@ -349,6 +349,24 @@ public class RefEqualAndNotEqualOperationsTest {
                            "Expected values to be identified as not reference equal");
     }
 
+    @Test
+    public void testValueTypesAsRefTypesEqualityPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "testValueTypesAsRefTypesEqualityPositive", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(),
+                          "Expected values to be identified as reference equal");
+    }
+
+    @Test
+    public void testValueTypesAsRefTypesEqualityNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "testValueTypesAsRefTypesEqualityNegative", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
+                           "Expected values to be identified as not reference equal");
+    }
+
     @Test(description = "Test reference equal with errors")
     public void testRefEqualNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 22);

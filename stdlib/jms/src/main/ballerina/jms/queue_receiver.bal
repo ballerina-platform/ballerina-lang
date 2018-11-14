@@ -49,7 +49,7 @@ public type QueueReceiver object {
     #
     # + serviceType - type descriptor of the service to bind to
     public function register(typedesc serviceType) {
-        self.registerListener(serviceType, consumerActions);
+        self.registerListener(serviceType, self.consumerActions);
     }
 
     extern function registerListener(typedesc serviceType, QueueReceiverActions actions);
@@ -65,12 +65,12 @@ public type QueueReceiver object {
     #
     # + return - queue receiver action handler
     public function getCallerActions() returns QueueReceiverActions {
-        return consumerActions;
+        return self.consumerActions;
     }
 
     # Stops consuming messages through QueueReceiver endpoint
     public function stop() {
-        self.closeQueueReceiver(consumerActions);
+        self.closeQueueReceiver(self.consumerActions);
     }
 
     extern function closeQueueReceiver(QueueReceiverActions actions);
@@ -117,7 +117,7 @@ public type QueueReceiverActions object {
     public function receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|error)?;
 };
 
-function QueueReceiverActions::receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|
+function QueueReceiverActions.receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|
         error)? {
     match (self.queueReceiver) {
         QueueReceiver queueReceiver => {

@@ -30,8 +30,8 @@ public type SecureListener object {
     private string instanceId;
 
     new() {
-        httpListener = new;
-        instanceId = system:uuid();
+        self.httpListener = new;
+        self.instanceId = system:uuid();
     }
 
     # Gets called when the endpoint is being initialize during module init time.
@@ -145,7 +145,7 @@ public type AuthProvider record {
     !...
 };
 
-function SecureListener::init(SecureEndpointConfiguration c) {
+function SecureListener.init(SecureEndpointConfiguration c) {
     addAuthFiltersForSecureListener(c, self.instanceId);
     self.httpListener.init(c);
 }
@@ -299,24 +299,24 @@ function createAuthHandler(AuthProvider authProvider, string instanceId) returns
     }
 }
 
-function SecureListener::register(typedesc serviceType) {
+function SecureListener.register(typedesc serviceType) {
     self.httpListener.register(serviceType);
 }
 
-function SecureListener::initEndpoint() returns (error?) {
+function SecureListener.initEndpoint() returns (error?) {
     return self.httpListener.initEndpoint();
 }
 
-function SecureListener::start() {
+function SecureListener.start() {
     self.httpListener.start();
 }
 
-function SecureListener::getCallerActions() returns (SecureListenerActions) {
+function SecureListener.getCallerActions() returns (SecureListenerActions) {
     SecureListenerActions secureListenerActions = new (self.httpListener.getCallerActions());
     return secureListenerActions;
 }
 
-function SecureListener::stop() {
+function SecureListener.stop() {
     self.httpListener.stop();
 }
 
@@ -358,7 +358,7 @@ public type SecureListenerActions object {
     #             or `mime:Entity[]`
     # + return - Returns an `error` if failed to respond
     public function respond(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns error? {
-        return httpCallerActions.respond(message);
+        return self.httpCallerActions.respond(message);
     }
 
     # Pushes a promise to the caller.
@@ -366,7 +366,7 @@ public type SecureListenerActions object {
     # + promise - Push promise message
     # + return - An `error` in case of failures
     public function promise(PushPromise promise) returns error? {
-        return httpCallerActions.promise(promise);
+        return self.httpCallerActions.promise(promise);
     }
 
     # Sends a promised push response to the caller.
@@ -375,7 +375,7 @@ public type SecureListenerActions object {
     # + response - The outbound response
     # + return - An `error` in case of failures while responding with the promised response
     public function pushPromisedResponse(PushPromise promise, Response response) returns error? {
-        return httpCallerActions.pushPromisedResponse(promise, response);
+        return self.httpCallerActions.pushPromisedResponse(promise, response);
     }
 
     # Sends an upgrade request with custom headers.
@@ -383,7 +383,7 @@ public type SecureListenerActions object {
     # + headers - A `map` of custom headers for handshake
     # + return - WebSocket service endpoint
     public function acceptWebSocketUpgrade(map<string> headers) returns WebSocketListener {
-        return httpCallerActions.acceptWebSocketUpgrade(headers);
+        return self.httpCallerActions.acceptWebSocketUpgrade(headers);
     }
 
     # Cancels the handshake.
@@ -393,14 +393,14 @@ public type SecureListenerActions object {
     # + reason - Reason for cancelling the upgrade
     # + return - An `error` if an error occurs during cancelling the upgrade or nil
     public function cancelWebSocketUpgrade(int status, string reason) returns error|() {
-        return httpCallerActions.cancelWebSocketUpgrade(status, reason);
+        return self.httpCallerActions.cancelWebSocketUpgrade(status, reason);
     }
 
     # Sends a `100-continue` response to the caller.
     #
     # + return - Returns an `error` if failed to send the `100-continue` response
     public function continue() returns error? {
-        return httpCallerActions.continue();
+        return self.httpCallerActions.continue();
     }
 
     # Sends a redirect response to the user with the specified redirection status code.
@@ -410,6 +410,6 @@ public type SecureListenerActions object {
     # + locations - An array of URLs to which the caller can redirect to
     # + return - Returns an `error` if failed to send the redirect response
     public function redirect(Response response, RedirectCode code, string[] locations) returns error? {
-        return httpCallerActions.redirect(response, code, locations);
+        return self.httpCallerActions.redirect(response, code, locations);
     }
 };

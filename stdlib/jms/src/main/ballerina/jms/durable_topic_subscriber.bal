@@ -43,7 +43,7 @@ public type DurableTopicSubscriber object {
     #
     # + serviceType - Type descriptor of the service
     public function register(typedesc serviceType) {
-        self.registerListener(serviceType, consumerActions);
+        self.registerListener(serviceType, self.consumerActions);
     }
 
     extern function registerListener(typedesc serviceType, DurableTopicSubscriberActions actions);
@@ -58,12 +58,12 @@ public type DurableTopicSubscriber object {
     #
     # + return - durable topic subscriber actions
     public function getCallerActions() returns DurableTopicSubscriberActions {
-        return consumerActions;
+        return self.consumerActions;
     }
 
     # Ends consuming messages from the durable topic subscriber endpoint
     public function stop() {
-        self.closeSubscriber(consumerActions);
+        self.closeSubscriber(self.consumerActions);
     }
 
     extern function closeSubscriber(DurableTopicSubscriberActions actions);

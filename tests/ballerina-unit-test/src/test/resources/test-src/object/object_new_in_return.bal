@@ -20,7 +20,7 @@ type Employee object {
     public int age;
 
     new (age, int addVal) {
-        age = age + addVal;
+        self.age = self.age + addVal;
     }
 };
 

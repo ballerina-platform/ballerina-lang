@@ -104,6 +104,22 @@ function testArrayTupleEqualityOfIncompatibleTypes() returns boolean {
     //return equals && f == d && !(d != f);
 }
 
+function testEqualityWithNonAnydataType() returns boolean {
+    stream<int> s;
+    (int, stream) a = (1, s);
+    (int, float) b = (3, 23.9);
+    boolean equals = a == b && !(b != a);
+
+    any c = 5;
+    int d = 5;
+    equals = c == d && !(d != c);
+
+    map<int|string> e = { one: 1, two: "two" };
+    map f = { one: 1, two: "two" };
+    equals = e == f && !(f != e);
+    return equals;
+}
+
 type Employee record {
     string name;
     int id;

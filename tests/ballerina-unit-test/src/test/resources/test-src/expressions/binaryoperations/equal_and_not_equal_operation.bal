@@ -246,17 +246,17 @@ function check1DClosedArrayEqualityPositive() returns boolean {
     string[3] s3 = ["hello", "from", "ballerina"];
     string[3] s4 = ["hello", "from", "ballerina"];
 
-    any[7] a1;
-    any[7] a2;
+    anydata[7] a1;
+    anydata[7] a2;
 
     json j1 = { hello: "world", lang: "ballerina" };
     json j2 = { hello: "world",lang: "ballerina" };
 
-    map m1 = { key1: "val1", key2: 2, key3: 3.1 };
-    map m2 = { key1: "val1", key2: 2, key3: 3.1 };
+    map<anydata> m1 = { key1: "val1", key2: 2, key3: 3.1 };
+    map<anydata> m2 = { key1: "val1", key2: 2, key3: 3.1 };
 
-    any[6] a3 = ["hi", 1, true, 54.3, j1, m1];
-    any[6] a4 = ["hi", 1, true, 54.3, j2, m2];
+    anydata[6] a3 = ["hi", 1, true, 54.3, j1, m1];
+    anydata[6] a4 = ["hi", 1, true, 54.3, j2, m2];
 
     return (b1 == b2) && !(b1 != b2) && (b3 == b4) && !(b3 != b4) &&
         (i1 == i2) && !(i1 != i2) && (i3 == i4) && !(i3 != i4) &&
@@ -285,11 +285,11 @@ function check1DClosedArrayEqualityNegative() returns boolean {
     json j1 = { hello: "world", lang: "ball" };
     json j2 = { hello: "world",lang: "ballerina" };
 
-    map m1 = { key1: "val1", key2: 2, key3: 3.1 };
-    map m2 = { key1: "val1", key2: 2, key3: 3.1 };
+    map<anydata> m1 = { key1: "val1", key2: 2, key3: 3.1 };
+    map<anydata> m2 = { key1: "val1", key2: 2, key3: 3.1 };
 
-    any[6] a1 = ["hi", 1, true, 54.3, j1, m1];
-    any[6] a2 = ["hi", 1, true, 54.3, j2, m2];
+    anydata[6] a1 = ["hi", 1, true, 54.3, j1, m1];
+    anydata[6] a2 = ["hi", 1, true, 54.3, j2, m2];
 
     return (b1 == b2) || !(b1 != b2) || (i1 == i2) || !(i1 != i2) || (by1 == by2) || !(by1 != by2) ||
         (f1 == f2) || !(f1 != f2) || isEqual(s1, s2) || (a1 == a2) || !(a1 != a2);
@@ -299,11 +299,11 @@ function check1DAnyArrayEqualityPositive() returns boolean {
     json j1 = { hello: "world", lang: "ballerina" };
     json j2 = { hello: "world",lang: "ballerina" };
 
-    map m1 = { key1: "val1", key2: 2, key3: 3.1 };
-    map m2 = { key1: "val1", key2: 2, key3: 3.1 };
+    map<anydata> m1 = { key1: "val1", key2: 2, key3: 3.1 };
+    map<anydata> m2 = { key1: "val1", key2: 2, key3: 3.1 };
 
-    any[] a = ["hi", 1, j1, 2.3, false, m1];
-    any[] b = ["hi", 1, j2, 2.3, false, m2];
+    anydata[] a = ["hi", 1, j1, 2.3, false, m1];
+    anydata[] b = ["hi", 1, j2, 2.3, false, m2];
 
     return (a == b) && !(a != b);
 }
@@ -312,11 +312,11 @@ function check1DAnyArrayEqualityNegative() returns boolean {
     json j1 = { hello: "world", lang: "ballerina" };
     json j2 = { hello: "world",lang: "ballerina" };
 
-    map m1 = { key1: "val1", key2: 2, key3: 3.1 };
-    map m2 = { key1: "val1", key2: 2, key3: 3.1 };
+    map<anydata> m1 = { key1: "val1", key2: 2, key3: 3.1 };
+    map<anydata> m2 = { key1: "val1", key2: 2, key3: 3.1 };
 
-    any[] a = ["hi", 1, j1, 2.1, false, m1];
-    any[] b = ["hi", 1, j2, 2.3, false, m2];
+    anydata[] a = ["hi", 1, j1, 2.1, false, m1];
+    anydata[] b = ["hi", 1, j2, 2.3, false, m2];
 
     return (a == b) || !(a != b);
 }
@@ -452,8 +452,8 @@ function checkComplex2DArrayEqualityNegative() returns boolean {
 }
 
 function checkMapEqualityPositive() returns boolean {
-    map m1;
-    map m2;
+    map<anydata> m1;
+    map<anydata> m2;
 
     map<string> m3;
     map<string> m4;
@@ -483,8 +483,8 @@ function checkMapEqualityPositive() returns boolean {
 }
 
 function checkMapEqualityNegative() returns boolean {
-    map m1;
-    map m2;
+    map<anydata> m1;
+    map<anydata> m2;
 
     m1.one = "hi";
     m2.one = "hello";
@@ -799,7 +799,7 @@ function testPrimitiveAndJsonEqualityPositive() returns boolean {
     equals = equals && (a == e) && !(a != e);
 
     json[] f = [1.5, 4.23, 2.1];
-    (map|float)[] g = [1.5, 4.23, 2.1];
+    (map<anydata>|float)[] g = [1.5, 4.23, 2.1];
 
     equals = equals && (f == g) && !(f != g);
 
@@ -831,7 +831,7 @@ function testPrimitiveAndJsonEqualityNegative() returns boolean {
     equals = equals || (a == e) || !(a != e);
 
     json[] f = [1.5, 4.23, 2.1];
-    (map|int|float)[] g = [1, 4];
+    (map<anydata>|int|float)[] g = [1, 4];
 
     equals = equals || (f == g) || !(f != g);
 
@@ -969,7 +969,7 @@ public function testJsonRecordMapEqualityPositive() returns boolean {
     json j2 = j;
 
     map<string|int> m = { name: "Maryam", id: 1000 };
-    map m2 = m;
+    map<anydata> m2 = m;
 
     return e == m && !(m != e) && e == m2 && !(m2 != e) && e == j && !(j != e) && e == j2 && !(j2 != e);
 }
@@ -981,7 +981,7 @@ public function testJsonRecordMapEqualityNegative() returns boolean {
     json j2 = j;
 
     map<string|int> m = { name: "Maryam" };
-    map m2 = m;
+    map<anydata> m2 = m;
 
     return e == m || !(m != e) || e == m2 || !(m2 != e) || e == j || !(j != e) || e == j2 || !(j2 != e);
 }
@@ -1019,6 +1019,6 @@ public function testArrayTupleEqualityNegative() returns boolean {
     return equals || isEqual(g, f);
 }
 
-function isEqual(any a, any b) returns boolean {
+function isEqual(anydata a, anydata b) returns boolean {
     return a == b && !(b != a);
 }
