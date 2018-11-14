@@ -51,15 +51,6 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"roundRobin(http:LoadBalancerActions lb, http:CallerActions[] loadBalanceConfigArray)(ballerina/http:CallerActions)",
-      "kind":"Function",
-      "detail":"Function",
-      "documentation":"Round Robin Algorithm implementation with respect to load balancing endpoints.\n",
-      "sortText":"120",
-      "insertText":"roundRobin(${1:lb}, ${2:loadBalanceConfigArray})",
-      "insertTextFormat":"Snippet"
-    },
-    {
       "label":"encode(string url, string charset)(string|error)",
       "kind":"Function",
       "detail":"Function",
@@ -286,12 +277,12 @@
       "insertText":"FailoverConfig"
     },
     {
-      "label":"FailoverActionErrorData",
+      "label":"FailoverActionError",
       "kind":"Class",
       "detail":"BType",
-      "documentation":"Data related to an error which occurred during an attempt to failover.\n",
+      "documentation":"Defines an error which occurred during an attempt to failover.\n",
       "sortText":"170",
-      "insertText":"FailoverActionErrorData"
+      "insertText":"FailoverActionError"
     },
     {
       "label":"FailoverInferredConfig",
@@ -342,12 +333,12 @@
       "insertText":"CircuitBreakerInferredConfig"
     },
     {
-      "label":"LoadBalanceActionErrorData",
+      "label":"LoadBalanceActionError",
       "kind":"Class",
       "detail":"BType",
       "documentation":"Represents an error occurred in an action of the Load Balance connector.\n",
       "sortText":"170",
-      "insertText":"LoadBalanceActionErrorData"
+      "insertText":"LoadBalanceActionError"
     },
     {
       "label":"RetryInferredConfig",
@@ -364,30 +355,6 @@
       "documentation":"The configurations related to the load balance client endpoint.\n",
       "sortText":"170",
       "insertText":"LoadBalanceClientEndpointConfiguration"
-    },
-    {
-      "label":"SecureEndpointConfiguration",
-      "kind":"Class",
-      "detail":"BType",
-      "documentation":"Configuration for secure HTTP service endpoint.\n",
-      "sortText":"170",
-      "insertText":"SecureEndpointConfiguration"
-    },
-    {
-      "label":"AuthCacheConfig",
-      "kind":"Class",
-      "detail":"BType",
-      "documentation":"Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.\n",
-      "sortText":"170",
-      "insertText":"AuthCacheConfig"
-    },
-    {
-      "label":"AuthProvider",
-      "kind":"Class",
-      "detail":"BType",
-      "documentation":"Configuration for authentication providers.\n",
-      "sortText":"170",
-      "insertText":"AuthProvider"
     },
     {
       "label":"Remote",
@@ -430,20 +397,28 @@
       "insertText":"ServiceSecureSocket"
     },
     {
+      "label":"AuthCacheConfig",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":"Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.\n",
+      "sortText":"170",
+      "insertText":"AuthCacheConfig"
+    },
+    {
+      "label":"AuthProvider",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":"Configuration for authentication providers.\n",
+      "sortText":"170",
+      "insertText":"AuthProvider"
+    },
+    {
       "label":"WebSocketClientEndpointConfig",
       "kind":"Class",
       "detail":"BType",
       "documentation":"Configuration struct for WebSocket client endpoint.\n",
       "sortText":"170",
       "insertText":"WebSocketClientEndpointConfig"
-    },
-    {
-      "label":"APIListenerActions",
-      "kind":"Class",
-      "detail":"BType",
-      "documentation":"The caller actions for responding to client requests to api listener.\n",
-      "sortText":"170",
-      "insertText":"APIListenerActions"
     },
     {
       "label":"AuthHandlerRegistry",
@@ -628,14 +603,6 @@
       "documentation":"Provides the HTTP actions for interacting with an HTTP endpoint. This is created by wrapping the HTTP client\nto provide retrying over HTTP requests.\n",
       "sortText":"170",
       "insertText":"RetryClient"
-    },
-    {
-      "label":"SecureListenerActions",
-      "kind":"Class",
-      "detail":"BType",
-      "documentation":"The caller actions for responding to client requests to secure listener.\n",
-      "sortText":"170",
-      "insertText":"SecureListenerActions"
     },
     {
       "label":"WebSocketClientService",

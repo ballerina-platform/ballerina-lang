@@ -4,8 +4,8 @@
   "description": "",
   "main": "lib/index.js",
   "scripts": {
-    "build": "babel src -d lib --copy-files",
-    "watch": "babel src -d lib --copy-files --watch"
+    "build": "babel src -d lib --copy-files --source-maps",
+    "watch": "babel src -d lib --copy-files --watch --source-maps"
   },
   "author": "ballerina.io",
   "license": "Apache-2.0",

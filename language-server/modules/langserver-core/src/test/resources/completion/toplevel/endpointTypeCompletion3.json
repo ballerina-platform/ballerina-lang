@@ -249,27 +249,6 @@
       ]
     },
     {
-      "label":"ballerina/mb",
-      "detail":"Package",
-      "sortText":"140",
-      "insertText":"mb",
-      "additionalTextEdits":[
-        {
-          "range":{
-            "start":{
-              "line":1,
-              "character":25
-            },
-            "end":{
-              "line":1,
-              "character":25
-            }
-          },
-          "newText":"\nimport ballerina/mb;\n"
-        }
-      ]
-    },
-    {
       "label":"ballerina/mime",
       "detail":"Package",
       "sortText":"140",

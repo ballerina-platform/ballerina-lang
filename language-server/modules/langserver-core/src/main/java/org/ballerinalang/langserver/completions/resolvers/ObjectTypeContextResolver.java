@@ -75,7 +75,7 @@ public class ObjectTypeContextResolver extends AbstractItemResolver {
             context.put(CompletionKeys.PARSER_RULE_CONTEXT_KEY,
                     new BallerinaParser.VariableDefinitionStatementContext(null, -1));
             return CompletionItemResolver
-                    .getResolverByClass(BallerinaParser.VariableDefinitionStatementContext.class)
+                    .get(BallerinaParser.VariableDefinitionStatementContext.class)
                     .resolveItems(context);
         } else if (lastFieldPos != null
                 && (line < lastFieldPos.sLine || (line == lastFieldPos.sLine && col < lastFieldPos.sCol))) {

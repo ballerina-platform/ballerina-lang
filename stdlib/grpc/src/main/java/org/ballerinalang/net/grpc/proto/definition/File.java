@@ -79,7 +79,7 @@ public class File {
         
         fileDefinition.append("syntax = \"").append(fileDescriptorProto.getSyntax()).append("\";").append
                 (ServiceProtoConstants.NEW_LINE_CHARACTER);
-        if (!fileDescriptorProto.getPackage().isEmpty()) {
+        if (!"".equals(fileDescriptorProto.getPackage())) {
             fileDefinition.append("package ").append(fileDescriptorProto.getPackage()).append(";").append
                     (ServiceProtoConstants.NEW_LINE_CHARACTER);
         }
