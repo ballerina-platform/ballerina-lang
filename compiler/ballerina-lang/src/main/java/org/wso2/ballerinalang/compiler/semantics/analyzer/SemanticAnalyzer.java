@@ -607,6 +607,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
                 tupleTypeNode = new BTupleType(memberTupleTypes);
                 break;
+            case TypeTags.ANYDATA:
+                memberTupleTypes = new ArrayList<>();
+                for (int i = 0; i < varNode.memberVariables.size(); i++) {
+                    memberTupleTypes.add(symTable.anydataType);
+                }
+                tupleTypeNode = new BTupleType(memberTupleTypes);
+                break;
             case TypeTags.TUPLE:
                 tupleTypeNode = (BTupleType) varNode.type;
                 break;
@@ -696,7 +703,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             case TypeTags.RECORD:
                 recordVarType = (BRecordType) recordVar.type;
                 break;
-            case TypeTags.ANYDATA:
+            case TypeTags.ANY:
                 BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID,
                         null, env.scope.owner);
                 recordVarType = (BRecordType) symTable.recordType;
@@ -707,6 +714,22 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     fields.add(new BField(names.fromString(fieldName),
                             new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
                                     symTable.anyType, recordSymbol), false));
+
+                }
+                recordVarType.fields = fields;
+                recordSymbol.type = recordVarType;
+                break;
+            case TypeTags.ANYDATA:
+                recordSymbol = Symbols.createRecordSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID,
+                        null, env.scope.owner);
+                recordVarType = (BRecordType) symTable.recordType;
+                fields = new ArrayList<>();
+
+                for (int i = 0; i < recordVar.variableList.size(); i++) {
+                    String fieldName = recordVar.variableList.get(i).key.value;
+                    fields.add(new BField(names.fromString(fieldName),
+                            new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
+                                    symTable.anydataType, recordSymbol), false));
 
                 }
                 recordVarType.fields = fields;
