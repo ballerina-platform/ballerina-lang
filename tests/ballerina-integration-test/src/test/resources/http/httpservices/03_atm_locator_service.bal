@@ -26,8 +26,7 @@ service<http:Service> ATMLocator bind serviceEnpoint {
         http:Request backendServiceReq = new;
         var jsonLocatorReq = req.getJsonPayload();
         if (jsonLocatorReq is json) {
-            string zipCode;
-            zipCode = extractFieldValue2(jsonLocatorReq["ATMLocator"]["ZipCode"]);
+            string zipCode = extractFieldValue2(jsonLocatorReq["ATMLocator"]["ZipCode"]);
             io:println("Zip Code " + zipCode);
             json branchLocatorReq = {"BranchLocator":{"ZipCode":""}};
             branchLocatorReq.BranchLocator.ZipCode = zipCode;
