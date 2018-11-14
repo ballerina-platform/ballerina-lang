@@ -21,21 +21,12 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaTypeInitExpr extends BallerinaCompositeElement {
+public interface BallerinaTrapExpression extends BallerinaExpression {
 
   @Nullable
-  BallerinaInvocationArgList getInvocationArgList();
-
-  @Nullable
-  BallerinaUserDefineTypeName getUserDefineTypeName();
-
-  @Nullable
-  PsiElement getLeftParenthesis();
-
-  @Nullable
-  PsiElement getRightParenthesis();
+  BallerinaExpression getExpression();
 
   @NotNull
-  PsiElement getNew();
+  PsiElement getTrap();
 
 }

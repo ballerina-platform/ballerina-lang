@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaTypeInitExprImpl extends BallerinaCompositeElementImpl implements BallerinaTypeInitExpr {
+public class BallerinaFieldBindingPatternImpl extends BallerinaCompositeElementImpl implements BallerinaFieldBindingPattern {
 
-  public BallerinaTypeInitExprImpl(@NotNull ASTNode node) {
+  public BallerinaFieldBindingPatternImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitTypeInitExpr(this);
+    visitor.visitFieldBindingPattern(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,32 +43,20 @@ public class BallerinaTypeInitExprImpl extends BallerinaCompositeElementImpl imp
 
   @Override
   @Nullable
-  public BallerinaInvocationArgList getInvocationArgList() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaInvocationArgList.class);
+  public BallerinaBindingPattern getBindingPattern() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaBindingPattern.class);
   }
 
   @Override
   @Nullable
-  public BallerinaUserDefineTypeName getUserDefineTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaUserDefineTypeName.class);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getLeftParenthesis() {
-    return findChildByType(LEFT_PARENTHESIS);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getRightParenthesis() {
-    return findChildByType(RIGHT_PARENTHESIS);
+  public PsiElement getColon() {
+    return findChildByType(COLON);
   }
 
   @Override
   @NotNull
-  public PsiElement getNew() {
-    return notNullChild(findChildByType(NEW));
+  public PsiElement getIdentifier() {
+    return notNullChild(findChildByType(IDENTIFIER));
   }
 
 }
