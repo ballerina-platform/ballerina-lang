@@ -2261,6 +2261,10 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType getAccessExprFinalType(BLangAccessExpression accessExpr, BType actualType) {
+        if (!isSafeNavigableExpr(accessExpr)) {
+            return actualType;
+        }
+
         // Cache the actual type of the field. This will be used in desuagr phase to create safe navigation.
         accessExpr.originalType = actualType;
 
@@ -2316,6 +2320,12 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         return false;
+    }
+
+    private boolean isSafeNavigableExpr(BLangAccessExpression accessExpr) {
+        return !(accessExpr.getKind() == NodeKind.INVOCATION &&
+                         ((BLangInvocation) accessExpr).builtinMethodInvocation &&
+                         ((BLangInvocation) accessExpr).builtInMethod == BLangBuiltInMethod.IS_FROZEN);
     }
 
     private BType checkFieldAccessExpr(BLangFieldBasedAccess fieldAccessExpr, BType varRefType, Name fieldName) {
@@ -2596,7 +2606,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BSymbol getSymbolForFreezeBuiltinMethod(BLangInvocation iExpr) {
         BType type = iExpr.expr.type;
-        if (!isValidFreezeFunction(type)) {
+        if (!isValidFreezeOrIsFrozenFunction(type)) {
             return symTable.notFoundSymbol;
         }
 
@@ -2620,14 +2630,14 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BSymbol getSymbolForIsFrozenBuiltinMethod(BLangInvocation iExpr) {
         BType type = iExpr.expr.type;
-        if (!isIsFrozenAllowedType(type)) {
+        if (!isValidFreezeOrIsFrozenFunction(type)) {
             return symTable.notFoundSymbol;
         }
         return symResolver.createBuiltinMethodSymbol(BLangBuiltInMethod.IS_FROZEN, type, symTable.booleanType,
                                                      InstructionCodes.IS_FROZEN);
     }
 
-    private boolean isValidFreezeFunction(BType type) {
+    private boolean isValidFreezeOrIsFrozenFunction(BType type) {
         if (type.tag == TypeTags.NIL || (!types.isAnydata(type) && !isNonAnyDataFreezeAllowedType(type))) {
             return false;
         }
@@ -2667,10 +2677,5 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         return type.tag == TypeTags.ARRAY && isNonAnyDataFreezeAllowedType(((BArrayType) type).eType);
-    }
-
-    private boolean isIsFrozenAllowedType(BType type) {
-        return type.tag != TypeTags.NIL && !types.isValueType(type) &&
-                (types.isAnydata(type) || isNonAnyDataFreezeAllowedType(type));
     }
 }

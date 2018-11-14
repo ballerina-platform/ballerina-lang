@@ -17,29 +17,82 @@
 @final string FREEZE_ERROR_OCCURRED = "error occurred on freeze: ";
 @final string FREEZE_SUCCESSFUL = "freeze successful";
 
-function testBooleanFreeze(boolean a) returns boolean {
+function testBooleanFreeze(boolean a) returns (boolean, boolean) {
     boolean b = a.freeze();
-    return a == b;
+    return (a == b, (a.isFrozen() && b.isFrozen()));
 }
 
-function testIntFreeze(int a) returns boolean {
+function testIntFreeze(int a) returns (boolean, boolean) {
     int b = a.freeze();
-    return a == b;
+    return (a == b, (a.isFrozen() && b.isFrozen()));
 }
 
-function testByteFreeze(byte a) returns boolean {
+function testByteFreeze(byte a) returns (boolean, boolean) {
     byte b = a.freeze();
-    return a == b;
+    return (a == b, (a.isFrozen() && b.isFrozen()));
 }
 
-function testFloatFreeze(float a) returns boolean {
+function testFloatFreeze(float a) returns (boolean, boolean) {
     float b = a.freeze();
-    return a == b;
+    return (a == b, (a.isFrozen() && b.isFrozen()));
 }
 
-function testStringFreeze(string a) returns boolean {
+function testDecimalFreeze(decimal a) returns (boolean, boolean) {
+    decimal b = a.freeze();
+    return (a == b, (a.isFrozen() && b.isFrozen()));
+}
+
+function testStringFreeze(string a) returns (boolean, boolean) {
     string b = a.freeze();
-    return a == b;
+    return (a == b, (a.isFrozen() && b.isFrozen()));
+}
+
+function testBasicTypeNullableUnionFreeze() returns (boolean, boolean) {
+    int? i = 5;
+    anydata j = i.freeze();
+    boolean equals = i == j;
+    boolean isFrozen = i.isFrozen() && j.isFrozen();
+
+    string? k = "hello world";
+    string? l = k.freeze();
+    equals = l == k;
+    isFrozen = l.isFrozen() && k.isFrozen();
+
+    float? f = -1.29;
+    j = f.freeze();
+    equals = f == j;
+    isFrozen = f.isFrozen() && j.isFrozen();
+
+    decimal dec = 123.9;
+    decimal? d = dec;
+    j = d.freeze();
+    equals = d == j;
+    isFrozen = d.isFrozen() && j.isFrozen();
+
+    boolean? b = ();
+    j = b.freeze();
+    equals = d == b;
+    isFrozen = d.isFrozen() && b.isFrozen();
+
+    int|string? m = "hello ballerina";
+    j = m.freeze();
+    equals = m == j;
+    isFrozen = m.isFrozen() && j.isFrozen();
+
+    return (equals, isFrozen);
+}
+
+function testBasicTypeUnionFreeze() returns (boolean, boolean) {
+    int|string i = 5;
+    anydata j = i.freeze();
+    boolean equals = i == j;
+    boolean isFrozen = i.isFrozen() && j.isFrozen();
+
+    boolean|float|int k = 123.2;
+    boolean|float|int|decimal l = k.freeze();
+    equals = l == k;
+    isFrozen = k.isFrozen() && l.isFrozen();
+    return (equals, isFrozen);
 }
 
 function testBasicTypesAsJsonFreeze() returns boolean {

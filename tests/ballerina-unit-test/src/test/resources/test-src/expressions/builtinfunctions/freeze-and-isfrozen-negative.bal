@@ -56,23 +56,6 @@ function testFreezeOnRecordWithoutAnydata() {
     _ = d1.freeze();
 }
 
-function testIsFrozenOnBasicTypes() {
-    int i = 5;
-    boolean b = i.isFrozen();
-
-    byte bt = 255;
-    b = bt.isFrozen();
-
-    float f = 12.5;
-    b = f.isFrozen();
-
-    string s = "Hello from Ballerina";
-    b = s.isFrozen();
-
-    boolean bl = false;
-    b = bl.isFrozen();
-}
-
 function testInvalidAssignmentWithFreeze() {
     map<string|PersonObj> m;
     map<string|PersonObj> m1 = m.freeze();

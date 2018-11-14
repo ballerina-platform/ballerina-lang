@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
@@ -30,6 +31,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
 
 import static org.ballerinalang.launcher.util.BAssertUtil.validateError;
 
@@ -57,41 +61,81 @@ public class FreezeAndIsFrozenTest {
     @Test(dataProvider = "booleanValues")
     public void testBooleanFreeze(boolean i) {
         BValue[] returns = BRunUtil.invoke(result, "testBooleanFreeze", new BValue[]{new BBoolean(i)});
-        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be the same");
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected booleans to be frozen");
     }
 
     @Test(dataProvider = "intValues")
     public void testIntFreeze(int i) {
         BValue[] returns = BRunUtil.invoke(result, "testIntFreeze", new BValue[]{new BInteger(i)});
-        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected ints to be the same");
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected ints to be frozen");
     }
 
     @Test(dataProvider = "byteValues")
     public void testByteFreeze(int i) {
         BValue[] returns = BRunUtil.invoke(result, "testByteFreeze", new BValue[]{new BByte((byte) i)});
-        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected ints to be the same");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected bytes to be the same");
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected bytes to be frozen");
     }
 
     @Test(dataProvider = "floatValues")
     public void testFloatFreeze(double i) {
         BValue[] returns = BRunUtil.invoke(result, "testFloatFreeze", new BValue[]{new BFloat(i)});
-        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected floats to be the same");
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected floats to be frozen");
+    }
+
+    @Test(dataProvider = "decimalValues")
+    public void testDecimalFreeze(BigDecimal i) {
+        BValue[] returns = BRunUtil.invoke(result, "testDecimalFreeze", new BValue[]{new BDecimal(i)});
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected decimals to be the same");
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected decimals to be frozen");
     }
 
     @Test(dataProvider = "stringValues")
     public void testStringFreeze(String i) {
         BValue[] returns = BRunUtil.invoke(result, "testStringFreeze", new BValue[]{new BString(i)});
-        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected strings to be the same");
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected strings to be frozen");
+    }
+
+    @Test
+    public void testBasicTypeNullableUnionFreeze() {
+        BValue[] returns = BRunUtil.invoke(result, "testBasicTypeNullableUnionFreeze", new BValue[]{});
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected values to be the same");
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected values to be frozen");
+    }
+
+    @Test
+    public void testBasicTypeUnionFreeze() {
+        BValue[] returns = BRunUtil.invoke(result, "testBasicTypeUnionFreeze", new BValue[]{});
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected values to be the same");
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected values to be frozen");
     }
 
     @Test
@@ -490,7 +534,7 @@ public class FreezeAndIsFrozenTest {
 
     @Test
     public void testFreezeAndIsFrozenNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 23);
+        Assert.assertEquals(negativeResult.getErrorCount(), 18);
         validateError(negativeResult, 0, "function invocation on type '()' is not supported", 19, 9);
         validateError(negativeResult, 1, "undefined function 'freeze' in object 'PersonObj'", 24, 19);
         validateError(negativeResult, 2, "undefined function 'stream.freeze'", 27, 9);
@@ -503,27 +547,22 @@ public class FreezeAndIsFrozenTest {
         validateError(negativeResult, 8, "function invocation on type '(PersonObj|PersonObjTwo,PersonObjTwo)' is " +
                               "not supported", 51, 9);
         validateError(negativeResult, 9, "undefined field 'freeze' in record 'Department'", 56, 9);
-        validateError(negativeResult, 10, "undefined function 'int.isFrozen'", 61, 17);
-        validateError(negativeResult, 11, "function invocation on type 'byte' is not supported", 64, 9);
-        validateError(negativeResult, 12, "undefined function 'float.isFrozen'", 67, 9);
-        validateError(negativeResult, 13, "undefined function 'string.isFrozen'", 70, 9);
-        validateError(negativeResult, 14, "undefined function 'boolean.isFrozen'", 73, 9);
-        validateError(negativeResult, 15, "incompatible types: expected 'map<string|PersonObj>', found " +
-                "'map<string|PersonObj>|error'", 78, 32);
-        validateError(negativeResult, 16, "incompatible types: expected 'map<(any,any)>', found 'map<" +
-                "(string|PersonObj,FreezeAllowedDepartment|float)>|error'", 81, 26);
-        validateError(negativeResult, 17, "incompatible types: expected 'boolean|PersonObj|float[]', found " +
-                              "'boolean|PersonObj|float[]|error'", 84, 38);
-        validateError(negativeResult, 18, "incompatible types: expected 'any[]', found " +
-                              "'boolean|PersonObj|float[]|error'", 86, 16);
-        validateError(negativeResult, 19, "incompatible types: expected '(string|PersonObj," +
+        validateError(negativeResult, 10, "incompatible types: expected 'map<string|PersonObj>', found " +
+                "'map<string|PersonObj>|error'", 61, 32);
+        validateError(negativeResult, 11, "incompatible types: expected 'map<(any,any)>', found 'map<" +
+                "(string|PersonObj,FreezeAllowedDepartment|float)>|error'", 64, 26);
+        validateError(negativeResult, 12, "incompatible types: expected 'boolean|PersonObj|float[]', found " +
+                              "'boolean|PersonObj|float[]|error'", 67, 38);
+        validateError(negativeResult, 13, "incompatible types: expected 'any[]', found " +
+                              "'boolean|PersonObj|float[]|error'", 69, 16);
+        validateError(negativeResult, 14, "incompatible types: expected '(string|PersonObj," +
                 "FreezeAllowedDepartment|float)', found '(string|PersonObj,FreezeAllowedDepartment|float)|error'",
-                      89, 60);
-        validateError(negativeResult, 20, "incompatible types: expected 'FreezeAllowedDepartment', found " +
-                              "'FreezeAllowedDepartment|error'", 92, 35);
-        validateError(negativeResult, 21, "incompatible types: expected 'string|PersonObj', found " +
-                "'string|PersonObj|error'", 95, 27);
-        validateError(negativeResult, 22, "function invocation on type 'error' is not supported", 100, 9);
+                      72, 60);
+        validateError(negativeResult, 15, "incompatible types: expected 'FreezeAllowedDepartment', found " +
+                              "'FreezeAllowedDepartment|error'", 75, 35);
+        validateError(negativeResult, 16, "incompatible types: expected 'string|PersonObj', found " +
+                "'string|PersonObj|error'", 78, 27);
+        validateError(negativeResult, 17, "function invocation on type 'error' is not supported", 83, 9);
     }
 
     @DataProvider(name = "booleanValues")
@@ -560,6 +599,16 @@ public class FreezeAndIsFrozenTest {
                 {0.0},
                 {1.1},
                 {53456.032}
+        };
+    }
+
+    @DataProvider(name = "decimalValues")
+    public Object[][] decimalValues() {
+        return new Object[][]{
+                {new BigDecimal("-1234.57", MathContext.DECIMAL128)},
+                {new BigDecimal("53456.032", MathContext.DECIMAL128)},
+                {new BigDecimal("0.0", MathContext.DECIMAL128)},
+                {new BigDecimal("1.1", MathContext.DECIMAL128)}
         };
     }
 
