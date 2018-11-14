@@ -196,6 +196,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.DefaultValueLiteral;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -2971,7 +2972,14 @@ public class Desugar extends BLangNodeVisitor {
             if (namedArgs.containsKey(param.name.value)) {
                 expr = namedArgs.get(param.name.value);
             } else {
-                expr = getDefaultValueLiteral(param.defaultValue, param.type.tag);
+                if(param.defaultValue == null) {
+                    expr = getNullLiteral();
+                } else {
+                    Object defaultValue = ((DefaultValueLiteral) param.defaultValue).getValue();
+                    int literalTypeTag = ((DefaultValueLiteral) param.defaultValue).getLiteralTypeTag();
+                    int paramTypeTag = param.type.tag;
+                    expr = getDefaultValueLiteral(defaultValue, paramTypeTag, literalTypeTag);
+                }
                 expr = addConversionExprIfRequired(expr, param.type);
             }
             args.add(expr);
@@ -3942,14 +3950,12 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
-    // TODO: Allowing decimal defaultable args may break some cases of the union type defaultable args.
-    // TODO: We need to preserve the literal type to resolve this.
-    private BLangExpression getDefaultValueLiteral(Object value, int typeTag) {
+    private BLangExpression getDefaultValueLiteral(Object value, int paramTypeTag, int literalTypeTag) {
         if (value == null) {
             return getNullLiteral();
         }
         if (value instanceof Long) {
-            switch (typeTag) {
+            switch (paramTypeTag) {
                 case TypeTags.FLOAT:
                     return getFloatLiteral(((Long) value).doubleValue());
                 case TypeTags.DECIMAL:
@@ -3959,11 +3965,16 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
         if (value instanceof String) {
-            switch (typeTag) {
+            switch (paramTypeTag) {
                 case TypeTags.FLOAT:
                     return getFloatLiteral(Double.parseDouble((String) value));
                 case TypeTags.DECIMAL:
                     return getDecimalLiteral(String.valueOf(value));
+                case TypeTags.FINITE:
+                case TypeTags.UNION:
+                    if (literalTypeTag == TypeTags.FLOAT) {
+                        return getFloatLiteral(Double.parseDouble((String) value));
+                    }
                 default:
                     return getStringLiteral((String) value);
             }

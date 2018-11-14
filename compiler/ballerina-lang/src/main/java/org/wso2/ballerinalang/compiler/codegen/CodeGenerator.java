@@ -159,6 +159,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
+import org.wso2.ballerinalang.compiler.util.DefaultValueLiteral;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -3773,7 +3774,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Only named parameters can have default values.
         for (BVarSymbol param : funcSymbol.defaultableParams) {
-            DefaultValue defaultVal = getDefaultValue(param.defaultValue);
+            DefaultValue defaultVal = getDefaultValue(((DefaultValueLiteral) param.defaultValue).getValue());
             paramDefaulValAttrInfo.addParamDefaultValueInfo(defaultVal);
         }
 

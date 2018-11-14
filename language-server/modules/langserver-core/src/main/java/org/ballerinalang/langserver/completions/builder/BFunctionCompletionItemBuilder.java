@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.util.DefaultValueLiteral;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -174,7 +175,7 @@ public final class BFunctionCompletionItemBuilder {
             if (bVarSymbol.defaultValue == null) {
                 defaultStringVal = "()";
             } else {
-                defaultStringVal = bVarSymbol.defaultValue.toString();
+                defaultStringVal = ((DefaultValueLiteral) bVarSymbol.defaultValue).getValue().toString();
             }
             return getTypeName(bVarSymbol) + " " + bVarSymbol.getName() + " = " + defaultStringVal;
         }
@@ -188,7 +189,7 @@ public final class BFunctionCompletionItemBuilder {
             if (bVarSymbol.defaultValue == null) {
                 defaultStringVal = "()";
             } else {
-                defaultStringVal = bVarSymbol.defaultValue.toString();
+                defaultStringVal = ((DefaultValueLiteral) bVarSymbol.defaultValue).getValue().toString();
                 if (bVarSymbol.getType() != null
                         && bVarSymbol.getType().toString().equals(TypeConstants.STRING_TNAME)) {
                     defaultStringVal = "\"" + defaultStringVal + "\"";
