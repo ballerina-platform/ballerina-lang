@@ -1,8 +1,5 @@
-import * as fs from "fs";
-import * as path from "path";
-import React, { Component } from "react";
-import { traversNode } from "../model-utils";
-import { CompilationUnit } from "../models";
+import { CompilationUnit, traversNode } from "@ballerina/ast-model";
+import React from "react";
 import { visitor as sizingVisitor } from "../sizing/sizing-visitor";
 import * as components from "../views";
 import { DiagramContext, DiagramMode, IDiagramContext } from "./diagram-context";

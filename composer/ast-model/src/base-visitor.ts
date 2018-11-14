@@ -150,10 +150,10 @@ export interface Visitor {
   endVisitMatchExpression?(node: Ballerina.MatchExpression): void;
 
   beginVisitMatchExpressionPatternClause?(
-    node: Ballerina.MatchExpressionPatternClause,
+    node: Ballerina.MatchExpressionPatternClause
   ): void;
   endVisitMatchExpressionPatternClause?(
-    node: Ballerina.MatchExpressionPatternClause,
+    node: Ballerina.MatchExpressionPatternClause
   ): void;
 
   beginVisitNamedArgsExpr?(node: Ballerina.NamedArgsExpr): void;
@@ -196,14 +196,14 @@ export interface Visitor {
   endVisitMarkdownDocumentation?(node: Ballerina.MarkdownDocumentation): void;
 
   beginVisitDocumentationDescription?(
-    node: Ballerina.DocumentationDescription,
+    node: Ballerina.DocumentationDescription
   ): void;
   endVisitDocumentationDescription?(
-    node: Ballerina.DocumentationDescription,
+    node: Ballerina.DocumentationDescription
   ): void;
 
   beginVisitDocumentationParameter?(
-    node: Ballerina.DocumentationParameter,
+    node: Ballerina.DocumentationParameter
   ): void;
   endVisitDocumentationParameter?(node: Ballerina.DocumentationParameter): void;
 
@@ -259,10 +259,10 @@ export interface Visitor {
   endVisitPatternStreamingInput?(node: Ballerina.PatternStreamingInput): void;
 
   beginVisitPatternStreamingEdgeInput?(
-    node: Ballerina.PatternStreamingEdgeInput,
+    node: Ballerina.PatternStreamingEdgeInput
   ): void;
   endVisitPatternStreamingEdgeInput?(
-    node: Ballerina.PatternStreamingEdgeInput,
+    node: Ballerina.PatternStreamingEdgeInput
   ): void;
 
   beginVisitBreak?(node: Ballerina.Break): void;
@@ -317,7 +317,7 @@ export interface Visitor {
   endVisitNext?(node: Ballerina.Next): void;
 
   beginVisitXmlAttributeAccessExpr?(
-    node: Ballerina.XmlAttributeAccessExpr,
+    node: Ballerina.XmlAttributeAccessExpr
   ): void;
   endVisitXmlAttributeAccessExpr?(node: Ballerina.XmlAttributeAccessExpr): void;
 

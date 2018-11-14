@@ -321,6 +321,7 @@ export interface UserDefinedType extends ASTNode {
   symbolType: string[];
   packageAlias: Identifier;
   grouped: boolean;
+  typeName: Identifier;
   public: boolean;
   private: boolean;
   native: boolean;
@@ -340,7 +341,6 @@ export interface UserDefinedType extends ASTNode {
   abstract: boolean;
   optional: boolean;
   testable: boolean;
-  typeName: Identifier;
   nullable: boolean;
   nullableOperatorAvailable?: boolean;
 }
@@ -586,8 +586,8 @@ export interface CompoundAssignment extends ASTNode {
   ws: any[];
   position: any;
   expression: Literal | SimpleVariableRef | BinaryExpr;
-  operatorKind: string;
   variable: SimpleVariableRef;
+  operatorKind: string;
   compoundOperator: string;
 }
 
@@ -783,11 +783,11 @@ export interface Service extends ASTNode {
   initFunction: Function;
   endpointNodes: any;
   namespaceDeclarations: any;
-  boundEndpoints: SimpleVariableRef[];
   resources: Resource[];
+  boundEndpoints: SimpleVariableRef[];
   deprecatedAttachments: any;
-  variables: VariableDef[];
   name: Identifier;
+  variables: VariableDef[];
   isServiceTypeUnavailable?: boolean;
   serviceTypeStruct?: UserDefinedType;
   anonymousEndpointBind?: RecordLiteralExpr;
@@ -920,8 +920,8 @@ export interface XmlQname extends ASTNode {
   ws: any[];
   position: any;
   symbolType: string[];
-  localname: Identifier;
   prefix: Identifier;
+  localname: Identifier;
   inTemplateLiteral?: boolean;
 }
 
@@ -941,7 +941,7 @@ export interface RecordType extends ASTNode {
 export interface RestArgsExpr extends ASTNode {
   ws: any[];
   position: any;
-  symbolType?: string[];
+  symbolType: string[];
   expression: SimpleVariableRef;
 }
 
@@ -987,8 +987,8 @@ export interface DocumentationDescription extends ASTNode {
 export interface DocumentationParameter extends ASTNode {
   ws: any[];
   position: any;
-  parameterDocumentationLines?: string[];
   parameterDocumentation?: string;
+  parameterDocumentationLines?: string[];
   parameterName?: Identifier;
   returnParameterDocumentationLines?: string[];
   returnParameterDocumentation?: string;
@@ -1117,8 +1117,8 @@ export interface TernaryExpr extends ASTNode {
   ws: any[];
   position: any;
   thenExpression: Literal;
-  elseExpression: Literal;
   condition: BinaryExpr | BracedTupleExpr;
+  elseExpression: Literal;
   symbolType?: string[];
 }
 
@@ -1307,8 +1307,8 @@ export interface XmlPiLiteral extends ASTNode {
   ws: any[];
   position: any;
   symbolType: string[];
-  dataTextFragments: Literal[];
   target: Literal;
+  dataTextFragments: Literal[];
   root: boolean;
   startLiteral: string;
   isExpression: boolean;
