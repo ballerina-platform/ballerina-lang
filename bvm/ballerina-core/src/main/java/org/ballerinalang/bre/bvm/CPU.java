@@ -3426,7 +3426,7 @@ public class CPU {
         for (BField lhsField : lhsType.getFields()) {
             BField rhsField = rhsFields.get(lhsField.fieldName);
 
-            if (rhsField == null || !isSameType(rhsField.fieldType, lhsField.fieldType)) {
+            if (rhsField == null || !isAssignable(rhsField.fieldType, lhsField.fieldType, new ArrayList<>())) {
                 return false;
             }
         }
