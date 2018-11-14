@@ -229,6 +229,13 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define annotation nodes.
         pkgNode.annotations.forEach(annot -> defineNode(annot, pkgEnv));
+
+        // Update globalVar for endpoints.
+        pkgNode.globalVars.stream().filter(var -> (var.symbol.type.tsymbol.flags & Flags.ENDPOINT) == Flags.ENDPOINT)
+                .map(varNode -> varNode.symbol).forEach(varSymbol -> {
+            varSymbol.flags |= Flags.ENDPOINT;
+            varSymbol.tag = SymTag.ENDPOINT;
+        });
     }
 
     public void visit(BLangAnnotation annotationNode) {
@@ -438,9 +445,21 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (funcNode.symbol.bodyExist) {
                 dlog.error(funcNode.pos, DiagnosticCode.IMPLEMENTATION_ALREADY_EXIST, funcNode.name);
             }
+            if (Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.REMOTE) && !Symbols
+                    .isFlagOn(funcSymbol.flags, Flags.REMOTE)) {
+                dlog.error(funcNode.pos, DiagnosticCode.REMOTE_ON_NON_REMOTE_FUNCTION, funcNode.name.value);
+            }
+            if (!Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.REMOTE) && Symbols
+                    .isFlagOn(funcSymbol.flags, Flags.REMOTE)) {
+                dlog.error(funcNode.pos, DiagnosticCode.REMOTE_REQUIRED_ON_REMOTE_FUNCTION);
+            }
             validateAttachedFunction(funcNode, funcNode.receiver.type.tsymbol.name);
             visitObjectAttachedFunction(funcNode);
             return;
+        }
+        if (funcNode.receiver == null && !funcNode.attachedFunction && Symbols
+                .isFlagOn(Flags.asMask(funcNode.flagSet), Flags.REMOTE)) {
+            dlog.error(funcNode.pos, DiagnosticCode.REMOTE_IN_NON_OBJECT_FUNCTION, funcNode.name.value);
         }
         BInvokableSymbol funcSymbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
                 getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, null, env.scope.owner, funcNode.body != null);
@@ -689,6 +708,11 @@ public class SymbolEnter extends BLangNodeVisitor {
                 varNode.type, varName, env);
         varSymbol.markdownDocumentation = getMarkdownDocAttachment(varNode.markdownDocumentationAttachment);
         varNode.symbol = varSymbol;
+        if (varNode.symbol.type.tsymbol != null
+                && (varNode.symbol.type.tsymbol.flags & Flags.ENDPOINT) == Flags.ENDPOINT) {
+            varSymbol.flags |= Flags.ENDPOINT;
+            varSymbol.tag = SymTag.ENDPOINT;
+        }
     }
 
     @Override
@@ -1062,6 +1086,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else {
             varSymbol = new BVarSymbol(Flags.asMask(flagSet), varName,
                     env.enclPkg.symbol.pkgID, varType, env.scope.owner);
+            if (varType.tsymbol != null && (varType.tsymbol.flags & Flags.ENDPOINT) == Flags.ENDPOINT) {
+                varSymbol.flags |= Flags.ENDPOINT;
+                varSymbol.tag = SymTag.ENDPOINT;
+            }
         }
         return varSymbol;
     }
@@ -1143,6 +1171,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 names.fromIdNode(funcNode.name), funcSymbol, funcType);
         objectSymbol.attachedFuncs.add(attachedFunc);
 
+        validateRemoteFunctionAttachedToObject(funcNode, objectSymbol);
+
         // Check whether this attached function is a object initializer.
         if (!Names.OBJECT_INIT_SUFFIX.value.equals(funcNode.name.value)) {
             // Not a object initializer.
@@ -1154,6 +1184,18 @@ public class SymbolEnter extends BLangNodeVisitor {
                     funcNode.name.value, funcNode.receiver.type.toString());
         }
         objectSymbol.initializerFunc = attachedFunc;
+    }
+
+    private void validateRemoteFunctionAttachedToObject(BLangFunction funcNode, BObjectTypeSymbol objectSymbol) {
+        if (!Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.REMOTE)) {
+            return;
+        }
+        funcNode.symbol.tag = SymTag.REMOTE_FUNCTION;
+
+        // Make Given Object as endpoint if not marked already.
+        if ((objectSymbol.flags & Flags.ENDPOINT) != Flags.ENDPOINT) {
+            objectSymbol.flags |= Flags.ENDPOINT;
+        }
     }
 
     private StatementNode createAssignmentStmt(BLangSimpleVariable variable, BVarSymbol varSym, BSymbol fieldVar) {

@@ -42,6 +42,8 @@ public class Flags {
     public static final int ABSTRACT = 8192;
     public static final int OPTIONAL = 16384;
     public static final int TESTABLE = 32768;
+    public static final int REMOTE = 65536;
+    public static final int ENDPOINT = 131072;
 
     public static int asMask(Set<Flag> flagSet) {
         int mask = 0;
@@ -52,6 +54,9 @@ public class Flags {
                     break;
                 case PRIVATE:
                     mask |= PRIVATE;
+                    break;
+                case REMOTE:
+                    mask |= REMOTE;
                     break;
                 case NATIVE:
                     mask |= NATIVE;
@@ -110,6 +115,9 @@ public class Flags {
                     break;
                 case PRIVATE:
                     flagVal = PRIVATE;
+                    break;
+                case REMOTE:
+                    flagVal = REMOTE;
                     break;
                 case NATIVE:
                     flagVal = NATIVE;

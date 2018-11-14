@@ -31,7 +31,7 @@ public class SymTag {
     public static final int SERVICE = 1 << 5 | TYPE | VARIABLE_NAME;
     public static final int INVOKABLE = 1 << 6;
     public static final int FUNCTION = 1 << 7 | INVOKABLE | VARIABLE;
-    public static final int ACTION = 1 << 8 | INVOKABLE;
+    public static final int REMOTE_FUNCTION = 1 << 8 | FUNCTION;
     public static final int RESOURCE = 1 << 9 | INVOKABLE;
     public static final int WORKER = 1 << 10 | INVOKABLE;
     public static final int ANNOTATION = 1 << 11;

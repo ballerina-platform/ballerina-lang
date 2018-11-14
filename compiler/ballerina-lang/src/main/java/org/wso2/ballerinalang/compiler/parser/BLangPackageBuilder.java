@@ -295,8 +295,6 @@ public class BLangPackageBuilder {
 
     private Stack<ServiceNode> serviceNodeStack = new Stack<>();
 
-    private Stack<List<BLangEndpoint>> endpointListStack = new Stack<>();
-
     private BLangEndpoint lastBuiltEndpoint;
 
     private Stack<XMLAttributeNode> xmlAttributeNodeStack = new Stack<>();
@@ -354,10 +352,6 @@ public class BLangPackageBuilder {
     private List<VariableDefinitionNode> defaultableParamsList = new ArrayList<>();
 
     private Stack<SimpleVariableNode> restParamStack = new Stack<>();
-
-    private Set<Whitespace> endpointVarWs;
-
-    private Set<Whitespace> endpointKeywordWs;
 
     private Deque<BLangMatch> matchStmtStack;
 
@@ -658,13 +652,11 @@ public class BLangPackageBuilder {
         attachMarkdownDocumentations(functionNode);
         attachDeprecatedNode(functionNode);
         this.invokableNodeStack.push(functionNode);
-        startEndpointDeclarationScope(((BLangFunction) functionNode).endpoints);
     }
 
     void startObjectFunctionDef() {
         FunctionNode functionNode = TreeBuilder.createFunctionNode();
         this.invokableNodeStack.push(functionNode);
-        startEndpointDeclarationScope(((BLangFunction) functionNode).endpoints);
     }
 
     void startBlock() {
@@ -908,7 +900,7 @@ public class BLangPackageBuilder {
         lambdaExpr.pos = pos;
         addExpressionNode(lambdaExpr);
         // TODO: is null correct here
-        endFunctionDef(pos, null, false, false, true, false, true);
+        endFunctionDef(pos, null, false, false, false, true, false, true);
     }
 
     void addArrowFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, PackageID pkgID) {
@@ -919,38 +911,6 @@ public class BLangPackageBuilder {
         varListStack.pop().forEach(var -> arrowFunctionNode.params.add((BLangSimpleVariable) var));
         arrowFunctionNode.expression = (BLangExpression) this.exprNodeStack.pop();
         addExpressionNode(arrowFunctionNode);
-    }
-
-    private void startEndpointDeclarationScope(List<BLangEndpoint> endpointList) {
-        endpointListStack.push(endpointList);
-    }
-
-    private void endEndpointDeclarationScope() {
-        endpointListStack.pop();
-    }
-
-    void addEndpointDefinition(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean initExprExist) {
-        final BLangEndpoint endpointNode = (BLangEndpoint) TreeBuilder.createEndpointNode();
-        attachAnnotations(endpointNode);
-        endpointNode.pos = pos;
-        endpointNode.name = (BLangIdentifier) this.createIdentifier(identifier);
-        endpointNode.endpointTypeNode = (BLangUserDefinedType) typeNodeStack.pop();
-        if (initExprExist) {
-            endpointNode.configurationExpr = (BLangExpression) this.exprNodeStack.pop();
-        }
-        endpointNode.addWS(ws);
-        if (endpointListStack.empty()) {
-            // Top level node.
-            lastBuiltEndpoint = endpointNode;
-            this.compUnit.addTopLevelNode(endpointNode);
-        } else {
-            endpointListStack.peek().add(endpointNode);
-        }
-    }
-
-    void markLastEndpointAsPublic(Set<Whitespace> ws) {
-        lastBuiltEndpoint.addWS(ws);
-        lastBuiltEndpoint.flagSet.add(Flag.PUBLIC);
     }
 
     void markLastInvocationAsAsync(DiagnosticPos pos) {
@@ -1479,15 +1439,9 @@ public class BLangPackageBuilder {
         addExpressionNode(trapExpr);
     }
 
-    void endFunctionDef(DiagnosticPos pos,
-                        Set<Whitespace> ws,
-                        boolean publicFunc,
-                        boolean nativeFunc,
-                        boolean bodyExists,
-                        boolean isReceiverAttached,
-                        boolean isLambda) {
+    void endFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean remoteFunc,
+            boolean nativeFunc, boolean bodyExists, boolean isReceiverAttached, boolean isLambda) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
-        endEndpointDeclarationScope();
         function.pos = pos;
         function.addWS(ws);
         if (!isLambda) {
@@ -1495,6 +1449,10 @@ public class BLangPackageBuilder {
         }
         if (publicFunc) {
             function.flagSet.add(Flag.PUBLIC);
+        }
+
+        if (remoteFunc) {
+            function.flagSet.add(Flag.REMOTE);
         }
 
         if (nativeFunc) {
@@ -1841,7 +1799,6 @@ public class BLangPackageBuilder {
                                   boolean bodyExists, boolean markdownDocPresent, boolean deprecatedDocPresent,
                                   int annCount) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
-        endEndpointDeclarationScope();
         function.setName(this.createIdentifier(identifier));
         function.pos = pos;
         function.addWS(ws);
@@ -1876,10 +1833,9 @@ public class BLangPackageBuilder {
     }
 
     void endObjectAttachedFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean privateFunc,
-                                      boolean nativeFunc, boolean bodyExists, boolean markdownDocPresent,
-                                      boolean deprecatedDocPresent, int annCount) {
+            boolean remoteFunc, boolean nativeFunc, boolean bodyExists, boolean markdownDocPresent,
+            boolean deprecatedDocPresent, int annCount) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
-        endEndpointDeclarationScope();
         function.pos = pos;
         function.addWS(ws);
         function.addWS(this.invocationWsStack.pop());
@@ -1890,6 +1846,9 @@ public class BLangPackageBuilder {
             function.flagSet.add(Flag.PUBLIC);
         } else if (privateFunc) {
             function.flagSet.add(Flag.PRIVATE);
+        }
+        if (remoteFunc) {
+            function.flagSet.add(Flag.REMOTE);
         }
 
         if (nativeFunc) {
@@ -1921,16 +1880,19 @@ public class BLangPackageBuilder {
         ((BLangObjectTypeNode) this.typeNodeStack.peek()).addFunction(function);
     }
 
-    void endObjectOuterFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean nativeFunc,
-                                   boolean bodyExists, String objectName) {
+    void endObjectOuterFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean remoteFunc,
+            boolean nativeFunc, boolean bodyExists, String objectName) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
-        endEndpointDeclarationScope();
         function.pos = pos;
         function.addWS(ws);
         function.addWS(invocationWsStack.pop());
 
         if (publicFunc) {
             function.flagSet.add(Flag.PUBLIC);
+        }
+
+        if (remoteFunc) {
+            function.flagSet.add(Flag.REMOTE);
         }
 
         if (nativeFunc) {
@@ -2526,7 +2488,6 @@ public class BLangPackageBuilder {
         attachMarkdownDocumentations(serviceNode);
         attachDeprecatedNode(serviceNode);
         serviceNodeStack.push(serviceNode);
-        startEndpointDeclarationScope(serviceNode.endpoints);
     }
 
     void addServiceBody(Set<Whitespace> ws) {
@@ -2575,19 +2536,16 @@ public class BLangPackageBuilder {
         serviceNode.pos = pos;
         serviceNode.addWS(ws);
         this.compUnit.addTopLevelNode(serviceNode);
-        endEndpointDeclarationScope();
     }
 
     void startResourceDef() {
         ResourceNode resourceNode = TreeBuilder.createResourceNode();
         invokableNodeStack.push(resourceNode);
-        startEndpointDeclarationScope(((BLangResource) resourceNode).endpoints);
     }
 
     void endResourceDef(DiagnosticPos pos, Set<Whitespace> ws, String resourceName, boolean markdownDocPresent,
                         boolean isDeprecated, boolean hasParameters) {
         BLangResource resourceNode = (BLangResource) invokableNodeStack.pop();
-        endEndpointDeclarationScope();
         resourceNode.pos = pos;
         resourceNode.addWS(ws);
         BLangIdentifier name = (BLangIdentifier) createIdentifier(resourceName);
@@ -2601,11 +2559,6 @@ public class BLangPackageBuilder {
         }
         if (hasParameters) {
             BLangSimpleVariable firstParam = (BLangSimpleVariable) varListStack.peek().get(0);
-            if (firstParam.name.value.startsWith("$") && varListStack.peek().size() > 1) {
-                // This is an endpoint variable
-                Set<Whitespace> wsBeforeComma = removeNthFromLast(firstParam.getWS(), 0);
-                resourceNode.addWS(wsBeforeComma);
-            }
             varListStack.pop().forEach(variableNode -> {
                 resourceNode.addParameter((SimpleVariableNode) variableNode);
             });
@@ -2623,20 +2576,6 @@ public class BLangPackageBuilder {
     void addResourceAnnotation(int annotCount) {
         BLangResource resourceNode = (BLangResource) invokableNodeStack.peek();
         attachAnnotations(resourceNode, annotCount);
-    }
-
-    void addEndpointVariable(DiagnosticPos pos, Set<Whitespace> ws, String endpointName) {
-        BLangSimpleVariable var = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
-        var.pos = pos;
-        // endpointName has to be redefine at semantic analyze phase. So appending $ to make it work.
-        IdentifierNode name = this.createIdentifier("$" + endpointName);
-        var.setName(name);
-        var.addWS(ws);
-        // Type will be calculated at SymEnter phase.
-        if (varListStack.empty()) {
-            varListStack.push(new ArrayList<>());
-        }
-        varListStack.peek().add(0, var);
     }
 
     void createXMLQName(DiagnosticPos pos, Set<Whitespace> ws, String localname, String prefix) {
@@ -3558,7 +3497,6 @@ public class BLangPackageBuilder {
 
     BLangLambdaFunction getScopesFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean bodyExists, String name) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
-        endEndpointDeclarationScope();
         function.pos = pos;
         function.addWS(ws);
 

@@ -122,7 +122,11 @@ public enum DiagnosticCode {
     ENDPOINT_INVALID_TYPE_NO_FUNCTION("endpoint.invalid.type.no.function"),
     ENDPOINT_SPI_INVALID_FUNCTION("endpoint.spi.invalid.function"),
 
-    ENDPOINT_NOT_SUPPORT_INTERACTIONS("endpoint.not.support.interactions"),
+    REMOTE_IN_NON_OBJECT_FUNCTION("remote.in.non.object.function"),
+    REMOTE_ON_NON_REMOTE_FUNCTION("remote.on.non.remote.function"),
+    REMOTE_REQUIRED_ON_REMOTE_FUNCTION("remote.required.on.remote.function"),
+    INVALID_ENDPOINT_DECLARATION("invalid.endpoint.declaration"),
+
     ENDPOINT_NOT_SUPPORT_REGISTRATION("endpoint.not.support.registration"),
     INVALID_ACTION_INVOCATION_SYNTAX("invalid.action.invocation.syntax"),
     INVALID_ACTION_INVOCATION("invalid.action.invocation"),

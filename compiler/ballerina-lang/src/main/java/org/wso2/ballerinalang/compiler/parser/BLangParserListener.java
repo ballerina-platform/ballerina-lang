@@ -60,7 +60,6 @@ import static org.wso2.ballerinalang.compiler.util.RestBindingPatternState.OPEN_
  */
 public class BLangParserListener extends BallerinaParserBaseListener {
     private static final String KEYWORD_PUBLIC = "public";
-    private static final String KEYWORD_EXTERN = "extern";
     private static final String KEYWORD_KEY = "key";
 
     private BLangPackageBuilder pkgBuilder;
@@ -306,10 +305,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        final boolean isEndpointDefined = ctx.ENDPOINT() != null;
-        if (isEndpointDefined) {
-            this.pkgBuilder.addEndpointVariable(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
-        }
     }
 
     /**
@@ -357,23 +352,21 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        int nativeKWTokenIndex = 0;
-        boolean publicFunc = KEYWORD_PUBLIC.equals(ctx.getChild(0).getText());
-        if (publicFunc) {
-            nativeKWTokenIndex = 1;
-        }
-        boolean nativeFunc = KEYWORD_EXTERN.equals(ctx.getChild(nativeKWTokenIndex).getText());
+        boolean publicFunc = ctx.PUBLIC() != null;
+        boolean remoteFunc = ctx.REMOTE() != null;
+        boolean nativeFunc = ctx.EXTERN() != null;
         boolean bodyExists = ctx.callableUnitBody() != null;
 
         if (ctx.Identifier() != null) {
-            this.pkgBuilder.endObjectOuterFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, nativeFunc,
-                    bodyExists, ctx.Identifier().getText());
+            this.pkgBuilder
+                    .endObjectOuterFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, remoteFunc, nativeFunc,
+                            bodyExists, ctx.Identifier().getText());
             return;
         }
 
         boolean isReceiverAttached = ctx.typeName() != null;
 
-        this.pkgBuilder.endFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, nativeFunc,
+        this.pkgBuilder.endFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, remoteFunc, nativeFunc,
                 bodyExists, isReceiverAttached, false);
     }
 
@@ -649,11 +642,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean publicFunc = ctx.PUBLIC() != null;
         boolean isPrivate = ctx.PRIVATE() != null;
+        boolean remoteFunc = ctx.REMOTE() != null;
         boolean nativeFunc = ctx.EXTERN() != null;
         boolean bodyExists = ctx.callableUnitBody() != null;
         boolean markdownDocExists = ctx.documentationString() != null;
         boolean deprecatedDocExists = ctx.deprecatedAttachment() != null;
-        this.pkgBuilder.endObjectAttachedFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, isPrivate,
+        this.pkgBuilder.endObjectAttachedFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, isPrivate, remoteFunc,
                 nativeFunc, bodyExists, markdownDocExists, deprecatedDocExists, ctx.annotationAttachment().size());
     }
 
@@ -1226,16 +1220,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitEndpointDeclaration(BallerinaParser.EndpointDeclarationContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-        String endpointName = ctx.Identifier().getText();
-        boolean isInitExprExist = ctx.endpointInitlization() != null;
-        this.pkgBuilder.addEndpointDefinition(getCurrentPos(ctx), getWS(ctx), endpointName, isInitExprExist);
-    }
-
-    @Override
     public void exitChannelType(BallerinaParser.ChannelTypeContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -1243,24 +1227,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         String typeName = ctx.getChild(0).getText();
         this.pkgBuilder.addConstraintTypeWithTypeName(getCurrentPos(ctx), getWS(ctx), typeName);
-    }
-
-    @Override
-    public void exitEndpointType(BallerinaParser.EndpointTypeContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-        this.pkgBuilder.addEndpointType(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    @Override
-    public void exitGlobalEndpointDefinition(BallerinaParser.GlobalEndpointDefinitionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-        if (KEYWORD_PUBLIC.equals(ctx.getChild(0).getText())) {
-            this.pkgBuilder.markLastEndpointAsPublic(getWS(ctx));
-        }
     }
 
     /**

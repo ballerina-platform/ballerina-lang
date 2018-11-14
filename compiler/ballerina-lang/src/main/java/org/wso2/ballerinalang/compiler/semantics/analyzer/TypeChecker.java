@@ -32,14 +32,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -1732,6 +1730,9 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             }
         }
+        if ((funcSymbol.tag & SymTag.REMOTE_FUNCTION) == SymTag.REMOTE_FUNCTION) {
+            dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION_SYNTAX);
+        }
         iExpr.symbol = funcSymbol;
         checkInvocationParamAndReturnType(iExpr);
     }
@@ -1912,48 +1913,29 @@ public class TypeChecker extends BLangNodeVisitor {
         return true;
     }
 
-    private void checkActionInvocationExpr(BLangInvocation iExpr, BType conType) {
+    private void checkActionInvocationExpr(BLangInvocation iExpr, BType epType) {
         BType actualType = symTable.semanticError;
-        if (conType == symTable.semanticError || conType.tag != TypeTags.OBJECT
+        if (epType == symTable.semanticError || epType.tag != TypeTags.OBJECT
                 || iExpr.expr.symbol.tag != SymTag.ENDPOINT) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION);
             resultType = actualType;
             return;
         }
 
-        final BEndpointVarSymbol epSymbol = (BEndpointVarSymbol) iExpr.expr.symbol;
-        if (!epSymbol.interactable) {
-            dlog.error(iExpr.pos, DiagnosticCode.ENDPOINT_NOT_SUPPORT_INTERACTIONS, epSymbol.name);
-            resultType = actualType;
-            return;
-        }
+        final BVarSymbol epSymbol = (BVarSymbol) iExpr.expr.symbol;
 
-        BSymbol conSymbol = epSymbol.clientSymbol;
-        if (conSymbol == null
-                || conSymbol == symTable.notFoundSymbol
-                || conSymbol == symTable.errSymbol
-                || !(conSymbol.type.tag == TypeTags.OBJECT || conSymbol.type.tag == TypeTags.RECORD)) {
-            // TODO : Remove struct dependency.
-            dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION);
-            resultType = actualType;
-            return;
-        }
-
+        Name remoteFuncQName = names
+                .fromString(Symbols.getAttachedFuncSymbolName(epType.tsymbol.name.value, iExpr.name.value));
         Name actionName = names.fromIdNode(iExpr.name);
-        Name uniqueFuncName = names.fromString(
-                Symbols.getAttachedFuncSymbolName(conSymbol.name.value, actionName.value));
-        BPackageSymbol packageSymbol = (BPackageSymbol) conSymbol.owner;
-        BSymbol actionSym = symResolver.lookupMemberSymbol(iExpr.pos, packageSymbol.scope, this.env,
-                uniqueFuncName, SymTag.FUNCTION);
-        if (actionSym == symTable.notFoundSymbol) {
-            actionSym = symResolver.resolveStructField(iExpr.pos, env, uniqueFuncName, (BTypeSymbol) conSymbol);
-        }
-        if (actionSym == symTable.errSymbol || actionSym == symTable.notFoundSymbol) {
-            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_ACTION, actionName, epSymbol.name, conSymbol.type);
+        BSymbol remoteFuncSymbol = symResolver
+                .lookupMemberSymbol(iExpr.pos, epSymbol.type.tsymbol.scope, env, remoteFuncQName,
+                        SymTag.REMOTE_FUNCTION);
+        if (remoteFuncSymbol == symTable.notFoundSymbol) {
+            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_ACTION, actionName, epSymbol.type.tsymbol.name);
             resultType = actualType;
             return;
         }
-        iExpr.symbol = actionSym;
+        iExpr.symbol = remoteFuncSymbol;
         checkInvocationParamAndReturnType(iExpr);
     }
 

@@ -30,6 +30,10 @@ public enum Flag {
      */
     PRIVATE,
     /**
+     * Indicates Flagged node is a remote function.
+     */
+    REMOTE,
+    /**
      * Indicates Flagged node is a native construct.
      */
     NATIVE,

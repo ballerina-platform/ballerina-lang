@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.966.0
  */
+@Test(enabled = false)
 public class EndpointTest {
 
     @Test(description = "Test endpoint testEndpoint In Function")
