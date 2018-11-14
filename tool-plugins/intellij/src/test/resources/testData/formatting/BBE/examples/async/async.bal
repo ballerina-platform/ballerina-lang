@@ -76,6 +76,6 @@ function square_plus_cube(future<int> f) returns int {
 
 function countInfinity() {
     while (true) {
-        count+=1;
+        count++;
     }
 }

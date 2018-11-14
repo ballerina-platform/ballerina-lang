@@ -22,7 +22,6 @@ import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
@@ -105,6 +104,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Stack;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -308,18 +308,18 @@ public class CommonUtil {
      * 
      * Note: If n is greater than stack, then all the elements of list will be returned
      * 
-     * @param itemList          Item Stack to pop elements from     
+     * @param itemStack         Item Stack to pop elements from     
      * @param n                 number of elements to pop
      * @param <T>               Type of the Elements
      * @return {@link List}     List of popped Items
      */
-    public static  <T> List<T> popNFromList(List<T> itemList, int n) {
-        List<T> poppedList = new ArrayList<>(itemList);
+    public static  <T> List<T> popNFromStack(Stack<T> itemStack, int n) {
+        List<T> poppedList = new ArrayList<>(itemStack);
         if (n > poppedList.size()) {
             return poppedList;
         }
         
-        return itemList.subList(itemList.size() - n, itemList.size());
+        return poppedList.subList(poppedList.size() - n, poppedList.size());
     }
 
     private static Token getDefaultTokenToLeftOrRight(TokenStream tokenStream, int startIndex, int direction) {
@@ -382,20 +382,22 @@ public class CommonUtil {
      */
     public static BLangPackage getCurrentPackageByFileName(List<BLangPackage> packages, String fileUri) {
         Path filePath = new LSDocument(fileUri).getPath();
-        String currentModule = LSCompilerUtil.getCurrentModulePath(filePath).getFileName().toString();
+        Path fileNamePath = filePath.getFileName();
+        BLangPackage currentPackage = null;
         try {
+            found:
             for (BLangPackage bLangPackage : packages) {
-                if (bLangPackage.packageID.sourceFileName != null &&
-                        bLangPackage.packageID.sourceFileName.value.equals(filePath.getFileName().toString())) {
-                    return bLangPackage;
-                } else if (currentModule.equals(bLangPackage.packageID.name.value)) {
-                    return bLangPackage;
+                for (BLangCompilationUnit compilationUnit : bLangPackage.getCompilationUnits()) {
+                    if (compilationUnit.name.equals(fileNamePath.getFileName().toString())) {
+                        currentPackage = bLangPackage;
+                        break found;
+                    }
                 }
             }
         } catch (NullPointerException e) {
-            return packages.get(0);
+            currentPackage = packages.get(0);
         }
-        return null;
+        return currentPackage;
     }
 
     /**
@@ -696,7 +698,7 @@ public class CommonUtil {
      * @return {@link Boolean}  Whether a test source or not
      */
     public static boolean isTestSource(String relativeFilePath) {
-        return relativeFilePath.startsWith("tests" + FILE_SEPARATOR);
+        return relativeFilePath.split(FILE_SEPARATOR)[0].equals("tests");
     }
 
     /**
@@ -708,18 +710,6 @@ public class CommonUtil {
      */
     public static BLangPackage getSourceOwnerBLangPackage(String relativePath, BLangPackage parentPkg) {
         return isTestSource(relativePath) ? parentPkg.getTestablePkg() : parentPkg;
-    }
-
-    /**
-     * Get the string values list of forced consumed tokens, from the LSContext.
-     *
-     * @param ctx               Language Server context
-     * @return {@link List}     Token string list
-     */
-    public static List<String> getPoppedTokenStrings(LSContext ctx) {
-        return ctx.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY).stream()
-                .map(Token::getText)
-                .collect(Collectors.toList());
     }
 
     static void populateIterableOperations(SymbolInfo variable, List<SymbolInfo> symbolInfoList, LSContext context) {
@@ -808,7 +798,7 @@ public class CommonUtil {
         BLangCompilationUnit filteredCUnit = pkgNode.compUnits.stream()
                 .filter(cUnit -> cUnit.getPosition().getSource().cUnitName.equals(relativeFilePath))
                 .findAny().orElse(null);
-        return filteredCUnit == null ? new ArrayList<>() : new ArrayList<>(filteredCUnit.getTopLevelNodes());
+        return filteredCUnit == null ? new ArrayList<>() : filteredCUnit.getTopLevelNodes();
     }
     
     private static SymbolInfo getIterableOpSymbolInfo(SnippetBlock operation, @Nullable BType bType, String label,

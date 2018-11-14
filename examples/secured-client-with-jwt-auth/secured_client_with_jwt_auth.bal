@@ -46,7 +46,7 @@ http:AuthProvider jwtAuthProvider = {
     }
 };
 
-endpoint http:Listener ep {
+endpoint http:SecureListener ep {
     port: 9090,
     authProviders: [jwtAuthProvider],
     secureSocket: {

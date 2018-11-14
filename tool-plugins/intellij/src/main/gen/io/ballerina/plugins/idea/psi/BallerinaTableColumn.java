@@ -23,4 +23,10 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaTableColumn extends BallerinaCompositeElement {
 
+  @NotNull
+  PsiElement getIdentifier();
+
+  @Nullable
+  PsiElement getPrimarykey();
+
 }

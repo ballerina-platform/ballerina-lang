@@ -14,6 +14,8 @@ endpoint http:LoadBalanceClient lbBackendEP {
         { url: "http://localhost:8080/mock2" },
         { url: "http://localhost:8080/mock3" }
     ],
+    // The algorithm used for load balancing.
+    algorithm: http:ROUND_ROBIN,
     timeoutMillis: 5000
 };
 

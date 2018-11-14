@@ -20,7 +20,7 @@ import _ from 'lodash';
 import log from 'log';
 import AbstractCompilationUnitNode from './abstract-tree/compilation-unit-node';
 import TreeUtils from '../tree-util';
-import { ASTUtil } from "ast-model";
+
 
 class CompilationUnitNode extends AbstractCompilationUnitNode {
 
@@ -68,7 +68,6 @@ class CompilationUnitNode extends AbstractCompilationUnitNode {
         }
         return pkgName;
     }
-
     /**
      * Add import as a top level node
      * @param importNode
@@ -88,10 +87,6 @@ class CompilationUnitNode extends AbstractCompilationUnitNode {
         } else if (pkgDeclIndex !== -1) {
             targetIndex = pkgDeclIndex + 1;
         }
-
-        // Add new import node.
-        let startIndex = ASTUtil.getStartPosition(this, "topLevelNodes", targetIndex);
-        ASTUtil.reconcileWS(importNode, this.getTopLevelNodes(), this, startIndex);
         this.addTopLevelNodes(importNode, targetIndex, silent);
     }
 
@@ -111,7 +106,7 @@ class CompilationUnitNode extends AbstractCompilationUnitNode {
             return;
         }
         const lastGlobalIndex = _.findLastIndex(this.getTopLevelNodes(),
-            node => TreeUtils.isVariable(node) || node.kind === 'Xmlns');
+                node => TreeUtils.isVariable(node) || node.kind === 'Xmlns');
         const pkgDeclIndex = _.findLastIndex(this.getTopLevelNodes(), node => TreeUtils.isPackageDeclaration(node));
         const lastImportIndex = _.findLastIndex(this.getTopLevelNodes(), node => TreeUtils.isImport(node));
         let targetIndex = 0; // If there is no a pck node or any import/any global, we'll add it to 0
@@ -156,15 +151,11 @@ class CompilationUnitNode extends AbstractCompilationUnitNode {
                 if (TreeUtils.isImport(element)) {
                     this.addImport(element, silent);
                 } else {
-                    // Add new statement to the top level.
-                    ASTUtil.reconcileWS(element, this.getTopLevelNodes(), this.getRoot());
                     this.addTopLevelNodes(element, -1, silent);
                 }
             });
         } else {
             TreeUtils.generateDefaultName(this, node);
-            // Add new statement to the top level.
-            ASTUtil.reconcileWS(node, this.getTopLevelNodes(), this.getRoot());
             this.addTopLevelNodes(node);
         }
     }
@@ -183,7 +174,7 @@ class CompilationUnitNode extends AbstractCompilationUnitNode {
                 TreeUtils.isEnum(this.topLevelNodes[i]) ||
                 TreeUtils.isStruct(this.topLevelNodes[i]) ||
                 TreeUtils.isTransformer(this.topLevelNodes[i])
-            ) {
+                ) {
                 empty = false;
                 break;
             }

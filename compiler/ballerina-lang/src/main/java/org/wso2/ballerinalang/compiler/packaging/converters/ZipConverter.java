@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.zip.ZipError;
 
 /**
  * Provide functions to convert a patten to a stream of zip paths.
@@ -75,7 +74,7 @@ public class ZipConverter extends PathConverter {
             // we are accessing the same zip/jar for the second time sometimes that filesystem might already exist.
             // Since we have no way to check if a filesystem is already created for a particular zip/jar, we have
             // ignored this exception.
-        } catch (IOException | ZipError e) {
+        } catch (IOException e) {
             throw new BLangCompilerException("Error loading balo " + uri.getPath(), e);
         }
     }

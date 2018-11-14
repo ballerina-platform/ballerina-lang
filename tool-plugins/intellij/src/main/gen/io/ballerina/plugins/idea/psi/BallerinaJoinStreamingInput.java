@@ -23,7 +23,7 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaJoinStreamingInput extends BallerinaCompositeElement {
 
-  @Nullable
+  @NotNull
   BallerinaExpression getExpression();
 
   @NotNull
@@ -32,7 +32,7 @@ public interface BallerinaJoinStreamingInput extends BallerinaCompositeElement {
   @NotNull
   BallerinaStreamingInput getStreamingInput();
 
-  @Nullable
+  @NotNull
   PsiElement getOn();
 
   @Nullable

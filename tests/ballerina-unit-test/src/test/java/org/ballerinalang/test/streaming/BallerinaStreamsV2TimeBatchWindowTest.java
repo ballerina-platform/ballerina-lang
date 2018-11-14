@@ -51,6 +51,7 @@ public class BallerinaStreamsV2TimeBatchWindowTest {
         System.setProperty("enable.siddhiRuntime", "true");
 
         Assert.assertNotNull(outputEmployeeEvents);
+
         Assert.assertEquals(outputEmployeeEvents.length, 1, "Expected events are not received");
 
         BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];
@@ -66,6 +67,7 @@ public class BallerinaStreamsV2TimeBatchWindowTest {
         System.setProperty("enable.siddhiRuntime", "true");
 
         Assert.assertNotNull(outputEmployeeEvents);
+
         Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
 
         BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];

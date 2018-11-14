@@ -121,7 +121,7 @@ public function main() {
     match response {
         http:Response resp => {
             string contentType = resp.getHeader("Content-Type");
-            log:printInfo("Content-Type: " + contentType);
+            log:printInfo("\nContent-Type: " + contentType);
 
             int statusCode = resp.statusCode;
             log:printInfo("Status code: " + statusCode);

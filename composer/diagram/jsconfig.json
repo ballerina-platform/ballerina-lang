@@ -2,8 +2,7 @@
     "compilerOptions": {
         "target": "es6",
         "baseUrl": "./src",
-        "jsx": "react",
-        "sourceMap": true
+        "jsx": "react"
     },
     "exclude": [
         "node_modules", "lib"

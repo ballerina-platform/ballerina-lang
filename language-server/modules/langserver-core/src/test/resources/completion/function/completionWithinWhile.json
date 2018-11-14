@@ -644,6 +644,28 @@
       ]
     },
     {
+      "label":"ballerina/mb",
+      "kind":"Module",
+      "detail":"Package",
+      "sortText":"140",
+      "insertText":"mb",
+      "additionalTextEdits":[
+        {
+          "range":{
+            "start":{
+              "line":2,
+              "character":20
+            },
+            "end":{
+              "line":2,
+              "character":20
+            }
+          },
+          "newText":"\nimport ballerina/mb;\n"
+        }
+      ]
+    },
+    {
       "label":"ballerina/mime",
       "kind":"Module",
       "detail":"Package",

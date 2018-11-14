@@ -22,6 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -33,13 +34,7 @@ import org.ballerinalang.stdlib.internal.jwt.crypto.TrustStoreHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.security.cert.CertificateExpiredException;
-import java.security.cert.CertificateNotYetValidException;
-import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPublicKey;
-
-import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
-import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
  * Extern function ballerinalang.jwt:verifySignature.
@@ -56,10 +51,7 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
                 @Argument(name = "trustStore", type = TypeKind.RECORD, structType = "TrustStoreHolder",
                         structPackage = "ballerina/internal")
         },
-        returnType = {
-                @ReturnType(type = TypeKind.OBJECT, structType = STRUCT_GENERIC_ERROR, structPackage =
-                        BALLERINA_BUILTIN_PKG)
-        },
+        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
 public class VerifySignature extends BlockingNativeCallableUnit {
@@ -76,28 +68,16 @@ public class VerifySignature extends BlockingNativeCallableUnit {
         BMap<String, BValue> trustStore = (BMap<String, BValue>) context.getRefArgument(0);
         char[] trustStorePassword = trustStore.get(TRUST_STORE_PASSWORD).stringValue().toCharArray();
         RSAPublicKey publicKey;
-        String msg = null;
         try {
-            X509Certificate certificate = (X509Certificate) TrustStoreHolder.getInstance().getTrustedCertificate(
+            publicKey = (RSAPublicKey) TrustStoreHolder.getInstance().getTrustedPublicKey(
                     trustStore.get(CERT_ALIAS).stringValue(),
                     PathResolver.getResolvedPath(trustStore.get(TRUST_STORE_PATH).stringValue()), trustStorePassword);
-            certificate.checkValidity();
-            publicKey = (RSAPublicKey) certificate.getPublicKey();
-
             JWSVerifier verifier = new RSAVerifier(publicKey);
-            if (!verifier.verify(data, signature, algorithm)) {
-                msg = "Invalid signature";
-            }
-        } catch (CertificateExpiredException e) {
-            msg = "Certificate with alias " + trustStore.get(CERT_ALIAS) + " has expired";
-        } catch (CertificateNotYetValidException e) {
-            msg = "Certificate with alias " + trustStore.get(CERT_ALIAS) + " is not yet valid";
+            Boolean validSignature = verifier.verify(data, signature, algorithm);
+            context.setReturnValues(new BBoolean(validSignature));
         } catch (Exception e) {
-            msg = "Error in verifying signature";
-            log.error(msg, e);
-        }
-        if (msg != null) {
-            context.setReturnValues(BLangVMErrors.createError(context, msg));
+            log.error(e.getMessage(), e);
+            context.setReturnValues(new BBoolean(false), BLangVMErrors.createError(context, e.getMessage()));
         }
     }
 }

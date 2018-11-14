@@ -101,9 +101,7 @@ function createStreamingConstruct() {
     aggregators[0] = iSumAggregator;
 
     streams:Select select = streams:createSelect(outputProcess.process, aggregators,
-        [function (streams:StreamEvent e) returns string {
-            return <string>e.data["inputStream.school"];
-        }],
+        (),
         function (streams:StreamEvent e, streams:Aggregator[] aggregatorArray) returns map {
             streams:Sum iSumAggregator1 = check <streams:Sum>aggregatorArray[0];
             // got rid of type casting
@@ -114,7 +112,7 @@ function createStreamingConstruct() {
             };
         });
 
-    streams:Window tmpWindow = streams:externalTimeWindow(["inputStream.timeStamp", 1000],
+    streams:Window tmpWindow = streams:externalTimeWindow("inputStream.timeStamp", 1000,
         nextProcessPointer = select.process);
 
     inputStream.subscribe(function (Teacher t) {

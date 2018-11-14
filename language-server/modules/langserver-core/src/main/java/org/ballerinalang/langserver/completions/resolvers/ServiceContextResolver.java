@@ -42,14 +42,14 @@ public class ServiceContextResolver extends AbstractItemResolver {
 
         if (this.isAnnotationStart(completionContext)) {
             completionItems.addAll(CompletionItemResolver
-                    .get(ParserRuleAnnotationAttachmentResolver.class).resolveItems(completionContext));
+                    .getResolverByClass(ParserRuleAnnotationAttachmentResolver.class).resolveItems(completionContext));
         } else if (parserRuleContext == null || parserRuleContext instanceof BallerinaParser.ServiceDefinitionContext) {
             completionItems.addAll(this.populateBasicTypes(completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
             CompletionItemSorter itemSorter =
                     ItemSorters.get(completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY).getClass());
             itemSorter.sortItems(completionContext, completionItems);
         } else {
-            AbstractItemResolver resolver = CompletionItemResolver.get(parserRuleContext.getClass());
+            AbstractItemResolver resolver = CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());
             if (resolver != null) {
                 completionItems.addAll(resolver.resolveItems(completionContext));
             }

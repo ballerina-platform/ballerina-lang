@@ -181,11 +181,10 @@ public enum CompletionItemResolver {
 
     /**
      * Get the resolver by the class.
-     *
-     * @param context                           context class to extract the relevant resolver
-     * @return {@link AbstractItemResolver}     Item resolver for the given context
+     * @param context - context class to extract the relevant resolver
+     * @return {@link AbstractItemResolver} - Item resolver for the given context
      */
-    public static AbstractItemResolver get(Class context) {
+    public static AbstractItemResolver getResolverByClass(Class context) {
         return resolverMap.get(context);
     }
 
@@ -194,7 +193,6 @@ public enum CompletionItemResolver {
         for (CompletionItemResolver resolver : CompletionItemResolver.values()) {
             map.put(resolver.getContext(), resolver.getCompletionItemResolver());
         }
-
         return map;
     }
 }

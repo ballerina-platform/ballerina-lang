@@ -45,7 +45,7 @@ public class FunctionDefinition extends CompletionTest {
                 {"variableBoundItemSuggestions2.json", "function"},
                 {"variableBoundItemSuggestions3.json", "function"},
                 {"variableBoundItemSuggestions4.json", "function"},
-                {"throwStatementErrorSuggestions.json", "function"},
+                {"panicStatementErrorSuggestions.json", "function"},
                 {"endpointAttributeSuggestion1.json", "function"},
                 {"recordVarDef1.json", "function"},
                 {"recordVarDef2.json", "function"},
@@ -75,7 +75,6 @@ public class FunctionDefinition extends CompletionTest {
                 {"completionBeforeWhile.json", "function"},
                 {"completionWithinWhile.json", "function"},
                 {"completionWithinWorkersInResource.json", "function"},
-                {"completionWithinCatch.json", "function"},
                 {"completionWithinTransaction.json", "function"},
                 {"completionWithinTransactionOnRetry.json", "function"},
                 {"objectAttachFunctionImpl1.json", "function"},
@@ -83,12 +82,6 @@ public class FunctionDefinition extends CompletionTest {
                 {"objectAttachFunctionImpl3.json", "function"},
                 {"completionAfterReturn.json", "function"},
                 {"functionCompletionWithMissingImport.json", "function"},
-                {"completionWithinRecord1.json", "function"},
-                {"completionWithinRecord2.json", "function"},
-                {"completionWithinRecord3.json", "function"},
-                {"anonFunctionSnippetSuggestion1.json", "function"},
-                {"anonFunctionSnippetSuggestion2.json", "function"},
-                {"anonFunctionSnippetSuggestion3.json", "function"},
         };
     }
 }

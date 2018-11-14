@@ -115,7 +115,7 @@ public type LdapAuthStoreProvider object {
         boolean isAuthenticated = self.doAuthenticate(username, password);
         if (isAuthenticated) {
             runtime:UserPrincipal userPrincipal = runtime:getInvocationContext().userPrincipal;
-            userPrincipal.userId = ldapAuthProviderConfig.domainName + ":" + username;
+            userPrincipal.userId = username;
             // By default set userId as username.
             userPrincipal.username = username;
         }

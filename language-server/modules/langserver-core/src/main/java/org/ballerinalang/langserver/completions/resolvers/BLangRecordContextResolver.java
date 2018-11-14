@@ -46,7 +46,8 @@ public class BLangRecordContextResolver extends AbstractItemResolver {
             // This parser rule context is used to select the proper sorter.
             completionContext.put(CompletionKeys.PARSER_RULE_CONTEXT_KEY,
                     new BallerinaParser.VariableDefinitionStatementContext(null, -1));
-            return CompletionItemResolver.get(BallerinaParser.VariableDefinitionStatementContext.class)
+            return CompletionItemResolver
+                    .getResolverByClass(BallerinaParser.VariableDefinitionStatementContext.class)
                     .resolveItems(completionContext);
         }
         completionItems.addAll(this.populateBasicTypes(completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));

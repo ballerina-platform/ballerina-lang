@@ -18,13 +18,7 @@ import ballerina/http;
 import ballerina/io;
 
 endpoint http:Listener tokenlistener {
-    port: 9095,
-    secureSocket: {
-        keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
-            password: "ballerina"
-        }
-    }
+    port: 9095
 };
 
 service<http:Service> foo bind tokenlistener {

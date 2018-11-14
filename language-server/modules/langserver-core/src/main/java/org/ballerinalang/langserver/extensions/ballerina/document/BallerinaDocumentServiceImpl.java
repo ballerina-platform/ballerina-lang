@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSGlobalContext;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
+import org.ballerinalang.langserver.SourceGen;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
@@ -30,8 +31,6 @@ import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.formatting.FormattingSourceGen;
-import org.ballerinalang.langserver.formatting.FormattingVisitorEntry;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -107,12 +106,9 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
             // generate source for the new ast.
             JsonObject ast = notification.getAst();
-            FormattingSourceGen.build(ast, null, "CompilationUnit");
-            // we are reformatting entire document upon each astChange
-            // until partial formatting is supported
-            FormattingVisitorEntry formattingUtil = new FormattingVisitorEntry();
-            formattingUtil.accept(ast);
-            String textEditContent = FormattingSourceGen.getSourceOf(ast);
+            SourceGen sourceGen = new SourceGen(0);
+            sourceGen.build(ast, null, "CompilationUnit");
+            String textEditContent = sourceGen.getSourceOf(ast, false, false);
 
             // create text edit
             TextEdit textEdit = new TextEdit(range, textEditContent);
@@ -154,9 +150,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             BLangCompilationUnit compilationUnit = bLangPackage.get().getCompilationUnits().stream()
                     .findFirst()
                     .orElse(null);
-            JsonElement jsonAST = TextDocumentFormatUtil.generateJSON(compilationUnit, new HashMap<>());
-            FormattingSourceGen.build(jsonAST.getAsJsonObject(), null, "CompilationUnit");
-            return jsonAST;
+            return TextDocumentFormatUtil.generateJSON(compilationUnit, new HashMap<>());
         }
         return null;
     }

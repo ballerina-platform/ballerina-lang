@@ -18,8 +18,7 @@
 import _ from 'lodash';
 import AbstractBlockNode from './abstract-tree/block-node';
 import TreeUtil from './../tree-util';
-import { ASTUtil } from "ast-model";
-import Tree from 'plugins/ballerina/diagram/views/default/components/transformer/tree';
+
 class BlockNode extends AbstractBlockNode {
 
     /**
@@ -54,20 +53,16 @@ class BlockNode extends AbstractBlockNode {
      */
     acceptDrop(node, dropBefore) {
         const index = !_.isNil(dropBefore) ? this.getIndexOfStatements(dropBefore) : -1;
-        let startPosition = ASTUtil.getStartPosition(this, "statements");
         if (TreeUtil.isAssignment(node)) {
             const variables = node.getVariables();
             variables.forEach((variable, i) => {
                 variable.getVariableName().setValue(TreeUtil.generateVariableName(this, 'var', i));
             });
-            ASTUtil.reconcileWS(node, this.getStatements(), this.getRoot(), startPosition);
             this.addStatements(node, index);
         } else if (TreeUtil.isVariableDef(node)) {
             node.getVariable().getName().setValue(TreeUtil.generateVariableName(this, 'var'));
-            ASTUtil.reconcileWS(node, this.getStatements(), this.getRoot(), startPosition);
             this.addStatements(node, index);
         } else {
-            ASTUtil.reconcileWS(node, this.getStatements(), this.getRoot(), startPosition);
             this.addStatements(node, index);
         }
     }

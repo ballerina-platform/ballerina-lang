@@ -68,9 +68,7 @@ public class WrongModuleTypeNotificationProvider extends EditorNotifications.Pro
     @NotNull
     private static EditorNotificationPanel createPanel(@NotNull Project project, @NotNull Module module) {
         EditorNotificationPanel panel = new EditorNotificationPanel();
-        panel.setText("'" + module.getName() + "' is not a Ballerina Module. Some features will not work.");
-        panel.setToolTipText("You can fix this by navigating to File -> Project Structure -> Modules and adding '"
-                + module.getName() + "' as a Ballerina module.");
+        panel.setText("'" + module.getName() + "' is not a Ballerina Module, some code insight might not work here");
         return panel;
     }
 

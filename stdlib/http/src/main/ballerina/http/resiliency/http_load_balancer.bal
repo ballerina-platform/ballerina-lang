@@ -24,14 +24,16 @@
 # + serviceUri - The URL of the remote HTTP endpoint
 # + config - The configurations of the client endpoint associated with this `LoadBalancer` instance
 # + loadBalanceClientsArray - Array of HTTP clients for load balancing
-# + lbRule - Load balancing rule
+# + algorithm - Load balancing algorithm
+# + nextIndex - Index of the next load balancing client
 # + failover - Whether to fail over in case of a failure
 public type LoadBalancerActions object {
 
    public string serviceUri;
    public ClientEndpointConfig config;
    public CallerActions[] loadBalanceClientsArray;
-   public LoadBalancerRule lbRule;
+   public string algorithm;
+   public int nextIndex;
    public boolean failover;
 
     # Load Balancer adds an additional layer to the HTTP client to make network interactions more resilient.
@@ -39,9 +41,10 @@ public type LoadBalancerActions object {
     # + serviceUri - The URL of the remote HTTP endpoint
     # + config - The configurations of the client endpoint associated with this `LoadBalancer` instance
     # + loadBalanceClientsArray - Array of HTTP clients for load balancing
-    # + lbRule - Load balancing rule
+    # + algorithm - Load balancing algorithm
+    # + nextIndex - Index of the next load balancing client
     # + failover - Whether to fail over in case of a failure
-    public new(serviceUri, config, loadBalanceClientsArray, lbRule, failover) {}
+   public new (serviceUri, config, loadBalanceClientsArray, algorithm, nextIndex, failover) {}
 
     # The POST action implementation of the LoadBalancer Connector.
     #
@@ -168,95 +171,95 @@ public type LoadBalancerActions object {
 # Represents an error occurred in an action of the Load Balance connector.
 #
 # + message - An error message explaining about the error
-# + cause - Cause of the error
 # + statusCode - HTTP status code of the LoadBalanceActionError
 # + httpActionErr - Array of errors occurred at each endpoint
-public type LoadBalanceActionError record {
+public type LoadBalanceActionErrorData record {
     string message;
-    error? cause;
     int statusCode;
     error[] httpActionErr;
     !...
 };
 
-function LoadBalancerActions::post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+public type LoadBalanceActionError error<string, LoadBalanceActionErrorData>;
+
+function LoadBalancerActions.post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                         message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_POST);
 }
 
-function LoadBalancerActions::head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function LoadBalancerActions.head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_HEAD);
 }
 
-function LoadBalancerActions::patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function LoadBalancerActions.patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_PATCH);
 }
 
-function LoadBalancerActions::put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function LoadBalancerActions.put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                         message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_PUT);
 }
 
-function LoadBalancerActions::options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function LoadBalancerActions.options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                         message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_OPTIONS);
 }
 
-function LoadBalancerActions::forward(string path, Request request) returns Response|error {
+function LoadBalancerActions.forward(string path, Request request) returns Response|error {
     return performLoadBalanceAction(self, path, request, HTTP_FORWARD);
 }
 
-function LoadBalancerActions::execute(string httpVerb, string path, Request|string|xml|json|byte[]|
+function LoadBalancerActions.execute(string httpVerb, string path, Request|string|xml|json|byte[]|
                                                         io:ReadableByteChannel|mime:Entity[]|() message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceExecuteAction(self, path, req, httpVerb);
 }
 
-function LoadBalancerActions::delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function LoadBalancerActions.delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_DELETE);
 }
 
-function LoadBalancerActions::get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function LoadBalancerActions.get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_GET);
 }
 
-function LoadBalancerActions::submit(string httpVerb, string path, Request|string|xml|json|byte[]|
+function LoadBalancerActions.submit(string httpVerb, string path, Request|string|xml|json|byte[]|
     io:ReadableByteChannel|mime:Entity[]|() message) returns HttpFuture|error {
-    error err = {message:"Unsupported action for LoadBalancer client."};
+    error err = error("Unsupported action for LoadBalancer client.");
     return err;
 }
 
-function LoadBalancerActions::getResponse(HttpFuture httpFuture) returns Response|error {
-    error err = {message:"Unsupported action for LoadBalancer client."};
+function LoadBalancerActions.getResponse(HttpFuture httpFuture) returns Response|error {
+    error err = error("Unsupported action for LoadBalancer client.");
     return err;
 }
 
-function LoadBalancerActions::hasPromise(HttpFuture httpFuture) returns (boolean) {
+function LoadBalancerActions.hasPromise(HttpFuture httpFuture) returns (boolean) {
     return false;
 }
 
-function LoadBalancerActions::getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
-    error err = {message:"Unsupported action for LoadBalancer client."};
+function LoadBalancerActions.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+    error err = error("Unsupported action for LoadBalancer client.");
     return err;
 }
 
-function LoadBalancerActions::getPromisedResponse(PushPromise promise) returns Response|error {
-    error err = {message:"Unsupported action for LoadBalancer client."};
+function LoadBalancerActions.getPromisedResponse(PushPromise promise) returns Response|error {
+    error err = error("Unsupported action for LoadBalancer client.");
     return err;
 }
 
-function LoadBalancerActions::rejectPromise(PushPromise promise) {
+function LoadBalancerActions.rejectPromise(PushPromise promise) {
 }
 
 // Performs execute action of the Load Balance connector. extract the corresponding http integer value representation
@@ -267,19 +270,18 @@ function performLoadBalanceExecuteAction(LoadBalancerActions lb, string path, Re
     if (connectorAction != HTTP_NONE) {
         return performLoadBalanceAction(lb, path, request, connectorAction);
     } else {
-        error httpActionErr = {message:"Unsupported connector action received."};
+        error httpActionErr = error("Unsupported connector action received.");
         return httpActionErr;
     }
 }
 
 // Handles all the actions exposed through the Load Balance connector.
 function performLoadBalanceAction(LoadBalancerActions lb, string path, Request request, HttpOperation requestAction)
-             returns Response|error {
+                                    returns Response|error {
     int loadBalanceTermination = 0; // Tracks at which point failover within the load balancing should be terminated.
     //TODO: workaround to initialize a type inside a function. Change this once fix is aailable.
-    LoadBalanceActionError loadBalanceActionError = {statusCode:500};
-    int lbErrorIndex = 0;
-    loadBalanceActionError.httpActionErr = [];
+    LoadBalanceActionErrorData loadBalanceActionErrorData = {statusCode:500};
+    loadBalanceActionErrorData.httpActionErr = [];
     Request loadBlancerInRequest = request;
     mime:Entity requestEntity = new;
 
@@ -295,38 +297,54 @@ function performLoadBalanceAction(LoadBalancerActions lb, string path, Request r
         }
     }
 
-    while (loadBalanceTermination < lengthof lb.loadBalanceClientsArray) {
-        match lb.lbRule.getNextCallerActions(lb.loadBalanceClientsArray) {
-            CallerActions loadBalanceClient => {
-                match invokeEndpoint(path, request, requestAction, loadBalanceClient) {
-                    Response inResponse => return inResponse;
-                    error httpActionErr => {
-                        if (lb.failover) {
-                            loadBlancerInRequest = createFailoverRequest(loadBlancerInRequest, requestEntity);
-                            loadBalanceActionError.httpActionErr[lbErrorIndex] = httpActionErr;
-                            lbErrorIndex += 1;
-                            loadBalanceTermination += 1;
-                        } else {
-                            return httpActionErr;
-                        }
-                    }
-                }
-            }
-            error algorithmError => {
-                return algorithmError;
+    while (loadBalanceTermination < lb.loadBalanceClientsArray.length()) {
+        CallerActions loadBalanceClient = roundRobin(lb, lb.loadBalanceClientsArray);
+
+        var serviceResponse = invokeEndpoint(path, request, requestAction, loadBalanceClient);
+        if (serviceResponse is Response) {
+            return serviceResponse;
+        } else if (serviceResponse is error) {
+            if (lb.failover) {
+                loadBlancerInRequest = createFailoverRequest(loadBlancerInRequest, requestEntity);
+                loadBalanceActionErrorData.httpActionErr[lb.nextIndex] = serviceResponse;
+                loadBalanceTermination = loadBalanceTermination + 1;
+            } else {
+                return serviceResponse;
             }
         }
     }
-    return populateGenericLoadBalanceActionError(loadBalanceActionError);
+    return populateGenericLoadBalanceActionError(loadBalanceActionErrorData);
+}
+
+// Round Robin Algorithm implementation with respect to load balancing endpoints.
+# Round Robin Algorithm implementation with respect to load balancing endpoints.
+#
+# + lb - `LoadBalancer` object
+# + loadBalanceConfigArray - Array of HTTP Clients that needs to be load balanced
+# + return - HttpClient elected from the algorithm
+public function roundRobin(LoadBalancerActions lb, CallerActions[] loadBalanceConfigArray) returns CallerActions {
+    CallerActions httpClient = new;
+
+    lock {
+        if (lb.nextIndex == (((loadBalanceConfigArray.length())) - 1)) {
+            httpClient = loadBalanceConfigArray[lb.nextIndex];
+            lb.nextIndex = 0;
+        } else {
+            httpClient = loadBalanceConfigArray[lb.nextIndex];
+            lb.nextIndex = lb.nextIndex + 1;
+        }
+    }
+
+    return httpClient;
 }
 
 // Populates generic error specific to Load Balance connector by including all the errors returned from endpoints.
-function populateGenericLoadBalanceActionError(LoadBalanceActionError loadBalanceActionError)
+function populateGenericLoadBalanceActionError(LoadBalanceActionErrorData loadBalanceActionErrorData)
                                                     returns error {
-    int nErrs = lengthof loadBalanceActionError.httpActionErr;
-    loadBalanceActionError.statusCode = INTERNAL_SERVER_ERROR_500;
-    loadBalanceActionError.message = "All the load balance endpoints failed. Last error was: "
-                                        + loadBalanceActionError.httpActionErr[nErrs - 1].message;
-    error err = loadBalanceActionError;
+    int nErrs = loadBalanceActionErrorData.httpActionErr.length();
+    loadBalanceActionErrorData.statusCode = INTERNAL_SERVER_ERROR_500;
+    loadBalanceActionErrorData.message = "All the load balance endpoints failed. Last error was: "
+                                        + loadBalanceActionErrorData.httpActionErr[nErrs - 1].reason();
+    LoadBalanceActionError err = error("LoadBalanceActionError", loadBalanceActionErrorData);
     return err;
 }

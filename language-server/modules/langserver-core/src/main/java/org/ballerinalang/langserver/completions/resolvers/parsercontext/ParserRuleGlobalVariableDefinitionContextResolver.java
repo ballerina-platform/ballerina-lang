@@ -40,10 +40,10 @@ public class ParserRuleGlobalVariableDefinitionContextResolver extends AbstractI
                 .map(Token::getText)
                 .collect(Collectors.toList());
         if (consumedTokens.get(0).equals(UtilSymbolKeys.FUNCTION_KEYWORD_KEY)) {
-            return CompletionItemResolver.get(BallerinaParser.DefinitionContext.class)
+            return CompletionItemResolver.getResolverByClass(BallerinaParser.DefinitionContext.class)
                     .resolveItems(context);
         }
         return CompletionItemResolver
-                .get(BallerinaParser.VariableDefinitionStatementContext.class).resolveItems(context);
+                .getResolverByClass(BallerinaParser.VariableDefinitionStatementContext.class).resolveItems(context);
     }
 }

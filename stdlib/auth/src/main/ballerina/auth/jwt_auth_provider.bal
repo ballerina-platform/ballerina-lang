@@ -87,7 +87,7 @@ public type JWTAuthProvider object {
 
     function setAuthContext(internal:JwtPayload jwtPayload, string jwtToken) {
         runtime:UserPrincipal userPrincipal = runtime:getInvocationContext().userPrincipal;
-        userPrincipal.userId = jwtPayload.iss + ":" + jwtPayload.sub;
+        userPrincipal.userId = jwtPayload.sub;
         // By default set sub as username.
         userPrincipal.username = jwtPayload.sub;
         userPrincipal.claims = jwtPayload.customClaims;

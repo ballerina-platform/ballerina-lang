@@ -40,10 +40,10 @@ import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBList;
 import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.ui.JBUI;
 import io.ballerina.plugins.idea.BallerinaIcons;
 import io.ballerina.plugins.idea.codeinsight.imports.BallerinaCodeInsightSettings;
 import io.ballerina.plugins.idea.psi.BallerinaFile;
@@ -244,7 +244,7 @@ public class BallerinaImportPackageQuickFix extends LocalQuickFixAndIntentionAct
             JBList<String> list = new JBList<>(packagesToImport);
             list.installCellRenderer(o -> {
                 JBLabel label = new JBLabel(o.toString(), BallerinaIcons.PACKAGE, SwingConstants.LEFT);
-                label.setBorder(JBUI.Borders.empty(2, 4));
+                label.setBorder(IdeBorderFactory.createEmptyBorder(2, 4, 2, 4));
                 return label;
             });
             PopupChooserBuilder popupChooserBuilder = JBPopupFactory.getInstance().createListPopupBuilder(list)

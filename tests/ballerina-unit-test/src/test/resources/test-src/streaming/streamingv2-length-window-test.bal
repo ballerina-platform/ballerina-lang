@@ -67,7 +67,7 @@ function startLengthWindowTest() returns (Teacher[]) {
 function testLengthWindow() {
 
     forever {
-        from inputStreamLengthWindowTest window lengthWindow([2])
+        from inputStreamLengthWindowTest window lengthWindow(2)
         select inputStreamLengthWindowTest.name, inputStreamLengthWindowTest.age, inputStreamLengthWindowTest.status, inputStreamLengthWindowTest
         .school, count() as count
         group by inputStreamLengthWindowTest.school

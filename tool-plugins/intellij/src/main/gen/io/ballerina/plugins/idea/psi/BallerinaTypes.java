@@ -482,6 +482,7 @@ public interface BallerinaTypes {
   IElementType PARAMETER_NAME = new BallerinaTokenType("PARAMETER_NAME");
   IElementType PIPE = new BallerinaTokenType("|");
   IElementType POW = new BallerinaTokenType("^");
+  IElementType PRIMARYKEY = new BallerinaTokenType("primarykey");
   IElementType PRIVATE = new BallerinaTokenType("private");
   IElementType PUBLIC = new BallerinaTokenType("public");
   IElementType QNAME_SEPARATOR = new BallerinaTokenType("QNAME_SEPARATOR");

@@ -47,7 +47,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -358,7 +357,7 @@ public class Generator {
 
     private static Field getVariableForType(String name, BType param) {
         BTypeSymbol type = param.tsymbol;
-        if (type != null && type.type != null) {
+        if (type != null) {
             return new Field(name, type.type.toString(), EMPTY_STRING, EMPTY_STRING, extractLink(type.type));
         } else {
             return new Field(name, param.toString(), EMPTY_STRING, EMPTY_STRING, extractLink(param));
@@ -380,13 +379,8 @@ public class Generator {
             Field variable = getVariableForType(param.name.toString(), param.type);
             parameters.add(variable);
         }
-        if (null != invokable.retType) {
-            returnParams.add(getVariableForType(EMPTY_STRING, invokable.retType));
-        } else if (invokable.type instanceof BInvokableType) {
-            BInvokableType invokableType = (BInvokableType) invokable.type;
-            returnParams.add(getVariableForType(EMPTY_STRING, invokableType.retType));
-        }
-    
+        returnParams.add(getVariableForType(EMPTY_STRING, invokable.retType));
+
         return new FunctionDoc(name, invokable.markdownDocumentation.description, new ArrayList<>(), parameters,
                 returnParams);
     }

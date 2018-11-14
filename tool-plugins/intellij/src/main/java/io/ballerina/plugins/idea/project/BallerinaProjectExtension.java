@@ -30,6 +30,7 @@ import com.intellij.openapi.roots.ModuleRootModificationUtil;
 import com.intellij.openapi.roots.ProjectExtension;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.AsyncResult;
+import io.ballerina.plugins.idea.BallerinaExternalAnnotator;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
@@ -64,9 +65,9 @@ public class BallerinaProjectExtension extends ProjectExtension {
                 WriteAction.run(() -> ModuleRootModificationUtil.setSdkInherited(module));
             }
         }
+        // Reset Ballerina external annotator.
+        BallerinaExternalAnnotator.reset();
 
-        // Need to prompt a restart action to clear and re initiate language server instance from the new SDK.
-        // Todo - Figure out a way to apply language server changes without restarting.
         ApplicationManager.getApplication().invokeLater(this::showRestartDialog);
     }
 

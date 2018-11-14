@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver.compiler.common;
 
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
-import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -116,15 +115,6 @@ public class LSDocument {
      */
     public void setSourceRoot(String sourceRoot) {
         this.sourceRoot = sourceRoot;
-    }
-
-    /**
-     * Returns True when this source file has a ballerina project repository folder.
-     *
-     * @return True if this file has project repo, False otherwise
-     */
-    public boolean hasProjectRepo() {
-        return RepoUtils.hasProjectRepo(Paths.get(sourceRoot));
     }
 
     @Override

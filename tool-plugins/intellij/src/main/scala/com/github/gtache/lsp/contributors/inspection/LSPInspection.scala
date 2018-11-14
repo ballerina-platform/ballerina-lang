@@ -8,7 +8,6 @@ import com.github.gtache.lsp.utils.FileUtils
 import com.intellij.codeInspection._
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
-import io.ballerina.plugins.idea.codeinsight.semanticanalyzer.BallerinaSemanticAnalyzerSettings
 import javax.swing.JComponent
 import org.eclipse.lsp4j.DiagnosticSeverity
 
@@ -18,9 +17,6 @@ import org.eclipse.lsp4j.DiagnosticSeverity
 class LSPInspection extends LocalInspectionTool {
 
   override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] = {
-    //Todo - Remove after fixing Diagnostics
-    if (!BallerinaSemanticAnalyzerSettings.getInstance.useSemanticAnalyzer) return null
-
     val virtualFile = file.getVirtualFile
     if (PluginMain.isExtensionSupported(virtualFile.getExtension)) {
       val uri = FileUtils.VFSToURI(virtualFile)

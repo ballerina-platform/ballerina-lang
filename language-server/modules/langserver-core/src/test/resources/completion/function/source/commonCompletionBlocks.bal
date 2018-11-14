@@ -9,7 +9,7 @@ endpoint h2:Client testDB {
     password: "root"
 };
 
-public function main(string... args) {
+function main(string... args) {
     int a = 10;
     int b = 20;
     int checkValue = 20;
@@ -28,7 +28,7 @@ public function main(string... args) {
     while(a > 5) {
         
         io:println(a);
-        a -= 1;
+        a--;
     }
 }
 

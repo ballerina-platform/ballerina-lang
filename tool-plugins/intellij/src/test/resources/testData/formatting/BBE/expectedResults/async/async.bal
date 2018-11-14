@@ -5,7 +5,7 @@ import ballerina/mime;
 
 int count;
 
-endpoint http:Client clientEndpoint {
+endpoint http:Client clientEndpoint { 
     url: "https://postman-echo.com" };
 
 public function main(string... args) {
@@ -76,6 +76,6 @@ function square_plus_cube(future<int> f) returns int {
 
 function countInfinity() {
     while (true) {
-        count += 1;
+        count++;
     }
 }

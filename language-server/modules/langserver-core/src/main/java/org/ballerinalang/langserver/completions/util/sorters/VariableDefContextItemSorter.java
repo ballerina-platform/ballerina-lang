@@ -59,7 +59,7 @@ public class VariableDefContextItemSorter extends CompletionItemSorter {
         }
     }
     
-    private void increasePriority(CompletionItem completionItem) {
+    public void increasePriority(CompletionItem completionItem) {
         int sortText = Integer.parseInt(completionItem.getSortText());
         completionItem.setSortText(Integer.toString(sortText - 1));
     }

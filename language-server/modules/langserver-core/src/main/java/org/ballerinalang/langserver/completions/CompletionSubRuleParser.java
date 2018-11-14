@@ -73,7 +73,10 @@ public class CompletionSubRuleParser {
     }
     
     public static void parse(LSContext context) {
-        List<String> poppedTokens = CommonUtil.popNFromList(CommonUtil.getPoppedTokenStrings(context), 4);
+        List<String> poppedTokens = CommonUtil.popNFromStack(context.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY), 4)
+                .stream()
+                .map(Token::getText)
+                .collect(Collectors.toList());
         
         // If the deleted tokens contains annotation start (@) symbol, ignore the parser rule context.
         // We can be sure that the writing start is for annotation attachment.
@@ -192,7 +195,11 @@ public class CompletionSubRuleParser {
     }
     
     private static String getCombinedTokenString(LSContext context) {
-        return String.join(" ", CommonUtil.getPoppedTokenStrings(context));
+        Stack<Token> tokens = context.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY);
+        StringBuilder tokenString = new StringBuilder();
+        tokens.forEach(token -> tokenString.append(token.getText()).append(" "));
+        
+        return tokenString.toString();
     }
     
     // Utility methods

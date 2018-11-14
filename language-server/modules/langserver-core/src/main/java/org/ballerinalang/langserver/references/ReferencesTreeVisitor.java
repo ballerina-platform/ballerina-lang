@@ -23,7 +23,6 @@ import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -84,7 +83,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -103,15 +101,11 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangPackage pkgNode) {
-        List<TopLevelNode> topLevelNodes = new ArrayList<>(pkgNode.topLevelNodes);
-        if (pkgNode.containsTestablePkg()) {
-            topLevelNodes.addAll(pkgNode.getTestablePkg().topLevelNodes);
-        }
-        if (topLevelNodes.isEmpty()) {
+        if (pkgNode.topLevelNodes.isEmpty()) {
             terminateVisitor = true;
             acceptNode(null);
         } else {
-            topLevelNodes.forEach(topLevelNode -> acceptNode((BLangNode) topLevelNode));
+            pkgNode.topLevelNodes.forEach(topLevelNode -> acceptNode((BLangNode) topLevelNode));
         }
     }
 

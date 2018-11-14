@@ -31,7 +31,6 @@ import org.testng.annotations.Test;
 public class AbstractObjectTest {
 
     CompileResult anonAbstractObjects = BCompileUtil.compile("test-src/object/abstract_anon_object.bal");
-    CompileResult abstractObjects = BCompileUtil.compile("test-src/object/abstract_object.bal");
 
     @Test
     public void testAbstractObjectNegative() {
@@ -86,11 +85,5 @@ public class AbstractObjectTest {
         BValue[] result = BRunUtil.invoke(anonAbstractObjects, "testAbstractAnonObjectInVarDef");
         Assert.assertEquals(result[0].stringValue(), "Person Name");
         Assert.assertEquals(result[1].stringValue(), "Employee Name");
-    }
-
-    @Test(description = "Test abstract object as an object field")
-    public void testAbstractObjectInObject() {
-        BValue[] result = BRunUtil.invoke(abstractObjects, "testAbstractObjectInObject");
-        Assert.assertEquals(result[0].stringValue(), "{city:\"Colombo\", address:{city:\"Colombo\"}}");
     }
 }

@@ -391,7 +391,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
             val doc = item.getDocumentation
             val filterText = item.getFilterText
             // Todo - Revert after fixing ballerina language server plain text snippet issues
-            val insertText = item.getInsertText.replaceAll("(\\$\\{\\d:)([a-zA-Z]*:*[a-zA-Z0-9]*)(\\})", "$2").replaceAll("(\\$\\{\\d\\})", "").replaceAll("\\r\\n","\n")
+            val insertText = item.getInsertText.replaceAll("[$][{][^}]*[}]","")
             val insertFormat = item.getInsertTextFormat
             val kind = item.getKind
             val label = item.getLabel
@@ -447,6 +447,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
                 })
               })
             }
+            if (kind == CompletionItemKind.Keyword) lookupElementBuilder = lookupElementBuilder.withBoldness(true)
             lookupElementBuilder.withPresentableText(presentableText).withTypeText(tailText, true).withIcon(icon).withAutoCompletionPolicy(AutoCompletionPolicy.SETTINGS_DEPENDENT)
           }
 

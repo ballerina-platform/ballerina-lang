@@ -19,8 +19,8 @@
 package org.ballerinalang.test.auth;
 
 import org.ballerinalang.test.context.Constant;
+import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
-import org.ballerinalang.test.util.HttpsClientRequest;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -40,8 +40,7 @@ public class AuthnConfigInheritanceAuthDisableTest extends AuthBaseTest {
     @Test(description = "non secured resource test case with no auth headers")
     public void testResourceLevelAuthDisableWithNoAuthHeaders()
             throws Exception {
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
-                serverInstance.getServerHome());
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort, "echo/test"));
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
     }
@@ -51,8 +50,8 @@ public class AuthnConfigInheritanceAuthDisableTest extends AuthBaseTest {
             throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic dGVzdDp0ZXN0MTIz");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
-                headersMap, serverInstance.getServerHome());
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort, "echo/test"),
+                headersMap);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
     }

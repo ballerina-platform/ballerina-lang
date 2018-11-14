@@ -16,6 +16,7 @@
 
 package io.ballerina.plugins.idea.codeinsight.semanticanalyzer;
 
+import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.FormBuilder;
@@ -51,7 +52,7 @@ public class BallerinaSemanticAnalyzerConfigurable implements SearchableConfigur
     @Override
     public JComponent createComponent() {
         FormBuilder builder = FormBuilder.createFormBuilder();
-        myCbUseSemanticAnalyzingSupport = new JCheckBox("Use language server semantic analyzing");
+        myCbUseSemanticAnalyzingSupport = new JCheckBox("Use semantic analyzing if available");
         builder.addComponent(myCbUseSemanticAnalyzingSupport);
 
         JPanel result = new JPanel(new BorderLayout());
@@ -68,7 +69,7 @@ public class BallerinaSemanticAnalyzerConfigurable implements SearchableConfigur
     }
 
     @Override
-    public void apply() {
+    public void apply() throws ConfigurationException {
         mySemanticAnalyzerSettings.setUseSemanticAnalyzer(myCbUseSemanticAnalyzingSupport.isSelected());
     }
 

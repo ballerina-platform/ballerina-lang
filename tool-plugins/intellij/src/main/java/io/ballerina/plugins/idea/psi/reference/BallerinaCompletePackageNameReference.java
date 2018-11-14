@@ -16,7 +16,9 @@
 
 package io.ballerina.plugins.idea.psi.reference;
 
+import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.openapi.util.TextRange;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -24,10 +26,17 @@ import com.intellij.psi.PsiFileSystemItem;
 import com.intellij.psi.ResolveResult;
 import com.intellij.psi.impl.source.resolve.reference.impl.providers.FileReference;
 import com.intellij.psi.impl.source.resolve.reference.impl.providers.FileReferenceSet;
+import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.util.ArrayUtil;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.containers.ContainerUtil;
+import io.ballerina.plugins.idea.completion.BallerinaCompletionUtils;
+import io.ballerina.plugins.idea.psi.BallerinaImportDeclaration;
+import io.ballerina.plugins.idea.sdk.BallerinaPathModificationTracker;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -36,7 +45,7 @@ import java.util.Set;
 public class BallerinaCompletePackageNameReference extends FileReference {
 
     public BallerinaCompletePackageNameReference(@NotNull FileReferenceSet fileReferenceSet, TextRange range, int index,
-            String text) {
+                                                 String text) {
         super(fileReferenceSet, range, index, text);
     }
 
@@ -52,7 +61,7 @@ public class BallerinaCompletePackageNameReference extends FileReference {
                 PsiElement element = resolveResult.getElement();
                 if (element instanceof PsiDirectory) {
                     if (isLast()) {
-                        return new ResolveResult[] { resolveResult };
+                        return new ResolveResult[]{resolveResult};
                     }
                     result.add(resolveResult);
                 }
@@ -92,6 +101,21 @@ public class BallerinaCompletePackageNameReference extends FileReference {
     @NotNull
     @Override
     public Object[] getVariants() {
-        return new Object[0];
+        BallerinaImportDeclaration importDeclaration = PsiTreeUtil.getParentOfType(getElement(),
+                BallerinaImportDeclaration.class);
+        if (importDeclaration != null) {
+            if (importDeclaration.getOrgName() == null && importDeclaration.getCompletePackageName() != null) {
+                List<LookupElement> organizationList = new LinkedList<>();
+                organizationList.add(BallerinaCompletionUtils.createOrganizationLookup("ballerina"));
+                List<VirtualFile> organizations = BallerinaPathModificationTracker.getAllOrganizationsInUserRepo();
+                for (VirtualFile organization : organizations) {
+                    organizationList.add(BallerinaCompletionUtils.createOrganizationLookup(organization.getName()));
+                }
+                // super.getVariants will return the packages in the current project.
+                return ArrayUtil.mergeArrays(super.getVariants(), organizationList.toArray(new LookupElement[0]));
+            }
+        }
+        // If we return an empty array, package completion in the same project will not be available.
+        return super.getVariants();
     }
 }

@@ -31,8 +31,7 @@ public class ServiceDefinition extends CompletionTest {
             {"serviceEndpointBind1.json", "service"},
             {"serviceEndpointBind2.json", "service"},
             {"serviceEndpointBind3.json", "service"},
-            {"bindKeywordSuggestion.json", "service"},
-            {"serviceBodyCompletion.json", "service"},
+            {"bindKeywordSuggestion.json", "service"}
         };
     }
 }

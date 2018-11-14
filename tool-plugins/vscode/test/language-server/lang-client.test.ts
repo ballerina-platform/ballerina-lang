@@ -25,6 +25,7 @@ import { getServerOptions } from "../../src/server/server";
 import { getBallerinaHome, getBBEPath } from "../test-util";
 import { Uri } from "vscode";
 
+
 suite("Language Server Tests", function () {
     this.timeout(10000);
     let langClient: ExtendedLangClient;
@@ -54,23 +55,10 @@ suite("Language Server Tests", function () {
 
     test("Test getAST", function (done): void {
         langClient.onReady().then(() => {
-            const filePath = path.join(getBBEPath(), 'hello-world', 'hello_world.bal');
+            const filePath = path.join(getBBEPath(),'hello-world','hello_world.bal');
             let uri = Uri.file(filePath.toString());
             langClient.getAST(uri).then((response) => {
-                expect(response).to.contain.keys('ast', 'parseSuccess');
-                done();
-            }, (reason) => {
-                done(reason);
-            });
-        });
-    });
-
-    test("Fragment Pass", function (done): void {
-        langClient.onReady().then(() => {
-            langClient.parseFragment({
-                expectedNodeType: "top-level-node",
-                source: "function sample(){}"
-            }).then((response) => {
+                expect(response).to.contain.keys('ast','parseSuccess');
                 done();
             }, (reason) => {
                 done(reason);
