@@ -3,6 +3,7 @@ import React from "react";
 import { visitor as sizingVisitor } from "../sizing/sizing-visitor";
 import * as components from "../views";
 import { DiagramContext, DiagramMode, IDiagramContext } from "./diagram-context";
+import { DiagramErrorBoundary } from "./diagram-error-boundary";
 import { EditToggleButton } from "./edit-toggle-button";
 import { ModeToggleButton } from "./mode-toggle-button";
 
@@ -45,12 +46,14 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
         }
 
         return <DiagramContext.Provider value={this.createContext()}>
-            <div>{"Current Diagram Mode: " + DiagramMode[currentMode] }</div>
-            <div>{"Editing Enabled: " + this.context.editingEnabled }</div>
-            <EditToggleButton />
-            <ModeToggleButton />
-            {/* <div>{JSON.stringify(ast)}</div> */}
-            { children }
+            <DiagramErrorBoundary>
+                <div>{"Current Diagram Mode: " + DiagramMode[currentMode] }</div>
+                <div>{"Editing Enabled: " + this.context.editingEnabled }</div>
+                <EditToggleButton />
+                <ModeToggleButton />
+                {/* <div>{JSON.stringify(ast)}</div> */}
+                { children }
+            </DiagramErrorBoundary>
         </DiagramContext.Provider>;
     }
 
