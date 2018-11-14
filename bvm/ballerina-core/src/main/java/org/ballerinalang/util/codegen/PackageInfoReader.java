@@ -610,8 +610,8 @@ public class PackageInfoReader {
     private void readConstantInfoEntries(PackageInfo packageInfo) throws IOException {
         int constCount = dataInStream.readShort();
         for (int i = 0; i < constCount; i++) {
-            ConstantInfo constantInfo = getConstantInfo(packageInfo, packageInfo);
-            packageInfo.addConstantInfo(constantInfo.getName(), constantInfo);
+            // Read constant info and ignore.
+            readConstantInfo(packageInfo, packageInfo);
         }
     }
 
@@ -623,33 +623,24 @@ public class PackageInfoReader {
         }
     }
 
-    private ConstantInfo getConstantInfo(PackageInfo packageInfo, ConstantPool constantPool) throws IOException {
-        // Read constant name.
-        int nameCPIndex = dataInStream.readInt();
-        UTF8CPEntry nameUTF8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(nameCPIndex);
+    private void readConstantInfo(PackageInfo packageInfo, ConstantPool constantPool) throws IOException {
+        // Read constant name cp index and ignore.
+        dataInStream.readInt();
 
-        // Read finite type.
-        int finiteTypeSigCPIndex = dataInStream.readInt();
-        UTF8CPEntry finiteTypeSigUTF8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(finiteTypeSigCPIndex);
+        // Read finite type cp index and ignore.
+        dataInStream.readInt();
 
-        // Read value type.
-        int valueTypeSigCPIndex = dataInStream.readInt();
-        UTF8CPEntry valueTypeSigUTF8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(valueTypeSigCPIndex);
+        // Read value type cp index and ignore.
+        dataInStream.readInt();
 
         // Read and ignore flags.
         dataInStream.readInt();
 
-        // Get the actual type.
-        BType finiteType = getBTypeFromDescriptor(packageInfo, finiteTypeSigUTF8CPEntry.getValue());
-        BType valueType = getBTypeFromDescriptor(packageInfo, valueTypeSigUTF8CPEntry.getValue());
-
-        // Create a new constant info.
-        ConstantInfo constantInfo = new ConstantInfo(nameCPIndex, nameUTF8CPEntry.getValue(), finiteTypeSigCPIndex,
-                finiteType, valueTypeSigCPIndex, valueType);
-
-        // Read attributes.
-        readAttributeInfoEntries(packageInfo, constantPool, constantInfo);
-        return constantInfo;
+        // Read and ignore attributes.
+        int attributesCount = dataInStream.readShort();
+        for (int k = 0; k < attributesCount; k++) {
+            getAttributeInfo(packageInfo, constantPool);
+        }
     }
 
     private PackageVarInfo getGlobalVarInfo(PackageInfo packageInfo, ConstantPool constantPool) throws IOException {

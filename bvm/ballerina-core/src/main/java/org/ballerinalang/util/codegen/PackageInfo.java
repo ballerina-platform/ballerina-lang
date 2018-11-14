@@ -57,8 +57,6 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     private Instruction[] instructions;
     private List<Instruction> instructionList = new ArrayList<>();
 
-    private Map<String, ConstantInfo> constantInfoMap = new LinkedHashMap<>();
-
     private Map<String, PackageVarInfo> globalVarInfoMap = new LinkedHashMap<>();
 
     private Map<String, FunctionInfo> functionInfoMap = new LinkedHashMap<>();
@@ -109,18 +107,6 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     public ConstantPoolEntry[] getConstPoolEntries() {
         return constPool;
-    }
-
-    public ConstantInfo getConstantInfo(String constantName) {
-        return constantInfoMap.get(constantName);
-    }
-
-    public void addConstantInfo(String constantName, ConstantInfo constantInfo) {
-        constantInfoMap.put(constantName, constantInfo);
-    }
-
-    public ConstantInfo[] getConstantInfoEntries() {
-        return constantInfoMap.values().toArray(new ConstantInfo[0]);
     }
 
     public PackageVarInfo getPackageVarInfo(String globalVarName) {
