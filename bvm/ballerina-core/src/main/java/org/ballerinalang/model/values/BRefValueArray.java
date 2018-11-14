@@ -106,12 +106,12 @@ public class BRefValueArray extends BNewArray implements Serializable {
         }
 
         BRefType<?>[] values = new BRefType[size];
-        int bound = this.size;
-        IntStream.range(0, bound)
-                .forEach(i -> values[i] = this.values[i] == null ? null : (BRefType<?>) this.values[i].copy(refs));
         BRefValueArray refValueArray = new BRefValueArray(values, arrayType);
         refValueArray.size = this.size;
         refs.put(this, refValueArray);
+        int bound = this.size;
+        IntStream.range(0, bound)
+                .forEach(i -> values[i] = this.values[i] == null ? null : (BRefType<?>) this.values[i].copy(refs));
         return refValueArray;
     }
 
