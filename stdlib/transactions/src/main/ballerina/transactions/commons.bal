@@ -142,15 +142,19 @@ function respondToBadRequest(http:Listener conn, string msg) {
     endpoint http:Listener ep = conn;
     log:printError(msg);
     http:Response res = new;  res.statusCode = http:BAD_REQUEST_400;
-    RequestError err = {errorMessage:msg};
-    json resPayload = check <json>err;
-    res.setJsonPayload(untaint resPayload);
-    var resResult = ep->respond(res);
-    match resResult {
-        error respondErr => {
-            log:printError("Could not send Bad Request error response to caller", err = respondErr);
+    RequestError requestError = {errorMessage:msg};
+    match (<json>requestError) {
+        error err => panic err;
+        json resPayload => {
+            res.setJsonPayload(untaint resPayload);
+            var resResult = ep->respond(res);
+            match resResult {
+                error respondErr => {
+                    log:printError("Could not send Bad Request error response to caller", err = respondErr);
+                }
+                () => return;
+            }
         }
-        () => return;
     }
 }
 
@@ -262,13 +266,17 @@ function removeInitiatedTransaction(string transactionId) {
 
 function getInitiatorClient(string registerAtURL) returns InitiatorClientEP {
     if (httpClientCache.hasKey(registerAtURL)) {
-        InitiatorClientEP initiatorEP = check <InitiatorClientEP>httpClientCache.get(registerAtURL);
-        return initiatorEP;
+        match (<InitiatorClientEP>httpClientCache.get(registerAtURL)) {
+            error err => panic err;
+            InitiatorClientEP initiatorEP => return initiatorEP;
+        }
     } else {
         lock {
             if (httpClientCache.hasKey(registerAtURL)) {
-                InitiatorClientEP initiatorEP = check <InitiatorClientEP>httpClientCache.get(registerAtURL);
-                return initiatorEP;
+                match (<InitiatorClientEP>httpClientCache.get(registerAtURL)) {
+                    error err => panic err;
+                    InitiatorClientEP initiatorEP => return initiatorEP;
+                }
             }
             InitiatorClientEP initiatorEP = new;
             InitiatorClientConfig config = { registerAtURL: registerAtURL,
@@ -283,14 +291,17 @@ function getInitiatorClient(string registerAtURL) returns InitiatorClientEP {
 
 function getParticipant2pcClient(string participantURL) returns Participant2pcClientEP {
     if (httpClientCache.hasKey(participantURL)) {
-        Participant2pcClientEP participantEP = check <Participant2pcClientEP>httpClientCache.get(participantURL);
-        return participantEP;
+        match (<Participant2pcClientEP>httpClientCache.get(participantURL)) {
+            error err => panic err;
+            Participant2pcClientEP participantEP => return participantEP;
+        }
     } else {
         lock {
             if (httpClientCache.hasKey(participantURL)) {
-                Participant2pcClientEP participantEP = check <
-                Participant2pcClientEP>httpClientCache.get(participantURL);
-                return participantEP;
+                match (<Participant2pcClientEP>httpClientCache.get(participantURL)) {
+                    error err => panic err;
+                    Participant2pcClientEP participantEP => return participantEP;
+                }
             }
             Participant2pcClientEP participantEP = new;
             Participant2pcClientConfig config = { participantURL: participantURL,

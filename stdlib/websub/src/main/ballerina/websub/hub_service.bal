@@ -548,7 +548,9 @@ function fetchTopicUpdate(string topic) returns http:Response|error {
 # + callback - The callback URL registered for the subscriber
 # + subscriptionDetails - The subscription details for the particular subscriber
 # + webSubContent - The content to be sent to subscribers
-function distributeContent(string callback, SubscriptionDetails subscriptionDetails, WebSubContent webSubContent) {
+# + return - Nil if successful, error in case of invalid content-type
+function distributeContent(string callback, SubscriptionDetails subscriptionDetails, WebSubContent webSubContent)
+returns error? {
     endpoint http:Client callbackEp {
         url:callback,
         secureSocket: hubClientSecureSocket
@@ -556,7 +558,7 @@ function distributeContent(string callback, SubscriptionDetails subscriptionDeta
 
     http:Request request = new;
     request.setPayload(webSubContent.payload);
-    request.setContentType(webSubContent.contentType);
+    check request.setContentType(webSubContent.contentType);
 
     int currentTime = time:currentTime().time;
     int createdAt = subscriptionDetails.createdAt;
@@ -608,6 +610,7 @@ function distributeContent(string callback, SubscriptionDetails subscriptionDeta
                             + subscriptionDetails.topic + "]: " + errCause);
         }
     }
+    return;
 }
 
 // TODO: validate if no longer necessary
