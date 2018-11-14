@@ -132,6 +132,7 @@ public enum NodeKind {
     LOCK,
     WORKER_RECEIVE,
     WORKER_SEND,
+    WORKER_SYNC_SEND,
     WORKER_FLUSH,
     STREAM,
     SCOPE,

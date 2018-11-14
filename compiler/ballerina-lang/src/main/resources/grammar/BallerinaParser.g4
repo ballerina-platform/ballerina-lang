@@ -737,7 +737,7 @@ expression
     |   expression OR expression                                            # binaryOrExpression
     |   expression (ELLIPSIS | HALF_OPEN_RANGE) expression                  # integerRangeExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
-    |   expression SYNCRARROW Identifier (COMMA expression)?                # workerSendSyncExpression
+    |   expression SYNCRARROW Identifier                                    # workerSendSyncExpression
     |   WAIT (waitForCollection | expression)                               # waitExpression
     |   trapExpr                                                            # trapExpression
     |	expression matchExpression										    # matchExprExpression
