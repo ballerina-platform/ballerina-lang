@@ -2586,18 +2586,12 @@ public class BLangPackageBuilder {
         addExpressionNode(workerFlushExpr);
     }
 
-    void addWorkerSendSyncExpr(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean hasKey) {
+    void addWorkerSendSyncExpr(DiagnosticPos pos, Set<Whitespace> ws, String workerName) {
         BLangWorkerSyncSendExpr workerSendExpr = TreeBuilder.createWorkerSendSyncExprNode();
         workerSendExpr.setWorkerName(this.createIdentifier(workerName));
         workerSendExpr.expr = (BLangExpression) exprNodeStack.pop();
         workerSendExpr.pos = pos;
         workerSendExpr.addWS(ws);
-        //added to use for channels as well
-        if (hasKey) {
-            workerSendExpr.keyExpr = workerSendExpr.expr;
-            workerSendExpr.expr = (BLangExpression) exprNodeStack.pop();
-            workerSendExpr.isChannel = true;
-        }
         addExpressionNode(workerSendExpr);
     }
 

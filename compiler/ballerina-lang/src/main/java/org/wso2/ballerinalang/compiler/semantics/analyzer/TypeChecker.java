@@ -115,6 +115,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
@@ -526,6 +527,24 @@ public class TypeChecker extends BLangNodeVisitor {
         BType actualType = new BUnionType(null, new HashSet<BType>() {
             { add(symTable.nilType); add(symTable.errorType); }}, false);
         resultType = types.checkType(workerFlushExpr, actualType, expType);
+    }
+
+    @Override
+    public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
+        syncSendExpr.env = this.env;
+        if (!this.isInTopLevelWorkerEnv()) {
+            this.dlog.error(syncSendExpr.pos, DiagnosticCode.INVALID_WORKER_SEND_POSITION);
+        }
+
+        String workerName = syncSendExpr.workerIdentifier.getValue();
+        if (!this.workerExists(this.env, workerName)) {
+            this.dlog.error(syncSendExpr.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
+        }
+
+        // Return a subtype of error?
+        BType actualType = new BUnionType(null, new HashSet<BType>() {
+            { add(symTable.errorType); add(symTable.nilType); }}, false);
+        resultType = types.checkType(syncSendExpr, actualType, expType);
     }
 
     @Override

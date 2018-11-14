@@ -264,7 +264,8 @@ public interface InstructionCodes {
     int BNEWARRAY = 204;
     int RNEWARRAY = 205;
 
-    int FLUSH = 206;
+    int WORKERSYNCSEND = 206;
+    int FLUSH = 207;
     int LENGTHOF = 208;
     int WAITALL = 209;
 

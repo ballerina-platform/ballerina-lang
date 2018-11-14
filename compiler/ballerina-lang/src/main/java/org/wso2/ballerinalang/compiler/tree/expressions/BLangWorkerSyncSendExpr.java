@@ -34,13 +34,11 @@ public class BLangWorkerSyncSendExpr extends BLangExpression implements WorkerSe
 
     public BLangIdentifier workerIdentifier;
     public BLangExpression expr;
-    public BLangExpression keyExpr;
     public SymbolEnv env;
-    public boolean isChannel = false;
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.WORKER_RECEIVE;
+        return NodeKind.WORKER_SYNC_SEND;
     }
 
     @Override
@@ -54,11 +52,6 @@ public class BLangWorkerSyncSendExpr extends BLangExpression implements WorkerSe
     }
 
     @Override
-    public ExpressionNode getKeyExpression() {
-        return keyExpr;
-    }
-
-    @Override
     public IdentifierNode getWorkerName() {
         return workerIdentifier;
     }
@@ -69,9 +62,6 @@ public class BLangWorkerSyncSendExpr extends BLangExpression implements WorkerSe
     }
 
     public String toActionString() {
-        if (keyExpr != null) {
-            return this.expr + " ->> " + this.workerIdentifier + "," + this.keyExpr;
-        }
         return this.expr + " ->> " + this.workerIdentifier;
     }
 

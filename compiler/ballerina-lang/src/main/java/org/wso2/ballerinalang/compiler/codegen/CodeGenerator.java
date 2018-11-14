@@ -122,6 +122,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
@@ -2779,6 +2780,33 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.emit(InstructionCodes.WRKSEND, wrkSendArgRegs);
     }
 
+    public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
+        WorkerDataChannelInfo workerDataChannelInfo = this.getWorkerDataChannelInfo(this.currentCallableUnitInfo,
+                    this.currentWorkerInfo.getWorkerName(), syncSendExpr.workerIdentifier.value);
+        WorkerDataChannelRefCPEntry wrkrInvRefCPEntry = new WorkerDataChannelRefCPEntry(workerDataChannelInfo
+                    .getUniqueNameCPIndex(), workerDataChannelInfo.getUniqueName());
+        wrkrInvRefCPEntry.setWorkerDataChannelInfo(workerDataChannelInfo);
+        Operand wrkrInvRefCPIndex = getOperand(currentPkgInfo.addCPEntry(wrkrInvRefCPEntry));
+        workerDataChannelInfo.setDataChannelRefIndex(wrkrInvRefCPIndex.value);
+
+        // send expression
+        genNode(syncSendExpr.expr, this.env);
+        RegIndex exprRegIndex = syncSendExpr.expr.regIndex;
+        BType exprType = syncSendExpr.expr.type;
+        UTF8CPEntry sigCPEntry = new UTF8CPEntry(this.generateSig(new BType[]{exprType}));
+        Operand sigCPIndex = getOperand(this.currentPkgInfo.addCPEntry(sigCPEntry));
+        // Reg index of send expression
+        RegIndex regIndex = calcAndGetExprRegIndex(syncSendExpr);
+
+        // WRKSEND wrkrInvRefCPIndex typesCPIndex exprRegIndex regIndex
+        Operand[] wrkSendArgRegs = new Operand[4];
+        wrkSendArgRegs[0] = wrkrInvRefCPIndex;
+        wrkSendArgRegs[1] = sigCPIndex;
+        wrkSendArgRegs[2] = exprRegIndex;
+        wrkSendArgRegs[3] = regIndex;
+        this.emit(InstructionCodes.WORKERSYNCSEND, wrkSendArgRegs);
+    }
+
     public void visit(BLangWorkerReceive workerReceiveStmt) {
         if (workerReceiveStmt.isChannel) {
             visitChannelReceive(workerReceiveStmt);
@@ -2791,9 +2819,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         wrkrChnlRefCPEntry.setWorkerDataChannelInfo(workerDataChannelInfo);
         Operand wrkrRplyRefCPIndex = getOperand(currentPkgInfo.addCPEntry(wrkrChnlRefCPEntry));
         workerDataChannelInfo.setDataChannelRefIndex(wrkrRplyRefCPIndex.value);
-        BType bType = workerReceiveStmt.type;
-        RegIndex regIndex = calcAndGetExprRegIndex(workerReceiveStmt);
 
+        RegIndex regIndex = calcAndGetExprRegIndex(workerReceiveStmt);
+        BType bType = workerReceiveStmt.type;
         UTF8CPEntry sigCPEntry = new UTF8CPEntry(this.generateSig(new BType[]{bType}));
         Operand sigCPIndex = getOperand(currentPkgInfo.addCPEntry(sigCPEntry));
 

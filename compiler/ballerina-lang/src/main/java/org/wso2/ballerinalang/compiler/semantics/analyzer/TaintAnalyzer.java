@@ -111,6 +111,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
@@ -868,6 +869,21 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             // was identified to return a `Tainted` value to be `Untainted` later on. (Example: Conditional worker
             // interactions)
             workerInteractionTaintedStatusMap.put(workerSendNode.workerIdentifier, TaintedStatus.TAINTED);
+        }
+    }
+
+    @Override
+    public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
+        syncSendExpr.expr.accept(this);
+        TaintedStatus taintedStatus = workerInteractionTaintedStatusMap.get(syncSendExpr.workerIdentifier);
+        if (taintedStatus == null) {
+            workerInteractionTaintedStatusMap.put(syncSendExpr.workerIdentifier, this.taintedStatus);
+        } else if (this.taintedStatus == TaintedStatus.TAINTED) {
+            // Worker interactions should be non-overriding. Hence changing the status only if the expression used in
+            // sending is evaluated to be a tainted value. By doing so, analyzer will not change an interaction that
+            // was identified to return a `Tainted` value to be `Untainted` later on. (Example: Conditional worker
+            // interactions)
+            workerInteractionTaintedStatusMap.put(syncSendExpr.workerIdentifier, TaintedStatus.TAINTED);
         }
     }
 
