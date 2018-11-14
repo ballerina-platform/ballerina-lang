@@ -22,24 +22,54 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
             return;
         }
     }
-    json jsonResponse = null;
     string statusCode = <string> httpResponse.statusCode;
     if (statusCode.hasPrefix("5")) {
         io:println("remote registry failed for url : " + url + "/" + querySearched);
     } else if (statusCode != "200") {
-        jsonResponse = check (httpResponse.getJsonPayload());
-        string message = jsonResponse.msg.toString();
-        io:println(message);
+        match (httpResponse.getJsonPayload()) {
+            error err => {
+                io:println("invalid response json");
+            }
+            json resp => {
+                string message = resp.msg.toString();
+                io:println(message);
+            }
+        }
     } else {
-        jsonResponse = check (httpResponse.getJsonPayload());
-        json[] artifacts = check <json[]> jsonResponse.artifacts;
+        json jsonResponse;
+        match (httpResponse.getJsonPayload()) {
+            error err => {
+                io:println("invalid response json");
+                return;
+            }
+            json resp => {
+                jsonResponse = resp;
+            }
+        }
+        json[] artifacts;
+        match (<json[]> jsonResponse.artifacts) {
+            error err => {
+                io:println("invalid response json");
+                return;
+            }
+            json[] arr => {
+                artifacts = arr;
+            }
+        }
         if (artifacts.length() > 0) {
             int artifactsLength = artifacts.length();
             printTitle("Ballerina Central");
             
             int rightMargin = 3;
-            int width = (check <int> terminalWidth) - rightMargin;
-        
+            int width;
+            match (<int> terminalWidth) {
+                error err => {
+                    io:println("invalid terminal width : " + terminalWidth);
+                    return;
+                }
+                int intTerminalWidth => width = intTerminalWidth - rightMargin;
+            }
+
             int dateColWidth = 15;
             int versionColWidth = 8;
             int authorsColWidth = 15;
@@ -127,7 +157,7 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
 # + username - Username of the proxy
 # + password - Password of the proxy
 # + return - Endpoint defined
-function defineEndpointWithProxy (string url, string hostname, string port, string username, string password) returns http:Client{
+function defineEndpointWithProxy (string url, string hostname, int port, string username, string password) returns http:Client{
     endpoint http:Client httpEndpoint {
         url: url,
         secureSocket:{
@@ -209,10 +239,14 @@ function printTitle(string title) {
 # + return - Date and time the module was created
 function getDateCreated(json jsonObj) returns string {
     string jsonTime = jsonObj.time.toString();
-    int timeInMillis = check <int> jsonTime;
-    time:Time timeStruct = new(timeInMillis, { zoneId: "UTC", zoneOffset: 0 });
-    string customTimeString = timeStruct.format("yyyy-MM-dd-E");
-    return customTimeString;
+    match (<int> jsonTime) {
+        error err => panic err;
+        int timeInMillis => {
+            time:Time timeStruct = new(timeInMillis, { zoneId: "UTC", zoneOffset: 0 });
+            string customTimeString = timeStruct.format("yyyy-MM-dd-E");
+            return customTimeString;
+        }
+    }
 }
 
 # This function invokes the method to search for modules.
@@ -220,8 +254,15 @@ function getDateCreated(json jsonObj) returns string {
 public function main (string... args) {
     http:Client httpEndpoint;
     string host = args[2];
-    string port = args[3];
-    if (host != "" && port != "") {
+    string strPort = args[3];
+    if (host != "" && strPort != "") {
+        int port;
+        match (<int> strPort) {
+            error err => {
+                io:println("invalid port : " + port);
+            }
+            int intPort => port = intPort;
+        }
         http:Client|error result = trap defineEndpointWithProxy(args[0], host, port, args[4], args[5]);
         match result {
             http:Client ep => {
@@ -232,7 +273,7 @@ public function main (string... args) {
                 return;
             }
         }
-    } else  if (host != "" || port != "") {
+    } else  if (host != "" || strPort != "") {
         io:println("both host and port should be provided to enable proxy");     
         return;   
     } else {
@@ -248,8 +289,7 @@ public function main (string... args) {
 # + username - Username of the proxy
 # + password - Password of the proxy
 # + return - Proxy configurations for the endpoint
-function getProxyConfigurations(string hostName, string port, string username, string password) returns http:ProxyConfig {
-    int portInt = check <int> port;
-    http:ProxyConfig proxy = { host : hostName, port : portInt , userName: username, password : password };
+function getProxyConfigurations(string hostName, int port, string username, string password) returns http:ProxyConfig {
+    http:ProxyConfig proxy = { host : hostName, port : port , userName: username, password : password };
     return proxy;
 }

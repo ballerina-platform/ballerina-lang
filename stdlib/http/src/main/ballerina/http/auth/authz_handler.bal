@@ -125,11 +125,17 @@ function checkForScopeMatch (string[] resourceScopes, string[] userScopes, strin
 function HttpAuthzHandler.authorizeFromCache(string authzCacheKey) returns (boolean|()) {
     var positiveCache = trap self.positiveAuthzCache;
     if (positiveCache is cache:Cache) {
-        return check <boolean> positiveCache.get(authzCacheKey);
+        match (<boolean> positiveCache.get(authzCacheKey)) {
+            error e => return false;
+            boolean status => return status;
+        }
     }
     var negativeCache =  trap self.negativeAuthzCache;
     if (negativeCache is cache:Cache) {
-        return check <boolean> negativeCache.get(authzCacheKey);
+        match (<boolean> negativeCache.get(authzCacheKey)) {
+            error e => return false;
+            boolean status => return status;
+        }
     }
     return ();
 }

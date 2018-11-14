@@ -287,7 +287,7 @@ function performLoadBalanceAction(LoadBalancerActions lb, string path, Request r
 
     if (lb.failover) {
         if (isMultipartRequest(loadBlancerInRequest)) {
-            loadBlancerInRequest = populateMultipartRequest(loadBlancerInRequest);
+            loadBlancerInRequest = check populateMultipartRequest(loadBlancerInRequest);
         } else {
             // When performing passthrough scenarios using Load Balance connector,
             // message needs to be built before trying out the load balance endpoints to keep the request message
@@ -305,7 +305,7 @@ function performLoadBalanceAction(LoadBalancerActions lb, string path, Request r
             return serviceResponse;
         } else if (serviceResponse is error) {
             if (lb.failover) {
-                loadBlancerInRequest = createFailoverRequest(loadBlancerInRequest, requestEntity);
+                loadBlancerInRequest = check createFailoverRequest(loadBlancerInRequest, requestEntity);
                 loadBalanceActionErrorData.httpActionErr[lb.nextIndex] = serviceResponse;
                 loadBalanceTermination = loadBalanceTermination + 1;
             } else {

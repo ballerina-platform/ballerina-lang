@@ -39,7 +39,10 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string md
     mime:Entity filePart = new;
     filePart.setContentDisposition(getContentDispositionForFormData("artifact"));
     filePart.setFileAsEntityBody(untaint dirPath);
-    filePart.setContentType(mime:APPLICATION_OCTET_STREAM);
+    match (filePart.setContentType(mime:APPLICATION_OCTET_STREAM)) {
+        error err => panic err;
+        () => {}
+    }
 
     mime:Entity[] bodyParts = [filePart, mdFileContentBodyPart, summaryBodyPart, homePageURLBodyPart, repositoryURLBodyPart,
                                apiDocURLBodyPart, authorsBodyPart, keywordsBodyPart, licenseBodyPart, ballerinaVersionBodyPart, 
@@ -61,9 +64,15 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string md
     if (statusCode.hasPrefix("5")) {
         io:println("remote registry failed for url :" + url);
     } else if (statusCode != "200") {
-        json jsonResponse = check (httpResponse.getJsonPayload());
-        string message = jsonResponse.message.toString();
-        io:println(message);
+        match (httpResponse.getJsonPayload()) {
+            error err => {
+                io:println("invalid response json");
+            }
+            json jsonResponse => {
+                string message = jsonResponse.message.toString();
+                io:println(message);
+            }
+        }
     } else {
         io:println(msg);
     }
@@ -74,8 +83,15 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string md
 public function main (string... args) {
     http:Client httpEndpoint;
     string host = args[13];
-    string port = args[14];
-    if (host != "" && port != "") {
+    string strPort = args[14];
+    if (host != "" && strPort != "") {
+        int port;
+        match (<int> strPort) {
+            error err => {
+                io:println("invalid port : " + port);
+            }
+            int intPort => port = intPort;
+        }
         http:Client|error result = trap defineEndpointWithProxy(args[9], host, port, args[15], args[16]);
         match result {
             http:Client ep => {
@@ -86,7 +102,7 @@ public function main (string... args) {
                 return;
             }
         }
-    } else  if (host != "" || port != "") {
+    } else  if (host != "" || strPort != "") {
         io:println("both host and port should be provided to enable proxy");     
         return;   
     } else {
@@ -103,7 +119,7 @@ public function main (string... args) {
 # + username - Username of the proxy
 # + password - Password of the proxy
 # + return - Endpoint defined
-function defineEndpointWithProxy (string url, string hostname, string port, string username, string password) returns http:Client{
+function defineEndpointWithProxy (string url, string hostname, int port, string username, string password) returns http:Client{
     endpoint http:Client httpEndpoint {
         url: url,
         secureSocket:{
@@ -158,7 +174,10 @@ function addStringBodyParts (string key, string value) returns (mime:Entity) {
     mime:Entity stringBodyPart = new;
     stringBodyPart.setContentDisposition(getContentDispositionForFormData(key));
     stringBodyPart.setText(untaint value);
-    stringBodyPart.setContentType(mime:TEXT_PLAIN);
+    match (stringBodyPart.setContentType(mime:TEXT_PLAIN)) {
+        error err => panic err;
+        () => {}
+    }
     return stringBodyPart;
 }
 
@@ -169,8 +188,7 @@ function addStringBodyParts (string key, string value) returns (mime:Entity) {
 # + username - Username of the proxy
 # + password - Password of the proxy
 # + return - Proxy configurations for the endpoint
-function getProxyConfigurations(string hostName, string port, string username, string password) returns http:ProxyConfig {
-    int portInt = check <int> port;
-    http:ProxyConfig proxy = { host : hostName, port : portInt , userName: username, password : password };
+function getProxyConfigurations(string hostName, int port, string username, string password) returns http:ProxyConfig {
+    http:ProxyConfig proxy = { host : hostName, port : port , userName: username, password : password };
     return proxy;
 }
