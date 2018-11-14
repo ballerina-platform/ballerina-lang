@@ -188,6 +188,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -3149,11 +3150,12 @@ public class Desugar extends BLangNodeVisitor {
     private BLangExpression createPatternMatchBinaryExpr(BLangMatchStmtBindingPatternClause patternClause,
                                                          BVarSymbol varSymbol, BType patternType) {
         DiagnosticPos pos = patternClause.pos;
+
+        BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, varSymbol);
+
         if (NodeKind.MATCH_STATIC_PATTERN_CLAUSE == patternClause.getKind()) {
 
             BLangMatchStmtStaticBindingPatternClause pattern = (BLangMatchStmtStaticBindingPatternClause) patternClause;
-
-            BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, varSymbol);
 
             BLangExpression conversionExpr = addConversionExprIfRequired(varRef, pattern.literal.type);
 
@@ -3175,11 +3177,11 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (NodeKind.MATCH_STRUCTURED_PATTERN_CLAUSE == patternClause.getKind()) {
-            return createIsAssignableExpression(pos, varSymbol, patternType);
+            BLangType typeNode = ASTBuilderUtil.createTypeNode(patternType);
+            return ASTBuilderUtil.createTypeTestExpr(pos, varRef, typeNode, symTable.booleanType);
         }
 
         if (patternType == symTable.nilType) {
-            BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, varSymbol);
             BLangLiteral bLangLiteral = ASTBuilderUtil.createLiteral(pos, symTable.nilType, null);
             return ASTBuilderUtil.createBinaryExpr(pos, varRef, bLangLiteral, symTable.booleanType,
                     OperatorKind.EQUAL, (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.EQUAL,

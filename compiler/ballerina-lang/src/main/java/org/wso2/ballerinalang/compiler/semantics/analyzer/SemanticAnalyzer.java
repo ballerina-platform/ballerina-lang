@@ -42,7 +42,6 @@ import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
-import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
@@ -120,6 +119,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -160,7 +160,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -630,7 +629,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     continue;
                 }
             }
-            var.type = tupleTypeNode.tupleTypes.get(i);
+            if (var.type == null) {
+                var.type = tupleTypeNode.tupleTypes.get(i);
+            }
             var.accept(this);
         }
 
@@ -1034,8 +1035,51 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(patternClause.body, env);
         patternClause.bindingPatternVariable.type = patternClause.matchExpr.type;
         patternClause.bindingPatternVariable.expr = patternClause.matchExpr;
+
+        if (patternClause.typeGuardExpr != null &&
+                NodeKind.VARIABLE != patternClause.bindingPatternVariable.getKind()) {
+            BLangExpression typeGuardExpr = patternClause.typeGuardExpr;
+
+            // allowing only type test as type guard with match pattern for now
+            if (NodeKind.TYPE_TEST_EXPR != typeGuardExpr.getKind()) {
+                dlog.error(patternClause.pos, DiagnosticCode.INVALID_TYPE_GUARD_FOR_MATCH_PATTERN);
+                return;
+            }
+
+            BLangTypeTestExpr typeTestExpr = (BLangTypeTestExpr) typeGuardExpr;
+
+            // allowing only simple var ref with type guard as match pattern for now
+            if (NodeKind.SIMPLE_VARIABLE_REF != typeTestExpr.expr.getKind()) {
+                dlog.error(patternClause.pos, DiagnosticCode.INVALID_EXPR_WITH_TYPE_GUARD_FOR_MATCH_PATTERN);
+                return;
+            }
+
+            String typeGuardVarName = ((BLangSimpleVarRef) typeTestExpr.expr).variableName.value;
+            BType typeGuardType = symResolver.resolveTypeNode(typeTestExpr.typeNode, env);
+            checkAndSetTypeGuardType(patternClause.bindingPatternVariable, typeGuardVarName, typeGuardType);
+        }
+
         analyzeDef(patternClause.bindingPatternVariable, blockEnv);
+
+        if (patternClause.typeGuardExpr != null) {
+            typeChecker.checkExpr(patternClause.typeGuardExpr, blockEnv);
+        }
+
         analyzeStmt(patternClause.body, blockEnv);
+    }
+
+    private void checkAndSetTypeGuardType(BLangVariable bindingPatternVariable, String varName, BType varType) {
+        if (NodeKind.TUPLE_VARIABLE == bindingPatternVariable.getKind()) {
+            BLangTupleVariable tupleVariable = (BLangTupleVariable) bindingPatternVariable;
+            for (BLangVariable var : tupleVariable.memberVariables) {
+                checkAndSetTypeGuardType(var, varName, varType);
+            }
+            return;
+        }
+
+        if (varName.equals(((BLangSimpleVariable) bindingPatternVariable).name.value)) {
+            bindingPatternVariable.type = varType;
+        }
     }
 
     public void visit(BLangForeach foreach) {

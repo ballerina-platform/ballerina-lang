@@ -166,6 +166,7 @@ public class BLangMatch extends BLangStatement implements MatchNode {
     public static class BLangMatchStmtStaticBindingPatternClause extends BLangMatchStmtBindingPatternClause
             implements MatchStatementStaticBindingPatternNode {
 
+        // static match literal expr
         public BLangExpression literal;
 
         @Override
@@ -203,7 +204,11 @@ public class BLangMatch extends BLangStatement implements MatchNode {
     public static class BLangMatchStmtStructuredBindingPatternClause extends BLangMatchStmtBindingPatternClause
             implements MatchStatementStructuredBindingPatternNode {
 
+        // binding match pattern
         public BLangVariable bindingPatternVariable;
+
+        // type guard expression
+        public BLangExpression typeGuardExpr;
 
         @Override
         public NodeKind getKind() {
