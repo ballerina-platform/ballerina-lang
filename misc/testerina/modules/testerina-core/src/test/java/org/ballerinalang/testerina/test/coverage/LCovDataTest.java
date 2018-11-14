@@ -23,6 +23,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+/**
+ * Test cases for ballerina.test coverage package lcov data format classes.
+ */
 public class LCovDataTest {
 
     private LCovData lCovData;
@@ -33,14 +36,14 @@ public class LCovDataTest {
         lCovData = new LCovData("testName");
     }
 
-    @Test
+    @Test(description = "Getter for test name with setter")
     public void getTestNameWithSetTest() {
 
         lCovData.setTestName("TestName1");
         Assert.assertEquals(lCovData.getTestName(), "TestName1");
     }
 
-    @Test
+    @Test(description = "Getter for source file with setter")
     public void getLCovSourceFileTest() {
 
         Assert.assertEquals(lCovData.getlCovSourceFileList().size(), 0);

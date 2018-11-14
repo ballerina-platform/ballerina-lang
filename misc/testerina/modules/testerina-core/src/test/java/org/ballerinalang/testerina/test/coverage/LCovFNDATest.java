@@ -23,6 +23,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+/**
+ * Test cases for ballerina.test coverage package lcov data format classes.
+ */
 public class LCovFNDATest {
 
     private LCovFNDA lCovFNDA;
@@ -33,14 +36,14 @@ public class LCovFNDATest {
         lCovFNDA = new LCovFNDA(1, "funcName");
     }
 
-    @Test
+    @Test(description = "Getter for exec count with setter")
     public void getExeCountWithSetTest() {
 
         lCovFNDA.setExecutionCount(2);
         Assert.assertEquals(lCovFNDA.getExecutionCount(), 2);
     }
 
-    @Test
+    @Test(description = "Getter for func name with setter")
     public void getFuncNameWithSetTest() {
 
         lCovFNDA.setFunctionName("funcName1");

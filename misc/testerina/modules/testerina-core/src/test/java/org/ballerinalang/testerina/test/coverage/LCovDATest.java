@@ -23,6 +23,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+/**
+ * Test cases for ballerina.test coverage package lcov data format classes.
+ */
 public class LCovDATest {
 
     private LCovDA lCovDA;
@@ -33,21 +36,21 @@ public class LCovDATest {
         lCovDA = new LCovDA(1, 1, 0);
     }
 
-    @Test
+    @Test(description = "Getter for line num with setter")
     public void getLineNumberWithSetTest() {
 
         lCovDA.setLineNumber(2);
         Assert.assertEquals(lCovDA.getLineNumber(), 2);
     }
 
-    @Test
+    @Test(description = "Getter for line exec count with setter")
     public void getExeCountWithSetTest() {
 
         lCovDA.setLineExecutionCount(2);
         Assert.assertEquals(lCovDA.getLineExecutionCount(), 2);
     }
 
-    @Test
+    @Test(description = "Getter for checksum with setter")
     public void getChecksumWithSetTest() {
 
         lCovDA.setChecksum(1);

@@ -54,7 +54,7 @@ public class CoverageDataFormatterTest {
         registry.setVersion("0.0.1");
     }
 
-    @Test
+    @Test(description = "bal project and module coverage report happy path")
     public void getFormattedCoverageDataTest() {
         BTestRunner testRunner = new BTestRunner();
         testRunner.setCoverageFlag(true);

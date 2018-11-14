@@ -29,7 +29,7 @@ DESCRIPTION
 OPTIONS
 
      --coverage
-         This is to create coverage reports for the project / package.
+         This is to create coverage reports for the project / module.s
          This will output lcov formatted data file and from this UI rich
          report can be generated. To customize the location of the file and
          file name use config file.

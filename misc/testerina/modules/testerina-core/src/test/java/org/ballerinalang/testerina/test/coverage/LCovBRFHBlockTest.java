@@ -23,6 +23,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+/**
+ * Test cases for ballerina.test coverage package lcov data format classes.
+ */
 public class LCovBRFHBlockTest {
 
     private LCovBRFHBlock lCovBRFHBlock;
@@ -32,13 +35,13 @@ public class LCovBRFHBlockTest {
         lCovBRFHBlock = new LCovBRFHBlock(1, 1);
     }
 
-    @Test
+    @Test(description = "Getter for branch num found with setter")
     public void getBranchNumberFoundWithSetTest() {
         lCovBRFHBlock.setNumOfBranchesFound(2);
         Assert.assertEquals(lCovBRFHBlock.getNumOfBranchesFound(), 2);
     }
 
-    @Test
+    @Test(description = "Getter for branch num hit with setter")
     public void getBranchNumberHitWithSetTest() {
         lCovBRFHBlock.setNumOfBranchesHit(2);
         Assert.assertEquals(lCovBRFHBlock.getNumOfBranchesHit(), 2);

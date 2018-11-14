@@ -23,6 +23,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+/**
+ * Test cases for ballerina.test coverage package lcov data format classes.
+ */
 public class LCovSourceFileTest {
 
     private LCovSourceFile lCovSourceFile;
@@ -33,58 +36,58 @@ public class LCovSourceFileTest {
         lCovSourceFile = new LCovSourceFile("path", 1, 1);
     }
 
-    @Test
+    @Test(description = "Getter for source file path with setter")
     public void getSourceFilePathWithSetTest() {
 
         lCovSourceFile.setSourceFilePath("path1");
         Assert.assertEquals(lCovSourceFile.getSourceFilePath(), "path1");
     }
 
-    @Test
-    public void getNunLineExeWithSetTest() {
+    @Test(description = "Getter for num of executed lines with setter")
+    public void getNumLineExeWithSetTest() {
 
         lCovSourceFile.setNumOfLineExecuted(2);
         Assert.assertEquals(lCovSourceFile.getNumOfLineExecuted(), 2);
     }
 
-    @Test
+    @Test(description = "Getter for num of instrumented lines with setter")
     public void getNumInstrumentedLinesWithSetTest() {
 
         lCovSourceFile.setNumOfInstrumentedLines(2);
         Assert.assertEquals(lCovSourceFile.getNumOfInstrumentedLines(), 2);
     }
 
-    @Test
+    @Test(description = "Getter for func list with setter")
     public void getLCovFNListTest() {
 
         Assert.assertEquals(lCovSourceFile.getlCovFNList().size(), 0);
     }
 
-    @Test
+    @Test(description = "Getter for func data list with setter")
     public void getLCovFNDAListTest() {
 
         Assert.assertEquals(lCovSourceFile.getlCovFNDAList().size(), 0);
     }
 
-    @Test
+    @Test(description = "Getter for func found hit block with setter")
     public void getLCovFNFHBlockListTest() {
 
         Assert.assertEquals(lCovSourceFile.getlCovFNFHBlockList().size(), 0);
     }
 
-    @Test
+    @Test(description = "Getter for branch data list with setter")
     public void getLCovBRDAListTest() {
 
         Assert.assertEquals(lCovSourceFile.getlCovBRDAList().size(), 0);
     }
 
-    @Test
+    @Test(description = "Getter for branch found hit block list with setter")
     public void getLCovBRFHBlockListTest() {
 
         Assert.assertEquals(lCovSourceFile.getlCovBRFHBlockList().size(), 0);
     }
 
-    @Test
+    @Test(description = "Getter for line data list with setter")
     public void getLCovDAListTest() {
 
         Assert.assertEquals(lCovSourceFile.getlCovDAList().size(), 0);
