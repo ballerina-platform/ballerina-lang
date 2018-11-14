@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -66,6 +67,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
@@ -489,6 +491,13 @@ public class ASTBuilderUtil {
         return variableDef;
     }
 
+    static BLangRecordVariableDef createRecordVariableDef(DiagnosticPos pos, BLangRecordVariable variable) {
+        final BLangRecordVariableDef variableDef =
+                (BLangRecordVariableDef) TreeBuilder.createRecordVariableDefinitionNode();
+        variableDef.pos = pos;
+        variableDef.var = variable;
+        return variableDef;
+    }
 
     static BLangBinaryExpr createBinaryExpr(DiagnosticPos pos,
                                             BLangExpression lhsExpr,

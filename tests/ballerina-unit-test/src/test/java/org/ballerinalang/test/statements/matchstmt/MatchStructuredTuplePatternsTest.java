@@ -32,13 +32,13 @@ import org.testng.annotations.Test;
  *
  * @since 0.985.0
  */
-public class MatchStatementStructuredPatternsTest {
+public class MatchStructuredTuplePatternsTest {
 
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/statements/matchstmt/structured_match_patterns.bal");
+        result = BCompileUtil.compile("test-src/statements/matchstmt/structured_tuple_match_patterns.bal");
     }
 
     @Test(description = "Test basics of structured pattern match statement 1")

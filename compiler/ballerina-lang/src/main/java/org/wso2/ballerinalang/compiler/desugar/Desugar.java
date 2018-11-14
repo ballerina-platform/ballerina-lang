@@ -45,17 +45,21 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntermediateCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -188,6 +192,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -251,6 +256,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private SymbolEnv env;
     private int lambdaFunctionCount = 0;
+    private int recordCount = 0;
 
     // Safe navigation related variables
     private Stack<BLangMatch> matchStmtStack = new Stack<>();
@@ -3126,6 +3132,9 @@ public class Desugar extends BLangNodeVisitor {
             if (NodeKind.TUPLE_VARIABLE == structuredPattern.bindingPatternVariable.getKind()) {
                 varDefStmt = ASTBuilderUtil.createTupleVariableDef(pattern.pos,
                         (BLangTupleVariable) structuredPattern.bindingPatternVariable);
+            } else if (NodeKind.RECORD_VARIABLE == structuredPattern.bindingPatternVariable.getKind()) {
+                varDefStmt = ASTBuilderUtil.createRecordVariableDef(pattern.pos,
+                        (BLangRecordVariable) structuredPattern.bindingPatternVariable);
             } else {
                 varDefStmt = ASTBuilderUtil.createVariableDef(pattern.pos,
                         (BLangSimpleVariable) structuredPattern.bindingPatternVariable);
@@ -3134,7 +3143,7 @@ public class Desugar extends BLangNodeVisitor {
             body = structuredPattern.body;
         } else if (NodeKind.MATCH_TYPED_PATTERN_CLAUSE == pattern.getKind()) { // typed match patterns
             BLangMatchTypedBindingPatternClause patternClause = (BLangMatchTypedBindingPatternClause) pattern;
-            // Add the variable definition to the body of the pattern clause
+            // Add the variable definition to the body of the pattern` clause
             if (patternClause.variable.name.value.equals(Names.IGNORE.value)) {
                 return patternClause.body;
             }
@@ -3258,7 +3267,53 @@ public class Desugar extends BLangNodeVisitor {
             return new BTupleType(memberTypes);
         }
 
+        if (NodeKind.RECORD_VARIABLE == bindingPatternVariable.getKind()) {
+            BLangRecordVariable recordVariable = (BLangRecordVariable) bindingPatternVariable;
+
+            BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(
+                    0, names.fromString("$anonType$" + recordCount++), env.enclPkg.symbol.pkgID, null, env.scope.owner);
+            List<BField> fields = new ArrayList<>();
+            List<BLangSimpleVariable> typeDefFields = new ArrayList<>();
+
+            for (int i = 0; i < recordVariable.variableList.size(); i++) {
+                String fieldName = recordVariable.variableList.get(i).key.value;
+                BType fieldType = getStructuredBindingPatternType(
+                        recordVariable.variableList.get(i).valueBindingPattern);
+                BVarSymbol fieldSymbol = new BVarSymbol(0, names.fromString(fieldName),
+                        env.enclPkg.symbol.pkgID, fieldType, recordSymbol);
+
+                fields.add(new BField(names.fromString(fieldName), fieldSymbol, false));
+                typeDefFields.add(ASTBuilderUtil.createVariable(null, fieldName, fieldType, null, fieldSymbol));
+            }
+
+            BRecordType recordVarType = new BRecordType(recordSymbol);
+            recordVarType.fields = fields;
+            recordVarType.restFieldType = symTable.anydataType;
+            recordSymbol.type = recordVarType;
+            recordVarType.tsymbol = recordSymbol;
+
+            createTypeDefinition(recordVarType, recordSymbol, createRecordTypeNode(typeDefFields, recordVarType));
+
+            return recordVarType;
+        }
+
         return bindingPatternVariable.type;
+    }
+
+    private BLangRecordTypeNode createRecordTypeNode(List<BLangSimpleVariable> typeDefFields,
+                                                     BRecordType recordVarType) {
+        BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) TreeBuilder.createRecordTypeNode();
+        recordTypeNode.type = recordVarType;
+        recordTypeNode.fields = typeDefFields;
+        return recordTypeNode;
+    }
+
+    private void createTypeDefinition(BType type, BTypeSymbol symbol, BLangType typeNode) {
+        BLangTypeDefinition typeDefinition = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
+        env.enclPkg.addTypeDefinition(typeDefinition);
+        typeDefinition.typeNode = typeNode;
+        typeDefinition.type = type;
+        typeDefinition.symbol = symbol;
     }
 
     private BLangExpression createPatternMatchBinaryExpr(BLangMatchBindingPatternClause patternClause,

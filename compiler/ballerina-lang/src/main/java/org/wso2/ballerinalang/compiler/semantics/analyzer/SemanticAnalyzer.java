@@ -42,7 +42,6 @@ import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
-import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
@@ -54,6 +53,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbo
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -82,6 +82,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -113,7 +114,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
@@ -162,7 +162,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -482,7 +481,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
         }
 
-        validateRecordVariable(varNode);
+        if (!validateRecordVariable(varNode)) {
+            return;
+        }
+
+        symbolEnter.defineNode(varNode, env);
 
         if (varNode.expr == null) {
             // we have no rhs to do type checking
@@ -641,41 +644,103 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return true;
     }
 
-    private void validateRecordVariable(BLangRecordVariable recordVar) {
-        if (recordVar.type.tag != TypeTags.RECORD) {
-            dlog.error(recordVar.pos, DiagnosticCode.INVALID_RECORD_BINDING_PATTERN, recordVar.type);
-            return;
-        }
+    private boolean validateRecordVariable(BLangRecordVariable recordVar) {
 
-        BRecordType recordVarType = (BRecordType) recordVar.type;
+        BRecordType recordVarType;
+        switch (recordVar.type.tag) {
+            case TypeTags.UNION:
+                BUnionType unionType = (BUnionType) recordVar.type;
+                List<BRecordType> possibleTypes = unionType.memberTypes.stream()
+                        .filter(type -> TypeTags.RECORD == type.tag)
+                        .map(BRecordType.class::cast)
+                        .filter(rec -> doesRecordContainKeys(rec, recordVar.variableList))
+                        .collect(Collectors.toList());
+                if (possibleTypes.isEmpty()) {
+                    dlog.error(recordVar.pos, DiagnosticCode.INVALID_RECORD_BINDING_PATTERN, recordVar.type);
+                    return false;
+                }
+
+                if (possibleTypes.size() > 1) {
+                    BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0,
+                            Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
+                    recordVarType = (BRecordType) symTable.recordType;
+                    List<BField> fields = new ArrayList<>();
+
+                    for (int i = 0; i < recordVar.variableList.size(); i++) {
+                        String fieldName = recordVar.variableList.get(i).key.value;
+                        Set<BType> memberTypes = new HashSet<>();
+
+                        for (BRecordType possibleType : possibleTypes) {
+                            Map<String, BType> possibleTypeFields = possibleType.fields
+                                    .stream()
+                                    .collect(Collectors.toMap(
+                                            field -> field.getName().getValue(),
+                                            BField::getType
+                                    ));
+                            memberTypes.add(possibleTypeFields.get(fieldName) == null ?
+                                    possibleType.restFieldType : possibleTypeFields.get(fieldName));
+                        }
+
+                        BType fieldType = memberTypes.size() > 1 ? new BUnionType(null, memberTypes, false) :
+                                memberTypes.iterator().next();
+                        fields.add(new BField(names.fromString(fieldName),
+                                new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
+                                        fieldType, recordSymbol), false));
+                    }
+                    recordVarType.fields = fields;
+                    recordSymbol.type = recordVarType;
+                } else {
+                    recordVarType = possibleTypes.get(0);
+                }
+                break;
+            case TypeTags.RECORD:
+                recordVarType = (BRecordType) recordVar.type;
+                break;
+            case TypeTags.ANYDATA:
+                BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID,
+                        null, env.scope.owner);
+                recordVarType = (BRecordType) symTable.recordType;
+                List<BField> fields = new ArrayList<>();
+
+                for (int i = 0; i < recordVar.variableList.size(); i++) {
+                    String fieldName = recordVar.variableList.get(i).key.value;
+                    fields.add(new BField(names.fromString(fieldName),
+                            new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
+                                    symTable.anyType, recordSymbol), false));
+
+                }
+                recordVarType.fields = fields;
+                recordSymbol.type = recordVarType;
+                break;
+            default:
+                dlog.error(recordVar.pos, DiagnosticCode.INVALID_RECORD_BINDING_PATTERN, recordVar.type);
+                return false;
+        }
 
         if (recordVar.isClosed) {
             if (!recordVarType.sealed) {
                 dlog.error(recordVar.pos, DiagnosticCode.INVALID_CLOSED_RECORD_BINDING_PATTERN, recordVarType);
-                return;
+                return false;
             }
 
             if (recordVar.variableList.size() != recordVarType.fields.size()) {
                 dlog.error(recordVar.pos, DiagnosticCode.NOT_ENOUGH_FIELDS_TO_MATCH_CLOSED_RECORDS, recordVarType);
-                return;
+                return false;
             }
         }
 
+        Map<String, BField> recordVarTypeFields = recordVarType.fields
+                .stream()
+                .collect(Collectors.toMap(
+                        field -> field.getName().getValue(),
+                        field -> field
+                ));
+
         for (BLangRecordVariableKeyValueNode variable : recordVar.variableList) {
-            boolean foundMatch = false;
             // Infer the type of each variable in recordVariable from the given record type
             // so that symbol enter is done recursively
             BLangVariable value = (BLangVariable) variable.getValue();
-            for (BField typeFields : recordVarType.getFields()) {
-                if (variable.getKey().getValue().equals(typeFields.name.value)) {
-                    value.type = typeFields.type;
-                    value.accept(this);
-                    foundMatch = true;
-                    break;
-                }
-            }
-
-            if (!foundMatch) {
+            if (!recordVarTypeFields.containsKey(variable.getKey().getValue())) {
                 if (recordVarType.sealed) {
                     dlog.error(recordVar.pos, DiagnosticCode.INVALID_FIELD_IN_RECORD_BINDING_PATTERN,
                             variable.getKey().getValue(), recordVar.type);
@@ -683,15 +748,34 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     value.type = recordVarType.restFieldType;
                     value.accept(this);
                 }
+                continue;
             }
-        }
 
-        symbolEnter.defineNode(recordVar, env);
+            value.type = recordVarTypeFields.get((variable.getKey().getValue())).type;
+            value.accept(this);
+        }
 
         if (recordVar.restParam != null) {
             ((BLangVariable) recordVar.restParam).type = symTable.mapType;
             symbolEnter.defineNode((BLangNode) recordVar.restParam, env);
         }
+
+        return true;
+    }
+
+    private boolean doesRecordContainKeys(BRecordType recordVarType, List<BLangRecordVariableKeyValue> variableList) {
+        Map<String, BField> recordVarTypeFields = recordVarType.fields
+                .stream()
+                .collect(Collectors.toMap(
+                        field -> field.getName().getValue(),
+                        field -> field
+                ));
+        for (BLangRecordVariableKeyValue var : variableList) {
+            if (!recordVarTypeFields.containsKey(var.key.value) && recordVarType.sealed) {
+                return false;
+            }
+        }
+        return true;
     }
 
     // Statements
