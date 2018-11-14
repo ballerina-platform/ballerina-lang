@@ -195,54 +195,6 @@ public class BallerinaBlockProcessor extends BallerinaScopeProcessorBase {
                     if (firstChild == null) {
                         continue;
                     }
-                    if (firstChild instanceof BallerinaVariableDefinitionStatement) {
-                        BallerinaVariableDefinitionStatement definitionStatement =
-                                (BallerinaVariableDefinitionStatement) firstChild;
-                        PsiElement identifier = definitionStatement.getIdentifier();
-                        if (myResult != null) {
-                            myResult.addElement(BallerinaCompletionUtils.createVariableLookupElement(identifier,
-                                    BallerinaPsiImplUtil.formatBallerinaTypeName(definitionStatement.getTypeName())));
-                        } else if (myElement.getText().equals(identifier.getText())) {
-                            add(identifier);
-                        }
-
-                    } else if (firstChild instanceof BallerinaAssignmentStatement) {
-                        BallerinaAssignmentStatement assignmentStatement = (BallerinaAssignmentStatement) firstChild;
-                        BallerinaVariableReference variableReference = assignmentStatement.getVariableReference();
-                        if (variableReference instanceof BallerinaSimpleVariableReference
-                                && assignmentStatement.getVar() != null) {
-                            BallerinaNameReference nameReference = ((BallerinaSimpleVariableReference)
-                                    variableReference).getNameReference();
-                            PsiElement identifier = nameReference.getIdentifier();
-                            if (myResult != null) {
-                                myResult.addElement(BallerinaCompletionUtils.createVariableLookupElement(identifier,
-                                        "")); // Todo - Get type
-                            } else if (myElement.getText().equals(identifier.getText())) {
-                                add(identifier);
-                            }
-                        }
-                    } else if (firstChild instanceof BallerinaTupleDestructuringStatement) {
-                        BallerinaVariableReferenceList variableReferenceList =
-                                ((BallerinaTupleDestructuringStatement) firstChild).getVariableReferenceList();
-                        if (variableReferenceList != null) {
-                            List<BallerinaVariableReference> referenceList =
-                                    variableReferenceList.getVariableReferenceList();
-
-                            for (BallerinaVariableReference ballerinaVariableReference : referenceList) {
-                                if (ballerinaVariableReference instanceof BallerinaSimpleVariableReference) {
-                                    BallerinaNameReference nameReference = ((BallerinaSimpleVariableReference)
-                                            ballerinaVariableReference).getNameReference();
-                                    PsiElement identifier = nameReference.getIdentifier();
-                                    if (myResult != null) {
-                                        myResult.addElement(BallerinaCompletionUtils.createVariableLookupElement
-                                                (identifier, "")); // Todo - Get type
-                                    } else if (myElement.getText().equals(identifier.getText())) {
-                                        add(identifier);
-                                    }
-                                }
-                            }
-                        }
-                    }
                 }
                 if (!isCompletion() && getResult() != null) {
                     return false;
@@ -495,10 +447,15 @@ public class BallerinaBlockProcessor extends BallerinaScopeProcessorBase {
             return;
         }
 
-        List<BallerinaVariableDefinitionStatement> definitions =
-                serviceBody.getVariableDefinitionStatementList();
+        List<BallerinaVariableDefinitionStatement> definitions = serviceBody.getVariableDefinitionStatementList();
         for (BallerinaVariableDefinitionStatement definition : definitions) {
-            PsiElement identifier = definition.getIdentifier();
+            PsiElement identifier = null;
+            if (definition.getVariableDefinitionStatementWithAssignment() != null) {
+                identifier = definition.getVariableDefinitionStatementWithAssignment().getBindingPattern()
+                        .getIdentifier();
+            } else if (definition.getVariableDefinitionStatementWithoutAssignment() != null) {
+                identifier = definition.getVariableDefinitionStatementWithoutAssignment().getIdentifier();
+            }
             if (identifier == null) {
                 continue;
             }
