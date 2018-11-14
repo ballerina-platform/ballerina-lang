@@ -2604,7 +2604,6 @@ public class CPU {
 
     private static boolean handleVariableLock(WorkerExecutionContext ctx, BType[] types,
                                               int[] pkgRegs, int[] varRegs, String[] fieldNames, int varCount) {
-
         boolean lockAcquired = true;
         for (int i = 0; i < varCount && lockAcquired; i++) {
             BType paramType = types[i];
@@ -2674,7 +2673,6 @@ public class CPU {
                 default:
                     ctx.programFile.globalMemArea.unlockRefField(pkgIndex, regIndex);
             }
-
         }
     }
 

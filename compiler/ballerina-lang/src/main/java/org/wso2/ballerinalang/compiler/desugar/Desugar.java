@@ -433,7 +433,6 @@ public class Desugar extends BLangNodeVisitor {
         result = pkgNode;
     }
 
-
     @Override
     public void visit(BLangImportPackage importPkgNode) {
         BPackageSymbol pkgSymbol = importPkgNode.symbol;

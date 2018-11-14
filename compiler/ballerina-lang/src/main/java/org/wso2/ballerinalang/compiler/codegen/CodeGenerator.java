@@ -2905,7 +2905,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private Operand[] getOperands(BLangLock lockNode) {
-
         //need to visit all the vars because parent node of a nested structure may not be loaded yet
         lockNode.fieldVariables.values().forEach(exprList -> exprList.stream().forEach(expr ->visit(expr)));
 
@@ -2928,20 +2927,18 @@ public class CodeGenerator extends BLangNodeVisitor {
         operands[i++] = getOperand(fieldVarCount + lockNode.selfVariables.size());
 
         for (BVarSymbol varSymbol : lockNode.lockVariables) {
+            BPackageSymbol pkgSymbol;
             BSymbol ownerSymbol = varSymbol.owner;
-            PackageID pkgId;
             if (ownerSymbol.tag == SymTag.SERVICE) {
-                pkgId = ownerSymbol.owner.pkgID;
+                pkgSymbol = (BPackageSymbol) ownerSymbol.owner;
             } else {
-                pkgId = ownerSymbol.pkgID;
+                pkgSymbol = (BPackageSymbol) ownerSymbol;
             }
+            int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.pkgID);
 
-            int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgId);
             int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, varSymbol.getType().getDesc());
-
             TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
             operands[i++] = getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
-
             operands[i++] = getOperand(pkgRefCPIndex);
             operands[i++] = varSymbol.varIndex;
         }

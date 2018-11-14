@@ -29,6 +29,7 @@ import static org.testng.Assert.assertTrue;
 
 /**
  * Test field based locking.
+ * @since 0.985.0
  */
 public class FieldLockTest {
 
@@ -37,40 +38,35 @@ public class FieldLockTest {
 
     @BeforeClass
     public void setup() {
+
         compileResult = BCompileUtil.compile("test-src/lock/locks-in-object.bal");
         compileResult2 = BCompileUtil.compile("test-src/lock/locks-in-records.bal");
-
     }
 
     @Test(description = "Test locking by self var")
     public void testLockInAttachedFunc() {
-        BValue[] returns =
-                BRunUtil.invoke(compileResult, "lockFieldInSameObject");
+
+        BValue[] returns = BRunUtil.invoke(compileResult, "lockFieldInSameObject");
         assertFalse(returns[0].stringValue().contains("*#*") || returns[0].stringValue().contains("#*#"));
-
-
     }
 
     @Test(description = "Test locking by passing object as param")
     public void testObjectLock() {
-        BValue[] returns =
-                BRunUtil.invoke(compileResult, "fieldLock");
+
+        BValue[] returns = BRunUtil.invoke(compileResult, "fieldLock");
         assertTrue((returns[0].stringValue().equals("1001000") || returns[0].stringValue().equals("500500")));
 
-        BValue[] returns2 =
-                BRunUtil.invoke(compileResult, "objectParamLock");
+        BValue[] returns2 = BRunUtil.invoke(compileResult, "objectParamLock");
         assertTrue((returns2[0].stringValue().equals("1001000") || returns2[0].stringValue().equals("500500")));
     }
 
     @Test(description = "Test locking based on a record field")
     public void testLockInRecords() {
-        BValue[] returns =
-                BRunUtil.invoke(compileResult2, "fieldLock");
+
+        BValue[] returns = BRunUtil.invoke(compileResult2, "fieldLock");
         assertTrue((returns[0].stringValue().equals("1001000") || returns[0].stringValue().equals("500500")));
 
-        BValue[] returns2 =
-                BRunUtil.invoke(compileResult2, "arrayFieldLock");
+        BValue[] returns2 = BRunUtil.invoke(compileResult2, "arrayFieldLock");
         assertTrue((returns2[0].stringValue().equals("1001000") || returns2[0].stringValue().equals("500500")));
     }
-
 }
