@@ -23,10 +23,10 @@ import ballerina/log;
 # + config - configurations related to the SimpleQueueReceiver endpoint
 public type SimpleQueueReceiver object {
 
-    public SimpleQueueListenerEndpointConfiguration config;
+    public SimpleQueueListenerEndpointConfiguration config = {};
 
     private jms:SimpleQueueReceiver receiver = new;
-    private QueueReceiverActions? consumerActions;
+    private QueueReceiverActions? consumerActions = ();
 
     # Initialize the SimpleQueueReceiver endpoint
     #

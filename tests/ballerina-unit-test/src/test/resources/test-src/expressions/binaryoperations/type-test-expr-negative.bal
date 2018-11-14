@@ -215,8 +215,8 @@ public type Z1 object {
 
 function testObjectEquivalency() returns (string, string) {
     Z1 z = new Z1(5, "foo", 6.7, true);
-    string s1;
-    string s2;
+    string s1 = "";
+    string s2 = "";
 
     if(z is X1) {
         s1 = "values: " + z.p + ", " + z.q;

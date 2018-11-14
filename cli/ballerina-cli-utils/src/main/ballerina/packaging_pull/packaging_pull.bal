@@ -21,7 +21,7 @@ import ballerina/io;
 @final int MAX_INT_VALUE = 2147483647;
 @final string VERSION_REGEX = "(\\d+\\.)(\\d+\\.)(\\d+)";
 DefaultLogFormatter logFormatter = new DefaultLogFormatter();
-boolean isBuild;
+boolean isBuild = false;
 
 # This object denotes the default log formatter used when pulling a module directly.
 #
@@ -290,7 +290,7 @@ function copy(int pkgSize, io:ReadableByteChannel src, io:WritableByteChannel de
               string fullPkgPath, string toAndFrom, int width) {
     int terminalWidth = width - logFormatter.offset;
     int bytesChunk = 8;
-    byte[] readContent;
+    byte[] readContent = [];
     int readCount = -1;
     float totalCount = 0.0;
     int numberOfBytesWritten = 0;

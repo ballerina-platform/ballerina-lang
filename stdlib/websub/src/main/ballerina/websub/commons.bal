@@ -114,11 +114,11 @@ public type TopicIdentifier "TOPIC_ID_HEADER"|"TOPIC_ID_PAYLOAD_KEY"|"TOPIC_ID_H
 # + request - The HTTP request received for intent verification
 public type IntentVerificationRequest object {
 
-    public string mode;
-    public string topic;
-    public string challenge;
-    public int leaseSeconds;
-    public http:Request request;
+    public string mode = "";
+    public string topic = "";
+    public string challenge = "";
+    public int leaseSeconds = 0;
+    public http:Request request = new;
 
     # Builds the response for the request, verifying intention to subscribe, if the topic matches that expected.
     #

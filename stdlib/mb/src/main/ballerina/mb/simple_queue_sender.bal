@@ -22,10 +22,10 @@ import ballerina/log;
 # + config - configurations related to the SimpleQueueSender endpoint
 public type SimpleQueueSender object {
 
-    public SimpleQueueSenderEndpointConfiguration config;
+    public SimpleQueueSenderEndpointConfiguration config = {};
 
-    private jms:SimpleQueueSender? sender;
-    private QueueSenderActions? producerActions;
+    private jms:SimpleQueueSender? sender = ();
+    private QueueSenderActions? producerActions = ();
 
     # Initialize the SimpleQueueSender endpoint
     #

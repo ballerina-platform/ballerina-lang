@@ -232,40 +232,40 @@ function testSealedRecordTypes() returns (boolean, boolean) {
 public type Person object {
     public int age;
     public string name;
-    public string address;
+    public string address = "";
 
     public new (name, age) {}
 
     public function getName() returns (string) {
-        return name;
+        return self.name;
     }
 
     public function getAge() returns (int) {
-        return age;
+        return self.age;
     }
 
     public function getAddress() returns (string) {
-        return address;
+        return self.address;
     }
 };
 
 public type SameAsPerson object {
     public int age;
     public string name;
-    public string address;
+    public string address = "";
 
     public new (name, age) {}
 
     public function getName() returns (string) {
-        return name;
+        return self.name;
     }
 
     public function getAge() returns (int) {
-        return age;
+        return self.age;
     }
 
     public function getAddress() returns (string) {
-        return address;
+        return self.address;
     }
 };
 
@@ -303,33 +303,33 @@ function testObjectWithSameMembersButDifferentAlias() returns (string, string, s
 public type PersonInOrder object {
     public int age;
     public string name;
-    public string address;
+    public string address = "";
 
     public new (name, age) {}
 
     public function getName() returns (string) {
-        return name;
+        return self.name;
     }
 
     public function getAge() returns (int) {
-        return age;
+        return self.age;
     }
 
     public function getAddress() returns (string) {
-        return address;
+        return self.address;
     }
 };
 
 public type PersonNotInOrder object {
 
     public function getName() returns (string) {
-        return name;
+        return self.name;
     }
 
     public int age;
 
     public function getAge() returns (int) {
-        return age;
+        return self.age;
     }
 
     public new (name, age) {}
@@ -337,10 +337,10 @@ public type PersonNotInOrder object {
     public string name;
 
     public function getAddress() returns (string) {
-        return address;
+        return self.address;
     }
 
-    public string address;
+    public string address = "";
 };
 
 function testObjectWithUnorderedFields() returns (string, string, string, string) {

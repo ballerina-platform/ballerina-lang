@@ -29,9 +29,9 @@ import ballerina/io;
 # + httpClient - The provider which implements the HTTP methods
 public type Client object {
 
-    public string epName;
-    public ClientEndpointConfig config;
-    public CallerActions httpClient;
+    public string epName = "";
+    public ClientEndpointConfig config = {};
+    public CallerActions httpClient = new;
 
     # Gets invoked to initialize the endpoint. During initialization, configurations provided through the `config`
     # record is used to determine which type of additional behaviours are added to the endpoint (e.g: caching,
@@ -74,7 +74,7 @@ public type TargetService record {
 # + secureSocket - SSL/TLS related options
 # + cache - HTTP caching related configurations
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
-# + auth - HTTP authentication releated configurations
+# + auth - HTTP authentication related configurations
 public type ClientEndpointConfig record {
     string url;
     CircuitBreakerConfig? circuitBreaker;
