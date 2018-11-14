@@ -111,6 +111,7 @@ public class FormattingTest {
                 {"expectedTypeDefinition.bal", "typeDefinition.bal"},
                 {"expectedTable.bal", "table.bal"},
                 {"expectedCompilationUnitMultiEOF.bal", "compilationUnitMultiEOF.bal"},
+                {"expectedAnnotation.bal", "annotation.bal"},
         };
     }
 

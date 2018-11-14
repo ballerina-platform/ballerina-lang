@@ -366,8 +366,9 @@ public class BLangPackageBuilder {
         this.compUnit = compUnit;
     }
 
-    void addAttachPoint(AttachPoint attachPoint) {
+    void addAttachPoint(AttachPoint attachPoint, Set<Whitespace> ws) {
         attachPointStack.push(attachPoint);
+        this.annotationStack.peek().addWS(ws);
     }
 
     void addValueType(DiagnosticPos pos, Set<Whitespace> ws, String typeName) {
