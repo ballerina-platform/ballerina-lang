@@ -44,9 +44,7 @@ service<http:Service> headerService bind headerServiceEP {
             } else {
                 payload = {"response":"person header not available"};
             }
-            http:Response res = new;
-            res.setJsonPayload(untaint payload);
-            _ = conn -> respond(res);
+            _ = conn -> respond(payload);
         } else if (clientResponse is error) {
             _ = conn -> respond(clientResponse.reason());
         }
