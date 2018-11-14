@@ -41,7 +41,7 @@ public type JWTValidatorConfig record {
 # + return - If JWT token is valied return the JWT payload.
 #            An error if token validation fails.
 public function validate(string jwtToken, JWTValidatorConfig config) returns JwtPayload|error {
-    string[] encodedJWTComponents;
+    string[] encodedJWTComponents = [];
     match getJWTComponents(jwtToken) {
         string[] encodedJWT => encodedJWTComponents = encodedJWT;
         error e => return e;
@@ -62,7 +62,7 @@ public function validate(string jwtToken, JWTValidatorConfig config) returns Jwt
             if (isValid){
                 return payload;
             } else {
-                error err = {message:"Invalid JWT token"};
+                error err = error("Invalid JWT token");
                 return err;
             }
         }
@@ -71,9 +71,9 @@ public function validate(string jwtToken, JWTValidatorConfig config) returns Jwt
 
 function getJWTComponents(string jwtToken) returns (string[])|error {
     string[] jwtComponents = jwtToken.split("\\.");
-    if (lengthof jwtComponents != 3) {
+    if (jwtComponents.length() != 3) {
         log:printDebug("Invalid JWT token :" + jwtToken);
-        error err = {message:"Invalid JWT token"};
+        error err = error("Invalid JWT token");
         return err;
     }
     return jwtComponents;
@@ -113,7 +113,7 @@ function getDecodedJWTComponents(string[] encodedJWTComponents) returns ((json, 
 
 function parseHeader(json jwtHeaderJson) returns (JwtHeader) {
     JwtHeader jwtHeader = {};
-    map customClaims;
+    map customClaims = {};
 
     string[] keys = jwtHeaderJson.getKeys();
 
@@ -128,7 +128,7 @@ function parseHeader(json jwtHeaderJson) returns (JwtHeader) {
         } else if (key == KID) {
             jwtHeader.kid = jwtHeaderJson[key].toString();
         } else {
-            if (lengthof jwtHeaderJson[key] > 0) {
+            if (jwtHeaderJson[key].length() > 0) {
                 customClaims[key] = convertToStringArray(jwtHeaderJson[key]);
             } else {
                 customClaims[key] = jwtHeaderJson[key].toString();
@@ -141,7 +141,7 @@ function parseHeader(json jwtHeaderJson) returns (JwtHeader) {
 
 function parsePayload(json jwtPayloadJson) returns (JwtPayload) {
     JwtPayload jwtPayload = {};
-    map customClaims;
+    map customClaims = {};
     string[] keys = jwtPayloadJson.getKeys();
     foreach key in keys {
         if (key == ISS) {
@@ -163,7 +163,7 @@ function parsePayload(json jwtPayloadJson) returns (JwtPayload) {
             jwtPayload.iat = <int>value but { error => 0 };
         }
         else {
-            if (lengthof jwtPayloadJson[key] > 0) {
+            if (jwtPayloadJson[key].length() > 0) {
                 customClaims[key] = convertToStringArray(jwtPayloadJson[key]);
             } else {
                 customClaims[key] = jwtPayloadJson[key].toString();
@@ -177,29 +177,28 @@ function parsePayload(json jwtPayloadJson) returns (JwtPayload) {
 function validateJWT(string[] encodedJWTComponents, JwtHeader jwtHeader, JwtPayload jwtPayload, JWTValidatorConfig
 config) returns (boolean|error) {
     if (!validateMandatoryFields(jwtPayload)) {
-        error err = {message:
-        "Mandatory fields(Issuer, Subject, Expiration time or Audience) are empty in the given JSON Web Token."};
+        error err = error("Mandatory fields(Issuer, Subject, Expiration time or Audience) are empty in the given JSON Web Token.");
         return err;
     }
     if (!validateSignature(encodedJWTComponents, jwtHeader, config)) {
-        error err = {message:"Invalid signature"};
+        error err = error("Invalid signature");
         return err;
     }
     if (!validateIssuer(jwtPayload, config)) {
-        error err = {message:"JWT contained invalid issuer name : " + jwtPayload.iss};
+        error err = error("JWT contained invalid issuer name : " + jwtPayload.iss);
         return err;
     }
     if (!validateAudience(jwtPayload, config)) {
         //TODO need to set expected audience or available audience list
-        error err = {message:"Invalid audience"};
+        error err = error("Invalid audience");
         return err;
     }
     if (!validateExpirationTime(jwtPayload, config)) {
-        error err = {message:"JWT token is expired"};
+        error err = error("JWT token is expired");
         return err;
     }
     if (!validateNotBeforeTime(jwtPayload)) {
-        error err = {message:"JWT token is used before Not_Before_Time"};
+        error err = error("JWT token is used before Not_Before_Time");
         return err;
     }
     //TODO : Need to validate jwt id (jti) and custom claims.
@@ -207,7 +206,7 @@ config) returns (boolean|error) {
 }
 
 function validateMandatoryFields(JwtPayload jwtPayload) returns (boolean) {
-    if (jwtPayload.iss == "" || jwtPayload.sub == "" || jwtPayload.exp == 0 || lengthof jwtPayload.aud == 0) {
+    if (jwtPayload.iss == "" || jwtPayload.sub == "" || jwtPayload.exp == 0 || jwtPayload.aud.length() == 0) {
         return false;
     }
     return true;
@@ -252,9 +251,9 @@ function validateNotBeforeTime(JwtPayload jwtPayload) returns (boolean) {
 
 function convertToStringArray(json jsonData) returns (string[]) {
     string[] outData = [];
-    if (lengthof jsonData > 0) {
+    if (jsonData.length() > 0) {
         int i = 0;
-        while (i < lengthof jsonData) {
+        while (i < jsonData.length()) {
             outData[i] = jsonData[i].toString();
             i = i + 1;
         }

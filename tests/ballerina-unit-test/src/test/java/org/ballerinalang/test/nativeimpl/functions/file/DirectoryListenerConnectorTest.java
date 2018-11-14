@@ -107,8 +107,8 @@ public class DirectoryListenerConnectorTest {
                     .compileAndSetup("test-src/file/file-system-negative-without-resource.bal");
             BServiceUtil.runService(compileResult);
         } catch (BLangRuntimeException e) {
-            String actualMsg = e.getMessage().substring(23, 149);
-            String expectedErrorMsg = "at least a single resource requires from following: "
+            String actualMsg = e.getMessage().substring(7, 133);
+            String expectedErrorMsg = "At least a single resource required from following: "
                     + "onCreate ,onDelete ,onModify. Parameter should be of type - file:FileEvent";
             Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error msg for not having resources");
         }
@@ -167,8 +167,8 @@ public class DirectoryListenerConnectorTest {
                     .compileAndSetup("test-src/file/file-system-negative-not-folder.bal");
             BServiceUtil.runService(compileResult);
         } catch (Throwable e) {
-            String actualMsg = e.getMessage().substring(146, 193);
-            String expectedErrorMsg = "unable to find a directory : target/fs/file.txt";
+            String actualMsg = e.getMessage().substring(7, 53);
+            String expectedErrorMsg = "Unable to find a directory: target/fs/file.txt";
             Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error for invalid folder.");
         }
     }
@@ -180,8 +180,8 @@ public class DirectoryListenerConnectorTest {
                     .compileAndSetup("test-src/file/file-system-negative-folder-exist.bal");
             BServiceUtil.runService(compileResult);
         } catch (BLangRuntimeException e) {
-            String actualMsg = e.getMessage().substring(148, 186);
-            String expectedErrorMsg = "folder does not exist: hello/ballerina";
+            String actualMsg = e.getMessage().substring(7, 45);
+            String expectedErrorMsg = "Folder does not exist: hello/ballerina";
             Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error for non-exist folder.");
         }
     }

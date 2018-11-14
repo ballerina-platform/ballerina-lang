@@ -88,7 +88,7 @@ function onError(error e) {
 function onTrigger() returns error? {
     count = count + 1;
     if(count == 10) {
-        error e = {message:"Task cannot be performed when the count is 10"};
+        error e = error("Task cannot be performed when the count is 10");
         //The ‘onError’ function is called when the error is returned.
         return e;
     }
@@ -153,7 +153,7 @@ function onTrigger() returns error? {
     io:println("tasks is triggered and the value of count is : " + count);
 
     if(count == 10) {
-        error e = {message:"Task appointment cannot be executed when the count is 10"};
+        error e = error("Task appointment cannot be executed when the count is 10");
         // The ‘onError’ function is called when the error is returned.
         return e;
     }

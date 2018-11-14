@@ -227,33 +227,34 @@ public type RedirectClient object {
 function performRedirectIfEligible(RedirectClient redirectClient, string path, Request request,
                                    HttpOperation httpOperation) returns Response|error {
     string originalUrl = redirectClient.serviceUri + path;
-    log:printDebug("Checking redirect eligibility for original request " + originalUrl);
+    log:printDebug(function() returns string {
+        return "Checking redirect eligibility for original request " + originalUrl;
+    });
     Response|error result = invokeEndpoint(path, request, httpOperation, redirectClient.httpClient);
     return checkRedirectEligibility(result, originalUrl, httpOperation, request, redirectClient);
 }
 
 //Inspect the response for redirect eligibility.
-function checkRedirectEligibility(Response|error result, string resolvedRequestedURI, HttpOperation httpVerb, Request
+function checkRedirectEligibility(Response|error response, string resolvedRequestedURI, HttpOperation httpVerb, Request
     request, RedirectClient redirectClient) returns @untainted Response|error {
-    match result {
-        Response response => {
-            if (isRedirectResponse(response.statusCode)) {
-                return redirect(response, httpVerb, request, redirectClient, resolvedRequestedURI);
-            } else {
-                setCountAndResolvedURL(redirectClient, response, resolvedRequestedURI);
-                return response;
-            }
+    if (response is Response) {
+        if (isRedirectResponse(response.statusCode)) {
+            return redirect(response, httpVerb, request, redirectClient, resolvedRequestedURI);
+        } else {
+            setCountAndResolvedURL(redirectClient, response, resolvedRequestedURI);
+            return response;
         }
-        error err => {
-            redirectClient.currentRedirectCount = 0;
-            return err;
-        }
+    } else {
+        redirectClient.currentRedirectCount = 0;
+        return response;
     }
 }
 
 //Check the response status for redirect eligibility.
 function isRedirectResponse(int statusCode) returns boolean {
-    log:printDebug("Response Code : " + statusCode);
+    log:printDebug(function() returns string {
+        return "Response Code : " + statusCode;
+    });
     return (statusCode == 300 || statusCode == 301 || statusCode == 302 || statusCode == 303 || statusCode == 305 ||
         statusCode == 307 || statusCode == 308);
 }
@@ -266,47 +267,47 @@ function redirect(Response response, HttpOperation httpVerb, Request request, Re
     if (currentCount >= maxCount) {
         log:printDebug("Maximum redirect count reached!");
         setCountAndResolvedURL(redirectClient, response, resolvedRequestedURI);
-        return response;
     } else {
         currentCount += 1;
-        log:printDebug("Redirect count : " + currentCount);
+        log:printDebug(function() returns string {
+            return "Redirect count : " + currentCount;
+        });
         redirectClient.currentRedirectCount = currentCount;
-        match getRedirectMethod(httpVerb, response) {
-            () => {
-                setCountAndResolvedURL(redirectClient, response, resolvedRequestedURI);
-                return response;
-            }
-            HttpOperation redirectMethod => {
-                if (response.hasHeader(LOCATION)) {
-                    string location = response.getHeader(LOCATION);
-                    log:printDebug("Location header value: " + location);
-                    if (!isAbsolute(location)) {
-                        match resolve(resolvedRequestedURI, location) {
-                            string resolvedURI => {
-                                return performRedirection(resolvedURI, redirectClient, redirectMethod, request,
-                                    response);
-                            }
-                            error err => {
-                                redirectClient.currentRedirectCount = 0;
-                                return err;
-                            }
-                        }
-                    } else {
-                        return performRedirection(location, redirectClient, redirectMethod, request, response);
+        var redirectMethod = getRedirectMethod(httpVerb, response);
+        if (redirectMethod is HttpOperation) {
+            if (response.hasHeader(LOCATION)) {
+                string location = response.getHeader(LOCATION);
+                log:printDebug(function() returns string {
+                    return "Location header value: " + location;
+                });
+                if (!isAbsolute(location)) {
+                    var resolvedURI = resolve(resolvedRequestedURI, location);
+                    if (resolvedURI is string) {
+                        return performRedirection(resolvedURI, redirectClient, redirectMethod, request, response);
+                    } else if (resolvedURI is error) {
+                        redirectClient.currentRedirectCount = 0;
+                        return resolvedURI;
                     }
                 } else {
-                    redirectClient.currentRedirectCount = 0;
-                    error err = { message: "Location header not available!" };
-                    return err;
+                    return performRedirection(location, redirectClient, redirectMethod, request, response);
                 }
+            } else {
+                redirectClient.currentRedirectCount = 0;
+                error err = error("Location header not available!");
+                return err;
             }
+        } else {
+            setCountAndResolvedURL(redirectClient, response, resolvedRequestedURI);
         }
     }
+    return response;
 }
 
 function performRedirection(string location, RedirectClient redirectClient, HttpOperation redirectMethod,
                                        Request request, Response response) returns @untainted Response|error {
-    log:printDebug("Redirect using new clientEP : " + location);
+    log:printDebug(function() returns string {
+        return "Redirect using new clientEP : " + location;
+    });
     CallerActions newCallerAction = createRetryClient(location,
         createNewEndpoint(location, redirectClient.config));
     Response|error result = invokeEndpoint("", createRedirectRequest(response.statusCode, request),
@@ -373,7 +374,9 @@ function isAbsolute(string locationUrl) returns boolean {
 
 //Reset the current redirect count to 0 and set the resolved requested URI.
 function setCountAndResolvedURL(RedirectClient redirectClient, Response response, string resolvedRequestedURI) {
-    log:printDebug("Ultimate response coming from the request: " + resolvedRequestedURI);
+    log:printDebug(function() returns string {
+        return "Ultimate response coming from the request: " + resolvedRequestedURI;
+    });
     redirectClient.currentRedirectCount = 0;
     response.resolvedRequestedURI = resolvedRequestedURI;
 }

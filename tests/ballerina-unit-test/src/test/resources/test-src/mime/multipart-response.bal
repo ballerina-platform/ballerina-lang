@@ -48,13 +48,12 @@ service<http:Service> test bind mockEP {
     nestedPartsInOutResponse (endpoint conn, http:Request request) {
         string contentType = untaint request.getHeader("content-type");
         http:Response outResponse = new;
-        match (request.getBodyParts()) {
-            error err => {
-                outResponse.setTextPayload(untaint err.message);
-            }
-            mime:Entity[] bodyParts => {
-                outResponse.setBodyParts(untaint bodyParts, contentType = contentType);
-            }
+        var bodyParts = request.getBodyParts();
+
+        if (bodyParts is mime:Entity[]) {
+            outResponse.setBodyParts(untaint bodyParts, contentType = contentType);
+        } else if (bodyParts is error) {
+            outResponse.setPayload(untaint <string>bodyParts.detail().message);
         }
         _ = conn -> respond(outResponse);
     }

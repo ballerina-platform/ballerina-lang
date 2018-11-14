@@ -91,7 +91,8 @@ service<http:Service> failoverDemoService04 bind failoverEP04 {
                 // Create a new HTTP response by looking at the error message.
                 http:Response response = new;
                 response.statusCode = 500;
-                response.setPayload(responseError.message);
+                string errorMgs = <string> responseError.detail().message;
+                response.setPayload(errorMgs);
                 caller->respond(response) but {
                     error e => log:printError("Error sending response", err = e)
                 };
@@ -115,7 +116,8 @@ service<http:Service> failoverDemoService04 bind failoverEP04 {
                 // Create a new HTTP response by looking at the error message.
                 http:Response response = new;
                 response.statusCode = 500;
-                response.setPayload(responseError.message);
+                string errorMgs = <string> responseError.detail().message;
+                response.setPayload(errorMgs);
                 caller->respond(response) but {
                     error e => log:printError("Error sending response", err = e)
                 };
@@ -139,7 +141,8 @@ service<http:Service> failoverDemoService04 bind failoverEP04 {
                 // Create a new HTTP response by looking at the error message.
                 http:Response response = new;
                 response.statusCode = 500;
-                response.setPayload(responseError.message);
+                string errorMgs = <string> responseError.detail().message;
+                response.setPayload(errorMgs);
                 caller->respond(response) but {
                     error e => log:printError("Error sending response", err = e)
                 };
@@ -167,7 +170,8 @@ service<http:Service> failoverDemoService04 bind failoverEP04 {
                 // Create a new HTTP response by looking at the error message.
                 http:Response response = new;
                 response.statusCode = 500;
-                response.setPayload(responseError.message);
+                string errorMgs = <string> responseError.detail().message;
+                response.setPayload(errorMgs);
                 caller->respond(response) but {
                     error e => log:printError("Error sending response", err = e)
                 };
@@ -219,7 +223,7 @@ service mock04 bind backendEP04 {
             match req.getBodyParts() {
                 // Setting the error response in case of an error
                 error err => {
-                    log:printError(err.message);
+                    log:printError(err.reason());
                     response.setPayload("Error in decoding multiparts!");
                     response.statusCode = 500;
                 }

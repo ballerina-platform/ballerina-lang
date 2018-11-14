@@ -4,7 +4,7 @@ import ballerina/io;
 // negative value, it returns an error. 
 function getAgeCategory(int age) returns string|error {
     if (age < 0) {
-        error e = { message: "Invalid" };
+        error e = error("Invalid");
         return e;
     } else if (age <= 18) {
         return "Child";

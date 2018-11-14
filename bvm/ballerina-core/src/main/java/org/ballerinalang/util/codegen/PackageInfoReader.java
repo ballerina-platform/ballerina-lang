@@ -20,6 +20,7 @@ package org.ballerinalang.util.codegen;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BAttachedFunction;
+import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BFunctionType;
@@ -40,6 +41,7 @@ import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.Flags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
@@ -92,6 +94,8 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -102,6 +106,9 @@ import static org.ballerinalang.util.BLangConstants.CONSTRUCTOR_FUNCTION_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.INIT_FUNCTION_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.START_FUNCTION_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.STOP_FUNCTION_SUFFIX;
+import static org.ballerinalang.util.BLangConstants.TEST_INIT_FUNCTION_SUFFIX;
+import static org.ballerinalang.util.BLangConstants.TEST_START_FUNCTION_SUFFIX;
+import static org.ballerinalang.util.BLangConstants.TEST_STOP_FUNCTION_SUFFIX;
 import static org.ballerinalang.util.codegen.InstructionCodes.COMPENSATE;
 
 /**
@@ -567,10 +574,8 @@ public class PackageInfoReader {
 
                 // Read action signature
                 int resSigCPIndex = dataInStream.readInt();
-                resourceInfo.setSignatureCPIndex(resSigCPIndex);
                 UTF8CPEntry resSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(resSigCPIndex);
                 String resSig = resSigUTF8Entry.getValue();
-                resourceInfo.setSignature(resSig);
                 setCallableUnitSignature(packageInfo, resourceInfo, resSig);
 
                 // Read parameter names
@@ -647,6 +652,14 @@ public class PackageInfoReader {
         packageInfo.setInitFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() + INIT_FUNCTION_SUFFIX));
         packageInfo.setStartFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() + START_FUNCTION_SUFFIX));
         packageInfo.setStopFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() + STOP_FUNCTION_SUFFIX));
+
+        // Set for the testable package
+        packageInfo.setTestInitFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() +
+                                                                                TEST_INIT_FUNCTION_SUFFIX));
+        packageInfo.setTestStartFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() +
+                                                                                 TEST_START_FUNCTION_SUFFIX));
+        packageInfo.setTestStopFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() +
+                                                                                TEST_STOP_FUNCTION_SUFFIX));
 
         // TODO Improve this. We should be able to this in a single pass.
         ServiceInfo[] serviceInfoEntries = packageInfo.getServiceInfoEntries();
@@ -946,16 +959,8 @@ public class PackageInfoReader {
                     int ipFrom = dataInStream.readInt();
                     int ipTo = dataInStream.readInt();
                     int ipTarget = dataInStream.readInt();
-                    int priority = dataInStream.readInt();
-                    int errorStructCPIndex = dataInStream.readInt();
-                    ErrorTableEntry tableEntry = new ErrorTableEntry(ipFrom, ipTo,
-                            ipTarget, priority, errorStructCPIndex);
-
-                    if (errorStructCPIndex != -1) {
-                        StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry)
-                                constantPool.getCPEntry(errorStructCPIndex);
-                        tableEntry.setError((TypeDefInfo) structureRefCPEntry.getStructureTypeInfo());
-                    }
+                    int regIndex = dataInStream.readInt();
+                    ErrorTableEntry tableEntry = new ErrorTableEntry(ipFrom, ipTo, ipTarget, regIndex);
                     tableAttributeInfo.addErrorTableEntry(tableEntry);
                 }
                 return tableAttributeInfo;
@@ -1122,8 +1127,7 @@ public class PackageInfoReader {
                 case InstructionCodes.BCONST_1:
                 case InstructionCodes.RCONST_NULL:
                 case InstructionCodes.GOTO:
-                case InstructionCodes.THROW:
-                case InstructionCodes.ERRSTORE:
+                case InstructionCodes.PANIC:
                 case InstructionCodes.NEWXMLSEQ:
                 case InstructionCodes.LOOP_COMPENSATE:
                     i = codeStream.readInt();
@@ -1138,6 +1142,7 @@ public class PackageInfoReader {
                 case InstructionCodes.FCONST:
                 case InstructionCodes.SCONST:
                 case InstructionCodes.BICONST:
+                case InstructionCodes.DCONST:
                 case InstructionCodes.BACONST:
                 case InstructionCodes.IMOVE:
                 case InstructionCodes.FMOVE:
@@ -1146,6 +1151,7 @@ public class PackageInfoReader {
                 case InstructionCodes.RMOVE:
                 case InstructionCodes.INEG:
                 case InstructionCodes.FNEG:
+                case InstructionCodes.DNEG:
                 case InstructionCodes.BNOT:
                 case InstructionCodes.REQ_NULL:
                 case InstructionCodes.RNE_NULL:
@@ -1159,14 +1165,13 @@ public class PackageInfoReader {
                 case InstructionCodes.FRET:
                 case InstructionCodes.SRET:
                 case InstructionCodes.BRET:
+                case InstructionCodes.DRET:
                 case InstructionCodes.RRET:
                 case InstructionCodes.XML2XMLATTRS:
                 case InstructionCodes.NEWXMLCOMMENT:
                 case InstructionCodes.NEWXMLTEXT:
                 case InstructionCodes.XMLSEQSTORE:
                 case InstructionCodes.TYPELOAD:
-                case InstructionCodes.SEQ_NULL:
-                case InstructionCodes.SNE_NULL:
                 case InstructionCodes.NEWMAP:
                 case InstructionCodes.I2ANY:
                 case InstructionCodes.BI2ANY:
@@ -1178,6 +1183,7 @@ public class PackageInfoReader {
                 case InstructionCodes.ANY2F:
                 case InstructionCodes.ANY2S:
                 case InstructionCodes.ANY2B:
+                case InstructionCodes.ANY2D:
                 case InstructionCodes.ANY2JSON:
                 case InstructionCodes.ANY2XML:
                 case InstructionCodes.ANY2MAP:
@@ -1186,17 +1192,25 @@ public class PackageInfoReader {
                 case InstructionCodes.I2F:
                 case InstructionCodes.I2S:
                 case InstructionCodes.I2B:
+                case InstructionCodes.I2D:
                 case InstructionCodes.I2BI:
                 case InstructionCodes.BI2I:
                 case InstructionCodes.F2I:
                 case InstructionCodes.F2S:
                 case InstructionCodes.F2B:
+                case InstructionCodes.F2D:
                 case InstructionCodes.S2I:
                 case InstructionCodes.S2F:
                 case InstructionCodes.S2B:
+                case InstructionCodes.S2D:
                 case InstructionCodes.B2I:
                 case InstructionCodes.B2F:
                 case InstructionCodes.B2S:
+                case InstructionCodes.B2D:
+                case InstructionCodes.D2I:
+                case InstructionCodes.D2F:
+                case InstructionCodes.D2S:
+                case InstructionCodes.D2B:
                 case InstructionCodes.DT2XML:
                 case InstructionCodes.DT2JSON:
                 case InstructionCodes.T2MAP:
@@ -1206,6 +1220,8 @@ public class PackageInfoReader {
                 case InstructionCodes.AWAIT:
                 case InstructionCodes.XMLLOADALL:
                 case InstructionCodes.ARRAY2JSON:
+                case InstructionCodes.REASON:
+                case InstructionCodes.DETAIL:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
@@ -1231,33 +1247,46 @@ public class PackageInfoReader {
                 case InstructionCodes.IADD:
                 case InstructionCodes.FADD:
                 case InstructionCodes.SADD:
+                case InstructionCodes.DADD:
                 case InstructionCodes.XMLADD:
                 case InstructionCodes.ISUB:
                 case InstructionCodes.FSUB:
+                case InstructionCodes.DSUB:
                 case InstructionCodes.IMUL:
                 case InstructionCodes.FMUL:
+                case InstructionCodes.DMUL:
                 case InstructionCodes.IDIV:
                 case InstructionCodes.FDIV:
+                case InstructionCodes.DDIV:
                 case InstructionCodes.IMOD:
                 case InstructionCodes.FMOD:
+                case InstructionCodes.DMOD:
                 case InstructionCodes.IEQ:
                 case InstructionCodes.FEQ:
                 case InstructionCodes.SEQ:
                 case InstructionCodes.BEQ:
+                case InstructionCodes.DEQ:
                 case InstructionCodes.REQ:
+                case InstructionCodes.REF_EQ:
                 case InstructionCodes.INE:
                 case InstructionCodes.FNE:
                 case InstructionCodes.SNE:
                 case InstructionCodes.BNE:
+                case InstructionCodes.DNE:
                 case InstructionCodes.RNE:
+                case InstructionCodes.REF_NEQ:
                 case InstructionCodes.IGT:
                 case InstructionCodes.FGT:
+                case InstructionCodes.DGT:
                 case InstructionCodes.IGE:
                 case InstructionCodes.FGE:
+                case InstructionCodes.DGE:
                 case InstructionCodes.ILT:
                 case InstructionCodes.FLT:
+                case InstructionCodes.DLT:
                 case InstructionCodes.ILE:
                 case InstructionCodes.FLE:
+                case InstructionCodes.DLE:
                 case InstructionCodes.IAND:
                 case InstructionCodes.BIAND:
                 case InstructionCodes.IOR:
@@ -1300,6 +1329,7 @@ public class PackageInfoReader {
                 case InstructionCodes.BNEWARRAY:
                 case InstructionCodes.RNEWARRAY:
                 case InstructionCodes.O2JSON:
+                case InstructionCodes.TYPE_TEST:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
@@ -1309,6 +1339,7 @@ public class PackageInfoReader {
                 case InstructionCodes.NEWXMLELEMENT:
                 case InstructionCodes.TR_BEGIN:
                 case InstructionCodes.MAPLOAD:
+                case InstructionCodes.ERROR:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
@@ -1674,6 +1705,11 @@ public class PackageInfoReader {
                 FloatCPEntry floatCPEntry = (FloatCPEntry) constantPool.getCPEntry(valueCPIndex);
                 defaultValue.setFloatValue(floatCPEntry.getValue());
                 break;
+            case TypeSignature.SIG_DECIMAL:
+                valueCPIndex = dataInStream.readInt();
+                UTF8CPEntry decimalEntry = (UTF8CPEntry) constantPool.getCPEntry(valueCPIndex);
+                defaultValue.setDecimalValue(new BigDecimal(decimalEntry.getValue(), MathContext.DECIMAL128));
+                break;
             case TypeSignature.SIG_STRING:
                 valueCPIndex = dataInStream.readInt();
                 UTF8CPEntry stringCPEntry = (UTF8CPEntry) constantPool.getCPEntry(valueCPIndex);
@@ -1708,6 +1744,10 @@ public class PackageInfoReader {
             case TypeSignature.SIG_FLOAT:
                 double floatValue = defaultValue.getFloatValue();
                 value = new BFloat(floatValue);
+                break;
+            case TypeSignature.SIG_DECIMAL:
+                BigDecimal decimalValue = defaultValue.getDecimalValue();
+                value = new BDecimal(decimalValue);
                 break;
             case TypeSignature.SIG_STRING:
                 String stringValue = defaultValue.getStringValue();
@@ -1799,6 +1839,8 @@ public class PackageInfoReader {
                     return BTypes.typeByte;
                 case 'F':
                     return BTypes.typeFloat;
+                case 'L':
+                    return BTypes.typeDecimal;
                 case 'S':
                     return BTypes.typeString;
                 case 'B':
@@ -1809,6 +1851,8 @@ public class PackageInfoReader {
                     return BTypes.typeAny;
                 case 'N':
                     return BTypes.typeNull;
+                case 'K':
+                    return BTypes.typeAnydata;
                 default:
                     throw new IllegalArgumentException("unsupported basic type char: " + typeChar);
             }
@@ -1893,6 +1937,14 @@ public class PackageInfoReader {
                 returnTypes = new BType[]{retType};
             }
             return new BFunctionType(funcParams.toArray(new BType[funcParams.size()]), returnTypes);
+        }
+
+        @Override
+        public BType getErrorType(BType reasonType, BType detailsType) {
+            if (reasonType == BTypes.typeString && detailsType == BTypes.typeMap) {
+                return BTypes.typeError;
+            }
+            return new BErrorType(reasonType, detailsType);
         }
     }
 

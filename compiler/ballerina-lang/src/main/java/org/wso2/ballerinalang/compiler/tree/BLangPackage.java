@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
@@ -27,9 +28,9 @@ import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.TypeDefinition;
-import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
@@ -53,7 +54,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangImportPackage> imports;
     public List<BLangXMLNS> xmlnsList;
     public List<BLangEndpoint> globalEndpoints;
-    public List<BLangVariable> globalVars;
+    public List<BLangSimpleVariable> globalVars;
     public List<BLangService> services;
     public List<BLangFunction> functions;
     public List<BLangTypeDefinition> typeDefinitions;
@@ -62,11 +63,13 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public Set<CompilerPhase> completedPhases;
     public List<BSymbol> objAttachedFunctions;
     public List<TopLevelNode> topLevelNodes;
+    public List<BLangTestablePackage> testablePkgs;
     // Queue to maintain lambda functions so that we can visit all lambdas at the end of the semantic phase
     public Queue<BLangLambdaFunction> lambdaFunctions = new ArrayDeque<>();
 
     public PackageID packageID;
     public BPackageSymbol symbol;
+    public Set<Flag> flagSet;
 
     // TODO Revisit these instance variables
     public BDiagnosticCollector diagCollector;
@@ -88,6 +91,8 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.topLevelNodes = new ArrayList<>();
         this.completedPhases = EnumSet.noneOf(CompilerPhase.class);
         this.diagCollector = new BDiagnosticCollector();
+        this.testablePkgs = new ArrayList<>();
+        this.flagSet = EnumSet.noneOf(Flag.class);
     }
 
     @Override
@@ -116,7 +121,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
-    public List<BLangVariable> getGlobalVariables() {
+    public List<BLangSimpleVariable> getGlobalVariables() {
         return globalVars;
     }
 
@@ -157,8 +162,8 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
-    public void addGlobalVariable(VariableNode globalVar) {
-        this.globalVars.add((BLangVariable) globalVar);
+    public void addGlobalVariable(SimpleVariableNode globalVar) {
+        this.globalVars.add((BLangSimpleVariable) globalVar);
         this.topLevelNodes.add(globalVar);
     }
 
@@ -186,11 +191,54 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.topLevelNodes.add(typeDefinition);
     }
 
+    /**
+     * Add testable package to package list.
+     *
+     * @param testablePkg testable package node
+     */
+    public void addTestablePkg(BLangTestablePackage testablePkg) {
+        this.testablePkgs.add(testablePkg);
+    }
+
+    /**
+     * Get the testable package list.
+     *
+     * @return testable package list
+     */
+    public List<BLangTestablePackage> getTestablePkgs() {
+        return testablePkgs;
+    }
+
+    /**
+     * Get testable package from the list.
+     *
+     * @return testable package
+     */
+    public BLangTestablePackage getTestablePkg() {
+        return testablePkgs.stream().findAny().get();
+    }
+
+    /**
+     * Checks if the package contains a testable package.
+     *
+     * @return true it testable package exists else false
+     */
+    public boolean containsTestablePkg() {
+        return testablePkgs.stream().findAny().isPresent();
+    }
     @Override
     public NodeKind getKind() {
         return NodeKind.PACKAGE;
     }
 
+    /**
+     * Get flags.
+     *
+     * @return flags of the package
+     */
+    public Set<Flag> getFlags() {
+        return flagSet;
+    }
     /**
      * This class collect diagnostics.
      *

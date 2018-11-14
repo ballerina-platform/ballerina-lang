@@ -21,8 +21,10 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BByteArray;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -97,8 +99,18 @@ public class Utils {
         return timePackageInfo.getStructInfo(STRUCT_TYPE_TIME);
     }
 
-    public static BMap<String, BValue> createConversionError(Context context, String msg) {
-        return BLangVMErrors.createError(context, msg);
+    /**
+     * Get internal conversion error.
+     *
+     * @param context Represent ballerina context
+     * @param errMsg  Error description
+     * @return conversion error
+     */
+    public static BError createConversionError(Context context, String errMsg) {
+        BMap<String, BValue> errorMap = new BMap<>();
+        errorMap.put("message", new BString(errMsg));
+        return BLangVMErrors.createError(context, true, BTypes.typeError, "{ballerina/internal}ConversionError",
+                                         errorMap);
     }
 
     private static BMap<String, BValue> createBase64Error(Context context, String msg, boolean isMimeSpecific,

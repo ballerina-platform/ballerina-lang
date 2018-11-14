@@ -45,7 +45,7 @@ service<http:Service> pipeliningTest bind { port: 9220 } {
         }
 
         caller->respond(untaint response) but {
-            error err => log:printError(err.message, err = err)
+            error err => log:printError(err.reason(), err = err)
         };
     }
 }
@@ -74,9 +74,10 @@ service<http:Service> pipelining bind { port: 9221, timeoutMillis: 1000 } {
             }
         }
 
-        caller->respond(untaint response) but {
-            error err => log:printError("Pipeline timeout:" + err.message, err = err)
-        };
+        var responseError = caller->respond(response);
+        if (responseError is error) {
+            log:printError("Pipeline timeout:" + responseError.reason(), err = responseError);
+        }
     }
 }
 
@@ -88,8 +89,9 @@ service<http:Service> pipeliningLimit bind { port: 9222, maxPipelinedRequests: 2
         runtime:sleep(8000);
         response.setPayload("Pipelined Response");
 
-        caller->respond(untaint response) but {
-            error err => log:printError("Pipeline limit exceeded:" + err.message, err = err)
-        };
+        var responseError = caller->respond(response);
+        if (responseError is error) {
+            log:printError("Pipeline limit exceeded:" + responseError.reason(), err = responseError);
+        }
     }
 }

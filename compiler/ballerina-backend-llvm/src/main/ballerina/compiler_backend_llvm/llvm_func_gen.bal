@@ -4,28 +4,28 @@ import ballerina/bir;
 
 type FuncGenrator object {
     bir:Function func;
-    llvm:LLVMValueRef funcRef;
+    llvm:LLVMValueRef funcRef = {};
     llvm:LLVMModuleRef mod;
-    map<llvm:LLVMValueRef> localVarRefs;
-    llvm:LLVMValueRef varAllocBB;
+    map<llvm:LLVMValueRef> localVarRefs = {};
+    llvm:LLVMValueRef varAllocBB = {};
     llvm:LLVMBuilderRef builder;
 
     new(mod, builder, func) {
     }
 
     function genFunctionDecl() {
-        var name = func.name.value;
-        llvm:LLVMTypeRef[] argTypes = genFunctionArgTypes(func.argsCount);
-        var retTypeRef = genBType(func.typeValue.retType);
-        var functionType = llvm:LLVMFunctionType1(retTypeRef, argTypes, func.argsCount, 0);
-        funcRef = llvm:LLVMAddFunction(mod, name, functionType);
+        var name = self.func.name.value;
+        llvm:LLVMTypeRef[] argTypes = self.genFunctionArgTypes(self.func.argsCount);
+        var retTypeRef = genBType(self.func.typeValue.retType);
+        var functionType = llvm:LLVMFunctionType1(retTypeRef, argTypes, self.func.argsCount, 0);
+        self.funcRef = llvm:LLVMAddFunction(self.mod, name, functionType);
     }
 
     function genFunctionArgTypes(int argsCount) returns llvm:LLVMTypeRef[] {
-        if (func.argsCount == 0){
-            return genVoidFunctionArgTypes();
+        if (self.func.argsCount == 0){
+            return self.genVoidFunctionArgTypes();
         } else {
-            return genNonVoidFunctionArgTypes(argsCount);
+            return self.genNonVoidFunctionArgTypes(argsCount);
         }
     }
 
@@ -36,7 +36,7 @@ type FuncGenrator object {
     function genNonVoidFunctionArgTypes(int argsCount) returns llvm:LLVMTypeRef[] {
         llvm:LLVMTypeRef[] argTypes = [];
         int i = 0;
-        while (i < func.argsCount) {
+        while (i < self.func.argsCount) {
             argTypes[i] = llvm:LLVMInt64Type();
             i += 1;
         }
@@ -44,24 +44,24 @@ type FuncGenrator object {
     }
 
     function genFunctionBody(map<FuncGenrator> funcGenrators) {
-        genLocalVarAllocationBbBody();
-        var bbTermGenrators = genBbBodies();
-        genLocalVarAllocationBBTerminator(bbTermGenrators);
-        genBbTerminators(funcGenrators, bbTermGenrators);
+        self.genLocalVarAllocationBbBody();
+        var bbTermGenrators = self.genBbBodies();
+        self.genLocalVarAllocationBBTerminator(bbTermGenrators);
+        self.genBbTerminators(funcGenrators, bbTermGenrators);
     }
 
     function genLocalVarAllocationBbBody() {
-        varAllocBB = genBbDecl("var_allloc");
+        self.varAllocBB = self.genBbDecl("var_allloc");
         int paramIndex = 0;
-        foreach localVar in func.localVars{
+        foreach localVar in self.func.localVars{
             var varName = localVarName(localVar);
             var varType = genBType(localVar.typeValue);
-            llvm:LLVMValueRef localVarRef = llvm:LLVMBuildAlloca(builder, varType, varName);
-            localVarRefs[localVar.name.value] = localVarRef;
+            llvm:LLVMValueRef localVarRef = llvm:LLVMBuildAlloca(self.builder, varType, varName);
+            self.localVarRefs[localVar.name.value] = localVarRef;
 
-            if (isParamter(localVar)){
-                var parmRef = llvm:LLVMGetParam(funcRef, paramIndex);
-                var loaded = llvm:LLVMBuildStore(builder, parmRef, localVarRef);
+            if (self.isParamter(localVar)){
+                var parmRef = llvm:LLVMGetParam(self.funcRef, paramIndex);
+                var loaded = llvm:LLVMBuildStore(self.builder, parmRef, localVarRef);
                 paramIndex += 1;
             }
         }
@@ -75,17 +75,17 @@ type FuncGenrator object {
     }
 
     function genBbBodies() returns map<BbTermGenrator> {
-        map<BbTermGenrator> bbTermGenrators;
-        foreach bb in func.basicBlocks {
-            BbBodyGenrator g = new(builder, self, bb);
+        map<BbTermGenrator> bbTermGenrators = {};
+        foreach bb in self.func.basicBlocks {
+            BbBodyGenrator g = new(self.builder, self, bb);
             bbTermGenrators[bb.id.value] = g.genBasicBlockBody();
         }
         return bbTermGenrators;
     }
 
     function genLocalVarAllocationBBTerminator(map<BbTermGenrator> bbTermGenrators) {
-        llvm:LLVMPositionBuilderAtEnd(builder, varAllocBB);
-        var brInsRef = llvm:LLVMBuildBr(builder, findBbRefById(bbTermGenrators, "bb0"));
+        llvm:LLVMPositionBuilderAtEnd(self.builder, self.varAllocBB);
+        var brInsRef = llvm:LLVMBuildBr(self.builder, findBbRefById(bbTermGenrators, "bb0"));
     }
 
     function genBbTerminators(map<FuncGenrator> funcGenrators, map<BbTermGenrator> bbTermGenrators) {
@@ -97,28 +97,28 @@ type FuncGenrator object {
     function genLoadLocalToTempVar(bir:Operand oprand) returns llvm:LLVMValueRef {
         bir:VarRef refOprand = oprand;
         string tempName = localVarName(refOprand.variableDcl) + "_temp";
-        var localVarRef = getLocalVarRefById(refOprand.variableDcl.name.value);
-        return llvm:LLVMBuildLoad(builder, localVarRef, tempName);
+        var localVarRef = self.getLocalVarRefById(refOprand.variableDcl.name.value);
+        return llvm:LLVMBuildLoad(self.builder, localVarRef, tempName);
     }
 
     function getLocalVarRefById(string id) returns llvm:LLVMValueRef {
-        match localVarRefs[id] {
+        match self.localVarRefs[id] {
             llvm:LLVMValueRef varRef => return varRef;
             any => {
-                error err = { message: "Local var by name '" + id + "' dosn't exist in " + func.name.value };
-                throw err;
+                error err = error("Local var by name '" + id + "' dosn't exist in " + self.func.name.value);
+                panic err;
             }
         }
     }
 
     function genBbDecl(string name) returns llvm:LLVMValueRef {
-        var bbRef = llvm:LLVMAppendBasicBlock(funcRef, name);
-        llvm:LLVMPositionBuilderAtEnd(builder, bbRef);
+        var bbRef = llvm:LLVMAppendBasicBlock(self.funcRef, name);
+        llvm:LLVMPositionBuilderAtEnd(self.builder, bbRef);
         return bbRef;
     }
 
     function isVoidFunc() returns boolean {
-        return func.typeValue.retType != "()";
+        return self.func.typeValue.retType != "()";
     }
 };
 

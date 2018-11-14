@@ -15,8 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
-import ballerina/streams;
 
 type Teacher record {
     string name;
@@ -67,7 +65,7 @@ function startOrderByQuery() returns TeacherOutput[] {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof globalTeacherOutputArray) == 10 || count == 10) {
+        if((globalTeacherOutputArray.length()) == 10 || count == 10) {
             break;
         }
     }

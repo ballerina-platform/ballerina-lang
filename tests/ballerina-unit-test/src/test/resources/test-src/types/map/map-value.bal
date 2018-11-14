@@ -92,6 +92,6 @@ function testMapSynchronization() returns (int)
             }
         }
     } join (all) (map results) {
-        return lengthof m;
+        return m.length();
     }
 }

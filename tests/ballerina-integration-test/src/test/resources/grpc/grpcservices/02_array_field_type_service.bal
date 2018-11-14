@@ -13,8 +13,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/io;
 import ballerina/grpc;
+import ballerina/io;
 
 endpoint grpc:Listener ep3 {
     host:"localhost",
@@ -31,7 +31,11 @@ service HelloWorld3 bind ep3 {
             result = result + number;
         }
         error? err = caller->send(result);
-        io:println(err.message but { () => ("Result: " + result) });
+        if (err is error) {
+            io:println("Error from Connector: " + err.reason());
+        } else {
+            io:println("Result: " + result);
+        }
         _ = caller->complete();
     }
 
@@ -43,7 +47,11 @@ service HelloWorld3 bind ep3 {
             result = result + "," + value;
         }
         error? err = caller->send(result);
-        io:println(err.message but { () => ("Result: " + result) });
+        if (err is error) {
+            io:println("Error from Connector: " + err.reason());
+        } else {
+            io:println("Result: " + result);
+        }
         _ = caller->complete();
     }
 
@@ -55,7 +63,11 @@ service HelloWorld3 bind ep3 {
             result = result + value;
         }
         error? err = caller->send(result);
-        io:println(err.message but { () => ("Result: " + result) });
+        if (err is error) {
+            io:println("Error from Connector: " + err.reason());
+        } else {
+            io:println("Result: " + result);
+        }
         _ = caller->complete();
     }
 
@@ -67,7 +79,11 @@ service HelloWorld3 bind ep3 {
             result = result || value;
         }
         error? err = caller->send(result);
-        io:println(err.message but { () => ("Result: " + result) });
+        if (err is error) {
+            io:println("Error from Connector: " + err.reason());
+        } else {
+            io:println("Result: " + result);
+        }
         _ = caller->complete();
     }
 
@@ -79,39 +95,55 @@ service HelloWorld3 bind ep3 {
             result = result + "," + value.name;
         }
         error? err = caller->send(result);
-        io:println(err.message but { () => ("Result: " + result) });
+        if (err is error) {
+            io:println("Error from Connector: " + err.reason());
+        } else {
+            io:println("Result: " + result);
+        }
         _ = caller->complete();
     }
 
     testIntArrayOutput(endpoint caller) {
         TestInt intArray = {values:[1, 2, 3, 4, 5]};
         error? err = caller->send(intArray);
-        io:println(err.message but { () => ("Response: ") });
-        io:println(intArray);
+        if (err is error) {
+            io:println("Error from Connector: " + err.reason());
+        } else {
+            io:println(intArray);
+        }
         _ = caller->complete();
     }
 
     testStringArrayOutput(endpoint caller) {
         TestString stringArray = {values:["A", "B", "C"]};
         error? err = caller->send(stringArray);
-        io:println(err.message but { () => ("Response: ") });
-        io:println(stringArray);
+        if (err is error) {
+            io:println("Error from Connector: " + err.reason());
+        } else {
+            io:println(stringArray);
+        }
         _ = caller->complete();
     }
 
     testFloatArrayOutput(endpoint caller) {
         TestFloat floatArray = {values:[1.1, 1.2, 1.3, 1.4, 1.5]};
         error? err = caller->send(floatArray);
-        io:println(err.message but { () => ("Response: ") });
-        io:println(floatArray);
+        if (err is error) {
+            io:println("Error from Connector: " + err.reason());
+        } else {
+            io:println(floatArray);
+        }
         _ = caller->complete();
     }
 
     testBooleanArrayOutput(endpoint caller) {
         TestBoolean booleanArray = {values:[true, false, true]};
         error? err = caller->send(booleanArray);
-        io:println(err.message but { () => ("Response: ") });
-        io:println(booleanArray);
+        if (err is error) {
+            io:println("Error from Connector: " + err.reason());
+        } else {
+            io:println(booleanArray);
+        }
         _ = caller->complete();
     }
 
@@ -120,8 +152,11 @@ service HelloWorld3 bind ep3 {
         A a2 = {name:"John"};
         TestStruct structArray = {values:[a1, a2]};
         error? err = caller->send(structArray);
-        io:println(err.message but { () => ("Response: ") });
-        io:println(structArray);
+        if (err is error) {
+            io:println("Error from Connector: " + err.reason());
+        } else {
+            io:println(structArray);
+        }
         _ = caller->complete();
     }
 }

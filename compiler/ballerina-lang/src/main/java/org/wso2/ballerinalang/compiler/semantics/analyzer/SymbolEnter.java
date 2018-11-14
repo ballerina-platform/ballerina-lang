@@ -68,10 +68,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
+import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -80,11 +83,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
@@ -106,7 +107,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
@@ -154,7 +154,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     public BLangPackage definePackage(BLangPackage pkgNode) {
         populatePackageNode(pkgNode);
-        defineNode(pkgNode, null);
+        defineNode(pkgNode, this.symTable.pkgEnvMap.get(symTable.builtInPackageSymbol));
         return pkgNode;
     }
 
@@ -165,6 +165,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.env = prevEnv;
     }
 
+    public BLangPackage defineTestablePackage(BLangTestablePackage pkgNode, SymbolEnv env,
+                                              List<BLangImportPackage> enclPkgImports) {
+        populatePackageNode(pkgNode, enclPkgImports);
+        defineNode(pkgNode, env);
+        return pkgNode;
+    }
 
     // Visitor methods
 
@@ -175,13 +181,24 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         // Create PackageSymbol
-        BPackageSymbol pkgSymbol = Symbols.createPackageSymbol(pkgNode.packageID, this.symTable);
+        BPackageSymbol pkgSymbol;
+        if (Symbols.isFlagOn(Flags.asMask(pkgNode.flagSet), Flags.TESTABLE)) {
+            pkgSymbol = Symbols.createPackageSymbol(pkgNode.packageID, this.symTable, Flags.asMask(pkgNode.flagSet));
+        } else {
+            pkgSymbol = Symbols.createPackageSymbol(pkgNode.packageID, this.symTable);
+        }
+
         pkgNode.symbol = pkgSymbol;
-        SymbolEnv builtinEnv = this.symTable.pkgEnvMap.get(symTable.builtInPackageSymbol);
-        SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgSymbol.scope, builtinEnv);
+        SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgSymbol.scope, this.env);
         this.symTable.pkgEnvMap.put(pkgSymbol, pkgEnv);
 
-        createPackageInitFunctions(pkgNode);
+        defineConstructs(pkgNode, pkgEnv);
+        pkgNode.getTestablePkgs().forEach(testablePackage -> defineTestablePackage(testablePackage, pkgEnv,
+                                                                                   pkgNode.imports));
+        pkgNode.completedPhases.add(CompilerPhase.DEFINE);
+    }
+
+    private void defineConstructs(BLangPackage pkgNode, SymbolEnv pkgEnv) {
         // visit the package node recursively and define all package level symbols.
         // And maintain a list of created package symbols.
         pkgNode.imports.forEach(importNode -> defineNode(importNode, pkgEnv));
@@ -218,9 +235,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.annotations.forEach(annot -> defineNode(annot, pkgEnv));
 
         pkgNode.globalEndpoints.forEach(ep -> defineNode(ep, pkgEnv));
-
-        definePackageInitFunctions(pkgNode, pkgEnv);
-        pkgNode.completedPhases.add(CompilerPhase.DEFINE);
     }
 
     public void visit(BLangAnnotation annotationNode) {
@@ -256,6 +270,14 @@ public class SymbolEnter extends BLangNodeVisitor {
             // means it's in 'import <pkg-name>' style
             orgName = enclPackageID.orgName;
             version = (Names.DEFAULT_VERSION.equals(enclPackageID.version)) ? new Name("") : enclPackageID.version;
+        } else if (importPkgNode.orgName.value.equals(enclPackageID.orgName.value)) {
+            // means it's in 'import <org-name>/<pkg-name>' style and <org-name> is used to import within same project
+            orgName = names.fromIdNode(importPkgNode.orgName);
+            // Here we set the version as empty due to the following cases:
+            // 1) Suppose the import is from the same package, then the project version will be set later
+            // 2) Suppose the import is from Ballerina Central or another project which has the same org, then the
+            //    version is set when loading the import module
+            version = new Name("");
         } else {
             // means it's in 'import <org-name>/<pkg-name>' style
             orgName = names.fromIdNode(importPkgNode.orgName);
@@ -352,7 +374,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE ||
                 typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
             BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDefinition.typeNode;
-            // For each referenced type, check whether the types are already resolved. 
+            // For each referenced type, check whether the types are already resolved.
             // If not, then that type should get a higher precedence.
             for (BLangType typeRef : structureTypeNode.typeRefs) {
                 BType referencedType = symResolver.resolveTypeNode(typeRef, env);
@@ -412,7 +434,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 visitObjectAttachedFunction(funcNode);
                 return;
             }
-            SymbolEnv objectEnv = SymbolEnv.createTypeDefEnv(null, funcNode.receiver.type.
+            SymbolEnv objectEnv = SymbolEnv.createTypeEnv(null, funcNode.receiver.type.
                     tsymbol.scope, env);
             BSymbol funcSymbol = symResolver.lookupSymbol(objectEnv, getFuncSymbolName(funcNode), SymTag.FUNCTION);
             if (funcSymbol == symTable.notFoundSymbol) {
@@ -531,7 +553,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         return false;
     }
 
-    private boolean namesMissMatch(List<BLangVariable> lhs, List<BVarSymbol> rhs) {
+    private boolean namesMissMatch(List<BLangSimpleVariable> lhs, List<BVarSymbol> rhs) {
         if (lhs.size() != rhs.size()) {
             return true;
         }
@@ -544,7 +566,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         return false;
     }
 
-    private boolean namesMissMatchDef(List<BLangVariableDef> lhs, List<BVarSymbol> rhs) {
+    private boolean namesMissMatchDef(List<BLangSimpleVariableDef> lhs, List<BVarSymbol> rhs) {
         if (lhs.size() != rhs.size()) {
             return true;
         }
@@ -576,7 +598,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    void visitObjectAttachedFunctionParam(BLangVariable variable, SymbolEnv invokableEnv) {
+    void visitObjectAttachedFunctionParam(BLangSimpleVariable variable, SymbolEnv invokableEnv) {
         // assign the type to var type node
         if (variable.type == null) {
             variable.type = symResolver.resolveTypeNode(variable.typeNode, env);
@@ -585,7 +607,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         visitObjectAttachedFunctionParamSymbol(variable, invokableEnv);
     }
 
-    void visitObjectAttachedFunctionParamSymbol(BLangVariable variable, SymbolEnv invokableEnv) {
+    void visitObjectAttachedFunctionParamSymbol(BLangSimpleVariable variable, SymbolEnv invokableEnv) {
         BSymbol varSymbol = symResolver.lookupSymbol(invokableEnv, names.fromIdNode(variable.name),
                 SymTag.VARIABLE);
         if (varSymbol == symTable.notFoundSymbol) {
@@ -632,39 +654,10 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangVariable varNode) {
+    public void visit(BLangSimpleVariable varNode) {
         // this is a field variable defined for object init function
         if (varNode.isField) {
-            Name varName = names.fromIdNode(varNode.name);
-            BSymbol symbol;
-            if (env.enclTypeDefinition != null) {
-                symbol = symResolver.resolveObjectField(varNode.pos, env, varName,
-                        env.enclTypeDefinition.symbol.type.tsymbol);
-            } else {
-                symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
-            }
-
-            if (symbol == symTable.notFoundSymbol) {
-                dlog.error(varNode.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, varName,
-                        env.enclTypeDefinition.symbol.type.getKind().typeName(), env.enclTypeDefinition.name);
-            }
-            varNode.type = symbol.type;
-            Name updatedVarName = varName;
-            if (((BLangFunction) env.enclInvokable).receiver != null) {
-                updatedVarName = getFieldSymbolName(((BLangFunction) env.enclInvokable).receiver, varNode);
-            }
-            BVarSymbol varSymbol = defineVarSymbol(varNode.pos, varNode.flagSet, varNode.type, updatedVarName, env);
-
-            // Reset the name of the symbol to the original var name
-            varSymbol.name = varName;
-
-            // This means enclosing type definition is a object type definition
-            if (env.enclTypeDefinition != null) {
-                BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) env.enclTypeDefinition.typeNode;
-                objectTypeNode.initFunction.initFunctionStmts
-                        .put(symbol, (BLangStatement) createAssignmentStmt(varNode, varSymbol, symbol));
-            }
-            varNode.symbol = varSymbol;
+            defineInitFunctionParam(varNode);
             return;
         }
 
@@ -694,6 +687,21 @@ public class SymbolEnter extends BLangNodeVisitor {
                 varNode.type, varName, env);
         varSymbol.markdownDocumentation = getMarkdownDocAttachment(varNode.markdownDocumentationAttachment);
         varNode.symbol = varSymbol;
+    }
+
+    @Override
+    public void visit(BLangTupleVariable varNode) {
+        // assign the type to var type node
+        if (varNode.type == null) {
+            varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangRecordVariable varNode) {
+        if (varNode.type == null) {
+            varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
+        }
     }
 
     @Override
@@ -776,6 +784,19 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     /**
+     * Visit each compilation unit (.bal file) and add each top-level node in the compilation unit to the
+     * testable package node.
+     *
+     * @param pkgNode current package node
+     * @param enclPkgImports imports of the enclosed package
+     */
+    private void populatePackageNode(BLangTestablePackage pkgNode, List<BLangImportPackage> enclPkgImports) {
+        populatePackageNode(pkgNode);
+        // Remove recurring imports from the testable package which appears in the enclosing bLangPackage
+        pkgNode.getImports().removeIf(enclPkgImports::contains);
+    }
+
+    /**
      * Visit each top-level node and add it to the package node.
      *
      * @param pkgNode  current package node
@@ -816,7 +837,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 pkgNode.services.add((BLangService) node);
                 break;
             case VARIABLE:
-                pkgNode.globalVars.add((BLangVariable) node);
+                pkgNode.globalVars.add((BLangSimpleVariable) node);
                 // TODO There are two kinds of package level variables, constant and regular variables.
                 break;
             case ANNOTATION:
@@ -842,7 +863,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             // Create typeDef type
             BStructureType structureType = (BStructureType) typeDef.symbol.type;
             BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDef.typeNode;
-            SymbolEnv typeDefEnv = SymbolEnv.createTypeDefEnv(typeDef, typeDef.symbol.scope, pkgEnv);
+            SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(structureTypeNode, typeDef.symbol.scope, pkgEnv);
 
             // Resolve and add the fields of the referenced types to this object.
             resolveReferencedFields(structureTypeNode, typeDefEnv);
@@ -851,7 +872,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             structureType.fields =
                     Stream.concat(structureTypeNode.fields.stream(), structureTypeNode.referencedFields.stream())
                             .peek(field -> defineNode(field, typeDefEnv))
-                            .filter(field -> field.symbol.type != symTable.errType) // filter out erroneous fields 
+                            .filter(field -> field.symbol.type != symTable.semanticError) // filter out erroneous fields
                             .map(field -> new BField(names.fromIdNode(field.name), field.symbol, field.expr != null))
                             .collect(Collectors.toList());
 
@@ -872,7 +893,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     recordType.restFieldType = symTable.noType;
                     continue;
                 }
-                recordType.restFieldType = symTable.anyType;
+                recordType.restFieldType = symTable.anydataType;
                 continue;
             }
 
@@ -887,7 +908,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
             if (typeDef.symbol.kind == SymbolKind.OBJECT) {
                 BLangObjectTypeNode objTypeNode = (BLangObjectTypeNode) typeDef.typeNode;
-                SymbolEnv objEnv = SymbolEnv.createTypeDefEnv(typeDef, typeDef.symbol.scope, pkgEnv);
+                SymbolEnv objEnv = SymbolEnv.createTypeEnv(objTypeNode, typeDef.symbol.scope, pkgEnv);
 
                 // Define the functions defined within the object
                 defineObjectInitFunction(objTypeNode, objEnv);
@@ -897,8 +918,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 });
 
                 // Add the attached functions of the referenced types to this object.
-                // Here it is assumed that all the attached functions of the referred type are 
-                // resolved by the time we reach here. It is achieved by ordering the typeDefs 
+                // Here it is assumed that all the attached functions of the referred type are
+                // resolved by the time we reach here. It is achieved by ordering the typeDefs
                 // according to the precedence.
                 for (BLangType typeRef : objTypeNode.typeRefs) {
                     if (typeRef.type.tsymbol.kind != SymbolKind.OBJECT) {
@@ -923,7 +944,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         services.forEach(service -> {
             SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(service, service.symbol.scope, pkgEnv);
             service.nsDeclarations.forEach(xmlns -> defineNode(xmlns, serviceEnv));
-            service.vars.forEach(varDef -> defineNode(varDef.var, serviceEnv));
+            service.vars.forEach(varDef -> {
+                if (varDef.var.isDeclaredWithVar) {
+                    dlog.error(varDef.pos, DiagnosticCode.EXTRANEOUS_INPUT, "'var'");
+                } else {
+                    defineNode(varDef.var, serviceEnv);
+                }
+            });
             defineServiceInitFunction(service, serviceEnv);
             service.resources.stream()
                     .peek(action -> action.flagSet.add(Flag.PUBLIC))
@@ -998,6 +1025,20 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
+    /**
+     * Define a symbol that is unique only for the current scope.
+     * 
+     * @param pos Line number information of the source file
+     * @param symbol Symbol to be defines
+     * @param env Environment to define the symbol
+     */
+    public void defineShadowedSymbol(DiagnosticPos pos, BSymbol symbol, SymbolEnv env) {
+        symbol.scope = new Scope(symbol);
+        if (symResolver.checkForUniqueSymbolInCurrentScope(pos, env, symbol, symbol.tag)) {
+            env.scope.define(symbol.name, symbol);
+        }
+    }
+
     private void defineSymbolWithCurrentEnvOwner(DiagnosticPos pos, BSymbol symbol) {
         symbol.scope = new Scope(env.scope.owner);
         if (symResolver.checkForUniqueSymbol(pos, env, symbol, symbol.tag)) {
@@ -1013,7 +1054,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Add it to the enclosing scope
         if (!symResolver.checkForUniqueSymbol(pos, env, varSymbol, SymTag.VARIABLE_NAME)) {
-            varSymbol.type = symTable.errType;
+            varSymbol.type = symTable.semanticError;
         }
         enclScope.define(varSymbol.name, varSymbol);
         return varSymbol;
@@ -1024,6 +1065,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (varType.tag == TypeTags.INVOKABLE) {
             varSymbol = new BInvokableSymbol(SymTag.VARIABLE, Flags.asMask(flagSet), varName,
                     env.enclPkg.symbol.pkgID, varType, env.scope.owner);
+            varSymbol.kind = SymbolKind.FUNCTION;
         } else {
             varSymbol = new BVarSymbol(Flags.asMask(flagSet), varName,
                     env.enclPkg.symbol.pkgID, varType, env.scope.owner);
@@ -1040,7 +1082,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Add it to the enclosing scope
         // Find duplicates
         if (!symResolver.checkForUniqueSymbol(pos, env, varSymbol, SymTag.VARIABLE_NAME)) {
-            varSymbol.type = symTable.errType;
+            varSymbol.type = symTable.semanticError;
         }
         enclScope.define(varSymbol.name, varSymbol);
         return varSymbol;
@@ -1136,7 +1178,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         objectSymbol.initializerFunc = attachedFunc;
     }
 
-    private StatementNode createAssignmentStmt(BLangVariable variable, BVarSymbol varSym, BSymbol fieldVar) {
+    private StatementNode createAssignmentStmt(BLangSimpleVariable variable, BVarSymbol varSym, BSymbol fieldVar) {
         //Create LHS reference variable
         BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
         varRef.pos = variable.pos;
@@ -1161,8 +1203,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         return assignmentStmt;
     }
 
-    private BLangVariable createReceiver(DiagnosticPos pos, BLangIdentifier name) {
-        BLangVariable receiver = (BLangVariable) TreeBuilder.createVariableNode();
+    private BLangSimpleVariable createReceiver(DiagnosticPos pos, BLangIdentifier name) {
+        BLangSimpleVariable receiver = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         receiver.pos = pos;
         IdentifierNode identifier = createIdentifier(Names.SELF.getValue());
         receiver.setName(identifier);
@@ -1173,53 +1215,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         return receiver;
     }
 
-    private void definePackageInitFunctions(BLangPackage pkgNode, SymbolEnv env) {
-        BLangFunction initFunction = pkgNode.initFunction;
-        // Add package level namespace declarations to the init function
-        pkgNode.xmlnsList.forEach(xmlns -> {
-            initFunction.body.addStatement(createNamespaceDeclrStatement(xmlns));
-        });
-
-        defineNode(pkgNode.initFunction, env);
-        pkgNode.symbol.initFunctionSymbol = pkgNode.initFunction.symbol;
-
-        addInitReturnStatement(pkgNode.startFunction.body);
-        defineNode(pkgNode.startFunction, env);
-        pkgNode.symbol.startFunctionSymbol = pkgNode.startFunction.symbol;
-
-        addInitReturnStatement(pkgNode.stopFunction.body);
-        defineNode(pkgNode.stopFunction, env);
-        pkgNode.symbol.stopFunctionSymbol = pkgNode.stopFunction.symbol;
-    }
-
-    private void createPackageInitFunctions(BLangPackage pkgNode) {
-        String alias = pkgNode.symbol.pkgID.toString();
-        pkgNode.initFunction = ASTBuilderUtil.createInitFunction(pkgNode.pos, alias,
-                Names.INIT_FUNCTION_SUFFIX);
-        pkgNode.startFunction = ASTBuilderUtil.createInitFunction(pkgNode.pos, alias,
-                Names.START_FUNCTION_SUFFIX);
-        pkgNode.stopFunction = ASTBuilderUtil.createInitFunction(pkgNode.pos, alias,
-                Names.STOP_FUNCTION_SUFFIX);
-    }
-
     private IdentifierNode createIdentifier(String value) {
         IdentifierNode node = TreeBuilder.createIdentifierNode();
         if (value != null) {
             node.setValue(value);
         }
         return node;
-    }
-
-    private void addInitReturnStatement(BLangBlockStmt bLangBlockStmt) {
-        BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(bLangBlockStmt.pos, symTable.nilType);
-        bLangBlockStmt.addStatement(returnStmt);
-    }
-
-    private BLangXMLNSStatement createNamespaceDeclrStatement(BLangXMLNS xmlns) {
-        BLangXMLNSStatement xmlnsStmt = (BLangXMLNSStatement) TreeBuilder.createXMLNSDeclrStatementNode();
-        xmlnsStmt.xmlnsDecl = xmlns;
-        xmlnsStmt.pos = xmlns.pos;
-        return xmlnsStmt;
     }
 
     private boolean validateFuncReceiver(BLangFunction funcNode) {
@@ -1230,7 +1231,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (funcNode.receiver.type == null) {
             funcNode.receiver.type = symResolver.resolveTypeNode(funcNode.receiver.typeNode, env);
         }
-        if (funcNode.receiver.type.tag == TypeTags.ERROR) {
+        if (funcNode.receiver.type.tag == TypeTags.SEMANTIC_ERROR) {
             return true;
         }
 
@@ -1238,6 +1239,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 && funcNode.receiver.type.tag != TypeTags.STRING
                 && funcNode.receiver.type.tag != TypeTags.INT
                 && funcNode.receiver.type.tag != TypeTags.FLOAT
+                && funcNode.receiver.type.tag != TypeTags.DECIMAL
                 && funcNode.receiver.type.tag != TypeTags.JSON
                 && funcNode.receiver.type.tag != TypeTags.XML
                 && funcNode.receiver.type.tag != TypeTags.MAP
@@ -1267,7 +1269,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         return names.fromIdNode(funcNode.name);
     }
 
-    private Name getFieldSymbolName(BLangVariable receiver, BLangVariable variable) {
+    private Name getFieldSymbolName(BLangSimpleVariable receiver, BLangSimpleVariable variable) {
         return names.fromString(Symbols.getAttachedFuncSymbolName(
                 receiver.type.tsymbol.name.value, variable.name.value));
     }
@@ -1299,7 +1301,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Get the inherited fields from the type references
         structureTypeNode.referencedFields = structureTypeNode.typeRefs.stream().flatMap(typeRef -> {
             BType referredType = symResolver.resolveTypeNode(typeRef, typeDefEnv);
-            if (referredType == symTable.errType) {
+            if (referredType == symTable.semanticError) {
                 return Stream.empty();
             }
 
@@ -1320,8 +1322,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             // by the time we reach here. It is achieved by ordering the typeDefs according
             // to the precedence.
             // Default values of fields are not inherited.
-            return ((BStructureType) referredType).fields.stream()
-                    .map(field -> ASTBuilderUtil.createVariable(typeRef.pos, field.name.value, field.type));
+            return ((BStructureType) referredType).fields.stream().map(field -> {
+                BLangSimpleVariable var = ASTBuilderUtil.createVariable(typeRef.pos, field.name.value, field.type);
+                var.flagSet = field.symbol.getFlags();
+                return var;
+            });
         }).collect(Collectors.toList());
     }
 
@@ -1360,5 +1365,38 @@ public class SymbolEnter extends BLangNodeVisitor {
                 new BAttachedFunction(function.funcName, funcSymbol, (BInvokableType) funcSymbol.type);
         ((BObjectTypeSymbol) typeDef.symbol).attachedFuncs.add(attachedFunc);
         ((BObjectTypeSymbol) typeDef.symbol).referencedFunctions.add(attachedFunc);
+    }
+
+    private void defineInitFunctionParam(BLangSimpleVariable varNode) {
+        Name varName = names.fromIdNode(varNode.name);
+
+        // Here it is assumed that initFunctions are always for objects.
+        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) env.enclType;
+        BTypeSymbol objectTypeSumbol = objectTypeNode.type.tsymbol;
+        BSymbol fieldSymbol = symResolver.resolveObjectField(varNode.pos, env, varName, objectTypeSumbol);
+
+        if (fieldSymbol == symTable.notFoundSymbol) {
+            dlog.error(varNode.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, varName,
+                    env.enclType.type.getKind().typeName(), env.enclType.type.tsymbol.name);
+        }
+
+        // Define a new symbol for the constructor param, with the same type as the object field.
+        varNode.type = fieldSymbol.type;
+        BVarSymbol paramSymbol;
+        if (fieldSymbol.kind == SymbolKind.FUNCTION) {
+            paramSymbol = ASTBuilderUtil.duplicateInvokableSymbol((BInvokableSymbol) fieldSymbol,
+                    objectTypeNode.initFunction.symbol, fieldSymbol.name, objectTypeSumbol.pkgID);
+        } else {
+            paramSymbol = new BVarSymbol(Flags.asMask(varNode.flagSet), varName, env.enclPkg.symbol.pkgID, varNode.type,
+                    env.scope.owner);
+        }
+        defineShadowedSymbol(varNode.pos, paramSymbol, env);
+
+        // Create an assignment to the actual field.
+        // i.e.: self.x = x
+        objectTypeNode.initFunction.initFunctionStmts.put(fieldSymbol,
+                (BLangStatement) createAssignmentStmt(varNode, paramSymbol, fieldSymbol));
+        varNode.symbol = paramSymbol;
+        return;
     }
 }

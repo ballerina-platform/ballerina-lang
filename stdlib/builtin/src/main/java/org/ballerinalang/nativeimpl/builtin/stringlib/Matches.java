@@ -19,12 +19,12 @@
 package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.BuiltInUtils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -52,7 +52,7 @@ public class Matches extends AbstractRegexFunction {
             BBoolean matches = new BBoolean(matcher.matches());
             context.setReturnValues(matches);
         } catch (PatternSyntaxException e) {
-            context.setReturnValues(BLangVMErrors.createError(context, e.getMessage()));
+            context.setReturnValues(BuiltInUtils.createStringError(context, e.getMessage()));
         }
     }
 }

@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -43,6 +44,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -561,6 +563,12 @@ public class CompiledPackageSymbolEnter {
                 litExpr.value = floatCPEntry.getValue();
                 litExpr.typeTag = TypeTags.FLOAT;
                 break;
+            case TypeDescriptor.SIG_DECIMAL:
+                valueCPIndex = dataInStream.readInt();
+                UTF8CPEntry decimalEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
+                litExpr.value = decimalEntry.getValue();
+                litExpr.typeTag = TypeTags.DECIMAL;
+                break;
             case TypeDescriptor.SIG_STRING:
                 valueCPIndex = dataInStream.readInt();
                 UTF8CPEntry stringCPEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
@@ -783,6 +791,10 @@ public class CompiledPackageSymbolEnter {
                 valueCPIndex = dataInStream.readInt();
                 FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[valueCPIndex];
                 return floatCPEntry.getValue();
+            case TypeDescriptor.SIG_DECIMAL:
+                valueCPIndex = dataInStream.readInt();
+                UTF8CPEntry decimalEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
+                return decimalEntry.getValue();
             case TypeDescriptor.SIG_STRING:
                 valueCPIndex = dataInStream.readInt();
                 UTF8CPEntry stringCPEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
@@ -884,6 +896,8 @@ public class CompiledPackageSymbolEnter {
                     return dataInStream.readInt();
                 case TypeDescriptor.SIG_FLOAT:
                     return dataInStream.readFloat();
+                case TypeDescriptor.SIG_DECIMAL:
+                    return dataInStream.readUTF();
                 case TypeDescriptor.SIG_BOOLEAN:
                     return dataInStream.readBoolean();
                 case TypeDescriptor.SIG_STRING:
@@ -1046,6 +1060,8 @@ public class CompiledPackageSymbolEnter {
                     return symTable.byteType;
                 case 'F':
                     return symTable.floatType;
+                case 'L':
+                    return symTable.decimalType;
                 case 'S':
                     return symTable.stringType;
                 case 'B':
@@ -1056,6 +1072,8 @@ public class CompiledPackageSymbolEnter {
                     return symTable.anyType;
                 case 'N':
                     return symTable.nilType;
+                case 'K':
+                    return symTable.anydataType;
                 default:
                     throw new IllegalArgumentException("unsupported basic type char: " + typeChar);
             }
@@ -1144,6 +1162,18 @@ public class CompiledPackageSymbolEnter {
             }
             //TODO need to consider a symbol for lambda functions for type definitions.
             return new BInvokableType(funcParams, retType, null);
+        }
+
+        @Override
+        public BType getErrorType(BType reasonType, BType detailsType) {
+            if (reasonType == symTable.stringType && detailsType == symTable.mapType) {
+                return symTable.errorType;
+            }
+            BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.RECORD, Flags.PUBLIC, Names.EMPTY,
+                    env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);
+            BErrorType errorType = new BErrorType(errorSymbol, reasonType, detailsType);
+            errorSymbol.type = errorType;
+            return errorType;
         }
     }
 }

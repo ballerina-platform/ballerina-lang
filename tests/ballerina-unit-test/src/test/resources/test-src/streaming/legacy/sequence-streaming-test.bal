@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
 
 type DeviceTempInfo record {
     int deviceID;
@@ -79,7 +78,7 @@ function runSequenceQuery1() returns(TempDiffInfo[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof tempDiffInfoArray) > 1 || count == 10) {
+        if((tempDiffInfoArray.length()) > 1 || count == 10) {
             break;
         }
     }

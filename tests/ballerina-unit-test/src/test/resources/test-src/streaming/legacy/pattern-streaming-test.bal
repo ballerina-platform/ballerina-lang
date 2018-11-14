@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
 
 type RoomTempInfo record {
     int deviceID;
@@ -89,7 +88,7 @@ function runPatternQuery1() returns (TempDiffInfo[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof tempDiffInfoArray) > 0 || count == 10) {
+        if((tempDiffInfoArray.length()) > 0 || count == 10) {
             break;
         }
     }
@@ -156,7 +155,7 @@ function runPatternQuery2() returns (RoomKeyAction[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof roomActions) > 0 || count == 10) {
+        if((roomActions.length()) > 0 || count == 10) {
             break;
         }
     }
@@ -213,7 +212,7 @@ function runPatternQuery3() returns (RoomKeyAction[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof roomActions2) > 0 || count == 10) {
+        if((roomActions2.length()) > 0 || count == 10) {
             break;
         }
     }
@@ -270,7 +269,7 @@ function runPatternQuery4() returns (RoomKeyAction[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof roomActions3) > 0 || count == 10) {
+        if((roomActions3.length()) > 0 || count == 10) {
             break;
         }
     }
@@ -323,7 +322,7 @@ function runPatternQuery5() returns (RoomKeyAction[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof roomActions3) > 0 || count == 10) {
+        if((roomActions3.length()) > 0 || count == 10) {
             break;
         }
     }
@@ -395,7 +394,7 @@ function runPatternQuery6() returns (TempDiffInfo[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof tempDiffInfoArray6) > 0 || count == 10) {
+        if((tempDiffInfoArray6.length()) > 0 || count == 10) {
             break;
         }
     }

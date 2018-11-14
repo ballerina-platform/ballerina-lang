@@ -77,6 +77,29 @@ service<http:Service> publisher bind publisherServiceEP {
             };
         }
     }
+
+    topicInfo(endpoint caller, http:Request req) {
+        if (req.hasHeader("x-topic")) {
+            string topicName = req.getHeader("x-topic");
+            websub:SubscriberDetails[] details = webSubHub.getSubscribers(topicName);
+            json j = check <json> details[0];
+            caller->respond(j) but {
+                error e => log:printError("Error responding on topicInfo request", err = e)
+            };
+        } else {
+            map allTopics;
+            int index=1;
+            string [] availableTopics = webSubHub.getAvailableTopics();
+            foreach topic in availableTopics {
+                allTopics["Topic_" + index] = topic;
+                index += 1;
+            }
+            json j = check <json> allTopics;
+            caller->respond(j) but {
+                error e => log:printError("Error responding on topicInfo request", err = e)
+            };
+        }
+    }
 }
 
 service<http:Service> publisherTwo bind publisherServiceEP {
@@ -168,6 +191,6 @@ function getPayloadContent(string contentType, string mode) returns string|xml|j
     } else if (contentType == "byte[]" || contentType == "io:ReadableByteChannel") {
         errorMessage = "content type " + contentType + " not yet supported with WebSub tests";
     }
-    error e = { errorMessage: errorMessage };
-    throw e;
+    error e = error(websub:WEBSUB_ERROR_CODE, { message : errorMessage });
+    panic e;
 }

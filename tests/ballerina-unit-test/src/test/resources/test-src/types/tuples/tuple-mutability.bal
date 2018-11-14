@@ -126,13 +126,12 @@ function testWithTryCatch() returns int {
     (int, int, ()) x = (1, 2, ());
     (int, int?, ()) y = x;
 
-    try {
-        y[0] = 5;
-        y[1] = 5;
-        y[1] = (); // Runtime Exception
-    } catch (error e) {
-        // Catch Runtime Exception
-    } finally {
-        return y[1] but {() => 1};
-    }
+    y[0] = 5;
+    y[1] = 5;
+    var result = trap nilValueAssignment(y);
+    return y[1] ?: 1;
+}
+
+function nilValueAssignment((int, int?, ()) y) {
+    y[1] = (); // Runtime Exception
 }

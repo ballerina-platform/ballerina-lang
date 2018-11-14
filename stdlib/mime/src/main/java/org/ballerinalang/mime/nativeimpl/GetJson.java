@@ -76,8 +76,8 @@ public class GetJson extends BlockingNativeCallableUnit {
                 }
                 context.setReturnValues(result);
             } else {
-                context.setReturnValues(MimeUtil.createError(context, "Entity body is not json " +
-                        "compatible since the received content-type is : " + baseType));
+                context.setReturnValues(MimeUtil.createError(context, "Entity body is not json compatible since the " +
+                        "received content-type is : " + baseType));
             }
         } catch (Throwable e) {
             context.setReturnValues(MimeUtil.createError(context,

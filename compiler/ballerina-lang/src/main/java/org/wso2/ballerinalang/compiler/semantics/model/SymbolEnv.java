@@ -24,15 +24,16 @@ import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.Map;
@@ -48,7 +49,7 @@ public class SymbolEnv {
 
     public BLangPackage enclPkg;
 
-    public BLangTypeDefinition enclTypeDefinition;
+    public BLangType enclType;
 
     public BLangAnnotation enclAnnotation;
 
@@ -79,7 +80,7 @@ public class SymbolEnv {
 
     public void copyTo(SymbolEnv target) {
         target.enclPkg = this.enclPkg;
-        target.enclTypeDefinition = this.enclTypeDefinition;
+        target.enclType = this.enclType;
         target.enclAnnotation = this.enclAnnotation;
         target.enclService = this.enclService;
         target.enclInvokable = this.enclInvokable;
@@ -110,9 +111,9 @@ public class SymbolEnv {
         return funcEnv;
     }
 
-    public static SymbolEnv createTypeDefEnv(BLangTypeDefinition node, Scope scope, SymbolEnv env) {
+    public static SymbolEnv createTypeEnv(BLangType node, Scope scope, SymbolEnv env) {
         SymbolEnv objectEnv = createPkgLevelSymbolEnv(node, scope, env);
-        objectEnv.enclTypeDefinition = node;
+        objectEnv.enclType = node;
         return objectEnv;
     }
 
@@ -192,6 +193,13 @@ public class SymbolEnv {
             scope = new Scope(env.scope.owner);
             node.scope = scope;
         }
+        SymbolEnv symbolEnv = new SymbolEnv(node, scope);
+        env.copyTo(symbolEnv);
+        return symbolEnv;
+    }
+
+    public static SymbolEnv createExpressionEnv(BLangExpression node, SymbolEnv env) {
+        Scope scope = new Scope(env.scope.owner);
         SymbolEnv symbolEnv = new SymbolEnv(node, scope);
         env.copyTo(symbolEnv);
         return symbolEnv;

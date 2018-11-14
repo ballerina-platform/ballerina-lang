@@ -33,6 +33,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.TMP_DIRECTORY_PATH;
+
 /**
  * Protobuf to bal generation function testcase.
  */
@@ -118,8 +120,8 @@ public class StubGeneratorTestCase {
         grpcCmd1.setProtoPath(protoRoot.toAbsolutePath().toString());
         try {
             grpcCmd1.execute();
-            Path sourceFileRoot = resourceDir.resolve(Paths.get("grpc", "client", "helloWorld_pb.bal"));
-            CompileResult compileResult = BCompileUtil.compile(sourceFileRoot.toString());
+            Path sourceFileRoot = Paths.get("temp", "helloWorld_pb.bal");
+            CompileResult compileResult = BCompileUtil.compile(sourceFileRoot.toAbsolutePath().toString());
             Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
                     .getStructInfo("helloWorldClient"), "Connector not found.");
             Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
@@ -135,8 +137,8 @@ public class StubGeneratorTestCase {
             Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
                     .getFunctionInfo("helloWorldStub.bye"), "Connector not found.");
         } finally {
-            if (Paths.get("client", "helloWorld_pb.bal").toFile().exists()) {
-                BalFileGenerationUtils.delete(Paths.get("client").toFile());
+            if (Paths.get("temp", "helloWorld_pb.bal").toFile().exists()) {
+                BalFileGenerationUtils.delete(Paths.get("temp").toFile());
             }
         }
     }
@@ -284,7 +286,7 @@ public class StubGeneratorTestCase {
 
     @AfterClass
     public void clean() {
-        BalFileGenerationUtils.delete(new File(protoExeName));
+        BalFileGenerationUtils.delete(new File(TMP_DIRECTORY_PATH, protoExeName));
     }
 
 }

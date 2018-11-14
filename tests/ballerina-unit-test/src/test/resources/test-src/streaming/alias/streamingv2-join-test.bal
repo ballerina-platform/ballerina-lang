@@ -15,8 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
-import ballerina/streams;
 
 type Stock record {
     string symbol;
@@ -82,12 +80,10 @@ function startJoinQuery() returns (StockWithPrice[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof globalEventsArray) == 2 || count == 10) {
+        if((globalEventsArray.length()) == 2 || count == 10) {
             break;
         }
     }
-
-    io:println(globalEventsArray);
     return globalEventsArray;
 }
 

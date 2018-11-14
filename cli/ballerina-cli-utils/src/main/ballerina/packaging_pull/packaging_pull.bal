@@ -48,9 +48,7 @@ type BuildLogFormatter object {
 # + errMessage - The error message.
 # + return - Newly created error record.
 function createError (string errMessage) returns error {
-    error endpointError = {
-        message: logFormatter.formatLog(errMessage)
-    };
+    error endpointError = error(logFormatter.formatLog(errMessage));
     return endpointError;
 }
 
@@ -78,10 +76,14 @@ public function invokePull (string... args) returns error? {
     // resolve endpoint
     http:Client httpEndpoint;
     if (host != "" && port != "") {
-        try {
-            httpEndpoint = defineEndpointWithProxy(url, host, port, proxyUsername, proxyPassword);
-        } catch (error err) {
-            return createError("failed to resolve host : " + host + " with port " + port);
+        http:Client|error result = trap defineEndpointWithProxy(url, host, port, proxyUsername, proxyPassword);
+        match result {
+            http:Client ep => {
+                httpEndpoint = ep;
+            }
+            error e => {
+                return createError("failed to resolve host : " + host + " with port " + port);
+            }
         }
     } else  if (host != "" || port != "") {
         return createError("both host and port should be provided to enable proxy");
@@ -117,7 +119,7 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
     match result {
         http:Response response => httpResponse = response;
         error e => {
-            return createError("connection to the remote host failed : " + e.message);
+            return createError("connection to the remote host failed : " + e.reason());
         }
     }
 
@@ -159,7 +161,7 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
         }
 
         string [] uriParts = resolvedURI.split("/");
-        string pkgVersion = uriParts[lengthof uriParts - 2];
+        string pkgVersion = uriParts[uriParts.length() - 2];
         boolean valid = check pkgVersion.matches(VERSION_REGEX);
 
         if (valid) {
@@ -186,12 +188,12 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
 
             match wch.close() {
                 error destChannelCloseError => {
-                    return createError("error occured while closing the channel: " + destChannelCloseError.message);
+                    return createError("error occured while closing the channel: " + destChannelCloseError.reason());
                 }
                 () => {
                     match sourceChannel.close() {
                         error sourceChannelCloseError => {
-                            return createError("error occured while closing the channel: " + sourceChannelCloseError.message);
+                            return createError("error occured while closing the channel: " + sourceChannelCloseError.reason());
                         }
                         () => {
                             return ();
@@ -300,26 +302,22 @@ function copy(int pkgSize, io:ReadableByteChannel src, io:WritableByteChannel de
     int totalVal = 10;
     int startVal = 0;
     int rightpadLength = terminalWidth - equals.length() - tabspaces.length() - rightMargin;
-    try {
-        while (!completed) {
-            (readContent, readCount) = readBytes(src, bytesChunk);
-            if (readCount <= startVal) {
-                completed = true;
-            }
-            if (dest != null) {
-                numberOfBytesWritten = writeBytes(dest, readContent, startVal);
-            }
-            totalCount = totalCount + readCount;
-            float percentage = totalCount / pkgSize;
-            noOfBytesRead = totalCount + "/" + pkgSize;
-            string bar = equals.substring(startVal, <int> (percentage * totalVal));
-            string spaces = tabspaces.substring(startVal, totalVal - <int>(percentage * totalVal));
-            string size = "[" + bar + ">" + spaces + "] " + <int>totalCount + "/" + pkgSize;
-            string msg = truncateString(fullPkgPath + toAndFrom, terminalWidth - size.length());
-            io:print("\r" + logFormatter.formatLog(rightPad(msg, rightpadLength) + size));
+    while (!completed) {
+        (readContent, readCount) = readBytes(src, bytesChunk);
+        if (readCount <= startVal) {
+            completed = true;
         }
-    } catch (error err) {
-        io:println("");
+        if (dest != null) {
+            numberOfBytesWritten = writeBytes(dest, readContent, startVal);
+        }
+        totalCount = totalCount + readCount;
+        float percentage = totalCount / pkgSize;
+        noOfBytesRead = totalCount + "/" + pkgSize;
+        string bar = equals.substring(startVal, <int> (percentage * totalVal));
+        string spaces = tabspaces.substring(startVal, totalVal - <int>(percentage * totalVal));
+        string size = "[" + bar + ">" + spaces + "] " + <int>totalCount + "/" + pkgSize;
+        string msg = truncateString(fullPkgPath + toAndFrom, terminalWidth - size.length());
+        io:print("\r" + logFormatter.formatLog(rightPad(msg, rightpadLength) + size));
     }
     io:println("\r" + logFormatter.formatLog(rightPad(fullPkgPath + toAndFrom, terminalWidth)));
 }
@@ -389,7 +387,7 @@ function closeChannel(io:ReadableByteChannel|io:WritableByteChannel byteChannel)
             match rc.close() {
                 error channelCloseError => {
                     io:println(logFormatter.formatLog("Error occured while closing the channel: " +
-                                channelCloseError.message));
+                                channelCloseError.reason()));
                 }
                 () => return;
             }
@@ -398,7 +396,7 @@ function closeChannel(io:ReadableByteChannel|io:WritableByteChannel byteChannel)
             match wc.close() {
                 error channelCloseError => {
                     io:println(logFormatter.formatLog("Error occured while closing the channel: " +
-                                channelCloseError.message));
+                                channelCloseError.reason()));
                 }
                 () => return;
             }

@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
 import ballerina/streams;
 
 type Teacher record {
@@ -68,12 +67,11 @@ function startAggregationGroupByQuery() returns (TeacherOutput[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof globalEmployeeArray) == 10 || count == 10) {
+        if((globalEmployeeArray.length()) == 10 || count == 10) {
             break;
         }
     }
 
-    io:println("output: ", globalEmployeeArray);
     return globalEmployeeArray;
 }
 

@@ -127,12 +127,6 @@ public class BallerinaStatementImpl extends BallerinaCompositeElementImpl implem
 
   @Override
   @Nullable
-  public BallerinaPostIncrementStatement getPostIncrementStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaPostIncrementStatement.class);
-  }
-
-  @Override
-  @Nullable
   public BallerinaRetryStatement getRetryStatement() {
     return PsiTreeUtil.getChildOfType(this, BallerinaRetryStatement.class);
   }

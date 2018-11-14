@@ -29,41 +29,44 @@ service<http:Service> passthrough bind passthroughEP2 {
     passthrough (endpoint caller, http:Request req) {
         if (req.getHeader("AcceptValue") == "auto") {
             var clientResponse = acceptEncodingAutoEP -> post("/",untaint req);
-            match clientResponse {
-                http:Response res => {
-                    _ = caller -> respond(res);
+            if (clientResponse is http:Response) {
+                var responseError = caller->respond(clientResponse);
+                if (responseError is error) {
+                    log:printError("Error sending response", err = responseError);
                 }
-                error err => {
-                    http:Response res = new;
-                    res.statusCode = 500;
-                    res.setTextPayload(err.message);
-                    _ = caller -> respond(res);
+            } else if (clientResponse is error) {
+                http:Response res = new;
+                res.statusCode = 500;
+                res.setPayload(clientResponse.reason());
+                var responseError = caller->respond(res);
+                if (responseError is error) {
+                    log:printError("Error sending response", err = responseError);
                 }
             }
         } else if (req.getHeader("AcceptValue") == "enable") {
             var clientResponse = acceptEncodingEnableEP -> post("/",untaint req);
-            match clientResponse {
-                http:Response res => {
-                    _ = caller -> respond(res);
-                }
-                error err => {
-                    http:Response res = new;
-                    res.statusCode = 500;
-                    res.setTextPayload(err.message);
-                    _ = caller -> respond(res);
+            if (clientResponse is http:Response) {
+                _ = caller -> respond(clientResponse);
+            } else if (clientResponse is error) {
+                http:Response res = new;
+                res.statusCode = 500;
+                res.setPayload(clientResponse.reason());
+                var responseError = caller->respond(res);
+                if (responseError is error) {
+                    log:printError("Error sending response", err = responseError);
                 }
             }
         } else if (req.getHeader("AcceptValue") == "disable") {
             var clientResponse = acceptEncodingDisableEP -> post("/",untaint req);
-            match clientResponse {
-                http:Response res => {
-                    _ = caller -> respond(res);
-                }
-                error err => {
-                    http:Response res = new;
-                    res.statusCode = 500;
-                    res.setTextPayload(err.message);
-                    _ = caller -> respond(res);
+            if (clientResponse is http:Response) {
+                _ = caller->respond(clientResponse);
+            } else if (clientResponse is error) {
+                http:Response res = new;
+                res.statusCode =500;
+                res.setPayload(clientResponse.reason());
+                var responseError = caller->respond(res);
+                if (responseError is error) {
+                    log:printError("Error sending response", err = responseError);
                 }
             }
         }

@@ -24,6 +24,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.StringUtils;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
@@ -75,7 +76,7 @@ public class CircuitBreakerTest {
         Assert.assertEquals(returnVals.length, 2);
 
         BRefValueArray responses = (BRefValueArray) returnVals[0];
-        BRefValueArray errs = (BRefValueArray) returnVals[1];
+        BRefValueArray errors = (BRefValueArray) returnVals[1];
 
         for (int i = 0; i < responses.size(); i++) {
             long statusCode;
@@ -86,9 +87,9 @@ public class CircuitBreakerTest {
                 statusCode = ((BInteger) res.get(STATUS_CODE_FIELD)).intValue();
                 Assert.assertEquals(statusCode, expectedStatusCodes[i], "Status code does not match.");
             } else {
-                Assert.assertNotNull(errs.get(i)); // the request which resulted in an error
-                BMap<String, BValue> err = (BMap<String, BValue>) errs.get(i);
-                String errMsg = err.get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+                Assert.assertNotNull(errors.get(i)); // the request which resulted in an error
+                BError error = (BError) errors.get(i);
+                String errMsg = ((BMap) error.getDetails()).getMap().get("message").toString();
                 Assert.assertTrue(errMsg != null && errMsg.startsWith(CB_ERROR_MSG),
                         "Invalid error message from circuit breaker.");
             }
@@ -112,7 +113,7 @@ public class CircuitBreakerTest {
         Assert.assertEquals(returnVals.length, 2);
 
         BRefValueArray responses = (BRefValueArray) returnVals[0];
-        BRefValueArray errs = (BRefValueArray) returnVals[1];
+        BRefValueArray errors = (BRefValueArray) returnVals[1];
 
         for (int i = 0; i < responses.size(); i++) {
             long statusCode;
@@ -124,9 +125,9 @@ public class CircuitBreakerTest {
 
                 Assert.assertEquals(statusCode, expectedStatusCodes[i], "Status code does not match.");
             } else {
-                Assert.assertNotNull(errs.get(i)); // the request which resulted in an error
-                BMap<String, BValue> err = (BMap<String, BValue>) errs.get(i);
-                String msg = err.get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+                Assert.assertNotNull(errors.get(i)); // the request which resulted in an error
+                BError error = (BError) errors.get(i);
+                String msg = ((BMap) error.getDetails()).getMap().get("message").toString();
                 Assert.assertTrue(msg != null && msg.startsWith(CB_ERROR_MSG),
                         "Invalid error message from circuit breaker.");
             }

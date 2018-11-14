@@ -1,12 +1,12 @@
 import ballerina/io;
 import ballerina/http;
-import ballerina/jdbc;
+import ballerina/h2;
 
-endpoint jdbc:Client testDB {
-    url: "jdbc:h2:file:./local-transactions/Testdb",
+endpoint h2:Client testDB {
+    path: "./local-transactions",
+    name: "Testdb",
     username: "root",
-    password: "root",
-    poolOptions: { maximumPoolSize: 5 }
+    password: "root"
 };
 
 function main(string... args) {
@@ -30,22 +30,6 @@ function main(string... args) {
         io:println(a);
         a--;
     }
-
-
-    try {
-        io:println("Start dividing numbers");
-
-        a = check divideNumbers(1, 0);
-
-    } catch (error err) {
-        
-        io:println("Error occurred: ", err.message);
-        
-        throw err;
-    } finally {
-
-        io:println("Finally block executed");
-    }
 }
 
 service<http:Service> sampleService bind { port: 9090 } {
@@ -66,7 +50,7 @@ service<http:Service> sampleService bind { port: 9090 } {
 
 function divideNumbers(int a, int b) returns int|error {
     if (b == 0) {
-        error err = { message: "Division by 0 is not defined" };
+        error err = error("Division by 0 is not defined");
         return err;
     }
     return a / b;

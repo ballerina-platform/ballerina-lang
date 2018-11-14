@@ -65,7 +65,7 @@ function createHeader(JwtHeader header) returns (string) {
 function createPayload(JwtPayload payload) returns (string|error) {
     json payloadJson = {};
     if (!validateMandatoryFields(payload)) {
-        error err = {message:"Mandatory fields(Issuer, Subject, Expiration time or Audience) are empty."};
+        error err = error("Mandatory fields(Issuer, Subject, Expiration time or Audience) are empty.");
         return err;
     }
     payloadJson[SUB] = payload.sub;
@@ -82,7 +82,7 @@ function createPayload(JwtPayload payload) returns (string|error) {
 }
 
 function addMapToJson(json inJson, map mapToConvert) returns (json) {
-    if (lengthof mapToConvert != 0) {
+    if (mapToConvert.length() != 0) {
         foreach key in mapToConvert.keys() {
             match mapToConvert[key]{
                 string[] value => inJson[key] = convertStringArrayToJson(value);
@@ -100,7 +100,7 @@ function addMapToJson(json inJson, map mapToConvert) returns (json) {
 function convertStringArrayToJson(string[] arrayToConvert) returns (json) {
     json jsonPayload = [];
     int i = 0;
-    while (i < lengthof arrayToConvert) {
+    while (i < arrayToConvert.length()) {
         jsonPayload[i] = arrayToConvert[i];
         i = i + 1;
     }
@@ -110,7 +110,7 @@ function convertStringArrayToJson(string[] arrayToConvert) returns (json) {
 function convertIntArrayToJson(int[] arrayToConvert) returns (json) {
     json jsonPayload = [];
     int i = 0;
-    while (i < lengthof arrayToConvert) {
+    while (i < arrayToConvert.length()) {
         jsonPayload[i] = arrayToConvert[i];
         i = i + 1;
     }

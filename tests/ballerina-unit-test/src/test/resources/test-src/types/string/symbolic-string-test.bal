@@ -34,7 +34,7 @@ type Student record {
 
 string var1 = 'abcd;
 
-public string var2;
+public string var2 = "";
 
 @final
 public string var3 = 'efgh;
@@ -123,7 +123,7 @@ function stringValueOf() returns (string) {
     return <string>(s);
 }
 
-function length() returns (int) {
+function lengthOfStr() returns (int) {
     string s = 'HelloWorld;
     return s.length();
 }
@@ -223,10 +223,11 @@ function testObject() returns (json) {
 
 function testRecords() returns (string) {
     Student stu = { name: 'AdamPage, age: 17};
-    match stu['name] {
-        string value => return value;
-        () => return "empty";
+    var value = stu['name];
+    if (value is string) {
+        return value;
     }
+    return "empty";
 }
 
 function testGlobalVars() returns (string) {

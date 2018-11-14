@@ -18,12 +18,12 @@
 package org.wso2.ballerinalang.compiler.tree.types;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.types.StructureTypeNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +35,7 @@ import java.util.List;
  */
 public abstract class BLangStructureTypeNode extends BLangType implements StructureTypeNode {
 
-    public List<BLangVariable> fields;
+    public List<BLangSimpleVariable> fields;
     public BLangFunction initFunction;
     public boolean isAnonymous;
     public boolean isFieldAnalyseRequired;
@@ -43,7 +43,7 @@ public abstract class BLangStructureTypeNode extends BLangType implements Struct
     public BSymbol symbol;
 
     // This is a cache of the fields referred through the type references
-    public List<BLangVariable> referencedFields;
+    public List<BLangSimpleVariable> referencedFields;
 
     public BLangStructureTypeNode() {
         this.fields = new ArrayList<>();
@@ -51,13 +51,13 @@ public abstract class BLangStructureTypeNode extends BLangType implements Struct
     }
 
     @Override
-    public List<? extends VariableNode> getFields() {
+    public List<? extends SimpleVariableNode> getFields() {
         return fields;
     }
 
     @Override
-    public void addField(VariableNode field) {
-        this.fields.add((BLangVariable) field);
+    public void addField(SimpleVariableNode field) {
+        this.fields.add((BLangSimpleVariable) field);
     }
 
     @Override

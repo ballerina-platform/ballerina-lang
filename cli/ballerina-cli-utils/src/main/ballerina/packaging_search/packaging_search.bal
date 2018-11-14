@@ -18,7 +18,7 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
     match result {
         http:Response response => httpResponse = response;
         error e => {
-            io:println("Connection to the remote host failed : " + e.message);
+            io:println("Connection to the remote host failed : " + e.reason());
             return;
         }
     }
@@ -33,8 +33,8 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
     } else {
         jsonResponse = check (httpResponse.getJsonPayload());
         json[] artifacts = check <json[]> jsonResponse.artifacts;
-        if (artifacts == null || lengthof artifacts > 0) {
-            int artifactsLength = lengthof artifacts;
+        if (artifacts.length() > 0) {
+            int artifactsLength = artifacts.length();
             printTitle("Ballerina Central");
             
             int rightMargin = 3;
@@ -92,8 +92,8 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
                     printInCLI(summary, descColWidth - authorsColWidth);
                     string authors = "";
                     json authorsArr = jsonElement.authors;
-                    foreach authorIndex in 0 ..< lengthof authorsArr {
-                        if (authorIndex == lengthof authorsArr - 1) {
+                    foreach authorIndex in 0 ..< authorsArr.length() {
+                        if (authorIndex == authorsArr.length() - 1) {
                             authors = authors + authorsArr[authorIndex].toString();
                         } else {
                             authors = authors + " , " + authorsArr[authorIndex].toString();
@@ -222,11 +222,15 @@ public function main (string... args) {
     string host = args[2];
     string port = args[3];
     if (host != "" && port != "") {
-        try {
-            httpEndpoint = defineEndpointWithProxy(args[0], host, port, args[4], args[5]);
-        } catch (error err) {
-            io:println("failed to resolve host : " + host + " with port " + port);
-            return;
+        http:Client|error result = trap defineEndpointWithProxy(args[0], host, port, args[4], args[5]);
+        match result {
+            http:Client ep => {
+                httpEndpoint = ep;
+            }
+            error e => {
+                io:println("failed to resolve host : " + host + " with port " + port);
+                return;
+            }
         }
     } else  if (host != "" || port != "") {
         io:println("both host and port should be provided to enable proxy");     
