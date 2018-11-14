@@ -117,40 +117,28 @@ function testByteBinaryNotEqualOperation(byte a, byte b, byte c) returns (boolea
 }
 
 function testByteOrIntMatch1() returns byte|int|string[]|Foo {
-    match byteOrInt(1) {
-        byte c => {
-            return c;
-        }
-
-        int b => {
-            return b;
-        }
-
-        string[] s => {
-            return s;
-        }
-
-        Foo foo => {
-            return foo;
-        }
+    byte|int|string[]|Foo result = byteOrInt(1);
+    if (result is byte) {
+        return result;
+    } else if (result is int) {
+        return result;
+    } else if (result is string[]) {
+        return result;
+    } else {
+        return result;
     }
 }
 
-function testByteOrIntMatch2() returns byte|int|string[]|Foo  {
-    match byteOrInt(2) {
-        byte c => {
-            return c;
-        }
-        int b => {
-            return b;
-        }
-        string[] s => {
-            return s;
-        }
-
-        Foo foo => {
-            return foo;
-        }
+function testByteOrIntMatch2() returns byte|int|string[]|Foo {
+    byte|int|string[]|Foo result = byteOrInt(2);
+    if (result is byte) {
+        return result;
+    } else if (result is int) {
+        return result;
+    } else if (result is string[]) {
+        return result;
+    } else {
+        return result;
     }
 }
 
