@@ -193,7 +193,6 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
             check copy(pkgSize, sourceChannel, wch, fullPkgPath, toAndFrom, width);
 
             match wch.close() {
-
                 error destChannelCloseError => {
                     return createError("error occured while closing the channel: " + destChannelCloseError.reason());
                 }
