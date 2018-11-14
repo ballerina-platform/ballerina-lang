@@ -51,7 +51,7 @@ public enum RuntimeErrors {
     TASK_ALREADY_RUNNING("task.already.running", "RUNTIME_0026"),
     TASK_NOT_RUNNING("task.not.running", "RUNTIME_0027"),
     ILLEGAL_FORMAT_CONVERSION("illegal.format.conversion", "RUNTIME_0028"),
-    INVALID_USAGE_OF_CLONE("invalid.usage.of.clone", "RUNTIME_0029");
+    ;
 
     private String errorMsgKey;
     private String errorCode;
