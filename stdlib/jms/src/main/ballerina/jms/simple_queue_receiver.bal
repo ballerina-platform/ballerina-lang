@@ -82,7 +82,7 @@ public type SimpleQueueReceiver object {
     # + return - simple queue receiver action handler
     public function getCallerActions() returns QueueReceiverActions {
         var queueReceiver = self.queueReceiver;
-        if (queueReceiver is QueueReceiver){
+        if (queueReceiver is QueueReceiver) {
             return queueReceiver.getCallerActions();
         } else {
             string errorMessage = "Queue receiver cannot be nil";
