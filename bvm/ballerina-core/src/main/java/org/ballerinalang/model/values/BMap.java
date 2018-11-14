@@ -345,23 +345,32 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
                 ((BValue) mapEntry).stamp(((BMapType) type).getConstrainedType());
             }
         } else if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            Map<String, BType> fieldMap = new HashMap<>();
+            Map<String, BType> targetTypeField = new HashMap<>();
             BType restFieldType = ((BRecordType) type).restFieldType;
 
             for (BField field : ((BStructureType) type).getFields()) {
-                fieldMap.put(field.getFieldName(), field.fieldType);
+                targetTypeField.put(field.getFieldName(), field.fieldType);
             }
 
+            for (Map.Entry targetTypeEntry : targetTypeField.entrySet()) {
+                String fieldName = targetTypeEntry.getKey().toString();
+
+                if (!(this.getMap().containsKey(fieldName))) {
+                    throw new BallerinaException("Seal failed due to unavailability of required field " + fieldName +
+                            " in type " + this.type);
+                }
+
+            }
 
             for (Map.Entry valueEntry : this.getMap().entrySet()) {
                 String fieldName = valueEntry.getKey().toString();
 
-                if (fieldMap.containsKey(fieldName)) {
-                    if (CPU.isStampingAllowed(((BValue) valueEntry.getValue()).getType(), fieldMap.get(fieldName))) {
-                        ((BValue) valueEntry.getValue()).stamp(fieldMap.get(fieldName));
+                if (targetTypeField.containsKey(fieldName)) {
+                    if (CPU.isStampingAllowed(((BValue) valueEntry.getValue()).getType(), targetTypeField.get(fieldName))) {
+                        ((BValue) valueEntry.getValue()).stamp(targetTypeField.get(fieldName));
                     } else {
                         throw new BallerinaException("Seal failed due to invalid value assignment. Type " +
-                                fieldMap.get(fieldName) + " cannot assigned to type " +
+                                targetTypeField.get(fieldName) + " cannot assigned to type " +
                                 ((BValue) valueEntry.getValue()).getType());
                     }
 

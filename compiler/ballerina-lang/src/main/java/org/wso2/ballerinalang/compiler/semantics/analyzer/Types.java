@@ -241,12 +241,8 @@ public class Types {
     }
 
     boolean isStampingAllowed(BType source, BType target) {
-        if (source.tag == TypeTags.RECORD && target.tag == TypeTags.RECORD) {
-            return (isAssignable(source, target) || isStampingAllowedForExpr(source, target));
-        } else {
-            return (isAssignable(source, target) || isAssignable(target, source) ||
-                    isStampingAllowedForExpr(source, target) || isStampingAllowedForExpr(target, source));
-        }
+        return (isAssignable(source, target) || isAssignable(target, source) ||
+                isStampingAllowedForExpr(source, target) || isStampingAllowedForExpr(target, source));
     }
 
     private boolean isStampingAllowedForExpr(BType source, BType target) {

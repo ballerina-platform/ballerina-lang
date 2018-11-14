@@ -3978,16 +3978,10 @@ public class CPU {
     }
 
     public static boolean isStampingAllowed(BType sourceType, BType stampType) {
-        if (sourceType.getTag() == TypeTags.RECORD_TYPE_TAG && stampType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            return (isAssignable(sourceType, stampType, new ArrayList<>()) ||
-                    isStampingAllowedForExpr(sourceType, stampType));
-
-        } else {
-            return (isAssignable(sourceType, stampType, new ArrayList<>()) ||
-                    isAssignable(stampType, sourceType, new ArrayList<>()) ||
-                    isStampingAllowedForExpr(sourceType, stampType) ||
-                    isStampingAllowedForExpr(stampType, sourceType));
-        }
+        return (isAssignable(sourceType, stampType, new ArrayList<>()) ||
+                isAssignable(stampType, sourceType, new ArrayList<>()) ||
+                isStampingAllowedForExpr(sourceType, stampType) ||
+                isStampingAllowedForExpr(stampType, sourceType));
     }
 
     private static boolean isStampingAllowedForExpr(BType source, BType target) {
