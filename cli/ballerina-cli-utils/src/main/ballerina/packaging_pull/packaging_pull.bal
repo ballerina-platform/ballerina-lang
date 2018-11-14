@@ -77,21 +77,19 @@ public function invokePull (string... args) returns error? {
     http:Client httpEndpoint;
     if (host != "" && strPort != "") {
         // validate port
-        int port;
-        match (<int> strPort) {
-            error err => {
-                return createError("invalid port : " + port);
+        var port = <int> strPort;
+        if (port is int) {
+            http:Client|error result = trap defineEndpointWithProxy(url, host, port, proxyUsername, proxyPassword);
+            match result {
+                http:Client ep => {
+                    httpEndpoint = ep;
+                }
+                error e => {
+                    return createError("failed to resolve host : " + host + " with port " + port);
+                }
             }
-            int intPort => port = intPort;
-        }
-        http:Client|error result = trap defineEndpointWithProxy(url, host, port, proxyUsername, proxyPassword);
-        match result {
-            http:Client ep => {
-                httpEndpoint = ep;
-            }
-            error e => {
-                return createError("failed to resolve host : " + host + " with port " + port);
-            }
+        } else {
+            return createError("invalid port : " + strPort);
         }
     } else  if (host != "" || strPort != "") {
         return createError("both host and port should be provided to enable proxy");
@@ -192,14 +190,10 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
             string toAndFrom = " [central.ballerina.io -> home repo]";
             int rightMargin = 3;
             int width = (check <int>terminalWidth) - rightMargin;
-            match copy(pkgSize, sourceChannel, wch, fullPkgPath, toAndFrom, width) {
-                error err => {
-                    return createError("error occured while copying: " + err.reason());
-                }
-                () => {}
-            }
+            check copy(pkgSize, sourceChannel, wch, fullPkgPath, toAndFrom, width);
 
             match wch.close() {
+
                 error destChannelCloseError => {
                     return createError("error occured while closing the channel: " + destChannelCloseError.reason());
                 }

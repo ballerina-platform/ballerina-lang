@@ -55,9 +55,9 @@ public type WebSocketClient object {
     # Stops the registered service.
     public function stop() {
         WebSocketConnector webSocketConnector = self.getCallerActions();
-        match (webSocketConnector.close(statusCode = 1001, reason = "going away", timeoutInSecs = 0)) {
-            error err => panic err;
-            () => {}
+        var closeResult = webSocketConnector.close(statusCode = 1001, reason = "going away", timeoutInSecs = 0);
+        if (closeResult is error) {
+            panic closeResult;
         }
     }
 };
