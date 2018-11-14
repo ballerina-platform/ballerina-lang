@@ -3459,10 +3459,6 @@ public class CPU {
             return false;
         }
 
-        if (lhsType.getFields().length > rhsType.getFields().length) {
-            return false;
-        }
-
         // If only one is a closed record, the records aren't equivalent
         if (lhsType.sealed && !rhsType.sealed) {
             return false;
@@ -3474,7 +3470,7 @@ public class CPU {
             return false;
         }
 
-        return checkFieldEquivalency(lhsType, rhsType);
+        return checkFieldEquivalency(lhsType, rhsType, unresolvedTypes);
     }
 
     private static boolean checkPrivateObjectsEquivalency(BStructureType lhsType, BStructureType rhsType,
@@ -3547,17 +3543,24 @@ public class CPU {
         return true;
     }
 
-    private static boolean checkFieldEquivalency(BRecordType lhsType, BRecordType rhsType) {
+    private static boolean checkFieldEquivalency(BRecordType lhsType, BRecordType rhsType,
+                                                 List<TypePair> unresolvedTypes) {
         Map<String, BField> rhsFields = Arrays.stream(rhsType.getFields()).collect(
                 Collectors.toMap(BField::getFieldName, field -> field));
+
         for (BField lhsField : lhsType.getFields()) {
             BField rhsField = rhsFields.get(lhsField.fieldName);
 
-            if (rhsField == null || !isSameType(rhsField.fieldType, lhsField.fieldType)) {
+            if (rhsField == null || !isAssignable(rhsField.fieldType, lhsField.fieldType, unresolvedTypes)) {
                 return false;
             }
+
+            rhsFields.remove(lhsField.fieldName);
         }
-        return true;
+
+        return rhsFields.entrySet().stream().allMatch(
+                fieldEntry -> isAssignable(fieldEntry.getValue().getFieldType(), lhsType.restFieldType,
+                                           unresolvedTypes));
     }
 
     private static boolean checkFunctionTypeEqualityForObjectType(BFunctionType source, BFunctionType target,
