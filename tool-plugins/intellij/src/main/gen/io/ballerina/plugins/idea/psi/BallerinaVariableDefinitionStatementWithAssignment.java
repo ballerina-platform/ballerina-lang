@@ -21,18 +21,24 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaTupleDestructuringStatement extends BallerinaCompositeElement {
+public interface BallerinaVariableDefinitionStatementWithAssignment extends BallerinaCompositeElement {
+
+  @NotNull
+  BallerinaBindingPattern getBindingPattern();
 
   @Nullable
   BallerinaExpression getExpression();
 
-  @NotNull
-  BallerinaTupleRefBindingPattern getTupleRefBindingPattern();
+  @Nullable
+  BallerinaTypeName getTypeName();
 
   @NotNull
   PsiElement getAssign();
 
   @Nullable
   PsiElement getSemicolon();
+
+  @Nullable
+  PsiElement getVar();
 
 }

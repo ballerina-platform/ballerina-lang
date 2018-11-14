@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaSimpleTypeNameImpl extends BallerinaTypeNameImpl implements BallerinaSimpleTypeName {
+public class BallerinaErrorConstructorExpressionImpl extends BallerinaExpressionImpl implements BallerinaErrorConstructorExpression {
 
-  public BallerinaSimpleTypeNameImpl(@NotNull ASTNode node) {
+  public BallerinaErrorConstructorExpressionImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitSimpleTypeName(this);
+    visitor.visitErrorConstructorExpression(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -42,45 +42,33 @@ public class BallerinaSimpleTypeNameImpl extends BallerinaTypeNameImpl implement
   }
 
   @Override
-  @Nullable
-  public BallerinaAnyDataTypeName getAnyDataTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaAnyDataTypeName.class);
+  @NotNull
+  public List<BallerinaExpression> getExpressionList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaExpression.class);
   }
 
   @Override
   @Nullable
-  public BallerinaAnyTypeName getAnyTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaAnyTypeName.class);
+  public PsiElement getComma() {
+    return findChildByType(COMMA);
   }
 
   @Override
   @Nullable
-  public BallerinaEmptyTupleLiteral getEmptyTupleLiteral() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaEmptyTupleLiteral.class);
+  public PsiElement getLeftParenthesis() {
+    return findChildByType(LEFT_PARENTHESIS);
   }
 
   @Override
   @Nullable
-  public BallerinaReferenceTypeName getReferenceTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaReferenceTypeName.class);
+  public PsiElement getRightParenthesis() {
+    return findChildByType(RIGHT_PARENTHESIS);
   }
 
   @Override
-  @Nullable
-  public BallerinaTypeDescTypeName getTypeDescTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTypeDescTypeName.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaValueTypeName getValueTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaValueTypeName.class);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getNullLiteral() {
-    return findChildByType(NULL_LITERAL);
+  @NotNull
+  public PsiElement getError() {
+    return notNullChild(findChildByType(ERROR));
   }
 
 }
