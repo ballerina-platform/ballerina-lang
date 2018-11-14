@@ -87,6 +87,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
@@ -825,8 +826,19 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
+        // Validate worker synchronous send
+        validateActionInvocation(syncSendExpr.pos, syncSendExpr);
+        if (!this.inWorker()) {
+            return;
+        }
+        this.workerActionSystemStack.peek().addWorkerAction(syncSendExpr);
+        analyzeExpr(syncSendExpr.expr);
+    }
+
+    @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        /// Validate worker receive
+        // Validate worker receive
         validateActionInvocation(workerReceiveNode.pos, workerReceiveNode);
 
         if (workerReceiveNode.isChannel) {
@@ -1347,6 +1359,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         return action.getKind() == NodeKind.WORKER_SEND;
     }
 
+    private static boolean isWorkerSyncSend(BLangNode action) {
+        return action.getKind() == NodeKind.WORKER_SYNC_SEND;
+    }
+
     private static boolean isWorkerForkSend(BLangNode action) {
         return ((BLangWorkerSend) action).isForkJoinSend;
     }
@@ -1354,6 +1370,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private String extractWorkerId(BLangNode action) {
         if (isWorkerSend(action)) {
             return ((BLangWorkerSend) action).workerIdentifier.value;
+        } else if (isWorkerSyncSend(action)) {
+            return ((BLangWorkerSyncSendExpr) action).workerIdentifier.value;
         } else {
             return ((BLangWorkerReceive) action).workerIdentifier.value;
         }
@@ -1374,21 +1392,27 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     continue;
                 }
                 currentAction = currentSM.currentAction();
-                if (isWorkerSend(currentAction)) {
-                    if (isWorkerForkSend(currentAction)) {
-                        currentSM.next();
-                        systemRunning = true;
-                    } else {
-                        WorkerActionStateMachine otherSM = workerActionSystem.get(this.extractWorkerId(currentAction));
-                        if (otherSM.currentIsReceive(currentWorkerId)) {
+                if (isWorkerSend(currentAction) && isWorkerForkSend(currentAction)) {
+                    currentSM.next();
+                    systemRunning = true;
+                    continue;
+                }
+                if (isWorkerSend(currentAction) || isWorkerSyncSend(currentAction)) {
+                    WorkerActionStateMachine otherSM = workerActionSystem.get(this.extractWorkerId(currentAction));
+                    if (otherSM.currentIsReceive(currentWorkerId)) {
+                        if (isWorkerSyncSend(currentAction)) {
+                            this.validateWorkerActionParameters((BLangWorkerSyncSendExpr) currentAction,
+                                                                (BLangWorkerReceive) otherSM.currentAction());
+                        } else {
                             this.validateWorkerActionParameters((BLangWorkerSend) currentAction,
                                                                 (BLangWorkerReceive) otherSM.currentAction());
-                            otherSM.next();
-                            currentSM.next();
-                            systemRunning = true;
                         }
+                        otherSM.next();
+                        currentSM.next();
+                        systemRunning = true;
                     }
                 }
+
             }
         } while (systemRunning);
         if (!workerActionSystem.everyoneDone()) {
@@ -1421,6 +1445,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private void validateWorkerActionParameters(BLangWorkerSend send, BLangWorkerReceive receive) {
+        this.typeChecker.checkExpr(send.expr, send.env, receive.type);
+    }
+
+    private void validateWorkerActionParameters(BLangWorkerSyncSendExpr send, BLangWorkerReceive receive) {
         this.typeChecker.checkExpr(send.expr, send.env, receive.type);
     }
 
@@ -1536,7 +1564,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 return false;
             }
             BLangNode action = this.currentAction();
-            return !isWorkerSend(action) && ((BLangWorkerReceive) action).workerIdentifier.value.equals(sourceWorkerId);
+            return !isWorkerSend(action) && !isWorkerSyncSend(action) &&
+                    ((BLangWorkerReceive) action).workerIdentifier.value.equals(sourceWorkerId);
         }
 
         public void next() {
@@ -1551,6 +1580,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 BLangNode action = this.currentAction();
                 if (isWorkerSend(action)) {
                     return ((BLangWorkerSend) action).toActionString();
+                } else if (isWorkerSyncSend(action)) {
+                    return ((BLangWorkerSyncSendExpr) action).toActionString();
                 } else {
                     return ((BLangWorkerReceive) action).toActionString();
                 }

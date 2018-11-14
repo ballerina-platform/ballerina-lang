@@ -113,6 +113,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
@@ -450,6 +451,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
         analyzeNode(workerSendNode.expr, env);
+    }
+
+    @Override
+    public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
+        analyzeNode(syncSendExpr.expr, env);
     }
 
     @Override
