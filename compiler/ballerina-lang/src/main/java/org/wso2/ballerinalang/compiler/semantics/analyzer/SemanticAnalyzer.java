@@ -38,7 +38,6 @@ import org.ballerinalang.model.tree.clauses.StreamingInput;
 import org.ballerinalang.model.tree.clauses.WhereNode;
 import org.ballerinalang.model.tree.clauses.WindowClauseNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
@@ -238,9 +237,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
 
         pkgNode.topLevelNodes.stream()
-                             .filter(pkgLevelNode -> !(pkgLevelNode.getKind() == NodeKind.FUNCTION &&
-                                     ((BLangFunction) pkgLevelNode).flagSet.contains(Flag.LAMBDA)))
-                             .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
+                .filter(pkgLevelNode -> !(pkgLevelNode.getKind() == NodeKind.FUNCTION &&
+                        ((BLangFunction) pkgLevelNode).flagSet.contains(Flag.LAMBDA)))
+                .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
 
         while (pkgNode.lambdaFunctions.peek() != null) {
             BLangLambdaFunction lambdaFunction = pkgNode.lambdaFunctions.poll();
@@ -1750,7 +1749,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-        BLangVariableReference variableReferenceNode = (BLangVariableReference)fieldAccessExpr.getExpression();
+        BLangVariableReference variableReferenceNode = (BLangVariableReference) fieldAccessExpr.getExpression();
         variableReferenceNode.accept(this);
     }
 

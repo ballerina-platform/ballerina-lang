@@ -1168,7 +1168,7 @@ public class CPU {
                 }
                 case TypeTags.BOOLEAN_TAG: {
                     fp.addClosureVar(new BClosure(new BBoolean(ctx.workerLocal.intRegs[index] == 1),
-                                    BTypes.typeBoolean), TypeTags.BOOLEAN_TAG);
+                            BTypes.typeBoolean), TypeTags.BOOLEAN_TAG);
                     break;
                 }
                 case TypeTags.STRING_TAG: {
@@ -4097,7 +4097,7 @@ public class CPU {
     }
 
     private static boolean checkIsLikeType(BValue sourceValue, BType targetType) {
-        if(checkIsType(sourceValue, targetType)){
+        if (checkIsType(sourceValue, targetType)) {
             return true;
         }
 
@@ -4278,7 +4278,7 @@ public class CPU {
     }
 
     private static boolean checkIsJSONType(BType sourceType, BJSONType targetType,
-                                         List<TypePair> unresolvedTypes) {
+                                           List<TypePair> unresolvedTypes) {
         // If the target is an constrained JSON, then value also should be of
         // constrained JSON type. And the constraints should satisfy 'is type'
         // relationship.
@@ -4534,8 +4534,8 @@ public class CPU {
      * Reference equality check for values. If both the values are simple basic types, returns the same
      * result as {@link CPU#isEqual(BValue, BValue)}
      *
-     * @param lhsValue  The value on the left hand side
-     * @param rhsValue  The value on the right hand side
+     * @param lhsValue The value on the left hand side
+     * @param rhsValue The value on the right hand side
      * @return True if values are reference equal or in the case of simple basic types if the values are equal,
      * else false.
      */
@@ -4560,8 +4560,8 @@ public class CPU {
      * Reference inequality check for values. If both the values are simple basic types, returns the same
      * result as the negation of {@link CPU#isEqual(BValue, BValue)}
      *
-     * @param lhsValue  The value on the left hand side
-     * @param rhsValue  The value on the right hand side
+     * @param lhsValue The value on the left hand side
+     * @param rhsValue The value on the right hand side
      * @return True if values are not reference equal or in the case of simple basic types if the values are not equal,
      * else false.
      */

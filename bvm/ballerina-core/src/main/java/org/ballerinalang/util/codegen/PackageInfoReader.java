@@ -655,11 +655,11 @@ public class PackageInfoReader {
 
         // Set for the testable package
         packageInfo.setTestInitFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() +
-                                                                                TEST_INIT_FUNCTION_SUFFIX));
+                TEST_INIT_FUNCTION_SUFFIX));
         packageInfo.setTestStartFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() +
-                                                                                 TEST_START_FUNCTION_SUFFIX));
+                TEST_START_FUNCTION_SUFFIX));
         packageInfo.setTestStopFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() +
-                                                                                TEST_STOP_FUNCTION_SUFFIX));
+                TEST_STOP_FUNCTION_SUFFIX));
 
         // TODO Improve this. We should be able to this in a single pass.
         ServiceInfo[] serviceInfoEntries = packageInfo.getServiceInfoEntries();
@@ -1222,7 +1222,6 @@ public class PackageInfoReader {
                 case InstructionCodes.ARRAY2JSON:
                 case InstructionCodes.REASON:
                 case InstructionCodes.DETAIL:
-                case InstructionCodes.SEAL:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
