@@ -16,30 +16,28 @@ service<http:Service> helloContinue bind { port: 9090 } {
     hello(endpoint caller, http:Request request) {
         if (request.expects100Continue()) {
             log:printInfo("Sending 100-Continue response");
-            caller->continue() but {
-                error e => log:printError("Error sending response", err = e)
-            };
+            var responseError = caller-> continue();
+            if (responseError is error) {
+                log:printError("Error sending response", err = responseError);
+            }
             log:printInfo("100-Continue response sent");
         }
 
         http:Response res = new;
+        var result  = request.getTextPayload();
 
-        match request.getTextPayload() {
-            string payload => {
-                res.statusCode = 200;
-                res.setPayload(untaint payload);
-                caller->respond(res) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        if (result is string) {
+            var responseError = caller->respond(untaint result);
+            if (responseError is error) {
+                log:printError("Error sending response", err = responseError);
             }
-
-            error err => {
-                res.statusCode = 500;
-                res.setPayload(untaint err.reason());
-                log:printError("Failed to retrieve payload from request: " + err.reason());
-                caller->respond(res) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        } else if (result is error) {
+            res.statusCode = 500;
+            res.setPayload(untaint result.reason());
+            log:printError("Failed to retrieve payload from request: " + result.reason());
+            var responseError = caller->respond(res);
+            if (responseError is error) {
+                log:printError("Error sending response", err = responseError);
             }
         }
     }
@@ -57,20 +55,25 @@ service<http:Service> helloContinue bind { port: 9090 } {
             replyMsg += " Key:" + contentDisposition.name + " Value: " + check part.getBodyAsString();
             i += 1;
         }
-        caller->respond(untaint replyMsg) but {
-            error err => log:printError(err.reason(), err = err)
-        };
+        var responseError = caller->respond(untaint replyMsg);
+        if (responseError is error) {
+            log:printError(responseError.reason(), err = responseError);
+        }
     }
 
     testPassthrough (endpoint caller, http:Request req) {
         if (req.expects100Continue()) {
             req.removeHeader("Expect");
-            caller->continue() but {
-                error e => log:printError("Error sending response", err = e)
-            };
+            var responseError = caller->continue();
+            if (responseError is error) {
+                log:printError("Error sending response", err = responseError);
+            }
         }
         http:Response res = check clientEndpoint->forward("/backend/hello", untaint req);
-        caller->respond(res) but { error e => log:printError("Error sending response", err = e) };
+        var responseError = caller->respond(res);
+        if (responseError is error) {
+            log:printError("Error sending response", err = responseError);
+        }
     }
 }
 
@@ -79,8 +82,9 @@ service<http:Service> backend bind { port: 9224 } {
         http:Response response = new;
         string payload = check request.getTextPayload();
         response.setTextPayload(untaint payload);
-        caller->respond(response) but {
-            error e => log:printError("Error sending response", err = e)
-        };
+        var responseError = caller->respond(response);
+        if (responseError is error) {
+            log:printError("Error sending response", err = responseError);
+        }
     }
 }

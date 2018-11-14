@@ -94,13 +94,15 @@ service<http:Service> testService_1 bind testEP {
         var secondResponse = clientEP1 -> post("/consumeChannel", clientReq);
         http:Response testResponse = new;
         string secondVal;
-        match secondResponse {
-            error err => {
-                secondVal = <string> err.detail().message;
+        if (secondResponse is http:Response) {
+            var result = secondResponse.getTextPayload();
+            if  (result is string) {
+                secondVal = result;
+            } else if (result is error) {
+                secondVal = "Error in parsing payload";
             }
-            http:Response response => {
-                secondVal = check response.getTextPayload();
-            }
+        } else if (secondResponse is error) {
+            secondVal = <string> secondResponse.detail().message;
         }
         string firstVal = check firstResponse.getTextPayload();
         testResponse.setTextPayload(untaint firstVal + untaint secondVal);
@@ -138,14 +140,11 @@ service<http:Service> testService_2 bind testEP {
     testRequestBody(endpoint outboundEP, http:Request clientRequest) {
         http:Response response = new;
         var stringPayload = clientRequest.getTextPayload();
-        match stringPayload {
-            string receivedVal => {
-                response.setTextPayload(untaint receivedVal);
-            }
-            error err => {
-                string errMsg = <string> err.detail().message;
-                response.setTextPayload(errMsg);
-            }
+        if (stringPayload is string) {
+            response.setPayload(untaint stringPayload);
+        } else if (stringPayload is error) {
+            string errMsg = <string> stringPayload.detail().message;
+            response.setPayload(errMsg);
         }
         _ = outboundEP -> respond(response);
     }
