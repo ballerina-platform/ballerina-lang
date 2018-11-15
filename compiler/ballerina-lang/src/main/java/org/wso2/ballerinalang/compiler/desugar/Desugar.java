@@ -3559,7 +3559,7 @@ public class Desugar extends BLangNodeVisitor {
     private BType getSafeType(BType type, boolean liftError) {
         // Since JSON, ANY and ANYDATA is by default contains null, we need to create a new respective type which
         // is not-nullable.
-        switch(type.tag){
+        switch(type.tag) {
             case TypeTags.JSON:
                 BJSONType jsonType = (BJSONType) type;
                 return new BJSONType(jsonType.tag, jsonType.constraint, jsonType.tsymbol, false);
