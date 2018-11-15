@@ -226,3 +226,31 @@ function foo4(any x) returns string {
 
     return "Default";
 }
+
+
+function testStructuredMatchPatternWithTypeGuard3() returns string[] {
+    (string, int, float)|(float, (boolean, int))|((boolean, int), float)|(int, boolean)|float a1 = ("Hello", 45, 5.6);
+    (string, int, float)|(float, (boolean, int))|((boolean, int), float)|(int, boolean)|float a2 = (5.7, (true, 67));
+    (string, int, float)|(float, (boolean, int))|((boolean, int), float)|(int, boolean)|float a3 = ((true, 67), 7.8);
+    (string, int, float)|(float, (boolean, int))|((boolean, int), float)|(int, boolean)|float a4 = (678, false);
+    (string, int, float)|(float, (boolean, int))|((boolean, int), float)|(int, boolean)|float a5 = 67.89;
+
+    string[] result = [foo5(a1), foo5(a2), foo5(a3), foo5(a4), foo5(a5)];
+
+    return result;
+}
+
+function foo5(any x) returns string {
+
+    match x {
+        var (s, i, f) if (s is string && i is int && f is float) => {return "Matched with string : " + s + " added text with " + io:sprintf("%s", i + 5) +
+                                                                     " with " + io:sprintf("%s", f + 5.4);}
+        var (s, (i, f)) if (s is float && i is int) => {return "Matched with float : " + io:sprintf("%s", s + 4.5) + " with " + io:sprintf("%s", i) + " and " +
+                                          io:sprintf("%s", f);}
+        var ((s, i), f) if (i is int && (s is boolean && f is float))  => {return "Matched with int : "+ io:sprintf("%s", s) + " with " + io:sprintf("%s" , i + 3456)+ " and " +
+                                          io:sprintf("%s", f);}
+        var (s, i) if i is boolean => {return "Matched with boolean : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i);}
+    }
+
+    return "Default";
+}

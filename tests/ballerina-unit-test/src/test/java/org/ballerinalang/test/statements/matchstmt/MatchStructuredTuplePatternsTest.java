@@ -203,4 +203,21 @@ public class MatchStructuredTuplePatternsTest {
         Assert.assertEquals(results.get(++i), msg + "boolean : 678, false");
         Assert.assertEquals(results.get(++i), "Default");
     }
+
+    @Test(description = "Test structured pattern match with type guard 3")
+    public void testStructuredMatchPatternWithTypeGuard3() {
+        BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithTypeGuard2", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+
+        BStringArray results = (BStringArray) returns[0];
+
+        int i = -1;
+        String msg = "Matched with ";
+        Assert.assertEquals(results.get(++i), msg + "string : Hello added text with 45");
+        Assert.assertEquals(results.get(++i), msg + "float : 10.2 with true and 67");
+        Assert.assertEquals(results.get(++i), msg + "int : true with 3523 and 7.8");
+        Assert.assertEquals(results.get(++i), msg + "boolean : 678, false");
+        Assert.assertEquals(results.get(++i), "Default");
+    }
 }
