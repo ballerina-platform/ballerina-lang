@@ -394,7 +394,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
         }
 
         BRefType[] copiedVals = new BRefType[(int) sequence.size()];
-        refs.put(this, new BXMLSequence(new BRefValueArray(copiedVals, BTypes.typeXML))) ;
+        refs.put(this, new BXMLSequence(new BRefValueArray(copiedVals, BTypes.typeXML)));
         for (int i = 0; i < sequence.size(); i++) {
             copiedVals[i] = ((BXML<?>) sequence.get(i)).copy(refs);
         }
