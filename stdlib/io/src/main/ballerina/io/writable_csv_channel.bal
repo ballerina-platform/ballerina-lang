@@ -37,11 +37,11 @@ public type WritableCSVChannel object {
     # + fs - Field separator which will separate between the records in the CSV
     public new(WritableCharacterChannel characterChannel, Separator fs = ",") {
         if (fs == TAB){
-            dc = new WritableTextRecordChannel(characterChannel, fmt = "TDF");
+            self.dc = new WritableTextRecordChannel(characterChannel, fmt = "TDF");
         } else if (fs == COLON){
-            dc = new WritableTextRecordChannel(characterChannel, fs = FS_COLON, rs = CSV_RECORD_SEPERATOR);
+            self.dc = new WritableTextRecordChannel(characterChannel, fs = FS_COLON, rs = CSV_RECORD_SEPERATOR);
         } else {
-            dc = new WritableTextRecordChannel(characterChannel, fmt = "CSV");
+            self.dc = new WritableTextRecordChannel(characterChannel, fmt = "CSV");
         }
     }
 
@@ -50,13 +50,13 @@ public type WritableCSVChannel object {
     # + csvRecord - A record to be written to the channel
     # + return - Returns an error if the record could not be written properly
     public function write(string[] csvRecord) returns error? {
-        return dc.write(csvRecord);
+        return self.dc.write(csvRecord);
     }
 
     # Closes a given CSVChannel.
 
     # + return - if an error is encountered
     public function close() returns error? {
-        return dc.close();
+        return self.dc.close();
     }
 };

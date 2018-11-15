@@ -74,15 +74,15 @@ public type Building object {
 
 };
 
-function Building::getNameOut() returns string {
+function Building.getNameOut() returns string {
     return self.name;
 }
 
-function Building::getNameWrapperOutside1() returns string {
+function Building.getNameWrapperOutside1() returns string {
     return self.getName();
 }
 
-function Building::getNameWrapperOutside2() returns string {
+function Building.getNameWrapperOutside2() returns string {
     return self.getNameOut();
 }
 

@@ -42,7 +42,7 @@ public class TypeGuardTest {
     @Test
     public void testTypeGuardNegative() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/statements/ifelse/type-guard-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 8);
+        Assert.assertEquals(negativeResult.getErrorCount(), 10);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'int|string'", 22,
                 17);
@@ -56,6 +56,10 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++, "operator '>' not defined for 'int|string' and 'int'", 61, 21);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int|string'", 65,
                 20);
+        BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'a'", 71,
+                8);
+        BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'a'", 72,
+                16);
     }
 
     @Test

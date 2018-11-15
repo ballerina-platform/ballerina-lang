@@ -236,7 +236,7 @@ public class Symbols {
     }
 
     public static boolean isPrivate(BSymbol sym) {
-        return (sym.flags & Flags.PUBLIC) != Flags.PUBLIC;
+        return (sym.flags & Flags.PRIVATE) == Flags.PRIVATE;
     }
 
     public static boolean isFlagOn(int mask, int flag) {

@@ -116,25 +116,25 @@ public class ModOperationTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: error, message:  / by zero.*")
+            expectedExceptionsMessageRegExp = "error:  / by zero.*")
     public void testIntModZero() {
         BRunUtil.invoke(result, "intMod", new BValue[]{new BInteger(2000), new BInteger(0)});
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: error, message:  / by zero.*")
+            expectedExceptionsMessageRegExp = "error:  / by zero.*")
     public void testFloatModZero() {
         BRunUtil.invoke(result, "floatMod", new BValue[]{new BFloat(200.1), new BFloat(0.0)});
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: error, message:  / by zero.*")
+            expectedExceptionsMessageRegExp = "error:  / by zero.*")
     public void testFloatModIntZero() {
         BRunUtil.invoke(result, "floatIntMod", new BValue[]{new BFloat(200.1), new BInteger(0)});
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: error, message:  / by zero.*")
+            expectedExceptionsMessageRegExp = "error:  / by zero.*")
     public void testIntModFloatZero() {
         BRunUtil.invoke(result, "intFloatMod", new BValue[]{new BInteger(2100), new BFloat(0.0)});
     }

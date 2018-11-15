@@ -26,18 +26,13 @@ service<http:Service> frontendHttpService bind frontendEP {
         http:HttpFuture httpFuture = new;
         // Submit a request
         var submissionResult = backendClientEP->submit("GET", "/backend/main", serviceReq);
-        match submissionResult {
-            error err => {
-                io:println("Error occurred while submitting a request");
-                http:Response errorResponse = new;
-                json errMsg = { "error": "error occurred while submitting a request" };
-                errorResponse.setJsonPayload(errMsg);
-                _ = caller->respond(errorResponse);
-                done;
-            }
-            http:HttpFuture resultantFuture => {
-                httpFuture = resultantFuture;
-            }
+        if (submissionResult is http:HttpFuture) {
+            httpFuture = submissionResult;
+        } else if (submissionResult is error) {
+            io:println("Error occurred while submitting a request");
+            json errMsg = { "error": "error occurred while submitting a request" };
+            _ = caller->respond(errMsg);
+            done;
         }
 
         // Check whether promises exists
@@ -48,18 +43,13 @@ service<http:Service> frontendHttpService bind frontendEP {
             http:PushPromise pushPromise = new;
             // Get the next promise
             var nextPromiseResult = backendClientEP->getNextPromise(httpFuture);
-            match nextPromiseResult {
-                http:PushPromise resultantPushPromise => {
-                    pushPromise = resultantPushPromise;
-                }
-                error err => {
-                    io:println("Error occurred while fetching a push promise");
-                    http:Response errorResponse = new;
-                    json errMsg = { "error": "error occurred while fetching a push promise" };
-                    errorResponse.setJsonPayload(errMsg);
-                    _ = caller->respond(errorResponse);
-                    done;
-                }
+            if (nextPromiseResult is http:PushPromise) {
+                pushPromise = nextPromiseResult;
+            } else if (nextPromiseResult is error) {
+                io:println("Error occurred while fetching a push promise");
+                json errMsg = { "error": "error occurred while fetching a push promise" };
+                _ = caller->respond(errMsg);
+                done;
             }
 
             io:println("Received a promise for " + pushPromise.path);
@@ -70,52 +60,38 @@ service<http:Service> frontendHttpService bind frontendEP {
         }
         // By this time 3 promises should be received, if not send an error response
         if (promiseCount != 3) {
-            http:Response errorResponse = new;
             json errMsg = { "error": "expected number of promises not received" };
-            errorResponse.setJsonPayload(errMsg);
-            _ = caller->respond(errorResponse);
+            _ = caller->respond(errMsg);
             done;
         }
         io:println("Number of promises received : " + promiseCount);
 
         // Get the requested resource
-        http:Response res = new;
+        http:Response response = new;
         var result = backendClientEP->getResponse(httpFuture);
-        match result {
-            http:Response resultantResponse => {
-                res = resultantResponse;
-            }
-            error err => {
-                io:println("Error occurred while fetching response");
-                http:Response errorResponse = new;
-                json errMsg = { "error": "error occurred while fetching response" };
-                errorResponse.setJsonPayload(errMsg);
-                _ = caller->respond(errorResponse);
-                done;
-            }
+        if (result is http:Response) {
+            response = result;
+        } else if (result is error) {
+            io:println("Error occurred while fetching response");
+            json errMsg = { "error": "error occurred while fetching response" };
+            _ = caller->respond(errMsg);
+            done;
         }
 
-        var responsePayload = res.getJsonPayload();
+        var responsePayload = response.getJsonPayload();
         json responseJsonPayload = {};
-        match responsePayload {
-            json resultantJsonPayload => {
-                responseJsonPayload = resultantJsonPayload;
-            }
-            error err => {
-                http:Response errorResponse = new;
-                json errMsg = { "error": "expected response message not received" };
-                errorResponse.setJsonPayload(errMsg);
-                _ = caller->respond(errorResponse);
-                done;
-            }
+        if (responsePayload is json) {
+            responseJsonPayload = responsePayload;
+        } else if (responsePayload is error) {
+            json errMsg = { "error": "expected response message not received" };
+            _ = caller->respond(errMsg);
+            done;
         }
         // Check whether correct response received
         string responseStringPayload = responseJsonPayload.toString();
         if (!(responseStringPayload.contains("main"))) {
-            http:Response errorResponse = new;
             json errMsg = { "error": "expected response message not received" };
-            errorResponse.setJsonPayload(errMsg);
-            _ = caller->respond(errorResponse);
+            _ = caller->respond(errMsg);
             done;
         }
         io:println("Response : " + responseStringPayload);
@@ -124,53 +100,39 @@ service<http:Service> frontendHttpService bind frontendEP {
         foreach promise in promises {
             http:Response promisedResponse = new;
             var promisedResponseResult = backendClientEP->getPromisedResponse(promise);
-            match promisedResponseResult {
-                http:Response resultantPromisedResponse => {
-                    promisedResponse = resultantPromisedResponse;
-                }
-                error err => {
-                    io:println("Error occurred while fetching promised response");
-                    http:Response errorResponse = new;
-                    json errMsg = { "error": "error occurred while fetching promised response" };
-                    errorResponse.setJsonPayload(errMsg);
-                    _ = caller->respond(errorResponse);
-                    done;
-                }
+            if (promisedResponseResult is http:Response) {
+                promisedResponse = promisedResponseResult;
+            } else if (promisedResponseResult is error) {
+                io:println("Error occurred while fetching promised response");
+                json errMsg = { "error": "error occurred while fetching promised response" };
+                _ = caller->respond(errMsg);
+                done;
             }
 
             json promisedJsonPayload = {};
             var promisedPayload = promisedResponse.getJsonPayload();
-            match promisedPayload {
-                json resultantJsonPayload => {
-                    promisedJsonPayload = resultantJsonPayload;
-                }
-                error err => {
-                    http:Response errorResponse = new;
-                    json errMsg = { "error": "expected promised response not received" };
-                    errorResponse.setJsonPayload(errMsg);
-                    _ = caller->respond(errorResponse);
-                    done;
-                }
+            if (promisedPayload is json) {
+                promisedJsonPayload = promisedPayload;
+            } else if (promisedPayload is error) {
+                json errMsg = { "error": "expected promised response not received" };
+                _ = caller->respond(errMsg);
+                done;
             }
 
             // check whether expected
             string expectedVal = promise.path.substring(1, 10);
             string promisedStringPayload = promisedJsonPayload.toString();
             if (!(promisedStringPayload.contains(expectedVal))) {
-                http:Response errorResponse = new;
                 json errMsg = { "error": "expected promised response not received" };
-                errorResponse.setJsonPayload(errMsg);
-                _ = caller->respond(errorResponse);
+                _ = caller->respond(errMsg);
                 done;
             }
             io:println("Promised resource : " + promisedStringPayload);
         }
 
         // By this time everything has went well, hence send a success response
-        http:Response successResponse = new;
         json successMsg = { "status": "successful" };
-        successResponse.setJsonPayload(successMsg);
-        _ = caller->respond(successResponse);
+        _ = caller->respond(successMsg);
     }
 }
 
@@ -209,12 +171,10 @@ service<http:Service> backendHttp2Service bind backendEP {
         _ = caller->promise(promise3);
 
         // Construct requested resource
-        http:Response response = new;
         json msg = { "response": { "name": "main resource" } };
-        response.setJsonPayload(msg);
 
         // Send the requested resource
-        _ = caller->respond(response);
+        _ = caller->respond(msg);
 
         // Construct promised resource1
         http:Response push1 = new;

@@ -877,8 +877,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (!Symbols.isFlagOn(symbol.flags, Flags.PRIVATE)) {
             return env.enclPkg.symbol.pkgID == symbol.pkgID;
         }
-        if (env.enclTypeDefinition != null) {
-            return env.enclTypeDefinition.symbol == symbol.owner;
+        if (env.enclType != null) {
+            return env.enclType.type.tsymbol == symbol.owner;
         }
         return isMemberAllowed(env, symbol);
     }

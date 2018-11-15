@@ -2,7 +2,7 @@ import ballerina/io;
 import ballerina/task;
 
 int w1Count;
-error errorW1;
+error? errorW1 = ();
 string errorMsgW1;
 task:Appointment? app;
 
@@ -48,8 +48,8 @@ function getCount() returns (int) {
 
 function getError() returns (string) {
     string w1ErrMsg;
-    if (errorW1 != null) {
-        w1ErrMsg = errorW1.message;
+    if (errorW1 is error) {
+        w1ErrMsg = errorW1.reason();
     }
     return w1ErrMsg;
 }

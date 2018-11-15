@@ -26,7 +26,7 @@ public type WritableTextRecordChannel object {
     # + rs - Record separator (this could be a regex)
     # + fs - Field separator (this could be a regex)
     public new(characterChannel, fs = "", rs = "", string fmt = "default") {
-        init(characterChannel, fs, rs, fmt);
+        self.init(characterChannel, fs, rs, fmt);
     }
 
     # Initializes delimited record channel.

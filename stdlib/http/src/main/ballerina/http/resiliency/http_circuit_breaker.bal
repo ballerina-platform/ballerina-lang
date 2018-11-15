@@ -288,7 +288,7 @@ public type CircuitBreakerClient object {
     public function getCurrentState() returns CircuitState;
 };
 
-function CircuitBreakerClient::post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function CircuitBreakerClient.post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
     message) returns Response|error {
     Request req = buildRequest(message);
     CallerActions httpClient = self.httpClient;
@@ -304,7 +304,7 @@ function CircuitBreakerClient::post(string path, Request|string|xml|json|byte[]|
     }
 }
 
-function CircuitBreakerClient::head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function CircuitBreakerClient.head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
     message = ()) returns Response|error {
     Request request = buildRequest(message);
     CallerActions httpClient = self.httpClient;
@@ -320,7 +320,7 @@ function CircuitBreakerClient::head(string path, Request|string|xml|json|byte[]|
     }
 }
 
-function CircuitBreakerClient::put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function CircuitBreakerClient.put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
     message) returns Response|error {
     Request request = buildRequest(message);
     CallerActions httpClient = self.httpClient;
@@ -336,7 +336,7 @@ function CircuitBreakerClient::put(string path, Request|string|xml|json|byte[]|i
     }
 }
 
-function CircuitBreakerClient::execute(string httpVerb, string path, Request|string|xml|json|byte[]|
+function CircuitBreakerClient.execute(string httpVerb, string path, Request|string|xml|json|byte[]|
     io:ReadableByteChannel|mime:Entity[]|() message) returns Response|error {
     Request request = buildRequest(message);
     CallerActions httpClient = self.httpClient;
@@ -352,7 +352,7 @@ function CircuitBreakerClient::execute(string httpVerb, string path, Request|str
     }
 }
 
-function CircuitBreakerClient::patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function CircuitBreakerClient.patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
     message) returns Response|error {
     Request request = buildRequest(message);
     CallerActions httpClient = self.httpClient;
@@ -368,7 +368,7 @@ function CircuitBreakerClient::patch(string path, Request|string|xml|json|byte[]
     }
 }
 
-function CircuitBreakerClient::delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function CircuitBreakerClient.delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
     message) returns Response|error {
     Request request = buildRequest(message);
     CallerActions httpClient = self.httpClient;
@@ -384,7 +384,7 @@ function CircuitBreakerClient::delete(string path, Request|string|xml|json|byte[
     }
 }
 
-function CircuitBreakerClient::get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function CircuitBreakerClient.get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
     message = ()) returns Response|error {
     Request request = buildRequest(message);
     CallerActions httpClient = self.httpClient;
@@ -400,7 +400,7 @@ function CircuitBreakerClient::get(string path, Request|string|xml|json|byte[]|i
     }
 }
 
-function CircuitBreakerClient::options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function CircuitBreakerClient.options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
     message = ()) returns Response|error {
     Request request = buildRequest(message);
     CallerActions httpClient = self.httpClient;
@@ -416,7 +416,7 @@ function CircuitBreakerClient::options(string path, Request|string|xml|json|byte
     }
 }
 
-function CircuitBreakerClient::forward(string path, Request request) returns Response|error {
+function CircuitBreakerClient.forward(string path, Request request) returns Response|error {
     CallerActions httpClient = self.httpClient;
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
@@ -430,42 +430,42 @@ function CircuitBreakerClient::forward(string path, Request request) returns Res
     }
 }
 
-function CircuitBreakerClient::submit(string httpVerb, string path, Request|string|xml|json|byte[]|
+function CircuitBreakerClient.submit(string httpVerb, string path, Request|string|xml|json|byte[]|
     io:ReadableByteChannel|mime:Entity[]|() message) returns HttpFuture|error {
     Request request = buildRequest(message);
     return self.httpClient.submit(httpVerb, path, request);
 }
 
-function CircuitBreakerClient::getResponse(HttpFuture httpFuture) returns Response|error {
+function CircuitBreakerClient.getResponse(HttpFuture httpFuture) returns Response|error {
     return self.httpClient.getResponse(httpFuture);
 }
 
-function CircuitBreakerClient::hasPromise(HttpFuture httpFuture) returns boolean {
+function CircuitBreakerClient.hasPromise(HttpFuture httpFuture) returns boolean {
     return self.httpClient.hasPromise(httpFuture);
 }
 
-function CircuitBreakerClient::getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+function CircuitBreakerClient.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
     return self.httpClient.getNextPromise(httpFuture);
 }
 
-function CircuitBreakerClient::getPromisedResponse(PushPromise promise) returns Response|error {
+function CircuitBreakerClient.getPromisedResponse(PushPromise promise) returns Response|error {
     return self.httpClient.getPromisedResponse(promise);
 }
 
-function CircuitBreakerClient::rejectPromise(PushPromise promise) {
+function CircuitBreakerClient.rejectPromise(PushPromise promise) {
     return self.httpClient.rejectPromise(promise);
 }
 
-function CircuitBreakerClient::forceClose() {
+function CircuitBreakerClient.forceClose() {
     self.currentCircuitState = CB_CLOSED_STATE;
 }
 
-function CircuitBreakerClient::forceOpen() {
+function CircuitBreakerClient.forceOpen() {
     self.currentCircuitState = CB_OPEN_STATE;
     self.circuitHealth.lastForcedOpenTime = time:currentTime();
 }
 
-function CircuitBreakerClient::getCurrentState() returns CircuitState {
+function CircuitBreakerClient.getCurrentState() returns CircuitState {
     return self.currentCircuitState;
 }
 
@@ -591,8 +591,8 @@ function validateCircuitBreakerConfiguration(CircuitBreakerConfig circuitBreaker
 # + circuitHealth - Circuit Breaker health status
 # + return - Current failure ratio
 function getCurrentFailureRatio(CircuitHealth circuitHealth) returns float {
-    int totalCount;
-    int totalFailures;
+    int totalCount = 0;
+    int totalFailures = 0;
 
     foreach bucket in circuitHealth.totalBuckets {
         totalCount =  totalCount + bucket.failureCount + (bucket.totalCount - (bucket.failureCount + bucket.rejectedCount));
@@ -610,7 +610,7 @@ function getCurrentFailureRatio(CircuitHealth circuitHealth) returns float {
 # + circuitHealth - Circuit Breaker health status
 # + return - Total requests count
 function getTotalRequestsCount(CircuitHealth circuitHealth) returns int {
-    int totalCount;
+    int totalCount = 0;
 
     foreach bucket in circuitHealth.totalBuckets {
         totalCount  =  totalCount + bucket.totalCount;

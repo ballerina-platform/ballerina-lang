@@ -49,7 +49,7 @@ type Person4 abstract object {
     string month;
 
     public function getName() returns string {
-        return name;
+        return self.name;
     }
 };
 
@@ -64,6 +64,6 @@ type Person5 abstract object {
     public function getName() returns string;
 };
 
-function Person5::getName() returns string {
+function Person5.getName() returns string {
     return "my name";
 }

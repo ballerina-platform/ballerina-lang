@@ -254,12 +254,7 @@ function checkJsonRefEqualityNegative() returns boolean {
     json j = { Hello: "World" };
     json j2 = { Hello: "World" };
 
-    boolean equals = j === j2 && !(j2 !== j);
-
-    j = "Hello";
-    j2 = "Hello";
-
-    return equals || j === j2 && !(j !== j2);
+    return j === j2 && !(j2 !== j);
 }
 
 function testIntByteRefEqualityPositive() returns boolean {
@@ -298,7 +293,7 @@ function testXmlRefEqualityNegative() returns boolean {
     xml x3 = xml `<book><name>The Lost World<!-- I'm a comment --></name></book>`;
     xml x4 = x3;
     x3 = xml `<book><name>The World</name></book>`;
-    return x1 === x2 || x3 === x4 && !(x1 !== x2) && !(x4 !== x3);
+    return x1 === x2 || x3 === x4 || !(x1 !== x2) || !(x4 !== x3);
 }
 
 function testObjectRefEqualityPositive() returns boolean {
@@ -331,7 +326,7 @@ function testValueTypeAndRefTypeEqualityPositive() returns boolean {
     boolean b = true;
     refEquals = refEquals && a === b && !(a !== b);
 
-    any c = "hello world"; // TODO: change to anydata
+    any c = "hello world";
     string s = "hello world";
     return refEquals && c === s && !(c !== s);
 }
@@ -347,6 +342,43 @@ function testValueTypeAndRefTypeEqualityNegative() returns boolean {
     refEquals = refEquals || a === s || !(s !== a);
 
     any b = true; // TODO: change to anydata
+    return refEquals || isRefEqual(b, j) || isRefEqual(b, i) || isRefEqual(a, b);
+}
+
+function testValueTypesAsRefTypesEqualityPositive() returns boolean {
+    any i = 5;
+    int|float|byte j = 5;
+    boolean refEquals = i === j && !(j !== i);
+
+    i = 342.1;
+    j = 342.1;
+    refEquals = refEquals && i === j && !(j !== i);
+
+    byte b = 45;
+    i = b;
+    j = b;
+    refEquals = refEquals && i === j && !(j !== i);
+
+    int|boolean|OpenEmployee a = true;
+    anydata bool = true;
+    refEquals = refEquals && a === bool && !(bool !== a);
+
+    json c = "hello world";
+    string s = "hello world";
+    return refEquals && isRefEqual(c, s);
+}
+
+function testValueTypesAsRefTypesEqualityNegative() returns boolean {
+    int|float i = 5;
+    json j = 15;
+
+    boolean refEquals = i === j || !(i !== j);
+
+    int|string|OpenEmployee a = "hello world";
+    any s = "hello";
+    refEquals = refEquals || a === s || !(s !== a);
+
+    anydata b = true;
     return refEquals || isRefEqual(b, j) || isRefEqual(b, i) || isRefEqual(a, b);
 }
 

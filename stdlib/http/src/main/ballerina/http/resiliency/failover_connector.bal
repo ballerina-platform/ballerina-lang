@@ -54,7 +54,7 @@ public type FailoverActions object {
     public string serviceUri;
     public ClientEndpointConfig config;
     public FailoverInferredConfig failoverInferredConfig;
-    public int succeededEndpointIndex;
+    public int succeededEndpointIndex = 0;
 
     # Failover caller actions which provides failover capabilities to an HTTP client endpoint.
     #
@@ -186,84 +186,84 @@ public type FailoverActions object {
     public function rejectPromise(PushPromise promise);
 };
 
-function FailoverActions::post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function FailoverActions.post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                     message) returns Response|error {
     Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_POST, self);
 }
 
-function FailoverActions::head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function FailoverActions.head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                     message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_HEAD, self);
 }
 
-function FailoverActions::patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function FailoverActions.patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                         message) returns Response|error {
     Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_PATCH, self);
 }
 
-function FailoverActions::put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function FailoverActions.put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                     message) returns Response|error {
     Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_PUT, self);
 }
 
-function FailoverActions::options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function FailoverActions.options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                         message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_OPTIONS, self);
 }
 
-function FailoverActions::forward(string path, Request request) returns Response|error {
+function FailoverActions.forward(string path, Request request) returns Response|error {
     return performFailoverAction(path, request, HTTP_FORWARD, self);
 }
 
-function FailoverActions::execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel
+function FailoverActions.execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel
                                                                 |mime:Entity[]|() message) returns Response|error {
     Request req = buildRequest(message);
     return performExecuteAction(path, req, httpVerb, self);
 }
 
-function FailoverActions::delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function FailoverActions.delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                         message) returns Response|error {
     Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_DELETE, self);
 }
 
-function FailoverActions::get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function FailoverActions.get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                     message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_GET, self);
 }
 
-function FailoverActions::submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel
+function FailoverActions.submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel
                                                             |mime:Entity[]|() message) returns HttpFuture|error {
     error err = error("Unsupported action for Failover client.");
     return err;
 }
 
-function FailoverActions::getResponse(HttpFuture httpFuture) returns (error) {
+function FailoverActions.getResponse(HttpFuture httpFuture) returns (error) {
     error err = error("Unsupported action for Failover client.");
     return err;
 }
 
-function FailoverActions::hasPromise(HttpFuture httpFuture) returns (boolean) {
+function FailoverActions.hasPromise(HttpFuture httpFuture) returns (boolean) {
     return false;
 }
 
-function FailoverActions::getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+function FailoverActions.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
     error err = error("Unsupported action for Failover client.");
     return err;
 }
 
-function FailoverActions::getPromisedResponse(PushPromise promise) returns Response|error {
+function FailoverActions.getPromisedResponse(PushPromise promise) returns Response|error {
     error err = error("Unsupported action for Failover client.");
     return err;
 }
 
-function FailoverActions::rejectPromise(PushPromise promise) {
+function FailoverActions.rejectPromise(PushPromise promise) {
 }
 
 // Performs execute action of the Failover connector. extract the corresponding http integer value representation
@@ -307,6 +307,7 @@ function performFailoverAction (string path, Request request, HttpOperation requ
         currentIndex = currentIndex + 1;
         var endpointResponse = invokeEndpoint(path, failoverRequest, requestAction, failoverClient);
         if (endpointResponse is Response) {
+            inResponse = endpointResponse;
             int httpStatusCode = endpointResponse.statusCode;
             // Check whether HTTP status code of the response falls into configued `failoverCodes`
             if (failoverCodeIndex[httpStatusCode] == true) {

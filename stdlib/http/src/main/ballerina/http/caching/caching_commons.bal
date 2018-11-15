@@ -91,41 +91,41 @@ public type RequestCacheControl object {
         string[] directives = [];
         int i = 0;
 
-        if (noCache) {
+        if (self.noCache) {
             directives[i] = NO_CACHE;
             i = i + 1;
         }
 
-        if (noStore) {
+        if (self.noStore) {
             directives[i] = NO_STORE;
             i = i + 1;
         }
 
-        if (noTransform) {
+        if (self.noTransform) {
             directives[i] = NO_TRANSFORM;
             i = i + 1;
         }
 
-        if (onlyIfCached) {
+        if (self.onlyIfCached) {
             directives[i] = ONLY_IF_CACHED;
             i = i + 1;
         }
 
-        if (maxAge >= 0) {
-            directives[i] = MAX_AGE + "=" + maxAge;
+        if (self.maxAge >= 0) {
+            directives[i] = MAX_AGE + "=" + self.maxAge;
             i = i + 1;
         }
 
-        if (maxStale == MAX_STALE_ANY_AGE) {
+        if (self.maxStale == MAX_STALE_ANY_AGE) {
             directives[i] = MAX_STALE;
             i = i + 1;
-        } else if (maxStale >= 0) {
-            directives[i] = MAX_STALE + "=" + maxStale;
+        } else if (self.maxStale >= 0) {
+            directives[i] = MAX_STALE + "=" + self.maxStale;
             i = i + 1;
         }
 
-        if (minFresh >= 0) {
-            directives[i] = MIN_FRESH + "=" + minFresh;
+        if (self.minFresh >= 0) {
+            directives[i] = MIN_FRESH + "=" + self.minFresh;
             i = i + 1;
         }
 
@@ -213,7 +213,7 @@ public type ResponseCacheControl object {
     }
 };
 
-function Request::parseCacheControlHeader () {
+function Request.parseCacheControlHeader () {
     // If the request doesn't contain a cache-control header, resort to default cache control settings
     if (!self.hasHeader(CACHE_CONTROL)) {
         return;

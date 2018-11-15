@@ -26,9 +26,9 @@ import ballerina/cache;
 # + isShared - Specifies whether the HTTP caching layer should behave as a public cache or a private cache
 public type HttpCache object {
 
-    public cache:Cache cache;
+    public cache:Cache cache = new;
     public CachingPolicy policy = CACHE_CONTROL_AND_VALIDATORS;
-    public boolean isShared;
+    public boolean isShared = false;
 
     function isAllowedToCache (Response response) returns boolean {
         if (self.policy == CACHE_CONTROL_AND_VALIDATORS) {
@@ -43,7 +43,7 @@ public type HttpCache object {
 
         if ((respCacheControl.noStore ?: false) ||
             (requestCacheControl.noStore ?: false) ||
-            ((respCacheControl.isPrivate ?: false)  && isShared)) {
+            ((respCacheControl.isPrivate ?: false)  && self.isShared)) {
             // TODO: Need to consider https://tools.ietf.org/html/rfc7234#section-3.2 as well here
             return;
         }
@@ -52,7 +52,7 @@ public type HttpCache object {
         // TODO: Consider cache control extensions as well here
         if (inboundResponse.hasHeader(EXPIRES) ||
             (respCacheControl.maxAge ?: -1) >= 0 ||
-            ((respCacheControl.sMaxAge ?: -1) >= 0 && isShared) ||
+            ((respCacheControl.sMaxAge ?: -1) >= 0 && self.isShared) ||
             isCacheableStatusCode(inboundResponse.statusCode) ||
             !(respCacheControl.isPrivate ?: false)) {
 
@@ -62,17 +62,17 @@ public type HttpCache object {
             log:printDebug(function() returns string {
                 return "Adding new cache entry for: " + key;
             });
-            addEntry(cache, key, inboundResponse);
+            addEntry(self.cache, key, inboundResponse);
         }
     }
 
     function hasKey (string key) returns boolean {
-        return cache.hasKey(key);
+        return self.cache.hasKey(key);
     }
 
     function get (string key) returns Response {
         Response response;
-        var cacheEntry = <Response[]>cache.get(key);
+        var cacheEntry = <Response[]> self.cache.get(key);
         if (cacheEntry is Response[]) {
             response = cacheEntry[cacheEntry.length() - 1];
         } else if (cacheEntry is error) {
@@ -82,7 +82,7 @@ public type HttpCache object {
     }
 
     function getAll (string key) returns Response[]|() {
-        var cacheEntry = <Response[]>cache.get(key);
+        var cacheEntry = <Response[]> self.cache.get(key);
         if (cacheEntry is Response[]) {
             return cacheEntry;
         }
@@ -94,7 +94,7 @@ public type HttpCache object {
         Response[] matchingResponses = [];
         int i = 0;
 
-        var responses = getAll(key);
+        var responses = self.getAll(key);
         if (responses is Response[]) {
             cachedResponses = responses;
         }
@@ -114,7 +114,7 @@ public type HttpCache object {
         Response[] matchingResponses = [];
         int i = 0;
 
-        var responses = getAll(key);
+        var responses = self.getAll(key);
         if (responses is Response[]) {
             cachedResponses = responses;
         }
@@ -130,7 +130,7 @@ public type HttpCache object {
     }
 
     function remove (string key) {
-        cache.remove(key);
+        self.cache.remove(key);
     }
 };
 
@@ -155,17 +155,12 @@ function isCacheableStatusCode (int statusCode) returns boolean {
 }
 
 function addEntry (cache:Cache cache, string key, Response inboundResponse) {
-    // TODO : Fix this logic.
-    var existingResponses = trap cache.get(key);
+    var existingResponses = cache.get(key);
     if (existingResponses is Response[]) {
         existingResponses[existingResponses.length()] = inboundResponse;
-    } else if (existingResponses is error) {
+    } else if (existingResponses is ()) {
         Response[] cachedResponses = [inboundResponse];
         cache.put(key, cachedResponses);
-        //panic err;
-    } else {
-        error e = error("unexpected error");
-        panic e;
     }
 }
 
