@@ -1770,9 +1770,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         // It is not useful to preserve the propagated taint errors, since user will not be able to correct the compiled
         // code and will not need to know internals of the already compiled code.
         if (taintRecord.taintError == null || taintRecord.taintError.isEmpty()) {
-            List<Boolean> storedTaintTableValue = new ArrayList<>();
-            storedTaintTableValue.add(taintRecord.returnTaintedStatus);
-            storedTaintTableValue.addAll(taintRecord.parameterTaintedStatusList);
+            List<Byte> storedTaintTableValue = new ArrayList<>();
+            storedTaintTableValue.add(taintRecord.returnTaintedStatus.getByteValue());
+            storedTaintTableValue.addAll(taintRecord.parameterTaintedStatusList.stream().map(taintedStatus ->
+                    taintedStatus.getByteValue()).collect(Collectors.toList()));
             taintTableAttributeInfo.taintTable.put(index, storedTaintTableValue);
             return true;
         }

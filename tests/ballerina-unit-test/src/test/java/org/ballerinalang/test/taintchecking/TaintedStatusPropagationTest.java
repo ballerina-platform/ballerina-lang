@@ -513,4 +513,19 @@ public class TaintedStatusPropagationTest {
         BAssertUtil.validateError(result, 3, "tainted value passed to sensitive parameter 'secureIn'", 40, 20);
         BAssertUtil.validateError(result, 4, "tainted value passed to sensitive parameter 'secureIn'", 44, 20);
     }
+
+    @Test
+    public void testParameterStatusWithNativeInvocations() {
+        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/" +
+                "param-status-with-native-invocations.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 0);
+    }
+
+    @Test
+    public void testParameterStatusWithNativeInvocationsNegative() {
+        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/" +
+                "param-status-with-native-invocations-negative.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 1);
+        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'sqlQuery'", 32, 38);
+    }
 }
