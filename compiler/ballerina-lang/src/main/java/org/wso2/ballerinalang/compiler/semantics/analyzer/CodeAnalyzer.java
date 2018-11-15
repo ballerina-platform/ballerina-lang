@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.statements.ForkJoinNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -1036,8 +1037,41 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangBinaryExpr binaryExpr) {
-        analyzeExpr(binaryExpr.lhsExpr);
-        analyzeExpr(binaryExpr.rhsExpr);
+        if (validateBinaryExpr(binaryExpr)) {
+            analyzeExpr(binaryExpr.lhsExpr);
+            analyzeExpr(binaryExpr.rhsExpr);
+        }
+    }
+
+    private boolean validateBinaryExpr(BLangNode bLangNode) {
+        if (bLangNode == null) {
+            return false;
+        }
+        BLangNode parent = bLangNode.parent;
+        if (parent != null && bLangNode.getKind() == NodeKind.BINARY_EXPR) {
+            // 1) For usual binary expressions the lhs or rhs can never be future types, so return true if both of
+            // them are not future types
+            BLangBinaryExpr binaryExpr = (BLangBinaryExpr) bLangNode;
+            if (binaryExpr.lhsExpr.type.tag != TypeTags.FUTURE && binaryExpr.rhsExpr.type.tag != TypeTags.FUTURE) {
+                return true;
+            }
+
+            // 2) For binary expressions followed with wait lhs and rhs are always future types and this is allowed so
+            // return true : wait f1 | f2
+            if (parent.getKind() == NodeKind.WAIT_EXPR) {
+                return true;
+            }
+
+            // 3) For binary expressions of future type which are not followed by the wait expression are not allowed.
+            // So check if immediate parent is a binary expression and if the current binary expression operator kind
+            // is bitwise OR
+            if (parent.getKind() != NodeKind.BINARY_EXPR && binaryExpr.opKind == OperatorKind.BITWISE_OR) {
+                dlog.error(binaryExpr.pos, DiagnosticCode.OPERATOR_NOT_SUPPORTED, OperatorKind.BITWISE_OR,
+                           symTable.futureType);
+                return false;
+            }
+        }
+        return validateBinaryExpr(parent);
     }
 
     public void visit(BLangElvisExpr elvisExpr) {

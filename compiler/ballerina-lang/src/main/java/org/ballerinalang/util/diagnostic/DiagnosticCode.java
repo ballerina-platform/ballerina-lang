@@ -330,8 +330,11 @@ public enum DiagnosticCode {
 
     // Worker flush action related error codes
     INVALID_WORKER_FLUSH("invalid.worker.flush.expression"),
-    INVALID_WORKER_FLUSH_FOR_WORKER("invalid.worker.flush.expression.for.worker");
+    INVALID_WORKER_FLUSH_FOR_WORKER("invalid.worker.flush.expression.for.worker"),
 
+    // Worker receive and send related error codes
+    INVALID_TYPE_FOR_RECEIVE("invalid.type.for.receive"),
+    INVALID_TYPE_FOR_SEND("invalid.type.for.send");
 
     private String value;
 
