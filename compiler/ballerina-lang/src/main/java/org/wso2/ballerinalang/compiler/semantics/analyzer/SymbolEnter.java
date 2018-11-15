@@ -1490,7 +1490,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void createDummyTypeDefSymbol(BLangTypeDefinition typeDef, SymbolEnv env) {
         // This is only to keep the flow running so that at the end there will be proper semantic errors
         typeDef.symbol = Symbols.createTypeSymbol(SymTag.TYPE_DEF, Flags.asMask(typeDef.flagSet),
-                names.fromIdNode(typeDef.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
+                names.fromIdNode(typeDef.name), env.enclPkg.symbol.pkgID, symTable.semanticError, env.scope.owner);
         defineSymbol(typeDef.pos, typeDef.symbol, env);
     }
 
