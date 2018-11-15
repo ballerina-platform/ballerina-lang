@@ -157,7 +157,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
-import static org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord.TaintedStatus;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -167,6 +166,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.xml.XMLConstants;
+
+import static org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord.TaintedStatus;
 
 /**
  * Generate taint-table for each invokable node.
@@ -452,8 +453,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         compoundAssignment.expr.accept(this);
         TaintedStatus exprTaintedStatus = this.taintedStatus;
 
-        TaintedStatus combinedTaintedStatus =
-                getCombinedTaintedStatus(varRefTaintedStatus, exprTaintedStatus);
+        TaintedStatus combinedTaintedStatus = getCombinedTaintedStatus(varRefTaintedStatus, exprTaintedStatus);
         visitAssignment(compoundAssignment.varRef, combinedTaintedStatus, compoundAssignment.pos);
     }
 
@@ -467,8 +467,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         scopeNode.scopeBody.accept(this);
     }
 
-    private void visitAssignment(BLangExpression varRefExpr, TaintedStatus varTaintedStatus,
-                                 DiagnosticPos pos) {
+    private void visitAssignment(BLangExpression varRefExpr, TaintedStatus varTaintedStatus, DiagnosticPos pos) {
         if (varTaintedStatus != TaintedStatus.IGNORED) {
             // Generate error if a global variable has been assigned with a tainted value.
             if (varTaintedStatus == TaintedStatus.TAINTED && varRefExpr instanceof BLangVariableReference) {
