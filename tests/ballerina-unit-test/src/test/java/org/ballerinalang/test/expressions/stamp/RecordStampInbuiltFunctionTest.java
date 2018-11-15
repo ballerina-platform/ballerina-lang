@@ -102,6 +102,22 @@ public class RecordStampInbuiltFunctionTest {
     }
 
     @Test
+    public void testStampClosedRecordWithClosedRecord() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampClosedRecordWithClosedRecord");
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+        Assert.assertEquals(employee0.size(), 4);
+
+        Assert.assertEquals(employee0.get("batch").getType().getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get("batch").stringValue(), "LK2014");
+
+        Assert.assertEquals(employee0.get("school").getType().getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get("school").stringValue(), "Hindu College");
+    }
+
+    @Test
     public void testStampRecordToJSON() {
 
         BValue[] results = BRunUtil.invoke(compileResult, "stampRecordToJSON");
@@ -317,6 +333,43 @@ public class RecordStampInbuiltFunctionTest {
 
         Assert.assertEquals(mapValue.get("address").getType().getClass(), BRecordType.class);
         Assert.assertEquals(mapValue.get("address").getType().getName(), "Address");
+    }
+
+    @Test
+    public void testStampExtendedRecordToOpenRecordV5() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampExtendedRecordToOpenRecordV5");
+        BMap<String, BValue> mapValue = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+        Assert.assertEquals(mapValue.size(), 4);
+
+        Assert.assertEquals(mapValue.getType().getClass(), BRecordType.class);
+        Assert.assertEquals(mapValue.getType().getName(), "ExtendedEmployee");
+
+        Assert.assertEquals(mapValue.get("batch").getType().getClass(), BStringType.class);
+        Assert.assertEquals(mapValue.get("batch").stringValue(), "LK2014");
+
+        Assert.assertEquals(mapValue.get("address").getType().getClass(), BRecordType.class);
+        Assert.assertEquals(mapValue.get("address").getType().getName(), "Address");
+    }
+
+    @Test
+    public void testStampExtendedRecordToOpenRecordV6() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampExtendedRecordToOpenRecordV6");
+        BMap<String, BValue> mapValue = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+        Assert.assertEquals(mapValue.size(), 4);
+
+        Assert.assertEquals(mapValue.getType().getClass(), BRecordType.class);
+        Assert.assertEquals(mapValue.getType().getName(), "ExtendedEmployeeWithUnionRest");
+
+        Assert.assertEquals(mapValue.get("batch").getType().getClass(), BStringType.class);
+        Assert.assertEquals(mapValue.get("batch").stringValue(), "LK2014");
+
+        Assert.assertEquals(mapValue.get("address").getType().getClass(), BUnionType.class);
     }
 
     //---------------------------------- Negative Test cases ----------------------------------------------

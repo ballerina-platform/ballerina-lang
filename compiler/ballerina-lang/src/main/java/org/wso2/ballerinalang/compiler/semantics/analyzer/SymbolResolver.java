@@ -349,14 +349,14 @@ public class SymbolResolver extends BLangNodeVisitor {
     private BType resolveTargetTypeForStamping(BLangExpression targetTypeExpression) {
         BType targetType = null;
 
-        if (targetTypeExpression instanceof BLangTypedescExpr) {
+        if (targetTypeExpression.getKind() == NodeKind.TYPEDESC_EXPRESSION) {
             targetType = ((BLangTypedescExpr) targetTypeExpression).resolvedType;
-        } else if (targetTypeExpression instanceof BLangBracedOrTupleExpr) {
+        } else if (targetTypeExpression.getKind() == NodeKind.BRACED_TUPLE_EXPR) {
             List<BLangExpression> expressionList = ((BLangBracedOrTupleExpr) targetTypeExpression).
                     getExpressions();
             List<BType> tupleTypeList = new ArrayList<>();
             for (BLangExpression expression : expressionList) {
-                if (expression instanceof BLangTypedescExpr) {
+                if (expression.getKind() == NodeKind.TYPEDESC_EXPRESSION) {
                     tupleTypeList.add(((BLangTypedescExpr) expression).resolvedType);
                 } else {
                     tupleTypeList.add(((BLangSimpleVarRef) expression).symbol.type);
