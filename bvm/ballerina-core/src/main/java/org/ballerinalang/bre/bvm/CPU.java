@@ -3244,7 +3244,7 @@ public class CPU {
             return true;
         }
 
-        return isAssignable(sourceType, targetType, unresolvedTypes);
+        return sourceType.equals(targetType);
     }
 
     private static boolean checkTupleCast(BValue sourceValue, BType targetType, List<TypePair> unresolvedTypes) {
