@@ -98,8 +98,10 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Stack;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
@@ -907,14 +909,20 @@ public class CompiledPackageSymbolEnter {
         invokableSymbol.taintTable = new HashMap<>();
         for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
             int paramIndex = taintTableDataInStream.readShort();
-            Boolean returnTaintedStatus = taintTableDataInStream.readBoolean();
-            List<Boolean> parameterTaintedStatusList = new ArrayList<>();
+            TaintRecord.TaintedStatus returnTaintedStatus =
+                    convertByteToTaintedState(taintTableDataInStream.readByte());
+            List<TaintRecord.TaintedStatus> parameterTaintedStatusList = new ArrayList<>();
             for (int columnIndex = 1; columnIndex < columnCount; columnIndex++) {
-                parameterTaintedStatusList.add(taintTableDataInStream.readBoolean());
+                parameterTaintedStatusList.add(convertByteToTaintedState(taintTableDataInStream.readByte()));
             }
             TaintRecord taintRecord = new TaintRecord(returnTaintedStatus, parameterTaintedStatusList);
             invokableSymbol.taintTable.put(paramIndex, taintRecord);
         }
+    }
+
+    private TaintRecord.TaintedStatus convertByteToTaintedState(byte readByte) {
+        return EnumSet.allOf(TaintRecord.TaintedStatus.class).stream()
+                .filter(taintedStatus -> readByte == taintedStatus.getByteValue()).findFirst().get();
     }
 
     private void setDocumentation(BSymbol symbol, Map<AttributeInfo.Kind, byte[]> attrDataMap) throws IOException {
