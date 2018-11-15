@@ -228,6 +228,13 @@ function stampExtendedRecordToOpenRecordV6() returns ExtendedEmployeeWithUnionRe
     return outputValue;
 }
 
+function stampNilTypeToOpenRecord() returns Employee|error {
+    Teacher t1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
+
+    Employee|error e = Employee.stamp(t1);
+    return e;
+}
+
 //-------------------------------- Negative Test cases ------------------------------------------------------------
 
 function stampOpenRecordToMap() returns map<string>|error  {

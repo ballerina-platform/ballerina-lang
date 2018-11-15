@@ -372,6 +372,24 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue.get("address").getType().getClass(), BUnionType.class);
     }
 
+    @Test
+    public void testStampNilTypeToOpenRecord() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampNilTypeToOpenRecord");
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+
+        Assert.assertEquals(employee0.get("age").getType().getClass(), BAnydataType.class);
+        Assert.assertEquals(employee0.get("age").stringValue(), "25");
+
+        Assert.assertEquals(employee0.get("batch").getType().getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get("batch").stringValue(), "LK2014");
+
+        Assert.assertEquals(employee0.get("school").getType().getClass(), BAnydataType.class);
+        Assert.assertEquals(employee0.get("school").stringValue(), "Hindu College");
+    }
+
     //---------------------------------- Negative Test cases ----------------------------------------------
 
     @Test
