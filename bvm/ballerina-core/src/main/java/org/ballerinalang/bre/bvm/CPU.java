@@ -829,9 +829,7 @@ public class CPU {
     private static void createClone(int[] operands, WorkerData sf) {
         int i = operands[0];
         int j = operands[1];
-        if (isAnydata(sf.refRegs[i].getType())) {
-            sf.refRegs[j] = (BRefType<?>) sf.refRegs[i].copy(new HashMap<>());
-        }
+        sf.refRegs[j] = (BRefType<?>) sf.refRegs[i].copy(new HashMap<>());
     }
 
     private static void createNewError(int[] operands, WorkerExecutionContext ctx, WorkerData sf) {

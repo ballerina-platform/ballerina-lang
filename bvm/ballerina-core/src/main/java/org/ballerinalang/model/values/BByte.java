@@ -94,12 +94,7 @@ public final class BByte extends BValueType implements BRefType<Byte> {
 
     @Override
     public BValue copy(Map<BValue, BValue> refs) {
-        if (refs.containsKey(this)) {
-            return refs.get(this);
-        }
-
-        refs.put(this, new BByte(value));
-        return refs.get(this);
+        return this;
     }
 
     @Override

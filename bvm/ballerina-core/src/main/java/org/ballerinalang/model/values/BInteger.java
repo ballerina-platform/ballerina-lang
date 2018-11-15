@@ -99,11 +99,6 @@ public final class BInteger extends BValueType implements BRefType<Long> {
 
     @Override
     public BValue copy(Map<BValue, BValue> refs) {
-        if (refs.containsKey(this)) {
-            return refs.get(this);
-        }
-
-        refs.put(this, new BInteger(value));
-        return refs.get(this);
+        return this;
     }
 }

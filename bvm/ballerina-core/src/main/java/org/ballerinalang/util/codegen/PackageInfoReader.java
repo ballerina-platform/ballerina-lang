@@ -1222,15 +1222,10 @@ public class PackageInfoReader {
                 case InstructionCodes.ARRAY2JSON:
                 case InstructionCodes.REASON:
                 case InstructionCodes.DETAIL:
+                case InstructionCodes.CLONE:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
-                    break;
-
-                case InstructionCodes.CLONE:
-                    i = codeStream.readInt();
-                    k = codeStream.readInt();
-                    packageInfo.addInstruction(InstructionFactory.get(opcode, i, k));
                     break;
 
                 case InstructionCodes.IALOAD:
