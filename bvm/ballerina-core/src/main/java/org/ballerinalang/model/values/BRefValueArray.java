@@ -105,7 +105,7 @@ public class BRefValueArray extends BNewArray implements Serializable {
             for (int i = 0; i < this.size(); i++) {
                 arrayValues[i].stamp(type);
             }
-        } else if(type.getTag() != TypeTags.ANYDATA_TAG) {
+        } else if (type.getTag() != TypeTags.ANYDATA_TAG) {
             BType arrayElementType = ((BArrayType) type).getElementType();
             BRefType<?>[] arrayValues = this.getValues();
             for (int i = 0; i < this.size(); i++) {
