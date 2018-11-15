@@ -220,4 +220,26 @@ public class MatchStructuredTuplePatternsTest {
         Assert.assertEquals(results.get(++i), msg + "boolean : 678, false");
         Assert.assertEquals(results.get(++i), "Default");
     }
+
+    @Test(description = "Test structured pattern match with type guard 4")
+    public void testStructuredMatchPatternWithTypeGuard4() {
+        BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithTypeGuard4", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+
+        BStringArray results = (BStringArray) returns[0];
+
+        int i = -1;
+        String msg = "Matched with ";
+        Assert.assertEquals(results.get(++i), msg +
+                "FooRec and BarRec : {s:\"S\", i:23, f:5.6} , {f:{s:\"S\", i:23, f:5.6}, b:12}");
+        Assert.assertEquals(results.get(++i), msg + "FooRec and float : {s:\"S\", i:23, f:5.6} , 4.5");
+        Assert.assertEquals(results.get(++i), msg +
+                "BarRec and FooRec : {f:{s:\"S\", i:23, f:5.6}, b:12} , {s:\"S\", i:23, f:5.6}");
+        Assert.assertEquals(results.get(++i), msg + "BarRec and int : {f:{s:\"S\", i:23, f:5.6}, b:12} , 543");
+        Assert.assertEquals(results.get(++i), msg + "float and FooRec : 5.2 , {s:\"S\", i:23, f:5.6}");
+        Assert.assertEquals(results.get(++i), msg + "int and BarRec : 15 , {f:{s:\"S\", i:23, f:5.6}, b:12}");
+        Assert.assertEquals(results.get(++i), "Default");
+        Assert.assertEquals(results.get(++i), "Default");
+    }
 }
