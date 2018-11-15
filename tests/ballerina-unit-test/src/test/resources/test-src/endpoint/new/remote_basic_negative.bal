@@ -42,12 +42,12 @@ type Foo object {
 };
 
 // attempt to refer non-remote function as remote
-remote function Foo::abc (string value) returns int {
+remote function Foo.abc (string value) returns int {
     return 10;
 }
 
 // remote modifier required here
-function Foo::xyz (string value) returns float {
+function Foo.xyz (string value) returns float {
     return 10.0;
 }
 

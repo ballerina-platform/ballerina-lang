@@ -10,9 +10,9 @@ public float glbVarFloatChange = 99.0;
 
 public float glbVarFloat1 = glbVarFloat;
 
-public json glbVarJson;
+public json glbVarJson = ();
 
-public float glbVarFloatLater;
+public float glbVarFloatLater = 1.2;
 
 public byte glbByte = 234;
 

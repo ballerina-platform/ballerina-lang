@@ -33,7 +33,7 @@ type TestEP object {
 };
 
 
-remote function TestEP::action2(string s, boolean b) returns int {
+remote function TestEP.action2(string s, boolean b) returns int {
     return 10;
 }
 
