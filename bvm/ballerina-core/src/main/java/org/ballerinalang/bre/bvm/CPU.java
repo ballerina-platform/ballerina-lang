@@ -883,16 +883,15 @@ public class CPU {
     /**
      * Handle sending a message to a channel. If there is a worker already waiting to accept this message, it is
      * resumed.
-     *
-     * @param ctx         Current worker context
+     * @param ctx Current worker context
      * @param channelName Name os the channel to get the message
-     * @param dataType    Type od the message
-     * @param dataReg     Registry location of the message
-     * @param keyType     Type of message key
-     * @param keyReg      message key registry index
+     * @param dataType Type od the message
+     * @param dataReg Registry location of the message
+     * @param keyType Type of message key
+     * @param keyReg message key registry index
      */
     private static void handleCHNSend(WorkerExecutionContext ctx, String channelName, BType dataType, int dataReg,
-                                      BType keyType, int keyReg) {
+            BType keyType, int keyReg) {
         BRefType keyVal = null;
         if (keyType != null) {
             keyVal = extractValue(ctx.workerLocal, keyType, keyReg);
@@ -918,17 +917,16 @@ public class CPU {
     /**
      * Handles message receiving using a channel.
      * If the expected message is already available, it is assigned to the receiver reg and returns true.
-     *
-     * @param ctx          Current worker context
-     * @param channelName  Name os the channel to get the message
+     * @param ctx Current worker context
+     * @param channelName Name os the channel to get the message
      * @param receiverType Type of the expected message
-     * @param receiverReg  Registry index of the receiving message
-     * @param keyType      Type of message key
-     * @param keyIndex     message key registry index
+     * @param receiverReg Registry index of the receiving message
+     * @param keyType Type of message key
+     * @param keyIndex message key registry index
      * @return true if a matching value is available
      */
     private static boolean handleCHNReceive(WorkerExecutionContext ctx, String channelName, BType receiverType,
-                                            int receiverReg, BType keyType, int keyIndex) {
+            int receiverReg, BType keyType, int keyIndex) {
         BValue keyVal = null;
         if (keyType != null) {
             keyVal = extractValue(ctx.workerLocal, keyType, keyIndex);
@@ -1071,7 +1069,7 @@ public class CPU {
 
     private static int expandIntRegs(WorkerData sf, BFunctionPointer fp) {
         int intIndex = 0;
-        if (fp.getAdditionalIndexCount(BTypes.typeBoolean.getTag()) > 0 ||
+        if (fp.getAdditionalIndexCount(BTypes.typeBoolean.getTag()) > 0  ||
                 fp.getAdditionalIndexCount(BTypes.typeByte.getTag()) > 0) {
             if (sf.intRegs == null) {
                 sf.intRegs = new int[0];
@@ -1168,7 +1166,7 @@ public class CPU {
                 }
                 case TypeTags.BOOLEAN_TAG: {
                     fp.addClosureVar(new BClosure(new BBoolean(ctx.workerLocal.intRegs[index] == 1),
-                            BTypes.typeBoolean), TypeTags.BOOLEAN_TAG);
+                                    BTypes.typeBoolean), TypeTags.BOOLEAN_TAG);
                     break;
                 }
                 case TypeTags.STRING_TAG: {
@@ -2247,7 +2245,7 @@ public class CPU {
                 bRefTypeValue = sf.refRegs[i];
 
                 if (checkCast(bRefTypeValue, typeRefCPEntry.getType())) {
-                    sf.refRegs[j] = bRefTypeValue;
+                        sf.refRegs[j] = bRefTypeValue;
                 } else {
                     handleTypeCastError(ctx, sf, j, bRefTypeValue != null ? bRefTypeValue.getType() : BTypes.typeNull,
                             typeRefCPEntry.getType());
@@ -3026,7 +3024,7 @@ public class CPU {
     }
 
     public static void copyArgValueForWorkerReceive(WorkerData currentSF, int regIndex, BType paramType,
-                                                    BRefType passedInValue) {
+                                                     BRefType passedInValue) {
         switch (paramType.getTag()) {
             case TypeTags.INT_TAG:
                 currentSF.longRegs[regIndex] = ((BInteger) passedInValue).intValue();
@@ -3133,9 +3131,9 @@ public class CPU {
      * Checks whether the source type is the same as the target type or if the target type is any type, and if true
      * the return value would be true.
      *
-     * @param rhsType the source type - the type (of the value) being cast/assigned
-     * @param lhsType the target type against which cast/assignability is checked
-     * @return true if the lhsType is any or is the same as rhsType
+     * @param rhsType   the source type - the type (of the value) being cast/assigned
+     * @param lhsType   the target type against which cast/assignability is checked
+     * @return          true if the lhsType is any or is the same as rhsType
      */
     private static boolean isSameOrAnyType(BType rhsType, BType lhsType) {
         return lhsType.getTag() == TypeTags.ANY_TAG || rhsType.equals(lhsType);
@@ -3224,7 +3222,7 @@ public class CPU {
         if (sourceMapType.getConstrainedType().getTag() == TypeTags.RECORD_TYPE_TAG &&
                 targetMapType.getConstrainedType().getTag() == TypeTags.RECORD_TYPE_TAG) {
             return checkRecordEquivalency((BRecordType) targetMapType.getConstrainedType(),
-                    (BRecordType) sourceMapType.getConstrainedType(), unresolvedTypes);
+                                          (BRecordType) sourceMapType.getConstrainedType(), unresolvedTypes);
         }
 
         return false;
@@ -3276,8 +3274,8 @@ public class CPU {
             case TypeTags.RECORD_TYPE_TAG:
                 BRecordType recordType = (BRecordType) type;
                 List<BType> fieldTypes = Arrays.stream(recordType.getFields())
-                        .map(BField::getFieldType)
-                        .collect(Collectors.toList());
+                                                .map(BField::getFieldType)
+                                                .collect(Collectors.toList());
                 return isAnydata(fieldTypes) && (recordType.sealed || isAnydata(recordType.restFieldType));
             case TypeTags.UNION_TAG:
                 return isAnydata(((BUnionType) type).getMemberTypes());
@@ -3287,8 +3285,8 @@ public class CPU {
                 return isAnydata(((BArrayType) type).getElementType());
             case TypeTags.FINITE_TYPE_TAG:
                 Set<BType> valSpaceTypes = ((BFiniteType) type).valueSpace.stream()
-                        .map(BValue::getType)
-                        .collect(Collectors.toSet());
+                                                                        .map(BValue::getType)
+                                                                        .collect(Collectors.toSet());
                 return isAnydata(valSpaceTypes);
             default:
                 return false;
@@ -3312,7 +3310,7 @@ public class CPU {
     }
 
     private static boolean checkObjectEquivalency(BStructureType rhsType, BStructureType lhsType,
-                                                  List<TypePair> unresolvedTypes) {
+                                                 List<TypePair> unresolvedTypes) {
         // If we encounter two types that we are still resolving, then skip it.
         // This is done to avoid recursive checking of the same type.
         TypePair pair = new TypePair(rhsType, lhsType);
@@ -3389,7 +3387,7 @@ public class CPU {
     }
 
     private static boolean checkPrivateObjectsEquivalency(BStructureType lhsType, BStructureType rhsType,
-                                                          List<TypePair> unresolvedTypes) {
+                                                           List<TypePair> unresolvedTypes) {
         Map<String, BField> rhsFields = Arrays.stream(rhsType.getFields()).collect(
                 Collectors.toMap(BField::getFieldName, field -> field));
         for (BField lhsField : lhsType.getFields()) {
@@ -3415,7 +3413,7 @@ public class CPU {
     }
 
     private static boolean checkPublicObjectsEquivalency(BStructureType lhsType, BStructureType rhsType,
-                                                         List<TypePair> unresolvedTypes) {
+                                                           List<TypePair> unresolvedTypes) {
         // Check the whether there is any private fields in RHS type
         if (Arrays.stream(rhsType.getFields()).anyMatch(field -> !Flags.isFlagOn(field.flags, Flags.PUBLIC))) {
             return false;
@@ -3590,9 +3588,9 @@ public class CPU {
     /**
      * Check the compatibility of casting a JSON to a target type.
      *
-     * @param json            JSON to cast
-     * @param sourceType      Type of the source JSON
-     * @param targetType      Target type
+     * @param json       JSON to cast
+     * @param sourceType Type of the source JSON
+     * @param targetType Target type
      * @param unresolvedTypes Unresolved types
      * @return Runtime compatibility for casting
      */
@@ -3809,8 +3807,8 @@ public class CPU {
 
             if (!checkCast(mapVal, fieldType, new ArrayList<TypePair>())) {
                 throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING,
-                        key, fieldType,
-                        mapVal == null ? null : mapVal.getType());
+                                                               key, fieldType,
+                                                               mapVal == null ? null : mapVal.getType());
             }
             bStruct.put(key, mapVal);
         }
@@ -3840,7 +3838,7 @@ public class CPU {
                 }
         }
         throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key,
-                targetType, mapValue.getType());
+                                                       targetType, mapValue.getType());
     }
 
     private static void convertJSONToStruct(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
@@ -3999,7 +3997,7 @@ public class CPU {
                 return false;
             }
             return checkArrayCast(((BArrayType) sourceType).getElementType(),
-                    ((BArrayType) targetType).getElementType(), unresolvedTypes);
+                                  ((BArrayType) targetType).getElementType(), unresolvedTypes);
         }
 
         if (sourceType.getTag() == TypeTags.TUPLE_TAG && targetType.getTag() == TypeTags.TUPLE_TAG) {
@@ -4072,12 +4070,11 @@ public class CPU {
     /**
      * Add the corresponding compensation function pointer of the given scope, to the compensations table. A copy of
      * current worker data of the args also added to the table.
-     *
      * @param scopeEnd current scope instruction
-     * @param ctx      current WorkerExecutionContext
+     * @param ctx current WorkerExecutionContext
      */
     private static void addToCompensationTable(Instruction.InstructionScopeEnd scopeEnd, WorkerExecutionContext ctx,
-                                               BFunctionPointer fp) {
+            BFunctionPointer fp) {
         CompensationTable compensationTable = (CompensationTable) ctx.globalProps.get(Constants.COMPENSATION_TABLE);
         CompensationTable.CompensationEntry entry = compensationTable.getNewEntry();
         entry.functionInfo = scopeEnd.function;
@@ -4428,8 +4425,8 @@ public class CPU {
     /**
      * Deep value equality check for anydata.
      *
-     * @param lhsValue The value on the left hand side
-     * @param rhsValue The value on the right hand side
+     * @param lhsValue  The value on the left hand side
+     * @param rhsValue  The value on the right hand side
      * @return True if values are equal, else false.
      */
     private static boolean isEqual(BValue lhsValue, BValue rhsValue) {
@@ -4487,8 +4484,8 @@ public class CPU {
     /**
      * Deep equality check for an array/tuple.
      *
-     * @param lhsList The array/tuple on the left hand side
-     * @param rhsList The array/tuple on the right hand side
+     * @param lhsList   The array/tuple on the left hand side
+     * @param rhsList   The array/tuple on the right hand side
      * @return True if the array/tuple values are equal, else false.
      */
     private static boolean isEqual(BNewArray lhsList, BNewArray rhsList) {
@@ -4507,8 +4504,8 @@ public class CPU {
     /**
      * Deep equality check for a map.
      *
-     * @param lhsMap Map on the left hand side
-     * @param rhsMap Map on the right hand side
+     * @param lhsMap    Map on the left hand side
+     * @param rhsMap    Map on the right hand side
      * @return True if the map values are equal, else false.
      */
     private static boolean isEqual(BMap lhsMap, BMap rhsMap) {
@@ -4534,8 +4531,8 @@ public class CPU {
      * Reference equality check for values. If both the values are simple basic types, returns the same
      * result as {@link CPU#isEqual(BValue, BValue)}
      *
-     * @param lhsValue The value on the left hand side
-     * @param rhsValue The value on the right hand side
+     * @param lhsValue  The value on the left hand side
+     * @param rhsValue  The value on the right hand side
      * @return True if values are reference equal or in the case of simple basic types if the values are equal,
      * else false.
      */
@@ -4560,8 +4557,8 @@ public class CPU {
      * Reference inequality check for values. If both the values are simple basic types, returns the same
      * result as the negation of {@link CPU#isEqual(BValue, BValue)}
      *
-     * @param lhsValue The value on the left hand side
-     * @param rhsValue The value on the right hand side
+     * @param lhsValue  The value on the left hand side
+     * @param rhsValue  The value on the right hand side
      * @return True if values are not reference equal or in the case of simple basic types if the values are not equal,
      * else false.
      */
