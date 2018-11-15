@@ -242,10 +242,10 @@ public class Types {
 
     boolean isStampingAllowed(BType source, BType target) {
         return (isAssignable(source, target) || isAssignable(target, source) ||
-                isStampingAllowedForExpr(source, target) || isStampingAllowedForExpr(target, source));
+                checkTypeEquivalencyForStamping(source, target) || checkTypeEquivalencyForStamping(target, source));
     }
 
-    private boolean isStampingAllowedForExpr(BType source, BType target) {
+    private boolean checkTypeEquivalencyForStamping(BType source, BType target) {
 
         if (target.tag == TypeTags.RECORD) {
             if (source.tag == TypeTags.RECORD) {

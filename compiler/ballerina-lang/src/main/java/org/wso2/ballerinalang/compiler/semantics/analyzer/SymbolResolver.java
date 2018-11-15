@@ -318,6 +318,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     BSymbol createSymbolForStampOperator(DiagnosticPos pos, Name name, List<BLangExpression> functionArgList,
                                          BLangExpression targetTypeExpression) {
+        // If there are more than one argument for stamp in-built function then fail.
         if (functionArgList.size() != 1) {
             dlog.error(pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, name);
             resultType = symTable.semanticError;
@@ -325,6 +326,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             BLangExpression argumentExpression = functionArgList.get(0);
             BType variableSourceType = argumentExpression.type;
             if (isStampSupportedForSourceType(variableSourceType)) {
+                // Stamp in-built function can only called on typedesc.
                 if (targetTypeExpression.type.tag == TypeTags.TYPEDESC) {
                     BType targetType = resolveTargetTypeForStamping(targetTypeExpression);
                     if (targetType == null) {
@@ -376,7 +378,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     private BSymbol resolveTargetSymbolForStamping(BType targetType, BType variableSourceType, Name name,
                                                    DiagnosticPos pos) {
-        if (canHaveStampInvocation(targetType)) {
+        if (isStampSupportedForTargetType(targetType)) {
             if (types.isAssignable(variableSourceType, targetType)) {
                 List<BType> paramTypes = new ArrayList<>();
                 paramTypes.add(variableSourceType);
@@ -1008,15 +1010,15 @@ public class SymbolResolver extends BLangNodeVisitor {
     /**
      * Returns the eligibility to use 'stamp' inbuilt function against the respective expression.
      *
-     * @param type expression that 'stamp' function is used
+     * @param targetType target type that 'stamp' function is used
      * @return eligibility to use 'stamp' function
      */
-    private boolean canHaveStampInvocation(BType type) {
-        if (types.isAnydata(type)) {
-            switch (type.tag) {
+    private boolean isStampSupportedForTargetType(BType targetType) {
+        if (types.isAnydata(targetType)) {
+            switch (targetType.tag) {
                 case TypeTags.ARRAY:
                     //Primitive type array does not support stamp because primitive arrays aren't using ref registry.
-                    int arrayConstraintTypeTag = ((BArrayType) type).eType.tag;
+                    int arrayConstraintTypeTag = ((BArrayType) targetType).eType.tag;
                     return !(arrayConstraintTypeTag == TypeTags.INT || arrayConstraintTypeTag == TypeTags.BOOLEAN ||
                             arrayConstraintTypeTag == TypeTags.FLOAT || arrayConstraintTypeTag == TypeTags.BYTE ||
                             arrayConstraintTypeTag == TypeTags.STRING || arrayConstraintTypeTag == TypeTags.DECIMAL);
@@ -1039,7 +1041,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     /**
      * Returns the eligibility whether stamp can be on the given value type.
      *
-     * @param sourceType target type used for the stamp operation
+     * @param sourceType source type used for the stamp operation
      * @return eligibility to use as the target type for 'stamp' function
      */
     private boolean isStampSupportedForSourceType(BType sourceType) {
