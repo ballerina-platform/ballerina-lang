@@ -1,5 +1,5 @@
 // tslint:disable-next-line:no-submodule-imports
-import { createWSLangClient } from "@ballerina/lang-service/lib/client/ws";
+import { createWSLangClient } from "@ballerina/lang-service/lib/src/client/ws";
 
 async function test(): Promise<number> {
   // tslint:disable-next-line:no-empty
