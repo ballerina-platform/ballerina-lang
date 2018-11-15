@@ -1073,10 +1073,8 @@ public class TypeChecker extends BLangNodeVisitor {
             // Check if `field` is explicitly assigned a value in the record literal
             boolean hasField = keyValPairs.stream().anyMatch(keyVal -> field.name.value.equals(keyVal.key.value));
 
-            // If a required field is missing and it's not defaultable, it's a compile error
-            if (!hasField && !Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
-                    (!types.defaultValueExists(pos, field.type) &&
-                            !Symbols.isFlagOn(field.symbol.flags, Flags.DEFAULTABLE))) {
+            // If a required field is missing, it's a compile error
+            if (!hasField && Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)) {
                 dlog.error(pos, DiagnosticCode.MISSING_REQUIRED_RECORD_FIELD, field.name);
             }
         });
