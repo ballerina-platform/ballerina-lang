@@ -52,7 +52,7 @@ public function issue(JwtHeader header, JwtPayload payload, JWTIssuerConfig conf
 function createHeader(JwtHeader header) returns (string|error) {
     json headerJson = {};
     if (!validateMandatoryJwtHeaderFields(header)) {
-        error jwtError = error(INTERNAL_ERROR_CODE, { message : "Mandatory field signing algorithm(alg) is empty."});
+        error jwtError = error(INTERNAL_ERROR_CODE, { message : "Mandatory field signing algorithm(alg) is empty." });
         return jwtError;
     }
     headerJson[ALG] = header.alg;
@@ -66,8 +66,8 @@ function createHeader(JwtHeader header) returns (string|error) {
 function createPayload(JwtPayload payload) returns (string|error) {
     json payloadJson = {};
     if (!validateMandatoryFields(payload)) {
-        error jwtError = error(INTERNAL_ERROR_CODE, { message : "Mandatory fields(Issuer, Subject,
-        Expiration time or Audience) are empty."});
+        error jwtError = error(INTERNAL_ERROR_CODE,
+                            { message : "Mandatory fields(Issuer, Subject, Expiration time or Audience) are empty." });
         return jwtError;
     }
     payloadJson[SUB] = payload.sub;

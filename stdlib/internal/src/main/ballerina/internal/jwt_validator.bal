@@ -48,20 +48,20 @@ public function validate(string jwtToken, JWTValidatorConfig config) returns Jwt
     } else if (jwtComponents is error) {
         return jwtComponents;
     } else {
-        error jwtError = error(INTERNAL_ERROR_CODE, { message : "Invalid JWT token"});
+        error jwtError = error(INTERNAL_ERROR_CODE, { message : "Invalid JWT token" });
         return jwtError;
     }
 
     string[] aud = [];
-    JwtHeader header = {alg: ""};
-    JwtPayload payload = {iss: "", sub: "", aud: aud, exp: 0};
+    JwtHeader header = { alg: "" };
+    JwtPayload payload = { iss: "", sub: "", aud: aud, exp: 0 };
     var decodedJwt = parseJWT(encodedJWTComponents);
     if (decodedJwt is (JwtHeader, JwtPayload)) {
         (header, payload) = decodedJwt;
     } else if (decodedJwt is error) {
         return decodedJwt;
     } else {
-        error jwtError = error(INTERNAL_ERROR_CODE, { message : "Invalid JWT token"});
+        error jwtError = error(INTERNAL_ERROR_CODE, { message : "Invalid JWT token" });
         return jwtError;
     }
 
@@ -72,11 +72,11 @@ public function validate(string jwtToken, JWTValidatorConfig config) returns Jwt
         if (jwtValidity) {
             return payload;
         } else {
-            error jwtError = error(INTERNAL_ERROR_CODE, { message : "Invalid JWT token"});
+            error jwtError = error(INTERNAL_ERROR_CODE, { message : "Invalid JWT token" });
             return jwtError;
         }
     } else {
-        error jwtError = error(INTERNAL_ERROR_CODE, { message : "Invalid JWT token"});
+        error jwtError = error(INTERNAL_ERROR_CODE, { message : "Invalid JWT token" });
         return jwtError;
     }
 }
@@ -85,7 +85,7 @@ function getJWTComponents(string jwtToken) returns (string[])|error {
     string[] jwtComponents = jwtToken.split("\\.");
     if (jwtComponents.length() != 3) {
         log:printDebug("Invalid JWT token :" + jwtToken);
-        error jwtError = error(INTERNAL_ERROR_CODE, { message : "Invalid JWT token"});
+        error jwtError = error(INTERNAL_ERROR_CODE, { message : "Invalid JWT token" });
         return jwtError;
     }
     return jwtComponents;
@@ -129,7 +129,7 @@ function getDecodedJWTComponents(string[] encodedJWTComponents) returns ((json, 
 }
 
 function parseHeader(json jwtHeaderJson) returns (JwtHeader) {
-    JwtHeader jwtHeader = {alg: ""};
+    JwtHeader jwtHeader = { alg: "" };
     map customClaims = {};
 
     string[] keys = jwtHeaderJson.getKeys();
@@ -157,7 +157,7 @@ function parseHeader(json jwtHeaderJson) returns (JwtHeader) {
 
 function parsePayload(json jwtPayloadJson) returns (JwtPayload) {
     string[] aud = [];
-    JwtPayload jwtPayload = {iss: "", sub: "", aud: aud, exp: 0};
+    JwtPayload jwtPayload = { iss: "", sub: "", aud: aud, exp: 0 };
     map customClaims = {};
     string[] keys = jwtPayloadJson.getKeys();
     foreach key in keys {
@@ -194,34 +194,34 @@ function parsePayload(json jwtPayloadJson) returns (JwtPayload) {
 function validateJWT(string[] encodedJWTComponents, JwtHeader jwtHeader, JwtPayload jwtPayload, JWTValidatorConfig
 config) returns (boolean|error) {
     if (!validateMandatoryJwtHeaderFields(jwtHeader)) {
-        error jwtError = error(INTERNAL_ERROR_CODE, { message : "Mandatory field signing algorithm(alg)
-         is empty in the given JSON Web Token."});
+        error jwtError = error(INTERNAL_ERROR_CODE,
+                        { message : "Mandatory field signing algorithm(alg) is empty in the given JSON Web Token." });
         return jwtError;
     }
     if (!validateMandatoryFields(jwtPayload)) {
-        error jwtError = error(INTERNAL_ERROR_CODE, { message : "Mandatory fields(Issuer,
-         Subject, Expiration time or Audience) are empty in the given JSON Web Token."});
+        error jwtError = error(INTERNAL_ERROR_CODE,
+                        { message : "Mandatory fields(Issuer,Subject, Expiration time or Audience) are empty in the given JSON Web Token." });
         return jwtError;
     }
     if (!validateSignature(encodedJWTComponents, jwtHeader, config)) {
-        error jwtError = error(INTERNAL_ERROR_CODE, { message : "Invalid signature"});
+        error jwtError = error(INTERNAL_ERROR_CODE, { message : "Invalid signature" });
         return jwtError;
     }
     if (!validateIssuer(jwtPayload, config)) {
-        error jwtError = error(INTERNAL_ERROR_CODE, { message : "JWT contained invalid issuer name : " + jwtPayload.iss});
+        error jwtError = error(INTERNAL_ERROR_CODE, { message : "JWT contained invalid issuer name : " + jwtPayload.iss });
         return jwtError;
     }
     if (!validateAudience(jwtPayload, config)) {
         //TODO need to set expected audience or available audience list
-        error jwtError = error(INTERNAL_ERROR_CODE, { message : "Invalid audience"});
+        error jwtError = error(INTERNAL_ERROR_CODE, { message : "Invalid audience" });
         return jwtError;
     }
     if (!validateExpirationTime(jwtPayload, config)) {
-        error jwtError = error(INTERNAL_ERROR_CODE, { message : "JWT token is expired"});
+        error jwtError = error(INTERNAL_ERROR_CODE, { message : "JWT token is expired" });
         return jwtError;
     }
     if (!validateNotBeforeTime(jwtPayload)) {
-        error jwtError = error(INTERNAL_ERROR_CODE, { message : "JWT token is used before Not_Before_Time"});
+        error jwtError = error(INTERNAL_ERROR_CODE, { message : "JWT token is used before Not_Before_Time" });
         return jwtError;
     }
     //TODO : Need to validate jwt id (jti) and custom claims.
