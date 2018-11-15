@@ -46,7 +46,6 @@ public class ArrayStampInbuiltFunctionTest {
         compileResult = BCompileUtil.compile("test-src/expressions/stamp/array-stamp-expr-test.bal");
     }
 
-
     //----------------------------- Array Stamp Test cases ------------------------------------------------------
 
     @Test
@@ -160,4 +159,3 @@ public class ArrayStampInbuiltFunctionTest {
         Assert.assertEquals((mapValue1).getType().getClass(), BAnydataType.class);
     }
 }
-

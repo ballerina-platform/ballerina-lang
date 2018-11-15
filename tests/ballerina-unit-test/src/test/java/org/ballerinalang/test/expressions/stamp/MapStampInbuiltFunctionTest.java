@@ -51,7 +51,6 @@ public class MapStampInbuiltFunctionTest {
 
     //----------------------------- Map Stamp Test cases ------------------------------------------------------
 
-
     @Test
     public void testStampIntMapToRecord() {
 
@@ -513,6 +512,4 @@ public class MapStampInbuiltFunctionTest {
         Assert.assertEquals(((BError) error).getReason(), "incompatible stamp operation: 'map<string>' value " +
                 "cannot be stamped as 'EmployeeClosedRecord'");
     }
-
 }
-

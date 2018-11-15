@@ -194,7 +194,6 @@ public class AnydataStampInbuiltFunctionTest {
 
         Assert.assertEquals(mapValue.get("status").stringValue(), "single");
         Assert.assertEquals(mapValue.get("status").getType().getClass(), BAnydataType.class);
-
     }
 
     @Test
@@ -207,4 +206,3 @@ public class AnydataStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue.getType().getClass(), BAnydataType.class);
     }
 }
-

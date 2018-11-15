@@ -184,6 +184,14 @@ function stampExtendedRecordToOpenRecordV3() returns ExtendedEmployeeWithUnion|e
     return employee;
 }
 
+function stampExtendedRecordToOpenRecordV4() returns ExtendedEmployee|error  {
+    map<anydata> addressValue = {no: 23, streetName: "Palm Grove", city:"Colombo"};
+    ExtendedEmployeeWithMap extendedWithMap = { name: "Raja", status: "single", batch: "LK2014", address:addressValue};
+    ExtendedEmployee|error employee = ExtendedEmployee.stamp(extendedWithMap);
+
+    return employee;
+}
+
 //-------------------------------- Negative Test cases ------------------------------------------------------------
 
 function stampOpenRecordToMap() returns map<string>|error  {

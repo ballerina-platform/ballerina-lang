@@ -361,7 +361,6 @@ public class StampInbuiltFunctionNegativeTest {
         BAssertUtil.validateError(unionNegativeTestCompileResult, 0,
                 "Incompatible stamp type: type 'int|float|xml' cannot be stamped as type 'Employee'",
                 12, 30);
-
     }
 
     @Test
@@ -378,7 +377,6 @@ public class StampInbuiltFunctionNegativeTest {
         BAssertUtil.validateError(anydataNegativeTestCompileResult, 1,
                 "Incompatible stamp type: type 'anydata' cannot be stamped as type 'PersonObj'",
                 15, 27);
-
     }
 }
 

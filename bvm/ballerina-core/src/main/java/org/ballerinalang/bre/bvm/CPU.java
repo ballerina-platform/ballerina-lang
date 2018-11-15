@@ -4102,6 +4102,7 @@ public class CPU {
             case TypeTags.FLOAT_TAG:
             case TypeTags.STRING_TAG:
             case TypeTags.BOOLEAN_TAG:
+            case TypeTags.DECIMAL_TAG:
             case TypeTags.BYTE_TAG:
             case TypeTags.XML_TAG:
                 return sourceValue.getType().getTag() == targetType.getTag();

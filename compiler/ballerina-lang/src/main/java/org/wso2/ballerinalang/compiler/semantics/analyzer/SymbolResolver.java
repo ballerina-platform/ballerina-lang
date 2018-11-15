@@ -1019,12 +1019,13 @@ public class SymbolResolver extends BLangNodeVisitor {
                     int arrayConstraintTypeTag = ((BArrayType) type).eType.tag;
                     return !(arrayConstraintTypeTag == TypeTags.INT || arrayConstraintTypeTag == TypeTags.BOOLEAN ||
                             arrayConstraintTypeTag == TypeTags.FLOAT || arrayConstraintTypeTag == TypeTags.BYTE ||
-                            arrayConstraintTypeTag == TypeTags.STRING);
+                            arrayConstraintTypeTag == TypeTags.STRING || arrayConstraintTypeTag == TypeTags.DECIMAL);
                 case TypeTags.UNION:
                 case TypeTags.INT:
                 case TypeTags.BOOLEAN:
                 case TypeTags.STRING:
                 case TypeTags.FLOAT:
+                case TypeTags.DECIMAL:
                 case TypeTags.BYTE:
                 case TypeTags.TABLE:
                     return false;
@@ -1050,11 +1051,12 @@ public class SymbolResolver extends BLangNodeVisitor {
                     int arrayConstraintTypeTag = ((BArrayType) sourceType).eType.tag;
                     return !(arrayConstraintTypeTag == TypeTags.INT || arrayConstraintTypeTag == TypeTags.BOOLEAN ||
                             arrayConstraintTypeTag == TypeTags.FLOAT || arrayConstraintTypeTag == TypeTags.BYTE ||
-                            arrayConstraintTypeTag == TypeTags.STRING);
+                            arrayConstraintTypeTag == TypeTags.STRING || arrayConstraintTypeTag == TypeTags.DECIMAL);
                 case TypeTags.INT:
                 case TypeTags.BOOLEAN:
                 case TypeTags.STRING:
                 case TypeTags.FLOAT:
+                case TypeTags.DECIMAL:
                 case TypeTags.BYTE:
                 case TypeTags.TABLE:
                     return false;

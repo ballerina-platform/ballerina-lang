@@ -2590,31 +2590,4 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         return typeGuards;
     }
-
-    /**
-     * Returns the eligibility to use 'seal' inbuilt function against the respective expression.
-     *
-     * @param iExpr expression that 'seal' function is used
-     * @return eligibility to use 'seal' funtion
-     */
-    private boolean canHaveSealInvocation(BType iExpr) {
-        switch (iExpr.tag) {
-            case TypeTags.ARRAY:
-                // Primitive type array does not support seal because primitive arrays are not using ref registry.
-                int arrayConstraintTypeTag = ((BArrayType) iExpr).eType.tag;
-                return !(arrayConstraintTypeTag == TypeTags.INT || arrayConstraintTypeTag == TypeTags.BOOLEAN ||
-                        arrayConstraintTypeTag == TypeTags.FLOAT || arrayConstraintTypeTag == TypeTags.BYTE ||
-                        arrayConstraintTypeTag == TypeTags.STRING);
-            case TypeTags.MAP:
-            case TypeTags.RECORD:
-            case TypeTags.OBJECT:
-            case TypeTags.JSON:
-            case TypeTags.XML:
-            case TypeTags.UNION:
-            case TypeTags.TUPLE:
-            case TypeTags.ANY:
-                return true;
-        }
-        return false;
-    }
 }
