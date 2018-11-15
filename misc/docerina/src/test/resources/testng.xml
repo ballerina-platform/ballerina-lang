@@ -28,8 +28,8 @@ under the License.
                 <exclude name="broken"/>
             </run>
         </groups>
-        <packages>
-            <package name="org.ballerinalang.docgen.docs"/>
-        </packages>
+        <!--<packages>-->
+            <!--<package name="org.ballerinalang.docgen.docs"/>-->
+        <!--</packages>-->
     </test>
 </suite>

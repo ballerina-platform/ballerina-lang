@@ -39,10 +39,11 @@ service<http:Service> foo bind tokenlistener {
         string payload = check req.getTextPayload();
         boolean clientIdInBody = payload.contains("client_id");
         string authHeader;
-        try {
-            authHeader = req.getHeader("Authorization");
-        } catch (error e) {
+        var reqHeader = trap req.getHeader("Authorization");
+        if (reqHeader is error) {
             authHeader = "";
+        } else {
+            authHeader = req.getHeader("Authorization");
         }
         boolean tokenScope = false;
         if (payload.contains("&scope=token-scope1 token-scope2")) {
