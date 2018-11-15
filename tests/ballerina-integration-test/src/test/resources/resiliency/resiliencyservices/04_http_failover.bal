@@ -81,21 +81,18 @@ service<http:Service> failoverDemoService03 bind failoverEP03 {
     }
     invokeEndpoint(endpoint caller, http:Request request) {
         var backendRes = foBackendEP03->forward("/", request);
-        match backendRes {
-            http:Response response => {
-                caller->respond(response) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        if (backendRes is http:Response) {
+            var responseToCaller = caller->respond(backendRes);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
             }
-            error responseError => {
-                // Create a new HTTP response by looking at the error message.
-                http:Response response = new;
-                response.statusCode = 500;
-                string errorMgs = <string> responseError.detail().message;
-                response.setPayload(errorMgs);
-                caller->respond(response) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        } else if (backendRes is error) {
+            http:Response response = new;
+            response.statusCode = 500;
+            response.setPayload(<string> backendRes.detail().message);
+            var responseToCaller = caller->respond(response);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
             }
         }
     }
@@ -106,21 +103,18 @@ service<http:Service> failoverDemoService03 bind failoverEP03 {
     }
     invokeAllFailureEndpoint(endpoint caller, http:Request request) {
         var backendRes = foBackendFailureEP03->forward("/", request);
-        match backendRes {
-            http:Response response => {
-                caller->respond(response) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        if (backendRes is http:Response) {
+            var responseToCaller = caller->respond(backendRes);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
             }
-            error responseError => {
-                // Create a new HTTP response by looking at the error message.
-                http:Response response = new;
-                response.statusCode = 500;
-                string lastErrorMsg = <string> responseError.detail().message;
-                response.setPayload(lastErrorMsg);
-                caller->respond(response) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        } else if (backendRes is error) {
+            http:Response response = new;
+            response.statusCode = 500;
+            response.setPayload(<string> backendRes.detail().message);
+            var responseToCaller = caller->respond(response);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
             }
         }
     }
@@ -131,21 +125,18 @@ service<http:Service> failoverDemoService03 bind failoverEP03 {
     }
     invokeAllFailureStatusCodesEndpoint(endpoint caller, http:Request request) {
         var backendRes = foStatusCodesEP03->forward("/", request);
-        match backendRes {
-            http:Response response => {
-                caller->respond(response) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        if (backendRes is http:Response) {
+            var responseToCaller = caller->respond(backendRes);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
             }
-            error responseError => {
-                // Create a new HTTP response by looking at the error message.
-                http:Response response = new;
-                response.statusCode = 500;
-                string lastErrorMsg = <string> responseError.detail().message;
-                response.setPayload(lastErrorMsg);
-                caller->respond(response) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        } else if (backendRes is error) {
+            http:Response response = new;
+            response.statusCode = 500;
+            response.setPayload(<string> backendRes.detail().message);
+            var responseToCaller = caller->respond(response);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
             }
         }
     }
@@ -158,23 +149,19 @@ service<http:Service> failoverDemoService03 bind failoverEP03 {
         http:FailoverActions foClient = foBackendEP03.getCallerActions();
         string startIndex = <string> foClient.succeededEndpointIndex;
         var backendRes = foBackendEP03->forward("/", request);
-        match backendRes {
-            http:Response response => {
-                string responseMessage = "Failover start index is : " + startIndex;
-                response.setPayload(responseMessage);
-                caller->respond(response) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        if (backendRes is http:Response) {
+            string responseMessage = "Failover start index is : " + startIndex;
+            var responseToCaller = caller->respond(responseMessage);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
             }
-            error responseError => {
-                // Create a new HTTP response by looking at the error message.
-                http:Response response = new;
-                response.statusCode = 500;
-                string lastErrorMsg = <string> responseError.detail().message;
-                response.setPayload(lastErrorMsg);
-                caller->respond(response) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        } else if (backendRes is error) {
+            http:Response response = new;
+            response.statusCode = 500;
+            response.setPayload(<string> backendRes.detail().message);
+            var responseToCaller = caller->respond(response);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
             }
         }
     }
@@ -193,12 +180,10 @@ service echo03 bind backendEP03 {
         http:Response outResponse = new;
         // Delay the response for 30000 milliseconds to mimic network level delays.
         runtime:sleep(30000);
-
-        outResponse.setPayload("echo Resource is invoked");
-        caller->respond(outResponse) but {
-            error e => log:printError(
-                           "Error sending response from mock service", err = e)
-        };
+        var responseToCaller = caller->respond("echo Resource is invoked");
+        if (responseToCaller is error) {
+            log:printError("Error sending response from mock service", err = responseToCaller);
+        }
     }
 }
 
@@ -220,41 +205,36 @@ service mock03 bind backendEP03 {
         http:Response response = new;
         if (req.hasHeader(mime:CONTENT_TYPE)
             && req.getHeader(mime:CONTENT_TYPE).hasPrefix(http:MULTIPART_AS_PRIMARY_TYPE)) {
-            match req.getBodyParts() {
-                // Setting the error response in case of an error
-                error err => {
-                    log:printError(err.reason());
-                    response.setPayload("Error in decoding multiparts!");
-                    response.statusCode = 500;
-                }
-                // Iterate through the body parts.
-                mime:Entity[] bodyParts => {
-                    foreach bodyPart in bodyParts {
-                        if (bodyPart.hasHeader(mime:CONTENT_TYPE)
-                            && bodyPart.getHeader(mime:CONTENT_TYPE).hasPrefix(http:MULTIPART_AS_PRIMARY_TYPE)) {
-                            mime:Entity[] childParts = check bodyPart.getBodyParts();
-                            foreach childPart in childParts {
-                                // When performing passthrough scenarios, message needs to be built before
-                                // invoking the endpoint to create a message datasource.
-                                var childBlobContent = childPart.getByteArray();
-                            }
-                            io:println(bodyPart.getContentType());
-                            bodyPart.setBodyParts(untaint childParts, contentType = untaint bodyPart.getContentType());
-                        } else {
-                            var bodyPartBlobContent = bodyPart.getByteArray();
+            var mimeEntity = req.getBodyParts();
+            if (mimeEntity is error) {
+                log:printError(<string> mimeEntity.detail().message);
+                response.setPayload("Error in decoding multiparts!");
+                response.statusCode = 500;
+            } else if (mimeEntity is mime:Entity[]) {
+                foreach bodyPart in mimeEntity {
+                    if (bodyPart.hasHeader(mime:CONTENT_TYPE)
+                        && bodyPart.getHeader(mime:CONTENT_TYPE).hasPrefix(http:MULTIPART_AS_PRIMARY_TYPE)) {
+                        mime:Entity[] childParts = check bodyPart.getBodyParts();
+                        foreach childPart in childParts {
+                            // When performing passthrough scenarios, message needs to be built before
+                            // invoking the endpoint to create a message datasource.
+                            var childBlobContent = childPart.getByteArray();
                         }
+                        io:println(bodyPart.getContentType());
+                        bodyPart.setBodyParts(untaint childParts, contentType = untaint bodyPart.getContentType());
+                    } else {
+                        var bodyPartBlobContent = bodyPart.getByteArray();
                     }
-                    response.setBodyParts(untaint bodyParts, contentType = untaint req.getContentType());
                 }
+                response.setBodyParts(untaint mimeEntity, contentType = untaint req.getContentType());
             }
         } else {
             response.setPayload("Mock Resource is Invoked.");
         }
-        caller->respond(response) but {
-            error e => log:printError(
-                           "Error sending response from mock service", err = e)
-        };
-
+        var responseToCaller = caller->respond(response);
+        if (responseToCaller is error) {
+            log:printError("Error sending response from mock service", err = responseToCaller);
+        }
     }
 }
 
@@ -271,9 +251,9 @@ service failureStatusCodeService03 bind backendEP03 {
         http:Response outResponse = new;
         outResponse.statusCode = 503;
         outResponse.setPayload("Failure status code scenario");
-        caller->respond(outResponse) but {
-            error e => log:printError(
-                           "Error sending response from mock service", err = e)
-        };
+        var responseToCaller = caller->respond(outResponse);
+        if (responseToCaller is error) {
+            log:printError("Error sending response from mock service", err = responseToCaller);
+        }
     }
 }

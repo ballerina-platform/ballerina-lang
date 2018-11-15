@@ -64,6 +64,6 @@ type Person5 abstract object {
     public function getName() returns string;
 };
 
-function Person5::getName() returns string {
+function Person5.getName() returns string {
     return "my name";
 }

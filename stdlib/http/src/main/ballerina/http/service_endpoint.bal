@@ -163,7 +163,7 @@ public type KeepAlive "AUTO"|"ALWAYS"|"NEVER";
 # Closes the connection irrespective of the `connection` header value }
 @final public KeepAlive KEEPALIVE_NEVER = "NEVER";
 
-function Listener::init (ServiceEndpointConfiguration c) {
+function Listener.init (ServiceEndpointConfiguration c) {
     self.config = c;
     var err = self.initEndpoint();
     if (err is error) {
