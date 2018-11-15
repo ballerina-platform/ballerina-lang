@@ -3772,6 +3772,13 @@ public class BLangPackageBuilder {
         // stack else the value is not assigned.
         if (containsExpr) {
             keyValue.valueExpr = (BLangExpression) exprNodeStack.pop();
+        } else {
+            BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+            varRef.pos = key.pos;
+            varRef.variableName = key;
+            varRef.addWS(ws);
+            varRef.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+            keyValue.keyExpr = varRef;
         }
         waitCollectionStack.peek().keyValuePairs.add(keyValue);
     }

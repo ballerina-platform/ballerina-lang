@@ -885,6 +885,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             // interactions)
             workerInteractionTaintedStatusMap.put(syncSendExpr.workerIdentifier, TaintedStatus.TAINTED);
         }
+        // Todo tainted status for the sync send expression should be handled properly since it will return error or nil
+        // ATM it is set to untainted
+        this.taintedStatus = TaintedStatus.UNTAINTED;
     }
 
     @Override
