@@ -1325,6 +1325,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         workerSendNode.env = this.env;
         this.typeChecker.checkExpr(workerSendNode.expr, this.env);
 
+        // Validate if the receive type is anydata
+        if (!types.isAnydata(this.expType)) {
+            this.dlog.error(workerSendNode.pos, DiagnosticCode.INVALID_TYPE_FOR_SEND, expType);
+            return;
+        }
+
         BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(workerSendNode.workerIdentifier), SymTag
                 .VARIABLE);
         if (workerSendNode.isChannel || symbol.getType().tag == TypeTags.CHANNEL) {
