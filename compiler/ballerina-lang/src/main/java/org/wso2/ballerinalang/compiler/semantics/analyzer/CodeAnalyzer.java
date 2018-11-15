@@ -1,20 +1,20 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
- */
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+*  Unless required by applicable law or agreed to in writing,
+*  software distributed under the License is distributed on an
+*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+*  KIND, either express or implied.  See the License for the
+*  specific language governing permissions and limitations
+*  under the License.
+*/
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
@@ -475,12 +475,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangReturn returnStmt) {
         this.checkStatementExecutionValidity(returnStmt);
-
-        // Check whether this return statement is in resource
-        if (this.env.enclInvokable.getKind() == NodeKind.RESOURCE) {
-            this.dlog.error(returnStmt.pos, DiagnosticCode.RETURN_STMT_NOT_VALID_IN_RESOURCE);
-            return;
-        }
 
         if (this.inForkJoin() && this.inWorker()) {
             this.dlog.error(returnStmt.pos, DiagnosticCode.FORK_JOIN_WORKER_CANNOT_RETURN);
@@ -1182,7 +1176,19 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
-        // TODO
+        boolean enclInvokableHasErrorReturn = false;
+        BType exprType = env.enclInvokable.getReturnTypeNode().type;
+        if (exprType.tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) env.enclInvokable.getReturnTypeNode().type;
+            enclInvokableHasErrorReturn = unionType.memberTypes.stream()
+                    .anyMatch(memberType -> types.isAssignable(memberType, symTable.errorType));
+        } else if (types.isAssignable(exprType, symTable.errorType)) {
+            enclInvokableHasErrorReturn = true;
+        }
+
+        if (!enclInvokableHasErrorReturn) {
+            dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_NO_ERROR_RETURN_IN_ENCL_INVOKABLE);
+        }
     }
 
     @Override
@@ -1390,10 +1396,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         if (!Symbols.isPublic(funcNode.symbol)) {
             this.dlog.error(funcNode.pos, DiagnosticCode.MAIN_SHOULD_BE_PUBLIC);
-        }
-        if (!(funcNode.symbol.retType.tag == TypeTags.NIL || funcNode.symbol.retType.tag == TypeTags.INT)) {
-            this.dlog.error(funcNode.returnTypeNode.pos, DiagnosticCode.INVALID_RETURN_WITH_MAIN,
-                    funcNode.symbol.retType);
         }
     }
 

@@ -14,35 +14,19 @@
 // specific language governing permissions and limitations
 // under the License.
 
-service<DummyService> helloWorld {
-    sayHelloWithString(string x) returns string {
-        return x;
-    }
+import ballerina/http;
+import ballerina/log;
 
-    sayHelloWithInt(int x) returns int {
-        return x;
-    }
-
-    sayHelloWithNil1(string x) {
-        return;
-    }
-
-    sayHelloWithNil2(string x) returns () {
-        return;
-    }
+function f2() returns string|error {
+    return "test";
 }
 
-type Config record {
-};
-
-type DummyEndpoint object {
-    function init (Config conf)  {
+service<http:Service> hello2  bind { port: 9090 } {
+    sayHello2 (endpoint caller, http:Request req) {
+        http:Response res = new;
+        res.setPayload("Hello, World!");
+        string abc = check f2();
+        caller->respond(res) but { error e => log:printError("Error sending response", err = e) };
+        return ();
     }
-};
-
-type DummyService object{
-    function getEndpoint() returns (DummyEndpoint) {
-        DummyEndpoint ep = new;
-        return ep;
-    }
-};
+}
