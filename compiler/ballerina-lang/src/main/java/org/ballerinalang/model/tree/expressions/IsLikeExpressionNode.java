@@ -29,30 +29,30 @@ import org.ballerinalang.model.tree.types.TypeNode;
 public interface IsLikeExpressionNode extends ExpressionNode {
 
     /**
-     * Get the expression associated with the type check.
+     * Get the expression associated with the is like check.
      *
-     * @return Expression associated with the type check.
+     * @return Expression associated with the is like check.
      */
     ExpressionNode getExpression();
 
     /**
-     * Get the expression associated with the type check.
+     * Get the expression associated with the is like check.
      *
-     * @param expr Expression associated with the type check.
+     * @param expr Expression associated with the is like check.
      */
     void setExpression(ExpressionNode expr);
 
     /**
-     * Get the type node of this type check expression.
+     * Get the type node of this is like check expression.
      *
-     * @return Type node of this type check expression.
+     * @return Type node of this is like check expression.
      */
     TypeNode getTypeNode();
 
     /**
-     * Set the type node of this type check expression.
+     * Set the type node of this is like check expression.
      *
-     * @param type Type node of this type check expression.
+     * @param type Type node of this is like check expression.
      */
     void setTypeNode(TypeNode type);
 }

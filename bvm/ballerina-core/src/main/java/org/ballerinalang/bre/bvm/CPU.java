@@ -4069,7 +4069,7 @@ public class CPU {
         if (checkIsType(sourceVal, targetType)) {
             return true;
         }
-        // todo is like tests
+        // todo add more is like tests
         if (targetType.getTag() == TypeTags.RECORD_TYPE_TAG) {
             return checkIsLikeRecordType(sourceVal, (BRecordType) targetType);
         }
@@ -4222,8 +4222,8 @@ public class CPU {
                 ));
 
         BMap mapValue = (BMap) sourceVal;
-        for (Object entrySet : mapValue.getMap().keySet()) {
-            String key = (String) entrySet;
+        for (Object keyObj : mapValue.getMap().keySet()) {
+            String key = (String) keyObj;
             if (!fieldMap.containsKey(key)) {
                 if (targetType.sealed) {
                     return false;

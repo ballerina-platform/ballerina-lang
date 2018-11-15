@@ -3336,7 +3336,7 @@ public class Desugar extends BLangNodeVisitor {
 
             BSymbol opSymbol = symResolver.resolveBinaryOperator(OperatorKind.EQUAL, varRef.type, pattern.literal.type);
             if (opSymbol == symTable.notFoundSymbol) {
-                opSymbol = symResolver.getBinaryEqualityForTypeSets(OperatorKind.EQUAL, symTable.anyType,
+                opSymbol = symResolver.getBinaryEqualityForTypeSets(OperatorKind.EQUAL, symTable.anydataType,
                         pattern.literal.type, binaryExpr);
             }
             binaryExpr.opSymbol = (BOperatorSymbol) opSymbol;
@@ -3372,7 +3372,6 @@ public class Desugar extends BLangNodeVisitor {
                                                    BLangExpression expr,
                                                    BType type) {
         return ASTBuilderUtil.createIsLikeExpr(pos, expr, ASTBuilderUtil.createTypeNode(type), symTable.booleanType);
-
     }
 
     private BLangExpression getInitExpr(BLangSimpleVariable varNode) {

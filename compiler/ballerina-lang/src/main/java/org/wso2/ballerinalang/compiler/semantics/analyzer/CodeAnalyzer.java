@@ -538,25 +538,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        List<BLangVariable> matchedSimplePatterns = new ArrayList<>();
-        for (BLangMatchStructuredBindingPatternClause pattern : matchStmt.getStructuredPatternClauses()) {
-            matchedSimplePatterns.add(pattern.bindingPatternVariable);
-        }
-
-        analyseUnreachableStructuredBindingPatterns(matchedSimplePatterns);
-    }
-
-    private void analyseUnreachableStructuredBindingPatterns(List<BLangVariable> matchedVars) {
-        for (int i = 0; i < matchedVars.size(); i++) {
-            for (int j = i + 1; j < matchedVars.size(); j++) {
-                BLangVariable precedingVar = matchedVars.get(i);
-                BLangVariable currentVar = matchedVars.get(j);
-                if (checkVariableSimilarity(precedingVar, currentVar)) {
-                    dlog.error(currentVar.pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN);
-                    matchedVars.remove(j--);
-                }
-            }
-        }
+        analyseUnreachableStructuredBindingPatterns(matchStmt.getStructuredPatternClauses());
     }
 
     /**
@@ -668,6 +650,30 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         return false;
+    }
+
+    private void analyseUnreachableStructuredBindingPatterns(
+            List<BLangMatchStructuredBindingPatternClause> matchedVars) {
+        for (int i = 0; i < matchedVars.size(); i++) {
+            for (int j = i + 1; j < matchedVars.size(); j++) {
+                BLangVariable precedingVar = matchedVars.get(i).bindingPatternVariable;
+                BLangVariable currentVar = matchedVars.get(j).bindingPatternVariable;
+                if (checkVariableSimilarity(precedingVar, currentVar) &&
+                        checkTypeGuardEquality(matchedVars.get(i).typeGuardExpr, matchedVars.get(j).typeGuardExpr)) {
+                    dlog.error(currentVar.pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN);
+                    matchedVars.remove(j--);
+                }
+            }
+        }
+    }
+
+    private boolean checkTypeGuardEquality(BLangExpression precedingGuard, BLangExpression currentGuard) {
+        if (precedingGuard != null && currentGuard != null) {
+            return types.isSameType(((BLangTypeTestExpr) precedingGuard).typeNode.type,
+                    ((BLangTypeTestExpr) currentGuard).typeNode.type);
+        }
+
+        return precedingGuard == null && currentGuard == null;
     }
 
     private boolean checkVariableSimilarity(BLangVariable precedingVar, BLangVariable var) {

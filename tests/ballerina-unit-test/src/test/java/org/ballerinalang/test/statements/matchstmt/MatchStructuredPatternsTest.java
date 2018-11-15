@@ -104,18 +104,19 @@ public class MatchStructuredPatternsTest {
     public void testUnreachablePatterns() {
         Assert.assertEquals(resultNegative2.getErrorCount(), 12);
         int i = -1;
-        String unreachablePattern = "unreachable pattern: preceding patterns are too general or the pattern ordering is not correct";
+        String unreachablePattern = "unreachable pattern: " +
+                "preceding patterns are too general or the pattern ordering is not correct";
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 33, 13);
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 35, 13);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 37, 13);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 49, 13);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 50, 13);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 64, 14);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 70, 13);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 47, 13);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 48, 13);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 62, 14);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 68, 13);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 73, 13);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 74, 14);
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 75, 13);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 76, 14);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 77, 13);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 78, 13);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 97, 14);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 98, 13);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 76, 13);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 95, 14);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 96, 13);
     }
 }
