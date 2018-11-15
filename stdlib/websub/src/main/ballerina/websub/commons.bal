@@ -640,9 +640,12 @@ function retrieveSubscriberServiceAnnotations(typedesc serviceType) returns Subs
     reflect:annotationData[] annotationDataArray = reflect:getServiceAnnotations(serviceType);
     foreach annData in annotationDataArray {
         if (annData.name == ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG && annData.moduleName == WEBSUB_MODULE_NAME) {
-            SubscriberServiceConfiguration subscriberServiceAnnotation =
-                                                            check <SubscriberServiceConfiguration> (annData.value);
-            return subscriberServiceAnnotation;
+            var subscriberServiceAnnotation = <SubscriberServiceConfiguration> (annData.value);
+            if (subscriberServiceAnnotation is SubscriberServiceConfiguration) {
+                return subscriberServiceAnnotation;
+            } else if (subscriberServiceAnnotation is error) {
+                panic subscriberServiceAnnotation;
+            }
         }
     }
     return;

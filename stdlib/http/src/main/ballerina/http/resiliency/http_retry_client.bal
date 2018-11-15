@@ -291,7 +291,7 @@ function performRetryAction(@sensitive string path, Request request, HttpOperati
     var binaryPayload = check inRequest.getBinaryPayload();
 
     while (currentRetryCount < (retryCount + 1)) {
-        inRequest = populateMultipartRequest(inRequest);
+        inRequest = check populateMultipartRequest(inRequest);
         var backendResponse = invokeEndpoint(path, inRequest, requestAction, httpClient);
         if (backendResponse is Response) {
             int responseStatusCode = backendResponse.statusCode;

@@ -141,9 +141,11 @@ public type Entity object {
     # Sets the content-type to entity.
     #
     # + mediaType - Content type that needs to be set to the entity
-    public function setContentType(@sensitive string mediaType) {
+    # + return - Nil if successful, error in case of invalid media-type
+    public function setContentType(@sensitive string mediaType) returns error? {
         self.cType = check getMediaType(mediaType);
         self.setHeader(CONTENT_TYPE, mediaType);
+        return;
     }
 
     # Gets the content type of entity.
@@ -524,7 +526,7 @@ function getEncoding(MediaType contentType) returns (string) {
 # Given the Content-Type in string, gets the MediaType object populated with it.
 #
 # + contentType - Content-Type in string
-# + return - `MediaType` object or an error in case of error
+# + return - `MediaType` object or an error in case of invalid content-type
 public extern function getMediaType(string contentType) returns MediaType|error;
 
 # Given the Content-Disposition as a string, gets the ContentDisposition object with it.

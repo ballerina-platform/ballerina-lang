@@ -1,6 +1,6 @@
 import ballerina/io;
 
-public function main (string... args) {
+public function main (string... args) returns error? {
     string filePath = args[0];
     string chars = args[0];
 
@@ -20,6 +20,7 @@ public function main (string... args) {
         }
         error ioError => return;
     }
+    return ();
 }
 
 public function testFunction (@sensitive string sensitiveValue, string anyValue) {

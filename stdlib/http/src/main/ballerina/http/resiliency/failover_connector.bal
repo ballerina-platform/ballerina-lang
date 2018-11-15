@@ -295,7 +295,7 @@ function performFailoverAction (string path, Request request, HttpOperation requ
     mime:Entity requestEntity = new;
 
     if (isMultipartRequest(failoverRequest)) {
-        failoverRequest = populateMultipartRequest(failoverRequest);
+        failoverRequest = check populateMultipartRequest(failoverRequest);
     } else {
         // When performing passthrough scenarios using Failover connector, message needs to be built before trying
         // out the failover endpoints to keep the request message to failover the messages.
@@ -388,7 +388,7 @@ function performFailoverAction (string path, Request request, HttpOperation requ
                 }
             }
         }
-        failoverRequest = createFailoverRequest(failoverRequest, requestEntity);
+        failoverRequest = check createFailoverRequest(failoverRequest, requestEntity);
         runtime:sleep(failoverInterval);
         failoverClient = failoverClients[currentIndex];
     }
