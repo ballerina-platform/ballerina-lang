@@ -55,7 +55,7 @@ public type LoadBalanceClient object {
 # + cache - The configurations for controlling the caching behaviour
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
 # + auth - HTTP authentication releated configurations
-# + algorithm - The algorithm to be used for load balancing. The HTTP module provides 'roundRobin()' by default
+# + lbRule - LoadBalancing rule
 # + failover - Configuration for load balancer whether to fail over in case of a failure
 public type LoadBalanceClientEndpointConfiguration record {
     CircuitBreakerConfig? circuitBreaker;
@@ -72,7 +72,7 @@ public type LoadBalanceClientEndpointConfiguration record {
     CacheConfig cache = {};
     Compression compression = COMPRESSION_AUTO;
     AuthConfig? auth;
-    string algorithm = ROUND_ROBIN;
+    LoadBalancerRule? lbRule;
     boolean failover = true;
     !...
 };
@@ -118,8 +118,16 @@ function createLoadBalancerClient(LoadBalanceClientEndpointConfiguration loadBal
     ClientEndpointConfig config = createClientEPConfigFromLoalBalanceEPConfig(loadBalanceClientConfig,
                                                                             loadBalanceClientConfig.targets[0]);
     CallerActions[] lbClients = createLoadBalanceHttpClientArray(loadBalanceClientConfig);
-    return new LoadBalancerActions(loadBalanceClientConfig.targets[0].url, config, lbClients,
-                                            loadBalanceClientConfig.algorithm, 0, loadBalanceClientConfig.failover);
+    var lbRule = loadBalanceClientConfig.lbRule;
+
+    if (lbRule is LoadBalancerRule) {
+        return new LoadBalancerActions(loadBalanceClientConfig.targets[0].url, config, lbClients, lbRule,
+                loadBalanceClientConfig.failover);
+    } else {
+        LoadBalancerRounRobinRule loadBalancerRounRobinRule = new;
+        return new LoadBalancerActions(loadBalanceClientConfig.targets[0].url, config, lbClients,
+                loadBalancerRounRobinRule, loadBalanceClientConfig.failover);
+    }
 }
 
 function createLoadBalanceHttpClientArray(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig)

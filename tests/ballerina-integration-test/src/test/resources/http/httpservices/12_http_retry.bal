@@ -87,32 +87,28 @@ service<http:Service> mockHelloService bind serviceEndpoint1 {
             http:Response response = new;
             if (req.hasHeader(mime:CONTENT_TYPE)
                 && req.getHeader(mime:CONTENT_TYPE).hasPrefix(http:MULTIPART_AS_PRIMARY_TYPE)) {
-                match req.getBodyParts() {
-                    // Setting the error response in case of an error
-                    error err => {
-                        log:printError(err.reason());
-                        response.setPayload("Error in decoding multiparts!");
-                        response.statusCode = 500;
-                    }
-                    // Iterate through the body parts.
-                    mime:Entity[] bodyParts => {
-                        foreach bodyPart in bodyParts {
-                            if (bodyPart.hasHeader(mime:CONTENT_TYPE)
-                                && bodyPart.getHeader(mime:CONTENT_TYPE).hasPrefix(http:MULTIPART_AS_PRIMARY_TYPE)) {
-                                mime:Entity[] childParts = check bodyPart.getBodyParts();
-                                foreach childPart in childParts {
-                                    // When performing passthrough scenarios, message needs to be built before
-                                    // invoking the endpoint to create a message datasource.
-                                    var childBlobContent = childPart.getByteArray();
-                                }
-                                io:println(bodyPart.getContentType());
-                                bodyPart.setBodyParts(untaint childParts, contentType = untaint bodyPart.getContentType());
-                            } else {
-                                var bodyPartBlobContent = bodyPart.getByteArray();
+                var bodyParts = req.getBodyParts();
+                if (bodyParts is mime:Entity[]) {
+                    foreach bodyPart in bodyParts {
+                        if (bodyPart.hasHeader(mime:CONTENT_TYPE)
+                            && bodyPart.getHeader(mime:CONTENT_TYPE).hasPrefix(http:MULTIPART_AS_PRIMARY_TYPE)) {
+                            mime:Entity[] childParts = check bodyPart.getBodyParts();
+                            foreach childPart in childParts {
+                                // When performing passthrough scenarios, message needs to be built before
+                                // invoking the endpoint to create a message datasource.
+                                var childBlobContent = childPart.getByteArray();
                             }
+                            io:println(bodyPart.getContentType());
+                            bodyPart.setBodyParts(untaint childParts, contentType = untaint bodyPart.getContentType());
+                        } else {
+                            var bodyPartBlobContent = bodyPart.getByteArray();
                         }
-                        response.setBodyParts(untaint bodyParts, contentType = untaint req.getContentType());
                     }
+                    response.setBodyParts(untaint bodyParts, contentType = untaint req.getContentType());
+                } else if (bodyParts is error) {
+                    log:printError(bodyParts.reason());
+                    response.setPayload("Error in decoding multiparts!");
+                    response.statusCode = 500;
                 }
             } else {
                 response.setPayload("Hello World!!!");

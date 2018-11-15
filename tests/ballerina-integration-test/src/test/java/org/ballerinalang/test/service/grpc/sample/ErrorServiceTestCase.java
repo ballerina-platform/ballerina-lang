@@ -52,7 +52,7 @@ public class ErrorServiceTestCase extends BaseTest {
             BServiceUtil.runService(result);
             Assert.fail("Service should not start without listener port");
         } catch (BLangRuntimeException ex) {
-            Assert.assertTrue(ex.getMessage().contains("error: error, message: listener port is not defined!"));
+            Assert.assertTrue(ex.getMessage().contains("error: Listener port is not defined!"));
         }
     }
 
@@ -67,7 +67,7 @@ public class ErrorServiceTestCase extends BaseTest {
             Assert.fail("Secure Service should not start without keystore file");
         } catch (BLangRuntimeException ex) {
             Assert.assertTrue(ex.getMessage().contains(
-                    "error: error, message: keystore file location must be provided for secure connection"));
+                    "error: Keystore file location must be provided for secure connection"));
         }
     }
 
@@ -82,7 +82,7 @@ public class ErrorServiceTestCase extends BaseTest {
             Assert.fail("Secure Service should not start without keystore file");
         } catch (BLangRuntimeException ex) {
             Assert.assertTrue(ex.getMessage()
-                    .contains("error: error, message: keystore password must be provided for secure connection"));
+                    .contains("error: Keystore password must be provided for secure connection"));
         }
     }
 

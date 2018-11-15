@@ -28,7 +28,11 @@ service HelloWorld bind ep {
         io:println(req.address);
         string message = "Submitted name: " + req.name;
         error? err = caller->send(message);
-        io:println(err.message but { () => ("Server send response : " + message) });
+        if (err is error) {
+            io:println("Error from Connector: " + err.reason());
+        } else {
+            io:println("Server send response : " + message);
+        }
         _ = caller->complete();
     }
 
@@ -37,7 +41,9 @@ service HelloWorld bind ep {
         Person person = {name:"Sam", address:{postalCode:10300, state:"CA", country:"USA"}};
         io:println(person);
         error? err = caller->send(person);
-        io:println(err.message but { () => "" });
+        if (err is error) {
+            io:println("Error from Connector: " + err.reason());
+        }
         _ = caller->complete();
     }
 }
