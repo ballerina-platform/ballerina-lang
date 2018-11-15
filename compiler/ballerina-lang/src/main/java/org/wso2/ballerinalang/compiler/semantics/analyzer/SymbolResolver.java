@@ -327,7 +327,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             if (isStampSupportedForSourceType(variableSourceType)) {
                 if (targetTypeExpression.type.tag == TypeTags.TYPEDESC) {
                     BType targetType = resolveTargetTypeForStamping(targetTypeExpression);
-                    if(targetType == null) {
+                    if (targetType == null) {
                         resultType = symTable.semanticError;
                         return symTable.notFoundSymbol;
                     }

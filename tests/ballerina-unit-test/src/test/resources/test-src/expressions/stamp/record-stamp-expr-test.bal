@@ -251,3 +251,11 @@ function stampWithOpenRecordsNonAssignableNegative() returns Teacher|error {
     Teacher|error  t = Teacher.stamp(e1);
     return t;
 }
+
+function stampOpenRecordWithInvalidValues() returns Teacher|error  {
+    Employee e1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: 789  };
+
+    Teacher|error t = Teacher.stamp(e1);
+
+    return t;
+}

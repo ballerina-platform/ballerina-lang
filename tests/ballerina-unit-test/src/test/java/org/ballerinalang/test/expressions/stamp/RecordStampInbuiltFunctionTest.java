@@ -382,8 +382,6 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BError) error).getReason(), "incompatible stamp operation: 'Teacher' value cannot " +
                 "be stamped as 'map<string>'");
-
-
     }
 
     @Test
@@ -399,6 +397,16 @@ public class RecordStampInbuiltFunctionTest {
     @Test
     public void testStampWithOpenRecordsNonAssignableNegative() {
         BValue[] results = BRunUtil.invoke(compileResult, "stampWithOpenRecordsNonAssignableNegative");
+        BValue error = results[0];
+
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BError) error).getReason(), "incompatible stamp operation: 'Employee' value cannot " +
+                "be stamped as 'Teacher'");
+    }
+
+    @Test
+    public void testStampOpenRecordWithInvalidValues() {
+        BValue[] results = BRunUtil.invoke(compileResult, "stampOpenRecordWithInvalidValues");
         BValue error = results[0];
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
