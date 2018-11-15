@@ -1330,6 +1330,7 @@ public class PackageInfoReader {
                 case InstructionCodes.RNEWARRAY:
                 case InstructionCodes.O2JSON:
                 case InstructionCodes.TYPE_TEST:
+                case InstructionCodes.IS_LIKE:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();

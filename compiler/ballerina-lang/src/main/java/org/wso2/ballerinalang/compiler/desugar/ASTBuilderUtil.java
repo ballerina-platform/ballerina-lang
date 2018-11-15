@@ -48,6 +48,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
@@ -528,6 +529,16 @@ public class ASTBuilderUtil {
         assignableExpr.opSymbol = new BOperatorSymbol(names.fromString(assignableExpr.opKind.value()),
                 null, targetType, null, InstructionCodes.IS_ASSIGNABLE);
         return assignableExpr;
+    }
+
+    static BLangIsLikeExpr createIsLikeExpr(DiagnosticPos pos, BLangExpression expr, BLangType typeNode,
+                                            BType retType) {
+        BLangIsLikeExpr isLikeExpr = (BLangIsLikeExpr) TreeBuilder.createIsLikeExpressionNode();
+        isLikeExpr.pos = pos;
+        isLikeExpr.expr = expr;
+        isLikeExpr.typeNode = typeNode;
+        isLikeExpr.type = retType;
+        return isLikeExpr;
     }
 
     static BLangLiteral createLiteral(DiagnosticPos pos, BType type, Object value) {

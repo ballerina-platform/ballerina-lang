@@ -65,6 +65,8 @@ public interface InstructionCodes {
     int BGLOAD = 39;
     int RGLOAD = 40;
 
+    int IS_LIKE = 41;
+
     int CHNRECEIVE = 42;
     int CHNSEND = 43;
 
