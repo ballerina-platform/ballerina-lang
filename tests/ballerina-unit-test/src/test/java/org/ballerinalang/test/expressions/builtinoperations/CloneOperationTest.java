@@ -45,7 +45,7 @@ import org.testng.annotations.Test;
 import java.math.BigDecimal;
 
 /**
- * This class contains the test cases to clone operation
+ * This class contains the test cases to clone operation.
  * @version 0.983.0
  */
 
