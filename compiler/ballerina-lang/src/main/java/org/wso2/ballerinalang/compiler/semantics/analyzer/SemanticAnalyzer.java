@@ -1307,7 +1307,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         workerSendNode.env = this.env;
         this.typeChecker.checkExpr(workerSendNode.expr, this.env);
 
-        // Validate if the receive type is anydata
+        // Validate if the send type is anydata
         if (!types.isAnydata(this.expType)) {
             this.dlog.error(workerSendNode.pos, DiagnosticCode.INVALID_TYPE_FOR_SEND, expType);
             return;
