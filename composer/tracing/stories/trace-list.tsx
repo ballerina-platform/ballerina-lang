@@ -1,8 +1,12 @@
-import * as React from 'react';
-import { storiesOf } from '@storybook/react';
-import 'semantic-ui-css/semantic.min.css';
-import TraceList from '../src/TraceList';
+import { storiesOf } from "@storybook/react";
+import * as React from "react";
+// tslint:disable-next-line:no-submodule-imports
+import "semantic-ui-css/semantic.min.css";
+import TraceList from "../src/TraceList";
 
+// tslint:disable:object-literal-key-quotes
+// tslint:disable:object-literal-sort-keys
+// tslint:disable:max-line-length
 const traces = [{
     "id": "uuid1",
     "logDate": "2018-09-18T18:51Z",
@@ -24,7 +28,7 @@ const traces = [{
         "payload" : "payload",
         "headerType" : "headerType",
     }
-    
+
 },
 {
     "id": "uuid2",
@@ -94,11 +98,10 @@ const traces = [{
 }
 ];
 
-storiesOf('trace list', module)
-  .add('list traces', () => {
+storiesOf("trace list", module)
+  .add("list traces", () => {
     return (<TraceList traces={traces} selected="" />);
   })
-  .add('list traces selected', () => {
-    return (<TraceList traces={traces} selected='uuid1' />);
+  .add("list traces selected", () => {
+    return (<TraceList traces={traces} selected="uuid1" />);
   });
-

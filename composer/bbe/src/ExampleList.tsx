@@ -15,19 +15,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import * as React from 'react';
-import { Grid, Input } from 'semantic-ui-react';
-import { cloneDeep, debounce } from 'lodash';
-import { BallerinaExampleCategory } from './model';
+import { cloneDeep, debounce } from "lodash";
+import * as React from "react";
+import { Grid, Input } from "semantic-ui-react";
+import { BallerinaExampleCategory } from "./model";
 
 export interface SamplesListState {
-    samples? : Array<BallerinaExampleCategory>;
-    searchQuery? : string;
+    samples?: BallerinaExampleCategory[];
+    searchQuery?: string;
 }
 
 export interface SamplesListProps {
     openSample: (url: string) => void;
-    getSamples: () => Promise<Array<BallerinaExampleCategory>>;
+    getSamples: () => Promise<BallerinaExampleCategory[]>;
 }
 
 /**
@@ -38,19 +38,20 @@ export interface SamplesListProps {
  */
 export class SamplesList extends React.Component<SamplesListProps, SamplesListState> {
 
-    private _availableSamples: undefined | Array<BallerinaExampleCategory>;
-    private searchInput: null | Input;
+    private availableSamples: undefined | BallerinaExampleCategory[];
+    private searchInput: Input | undefined;
     private onSearchQueryEdit: () => void;
 
     constructor(props: SamplesListProps, context: SamplesListState) {
         super(props, context);
         this.onSearchQueryEdit = debounce(() => {
             const { searchQuery } = this.state;
-            if (searchQuery != undefined && this._availableSamples) {
-                let samples = cloneDeep(this._availableSamples);
+            if (searchQuery !== undefined && this.availableSamples) {
+                let samples = cloneDeep(this.availableSamples);
                 samples = samples.filter((sampleCategory) => {
                     if (!sampleCategory.title.toLowerCase().includes(searchQuery)) {
-                        sampleCategory.samples = sampleCategory.samples.filter(sample => sample.name.toLowerCase().includes(searchQuery));
+                        sampleCategory.samples = sampleCategory
+                            .samples.filter((sample) => sample.name.toLowerCase().includes(searchQuery));
                     }
                     return sampleCategory.samples.length !== 0;
                 });
@@ -61,34 +62,34 @@ export class SamplesList extends React.Component<SamplesListProps, SamplesListSt
         }, 500).bind(this);
     }
 
-    componentDidMount() {
+    public componentDidMount() {
         this.focusOnSearchInput();
         this.props.getSamples().then((samples) => {
-            this._availableSamples = samples;
+            this.availableSamples = samples;
             this.setState({
                 samples,
             });
         });
     }
 
-    componentWillReceiveProps(nextProps: SamplesListProps) {
+    public componentWillReceiveProps(nextProps: SamplesListProps) {
         this.props.getSamples().then((samples) => {
-            this._availableSamples = samples;
+            this.availableSamples = samples;
             this.setState({
                 samples,
             });
         });
     }
 
-    focusOnSearchInput() {
+    public focusOnSearchInput() {
         if (this.searchInput) {
             this.searchInput.focus();
         }
     }
 
-    getColumnContents() {
+    public getColumnContents() {
 
-        const columns: Array<Array<BallerinaExampleCategory>> = [];
+        const columns: BallerinaExampleCategory[][] = [];
         const { samples } = this.state;
         if (samples) {
             samples.forEach((sample: BallerinaExampleCategory) => {
@@ -99,17 +100,17 @@ export class SamplesList extends React.Component<SamplesListProps, SamplesListSt
         return columns;
     }
 
-    renderColumnItem(column: BallerinaExampleCategory) {
+    public renderColumnItem(column: BallerinaExampleCategory) {
         return (
             <ul key={column.title}>
-                <li className='title'>{column.title}</li>
+                <li className="title">{column.title}</li>
                 <ul>
                     {
                         column.samples.map((sample) => {
                             return (
-                            <li className='list-item' key={sample.url}>
+                            <li className="list-item" key={sample.url}>
                                 <a
-                                    href='#'
+                                    href="#"
                                     onClick={
                                         () => this.props.openSample(sample.url)}
                                 >
@@ -125,22 +126,22 @@ export class SamplesList extends React.Component<SamplesListProps, SamplesListSt
 
     public render() {
         return (
-            <Grid className='welcome-page'>
-                <Grid.Row className='welcome-navbar' columns={2}>
-                    <Grid.Column className='nav-tagline'>
+            <Grid className="welcome-page">
+                <Grid.Row className="welcome-navbar" columns={2}>
+                    <Grid.Column className="nav-tagline">
                         Search and open available examples
                     </Grid.Column>
                     <Grid.Column>
-                        <div className='top-nav-links' style={{ paddingRight: 0, marginRight: 40 }}>
+                        <div className="top-nav-links" style={{ paddingRight: 0, marginRight: 40 }}>
                             <Input
                                 ref={(ref) => {
-                                    this.searchInput = ref;
+                                    this.searchInput = ref as Input;
                                 }}
                                 loading={!this.state || !this.state.samples}
-                                placeholder='Search'
+                                placeholder="Search"
                                 onChange={(event: React.SyntheticEvent<HTMLInputElement>) => {
                                     this.setState({
-                                        searchQuery: event.currentTarget.value
+                                        searchQuery: event.currentTarget.value,
                                     });
                                     this.onSearchQueryEdit();
                                 }}
@@ -148,16 +149,16 @@ export class SamplesList extends React.Component<SamplesListProps, SamplesListSt
                         </div>
                     </Grid.Column>
                 </Grid.Row>
-                <Grid.Row className='welcome-content-wrapper'>
-                    <Grid.Column mobile={16} tablet={16} computer={16} className='rightContainer'>
+                <Grid.Row className="welcome-content-wrapper">
+                    <Grid.Column mobile={16} tablet={16} computer={16} className="rightContainer">
                         <Grid>
                             {this.state && this.state.samples &&
-                                <Grid.Row columns={4} className='sample-wrapper'>
+                                <Grid.Row columns={4} className="sample-wrapper">
                                     {
                                         this.getColumnContents().map((column, index) => {
                                             return (
                                                 <Grid.Column key={index} mobile={16} tablet={8} computer={4}>
-                                                    {column.map(columnItem => this.renderColumnItem(columnItem))}
+                                                    {column.map((columnItem) => this.renderColumnItem(columnItem))}
                                                 </Grid.Column>
                                             );
                                         })
