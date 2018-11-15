@@ -1,21 +1,18 @@
-import * as React from 'react';
-import { SamplesList } from '../src';
-import { create } from 'react-test-renderer';
-import getBBEs from './../stories/bbes';
+import * as React from "react";
+import { create } from "react-test-renderer";
+import { SamplesList } from "../src";
+import getBBEs from "./../stories/bbes";
 
-test('SamplesList renders properly', () => {
-    function openSample(url: string) {
-
-    }
-    var focusOnInputSpy = jest.fn();
+test("SamplesList renders properly", () => {
+    const focusOnInputSpy = jest.fn();
     jest
-        .spyOn(SamplesList.prototype, 'focusOnSearchInput')
+        .spyOn(SamplesList.prototype, "focusOnSearchInput")
         .mockImplementation(focusOnInputSpy);
 
     const component = create(
-        <SamplesList getSamples={getBBEs} openSample={openSample} />
+        <SamplesList getSamples={getBBEs} openSample={jest.fn()} />
     );
-    let tree = component.toJSON();
+    const tree = component.toJSON();
     expect(tree).toMatchSnapshot();
     expect(focusOnInputSpy).toHaveBeenCalled();
 });

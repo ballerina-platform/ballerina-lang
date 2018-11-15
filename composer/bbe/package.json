@@ -10,6 +10,9 @@
     "semantic-ui-react": "^0.82.5"
   },
   "scripts": {
+    "clean": "rimraf lib && rimraf coverage",
+    "lint": "tslint -t stylish --project .",
+    "prebuild": "npm run clean && npm run lint && echo Using TypeScript && tsc --version",
     "compile": "tsc -p ./",
     "build": "npm run compile",
     "watch": "tsc -watch -p ./",
@@ -32,9 +35,11 @@
     "jest-config": "^23.6.0",
     "react-docgen-typescript-webpack-plugin": "^1.1.0",
     "react-test-renderer": "16.2.0",
+    "rimraf": "^2.6.2",
     "ts-jest": "^23.10.4",
     "ts-loader": "^5.2.1",
-    "typescript": "^2.7.2"
+    "tslint": "^5.11.0",
+    "typescript": "^3.1.6"
   },
   "author": "ballerina.io",
   "license": "Apache-2.0"

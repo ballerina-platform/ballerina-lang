@@ -9,7 +9,7 @@ export class WSBallerinaLangServer implements IBallerinaLangServer {
 
     constructor(
         private port: number = 0,
-        private ballerinaHome: string = detectBallerinaHome(),
+        private ballerinaHome: string = detectBallerinaHome()
     ) {
     }
 

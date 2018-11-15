@@ -26,7 +26,7 @@ export interface EditableDiagramState {
 export class EditableDiagram extends React.Component<EdiatableDiagramProps, EditableDiagramState> {
 
     // get default context or provided context from a parent (if any)
-    private static contextType = DiagramContext;
+    public static contextType = DiagramContext;
 
     public state = {
         ast: undefined,

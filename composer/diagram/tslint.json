@@ -1,11 +1,7 @@
 {
     "extends": [
-        "tslint:latest"
+        "./../configs/common.tslint.json"
     ],
-    "rules": {
-        "interface-name": false,
-        "no-implicit-dependencies": [true, "dev"]
-    },
     "linterOptions": {
         "exclude": [
             "**/*.json"

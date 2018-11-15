@@ -17,25 +17,25 @@
  */
 
 import * as React from "react";
-import ToolBar from './ToolBar';
-import TraceList from './TraceList';
-import './index.scss';
+import "./index.scss";
+import ToolBar from "./ToolBar";
+import TraceList from "./TraceList";
 
 export interface TraceLogsState {
-    filteredTraces: Array<any>;
+    filteredTraces: any[];
 }
 
 export interface TraceLogsProps {
     filters: any;
-    clearLogs: Function;
-    traces: Array<any>;
+    clearLogs: () => void;
+    traces: any[];
     selected: string;
 }
 
 export default class TraceLogs extends React.Component<TraceLogsProps, TraceLogsState> {
-    static defaultProps = {
+    public static defaultProps = {
         traces : [],
-    }
+    };
     constructor(props: any, context: any) {
         super(props);
         this.onFilteredTraces = this.onFilteredTraces.bind(this);
@@ -43,21 +43,21 @@ export default class TraceLogs extends React.Component<TraceLogsProps, TraceLogs
             filteredTraces: props.traces,
         };
     }
-    onFilteredTraces(filtered: any) {
+    public onFilteredTraces(filtered: any) {
         this.setState({
             filteredTraces: filtered,
         });
     }
-    render() {
+    public render() {
         const { traces } = this.props;
-        
+
         return (
             <div>
-                <ToolBar 
-                    traces={traces} 
-                    filters={this.props.filters} 
+                <ToolBar
+                    traces={traces}
+                    filters={this.props.filters}
                     clearLogs={this.props.clearLogs}
-                    onFilteredTraces={this.onFilteredTraces} 
+                    onFilteredTraces={this.onFilteredTraces}
                 />
                 <TraceList traces={this.state.filteredTraces} selected={this.props.selected} />
             </div>

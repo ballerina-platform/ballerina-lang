@@ -41,7 +41,7 @@ export function spawnWSServer(ballerinaHome: string, port: number)
         const clientConnection = serverRPC.createWebSocketConnection(toSocket(socket));
         serverRPC.forward(clientConnection, serverConnection);
         const killLSProcess = () => {
-            treekill(lsProcess.pid);
+            treekill.default(lsProcess.pid);
             clientConnection.dispose();
         };
         socket.onclose = killLSProcess;
