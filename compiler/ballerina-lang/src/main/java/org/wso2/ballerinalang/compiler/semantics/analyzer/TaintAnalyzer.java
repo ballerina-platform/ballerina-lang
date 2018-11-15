@@ -177,8 +177,8 @@ import java.util.Map;
 import java.util.Set;
 import javax.xml.XMLConstants;
 
-import static org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord.TaintedStatus;
+import static org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
 
 /**
  * Generate taint-table for each invokable node.
