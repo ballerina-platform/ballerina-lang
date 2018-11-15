@@ -40,7 +40,6 @@ import io.ballerina.plugins.idea.psi.BallerinaPackageName;
 import io.ballerina.plugins.idea.psi.BallerinaPackageReference;
 import io.ballerina.plugins.idea.psi.BallerinaRecordKey;
 import io.ballerina.plugins.idea.psi.BallerinaResourceDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaSimpleVariableReference;
 import io.ballerina.plugins.idea.psi.BallerinaTableQueryExpression;
 import io.ballerina.plugins.idea.psi.BallerinaTypes;
 import io.ballerina.plugins.idea.psi.BallerinaVariableDefinitionStatement;
