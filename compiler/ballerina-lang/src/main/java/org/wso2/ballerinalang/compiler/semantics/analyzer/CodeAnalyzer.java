@@ -652,16 +652,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         return false;
     }
 
-    private void analyseUnreachableStructuredBindingPatterns(
-            List<BLangMatchStructuredBindingPatternClause> matchedVars) {
-        for (int i = 0; i < matchedVars.size(); i++) {
-            for (int j = i + 1; j < matchedVars.size(); j++) {
-                BLangVariable precedingVar = matchedVars.get(i).bindingPatternVariable;
-                BLangVariable currentVar = matchedVars.get(j).bindingPatternVariable;
+    private void analyseUnreachableStructuredBindingPatterns(List<BLangMatchStructuredBindingPatternClause> clauses) {
+        BLangMatchStructuredBindingPatternClause finalPattern = clauses.get(clauses.size() - 1);
+        if (finalPattern.bindingPatternVariable.getKind() == NodeKind.VARIABLE) {
+            finalPattern.isLastPattern = true;
+        }
+
+        for (int i = 0; i < clauses.size(); i++) {
+            for (int j = i + 1; j < clauses.size(); j++) {
+                BLangVariable precedingVar = clauses.get(i).bindingPatternVariable;
+                BLangVariable currentVar = clauses.get(j).bindingPatternVariable;
                 if (checkVariableSimilarity(precedingVar, currentVar) &&
-                        checkTypeGuardEquality(matchedVars.get(i).typeGuardExpr, matchedVars.get(j).typeGuardExpr)) {
+                        checkTypeGuardEquality(clauses.get(i).typeGuardExpr, clauses.get(j).typeGuardExpr)) {
                     dlog.error(currentVar.pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN);
-                    matchedVars.remove(j--);
+                    clauses.remove(j--);
                 }
             }
         }
