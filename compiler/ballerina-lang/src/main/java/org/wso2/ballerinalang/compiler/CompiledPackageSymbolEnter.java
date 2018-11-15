@@ -676,6 +676,9 @@ public class CompiledPackageSymbolEnter {
         } else {
             varSymbol = new BVarSymbol(flags, names.fromString(varName), this.env.pkgSymbol.pkgID, varType,
                     enclScope.owner);
+            if (Symbols.isFlagOn(flags, Flags.REMOTE)) {
+                varSymbol.tag = SymTag.ENDPOINT;
+            }
         }
 
         setDocumentation(varSymbol, attrDataMap);

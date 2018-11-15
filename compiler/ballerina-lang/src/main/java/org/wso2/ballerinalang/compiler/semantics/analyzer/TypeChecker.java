@@ -1730,7 +1730,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             }
         }
-        if ((funcSymbol.tag & SymTag.REMOTE_FUNCTION) == SymTag.REMOTE_FUNCTION) {
+        if (Symbols.isFlagOn(funcSymbol.flags, Flags.REMOTE)) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION_SYNTAX);
         }
         iExpr.symbol = funcSymbol;
@@ -1928,9 +1928,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 .fromString(Symbols.getAttachedFuncSymbolName(epType.tsymbol.name.value, iExpr.name.value));
         Name actionName = names.fromIdNode(iExpr.name);
         BSymbol remoteFuncSymbol = symResolver
-                .lookupMemberSymbol(iExpr.pos, epSymbol.type.tsymbol.scope, env, remoteFuncQName,
-                        SymTag.REMOTE_FUNCTION);
-        if (remoteFuncSymbol == symTable.notFoundSymbol) {
+                .lookupMemberSymbol(iExpr.pos, epSymbol.type.tsymbol.scope, env, remoteFuncQName, SymTag.FUNCTION);
+        if (remoteFuncSymbol == symTable.notFoundSymbol || !Symbols.isFlagOn(remoteFuncSymbol.flags, Flags.REMOTE)) {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_ACTION, actionName, epSymbol.type.tsymbol.name);
             resultType = actualType;
             return;

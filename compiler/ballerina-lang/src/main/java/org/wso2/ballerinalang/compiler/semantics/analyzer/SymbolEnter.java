@@ -231,9 +231,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.annotations.forEach(annot -> defineNode(annot, pkgEnv));
 
         // Update globalVar for endpoints.
-        pkgNode.globalVars.stream().filter(var -> (var.symbol.type.tsymbol.flags & Flags.ENDPOINT) == Flags.ENDPOINT)
+        pkgNode.globalVars.stream().filter(var -> var.symbol.type.tsymbol != null && Symbols
+                .isFlagOn(var.symbol.type.tsymbol.flags, Flags.REMOTE))
                 .map(varNode -> varNode.symbol).forEach(varSymbol -> {
-            varSymbol.flags |= Flags.ENDPOINT;
+            varSymbol.flags |= Flags.REMOTE;
             varSymbol.tag = SymTag.ENDPOINT;
         });
     }
@@ -708,9 +709,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 varNode.type, varName, env);
         varSymbol.markdownDocumentation = getMarkdownDocAttachment(varNode.markdownDocumentationAttachment);
         varNode.symbol = varSymbol;
-        if (varNode.symbol.type.tsymbol != null
-                && (varNode.symbol.type.tsymbol.flags & Flags.ENDPOINT) == Flags.ENDPOINT) {
-            varSymbol.flags |= Flags.ENDPOINT;
+        if (varNode.symbol.type.tsymbol != null && Symbols.isFlagOn(varNode.symbol.type.tsymbol.flags, Flags.REMOTE)) {
+            varSymbol.flags |= Flags.REMOTE;
             varSymbol.tag = SymTag.ENDPOINT;
         }
     }
@@ -1086,8 +1086,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else {
             varSymbol = new BVarSymbol(Flags.asMask(flagSet), varName,
                     env.enclPkg.symbol.pkgID, varType, env.scope.owner);
-            if (varType.tsymbol != null && (varType.tsymbol.flags & Flags.ENDPOINT) == Flags.ENDPOINT) {
-                varSymbol.flags |= Flags.ENDPOINT;
+            if (varType.tsymbol != null && Symbols.isFlagOn(varType.tsymbol.flags, Flags.REMOTE)) {
+                varSymbol.flags |= Flags.REMOTE;
                 varSymbol.tag = SymTag.ENDPOINT;
             }
         }
@@ -1190,11 +1190,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (!Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.REMOTE)) {
             return;
         }
-        funcNode.symbol.tag = SymTag.REMOTE_FUNCTION;
+        funcNode.symbol.flags |= Flags.REMOTE;
 
         // Make Given Object as endpoint if not marked already.
-        if ((objectSymbol.flags & Flags.ENDPOINT) != Flags.ENDPOINT) {
-            objectSymbol.flags |= Flags.ENDPOINT;
+        if (!Symbols.isFlagOn(objectSymbol.flags, Flags.REMOTE)) {
+            objectSymbol.flags |= Flags.REMOTE;
         }
     }
 

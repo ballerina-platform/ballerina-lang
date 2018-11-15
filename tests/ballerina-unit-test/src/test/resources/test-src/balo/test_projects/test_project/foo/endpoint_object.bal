@@ -13,38 +13,15 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-type TestEP object {
-    remote function action1(string s, int i) returns boolean {
-        if (i > 5) {
-            return true;
-        }
-        return false;
+public type DummyEndpoint object {
+    public remote function invoke1 (string a) returns error? {
+        error e = error("i1");
+        return e;
     }
 
-    remote function action2(string s, boolean b) returns int;
-
-    function func1(string s) {
-
-    }
-
-    function func2(string s) returns int {
-        return 5;
+    public remote function invoke2 (string a) returns string {
+        return "done" + a;
     }
 };
 
-
-remote function TestEP::action2(string s, boolean b) returns int {
-    return 10;
-}
-
-function test1(int i) returns boolean{
-    TestEP x = new;
-    x.func1("abc");
-    boolean b = x->action1("test1", i);
-    return b;
-}
-
-function test2() returns int {
-    TestEP x = new;
-    return x.func2("test");
-}
+public DummyEndpoint dyEP = new;
