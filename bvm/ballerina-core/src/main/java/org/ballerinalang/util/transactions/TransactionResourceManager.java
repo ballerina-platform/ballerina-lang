@@ -25,6 +25,7 @@ import org.ballerinalang.util.program.BLangFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,11 +51,16 @@ public class TransactionResourceManager {
     private Map<Integer, BFunctionPointer> committedFuncRegistry;
     private Map<Integer, BFunctionPointer> abortedFuncRegistry;
 
+    private Map<String, List<SoftReference<BFunctionPointer>>> participantCommittedFuncReg;
+    private Map<String, List<SoftReference<BFunctionPointer>>> participantAbortedFuncReg;
+
     private TransactionResourceManager() {
         resourceRegistry = new HashMap<>();
         xidRegistry = new HashMap<>();
         committedFuncRegistry = new HashMap<>();
         abortedFuncRegistry = new HashMap<>();
+        participantAbortedFuncReg = new HashMap<>();
+        participantCommittedFuncReg = new HashMap<>();
     }
 
     public static TransactionResourceManager getInstance() {
@@ -91,6 +97,18 @@ public class TransactionResourceManager {
     }
 
     /**
+     * This method will register a committed function handler for a particular service/resource participated
+     * in a transaction.
+     *
+     * @param transactionId global transaction id
+     * @param bFunctionPointer the function pointer for the committed function
+     */
+    public void registerCommittedFunction(String transactionId, BFunctionPointer bFunctionPointer) {
+        participantCommittedFuncReg.computeIfAbsent(transactionId, s -> new ArrayList<>())
+                .add(new SoftReference<>(bFunctionPointer));
+    }
+
+    /**
      * This method will register an aborted function handler of a particular transaction.
      *
      * @param transactionBlockId the block id of the transaction
@@ -98,6 +116,18 @@ public class TransactionResourceManager {
      */
     public void registerAbortedFunction(int transactionBlockId, BFunctionPointer bFunctionPointer) {
         abortedFuncRegistry.put(transactionBlockId, bFunctionPointer);
+    }
+
+    /**
+     * This method will register an aborted function handler of a particular service/resource participated
+     * in a transaction.
+     *
+     * @param transactionId global transaction id
+     * @param bFunctionPointer the function pointer for the aborted function
+     */
+    public void registerAbortedFunction(String transactionId, BFunctionPointer bFunctionPointer) {
+        participantAbortedFuncReg.computeIfAbsent(transactionId, s -> new ArrayList<>())
+                .add(new SoftReference<>(bFunctionPointer));
     }
 
     /**
@@ -268,17 +298,32 @@ public class TransactionResourceManager {
 
     private void invokeCommittedFunction (String transactionId, int transactionBlockId) {
         BFunctionPointer fp = committedFuncRegistry.get(transactionBlockId);
+        BValue[] args = { new BString(transactionId + ":" + transactionBlockId)};
         if (fp != null) {
-            BValue[] args = { new BString(transactionId + ":" + transactionBlockId)};
             BLangFunctions.invokeCallable(fp.value(), args);
         }
+        List<SoftReference<BFunctionPointer>> funcs = participantCommittedFuncReg.get(transactionId);
+        invokeFunctions(args, funcs);
     }
 
     private void invokeAbortedFunction (String transactionId, int transactionBlockId) {
         BFunctionPointer fp = abortedFuncRegistry.get(transactionBlockId);
+        BValue[] args = { new BString(transactionId + ":" + transactionBlockId)};
         if (fp != null) {
-            BValue[] args = { new BString(transactionId + ":" + transactionBlockId)};
             BLangFunctions.invokeCallable(fp.value(), args);
+        }
+        List<SoftReference<BFunctionPointer>> funcs = participantAbortedFuncReg.get(transactionId);
+        invokeFunctions(args, funcs);
+    }
+
+    private void invokeFunctions(BValue[] args, List<SoftReference<BFunctionPointer>> funcs) {
+        if (funcs != null) {
+            for (SoftReference<BFunctionPointer> funcRef : funcs) {
+                BFunctionPointer func = funcRef.get();
+                if (func != null) {
+                    BLangFunctions.invokeCallable(func.value(), args);
+                }
+            }
         }
     }
 }

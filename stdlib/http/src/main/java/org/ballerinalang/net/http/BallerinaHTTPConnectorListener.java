@@ -22,11 +22,13 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.observability.ObservabilityUtils;
 import org.ballerinalang.util.observability.ObserverContext;
+import org.ballerinalang.util.transactions.TransactionResourceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
@@ -114,9 +116,27 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
             ctx.addTag(TAG_KEY_HTTP_URL, (String) inboundMessage.getProperty(HttpConstants.REQUEST_URL));
         });
 
+        registerTransactionHandlerFunctions(httpResource, properties);
+
         CallableUnitCallback callback = new HttpCallableUnitCallback(inboundMessage);
         //TODO handle BallerinaConnectorException
         Executor.submit(balResource, callback, properties, observerContext.orElse(null), signatureParams);
+    }
+
+    private void registerTransactionHandlerFunctions(HttpResource httpResource, Map<String, Object> properties) {
+        String globalTransactionId = (String) properties.get(Constants.GLOBAL_TRANSACTION_ID);
+        if (globalTransactionId != null) {
+            TransactionResourceManager manager = TransactionResourceManager.getInstance();
+            BFunctionPointer transactionOnAbortFunc = httpResource.getTransactionOnAbortFunc();
+            if (transactionOnAbortFunc != null) {
+                manager.registerAbortedFunction(globalTransactionId, transactionOnAbortFunc);
+            }
+
+            BFunctionPointer transactionOnCommitFunc = httpResource.getTransactionOnCommitFunc();
+            if (transactionOnCommitFunc != null) {
+                manager.registerCommittedFunction(globalTransactionId, transactionOnCommitFunc);
+            }
+        }
     }
 
     protected boolean accessed(HttpCarbonMessage inboundMessage) {
@@ -134,6 +154,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         String registerAtUrl = inboundMessage.getHeader(HttpConstants.HEADER_X_REGISTER_AT_URL);
         //Return 500 if txn context is received when transactionInfectable=false
         if (!isInfectable && txnId != null) {
+            log.error("Infection attempt on resource with transactionInfectable=false, txnId:" + txnId);
             throw new BallerinaConnectorException("Cannot create transaction context: " +
                                                           "resource is not transactionInfectable");
         }

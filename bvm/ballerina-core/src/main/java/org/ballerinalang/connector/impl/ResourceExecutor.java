@@ -21,6 +21,7 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.states.RuntimeStates;
 import org.ballerinalang.persistence.states.State;
@@ -31,6 +32,7 @@ import org.ballerinalang.util.program.BLangFunctions;
 import org.ballerinalang.util.program.BLangVMUtils;
 import org.ballerinalang.util.program.CompensationTable;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
+import org.ballerinalang.util.transactions.TransactionConstants;
 
 import java.util.Map;
 import java.util.UUID;
@@ -71,9 +73,10 @@ public class ResourceExecutor {
             }
             context.globalProps.putAll(properties);
             if (properties.get(Constants.GLOBAL_TRANSACTION_ID) != null) {
-                context.setLocalTransactionInfo(new LocalTransactionInfo(
+                LocalTransactionInfo localTransactionInfo = new LocalTransactionInfo(
                         properties.get(Constants.GLOBAL_TRANSACTION_ID).toString(),
-                        properties.get(Constants.TRANSACTION_URL).toString(), "2pc"));
+                        properties.get(Constants.TRANSACTION_URL).toString(), "2pc");
+                context.setLocalTransactionInfo(localTransactionInfo);
             }
         }
         //required for tracking compensations

@@ -121,6 +121,7 @@ public type HttpResourceConfig record {
     string[] consumes;
     string[] produces;
     CorsConfig cors;
+    // todo: remove this annotation as transaction related stuff has moved to annotations.bal in stdlib/transactions directory.
     boolean transactionInfectable = true;
     WebSocketUpgradeConfig? webSocketUpgrade;
     ListenerAuthConfig? authConfig;

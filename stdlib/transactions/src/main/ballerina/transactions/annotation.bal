@@ -34,8 +34,8 @@
 # + onabortFunc - Function to execute when transaction aborted.
 # + canInitiate - Annotated entity can initiate a transaction if transaction is not present.
 public type TransactionParticipantConfig record {
-    function (string) oncommitFunc;
-    function (string) onabortFunc;
+    function (string)? oncommitFunc;
+    function (string)? onabortFunc;
     boolean? canInitiate;
     !...
 };

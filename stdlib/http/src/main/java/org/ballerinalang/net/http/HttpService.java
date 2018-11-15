@@ -217,6 +217,7 @@ public class HttpService implements Cloneable {
         for (Resource resource : httpService.getBalService().getResources()) {
             Annotation resourceConfigAnnotation =
                     HttpUtil.getResourceConfigAnnotation(resource, HttpConstants.HTTP_PACKAGE_PATH);
+
             if (resourceConfigAnnotation != null
                     && resourceConfigAnnotation.getValue().getStructField(WEBSOCKET_UPGRADE_FIELD) != null) {
                 HttpResource upgradeResource = HttpResource.buildHttpResource(resource, httpService);

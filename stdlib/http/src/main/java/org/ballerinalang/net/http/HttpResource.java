@@ -21,8 +21,10 @@ import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
+import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.transactions.TransactionConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,6 +67,8 @@ public class HttpResource {
     private HttpService parentService;
     private boolean transactionInfectable = true; //default behavior
     private boolean interruptible;
+    private BFunctionPointer transactionOnCommitFunc;
+    private BFunctionPointer transactionOnAbortFunc;
 
     protected HttpResource(Resource resource, HttpService parentService) {
         this.balResource = resource;
@@ -199,11 +203,28 @@ public class HttpResource {
         httpResource.setProduces(getAsStringList(resourceConfig.getArrayField(PRODUCES_FIELD)));
         httpResource.setEntityBodyAttributeValue(resourceConfig.getStringField(BODY_FIELD));
         httpResource.setCorsHeaders(CorsHeaders.buildCorsHeaders(resourceConfig.getStructField(CORS_FIELD)));
+
         httpResource.setTransactionInfectable(resourceConfig.getBooleanField(TRANSACTION_INFECTABLE_FIELD));
+        setupTransactionAnnotations(resource, httpResource);
 
         processResourceCors(httpResource, httpService);
         httpResource.prepareAndValidateSignatureParams();
         return httpResource;
+    }
+
+    private static void setupTransactionAnnotations(Resource resource, HttpResource httpResource) {
+        Annotation transactionConfigAnnotation = HttpUtil.getTransactionConfigAnnotation(resource,
+                        TransactionConstants.TRANSACTION_PACKAGE_PATH);
+        if (transactionConfigAnnotation != null) {
+            Struct annotationStruct = transactionConfigAnnotation.getValue();
+            BFunctionPointer oncommitFunc = (BFunctionPointer) annotationStruct.getRefField(
+                    TransactionConstants.ANN_NAME_TRX_ONCOMMIT_FUNC).getVMValue();
+            httpResource.setTransactionOnCommitFunc(oncommitFunc);
+
+            BFunctionPointer onabortFunc = (BFunctionPointer) annotationStruct.getRefField(
+                    TransactionConstants.ANN_NAME_TRX_ONABORT_FUNC).getVMValue();
+            httpResource.setTransactionOnAbortFunc(onabortFunc);
+        }
     }
 
     protected static Annotation getResourceConfigAnnotation(Resource resource) {
@@ -266,4 +287,19 @@ public class HttpResource {
         signatureParams.validate();
     }
 
+    public void setTransactionOnCommitFunc(BFunctionPointer transactionOnCommitFunc) {
+        this.transactionOnCommitFunc = transactionOnCommitFunc;
+    }
+
+    public BFunctionPointer getTransactionOnCommitFunc() {
+        return transactionOnCommitFunc;
+    }
+
+    public void setTransactionOnAbortFunc(BFunctionPointer transactionOnAbortFunc) {
+        this.transactionOnAbortFunc = transactionOnAbortFunc;
+    }
+
+    public BFunctionPointer getTransactionOnAbortFunc() {
+        return transactionOnAbortFunc;
+    }
 }
