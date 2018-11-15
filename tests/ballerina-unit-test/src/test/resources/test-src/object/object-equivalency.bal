@@ -22,19 +22,19 @@ public type person1 object {
     public function setSSN (string s);
 };
 
-function person1::getName () returns (string) {
+function person1.getName () returns (string) {
     return self.name;
 }
 
-function person1::getAge () returns (int) {
+function person1.getAge () returns (int) {
     return self.age;
 }
 
-function person1::getSSN () returns (string) {
+function person1.getSSN () returns (string) {
     return self.ssn;
 }
 
-function person1::setSSN (string s) {
+function person1.setSSN (string s) {
     self.ssn = s;
 }
 
@@ -60,23 +60,23 @@ public type employee1 object {
     public function getEmployeeId () returns (int);
 };
 
-function employee1::getName () returns (string) {
+function employee1.getName () returns (string) {
     return self.name;
 }
 
-function employee1::getAge () returns (int) {
+function employee1.getAge () returns (int) {
     return self.age;
 }
 
-function employee1::getSSN () returns (string) {
+function employee1.getSSN () returns (string) {
     return self.ssn + ":employee";
 }
 
-function employee1::setSSN (string s) {
+function employee1.setSSN (string s) {
     self.ssn = s;
 }
 
-function employee1::getEmployeeId () returns (int) {
+function employee1.getEmployeeId () returns (int) {
     return self.employeeId;
 }
 
@@ -107,19 +107,19 @@ public type person2 object {
     public function setSSN (string s);
 };
 
-function person2::getName () returns (string) {
+function person2.getName () returns (string) {
     return self.name;
 }
 
-function person2::getAge () returns (int) {
+function person2.getAge () returns (int) {
     return self.age;
 }
 
-function person2::getSSN () returns (string) {
+function person2.getSSN () returns (string) {
     return self.ssn;
 }
 
-function person2::setSSN (string s) {
+function person2.setSSN (string s) {
     self.ssn = s;
 }
 
@@ -143,23 +143,23 @@ public type employee2 object {
     public function getEmployeeId () returns (int);
 };
 
-function employee2::getName () returns (string) {
+function employee2.getName () returns (string) {
     return self.name;
 }
 
-function employee2::getAge () returns (int) {
+function employee2.getAge () returns (int) {
     return self.age;
 }
 
-function employee2::getSSN () returns (string) {
+function employee2.getSSN () returns (string) {
     return self.ssn + ":employee";
 }
 
-function employee2::setSSN (string s) {
+function employee2.setSSN (string s) {
     self.ssn = s;
 }
 
-function employee2::getEmployeeId () returns (int) {
+function employee2.getEmployeeId () returns (int) {
     return self.employeeId;
 }
 
@@ -205,23 +205,23 @@ public type employee3 object {
     public function getEmployeeId () returns (int);
 };
 
-function employee3::getName () returns (string) {
+function employee3.getName () returns (string) {
     return self.name;
 }
 
-function employee3::getAge () returns (int) {
+function employee3.getAge () returns (int) {
     return self.age;
 }
 
-function employee3::getSSN () returns (string) {
+function employee3.getSSN () returns (string) {
     return self.ssn + ":employee";
 }
 
-function employee3::setSSN (string s) {
+function employee3.setSSN (string s) {
     self.ssn = s;
 }
 
-function employee3::getEmployeeId () returns (int) {
+function employee3.getEmployeeId () returns (int) {
     return self.employeeId;
 }
 
@@ -259,11 +259,11 @@ type userA object {
     function getAge () returns (int);
 };
 
-function userA::getName () returns (string) {
+function userA.getName () returns (string) {
     return self.name;
 }
 
-function userA::getAge () returns (int) {
+function userA.getAge () returns (int) {
     return self.age;
 }
 
@@ -277,11 +277,11 @@ type userB object {
     function getAge () returns (int);
 };
 
-function userB::getName () returns (string) {
+function userB.getName () returns (string) {
     return self.name;
 }
 
-function userB::getAge () returns (int) {
+function userB.getAge () returns (int) {
     return self.age;
 }
 
@@ -296,11 +296,11 @@ type userFoo object {
     function getAge () returns (int);
 };
 
-function userFoo::getName () returns (string) {
+function userFoo.getName () returns (string) {
     return self.name;
 }
 
-function userFoo::getAge () returns (int) {
+function userFoo.getAge () returns (int) {
     return self.age;
 }
 
@@ -329,11 +329,11 @@ public type userPA object {
     public function getAge () returns (int);
 };
 
-function userPA::getName () returns (string) {
+function userPA.getName () returns (string) {
     return self.name;
 }
 
-function userPA::getAge () returns (int) {
+function userPA.getAge () returns (int) {
     return self.age;
 }
 
@@ -347,11 +347,11 @@ public type userPB object {
     public function getAge () returns (int);
 };
 
-function userPB::getName () returns (string) {
+function userPB.getName () returns (string) {
     return self.name;
 }
 
-function userPB::getAge () returns (int) {
+function userPB.getAge () returns (int) {
     return self.age;
 }
 
@@ -366,11 +366,11 @@ public type userPFoo object {
     public function getAge () returns (int);
 };
 
-function userPFoo::getName () returns (string) {
+function userPFoo.getName () returns (string) {
     return self.name;
 }
 
-function userPFoo::getAge () returns (int) {
+function userPFoo.getAge () returns (int) {
     return self.age;
 }
 
@@ -438,11 +438,11 @@ type personC object {
     function getAddress() returns (string);
 };
 
-function personC::setContact(addressStruct ad){
+function personC.setContact(addressStruct ad){
     self.address = ad;
 }
 
-function personC::getAddress() returns (string){
+function personC.getAddress() returns (string){
     return self.address.toString();
 }
 
@@ -453,7 +453,7 @@ type addressStruct object {
     function toString() returns (string);
 };
 
-function addressStruct::toString() returns (string){
+function addressStruct.toString() returns (string){
     return self.no + self.city;
 }
 
@@ -465,7 +465,7 @@ type officeAddressStruct object {
     function toString() returns (string);
 };
 
-function officeAddressStruct::toString() returns (string){
+function officeAddressStruct.toString() returns (string){
     return self.department + self.no + self.city;
 }
 
@@ -515,12 +515,12 @@ type AnyStruct object {
     function call () returns (AnotherAnyStruct);
 };
 
-function AnyStruct::shout (AnotherAnyStruct aa) returns (string) {
+function AnyStruct.shout (AnotherAnyStruct aa) returns (string) {
     var j =check <json>aa;
     return "anyStruct" + j.toString();
 }
 
-function AnyStruct::call () returns (AnotherAnyStruct) {
+function AnyStruct.call () returns (AnotherAnyStruct) {
     return new AnotherAnyStruct() ;
 }
 
@@ -532,12 +532,12 @@ type SomeStruct object {
     function call () returns (SomeOtherStruct);
 };
 
-function SomeStruct::shout (SomeOtherStruct aa) returns (string) {
+function SomeStruct.shout (SomeOtherStruct aa) returns (string) {
     var j = check <json>aa;
     return "someStruct" + (j.toString());
 }
 
-function SomeStruct::call () returns (SomeOtherStruct) {
+function SomeStruct.call () returns (SomeOtherStruct) {
     SomeOtherStruct s = new;
     s.s= "return";
     return s;

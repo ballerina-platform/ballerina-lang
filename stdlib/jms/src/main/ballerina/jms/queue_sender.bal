@@ -92,7 +92,7 @@ public type QueueSenderEndpointConfiguration record {
 # + queueSender - Queue sender endpoint
 public type QueueSenderActions object {
 
-    public QueueSender? queueSender;
+    public QueueSender? queueSender = ();
 
     # Sends a message to the JMS provider
     #
@@ -108,7 +108,7 @@ public type QueueSenderActions object {
     public function sendTo(Destination destination, Message message) returns error?;
 };
 
-function QueueSenderActions::sendTo(Destination destination, Message message) returns error? {
+function QueueSenderActions.sendTo(Destination destination, Message message) returns error? {
     match (self.queueSender) {
         QueueSender queueSender => {
             match (queueSender.config.session) {

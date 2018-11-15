@@ -22,10 +22,10 @@ import ballerina/log;
 # + config - configurations related to the SimpleTopicPublisher endpoint
 public type SimpleTopicPublisher object {
 
-    public SimpleTopicPublisherEndpointConfiguration config;
+    public SimpleTopicPublisherEndpointConfiguration config = {};
 
-    private jms:SimpleTopicPublisher? publisher;
-    private TopicPublisherActions? producerActions;
+    private jms:SimpleTopicPublisher? publisher = ();
+    private TopicPublisherActions? producerActions = ();
 
     # Initialize SimpleTopicPublisher endpoint
     #

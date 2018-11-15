@@ -21,7 +21,7 @@ const string HTTP_SCHEME = "http://";
 const string HTTPS_SCHEME = "https://";
 
 # Constant for the http error code
-@final public string HTTP_ERROR_CODE = "{ballerina/http}HTTPError";
+public const string HTTP_ERROR_CODE = "{ballerina/http}HTTPError";
 
 # Constant for the default listener endpoint timeout
 const int DEFAULT_LISTENER_TIMEOUT = 120000; //2 mins
@@ -312,7 +312,7 @@ function populateRequestFields (Request originalRequest, Request newRequest)  {
     newRequest.extraPathInfo = originalRequest.extraPathInfo;
 }
 
-function populateMultipartRequest(Request inRequest) returns Request {
+function populateMultipartRequest(Request inRequest) returns Request|error {
     if (isMultipartRequest(inRequest)) {
         mime:Entity[] bodyParts = check inRequest.getBodyParts();
         foreach bodyPart in bodyParts {
@@ -343,7 +343,7 @@ function isNestedEntity(mime:Entity entity) returns boolean {
         entity.getHeader(mime:CONTENT_TYPE).hasPrefix(MULTIPART_AS_PRIMARY_TYPE);
 }
 
-function createFailoverRequest(Request request, mime:Entity requestEntity) returns Request {
+function createFailoverRequest(Request request, mime:Entity requestEntity) returns Request|error {
     if (isMultipartRequest(request)) {
         return populateMultipartRequest(request);
     } else {

@@ -23,7 +23,7 @@ import ballerina/log;
 public type DurableTopicSubscriber object {
 
     public DurableTopicSubscriberActions consumerActions = new;
-    public DurableTopicSubscriberEndpointConfiguration config;
+    public DurableTopicSubscriberEndpointConfiguration config = {};
 
     # Initialize durable topic subscriber endpoint
     #

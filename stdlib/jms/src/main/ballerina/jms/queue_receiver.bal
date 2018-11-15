@@ -23,7 +23,7 @@ import ballerina/log;
 public type QueueReceiver object {
 
     public QueueReceiverActions consumerActions = new;
-    public QueueReceiverEndpointConfiguration config;
+    public QueueReceiverEndpointConfiguration config = {};
 
     # Initializes the QueueReceiver endpoint
     #
@@ -95,7 +95,7 @@ public type QueueReceiverEndpointConfiguration record {
 # + queueReceiver - queue receiver endpoint
 public type QueueReceiverActions object {
 
-    public QueueReceiver? queueReceiver;
+    public QueueReceiver? queueReceiver = ();
 
     # Acknowledges a received message
     #
@@ -117,7 +117,7 @@ public type QueueReceiverActions object {
     public function receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|error)?;
 };
 
-function QueueReceiverActions::receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|
+function QueueReceiverActions.receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|
         error)? {
     match (self.queueReceiver) {
         QueueReceiver queueReceiver => {

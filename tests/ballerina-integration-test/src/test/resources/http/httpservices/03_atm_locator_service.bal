@@ -25,55 +25,41 @@ service<http:Service> ATMLocator bind serviceEnpoint {
 
         http:Request backendServiceReq = new;
         var jsonLocatorReq = req.getJsonPayload();
-        match jsonLocatorReq {
-            json zip => {
-                string zipCode;
-                zipCode = extractFieldValue2(zip["ATMLocator"]["ZipCode"]);
-                io:println("Zip Code " + zipCode);
-                json branchLocatorReq = {"BranchLocator":{"ZipCode":""}};
-                branchLocatorReq.BranchLocator.ZipCode = zipCode;
-                backendServiceReq.setJsonPayload(untaint branchLocatorReq);
-            }
-            error err => {
-                io:println("Error occurred while reading ATM locator request");
-            }
+        if (jsonLocatorReq is json) {
+            string zipCode = extractFieldValue2(jsonLocatorReq["ATMLocator"]["ZipCode"]);
+            io:println("Zip Code " + zipCode);
+            json branchLocatorReq = {"BranchLocator":{"ZipCode":""}};
+            branchLocatorReq.BranchLocator.ZipCode = zipCode;
+            backendServiceReq.setPayload(untaint branchLocatorReq);
+        } else if (jsonLocatorReq is error) {
+            io:println("Error occurred while reading ATM locator request");
         }
 
         http:Response locatorResponse = new;
         var locatorRes = branchLocatorService -> post("", backendServiceReq);
-        match locatorRes {
-            http:Response locRes => {
-                locatorResponse = locRes;
-            }
-            error err => {
-                io:println("Error occurred while reading locator response");
-            }
+        if (locatorRes is http:Response) {
+            locatorResponse = locatorRes;
+        } else if (locatorRes is error) {
+            io:println("Error occurred while reading locator response");
         }
 
         var branchLocatorRes = locatorResponse.getJsonPayload();
-        match branchLocatorRes {
-            json branch => {
-                string branchCode;
-                branchCode = extractFieldValue2(branch.ABCBank.BranchCode);
-                io:println("Branch Code " + branchCode);
-                json bankInfoReq = {"BranchInfo":{"BranchCode":""}};
-                bankInfoReq.BranchInfo.BranchCode = branchCode;
-                backendServiceReq.setJsonPayload(untaint bankInfoReq);
-            }
-            error err => {
-                io:println("Error occurred while reading branch locator response");
-            }
+        if (branchLocatorRes is json) {
+            string branchCode = extractFieldValue2(branchLocatorRes.ABCBank.BranchCode);
+            io:println("Branch Code " + branchCode);
+            json bankInfoReq = {"BranchInfo":{"BranchCode":""}};
+            bankInfoReq.BranchInfo.BranchCode = branchCode;
+            backendServiceReq.setJsonPayload(untaint bankInfoReq);
+        } else if (branchLocatorRes is error) {
+            io:println("Error occurred while reading branch locator response");
         }
 
         http:Response infomationResponse = new;
         var infoRes = bankInfoService -> post("", backendServiceReq);
-        match infoRes {
-            http:Response res => {
-                infomationResponse = res;
-            }
-            error err => {
-                io:println("Error occurred while writing info response");
-            }
+        if (infoRes is http:Response) {
+            infomationResponse = infoRes;
+        } else if (infoRes is error) {
+            io:println("Error occurred while writing info response");
         }
         _ = caller -> respond(infomationResponse);
     }
@@ -90,22 +76,17 @@ service<http:Service> Bankinfo bind serviceEnpoint {
     product (endpoint caller, http:Request req) {
         http:Response res = new;
         var jsonRequest = req.getJsonPayload();
-        match jsonRequest {
-            json bankInfo => {
-                string branchCode;
-                branchCode = extractFieldValue2(bankInfo.BranchInfo.BranchCode);
-                json payload = {};
-                if (branchCode == "123") {
-                    payload = {"ABC Bank":{"Address":"111 River Oaks Pkwy, San Jose, CA 95999"}};
-                } else {
-                    payload = {"ABC Bank":{"error":"No branches found."}};
-                }
-
-                res.setJsonPayload(payload);
+        if (jsonRequest is json) {
+            string branchCode = extractFieldValue2(jsonRequest.BranchInfo.BranchCode);
+            json payload = {};
+            if (branchCode == "123") {
+                payload = {"ABC Bank":{"Address":"111 River Oaks Pkwy, San Jose, CA 95999"}};
+            } else {
+                payload = {"ABC Bank":{"error":"No branches found."}};
             }
-            error err => {
-                io:println("Error occurred while reading bank info request");
-            }
+            res.setPayload(payload);
+        } else if (jsonRequest is error) {
+            io:println("Error occurred while reading bank info request");
         }
 
         _ = caller -> respond(res);
@@ -123,21 +104,17 @@ service<http:Service> Banklocator bind serviceEnpoint {
     product (endpoint caller, http:Request req) {
         http:Response res = new;
         var jsonRequest = req.getJsonPayload();
-        match jsonRequest {
-            json bankLocator => {
-                string zipCode;
-                zipCode = extractFieldValue2(bankLocator.BranchLocator.ZipCode);
-                json payload = {};
-                if (zipCode == "95999") {
-                    payload = {"ABCBank":{"BranchCode":"123"}};
-                } else {
-                    payload = {"ABCBank":{"BranchCode":"-1"}};
-                }
-                res.setJsonPayload(payload);
+        if (jsonRequest is json) {
+            string zipCode = extractFieldValue2(jsonRequest.BranchLocator.ZipCode);
+            json payload = {};
+            if (zipCode == "95999") {
+                payload = {"ABCBank":{"BranchCode":"123"}};
+            } else {
+                payload = {"ABCBank":{"BranchCode":"-1"}};
             }
-            error err => {
-                io:println("Error occurred while reading bank locator request");
-            }
+            res.setPayload(payload);
+        } else if (jsonRequest is error) {
+            io:println("Error occurred while reading bank locator request");
         }
 
         _ = caller -> respond(res);

@@ -24,9 +24,10 @@
 public type Listener object {
     private ListenerEndpointConfiguration config;
 
-    public function init(ListenerEndpointConfiguration listenerConfig) {
+    public function init(ListenerEndpointConfiguration listenerConfig) returns error? {
         self.config = listenerConfig;
         check self.initEndpoint();
+        return;
     }
 
     extern function initEndpoint() returns error?;

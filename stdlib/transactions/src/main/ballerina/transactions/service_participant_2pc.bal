@@ -72,13 +72,17 @@ service Participant2pcService bind coordinatorListener {
                 }
             }
         }
-        json j = check <json>prepareRes;
-        res.setJsonPayload(j);
-        var resResult = conn->respond(res);
-        match resResult {
-            error err => log:printError("Sending response for prepare request for transaction " +
-                    transactionId + " failed", err = err);
-            () => {}
+        var jsonResponse = <json>prepareRes;
+        if (jsonResponse is json) {
+            res.setJsonPayload(jsonResponse);
+            var resResult = conn->respond(res);
+            match resResult {
+                error err => log:printError("Sending response for prepare request for transaction " +
+                        transactionId + " failed", err = err);
+                () => {}
+            }
+        } else if (jsonResponse is error) {
+            panic jsonResponse;
         }
     }
 
@@ -140,13 +144,17 @@ service Participant2pcService bind coordinatorListener {
                 removeParticipatedTransaction(participatedTxnId);
             }
         }
-        json j = check <json>notifyRes;
-        res.setJsonPayload(j);
-        var resResult = conn->respond(res);
-        match resResult {
-            error err => log:printError("Sending response for notify request for transaction " + transactionId +
-                    " failed", err = err);
-            () => {}
+        var jsonResponse = <json>notifyRes;
+        if (jsonResponse is json) {
+            res.setJsonPayload(jsonResponse);
+            var resResult = conn->respond(res);
+            match resResult {
+                error err => log:printError("Sending response for notify request for transaction " + transactionId +
+                        " failed", err = err);
+                () => {}
+            }
+        } else if (jsonResponse is error) {
+            panic jsonResponse;
         }
     }
 }

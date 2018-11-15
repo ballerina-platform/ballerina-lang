@@ -286,7 +286,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else if (importPkgNode.orgName.value.equals(enclPackageID.orgName.value)) {
             // means it's in 'import <org-name>/<pkg-name>' style and <org-name> is used to import within same project
             orgName = names.fromIdNode(importPkgNode.orgName);
-            version = (Names.DEFAULT_VERSION.equals(enclPackageID.version)) ? new Name("") : enclPackageID.version;
+            // Here we set the version as empty due to the following cases:
+            // 1) Suppose the import is from the same package, then the project version will be set later
+            // 2) Suppose the import is from Ballerina Central or another project which has the same org, then the
+            //    version is set when loading the import module
+            version = new Name("");
         } else {
             // means it's in 'import <org-name>/<pkg-name>' style
             orgName = names.fromIdNode(importPkgNode.orgName);
@@ -794,7 +798,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Get the type of the associated type definition and set it as the type of the symbol. This is needed to
         // resolve the types of any type definition which uses the constant in type node.
         constantSymbol.type = constant.associatedTypeDefinition.symbol.type;
-        constantSymbol.value = (BLangLiteral) constant.value;
+        constantSymbol.literalValue = ((BLangLiteral) constant.value).value;
+        constantSymbol.literalValueTypeTag = ((BLangLiteral) constant.value).typeTag;
         constantSymbol.markdownDocumentation = getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
 
         // Note - constant.typeNode.type will be resolved in a `resolveConstantTypeNode()` later since at this
@@ -937,9 +942,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
 
             if (constant.typeNode != null) {
-                constant.symbol.valueType = symResolver.resolveTypeNode(constant.typeNode, env);
+                constant.symbol.literalValueType = symResolver.resolveTypeNode(constant.typeNode, env);
             } else {
-                constant.symbol.valueType = symTable.getTypeFromTag(constant.symbol.value.typeTag);
+                constant.symbol.literalValueType = symTable.getTypeFromTag(constant.symbol.literalValueTypeTag);
             }
 
             if (!isAllowedConstantType(constant.symbol)) {
@@ -949,7 +954,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private boolean isAllowedConstantType(BConstantSymbol symbol) {
-        switch (symbol.valueType.tag) {
+        switch (symbol.literalValueType.tag) {
             case TypeTags.BOOLEAN:
             case TypeTags.INT:
             case TypeTags.BYTE:
@@ -1070,7 +1075,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     Stream.concat(structureTypeNode.fields.stream(), structureTypeNode.referencedFields.stream())
                             .peek(field -> defineNode(field, typeDefEnv))
                             .filter(field -> field.symbol.type != symTable.semanticError) // filter out erroneous fields
-                            .map(field -> new BField(names.fromIdNode(field.name), field.symbol, field.expr != null))
+                            .map(field -> new BField(names.fromIdNode(field.name), field.symbol))
                             .collect(Collectors.toList());
 
             if (typeDef.symbol.kind != SymbolKind.RECORD) {
@@ -1489,7 +1494,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void createDummyTypeDefSymbol(BLangTypeDefinition typeDef, SymbolEnv env) {
         // This is only to keep the flow running so that at the end there will be proper semantic errors
         typeDef.symbol = Symbols.createTypeSymbol(SymTag.TYPE_DEF, Flags.asMask(typeDef.flagSet),
-                names.fromIdNode(typeDef.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
+                names.fromIdNode(typeDef.name), env.enclPkg.symbol.pkgID, symTable.semanticError, env.scope.owner);
         defineSymbol(typeDef.pos, typeDef.symbol, env);
     }
 

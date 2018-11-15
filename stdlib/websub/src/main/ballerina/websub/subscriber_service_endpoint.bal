@@ -80,7 +80,7 @@ public type Listener object {
 
 };
 
-function Listener::init(SubscriberServiceEndpointConfiguration c) {
+function Listener.init(SubscriberServiceEndpointConfiguration c) {
     self.config = c;
     http:ServiceEndpointConfiguration serviceConfig = {
         host: c.host, port: c.port, secureSocket: c.httpServiceSecureSocket
@@ -90,24 +90,24 @@ function Listener::init(SubscriberServiceEndpointConfiguration c) {
     self.initWebSubSubscriberServiceEndpoint();
 }
 
-function Listener::register(typedesc serviceType) {
+function Listener.register(typedesc serviceType) {
     self.registerWebSubSubscriberServiceEndpoint(serviceType);
 }
 
-function Listener::start() {
+function Listener.start() {
     self.startWebSubSubscriberServiceEndpoint();
     self.sendSubscriptionRequests();
 }
 
-function Listener::getCallerActions() returns http:Connection {
+function Listener.getCallerActions() returns http:Connection {
     return self.serviceEndpoint.getCallerActions();
 }
 
-function Listener::stop() {
+function Listener.stop() {
     self.serviceEndpoint.stop();
 }
 
-function Listener::sendSubscriptionRequests() {
+function Listener.sendSubscriptionRequests() {
     map[] subscriptionDetailsArray = self.retrieveSubscriptionParameters();
 
     foreach subscriptionDetails in subscriptionDetailsArray {
@@ -144,8 +144,18 @@ function Listener::sendSubscriptionRequests() {
                 var discoveredDetails = retrieveHubAndTopicUrl(resourceUrl, auth, newSecureSocket, followRedirects);
                 if (discoveredDetails is (string, string)) {
                     var (retHub, retTopic) = discoveredDetails;
-                    retHub = check http:decode(retHub, "UTF-8");
-                    retTopic = check http:decode(retTopic, "UTF-8");
+                    var hubDecodeResponse = http:decode(retHub, "UTF-8");
+                    if (hubDecodeResponse is string) {
+                        retHub = hubDecodeResponse;
+                    } else if (hubDecodeResponse is error) {
+                        panic hubDecodeResponse;
+                    }
+                    var topicDecodeResponse = http:decode(retTopic, "UTF-8");
+                    if (topicDecodeResponse is string) {
+                        retTopic = topicDecodeResponse;
+                    } else if (topicDecodeResponse is error) {
+                        panic topicDecodeResponse;
+                    }
                     subscriptionDetails["hub"] = retHub;
                     hub = retHub;
                     subscriptionDetails["topic"] = retTopic;

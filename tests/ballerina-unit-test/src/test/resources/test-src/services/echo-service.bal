@@ -52,16 +52,12 @@ service<http:Service> echo bind echoEP {
         http:Response res = new;
         string payloadData;
         var payload = req.getTextPayload();
-        match payload {
-            error err => {
-                done;
-            }
-            string s => {
-                payloadData = s;
-            }
+        if (payload is error) {
+            done;
+        } else if (payload is string) {
+            payloadData = payload;
         }
         serviceLevelStr = untaint payloadData;
-        //res.setStringPayload(res, serviceLevelStr);
         _ = conn -> respond(res);
     }
 
@@ -123,21 +119,18 @@ service<http:Service> echo bind echoEP {
         string name;
         string team;
         http:Response res = new;
-        match params {
-            map<string> p => {
-                if (p.hasKey("firstName")) {
-                    name = p.firstName;
-                }
-                if (p.hasKey("team")) {
-                    team = p.team;
-                }
-                json responseJson = {"Name":name , "Team":team};
-                res.setJsonPayload(untaint responseJson);
+        if (params is map<string>) {
+            if (params.hasKey("firstName")) {
+                name = params.firstName;
             }
-            error err => {
-                string errMsg = <string> err.detail().message;
-                res.setTextPayload(errMsg);
+            if (params.hasKey("team")) {
+                team = params.team;
             }
+            json responseJson = {"Name":name , "Team":team};
+            res.setJsonPayload(untaint responseJson);
+        } else if (params is error) {
+            string errMsg = <string> params.detail().message;
+            res.setTextPayload(errMsg);
         }
         _ = conn -> respond(res);
     }

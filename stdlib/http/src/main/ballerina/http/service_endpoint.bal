@@ -26,10 +26,10 @@
 # + protocol - The protocol associated with the service endpoint
 public type Listener object {
 
-    @readonly public Remote remote;
-    @readonly public Local local;
-    @readonly public string protocol;
-
+    @readonly public Remote remote = {};
+    @readonly public Local local = {};
+    @readonly public string protocol = "";
+    
     private Connection conn;
     private ServiceEndpointConfiguration config;
 
@@ -163,7 +163,7 @@ public const KEEPALIVE_ALWAYS = "ALWAYS";
 # Closes the connection irrespective of the `connection` header value }
 public const KEEPALIVE_NEVER = "NEVER";
 
-function Listener::init (ServiceEndpointConfiguration c) {
+function Listener.init (ServiceEndpointConfiguration c) {
     self.config = c;
     var err = self.initEndpoint();
     if (err is error) {
@@ -226,7 +226,10 @@ public type WebSocketListener object {
     # Stops the registered service.
     public function stop() {
         WebSocketConnector webSocketConnector = self.getCallerActions();
-        check webSocketConnector.close(statusCode = 1001, reason = "going away", timeoutInSecs = 0);
+        var closeResult = webSocketConnector.close(statusCode = 1001, reason = "going away", timeoutInSecs = 0);
+        if (closeResult is error) {
+            panic closeResult;
+        }
         self.httpEndpoint.stop();
     }
 };

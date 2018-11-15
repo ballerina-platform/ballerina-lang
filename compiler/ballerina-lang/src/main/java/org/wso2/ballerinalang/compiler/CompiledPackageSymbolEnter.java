@@ -604,8 +604,7 @@ public class CompiledPackageSymbolEnter {
         UnresolvedType unresolvedFieldType = new UnresolvedType(typeSig, type -> {
             varSymbol.type = type;
             varSymbol.varIndex = new RegIndex(memIndex, type.tag);
-            BField structField = new BField(varSymbol.name,
-                    varSymbol, varSymbol.defaultValue != null);
+            BField structField = new BField(varSymbol.name, varSymbol);
             objectType.fields.add(structField);
         });
 
@@ -671,7 +670,10 @@ public class CompiledPackageSymbolEnter {
         setDocumentation(constantSymbol, attrDataMap);
 
         // Read value of the constant and set it in the symbol.
-        constantSymbol.value = getConstantValue(attrDataMap);
+        BLangLiteral constantValue = getConstantValue(attrDataMap);
+        constantSymbol.literalValue = constantValue.value;
+        constantSymbol.literalValueType = constantValue.type;
+        constantSymbol.literalValueTypeTag = constantValue.typeTag;
     }
 
     private BLangLiteral getConstantValue(Map<Kind, byte[]> attrDataMap) throws IOException {

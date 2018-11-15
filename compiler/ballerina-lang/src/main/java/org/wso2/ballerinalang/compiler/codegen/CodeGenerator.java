@@ -516,11 +516,9 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangResource resourceNode) {
-        ResourceInfo resourceInfo = currentServiceInfo.resourceInfoMap.get(resourceNode.name.getValue());
-        currentCallableUnitInfo = resourceInfo;
-
         SymbolEnv resourceEnv = SymbolEnv
                 .createResourceActionSymbolEnv(resourceNode, resourceNode.symbol.scope, this.env);
+        currentCallableUnitInfo = currentServiceInfo.resourceInfoMap.get(resourceNode.name.getValue());
         visitInvokableNode(resourceNode, currentCallableUnitInfo, resourceEnv);
     }
 
@@ -2070,13 +2068,19 @@ public class CodeGenerator extends BLangNodeVisitor {
         BConstantSymbol constantSymbol = constant.symbol;
         int constantNameCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.name.value);
         int finiteTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.type.getDesc());
-        int valueTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.valueType.getDesc());
+        int valueTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.literalValueType.getDesc());
 
         ConstantInfo constantInfo = new ConstantInfo(constantNameCPIndex, finiteTypeSigCPIndex, valueTypeSigCPIndex,
                 constantSymbol.flags);
         currentPkgInfo.constantInfoMap.put(constantSymbol.name.value, constantInfo);
 
-        DefaultValueAttributeInfo value = getDefaultValueAttributeInfo(constantSymbol.value);
+        BLangLiteral literal = new BLangLiteral();
+        literal.pos = constant.pos;
+        literal.value = ((BLangLiteral) constant.value).value;
+        literal.type = ((BLangLiteral) constant.value).type;
+        literal.typeTag = ((BLangLiteral) constant.value).typeTag;
+
+        DefaultValueAttributeInfo value = getDefaultValueAttributeInfo(literal);
         constantInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, value);
 
         // Add documentation attributes.
@@ -2393,9 +2397,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         ResourceInfo resourceInfo = new ResourceInfo(currentPackageRefCPIndex, serviceNameCPIndex);
         resourceInfo.paramTypes = resourceType.paramTypes.toArray(new BType[0]);
         setParameterNames(resourceNode, resourceInfo);
-        resourceInfo.retParamTypes = new BType[0];
+        resourceInfo.retParamTypes = new BType[1];
+        resourceInfo.retParamTypes[0] = resourceNode.symbol.retType;
         resourceInfo.signatureCPIndex = addUTF8CPEntry(currentPkgInfo,
-                generateFunctionSig(resourceInfo.paramTypes));
+                generateFunctionSig(resourceInfo.paramTypes, resourceNode.symbol.retType));
         // Add worker info
         int workerNameCPIndex = addUTF8CPEntry(currentPkgInfo, "default");
         resourceInfo.defaultWorkerInfo = new WorkerInfo(workerNameCPIndex, "default");

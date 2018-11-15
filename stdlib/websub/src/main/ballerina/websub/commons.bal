@@ -74,7 +74,7 @@ const string ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "SubscriberServiceConfi
 const string WEBSUB_MODULE_NAME = "ballerina/websub";
 
 # The constant used to represent error code of WebSub module.
-@final public string WEBSUB_ERROR_CODE = "{ballerina/websub}WebSubError";
+public const string WEBSUB_ERROR_CODE = "{ballerina/websub}WebSubError";
 
 # The identifier to be used to identify the mode in which update content should be identified.
 public type RemotePublishMode PUBLISH_MODE_DIRECT|PUBLISH_MODE_FETCH;
@@ -114,11 +114,11 @@ public const TOPIC_ID_HEADER_AND_PAYLOAD = "TOPIC_ID_HEADER_AND_PAYLOAD";
 # + request - The HTTP request received for intent verification
 public type IntentVerificationRequest object {
 
-    public string mode;
-    public string topic;
-    public string challenge;
-    public int leaseSeconds;
-    public http:Request request;
+    public string mode = "";
+    public string topic = "";
+    public string challenge = "";
+    public int leaseSeconds = 0;
+    public http:Request request = new;
 
     # Builds the response for the request, verifying intention to subscribe, if the topic matches that expected.
     #
@@ -134,13 +134,13 @@ public type IntentVerificationRequest object {
 
 };
 
-function IntentVerificationRequest::buildSubscriptionVerificationResponse(string expectedTopic)
+function IntentVerificationRequest.buildSubscriptionVerificationResponse(string expectedTopic)
     returns http:Response {
 
     return buildIntentVerificationResponse(self, MODE_SUBSCRIBE, expectedTopic);
 }
 
-function IntentVerificationRequest::buildUnsubscriptionVerificationResponse(string expectedTopic)
+function IntentVerificationRequest.buildUnsubscriptionVerificationResponse(string expectedTopic)
     returns http:Response {
 
     return buildIntentVerificationResponse(self, MODE_UNSUBSCRIBE, expectedTopic);
@@ -548,12 +548,12 @@ public type WebSubHub object {
     public extern function getSubscribers(string topic) returns SubscriberDetails[];
 };
 
-function WebSubHub::stop() returns boolean {
+function WebSubHub.stop() returns boolean {
     self.hubServiceEndpoint.stop();
     return stopHubService(self.hubUrl);
 }
 
-function WebSubHub::publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
+function WebSubHub.publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
                                   string? contentType = ()) returns error? {
     if (self.hubUrl == "") {
         map errorDetail = { message : "Internal Ballerina Hub not initialized or incorrectly referenced" };
@@ -586,7 +586,7 @@ function WebSubHub::publishUpdate(string topic, string|xml|json|byte[]|io:Readab
     return validateAndPublishToInternalHub(self.hubUrl, topic, content);
 }
 
-function WebSubHub::registerTopic(string topic) returns error? {
+function WebSubHub.registerTopic(string topic) returns error? {
     if (!hubTopicRegistrationRequired) {
         map errorDetail = { message : "Internal Ballerina Hub not initialized or incorrectly referenced" };
         error e = error(WEBSUB_ERROR_CODE, errorDetail);
@@ -595,7 +595,7 @@ function WebSubHub::registerTopic(string topic) returns error? {
     return registerTopicAtHub(topic);
 }
 
-function WebSubHub::unregisterTopic(string topic) returns error? {
+function WebSubHub.unregisterTopic(string topic) returns error? {
     if (!hubTopicRegistrationRequired) {
         map errorDetail = { message : "Remote topic unregistration not allowed/not required at the Hub" };
         error e = error(WEBSUB_ERROR_CODE, errorDetail);
@@ -640,9 +640,12 @@ function retrieveSubscriberServiceAnnotations(typedesc serviceType) returns Subs
     reflect:annotationData[] annotationDataArray = reflect:getServiceAnnotations(serviceType);
     foreach annData in annotationDataArray {
         if (annData.name == ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG && annData.moduleName == WEBSUB_MODULE_NAME) {
-            SubscriberServiceConfiguration subscriberServiceAnnotation =
-                                                            check <SubscriberServiceConfiguration> (annData.value);
-            return subscriberServiceAnnotation;
+            var subscriberServiceAnnotation = <SubscriberServiceConfiguration> (annData.value);
+            if (subscriberServiceAnnotation is SubscriberServiceConfiguration) {
+                return subscriberServiceAnnotation;
+            } else if (subscriberServiceAnnotation is error) {
+                panic subscriberServiceAnnotation;
+            }
         }
     }
     return;

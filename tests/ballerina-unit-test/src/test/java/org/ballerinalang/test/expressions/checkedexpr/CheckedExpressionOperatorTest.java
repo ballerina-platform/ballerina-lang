@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -57,22 +58,30 @@ public class CheckedExpressionOperatorTest {
     public void testSafeAssignmentBasics2() {
         BValue[] returns = BRunUtil.invoke(result, "testSafeAssignmentBasics2", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BMap.class);
-        BMap<String, BValue> errorStruct = (BMap) returns[0];
-        Assert.assertEquals(errorStruct.get(ERROR_MESSAGE_FIELD).stringValue(),
-                "file not found error: /home/sameera/bar.txt", "Invalid error message value returned.");
+        Assert.assertSame(returns[0].getClass(), BError.class);
+        BError errorStruct = (BError) returns[0];
+        Assert.assertEquals(errorStruct.getReason(), "file not found error: /home/sameera/bar.txt",
+                "Invalid error message value returned.");
     }
 
-    @Test(description = "Test basics of safe assignment statement", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: error, message: file not found error: /home/sameera/bar.txt.*")
+    @Test(description = "Test basics of safe assignment statement")
     public void testSafeAssignmentBasics3() {
-        BRunUtil.invoke(result, "testSafeAssignmentBasics3", new BValue[]{});
+        BValue[] returns = BRunUtil.invoke(result, "testSafeAssignmentBasics3", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BError.class);
+        BError errorStruct = (BError) returns[0];
+        Assert.assertEquals(errorStruct.getReason(), "file not found error: /home/sameera/bar.txt",
+                "Invalid error message value returned.");
     }
 
-    @Test(description = "Test basics of safe assignment statement", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: error, message: file not found error: /home/sameera/bar.txt.*")
+    @Test(description = "Test basics of safe assignment statement")
     public void testSafeAssignmentBasics4() {
-        BRunUtil.invoke(result, "testSafeAssignmentBasics4", new BValue[]{});
+        BValue[] returns = BRunUtil.invoke(result, "testSafeAssignmentBasics4", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BError.class);
+        BError errorStruct = (BError) returns[0];
+        Assert.assertEquals(errorStruct.getReason(), "file not found error: /home/sameera/bar.txt",
+                "Invalid error message value returned.");
     }
 
     @Test(description = "Test basics of safe assignment statement")
@@ -87,10 +96,10 @@ public class CheckedExpressionOperatorTest {
     public void testSafeAssignOpInAssignmentStatement2() {
         BValue[] returns = BRunUtil.invoke(result, "testSafeAssignOpInAssignmentStatement2", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BMap.class);
-        BMap<String, BValue> errorStruct = (BMap) returns[0];
-        Assert.assertEquals(errorStruct.get(ERROR_MESSAGE_FIELD).stringValue(),
-                "file not found error: /home/sameera/foo.txt", "Invalid error message value returned.");
+        Assert.assertSame(returns[0].getClass(), BError.class);
+        BError errorStruct = (BError) returns[0];
+        Assert.assertEquals(errorStruct.getReason(), "file not found error: /home/sameera/foo.txt",
+                "Invalid error message value returned.");
     }
 
     @Test(description = "Test basics of safe assignment statement")
@@ -110,10 +119,14 @@ public class CheckedExpressionOperatorTest {
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true, "Invalid boolean value returned.");
     }
 
-    @Test(description = "Test basics of safe assignment statement", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: error, message: file not found error: /home/sameera/bar.txt.*")
+    @Test(description = "Test basics of safe assignment statement")
     public void testSafeAssignOpInAssignmentStatement5() {
-        BRunUtil.invoke(result, "testSafeAssignOpInAssignmentStatement5", new BValue[]{});
+        BValue[] returns = BRunUtil.invoke(result, "testSafeAssignOpInAssignmentStatement5", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BError.class);
+        BError errorStruct = (BError) returns[0];
+        Assert.assertEquals(errorStruct.getReason(), "file not found error: /home/sameera/bar.txt",
+                "Invalid error message value returned.");
     }
 
     @Test(description = "Test basics of safe assignment statement")
@@ -136,20 +149,18 @@ public class CheckedExpressionOperatorTest {
     public void testCheckExprInBinaryExpr1() {
         BValue[] returns = BRunUtil.invoke(result, "testCheckExprInBinaryExpr1", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BMap.class);
-        BMap<String, BValue> errorStruct = (BMap) returns[0];
-        Assert.assertEquals(errorStruct.get(ERROR_MESSAGE_FIELD).stringValue(),
-                "io error", "Invalid error message value returned.");
+        Assert.assertSame(returns[0].getClass(), BError.class);
+        BError errorStruct = (BError) returns[0];
+        Assert.assertEquals(errorStruct.getReason(), "io error", "Invalid error message value returned.");
     }
 
     @Test(description = "Test basics of safe assignment statement")
     public void testCheckExprInBinaryExpr2() {
         BValue[] returns = BRunUtil.invoke(result, "testCheckExprInBinaryExpr2", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BMap.class);
-        BMap<String, BValue> errorStruct = (BMap) returns[0];
-        Assert.assertEquals(errorStruct.get(ERROR_MESSAGE_FIELD).stringValue(),
-                "io error", "Invalid error message value returned.");
+        Assert.assertSame(returns[0].getClass(), BError.class);
+        BError errorStruct = (BError) returns[0];
+        Assert.assertEquals(errorStruct.getReason(), "io error", "Invalid error message value returned.");
     }
 
     @Test(description = "Test basics of safe assignment statement")
@@ -160,32 +171,38 @@ public class CheckedExpressionOperatorTest {
         Assert.assertEquals(returns[0].stringValue(), "hello, Ballerina", "Invalid string value returned.");
     }
 
-    @Test(description = "Test basics of safe assignment statement", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: myerror, message: io error.*")
+    @Test(description = "Test basics of safe assignment statement")
     public void testCheckExprInBinaryExpr4() {
-        BRunUtil.invoke(result, "testCheckExprInBinaryExpr4", new BValue[]{});
+        BValue[] returns = BRunUtil.invoke(result, "testCheckExprInBinaryExpr4", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BError.class);
+        BError errorStruct = (BError) returns[0];
+        Assert.assertEquals(errorStruct.getReason(), "io error", "Invalid error message value returned.");
     }
 
-    @Test(description = "Test basics of safe assignment statement", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: myerror, message: io error.*")
+    @Test(description = "Test basics of safe assignment statement")
     public void testCheckExprInBinaryExpr5() {
-        BRunUtil.invoke(result, "testCheckExprInBinaryExpr5", new BValue[]{});
+        BValue[] returns = BRunUtil.invoke(result, "testCheckExprInBinaryExpr5", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BError.class);
+        BError errorStruct = (BError) returns[0];
+        Assert.assertEquals(errorStruct.getReason(), "io error", "Invalid error message value returned.");
     }
 
     @Test(description = "Test basics of safe assignment statement")
     public void testCheckExprInBinaryExpr6() {
         BValue[] returns = BRunUtil.invoke(result, "testCheckExprInBinaryExpr6", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BMap.class);
-        BMap<String, BValue> errorStruct = (BMap) returns[0];
-        Assert.assertEquals(errorStruct.get(ERROR_MESSAGE_FIELD).stringValue(),
-                "custom io error", "Invalid error message value returned.");
-        Assert.assertEquals(errorStruct.get(ERROR_DATA_FIELD).stringValue(),
-                "foo.txt", "Invalid error message value returned.");
+        Assert.assertSame(returns[0].getClass(), BError.class);
+        BError errorStruct = (BError) returns[0];
+        Assert.assertEquals(errorStruct.getReason(), "custom io error", "Invalid error message value returned.");
+        BMap<String, BValue> errorDetails = (BMap<String, BValue>) errorStruct.getDetails();
+        Assert.assertEquals(errorDetails.get(ERROR_DATA_FIELD).stringValue(), "foo.txt",
+                "Invalid error message value returned.");
     }
 
     @Test(description = "Test basics of safe assignment statement", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: myerror, message: io error.*")
+            expectedExceptionsMessageRegExp = ".*error: io error.*")
     public void testCheckExprInBinaryExpr7() {
         BRunUtil.invoke(result, "testCheckExprInBinaryExpr7", new BValue[]{});
     }
@@ -237,5 +254,12 @@ public class CheckedExpressionOperatorTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test service resource that returns an error containing check expression")
+    public void testSemanticErrorsWithResources() {
+        CompileResult compile = BCompileUtil.compile(
+                "test-src/expressions/checkedexpr/checked_expr_within_resource.bal");
+        Assert.assertEquals(compile.getErrorCount(), 0);
     }
 }

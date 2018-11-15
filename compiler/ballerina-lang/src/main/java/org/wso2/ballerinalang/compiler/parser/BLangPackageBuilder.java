@@ -487,10 +487,8 @@ public class BLangPackageBuilder {
 
         if (isOptional) {
             field.flagSet.add(Flag.OPTIONAL);
-        }
-
-        if (exprAvailable) {
-            field.flagSet.add(Flag.DEFAULTABLE);
+        } else if (!exprAvailable) {
+            field.flagSet.add(Flag.REQUIRED);
         }
     }
 
@@ -2658,7 +2656,7 @@ public class BLangPackageBuilder {
     }
 
     void endResourceDef(DiagnosticPos pos, Set<Whitespace> ws, String resourceName, boolean markdownDocPresent,
-                        boolean isDeprecated, boolean hasParameters) {
+                        boolean isDeprecated, boolean hasParameters, boolean hasRetParameter) {
         BLangResource resourceNode = (BLangResource) invokableNodeStack.pop();
         endEndpointDeclarationScope();
         resourceNode.pos = pos;
@@ -2685,11 +2683,20 @@ public class BLangPackageBuilder {
         }
 
         // Set the return type node
-        BLangValueType nillTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
-        nillTypeNode.pos = pos;
-        nillTypeNode.typeKind = TypeKind.NIL;
-        resourceNode.returnTypeNode = nillTypeNode;
-
+        BLangType returnTypeNode;
+        if (hasRetParameter) {
+            BLangVariable varNode = (BLangVariable) this.varStack.pop();
+            returnTypeNode = varNode.getTypeNode();
+            // set returns keyword to invocation node.
+            resourceNode.addWS(varNode.getWS());
+            varNode.getAnnotationAttachments().forEach(resourceNode::addReturnTypeAnnotationAttachment);
+        } else {
+            BLangValueType nillTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
+            nillTypeNode.pos = pos;
+            nillTypeNode.typeKind = TypeKind.NIL;
+            returnTypeNode = nillTypeNode;
+        }
+        resourceNode.setReturnTypeNode(returnTypeNode);
         serviceNodeStack.peek().addResource(resourceNode);
     }
 

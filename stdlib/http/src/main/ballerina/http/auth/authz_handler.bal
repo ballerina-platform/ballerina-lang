@@ -62,7 +62,7 @@ public type HttpAuthzHandler object {
     function cacheAuthzResult (string authzCacheKey, boolean authorized);
 };
 
-function HttpAuthzHandler::handle (string username, string serviceName, string resourceName, string method,
+function HttpAuthzHandler.handle (string username, string serviceName, string resourceName, string method,
                                                                                     string[] scopes) returns (boolean) {
     // first, check in the cache. cache key is <username>-<resource>-<http method>,
     // since different resources can have different scopes
@@ -122,19 +122,29 @@ function checkForScopeMatch (string[] resourceScopes, string[] userScopes, strin
     return authorized;
 }
 
-function HttpAuthzHandler::authorizeFromCache(string authzCacheKey) returns (boolean|()) {
+function HttpAuthzHandler.authorizeFromCache(string authzCacheKey) returns (boolean|()) {
     var positiveCache = trap self.positiveAuthzCache;
     if (positiveCache is cache:Cache) {
-        return check <boolean> positiveCache.get(authzCacheKey);
+        var cacheResponse = <boolean> positiveCache.get(authzCacheKey);
+        if (cacheResponse is boolean) {
+            return cacheResponse;
+        } else {
+            return false;
+        }
     }
     var negativeCache =  trap self.negativeAuthzCache;
     if (negativeCache is cache:Cache) {
-        return check <boolean> negativeCache.get(authzCacheKey);
+        var cacheResponse = <boolean> negativeCache.get(authzCacheKey);
+        if (cacheResponse is boolean) {
+            return cacheResponse;
+        } else {
+            return false;
+        }
     }
     return ();
 }
 
-function HttpAuthzHandler::cacheAuthzResult (string authzCacheKey, boolean authorized) {
+function HttpAuthzHandler.cacheAuthzResult (string authzCacheKey, boolean authorized) {
     if (authorized) {
         var cache = self.positiveAuthzCache;
         if (cache is cache:Cache) {
@@ -165,7 +175,7 @@ function matchScopes (string[] scopesOfResource, string[] scopesForRequest) retu
     return false;
 }
 
-function HttpAuthzHandler::canHandle (Request req) returns (boolean) {
+function HttpAuthzHandler.canHandle (Request req) returns (boolean) {
     if (runtime:getInvocationContext().userPrincipal.username.length() == 0) {
         log:printError("Username not set in auth context. Unable to authorize");
         return false;

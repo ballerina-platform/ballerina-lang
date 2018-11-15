@@ -21,8 +21,8 @@
 # + failoverClientConfig - The configurations for the failover client endpoint
 public type FailoverClient object {
 
-    public string epName;
-    public FailoverClientEndpointConfiguration failoverClientConfig;
+    public string epName = "";
+    public FailoverClientEndpointConfiguration failoverClientConfig = {};
 
     private Client httpEP = new;
 
@@ -35,7 +35,10 @@ public type FailoverClient object {
     #
     # + return - The HTTP failover actions associated with the endpoint
     public function getCallerActions() returns FailoverActions {
-        return check <FailoverActions> self.httpEP.httpClient;
+        match (<FailoverActions> self.httpEP.httpClient) {
+            error err => panic err;
+            FailoverActions failoverActions => return failoverActions;
+        }
     }
 };
 
@@ -77,7 +80,7 @@ public type FailoverClientEndpointConfiguration record {
     !...
 };
 
-function FailoverClient::init(FailoverClientEndpointConfiguration foClientConfig) {
+function FailoverClient.init(FailoverClientEndpointConfiguration foClientConfig) {
     self.httpEP.httpClient = createFailOverClient(foClientConfig);
     self.httpEP.config.circuitBreaker = foClientConfig.circuitBreaker;
     self.httpEP.config.timeoutMillis = foClientConfig.timeoutMillis;

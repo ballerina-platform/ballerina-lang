@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -77,6 +78,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
@@ -168,6 +170,8 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -196,6 +200,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private Names names;
     private Map<BSymbol, InitStatus> uninitializedVars;
     private boolean flowTerminated = false;
+    private BLangAnonymousModelHelper anonymousModelHelper;
 
     private static final CompilerContext.Key<DataflowAnalyzer> DATAFLOW_ANALYZER_KEY = new CompilerContext.Key<>();
 
@@ -205,6 +210,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.names = Names.getInstance(context);
+        this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
     }
 
     public static DataflowAnalyzer getInstance(CompilerContext context) {
@@ -319,16 +325,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangAssignment assignment) {
         analyzeNode(assignment.expr, env);
-
-        if (assignment.varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF &&
-                assignment.varRef.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR &&
-                assignment.varRef.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR &&
-                assignment.varRef.getKind() != NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
-            return;
-        }
-
-        BLangVariableReference varRefExpr = (BLangVariableReference) assignment.varRef;
-        this.uninitializedVars.remove(varRefExpr.symbol);
+        checkAssignment(assignment.varRef);
     }
 
     @Override
@@ -430,6 +427,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTupleDestructure stmt) {
         analyzeNode(stmt.expr, env);
+        checkAssignment(stmt.varRef);
     }
 
     @Override
@@ -480,21 +478,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
-        InitStatus initStatus = this.uninitializedVars.get(varRefExpr.symbol);
-        if (initStatus == null) {
-            return;
-        }
-
-        if (initStatus == InitStatus.UN_INIT) {
-            this.dlog.error(varRefExpr.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varRefExpr.symbol.name);
-            return;
-        }
-
-        this.dlog.error(varRefExpr.pos, DiagnosticCode.PARTIALLY_INITIALIZED_VARIABLE, varRefExpr.symbol.name);
+        checkVarRef(varRefExpr.symbol, varRefExpr.pos);
     }
 
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
+        if (!fieldAccessExpr.lhsVar && isObjectMemberAccess(fieldAccessExpr)) {
+            checkVarRef(fieldAccessExpr.symbol, fieldAccessExpr.pos);
+        }
         analyzeNode(fieldAccessExpr.expr, env);
     }
 
@@ -838,7 +829,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
             // Body should be visited after the params
             objectTypeNode.initFunction.body.stmts.forEach(statement -> analyzeNode(statement, objectEnv));
+        }
 
+        if (!anonymousModelHelper.isAnonymousType(objectTypeNode.symbol) &&
+                !Symbols.isFlagOn(objectTypeNode.symbol.flags, Flags.ABSTRACT)) {
             objectTypeNode.fields.stream().filter(field -> !Symbols.isPrivate(field.symbol)).forEach(field -> {
                 if (this.uninitializedVars.containsKey(field.symbol)) {
                     this.dlog.error(field.pos, DiagnosticCode.OBJECT_UNINITIALIZED_FIELD, field.name);
@@ -848,7 +842,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         objectTypeNode.functions.forEach(function -> analyzeNode(function, env));
     }
-
+    
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
     }
@@ -933,7 +927,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangErrorType errorType) {
     }
 
-
     @Override
     public void visit(BLangAction actionNode) {
     }
@@ -946,6 +939,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordDestructure recordDestructure) {
         analyzeNode(recordDestructure.expr, env);
+        checkAssignment(recordDestructure.varRef);
     }
 
     @Override
@@ -963,6 +957,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleVariableDef bLangTupleVariableDef) {
+        BLangVariable var = bLangTupleVariableDef.var;
+        if (var.expr == null) {
+            addUninitializedVar(var);
+            return;
+        }
     }
 
     @Override
@@ -971,6 +970,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordVariableDef bLangRecordVariableDef) {
+        BLangVariable var = bLangRecordVariableDef.var;
+        if (var.expr == null) {
+            addUninitializedVar(var);
+            return;
+        }
     }
 
     @Override
@@ -1052,6 +1056,44 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
                             return InitStatus.UN_INIT;
                         }));
+    }
+
+    private void checkVarRef(BSymbol symbol, DiagnosticPos pos) {
+        InitStatus initStatus = this.uninitializedVars.get(symbol);
+        if (initStatus == null) {
+            return;
+        }
+
+        if (initStatus == InitStatus.UN_INIT) {
+            this.dlog.error(pos, DiagnosticCode.UNINITIALIZED_VARIABLE, symbol.name);
+            return;
+        }
+
+        this.dlog.error(pos, DiagnosticCode.PARTIALLY_INITIALIZED_VARIABLE, symbol.name);
+    }
+
+    private boolean isObjectMemberAccess(BLangFieldBasedAccess fieldAccessExpr) {
+        if (fieldAccessExpr.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+            return false;
+        }
+        return Names.SELF.value.equals(((BLangSimpleVarRef) fieldAccessExpr.expr).variableName.value);
+    }
+
+    private void checkAssignment(BLangExpression varRef) {
+        if (varRef.getKind() == NodeKind.RECORD_VARIABLE_REF) {
+            ((BLangRecordVarRef) varRef).recordRefFields.forEach(field -> checkAssignment(field.variableReference));
+            return;
+        } else if (varRef.getKind() == NodeKind.TUPLE_VARIABLE_REF) {
+            ((BLangTupleVarRef) varRef).expressions.forEach(expr -> checkAssignment(expr));
+            return;
+        } else if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF &&
+                varRef.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR &&
+                varRef.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR &&
+                varRef.getKind() != NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
+            return;
+        }
+
+        this.uninitializedVars.remove(((BLangVariableReference) varRef).symbol);
     }
 
     private void terminateFlow() {

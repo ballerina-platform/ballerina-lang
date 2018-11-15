@@ -23,7 +23,7 @@ import ballerina/log;
 public type TopicSubscriber object {
 
     public TopicSubscriberActions consumerActions = new;
-    public TopicSubscriberEndpointConfiguration config;
+    public TopicSubscriberEndpointConfiguration config = {};
 
     # Initialize topic subscriber endpoint
     #
@@ -95,7 +95,7 @@ public type TopicSubscriberEndpointConfiguration record {
 # + topicSubscriber - JMS topic subscriber
 public type TopicSubscriberActions object {
 
-    public TopicSubscriber? topicSubscriber;
+    public TopicSubscriber? topicSubscriber = ();
 
     # Acknowledges a received message
     #
@@ -117,7 +117,7 @@ public type TopicSubscriberActions object {
     public function receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|error)?;
 };
 
-function TopicSubscriberActions::receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|
+function TopicSubscriberActions.receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|
         error)? {
     match (self.topicSubscriber) {
         TopicSubscriber topicSubscriber => {

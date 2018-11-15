@@ -274,6 +274,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 literalType = symTable.decimalType;
                 literalExpr.value = String.valueOf(literalValue);
             } else if (TypeTags.FLOAT == expType.tag || TypeTags.FINITE == expType.tag) {
+                // Todo - Remove above finite check after it is fixed for decimal types.
                 literalExpr.value = Double.parseDouble(String.valueOf(literalValue));
             }
         }
@@ -492,10 +493,8 @@ public class TypeChecker extends BLangNodeVisitor {
                     .anyMatch(keyVal -> field.name.value
                             .equals(((BLangSimpleVarRef) keyVal.key.expr).variableName.value));
 
-            // If a required field is missing and it's not defaultable, it's a compile error
-            if (!hasField && !Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
-                    (!types.defaultValueExists(pos, field.type) &&
-                            !Symbols.isFlagOn(field.symbol.flags, Flags.DEFAULTABLE))) {
+            // If a required field is missing, it's a compile error
+            if (!hasField && Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)) {
                 dlog.error(pos, DiagnosticCode.MISSING_REQUIRED_RECORD_FIELD, field.name);
             }
         });
@@ -582,13 +581,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 varRefExpr.symbol = symbol;
             } else if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
                 varRefExpr.symbol = symbol;
-                BConstantSymbol constantSymbol = (BConstantSymbol) symbol;
-                if (types.isAssignable(constantSymbol.type, expType)) {
-                    actualType = constantSymbol.type;
-                } else if (types.isAssignable(constantSymbol.valueType, expType)) {
-                    actualType = constantSymbol.valueType;
+                if (types.isAssignable(symbol.type, expType)) {
+                    actualType = symbol.type;
                 } else {
-                    actualType = constantSymbol.valueType;
+                    actualType = ((BConstantSymbol) symbol).literalValueType;
                 }
             } else {
                 dlog.error(varRefExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, varName.toString());
@@ -619,7 +615,7 @@ public class TypeChecker extends BLangNodeVisitor {
             }
             fields.add(new BField(names.fromIdNode(recordRefField.variableName),
                     new BVarSymbol(0, names.fromIdNode(recordRefField.variableName),
-                            env.enclPkg.symbol.pkgID, bVarSymbol.type, recordSymbol), false));
+                            env.enclPkg.symbol.pkgID, bVarSymbol.type, recordSymbol)));
         }
 
         if (varRefExpr.restParam != null) {

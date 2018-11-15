@@ -34,7 +34,7 @@ type Student record {
 
 string var1 = 'abcd;
 
-public string var2;
+public string var2 = "";
 
 public string var3 = 'efgh;
 

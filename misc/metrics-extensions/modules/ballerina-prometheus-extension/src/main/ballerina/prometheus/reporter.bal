@@ -59,7 +59,7 @@ service<http:Service> PrometheusReporter bind prometheusListener {
             payload += generateMetricHelp(metricReportName, metric.desc);
             payload += generateMetricInfo(metricReportName, metric.metricType);
             payload += generateMetric(metricReportName, metric.tags, metric.value);
-            if (metric.metricType.equalsIgnoreCase(METRIC_TYPE_GAUGE) && metric.summary != null){
+            if (metric.metricType.equalsIgnoreCase(METRIC_TYPE_GAUGE) && metric.summary !== ()){
                 map<string> tags = metric.tags;
                 observe:Snapshot[]? summaries = metric.summary;
                 match summaries {

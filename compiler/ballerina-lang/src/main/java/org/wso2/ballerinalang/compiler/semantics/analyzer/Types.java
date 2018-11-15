@@ -19,13 +19,10 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
-import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -68,7 +65,6 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -240,27 +236,6 @@ public class Types {
         return isAssignable(source, target, new ArrayList<>());
     }
 
-    /**
-     * Recursively checks whether the given literal can be assigned to the given type.
-     *
-     * @param target  target type
-     * @param literal literal to check
-     * @return true if the literal can be assigned to the type, false otherwise.
-     */
-    public boolean isAssignable(BType target, BLangLiteral literal) {
-        if (target.tag == TypeTags.FINITE) {
-            return isAssignableToFiniteType(target, literal);
-        }
-        if (target.tag == TypeTags.UNION) {
-            for (BType memberType : ((BUnionType) target).memberTypes) {
-                if (isAssignable(memberType, literal)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     private boolean isAssignable(BType source, BType target, List<TypePair> unresolvedTypes) {
         if (isSameType(source, target)) {
             return true;
@@ -307,12 +282,8 @@ public class Types {
 
         // Check whether the source is a proper sub set of the target.
         if (source.tag == TypeTags.FINITE && target.tag == TypeTags.FINITE) {
-            BFiniteType finiteType = (BFiniteType) source;
-            boolean isAssignable = finiteType.valueSpace.stream()
+            return ((BFiniteType) source).valueSpace.stream()
                     .allMatch(expression -> isAssignableToFiniteType(target, (BLangLiteral) expression));
-            if (isAssignable) {
-                return true;
-            }
         }
 
         if (target.tag == TypeTags.JSON) {
@@ -1417,106 +1388,6 @@ public class Types {
         return !notAssignable;
     }
 
-    /**
-     * Check whether a given type has a default value.
-     * i.e: A variable of the given type can be initialized without a rhs expression.
-     * eg: foo x;
-     *
-     * @param pos position of the variable.
-     * @param type Type to check the existence if a default value
-     * @return Flag indicating whether the given type has a default value
-     */
-    public boolean defaultValueExists(DiagnosticPos pos, BType type) {
-        if (type.tag == TypeTags.ERROR) {
-            return false;
-        }
-        if (type.tsymbol != null && Symbols.isFlagOn(type.tsymbol.flags, Flags.DEFAULTABLE)) {
-            return true;
-        }
-
-        if (typeStack.contains(type)) {
-            dlog.error(pos, DiagnosticCode.CYCLIC_TYPE_REFERENCE, typeStack);
-            return false;
-        }
-        typeStack.add(type);
-
-        boolean result;
-
-        if (type.tsymbol == null) {
-            result = checkDefaultable(pos, type);
-            typeStack.pop();
-            return result;
-        }
-
-        if ((type.tsymbol.flags & Flags.DEFAULTABLE_CHECKED) == Flags.DEFAULTABLE_CHECKED) {
-            result = (type.tsymbol.flags & Flags.DEFAULTABLE) == Flags.DEFAULTABLE;
-            typeStack.pop();
-            if (result) {
-                type.tsymbol.flags |= Flags.DEFAULTABLE;
-            }
-            return result;
-        }
-        if (checkDefaultable(pos, type)) {
-            type.tsymbol.flags |= Flags.asMask(EnumSet.of(Flag.DEFAULTABLE_CHECKED, Flag.DEFAULTABLE));
-            typeStack.pop();
-            return true;
-        }
-        type.tsymbol.flags |= Flags.asMask(EnumSet.of(Flag.DEFAULTABLE_CHECKED));
-        typeStack.pop();
-        return false;
-    }
-
-    private boolean checkDefaultable(DiagnosticPos pos, BType type) {
-        if (type.isNullable()) {
-            return true;
-        }
-
-        if (type.tag == TypeTags.OBJECT || type.tag == TypeTags.RECORD) {
-            BStructureType structType = (BStructureType) type;
-
-            if (structType.tsymbol.kind == SymbolKind.RECORD) {
-                for (BField field : structType.fields) {
-                    if (!field.expAvailable && !defaultValueExists(pos, field.type)) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-
-            BObjectTypeSymbol structSymbol = (BObjectTypeSymbol) structType.tsymbol;
-            if ((structSymbol.flags & Flags.ABSTRACT) == Flags.ABSTRACT) {
-                return false;
-            } else if (structSymbol.initializerFunc != null && structSymbol.initializerFunc.symbol.params.size() > 0) {
-                return false;
-            }
-
-            for (BAttachedFunction func : structSymbol.attachedFuncs) {
-                if ((func.symbol.flags & Flags.INTERFACE) == Flags.INTERFACE) {
-                    return false;
-                }
-            }
-            for (BField field : structType.fields) {
-                if (!field.expAvailable && !defaultValueExists(pos, field.type)) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        if (type.tag == TypeTags.INVOKABLE || type.tag == TypeTags.FINITE || type.tag == TypeTags.TYPEDESC) {
-            return false;
-        }
-
-        if (type.tag == TypeTags.UNION) {
-            for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-                if (defaultValueExists(pos, memberType)) {
-                    return true;
-                }
-            }
-        }
-        return true;
-    }
-
     public boolean isAssignableToFiniteType(BType type,
                                             BLangLiteral literalExpr) {
         if (type.tag == TypeTags.FINITE) {
@@ -1537,7 +1408,9 @@ public class Types {
     }
 
     boolean validEqualityIntersectionExists(BType lhsType, BType rhsType) {
-        // TODO: 10/19/18 if ==/!= return false if at least one is not anydata
+        if (!isAnydata(lhsType) || !isAnydata(rhsType)) {
+            return false;
+        }
 
         if (isAssignable(lhsType, rhsType) || isAssignable(rhsType, lhsType)) {
             return true;
@@ -1552,7 +1425,7 @@ public class Types {
     }
 
     private boolean equalityIntersectionExists(Set<BType> lhsTypes, Set<BType> rhsTypes) {
-        if (lhsTypes.contains(symTable.anyType) || rhsTypes.contains(symTable.anyType)) {
+        if (lhsTypes.contains(symTable.anydataType) || rhsTypes.contains(symTable.anydataType)) {
             return true;
         }
 
