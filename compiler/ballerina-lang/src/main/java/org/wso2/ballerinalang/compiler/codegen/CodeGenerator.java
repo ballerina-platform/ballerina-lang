@@ -3489,8 +3489,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         operands[1] = nextIndex;
         operands[2] = typeCPIndex;
         operands[3] = getOperand(2);
-        operands[4] = getOperand(((BVarSymbol) ((BLangVariableReference)fpExpr.expr).symbol).type.tag);
-        operands[5] = getOperand(((BVarSymbol) ((BLangVariableReference)fpExpr.expr).symbol).varIndex.value);
+        operands[4] = getOperand(((BVarSymbol) ((BLangVariableReference) fpExpr.expr).symbol).type.tag);
+        operands[5] = getOperand(((BVarSymbol) ((BLangVariableReference) fpExpr.expr).symbol).varIndex.value);
         return operands;
     }
 

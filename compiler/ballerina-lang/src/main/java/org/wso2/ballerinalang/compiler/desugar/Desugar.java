@@ -3558,7 +3558,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // Since JSON, ANY and ANYDATA is by default contains null, we need to create a new respective type which
         // is not-nullable.
-        switch(type.tag){
+        switch (type.tag) {
             case TypeTags.JSON:
                 BJSONType jsonType = (BJSONType) type;
                 return new BJSONType(jsonType.tag, jsonType.constraint, jsonType.tsymbol, false);
@@ -3618,7 +3618,7 @@ public class Desugar extends BLangNodeVisitor {
             if (accessExpr.expr != null) {
                 this.accessExprStack.push(accessExpr);
                 // If the parent of current expr is the root, terminate
-                stmts.addAll(createLHSSafeNavigation((BLangVariableReference)accessExpr.expr, type, rhsExpr,
+                stmts.addAll(createLHSSafeNavigation((BLangVariableReference) accessExpr.expr, type, rhsExpr,
                         safeAssignment));
 
                 this.accessExprStack.pop();
@@ -3694,7 +3694,7 @@ public class Desugar extends BLangNodeVisitor {
                 kind == NodeKind.INVOCATION) {
             varRef = cloneAccessExpr((BLangAccessExpression) originalAccessExpr.expr);
         } else {
-            varRef = cloneExpression((BLangVariableReference)originalAccessExpr.expr);
+            varRef = cloneExpression((BLangVariableReference) originalAccessExpr.expr);
         }
         varRef.type = getSafeType(originalAccessExpr.expr.type, false);
 

@@ -1899,7 +1899,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BSymbol funcSymbol;
         if (iExpr.name.value.equals("stamp")) {
             List<BLangExpression> functionArgList = iExpr.argExprs;
-            for(BLangExpression expression: functionArgList) {
+            for (BLangExpression expression : functionArgList) {
                 checkExpr(expression, env, symTable.noType);
             }
 
