@@ -85,6 +85,8 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.ENTRY_REF_BINDING_PAT
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ENUM;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EQUAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EQUAL_GT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ERROR;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ERROR_CONSTRUCTOR_EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EVENTS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EVERY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EXPRESSION;
@@ -130,6 +132,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.INT_RANGE_EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.INVOCATION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.INVOCATION_ARG;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.INVOCATION_ARG_LIST;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.IS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.JOIN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.JOIN_CLAUSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.JSON;
@@ -172,6 +175,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.ORDER;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.OUTER;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.OUTPUT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.PACKAGE_REFERENCE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.PANIC;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.PARAMETER;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.PARAMETER_LIST;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.PIPE;
@@ -223,6 +227,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.TIMEOUT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TIMEOUT_CLAUSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRANSACTION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRANSACTION_PROPERTY_INIT_STATEMENT_LIST;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRAP;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRIGGER_WORKER;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TUPLE_BINDING_PATTERN;
@@ -289,6 +294,9 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(RETURNS).spaceIf(true)
                 .around(VERSION).spaceIf(true)
                 .around(DEPRECATED).spaceIf(true)
+                .around(IS).spaceIf(true)
+                .around(TRAP).spaceIf(true)
+                .around(PANIC).spaceIf(true)
 
                 .around(VAR).spaceIf(true)
                 .around(IF).spaceIf(true)
@@ -405,7 +413,9 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .beforeInside(COMMA, TUPLE_REF_BINDING_PATTERN).spaceIf(false)
                 .afterInside(COMMA, TUPLE_REF_BINDING_PATTERN).spaceIf(false)
 
-                // Function signature
+                // Error
+                .betweenInside(ERROR, LEFT_PARENTHESIS, ERROR_CONSTRUCTOR_EXPRESSION).spaceIf(false)
+
                 .between(LEFT_PARENTHESIS, RIGHT_PARENTHESIS).spaceIf(false)
                 .around(RETURN_PARAMETER).spaceIf(true)
                 .between(SIMPLE_TYPE_NAME, IDENTIFIER).spaceIf(true)
