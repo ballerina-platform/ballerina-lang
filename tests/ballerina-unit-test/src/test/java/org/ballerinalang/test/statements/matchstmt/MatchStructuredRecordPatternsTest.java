@@ -116,4 +116,22 @@ public class MatchStructuredRecordPatternsTest {
         Assert.assertEquals(results.get(++i), msg + "three vars : Language, Ballerina, 500");
         Assert.assertEquals(results.get(++i), msg + "single var : bar2");
     }
+
+    @Test(description = "Test structured pattern runtime matching")
+    public void testRuntimeCheck() {
+        BValue[] returns = BRunUtil.invoke(result, "testRuntimeCheck", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+
+        BStringArray results = (BStringArray) returns[0];
+
+        int i = -1;
+        String msg = "Matched with ";
+        Assert.assertEquals(results.get(++i), msg + "five vars : S, 23, 5.6, 50, true");
+        Assert.assertEquals(results.get(++i), msg + "three vars : S, 23, 5.6");
+        Assert.assertEquals(results.get(++i), msg + "four vars : S, 23, 5.6, 12");
+        Assert.assertEquals(results.get(++i), msg + "five vars : S, 23, 5.6, 50, true");
+        Assert.assertEquals(results.get(++i), msg + "three vars : S, 23, 5.6");
+        Assert.assertEquals(results.get(++i), msg + "four vars : S, 23, 5.6, 12");
+    }
 }

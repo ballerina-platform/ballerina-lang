@@ -157,3 +157,40 @@ function complexMatch(ClosedBar1|ClosedBar2|string a) returns string {
 
     return "Default";
 }
+
+function testRuntimeCheck() returns string[] {
+    (int, boolean) tuple = (50, true);
+    Foo foo1 = {s: "S", i: 23, f: 5.6, t: tuple};
+    Foo foo2 = {s: "S", i: 23, f: 5.6};
+    Foo foo3 = {s: "S", i: 23, f: 5.6, t: 12};
+
+    string[] values = [matchRuntimeCheck(foo1), matchRuntimeCheck(foo2), matchRuntimeCheck(foo3),
+                            matchRuntimeCheckWithAny(foo1), matchRuntimeCheckWithAny(foo2), matchRuntimeCheckWithAny(foo3)];
+    return values;
+}
+
+function matchRuntimeCheck(Foo foo) returns string {
+    match foo {
+        var {s, i, f, t: (i2, b)} => return "Matched with five vars : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i) +
+                         ", " + io:sprintf("%s", f) + ", "+ io:sprintf("%s", i2) + ", "+ io:sprintf("%s", b);
+        var {s, i, f, t} => return "Matched with four vars : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i) +
+                        ", " + io:sprintf("%s", f) + ", " + io:sprintf("%s", t);
+        var {s, i, f} => return "Matched with three vars : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i) +
+                        ", " + io:sprintf("%s", f);
+    }
+
+    return "Default";
+}
+
+function matchRuntimeCheckWithAny(any foo) returns string {
+    match foo {
+        var {s, i, f, t: (i2, b)} => return "Matched with five vars : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i) +
+                         ", " + io:sprintf("%s", f) + ", "+ io:sprintf("%s", i2) + ", "+ io:sprintf("%s", b);
+        var {s, i, f, t} => return "Matched with four vars : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i) +
+                        ", " + io:sprintf("%s", f) + ", " + io:sprintf("%s", t);
+        var {s, i, f} => return "Matched with three vars : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i) +
+                        ", " + io:sprintf("%s", f);
+    }
+
+    return "Default";
+}

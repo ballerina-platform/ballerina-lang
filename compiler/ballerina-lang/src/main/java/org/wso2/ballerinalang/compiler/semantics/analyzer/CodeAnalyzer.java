@@ -48,9 +48,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
@@ -524,6 +527,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!matchStmt.getStaticPatternClauses().isEmpty()) {
             analyzeStaticMatchPatterns(matchStmt);
         }
+
+        if (!matchStmt.getStructuredPatternClauses().isEmpty()) {
+            analyzeStructuredMatchPatterns(matchStmt);
+        }
     }
 
     private void analyzeStructuredMatchPatterns(BLangMatch matchStmt) {
@@ -532,47 +539,21 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         List<BLangVariable> matchedSimplePatterns = new ArrayList<>();
-        List<BLangVariable> matchedRecordPatterns = new ArrayList<>();
-        List<BLangVariable> matchedTuplePatterns = new ArrayList<>();
-
         for (BLangMatchStructuredBindingPatternClause pattern : matchStmt.getStructuredPatternClauses()) {
-            if (TypeTags.RECORD == pattern.bindingPatternVariable.type.tag) {
-                // todo
-                continue;
-            }
-
-            if (TypeTags.MAP == pattern.bindingPatternVariable.type.tag) {
-                matchedRecordPatterns.add(pattern.bindingPatternVariable);
-                continue;
-            }
-
-            if (TypeTags.TUPLE == pattern.bindingPatternVariable.type.tag) {
-                matchedTuplePatterns.add(pattern.bindingPatternVariable);
-                continue;
-            }
-
-            if (TypeTags.UNION == pattern.bindingPatternVariable.type.tag) {
-                //todo
-                continue;
-            }
-
             matchedSimplePatterns.add(pattern.bindingPatternVariable);
         }
 
-        analyseUnreachableStructuredBindingPatterns(matchedSimplePatterns, matchStmt.expr.type);
-        analyseUnreachableStructuredBindingPatterns(matchedRecordPatterns, matchStmt.expr.type);
-        analyseUnreachableStructuredBindingPatterns(matchedTuplePatterns, matchStmt.expr.type);
+        analyseUnreachableStructuredBindingPatterns(matchedSimplePatterns);
     }
 
-    private void analyseUnreachableStructuredBindingPatterns(List<BLangVariable> matchedPatterns, BType matchExpType) {
-        for (int i = 0; i < matchedPatterns.size(); i++) {
-            for (int j = i + 1; j < matchedPatterns.size(); j++) {
-                BLangVariable precedingPattern = matchedPatterns.get(i);
-                BLangVariable currentPattern = matchedPatterns.get(j);
-                if (types.isAssignable(precedingPattern.type, matchExpType) &&
-                        types.isAssignable(currentPattern.type, matchExpType)) {
-                    dlog.error(currentPattern.pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN);
-                    matchedPatterns.remove(j--);
+    private void analyseUnreachableStructuredBindingPatterns(List<BLangVariable> matchedVars) {
+        for (int i = 0; i < matchedVars.size(); i++) {
+            for (int j = i + 1; j < matchedVars.size(); j++) {
+                BLangVariable precedingVar = matchedVars.get(i);
+                BLangVariable currentVar = matchedVars.get(j);
+                if (checkVariableSimilarity(precedingVar, currentVar)) {
+                    dlog.error(currentVar.pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN);
+                    matchedVars.remove(j--);
                 }
             }
         }
@@ -592,7 +573,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         for (BLangMatch.BLangMatchStaticBindingPatternClause pattern : matchStmt.getStaticPatternClauses()) {
             List<BType> matchedExpTypes = matchStmt.exprTypes
                     .stream()
-                    .filter(exprType -> isValidMatchPattern(exprType, pattern.literal))
+                    .filter(exprType -> isValidStaticMatchPattern(exprType, pattern.literal))
                     .collect(Collectors.toList());
             if (matchedExpTypes.isEmpty()) {
                 // log error if a pattern will not match to any of the expected types
@@ -689,6 +670,63 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         return false;
     }
 
+    private boolean checkVariableSimilarity(BLangVariable precedingVar, BLangVariable var) {
+        if (precedingVar.type.tag == TypeTags.SEMANTIC_ERROR || var.type.tag == TypeTags.SEMANTIC_ERROR) {
+            return false;
+        }
+
+        if (precedingVar.getKind() == NodeKind.RECORD_VARIABLE && var.getKind() == NodeKind.RECORD_VARIABLE) {
+            BLangRecordVariable precedingRecVar = (BLangRecordVariable) precedingVar;
+            BLangRecordVariable recVar = (BLangRecordVariable) var;
+            Map<String, BLangVariable> recVarAsMap = recVar.variableList.stream()
+                    .collect(Collectors.toMap(
+                            keyValue -> keyValue.key.value,
+                            keyValue -> keyValue.valueBindingPattern
+                    ));
+
+            if (precedingRecVar.variableList.size() != recVar.variableList.size()) {
+                return false;
+            }
+
+            for (int i = 0; i < precedingRecVar.variableList.size(); i++) {
+                BLangRecordVariableKeyValue precedingKeyValue = precedingRecVar.variableList.get(i);
+                if (!recVarAsMap.containsKey(precedingKeyValue.key.value)) {
+                    return false;
+                }
+
+                if (!checkVariableSimilarity(
+                        precedingKeyValue.valueBindingPattern, recVarAsMap.get(precedingKeyValue.key.value))) {
+                    return false;
+                }
+
+            }
+            return true;
+        }
+
+        if (precedingVar.getKind() == NodeKind.TUPLE_VARIABLE && var.getKind() == NodeKind.TUPLE_VARIABLE) {
+            List<BLangVariable> precedingMemberVars = ((BLangTupleVariable) precedingVar).memberVariables;
+            List<BLangVariable> memberVars = ((BLangTupleVariable) var).memberVariables;
+            if (precedingMemberVars.size() != memberVars.size()) {
+                return false;
+            }
+
+            for (int i = 0; i < memberVars.size(); i++) {
+                if (!checkVariableSimilarity(precedingMemberVars.get(i), memberVars.get(i))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        if (precedingVar.getKind() == NodeKind.VARIABLE &&
+                (var.getKind() == NodeKind.RECORD_VARIABLE || var.getKind() == NodeKind.TUPLE_VARIABLE)) {
+            return true;
+        }
+
+        return precedingVar.getKind() == NodeKind.VARIABLE && var.getKind() == NodeKind.VARIABLE;
+
+    }
+
     /**
      * This method will check if the static match pattern is valid based on the matching type.
      *
@@ -696,7 +734,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
      * @param literal   the static match pattern.
      * @return true if the pattern is valid, else false.
      */
-    private boolean isValidMatchPattern(BType matchType, BLangExpression literal) {
+    private boolean isValidStaticMatchPattern(BType matchType, BLangExpression literal) {
 
         if (types.isSameType(literal.type, matchType)) {
             return true;
@@ -711,7 +749,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 BUnionType unionMatchType = (BUnionType) matchType;
                 return unionMatchType.memberTypes
                         .stream()
-                        .anyMatch(memberMatchType -> isValidMatchPattern(memberMatchType, literal));
+                        .anyMatch(memberMatchType -> isValidStaticMatchPattern(memberMatchType, literal));
             case TypeTags.TUPLE:
                 if (literal.type.tag == TypeTags.TUPLE) {
                     BLangBracedOrTupleExpr tupleLiteral = (BLangBracedOrTupleExpr) literal;
@@ -722,7 +760,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     }
                     return IntStream.range(0, literalTupleType.tupleTypes.size())
                             .allMatch(i ->
-                                    isValidMatchPattern(matchTupleType.tupleTypes.get(i),
+                                    isValidStaticMatchPattern(matchTupleType.tupleTypes.get(i),
                                             tupleLiteral.expressions.get(i)));
                 }
                 break;
@@ -731,7 +769,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     // if match type is map, check if literals match to the constraint
                     BLangRecordLiteral mapLiteral = (BLangRecordLiteral) literal;
                     return IntStream.range(0, mapLiteral.keyValuePairs.size())
-                            .allMatch(i -> isValidMatchPattern(((BMapType) matchType).constraint,
+                            .allMatch(i -> isValidStaticMatchPattern(((BMapType) matchType).constraint,
                                     mapLiteral.keyValuePairs.get(i).valueExpr));
                 }
                 break;
@@ -758,11 +796,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                         }
 
                         if (recordFields.containsKey(literalKeyName)) {
-                            if (!isValidMatchPattern(recordFields.get(literalKeyName), literalKeyValue.valueExpr)) {
+                            if (!isValidStaticMatchPattern(
+                                    recordFields.get(literalKeyName), literalKeyValue.valueExpr)) {
                                 return false;
                             }
                         } else if (recordMatchType.sealed ||
-                                !isValidMatchPattern(recordMatchType.restFieldType, literalKeyValue.valueExpr)) {
+                                !isValidStaticMatchPattern(recordMatchType.restFieldType, literalKeyValue.valueExpr)) {
                             return false;
                         }
                     }

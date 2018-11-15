@@ -3342,7 +3342,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (NodeKind.MATCH_STRUCTURED_PATTERN_CLAUSE == patternClause.getKind()) {
-            return createIsAssignableExpression(pos, varSymbol, patternType);
+            return createIsLikeExpression(pos, ASTBuilderUtil.createVariableRef(pos, varSymbol), patternType);
         }
 
         if (patternType == symTable.nilType) {
