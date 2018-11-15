@@ -33,31 +33,6 @@ import org.testng.annotations.Test;
 @Test(enabled = false)
 public class EndpointTest {
 
-    @Test(description = "Test endpoint testEndpoint In Function")
-    public void testEndpointInFunction() {
-        CompileResult testEndpointsInFunction = BCompileUtil.compile("test-src/endpoint/testEndpointInFunction.bal");
-
-        BValue[] returns = BRunUtil.invoke(testEndpointsInFunction, "test1");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "init:DummyEndpoint;start:DummyEndpoint;" +
-                "getClient:DummyEndpoint;invoke1:DummyClient;getClient:DummyEndpoint;invoke2:DummyClient;t2");
-
-        returns = BRunUtil.invoke(testEndpointsInFunction, "test2");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "init:DummyEndpoint;start:DummyEndpoint;<test2Caller>" +
-                "getClient:DummyEndpoint;invoke1:DummyClient;getClient:DummyEndpoint;invoke2:DummyClient;t2");
-
-        returns = BRunUtil.invoke(testEndpointsInFunction, "test3");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "<test3>init:DummyEndpoint;start:DummyEndpoint;" +
-                "getClient:DummyEndpoint;invoke1:DummyClient;getClient:DummyEndpoint;invoke2:DummyClient;t2");
-
-        try {
-            BRunUtil.invoke(testEndpointsInFunction, "test4");
-        } catch (BLangRuntimeException e) {
-            Assert.fail("NullReferenceException was thrown at test4 of EndpointTest.");
-        }
-    }
 
     @Test(description = "Test endpoint testEndpoint with Service")
     public void testEndpointWithService() {
@@ -114,11 +89,4 @@ public class EndpointTest {
         Assert.assertEquals(result[0].stringValue(), "{message:\"i1\"}");
     }
 
-    @Test(description = "Test action negative")
-    public void testActionNegative() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/test_action_negative.bal");
-        Assert.assertEquals(compileResult.getDiagnostics().length, 2);
-        BAssertUtil.validateError(compileResult, 0, "action invocation as an expression not allowed here", 25, 9);
-        BAssertUtil.validateError(compileResult, 1, "action invocation as an expression not allowed here", 27, 17);
-    }
 }
