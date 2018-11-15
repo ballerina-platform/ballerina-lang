@@ -911,17 +911,17 @@ public class CompiledPackageSymbolEnter {
         for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
             int paramIndex = taintTableDataInStream.readShort();
             TaintRecord.TaintedStatus returnTaintedStatus =
-                    convertByteToTaintedState(taintTableDataInStream.readByte());
+                    convertByteToTaintedStatus(taintTableDataInStream.readByte());
             List<TaintRecord.TaintedStatus> parameterTaintedStatusList = new ArrayList<>();
             for (int columnIndex = 1; columnIndex < columnCount; columnIndex++) {
-                parameterTaintedStatusList.add(convertByteToTaintedState(taintTableDataInStream.readByte()));
+                parameterTaintedStatusList.add(convertByteToTaintedStatus(taintTableDataInStream.readByte()));
             }
             TaintRecord taintRecord = new TaintRecord(returnTaintedStatus, parameterTaintedStatusList);
             invokableSymbol.taintTable.put(paramIndex, taintRecord);
         }
     }
 
-    private TaintRecord.TaintedStatus convertByteToTaintedState(byte readByte) {
+    private TaintRecord.TaintedStatus convertByteToTaintedStatus(byte readByte) {
         return EnumSet.allOf(TaintRecord.TaintedStatus.class).stream()
                 .filter(taintedStatus -> readByte == taintedStatus.getByteValue()).findFirst().get();
     }
