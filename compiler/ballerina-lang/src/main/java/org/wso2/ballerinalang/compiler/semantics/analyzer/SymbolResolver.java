@@ -375,7 +375,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     private BSymbol resolveTargetSymbolForStamping(BType targetType, BType variableSourceType, Name name,
-                                                   DiagnosticPos pos){
+                                                   DiagnosticPos pos) {
         if (canHaveStampInvocation(targetType)) {
             if (types.isAssignable(variableSourceType, targetType)) {
                 List<BType> paramTypes = new ArrayList<>();

@@ -65,7 +65,6 @@ public class StampInbuiltFunctionNegativeTest {
                 compile("test-src/expressions/stamp/negative/anydata-stamp-expr-negative-test.bal");
     }
 
-
     //----------------------------- NegativeTest cases ------------------------------------------------------
 
     @Test
@@ -117,7 +116,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void testRecordStampNegativeTest() {
 
-        Assert.assertEquals(recordNegativeTestCompileResult.getErrorCount(), 14);
+        Assert.assertEquals(recordNegativeTestCompileResult.getErrorCount(), 16);
 
         //Negative test case to confirm record cannot be stamped as xml.
         BAssertUtil.validateError(recordNegativeTestCompileResult, 0,
@@ -159,6 +158,11 @@ public class StampInbuiltFunctionNegativeTest {
         BAssertUtil.validateError(recordNegativeTestCompileResult, 12,
                 "stamp function on type 'ExtendedEmployee' is not supported",
                 109, 28);
+
+        //Negative test case to confirm non anydata record to open record stamp conversion.
+        BAssertUtil.validateError(recordNegativeTestCompileResult, 14,
+                "stamp function on type 'TeacherWithAnyRestType' is not supported",
+                132, 23);
 
     }
 

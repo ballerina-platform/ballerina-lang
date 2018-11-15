@@ -866,10 +866,10 @@ public class CPU {
                 valueToBeStamped.stamp(stampType);
                 sf.refRegs[k] = valueToBeStamped;
             } catch (BallerinaException e) {
-                BError error = BLangVMErrors.createError(ctx,
+                ctx.setError(BLangVMErrors.createError(ctx,
                         BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_STAMP_OPERATION,
-                                valueToBeStamped.getType(), stampType));
-                sf.refRegs[k] = error;
+                                valueToBeStamped.getType(), stampType)));
+                handleError(ctx);
             }
         } else {
             BError error = BLangVMErrors.createError(ctx,
