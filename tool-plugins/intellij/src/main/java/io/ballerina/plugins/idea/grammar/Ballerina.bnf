@@ -116,12 +116,12 @@
 
     extends("(FunctionInvocation|SimpleVariable|MapArrayVariable|FieldVariable|XmlAttribVariable|Invocation|AwaitExpression)Reference") = VariableReference
 
-    extends("((Simple|Array|Record|Xml|StringTemplate)Literal|(ValueType|BuiltInReferenceType)Type|VariableReference|LambdaFunction|ArrowFunction|TypeInit|Type(Casting|Conversion|Access)|BracedOrTuple|Await|TableQuery|MatchExpr|Checked|TableLiteral|Elvis|ActionInvocation|typeAccess|IntegerRange)Expression") = Expression
+    extends("((Simple|Array|Record|Xml|StringTemplate)Literal|(ValueType|BuiltInReferenceType)Type|VariableReference|LambdaFunction|ArrowFunction|Type(Init|Conversion|Access|Test)|BracedOrTuple|Await|TableQuery|MatchExpr|Checked|TableLiteral|Elvis|ActionInvocation|IntegerRange|ArrowFunction|ErrorConstructor|BinaryRefEqual|Trap)Expression") = Expression
     extends("(Unary|Binary|Ternary|Bitwise|BitwiseShift)Expression") = Expression
 
     extends("Binary(DivMulMod|AddSub|Compare|Equal|And|Or)Expression") = BinaryExpression
 
-    extends("(Simple|Array|Nullable|Union|Group|Tuple|Annotated|Object|Record)TypeName|BinaryAndExpression") = TypeName
+    extends("(Simple|Array|Nullable|Union|Group|Tuple|Object|Record)TypeName|BinaryAndExpression") = TypeName
 
     // Each named definition which can be renamed should implement this interface.
     implements("(Function|Struct|GlobalVariable|Annotation|(.*Endpoint)|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.psi.BallerinaNamedElement"
@@ -139,11 +139,11 @@
     // "|NamespaceDeclaration|ParameterList|ParameterTypeNameList|CallableUnitSignature|ParameterTypeNameList|ReturnParameters"
     // Todo - Add CatchClause, TriggerWorker, WorkerReply?
     // Each named element (which can be renamed) should implement this interface.
-    implements("Package(Name|Version)|OrgName|Alias|(Name|Package)Reference|VariableDefinitionStatement|NamespaceDeclaration") = "io.ballerina.plugins.idea.psi.BallerinaNamedElement"
+    implements("Package(Name|Version)|OrgName|Alias|(Name|Package)Reference|NamespaceDeclaration") = "io.ballerina.plugins.idea.psi.BallerinaNamedElement"
     // Each named element should extend this class.
-    extends("Package(Name|Version)|OrgName|Alias|(Name|Package)Reference|VariableDefinitionStatement|NamespaceDeclaration") = "io.ballerina.plugins.idea.psi.impl.BallerinaNamedElementImpl<?>"
+    extends("Package(Name|Version)|OrgName|Alias|(Name|Package)Reference|NamespaceDeclaration") = "io.ballerina.plugins.idea.psi.impl.BallerinaNamedElementImpl<?>"
     // Each stubbed element should have this element type factory.
-    elementTypeFactory("Package(Name|Version)|OrgName|Alias|(Name|Package)Reference|VariableDefinitionStatement|NamespaceDeclaration") = "io.ballerina.plugins.idea.stubs.factory.BallerinaElementTypeFactory.stubFactory"
+    elementTypeFactory("Package(Name|Version)|OrgName|Alias|(Name|Package)Reference|NamespaceDeclaration") = "io.ballerina.plugins.idea.stubs.factory.BallerinaElementTypeFactory.stubFactory"
 
     implements("NameReference") = "io.ballerina.plugins.idea.psi.BallerinaReferenceExpressionBase"
 
@@ -208,7 +208,7 @@ ServiceEndpointAttachments ::= bind (NameReference (COMMA NameReference)* | Reco
 ServiceBody ::= LEFT_BRACE (/*ResourceDefinition+ | EndpointDefinition+ ResourceDefinition* |*/ EndpointDefinition* (VariableDefinitionStatementInService | NamespaceDeclarationStatement)* ResourceDefinition*) RIGHT_BRACE /*{pin=1}*/
 
 // Note - Always sync with VariableDefinitionStatement
-VariableDefinitionStatementInService ::= /*<<isNotAResourceDefinition>> VariableDefinitionStatement*/ TypeName identifier VariableAssignment? SEMICOLON {pin(".*")=2 elementType=VariableDefinitionStatement}
+VariableDefinitionStatementInService ::= TypeName identifier VariableAssignment? SEMICOLON {pin(".*")=2 elementType=VariableDefinitionStatement}
 ResourceDefinition ::=  documentationString? AnnotationAttachment* deprecatedAttachment? identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS CallableUnitBody {pin=4}
 resourceParameterList ::= endpointParameter | ParameterList
 endpointParameter ::= endpoint identifier (COMMA ParameterList)? {pin(".*")=1}
@@ -341,7 +341,6 @@ TypeName ::= TupleTypeName
              | ArrayTypeName
              | UnionTypeName
              | ObjectTypeName
-//             | AnnotatedTypeName
              | NullableTypeName
              | RecordTypeName
 
@@ -405,7 +404,6 @@ XmlLocalName ::= identifier
 // Todo - Cache
 AnnotationAttachment ::= AT NameReference RecordLiteral? {pin=1}
 
-
 // STATEMENTS / BLOCKS =================================================================================================
 
 // Todo - Add recovery rules
@@ -444,18 +442,15 @@ Statement ::=
 // Todo - Add more tokens (for record destructuring and panic)
 // Note - Literals are added for worker interactions - 10 -> w2;
 // NULL_LITERAL is added for match pattern -  null => return "error";
-private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|boolean|byte|any|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|await|var|while|match|foreach|continue|break|fork|try|throw|return|abort|retry|fail|lock|transaction|if|forever|object|check|panic|from|worker|done|identifier)
+private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|boolean|byte|any|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|await|var|while|match|foreach|continue|break|fork|try|throw|return|abort|retry|fail|lock|transaction|if|forever|object|check|error|panic|from|worker|done|identifier)
 
 //private StatementRecover ::= !(/*'!' | '&' | '(' | '*' | '+' | '-' |*/ ';' /*| '<-' | '^' | 'type' |*/ /*'{' | '|' |*/ '|=' | '||' | '}' | /*break | case | char | continue | decimali | default | defer | else | fallthrough | float | floati | for | func | go | goto | hex |*/ identifier | /* if | interface | map | oct | return | select |*/ string  | /*struct | switch | var | continue |try |*/ int )
 
 // Note - VariableDefinitionStatementInService
 //TODO - change pin
-VariableDefinitionStatement ::= TypeName identifier SEMICOLON |  (TypeName | var) BindingPattern ASSIGN Expression SEMICOLON
-{
-    pin=2
-    // Note - Resource definition cannot be identified correctly with this pin.
-    methods=[getType]
-}
+VariableDefinitionStatement ::= variableDefinitionStatementWithAssignment | variableDefinitionStatementWithoutAssignment {methods=[getType]}
+variableDefinitionStatementWithoutAssignment::= TypeName identifier SEMICOLON {pin=2}
+variableDefinitionStatementWithAssignment ::= (TypeName | var) BindingPattern ASSIGN Expression SEMICOLON {pin=3}
 
 private VariableAssignment ::= ASSIGN Expression {pin=1}
 
@@ -522,7 +517,7 @@ namedPattern ::= TypeName identifier EQUAL_GT (LEFT_BRACE Block RIGHT_BRACE | St
 simpleLiteralPattern ::=  SimpleLiteral EQUAL_GT (LEFT_BRACE Block RIGHT_BRACE | Statement) {pin=2}
 bindingPatternPattern ::= var BindingPattern EQUAL_GT (LEFT_BRACE Block RIGHT_BRACE | Statement) {pin=3}
 
-BindingPattern ::= identifier StructuredBindingPattern {pin=1}
+BindingPattern ::= identifier | StructuredBindingPattern
 
 StructuredBindingPattern ::= TupleBindingPattern | RecordBindingPattern
 
@@ -729,7 +724,6 @@ Expression
     |   CheckedExpression
     |   ElvisExpression
     |   AwaitExpression
-    |   TypeAccessExpression
     |   IntegerRangeExpression
     |   BitwiseExpression
     |   BitwiseShiftExpression
@@ -737,6 +731,7 @@ Expression
     |   TypeTestExpression
     |   BinaryRefEqualExpression
     |   TrapExpression
+    |   TypeAccessExpression
     {recoverWhile=ExpressionRecover}
 
 TypeAccessExpression ::= TypeName
@@ -753,7 +748,7 @@ TableQueryExpression ::= TableQuery
 
 TableLiteralExpression ::= TableLiteral
 
-private ExpressionRecover ::= !(NULL_LITERAL|int|string|float|boolean|byte|any|map|table|function|stream|'}'|';'|var |while|match|foreach|continue|break|fork|try|throw|return|abort|fail|lock|xmlns|transaction|but|if|forever|object|check)
+private ExpressionRecover ::= !(NULL_LITERAL|int|string|float|boolean|byte|any|map|table|function|stream|'}'|';'|var|while|match|foreach|continue|break|fork|try|throw|return|abort|fail|lock|xmlns|transaction|but|if|forever|object|trap|error|check)
 
 fake BinaryExpression ::= Expression {
   methods=[left="Expression[0]" right="Expression[1]" getOperator]
@@ -789,8 +784,8 @@ matchExpression ::= but (LEFT_BRACE MatchExpressionPatternClause (COMMA MatchExp
 ArrowFunctionExpression ::= ArrowFunction
 
 TypeInitExpression ::= initWithoutType | initWithType
-initWithoutType ::= new (LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS)? {pin=1}
-initWithType ::= new UserDefineTypeName LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS {pin=1}
+initWithType ::= new UserDefineTypeName LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS {pin=3}
+initWithoutType ::= new (LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS)?
 
 ErrorConstructorExpression ::= error LEFT_PARENTHESIS Expression (COMMA Expression)? RIGHT_PARENTHESIS {pin=1}
 

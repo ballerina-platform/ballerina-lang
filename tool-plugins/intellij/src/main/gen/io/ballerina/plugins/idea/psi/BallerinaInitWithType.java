@@ -26,10 +26,10 @@ public interface BallerinaInitWithType extends BallerinaCompositeElement {
   @Nullable
   BallerinaInvocationArgList getInvocationArgList();
 
-  @Nullable
+  @NotNull
   BallerinaUserDefineTypeName getUserDefineTypeName();
 
-  @Nullable
+  @NotNull
   PsiElement getLeftParenthesis();
 
   @Nullable

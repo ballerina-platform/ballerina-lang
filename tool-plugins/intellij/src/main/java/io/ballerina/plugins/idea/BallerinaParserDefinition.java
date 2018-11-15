@@ -65,6 +65,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.ELVIS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ENDPOINT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ENUM;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EQUAL_GT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ERROR;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EVENTS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EVERY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EXTERN;
@@ -181,7 +182,7 @@ public class BallerinaParserDefinition implements ParserDefinition {
     // Todo - Annotate ReservedWord in the runtime to prevent highlighting as keywords.
     public static final TokenSet KEYWORDS = TokenSet
             .create(ABORT, ABSTRACT, ALL, ANNOTATION, ANY, AS, AWAIT, BIND, BOOLEAN, BREAK, BUT, BYTE, CATCH, CHANNEL,
-                    CHECK, CONTINUE, DEPRECATED, DONE, ELSE, ENDPOINT, ENUM, EXTERN, FAIL, FINALLY, FLOAT, FORK,
+                    CHECK, CONTINUE, DEPRECATED, DONE, ELSE, ENDPOINT, ENUM, ERROR, EXTERN, FAIL, FINALLY, FLOAT, FORK,
                     FUNCTION, FUTURE, IF, IMPORT, IN, INT, IS, JOIN, JSON, LENGTHOF, LOCK, MATCH, NEW, OBJECT, ONABORT,
                     ONCOMMIT, ONRETRY, PARAMETER, PANIC, PRIVATE, PUBLIC, RECORD, RESOURCE, RETRIES, RETRY, RETURN,
                     RETURNS, SERVICE, SOME, START, STREAM, STRING, TABLE, TIMEOUT, TRANSACTION, TRY, TYPE, TYPEDESC,
