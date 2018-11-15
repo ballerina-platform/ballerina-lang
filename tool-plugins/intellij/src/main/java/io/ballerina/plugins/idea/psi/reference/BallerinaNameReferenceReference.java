@@ -85,7 +85,8 @@ public class BallerinaNameReferenceReference extends BallerinaCachedReference<Ba
         BallerinaScopeProcessorBase processor;
         PsiElement result;
 
-        BallerinaTypeInitExpression typeInitExpr = PsiTreeUtil.getParentOfType(myElement, BallerinaTypeInitExpression.class);
+        BallerinaTypeInitExpression typeInitExpr = PsiTreeUtil.getParentOfType(myElement,
+                BallerinaTypeInitExpression.class);
         if (typeInitExpr != null) {
             // We need to check for user defined types for cases like "Person p = new Employee();" where we are
             // trying to resolve Employee.

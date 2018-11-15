@@ -271,9 +271,9 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         } else if (o instanceof BallerinaTypeInitExpression) {
             BallerinaTypeInitExpression ballerinaTypeInitExpr = (BallerinaTypeInitExpression) o;
             BallerinaInvocationArgList invocationArgList = null;
-            if(ballerinaTypeInitExpr.getInitWithType()!=null){
+            if (ballerinaTypeInitExpr.getInitWithType() != null) {
                 invocationArgList = ballerinaTypeInitExpr.getInitWithType().getInvocationArgList();
-            }else if(ballerinaTypeInitExpr.getInitWithoutType()!=null){
+            } else if (ballerinaTypeInitExpr.getInitWithoutType() != null) {
                 invocationArgList = ballerinaTypeInitExpr.getInitWithoutType().getInvocationArgList();
             }
             return getIndex(invocationArgList, offset);

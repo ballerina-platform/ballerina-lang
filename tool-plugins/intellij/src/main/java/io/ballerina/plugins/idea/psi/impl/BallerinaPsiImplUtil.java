@@ -44,8 +44,6 @@ import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.containers.MultiMap;
 import io.ballerina.plugins.idea.completion.BallerinaCompletionUtils;
 import io.ballerina.plugins.idea.completion.inserthandlers.AutoImportInsertHandler;
-import io.ballerina.plugins.idea.psi.BallerinaActionInvocation;
-import io.ballerina.plugins.idea.psi.BallerinaActionInvocationExpression;
 import io.ballerina.plugins.idea.psi.BallerinaAlias;
 import io.ballerina.plugins.idea.psi.BallerinaAnnotationDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaAnyIdentifierName;
@@ -103,7 +101,6 @@ import io.ballerina.plugins.idea.psi.BallerinaServiceDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaSimpleTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaSimpleVariableReference;
 import io.ballerina.plugins.idea.psi.BallerinaStreamTypeName;
-import io.ballerina.plugins.idea.psi.BallerinaStringTemplateLiteralExpression;
 import io.ballerina.plugins.idea.psi.BallerinaTableTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaTupleDestructuringStatement;
 import io.ballerina.plugins.idea.psi.BallerinaTupleTypeName;
@@ -119,7 +116,6 @@ import io.ballerina.plugins.idea.psi.BallerinaVariableDefinitionStatementWithout
 import io.ballerina.plugins.idea.psi.BallerinaVariableReference;
 import io.ballerina.plugins.idea.psi.BallerinaVariableReferenceExpression;
 import io.ballerina.plugins.idea.psi.BallerinaVariableReferenceList;
-import io.ballerina.plugins.idea.psi.BallerinaXmlLiteralExpression;
 import io.ballerina.plugins.idea.psi.BallerinaXmlTypeName;
 import io.ballerina.plugins.idea.psi.reference.BallerinaCompletePackageNameReferenceSet;
 import io.ballerina.plugins.idea.psi.reference.BallerinaNameReferenceReference;
@@ -413,7 +409,7 @@ public class BallerinaPsiImplUtil {
             } else if (withoutType != null) {
                 initializer = withoutType.getNew();
             }
-            if (initializer==null){
+            if (initializer == null) {
                 return CachedValueProvider.Result.create(null, ballerinaTypeInitExpr);
             }
             PsiReference reference = initializer.getReference();
@@ -1098,7 +1094,7 @@ public class BallerinaPsiImplUtil {
             BallerinaTypeName type = null;
             if (withAssignment != null) {
                 type = withAssignment.getTypeName();
-            } else if (withoutAssignment != null){
+            } else if (withoutAssignment != null) {
                 type = withoutAssignment.getTypeName();
             }
             return type != null ? CachedValueProvider.Result.create(getTypeFromTypeName(type), statement) : null;
