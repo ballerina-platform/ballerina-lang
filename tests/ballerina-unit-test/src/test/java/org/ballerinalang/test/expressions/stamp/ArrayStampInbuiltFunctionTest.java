@@ -35,7 +35,7 @@ import java.util.LinkedHashMap;
 /**
  * Test cases for stamping Array type variables.
  *
- * @since 0.983.0
+ * @since 0.985.0
  */
 public class ArrayStampInbuiltFunctionTest {
 

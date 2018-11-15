@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 /**
  * Negative test cases for stamping variables.
  *
- * @since 0.983.0
+ * @since 0.985.0
  */
 public class StampInbuiltFunctionNegativeTest {
 

@@ -347,21 +347,11 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
                 targetTypeField.put(field.getFieldName(), field.fieldType);
             }
 
-            for (Map.Entry targetTypeEntry : targetTypeField.entrySet()) {
-                String fieldName = targetTypeEntry.getKey().toString();
-
-                if (!(this.getMap().containsKey(fieldName))) {
-                    throw new BallerinaException("Seal failed due to unavailability of required field " + fieldName +
-                            " in type " + this.type);
-                }
-            }
-
             for (Map.Entry valueEntry : this.getMap().entrySet()) {
                 String fieldName = valueEntry.getKey().toString();
                 ((BValue) valueEntry.getValue()).stamp(targetTypeField.getOrDefault(fieldName, restFieldType));
             }
         }
-
         this.type = type;
     }
 

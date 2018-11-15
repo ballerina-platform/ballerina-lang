@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 /**
  * Test cases for stamping XML type variables.
  *
- * @since 0.983.0
+ * @since 0.985.0
  */
 public class XMLStampInbuiltFunctionTest {
 

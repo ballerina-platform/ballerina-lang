@@ -861,7 +861,6 @@ public class CPU {
             stampType = ((BUnionType) stampType).getMemberTypes().get(0);
         }
 
-        //mutate reference variable
         if (checkIsLikeType(valueToBeStamped, stampType)) {
             try {
                 valueToBeStamped.stamp(stampType);
@@ -4167,7 +4166,6 @@ public class CPU {
                 }
             }
         }
-
         return true;
     }
 
@@ -4215,7 +4213,6 @@ public class CPU {
                 return true;
             }
         }
-
         return false;
     }
 
