@@ -48,15 +48,15 @@ public class BallerinaInitWithTypeImpl extends BallerinaCompositeElementImpl imp
   }
 
   @Override
-  @Nullable
+  @NotNull
   public BallerinaUserDefineTypeName getUserDefineTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaUserDefineTypeName.class);
+    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaUserDefineTypeName.class));
   }
 
   @Override
-  @Nullable
+  @NotNull
   public PsiElement getLeftParenthesis() {
-    return findChildByType(LEFT_PARENTHESIS);
+    return notNullChild(findChildByType(LEFT_PARENTHESIS));
   }
 
   @Override
