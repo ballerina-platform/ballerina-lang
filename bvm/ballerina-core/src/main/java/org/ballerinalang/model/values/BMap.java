@@ -49,7 +49,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * {@code MapType} represents a map.
- *
  * @param <K> Key
  * @param <V> Value
  * @since 0.8.0
@@ -65,7 +64,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
     private HashMap<String, Object> nativeData = new HashMap<>();
 
     public BMap() {
-        map = new LinkedHashMap<>();
+        map =  new LinkedHashMap<>();
     }
 
     public BMap(BType type) {
@@ -111,7 +110,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
     /**
      * Retrieve the value for the given key from map.
      *
-     * @param key    key used to get the value
+     * @param key key used to get the value
      * @param except flag indicating whether to throw an exception if the key does not exists
      * @return value
      */
@@ -129,8 +128,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
 
     /**
      * Insert a key value pair into the map.
-     *
-     * @param key   key related to the value
+     * @param key key related to the value
      * @param value value related to the key
      */
     public void put(K key, V value) {
@@ -171,7 +169,6 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
 
     /**
      * Retrieve the internal map.
-     *
      * @return map
      */
     public LinkedHashMap<K, V> getMap() {
@@ -180,7 +177,6 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
 
     /**
      * Get the size of the map.
-     *
      * @return returns the size of the map
      */
     public int size() {
@@ -280,7 +276,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
                     return getJSONString();
                 default:
                     String keySeparator = type.getTag() == TypeTags.MAP_TAG ? "\"" : "";
-                    for (Iterator<Map.Entry<K, V>> i = map.entrySet().iterator(); i.hasNext(); ) {
+                    for (Iterator<Map.Entry<K, V>> i = map.entrySet().iterator(); i.hasNext();) {
                         String key;
                         Map.Entry<K, V> e = i.next();
                         key = keySeparator + (String) e.getKey() + keySeparator;
@@ -364,7 +360,6 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
                 String fieldName = valueEntry.getKey().toString();
                 ((BValue) valueEntry.getValue()).stamp(targetTypeField.getOrDefault(fieldName, restFieldType));
             }
-
         }
 
         this.type = type;
@@ -375,7 +370,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
         readLock.lock();
         try {
             BMap<K, BValue> newMap = BTypes.typeMap.getEmptyValue();
-            for (Map.Entry<K, V> entry : map.entrySet()) {
+            for (Map.Entry<K, V> entry: map.entrySet()) {
                 BValue value = entry.getValue();
                 newMap.put(entry.getKey(), value == null ? null : value.copy());
             }
@@ -414,9 +409,9 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
         public BValue[] getNext(int arity) {
             Map.Entry<K, V> next = iterator.next();
             if (arity == 1) {
-                return new BValue[]{next.getValue()};
+                return new BValue[] {next.getValue()};
             }
-            return new BValue[]{new BString((String) next.getKey()), next.getValue()};
+            return new BValue[] {new BString((String) next.getKey()), next.getValue()};
         }
 
         @Override
@@ -428,10 +423,9 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
     /**
      * Add natively accessible data.
      *
-     * @param key  key to store data with
+     * @param key key to store data with
      * @param data data to be stored
      */
-
     public void addNativeData(String key, Object data) {
         this.nativeData.put(key, data);
     }

@@ -33,8 +33,8 @@ public abstract class BValueType implements BValue {
      * Returns the value of the specified number as an {@code int},
      * which may involve rounding or truncation.
      *
-     * @return the numeric value represented by this object after conversion
-     * to type {@code int}.
+     * @return  the numeric value represented by this object after conversion
+     *          to type {@code int}.
      */
     public abstract long intValue();
 
@@ -42,8 +42,8 @@ public abstract class BValueType implements BValue {
      * Returns the value of the specified number as an {@code byte},
      * which may involve rounding or truncation.
      *
-     * @return the numeric value represented by this object after conversion
-     * to type {@code byte}.
+     * @return  the numeric value represented by this object after conversion
+     *          to type {@code byte}.
      */
     public abstract byte byteValue();
 
@@ -51,8 +51,8 @@ public abstract class BValueType implements BValue {
      * Returns the value of the specified number as a {@code float},
      * which may involve rounding.
      *
-     * @return the numeric value represented by this object after conversion
-     * to type {@code float}.
+     * @return  the numeric value represented by this object after conversion
+     *          to type {@code float}.
      */
     public abstract double floatValue();
 
@@ -60,8 +60,8 @@ public abstract class BValueType implements BValue {
      * Returns the value of the specified number as a {@code decimal},
      * which may involve rounding.
      *
-     * @return the numeric value represented by this object after conversion
-     * to type {@code decimal}.
+     * @return  the numeric value represented by this object after conversion
+     *          to type {@code decimal}.
      */
     public abstract BigDecimal decimalValue();
 

@@ -25,6 +25,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.Iterator;
 import java.util.List;
+
 import javax.xml.namespace.QName;
 
 /**
@@ -38,6 +39,7 @@ import javax.xml.namespace.QName;
  * </ul>
  *
  * @param <T> Type of the BXML
+ *
  * @since 0.8.0
  */
 public abstract class BXML<T> implements BRefType<T>, BCollection {
@@ -123,9 +125,9 @@ public abstract class BXML<T> implements BRefType<T>, BCollection {
      * Otherwise a new attribute will be added.
      *
      * @param namespace Namespace of the attribute
-     * @param prefix    Namespace prefix of the attribute
+     * @param prefix Namespace prefix of the attribute
      * @param localName Local name of the attribute
-     * @param value     Value of the attribute
+     * @param value Value of the attribute
      */
     public abstract void setAttribute(String localName, String namespace, String prefix, String value);
 
@@ -212,7 +214,7 @@ public abstract class BXML<T> implements BRefType<T>, BCollection {
      * Slice and return a subsequence of the given XML sequence.
      *
      * @param startIndex To slice
-     * @param endIndex   To slice
+     * @param endIndex To slice
      * @return sliced sequence
      */
     public abstract BValue slice(long startIndex, long endIndex);
@@ -304,9 +306,9 @@ public abstract class BXML<T> implements BRefType<T>, BCollection {
     /**
      * Recursively traverse and add the descendant with the given name to the descendants list.
      *
-     * @param descendants    List to add descendants
+     * @param descendants List to add descendants
      * @param currentElement Current node
-     * @param qname          Qualified name of the descendants to search
+     * @param qname Qualified name of the descendants to search
      */
     protected void addDescendants(List<BXML<?>> descendants, OMElement currentElement, String qname) {
         Iterator<OMNode> childrenItr = currentElement.getChildren();
