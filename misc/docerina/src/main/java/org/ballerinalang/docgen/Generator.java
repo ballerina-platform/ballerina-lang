@@ -22,6 +22,7 @@ import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.BallerinaDocDataHolder;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.docgen.model.AnnotationDoc;
+import org.ballerinalang.docgen.model.ConstantDoc;
 import org.ballerinalang.docgen.model.Documentable;
 import org.ballerinalang.docgen.model.EndpointDoc;
 import org.ballerinalang.docgen.model.EnumDoc;
@@ -57,6 +58,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
@@ -98,8 +100,8 @@ public class Generator {
      * @param primitives  list of primitives.
      * @return A page model for the current package.
      */
-    public static Page generatePage(BLangPackage balPackage, List<Link> packages, String description, List<Link>
-            primitives) {
+    public static Page generatePage(BLangPackage balPackage, List<Link> packages, String description,
+                                    List<Link> primitives) {
 
         //TODO orgName is not properly set from the ballerina core, hence this work-around
         String currentPackageName = BallerinaDocDataHolder.getInstance().getOrgName() + balPackage.packageID.getName
@@ -147,6 +149,14 @@ public class Generator {
                 documentables.add(createDocForNode(annotation));
             }
         }
+
+        // Check for constants.
+        for (BLangConstant constant : balPackage.getConstants()) {
+            if (constant.getFlags().contains(Flag.PUBLIC)) {
+                documentables.add(createDocForNode(constant));
+            }
+        }
+
         // Check for global variables
         for (BLangSimpleVariable var : balPackage.getGlobalVariables()) {
             if (var.getFlags().contains(Flag.PUBLIC)) {
@@ -353,6 +363,22 @@ public class Generator {
         String desc = description(bLangVariable);
         String href = extractLink(bLangVariable.getTypeNode());
         return new GlobalVariableDoc(globalVarName, desc, new ArrayList<>(), dataType, href);
+    }
+
+    public static ConstantDoc createDocForNode(BLangConstant constant) {
+        String constantName = constant.getName().getValue();
+        Object value = constant.value;
+        String desc = description(constant);
+
+        String typeNodeType = "";
+        String href = "";
+
+        if (constant.typeNode != null) {
+            typeNodeType = getTypeName(constant.typeNode);
+            href = extractLink(constant.typeNode);
+        }
+
+        return new ConstantDoc(constantName, value, desc, typeNodeType, href);
     }
 
     private static Field getVariableForType(String name, BType param) {

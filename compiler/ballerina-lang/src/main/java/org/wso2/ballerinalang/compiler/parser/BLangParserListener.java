@@ -689,6 +689,20 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
+    public void exitConstantDefinition(BallerinaParser.ConstantDefinitionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        boolean isPublic = ctx.PUBLIC() != null;
+        boolean isTypeAvailable = ctx.typeName() != null;
+        this.pkgBuilder.addConstant(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), isPublic,
+                isTypeAvailable);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void exitGlobalVariableDefinition(BallerinaParser.GlobalVariableDefinitionContext ctx) {
         if (ctx.exception != null) {
             return;

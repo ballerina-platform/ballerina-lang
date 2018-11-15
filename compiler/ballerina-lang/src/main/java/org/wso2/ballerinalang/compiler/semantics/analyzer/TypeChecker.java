@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -143,6 +144,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
@@ -172,7 +174,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType resultType;
 
     private DiagnosticCode diagCode;
-    
+
     public static TypeChecker getInstance(CompilerContext context) {
         TypeChecker typeChecker = context.get(TYPE_CHECKER_KEY);
         if (typeChecker == null) {
@@ -271,7 +273,8 @@ public class TypeChecker extends BLangNodeVisitor {
             if (TypeTags.DECIMAL == expType.tag) {
                 literalType = symTable.decimalType;
                 literalExpr.value = String.valueOf(literalValue);
-            } else if (TypeTags.FLOAT == expType.tag) {
+            } else if (TypeTags.FLOAT == expType.tag || TypeTags.FINITE == expType.tag) {
+                // Todo - Remove above finite check after it is fixed for decimal types.
                 literalExpr.value = Double.parseDouble(String.valueOf(literalValue));
             }
         }
@@ -576,6 +579,13 @@ public class TypeChecker extends BLangNodeVisitor {
             } else if ((symbol.tag & SymTag.TYPE) == SymTag.TYPE) {
                 actualType = symTable.typeDesc;
                 varRefExpr.symbol = symbol;
+            } else if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
+                varRefExpr.symbol = symbol;
+                if (types.isAssignable(symbol.type, expType)) {
+                    actualType = symbol.type;
+                } else {
+                    actualType = ((BConstantSymbol) symbol).literalValueType;
+                }
             } else {
                 dlog.error(varRefExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, varName.toString());
             }
@@ -684,7 +694,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         // First analyze the variable reference expression.
-        fieldAccessExpr.expr.lhsVar = fieldAccessExpr.lhsVar;
+        ((BLangVariableReference) fieldAccessExpr.expr).lhsVar = fieldAccessExpr.lhsVar;
         BType varRefType = getTypeOfExprInFieldAccess(fieldAccessExpr.expr);
 
         // Accessing all fields using * is only supported for XML.
@@ -720,7 +730,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangIndexBasedAccess indexBasedAccessExpr) {
         // First analyze the variable reference expression.
-        indexBasedAccessExpr.expr.lhsVar = indexBasedAccessExpr.lhsVar;
+        ((BLangVariableReference) indexBasedAccessExpr.expr).lhsVar = indexBasedAccessExpr.lhsVar;
         checkExpr(indexBasedAccessExpr.expr, this.env, symTable.noType);
 
         BType varRefType = indexBasedAccessExpr.expr.type;
@@ -729,7 +739,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // If this is on lhs, no need to do type checking further. And null/error
         // will not propagate from parent expressions
-        if (indexBasedAccessExpr.lhsVar) { 
+        if (indexBasedAccessExpr.lhsVar) {
             indexBasedAccessExpr.originalType = actualType;
             indexBasedAccessExpr.type = actualType;
             resultType = actualType;
@@ -1705,13 +1715,13 @@ public class TypeChecker extends BLangNodeVisitor {
             if (structType.tag == TypeTags.RECORD) {
                 if (funcSymbol == symTable.notFoundSymbol) {
                     dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, iExpr.name.value,
-                               structType.getKind().typeName(), structType.tsymbol);
+                            structType.getKind().typeName(), structType.tsymbol);
                     resultType = symTable.semanticError;
                     return;
                 }
                 if (funcSymbol.type.tag != TypeTags.INVOKABLE) {
                     dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_POINTER_INVOCATION, iExpr.name.value,
-                               structType);
+                            structType);
                     resultType = symTable.semanticError;
                     return;
                 }
@@ -1913,13 +1923,13 @@ public class TypeChecker extends BLangNodeVisitor {
     private void checkActionInvocationExpr(BLangInvocation iExpr, BType conType) {
         BType actualType = symTable.semanticError;
         if (conType == symTable.semanticError || conType.tag != TypeTags.OBJECT
-                || iExpr.expr.symbol.tag != SymTag.ENDPOINT) {
+                || ((BLangVariableReference) iExpr.expr).symbol.tag != SymTag.ENDPOINT) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION);
             resultType = actualType;
             return;
         }
 
-        final BEndpointVarSymbol epSymbol = (BEndpointVarSymbol) iExpr.expr.symbol;
+        final BEndpointVarSymbol epSymbol = (BEndpointVarSymbol) ((BLangVariableReference) iExpr.expr).symbol;
         if (!epSymbol.interactable) {
             dlog.error(iExpr.pos, DiagnosticCode.ENDPOINT_NOT_SUPPORT_INTERACTIONS, epSymbol.name);
             resultType = actualType;
@@ -2531,7 +2541,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     /**
      * Returns the type guards included in a given expression.
-     * 
+     *
      * @param expr Expression to get type guards
      * @return A map of type guards, with the original variable symbol as keys
      *         and their guarded type.

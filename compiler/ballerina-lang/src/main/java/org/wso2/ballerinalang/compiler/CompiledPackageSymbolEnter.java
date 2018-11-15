@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -213,40 +214,37 @@ public class CompiledPackageSymbolEnter {
 
         // TODO Validate this pkdID with the requestedPackageID available in the env.
 
-        // define import packages
+        // Define import packages.
         defineSymbols(dataInStream, rethrow(this::defineImportPackage));
 
-        // define type defs
+        // Define type definitions.
         defineSymbols(dataInStream, rethrow(this::defineTypeDef));
 
-        // define annotations
+        // Define annotations.
         defineSymbols(dataInStream, rethrow(this::defineAnnotations));
 
-        // define services
+        // Define services.
         defineSymbols(dataInStream, rethrow(this::defineService));
 
 
-        // Resolve unresolved types..
+        // Resolve unresolved types.
         resolveTypes();
 
         // Read resource info entries.
         defineSymbols(dataInStream, rethrow(this::defineResource));
 
-        // Define package level variables
+        // Define constants.
+        defineSymbols(dataInStream, rethrow(this::defineConstants));
+
+        // Define package level variables.
         defineSymbols(dataInStream, rethrow(this::definePackageLevelVariables));
 
-        // Define resource entries
-
-        // Define global variables
-
-        // Define functions
+        // Define functions.
         defineSymbols(dataInStream, rethrow(this::defineFunction));
         assignInitFunctions();
 
         // Read package level attributes
         readAttributes(dataInStream);
-
-        // Read instructions array
 
         return this.env.pkgSymbol;
     }
@@ -650,6 +648,84 @@ public class CompiledPackageSymbolEnter {
             readAttributes(dataInStream);
         }
         readAttributes(dataInStream);
+    }
+
+    private void defineConstants(DataInputStream dataInStream) throws IOException {
+        String constantName = getUTF8CPEntryValue(dataInStream);
+        String finiteTypeSig = getUTF8CPEntryValue(dataInStream);
+        BType finiteType = getBTypeFromDescriptor(finiteTypeSig);
+        String valueTypeSig = getUTF8CPEntryValue(dataInStream);
+        BType valueType = getBTypeFromDescriptor(valueTypeSig);
+
+        int flags = dataInStream.readInt();
+
+        // Create constant symbol.
+        Scope enclScope = this.env.pkgSymbol.scope;
+        BConstantSymbol constantSymbol = new BConstantSymbol(flags, names.fromString(constantName),
+                this.env.pkgSymbol.pkgID, finiteType, valueType, enclScope.owner);
+
+        enclScope.define(constantSymbol.name, constantSymbol);
+
+        Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
+        setDocumentation(constantSymbol, attrDataMap);
+
+        // Read value of the constant and set it in the symbol.
+        BLangLiteral constantValue = getConstantValue(attrDataMap);
+        constantSymbol.literalValue = constantValue.value;
+        constantSymbol.literalValueType = constantValue.type;
+        constantSymbol.literalValueTypeTag = constantValue.typeTag;
+    }
+
+    private BLangLiteral getConstantValue(Map<Kind, byte[]> attrDataMap) throws IOException {
+        // Constants must have a value attribute.
+        byte[] documentationBytes = attrDataMap.get(Kind.DEFAULT_VALUE_ATTRIBUTE);
+        DataInputStream documentDataStream = new DataInputStream(new ByteArrayInputStream(documentationBytes));
+        // Create a new literal.
+        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        // Read the value from the stream. We need to set `value`, `valueTag` and `type` of the literal.
+        String typeDesc = getUTF8CPEntryValue(documentDataStream);
+        int valueCPIndex;
+        switch (typeDesc) {
+            case TypeDescriptor.SIG_BOOLEAN:
+                literal.value = documentDataStream.readBoolean();
+                literal.typeTag = TypeTags.BOOLEAN;
+                break;
+            case TypeDescriptor.SIG_INT:
+                valueCPIndex = documentDataStream.readInt();
+                IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[valueCPIndex];
+                literal.value = integerCPEntry.getValue();
+                literal.typeTag = TypeTags.INT;
+                break;
+            case TypeDescriptor.SIG_BYTE:
+                valueCPIndex = documentDataStream.readInt();
+                ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[valueCPIndex];
+                literal.value = byteCPEntry.getValue();
+                literal.typeTag = TypeTags.BYTE;
+                break;
+            case TypeDescriptor.SIG_FLOAT:
+                valueCPIndex = documentDataStream.readInt();
+                FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[valueCPIndex];
+                literal.value = floatCPEntry.getValue();
+                literal.typeTag = TypeTags.FLOAT;
+                break;
+            case TypeDescriptor.SIG_DECIMAL:
+                valueCPIndex = documentDataStream.readInt();
+                UTF8CPEntry decimalEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
+                literal.value = decimalEntry.getValue();
+                literal.typeTag = TypeTags.DECIMAL;
+                break;
+            case TypeDescriptor.SIG_STRING:
+                valueCPIndex = documentDataStream.readInt();
+                UTF8CPEntry stringCPEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
+                literal.value = stringCPEntry.getValue();
+                literal.typeTag = TypeTags.STRING;
+                break;
+            default:
+                // Todo - Allow json and xml.
+                throw new RuntimeException("unknown constant value type " + typeDesc);
+        }
+        literal.type = symTable.getTypeFromTag(literal.typeTag);
+        return literal;
     }
 
     private void definePackageLevelVariables(DataInputStream dataInStream) throws IOException {

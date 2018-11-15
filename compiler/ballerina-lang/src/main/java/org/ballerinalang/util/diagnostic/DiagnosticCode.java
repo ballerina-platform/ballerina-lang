@@ -311,6 +311,11 @@ public enum DiagnosticCode {
     TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE("tainted.value.passed.to.global.variable"),
     UNABLE_TO_PERFORM_TAINT_CHECKING_WITH_RECURSION("unable.to.perform.taint.checking.with.recursion"),
 
+    // Constants related codes.
+    ONLY_SIMPLE_LITERALS_CAN_BE_ASSIGNED_TO_CONST("only.simple.literals.can.be.assigned.to.const"),
+    CANNOT_ASSIGN_VALUE_TO_CONSTANT("cannot.assign.value.to.constant"),
+    CANNOT_DEFINE_CONSTANT_WITH_TYPE("cannot.define.constant.with.type"),
+
     // Anonymous functions related codes
     ARROW_EXPRESSION_MISMATCHED_PARAMETER_LENGTH("arrow.expression.mismatched.parameter.length"),
     ARROW_EXPRESSION_CANNOT_INFER_TYPE_FROM_LHS("arrow.expression.cannot.infer.type.from.lhs"),

@@ -193,6 +193,9 @@ public class PackageInfoWriter {
             writeResourceInfo(dataOutStream, serviceInfo);
         }
 
+        // Emit constant info entries
+        writeConstantInfoEntries(dataOutStream, packageInfo.getConstantInfoEntries());
+
         // Emit global variable info entries
         writeGlobalVarInfoEntries(dataOutStream, packageInfo.getPackageInfoEntries());
 
@@ -222,6 +225,18 @@ public class PackageInfoWriter {
 
 
     // Private methods
+
+    private static void writeConstantInfoEntries(DataOutputStream dataOutStream,
+                                                 ConstantInfo[] constantInfos) throws IOException {
+        dataOutStream.writeShort(constantInfos.length);
+        for (ConstantInfo constantInfo : constantInfos) {
+            dataOutStream.writeInt(constantInfo.nameCPIndex);
+            dataOutStream.writeInt(constantInfo.finiteTypeCPIndex);
+            dataOutStream.writeInt(constantInfo.valueTypeCPIndex);
+            dataOutStream.writeInt(constantInfo.flags);
+            writeAttributeInfoEntries(dataOutStream, constantInfo.getAttributeInfoEntries());
+        }
+    }
 
     private static void writeGlobalVarInfoEntries(DataOutputStream dataOutStream,
                                                   PackageVarInfo[] packageVarInfoEntry) throws IOException {

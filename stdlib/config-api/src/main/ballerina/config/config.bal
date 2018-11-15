@@ -16,14 +16,14 @@
 
 import ballerina/system;
 
-type ValueType "STRING"|"INT"|"FLOAT"|"BOOLEAN"|"MAP"|"ARRAY";
+type ValueType STRING|INT|FLOAT|BOOLEAN|MAP|ARRAY;
 
-@final ValueType STRING = "STRING";
-@final ValueType INT = "INT";
-@final ValueType FLOAT = "FLOAT";
-@final ValueType BOOLEAN = "BOOLEAN";
-@final ValueType MAP = "MAP";
-@final ValueType ARRAY = "ARRAY";
+const STRING = "STRING";
+const INT = "INT";
+const FLOAT = "FLOAT";
+const BOOLEAN = "BOOLEAN";
+const MAP = "MAP";
+const ARRAY = "ARRAY";
 
 # Retrieves the specified configuration value as a string.
 #
