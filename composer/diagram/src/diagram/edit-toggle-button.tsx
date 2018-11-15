@@ -3,7 +3,7 @@ import { DiagramContext, IDiagramContext } from "./diagram-context";
 
 export class EditToggleButton extends React.Component {
 
-    private static contextType = DiagramContext;
+    public static contextType = DiagramContext;
 
     public render() {
         const context: IDiagramContext = this.context;

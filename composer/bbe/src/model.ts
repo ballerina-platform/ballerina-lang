@@ -7,6 +7,6 @@ export interface BallerinaExample {
 export interface BallerinaExampleCategory {
     title: string;
     column: number;
-    samples: Array<BallerinaExample>;
+    samples: BallerinaExample[];
     category?: string;
-}  
+}

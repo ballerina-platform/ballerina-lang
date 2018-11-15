@@ -1,11 +1,15 @@
-import * as React from 'react';
-import { storiesOf } from '@storybook/react';
-import 'semantic-ui-css/semantic.min.css';
-import './toolbar';
-import './trace-list';
-import TraceLogs from '../src/TraceLogs';
+import { storiesOf } from "@storybook/react";
+import * as React from "react";
+// tslint:disable-next-line:no-submodule-imports
+import "semantic-ui-css/semantic.min.css";
+import TraceLogs from "../src/TraceLogs";
+import "./toolbar";
+import "./trace-list";
 
-const traces:any = [{
+// tslint:disable:object-literal-key-quotes
+// tslint:disable:object-literal-sort-keys
+// tslint:disable:max-line-length
+const traces: any = [{
     "id": "uuid1",
     "logDate": "2018-09-18T18:51Z",
     "millis": "1537276895575",
@@ -104,7 +108,7 @@ const filters = {
     "message.httpMethod": "Method"
 };
 
-storiesOf('trace logs', module)
-    .add('Trace Logs toolbar and component', () => {
-        return (<TraceLogs traces={traces} selected='uuid1' filters={filters} clearLogs={()=>{}}/>);
+storiesOf("trace logs", module)
+    .add("Trace Logs toolbar and component", () => {
+        return (<TraceLogs traces={traces} selected="uuid1" filters={filters} clearLogs={() => undefined }/>);
     });

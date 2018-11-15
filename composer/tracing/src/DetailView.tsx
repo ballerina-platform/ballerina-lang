@@ -17,15 +17,15 @@
  */
 
 import * as React from "react";
-import { Segment, Icon } from 'semantic-ui-react';
-import ReactJson from 'react-json-view';
+import ReactJson from "react-json-view";
+import { Icon, Segment } from "semantic-ui-react";
 
 function isJson(text: string) {
-    if (typeof text !== 'string') {
+    if (typeof text !== "string") {
         return false;
     }
     try {
-        if (typeof JSON.parse(text) === 'string') {
+        if (typeof JSON.parse(text) === "string") {
             return false;
         }
         return true;
@@ -35,31 +35,27 @@ function isJson(text: string) {
 }
 
 export interface DetailViewProps {
-    hideDetailView: Function,
-    meta: any,
+    hideDetailView: () => void;
+    meta: any;
 }
 
-export interface DetailViewState {
-
-}
-
-export default class DetailView extends React.Component<DetailViewProps, DetailViewState> {
-    constructor(props: DetailViewProps, context: DetailViewState) {
+export default class DetailView extends React.Component<DetailViewProps> {
+    constructor(props: DetailViewProps) {
         super(props);
     }
-    render() {
-        const { meta, meta: { headers = '' } } = this.props;
+    public render() {
+        const { meta, meta: { headers = "" } } = this.props;
         const payload = meta.payload;
-        const headersArray = headers.split('\n');
+        const headersArray = headers.split("\n");
 
         return (
-            <Segment className='detail-view' inverted>
-                <Icon name='close' className='close' onClick={this.props.hideDetailView} />
+            <Segment className="detail-view" inverted>
+                <Icon name="close" className="close" onClick={this.props.hideDetailView} />
                 <code>
                     <pre>
                         {headersArray.map((header: string, index: number) => {
-                            const endChar = headersArray.length - 1 === index ? '' : '\n';
-                            const splitIndex = header.indexOf(':');
+                            const endChar = headersArray.length - 1 === index ? "" : "\n";
+                            const splitIndex = header.indexOf(":");
                             if (splitIndex !== -1) {
                                 return ([
                                     <b>
@@ -75,15 +71,15 @@ export default class DetailView extends React.Component<DetailViewProps, DetailV
                     </pre>
                 </code>
                 {
-                    meta.contentType === 'application/json' && isJson(payload) ?
+                    meta.contentType === "application/json" && isJson(payload) ?
                         <ReactJson
                             src={JSON.parse(payload)}
-                            theme='eighties'
+                            theme="eighties"
                             name={false}
                             displayDataTypes={false}
                             collapsed={1}
                             displayObjectSize={false}
-                            style={{ marginTop: 10, background: 'inherit' }}
+                            style={{ marginTop: 10, background: "inherit" }}
                         /> : <code><pre>{meta.payload}</pre></code>
                 }
 

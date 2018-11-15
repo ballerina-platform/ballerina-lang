@@ -5,7 +5,7 @@ import { DiagramLangClient, DiagramMode } from "./../src";
 
 export class MockLangClient implements DiagramLangClient {
     constructor(
-        private ast: BallerinaAST,
+        private ast: BallerinaAST
     ) {}
     public getAST(params: GetASTParams): Thenable<GetASTResponse> {
       return Promise.resolve({ ast: this.ast, parseSuccess: true });
