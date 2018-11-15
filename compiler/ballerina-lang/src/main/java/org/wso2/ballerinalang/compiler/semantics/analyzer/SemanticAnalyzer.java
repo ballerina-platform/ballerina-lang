@@ -641,9 +641,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     continue;
                 }
             }
-            if (var.type == null) {
-                var.type = tupleTypeNode.tupleTypes.get(i);
-            }
+            var.type = tupleTypeNode.tupleTypes.get(i);
             var.accept(this);
         }
 
@@ -1181,77 +1179,39 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangMatchStructuredBindingPatternClause patternClause) {
-        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(patternClause.body, env);
+
         patternClause.bindingPatternVariable.type = patternClause.matchExpr.type;
         patternClause.bindingPatternVariable.expr = patternClause.matchExpr;
 
-        if (patternClause.typeGuardExpr != null) {
-            analyseMatchPatternTypeGuardExpr(patternClause, patternClause.typeGuardExpr);
-        }
-
-        analyzeDef(patternClause.bindingPatternVariable, blockEnv);
+        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(patternClause.body, env);
 
         if (patternClause.typeGuardExpr != null) {
-            typeChecker.checkExpr(patternClause.typeGuardExpr, blockEnv);
+            BLangExpression typeGuardExpr = patternClause.typeGuardExpr;
+            SymbolEnv typeGuardEnv = SymbolEnv.createExpressionEnv(typeGuardExpr, env);
+            analyzeDef(patternClause.bindingPatternVariable, typeGuardEnv);
+
+            blockEnv = SymbolEnv.createBlockEnv(patternClause.body, typeGuardEnv);
+
+            typeChecker.checkExpr(patternClause.typeGuardExpr, typeGuardEnv);
+
+            Map<BVarSymbol, BType> typeGuards = typeChecker.getTypeGuards(patternClause.typeGuardExpr);
+            if (!typeGuards.isEmpty()) {
+                SymbolEnv ifBodyEnv = SymbolEnv.createBlockEnv(patternClause.body, blockEnv);
+                for (Entry<BVarSymbol, BType> entry : typeGuards.entrySet()) {
+                    BVarSymbol originalVarSymbol = entry.getKey();
+                    BVarSymbol varSymbol = new BVarSymbol(0, originalVarSymbol.name, ifBodyEnv.scope.owner.pkgID,
+                            entry.getValue(), this.env.scope.owner);
+                    symbolEnter.defineShadowedSymbol(patternClause.typeGuardExpr.pos, varSymbol, ifBodyEnv);
+
+                    // Cache the type guards, to be reused at the desugar.
+                    patternClause.typeGuards.put(originalVarSymbol, varSymbol);
+                }
+            }
+        } else {
+            analyzeDef(patternClause.bindingPatternVariable, blockEnv);
         }
 
         analyzeStmt(patternClause.body, blockEnv);
-    }
-
-    private void analyseMatchPatternTypeGuardExpr(BLangMatchStructuredBindingPatternClause patternClause,
-                                                  BLangExpression typeGuardExpr) {
-        switch (typeGuardExpr.getKind()) {
-            case TYPE_TEST_EXPR:
-                BLangTypeTestExpr typeTestExpr = (BLangTypeTestExpr) typeGuardExpr;
-
-                if (typeTestExpr.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
-                    dlog.error(patternClause.pos, DiagnosticCode.INVALID_EXPR_WITH_TYPE_GUARD_FOR_MATCH_PATTERN);
-                    return;
-                }
-
-                String typeGuardVarName = ((BLangSimpleVarRef) typeTestExpr.expr).variableName.value;
-                BType typeGuardType = symResolver.resolveTypeNode(typeTestExpr.typeNode, env);
-                checkAndSetTypeGuardType(patternClause.bindingPatternVariable, typeGuardVarName, typeGuardType);
-                break;
-            case BRACED_TUPLE_EXPR:
-                BLangBracedOrTupleExpr bracedExpr = (BLangBracedOrTupleExpr) typeGuardExpr;
-
-                if (bracedExpr.expressions.size() > 1) {
-                    dlog.error(patternClause.pos, DiagnosticCode.INVALID_EXPR_WITH_TYPE_GUARD_FOR_MATCH_PATTERN);
-                    return;
-                }
-
-                analyseMatchPatternTypeGuardExpr(patternClause, bracedExpr.expressions.get(0));
-                break;
-            case BINARY_EXPR:
-                BLangBinaryExpr binExpr = (BLangBinaryExpr) typeGuardExpr;
-
-                if (binExpr.getOperatorKind() != OperatorKind.AND) {
-                    dlog.error(patternClause.pos, DiagnosticCode.INVALID_EXPR_WITH_TYPE_GUARD_FOR_MATCH_PATTERN);
-                    return;
-                }
-
-                analyseMatchPatternTypeGuardExpr(patternClause, binExpr.lhsExpr);
-                analyseMatchPatternTypeGuardExpr(patternClause, binExpr.rhsExpr);
-                break;
-            default:
-                dlog.error(patternClause.pos, DiagnosticCode.INVALID_TYPE_GUARD_FOR_MATCH_PATTERN);
-                break;
-        }
-    }
-
-    private void checkAndSetTypeGuardType(BLangVariable bindingPatternVariable, String varName, BType varType) {
-        if (NodeKind.TUPLE_VARIABLE == bindingPatternVariable.getKind()) {
-            BLangTupleVariable tupleVariable = (BLangTupleVariable) bindingPatternVariable;
-            for (BLangVariable var : tupleVariable.memberVariables) {
-                checkAndSetTypeGuardType(var, varName, varType);
-            }
-            return;
-        }
-
-        if (varName.equals(((BLangSimpleVariable) bindingPatternVariable).name.value)) {
-            bindingPatternVariable.type = varType;
-        }
     }
 
     public void visit(BLangForeach foreach) {
