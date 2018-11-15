@@ -25,8 +25,8 @@ public type Consumer object {
 };
 
 public type ConsumerTemplate object {
-    public ConsumerActions callerActions;
-    public ConsumerEndpointConfiguration config;
+    public ConsumerActions callerActions = new;
+    public ConsumerEndpointConfiguration config = {};
 
     public function init(ConsumerEndpointConfiguration c) {
 

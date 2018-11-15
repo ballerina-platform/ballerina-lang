@@ -475,12 +475,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangReturn returnStmt) {
         this.checkStatementExecutionValidity(returnStmt);
 
-        // Check whether this return statement is in resource
-        if (this.env.enclInvokable.getKind() == NodeKind.RESOURCE) {
-            this.dlog.error(returnStmt.pos, DiagnosticCode.RETURN_STMT_NOT_VALID_IN_RESOURCE);
-            return;
-        }
-
         if (this.inForkJoin() && this.inWorker()) {
             this.dlog.error(returnStmt.pos, DiagnosticCode.FORK_JOIN_WORKER_CANNOT_RETURN);
             return;
@@ -1181,7 +1175,19 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
-        // TODO
+        boolean enclInvokableHasErrorReturn = false;
+        BType exprType = env.enclInvokable.getReturnTypeNode().type;
+        if (exprType.tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) env.enclInvokable.getReturnTypeNode().type;
+            enclInvokableHasErrorReturn = unionType.memberTypes.stream()
+                    .anyMatch(memberType -> types.isAssignable(memberType, symTable.errorType));
+        } else if (types.isAssignable(exprType, symTable.errorType)) {
+            enclInvokableHasErrorReturn = true;
+        }
+
+        if (!enclInvokableHasErrorReturn) {
+            dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_NO_ERROR_RETURN_IN_ENCL_INVOKABLE);
+        }
     }
 
     @Override
@@ -1384,10 +1390,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         if (!Symbols.isPublic(funcNode.symbol)) {
             this.dlog.error(funcNode.pos, DiagnosticCode.MAIN_SHOULD_BE_PUBLIC);
-        }
-        if (!(funcNode.symbol.retType.tag == TypeTags.NIL || funcNode.symbol.retType.tag == TypeTags.INT)) {
-            this.dlog.error(funcNode.returnTypeNode.pos, DiagnosticCode.INVALID_RETURN_WITH_MAIN,
-                            funcNode.symbol.retType);
         }
     }
 

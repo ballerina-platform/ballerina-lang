@@ -114,11 +114,11 @@ public type TopicIdentifier "TOPIC_ID_HEADER"|"TOPIC_ID_PAYLOAD_KEY"|"TOPIC_ID_H
 # + request - The HTTP request received for intent verification
 public type IntentVerificationRequest object {
 
-    public string mode;
-    public string topic;
-    public string challenge;
-    public int leaseSeconds;
-    public http:Request request;
+    public string mode = "";
+    public string topic = "";
+    public string challenge = "";
+    public int leaseSeconds = 0;
+    public http:Request request = new;
 
     # Builds the response for the request, verifying intention to subscribe, if the topic matches that expected.
     #
@@ -640,9 +640,12 @@ function retrieveSubscriberServiceAnnotations(typedesc serviceType) returns Subs
     reflect:annotationData[] annotationDataArray = reflect:getServiceAnnotations(serviceType);
     foreach annData in annotationDataArray {
         if (annData.name == ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG && annData.moduleName == WEBSUB_MODULE_NAME) {
-            SubscriberServiceConfiguration subscriberServiceAnnotation =
-                                                            check <SubscriberServiceConfiguration> (annData.value);
-            return subscriberServiceAnnotation;
+            var subscriberServiceAnnotation = <SubscriberServiceConfiguration> (annData.value);
+            if (subscriberServiceAnnotation is SubscriberServiceConfiguration) {
+                return subscriberServiceAnnotation;
+            } else if (subscriberServiceAnnotation is error) {
+                panic subscriberServiceAnnotation;
+            }
         }
     }
     return;

@@ -28,7 +28,7 @@ type TwoPhaseCommitTransaction object {
     Protocol[] coordinatorProtocols = [];
     int createdTime = time:currentTime().time;
     TransactionState state = TXN_STATE_ACTIVE;
-    private boolean possibleMixedOutcome;
+    private boolean possibleMixedOutcome = false;
 
     new(transactionId, transactionBlockId, coordinationType = "2pc") {
 

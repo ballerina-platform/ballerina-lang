@@ -144,8 +144,18 @@ function Listener.sendSubscriptionRequests() {
                 var discoveredDetails = retrieveHubAndTopicUrl(resourceUrl, auth, newSecureSocket, followRedirects);
                 if (discoveredDetails is (string, string)) {
                     var (retHub, retTopic) = discoveredDetails;
-                    retHub = check http:decode(retHub, "UTF-8");
-                    retTopic = check http:decode(retTopic, "UTF-8");
+                    var hubDecodeResponse = http:decode(retHub, "UTF-8");
+                    if (hubDecodeResponse is string) {
+                        retHub = hubDecodeResponse;
+                    } else if (hubDecodeResponse is error) {
+                        panic hubDecodeResponse;
+                    }
+                    var topicDecodeResponse = http:decode(retTopic, "UTF-8");
+                    if (topicDecodeResponse is string) {
+                        retTopic = topicDecodeResponse;
+                    } else if (topicDecodeResponse is error) {
+                        panic topicDecodeResponse;
+                    }
                     subscriptionDetails["hub"] = retHub;
                     hub = retHub;
                     subscriptionDetails["topic"] = retTopic;

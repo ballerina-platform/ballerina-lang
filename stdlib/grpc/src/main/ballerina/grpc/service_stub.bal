@@ -19,7 +19,7 @@
 #
 # + client - client endpoint.
 public type Stub object {
-    public Client client;
+    public Client client = new;
 
     # Calls when initializing client endpoint with service descriptor data extracted from proto file.
     #

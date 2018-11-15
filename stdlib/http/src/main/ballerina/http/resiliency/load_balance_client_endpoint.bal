@@ -21,8 +21,8 @@
 # + loadBalanceClientConfig - The configurations for the load balance client endpoint
 public type LoadBalanceClient object {
 
-    public string epName;
-    public LoadBalanceClientEndpointConfiguration loadBalanceClientConfig;
+    public string epName = "";
+    public LoadBalanceClientEndpointConfiguration loadBalanceClientConfig = {};
 
     private Client httpEP = new;
 
@@ -35,7 +35,10 @@ public type LoadBalanceClient object {
     #
     # + return - The HTTP LoadBalancer actions associated with the endpoint
     public function getCallerActions() returns LoadBalancerActions {
-        return check <LoadBalancerActions> self.httpEP.httpClient;
+        match (<LoadBalancerActions> self.httpEP.httpClient) {
+            error err => panic err;
+            LoadBalancerActions loadBalancerActions => return loadBalancerActions;
+        }
     }
 };
 

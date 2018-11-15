@@ -249,8 +249,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             analyzeDef(lambdaFunction.function, lambdaFunction.cachedEnv);
         }
 
-        pkgNode.typeDefinitions.forEach(this::validateConstructorAndCheckDefaultable);
-
         pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
         pkgNode.completedPhases.add(CompilerPhase.TYPE_CHECK);
     }
@@ -444,7 +442,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 dlog.error(varNode.pos, DiagnosticCode.SEALED_ARRAY_TYPE_NOT_INITIALIZED);
                 return;
             }
-            if (varNode.symbol.owner.tag == SymTag.PACKAGE && !types.defaultValueExists(varNode.pos, varNode.type)) {
+            if (varNode.symbol.owner.tag == SymTag.PACKAGE) {
                 dlog.error(varNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varNode.name);
             }
             return;
@@ -657,12 +655,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         analyzeDef(varDefNode.var, env);
-
-        // Check whether variable is initialized, if the type don't support default values.
-        // eg: struct types.
-        if (varDefNode.var.expr == null && !types.defaultValueExists(varDefNode.pos, varDefNode.var.type)) {
-            dlog.error(varDefNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varDefNode.var.name);
-        }
     }
 
     public void visit(BLangRecordVariableDef varDefNode) {
@@ -1076,72 +1068,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 endpointSPIAnalyzer.getEndpointConfigType((BObjectTypeSymbol) serviceNode.endpointType.tsymbol));
     }
 
-    private void validateConstructorAndCheckDefaultable(BLangTypeDefinition typeDef) {
-        if (typeDef.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE || typeDef.symbol.tag != SymTag.OBJECT) {
-            return;
-        }
-
-        boolean defaultableStatus = false;
-        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeDef.typeNode;
-
-        // If the object is an abstract object then it is not defaultable.
-        if (objectTypeNode.flagSet.contains(Flag.ABSTRACT)) {
-            markDefaultableStatus(typeDef.symbol, defaultableStatus);
-            return;
-        }
-
-        // No initFunction implies having a default constructor with no params
-        List<BVarSymbol> initFuncParams =
-                objectTypeNode.initFunction == null ? new ArrayList<>(0) : objectTypeNode.initFunction.symbol.params;
-        defaultableStatus = true;
-        for (BLangSimpleVariable field : objectTypeNode.fields) {
-            if (field.expr != null || types.defaultValueExists(field.pos, field.symbol.type)) {
-                continue;
-            }
-            defaultableStatus = false;
-            if (initFuncParams.stream().filter(p -> p.name.equals(field.symbol.name))
-                    .collect(Collectors.toList()).size() == 0) {
-                dlog.error(typeDef.pos, DiagnosticCode.OBJECT_UNINITIALIZED_FIELD, field);
-            }
-        }
-
-        if (initFuncParams.size() > 0) {
-            defaultableStatus = false;
-        }
-
-        for (BAttachedFunction func : ((BObjectTypeSymbol) typeDef.symbol).attachedFuncs) {
-            if ((func.symbol.flags & Flags.INTERFACE) == Flags.INTERFACE) {
-                defaultableStatus = false;
-                break;
-            }
-        }
-
-        markDefaultableStatus(typeDef.symbol, defaultableStatus);
-    }
-
-    private void markDefaultableStatus(BSymbol symbol, boolean defaultableStatus) {
-        symbol.flags |= Flags.asMask(EnumSet.of(Flag.DEFAULTABLE_CHECKED));
-        if (defaultableStatus) {
-            symbol.flags |= Flags.asMask(EnumSet.of(Flag.DEFAULTABLE));
-        }
-    }
-
     private void validateDefaultable(BLangRecordTypeNode recordTypeNode) {
-        boolean defaultableStatus = true;
         for (BLangSimpleVariable field : recordTypeNode.fields) {
             if (field.flagSet.contains(Flag.OPTIONAL) && field.expr != null) {
                 dlog.error(field.pos, DiagnosticCode.DEFAULT_VALUES_NOT_ALLOWED_FOR_OPTIONAL_FIELDS, field.name.value);
             }
-            if (field.expr != null || types.defaultValueExists(field.pos, field.symbol.type)) {
+            if (field.expr != null) {
                 continue;
             }
-            defaultableStatus = false;
             break;
-        }
-
-        recordTypeNode.symbol.flags |= Flags.asMask(EnumSet.of(Flag.DEFAULTABLE_CHECKED));
-        if (defaultableStatus) {
-            recordTypeNode.symbol.flags |= Flags.asMask(EnumSet.of(Flag.DEFAULTABLE));
         }
     }
 
@@ -1402,10 +1337,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReturn returnNode) {
-        if (this.env.enclInvokable.getKind() == NodeKind.RESOURCE) {
-            return;
-        }
-
         this.typeChecker.checkExpr(returnNode.expr, this.env,
                 this.env.enclInvokable.returnTypeNode.type);
     }
