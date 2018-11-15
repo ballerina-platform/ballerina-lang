@@ -2492,7 +2492,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // !(NULL_LITERAL|int|string|float|boolean|byte|any|map|table|function|stream|'}'|';'|var |while|match|foreach|continue|break|fork|try|throw|return|abort|fail|lock|xmlns|transaction|but|if|forever|object|check)
+  // !(NULL_LITERAL|int|string|float|boolean|byte|any|map|table|function|stream|'}'|';'|var|while|match|foreach|continue|break|fork|try|throw|return|abort|fail|lock|xmlns|transaction|but|if|forever|object|trap|error|check)
   static boolean ExpressionRecover(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ExpressionRecover")) return false;
     boolean r;
@@ -2502,7 +2502,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // NULL_LITERAL|int|string|float|boolean|byte|any|map|table|function|stream|'}'|';'|var |while|match|foreach|continue|break|fork|try|throw|return|abort|fail|lock|xmlns|transaction|but|if|forever|object|check
+  // NULL_LITERAL|int|string|float|boolean|byte|any|map|table|function|stream|'}'|';'|var|while|match|foreach|continue|break|fork|try|throw|return|abort|fail|lock|xmlns|transaction|but|if|forever|object|trap|error|check
   private static boolean ExpressionRecover_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ExpressionRecover_0")) return false;
     boolean r;
@@ -2539,6 +2539,8 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     if (!r) r = consumeToken(b, IF);
     if (!r) r = consumeToken(b, FOREVER);
     if (!r) r = consumeToken(b, OBJECT);
+    if (!r) r = consumeToken(b, TRAP);
+    if (!r) r = consumeToken(b, ERROR);
     if (!r) r = consumeToken(b, CHECK);
     exit_section_(b, m, null, r);
     return r;
@@ -6198,7 +6200,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|boolean|byte|any|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|await|var|while|match|foreach|continue|break|fork|try|throw|return|abort|retry|fail|lock|transaction|if|forever|object|check|panic|from|worker|done|identifier)
+  // !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|boolean|byte|any|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|await|var|while|match|foreach|continue|break|fork|try|throw|return|abort|retry|fail|lock|transaction|if|forever|object|check|error|panic|from|worker|done|identifier)
   static boolean StatementRecover(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "StatementRecover")) return false;
     boolean r;
@@ -6208,7 +6210,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|boolean|byte|any|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|await|var|while|match|foreach|continue|break|fork|try|throw|return|abort|retry|fail|lock|transaction|if|forever|object|check|panic|from|worker|done|identifier
+  // BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|boolean|byte|any|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|await|var|while|match|foreach|continue|break|fork|try|throw|return|abort|retry|fail|lock|transaction|if|forever|object|check|error|panic|from|worker|done|identifier
   private static boolean StatementRecover_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "StatementRecover_0")) return false;
     boolean r;
@@ -6259,6 +6261,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     if (!r) r = consumeToken(b, FOREVER);
     if (!r) r = consumeToken(b, OBJECT);
     if (!r) r = consumeToken(b, CHECK);
+    if (!r) r = consumeToken(b, ERROR);
     if (!r) r = consumeToken(b, PANIC);
     if (!r) r = consumeToken(b, FROM);
     if (!r) r = consumeToken(b, WORKER);
@@ -8696,10 +8699,10 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, INIT_WITH_TYPE, null);
     r = consumeToken(b, NEW);
-    p = r; // pin = 1
-    r = r && report_error_(b, UserDefineTypeName(b, l + 1));
-    r = p && report_error_(b, consumeToken(b, LEFT_PARENTHESIS)) && r;
-    r = p && report_error_(b, initWithType_3(b, l + 1)) && r;
+    r = r && UserDefineTypeName(b, l + 1);
+    r = r && consumeToken(b, LEFT_PARENTHESIS);
+    p = r; // pin = 3
+    r = r && report_error_(b, initWithType_3(b, l + 1));
     r = p && consumeToken(b, RIGHT_PARENTHESIS) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
@@ -8717,13 +8720,12 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   public static boolean initWithoutType(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "initWithoutType")) return false;
     if (!nextTokenIs(b, NEW)) return false;
-    boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_, INIT_WITHOUT_TYPE, null);
+    boolean r;
+    Marker m = enter_section_(b);
     r = consumeToken(b, NEW);
-    p = r; // pin = 1
     r = r && initWithoutType_1(b, l + 1);
-    exit_section_(b, l, m, r, p, null);
-    return r || p;
+    exit_section_(b, m, INIT_WITHOUT_TYPE, r);
+    return r;
   }
 
   // (LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS)?
@@ -9424,14 +9426,14 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   // 25: PREFIX(CheckedExpression)
   // 26: BINARY(ElvisExpression)
   // 27: PREFIX(AwaitExpression)
-  // 28: ATOM(TypeAccessExpression)
-  // 29: BINARY(IntegerRangeExpression)
-  // 30: BINARY(BitwiseExpression)
-  // 31: BINARY(BitwiseShiftExpression)
-  // 32: ATOM(ErrorConstructorExpression)
-  // 33: POSTFIX(TypeTestExpression)
-  // 34: BINARY(BinaryRefEqualExpression)
-  // 35: ATOM(TrapExpression)
+  // 28: BINARY(IntegerRangeExpression)
+  // 29: BINARY(BitwiseExpression)
+  // 30: BINARY(BitwiseShiftExpression)
+  // 31: ATOM(ErrorConstructorExpression)
+  // 32: POSTFIX(TypeTestExpression)
+  // 33: BINARY(BinaryRefEqualExpression)
+  // 34: ATOM(TrapExpression)
+  // 35: ATOM(TypeAccessExpression)
   public static boolean Expression(PsiBuilder b, int l, int g) {
     if (!recursion_guard_(b, l, "Expression")) return false;
     addVariant(b, "<expression>");
@@ -9456,9 +9458,9 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     if (!r) r = TableQueryExpression(b, l + 1);
     if (!r) r = CheckedExpression(b, l + 1);
     if (!r) r = AwaitExpression(b, l + 1);
-    if (!r) r = TypeAccessExpression(b, l + 1);
     if (!r) r = ErrorConstructorExpression(b, l + 1);
     if (!r) r = TrapExpression(b, l + 1);
+    if (!r) r = TypeAccessExpression(b, l + 1);
     p = r;
     r = r && Expression_0(b, l + 1, g);
     exit_section_(b, l, m, null, r, p, null);
@@ -9507,24 +9509,24 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
         r = Expression(b, l, 26);
         exit_section_(b, l, m, ELVIS_EXPRESSION, r, true, null);
       }
-      else if (g < 29 && IntegerRangeExpression_0(b, l + 1)) {
-        r = Expression(b, l, 29);
+      else if (g < 28 && IntegerRangeExpression_0(b, l + 1)) {
+        r = Expression(b, l, 28);
         exit_section_(b, l, m, INTEGER_RANGE_EXPRESSION, r, true, null);
       }
-      else if (g < 30 && BitwiseExpression_0(b, l + 1)) {
-        r = Expression(b, l, 30);
+      else if (g < 29 && BitwiseExpression_0(b, l + 1)) {
+        r = Expression(b, l, 29);
         exit_section_(b, l, m, BITWISE_EXPRESSION, r, true, null);
       }
-      else if (g < 31 && BitwiseShiftExpression_0(b, l + 1)) {
-        r = Expression(b, l, 31);
+      else if (g < 30 && BitwiseShiftExpression_0(b, l + 1)) {
+        r = Expression(b, l, 30);
         exit_section_(b, l, m, BITWISE_SHIFT_EXPRESSION, r, true, null);
       }
-      else if (g < 33 && TypeTestExpression_0(b, l + 1)) {
+      else if (g < 32 && TypeTestExpression_0(b, l + 1)) {
         r = true;
         exit_section_(b, l, m, TYPE_TEST_EXPRESSION, r, true, null);
       }
-      else if (g < 34 && BinaryRefEqualExpression_0(b, l + 1)) {
-        r = Expression(b, l, 34);
+      else if (g < 33 && BinaryRefEqualExpression_0(b, l + 1)) {
+        r = Expression(b, l, 33);
         exit_section_(b, l, m, BINARY_REF_EQUAL_EXPRESSION, r, true, null);
       }
       else {
@@ -9719,14 +9721,14 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return true;
   }
 
-  // initWithType | initWithoutType
+  // initWithoutType | initWithType
   public static boolean TypeInitExpression(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "TypeInitExpression")) return false;
     if (!nextTokenIsSmart(b, NEW)) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = initWithType(b, l + 1);
-    if (!r) r = initWithoutType(b, l + 1);
+    r = initWithoutType(b, l + 1);
+    if (!r) r = initWithType(b, l + 1);
     exit_section_(b, m, TYPE_INIT_EXPRESSION, r);
     return r;
   }
@@ -9875,16 +9877,6 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return r || p;
   }
 
-  // TypeName
-  public static boolean TypeAccessExpression(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "TypeAccessExpression")) return false;
-    boolean r;
-    Marker m = enter_section_(b, l, _NONE_, TYPE_ACCESS_EXPRESSION, "<type access expression>");
-    r = TypeName(b, l + 1, -1);
-    exit_section_(b, l, m, r, false, null);
-    return r;
-  }
-
   // ELLIPSIS | HALF_OPEN_RANGE
   private static boolean IntegerRangeExpression_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "IntegerRangeExpression_0")) return false;
@@ -9978,6 +9970,16 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     r = r && Expression(b, l + 1, -1);
     exit_section_(b, l, m, r, p, null);
     return r || p;
+  }
+
+  // TypeName
+  public static boolean TypeAccessExpression(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "TypeAccessExpression")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, TYPE_ACCESS_EXPRESSION, "<type access expression>");
+    r = TypeName(b, l + 1, -1);
+    exit_section_(b, l, m, r, false, null);
+    return r;
   }
 
   /* ********************************************************** */
