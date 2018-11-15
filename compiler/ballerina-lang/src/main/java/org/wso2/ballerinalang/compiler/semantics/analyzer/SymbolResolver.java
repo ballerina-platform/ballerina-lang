@@ -326,55 +326,12 @@ public class SymbolResolver extends BLangNodeVisitor {
             BType variableSourceType = argumentExpression.type;
             if (isStampSupportedForSourceType(variableSourceType)) {
                 if (targetTypeExpression.type.tag == TypeTags.TYPEDESC) {
-                    BType targetType;
-                    if (targetTypeExpression instanceof BLangTypedescExpr) {
-                        targetType = ((BLangTypedescExpr) targetTypeExpression).resolvedType;
-                    } else if (targetTypeExpression instanceof BLangBracedOrTupleExpr) {
-                        List<BLangExpression> expressionList = ((BLangBracedOrTupleExpr) targetTypeExpression).
-                                getExpressions();
-                        List<BType> tupleTypeList = new ArrayList<>();
-                        for (BLangExpression expression : expressionList) {
-                            if (expression instanceof BLangTypedescExpr) {
-                                tupleTypeList.add(((BLangTypedescExpr) expression).resolvedType);
-                            } else {
-                                tupleTypeList.add(((BLangSimpleVarRef) expression).symbol.type);
-                            }
-                        }
-
-                        targetType = new BTupleType(tupleTypeList);
-                    } else {
-                        BSymbol symbol = ((BLangSimpleVarRef) targetTypeExpression).symbol;
-                        if (symbol != null) {
-                            targetType = symbol.type;
-                        } else {
-                            resultType = symTable.semanticError;
-                            return symTable.notFoundSymbol;
-                        }
-                    }
-
-                    //It is not allowed to stamp a variable to union type.
-                    if (canHaveStampInvocation(targetType)) {
-                        if (types.isAssignable(variableSourceType, targetType)) {
-                            List<BType> paramTypes = new ArrayList<>();
-                            paramTypes.add(variableSourceType);
-                            return symTable.createOperator(name, paramTypes, targetType, InstructionCodes.STAMP);
-                        } else if (types.isStampingAllowed(variableSourceType, targetType)) {
-                            List<BType> unionReturnTypes = new ArrayList<>();
-                            unionReturnTypes.add(targetType);
-                            unionReturnTypes.add(symTable.errorType);
-                            BType returnType =
-                                    new BUnionType(null, new LinkedHashSet<>(unionReturnTypes), false);
-                            List<BType> paramTypes = new ArrayList<>();
-                            paramTypes.add(variableSourceType);
-                            return symTable.createOperator(name, paramTypes, returnType, InstructionCodes.STAMP);
-                        } else {
-                            dlog.error(pos, DiagnosticCode.INCOMPATIBLE_STAMP_TYPE, variableSourceType, targetType);
-                            resultType = symTable.semanticError;
-                        }
-                    } else {
-                        dlog.error(pos, DiagnosticCode.INCOMPATIBLE_STAMP_TYPE, variableSourceType, targetType);
+                    BType targetType = resolveTargetTypeForStamping(targetTypeExpression);
+                    if(targetType == null) {
                         resultType = symTable.semanticError;
+                        return symTable.notFoundSymbol;
                     }
+                    return resolveTargetSymbolForStamping(targetType, variableSourceType, name, pos);
                 } else {
                     dlog.error(pos, DiagnosticCode.FUNC_DEFINED_ON_NOT_SUPPORTED_TYPE, name,
                             variableSourceType.toString());
@@ -384,6 +341,62 @@ public class SymbolResolver extends BLangNodeVisitor {
                 dlog.error(pos, DiagnosticCode.NOT_SUPPORTED_SOURCE_TYPE_FOR_STAMP, variableSourceType.toString());
                 resultType = symTable.semanticError;
             }
+        }
+
+        return symTable.notFoundSymbol;
+    }
+
+    private BType resolveTargetTypeForStamping(BLangExpression targetTypeExpression) {
+        BType targetType = null;
+
+        if (targetTypeExpression instanceof BLangTypedescExpr) {
+            targetType = ((BLangTypedescExpr) targetTypeExpression).resolvedType;
+        } else if (targetTypeExpression instanceof BLangBracedOrTupleExpr) {
+            List<BLangExpression> expressionList = ((BLangBracedOrTupleExpr) targetTypeExpression).
+                    getExpressions();
+            List<BType> tupleTypeList = new ArrayList<>();
+            for (BLangExpression expression : expressionList) {
+                if (expression instanceof BLangTypedescExpr) {
+                    tupleTypeList.add(((BLangTypedescExpr) expression).resolvedType);
+                } else {
+                    tupleTypeList.add(((BLangSimpleVarRef) expression).symbol.type);
+                }
+            }
+
+            targetType = new BTupleType(tupleTypeList);
+        } else {
+            BSymbol symbol = ((BLangSimpleVarRef) targetTypeExpression).symbol;
+            if (symbol != null) {
+                targetType = symbol.type;
+            }
+        }
+
+        return targetType;
+    }
+
+    private BSymbol resolveTargetSymbolForStamping(BType targetType, BType variableSourceType, Name name,
+                                                   DiagnosticPos pos){
+        if (canHaveStampInvocation(targetType)) {
+            if (types.isAssignable(variableSourceType, targetType)) {
+                List<BType> paramTypes = new ArrayList<>();
+                paramTypes.add(variableSourceType);
+                return symTable.createOperator(name, paramTypes, targetType, InstructionCodes.STAMP);
+            } else if (types.isStampingAllowed(variableSourceType, targetType)) {
+                List<BType> unionReturnTypes = new ArrayList<>();
+                unionReturnTypes.add(targetType);
+                unionReturnTypes.add(symTable.errorType);
+                BType returnType =
+                        new BUnionType(null, new LinkedHashSet<>(unionReturnTypes), false);
+                List<BType> paramTypes = new ArrayList<>();
+                paramTypes.add(variableSourceType);
+                return symTable.createOperator(name, paramTypes, returnType, InstructionCodes.STAMP);
+            } else {
+                dlog.error(pos, DiagnosticCode.INCOMPATIBLE_STAMP_TYPE, variableSourceType, targetType);
+                resultType = symTable.semanticError;
+            }
+        } else {
+            dlog.error(pos, DiagnosticCode.INCOMPATIBLE_STAMP_TYPE, variableSourceType, targetType);
+            resultType = symTable.semanticError;
         }
 
         return symTable.notFoundSymbol;

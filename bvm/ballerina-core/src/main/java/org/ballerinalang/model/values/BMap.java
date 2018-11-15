@@ -352,6 +352,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
                 ((BValue) valueEntry.getValue()).stamp(targetTypeField.getOrDefault(fieldName, restFieldType));
             }
         }
+
         this.type = type;
     }
 
