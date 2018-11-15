@@ -46,6 +46,8 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.ASSIGN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ATTACHMENT_POINT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.AWAIT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BIND;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.BINDING_PATTERN;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.BINDING_REF_PATTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BLOCK;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BRACED_OR_TUPLE_EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BREAK;
@@ -78,6 +80,8 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.ELSE_IF_CLAUSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ELVIS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ENDPOINT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ENDPOINT_INITIALIZATION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ENTRY_BINDING_PATTERN;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ENTRY_REF_BINDING_PATTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ENUM;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EQUAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EQUAL_GT;
@@ -88,7 +92,9 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.EXPRESSION_LIST;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EXTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FAIL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FIELD;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.FIELD_BINDING_PATTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FIELD_DEFINITION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.FIELD_REF_BINDING_PATTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FINALLY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FINALLY_CLAUSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FINITE_TYPE;
@@ -177,11 +183,14 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.RARROW;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECORD_KEY_VALUE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECORD_LITERAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECORD_LITERAL_BODY;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECORD_REF_BINDING_PATTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.REF_EQUAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.REF_NOT_EQUAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RESOURCE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RESOURCE_DEFINITION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.REST_BINDING_PATTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.REST_PARAMETER;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.REST_REF_BINDING_PATTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETRIES;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETURN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETURNS;
@@ -216,6 +225,8 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRANSACTION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRANSACTION_PROPERTY_INIT_STATEMENT_LIST;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRIGGER_WORKER;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRY;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.TUPLE_BINDING_PATTERN;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.TUPLE_REF_BINDING_PATTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TUPLE_TYPE_NAME;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPE_CONVERSION_EXPRESSION;
@@ -224,6 +235,8 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.UNIDIRECTIONAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.UNION_TYPE_NAME;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.UNTAINT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.VAR;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.VARIABLE_DEFINITION_STATEMENT_WITHOUT_ASSIGNMENT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.VARIABLE_REFERENCE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.VARIABLE_REFERENCE_EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.VERSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WHERE;
@@ -356,6 +369,41 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .after(LEFT_BRACKET).spaceIf(false)
                 .before(RIGHT_BRACKET).spaceIf(false)
                 .around(EQUAL_GT).spaceIf(true)
+
+                // Binding Patterns
+                .around(BINDING_PATTERN).spaceIf(true)
+
+                // Record binding pattern
+                .around(ENTRY_BINDING_PATTERN).spaceIf(true)
+                .beforeInside(COMMA, ENTRY_BINDING_PATTERN).spaceIf(false)
+                .afterInside(COMMA, ENTRY_BINDING_PATTERN).spaceIf(true)
+                .beforeInside(COLON,FIELD_BINDING_PATTERN).spaceIf(false)
+                .afterInside(COLON,FIELD_BINDING_PATTERN).spaceIf(true)
+                .between(LEFT_BRACE, REST_BINDING_PATTERN).spaceIf(true)
+                .between(REST_BINDING_PATTERN, RIGHT_BRACE).spaceIf(true)
+                .betweenInside(ELLIPSIS, IDENTIFIER, REST_BINDING_PATTERN).spaceIf(false) // Todo - Verify
+
+                // Tuple binding pattern
+                .betweenInside(BINDING_PATTERN, COMMA, TUPLE_BINDING_PATTERN).spaceIf(false)
+                .betweenInside(COMMA, BINDING_PATTERN, TUPLE_BINDING_PATTERN).spaceIf(true)
+
+                // Record destructuring pattern
+                .around(RECORD_REF_BINDING_PATTERN).spaceIf(true)
+                .around(ENTRY_REF_BINDING_PATTERN).spaceIf(true)
+                .beforeInside(COMMA, ENTRY_REF_BINDING_PATTERN).spaceIf(false)
+                .afterInside(COMMA, ENTRY_REF_BINDING_PATTERN).spaceIf(true)
+                .beforeInside(COLON, FIELD_REF_BINDING_PATTERN).spaceIf(false)
+                .afterInside(COLON, FIELD_REF_BINDING_PATTERN).spaceIf(true)
+                .between(LEFT_BRACE, REST_REF_BINDING_PATTERN).spaceIf(true)
+                .between(REST_REF_BINDING_PATTERN, RIGHT_BRACE).spaceIf(true)
+                .betweenInside(ELLIPSIS, VARIABLE_REFERENCE, REST_REF_BINDING_PATTERN).spaceIf(false) // Todo - Verify
+
+                // Tuple destructuring pattern
+                .around(TUPLE_REF_BINDING_PATTERN).spaceIf(true)
+                .between(LEFT_PARENTHESIS, BINDING_REF_PATTERN).spaceIf(false)
+                .between(BINDING_REF_PATTERN, RIGHT_PARENTHESIS).spaceIf(false)
+                .beforeInside(COMMA, TUPLE_REF_BINDING_PATTERN).spaceIf(false)
+                .afterInside(COMMA, TUPLE_REF_BINDING_PATTERN).spaceIf(false)
 
                 // Function signature
                 .between(LEFT_PARENTHESIS, RIGHT_PARENTHESIS).spaceIf(false)
