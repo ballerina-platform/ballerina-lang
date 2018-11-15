@@ -242,6 +242,7 @@ public class MatchStatementStaticPatternsTest {
                 "invalid key: only identifiers are allowed for record literal keys", 265, 10);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 265, 9);
     }
+
     @Test(description = "Test unreachable pattern")
     public void testUnreachablePatterns() {
         Assert.assertEquals(resultNegative2.getErrorCount(), 8);

@@ -483,6 +483,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         if (!validateRecordVariable(varNode)) {
+            varNode.type = symTable.semanticError;
             return;
         }
 
@@ -509,6 +510,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         if (!(checkTypeAndVarCountConsistency(varNode))) {
+            varNode.type = symTable.semanticError;
             return;
         }
 
@@ -719,6 +721,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
                 recordVarType.fields = fields;
                 recordSymbol.type = recordVarType;
+                recordVarType.tsymbol = recordSymbol;
                 break;
             case TypeTags.ANYDATA:
                 recordSymbol = Symbols.createRecordSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID,
@@ -735,6 +738,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
                 recordVarType.fields = fields;
                 recordSymbol.type = recordVarType;
+                recordVarType.tsymbol = recordSymbol;
                 break;
             default:
                 dlog.error(recordVar.pos, DiagnosticCode.INVALID_RECORD_BINDING_PATTERN, recordVar.type);
@@ -760,12 +764,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         field -> field
                 ));
 
+        boolean validRecord = true;
         for (BLangRecordVariableKeyValueNode variable : recordVar.variableList) {
             // Infer the type of each variable in recordVariable from the given record type
             // so that symbol enter is done recursively
             BLangVariable value = (BLangVariable) variable.getValue();
             if (!recordVarTypeFields.containsKey(variable.getKey().getValue())) {
                 if (recordVarType.sealed) {
+                    validRecord = false;
                     dlog.error(recordVar.pos, DiagnosticCode.INVALID_FIELD_IN_RECORD_BINDING_PATTERN,
                             variable.getKey().getValue(), recordVar.type);
                 } else {
@@ -784,7 +790,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             symbolEnter.defineNode((BLangNode) recordVar.restParam, env);
         }
 
-        return true;
+        return validRecord;
     }
 
     private boolean doesRecordContainKeys(BRecordType recordVarType, List<BLangRecordVariableKeyValue> variableList) {

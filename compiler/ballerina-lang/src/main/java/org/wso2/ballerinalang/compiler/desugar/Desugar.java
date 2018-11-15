@@ -113,6 +113,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangAct
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangAttachedFunctionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangBuiltInMethodInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
@@ -2579,6 +2580,12 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangIsLikeExpr isLikeExpr) {
+        isLikeExpr.expr = rewriteExpr(isLikeExpr.expr);
+        result = isLikeExpr;
+    }
+
+    @Override
     public void visit(BLangStatementExpression bLangStatementExpression) {
         bLangStatementExpression.expr = rewriteExpr(bLangStatementExpression.expr);
         bLangStatementExpression.stmt = rewrite(bLangStatementExpression.stmt, env);
@@ -3356,7 +3363,7 @@ public class Desugar extends BLangNodeVisitor {
 
             BSymbol opSymbol = symResolver.resolveBinaryOperator(OperatorKind.EQUAL, varRef.type, pattern.literal.type);
             if (opSymbol == symTable.notFoundSymbol) {
-                opSymbol = symResolver.getBinaryEqualityForTypeSets(OperatorKind.EQUAL, symTable.anyType,
+                opSymbol = symResolver.getBinaryEqualityForTypeSets(OperatorKind.EQUAL, symTable.anydataType,
                         pattern.literal.type, binaryExpr);
             }
             binaryExpr.opSymbol = (BOperatorSymbol) opSymbol;
@@ -3364,8 +3371,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (NodeKind.MATCH_STRUCTURED_PATTERN_CLAUSE == patternClause.getKind()) {
-            BLangType typeNode = ASTBuilderUtil.createTypeNode(patternType);
-            return ASTBuilderUtil.createTypeTestExpr(pos, varRef, typeNode, symTable.booleanType);
+            return createIsLikeExpression(pos, ASTBuilderUtil.createVariableRef(pos, varSymbol), patternType);
         }
 
         if (patternType == symTable.nilType) {
@@ -3387,6 +3393,12 @@ public class Desugar extends BLangNodeVisitor {
 
         // Binary operator for equality
         return ASTBuilderUtil.createIsAssignableExpr(pos, varRef, patternType, symTable.booleanType, names);
+    }
+
+    private BLangIsLikeExpr createIsLikeExpression(DiagnosticPos pos,
+                                                   BLangExpression expr,
+                                                   BType type) {
+        return ASTBuilderUtil.createIsLikeExpr(pos, expr, ASTBuilderUtil.createTypeNode(type), symTable.booleanType);
     }
 
     private BLangExpression getInitExpr(BLangSimpleVariable varNode) {
