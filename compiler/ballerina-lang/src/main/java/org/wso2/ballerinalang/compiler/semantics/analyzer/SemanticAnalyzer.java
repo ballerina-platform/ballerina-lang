@@ -122,6 +122,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -642,7 +643,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     continue;
                 }
             }
-            var.type = tupleTypeNode.tupleTypes.get(i);
+            if (var.type == null) {
+                var.type = tupleTypeNode.tupleTypes.get(i);
+            }
             var.accept(this);
         }
 
@@ -1187,8 +1190,74 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(patternClause.body, env);
         patternClause.bindingPatternVariable.type = patternClause.matchExpr.type;
         patternClause.bindingPatternVariable.expr = patternClause.matchExpr;
+
+        if (patternClause.typeGuardExpr != null) {
+            analyseMatchPatternTypeGuardExpr(patternClause, patternClause.typeGuardExpr);
+        }
+
         analyzeDef(patternClause.bindingPatternVariable, blockEnv);
+
+        if (patternClause.typeGuardExpr != null) {
+            typeChecker.checkExpr(patternClause.typeGuardExpr, blockEnv);
+        }
+
         analyzeStmt(patternClause.body, blockEnv);
+    }
+
+    private void analyseMatchPatternTypeGuardExpr(BLangMatchStructuredBindingPatternClause patternClause,
+                                                  BLangExpression typeGuardExpr) {
+        switch (typeGuardExpr.getKind()) {
+            case TYPE_TEST_EXPR:
+                BLangTypeTestExpr typeTestExpr = (BLangTypeTestExpr) typeGuardExpr;
+
+                if (typeTestExpr.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+                    dlog.error(patternClause.pos, DiagnosticCode.INVALID_EXPR_WITH_TYPE_GUARD_FOR_MATCH_PATTERN);
+                    return;
+                }
+
+                String typeGuardVarName = ((BLangSimpleVarRef) typeTestExpr.expr).variableName.value;
+                BType typeGuardType = symResolver.resolveTypeNode(typeTestExpr.typeNode, env);
+                checkAndSetTypeGuardType(patternClause.bindingPatternVariable, typeGuardVarName, typeGuardType);
+                break;
+            case BRACED_TUPLE_EXPR:
+                BLangBracedOrTupleExpr bracedExpr = (BLangBracedOrTupleExpr) typeGuardExpr;
+
+                if (bracedExpr.expressions.size() > 1) {
+                    dlog.error(patternClause.pos, DiagnosticCode.INVALID_EXPR_WITH_TYPE_GUARD_FOR_MATCH_PATTERN);
+                    return;
+                }
+
+                analyseMatchPatternTypeGuardExpr(patternClause, bracedExpr.expressions.get(0));
+                break;
+            case BINARY_EXPR:
+                BLangBinaryExpr binExpr = (BLangBinaryExpr) typeGuardExpr;
+
+                if (binExpr.getOperatorKind() != OperatorKind.AND) {
+                    dlog.error(patternClause.pos, DiagnosticCode.INVALID_EXPR_WITH_TYPE_GUARD_FOR_MATCH_PATTERN);
+                    return;
+                }
+
+                analyseMatchPatternTypeGuardExpr(patternClause, binExpr.lhsExpr);
+                analyseMatchPatternTypeGuardExpr(patternClause, binExpr.rhsExpr);
+                break;
+            default:
+                dlog.error(patternClause.pos, DiagnosticCode.INVALID_TYPE_GUARD_FOR_MATCH_PATTERN);
+                break;
+        }
+    }
+
+    private void checkAndSetTypeGuardType(BLangVariable bindingPatternVariable, String varName, BType varType) {
+        if (NodeKind.TUPLE_VARIABLE == bindingPatternVariable.getKind()) {
+            BLangTupleVariable tupleVariable = (BLangTupleVariable) bindingPatternVariable;
+            for (BLangVariable var : tupleVariable.memberVariables) {
+                checkAndSetTypeGuardType(var, varName, varType);
+            }
+            return;
+        }
+
+        if (varName.equals(((BLangSimpleVariable) bindingPatternVariable).name.value)) {
+            bindingPatternVariable.type = varType;
+        }
     }
 
     public void visit(BLangForeach foreach) {

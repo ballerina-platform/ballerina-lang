@@ -3326,18 +3326,20 @@ public class Desugar extends BLangNodeVisitor {
     private BLangExpression createPatternMatchBinaryExpr(BLangMatchBindingPatternClause patternClause,
                                                          BVarSymbol varSymbol, BType patternType) {
         DiagnosticPos pos = patternClause.pos;
+
+        BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, varSymbol);
+
         if (NodeKind.MATCH_STATIC_PATTERN_CLAUSE == patternClause.getKind()) {
             BLangMatchStaticBindingPatternClause pattern = (BLangMatchStaticBindingPatternClause) patternClause;
-            BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, varSymbol);
-            BLangExpression binaryExpr = ASTBuilderUtil.createBinaryExpr(pos, varRef, pattern.literal,
+            BLangBinaryExpr binaryExpr = ASTBuilderUtil.createBinaryExpr(pos, varRef, pattern.literal,
                     symTable.booleanType, OperatorKind.EQUAL, null);
 
             BSymbol opSymbol = symResolver.resolveBinaryOperator(OperatorKind.EQUAL, varRef.type, pattern.literal.type);
             if (opSymbol == symTable.notFoundSymbol) {
                 opSymbol = symResolver.getBinaryEqualityForTypeSets(OperatorKind.EQUAL, symTable.anyType,
-                        pattern.literal.type, (BLangBinaryExpr) binaryExpr);
+                        pattern.literal.type, binaryExpr);
             }
-            ((BLangBinaryExpr) binaryExpr).opSymbol = (BOperatorSymbol) opSymbol;
+            binaryExpr.opSymbol = (BOperatorSymbol) opSymbol;
             return binaryExpr;
         }
 
@@ -3346,7 +3348,6 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (patternType == symTable.nilType) {
-            BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, varSymbol);
             BLangLiteral bLangLiteral = ASTBuilderUtil.createLiteral(pos, symTable.nilType, null);
             return ASTBuilderUtil.createBinaryExpr(pos, varRef, bLangLiteral, symTable.booleanType,
                     OperatorKind.EQUAL, (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.EQUAL,

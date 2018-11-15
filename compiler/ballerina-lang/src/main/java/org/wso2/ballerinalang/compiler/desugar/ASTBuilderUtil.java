@@ -58,6 +58,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
@@ -514,6 +515,15 @@ public class ASTBuilderUtil {
         binaryExpr.opKind = opKind;
         binaryExpr.opSymbol = symbol;
         return binaryExpr;
+    }
+
+    static BLangTypeTestExpr createTypeTestExpr(DiagnosticPos pos, BLangExpression expr, BLangType typeNode, BType type) {
+        BLangTypeTestExpr typeTestExpr = (BLangTypeTestExpr) TreeBuilder.createTypeTestExpressionNode();
+        typeTestExpr.expr = expr;
+        typeTestExpr.typeNode = typeNode;
+        typeTestExpr.type = type;
+        typeTestExpr.pos = pos;
+        return typeTestExpr;
     }
 
     static BLangIsAssignableExpr createIsAssignableExpr(DiagnosticPos pos,
