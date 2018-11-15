@@ -23,8 +23,8 @@ import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectBundle;
-import com.intellij.openapi.roots.ModuleRootAdapter;
 import com.intellij.openapi.roots.ModuleRootEvent;
+import com.intellij.openapi.roots.ModuleRootListener;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -54,7 +54,7 @@ public class WrongSdkConfigurationNotificationProvider extends EditorNotificatio
                                                      @NotNull EditorNotifications notifications) {
         myProject = project;
         MessageBusConnection connection = myProject.getMessageBus().connect(project);
-        connection.subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootAdapter() {
+        connection.subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener() {
 
             @Override
             public void rootsChanged(ModuleRootEvent event) {
@@ -101,7 +101,7 @@ public class WrongSdkConfigurationNotificationProvider extends EditorNotificatio
     @NotNull
     private static EditorNotificationPanel createMissingSdkPanel(@NotNull Project project, @Nullable Module module) {
         EditorNotificationPanel panel = new EditorNotificationPanel();
-        panel.setText(ProjectBundle.message("project.sdk.not.defined"));
+        panel.setText(ProjectBundle.message("project.sdk.not.defined") + ". Some of the plugin features are disabled.");
         panel.createActionLabel(ProjectBundle.message("project.sdk.setup"),
                 () -> BallerinaSdkService.getInstance(project).chooseAndSetSdk(module));
         return panel;
