@@ -26,6 +26,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.tree.expressions.ConstantNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -44,7 +45,8 @@ import java.util.Set;
 /**
  * @since 0.985.0
  */
-public class BLangConstant extends BLangLiteral implements AnnotatableNode, DocumentableNode, TopLevelNode {
+public class BLangConstant extends BLangExpression implements ConstantNode, AnnotatableNode, DocumentableNode,
+        TopLevelNode {
 
     public BLangIdentifier name;
     public Set<Flag> flagSet;
@@ -57,6 +59,10 @@ public class BLangConstant extends BLangLiteral implements AnnotatableNode, Docu
     public BLangType typeNode;
     // Type definition associated with this constant.
     public BLangTypeDefinition associatedTypeDefinition;
+
+    public int typeTag;
+    public Object value;
+    public String originalValue;
 
     public BLangConstant() {
         this.annAttachments = new ArrayList<>();
@@ -114,6 +120,26 @@ public class BLangConstant extends BLangLiteral implements AnnotatableNode, Docu
     @Override
     public void addDeprecatedAttachment(DeprecatedNode deprecatedAttachment) {
         this.deprecatedAttachments.add((BLangDeprecatedNode) deprecatedAttachment);
+    }
+
+    @Override
+    public Object getValue() {
+        return value;
+    }
+
+    @Override
+    public void setValue(Object value) {
+        this.value = value;
+    }
+
+    @Override
+    public String getOriginalValue() {
+        return originalValue;
+    }
+
+    @Override
+    public void setOriginalValue(String originalValue) {
+        this.originalValue = originalValue;
     }
 
     @Override
