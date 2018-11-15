@@ -1,9 +1,5 @@
 {
   "extends": [
-    "tslint:latest",
-    "tslint-config-prettier"
-  ],
-  "rules": {
-      "interface-name":false
-  }
+    "../configs/common.tslint.json"
+  ]
 }

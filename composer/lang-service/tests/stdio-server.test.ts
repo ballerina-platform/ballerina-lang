@@ -1,3 +1,4 @@
+import { ChildProcess } from "child_process";
 import { createStdioLangClient, IBallerinaLangClient, StdioBallerinaLangServer } from "../src";
 
 let client: IBallerinaLangClient;
@@ -7,7 +8,7 @@ beforeAll((done) => {
     server = new StdioBallerinaLangServer();
     server.start();
     // tslint:disable-next-line:no-empty
-    createStdioLangClient(server.lsProcess, () => {}, () => {})
+    createStdioLangClient(server.lsProcess as ChildProcess, () => {}, () => {})
         .then((stdioClient) => {
             client = stdioClient;
             done();

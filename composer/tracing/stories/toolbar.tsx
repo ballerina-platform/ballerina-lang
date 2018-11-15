@@ -1,10 +1,13 @@
-import * as React from 'react';
-import { storiesOf } from '@storybook/react';
-import ToolBar from '../src/ToolBar';
+import { storiesOf } from "@storybook/react";
+import * as React from "react";
+import ToolBar from "../src/ToolBar";
 
-storiesOf('ToolBar', module)
-    .add('tool bar', () => {
-        let traces: Array<any>;
+// tslint:disable:object-literal-key-quotes
+// tslint:disable:object-literal-sort-keys
+// tslint:disable:max-line-length
+storiesOf("ToolBar", module)
+    .add("tool bar", () => {
+        let traces: any[];
         traces = [
             {
                 "id": "uuid4",
@@ -37,6 +40,5 @@ storiesOf('ToolBar', module)
             "message.httpMethod": "Method"
         };
 
-
-        return (<ToolBar traces={traces} filters={filters} clearLogs={() => { }} onFilteredTraces={()=>{}}/>);
+        return (<ToolBar traces={traces} filters={filters} clearLogs={() => undefined} onFilteredTraces={() => undefined}/>);
     });

@@ -1,4 +1,3 @@
-import { BallerinaAST } from "@ballerina/ast-model";
 import { createStdioLangClient,
   getBBEs, StdioBallerinaLangServer } from "@ballerina/lang-service";
 import { ChildProcess } from "child_process";
@@ -44,7 +43,7 @@ createStdioLangClient(server.lsProcess as ChildProcess, () => {}, () => {})
             console.log("Writing data to ", astPath);
             writeFileSync(astPath, JSON.stringify(bbeData));
             return jsonFileName;
-          }),
+          })
         );
       });
       Promise.all(promises)

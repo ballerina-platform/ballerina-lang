@@ -1,2 +1,2 @@
-export * from './TraceLogs';
-export * from './DetailView';
+export * from "./TraceLogs";
+export * from "./DetailView";

@@ -1,28 +1,11 @@
 {
+  "extends": "../configs/common.tsconfig.json",
   "compilerOptions": {
-    "declaration": true,
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "lib": [
-      "esnext",
-      "dom"
-    ],
-    "target": "es5",
-    "strict": true,
-    "outDir": "./lib",
-    "preserveConstEnums": true,
-    "removeComments": true,
-    "stripInternal": true,
-    "typeRoots": [
-      "./node_modules/@types"
-    ],
-    "sourceMap": true
+    "rootDirs": ["src", "tests"],
+    "outDir": "lib"
   },
-  "include": [
-    "src/**/*"
-  ],
+  "include": ["src", "tests"],
   "exclude": [
-    "node_modules",
     "**/*-spec.ts"
   ]
 }

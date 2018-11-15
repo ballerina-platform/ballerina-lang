@@ -1,0 +1,18 @@
+{
+    "extends": [
+        "tslint:latest"
+    ],
+    "rules": {
+        "interface-name": false,
+        "no-implicit-dependencies": [true, "dev"],
+        "trailing-comma": [
+            true,
+            {
+              "multiline": {
+                "functions": "never"
+              },
+              "esSpecCompliant": true
+            }
+        ]
+    }
+}

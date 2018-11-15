@@ -1,8 +1,7 @@
-import 'mocha';
+import "mocha";
 
-
-describe('Test Language Client', () => {
-  it('should parse AST', () => {
-
+describe("Test Language Client", () => {
+  it("should parse AST", () => {
+    // mock
   });
 });

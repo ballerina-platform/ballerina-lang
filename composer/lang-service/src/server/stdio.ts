@@ -9,7 +9,7 @@ export class StdioBallerinaLangServer implements IBallerinaLangServer {
     public lsProcess: ChildProcess | undefined;
 
     constructor(
-        private ballerinaHome: string = detectBallerinaHome(),
+        private ballerinaHome: string = detectBallerinaHome()
     ) {
     }
 
@@ -19,7 +19,7 @@ export class StdioBallerinaLangServer implements IBallerinaLangServer {
 
     public shutdown(): void {
         if (this.lsProcess) {
-            treekill(this.lsProcess.pid);
+            treekill.default(this.lsProcess.pid);
         }
     }
 }

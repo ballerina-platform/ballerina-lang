@@ -1,4 +1,3 @@
-import { BallerinaAST } from "@ballerina/ast-model";
 import { storiesOf } from "@storybook/react";
 import * as React from "react";
 import bbeASTs from "../resources/bbe-asts.json";

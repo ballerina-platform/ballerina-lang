@@ -24,7 +24,7 @@ export interface DiagramState {
 export class Diagram extends React.Component<DiagramProps, DiagramState> {
 
     // get default context or provided context from a parent (if any)
-    private static contextType = DiagramContext;
+    public static contextType = DiagramContext;
 
     public state = {
         currentMode: DiagramMode.ACTION,

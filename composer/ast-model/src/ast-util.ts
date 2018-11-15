@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 /**
  * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -18,7 +18,7 @@
  *
  */
 
-import * as _ from 'lodash';
+import * as _ from "lodash";
 
 export class ASTUtil {
     /**
@@ -29,10 +29,10 @@ export class ASTUtil {
      * @returns {String} source
      */
     public static getSource(ast: any): string {
-        let source = '';
+        let source = "";
         let ws = ASTUtil.extractWS(ast);
-        ws = _.unionBy(ws, 'i');
-        ws.forEach(element => {
+        ws = _.unionBy(ws, "i");
+        ws.forEach((element) => {
             source += element.ws + element.text;
         });
         return source;
@@ -52,7 +52,7 @@ export class ASTUtil {
             },
         });
 
-        pot = _.sortBy(pot, ['i']);
+        pot = _.sortBy(pot, ["i"]);
         return pot;
     }
 
@@ -64,10 +64,10 @@ export class ASTUtil {
      * @returns {String} source
      */
     public static getSourceForTesting(ast: any): string {
-        let source = '';
+        let source = "";
         let ws = ASTUtil.extractWSLoop(ast);
-        ws = _.unionBy(ws, 'i');
-        ws.forEach(element => {
+        ws = _.unionBy(ws, "i");
+        ws.forEach((element) => {
             source += element.ws + element.text;
         });
         return source;
@@ -84,9 +84,9 @@ export class ASTUtil {
         for (childName in json) {
             // if child name is position || whitespace skip convection.
             if (
-                childName !== 'position' &&
-                childName !== 'ws' &&
-                childName !== 'parent'
+                childName !== "position" &&
+                childName !== "ws" &&
+                childName !== "parent"
             ) {
                 const child = json[childName];
                 if (_.isPlainObject(child)) {
@@ -98,7 +98,7 @@ export class ASTUtil {
                 }
             }
         }
-        pot = _.sortBy(pot, ['i']);
+        pot = _.sortBy(pot, ["i"]);
         return pot;
     }
 
@@ -126,7 +126,7 @@ export class ASTUtil {
         // get the diff from node to last
         const diff = startIndex - nodeFirstIndex;
         // update node ws
-        nodeWS.forEach(ws => {
+        nodeWS.forEach((ws) => {
             ws.i = ws.i + diff;
         });
         // get the new last of node ws
@@ -136,7 +136,7 @@ export class ASTUtil {
         let treeDiff = lastIndex - startIndex;
         treeDiff = treeDiff + 1;
         // update rest of the tree
-        astWS.forEach(ws => {
+        astWS.forEach((ws) => {
             if (ws.i >= startIndex) {
                 ws.i = ws.i + treeDiff;
             }

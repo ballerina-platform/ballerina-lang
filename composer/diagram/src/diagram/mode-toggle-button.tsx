@@ -3,10 +3,9 @@ import { DiagramContext, DiagramMode, IDiagramContext } from "./diagram-context"
 
 export class ModeToggleButton extends React.Component {
 
-    private static contextType = DiagramContext;
+    public static contextType = DiagramContext;
 
     public render() {
-        const context: IDiagramContext = this.context;
         return <React.Fragment>
             <button onClick={this.changeMode.bind(this)} >Toggle Diagram Mode</button>
         </React.Fragment>;

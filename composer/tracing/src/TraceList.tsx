@@ -16,29 +16,29 @@
  * under the License.
  */
 
+import * as _ from "lodash";
+import moment from "moment";
 import * as React from "react";
-import * as _ from 'lodash';
-import moment from 'moment';
-import { Grid, Icon } from 'semantic-ui-react';
-import './index.scss';
+import { Grid, Icon } from "semantic-ui-react";
+import "./index.scss";
 
-const directionToIcon = {
+const directionToIcon: any = {
     INBOUND: {
-        'http.tracelog.downstream': 'fw fw-downstream-inbound direction-icon inbound downstream',
-        'http.tracelog.upstream': 'fw fw-upstream-inbound direction-icon inbound upstream',
+        "http.tracelog.downstream": "fw fw-downstream-inbound direction-icon inbound downstream",
+        "http.tracelog.upstream": "fw fw-upstream-inbound direction-icon inbound upstream",
     },
     OUTBOUND: {
-        'http.tracelog.downstream': 'fw fw-downstream-outbound direction-icon outbound downstream',
-        'http.tracelog.upstream': 'fw fw-upstream-outbound direction-icon outbound upstream',
+        "http.tracelog.downstream": "fw fw-downstream-outbound direction-icon outbound downstream",
+        "http.tracelog.upstream": "fw fw-upstream-outbound direction-icon outbound upstream",
     },
 };
 
 export interface TraceListState {
-    selected: string | undefined
+    selected: string | undefined;
 }
 
 export interface TraceListProps {
-    traces: Array<any>;
+    traces: any[];
     selected: string | undefined;
 }
 
@@ -58,13 +58,13 @@ class TraceList extends React.Component<TraceListProps, TraceListState> {
         this.toggleDetails = this.toggleDetails.bind(this);
     }
 
-    getDirectionIcon(logger:string, direction: string) {
+    public getDirectionIcon(logger: string, direction: string) {
         directionToIcon[direction] = directionToIcon[direction] || {};
         return directionToIcon[direction][logger];
     }
 
-    toggleDetails(id: string) {
-        if (id === this.state.selected){
+    public toggleDetails(id: string) {
+        if (id === this.state.selected) {
             this.setState({
                 selected: undefined,
             });
@@ -79,38 +79,39 @@ class TraceList extends React.Component<TraceListProps, TraceListState> {
     /**
      * @inheritdoc
      */
-    render() {
+    public render() {
         return (
-            <div id='logs-console'>
+            <div id="logs-console">
                 <Grid style={{ margin: 0 }}>
-                    <Grid.Row className='table-heading'>
-                        <Grid.Column className='summary'>
+                    <Grid.Row className="table-heading">
+                        <Grid.Column className="summary">
                             &nbsp;
                         </Grid.Column>
-                        <Grid.Column className='activity'>
+                        <Grid.Column className="activity">
                             Activity Id
                         </Grid.Column>
-                        <Grid.Column className='time'>
+                        <Grid.Column className="time">
                             Time
                         </Grid.Column>
-                        <Grid.Column className='path'>
+                        <Grid.Column className="path">
                             Path
                         </Grid.Column>
                     </Grid.Row>
                 </Grid>
                 <Grid
-                    className='table-content'
+                    className="table-content"
                 >
                     {this.props.traces.map((record: any) => {
-                        const timeString = moment(parseInt(record.millis)).format('HH:mm:ss.SSS');
+                        // tslint:disable-next-line:radix
+                        const timeString = moment(parseInt(record.millis)).format("HH:mm:ss.SSS");
                         return (
                             <Grid.Row
-                                className={ this.props.selected === record.id ? 'active clickable' : 'clickable'}
+                                className={ this.props.selected === record.id ? "active clickable" : "clickable"}
                                 key={record.id}
                                 // onClick={() => this.props.onToggleDetails(record.id)}
                             >
                                 <Grid.Column
-                                    className='wrap-text summary'
+                                    className="wrap-text summary"
                                 >
                                     <Icon
                                         name={this.getDirectionIcon(record.logger,
@@ -118,13 +119,13 @@ class TraceList extends React.Component<TraceListProps, TraceListState> {
                                         title={record.message.direction}
                                     />
                                 </Grid.Column>
-                                <Grid.Column className='wrap-text activity'>
+                                <Grid.Column className="wrap-text activity">
                                     {record.message.id}
                                 </Grid.Column>
-                                <Grid.Column className='wrap-text time'>
+                                <Grid.Column className="wrap-text time">
                                     {timeString}
                                 </Grid.Column>
-                                <Grid.Column className='wrap-text path'>
+                                <Grid.Column className="wrap-text path">
                                     {record.message.httpMethod}
                                     &nbsp;
                                     {record.message.path}

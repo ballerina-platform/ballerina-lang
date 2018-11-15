@@ -15,19 +15,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import * as _ from "lodash";
 import * as React from "react";
-import * as _ from 'lodash';
-import { Dropdown, Button } from 'semantic-ui-react';
+import { Button, Dropdown } from "semantic-ui-react";
 
 export interface ToolBarState {
-    filterValue: any,
+    filterValue: any;
 }
 
 export interface ToolBarProps {
-    traces: Array<any>
-    onFilteredTraces: Function,
-    filters: any,
-    clearLogs: Function,
+    traces: any[];
+    onFilteredTraces: (traces: any) => void;
+    filters: any;
+    clearLogs: () => void;
 }
 
 /**
@@ -41,11 +41,11 @@ export default class ToolBar extends React.Component<ToolBarProps, ToolBarState>
             this.state = {
                 filterValue: {},
             };
-            this.state.filterValue[filter] = 'all';
+            this.state.filterValue[filter] = "all";
         });
     }
 
-    onChangeFilter(key: string, filterBy: any) {
+    public onChangeFilter(key: string, filterBy: any) {
         this.setState({
             filterValue: {
                 ...this.state.filterValue,
@@ -57,7 +57,8 @@ export default class ToolBar extends React.Component<ToolBarProps, ToolBarState>
             const filtered = this.props.traces.filter((item) => {
                 let isIncluded = true;
                 _.forEach(this.state.filterValue, (value, k) => {
-                    if (value === 'all') {
+                    // tslint:disable-next-line:prefer-conditional-expression
+                    if (value === "all") {
                         isIncluded = isIncluded && true;
                     } else {
                         isIncluded = isIncluded && (_.get(item, k) === value);
@@ -71,10 +72,10 @@ export default class ToolBar extends React.Component<ToolBarProps, ToolBarState>
     /**
      * @inheritdoc
      */
-    render() {
+    public render() {
         const { filters, traces } = this.props;
         const keys = _.keys(filters) || [];
-        const groupedTraces = {};
+        const groupedTraces: any = {};
 
         traces.forEach((message) => {
             keys.forEach((key) => {
@@ -86,10 +87,10 @@ export default class ToolBar extends React.Component<ToolBarProps, ToolBarState>
         });
 
         return (
-            <div className='logs-console-toolbar'>
+            <div className="logs-console-toolbar">
                 <Button
-                    icon='trash alternate outline'
-                    className='pull-left clear-button'
+                    icon="trash alternate outline"
+                    className="pull-left clear-button"
                     onClick={() => this.props.clearLogs()}
                 />
                 {
@@ -103,15 +104,15 @@ export default class ToolBar extends React.Component<ToolBarProps, ToolBarState>
                             };
                         });
                         options.unshift({
-                            key: 'all',
-                            text: 'All',
-                            value: 'all',
+                            key: "all",
+                            text: "All",
+                            value: "all",
                         });
                         return (
                             <span className={`filter-${key} pull-right`} key={key}>
-                                <label htmlFor='dropdown'>{filters[key]}</label>
+                                <label htmlFor="dropdown">{filters[key]}</label>
                                 <Dropdown
-                                    direction='left'
+                                    direction="left"
                                     value={this.state.filterValue[key]}
                                     options={options}
                                     onChange={(e, data) => this.onChangeFilter(key, data.value)}
