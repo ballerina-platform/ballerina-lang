@@ -177,6 +177,8 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.RARROW;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECORD_KEY_VALUE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECORD_LITERAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECORD_LITERAL_BODY;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.REF_EQUAL;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.REF_NOT_EQUAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RESOURCE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RESOURCE_DEFINITION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.REST_PARAMETER;
@@ -526,6 +528,8 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
 
                 .around(EQUAL).spaceIf(true)
                 .around(NOT_EQUAL).spaceIf(true)
+                .around(REF_EQUAL).spaceIf(true)
+                .around(REF_NOT_EQUAL).spaceIf(true)
                 .around(GT).spaceIf(true)
                 .around(LT).spaceIf(true)
                 .around(GT_EQUAL).spaceIf(true)
