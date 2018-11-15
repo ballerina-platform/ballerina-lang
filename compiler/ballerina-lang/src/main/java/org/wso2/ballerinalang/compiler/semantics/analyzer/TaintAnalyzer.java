@@ -166,7 +166,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.xml.XMLConstants;
 
 /**
@@ -1863,9 +1862,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     /**
      * Analyze an invocation with the intention of determine if the arguments passed to the invocation results in a
-     * taint-error. Delegates the analysis of each individual argument to {@link #analyzeInvocationArgument(int,
-     * BLangInvocation, BLangExpression, List<TaintedStatus>) analyzeInvocationArgument}. After analysis of all
-     * arguments, update the combined tainted status of the return value.
+     * taint-error. Delegates the analysis of each individual argument to analyzeInvocationArgument. After analysis of
+     * all arguments, update the combined tainted status of the return value.
      *
      * @param invocationExpr invocation expression
      */
