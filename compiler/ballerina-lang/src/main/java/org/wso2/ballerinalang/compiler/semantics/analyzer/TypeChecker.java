@@ -1016,11 +1016,11 @@ public class TypeChecker extends BLangNodeVisitor {
                     case REF_EQUAL:
                         // if one is a value type, consider === the same as ==
                         return symResolver.createEqualityOperator(OperatorKind.EQUAL, symTable.anyType,
-                                symTable.anyType);
+                                                                  symTable.anyType);
                     case REF_NOT_EQUAL:
                         // if one is a value type, consider !== the same as !=
                         return symResolver.createEqualityOperator(OperatorKind.NOT_EQUAL, symTable.anyType,
-                                symTable.anyType);
+                                                                  symTable.anyType);
                     default:
                         return symResolver.createEqualityOperator(opKind, symTable.anyType, symTable.anyType);
                 }
@@ -1899,7 +1899,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BSymbol funcSymbol;
         if (iExpr.name.value.equals("stamp")) {
             List<BLangExpression> functionArgList = iExpr.argExprs;
-            for (BLangExpression expression : functionArgList) {
+            for(BLangExpression expression: functionArgList) {
                 checkExpr(expression, env, symTable.noType);
             }
 

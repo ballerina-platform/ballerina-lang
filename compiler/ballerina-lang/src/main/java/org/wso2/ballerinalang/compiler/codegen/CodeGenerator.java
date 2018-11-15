@@ -233,6 +233,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Stack;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.FIELD;
@@ -414,9 +415,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         visitBuiltinFunctions(pkgNode, pkgNode.stopFunction);
 
         pkgNode.topLevelNodes.stream()
-                .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.VARIABLE &&
-                        pkgLevelNode.getKind() != NodeKind.XMLNS)
-                .forEach(pkgLevelNode -> genNode((BLangNode) pkgLevelNode, this.env));
+                             .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.VARIABLE &&
+                                     pkgLevelNode.getKind() != NodeKind.XMLNS)
+                             .forEach(pkgLevelNode -> genNode((BLangNode) pkgLevelNode, this.env));
         // Add function symbol for all functions
         pkgNode.functions.forEach(funcNode -> {
             funcNode.symbol = funcNode.originalFuncSymbol;
@@ -445,14 +446,14 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // This attribute keep track of line numbers
         int lineNoAttrNameIndex = addUTF8CPEntry(currentPkgInfo,
-                AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE.value());
+                                                 AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE.value());
         lineNoAttrInfo = new LineNumberTableAttributeInfo(lineNoAttrNameIndex);
 
         // This attribute keep package-level variable information
         int pkgVarAttrNameIndex = addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE
                 .value());
         currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE,
-                new LocalVariableAttributeInfo(pkgVarAttrNameIndex));
+                                        new LocalVariableAttributeInfo(pkgVarAttrNameIndex));
     }
 
     /**
@@ -3360,7 +3361,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
             RegIndex keyReg = channelSend.keyExpr.regIndex;
             BType keyType = channelSend.keyExpr.type;
-            UTF8CPEntry keyCPEntry = new UTF8CPEntry(this.generateSig(new BType[]{keyType}));
+            UTF8CPEntry keyCPEntry = new UTF8CPEntry(this.generateSig(new BType[] { keyType }));
             Operand keyCPIndex = getOperand(this.currentPkgInfo.addCPEntry(keyCPEntry));
             argRegs[i++] = keyReg;
             argRegs[i++] = keyCPIndex;
@@ -3375,7 +3376,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(channelSend.expr, this.env);
         RegIndex dataReg = channelSend.expr.regIndex;
         BType dataType = channelSend.expr.type;
-        UTF8CPEntry dataCPEntry = new UTF8CPEntry(this.generateSig(new BType[]{dataType}));
+        UTF8CPEntry dataCPEntry = new UTF8CPEntry(this.generateSig(new BType[] { dataType }));
         Operand dataCPIndex = getOperand(this.currentPkgInfo.addCPEntry(dataCPEntry));
         argRegs[i++] = dataReg;
         argRegs[i] = dataCPIndex;
@@ -3393,7 +3394,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             chnReceiveArgRegs[i++] = getOperand(true);
             RegIndex keyReg = channelReceive.keyExpr.regIndex;
             BType keyType = channelReceive.keyExpr.type;
-            UTF8CPEntry keyCPEntry = new UTF8CPEntry(this.generateSig(new BType[]{keyType}));
+            UTF8CPEntry keyCPEntry = new UTF8CPEntry(this.generateSig(new BType[] { keyType }));
             Operand keyCPIndex = getOperand(this.currentPkgInfo.addCPEntry(keyCPEntry));
             chnReceiveArgRegs[i++] = keyCPIndex;
             chnReceiveArgRegs[i++] = keyReg;
@@ -3419,7 +3420,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
 
         bType = receiverExpr.type;
-        UTF8CPEntry sigCPEntry = new UTF8CPEntry(this.generateSig(new BType[]{bType}));
+        UTF8CPEntry sigCPEntry = new UTF8CPEntry(this.generateSig(new BType[] { bType }));
         Operand sigCPIndex = getOperand(currentPkgInfo.addCPEntry(sigCPEntry));
         chnReceiveArgRegs[i++] = sigCPIndex;
         chnReceiveArgRegs[i] = regIndex;
@@ -3488,8 +3489,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         operands[1] = nextIndex;
         operands[2] = typeCPIndex;
         operands[3] = getOperand(2);
-        operands[4] = getOperand(((BVarSymbol) ((BLangVariableReference) fpExpr.expr).symbol).type.tag);
-        operands[5] = getOperand(((BVarSymbol) ((BLangVariableReference) fpExpr.expr).symbol).varIndex.value);
+        operands[4] = getOperand(((BVarSymbol) ((BLangVariableReference)fpExpr.expr).symbol).type.tag);
+        operands[5] = getOperand(((BVarSymbol) ((BLangVariableReference)fpExpr.expr).symbol).varIndex.value);
         return operands;
     }
 
