@@ -2428,7 +2428,9 @@ public class CPU {
             case InstructionCodes.I2D:
                 i = operands[0];
                 j = operands[1];
-                sf.refRegs[j] = new BDecimal(new BigDecimal(sf.longRegs[i], MathContext.DECIMAL128));
+                sf.refRegs[j] = new BDecimal(
+                        (new BigDecimal(sf.longRegs[i], MathContext.DECIMAL128)).setScale(1,
+                                                                                          BigDecimal.ROUND_HALF_EVEN));
                 break;
             case InstructionCodes.I2BI:
                 i = operands[0];
@@ -2447,7 +2449,7 @@ public class CPU {
             case InstructionCodes.F2I:
                 i = operands[0];
                 j = operands[1];
-                sf.longRegs[j] = (long) sf.doubleRegs[i];
+                sf.longRegs[j] = Math.round(sf.doubleRegs[i]);
                 break;
             case InstructionCodes.F2S:
                 i = operands[0];
@@ -2520,12 +2522,14 @@ public class CPU {
             case InstructionCodes.B2D:
                 i = operands[0];
                 j = operands[1];
-                sf.refRegs[j] = sf.intRegs[i] == 1 ? new BDecimal(BigDecimal.ONE) : new BDecimal(BigDecimal.ZERO);
+                sf.refRegs[j] = sf.intRegs[i] == 1 ?
+                        new BDecimal(BigDecimal.ONE.setScale(1, BigDecimal.ROUND_HALF_EVEN)) :
+                        new BDecimal(BigDecimal.ZERO.setScale(1, BigDecimal.ROUND_HALF_EVEN));
                 break;
             case InstructionCodes.D2I:
                 i = operands[0];
                 j = operands[1];
-                sf.longRegs[j] = ((BDecimal) sf.refRegs[i]).intValue();
+                sf.longRegs[j] = Math.round(((BDecimal) sf.refRegs[i]).floatValue());
                 break;
             case InstructionCodes.D2F:
                 i = operands[0];

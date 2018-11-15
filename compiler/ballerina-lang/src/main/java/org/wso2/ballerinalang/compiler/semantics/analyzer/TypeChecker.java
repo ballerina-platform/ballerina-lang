@@ -1154,7 +1154,7 @@ public class TypeChecker extends BLangNodeVisitor {
         // Lookup for built-in type conversion operator symbol
         BSymbol symbol = symResolver.resolveConversionOperator(sourceType, targetType);
         if (symbol == symTable.notFoundSymbol) {
-            dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION, sourceType, targetType);
+            dlog.error(conversionExpr.pos, DiagnosticCode.INVALID_EXPLICIT_TYPE_FOR_EXPRESSION, sourceType, targetType);
         } else {
             BConversionOperatorSymbol conversionSym = (BConversionOperatorSymbol) symbol;
             conversionExpr.conversionSymbol = conversionSym;
