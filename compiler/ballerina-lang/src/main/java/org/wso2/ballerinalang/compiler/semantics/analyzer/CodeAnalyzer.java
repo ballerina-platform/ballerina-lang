@@ -669,8 +669,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private boolean checkTypeGuardEquality(BLangExpression precedingGuard, BLangExpression currentGuard) {
         if (precedingGuard != null && currentGuard != null) {
-            return types.isSameType(((BLangTypeTestExpr) precedingGuard).typeNode.type,
-                    ((BLangTypeTestExpr) currentGuard).typeNode.type);
+            return false;
         }
 
         return precedingGuard == null && currentGuard == null;
