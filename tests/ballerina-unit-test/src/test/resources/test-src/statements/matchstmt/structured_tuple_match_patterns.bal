@@ -254,3 +254,45 @@ function foo5(any x) returns string {
 
     return "Default";
 }
+
+
+type FooRec record {
+    string s;
+    int i;
+    float f;
+};
+
+type BarRec record {
+    byte b;
+    FooRec f;
+};
+
+
+function testStructuredMatchPatternWithTypeGuard4() returns string[] {
+    FooRec fooRec1 = {s: "S", i: 23, f: 5.6};
+    BarRec barRec1 = {b: 12, f: fooRec1};
+
+    (FooRec|int, BarRec|float)|(BarRec|float, FooRec|int) a1 = (fooRec1, barRec1);
+    (FooRec|int, BarRec|float)|(BarRec|float, FooRec|int) a2 = (fooRec1, 4.5);
+    (FooRec|int, BarRec|float)|(BarRec|float, FooRec|int) a3 = (barRec1, fooRec1);
+    (FooRec|int, BarRec|float)|(BarRec|float, FooRec|int) a4 = (barRec1, 543);
+    (FooRec|int, BarRec|float)|(BarRec|float, FooRec|int) a5 = (5.2, fooRec1);
+    (FooRec|int, BarRec|float)|(BarRec|float, FooRec|int) a6 = (15, barRec1);
+    (FooRec|int, BarRec|float)|(BarRec|float, FooRec|int) a7 = (65, 7.4);
+    (FooRec|int, BarRec|float)|(BarRec|float, FooRec|int) a8 = (3.6, 42);
+
+    return [foo6(a1), foo6(a2), foo6(a3), foo6(a4), foo6(a5), foo6(a6), foo6(a7), foo6(a8)];
+}
+
+function foo6(any a) returns string {
+    match a {
+        var (i, s) if i is FooRec && s is BarRec => return "Matched with FooRec and BarRec : " + io:sprintf("%s", i) + " , " + io:sprintf("%s", s);
+        var (i, s) if i is FooRec && s is float => return "Matched with FooRec and float : " + io:sprintf("%s", i) + " , " + io:sprintf("%s", s);
+        var (i, s) if i is BarRec && s is FooRec => return "Matched with BarRec and FooRec : " + io:sprintf("%s", i) + " , " + io:sprintf("%s", s);
+        var (i, s) if i is BarRec && s is int => return "Matched with BarRec and int : " + io:sprintf("%s", i) + " , " + io:sprintf("%s", s);
+        var (i, s) if i is float && s is FooRec => return "Matched with float and FooRec : " + io:sprintf("%s", i) + " , " + io:sprintf("%s", s);
+        var (i, s) if i is int && s is BarRec => return "Matched with int and BarRec : " + io:sprintf("%s", i) + " , " + io:sprintf("%s", s);
+    }
+
+    return "Default";
+}
