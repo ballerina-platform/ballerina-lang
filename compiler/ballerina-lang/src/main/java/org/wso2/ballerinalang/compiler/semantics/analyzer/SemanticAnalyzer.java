@@ -538,13 +538,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
 
             simpleVariable.type = rhsType;
-
+            if (simpleVariable.symbol != null) {
+                simpleVariable.symbol.type = rhsType;
+            }
             int ownerSymTag = env.scope.owner.tag;
             if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
                 // This is a variable declared in a function, an action or a resource
                 // If the variable is parameter then the variable symbol is already defined
                 if (simpleVariable.symbol == null) {
                     symbolEnter.defineNode(simpleVariable, env);
+                    simpleVariable.symbol.type = rhsType;
                 }
             }
         } else if (NodeKind.TUPLE_VARIABLE == variable.getKind()) {
@@ -561,7 +564,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
 
             symbolEnter.defineNode(tupleVariable, env);
-
         } else if (NodeKind.RECORD_VARIABLE == variable.getKind()) {
             BLangRecordVariable recordVariable = (BLangRecordVariable) variable;
             recordVariable.type = rhsType;
