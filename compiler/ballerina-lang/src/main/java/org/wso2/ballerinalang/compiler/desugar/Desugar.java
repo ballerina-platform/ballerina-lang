@@ -1461,23 +1461,6 @@ public class Desugar extends BLangNodeVisitor {
         result = ifNode;
     }
 
-    private void defineTypeGuards(DiagnosticPos pos, Map<BVarSymbol, BVarSymbol> typeGuards, BLangBlockStmt target) {
-        for (Entry<BVarSymbol, BVarSymbol> typeGuard : typeGuards.entrySet()) {
-            BVarSymbol guardedSymbol = typeGuard.getValue();
-
-            // Create a varRef to the original variable
-            BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, typeGuard.getKey());
-
-            // Create a variable definition and add it to the beginning of the if-body
-            // i.e: T x = <T> y
-            BLangExpression conversionExpr = addConversionExprIfRequired(varRef, guardedSymbol.type);
-            BLangSimpleVariable var = ASTBuilderUtil.createVariable(pos, guardedSymbol.name.value,
-                    guardedSymbol.type, conversionExpr, guardedSymbol);
-            BLangSimpleVariableDef varDef = ASTBuilderUtil.createVariableDef(pos, var);
-            target.stmts.add(0, varDef);
-        }
-    }
-
     @Override
     public void visit(BLangMatch matchStmt) {
         // Here we generate an if-else statement for the match statement
@@ -3884,5 +3867,22 @@ public class Desugar extends BLangNodeVisitor {
         objectSymbol.attachedFuncs.add(objectSymbol.initializerFunc);
         objectTypeNode.initFunction = initFunction;
         return initFunction;
+    }
+
+    private void defineTypeGuards(DiagnosticPos pos, Map<BVarSymbol, BVarSymbol> typeGuards, BLangBlockStmt target) {
+        for (Entry<BVarSymbol, BVarSymbol> typeGuard : typeGuards.entrySet()) {
+            BVarSymbol guardedSymbol = typeGuard.getValue();
+
+            // Create a varRef to the original variable
+            BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, typeGuard.getKey());
+
+            // Create a variable definition and add it to the beginning of the if-body
+            // i.e: T x = <T> y
+            BLangExpression conversionExpr = addConversionExprIfRequired(varRef, guardedSymbol.type);
+            BLangSimpleVariable var = ASTBuilderUtil.createVariable(pos, guardedSymbol.name.value,
+                    guardedSymbol.type, conversionExpr, guardedSymbol);
+            BLangSimpleVariableDef varDef = ASTBuilderUtil.createVariableDef(pos, var);
+            target.stmts.add(0, varDef);
+        }
     }
 }

@@ -176,7 +176,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.Stack;
 import java.util.stream.Collectors;
 
 /**
@@ -934,11 +933,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         Map<BVarSymbol, Set<BType>> preTypeGuards = this.typeGuards;
         resetTypeGards();
         analyzeStmt(ifNode.body, env);
-        // Reset the type guards after visiting the body
+        // Restore the type guards after visiting the body
         this.typeGuards = preTypeGuards;
 
         if (ifNode.elseStmt != null) {
-            // if this is the last 'else', define all the remaining type guard symbols.
+            // if this is the last 'else', add all the remaining type guards to the else.
             if (ifNode.elseStmt.getKind() == NodeKind.BLOCK) {
                 addElseTypeGuards(ifNode);
             }
@@ -2340,13 +2339,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private void addTypeGuards(Map<BVarSymbol, BType> typeGuards) {
         if (this.typeGuards == null) {
             this.typeGuards = new HashMap<>();
-            typeGuards.entrySet().forEach(entry -> {
-                this.typeGuards.put(entry.getKey(), new HashSet() {
-                    {
-                        add(entry.getValue());
-                    }
-                });
-            });
+            this.typeGuards = typeGuards.entrySet().stream()
+                    .collect(Collectors.toMap(Map.Entry::getKey, e -> new HashSet() {
+                        { add(e.getValue()); }
+                    }));
             return;
         }
 
