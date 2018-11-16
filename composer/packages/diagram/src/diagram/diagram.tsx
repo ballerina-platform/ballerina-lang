@@ -1,9 +1,11 @@
 import { CompilationUnit, traversNode } from "@ballerina/ast-model";
 import React from "react";
-import { visitor as sizingVisitor } from "../sizing/sizing-visitor";
-import * as components from "../views";
+import { SvgCanvas } from "../views";
+import { visitor as positioningVisitor } from "../visitors/positioning-visitor";
+import { visitor as sizingVisitor } from "../visitors/sizing-visitor";
 import { DiagramContext, DiagramMode, IDiagramContext } from "./diagram-context";
 import { DiagramErrorBoundary } from "./diagram-error-boundary";
+import { DiagramUtils } from "./diagram-utils";
 import { EditToggleButton } from "./edit-toggle-button";
 import { ModeToggleButton } from "./mode-toggle-button";
 
@@ -36,23 +38,25 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
         const children: any = [];
 
         if (ast) {
+            // Calculate dimention of AST Nodes.
             traversNode(ast, sizingVisitor);
-            ast.topLevelNodes.forEach((node) => {
-                const ChildComp = (components as any)[node.kind];
-                if (!ChildComp) { return; }
-
-                children.push(<ChildComp model={node}/>);
-            });
+            // Calculate positions of the AST Nodes.
+            traversNode(ast, positioningVisitor);
+            // Get React components for AST Nodes.
+            children.push(DiagramUtils.getComponents(ast.topLevelNodes));
         }
 
         return <DiagramContext.Provider value={this.createContext()}>
             <DiagramErrorBoundary>
-                <div>{"Current Diagram Mode: " + DiagramMode[currentMode] }</div>
-                <div>{"Editing Enabled: " + this.context.editingEnabled }</div>
-                <EditToggleButton />
-                <ModeToggleButton />
-                {/* <div>{JSON.stringify(ast)}</div> */}
-                { children }
+                <div>
+                    <div>{"Current Diagram Mode: " + DiagramMode[currentMode]}</div>
+                    <div>{"Editing Enabled: " + this.context.editingEnabled}</div>
+                    <EditToggleButton />
+                    <ModeToggleButton />
+                </div>
+                <SvgCanvas>
+                    {children}
+                </SvgCanvas>
             </DiagramErrorBoundary>
         </DiagramContext.Provider>;
     }
