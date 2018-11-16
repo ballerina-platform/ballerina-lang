@@ -1,0 +1,5 @@
+{
+    "extends": [
+        "../../configs/common.tslint.json"
+    ]
+}
