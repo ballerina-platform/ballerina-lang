@@ -1,6 +1,5 @@
-
-import { BallerinaAST, BallerinaASTNode, BallerinaEndpoint, BallerinaSourceFragment } from "@ballerina/ast-model";
-import { ASTDidChangeParams, ASTDidChangeResponse, GetASTParams, GetASTResponse } from "@ballerina/lang-service";
+import { ASTDidChangeParams, ASTDidChangeResponse, BallerinaAST, BallerinaASTNode, BallerinaEndpoint,
+  BallerinaSourceFragment, GetASTParams, GetASTResponse } from "@ballerina/lang-service";
 import { DiagramLangClient, DiagramMode } from "./../src";
 
 export class MockLangClient implements DiagramLangClient {
