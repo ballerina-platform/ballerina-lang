@@ -26,10 +26,10 @@
 # + protocol - The protocol associated with the service endpoint
 public type Listener object {
 
-    @readonly public Remote remote;
-    @readonly public Local local;
-    @readonly public string protocol;
-
+    @readonly public Remote remote = {};
+    @readonly public Local local = {};
+    @readonly public string protocol = "";
+    
     private Connection conn;
     private ServiceEndpointConfiguration config;
 

@@ -21,7 +21,6 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -40,7 +39,6 @@ public class BLangSimpleVariable extends BLangVariable implements SimpleVariable
     public BLangIdentifier name;
 
     public boolean isField;
-    public BVarSymbol symbol;
 
     public BLangSimpleVariable() {
         this.annAttachments = new ArrayList<>();

@@ -43,11 +43,12 @@ public function issue(JwtHeader header, JwtPayload payload, JWTIssuerConfig conf
         string result => jwtPayload = result;
     }
     string jwtAssertion = jwtHeader + "." + jwtPayload;
-    KeyStore keyStore = {};
-    keyStore.keyAlias = config.keyAlias;
-    keyStore.keyPassword = config.keyPassword;
-    keyStore.keyStoreFilePath = config.keyStoreFilePath;
-    keyStore.keyStorePassword = config.keyStorePassword;
+    KeyStore keyStore = {
+        keyAlias : config.keyAlias,
+        keyPassword : config.keyPassword,
+        keyStoreFilePath : config.keyStoreFilePath,
+        keyStorePassword : config.keyStorePassword
+    };
     string signature = sign(jwtAssertion, header.alg, keyStore);
     return (jwtAssertion + "." + signature);
 }
