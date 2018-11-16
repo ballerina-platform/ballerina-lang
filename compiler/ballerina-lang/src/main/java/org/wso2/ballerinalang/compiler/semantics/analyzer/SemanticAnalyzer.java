@@ -171,9 +171,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 /**
@@ -200,6 +203,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private BType resType;
     private boolean isSiddhiRuntimeEnabled;
     private boolean isGroupByAvailable;
+    private Map<BVarSymbol, Set<BType>> typeGuards;
 
     public static SemanticAnalyzer getInstance(CompilerContext context) {
         SemanticAnalyzer semAnalyzer = context.get(SYMBOL_ANALYZER_KEY);
@@ -915,7 +919,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 symbolEnter.defineShadowedSymbol(ifNode.expr.pos, varSymbol, ifBodyEnv);
 
                 // Cache the type guards, to be reused at the desugar.
-                ifNode.typeGuards.put(originalVarSymbol, varSymbol);
+                ifNode.ifTypeGuards.put(originalVarSymbol, varSymbol);
             }
         }
 
@@ -924,13 +928,28 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error(ifNode.expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.booleanType, actualType);
         }
 
+        // Add the type guards of 'if' to the current type guards map.
+        addTypeGuards(typeGuards);
+        // Reset the current type guards before visiting the body.
+        Map<BVarSymbol, Set<BType>> preTypeGuards = this.typeGuards;
+        resetTypeGards();
         analyzeStmt(ifNode.body, env);
+        // Reset the type guards after visiting the body
+        this.typeGuards = preTypeGuards;
 
         if (ifNode.elseStmt != null) {
+            // if this is the last 'else', define all the remaining type guard symbols.
+            if (ifNode.elseStmt.getKind() == NodeKind.BLOCK) {
+                addElseTypeGuards(ifNode);
+            }
             analyzeStmt(ifNode.elseStmt, env);
         }
+
+        // Reset the type guards when exiting from the if-else node
+        resetTypeGards();
     }
 
+    @Override
     public void visit(BLangMatch matchNode) {
         List<BType> exprTypes;
         BType exprType = typeChecker.checkExpr(matchNode.expr, env, symTable.noType);
@@ -2302,5 +2321,69 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error(pos, DiagnosticCode.INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT, func.funcName,
                     func.symbol.receiverSymbol.type);
         }
+    }
+
+    private void addElseTypeGuards(BLangIf ifNode) {
+        SymbolEnv elseEnv = SymbolEnv.createBlockEnv((BLangBlockStmt) ifNode.elseStmt, env);
+        for (Entry<BVarSymbol, Set<BType>> entry : this.typeGuards.entrySet()) {
+            BVarSymbol originalVarSymbol = entry.getKey();
+            BType remainingType = getRemainingType(originalVarSymbol.type, entry.getValue());
+            BVarSymbol varSymbol = new BVarSymbol(0, originalVarSymbol.name, elseEnv.scope.owner.pkgID, remainingType,
+                    this.env.scope.owner);
+            symbolEnter.defineShadowedSymbol(ifNode.expr.pos, varSymbol, elseEnv);
+
+            // Cache the type guards, to be reused at the desugar.
+            ifNode.elseTypeGuards.put(originalVarSymbol, varSymbol);
+        }
+    }
+
+    private void addTypeGuards(Map<BVarSymbol, BType> typeGuards) {
+        if (this.typeGuards == null) {
+            this.typeGuards = new HashMap<>();
+            typeGuards.entrySet().forEach(entry -> {
+                this.typeGuards.put(entry.getKey(), new HashSet() {
+                    {
+                        add(entry.getValue());
+                    }
+                });
+            });
+            return;
+        }
+
+        for (Entry<BVarSymbol, BType> entry : typeGuards.entrySet()) {
+            Set<BType> typGuardsForSymbol = this.typeGuards.get(entry.getKey());
+            if (typGuardsForSymbol == null) {
+                typGuardsForSymbol = new HashSet<>();
+                this.typeGuards.put(entry.getKey(), typGuardsForSymbol);
+            }
+
+            typGuardsForSymbol.add(entry.getValue());
+        }
+    }
+
+    private void resetTypeGards() {
+        this.typeGuards = null;
+    }
+
+    private BType getRemainingType(BType originalType, Set<BType> set) {
+        if (originalType.tag != TypeTags.UNION) {
+            return originalType;
+        }
+
+        List<BType> memberTypes = new ArrayList<>(((BUnionType) originalType).getMemberTypes());
+
+        for (BType removeType : set) {
+            if (removeType.tag != TypeTags.UNION) {
+                memberTypes.remove(removeType);
+            } else {
+                ((BUnionType) removeType).getMemberTypes().forEach(type -> memberTypes.remove(type));
+            }
+            
+            if (memberTypes.size() == 1) {
+                return memberTypes.get(0);
+            }
+        }
+
+        return new BUnionType(null, new HashSet<>(memberTypes), memberTypes.contains(symTable.nilType));
     }
 }

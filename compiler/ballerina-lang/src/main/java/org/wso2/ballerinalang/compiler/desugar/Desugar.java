@@ -1451,24 +1451,31 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangIf ifNode) {
         ifNode.expr = rewriteExpr(ifNode.expr);
 
-        for (Entry<BVarSymbol, BVarSymbol> typeGuard : ifNode.typeGuards.entrySet()) {
+        defineTypeGuards(ifNode.pos, ifNode.ifTypeGuards, ifNode.body);
+        ifNode.body = rewrite(ifNode.body, env);
+
+        if (ifNode.elseStmt != null && ifNode.elseStmt.getKind() == NodeKind.BLOCK) {
+            defineTypeGuards(ifNode.pos, ifNode.elseTypeGuards, (BLangBlockStmt) ifNode.elseStmt);
+        }
+        ifNode.elseStmt = rewrite(ifNode.elseStmt, env);
+        result = ifNode;
+    }
+
+    private void defineTypeGuards(DiagnosticPos pos, Map<BVarSymbol, BVarSymbol> typeGuards, BLangBlockStmt target) {
+        for (Entry<BVarSymbol, BVarSymbol> typeGuard : typeGuards.entrySet()) {
             BVarSymbol guardedSymbol = typeGuard.getValue();
 
             // Create a varRef to the original variable
-            BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(ifNode.expr.pos, typeGuard.getKey());
+            BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, typeGuard.getKey());
 
             // Create a variable definition and add it to the beginning of the if-body
             // i.e: T x = <T> y
             BLangExpression conversionExpr = addConversionExprIfRequired(varRef, guardedSymbol.type);
-            BLangSimpleVariable var = ASTBuilderUtil.createVariable(ifNode.expr.pos, guardedSymbol.name.value,
+            BLangSimpleVariable var = ASTBuilderUtil.createVariable(pos, guardedSymbol.name.value,
                     guardedSymbol.type, conversionExpr, guardedSymbol);
-            BLangSimpleVariableDef varDef = ASTBuilderUtil.createVariableDef(ifNode.expr.pos, var);
-            ifNode.body.stmts.add(0, varDef);
+            BLangSimpleVariableDef varDef = ASTBuilderUtil.createVariableDef(pos, var);
+            target.stmts.add(0, varDef);
         }
-
-        ifNode.body = rewrite(ifNode.body, env);
-        ifNode.elseStmt = rewrite(ifNode.elseStmt, env);
-        result = ifNode;
     }
 
     @Override
