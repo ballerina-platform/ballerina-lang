@@ -84,7 +84,7 @@ public type QueueReceiver object {
 # + identifier - unique identifier for the subscription
 public type QueueReceiverEndpointConfiguration record {
     Session? session = ();
-    string? queueName = "";
+    string? queueName = ();
     string messageSelector = "";
     string identifier = "";
     !...

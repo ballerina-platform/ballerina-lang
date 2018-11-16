@@ -83,7 +83,7 @@ public type QueueSender object {
 # + queueName - name of the target queue
 public type QueueSenderEndpointConfiguration record {
     Session? session = ();
-    string? queueName = "";
+    string? queueName = ();
     !...
 };
 

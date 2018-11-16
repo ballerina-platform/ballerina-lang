@@ -84,7 +84,7 @@ public type TopicSubscriber object {
 # + identifier - Identifier of topic subscriber endpoint
 public type TopicSubscriberEndpointConfiguration record {
     Session? session = ();
-    string? topicPattern = "";
+    string? topicPattern = ();
     string messageSelector = "";
     string identifier = "";
     !...

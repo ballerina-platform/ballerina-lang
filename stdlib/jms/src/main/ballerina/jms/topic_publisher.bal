@@ -80,7 +80,7 @@ public type TopicPublisher object {
 # + topicPattern - Topic name pattern
 public type TopicPublisherEndpointConfiguration record {
     Session? session = ();
-    string? topicPattern = "";
+    string? topicPattern = ();
     !...
 };
 
