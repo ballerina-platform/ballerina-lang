@@ -198,7 +198,7 @@ public type ConnectionThrottling record {
 # + credentialBearer - How client authentication is sent to refresh access token (AuthHeaderBearer, PostBodyBearer)
 # + scopes - Scope of the access request
 public type AuthConfig record {
-    AuthScheme scheme = {};
+    AuthScheme scheme;
     string username = "";
     string password = "";
     string accessToken = "";
