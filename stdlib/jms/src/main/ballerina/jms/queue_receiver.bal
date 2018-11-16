@@ -83,10 +83,10 @@ public type QueueReceiver object {
 # + messageSelector - JMS selector statement
 # + identifier - unique identifier for the subscription
 public type QueueReceiverEndpointConfiguration record {
-    Session? session;
-    string? queueName;
-    string messageSelector;
-    string identifier;
+    Session? session = ();
+    string? queueName = "";
+    string messageSelector = "";
+    string identifier = "";
     !...
 };
 

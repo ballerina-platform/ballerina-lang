@@ -119,7 +119,7 @@ public type SimpleQueueSenderEndpointConfiguration record {
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
-    map properties;
-    string queueName;
+    map properties = {};
+    string queueName = "";
     !...
 };

@@ -79,8 +79,8 @@ public type TopicPublisher object {
 # + session - Session object used to create topic publisher
 # + topicPattern - Topic name pattern
 public type TopicPublisherEndpointConfiguration record {
-    Session? session;
-    string? topicPattern;
+    Session? session = ();
+    string? topicPattern = "";
     !...
 };
 
