@@ -34,7 +34,7 @@ public type Listener object {
     @readonly public Local local = {};
     @readonly public string protocol = "";
     
-    private Connection conn = {};
+    private Connection conn = new;
     private ServiceEndpointConfiguration config = {};
 
     private string instanceId;
@@ -281,7 +281,7 @@ function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config, st
 # + return - Array of Filters comprising of authn and authz Filters
 function createAuthFiltersForSecureListener(ServiceEndpointConfiguration config, string instanceId) returns (Filter[]) {
     // parse and create authentication handlers
-    AuthHandlerRegistry registry = {};
+    AuthHandlerRegistry registry = new;
     AuthProvider[] authProviderList = [];
     Filter[] authFilters = [];
 
@@ -309,7 +309,7 @@ function createAuthFiltersForSecureListener(ServiceEndpointConfiguration config,
     cache:Cache negativeAuthzCache = new(expiryTimeMillis = config.negativeAuthzCache.expiryTimeMillis,
     capacity = config.negativeAuthzCache.capacity,
     evictionFactor = config.negativeAuthzCache.evictionFactor);
-    auth:AuthStoreProvider authStoreProvider = {};
+    auth:AuthStoreProvider authStoreProvider = new;
 
     foreach provider in authProviderList {
         if (provider.scheme == AUTHN_SCHEME_BASIC) {
@@ -348,7 +348,7 @@ function createBasicAuthHandler() returns HttpAuthnHandler {
 
 function createAuthHandler(AuthProvider authProvider, string instanceId) returns HttpAuthnHandler {
     if (authProvider.scheme == AUTHN_SCHEME_BASIC) {
-        auth:AuthStoreProvider authStoreProvider = {};
+        auth:AuthStoreProvider authStoreProvider = new;
         if (authProvider.authStoreProvider == AUTH_PROVIDER_CONFIG) {
             if (authProvider.propagateJwt) {
                 auth:ConfigJwtAuthProvider configAuthProvider = new(getInferredJwtAuthProviderConfig(authProvider));
