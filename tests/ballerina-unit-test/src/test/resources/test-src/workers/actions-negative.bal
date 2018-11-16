@@ -51,6 +51,10 @@ function workerWaitActionTest() {
 
     // Wait for one
 
+    // Valid
+    any s1 = wait f1;
+    int s2 = wait f1;
+
     // Expected string got int
     string s1 = wait f1;
 
@@ -98,6 +102,10 @@ function workerWaitActionTest() {
     record { int f1; string f2;} result10 = wait {f1, f2, f4};
     record { int f1; string f3;} result11 = wait {f1, f2};
     thirdRec result12 = wait {f1: f1};
+
+    // Valid
+    any validRes10 = wait f1 | f2 | f3;
+    any validRes11 = wait {f1, f2};
 }
 
 
