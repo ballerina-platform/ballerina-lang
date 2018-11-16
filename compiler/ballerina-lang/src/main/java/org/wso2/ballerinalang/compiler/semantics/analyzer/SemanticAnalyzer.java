@@ -1206,9 +1206,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             BLangExpression typeGuardExpr = patternClause.typeGuardExpr;
             SymbolEnv typeGuardEnv = SymbolEnv.createExpressionEnv(typeGuardExpr, env);
             analyzeDef(patternClause.bindingPatternVariable, typeGuardEnv);
-
             blockEnv = SymbolEnv.createBlockEnv(patternClause.body, typeGuardEnv);
-
             typeChecker.checkExpr(patternClause.typeGuardExpr, typeGuardEnv);
 
             Map<BVarSymbol, BType> typeGuards = typeChecker.getTypeGuards(patternClause.typeGuardExpr);

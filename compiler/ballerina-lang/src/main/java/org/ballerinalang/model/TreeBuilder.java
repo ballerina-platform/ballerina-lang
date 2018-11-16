@@ -114,6 +114,8 @@ import org.ballerinalang.model.tree.statements.ForkJoinNode;
 import org.ballerinalang.model.tree.statements.IfNode;
 import org.ballerinalang.model.tree.statements.LockNode;
 import org.ballerinalang.model.tree.statements.MatchNode;
+import org.ballerinalang.model.tree.statements.MatchNode.MatchStaticBindingPatternNode;
+import org.ballerinalang.model.tree.statements.MatchNode.MatchStructuredBindingPatternNode;
 import org.ballerinalang.model.tree.statements.MatchNode.MatchTypedBindingPatternNode;
 import org.ballerinalang.model.tree.statements.PanicNode;
 import org.ballerinalang.model.tree.statements.RecordDestructureNode;
@@ -243,6 +245,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchTypedBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
@@ -598,11 +601,11 @@ public class TreeBuilder {
         return new BLangMatchTypedBindingPatternClause();
     }
 
-    public static MatchNode.MatchStaticBindingPatternNode createMatchStatementStaticBindingPattern() {
-        return new BLangMatch.BLangMatchStaticBindingPatternClause();
+    public static MatchStaticBindingPatternNode createMatchStatementStaticBindingPattern() {
+        return new BLangMatchStaticBindingPatternClause();
     }
 
-    public static MatchNode.MatchStructuredBindingPatternNode createMatchStatementStructuredBindingPattern() {
+    public static MatchStructuredBindingPatternNode createMatchStatementStructuredBindingPattern() {
         return new BLangMatchStructuredBindingPatternClause();
     }
 
