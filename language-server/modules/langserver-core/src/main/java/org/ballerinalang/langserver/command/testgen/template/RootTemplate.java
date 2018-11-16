@@ -72,12 +72,26 @@ public class RootTemplate extends AbstractTestTemplate {
         globalFunctions.addAll(builtTestFile.getFunctions());
     }
 
+    /**
+     * Create root template for a function.
+     *
+     * @param function function
+     * @param builtTestFile built test file package
+     * @return root template
+     */
     public static RootTemplate fromFunction(BLangFunction function, BLangPackage builtTestFile) {
         RootTemplate rootTemplate = new RootTemplate(builtTestFile);
         rootTemplate.functions.add(function);
         return rootTemplate;
     }
 
+    /**
+     * Create root template for a http service.
+     *
+     * @param service service
+     * @param builtTestFile built test file package
+     * @return root template
+     */
     public static RootTemplate fromHttpService(BLangService service, BLangPackage builtTestFile) {
         RootTemplate rootTemplate = new RootTemplate(builtTestFile);
         rootTemplate.globalEndpoints.addAll(builtTestFile.getGlobalEndpoints());
@@ -85,6 +99,13 @@ public class RootTemplate extends AbstractTestTemplate {
         return rootTemplate;
     }
 
+    /**
+     * Create root template for a websocket service.
+     *
+     * @param service service
+     * @param builtTestFile built test file package
+     * @return root template
+     */
     public static RootTemplate fromHttpWSService(BLangService service, BLangPackage builtTestFile) {
         RootTemplate rootTemplate = new RootTemplate(builtTestFile);
         rootTemplate.globalEndpoints.addAll(builtTestFile.getGlobalEndpoints());
@@ -92,6 +113,13 @@ public class RootTemplate extends AbstractTestTemplate {
         return rootTemplate;
     }
 
+    /**
+     * Create root template for a client websocket service.
+     *
+     * @param service service
+     * @param builtTestFile built test file package
+     * @return root template
+     */
     public static RootTemplate fromHttpClientWSService(BLangService service, BLangPackage builtTestFile) {
         RootTemplate rootTemplate = new RootTemplate(builtTestFile);
         rootTemplate.globalFunctions.addAll(builtTestFile.getFunctions());

@@ -207,7 +207,7 @@ public class CodeActionTest {
     public Object[][] testGenCodeActionDataProvider() {
         return new Object[][]{
                 {"testGenFunctionCodeAction.json", Paths.get("testgen", "module1", "functions.bal")},
-//                {"testGenServiceCodeAction.json", Paths.get("testgen", "module2", "services.bal")}
+                {"testGenServiceCodeAction.json", Paths.get("testgen", "module2", "services.bal")}
         };
     }
 

@@ -100,6 +100,7 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipError;
 
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TEST_DIR_NAME;
 
 /**
  * Text document service implementation for ballerina.
@@ -404,7 +405,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 String innerDirName = LSCompilerUtil.getCurrentModulePath(document.getPath())
                         .relativize(document.getPath())
                         .toString().split(File.separator)[0];
-                if (diagnostics.isEmpty() && document.hasProjectRepo() && !"tests".equals(innerDirName)) {
+                if (diagnostics.isEmpty() && document.hasProjectRepo() && !TEST_DIR_NAME.equals(innerDirName)) {
                     commands.addAll(CommandUtil.getTestGenerationCommand(topLevelNodeType, fileUri, params));
                 }
 
