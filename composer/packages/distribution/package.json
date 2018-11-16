@@ -16,10 +16,10 @@
   "author": "ballerina.io",
   "license": "Apache-2.0",
   "dependencies": {
-    "@ballerina/ballerina-by-examples": "file:../bbe",
-    "@ballerina/theme": "file:../theme",
-    "@ballerina/diagram": "file:../diagram",
-    "@ballerina/documentation": "file:../documentation",
+    "@ballerina/ballerina-by-examples": "^0.983.1-SNAPSHOT",
+    "@ballerina/theme": "^0.983.1-SNAPSHOT",
+    "@ballerina/diagram": "^0.983.1-SNAPSHOT",
+    "@ballerina/documentation": "^0.983.1-SNAPSHOT",
     "react": "^16.2.0",
     "react-dom": "^16.2.0"
   },
