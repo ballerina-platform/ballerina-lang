@@ -65,99 +65,7 @@ public class CreateTestExecutor implements LSCommandExecutor {
 
     private static final String COMMAND = "CREATE_TEST";
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object execute(LSContext context) throws LSCommandExecutorException {
-        String docUri = null;
-        int argLine = -1;
-        int argColumn = -1;
-        VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
-
-        for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
-            String argKey = ((LinkedTreeMap) arg).get(ARG_KEY).toString();
-            String argVal = ((LinkedTreeMap) arg).get(ARG_VALUE).toString();
-            switch (argKey) {
-                case CommandConstants.ARG_KEY_DOC_URI:
-                    docUri = argVal;
-                    textDocumentIdentifier.setUri(docUri);
-                    context.put(DocumentServiceKeys.FILE_URI_KEY, docUri);
-                    break;
-                case CommandConstants.ARG_KEY_NODE_LINE:
-                    argLine = Integer.parseInt(argVal);
-                    break;
-                case CommandConstants.ARG_KEY_NODE_COLUMN:
-                    argColumn = Integer.parseInt(argVal);
-                    break;
-                default:
-            }
-        }
-
-        if (argLine == -1 || argColumn == -1 || docUri == null) {
-            throw new LSCommandExecutorException("Invalid parameters received for the create test command!");
-        }
-
-        // Compile the source file
-        WorkspaceDocumentManager docManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
-        LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
-        BLangPackage builtSourceFile = lsCompiler.getBLangPackage(context, docManager, false, null, false).getRight();
-
-        // Generate test file and notify Client
-        LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
-        try {
-            if (builtSourceFile == null || builtSourceFile.diagCollector.hasErrors()) {
-                String message = "Test generation failed due to compilation errors!";
-                client.showMessage(new MessageParams(MessageType.Error, message));
-                throw new LSCommandExecutorException(message);
-            }
-
-            // Check for tests folder, if not exists create a new folder
-            Path filePath = Paths.get(URI.create(docUri));
-            ImmutablePair<Path, Path> testDirs = createTestFolderIfNotExists(filePath);
-            File testsDir = testDirs.getRight().toFile();
-
-            // Generate a unique name for the tests file
-            File testFile = testsDir.toPath().resolve(generateTestFileName(filePath)).toFile();
-
-            // If not exists, create a new test file
-            if (!testFile.exists()) {
-                try {
-                    testFile.createNewFile();
-                } catch (IOException e) {
-                    String message = "Error occurred while creating the test file:" + testFile.toString();
-                    throw new TestGeneratorException(message, e);
-                }
-            }
-
-            // Generate test content edits
-            String pkgRelativeSourceFilePath = testDirs.getLeft().relativize(filePath).toString();
-            Pair<BLangNode, Object> bLangNodePair = getBLangNode(argLine, argColumn, docUri, docManager, lsCompiler);
-            List<TextEdit> content = TestGenerator.generate(docManager, bLangNodePair, builtSourceFile,
-                                                            pkgRelativeSourceFilePath, testFile);
-
-            // Send edits
-            VersionedTextDocumentIdentifier identifier = new VersionedTextDocumentIdentifier();
-            identifier.setUri(testFile.toURI().toString());
-            TextDocumentEdit textDocumentEdit = new TextDocumentEdit(identifier, content);
-            WorkspaceEdit workspaceEdit = new WorkspaceEdit();
-            workspaceEdit.setDocumentChanges(Collections.singletonList(textDocumentEdit));
-            ApplyWorkspaceEditParams editParams = new ApplyWorkspaceEditParams();
-            editParams.setEdit(workspaceEdit);
-            client.applyEdit(editParams);
-
-            // Notify client
-            String message = "Tests generated into the file:" + testFile.toString();
-            client.showMessage(new MessageParams(MessageType.Info, message));
-        } catch (TestGeneratorException e) {
-            String message = "Test generation failed!: " + e.getMessage();
-            client.showMessage(new MessageParams(MessageType.Error, message));
-            throw new LSCommandExecutorException(message, e);
-        }
-        return new Object();
-    }
-
-    private static String generateTestFileName(Path sourceFilePath) {
+    public static String generateTestFileName(Path sourceFilePath) {
         String fileName = FilenameUtils.removeExtension(sourceFilePath.toFile().getName());
         return fileName + "_test" + ProjectDirConstants.BLANG_SOURCE_EXT;
     }
@@ -210,6 +118,100 @@ public class CreateTestExecutor implements LSCommandExecutor {
         }
 
         return new ImmutablePair<>(currentModulePath, testDirPath);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object execute(LSContext context) throws LSCommandExecutorException {
+        String docUri = null;
+        int line = -1;
+        int column = -1;
+
+        for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
+            String argKey = ((LinkedTreeMap) arg).get(ARG_KEY).toString();
+            String argVal = ((LinkedTreeMap) arg).get(ARG_VALUE).toString();
+            switch (argKey) {
+                case CommandConstants.ARG_KEY_DOC_URI:
+                    docUri = argVal;
+                    context.put(DocumentServiceKeys.FILE_URI_KEY, docUri);
+                    break;
+                case CommandConstants.ARG_KEY_NODE_LINE:
+                    line = Integer.parseInt(argVal);
+                    break;
+                case CommandConstants.ARG_KEY_NODE_COLUMN:
+                    column = Integer.parseInt(argVal);
+                    break;
+                default:
+            }
+        }
+
+        if (line == -1 || column == -1 || docUri == null) {
+            throw new LSCommandExecutorException("Invalid parameters received for the create test command!");
+        }
+
+        // Compile the source file
+        WorkspaceDocumentManager docManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+        LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
+        BLangPackage builtSourceFile = lsCompiler.getBLangPackage(context, docManager, false, null, false).getRight();
+
+        // Generate test file and notify Client
+        LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
+        try {
+            if (builtSourceFile == null || builtSourceFile.diagCollector.hasErrors()) {
+                String message = "Test generation failed due to compilation errors!";
+                if (client != null) {
+                    client.showMessage(new MessageParams(MessageType.Error, message));
+                }
+                throw new LSCommandExecutorException(message);
+            }
+
+            // Check for tests folder, if not exists create a new folder
+            Path filePath = Paths.get(URI.create(docUri));
+            ImmutablePair<Path, Path> testDirs = createTestFolderIfNotExists(filePath);
+            File testsDir = testDirs.getRight().toFile();
+
+            // Generate a unique name for the tests file
+            File testFile = testsDir.toPath().resolve(generateTestFileName(filePath)).toFile();
+
+            // If not exists, create a new test file
+            if (!testFile.exists()) {
+                try {
+                    testFile.createNewFile();
+                } catch (IOException e) {
+                    String message = "Error occurred while creating the test file:" + testFile.toString();
+                    throw new TestGeneratorException(message, e);
+                }
+            }
+
+            // Generate test content edits
+            String pkgRelativeSourceFilePath = testDirs.getLeft().relativize(filePath).toString();
+            Pair<BLangNode, Object> bLangNodePair = getBLangNode(line, column, docUri, docManager, lsCompiler, context);
+            List<TextEdit> content = TestGenerator.generate(docManager, bLangNodePair, builtSourceFile,
+                                                            pkgRelativeSourceFilePath, testFile);
+
+            // Send edits
+            VersionedTextDocumentIdentifier identifier = new VersionedTextDocumentIdentifier();
+            identifier.setUri(testFile.toPath().toUri().toString());
+            TextDocumentEdit textDocumentEdit = new TextDocumentEdit(identifier, content);
+            WorkspaceEdit workspaceEdit = new WorkspaceEdit();
+            workspaceEdit.setDocumentChanges(Collections.singletonList(textDocumentEdit));
+            ApplyWorkspaceEditParams editParams = new ApplyWorkspaceEditParams();
+            editParams.setEdit(workspaceEdit);
+            if (client != null) {
+                client.applyEdit(editParams);
+                String message = "Tests generated into the file:" + testFile.toString();
+                client.showMessage(new MessageParams(MessageType.Info, message));
+            }
+            return editParams;
+        } catch (TestGeneratorException e) {
+            String message = "Test generation failed!: " + e.getMessage();
+            if (client != null) {
+                client.showMessage(new MessageParams(MessageType.Error, message));
+            }
+            throw new LSCommandExecutorException(message, e);
+        }
     }
 
     /**

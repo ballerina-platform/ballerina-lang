@@ -87,6 +87,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -234,7 +235,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 bLangPackage.accept(signatureTreeVisitor);
                 signatureHelp = SignatureHelpUtil.getFunctionSignatureHelp(signatureContext);
                 return signatureHelp;
-            } catch (Exception| ZipError | AssertionError e) {
+            } catch (Exception | ZipError | AssertionError e) {
                 if (CommonUtil.LS_DEBUG_ENABLED) {
                     String msg = e.getMessage();
                     logger.error("Error while retrieving signature help" + ((msg != null) ? ": " + msg : ""), e);
@@ -400,9 +401,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 String topLevelNodeType = CommonUtil.topLevelNodeTypeInLine(params.getTextDocument(), start,
                                                                             documentManager);
                 // Add create test commands
-                Path dir = document.getPath().getParent();
-                if (diagnostics.isEmpty() && document.hasProjectRepo() &&
-                        !dir.getFileName().toString().equals("tests")) {
+                String innerDirName = LSCompilerUtil.getCurrentModulePath(document.getPath())
+                        .relativize(document.getPath())
+                        .toString().split(File.separator)[0];
+                if (diagnostics.isEmpty() && document.hasProjectRepo() && !"tests".equals(innerDirName)) {
                     commands.addAll(CommandUtil.getTestGenerationCommand(topLevelNodeType, fileUri, params));
                 }
 

@@ -124,7 +124,7 @@ public class TemplateBasedRendererOutput implements RendererOutput {
                 }
         );
         //Clear pending placeholders
-        result[0] = result[0].replaceAll("\\$\\{.*}", "");
+        result[0] = result[0].replaceAll("\\$\\{.*}[\\r\\n|\\r|\\n]*", "");
         return result[0];
     }
 

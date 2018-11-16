@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.command.testgen.template;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.ballerinalang.langserver.command.testgen.TestGeneratorException;
 import org.ballerinalang.langserver.command.testgen.renderer.RendererOutput;
 import org.ballerinalang.langserver.command.testgen.renderer.TemplateBasedRendererOutput;
@@ -29,12 +30,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 /**
  * To represent a Service template.
  */
 public class RootTemplate extends AbstractTestTemplate {
-    private static final String LINE_FEED = System.lineSeparator();
+    public static final String LINE_FEED = System.lineSeparator();
     private final List<BLangService> httpServices = new ArrayList<>();
     private final List<BLangService> httpWSServices = new ArrayList<>();
     private final List<BLangService> httpWSClientServices = new ArrayList<>();
@@ -105,19 +107,29 @@ public class RootTemplate extends AbstractTestTemplate {
         // Add imports
         if (rendererOutput.isNewTestFile() || isNonExistImport("ballerina", "test")) {
             rendererOutput.append(PlaceHolder.IMPORTS, "import ballerina/test;" + LINE_FEED);
+            imports.add(new ImmutablePair<>("ballerina", "test"));
         }
         if (rendererOutput.isNewTestFile() || isNonExistImport("ballerina", "log")) {
             rendererOutput.append(PlaceHolder.IMPORTS, "import ballerina/log;" + LINE_FEED);
+            imports.add(new ImmutablePair<>("ballerina", "log"));
         }
         if (httpServices.size() > 0 || httpWSServices.size() > 0 || httpWSClientServices.size() > 0) {
             if (rendererOutput.isNewTestFile() || isNonExistImport("ballerina", "http")) {
                 rendererOutput.append(PlaceHolder.IMPORTS, "import ballerina/http;" + LINE_FEED);
+                imports.add(new ImmutablePair<>("ballerina", "http"));
             }
         }
 
+        BiConsumer<String, String> importsConsumer = (orgName, alias) -> {
+            if (isNonExistImport(orgName, alias)) {
+                rendererOutput.append(PlaceHolder.IMPORTS, "import " + orgName + "/" + alias + ";" + LINE_FEED);
+                imports.add(new ImmutablePair<>(orgName, alias));
+            }
+        };
+
         // Render test functions
         for (BLangFunction func : functions) {
-            new FunctionTemplate(builtTestFile, func).render(rendererOutput);
+            new FunctionTemplate(importsConsumer, builtTestFile, func).render(rendererOutput);
         }
 
         // Render httpService tests

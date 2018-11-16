@@ -1,8 +1,11 @@
 package org.ballerinalang.langserver.command.testgen.template;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -18,9 +21,24 @@ public abstract class AbstractTestTemplate implements TestTemplate {
     protected static final String WS = "ws://";
     protected static final String WSS = "wss://";
     protected BLangPackage builtTestFile;
+    protected List<Pair<String, String>> imports;
 
     public AbstractTestTemplate(BLangPackage builtTestFile) {
         this.builtTestFile = builtTestFile;
+        this.imports = new ArrayList<>();
+        if (builtTestFile != null) {
+            builtTestFile.testablePkgs.forEach(testablePkg -> testablePkg.getCompilationUnits().forEach(
+                    unit -> unit.getTopLevelNodes().forEach(node -> {
+                        //TODO: a dirty hack to retrieve imports of a test package, remove this when fixed
+                        if (node instanceof BLangImportPackage) {
+                            BLangImportPackage pkg = (BLangImportPackage) node;
+                            String orgName = pkg.orgName.value;
+                            String alias = pkg.alias.value;
+                            this.imports.add(new ImmutablePair<>(orgName, alias));
+                        }
+                    })
+            ));
+        }
     }
 
     /**
@@ -51,17 +69,7 @@ public abstract class AbstractTestTemplate implements TestTemplate {
      * @return True if import is non existent, False otherwise.
      */
     protected boolean isNonExistImport(String orgName, String alias) {
-        return builtTestFile.testablePkgs.stream().findAny().map(
-                testablePkg -> testablePkg.getCompilationUnits().stream().noneMatch(
-                        unit -> unit.getTopLevelNodes().stream().anyMatch(node -> {
-                            if (node instanceof BLangImportPackage) {
-                                BLangImportPackage pkg = (BLangImportPackage) node;
-                                return (pkg.orgName.value.equals(orgName) && pkg.alias.value.equals(alias));
-                            }
-                            return false;
-                        })
-                )
-        ).orElse(true);
+        return imports.stream().noneMatch(pair -> (pair.getLeft().equals(orgName) && pair.getRight().equals(alias)));
     }
 
     /**

@@ -130,7 +130,7 @@ class BallerinaWorkspaceService implements WorkspaceService {
             } catch (Exception e) {
                 logger.error(e.getMessage());
             }
-            
+
             logger.warn("No command executor found for \"" + params.getCommand() + "\"");
             return false;
         });
