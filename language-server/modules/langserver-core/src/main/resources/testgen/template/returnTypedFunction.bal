@@ -9,4 +9,3 @@ function ${testFunctionName}(${testFunctionParams}) {
 function ${testFunctionName}DataProvider() returns (${dataProviderReturnType}) {
     return ${dataProviderReturnValue};
 }
-
