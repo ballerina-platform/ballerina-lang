@@ -26,6 +26,7 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
+import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -378,6 +379,18 @@ public class ASTBuilderUtil {
         conversion.conversionSymbol = (BConversionOperatorSymbol) symResolver.resolveConversionOperator(varRef.type,
                 target);
         return conversion;
+    }
+
+    static BLangInvocation.BLangBuiltInMethodInvocation createBuiltInMethod(DiagnosticPos pos,
+                                                                            BLangExpression expr,
+                                                                            BInvokableSymbol invokableSymbol,
+                                                                            List<BLangExpression> requiredArgs,
+                                                                            SymbolResolver symResolver,
+                                                                            BLangBuiltInMethod builtInFunction) {
+        BLangInvocation invokeLambda = createInvocationExprMethod(pos, invokableSymbol, requiredArgs,
+                                                                  new ArrayList<>(), new ArrayList<>(), symResolver);
+        invokeLambda.expr = expr;
+        return new BLangInvocation.BLangBuiltInMethodInvocation(invokeLambda, builtInFunction);
     }
 
     static List<BLangExpression> generateArgExprs(DiagnosticPos pos, List<BLangSimpleVariable> args,
