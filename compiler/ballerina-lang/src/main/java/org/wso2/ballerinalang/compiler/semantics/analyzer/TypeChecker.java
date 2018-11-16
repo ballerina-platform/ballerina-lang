@@ -622,6 +622,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean isInTopLevelWorkerEnv() {
+        // Two scenarios are handled here when a variable comes as an assignment and when it is defined as a variable
+        // definition: i = <- W1 and var i = <- W1;
         return this.env.enclEnv.node.getKind() == NodeKind.WORKER ||
                 this.env.enclEnv.enclEnv.node.getKind() == NodeKind.WORKER;
     }
@@ -1032,6 +1034,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
         }
         waitForAllExpr.type = resultType;
+
+        if (resultType != null && resultType != symTable.semanticError) {
+            types.setImplicitCastExpr(waitForAllExpr, waitForAllExpr.type, expType);
+        }
     }
 
     private void checkTypesForMap(List<BLangWaitForAllExpr.BLangWaitKeyValue> keyValuePairs, BType expType) {
@@ -1143,6 +1149,10 @@ public class TypeChecker extends BLangNodeVisitor {
             resultType = ((BFutureType) resultType).constraint;
         }
         waitExpr.type = resultType;
+
+        if (resultType != null && resultType != symTable.semanticError) {
+            types.setImplicitCastExpr(waitExpr, waitExpr.type, ((BFutureType) expType).constraint);
+        }
     }
 
     private HashSet<BType> collectMemberTypes(BUnionType unionType, HashSet<BType> memberTypes) {
