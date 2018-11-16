@@ -15,58 +15,58 @@
 // under the License.
 
 # Represent `application/octet-stream` media type.
-@final public string APPLICATION_OCTET_STREAM = "application/octet-stream";
+public const string APPLICATION_OCTET_STREAM = "application/octet-stream";
 
 # Represent `application/json` media type.
-@final public string APPLICATION_JSON = "application/json";
+public const string APPLICATION_JSON = "application/json";
 
 # Represent `application/xml` media type.
-@final public string APPLICATION_XML = "application/xml";
+public const string APPLICATION_XML = "application/xml";
 
 # Represent `application/svg+xml` media type.
-@final public string APPLICATION_SVG_XML = "application/svg+xml";
+public const string APPLICATION_SVG_XML = "application/svg+xml";
 
 # Represent `application/xhtml+xml` media type.
-@final public string APPLICATION_XHTML_XML = "application/xhtml+xml";
+public const string APPLICATION_XHTML_XML = "application/xhtml+xml";
 
 # Represent `application/soap+xml` media type.
-@final public string APPLICATION_SOAP_XML = "application/soap+xml";
+public const string APPLICATION_SOAP_XML = "application/soap+xml";
 
 # Represent `application/x-www-form-urlencoded` media type.
-@final public string APPLICATION_FORM_URLENCODED = "application/x-www-form-urlencoded";
+public const string APPLICATION_FORM_URLENCODED = "application/x-www-form-urlencoded";
 
 # Represent `application/pdf` media type.
-@final public string APPLICATION_PDF = "application/pdf";
+public const string APPLICATION_PDF = "application/pdf";
 
 # Represent `image/jpeg` media type.
-@final public string IMAGE_JPEG = "image/jpeg";
+public const string IMAGE_JPEG = "image/jpeg";
 
 # Represent `image/gif` media type.
-@final public string IMAGE_GIF = "image/gif";
+public const string IMAGE_GIF = "image/gif";
 
 # Represent `image/png` media type.
-@final public string IMAGE_PNG = "image/png";
+public const string IMAGE_PNG = "image/png";
 
 # Represent `multipart/form-data` media type.
-@final public string MULTIPART_FORM_DATA = "multipart/form-data";
+public const string MULTIPART_FORM_DATA = "multipart/form-data";
 
 # Represent `multipart/mixed` media type.
-@final public string MULTIPART_MIXED = "multipart/mixed";
+public const string MULTIPART_MIXED = "multipart/mixed";
 
 # Represent `multipart/alternative` media type.
-@final public string MULTIPART_ALTERNATIVE = "multipart/alternative";
+public const string MULTIPART_ALTERNATIVE = "multipart/alternative";
 
 # Represent `multipart/related` media type.
-@final public string MULTIPART_RELATED = "multipart/related";
+public const string MULTIPART_RELATED = "multipart/related";
 
 # Represent `multipart/parallel` media type.
-@final public string MULTIPART_PARALLEL = "multipart/parallel";
+public const string MULTIPART_PARALLEL = "multipart/parallel";
 
 # Represent `text/plain` media type.
-@final public string TEXT_PLAIN = "text/plain";
+public const string TEXT_PLAIN = "text/plain";
 
 # Represent `text/html` media type.
-@final public string TEXT_HTML = "text/html";
+public const string TEXT_HTML = "text/html";
 
 # Represent `text/xml` media type.
-@final public string TEXT_XML = "text/xml";
+public const string TEXT_XML = "text/xml";

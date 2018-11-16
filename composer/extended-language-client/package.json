@@ -1,6 +1,6 @@
 {
   "name": "extended-language-client",
-  "version": "0.982.1-SNAPSHOT",
+  "version": "0.983.1-SNAPSHOT",
   "description": "Extended language client for Ballerina LS",
   "main": "dist/index.js",
   "scripts": {

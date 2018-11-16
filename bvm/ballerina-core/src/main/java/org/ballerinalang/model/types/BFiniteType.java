@@ -20,7 +20,7 @@ package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.values.BValue;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -32,7 +32,7 @@ public class BFiniteType extends BType {
 
     public BFiniteType(String typeName, String pkgPath) {
         super(typeName, pkgPath, BValue.class);
-        this.valueSpace = new HashSet<>();
+        this.valueSpace = new LinkedHashSet<>();
     }
 
     @Override

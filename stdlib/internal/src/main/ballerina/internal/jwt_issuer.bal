@@ -36,12 +36,8 @@ public type JWTIssuerConfig record {
 # + config - JWTIssuerConfig object
 # + return - JWT token string or an error if token validation fails
 public function issue(JwtHeader header, JwtPayload payload, JWTIssuerConfig config) returns (string|error) {
-    string jwtHeader = createHeader(header);
-    string jwtPayload = "";
-    match createPayload(payload) {
-        error e => return e;
-        string result => jwtPayload = result;
-    }
+    string jwtHeader = check createHeader(header);
+    string jwtPayload = check createPayload(payload);
     string jwtAssertion = jwtHeader + "." + jwtPayload;
     KeyStore keyStore = {
         keyAlias : config.keyAlias,
@@ -53,8 +49,12 @@ public function issue(JwtHeader header, JwtPayload payload, JWTIssuerConfig conf
     return (jwtAssertion + "." + signature);
 }
 
-function createHeader(JwtHeader header) returns (string) {
+function createHeader(JwtHeader header) returns (string|error) {
     json headerJson = {};
+    if (!validateMandatoryJwtHeaderFields(header)) {
+        error jwtError = error(INTERNAL_ERROR_CODE, { message : "Mandatory field signing algorithm(alg) is empty." });
+        return jwtError;
+    }
     headerJson[ALG] = header.alg;
     headerJson[TYP] = "JWT";
     headerJson = addMapToJson(headerJson, header.customClaims);
@@ -66,8 +66,9 @@ function createHeader(JwtHeader header) returns (string) {
 function createPayload(JwtPayload payload) returns (string|error) {
     json payloadJson = {};
     if (!validateMandatoryFields(payload)) {
-        error err = error("Mandatory fields(Issuer, Subject, Expiration time or Audience) are empty.");
-        return err;
+        error jwtError = error(INTERNAL_ERROR_CODE,
+                            { message : "Mandatory fields(Issuer, Subject, Expiration time or Audience) are empty." });
+        return jwtError;
     }
     payloadJson[SUB] = payload.sub;
     payloadJson[ISS] = payload.iss;
@@ -85,13 +86,17 @@ function createPayload(JwtPayload payload) returns (string|error) {
 function addMapToJson(json inJson, map mapToConvert) returns (json) {
     if (mapToConvert.length() != 0) {
         foreach key in mapToConvert.keys() {
-            match mapToConvert[key]{
-                string[] value => inJson[key] = convertStringArrayToJson(value);
-                int[] value => inJson[key] = convertIntArrayToJson(value);
-                string value => inJson[key] = value;
-                int value => inJson[key] = value;
-                boolean value => inJson[key] = value;
-                any => {}
+            var customClaims = mapToConvert[key];
+            if (customClaims is string[]) {
+                inJson[key] = convertStringArrayToJson(customClaims);
+            } else if (customClaims is int[]) {
+                inJson[key] = convertIntArrayToJson(customClaims);
+            } else if (customClaims is string) {
+                inJson[key] = customClaims;
+            } else if (customClaims is int) {
+                inJson[key] = customClaims;
+            } else if (customClaims is boolean) {
+                inJson[key] = customClaims;
             }
         }
     }

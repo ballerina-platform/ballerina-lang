@@ -32,14 +32,25 @@ public class CheckedExprNegativeTest {
     public void testSemanticErrors() {
         CompileResult compile = BCompileUtil.compile(
                 "test-src/expressions/checkedexpr/checked_expr_negative.bal");
-        Assert.assertEquals(compile.getErrorCount(), 4);
+        Assert.assertEquals(compile.getErrorCount(), 5);
         BAssertUtil.validateError(compile, 0, "invalid usage of the checked expression " +
                 "operator: no expression type is equivalent to error type", 11, 25);
         BAssertUtil.validateError(compile, 1, "invalid usage of the checked expression " +
-                "operator: all expression types are equivalent to error type", 15, 25);
+                "operator: all expression types are equivalent to error type", 16, 25);
         BAssertUtil.validateError(compile, 2, "invalid usage of the checked expression " +
-                "operator: all expression types are equivalent to error type", 37, 25);
+                "operator: all expression types are equivalent to error type", 30, 25);
         BAssertUtil.validateError(compile, 3, "invalid usage of the checked expression " +
-                "operator: no expression type is equivalent to error type", 45, 25);
+                "operator: no expression type is equivalent to error type", 39, 25);
+        BAssertUtil.validateError(compile, 4, "invalid usage of the checked expression " +
+                "operator: no error type return in enclosing invokable", 49, 25);
+    }
+
+    @Test
+    public void testSemanticErrorsWithResources() {
+        CompileResult compile = BCompileUtil.compile(
+                "test-src/expressions/checkedexpr/checked_expr_within_resource_negative.bal");
+        Assert.assertEquals(compile.getErrorCount(), 1);
+        BAssertUtil.validateError(compile, 0, "invalid usage of the checked expression " +
+                "operator: no error type return in enclosing invokable", 28, 28);
     }
 }

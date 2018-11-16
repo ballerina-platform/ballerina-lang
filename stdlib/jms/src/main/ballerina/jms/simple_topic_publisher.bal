@@ -21,7 +21,7 @@ import ballerina/log;
 # + config - Simple topic publisher enpoint configuration
 public type SimpleTopicPublisher object {
 
-    public SimpleTopicPublisherEndpointConfiguration config;
+    public SimpleTopicPublisherEndpointConfiguration config = {};
 
     private Connection? connection;
     private Session? session = ();
@@ -70,14 +70,14 @@ public type SimpleTopicPublisher object {
     #
     # + return - Topic publisher actions
     public function getCallerActions() returns TopicPublisherActions {
-        match (self.publisher) {
-            TopicPublisher s => return s.getCallerActions();
-            () => {
-                string errorMessage = "Topic publisher cannot be nil";
-                map errorDetail = { message: errorMessage };
-                error e = error(JMS_ERROR_CODE, errorDetail);
-                panic e;
-            }
+        var publisher = self.publisher;
+        if (publisher is TopicPublisher) {
+            return publisher.getCallerActions();
+        } else {
+            string errorMessage = "Topic publisher cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
 
@@ -91,14 +91,14 @@ public type SimpleTopicPublisher object {
     # + message - A message body to create a text message
     # + return - a message or nil if the session is nil
     public function createTextMessage(string message) returns Message|error {
-        match (self.session) {
-            Session s => return s.createTextMessage(message);
-            () => {
-                string errorMessage = "Session cannot be nil";
-                map errorDetail = { message: errorMessage };
-                error e = error(JMS_ERROR_CODE, errorDetail);
-                panic e;
-            }
+        var session = self.session;
+        if (session is Session) {
+            return session.createTextMessage(message);
+        } else {
+            string errorMessage = "Session cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
     # Create JMS map message
@@ -106,14 +106,14 @@ public type SimpleTopicPublisher object {
     # + message - A message body to create a map message
     # + return - a message or nil if the session is nil
     public function createMapMessage(map message) returns Message|error {
-        match (self.session) {
-            Session s => return s.createMapMessage(message);
-            () => {
-                string errorMessage = "Session cannot be nil";
-                map errorDetail = { message: errorMessage };
-                error e = error(JMS_ERROR_CODE, errorDetail);
-                panic e;
-            }
+        var session = self.session;
+        if (session is Session) {
+            return session.createMapMessage(message);
+        } else {
+            string errorMessage = "Session cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
 };
@@ -131,7 +131,7 @@ public type SimpleTopicPublisherEndpointConfiguration record {
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
-    map properties;
-    string topicPattern;
+    map properties = {};
+    string topicPattern = "";
     !...
 };

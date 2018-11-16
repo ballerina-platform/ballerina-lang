@@ -19,7 +19,7 @@
 #
 # + id - Caller endpoint id.
 public type Listener object {
-    public int id;
+    public int id = 0;
 
     private CallerAction conn;
 

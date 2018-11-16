@@ -42,7 +42,7 @@ public class TypeGuardTest {
     @Test
     public void testTypeGuardNegative() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/statements/ifelse/type-guard-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 10);
+        Assert.assertEquals(negativeResult.getErrorCount(), 11);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'int|string'", 22,
                 17);
@@ -54,12 +54,12 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'string' will not be matched to 'int'", 56,
                 27);
         BAssertUtil.validateError(negativeResult, i++, "operator '>' not defined for 'int|string' and 'int'", 61, 21);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int|string'", 65,
-                20);
-        BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'a'", 71,
-                8);
-        BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'a'", 72,
-                16);
+        BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'a'", 71, 8);
+        BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'a'", 72, 16);
+        BAssertUtil.validateError(negativeResult, i++,
+                "unnecessary condition: expression will always evaluate to 'true'", 84, 13);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'string' will not be matched to 'int'", 88,
+                13);
     }
 
     @Test
@@ -108,5 +108,38 @@ public class TypeGuardTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 12);
+    }
+
+    @Test
+    public void testTypeGuardInElse_1() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeGuardInElse_1");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "int: 5");
+    }
+
+    @Test
+    public void testTypeGuardInElse_2() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeGuardInElse_2");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "boolean: true");
+    }
+
+    @Test
+    public void testTypeGuardInElse_3() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeGuardInElse_3");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "x is boolean and y is boolean: false");
+    }
+
+    @Test
+    public void testTypeGuardInElse_4() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeGuardInElse_4");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "1st round: x is boolean and y is boolean: false | " +
+                "2nd round: x is boolean and y is boolean: false");
     }
 }

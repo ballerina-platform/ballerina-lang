@@ -28,13 +28,6 @@ import org.testng.annotations.Test;
  */
 public class ReturnStmtNegativeTest {
 
-    @Test(description = "Test return statement in resource")
-    public void testReturnInResource() {
-        CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/return-in-resource.bal");
-        Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "return statement is not allowed inside a resource", 3, 9);
-    }
-
     @Test(description = "Test not enough arguments to return")
     public void testNotEnoughArgsToReturn1() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/not-enough-args-to-return-1.bal");
@@ -181,5 +174,15 @@ public class ReturnStmtNegativeTest {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/multi-value-in-single-context.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
         BAssertUtil.validateError(result, 0, "incompatible types: expected 'string', found '(string,int)'", 2, 13);
+    }
+
+    @Test(description = "Test return statement in resource with mismatching types")
+    public void testReturnInResourceWithMismatchingTypes() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/return-in-resource-with-" +
+                "mismatching-types.bal");
+        Assert.assertEquals(result.getErrorCount(), 3);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected 'string', found 'int'", 19, 16);
+        BAssertUtil.validateError(result, 1, "incompatible types: expected 'int', found 'string'", 23, 16);
+        BAssertUtil.validateError(result, 2, "incompatible types: expected '()', found 'string'", 27, 16);
     }
 }

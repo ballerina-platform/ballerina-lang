@@ -27,11 +27,11 @@ import ballerina/runtime;
 # + maxWaitInterval - Maximum time of the retry interval in milliseconds
 # + statusCodes - HTTP response status codes which are considered as failures
 public type RetryInferredConfig record {
-    int count;
-    int interval;
-    float backOffFactor;
-    int maxWaitInterval;
-    boolean[] statusCodes;
+    int count = 0;
+    int interval = 0;
+    float backOffFactor = 0.0;
+    int maxWaitInterval = 0;
+    boolean[] statusCodes = [];
     !...
 };
 
@@ -291,7 +291,7 @@ function performRetryAction(@sensitive string path, Request request, HttpOperati
     var binaryPayload = check inRequest.getBinaryPayload();
 
     while (currentRetryCount < (retryCount + 1)) {
-        inRequest = populateMultipartRequest(inRequest);
+        inRequest = check populateMultipartRequest(inRequest);
         var backendResponse = invokeEndpoint(path, inRequest, requestAction, httpClient);
         if (backendResponse is Response) {
             int responseStatusCode = backendResponse.statusCode;

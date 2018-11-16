@@ -44,8 +44,8 @@ class ControllerOverlay extends React.Component {
 
     constructor() {
         super();
-        this.regionCtrlComponents = requireAll(require.context('./controllers', true, /\.jsx$/), 'regions');
-        this.defaultCtrlComponents = requireAll(require.context('./controllers', true, /\.jsx$/), 'defaults');
+        this.regionCtrlComponents = requireAll(require.context('./controllers', true, /\.js$/), 'regions');
+        this.defaultCtrlComponents = requireAll(require.context('./controllers', true, /\.js$/), 'defaults');
         this.onMouseEnter = this.onMouseEnter.bind(this);
         this.onMouseLeave = this.onMouseLeave.bind(this);
     }

@@ -305,8 +305,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private BLangSimpleVariableDef createOrderingFuncArrayVarDef(BLangOrderBy orderBy,
-                                                                 BVarSymbol orderingFuncArrayVarSymbol,
-                                                                 BLangArrayLiteral orderingFuncArrExpr) {
+            BVarSymbol orderingFuncArrayVarSymbol,
+            BLangArrayLiteral orderingFuncArrExpr) {
         BLangSimpleVariable orderingFuncArrVariable = ASTBuilderUtil.
                 createVariable(orderBy.pos, getVariableName(ORDERING_FUNC_ARRAY_REFERENCE), orderingFuncArrExpr.type,
                         orderingFuncArrExpr, orderingFuncArrayVarSymbol);
@@ -316,8 +316,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private BLangSimpleVariableDef createOrderByProcessDef(BLangOrderBy orderBy,
-                                                           BLangSimpleVariable orderingFuncArrVariable,
-                                                           BLangArrayLiteral orderingTypeArrExpr) {
+            BLangSimpleVariable orderingFuncArrVariable,
+            BLangArrayLiteral orderingTypeArrExpr) {
         BLangSimpleVarRef orderingFuncPointerArr = ASTBuilderUtil.createVariableRef(orderBy.pos,
                 orderingFuncArrVariable.symbol);
         List<BLangExpression> args = new ArrayList<>();
@@ -657,7 +657,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                     if (isReturnTypeMatching(invocation.pos, AGGREGATOR_OBJECT_NAME, aggregatorInvokableSymbol)) {
                         BLangInvocation aggregatorInvocation = ASTBuilderUtil.
                                 createInvocationExprForMethod(invocation.pos, aggregatorInvokableSymbol,
-                                Collections.emptyList(), symResolver);
+                                        Collections.emptyList(), symResolver);
                         expr.exprs.add(aggregatorInvocation);
                     }
                 } else {
@@ -748,9 +748,9 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private BLangSimpleVariableDef addOutputObjectCreationStmt(BLangSelectClause selectClause,
-                                                               BLangBlockStmt selectLambdaBody,
-                                                               BLangSimpleVariable varStreamEvent,
-                                                               BLangSimpleVariable varAggregatorArray) {
+            BLangBlockStmt selectLambdaBody,
+            BLangSimpleVariable varStreamEvent,
+            BLangSimpleVariable varAggregatorArray) {
 
         BLangRecordLiteral outputEventRecordLiteral = ASTBuilderUtil.createEmptyRecordLiteral(selectClause.pos,
                 symTable.mapType);
@@ -764,7 +764,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         */
         List<BLangRecordLiteral.BLangRecordKeyValue> recordKeyValueList =
                 getFieldListInSelectClause(selectClause.pos, selectClause.getSelectExpressions(), varStreamEvent.symbol,
-                varAggregatorArray.symbol, (BLangGroupBy) selectClause.getGroupBy());
+                        varAggregatorArray.symbol, (BLangGroupBy) selectClause.getGroupBy());
 
         BVarSymbol outputEventVarSymbol =
                 new BVarSymbol(0, new Name(getVariableName(OUTPUT_EVENT_SELECTOR_PARAM_REFERENCE)),
@@ -785,7 +785,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private BLangFieldBasedAccess createEventDataFieldAccessExpr(DiagnosticPos pos,
-                                                                 BVarSymbol streamEventSymbol) {
+            BVarSymbol streamEventSymbol) {
         BLangFieldBasedAccess eventDataField = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
         eventDataField.expr = ASTBuilderUtil.createVariableRef(pos, streamEventSymbol);
         eventDataField.type = symTable.mapType;
@@ -797,8 +797,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private BLangLambdaFunction createAggregatorLambdaWithParams(BLangSimpleVariable varAggregatorArray,
-                                                                 BLangSimpleVariable varSelectFnStreamEvent,
-                                                                 DiagnosticPos pos) {
+            BLangSimpleVariable varSelectFnStreamEvent,
+            DiagnosticPos pos) {
         Set<BVarSymbol> selectLambdaClosureVarSymbols = new LinkedHashSet<>();
         selectLambdaClosureVarSymbols.add(varSelectFnStreamEvent.symbol);
         selectLambdaClosureVarSymbols.add(varAggregatorArray.symbol);
@@ -830,7 +830,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private BLangIndexBasedAccess createMapAccessExprFromStreamEvent(BLangSimpleVariable varGroupByStreamEvent,
-                                                                     BLangExpression indexExpr) {
+            BLangExpression indexExpr) {
         BLangFieldBasedAccess dataField = createStreamEventDataMapExpr(indexExpr.pos, varGroupByStreamEvent);
         return createMapVariableIndexAccessExpr((BVarSymbol) dataField.symbol, indexExpr);
     }
@@ -845,7 +845,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private BLangLambdaFunction createLambdaWithVarArg(DiagnosticPos pos, BLangSimpleVariable[] varArgs,
-                                                       TypeKind typeKind) {
+            TypeKind typeKind) {
         Set<BVarSymbol> varArgClosureSymbols = Arrays.stream(varArgs).map(varArg -> varArg.symbol)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
 
@@ -946,7 +946,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private void createJoinProcessorStmt(BLangJoinStreamingInput joinStreamingInput,
-                                         BLangLambdaFunction conditionExpr) {
+            BLangLambdaFunction conditionExpr) {
 
         BLangFieldBasedAccess nextProcessMethodAccess = createNextProcessFuncPointer(joinStreamingInput.pos);
 
@@ -1038,9 +1038,9 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                     new Name(getVariableName(INPUT_STREAM_PARAM_REFERENCE)), lambdaParameterType.tsymbol.pkgID,
                     lambdaParameterType, env.scope.owner);
 
-        BLangSimpleVariable inputStreamLambdaFunctionVariable = ASTBuilderUtil.createVariable(streamingInput.pos,
-                getVariableName(INPUT_STREAM_PARAM_REFERENCE), lambdaParameterType, null, lambdaParameterVarSymbol);
-        inputStreamLambdaFunctionVariable.typeNode = ASTBuilderUtil.createTypeNode(lambdaParameterType);
+            BLangSimpleVariable inputStreamLambdaFunctionVariable = ASTBuilderUtil.createVariable(streamingInput.pos,
+                    getVariableName(INPUT_STREAM_PARAM_REFERENCE), lambdaParameterType, null, lambdaParameterVarSymbol);
+            inputStreamLambdaFunctionVariable.typeNode = ASTBuilderUtil.createTypeNode(lambdaParameterType);
 
             Set<BVarSymbol> closureVarSymbols = new LinkedHashSet<>();
             closureVarSymbols.add(nextProcessInvokableTypeVarSymbol);
@@ -1225,8 +1225,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private BLangSimpleVariableDef createVariableDef(BLangExpression expr, BType exprType,
-                                               BVarSymbol exprTypeSymbol,
-                                               DiagnosticPos pos, String exprVarName, String objName) {
+            BVarSymbol exprTypeSymbol,
+            DiagnosticPos pos, String exprVarName, String objName) {
 
         BLangSimpleVariable windowInvokableTypeVariable =
                 ASTBuilderUtil.createVariable(pos, getVariableName(exprVarName), exprType, expr,
@@ -1281,7 +1281,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private void attachWindowToJoinProcessor(BLangWindow window, BVarSymbol windowInvokableTypeVarSymbol,
-                                             String methodName, BLangSimpleVarRef streamRef) {
+            String methodName, BLangSimpleVarRef streamRef) {
         BVarSymbol joinProcessVarSymbol = joinProcessorStack.peek();
         BInvokableSymbol methodInvokableSymbol = getInvokableSymbolOfObject(joinProcessVarSymbol, methodName);
         List<BLangExpression> args = new ArrayList<>();
@@ -1301,8 +1301,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private BLangFieldBasedAccess createFieldBasedAccessForProcessFunc(DiagnosticPos pos,
-                                                                       BInvokableSymbol nextProcessInvokableSymbol,
-                                                                       BLangSimpleVarRef nextProcessSimpleVarRef) {
+            BInvokableSymbol nextProcessInvokableSymbol,
+            BLangSimpleVarRef nextProcessSimpleVarRef) {
         BLangFieldBasedAccess nextProcessMethodAccess = (BLangFieldBasedAccess)
                 TreeBuilder.createFieldBasedAccessNode();
         nextProcessMethodAccess.expr = nextProcessSimpleVarRef;
@@ -1356,7 +1356,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     //------------------------------------- Methods required for filter / having -----------------------------------
     private void visitFilter(DiagnosticPos pos, BLangBinaryExpr expression) {
         //Create lambda function Variable
-         BLangSimpleVariable lambdaFunctionVariable =
+        BLangSimpleVariable lambdaFunctionVariable =
                 this.createMapTypeVariable(getVariableName(FILTER_LAMBDA_PARAM_REFERENCE), pos, env);
 
         Set<BVarSymbol> closureVarSymbols = new LinkedHashSet<>();
@@ -1521,7 +1521,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BVarSymbol varSymbol = new BVarSymbol(0, new Name(variableName),
                 varType.tsymbol.pkgID, varType, env.scope.owner);
 
-         BLangSimpleVariable mapTypeVariable = ASTBuilderUtil.createVariable(pos, variableName,
+        BLangSimpleVariable mapTypeVariable = ASTBuilderUtil.createVariable(pos, variableName,
                 varType, null, varSymbol);
         mapTypeVariable.typeNode = ASTBuilderUtil.createTypeNode(varType);
         return mapTypeVariable;
@@ -1551,7 +1551,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private static BLangTypeConversionExpr generateConversionExpr(BLangExpression expr, BType target,
-                                                                  SymbolResolver symResolver) {
+            SymbolResolver symResolver) {
         // Box value using cast expression.
         final BLangTypeConversionExpr conversion = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
         conversion.pos = expr.pos;
@@ -1592,7 +1592,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
     private List<BLangRecordLiteral.BLangRecordKeyValue> getFieldListInSelectClause
             (DiagnosticPos pos, List<? extends SelectExpressionNode> selectExprList,
-             BVarSymbol streamEventSymbol, BVarSymbol aggregatorArraySymbol, BLangGroupBy groupBy) {
+                    BVarSymbol streamEventSymbol, BVarSymbol aggregatorArraySymbol, BLangGroupBy groupBy) {
         LongAdder aggregatorIndex = new LongAdder();
         List<BLangRecordLiteral.BLangRecordKeyValue> recordKeyValueList = new ArrayList<>();
 
@@ -1620,7 +1620,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 BLangFieldBasedAccess fieldBasedAccess = (BLangFieldBasedAccess) selectExpression.getExpression();
                 recordKeyValue.valueExpr =
                         createMapVariableIndexAccessExpr((BVarSymbol) createEventDataFieldAccessExpr(fieldBasedAccess
-                        .pos, streamEventSymbol).symbol, fieldBasedAccess);
+                                .pos, streamEventSymbol).symbol, fieldBasedAccess);
             } else if (selectExpression.getExpression().getKind() == NodeKind.INVOCATION) {
                 setInvocationToRecordKeyValue(recordKeyValue, streamEventSymbol, aggregatorArraySymbol,
                         aggregatorIndex, selectExpression, groupBy);
@@ -1635,9 +1635,9 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
     //this function will refactor the selector invocations appropriately by checking whether it is an aggregate or not
     private void setInvocationToRecordKeyValue(BLangRecordLiteral.BLangRecordKeyValue recordKeyValue,
-                                               BVarSymbol streamEventSymbol, BVarSymbol aggregatorArraySymbol,
-                                               LongAdder aggregatorIndex, BLangSelectExpression selectExpression,
-                                               BLangGroupBy groupBy) {
+            BVarSymbol streamEventSymbol, BVarSymbol aggregatorArraySymbol,
+            LongAdder aggregatorIndex, BLangSelectExpression selectExpression,
+            BLangGroupBy groupBy) {
         // Aggregator invocation in streaming query ( sum(..), count(..) .. etc)
         BLangInvocation invocation = (BLangInvocation) selectExpression.getExpression();
 
@@ -1686,7 +1686,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private BLangInvocation generateAggregatorInvocation(BVarSymbol streamEventSymbol, BVarSymbol aggregatorArraySymbol,
-                                                         long aggregatorIndex, BLangInvocation invocation) {
+            long aggregatorIndex, BLangInvocation invocation) {
         // aggregatorArr[0]
         BLangIndexBasedAccess indexBasedAccess = createIndexBasedAggregatorExpr(aggregatorArraySymbol,
                 aggregatorIndex, invocation.pos);
@@ -1705,8 +1705,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private List<BLangExpression> generateAggregatorInvocationArgs(BVarSymbol streamEventSymbol,
-                                                                   BLangInvocation funcInvocation,
-                                                                   List<BVarSymbol> params) {
+            BLangInvocation funcInvocation,
+            List<BVarSymbol> params) {
         // generates the fields which will be aggregated e.g. t.age
         List<BLangExpression> args = generateAggregatorInputFieldsArgs(streamEventSymbol, funcInvocation,
                 params);
@@ -1719,8 +1719,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private BLangFieldBasedAccess generateStreamEventTypeForAggregatorArg(BVarSymbol streamEventSymbol,
-                                                                          DiagnosticPos pos,
-                                                                          List<BVarSymbol> params) {
+            DiagnosticPos pos,
+            List<BVarSymbol> params) {
         BLangFieldBasedAccess streamEventFieldAccess = createFieldBasedEventTypeExpr(streamEventSymbol, pos);
         // always the 2nd parameter is the EventType, so the 2nd parameter's type should match.
         streamEventFieldAccess.type = params.get(1).type;
@@ -1728,8 +1728,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private List<BLangExpression> generateAggregatorInputFieldsArgs(BVarSymbol streamEventSymbol,
-                                                                    BLangInvocation funcInvocation,
-                                                                    List<BVarSymbol> params) {
+            BLangInvocation funcInvocation,
+            List<BVarSymbol> params) {
         List<BLangExpression> args = new ArrayList<>();
         int i = 0;
         for (BLangExpression expr : funcInvocation.argExprs) {
@@ -1758,7 +1758,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private BLangIndexBasedAccess createIndexBasedAggregatorExpr(BVarSymbol aggregatorArraySymbol, long aggregatorIndex,
-                                                                 DiagnosticPos pos) {
+            DiagnosticPos pos) {
         BLangSimpleVarRef fieldVarRef = ASTBuilderUtil.createVariableRef(pos, aggregatorArraySymbol);
         BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(pos, symTable.intType, aggregatorIndex);
         BLangIndexBasedAccess indexAccessExpr = ASTBuilderUtil.createIndexAccessExpr(fieldVarRef, indexExpr);
@@ -1777,7 +1777,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private BLangIndexBasedAccess createMapVariableIndexAccessExpr(BVarSymbol mapVariableSymbol,
-                                                                   BLangExpression expression) {
+            BLangExpression expression) {
         BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(expression.pos, mapVariableSymbol);
         BLangIndexBasedAccess selectFieldExpression = ASTBuilderUtil.createIndexAccessExpr(varRef,
                 ASTBuilderUtil.createLiteral(expression.pos, symTable.stringType, expression.toString()));
@@ -1787,8 +1787,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private BLangLambdaFunction createLambdaFunction(DiagnosticPos pos,
-                                                     List<BLangSimpleVariable> lambdaFunctionVariable,
-                                                     Set<BVarSymbol> closureVarSymbols, BLangValueType returnType) {
+            List<BLangSimpleVariable> lambdaFunctionVariable,
+            Set<BVarSymbol> closureVarSymbols, BLangValueType returnType) {
         BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         BLangFunction filterLambdaFunctionNode = ASTBuilderUtil.createFunction(pos,
                 getFunctionName(FUNC_CALLER));

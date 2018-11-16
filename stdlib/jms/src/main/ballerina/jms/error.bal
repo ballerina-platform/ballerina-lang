@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-@final public string JMS_ERROR_CODE = "{ballerina/jms}JMSError";
+public const string JMS_ERROR_CODE = "{ballerina/jms}JMSError";
 
 # JMS error record
 #

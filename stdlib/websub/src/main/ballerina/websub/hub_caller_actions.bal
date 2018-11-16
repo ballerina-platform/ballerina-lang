@@ -154,7 +154,7 @@ function CallerActions.publishUpdate(string topic, string|xml|json|byte[]|io:Rea
     request.setPayload(payload);
 
     if (contentType is string) {
-        request.setContentType(contentType);
+        check request.setContentType(contentType);
     }
 
     if (headers is map<string>) {
