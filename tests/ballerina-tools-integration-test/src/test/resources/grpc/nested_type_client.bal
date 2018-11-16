@@ -45,8 +45,8 @@ function testInputNestedStruct(Person p) returns string {
             return result;
         }
         error err => {
-            io:println("Error from Connector: " + err.message);
-            return "Error from Connector: " + err.message;
+            io:println("Error from Connector: " + err.reason());
+            return "Error from Connector: " + err.reason();
         }
     }
 }
@@ -60,7 +60,7 @@ function testOutputNestedStruct(string name) returns Person|string {
             return result;
         }
         error err => {
-            return "Error from Connector: " + err.message;
+            return "Error from Connector: " + err.reason();
         }
     }
 }

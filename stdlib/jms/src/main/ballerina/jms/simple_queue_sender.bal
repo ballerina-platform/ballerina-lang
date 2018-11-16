@@ -24,7 +24,6 @@ import ballerina/log;
 public type SimpleQueueSender object {
 
     public SimpleQueueSenderEndpointConfiguration config = {};
-
     private Connection? connection;
     private Session? session = ();
     private QueueSender? sender = ();
@@ -73,14 +72,14 @@ public type SimpleQueueSender object {
     #
     # + return - Simple queue sender actions
     public function getCallerActions() returns QueueSenderActions {
-        match (self.sender) {
-            QueueSender s => return s.getCallerActions();
-            () => {
-                string errorMessage = "Queue sender cannot be nil";
-                map errorDetail = { message: errorMessage };
-                error e = error(JMS_ERROR_CODE, errorDetail);
-                panic e;
-            }
+        var sender = self.sender;
+        if (sender is QueueSender) {
+            return sender.getCallerActions();
+        } else {
+            string errorMessage = "Queue sender cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
 
@@ -93,14 +92,14 @@ public type SimpleQueueSender object {
     # + content - the text content used to initialize this message
     # + return - a message or nil if the session is nil
     public function createTextMessage(string content) returns Message|error {
-        match (self.session) {
-            Session s => return s.createTextMessage(content);
-            () => {
-                string errorMessage = "Session cannot be nil";
-                map errorDetail = { message: errorMessage };
-                error e = error(JMS_ERROR_CODE, errorDetail);
-                panic e;
-            }
+        var session = self.session;
+        if (session is Session) {
+            return session.createTextMessage(content);
+        } else {
+            string errorMessage = "Session cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
 };

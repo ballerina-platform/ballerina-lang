@@ -55,10 +55,13 @@ public class BJSONValueTest {
         Assert.assertEquals(negativeResult.getErrorCount(), 2);
 
         // testJsonArrayWithUnsupportedtypes
-        BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'json', found 'table'", 3, 30);
+        BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'json', found 'table<DummyType>'", 7,
+                30);
 
         // testJsonInitWithUnsupportedtypes
-        BAssertUtil.validateError(negativeResult, 1, "incompatible types: expected 'json', found 'table'", 9, 39);
+        BAssertUtil
+                .validateError(negativeResult, 1, "incompatible types: expected 'json', found 'table<DummyType>'", 13,
+                        42);
     }
 
     @Test

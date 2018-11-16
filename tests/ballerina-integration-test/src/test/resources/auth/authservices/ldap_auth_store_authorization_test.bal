@@ -47,9 +47,15 @@ http:AuthProvider authProvider = {
     authStoreProviderConfig: ldapConfig
 };
 
-endpoint http:SecureListener authEP {
+endpoint http:Listener authEP {
     port: 9097,
-    authProviders: [authProvider]
+    authProviders: [authProvider],
+    secureSocket: {
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        }
+    }
 };
 
 @http:ServiceConfig {

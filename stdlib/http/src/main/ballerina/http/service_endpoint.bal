@@ -33,7 +33,7 @@ public type Listener object {
     @readonly public Remote remote = {};
     @readonly public Local local = {};
     @readonly public string protocol = "";
-    
+
     private Connection conn = new;
     private ServiceEndpointConfiguration config = {};
 

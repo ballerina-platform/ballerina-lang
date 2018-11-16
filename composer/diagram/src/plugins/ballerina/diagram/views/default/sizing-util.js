@@ -367,8 +367,8 @@ class SizingUtil {
 
         if (TreeUtil.isFunction(node)) {
             if ((node.defaultableParameters) && (node.defaultableParameters.length > 0)) {
-                const defParameterExpression = [];
-                const defParameterText = [];
+                let defParameterExpression = [];
+                let defParameterText = [];
 
                 node.defaultableParameters.forEach((param) => {
                     // Skip if the param is service endpoint.
@@ -381,8 +381,8 @@ class SizingUtil {
                     }
                 });
 
-                defParameterExpression.join(', ');
-                defParameterText.join(', ');
+                defParameterExpression = defParameterExpression.join(', ');
+                defParameterText = defParameterText.join(', ');
 
                 paramExpression = (paramExpression === '') ? defParameterExpression : paramExpression + ', ' +
                     defParameterExpression;
