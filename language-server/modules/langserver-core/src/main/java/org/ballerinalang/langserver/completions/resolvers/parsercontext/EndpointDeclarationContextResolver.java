@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
-import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
@@ -40,10 +39,7 @@ import java.util.stream.Collectors;
 public class EndpointDeclarationContextResolver extends AbstractItemResolver {
     @Override
     public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
-        List<String> poppedTokens = CommonUtil.popNFromStack(context.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY), 3)
-                .stream()
-                .map(Token::getText)
-                .collect(Collectors.toList());
+        List<String> poppedTokens = CommonUtil.popNFromList(CommonUtil.getPoppedTokenStrings(context), 3);
         List<SymbolInfo> visibleSymbols = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
         if (poppedTokens.contains(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)) {
             String pkgAlias = poppedTokens.get(poppedTokens.indexOf(UtilSymbolKeys.PKG_DELIMITER_KEYWORD) - 1);

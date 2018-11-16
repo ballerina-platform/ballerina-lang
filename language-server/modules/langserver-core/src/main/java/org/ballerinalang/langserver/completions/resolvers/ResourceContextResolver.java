@@ -47,7 +47,7 @@ public class ResourceContextResolver extends AbstractItemResolver {
 
             return completionItems;
         }
-        AbstractItemResolver resolver = CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());
+        AbstractItemResolver resolver = CompletionItemResolver.get(parserRuleContext.getClass());
 
         if (resolver != null) {
             completionItems.addAll(resolver.resolveItems(context));
