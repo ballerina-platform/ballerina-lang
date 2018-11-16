@@ -1,6 +1,6 @@
-import { BallerinaAST, BallerinaASTNode, BallerinaEndpoint, BallerinaSourceFragment } from "@ballerina/ast-model";
-import { ASTDidChangeParams, ASTDidChangeResponse, GetASTParams,
-    GetASTResponse } from "@ballerina/lang-service";
+import { ASTNode } from "@ballerina/ast-model";
+import { ASTDidChangeParams, ASTDidChangeResponse, BallerinaASTNode, BallerinaEndpoint,
+    BallerinaSourceFragment, GetASTParams, GetASTResponse  } from "@ballerina/lang-service";
 import React from "react";
 import { CommonDiagramProps, Diagram } from "./diagram";
 import { DiagramContext, IDiagramContext } from "./diagram-context";
@@ -19,7 +19,7 @@ export interface EdiatableDiagramProps extends CommonDiagramProps {
 }
 
 export interface EditableDiagramState {
-    ast?: BallerinaAST;
+    ast?: ASTNode;
     editingEnabled: boolean;
 }
 
