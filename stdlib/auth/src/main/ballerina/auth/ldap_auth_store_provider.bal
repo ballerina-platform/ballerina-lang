@@ -101,8 +101,6 @@ public type LdapAuthStoreProvider object {
     # + ldapAuthProviderConfig -  LDAP auth store configurations
     # + instanceId - Endpoint instance id
     public new (ldapAuthProviderConfig, instanceId) {
-        self.ldapAuthProviderConfig = ldapAuthProviderConfig;
-        self.instanceId = instanceId;
         initLdapConnectionContext(self, instanceId);
     }
 
@@ -115,7 +113,7 @@ public type LdapAuthStoreProvider object {
         boolean isAuthenticated = self.doAuthenticate(username, password);
         if (isAuthenticated) {
             runtime:UserPrincipal userPrincipal = runtime:getInvocationContext().userPrincipal;
-            userPrincipal.userId = username;
+            userPrincipal.userId = self.ldapAuthProviderConfig.domainName + ":" + username;
             // By default set userId as username.
             userPrincipal.username = username;
         }

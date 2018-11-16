@@ -69,7 +69,7 @@ public function main() {
     //Check the data in the database.
     checkData();
 
-    io:println("\nThe update operation - Drop the tables and procedures");
+    io:println("\nThe update operation - Drop the student table");
     ret = testDB->update("DROP TABLE student");
     handleUpdate(ret, "Drop table student");
 }

@@ -34,7 +34,7 @@ public class ParserRuleAssignmentStatementContextResolver extends AbstractItemRe
     public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         Class parserRuleContext = BallerinaParser.VariableDefinitionStatementContext.class;
-        completionItems.addAll(CompletionItemResolver.getResolverByClass(parserRuleContext)
+        completionItems.addAll(CompletionItemResolver.get(parserRuleContext)
                 .resolveItems(completionContext));
 
         return completionItems;

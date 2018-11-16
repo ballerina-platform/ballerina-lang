@@ -1,20 +1,23 @@
+# To start the service, navigate to the directory that contains the
+# `.bal` file and use the `ballerina run` command.
 $ ballerina run date_time.bal
-Current system time in milliseconds: 1509122456117
+Current system time in milliseconds: 1540889945245
 Created Time: 2017-03-28T23:42:45.554-05:00
 Parsed Time: 2017-06-26T09:46:22.444-05:00
-Current system time in ISO format: 2017-10-27T22:10:56.117+05:30
-Current system time in custom format: 2017-10-27-Fri
-Year: 2017
+Current system time in ISO format: 2018-10-30T14:29:05.245+05:30
+Current system time in custom format: 2018-10-30-Tue
+Year: 2018
 Month: 10
-Day: 27
-Hour: 22
-Minute: 10
-Second: 56
-Millisecond: 117
-Weekday: FRIDAY
-Date: 2017:10:27
-Time:22:10:56:117
-After add duration: 2018-11-27T22:10:57.117+05:30
-After subtract duration: 2016-09-27T22:10:55.117+05:30
-Before convert zone: 2017-03-28T23:42:45.554-05:00
-After convert zone:2017-03-29T10:12:45.554+05:30
+Day: 30
+Hour: 14
+Minute: 29
+Second: 5
+Millisecond: 245
+Weekday: TUESDAY
+Date: 2018:10:30
+Time:14:29:5:245
+After adding a duration: 2019-11-30T14:29:06.245+05:30
+After subtracting a duration: 2017-09-30T14:29:04.245+05:30
+Before converting time zone: 2017-03-28T23:42:45.554-05:00
+After converting time zone:2017-03-29T10:12:45.554+05:30
+

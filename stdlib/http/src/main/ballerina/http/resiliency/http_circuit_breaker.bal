@@ -22,21 +22,21 @@ import ballerina/io;
 # If any failure thresholds are exceeded during execution, the circuit trips and goes to the `OPEN` state. After
 # the specified timeout period expires, the circuit goes to the `HALF_OPEN` state. If the trial request sent while
 # in the `HALF_OPEN` state succeeds, the circuit goes back to the `CLOSED` state.
-public type CircuitState "OPEN" | "HALF_OPEN" | "CLOSED";
+public type CircuitState CB_OPEN_STATE|CB_HALF_OPEN_STATE|CB_CLOSED_STATE;
 
 # Represents the open state of the circuit. When the Circuit Breaker is in `OPEN` state, requests will fail
 # immediately.
-@final public CircuitState CB_OPEN_STATE = "OPEN";
+public const CB_OPEN_STATE = "OPEN";
 
 # Represents the half-open state of the circuit. When the Circuit Breaker is in `HALF_OPEN` state, a trial request
 # will be sent to the upstream service. If it fails, the circuit will trip again and move to the `OPEN` state. If not,
 # it will move to the `CLOSED` state.
-@final public CircuitState CB_HALF_OPEN_STATE = "HALF_OPEN";
+public const CB_HALF_OPEN_STATE = "HALF_OPEN";
 
 # Represents the closed state of the circuit. When the Circuit Breaker is in `CLOSED` state, all requests will be
 # allowed to go through to the upstream service. If the failures exceed the configured threhold values, the circuit
 # will trip and move to the `OPEN` state.
-@final public CircuitState CB_CLOSED_STATE = "CLOSED";
+public const CB_CLOSED_STATE = "CLOSED";
 
 # Maintains the health of the Circuit Breaker.
 #
@@ -49,9 +49,9 @@ public type CircuitState "OPEN" | "HALF_OPEN" | "CLOSED";
 # + lastForcedOpenTime - The time that circuit forcefully opened at last
 # + totalBuckets - The discrete time buckets into which the time window is divided
 public type CircuitHealth record {
-    boolean lastRequestSuccess;
-    int totalRequestCount;
-    int lastUsedBucketId;
+    boolean lastRequestSuccess = false;
+    int totalRequestCount = 0;
+    int lastUsedBucketId = 0;
     time:Time startTime;
     time:Time lastRequestTime?;
     time:Time lastErrorTime?;
@@ -95,9 +95,9 @@ public type RollingWindow record {
 # + rejectedCount - Number of rejected requests during the sub-window time frame
 # + lastUpdatedTime - The time that the `Bucket` is last updated.
 public type Bucket record {
-    int totalCount;
-    int failureCount;
-    int rejectedCount;
+    int totalCount = 0;
+    int failureCount = 0;
+    int rejectedCount = 0;
     time:Time lastUpdatedTime?;
     !...
 };

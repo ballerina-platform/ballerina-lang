@@ -30,14 +30,14 @@
 # + versioning - The version of the service to be used
 # + authConfig - Authentication configurations for securing the service
 public type HttpServiceConfig record {
-    Listener[] endpoints;
+    Listener[] endpoints = [];
     string host = "b7a.default";
-    string basePath;
-    CompressionConfig compression;
+    string basePath = "";
+    CompressionConfig compression = {};
     Chunking chunking = CHUNKING_AUTO;
-    CorsConfig cors;
-    Versioning versioning;
-    ListenerAuthConfig? authConfig;
+    CorsConfig cors = {};
+    Versioning versioning = {};
+    ListenerAuthConfig? authConfig = {};
     !...
 };
 
@@ -50,11 +50,11 @@ public type HttpServiceConfig record {
 # + allowCredentials - Specifies whether credentials are required to access the service
 # + maxAge - The maximum duration to cache the preflight from client side
 public type CorsConfig record {
-    string[] allowHeaders;
-    string[] allowMethods;
-    string[] allowOrigins;
-    string[] exposeHeaders;
-    boolean allowCredentials;
+    string[] allowHeaders = [];
+    string[] allowMethods = [];
+    string[] allowOrigins = [];
+    string[] exposeHeaders = [];
+    boolean allowCredentials = false;
     int maxAge= -1;
     !...
 };
@@ -82,12 +82,12 @@ public type Versioning record {
 #                          an `onIdleTimeout` resource in the WebSocket service.
 # + maxFrameSize - The maximum payload size of a WebSocket frame in bytes
 public type WSServiceConfig record {
-    Listener[] endpoints;
-    WebSocketListener[] webSocketEndpoints;
-    string path;
-    string[] subProtocols;
-    int idleTimeoutInSeconds;
-    int maxFrameSize;
+    Listener[] endpoints = [];
+    WebSocketListener[] webSocketEndpoints = [];
+    string path = "";
+    string[] subProtocols = [];
+    int idleTimeoutInSeconds = 0;
+    int maxFrameSize = 0;
     !...
 };
 
@@ -115,15 +115,15 @@ public annotation <service> WebSocketServiceConfig WSServiceConfig;
 # + webSocketUpgrade - Annotation to define HTTP to WebSocket upgrade
 # + authConfig - Authentication Configs to secure the resource
 public type HttpResourceConfig record {
-    string[] methods;
-    string path;
-    string body;
-    string[] consumes;
-    string[] produces;
-    CorsConfig cors;
+    string[] methods = [];
+    string path = "";
+    string body = "";
+    string[] consumes = [];
+    string[] produces = [];
+    CorsConfig cors = {};
     boolean transactionInfectable = true;
-    WebSocketUpgradeConfig? webSocketUpgrade;
-    ListenerAuthConfig? authConfig;
+    WebSocketUpgradeConfig? webSocketUpgrade = ();
+    ListenerAuthConfig? authConfig = ();
     !...
 };
 
@@ -132,7 +132,7 @@ public type HttpResourceConfig record {
 # + upgradePath - Path which is used to upgrade from HTTP to WebSocket
 # + upgradeService - WebSocket service which should be used after a successful upgrade
 public type WebSocketUpgradeConfig record {
-    string upgradePath;
+    string upgradePath = "";
     typedesc upgradeService?;
     !...
 };
@@ -143,9 +143,9 @@ public type WebSocketUpgradeConfig record {
 # + authProviders - Array of authentication provider IDs
 # + scopes - Array of scopes
 public type ListenerAuthConfig record {
-    Authentication? authentication;
-    string[]? authProviders;
-    string[]? scopes;
+    Authentication? authentication = ();
+    string[]? authProviders = ();
+    string[]? scopes = ();
     !...
 };
 
@@ -153,7 +153,7 @@ public type ListenerAuthConfig record {
 #
 # + enabled - Specifies whether authentication is enabled
 public type Authentication record {
-    boolean enabled;
+    boolean enabled = false;
     !...
 };
 

@@ -51,7 +51,7 @@ public type PrepareRequest record {
 };
 
 public type PrepareResponse record {
-    string message;
+    string message = "";
 };
 
 public type NotifyRequest record {
@@ -60,5 +60,5 @@ public type NotifyRequest record {
 };
 
 public type NotifyResponse record {
-    string message;
+    string message = "";
 };
