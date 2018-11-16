@@ -41,6 +41,7 @@ import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -175,7 +176,7 @@ public class CommandExecutionTest {
     public void testTestGenerationFailCases(String config, Path source) throws IOException {
         String configJsonPath = "command" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
-        Path testFilePath = LSCompilerUtil.getCurrentModulePath(sourcePath).resolve("tests")
+        Path testFilePath = LSCompilerUtil.getCurrentModulePath(sourcePath).resolve(ProjectDirConstants.TEST_DIR_NAME)
                 .resolve(CreateTestExecutor.generateTestFileName(sourcePath));
 
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
@@ -204,7 +205,7 @@ public class CommandExecutionTest {
     public void testTestGeneration(String config, Path source) throws IOException {
         String configJsonPath = "command" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
-        Path testFilePath = LSCompilerUtil.getCurrentModulePath(sourcePath).resolve("tests")
+        Path testFilePath = LSCompilerUtil.getCurrentModulePath(sourcePath).resolve(ProjectDirConstants.TEST_DIR_NAME)
                 .resolve(CreateTestExecutor.generateTestFileName(sourcePath));
 
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
