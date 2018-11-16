@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
@@ -34,6 +35,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.StringJoiner;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.ballerinalang.model.util.FreezeUtils.handleInvalidUpdate;
+import static org.ballerinalang.model.util.FreezeUtils.isOpenForFreeze;
 
 /**
  * @since 0.87
@@ -74,6 +78,12 @@ public class BRefValueArray extends BNewArray implements Serializable {
     }
 
     public void add(long index, BRefType<?> value) {
+        synchronized (this) {
+            if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
+                handleInvalidUpdate(freezeStatus.getState());
+            }
+        }
+
         prepareForAdd(index, values.length);
         values[(int) index] = value;
     }
@@ -163,5 +173,20 @@ public class BRefValueArray extends BNewArray implements Serializable {
     @Override
     public SerializableRefType serialize(SerializableState state) {
         return new SerializableBRefArray(this, state);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void attemptFreeze(CPU.FreezeStatus freezeStatus) {
+        if (isOpenForFreeze(this.freezeStatus, freezeStatus)) {
+            this.freezeStatus = freezeStatus;
+            for (int i = 0; i < this.size; i++) {
+                if (this.get(i) != null) {
+                    this.get(i).attemptFreeze(freezeStatus);
+                }
+            }
+        }
     }
 }

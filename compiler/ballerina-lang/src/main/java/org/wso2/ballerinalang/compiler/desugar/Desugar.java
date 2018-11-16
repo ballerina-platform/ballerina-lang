@@ -32,6 +32,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
+import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -2768,10 +2769,27 @@ public class Desugar extends BLangNodeVisitor {
                                                                                 OperatorKind.OR, orSymbol);
                 result = rewriteExpr(binaryExprInf);
                 break;
+            case FREEZE:
+            case IS_FROZEN:
+                visitFreezeBuiltInMethodInvocation(iExpr);
+                break;
             default:
                 result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
-                break;
         }
+    }
+
+    private void visitFreezeBuiltInMethodInvocation(BLangInvocation iExpr) {
+        if (types.isValueType(iExpr.expr.type)) {
+            if (iExpr.builtInMethod == BLangBuiltInMethod.FREEZE) {
+                // since x.freeze() === x, replace the invocation with the invocation expression
+                result = iExpr.expr;
+            } else {
+                // iExpr.builtInMethod == BLangBuiltInMethod.IS_FROZEN, set true since value types are always frozen
+                result = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.booleanType, true);
+            }
+            return;
+        }
+        result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
     }
 
     private void visitIterableOperationInvocation(BLangInvocation iExpr) {
@@ -3350,7 +3368,14 @@ public class Desugar extends BLangNodeVisitor {
             return false;
         }
 
-        if (accessExpr.safeNavigate || safeNavigateType(accessExpr.expr.type)) {
+        if (accessExpr.safeNavigate) {
+            return true;
+        }
+
+        if (safeNavigateType(accessExpr.expr.type)) {
+            if (accessExpr.getKind() == NodeKind.INVOCATION && ((BLangInvocation) accessExpr).builtinMethodInvocation) {
+                return isSafeNavigationAllowedBuiltinInvocation((BLangInvocation) accessExpr);
+            }
             return true;
         }
 
@@ -3469,6 +3494,19 @@ public class Desugar extends BLangNodeVisitor {
             this.successPattern.body = ASTBuilderUtil.createBlockStmt(accessExpr.pos, Lists.of(matchStmt));
         }
         this.successPattern = successPattern;
+    }
+
+    private boolean isSafeNavigationAllowedBuiltinInvocation(BLangInvocation iExpr) {
+        if (iExpr.builtInMethod == BLangBuiltInMethod.FREEZE) {
+            if (iExpr.expr.type.tag == TypeTags.UNION && iExpr.expr.type.isNullable()) {
+                BUnionType unionType = (BUnionType) iExpr.expr.type;
+                return unionType.memberTypes.size() == 2 && unionType.memberTypes.stream()
+                        .noneMatch(type -> type.tag != TypeTags.NIL && types.isValueType(type));
+            }
+        } else if (iExpr.builtInMethod == BLangBuiltInMethod.IS_FROZEN) {
+            return false;
+        }
+        return true;
     }
 
     private BLangMatchStmtTypedBindingPatternClause getMatchErrorPattern(BLangExpression expr,
