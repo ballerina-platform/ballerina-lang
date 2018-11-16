@@ -8,7 +8,7 @@ const os = require('os');
 const npmCmd = os.platform().startsWith('win') ? 'npm.cmd' : 'npm';
 
 // submodule root
-const modulesRoot = resolve(__dirname, './../');
+const modulesRoot = resolve(__dirname, './../packages');
 
 const submodules = [
     "theme",
