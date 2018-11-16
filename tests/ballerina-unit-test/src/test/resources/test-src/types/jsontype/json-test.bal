@@ -39,7 +39,7 @@ function testToXMLBooleanValue () returns (xml | error?) {
 
 function testToXMLString (json msg) returns (string) {
     var x = msg.toXML({});
-    string retVal;
+    string retVal = "";
     if (x is xml) {
         retVal = io:sprintf("%s", x);
     }
@@ -48,7 +48,7 @@ function testToXMLString (json msg) returns (string) {
 
 function testToXMLWithXMLSequence (json msg) returns (string) {
     var x = msg.toXML({});
-    string retVal;
+    string retVal = "";
     if (x is xml) {
         retVal = io:sprintf("%s", x);
     }
