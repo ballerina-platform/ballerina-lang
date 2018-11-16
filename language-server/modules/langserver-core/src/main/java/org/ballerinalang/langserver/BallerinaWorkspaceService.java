@@ -15,8 +15,10 @@
  */
 package org.ballerinalang.langserver;
 
-import org.ballerinalang.langserver.command.CommandExecutor;
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
+import org.ballerinalang.langserver.command.LSCommandExecutor;
+import org.ballerinalang.langserver.command.LSCommandExecutorException;
+import org.ballerinalang.langserver.command.LSCommandExecutorProvider;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
@@ -31,6 +33,8 @@ import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.WorkspaceSymbolParams;
 import org.eclipse.lsp4j.services.WorkspaceService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
@@ -39,12 +43,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
  * Workspace service implementation for Ballerina.
  */
 class BallerinaWorkspaceService implements WorkspaceService {
+    private static final Logger logger = LoggerFactory.getLogger(BallerinaWorkspaceService.class);
     private BallerinaLanguageServer ballerinaLanguageServer;
     private WorkspaceDocumentManager workspaceDocumentManager;
     private DiagnosticsHelper diagnosticsHelper;
@@ -115,6 +121,19 @@ class BallerinaWorkspaceService implements WorkspaceService {
         executeCommandContext.put(ExecuteCommandKeys.LS_COMPILER_KEY, this.lsCompiler);
         executeCommandContext.put(ExecuteCommandKeys.DIAGNOSTICS_HELPER_KEY, this.diagnosticsHelper);
 
-        return CompletableFuture.supplyAsync(() -> CommandExecutor.executeCommand(params, executeCommandContext));
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Optional<LSCommandExecutor> executor = LSCommandExecutorProvider.getInstance()
+                        .getCommandExecutor(params.getCommand());
+                if (executor.isPresent()) {
+                    return executor.get().execute(executeCommandContext);
+                }
+            } catch (LSCommandExecutorException e) {
+                logger.error(e.getMessage());
+            }
+            
+            logger.warn("No command executor found for \"" + params.getCommand() + "\"");
+            return false;
+        });
     }
 }

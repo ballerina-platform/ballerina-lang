@@ -2,4 +2,4 @@
 #`.bal` file and run the `ballerina run` command to start the service. 
 $ ballerina run http_cors.bal
 Initiating service(s) in 'http_cors.bal'
-ballerina: started HTTP/WS endpoint 0.0.0.0:9092
+[ballerina/http] started HTTP/WS endpoint 0.0.0.0:9092

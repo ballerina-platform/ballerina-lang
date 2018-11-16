@@ -3383,15 +3383,14 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // (unidirectional JoinType | JoinType unidirectional | JoinType) StreamingInput on Expression
+  // (unidirectional JoinType | JoinType unidirectional | JoinType) StreamingInput (on Expression)?
   public static boolean JoinStreamingInput(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "JoinStreamingInput")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, JOIN_STREAMING_INPUT, "<join streaming input>");
     r = JoinStreamingInput_0(b, l + 1);
     r = r && StreamingInput(b, l + 1);
-    r = r && consumeToken(b, ON);
-    r = r && Expression(b, l + 1, -1);
+    r = r && JoinStreamingInput_2(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
   }
@@ -3426,6 +3425,24 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b);
     r = JoinType(b, l + 1);
     r = r && consumeToken(b, UNIDIRECTIONAL);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // (on Expression)?
+  private static boolean JoinStreamingInput_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "JoinStreamingInput_2")) return false;
+    JoinStreamingInput_2_0(b, l + 1);
+    return true;
+  }
+
+  // on Expression
+  private static boolean JoinStreamingInput_2_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "JoinStreamingInput_2_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, ON);
+    r = r && Expression(b, l + 1, -1);
     exit_section_(b, m, null, r);
     return r;
   }
@@ -6103,23 +6120,16 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // primarykey? identifier
+  // identifier identifier | identifier
   public static boolean TableColumn(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "TableColumn")) return false;
-    if (!nextTokenIs(b, "<table column>", IDENTIFIER, PRIMARYKEY)) return false;
+    if (!nextTokenIs(b, IDENTIFIER)) return false;
     boolean r;
-    Marker m = enter_section_(b, l, _NONE_, TABLE_COLUMN, "<table column>");
-    r = TableColumn_0(b, l + 1);
-    r = r && consumeToken(b, IDENTIFIER);
-    exit_section_(b, l, m, r, false, null);
+    Marker m = enter_section_(b);
+    r = parseTokens(b, 0, IDENTIFIER, IDENTIFIER);
+    if (!r) r = consumeToken(b, IDENTIFIER);
+    exit_section_(b, m, TABLE_COLUMN, r);
     return r;
-  }
-
-  // primarykey?
-  private static boolean TableColumn_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "TableColumn_0")) return false;
-    consumeToken(b, PRIMARYKEY);
-    return true;
   }
 
   /* ********************************************************** */

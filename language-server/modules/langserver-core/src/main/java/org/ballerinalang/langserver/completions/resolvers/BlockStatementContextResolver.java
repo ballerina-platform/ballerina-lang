@@ -37,9 +37,9 @@ public class BlockStatementContextResolver extends AbstractItemResolver {
 
         ParserRuleContext parserRuleContext = completionContext.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
         if (parserRuleContext != null) {
-            itemResolver = CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());
+            itemResolver = CompletionItemResolver.get(parserRuleContext.getClass());
         } else {
-            itemResolver = CompletionItemResolver.getResolverByClass(StatementContextResolver.class);
+            itemResolver = CompletionItemResolver.get(StatementContextResolver.class);
         }
         completionItems.addAll(itemResolver.resolveItems(completionContext));
 
