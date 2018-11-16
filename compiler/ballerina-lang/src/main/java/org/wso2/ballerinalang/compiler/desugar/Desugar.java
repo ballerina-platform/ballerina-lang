@@ -3358,16 +3358,7 @@ public class Desugar extends BLangNodeVisitor {
 
         if (NodeKind.MATCH_STATIC_PATTERN_CLAUSE == patternClause.getKind()) {
             BLangMatchStaticBindingPatternClause pattern = (BLangMatchStaticBindingPatternClause) patternClause;
-            BLangBinaryExpr binaryExpr = ASTBuilderUtil.createBinaryExpr(pos, varRef, pattern.literal,
-                    symTable.booleanType, OperatorKind.EQUAL, null);
-
-            BSymbol opSymbol = symResolver.resolveBinaryOperator(OperatorKind.EQUAL, varRef.type, pattern.literal.type);
-            if (opSymbol == symTable.notFoundSymbol) {
-                opSymbol = symResolver.getBinaryEqualityForTypeSets(OperatorKind.EQUAL, symTable.anydataType,
-                        pattern.literal.type, binaryExpr);
-            }
-            binaryExpr.opSymbol = (BOperatorSymbol) opSymbol;
-            return binaryExpr;
+            return createBinaryExpression(pos, varRef, pattern.literal);
         }
 
         if (NodeKind.MATCH_STRUCTURED_PATTERN_CLAUSE == patternClause.getKind()) {
@@ -3382,6 +3373,32 @@ public class Desugar extends BLangNodeVisitor {
         } else {
             return createIsAssignableExpression(pos, varSymbol, patternType);
         }
+    }
+
+    private BLangBinaryExpr createBinaryExpression(DiagnosticPos pos, BLangSimpleVarRef varRef,
+                                                   BLangExpression expression) {
+
+        BLangBinaryExpr binaryExpr;
+        if (NodeKind.BINARY_EXPR == expression.getKind()) {
+            binaryExpr = (BLangBinaryExpr) expression;
+            BLangExpression lhsExpr = createBinaryExpression(pos, varRef, binaryExpr.lhsExpr);
+            BLangExpression rhsExpr = createBinaryExpression(pos, varRef, binaryExpr.rhsExpr);
+
+            binaryExpr = ASTBuilderUtil.createBinaryExpr(pos, lhsExpr, rhsExpr, symTable.booleanType,
+                    OperatorKind.OR, (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.OR,
+                            symTable.booleanType, symTable.booleanType));
+        } else {
+            binaryExpr = ASTBuilderUtil.createBinaryExpr(pos, varRef, expression, symTable.booleanType,
+                    OperatorKind.EQUAL, null);
+
+            BSymbol opSymbol = symResolver.resolveBinaryOperator(OperatorKind.EQUAL, varRef.type, expression.type);
+            if (opSymbol == symTable.notFoundSymbol) {
+                opSymbol = symResolver.getBinaryEqualityForTypeSets(OperatorKind.EQUAL, symTable.anydataType,
+                        expression.type, binaryExpr);
+            }
+            binaryExpr.opSymbol = (BOperatorSymbol) opSymbol;
+        }
+        return binaryExpr;
     }
 
     private BLangIsAssignableExpr createIsAssignableExpression(DiagnosticPos pos,

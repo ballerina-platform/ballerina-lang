@@ -749,6 +749,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return true;
         }
 
+        if (TypeTags.ANY == literal.type.tag) {
+            return true;
+        }
+
         switch (matchType.tag) {
             case TypeTags.ANY:
             case TypeTags.ANYDATA:
