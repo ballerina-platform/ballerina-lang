@@ -19,6 +19,8 @@ import org.eclipse.lsp4j.Position;
 
 /**
  * Holds the meta information required for the documentation attachment.
+ *
+ * @since 0.985.0
  */
 public class DocAttachmentInfo {
     private String docAttachment;

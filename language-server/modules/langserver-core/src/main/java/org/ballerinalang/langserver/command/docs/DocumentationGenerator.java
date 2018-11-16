@@ -46,6 +46,8 @@ import java.util.stream.Collectors;
 
 /**
  * This class provides functionalities for generating documentation.
+ *
+ * @since 0.985.0
  */
 public class DocumentationGenerator {
 
