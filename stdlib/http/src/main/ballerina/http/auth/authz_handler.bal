@@ -27,8 +27,8 @@ import ballerina/io;
 # + negativeAuthzCache - `Cache` instance, which is cache negative authorizations
 public type HttpAuthzHandler object {
     public auth:AuthStoreProvider authStoreProvider;
-    public cache:Cache? positiveAuthzCache;
-    public cache:Cache? negativeAuthzCache;
+    public cache:Cache positiveAuthzCache;
+    public cache:Cache negativeAuthzCache;
 
     public new (authStoreProvider, positiveAuthzCache, negativeAuthzCache) {
     }
@@ -132,38 +132,22 @@ function checkForScopeMatch (string[] resourceScopes, string[] userScopes, strin
 }
 
 function HttpAuthzHandler.authorizeFromCache(string authzCacheKey) returns (boolean|()) {
-    var positiveCache = trap self.positiveAuthzCache;
-    if (positiveCache is cache:Cache) {
-        var cachedValue = positiveCache.get(authzCacheKey);
-        if (cachedValue is boolean) {
-            return cachedValue;
-        } else {
-            return ();
-        }
+    var positiveCacheResponse = self.positiveAuthzCache.get(authzCacheKey);
+    if (positiveCacheResponse is boolean) {
+        return true;
     }
-    var negativeCache =  trap self.negativeAuthzCache;
-    if (negativeCache is cache:Cache) {
-        var cachedValue = negativeCache.get(authzCacheKey);
-        if (cachedValue is boolean) {
-            return cachedValue;
-        } else {
-            return ();
-        }
+    var negativeCacheResponse = self.negativeAuthzCache.get(authzCacheKey);
+    if (negativeCacheResponse is boolean) {
+        return false;
     }
     return ();
 }
 
 function HttpAuthzHandler.cacheAuthzResult (string authzCacheKey, boolean authorized) {
     if (authorized) {
-        var cache = self.positiveAuthzCache;
-        if (cache is cache:Cache) {
-            cache.put(authzCacheKey, authorized);
-        }
+        self.positiveAuthzCache.put(authzCacheKey, authorized);
     } else {
-        var cache = self.negativeAuthzCache;
-        if (cache is cache:Cache) {
-            cache.put(authzCacheKey, authorized);
-        }
+        self.negativeAuthzCache.put(authzCacheKey, authorized);
     }
 }
 
