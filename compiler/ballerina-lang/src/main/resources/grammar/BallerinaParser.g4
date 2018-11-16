@@ -952,6 +952,7 @@ reservedWord
     |   TYPE_MAP
     |   START
     |   CONTINUE
+    |   FROM
     ;
 
 
