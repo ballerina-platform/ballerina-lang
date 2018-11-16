@@ -134,4 +134,50 @@ public class MatchStructuredRecordPatternsTest {
         Assert.assertEquals(results.get(++i), msg + "three vars : S, 23, 5.6");
         Assert.assertEquals(results.get(++i), msg + "four vars : S, 23, 5.6, 12");
     }
+
+    @Test(description = "Test structured pattern match with type guard 1")
+    public void testStructuredMatchPatternWithTypeGuard1() {
+        BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithTypeGuard1", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+
+        BStringArray results = (BStringArray) returns[0];
+        int i = -1;
+        String msg = "Matched with ";
+        Assert.assertEquals(results.get(++i), msg + "string : Hello added text with 45");
+        Assert.assertEquals(results.get(++i), msg + "record int : Ballerina with 512");
+        Assert.assertEquals(results.get(++i), msg + "record with ClosedBar1 : Language with Ballerina");
+        Assert.assertEquals(results.get(++i), msg + "boolean : 455, true");
+        Assert.assertEquals(results.get(++i), msg + "default type - float : 5.6");
+    }
+
+    @Test(description = "Test structured pattern match with type guard 2")
+    public void testStructuredMatchPatternWithTypeGuard2() {
+        BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithTypeGuard2", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+
+        BStringArray results = (BStringArray) returns[0];
+
+        int i = -1;
+        String msg = "Matched with ";
+        Assert.assertEquals(results.get(++i), msg + "string and int : Ballerina");
+        Assert.assertEquals(results.get(++i), msg + "string and ClosedBar1 : Ballerina");
+        Assert.assertEquals(results.get(++i), msg + "Default");
+    }
+
+    @Test(description = "Test structured pattern match with type guard 3")
+    public void testStructuredMatchPatternWithTypeGuard3() {
+        BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithTypeGuard3", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+
+        BStringArray results = (BStringArray) returns[0];
+
+        int i = -1;
+        String msg = "Matched with ";
+        Assert.assertEquals(results.get(++i), msg + "foo : 18.6");
+        Assert.assertEquals(results.get(++i), msg + "bar : 17");
+        Assert.assertEquals(results.get(++i), msg + "default : true");
+    }
 }
