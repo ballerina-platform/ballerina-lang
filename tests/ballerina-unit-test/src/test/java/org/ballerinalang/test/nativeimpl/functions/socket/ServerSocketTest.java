@@ -62,7 +62,7 @@ public class ServerSocketTest {
         try (SocketChannel socketChannel = SocketChannel.open()) {
             socketChannel.configureBlocking(true);
             socketChannel.connect(new InetSocketAddress("localhost", 59152));
-            ByteBuffer buf = ByteBuffer.allocate(512);
+            ByteBuffer buf = ByteBuffer.allocate(64);
             String welcomeMsg = "Hello Ballerina\n";
             buf.put(welcomeMsg.getBytes(StandardCharsets.UTF_8));
             buf.flip();

@@ -81,6 +81,12 @@ service<socket:ClientService> ClientService {
         } else if (str is error) {
             io:println(str.reason());
         }
+        var closeResult =  client->close();
+        if (closeResult is error) {
+            io:println(closeResult.reason());
+        } else {
+            io:println("Client connection closed successfully.");
+        }
     }
 
     onClose(endpoint caller) {

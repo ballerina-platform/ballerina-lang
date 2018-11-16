@@ -19,6 +19,7 @@
 package org.ballerinalang.test.socket;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
+import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
@@ -28,6 +29,11 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,8 +48,8 @@ public class SocketClientCallbackServiceTestCase extends SocketBaseTest {
         TestUtils.prepareBalo(this);
     }
 
-    @Test(description = "Test echo service sample test case invoking base path")
-    public void testEchoServiceByBasePath() throws Exception {
+    @Test(description = "Test socket clinet callback service read ready")
+    public void testSocketClinetCallbackServerEcho() throws Exception {
         String requestMessage = "Hello Ballerina";
         LogLeecher serverLeecher = new LogLeecher(requestMessage);
         serverInstance.addLogLeecher(serverLeecher);
@@ -54,5 +60,32 @@ public class SocketClientCallbackServiceTestCase extends SocketBaseTest {
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 202, "Response code mismatched");
         serverLeecher.waitForText(20000);
+        serverInstance.removeAllLeechers();
+    }
+
+    @Test(description = "Check numbers of joinees and leavers")
+    public void testSocketServerJoinLeave() throws BallerinaTestException {
+        LogLeecher joineeServerLeecher = new LogLeecher("Join: 5");
+        LogLeecher leaverServerLeecher = new LogLeecher("Leave: 5");
+        serverInstance.addLogLeecher(joineeServerLeecher);
+        serverInstance.addLogLeecher(leaverServerLeecher);
+        for (int i = 0; i < 5; i++) {
+            try (SocketChannel socketChannel = SocketChannel.open()) {
+                socketChannel.configureBlocking(true);
+                socketChannel.connect(new InetSocketAddress("localhost", 61598));
+                ByteBuffer buf = ByteBuffer.allocate(64);
+                String welcomeMsg = "Hello Ballerina\n";
+                buf.put(welcomeMsg.getBytes(StandardCharsets.UTF_8));
+                buf.flip();
+                while (buf.hasRemaining()) {
+                    socketChannel.write(buf);
+                }
+            } catch (IOException e) {
+                Assert.fail(e.getMessage(), e);
+            }
+        }
+        joineeServerLeecher.waitForText(20000);
+        leaverServerLeecher.waitForText(20000);
+        serverInstance.removeAllLeechers();
     }
 }
