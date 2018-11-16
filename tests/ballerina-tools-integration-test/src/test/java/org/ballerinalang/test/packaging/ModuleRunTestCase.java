@@ -21,6 +21,7 @@ package org.ballerinalang.test.packaging;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
+import org.ballerinalang.test.context.LogLeecher.LeecherType;
 import org.ballerinalang.test.utils.PackagingTestUtils;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -57,7 +58,8 @@ public class ModuleRunTestCase extends BaseTest {
         // Create empty directory
         Files.createDirectories(projectPath.resolve("emptypkg"));
 
-        LogLeecher clientLeecher = new LogLeecher("error: no ballerina source files found in module emptypkg");
+        LogLeecher clientLeecher = new LogLeecher("error: no ballerina source files found in module emptypkg",
+                                                  LeecherType.ERROR);
         balClient.runMain("run", new String[]{"emptypkg"}, envVariables, new String[0],
                           new LogLeecher[]{clientLeecher}, projectPath.toString());
         clientLeecher.waitForText(3000);
@@ -76,7 +78,8 @@ public class ModuleRunTestCase extends BaseTest {
         // Create empty directory
         createDirWithTextFile(projectPath);
 
-        LogLeecher clientLeecher = new LogLeecher("error: no ballerina source files found in module otherpkg");
+        LogLeecher clientLeecher = new LogLeecher("error: no ballerina source files found in module otherpkg",
+                                                  LeecherType.ERROR);
         balClient.runMain("run", new String[]{"otherpkg"}, envVariables, new String[0],
                           new LogLeecher[]{clientLeecher}, projectPath.toString());
         clientLeecher.waitForText(3000);

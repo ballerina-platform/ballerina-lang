@@ -58,15 +58,15 @@ public function main() {
     // This adds a given duration to a time. In this example, let's add
     // one year, one month, and one second to the current time.
     time:Time tmAdd = time.addDuration(1, 1, 0, 0, 0, 1, 0);
-    io:println("After add duration: " + tmAdd.toString());
+    io:println("After adding a duration: " + tmAdd.toString());
     // This subtracts a given duration from a time. In this example, let's subtract one year,
     // one month, and one second from the current time.
     time:Time tmSub = time.subtractDuration(1, 1, 0, 0, 0, 1, 0);
-    io:println("After subtract duration: " + tmSub.toString());
+    io:println("After subtracting a duration: " + tmSub.toString());
     // This converts the time to a different timezone.
     time:Time t2 = time:createTime(2017, 3, 28, 23, 42, 45, 554,
                                    "America/Panama");
-    io:println("Before convert zone: " + t2.toString());
+    io:println("Before converting time zone: " + t2.toString());
     time:Time t3 = t2.toTimezone("Asia/Colombo");
-    io:println("After convert zone:" + t3.toString());
+    io:println("After converting time zone:" + t3.toString());
 }

@@ -17,47 +17,19 @@
 package io.ballerina;
 
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.module.ModuleType;
 import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.projectRoots.impl.ProjectJdkImpl;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.testFramework.LightProjectDescriptor;
-import com.intellij.testFramework.fixtures.DefaultLightProjectDescriptor;
 import com.intellij.testFramework.fixtures.LightPlatformCodeInsightFixtureTestCase;
-import io.ballerina.plugins.idea.BallerinaModuleType;
-import io.ballerina.plugins.idea.sdk.BallerinaSdkType;
-import org.jetbrains.annotations.NotNull;
-
-import java.io.File;
 
 /**
  * Parent class related to code insight tests.
  */
 public abstract class BallerinaCodeInsightFixtureTestCase extends LightPlatformCodeInsightFixtureTestCase {
 
-    private static final String MOCK_SDK_VERSION = "0.982.0";
-
     protected static String getTestDataPath(String path) {
         return "src/test/resources/testData/" + path;
-    }
-
-    @NotNull
-    private static DefaultLightProjectDescriptor createMockProjectDescriptor() {
-        return new DefaultLightProjectDescriptor() {
-
-            @NotNull
-            @Override
-            public Sdk getSdk() {
-                return createMockSdk(MOCK_SDK_VERSION);
-            }
-
-            @NotNull
-            @Override
-            public ModuleType getModuleType() {
-                return BallerinaModuleType.getInstance();
-            }
-        };
     }
 
     protected void setUpProjectSdk() {
@@ -68,22 +40,8 @@ public abstract class BallerinaCodeInsightFixtureTestCase extends LightPlatformC
         });
     }
 
-    @NotNull
-    private static Sdk createMockSdk(@NotNull String version) {
-        String homePath = new File(getTestDataPath("mockSdk-") + version + "/").getAbsolutePath();
-        BallerinaSdkType sdkType = BallerinaSdkType.getInstance();
-        ProjectJdkImpl sdk = new ProjectJdkImpl("Ballerina " + version, sdkType, homePath, version);
-        sdkType.setupSdkPaths(sdk);
-        sdk.setVersionString(version);
-        return sdk;
-    }
-
     @Override
     protected LightProjectDescriptor getProjectDescriptor() {
-        return isSdkAware() ? createMockProjectDescriptor() : null;
-    }
-
-    protected boolean isSdkAware() {
-        return annotatedWith(BallerinaSDKAware.class);
+        return null;
     }
 }

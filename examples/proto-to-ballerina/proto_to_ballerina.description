@@ -2,5 +2,7 @@
 // This sample demonstrates how to run the protobuf tool.
 // The Protobuf tool supports the following command line options:
 // * --input : The path of the .proto file. This is a mandatory parameter.
-// * --output : The file location in which the ballerina client and the client stub must be generated. This is an optional parameter.
-// If no value is specified for this parameter, the ballerina client and the client stub are generated in the current location.
+// * --output : The file location in which the ballerina client/service and the stub must be generated. This is an optional parameter.
+// If no value is specified for this parameter, the ballerina client/service and the stub are generated in the current location.
+// * --mode : The mode (client or server) to generate code samples
+// If no value is specified for this parameter, only the stub file will be generated.

@@ -62,7 +62,7 @@ public class IndexGenerator {
     private List<BPackageSymbol> getBLangPackages() {
         List<BPackageSymbol> bPackageSymbols = new ArrayList<>();
         List<String> packages = Arrays.asList("auth", "builtin", "cache", "config", "crypto", "file", "grpc", "h2",
-                "http", "io", "jms", "log", "math", "mb", "mime", "mysql", "reflect", "runtime", "sql",
+                "http", "io", "jms", "log", "math", "mime", "mysql", "reflect", "runtime", "sql",
                 "swagger", "system", "task", "time", "transactions", "websub");
         CompilerContext tempCompilerContext = LSContextManager.getInstance().getBuiltInPackagesCompilerContext();
         packages.forEach(pkg -> {
@@ -178,7 +178,7 @@ public class IndexGenerator {
             logger.error("Error Updating Endpoint Action Holders");
         }
     }
-    
+
     private List<BFunctionSymbolDTO> getObjectAttachedFunctionDTOs(int pkgId, int objId, BObjectTypeSymbol symbol) {
         return symbol.attachedFuncs.stream()
                 .map(bAttachedFunction -> DTOUtil.getFunctionDTO(pkgId, objId, bAttachedFunction.symbol))
