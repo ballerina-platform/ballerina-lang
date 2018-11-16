@@ -35,16 +35,16 @@ public type TopicPublisher object {
     public function init(TopicPublisherEndpointConfiguration c) {
         self.config = c;
         self.producerActions.topicPublisher = self;
-        match (c.session) {
-            Session s => {
-                match (c.topicPattern) {
-                    string topicPattern => {
-                        self.initTopicPublisher(s);
-                    }
-                    () => {log:printInfo("Topic publisher is not properly initialized for the topic");}
-                }
+        var session = c.session;
+        if (session is Session) {
+            var topicPattern = c.topicPattern;
+            if (topicPattern is string) {
+                self.initTopicPublisher(session);
+            } else {
+                log:printInfo("Topic publisher is not properly initialized for the topic");
             }
-            () => {}
+        } else {
+            log:printInfo("Topic publisher is not properly initialized for the topic");
         }
     }
 
@@ -105,17 +105,17 @@ public type TopicPublisherActions object {
 };
 
 function TopicPublisherActions.sendTo(Destination destination, Message message) returns error? {
-    match (self.topicPublisher) {
-        TopicPublisher topicPublisher => {
-            match (topicPublisher.config.session) {
-                Session s => {
-                    validateTopic(destination);
-                    topicPublisher.initTopicPublisher(s, destination = destination);
-                }
-                () => {}
-            }
+    var publisher = self.topicPublisher;
+    if (publisher is TopicPublisher) {
+        var session = publisher.config.session;
+        if (session is Session) {
+            validateTopic(destination);
+            publisher.initTopicPublisher(session, destination = destination);
+        } else {
+            log:printInfo("Session is (), Topic publisher is not properly initialized");
         }
-        () => {log:printInfo("Topic publisher is not properly initialized.");}
+    } else {
+        log:printInfo("Topic publisher is not properly initialized");
     }
     return self.send(message);
 }

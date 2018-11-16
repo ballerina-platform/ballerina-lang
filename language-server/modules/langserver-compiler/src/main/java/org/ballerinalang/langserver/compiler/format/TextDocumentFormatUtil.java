@@ -76,7 +76,7 @@ public class TextDocumentFormatUtil {
      * Get the AST for the current text document's content.
      *
      * @param uri             File path as a URI
-     * @param lsCompiler Language server compiler
+     * @param lsCompiler      Language server compiler
      * @param documentManager Workspace document manager instance
      * @param context         Document formatting context
      * @return {@link JsonObject}   AST as a Json Object
@@ -98,13 +98,30 @@ public class TextDocumentFormatUtil {
         Gson gson = new Gson();
         JsonElement diagnosticsJson = gson.toJsonTree(diagnostics);
         result.add("diagnostics", diagnosticsJson);
+        BLangCompilationUnit compilationUnit;
 
-        BLangCompilationUnit compilationUnit = bLangPackage.getCompilationUnits().stream().
-                filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().orElseGet(null);
+        // If package is testable package process as tests
+        // else process normally
+        if (isTestablePackage(bLangPackage, fileName)) {
+            compilationUnit = bLangPackage.getTestablePkg().getCompilationUnits().stream().
+                    filter(compUnit -> ("tests/" + fileName).equals(compUnit.getName()))
+                    .findFirst().orElse(null);
+        } else {
+            compilationUnit = bLangPackage.getCompilationUnits().stream().
+                    filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().orElse(null);
+        }
+
         JsonElement modelElement = generateJSON(compilationUnit, new HashMap<>());
         result.add("model", modelElement);
-
         return result;
+    }
+
+    private static boolean isTestablePackage(BLangPackage bLangPackage, String currentlyOpenName) {
+        return bLangPackage.getTestablePkgs() != null
+                && bLangPackage.getTestablePkgs().size() > 0
+                && bLangPackage.getTestablePkg().getCompilationUnits().stream().
+                filter(compUnit -> ("tests/" + currentlyOpenName).equals(compUnit.getName()))
+                .findFirst().orElse(null) != null;
     }
 
     /**

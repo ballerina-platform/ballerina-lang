@@ -37,7 +37,7 @@ public type HttpServiceConfig record {
     Chunking chunking = CHUNKING_AUTO;
     CorsConfig cors = {};
     Versioning versioning = {};
-    ListenerAuthConfig? authConfig = ();
+    ListenerAuthConfig? authConfig = {};
     !...
 };
 
@@ -143,7 +143,7 @@ public type WebSocketUpgradeConfig record {
 # + authProviders - Array of authentication provider IDs
 # + scopes - Array of scopes
 public type ListenerAuthConfig record {
-    Authentication? authentication;
+    Authentication? authentication = ();
     string[]? authProviders = ();
     string[]? scopes = ();
     !...

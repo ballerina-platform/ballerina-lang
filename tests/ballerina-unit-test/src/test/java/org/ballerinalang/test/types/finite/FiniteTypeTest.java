@@ -133,8 +133,8 @@ public class FiniteTypeTest {
     }
 
     @Test()
-    public void testFiniteTypeWithMatch() {
-        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeWithMatch");
+    public void testFiniteTypeWithTypeCheck() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeWithTypeCheck");
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BString);

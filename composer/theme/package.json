@@ -1,6 +1,6 @@
 {
   "name": "@ballerina/theme",
-  "version": "0.982.1-SNAPSHOT",
+  "version": "0.983.1-SNAPSHOT",
   "description": "Theme and font for web components of Ballerina Tooling.",
   "keywords": [
     "ballerina",

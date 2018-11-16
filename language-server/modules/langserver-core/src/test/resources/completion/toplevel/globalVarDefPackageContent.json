@@ -51,15 +51,6 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"roundRobin(http:LoadBalancerActions lb, http:CallerActions[] loadBalanceConfigArray)(ballerina/http:CallerActions)",
-      "kind":"Function",
-      "detail":"Function",
-      "documentation":"Round Robin Algorithm implementation with respect to load balancing endpoints.\n",
-      "sortText":"120",
-      "insertText":"roundRobin(${1:lb}, ${2:loadBalanceConfigArray})",
-      "insertTextFormat":"Snippet"
-    },
-    {
       "label":"encode(string url, string charset)(string|error)",
       "kind":"Function",
       "detail":"Function",
@@ -363,7 +354,7 @@
       "detail":"BType",
       "documentation":"The configurations related to the load balance client endpoint.\n",
       "sortText":"170",
-      "insertText":"LoadBalanceClientEndpointConfiguration"
+      "insertText":"RetryInferredConfig"
     },
     {
       "label":"SecureEndpointConfiguration",
@@ -428,6 +419,22 @@
       "documentation":"Configures the SSL/TLS options to be used for HTTP service.\n",
       "sortText":"170",
       "insertText":"ServiceSecureSocket"
+    },
+    {
+      "label":"AuthCacheConfig",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":"Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.\n",
+      "sortText":"170",
+      "insertText":"AuthCacheConfig"
+    },
+    {
+      "label":"AuthProvider",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":"Configuration for authentication providers.\n",
+      "sortText":"170",
+      "insertText":"AuthProvider"
     },
     {
       "label":"WebSocketClientEndpointConfig",

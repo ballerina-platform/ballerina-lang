@@ -18,7 +18,6 @@
 package org.ballerinalang.langserver.completions.util.filters;
 
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -64,12 +63,9 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
     private static final Logger logger = LoggerFactory.getLogger(DelimiterBasedContentFilter.class);
 
     @Override
-    public Either<List<CompletionItem>, List<SymbolInfo>> filterItems(LSServiceOperationContext completionContext) {
+    public Either<List<CompletionItem>, List<SymbolInfo>> filterItems(LSServiceOperationContext ctx) {
 
-        List<String> poppedTokens = CommonUtil
-                .popNFromStack(completionContext.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY), 3).stream()
-                .map(Token::getText)
-                .collect(Collectors.toList());
+        List<String> poppedTokens = CommonUtil.popNFromList(CommonUtil.getPoppedTokenStrings(ctx), 3);
 
         String delimiter = "";
         for (String poppedToken : poppedTokens) {
@@ -91,9 +87,9 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
             // get token after delimiter
             symbolToken = poppedTokens.get(poppedTokens.lastIndexOf(delimiter) + 1);
         }
-        List<SymbolInfo> visibleSymbols = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
+        List<SymbolInfo> visibleSymbols = ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
         SymbolInfo symbol = FilterUtils.getVariableByName(symbolToken, visibleSymbols);
-        ParserRuleContext parserRuleContext = completionContext.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
+        ParserRuleContext parserRuleContext = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
 
         boolean isWorkerInteraction = UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY.equals(delimiter)
                 || parserRuleContext instanceof BallerinaParser.WorkerInteractionStatementContext;
@@ -104,17 +100,14 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
         boolean isActionInvocation = UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY.equals(delimiter)
                 && symbol.getScopeEntry().symbol instanceof BEndpointVarSymbol;
 
-        if (UtilSymbolKeys.DOT_SYMBOL_KEY.equals(delimiter)
-                || UtilSymbolKeys.BANG_SYMBOL_KEY.equals(delimiter)
+        if (UtilSymbolKeys.DOT_SYMBOL_KEY.equals(delimiter) || UtilSymbolKeys.BANG_SYMBOL_KEY.equals(delimiter)
                 || isActionInvocation) {
-            returnSymbolsInfoList.addAll(
-                    FilterUtils.getInvocationAndFieldSymbolsOnVar(completionContext, symbolToken, delimiter,
-                                                                  visibleSymbols)
-            );
+            returnSymbolsInfoList.addAll(FilterUtils.getInvocationAndFieldSymbolsOnVar(ctx, symbolToken, delimiter,
+                    visibleSymbols));
         } else if (isWorkerInteraction || isWorkerReply) {
             // Handle worker interactions
-            List<SymbolInfo> filteredList = FilterUtils.getInvocationAndFieldSymbolsOnVar(
-                    completionContext, symbolToken, delimiter, visibleSymbols);
+            List<SymbolInfo> filteredList = FilterUtils.getInvocationAndFieldSymbolsOnVar(ctx, symbolToken, delimiter,
+                    visibleSymbols);
             filteredList.removeIf(symbolInfo -> {
                 BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
                 return bSymbol instanceof BInvokableSymbol && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED);
@@ -126,8 +119,8 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
             returnSymbolsInfoList.addAll(filteredList);
         } else if (UtilSymbolKeys.PKG_DELIMITER_KEYWORD.equals(delimiter)) {
             // We are filtering the package functions, actions and the types
-            Either<List<CompletionItem>, List<SymbolInfo>> filteredList = 
-                    this.getActionsFunctionsAndTypes(completionContext, symbolToken, delimiter);
+            Either<List<CompletionItem>, List<SymbolInfo>> filteredList = this.getActionsFunctionsAndTypes(ctx,
+                    symbolToken, delimiter);
             if (filteredList.isLeft()) {
                 return Either.forLeft(filteredList.getLeft());
             }

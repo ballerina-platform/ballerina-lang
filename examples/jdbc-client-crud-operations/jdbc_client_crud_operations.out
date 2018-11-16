@@ -32,5 +32,5 @@ Student:1|Jones|23
 Student:3|James|25
 Student:4|Kate|31
 
-The update operation - Drop the tables and procedures
+The update operation - Drop the student table
 Drop table student status: 0
