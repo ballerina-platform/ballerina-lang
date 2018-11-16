@@ -279,8 +279,7 @@ function performLoadBalanceExecuteAction(LoadBalancerActions lb, string path, Re
 function performLoadBalanceAction(LoadBalancerActions lb, string path, Request request, HttpOperation requestAction)
                                     returns Response|error {
     int loadBalanceTermination = 0; // Tracks at which point failover within the load balancing should be terminated.
-    //TODO: workaround to initialize a type inside a function. Change this once fix is aailable.
-    LoadBalanceActionErrorData loadBalanceActionErrorData = {statusCode:500};
+    LoadBalanceActionErrorData loadBalanceActionErrorData = { statusCode: 500, message: "", httpActionErr:[] };
     loadBalanceActionErrorData.httpActionErr = [];
     Request loadBlancerInRequest = request;
     mime:Entity requestEntity = new;
