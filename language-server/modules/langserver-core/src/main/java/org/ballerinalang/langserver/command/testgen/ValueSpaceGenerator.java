@@ -257,9 +257,6 @@ public class ValueSpaceGenerator {
                     return "{\"" + key + "\": \"" + value + "\"}";
                 });
                 break;
-            case "map":
-                populateValueSpace(new String[0], template, () -> String.valueOf("<map>{}"));
-                break;
             case "boolean":
                 String[] resultBool = new String[]{"false", "true"};
                 populateValueSpace(resultBool, template, () -> String.valueOf(random.nextBoolean()));
@@ -273,9 +270,9 @@ public class ValueSpaceGenerator {
                     return "xml `<" + key + ">" + value + "</" + key + ">`";
                 });
                 break;
-            case "blob":
-                String[] resultBlob = new String[]{"[]"};
-                populateValueSpace(resultBlob, template, () -> String.valueOf("[]"));
+            case "byte":
+                String[] resultBlob = new String[]{"0"};
+                populateValueSpace(resultBlob, template, () -> String.valueOf("0"));
                 break;
             default:
                 String[] result = new String[]{"()"};

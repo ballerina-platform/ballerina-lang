@@ -27,6 +27,21 @@ public function returnConstrainedMap(int n1, int n2, int n3) returns map<string>
     return m;
 }
 
+public function returnBoolean(int n1, int n2, int n3) returns boolean {
+    boolean b = true;
+    return b;
+}
+
+public function returnXml(int n1, int n2, int n3) returns xml {
+    xml m = xml` `;
+    return m;
+}
+
+public function returnJson(int n1, int n2, int n3) returns json {
+    json j = {};
+    return j;
+}
+
 function functionPointerAsParam(int a, function (int x, int y) returns (int) func) returns (int) {
     int x = a + func(6, 70);
     return x;

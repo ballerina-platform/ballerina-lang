@@ -15,8 +15,7 @@
                     "testReturnInt",
                     "testReturnIntDataProvider"
                 ],
-                "services": [],
-                "shouldFail": false
+                "services": []
             }
         },
         {
@@ -34,8 +33,7 @@
                     "testReturnIntArray",
                     "testReturnIntArrayDataProvider"
                 ],
-                "services": [],
-                "shouldFail": false
+                "services": []
             }
         },
         {
@@ -53,8 +51,7 @@
                     "testReturnTuple",
                     "testReturnTupleDataProvider"
                 ],
-                "services": [],
-                "shouldFail": false
+                "services": []
             }
         },
         {
@@ -72,8 +69,7 @@
                     "testReturnUnion",
                     "testReturnUnionDataProvider"
                 ],
-                "services": [],
-                "shouldFail": false
+                "services": []
             }
         },
         {
@@ -91,8 +87,7 @@
                     "testReturnMap",
                     "testReturnMapDataProvider"
                 ],
-                "services": [],
-                "shouldFail": false
+                "services": []
             }
         },
         {
@@ -110,8 +105,7 @@
                     "testReturnConstrainedMap",
                     "testReturnConstrainedMapDataProvider"
                 ],
-                "services": [],
-                "shouldFail": false
+                "services": []
             }
         },
         {
@@ -126,11 +120,10 @@
                 ],
                 "globals": [],
                 "functions": [
-                    "testFunctionPointerAsParam",
-                    "testFunctionPointerAsParamDataProvider"
+                    "testReturnBoolean",
+                    "testReturnBooleanDataProvider"
                 ],
-                "services": [],
-                "shouldFail": false
+                "services": []
             }
         },
         {
@@ -145,16 +138,69 @@
                 ],
                 "globals": [],
                 "functions": [
-                    "testReturnOptionalError",
-                    "testReturnOptionalErrorDataProvider"
+                    "testReturnXml",
+                    "testReturnXmlDataProvider"
                 ],
-                "services": [],
-                "shouldFail": false
+                "services": []
             }
         },
         {
             "arguments": {
-                "node.line": 38,
+                "node.line": 39,
+                "node.column": 20
+            },
+            "expected": {
+                "imports": [
+                    "ballerina/test",
+                    "ballerina/log"
+                ],
+                "globals": [],
+                "functions": [
+                    "testReturnJson",
+                    "testReturnJsonDataProvider"
+                ],
+                "services": []
+            }
+        },
+        {
+            "arguments": {
+                "node.line": 44,
+                "node.column": 20
+            },
+            "expected": {
+                "imports": [
+                    "ballerina/test",
+                    "ballerina/log"
+                ],
+                "globals": [],
+                "functions": [
+                    "testFunctionPointerAsParam",
+                    "testFunctionPointerAsParamDataProvider"
+                ],
+                "services": []
+            }
+        },
+        {
+            "arguments": {
+                "node.line": 49,
+                "node.column": 20
+            },
+            "expected": {
+                "imports": [
+                    "ballerina/test",
+                    "ballerina/log"
+                ],
+                "globals": [],
+                "functions": [
+                    "testReturnOptionalError",
+                    "testReturnOptionalErrorDataProvider"
+                ],
+                "services": []
+            }
+        },
+        {
+            "arguments": {
+                "node.line": 53,
                 "node.column": 20
             },
             "expected": {
@@ -167,13 +213,12 @@
                     "testReturnOptionalAny",
                     "testReturnOptionalAnyDataProvider"
                 ],
-                "services": [],
-                "shouldFail": false
+                "services": []
             }
         },
         {
             "arguments": {
-                "node.line": 42,
+                "node.line": 57,
                 "node.column": 20
             },
             "expected": {
@@ -187,13 +232,12 @@
                     "testComplexInput",
                     "testComplexInputDataProvider"
                 ],
-                "services": [],
-                "shouldFail": false
+                "services": []
             }
         },
         {
             "arguments": {
-                "node.line": 46,
+                "node.line": 61,
                 "node.column": 20
             },
             "expected": {
@@ -207,8 +251,7 @@
                     "testComplexReturnType",
                     "testComplexReturnTypeDataProvider"
                 ],
-                "services": [],
-                "shouldFail": false
+                "services": []
             }
         }
     ]
