@@ -861,21 +861,22 @@ public class CPU {
             stampType = ((BUnionType) stampType).getMemberTypes().get(0);
         }
 
-        if (checkIsLikeType(valueToBeStamped, stampType)) {
-            try {
-                valueToBeStamped.stamp(stampType);
-                sf.refRegs[k] = valueToBeStamped;
-            } catch (BallerinaException e) {
-                ctx.setError(BLangVMErrors.createError(ctx,
-                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_STAMP_OPERATION,
-                                valueToBeStamped.getType(), stampType)));
-                handleError(ctx);
-            }
-        } else {
+        if (!checkIsLikeType(valueToBeStamped, stampType)) {
             BError error = BLangVMErrors.createError(ctx,
                     BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_STAMP_OPERATION,
                             valueToBeStamped.getType(), stampType));
             sf.refRegs[k] = error;
+            return;
+        }
+
+        try {
+            valueToBeStamped.stamp(stampType);
+            sf.refRegs[k] = valueToBeStamped;
+        } catch (BallerinaException e) {
+            ctx.setError(BLangVMErrors.createError(ctx,
+                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_STAMP_OPERATION,
+                            valueToBeStamped.getType(), stampType)));
+            handleError(ctx);
         }
     }
 
@@ -4098,14 +4099,6 @@ public class CPU {
         }
 
         switch (targetType.getTag()) {
-            case TypeTags.INT_TAG:
-            case TypeTags.FLOAT_TAG:
-            case TypeTags.STRING_TAG:
-            case TypeTags.BOOLEAN_TAG:
-            case TypeTags.DECIMAL_TAG:
-            case TypeTags.BYTE_TAG:
-            case TypeTags.XML_TAG:
-                return sourceValue.getType().getTag() == targetType.getTag();
             case TypeTags.UNION_TAG:
                 return checkIsLikeUnionType(sourceValue, targetType);
             case TypeTags.RECORD_TYPE_TAG:
@@ -4122,7 +4115,6 @@ public class CPU {
                 return isAssignable(sourceValue.getType(), targetType, new ArrayList<>());
             default:
                 return false;
-
         }
     }
 

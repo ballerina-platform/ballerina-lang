@@ -2296,13 +2296,13 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTypeDescExpression(BallerinaParser.TypeDescExpressionContext ctx) { }
+	@Override public void enterTypeDescExpr(BallerinaParser.TypeDescExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTypeDescExpression(BallerinaParser.TypeDescExpressionContext ctx) { }
+	@Override public void exitTypeDescExpr(BallerinaParser.TypeDescExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

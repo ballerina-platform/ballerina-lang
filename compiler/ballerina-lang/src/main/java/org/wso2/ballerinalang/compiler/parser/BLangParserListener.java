@@ -2127,8 +2127,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.createBinaryExpr(getCurrentPos(ctx), getWS(ctx), ctx.getChild(1).getText());
     }
 
-    @Override
-    public void exitTypeDescExpression(BallerinaParser.TypeDescExpressionContext ctx) {
+    @Override public void exitTypeDescExpr(BallerinaParser.TypeDescExprContext ctx) {
         if (ctx.exception != null) {
             return;
         }

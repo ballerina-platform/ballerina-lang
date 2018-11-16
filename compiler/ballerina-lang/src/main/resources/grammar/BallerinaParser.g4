@@ -734,7 +734,7 @@ expression
     ;
 
 typeDescExpr
-    : typeName                                                              # typeDescExpression
+    : typeName
     ;
 
 typeInitExpr

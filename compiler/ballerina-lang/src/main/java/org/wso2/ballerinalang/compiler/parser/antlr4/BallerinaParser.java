@@ -12057,28 +12057,20 @@ public class BallerinaParser extends Parser {
 	}
 
 	public static class TypeDescExprContext extends ParserRuleContext {
+		public TypeNameContext typeName() {
+			return getRuleContext(TypeNameContext.class,0);
+		}
 		public TypeDescExprContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_typeDescExpr; }
-	 
-		public TypeDescExprContext() { }
-		public void copyFrom(TypeDescExprContext ctx) {
-			super.copyFrom(ctx);
-		}
-	}
-	public static class TypeDescExpressionContext extends TypeDescExprContext {
-		public TypeNameContext typeName() {
-			return getRuleContext(TypeNameContext.class,0);
-		}
-		public TypeDescExpressionContext(TypeDescExprContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterTypeDescExpression(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterTypeDescExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitTypeDescExpression(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitTypeDescExpr(this);
 		}
 	}
 
@@ -12086,7 +12078,6 @@ public class BallerinaParser extends Parser {
 		TypeDescExprContext _localctx = new TypeDescExprContext(_ctx, getState());
 		enterRule(_localctx, 284, RULE_typeDescExpr);
 		try {
-			_localctx = new TypeDescExpressionContext(_localctx);
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(1978);

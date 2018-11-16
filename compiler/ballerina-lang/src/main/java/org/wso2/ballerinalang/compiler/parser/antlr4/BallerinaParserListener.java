@@ -2014,17 +2014,15 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitTypeInitExpression(BallerinaParser.TypeInitExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code typeDescExpression}
-	 * labeled alternative in {@link BallerinaParser#typeDescExpr}.
+	 * Enter a parse tree produced by {@link BallerinaParser#typeDescExpr}.
 	 * @param ctx the parse tree
 	 */
-	void enterTypeDescExpression(BallerinaParser.TypeDescExpressionContext ctx);
+	void enterTypeDescExpr(BallerinaParser.TypeDescExprContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code typeDescExpression}
-	 * labeled alternative in {@link BallerinaParser#typeDescExpr}.
+	 * Exit a parse tree produced by {@link BallerinaParser#typeDescExpr}.
 	 * @param ctx the parse tree
 	 */
-	void exitTypeDescExpression(BallerinaParser.TypeDescExpressionContext ctx);
+	void exitTypeDescExpr(BallerinaParser.TypeDescExprContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#typeInitExpr}.
 	 * @param ctx the parse tree

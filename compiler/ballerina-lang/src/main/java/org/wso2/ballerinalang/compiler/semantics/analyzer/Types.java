@@ -278,11 +278,10 @@ public class Types {
                     return isStampingAllowed(((BMapType) source).getConstraint(),
                             ((BJSONType) target).getConstraint());
                 }
-            } else {
-                if (source.tag == TypeTags.JSON || source.tag == TypeTags.RECORD || source.tag == TypeTags.MAP) {
-                    return true;
-                }
+            } else if (source.tag == TypeTags.JSON || source.tag == TypeTags.RECORD || source.tag == TypeTags.MAP) {
+                return true;
             }
+
         } else if (target.tag == TypeTags.MAP) {
             if (source.tag == TypeTags.MAP) {
                 return isStampingAllowed(((BMapType) source).getConstraint(), ((BMapType) target).getConstraint());
