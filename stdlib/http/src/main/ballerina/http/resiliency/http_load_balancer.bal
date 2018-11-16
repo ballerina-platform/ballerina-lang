@@ -16,7 +16,7 @@
 
 
 # Load balancing algorithm - Round Robin
-public const string ROUND_ROBIN = "round-robin";
+@final public string ROUND_ROBIN = "round-robin";
 
 # LoadBalancer caller actions which provides load balancing and failover capabilities to the
 #load balance client endpoint.
