@@ -5,7 +5,7 @@
 // in compliance with the License.
 // You may obtain a copy of the License at
 //
-// http://www.apache.org/licenses/LICENSE-2.0
+// http://www.apache.org/licenses/LICENnoSE-2.0
 //
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
@@ -17,7 +17,7 @@
 
 @Description {value:"Mock service endpoint which does not open a listening port."}
 public type NonListener object {
-    private Connection conn = {};
+    private Connection conn = new;
     private ServiceEndpointConfiguration config = {};
 
     public function init (ServiceEndpointConfiguration c);
