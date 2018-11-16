@@ -22,6 +22,8 @@ import java.util.List;
 
 /**
  * Represents a Renderer output.
+ *
+ * @since 0.985.0
  */
 public interface RendererOutput {
     /**

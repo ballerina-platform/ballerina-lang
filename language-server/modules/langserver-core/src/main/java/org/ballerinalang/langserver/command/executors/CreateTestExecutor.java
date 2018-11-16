@@ -58,7 +58,7 @@ import static org.ballerinalang.langserver.command.CommandUtil.getBLangNode;
 /**
  * Represents the create variable command executor.
  *
- * @since 0.983.0
+ * @since 0.985.0
  */
 @JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
 public class CreateTestExecutor implements LSCommandExecutor {

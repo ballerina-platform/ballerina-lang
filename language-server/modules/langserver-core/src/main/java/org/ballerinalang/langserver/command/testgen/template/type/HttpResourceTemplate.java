@@ -34,6 +34,8 @@ import static org.ballerinalang.langserver.command.testgen.AnnotationConfigsProc
 
 /**
  * To represent a Resource template.
+ *
+ * @since 0.985.0
  */
 public class HttpResourceTemplate extends AbstractTestTemplate {
     private final List<String[]> resourceMethods;

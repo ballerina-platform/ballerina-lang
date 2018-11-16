@@ -59,7 +59,7 @@ import static org.ballerinalang.langserver.common.utils.CommonUtil.FunctionGener
 /**
  * This class is responsible for generating tests for a given source file.
  *
- * @since 0.981.2
+ * @since 0.985.0
  */
 public class TestGenerator {
 

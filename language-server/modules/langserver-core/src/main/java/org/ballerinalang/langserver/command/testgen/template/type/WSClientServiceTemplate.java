@@ -40,6 +40,8 @@ import static org.ballerinalang.langserver.command.testgen.AnnotationConfigsProc
 
 /**
  * To represent a Service template.
+ *
+ * @since 0.985.0
  */
 public class WSClientServiceTemplate extends AbstractTestTemplate {
     private static final Pattern WS_PATTERN = Pattern.compile("^(wss?):\\/\\/([A-Z\\d\\.-]{2,})[:]*(\\d{2,4})?(.*)");

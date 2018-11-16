@@ -34,6 +34,8 @@ import java.util.function.BiConsumer;
 
 /**
  * To represent a Service template.
+ *
+ * @since 0.985.0
  */
 public class RootTemplate extends AbstractTestTemplate {
     public static final String LINE_FEED = System.lineSeparator();

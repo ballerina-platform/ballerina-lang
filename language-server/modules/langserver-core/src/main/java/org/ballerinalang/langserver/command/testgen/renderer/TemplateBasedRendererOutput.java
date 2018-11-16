@@ -35,6 +35,8 @@ import static java.util.regex.Matcher.quoteReplacement;
 
 /**
  * Represents a template based renderer output.
+ *
+ * @since 0.985.0
  */
 public class TemplateBasedRendererOutput implements RendererOutput {
     private String content;

@@ -38,6 +38,8 @@ import static org.ballerinalang.langserver.command.testgen.AnnotationConfigsProc
 
 /**
  * To represent a Service template.
+ *
+ * @since 0.985.0
  */
 public class HttpServiceTemplate extends AbstractTestTemplate {
     private final String serviceUri;

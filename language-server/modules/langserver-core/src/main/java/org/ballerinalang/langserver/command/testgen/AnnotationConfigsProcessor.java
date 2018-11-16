@@ -14,6 +14,8 @@ import java.util.function.BiConsumer;
 
 /**
  * This class provides capabilities for processing annotation configurations.
+ *
+ * @since 0.985.0
  */
 public class AnnotationConfigsProcessor {
     /**

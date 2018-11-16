@@ -18,7 +18,7 @@ package org.ballerinalang.langserver.command.testgen;
 /**
  * This exception is thrown when Test Generator encounters an error.
  *
- * @since 0.981.2
+ * @since 0.985.0
  */
 public class TestGeneratorException extends Exception {
 

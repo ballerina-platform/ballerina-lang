@@ -48,6 +48,8 @@ import java.util.stream.Stream;
 
 /**
  * This class is responsible for generating value spaces for a given length.
+ *
+ * @since 0.985.0
  */
 public class ValueSpaceGenerator {
     public static final String PLACE_HOLDER = "{%1}";

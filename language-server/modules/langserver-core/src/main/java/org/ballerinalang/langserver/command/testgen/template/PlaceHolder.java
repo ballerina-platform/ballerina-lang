@@ -21,6 +21,8 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
  * Contains placeholders for the templates.
+ *
+ * @since 0.985.0
  */
 public enum PlaceHolder {
 

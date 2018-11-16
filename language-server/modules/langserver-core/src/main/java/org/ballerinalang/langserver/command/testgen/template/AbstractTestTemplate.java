@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 
 /**
  * This class provides shared functionalities across Ballerina Test Templates.
+ *
+ * @since 0.985.0
  */
 public abstract class AbstractTestTemplate implements TestTemplate {
     protected static final String DEFAULT_IP = "0.0.0.0";

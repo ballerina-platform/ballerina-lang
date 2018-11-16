@@ -22,6 +22,8 @@ import org.ballerinalang.langserver.command.testgen.renderer.TemplateBasedRender
 
 /**
  * Represents a test template in ballerina.
+ *
+ * @since 0.985.0
  */
 public interface TestTemplate {
     /**

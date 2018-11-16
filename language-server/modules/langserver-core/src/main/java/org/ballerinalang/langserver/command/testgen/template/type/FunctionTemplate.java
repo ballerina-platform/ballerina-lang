@@ -29,6 +29,8 @@ import java.util.function.BiConsumer;
 
 /**
  * To represent a function template.
+ *
+ * @since 0.985.0
  */
 public class FunctionTemplate extends AbstractTestTemplate {
     private final String testFunctionName;
