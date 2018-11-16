@@ -49,14 +49,14 @@ public const CB_CLOSED_STATE = "CLOSED";
 # + lastForcedOpenTime - The time that circuit forcefully opened at last
 # + totalBuckets - The discrete time buckets into which the time window is divided
 public type CircuitHealth record {
-    boolean lastRequestSuccess;
-    int totalRequestCount;
-    int lastUsedBucketId;
+    boolean lastRequestSuccess = false;
+    int totalRequestCount = 0;
+    int lastUsedBucketId = 0;
     time:Time startTime;
     time:Time lastRequestTime?;
     time:Time lastErrorTime?;
     time:Time lastForcedOpenTime?;
-    Bucket[] totalBuckets;
+    Bucket[] totalBuckets = [];
     !...
 };
 
@@ -69,10 +69,10 @@ public type CircuitHealth record {
 #                     the upstream service
 # + statusCodes - Array of HTTP response status codes which are considered as failures
 public type CircuitBreakerConfig record {
-    RollingWindow rollingWindow;
-    float failureThreshold;
-    int resetTimeMillis;
-    int[] statusCodes;
+    RollingWindow rollingWindow = {};
+    float failureThreshold = 0.0;
+    int resetTimeMillis = 0;
+    int[] statusCodes = [];
     !...
 };
 
@@ -95,9 +95,9 @@ public type RollingWindow record {
 # + rejectedCount - Number of rejected requests during the sub-window time frame
 # + lastUpdatedTime - The time that the `Bucket` is last updated.
 public type Bucket record {
-    int totalCount;
-    int failureCount;
-    int rejectedCount;
+    int totalCount = 0;
+    int failureCount = 0;
+    int rejectedCount = 0;
     time:Time lastUpdatedTime?;
     !...
 };
@@ -112,11 +112,11 @@ public type Bucket record {
 # + noOfBuckets - Number of buckets derived from the `RollingWindow`
 # + rollingWindow - `RollingWindow` options provided in the `CircuitBreakerConfig`
 public type CircuitBreakerInferredConfig record {
-    float failureThreshold;
-    int resetTimeMillis;
-    boolean[] statusCodes;
-    int noOfBuckets;
-    RollingWindow rollingWindow;
+    float failureThreshold = 0.0;
+    int resetTimeMillis = 0;
+    boolean[] statusCodes = [];
+    int noOfBuckets = 0;
+    RollingWindow rollingWindow = {};
     !...
 };
 

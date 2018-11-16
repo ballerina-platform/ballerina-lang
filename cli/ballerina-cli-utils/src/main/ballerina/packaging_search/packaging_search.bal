@@ -241,7 +241,7 @@ function getDateCreated(json jsonObj) returns string {
 # This function invokes the method to search for modules.
 # + args - Arguments passed
 public function main (string... args) {
-    http:Client httpEndpoint;
+    http:Client httpEndpoint = new;
     string host = args[2];
     string strPort = args[3];
     if (host != "" && strPort != "") {

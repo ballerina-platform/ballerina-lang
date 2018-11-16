@@ -61,20 +61,20 @@ public type LoadBalanceClient object {
 # + algorithm - The algorithm to be used for load balancing. The HTTP module provides 'roundRobin()' by default
 # + failover - Configuration for load balancer whether to fail over in case of a failure
 public type LoadBalanceClientEndpointConfiguration record {
-    CircuitBreakerConfig? circuitBreaker;
+    CircuitBreakerConfig? circuitBreaker = ();
     int timeoutMillis = 60000;
     string httpVersion = "1.1";
     string forwarded = "disable";
     KeepAlive keepAlive = KEEPALIVE_AUTO;
     Chunking chunking = "AUTO";
-    FollowRedirects? followRedirects;
-    RetryConfig? retryConfig;
-    ProxyConfig? proxy;
-    ConnectionThrottling? connectionThrottling;
-    TargetService[] targets;
+    FollowRedirects? followRedirects = ();
+    RetryConfig? retryConfig = ();
+    ProxyConfig? proxy = ();
+    ConnectionThrottling? connectionThrottling = ();
+    TargetService[] targets = [];
     CacheConfig cache = {};
     Compression compression = COMPRESSION_AUTO;
-    AuthConfig? auth;
+    AuthConfig? auth = ();
     string algorithm = ROUND_ROBIN;
     boolean failover = true;
     !...

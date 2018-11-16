@@ -27,11 +27,11 @@ import ballerina/runtime;
 # + maxWaitInterval - Maximum time of the retry interval in milliseconds
 # + statusCodes - HTTP response status codes which are considered as failures
 public type RetryInferredConfig record {
-    int count;
-    int interval;
-    float backOffFactor;
-    int maxWaitInterval;
-    boolean[] statusCodes;
+    int count = 0;
+    int interval = 0;
+    float backOffFactor = 0.0;
+    int maxWaitInterval = 0;
+    boolean[] statusCodes = [];
     !...
 };
 

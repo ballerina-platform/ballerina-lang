@@ -30,7 +30,7 @@ public type BrokerURLConfig record {
     int port = 5672;
     string clientID = "ballerina";
     string virtualHost = "default";
-    ServiceSecureSocket? secureSocket;
+    ServiceSecureSocket? secureSocket = ();
     !...
 };
 
@@ -40,9 +40,9 @@ public type BrokerURLConfig record {
 # + keyStore - Keystore configuration
 # + sslCertAlias - name of the ssl cert alias
 public type ServiceSecureSocket record {
-    Store? trustStore;
-    Store? keyStore;
-    string sslCertAlias;
+    Store? trustStore = ();
+    Store? keyStore = ();
+    string sslCertAlias = "";
     !...
 };
 
@@ -50,8 +50,8 @@ public type ServiceSecureSocket record {
 # + path - file path to key store
 # + password - password used to protect the key store
 public type Store record {
-    string path;
-    string password;
+    string path = "";
+    string password = "";
     !...
 };
 

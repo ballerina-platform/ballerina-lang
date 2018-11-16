@@ -1,35 +1,35 @@
 public type PackageId record {
-    string name;
-    string versionValue;
-    string org;
+    string name = "";
+    string versionValue = "";
+    string org = "";
 };
 
 public type Package record {
-    Function[] functions;
-    Name name;
-    Name org;
-    BType[] types;
-    Name versionValue;
+    Function[] functions = [];
+    Name name = {};
+    Name org = {};
+    BType[] types = [];
+    Name versionValue = {};
 };
 
 public type Function record {
-    int argsCount;
-    BasicBlock[] basicBlocks;
-    boolean isDeclaration;
-    VariableDcl[] localVars;
-    Name name;
-    BInvokableType typeValue;
-    Visibility visibility;
+    int argsCount = 0;
+    BasicBlock[] basicBlocks = [];
+    boolean isDeclaration = false;
+    VariableDcl[] localVars = [];
+    Name name = {};
+    BInvokableType typeValue = {};
+    Visibility visibility = "PACKAGE_PRIVATE";
 };
 
 public type BasicBlock record {
-    Name id;
-    Instruction[] instructions;
-    Terminator terminator;
+    Name id = {};
+    Instruction[] instructions = [];
+    Terminator terminator = new Return("RETURN");
 };
 
 public type Name record {
-    string value;
+    string value = "";
 };
 
 public type Instruction Move|BinaryOp|ConstantLoad;
@@ -58,9 +58,9 @@ public type ArgVarKind "ARG";
 public type VarKind "LOCAL" | "TEMP" | "RETURN" | ArgVarKind;
 
 public type VariableDcl record {
-    VarKind kind;
-    Name name;
-    BType typeValue;
+    VarKind kind = "LOCAL";
+    Name name = {};
+    BType typeValue = "()";
 };
 
 public type BTypeNil "()";
@@ -73,29 +73,29 @@ public type BType BTypeInt | BTypeBoolean | BTypeNil;
 
 
 public type BTypeSymbol record {
-    boolean closure;
-    DocAttachment documentationValue;
-    int flags;
-    boolean isLabel;
-    SymbolKind kind;
-    Name name;
+    boolean closure = false;
+    DocAttachment documentationValue = {};
+    int flags = 0;
+    boolean isLabel = false;
+    SymbolKind kind = "OTHER";
+    Name name = {};
 //BSymbol owner;
-    PackageID pkgID;
-    Scope scopeValue;
-    int tag;
-    boolean tainted;
-    BType typeValue;
+    PackageID pkgID = {};
+    Scope scopeValue = {};
+    int tag = 0;
+    boolean tainted = false;
+    BType typeValue = "()";
 };
 //
 public type DocAttachment record {
-    DocAttribute[] attributes;
-    string description;
+    DocAttribute[] attributes = [];
+    string description = "";
 };
 
 public type DocAttribute record {
-    string description;
+    string description = "";
     DocTag docTag;
-    string name;
+    string name = "";
 };
 
 public type DocTag "RETURN"|"PARAM"|"RECEIVER"|"FIELD"|"VARIABLE"|"ENDPOINT";
@@ -105,29 +105,29 @@ public type SymbolKind "PACKAGE"|"STRUCT"|"OBJECT"|"RECORD"|"ENUM"|"CONNECTOR"|"
 "LOCAL_VARIABLE"|"SERVICE_VARIABLE"|"CONNECTOR_VARIABLE"|"CAST_OPERATOR"|"CONVERSION_OPERATOR"|"XMLNS"|"SCOPE"|"OTHER";
 
 public type BSymbol record {
-    boolean closure;
-    DocAttachment documentationValue;
-    int flags;
-    SymbolKind kind;
-    Name name;
+    boolean closure = false;
+    DocAttachment documentationValue = {};
+    int flags = 0;
+    SymbolKind kind = "OTHER";
+    Name name = {};
 //BSymbol owner;
-    PackageID pkgID;
+    PackageID pkgID = {};
 //Scope scopeValue;
-    int tag;
-    boolean tainted;
-    BType typeValue;
+    int tag = 0;
+    boolean tainted = false;
+    BType typeValue = "()";
 };
 
 public type PackageID record {
-    Name orgName;
-    Name sourceFileName;
-    Name versionValue;
+    Name orgName = {};
+    Name sourceFileName = {};
+    Name versionValue = {};
 };
 
 public type Scope record {
 //ScopeEntry NOT_FOUND_ENTRY;
 //Map entries;
-    BSymbol owner;
+    BSymbol owner = {};
 };
 //
 //type ScopeEntry record {
@@ -136,8 +136,8 @@ public type Scope record {
 //};
 
 public type BInvokableType record {
-    BType[] paramTypes;
-    BType retType;
+    BType[] paramTypes = [];
+    BType retType = "()";
 };
 
 public type Visibility "PACKAGE_PRIVATE"|"PRIVATE"|"PUBLIC";

@@ -174,9 +174,9 @@ public type LoadBalancerActions object {
 # + statusCode - HTTP status code of the LoadBalanceActionError
 # + httpActionErr - Array of errors occurred at each endpoint
 public type LoadBalanceActionErrorData record {
-    string message;
-    int statusCode;
-    error[] httpActionErr;
+    string message = "";
+    int statusCode = 0;
+    error[] httpActionErr = [];
     !...
 };
 

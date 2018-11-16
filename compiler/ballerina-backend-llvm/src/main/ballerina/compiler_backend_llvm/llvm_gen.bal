@@ -2,7 +2,7 @@ import ballerina/llvm;
 import ballerina/bir;
 
 // TODO: make non-globle
-llvm:LLVMValueRef printfRef;
+llvm:LLVMValueRef printfRef = {};
 
 function genPackage(bir:Package pkg, string targetObjectFilePath, boolean dumpLLVMIR) {
     var mod = createModule(pkg.org, pkg.name, pkg.versionValue);

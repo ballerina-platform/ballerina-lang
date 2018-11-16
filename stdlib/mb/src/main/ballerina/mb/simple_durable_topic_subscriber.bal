@@ -109,13 +109,13 @@ public type SimpleDurableTopicSubscriberEndpointConfiguration record {
     int port = 5672;
     string clientID = "ballerina";
     string virtualHost = "default";
-    ServiceSecureSocket? secureSocket;
+    ServiceSecureSocket? secureSocket = ();
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
-    string identifier;
-    map properties;
-    string messageSelector;
-    string topicPattern;
+    string identifier = "";
+    map properties = {};
+    string messageSelector = "";
+    string topicPattern = "";
     !...
 };
 

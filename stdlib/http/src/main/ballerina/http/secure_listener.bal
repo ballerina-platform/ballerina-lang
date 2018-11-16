@@ -79,18 +79,18 @@ public type SecureListener object {
 # + positiveAuthzCache - Caching configurations for positive authorizations
 # + negativeAuthzCache - Caching configurations for negative authorizations
 public type SecureEndpointConfiguration record {
-    string host;
+    string host = "";
     int port = 9090;
     KeepAlive keepAlive = KEEPALIVE_AUTO;
-    ServiceSecureSocket? secureSocket;
+    ServiceSecureSocket? secureSocket = ();
     string httpVersion = "1.1";
-    RequestLimits? requestLimits;
-    Filter[] filters;
+    RequestLimits? requestLimits = ();
+    Filter[] filters = [];
     int timeoutMillis = DEFAULT_LISTENER_TIMEOUT;
     int maxPipelinedRequests = MAX_PIPELINED_REQUESTS;
-    AuthProvider[]? authProviders;
-    AuthCacheConfig positiveAuthzCache;
-    AuthCacheConfig negativeAuthzCache;
+    AuthProvider[]? authProviders = ();
+    AuthCacheConfig positiveAuthzCache = {};
+    AuthCacheConfig negativeAuthzCache = {};
     !...
 };
 
@@ -127,21 +127,21 @@ public type AuthCacheConfig record {
 # + signingAlg - The signing algorithm which is used to sign the JWT token
 # + propagateJwt - `true` if propagating authentication info as JWT
 public type AuthProvider record {
-    string scheme;
-    string id;
-    string authStoreProvider;
-    auth:LdapAuthProviderConfig? authStoreProviderConfig;
-    string issuer;
-    string audience;
-    TrustStore? trustStore;
-    string certificateAlias;
-    int clockSkew;
-    KeyStore? keyStore;
-    string keyAlias;
-    string keyPassword;
-    int expTime;
-    string signingAlg;
-    boolean propagateJwt;
+    string scheme = "";
+    string id = "";
+    string authStoreProvider = "";
+    auth:LdapAuthProviderConfig? authStoreProviderConfig = ();
+    string issuer = "";
+    string audience = "";
+    TrustStore? trustStore = ();
+    string certificateAlias = "";
+    int clockSkew = 0;
+    KeyStore? keyStore = ();
+    string keyAlias = "";
+    string keyPassword = "";
+    int expTime = 0;
+    string signingAlg = "";
+    boolean propagateJwt = false;
     !...
 };
 

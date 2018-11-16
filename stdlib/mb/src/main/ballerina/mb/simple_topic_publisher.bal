@@ -134,9 +134,9 @@ public type SimpleTopicPublisherEndpointConfiguration record {
     int port = 5672;
     string clientID = "ballerina";
     string virtualHost = "default";
-    ServiceSecureSocket? secureSocket;
+    ServiceSecureSocket? secureSocket = ();
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
-    map properties;
-    string topicPattern;
+    map properties = {};
+    string topicPattern = "";
     !...
 };

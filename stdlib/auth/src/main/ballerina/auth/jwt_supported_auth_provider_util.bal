@@ -33,14 +33,14 @@ import ballerina/time;
 # + keyStorePassword - Password of the key-store file containing signing key
 # + signingAlg - Signing algorithm for signing newly issued JWT tokens
 public type InferredJwtAuthProviderConfig record {
-    string issuer;
-    string audience;
-    int expTime;
-    string keyAlias;
-    string keyPassword;
-    string keyStoreFilePath;
-    string keyStorePassword;
-    string signingAlg;
+    string issuer = "";
+    string audience = "";
+    int expTime = 0;
+    string keyAlias = "";
+    string keyPassword = "";
+    string keyStoreFilePath = "";
+    string keyStorePassword = "";
+    string signingAlg = "";
     !...
 };
 

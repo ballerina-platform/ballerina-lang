@@ -133,9 +133,9 @@ public type SimpleQueueSenderEndpointConfiguration record {
     int port = 5672;
     string clientID = "ballerina";
     string virtualHost = "default";
-    ServiceSecureSocket? secureSocket;
+    ServiceSecureSocket? secureSocket = ();
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
-    map properties;
-    string queueName;
+    map properties = {};
+    string queueName = "";
     !...
 };

@@ -62,8 +62,8 @@ public type Listener object {
 # + host - The remote host name/IP
 # + port - The remote port
 public type Remote record {
-    @readonly string host;
-    @readonly int port;
+    @readonly string host = "";
+    @readonly int port = 0;
     !...
 };
 
@@ -72,8 +72,8 @@ public type Remote record {
 # + host - The local host name/IP
 # + port - The local port
 public type Local record {
-    @readonly string host;
-    @readonly int port;
+    @readonly string host = "";
+    @readonly int port = 0;
     !...
 };
 
@@ -110,13 +110,13 @@ public type RequestLimits record {
 #                          connection. By default 10 requests can be pipelined on a single cinnection and user can
 #                          change this limit appropriately. This will be applicable only for HTTP 1.1
 public type ServiceEndpointConfiguration record {
-    string host;
-    int port;
+    string host = "";
+    int port = 0;
     KeepAlive keepAlive = KEEPALIVE_AUTO;
-    ServiceSecureSocket? secureSocket;
+    ServiceSecureSocket? secureSocket = ();
     string httpVersion = "1.1";
-    RequestLimits? requestLimits;
-    Filter[] filters;
+    RequestLimits? requestLimits = ();
+    Filter[] filters = [];
     int timeoutMillis = DEFAULT_LISTENER_TIMEOUT;
     int maxPipelinedRequests = MAX_PIPELINED_REQUESTS;
     !...
@@ -138,18 +138,18 @@ public type ServiceEndpointConfiguration record {
 # + shareSession - Enable/disable new SSL session creation
 # + ocspStapling - Enable/disable OCSP stapling
 public type ServiceSecureSocket record {
-    TrustStore? trustStore;
-    KeyStore? keyStore;
-    string certFile;
-    string keyFile;
-    string keyPassword;
-    string trustedCertFile;
-    Protocols? protocol;
-    ValidateCert? certValidation;
-    string[] ciphers;
-    string sslVerifyClient;
+    TrustStore? trustStore = ();
+    KeyStore? keyStore = ();
+    string certFile = "";
+    string keyFile = "";
+    string keyPassword = "";
+    string trustedCertFile = "";
+    Protocols? protocol = ();
+    ValidateCert? certValidation = ();
+    string[] ciphers = [];
+    string sslVerifyClient = "";
     boolean shareSession = true;
-    ServiceOcspStapling? ocspStapling;
+    ServiceOcspStapling? ocspStapling = ();
     !...
 };
 

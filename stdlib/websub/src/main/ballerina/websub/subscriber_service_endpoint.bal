@@ -179,10 +179,10 @@ function Listener.sendSubscriptionRequests() {
 # + httpServiceSecureSocket - The SSL configurations for the service endpoint
 # + extensionConfig - The extension configuration to introduce custom subscriber services (webhooks)
 public type SubscriberServiceEndpointConfiguration record {
-    string host;
-    int port;
-    http:ServiceSecureSocket? httpServiceSecureSocket;
-    ExtensionConfig? extensionConfig;
+    string host = "";
+    int port = 0;
+    http:ServiceSecureSocket? httpServiceSecureSocket = ();
+    ExtensionConfig? extensionConfig = ();
     !...
 };
 

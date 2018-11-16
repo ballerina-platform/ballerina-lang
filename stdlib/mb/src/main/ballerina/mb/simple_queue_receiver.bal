@@ -112,12 +112,12 @@ public type SimpleQueueListenerEndpointConfiguration record {
     int port = 5672;
     string clientID = "ballerina";
     string virtualHost = "default";
-    ServiceSecureSocket? secureSocket;
+    ServiceSecureSocket? secureSocket = ();
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
-    string messageSelector;
-    map properties;
-    string queueName;
+    string messageSelector = "";
+    map properties = {};
+    string queueName = "";
     !...
 };
 
