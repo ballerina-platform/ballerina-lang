@@ -1,10 +1,10 @@
-import { BallerinaAST } from "@ballerina/ast-model";
+import { ASTNode } from "@ballerina/ast-model";
 import React from "react";
 
 export enum DiagramMode { ACTION, DEFAULT }
 
 export interface IDiagramContext {
-    ast: BallerinaAST | undefined;
+    ast: ASTNode | undefined;
     changeMode: (newMode: DiagramMode) => void;
     editingEnabled: boolean;
     mode: DiagramMode;

@@ -1,5 +1,5 @@
+import { ASTNode } from "./ast-interfaces";
 import { Visitor } from "./base-visitor";
-import { ASTNode } from "./models";
 
 const metaNodes = ["viewState", "ws", "position"];
 
