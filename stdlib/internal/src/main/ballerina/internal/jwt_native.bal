@@ -20,10 +20,9 @@
 # + signature - Signature string.
 # + algorithm - Signature algorithm.
 # + trustStore - Truststore.
-# + return - error if verification failed, nil if verification is successful.
+# + return - Verified status. true or false.
 extern function verifySignature(string data, string signature, string algorithm, TrustStore trustStore)
-    returns error?;
-
+    returns (boolean);
 type TrustStore record {
     string certificateAlias;
     string trustStoreFilePath;
