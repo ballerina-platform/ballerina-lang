@@ -17,7 +17,6 @@ package org.ballerinalang.langserver;
 
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.command.LSCommandExecutor;
-import org.ballerinalang.langserver.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvider;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
@@ -128,7 +127,7 @@ class BallerinaWorkspaceService implements WorkspaceService {
                 if (executor.isPresent()) {
                     return executor.get().execute(executeCommandContext);
                 }
-            } catch (LSCommandExecutorException e) {
+            } catch (Exception e) {
                 logger.error(e.getMessage());
             }
             
