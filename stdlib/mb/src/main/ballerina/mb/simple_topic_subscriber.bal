@@ -21,10 +21,10 @@ import ballerina/log;
 # + config - Simple topic subscrirber enpoint configuration
 public type SimpleTopicSubscriber object {
 
-    public SimpleTopicSubscriberEndpointConfiguration config = {};
+    public SimpleTopicSubscriberEndpointConfiguration config;
 
-    private jms:SimpleTopicSubscriber subscriber = new;
-    private TopicSubscriberActions? consumerActions = ();
+    private jms:SimpleTopicSubscriber subscriber;
+    private TopicSubscriberActions? consumerActions;
 
     # Initialize simple topic subscriber
     #
