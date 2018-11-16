@@ -1,7 +1,7 @@
 
 type IntObject object{
-    string firstName;
-    string lastName;
+    string firstName = "Mohan";
+    string lastName = "Raj";
 };
 
 //----------------------------Map Stamp Negative Test Cases-------------------------------------------------------------

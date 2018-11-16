@@ -13,8 +13,8 @@ type Person record {
 };
 
 type EmployeeObj object {
-    public string name;
-    public int age;
+    public string name = "Mohan";
+    public int age = 30;
 
 };
 

@@ -6,9 +6,9 @@ type Employee record {
 };
 
 type EmployeeObject object {
-    string name;
-    string status;
-    string batch;
+    string name = "Mohan";
+    string status = "Single";
+    string batch = "LK2014";
 };
 
 //----------------------------Array Stamp Negative Test cases -------------------------------------------------------------

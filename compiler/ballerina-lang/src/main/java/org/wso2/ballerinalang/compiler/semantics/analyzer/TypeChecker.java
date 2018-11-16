@@ -145,7 +145,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
@@ -1905,19 +1904,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private boolean checkBuiltinFunctionInvocation(BLangInvocation iExpr, BLangBuiltInMethod function, BType... args) {
         Name funcName = names.fromString(iExpr.name.value);
 
-        BSymbol funcSymbol;
-        if (iExpr.name.value.equals("stamp")) {
-            List<BLangExpression> functionArgList = iExpr.argExprs;
-            // Resolve the type of the variables passed as arguments to stamp in-built function.
-            for (BLangExpression expression : functionArgList) {
-                checkExpr(expression, env, symTable.noType);
-            }
-
-            funcSymbol = symResolver.createSymbolForStampOperator(iExpr.pos, funcName, functionArgList,
-                    iExpr.expr);
-        } else {
-            funcSymbol = symResolver.resolveBuiltinOperator(funcName, args);
-        }
+        BSymbol funcSymbol = symResolver.resolveBuiltinOperator(funcName, args);
 
         if (funcSymbol == symTable.notFoundSymbol) {
             funcSymbol = getSymbolForBuiltinMethodWithDynamicRetType(iExpr, function);
@@ -2620,6 +2607,14 @@ public class TypeChecker extends BLangNodeVisitor {
                 return getSymbolForFreezeBuiltinMethod(iExpr);
             case IS_FROZEN:
                 return getSymbolForIsFrozenBuiltinMethod(iExpr);
+            case STAMP:
+                List<BLangExpression> functionArgList = iExpr.argExprs;
+                // Resolve the type of the variables passed as arguments to stamp in-built function.
+                for (BLangExpression expression : functionArgList) {
+                    checkExpr(expression, env, symTable.noType);
+                }
+                return symResolver.createSymbolForStampOperator(iExpr.pos, new Name(function.getName()),
+                        functionArgList, iExpr.expr);
             default:
                 return symTable.notFoundSymbol;
         }

@@ -28,11 +28,11 @@ type Teacher record {
 };
 
 type TeacherObj object {
-    string name;
-    int age;
-    string status;
-    string batch;
-    string school;
+    string name = "Mohan";
+    int age = 30;
+    string status = "Single";
+    string batch = "LK2014";
+    string school = "VNC";
 };
 
 function stampRecordToXML() returns xml {
@@ -76,7 +76,7 @@ function stampClosedRecordToMap() returns map<string> {
 }
 
 function stampRecordToArray() returns string[] {
-    Employee e1 = { name: "Raja", status: "single", batch: "LK2014" };
+    Employee e1 = { name: "Raja", age: 30, salary: 10000 };
     string[] stringArray = string[].stamp(e1);
 
     return stringArray;
@@ -84,7 +84,7 @@ function stampRecordToArray() returns string[] {
 
 function stampRecordToTuple() returns (string, string) {
 
-    Employee e1 = { name: "Raja", status: "single", batch: "LK2014" };
+    Employee e1 = { name: "Raja", age: 30, salary: 10000 };
     (string, string) tupleValue = (string, string).stamp(e1);
 
     return tupleValue;

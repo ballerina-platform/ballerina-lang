@@ -92,10 +92,11 @@ public interface InstructionCodes {
     int BGSTORE = 58;
     int RGSTORE = 59;
 
+    int STAMP = 62;
+
     int FREEZE = 63;
     int IS_FROZEN = 64;
 
-    int STAMP = 64;
     int ERROR = 65;
     int PANIC = 66;
     int REASON = 67;

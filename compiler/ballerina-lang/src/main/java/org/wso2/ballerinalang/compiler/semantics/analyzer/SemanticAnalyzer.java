@@ -38,6 +38,7 @@ import org.ballerinalang.model.tree.clauses.StreamingInput;
 import org.ballerinalang.model.tree.clauses.WhereNode;
 import org.ballerinalang.model.tree.clauses.WindowClauseNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;

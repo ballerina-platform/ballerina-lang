@@ -1,9 +1,9 @@
 type BookRecord record {
-   string book;
+   string book = "ABC";
 };
 
 type BookObject object {
-    string book;
+    string book = "XYZ";
 };
 
 function stampXMLToRecord() returns BookRecord {
