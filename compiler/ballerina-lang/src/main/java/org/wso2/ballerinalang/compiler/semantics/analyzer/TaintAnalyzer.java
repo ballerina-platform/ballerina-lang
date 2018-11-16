@@ -611,7 +611,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         overridingAnalysis = false;
 
         // Copy the taint information from the original symbol to the newly created type guarded symbol
-        ifNode.typeGuards.forEach((originalSymbol, guardedSymbol) -> guardedSymbol.tainted = originalSymbol.tainted);
+        ifNode.ifTypeGuards.forEach((originalSymbol, guardedSymbol) -> guardedSymbol.tainted = originalSymbol.tainted);
+        ifNode.elseTypeGuards
+                .forEach((originalSymbol, guardedSymbol) -> guardedSymbol.tainted = originalSymbol.tainted);
 
         ifNode.body.accept(this);
         if (ifNode.elseStmt != null) {
