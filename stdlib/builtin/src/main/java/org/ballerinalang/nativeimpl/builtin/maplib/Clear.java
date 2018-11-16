@@ -25,6 +25,8 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.util.exceptions.BLangFreezeException;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * Extern function to clear map entries.
@@ -40,7 +42,11 @@ public class Clear extends BlockingNativeCallableUnit {
 
     public void execute(Context ctx) {
         BMap<String, BValue> map = (BMap<String, BValue>) ctx.getRefArgument(0);
-        map.clear();
-        ctx.setReturnValues();
+        try {
+            map.clear();
+            ctx.setReturnValues();
+        } catch (BLangFreezeException e) {
+            throw new BallerinaException("Failed to clear map: " + e.getMessage());
+        }
     }
 }

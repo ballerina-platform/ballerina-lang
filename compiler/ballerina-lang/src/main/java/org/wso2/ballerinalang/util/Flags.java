@@ -26,6 +26,7 @@ import java.util.Set;
  * @since 0.94
  */
 public class Flags {
+
     public static final int PUBLIC = 1;
     public static final int NATIVE = PUBLIC << 1;
     public static final int FINAL = NATIVE << 1;
@@ -41,6 +42,7 @@ public class Flags {
     public static final int ABSTRACT = COMPENSATE << 1;
     public static final int OPTIONAL = ABSTRACT << 1;
     public static final int TESTABLE = OPTIONAL << 1;
+    public static final int CONSTANT = TESTABLE << 1;
 
     public static int asMask(Set<Flag> flagSet) {
         int mask = 0;
@@ -90,6 +92,9 @@ public class Flags {
                     break;
                 case TESTABLE:
                     mask |= TESTABLE;
+                    break;
+                case CONSTANT:
+                    mask |= CONSTANT;
                     break;
             }
         }
@@ -142,6 +147,9 @@ public class Flags {
                     break;
                 case OPTIONAL:
                     flagVal = OPTIONAL;
+                    break;
+                case CONSTANT:
+                    flagVal = CONSTANT;
                     break;
                 default:
                     continue;

@@ -7,12 +7,14 @@ function readLineError() returns error {
     return e;
 }
 
-function testCheckedExprSemanticErrors1() {
+function testCheckedExprSemanticErrors1() returns error? {
     string line = check readLineSuccess();
+    return ();
 }
 
-function testCheckedExprSemanticErrors2() {
+function testCheckedExprSemanticErrors2() returns error? {
     string line = check readLineError();
+    return ();
 }
 
 public type MyError error<string, record { int code; }>;
@@ -24,16 +26,18 @@ function readLine() returns MyError | CustomError {
     return e;
 }
 
-function testCheckedExprSemanticErrors3() {
+function testCheckedExprSemanticErrors3() returns error? {
     string line = check readLine();
+    return ();
 }
 
 function readLineInternal() returns string | int {
     return "Hello, World!!!";
 }
 
-function testCheckedExprSemanticErrors4() {
+function testCheckedExprSemanticErrors4() returns error? {
     string line = check readLineInternal();
+    return ();
 }
 
 function readLineProper() returns string | MyError | CustomError {
@@ -41,8 +45,6 @@ function readLineProper() returns string | MyError | CustomError {
     return e;
 }
 
-// This will be a negative case only after implementing the compiler check to validate if an error is returned  from any
-// function or resource that uses check expression.
 function testCheckedExprSemanticErrors5() {
     string line = check readLineProper();
 }

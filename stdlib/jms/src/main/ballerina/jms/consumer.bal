@@ -88,7 +88,7 @@ public type ConsumerActions object {
 # + session - JMS session used to create the consumer
 # + identifier - Unique identifier of the consumer
 public type ConsumerEndpointConfiguration record {
-    Session? session;
-    string identifier;
+    Session? session = ();
+    string identifier = "";
     !...
 };

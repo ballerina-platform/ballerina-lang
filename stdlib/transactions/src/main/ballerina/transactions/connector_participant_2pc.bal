@@ -17,12 +17,12 @@
 import ballerina/http;
 
 public type Participant2pcClientConfig record {
-    string participantURL;
-    int timeoutMillis;
+    string participantURL = "";
+    int timeoutMillis = 0;
     record {
-        int count;
-        int interval;
-    } retryConfig;
+        int count = 0;
+        int interval = 0;
+    } retryConfig = {};
 };
 
 public type Participant2pcClientEP object {

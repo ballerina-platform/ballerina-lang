@@ -423,6 +423,12 @@ public class Types {
             return true;
         }
 
+        // Check whether the source is a proper sub set of the target.
+        if (source.tag == TypeTags.FINITE && target.tag == TypeTags.FINITE) {
+            return ((BFiniteType) source).valueSpace.stream()
+                    .allMatch(expression -> isAssignableToFiniteType(target, (BLangLiteral) expression));
+        }
+
         if (target.tag == TypeTags.JSON) {
             if (source.tag == TypeTags.JSON) {
                 return ((BJSONType) target).constraint.tag == TypeTags.NONE;

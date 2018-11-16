@@ -18,6 +18,7 @@
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.DataIterator;
 import org.ballerinalang.model.types.BStructureType;
@@ -31,6 +32,9 @@ import org.ballerinalang.util.program.BLangFunctions;
 
 import java.util.List;
 import java.util.StringJoiner;
+
+import static org.ballerinalang.model.util.FreezeUtils.handleInvalidUpdate;
+import static org.ballerinalang.model.util.FreezeUtils.isOpenForFreeze;
 
 /**
  * The {@code BTable} represents a two dimensional data set in Ballerina.
@@ -48,6 +52,7 @@ public class BTable implements BRefType<Object>, BCollection {
     private BStringArray primaryKeys;
     private BStringArray indices;
     private boolean tableClosed;
+    private volatile CPU.FreezeStatus freezeStatus = new CPU.FreezeStatus(CPU.FreezeStatus.State.UNFROZEN);
 
     public BTable() {
         this.iterator = null;
@@ -205,6 +210,12 @@ public class BTable implements BRefType<Object>, BCollection {
      * @param context The context which represents the runtime state of the program that called "table.add"
      */
     public void performAddOperation(BMap<String, BValue> data, Context context) {
+        synchronized (this) {
+            if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
+                handleInvalidUpdate(freezeStatus.getState());
+            }
+        }
+
         try {
             this.addData(data, context);
             context.setReturnValues();
@@ -237,6 +248,12 @@ public class BTable implements BRefType<Object>, BCollection {
      * @param lambdaFunction The function that decides the condition of data removal
      */
     public void performRemoveOperation(Context context, BFunctionPointer lambdaFunction) {
+        synchronized (this) {
+            if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
+                handleInvalidUpdate(freezeStatus.getState());
+            }
+        }
+
         try {
             BType functionInputType = lambdaFunction.value().getParamTypes()[0];
             if (this.constraintType == null) {
@@ -394,6 +411,24 @@ public class BTable implements BRefType<Object>, BCollection {
         @Override
         public void stamp(BType type) {
 
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized boolean isFrozen() {
+        return this.freezeStatus.isFrozen();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void attemptFreeze(CPU.FreezeStatus freezeStatus) {
+        if (isOpenForFreeze(this.freezeStatus, freezeStatus)) {
+            this.freezeStatus = freezeStatus;
         }
     }
 }

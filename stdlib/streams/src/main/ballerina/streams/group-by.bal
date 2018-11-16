@@ -30,13 +30,21 @@ public type GroupBy object {
                     StreamEvent[] events = [];
                     self.groupedStreamEvents[key] = events;
                 }
-                StreamEvent[] groupedEvents = check <StreamEvent[]> self.groupedStreamEvents[key];
-                groupedEvents[groupedEvents.length()] = streamEvent;
+                var groupedEvents = <StreamEvent[]> self.groupedStreamEvents[key];
+                if (groupedEvents is StreamEvent[]) {
+                    groupedEvents[groupedEvents.length()] = streamEvent;
+                } else if (groupedEvents is error) {
+                    panic groupedEvents;
+                }
             }
 
             foreach arr in self.groupedStreamEvents.values() {
-                StreamEvent[] eventArr = check <StreamEvent[]>arr;
-                self.nextProcessorPointer(eventArr);
+                var eventArr = <StreamEvent[]>arr;
+                if (eventArr is StreamEvent[]) {
+                    self.nextProcessorPointer(eventArr);
+                } else if (eventArr is error) {
+                    panic eventArr;
+                }
             }
         } else {
             self.nextProcessorPointer(streamEvents);

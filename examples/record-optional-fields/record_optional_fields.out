@@ -1,0 +1,5 @@
+$ ballerina run record_optional_fields.bal
+Person with non-defaultable required field set: {fname:"default", lname:"", gender:"male"}
+Age: 25
+Updated person with optional field set: {fname:"default", lname:"", gender:"male", age:25}
+Person with values assigned to required fields: {fname:"Jane", lname:"Doe", gender:"female"}

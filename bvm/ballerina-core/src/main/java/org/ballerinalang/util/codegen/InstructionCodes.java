@@ -51,48 +51,52 @@ public interface InstructionCodes {
     int SMOVE = 24;
     int BMOVE = 25;
     int RMOVE = 26;
-    int BIALOAD = 28;
-    int IALOAD = 29;
-    int FALOAD = 30;
-    int SALOAD = 31;
-    int BALOAD = 32;
-    int RALOAD = 33;
-    int JSONALOAD = 34;
+    int BIALOAD = 27;
+    int IALOAD = 28;
+    int FALOAD = 29;
+    int SALOAD = 30;
+    int BALOAD = 31;
+    int RALOAD = 32;
+    int JSONALOAD = 33;
 
-    int IGLOAD = 36;
-    int FGLOAD = 37;
-    int SGLOAD = 38;
-    int BGLOAD = 39;
-    int RGLOAD = 40;
+    int IGLOAD = 34;
+    int FGLOAD = 35;
+    int SGLOAD = 36;
+    int BGLOAD = 37;
+    int RGLOAD = 38;
 
-    int CHNRECEIVE = 42;
-    int CHNSEND = 43;
+    int CHNRECEIVE = 39;
+    int CHNSEND = 40;
 
-    int MAPLOAD = 44;
-    int JSONLOAD = 45;
+    int MAPLOAD = 41;
+    int JSONLOAD = 42;
 
-    int COMPENSATE = 46;
+    int COMPENSATE = 43;
 
-    int BIASTORE = 47;
-    int IASTORE = 48;
-    int FASTORE = 49;
-    int SASTORE = 50;
-    int BASTORE = 51;
-    int RASTORE = 52;
-    int JSONASTORE = 53;
+    int BIASTORE = 44;
+    int IASTORE = 45;
+    int FASTORE = 46;
+    int SASTORE = 47;
+    int BASTORE = 48;
+    int RASTORE = 49;
+    int JSONASTORE = 50;
 
-    int BIAND = 55;
-    int IAND = 56;
-    int BIOR = 57;
-    int IOR = 58;
+    int BIAND = 51;
+    int IAND = 52;
+    int BIOR = 53;
+    int IOR = 54;
 
-    int IGSTORE = 59;
-    int FGSTORE = 60;
-    int SGSTORE = 61;
-    int BGSTORE = 62;
-    int RGSTORE = 63;
+    int IGSTORE = 55;
+    int FGSTORE = 56;
+    int SGSTORE = 57;
+    int BGSTORE = 58;
+    int RGSTORE = 59;
 
-    int STAMP = 64;
+    int STAMP = 62;
+
+    int FREEZE = 63;
+    int IS_FROZEN = 64;
+
     int ERROR = 65;
     int PANIC = 66;
     int REASON = 67;

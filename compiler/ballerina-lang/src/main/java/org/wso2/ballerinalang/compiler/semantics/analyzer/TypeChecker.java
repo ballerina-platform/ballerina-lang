@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -128,6 +129,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -143,6 +145,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
@@ -271,7 +274,8 @@ public class TypeChecker extends BLangNodeVisitor {
             if (TypeTags.DECIMAL == expType.tag) {
                 literalType = symTable.decimalType;
                 literalExpr.value = String.valueOf(literalValue);
-            } else if (TypeTags.FLOAT == expType.tag) {
+            } else if (TypeTags.FLOAT == expType.tag || TypeTags.FINITE == expType.tag) {
+                // Todo - Remove above finite check after it is fixed for decimal types.
                 literalExpr.value = Double.parseDouble(String.valueOf(literalValue));
             }
         }
@@ -576,6 +580,13 @@ public class TypeChecker extends BLangNodeVisitor {
             } else if ((symbol.tag & SymTag.TYPE) == SymTag.TYPE) {
                 actualType = symTable.typeDesc;
                 varRefExpr.symbol = symbol;
+            } else if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
+                varRefExpr.symbol = symbol;
+                if (types.isAssignable(symbol.type, expType)) {
+                    actualType = symbol.type;
+                } else {
+                    actualType = ((BConstantSymbol) symbol).literalValueType;
+                }
             } else {
                 dlog.error(varRefExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, varName.toString());
             }
@@ -1909,7 +1920,10 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (funcSymbol == symTable.notFoundSymbol) {
-            return false;
+            funcSymbol = getSymbolForBuiltinMethodWithDynamicRetType(iExpr, function);
+            if (funcSymbol == symTable.notFoundSymbol) {
+                return false;
+            }
         }
 
         iExpr.builtinMethodInvocation = true;
@@ -2268,6 +2282,10 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType getAccessExprFinalType(BLangAccessExpression accessExpr, BType actualType) {
+        if (!isSafeNavigableExpr(accessExpr)) {
+            return actualType;
+        }
+
         // Cache the actual type of the field. This will be used in desuagr phase to create safe navigation.
         accessExpr.originalType = actualType;
 
@@ -2323,6 +2341,12 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         return false;
+    }
+
+    private boolean isSafeNavigableExpr(BLangAccessExpression accessExpr) {
+        return !(accessExpr.getKind() == NodeKind.INVOCATION &&
+                         ((BLangInvocation) accessExpr).builtinMethodInvocation &&
+                         ((BLangInvocation) accessExpr).builtInMethod == BLangBuiltInMethod.IS_FROZEN);
     }
 
     private BType checkFieldAccessExpr(BLangFieldBasedAccess fieldAccessExpr, BType varRefType, Name fieldName) {
@@ -2588,5 +2612,91 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
         }
         return typeGuards;
+    }
+
+    private BSymbol getSymbolForBuiltinMethodWithDynamicRetType(BLangInvocation iExpr, BLangBuiltInMethod function) {
+        switch (function) {
+            case FREEZE:
+                return getSymbolForFreezeBuiltinMethod(iExpr);
+            case IS_FROZEN:
+                return getSymbolForIsFrozenBuiltinMethod(iExpr);
+            default:
+                return symTable.notFoundSymbol;
+        }
+    }
+
+    private BSymbol getSymbolForFreezeBuiltinMethod(BLangInvocation iExpr) {
+        BType type = iExpr.expr.type;
+        if (!isValidFreezeOrIsFrozenFunction(type)) {
+            return symTable.notFoundSymbol;
+        }
+
+        BType retType;
+        if (types.isAnydata(type)) {
+            retType = type;
+        } else {
+            if (type.tag == TypeTags.UNION) {
+                BUnionType unionType = (BUnionType) type;
+                if (unionType.getMemberTypes().stream().noneMatch(memType -> memType.tag == TypeTags.ERROR)) {
+                    unionType.memberTypes.add(symTable.errorType);
+                }
+                retType = unionType;
+            } else {
+                retType = new BUnionType(null, new LinkedHashSet<BType>() {{ add(type); add(symTable.errorType); }},
+                                            false);
+            }
+        }
+        return symResolver.createBuiltinMethodSymbol(BLangBuiltInMethod.FREEZE, type, retType, InstructionCodes.FREEZE);
+    }
+
+    private BSymbol getSymbolForIsFrozenBuiltinMethod(BLangInvocation iExpr) {
+        BType type = iExpr.expr.type;
+        if (!isValidFreezeOrIsFrozenFunction(type)) {
+            return symTable.notFoundSymbol;
+        }
+        return symResolver.createBuiltinMethodSymbol(BLangBuiltInMethod.IS_FROZEN, type, symTable.booleanType,
+                                                     InstructionCodes.IS_FROZEN);
+    }
+
+    private boolean isValidFreezeOrIsFrozenFunction(BType type) {
+        if (type.tag == TypeTags.NIL || (!types.isAnydata(type) && !isNonAnyDataFreezeAllowedType(type))) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isNonAnyDataFreezeAllowedType(BType type) {
+        int typeTag = type.tag;
+        if (typeTag == TypeTags.ANY) {
+            return true;
+        }
+
+        // check for anydata element/member types as part of recursive calls with structured/union types
+        if (types.isAnydata(type)) {
+            return true;
+        }
+
+        if (type.tag == TypeTags.MAP && isNonAnyDataFreezeAllowedType(((BMapType) type).constraint)) {
+            return true;
+        }
+
+        if (type.tag == TypeTags.RECORD) {
+            BRecordType recordType = (BRecordType) type;
+            return recordType.fields.stream()
+                    .noneMatch(field -> !Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
+                            !(isNonAnyDataFreezeAllowedType(field.type)));
+        }
+
+        if (type.tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) type;
+            return unionType.memberTypes.stream().anyMatch(this::isNonAnyDataFreezeAllowedType);
+        }
+
+        if (type.tag == TypeTags.TUPLE) {
+            BTupleType tupleType = (BTupleType) type;
+            return tupleType.getTupleTypes().stream().allMatch(this::isNonAnyDataFreezeAllowedType);
+        }
+
+        return type.tag == TypeTags.ARRAY && isNonAnyDataFreezeAllowedType(((BArrayType) type).eType);
     }
 }

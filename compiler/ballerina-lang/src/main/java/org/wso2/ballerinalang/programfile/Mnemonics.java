@@ -76,6 +76,9 @@ public class Mnemonics {
         mnemonics[InstructionCodes.BGSTORE] = "bgstore";
         mnemonics[InstructionCodes.RGSTORE] = "rgstore";
 
+        mnemonics[InstructionCodes.FREEZE] = "freeze";
+        mnemonics[InstructionCodes.IS_FROZEN] = "isFrozen";
+
         mnemonics[InstructionCodes.STAMP] = "stamp";
         mnemonics[InstructionCodes.ERROR] = "error";
         mnemonics[InstructionCodes.PANIC] = "panic";

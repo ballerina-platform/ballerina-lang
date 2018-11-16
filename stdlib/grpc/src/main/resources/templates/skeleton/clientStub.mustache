@@ -77,7 +77,7 @@ type {{messageName}} record {
 {{#fieldList}}
 @final public {{../messageName}} {{name}} = "{{name}}";
 {{/fieldList}}{{/enumList}}
-@final string DESCRIPTOR_KEY = "{{rootDescriptorKey}}";
+const string DESCRIPTOR_KEY = "{{rootDescriptorKey}}";
 map descriptorMap = {
 {{#each descriptors}}"{{descriptorKey}}":"{{descriptorData}}"{{#unless @last}},{{/unless}}
 {{/each}}
