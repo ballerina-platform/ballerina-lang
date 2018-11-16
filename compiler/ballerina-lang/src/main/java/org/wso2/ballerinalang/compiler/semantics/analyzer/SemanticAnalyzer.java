@@ -1157,6 +1157,19 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         switch (expression.getKind()) {
             case LITERAL:
                 return typeChecker.checkExpr(expression, this.env);
+            case BINARY_EXPR:
+                BLangBinaryExpr binaryExpr = (BLangBinaryExpr) expression;
+
+                if (OperatorKind.BITWISE_OR != binaryExpr.opKind) {
+                    dlog.error(expression.pos, DiagnosticCode.INVALID_LITERAL_FOR_MATCH_PATTERN);
+                    expression.type = symTable.errorType;
+                    return expression.type;
+                }
+
+                checkStaticMatchPatternLiteralType(binaryExpr.lhsExpr);
+                checkStaticMatchPatternLiteralType(binaryExpr.rhsExpr);
+                expression.type =  symTable.anyType;
+                return expression.type;
             case RECORD_LITERAL_EXPR:
                 BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
                 recordLiteral.type = new BMapType(TypeTags.MAP, symTable.anydataType, null);
@@ -1191,7 +1204,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 dlog.error(expression.pos, DiagnosticCode.INVALID_LITERAL_FOR_MATCH_PATTERN);
                 expression.type = symTable.errorType;
                 return expression.type;
-
         }
     }
 
@@ -1206,9 +1218,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             BLangExpression typeGuardExpr = patternClause.typeGuardExpr;
             SymbolEnv typeGuardEnv = SymbolEnv.createExpressionEnv(typeGuardExpr, env);
             analyzeDef(patternClause.bindingPatternVariable, typeGuardEnv);
-
             blockEnv = SymbolEnv.createBlockEnv(patternClause.body, typeGuardEnv);
-
             typeChecker.checkExpr(patternClause.typeGuardExpr, typeGuardEnv);
 
             Map<BVarSymbol, BType> typeGuards = typeChecker.getTypeGuards(patternClause.typeGuardExpr);
