@@ -28,6 +28,7 @@ import org.ballerinalang.test.util.SQLDBUtils.DBType;
 import org.ballerinalang.test.util.SQLDBUtils.TestDatabase;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -282,6 +283,7 @@ public class MicroTransactionTestCase extends BaseTest {
         assertTrue(participant2State.localParticipantCommittedFunctionCalled);
     }
 
+    @Ignore
     @Test(dependsOnMethods = {"testSaveToDatabaseSuccessfulInParticipant"})
     public void testSaveToDatabaseFailedInParticipant() throws IOException {
         HttpResponse response =

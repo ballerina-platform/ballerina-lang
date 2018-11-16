@@ -35,7 +35,7 @@ service<http:Service> echo08 bind echoEP08 {
     }
     echo (endpoint caller, http:Request req) {
         http:Response res = new;
-        if (attributeValue == runtime:getInvocationContext().attributes[attributeName]) {
+        if (attributeValue == <string>runtime:getInvocationContext().attributes[attributeName]) {
             _ = caller->respond(res);
         } else {
             res.statusCode = 500;
