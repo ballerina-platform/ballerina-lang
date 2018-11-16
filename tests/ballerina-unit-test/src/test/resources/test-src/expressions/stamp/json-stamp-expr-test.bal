@@ -1,3 +1,19 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 type Student record {
     string name;
     string status;
@@ -31,7 +47,6 @@ type Teacher record {
 //----------------------------JSON Stamp -------------------------------------------------------------
 
 function stampJSONToAnydata() returns anydata {
-
     json jsonValue = 3;
     anydata anydataValue = anydata.stamp(jsonValue);
 
@@ -39,7 +54,6 @@ function stampJSONToAnydata() returns anydata {
 }
 
 function stampJSONToAnydataV2() returns anydata {
-
     json jsonValue = [1, false, null, "foo", { first: "John", last: "Pala" }];
     anydata anyValue = anydata.stamp(jsonValue);
 
@@ -47,7 +61,6 @@ function stampJSONToAnydataV2() returns anydata {
 }
 
 function stampJSONToRecord() returns Employee|error {
-
     json employee = { name: "John", status: "single", batch: "LK2014" };
     Employee|error employeeValue = Employee.stamp(employee);
 
@@ -55,7 +68,6 @@ function stampJSONToRecord() returns Employee|error {
 }
 
 function stampJSONToRecordV2() returns Employee|error {
-
     json employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
     Employee|error employeeValue = Employee.stamp(employee);
 
@@ -63,7 +75,6 @@ function stampJSONToRecordV2() returns Employee|error {
 }
 
 function stampJSONToJSON() returns json {
-
     json employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
     json jsonValue = json.stamp(employee);
 
@@ -71,7 +82,6 @@ function stampJSONToJSON() returns json {
 }
 
 function stampJSONToMap() returns map<anydata>|error {
-
     json employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
     map<anydata>|error mapValue = map<anydata>.stamp(employee);
 
@@ -79,7 +89,6 @@ function stampJSONToMap() returns map<anydata>|error {
 }
 
 function stampJSONToMapV2() returns map<anydata>|error {
-
     json teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College",
         emp : { name: "John", status: "single", batch: "LK2014"} };
     map<anydata>|error mapValue = map<anydata>.stamp(teacher);
@@ -88,7 +97,6 @@ function stampJSONToMapV2() returns map<anydata>|error {
 }
 
 function stampConstraintJSONToAnydata() returns anydata {
-
     json<Student> student = { name: "John" };
     student.status = "Single";
     student.batch = "LK2014";
@@ -100,7 +108,6 @@ function stampConstraintJSONToAnydata() returns anydata {
 }
 
 function stampConstraintJSONToJSON() returns json {
-
     json<Student> student = { name: "John" };
     student.status = "Single";
     student.batch = "LK2014";
@@ -112,7 +119,6 @@ function stampConstraintJSONToJSON() returns json {
 }
 
 function stampConstraintJSONToConstraintJSON() returns json<Person>|error {
-
     json<Student> student = { name: "Jon" };
     student.status = "Single";
     student.batch = "LK2014";
@@ -124,7 +130,6 @@ function stampConstraintJSONToConstraintJSON() returns json<Person>|error {
 }
 
 function stampConstraintJSONToConstraintMapV2() returns map|error {
-
     json<Student> student = { name: "Jon" };
     student.status = "Single";
     student.batch = "LK2014";
@@ -136,7 +141,6 @@ function stampConstraintJSONToConstraintMapV2() returns map|error {
 }
 
 function stampJSONArrayToConstraintArray() returns Student []|error{
-
     json employeeArray = [{ name: "John", status: "single", batch: "LK2014", school: "Hindu College" },
                             { name: "Raja", status: "married", batch: "LK2014", school: "Hindu College" }];
 
@@ -146,7 +150,6 @@ function stampJSONArrayToConstraintArray() returns Student []|error{
 }
 
 function stampJSONArrayToAnyTypeArray() returns anydata []|error{
-
     json jsonArray =  [1, false, "foo", { first: "John", last: "Pala" }];
     anydata[]|error anydataArray = anydata[].stamp(jsonArray);
 
@@ -154,7 +157,6 @@ function stampJSONArrayToAnyTypeArray() returns anydata []|error{
 }
 
 function stampJSONToAnydataV3() returns anydata {
-
     json jsonValue = { name: "John", status: "single", batch: "LK2014" };
     anydata anydataValue = anydata.stamp(jsonValue);
 
@@ -162,7 +164,6 @@ function stampJSONToAnydataV3() returns anydata {
 }
 
 function stampJSONToUnion() returns json|map<anydata>|error {
-
     json jsonValue = { name: "John", status: "single", batch: "LK2014" };
     json|map<anydata>|error outputValue = json|map<anydata>.stamp(jsonValue);
 
@@ -172,7 +173,6 @@ function stampJSONToUnion() returns json|map<anydata>|error {
 //----------------------------- Negative Test cases ---------------------------------------------------------------
 
 function stampJSONToRecordNegative() returns Student|error {
-
     json employee = { name: "John", age : 23, status: "single", batch: "LK2014", school: "Hindu College" };
     Student|error student = Student.stamp(employee);
 
@@ -181,7 +181,6 @@ function stampJSONToRecordNegative() returns Student|error {
 }
 
 function stampJSONToMapNegative() returns map<string>|error {
-
     json employee = { name: "John", age : 23, status: "single", batch: "LK2014", school: "Hindu College" };
     map<string>|error mapValue = map<string>.stamp(employee);
 

@@ -1,3 +1,19 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 type Student record {
     string name;
     string status;
@@ -24,7 +40,6 @@ type Teacher record {
 
 
 function stampRecordToAnydataArray() returns anydata[] {
-
     Teacher p1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
     Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
 
@@ -35,7 +50,6 @@ function stampRecordToAnydataArray() returns anydata[] {
 }
 
 function stampAnydataToRecordArray() returns Teacher[]|error  {
-
     Teacher p1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
     Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
 
@@ -46,7 +60,6 @@ function stampAnydataToRecordArray() returns Teacher[]|error  {
 }
 
 function stampAnydataToSimilarOpenRecordArray() returns Employee[]|error  {
-
     Teacher p1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
     Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
 
@@ -57,7 +70,6 @@ function stampAnydataToSimilarOpenRecordArray() returns Employee[]|error  {
 }
 
 function stampRecordToSimilarOpenRecordArray() returns Employee[] {
-
     Teacher p1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
     Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
 
@@ -68,7 +80,6 @@ function stampRecordToSimilarOpenRecordArray() returns Employee[] {
 }
 
 function stampConstraintArrayToJSONArray() returns json|error {
-
     Student [] studentArray = [{ name: "John", status: "single", batch: "LK2014", school: "Hindu College" },
     { name: "Raja", status: "married", batch: "LK2014", school: "Hindu College" }];
 
@@ -78,7 +89,6 @@ function stampConstraintArrayToJSONArray() returns json|error {
 }
 
 function stampRecordToAnydata() returns anydata {
-
     Teacher p1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
     Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
 
@@ -89,7 +99,6 @@ function stampRecordToAnydata() returns anydata {
 }
 
 function stampRecordToAnydataArrayV2() returns anydata[] {
-
     Teacher p1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
     Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
 
@@ -100,7 +109,6 @@ function stampRecordToAnydataArrayV2() returns anydata[] {
 }
 
 function stampAnydataArrayToUnion() returns Employee[]|int|error  {
-
     Employee p1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
     Employee p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
 

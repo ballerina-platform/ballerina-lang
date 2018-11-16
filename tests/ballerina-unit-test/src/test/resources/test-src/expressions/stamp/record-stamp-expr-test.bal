@@ -1,4 +1,18 @@
-import ballerina/io;
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
 
 type Student record {
     string name;
@@ -121,7 +135,6 @@ function stampClosedRecordWithClosedRecord() returns Student {
 }
 
 function stampRecordToJSON() returns json|error  {
-
     Employee employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
 
     json|error  jsonValue = json.stamp(employee);
@@ -130,7 +143,6 @@ function stampRecordToJSON() returns json|error  {
 }
 
 function stampRecordToMap() returns map<anydata>|error {
-
     Employee employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
     map<anydata>|error  mapValue = map<anydata>.stamp(employee);
 
@@ -138,7 +150,6 @@ function stampRecordToMap() returns map<anydata>|error {
 }
 
 function stampRecordToMapV2() returns map<string>|error  {
-
     Employee employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
     map<string>|error  mapValue = map<string>.stamp(employee);
 
@@ -146,7 +157,6 @@ function stampRecordToMapV2() returns map<string>|error  {
 }
 
 function stampRecordToMapV3() returns map<anydata>|error  {
-
     Employee employee = { name: "John", status: "single", batch: "LK2014" };
     Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College", emp: employee
     };
@@ -163,7 +173,6 @@ function stampRecordToAnydata() returns anydata {
 }
 
 function stampFunctionReferenceWithOpenRecords() returns Employee {
-
     Employee e = Employee.stamp(getTeacherRecord());
     return e;
 }
@@ -245,7 +254,6 @@ function stampNilTypeToOpenRecord() returns Employee|error {
 //-------------------------------- Negative Test cases ------------------------------------------------------------
 
 function stampOpenRecordToMap() returns map<string>|error  {
-
     Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
     map<string>|error  mapValue = map<string>.stamp(teacher);
 

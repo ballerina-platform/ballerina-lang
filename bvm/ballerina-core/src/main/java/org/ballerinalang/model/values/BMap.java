@@ -350,7 +350,6 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
 
     @Override
     public void stamp(BType type) {
-
         if (type.getTag() == TypeTags.JSON_TAG && ((BJSONType) type).getConstrainedType() != null) {
             this.stamp(((BJSONType) type).getConstrainedType());
         } else if (type.getTag() == TypeTags.MAP_TAG) {

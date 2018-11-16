@@ -1,3 +1,19 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 type Employee record {
     string name;
     string status;
@@ -78,7 +94,6 @@ function stampUnionToConstraintMap() returns map<Employee>|error  {
 }
 
 function stampUnionToAnydata() returns anydata {
-
     int|float|string|boolean unionValue = "mohan";
     anydata anydataValue = anydata.stamp(unionValue);
 
@@ -86,7 +101,6 @@ function stampUnionToAnydata() returns anydata {
 }
 
 function stampUnionToTuple() returns (string, string)|error  {
-
     int|float|(string, string) unionVar = ("mohan", "LK2014");
     (string, string)|error  tupleValue = (string, string).stamp(unionVar);
 
@@ -94,7 +108,6 @@ function stampUnionToTuple() returns (string, string)|error  {
 }
 
 function stampUnionToAnydataV2() returns anydata {
-
     int|float|string|boolean unionValue = "mohan";
     anydata anydataValue = anydata.stamp(unionValue);
 
