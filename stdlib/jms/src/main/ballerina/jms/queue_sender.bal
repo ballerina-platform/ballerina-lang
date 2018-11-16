@@ -82,8 +82,8 @@ public type QueueSender object {
 # + session - JMS session object used to create the consumer
 # + queueName - name of the target queue
 public type QueueSenderEndpointConfiguration record {
-    Session? session;
-    string? queueName;
+    Session? session = ();
+    string? queueName = "";
     !...
 };
 

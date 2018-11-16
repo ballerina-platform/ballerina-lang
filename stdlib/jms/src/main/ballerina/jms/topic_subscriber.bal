@@ -83,10 +83,10 @@ public type TopicSubscriber object {
 # + messageSelector - Message selector condition to filter messages
 # + identifier - Identifier of topic subscriber endpoint
 public type TopicSubscriberEndpointConfiguration record {
-    Session? session;
-    string? topicPattern;
-    string messageSelector;
-    string identifier;
+    Session? session = ();
+    string? topicPattern = "";
+    string messageSelector = "";
+    string identifier = "";
     !...
 };
 
