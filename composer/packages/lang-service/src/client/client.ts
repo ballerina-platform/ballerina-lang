@@ -1,7 +1,7 @@
 // tslint:disable-next-line:no-submodule-imports
 import { IConnection } from "monaco-languageclient/lib/connection";
 import { InitializeParams, InitializeResult } from "vscode-languageserver-protocol";
-import { BallerinaASTNode, BallerinaEndpoint, BallerinaSourceFragment } from "../ast-models";
+import { BallerinaASTNode, BallerinaEndpoint, BallerinaSourceFragment } from "./ast-models";
 import { ASTDidChangeParams, ASTDidChangeResponse, BallerinaExampleListParams,
     BallerinaExampleListResponse, BallerinaProject, GetASTParams, GetASTResponse,
     GetBallerinaProjectParams, IBallerinaLangClient } from "./model";

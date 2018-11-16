@@ -1,5 +1,4 @@
 export * from "./ast-util";
-export * from "./model";
-export * from "./models";
+export * from "./ast-interfaces";
 export * from "./model-utils";
 export * from "./base-visitor";

@@ -20,7 +20,6 @@
     "watch:test": "jest --watch"
   },
   "dependencies": {
-    "@ballerina/ast-model": "^0.983.1-SNAPSHOT",
     "fs-extra": "^7.0.1",
     "glob": "^7.1.3",
     "lodash": "^4.17.11",

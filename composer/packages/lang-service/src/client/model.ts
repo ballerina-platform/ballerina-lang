@@ -1,6 +1,6 @@
 import { InitializeParams, InitializeResult } from "vscode-languageserver-protocol";
 import { BallerinaAST, BallerinaASTNode, BallerinaEndpoint,
-    BallerinaSourceFragment } from "../ast-models";
+    BallerinaSourceFragment } from "./ast-models";
 
 export interface GetASTParams {
     documentIdentifier: {

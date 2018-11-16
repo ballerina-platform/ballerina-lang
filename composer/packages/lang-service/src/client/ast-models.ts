@@ -1,4 +1,5 @@
 export interface BallerinaAST {
+    id: string;
     kind: string;
     topLevelNodes: BallerinaASTNode[];
 }

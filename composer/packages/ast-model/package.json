@@ -6,8 +6,8 @@
   "files": [
     "lib"
   ],
-  "main": "lib/index.js",
-  "typings": "lib/index.d.ts",
+  "main": "lib/src/index.js",
+  "typings": "lib/src/index.d.ts",
   "scripts": {
     "clean": "rimraf lib && rimraf coverage",
     "compile": "tsc -p ./",
@@ -27,7 +27,7 @@
     "lodash": "^4.17.11"
   },
   "devDependencies": {
-    "@ballerina/lang-service": "file:../lang-service",
+    "@ballerina/lang-service": "^0.983.1-SNAPSHOT",
     "@types/glob": "^7.1.1",
     "@types/jest": "^22.0.1",
     "@types/lodash": "^4.14.117",
