@@ -125,7 +125,7 @@ function genInterfaceCode(kind: string, model: any) {
 function getPropertyCode(model: any) {
     const code: any[] = [];
 
-    Object.keys(model).forEach((key) => {
+    Object.keys(model).sort().forEach((key) => {
         if (key.startsWith("__")) {
             return;
         }
