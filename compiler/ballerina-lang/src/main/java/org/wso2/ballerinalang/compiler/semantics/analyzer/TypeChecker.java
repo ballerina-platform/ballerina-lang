@@ -538,10 +538,11 @@ public class TypeChecker extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
         syncSendExpr.env = this.env;
+        checkExpr(syncSendExpr.expr, this.env);
 
         // Validate if the send expression type is anydata
-        if (!types.isAnydata(this.expType)) {
-            this.dlog.error(syncSendExpr.pos, DiagnosticCode.INVALID_TYPE_FOR_SEND, expType);
+        if (!types.isAnydata(syncSendExpr.expr.type)) {
+            this.dlog.error(syncSendExpr.pos, DiagnosticCode.INVALID_TYPE_FOR_SEND, syncSendExpr.expr.type);
         }
 
         if (!this.isInTopLevelWorkerEnv()) {
@@ -1081,7 +1082,16 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void checkWaitKeyValExpr(BLangWaitForAllExpr.BLangWaitKeyValue keyVal, BType type) {
-        BLangExpression exp = keyVal.valueExpr != null ? keyVal.valueExpr : keyVal.keyExpr;
+        BLangExpression exp;
+        if (keyVal.keyExpr != null) {
+            BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(keyVal.keyExpr.variableName),
+                                                      SymTag.VARIABLE);
+            keyVal.keyExpr.symbol = symbol;
+            keyVal.keyExpr.type = symbol.type;
+            exp = keyVal.keyExpr;
+        } else {
+            exp = keyVal.valueExpr;
+        }
         BFutureType futureType = new BFutureType(TypeTags.FUTURE, type, null);
         checkExpr(exp, env, futureType);
     }
