@@ -49,9 +49,9 @@ public const CB_CLOSED_STATE = "CLOSED";
 # + lastForcedOpenTime - The time that circuit forcefully opened at last
 # + totalBuckets - The discrete time buckets into which the time window is divided
 public type CircuitHealth record {
-    boolean lastRequestSuccess;
-    int totalRequestCount;
-    int lastUsedBucketId;
+    boolean lastRequestSuccess = false;
+    int totalRequestCount = 0;
+    int lastUsedBucketId = 0;
     time:Time startTime;
     time:Time lastRequestTime?;
     time:Time lastErrorTime?;
@@ -95,9 +95,9 @@ public type RollingWindow record {
 # + rejectedCount - Number of rejected requests during the sub-window time frame
 # + lastUpdatedTime - The time that the `Bucket` is last updated.
 public type Bucket record {
-    int totalCount;
-    int failureCount;
-    int rejectedCount;
+    int totalCount = 0;
+    int failureCount = 0;
+    int rejectedCount = 0;
     time:Time lastUpdatedTime?;
     !...
 };

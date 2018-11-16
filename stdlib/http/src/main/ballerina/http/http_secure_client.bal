@@ -46,8 +46,8 @@ public const POST_BODY_BEARER = "POST_BODY_BEARER";
 public type HttpSecureClient object {
     //These properties are populated from the init call to the client connector as these were needed later stage
     //for retry and other few places.
-    public string serviceUri;
-    public ClientEndpointConfig config;
+    public string serviceUri = "";
+    public ClientEndpointConfig config = {};
     public CallerActions httpClient;
 
     public new(serviceUri, config) {
