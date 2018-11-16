@@ -64,17 +64,26 @@ public type HttpAuthzHandler object {
 
 function HttpAuthzHandler.handle (string username, string serviceName, string resourceName, string method,
                                                                                     string[] scopes) returns (boolean) {
-    // first, check in the cache. cache key is <username>-<resource>-<http method>,
+    // first, check in the cache. cache key is <username>-<resource>-<http method>-<scopes-separated-by-colon>,
     // since different resources can have different scopes
-    string authzCacheKey = runtime:getInvocationContext().userPrincipal.username +
+    string authzCacheKey = runtime:getInvocationContext().userPrincipal.userId +
                                                     "-" + serviceName +  "-" + resourceName + "-" + method;
+
+    string[] authCtxtScopes = runtime:getInvocationContext().userPrincipal.scopes;
+    //TODO: Make sure userPrincipal.scopes array is sorted to prevent cache-misses that could happen due to ordering
+    if (authCtxtScopes.length() > 0) {
+        authzCacheKey += "-";
+        foreach authCtxtScope in authCtxtScopes {
+            authzCacheKey += authCtxtScope + ",";
+        }
+    }
+
     var authorizedFromCache =  self.authorizeFromCache(authzCacheKey);
     if (authorizedFromCache is boolean) {
         return authorizedFromCache;
     } else {
         // if there are scopes set in the AuthenticationContext already from a previous authentication phase, try to
         // match against those.
-        string[] authCtxtScopes = runtime:getInvocationContext().userPrincipal.scopes;
         if (authCtxtScopes.length() > 0) {
             boolean authorized = checkForScopeMatch(scopes, authCtxtScopes, resourceName, method);
             // cache authz result

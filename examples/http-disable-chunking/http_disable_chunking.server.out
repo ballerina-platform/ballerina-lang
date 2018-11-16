@@ -3,5 +3,5 @@
 $ ballerina run http_disable_chunking.bal
 # Service deployment:
 Initiating service(s) in 'http_disable_chunking.bal'
-ballerina: started HTTP/WS endpoint 0.0.0.0:9092
-ballerina: started HTTP/WS endpoint 0.0.0.0:9090
+[ballerina/http] started HTTP/WS endpoint 0.0.0.0:9090
+[ballerina/http] started HTTP/WS endpoint 0.0.0.0:9092

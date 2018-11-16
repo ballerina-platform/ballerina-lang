@@ -23,6 +23,7 @@ import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Proxy;
 import org.ballerinalang.toml.model.Settings;
+import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
@@ -54,7 +55,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import static org.ballerinalang.launcher.LauncherUtils.createLauncherException;
-import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 
 /**
  * This class provides util methods when pushing Ballerina modules to central and home repository.
@@ -154,10 +154,11 @@ public class PushUtils {
             String msg = orgName + "/" + packageName + ":" + version + " [project repo -> central]";
             Proxy proxy = settings.getProxy();
             String baloVersionOfPkg = String.valueOf(ProgramFileConstants.VERSION_NUMBER);
-            executor.executeFunction("packaging_push/packaging_push.balx", MAIN_FUNCTION_NAME, accessToken,
-                    mdFileContent, description, homepageURL, repositoryURL, apiDocURL, authors, keywords, license,
-                    resourcePath, pkgPathFromPrjtDir.toString(), msg, ballerinaVersion, proxy.getHost(),
-                    proxy.getPort(), proxy.getUserName(), proxy.getPassword(), baloVersionOfPkg);
+            executor.executeFunction("packaging_push/packaging_push.balx", BLangConstants.MAIN_FUNCTION_NAME,
+                                     accessToken, mdFileContent, description, homepageURL, repositoryURL, apiDocURL,
+                                     authors, keywords, license, resourcePath, pkgPathFromPrjtDir.toString(), msg,
+                                     ballerinaVersion, proxy.getHost(), proxy.getPort(), proxy.getUserName(),
+                                     proxy.getPassword(), baloVersionOfPkg);
 
         } else {
             if (!installToRepo.equals("home")) {
@@ -187,7 +188,7 @@ public class PushUtils {
                                                  "\nAuto update failed. Please visit https://central.ballerina.io");
             }
             long modifiedTimeOfFileAtStart = getLastModifiedTimeOfFile(SETTINGS_TOML_FILE_PATH);
-            executor.executeFunction("packaging_token_updater/packaging_token_updater.balx", MAIN_FUNCTION_NAME);
+            executor.executeService("packaging_token_updater/packaging_token_updater.balx");
 
             boolean waitForToken = true;
             while (waitForToken) {

@@ -18,6 +18,13 @@ body {
 
 .title .icon {
     font-size: 26px !important;
+    margin-right: 5px;
+}
+
+.title .object-type {
+    font-size: 17px;
+    font-style: italic;
+    margin-left: 10px;
 }
 
 .description {
