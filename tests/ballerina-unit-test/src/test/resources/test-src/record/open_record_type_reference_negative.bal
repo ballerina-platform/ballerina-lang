@@ -20,8 +20,8 @@ type Person record {
 };
 
 type PersonObj object {
-    string name;
-    int age;
+    string name = "";
+    int age = 0;
 };
 
 type Student record {

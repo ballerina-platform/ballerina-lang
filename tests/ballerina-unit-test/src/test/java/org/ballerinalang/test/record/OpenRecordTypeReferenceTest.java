@@ -55,6 +55,7 @@ public class OpenRecordTypeReferenceTest {
     public void negativeTests() {
         CompileResult negative = BCompileUtil.compile("test-src/record/open_record_type_reference_negative.bal");
         int index = 0;
+        assertEquals(negative.getErrorCount(), 13);
         BAssertUtil.validateError(negative, index++, "incompatible types: 'PersonObj' is not a record", 28, 6);
         BAssertUtil.validateError(negative, index++, "incompatible types: 'IntOrFloat' is not a record", 35, 6);
         BAssertUtil.validateError(negative, index++, "incompatible types: 'FiniteT' is not a record", 41, 6);

@@ -22,16 +22,16 @@ type ValType record {
     int ri;
     float rf;
     string rs;
-    boolean rb;
-    byte ry;
+    boolean rb?;
+    byte ry?;
 };
 
 type ClosedValType record {
     int cri;
     float crf;
     string crs;
-    boolean crb;
-    byte cry;
+    boolean crb?;
+    byte cry?;
     !...
 };
 
@@ -44,13 +44,9 @@ type Foo1 record {
 };
 
 function testValRefType() returns Foo1 {
-    Foo1 f = {a:10, b:23.45, s:"hello foo", ri:20, crs:"qwerty"};
-    f.rf = 45.6;
-    f.rs = "asdf";
+    Foo1 f = {a:10, b:23.45, s:"hello foo", ri:20, crs:"qwerty", rf:45.6, rs:"asdf", cri:20, crf:12.34};
     f.rb = true;
     f.ry = 255;
-    f.cri = 20;
-    f.crf = 12.34;
     f.crb = true;
     f.cry = 254;
     return f;
@@ -78,17 +74,17 @@ type Address record {
 };
 
 type RefType record {
-    json rj;
+    json rj?;
     xml rx;
     Person rp;
-    Address ra;
+    Address ra?;
 };
 
 type ClosedRefType record {
-    json crj;
+    json crj?;
     xml crx;
     Person crp;
-    Address cra;
+    Address cra?;
     !...
 };
 
@@ -100,7 +96,7 @@ type Foo2 record {
 };
 
 function testRefTypes() returns Foo2 {
-    Foo2 f = {s:"qwerty", i:10, rx:xml `<book>Count of Monte Cristo</book>`, rp:new("John Doe"), crp:new("Jane Doe")};
+    Foo2 f = {s:"qwerty", i:10, rx:xml `<book>Count of Monte Cristo</book>`, rp:new("John Doe"), crp:new("Jane Doe"), crx:xml `<book>Count of Monte Cristo</book>`};
     json j = {name: "apple", color: "red", price: 40};
     Address adr = {city:"Colombo", country:"Sri Lanka"};
 
@@ -108,7 +104,6 @@ function testRefTypes() returns Foo2 {
     f.ra = adr;
     f.crj = j;
     f.cra = adr;
-    f.crx = xml `<book>Count of Monte Cristo</book>`;
 
     return f;
 }
