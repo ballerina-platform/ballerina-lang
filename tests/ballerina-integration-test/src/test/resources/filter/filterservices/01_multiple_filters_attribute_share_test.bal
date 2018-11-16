@@ -44,7 +44,7 @@ public type Filter2 object {
         log:printInfo("Intercepting request for filter 2");
         boolean status = true;
         if (context.attributes.hasKey("attribute1")){
-            if (context.attributes["attribute1"] == "attribute1"){
+            if (<string>context.attributes["attribute1"] == "attribute1"){
                 status = status && true;
             } else {
                 status = status && false;

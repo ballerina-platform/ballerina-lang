@@ -46,7 +46,7 @@ public class FunctionContextResolver extends AbstractItemResolver {
 
             return completionItems;
         }
-        AbstractItemResolver contextResolver = CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());
+        AbstractItemResolver contextResolver = CompletionItemResolver.get(parserRuleContext.getClass());
 
         if (contextResolver == null) {
             return new ArrayList<>();
