@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.desugar;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -172,9 +171,7 @@ public class ASTBuilderUtil {
 
         List<BType> paramTypes = Lists.of(sourceType, symTable.anyType);
         BInvokableType opType = new BInvokableType(paramTypes, symTable.anyType, null);
-        BConversionOperatorSymbol symbol = new BConversionOperatorSymbol(null, opType, null, false, true, opcode);
-        symbol.kind = SymbolKind.CONVERSION_OPERATOR;
-        return symbol;
+        return new BConversionOperatorSymbol(null, opType, sourceType, null, false, true, opcode);
     }
 
     static BLangFunction createFunction(DiagnosticPos pos, String name) {
