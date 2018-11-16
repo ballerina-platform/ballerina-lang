@@ -3774,7 +3774,7 @@ public class BLangPackageBuilder {
             keyValue.valueExpr = (BLangExpression) exprNodeStack.pop();
         } else {
             BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-            varRef.pos = key.pos;
+            varRef.pos = pos;
             varRef.variableName = key;
             varRef.addWS(ws);
             varRef.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
