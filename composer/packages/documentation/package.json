@@ -1,6 +1,6 @@
 {
   "name": "@ballerina/documentation",
-  "version": "0.982.1-SNAPSHOT",
+  "version": "0.983.1-SNAPSHOT",
   "description": "",
   "main": "lib/index.js",
   "scripts": {

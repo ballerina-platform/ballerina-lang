@@ -1,17 +1,20 @@
 {
   "name": "@ballerina/composer",
-  "version": "1.0.0",
+  "version": "0.983.1-SNAPSHOT",
   "description": "",
   "scripts": {
-    "build": "node scripts/build.js",
-    "clean": "node scripts/clean.js",
-    "test-coverage": "node scripts/test-coverage.js"
+    "prebuild":"npm i && lerna bootstrap",
+    "test": "lerna run test",
+    "build": "lerna run build",
+    "clean": "lerna run clean",
+    "test-coverage": "npm run build && lerna run test-coverage && node scripts/create-coverage-report"
   },
   "author": "ballerina.io",
   "license": "Apache-2.0",
   "devDependencies": {
     "glob": "^7.1.3",
     "istanbul-combine": "^0.3.0",
+    "lerna": "^3.4.3",
     "rimraf": "^2.6.2",
     "typescript": "^3.1.6"
   }

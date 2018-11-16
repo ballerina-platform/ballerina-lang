@@ -1,6 +1,6 @@
 {
   "name": "@ballerina/tracing",
-  "version": "0.982.1-SNAPSHOT",
+  "version": "0.983.1-SNAPSHOT",
   "description": "",
   "main": "index.js",
   "scripts": {

@@ -1,6 +1,6 @@
 {
   "name": "@ballerina/diagram",
-  "version": "0.982.1-SNAPSHOT",
+  "version": "0.983.1-SNAPSHOT",
   "description": "Provides a set of react components to draw Ballerina Diagrams.",
   "keywords": [
     "ballerina",
@@ -57,9 +57,9 @@
     "vscode-uri": "^1.0.6"
   },
   "dependencies": {
-    "@ballerina/ast-model": "file:../ast-model",
-    "@ballerina/lang-service": "file:../lang-service",
-    "@ballerina/theme": "file:../theme",
+    "@ballerina/ast-model": "^0.983.1-SNAPSHOT",
+    "@ballerina/lang-service": "^0.983.1-SNAPSHOT",
+    "@ballerina/theme": "^0.983.1-SNAPSHOT",
     "axios": "^0.16.2",
     "jquery": "^3.3.1",
     "jsplumb": "2.3.5",
