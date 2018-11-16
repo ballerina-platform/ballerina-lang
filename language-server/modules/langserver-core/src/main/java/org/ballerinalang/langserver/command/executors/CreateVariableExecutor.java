@@ -26,34 +26,73 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextDocumentEdit;
+import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 
-import static org.ballerinalang.langserver.command.CommandUtil.applySingleTextEdit;
+import static org.ballerinalang.langserver.command.CommandUtil.applyWorkspaceEdit;
 import static org.ballerinalang.langserver.command.CommandUtil.getFunctionNode;
 import static org.ballerinalang.langserver.common.utils.CommonUtil.createVariableDeclaration;
 
 /**
  * Represents the create variable command executor.
- * 
+ *
  * @since 0.983.0
  */
 @JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
 public class CreateVariableExecutor implements LSCommandExecutor {
 
     private static final String COMMAND = "CREATE_VAR";
+
+    private static Set<String> getAllEntries(String currentPkgName, BLangPackage packageNode,
+                                             BLangInvocation functionNode
+            , CompilerContext context) {
+        Set<String> strings = new HashSet<>();
+        if (packageNode != null) {
+            packageNode.getGlobalVariables().forEach(globalVar -> strings.add(globalVar.name.value));
+            packageNode.getGlobalEndpoints().forEach(endpoint -> strings.add(endpoint.getName().getValue()));
+            packageNode.getServices().forEach(service -> strings.add(service.name.value));
+            packageNode.getFunctions().forEach(func -> strings.add(func.name.value));
+        }
+        BLangNode bLangNode = functionNode.parent;
+        while (bLangNode != null && !(bLangNode instanceof BLangBlockStmt)) {
+            bLangNode = bLangNode.parent;
+        }
+        if (bLangNode != null && packageNode != null) {
+            SymbolResolver symbolResolver = SymbolResolver.getInstance(context);
+            SymbolTable symbolTable = SymbolTable.getInstance(context);
+            BLangBlockStmt blockStmt = (BLangBlockStmt) bLangNode;
+            SymbolEnv symbolEnv = symbolTable.pkgEnvMap.get(packageNode.symbol);
+            SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockStmt, symbolEnv);
+            Map<Name, Scope.ScopeEntry> entries = symbolResolver.getAllVisibleInScopeSymbols(blockEnv);
+            entries.forEach((name, scopeEntry) -> strings.add(name.value));
+        }
+        return strings;
+    }
 
     /**
      * {@inheritDoc}
@@ -90,42 +129,58 @@ public class CreateVariableExecutor implements LSCommandExecutor {
 
         WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
         LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
-        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
 
         BLangInvocation functionNode = getFunctionNode(sLine, sCol, documentUri, documentManager, lsCompiler, context);
-        String variableName = CommonUtil.generateName(1, getAllEntries(functionNode, compilerContext));
-        String variableType = CommonUtil.FunctionGenerator.getFuncReturnSignature(functionNode.type);
+        String currentPkgName = context.get(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY);
+        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+        BLangPackage packageNode = CommonUtil.getPackageNode(functionNode);
+        String variableName = CommonUtil.generateName(1, getAllEntries(currentPkgName, packageNode, functionNode,
+                                                                       compilerContext));
+
+        if (packageNode == null) {
+            throw new LSCommandExecutorException("Package node cannot be null");
+        }
+        PackageID currentPkgId = packageNode.packageID;
+        List<TextEdit> edits = new ArrayList<>();
+        BiConsumer<String, String> importsConsumer = (orgName, alias) -> {
+            boolean notFound = packageNode.getImports().stream().noneMatch(
+                    pkg -> (pkg.orgName.value.equals(orgName) && pkg.alias.value.equals(alias))
+            );
+            if (notFound) {
+                String pkgName = orgName + "/" + alias;
+                edits.add(addPackage(pkgName, packageNode, context));
+            }
+        };
+
+        String variableType = CommonUtil.FunctionGenerator.generateTypeDefinition(importsConsumer, currentPkgId,
+                                                                                  functionNode.type);
 
         String editText = createVariableDeclaration(variableName, variableType);
-        Position position = new Position(sLine - 1, sCol - 1);
+        Position position = new Position(functionNode.pos.sLine - 1, functionNode.pos.sCol - 1);
 
         LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
-        return applySingleTextEdit(editText, new Range(position, position), textDocumentIdentifier, client);
+        edits.add(new TextEdit(new Range(position, position), editText));
+        TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier, edits);
+        return applyWorkspaceEdit(Collections.singletonList(textDocumentEdit), client);
     }
 
-    private static Set<String> getAllEntries(BLangInvocation functionNode, CompilerContext context) {
-        Set<String> strings = new HashSet<>();
-        BLangPackage packageNode = CommonUtil.getPackageNode(functionNode);
-        if (packageNode != null) {
-            packageNode.getGlobalVariables().forEach(globalVar -> strings.add(globalVar.name.value));
-            packageNode.getGlobalEndpoints().forEach(endpoint -> strings.add(endpoint.getName().getValue()));
-            packageNode.getServices().forEach(service -> strings.add(service.name.value));
-            packageNode.getFunctions().forEach(func -> strings.add(func.name.value));
+    private TextEdit addPackage(String pkgName, BLangPackage srcOwnerPkg, LSContext context) {
+        DiagnosticPos pos = null;
+
+        // Filter the imports except the runtime import
+        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(srcOwnerPkg, context);
+
+        if (!imports.isEmpty()) {
+            BLangImportPackage lastImport = CommonUtil.getLastItem(imports);
+            pos = lastImport.getPosition();
         }
-        BLangNode bLangNode = functionNode.parent;
-        while (bLangNode != null && !(bLangNode instanceof BLangBlockStmt)) {
-            bLangNode = bLangNode.parent;
-        }
-        if(bLangNode != null) {
-            SymbolResolver symbolResolver = SymbolResolver.getInstance(context);
-            SymbolTable symbolTable = SymbolTable.getInstance(context);
-            BLangBlockStmt blockStmt = (BLangBlockStmt) bLangNode;
-//            symbolTable.pkgEnvMap.get()
-//            SymbolEnv.createBlockEnv(blockStmt, blockStmt.);
-//            Map<Name, Scope.ScopeEntry> entries = symbolResolver.getAllVisibleInScopeSymbols();
-//            entries.forEach((name, scopeEntry) -> strings.add(name.value));
-        }
-        return strings;
+
+        int endCol = 0;
+        int endLine = pos == null ? 0 : pos.getEndLine();
+
+        String editText = "import " + pkgName + ";\n";
+        Range range = new Range(new Position(endLine, endCol), new Position(endLine, endCol));
+        return new TextEdit(range, editText);
     }
 
     /**

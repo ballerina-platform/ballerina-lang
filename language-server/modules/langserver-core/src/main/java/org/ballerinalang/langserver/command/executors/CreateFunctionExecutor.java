@@ -25,23 +25,30 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextDocumentEdit;
+import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.services.LanguageClient;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.function.BiConsumer;
 
-import static org.ballerinalang.langserver.command.CommandUtil.applySingleTextEdit;
+import static org.ballerinalang.langserver.command.CommandUtil.applyWorkspaceEdit;
 import static org.ballerinalang.langserver.command.CommandUtil.getFunctionNode;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 
@@ -98,16 +105,6 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         BLangInvocation functionNode = getFunctionNode(line, column, documentUri, documentManager, lsCompiler, context);
         String functionName = functionNode.name.getValue();
 
-        BLangNode parent = functionNode.parent;
-        if (parent != null) {
-            returnType = CommonUtil.FunctionGenerator.getFuncReturnSignature(parent);
-            returnValue = CommonUtil.FunctionGenerator.getFuncReturnDefaultStatement(parent, "    return {%1};");
-            List<String> arguments = CommonUtil.FunctionGenerator.getFuncArguments(functionNode);
-            if (arguments != null) {
-                funcArgs = String.join(", ", arguments);
-            }
-        }
-
         Path filePath = Paths.get(URI.create(documentUri));
         Path compilationPath = getUntitledFilePath(filePath.toString()).orElse(filePath);
         String fileContent = null;
@@ -116,21 +113,62 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         } catch (WorkspaceDocumentException e) {
             throw new LSCommandExecutorException("Error occurred while reading the file:" + filePath.toString(), e);
         }
+        BLangNode parent = functionNode.parent;
+        BLangPackage packageNode = CommonUtil.getPackageNode(functionNode);
+
         String[] contentComponents = fileContent.split("\\n|\\r\\n|\\r");
         int totalLines = contentComponents.length;
         int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf('\n'), fileContent.lastIndexOf('\r'));
         int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
 
-        BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false,
-                                                               LSCustomErrorStrategy.class, false).getRight();
-        if (bLangPackage == null) {
-            return new Object();
+        List<TextEdit> edits = new ArrayList<>();
+        if (parent != null && packageNode != null) {
+            PackageID currentPkgId = packageNode.packageID;
+            BiConsumer<String, String> importsConsumer = (orgName, alias) -> {
+                boolean notFound = packageNode.getImports().stream().noneMatch(
+                        pkg -> (pkg.orgName.value.equals(orgName) && pkg.alias.value.equals(alias))
+                );
+                if (notFound) {
+                    String pkgName = orgName + "/" + alias;
+                    edits.add(addPackage(pkgName, packageNode, context));
+                }
+            };
+            returnType = CommonUtil.FunctionGenerator.generateTypeDefinition(importsConsumer, currentPkgId, parent);
+            returnValue = CommonUtil.FunctionGenerator.generateReturnValue(importsConsumer, currentPkgId, parent,
+                                                                           "    return {%1};");
+            List<String> arguments = CommonUtil.FunctionGenerator.getFuncArguments(importsConsumer, currentPkgId,
+                                                                                   functionNode);
+            if (arguments != null) {
+                funcArgs = String.join(", ", arguments);
+            }
+        } else {
+            throw new LSCommandExecutorException("Error occurred when retrieving function node!");
         }
-
         LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
         String editText = CommonUtil.FunctionGenerator.createFunction(functionName, funcArgs, returnType, returnValue);
         Range range = new Range(new Position(totalLines, lastCharCol + 1), new Position(totalLines + 3, lastCharCol));
-        return applySingleTextEdit(editText, range, textDocumentIdentifier, client);
+        edits.add(new TextEdit(range, editText));
+        TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier, edits);
+        return applyWorkspaceEdit(Collections.singletonList(textDocumentEdit), client);
+    }
+
+    private TextEdit addPackage(String pkgName, BLangPackage srcOwnerPkg, LSContext context) {
+        DiagnosticPos pos = null;
+
+        // Filter the imports except the runtime import
+        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(srcOwnerPkg, context);
+
+        if (!imports.isEmpty()) {
+            BLangImportPackage lastImport = CommonUtil.getLastItem(imports);
+            pos = lastImport.getPosition();
+        }
+
+        int endCol = 0;
+        int endLine = pos == null ? 0 : pos.getEndLine();
+
+        String editText = "import " + pkgName + ";\n";
+        Range range = new Range(new Position(endLine, endCol), new Position(endLine, endCol));
+        return new TextEdit(range, editText);
     }
 
     /**
