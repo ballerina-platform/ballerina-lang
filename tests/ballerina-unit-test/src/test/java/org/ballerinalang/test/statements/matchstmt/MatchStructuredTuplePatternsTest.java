@@ -168,7 +168,6 @@ public class MatchStructuredTuplePatternsTest {
         Assert.assertEquals(results.get(++i), msg + "three vars : 5.6, Ballerina, false");
     }
 
-
     @Test(description = "Test structured pattern match with type guard 1")
     public void testStructuredMatchPatternWithTypeGuard1() {
         BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithTypeGuard1", new BValue[]{});
