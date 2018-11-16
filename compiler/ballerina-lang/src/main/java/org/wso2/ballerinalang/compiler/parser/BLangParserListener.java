@@ -1077,7 +1077,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-
         boolean isFinal = ctx.FINAL() != null;
         boolean isDeclaredWithVar = ctx.VAR() != null;
         boolean isExpressionAvailable = ctx.expression() != null;
@@ -1089,8 +1088,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             this.pkgBuilder.addSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
                     ctx.bindingPattern().Identifier().getText(), isFinal, isDeclaredWithVar, isExpressionAvailable);
         } else if (ctx.bindingPattern().structuredBindingPattern().recordBindingPattern() != null) {
+            // Todo - Add final flag
             this.pkgBuilder.addRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx), isDeclaredWithVar);
         } else {
+            // Todo - Add final flag
             this.pkgBuilder.addTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx), isDeclaredWithVar);
         }
     }
