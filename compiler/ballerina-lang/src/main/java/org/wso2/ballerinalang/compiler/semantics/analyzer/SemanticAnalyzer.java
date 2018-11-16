@@ -662,7 +662,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 List<BRecordType> possibleTypes = unionType.memberTypes.stream()
                         .filter(type -> TypeTags.RECORD == type.tag)
                         .map(BRecordType.class::cast)
-                        .filter(rec -> doesRecordContainKeys(rec, recordVar.variableList))
+                        .filter(rec -> doesRecordContainKeys(rec, recordVar.variableList, recordVar.restParam != null))
                         .collect(Collectors.toList());
                 if (possibleTypes.isEmpty()) {
                     dlog.error(recordVar.pos, DiagnosticCode.INVALID_RECORD_BINDING_PATTERN, recordVar.type);
@@ -696,6 +696,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                 new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
                                         fieldType, recordSymbol), false));
                     }
+                    if (recordVar.restParam != null) {
+                        Set<BType> memberTypes = possibleTypes.stream()
+                                .map(possibleType -> possibleType.restFieldType)
+                                .collect(Collectors.toSet());
+
+                        recordVarType.restFieldType = memberTypes.size() > 1 ?
+                                new BUnionType(null, memberTypes, false) : memberTypes.iterator().next();
+                    }
                     recordVarType.fields = fields;
                     recordSymbol.type = recordVarType;
                 } else {
@@ -706,38 +714,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 recordVarType = (BRecordType) recordVar.type;
                 break;
             case TypeTags.ANY:
-                BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID,
-                        null, env.scope.owner);
-                recordVarType = (BRecordType) symTable.recordType;
-                List<BField> fields = new ArrayList<>();
-
-                for (int i = 0; i < recordVar.variableList.size(); i++) {
-                    String fieldName = recordVar.variableList.get(i).key.value;
-                    fields.add(new BField(names.fromString(fieldName),
-                            new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
-                                    symTable.anyType, recordSymbol), false));
-
-                }
-                recordVarType.fields = fields;
-                recordSymbol.type = recordVarType;
-                recordVarType.tsymbol = recordSymbol;
+                recordVarType = createSameTypedFieldsRecordType(recordVar, symTable.anyType);
                 break;
             case TypeTags.ANYDATA:
-                recordSymbol = Symbols.createRecordSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID,
-                        null, env.scope.owner);
-                recordVarType = (BRecordType) symTable.recordType;
-                fields = new ArrayList<>();
-
-                for (int i = 0; i < recordVar.variableList.size(); i++) {
-                    String fieldName = recordVar.variableList.get(i).key.value;
-                    fields.add(new BField(names.fromString(fieldName),
-                            new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
-                                    symTable.anydataType, recordSymbol), false));
-
-                }
-                recordVarType.fields = fields;
-                recordSymbol.type = recordVarType;
-                recordVarType.tsymbol = recordSymbol;
+                recordVarType = createSameTypedFieldsRecordType(recordVar, symTable.anyType);
                 break;
             default:
                 dlog.error(recordVar.pos, DiagnosticCode.INVALID_RECORD_BINDING_PATTERN, recordVar.type);
@@ -785,14 +765,41 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         if (recordVar.restParam != null) {
-            ((BLangVariable) recordVar.restParam).type = symTable.mapType;
+            ((BLangVariable) recordVar.restParam).type = new BMapType(TypeTags.MAP,
+                    recordVarType.restFieldType, null);
             symbolEnter.defineNode((BLangNode) recordVar.restParam, env);
         }
 
         return validRecord;
     }
 
-    private boolean doesRecordContainKeys(BRecordType recordVarType, List<BLangRecordVariableKeyValue> variableList) {
+    private BRecordType createSameTypedFieldsRecordType(BLangRecordVariable recordVar, BType fieldTypes) {
+        BRecordTypeSymbol recordSymbol =
+                Symbols.createRecordSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
+        List<BField> fields = new ArrayList<>();
+
+        for (int i = 0; i < recordVar.variableList.size(); i++) {
+            String fieldName = recordVar.variableList.get(i).key.value;
+            fields.add(new BField(names.fromString(fieldName), new BVarSymbol(0, names.fromString(fieldName),
+                    env.enclPkg.symbol.pkgID, fieldTypes, recordSymbol), false));
+        }
+
+        BRecordType recordVarType = (BRecordType) symTable.recordType;
+        recordVarType.fields = fields;
+        recordSymbol.type = recordVarType;
+        recordVarType.tsymbol = recordSymbol;
+        if (recordVar.isClosed) {
+            recordVarType.sealed = true;
+        } else {
+            recordVarType.sealed = false;
+            recordVarType.restFieldType = fieldTypes;
+        }
+
+        return recordVarType;
+    }
+
+    private boolean doesRecordContainKeys(BRecordType recordVarType, List<BLangRecordVariableKeyValue> variableList,
+                                          boolean hasRestParam) {
         Map<String, BField> recordVarTypeFields = recordVarType.fields
                 .stream()
                 .collect(Collectors.toMap(
@@ -804,7 +811,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 return false;
             }
         }
-        return true;
+
+        if (!hasRestParam) {
+            return true;
+        }
+
+        return !recordVarType.sealed;
     }
 
     // Statements

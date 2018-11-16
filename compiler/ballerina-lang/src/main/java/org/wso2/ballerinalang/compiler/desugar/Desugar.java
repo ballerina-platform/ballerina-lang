@@ -3224,6 +3224,9 @@ public class Desugar extends BLangNodeVisitor {
         } else if (lhsType.tag == TypeTags.UNION || rhsType.tag == TypeTags.UNION) {
             conversionSymbol = Symbols.createConversionOperatorSymbol(rhsType, lhsType, symTable.errorType,
                     false, true, InstructionCodes.NOP, null, null);
+        } else if (lhsType.tag == TypeTags.MAP || rhsType.tag == TypeTags.MAP) {
+            conversionSymbol = Symbols.createConversionOperatorSymbol(rhsType, lhsType, symTable.errorType,
+                    false, true, InstructionCodes.NOP, null, null);
         } else {
             conversionSymbol = (BConversionOperatorSymbol) symResolver.resolveConversionOperator(rhsType, lhsType);
         }
@@ -3322,7 +3325,13 @@ public class Desugar extends BLangNodeVisitor {
 
             BRecordType recordVarType = new BRecordType(recordSymbol);
             recordVarType.fields = fields;
-            recordVarType.restFieldType = symTable.anydataType;
+            if (recordVariable.isClosed || recordVariable.restParam == null) {
+                // if rest param is null we treat as a closed record for structured match
+                recordVarType.sealed = true;
+            } else {
+                recordVarType.restFieldType =
+                        ((BMapType) ((BLangSimpleVariable) recordVariable.restParam).type).constraint;
+            }
             recordSymbol.type = recordVarType;
             recordVarType.tsymbol = recordSymbol;
 

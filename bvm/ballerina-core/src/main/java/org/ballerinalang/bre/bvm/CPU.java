@@ -4073,6 +4073,10 @@ public class CPU {
         if (targetType.getTag() == TypeTags.RECORD_TYPE_TAG) {
             return checkIsLikeRecordType(sourceVal, (BRecordType) targetType);
         }
+
+        if (targetType.getTag() == TypeTags.TUPLE_TAG) {
+            return checkIsLikeTupleType(sourceVal, (BTupleType) targetType);
+        }
         return false;
     }
 
@@ -4231,6 +4235,26 @@ public class CPU {
                     return false;
                 }
             } else if (!checkIsLike(mapValue.get(key), fieldMap.get(key))) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static boolean checkIsLikeTupleType(BValue sourceVal, BTupleType targetType) {
+        if (sourceVal.getType().getTag() != TypeTags.TUPLE_TAG) {
+            return false;
+        }
+
+        BRefValueArray source = (BRefValueArray) sourceVal;
+
+        if (source.getValues().length != targetType.getTupleTypes().size()) {
+            return false;
+        }
+
+        for (int i = 0; i < source.getValues().length; i++) {
+            if (!checkIsLike(source.get(i), targetType.getTupleTypes().get(i))) {
                 return false;
             }
         }

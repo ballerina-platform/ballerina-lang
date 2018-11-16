@@ -180,4 +180,19 @@ public class MatchStructuredRecordPatternsTest {
         Assert.assertEquals(results.get(++i), msg + "bar : 17");
         Assert.assertEquals(results.get(++i), msg + "default : true");
     }
+
+    @Test(description = "Test structured pattern match with type guard 3")
+    public void testStructuredMatchPatternWithTypeGuard4() {
+        BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithTypeGuard4", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+
+        BStringArray results = (BStringArray) returns[0];
+
+        int i = -1;
+        String msg = "Matched with ";
+        Assert.assertEquals(results.get(++i), msg + "restparam : {}");
+        Assert.assertEquals(results.get(++i), msg + "restparam : {\"var2\":true}");
+        Assert.assertEquals(results.get(++i), msg + "restparam : {\"var2\":true, \"var3\":true}");
+    }
 }

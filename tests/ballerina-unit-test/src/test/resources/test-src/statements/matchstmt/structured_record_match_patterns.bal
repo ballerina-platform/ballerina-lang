@@ -272,3 +272,34 @@ function typeGuard3(any matchExpr) returns string {
     }
     return "Default";
 }
+
+type RestParam record {
+    int var1;
+    boolean...
+};
+
+type ClosedRec record {
+    string var1;
+    !...
+};
+
+function testStructuredMatchPatternWithTypeGuard4() returns string[] {
+    RestParam foo1 = {var1: 500};
+    RestParam foo2 = {var1: 500, var2: true};
+    RestParam foo3 = {var1: 500, var2: true, var3: true};
+    ClosedRec bar1 = {var1: "Bal"};
+
+    string[] result = [typeGuard4(foo1), typeGuard4(foo2), typeGuard4(foo3), typeGuard4(bar1)];
+
+    return result;
+}
+
+function typeGuard4(RestParam|ClosedRec matchExpr) returns string {
+    match matchExpr {
+        var {var1} if var1 is string => return "Matched with string : " + io:sprintf("%s", var1);
+        var {var1, ...rest} => return "Matched with restparam : " + io:sprintf("%s", rest);
+        var y => return "Matched with default : " + io:sprintf("%s", y);
+    }
+
+    return "Default";
+}
