@@ -48,7 +48,7 @@ function functionPointerAsParam(int a, function (int x, int y) returns (int) fun
 }
 
 public function returnOptionalError(int n1, int n2, int n3) returns error? {
-    return {};
+    return ();
 }
 
 public function returnOptionalAny(int n1, int n2, int n3) returns any? {
@@ -56,7 +56,7 @@ public function returnOptionalAny(int n1, int n2, int n3) returns any? {
 }
 
 public function complexInput(task:Timer timer) returns error? {
-    return {};
+    return ();
 }
 
 function complexReturnType(string url) returns http:Client {
