@@ -39,13 +39,13 @@ public type QueueSender object {
         var session = c.session;
         if (session is Session) {
             var queueName = c.queueName;
-            if (queueName is string){
+            if (queueName is string) {
                 self.initQueueSender(session);
             } else {
-                log:printInfo("Message producer not properly initialised for queue");
+                log:printInfo("Message producer not properly initialized for queue");
             }
         } else {
-            log:printInfo("Message producer not properly initialised for queue");
+            log:printInfo("Message producer not properly initialized for queue");
         }
     }
 
@@ -116,10 +116,10 @@ function QueueSenderActions.sendTo(Destination destination, Message message) ret
             validateQueue(destination);
             queueSender.initQueueSender(session, destination = destination);
         } else {
-            log: printInfo("Message producer not properly initialised for queue " + destination.destinationName);
+            log:printInfo("Message producer not properly initialized for queue " + destination.destinationName);
         }
     } else {
-        log:printInfo("Message producer not properly initialised for queue " + destination.destinationName);
+        log:printInfo("Message producer not properly initialized for queue " + destination.destinationName);
     }
     return self.send(message);
 }

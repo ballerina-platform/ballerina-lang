@@ -59,7 +59,7 @@ public type SimpleTopicSubscriber object {
     # + serviceType - Type descriptor of the service
     public function register(typedesc serviceType) {
         var subscriber = self.subscriber;
-        if (subscriber is TopicSubscriber){
+        if (subscriber is TopicSubscriber) {
             subscriber.register(serviceType);
         } else {
             string errorMessage = "Topic Subscriber cannot be nil";

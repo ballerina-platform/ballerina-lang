@@ -32,16 +32,16 @@ public type TopicSubscriber object {
         self.config = c;
         self.consumerActions.topicSubscriber = self;
         var session = c.session;
-        if (session is Session){
+        if (session is Session) {
              var topicPattern = c.topicPattern;
-             if (topicPattern is string){
+             if (topicPattern is string) {
                  self.createSubscriber(session, c.messageSelector);
                  log:printInfo("Subscriber created for topic " + topicPattern);
              } else {
-                 log:printInfo("Topic subscriber is not properly initialised for topic");
+                 log:printInfo("Topic subscriber is not properly initialized for topic");
              }
         } else {
-            log:printInfo("Topic subscriber is not properly initialised for topic");
+            log:printInfo("Topic subscriber is not properly initialized for topic");
         }
     }
 

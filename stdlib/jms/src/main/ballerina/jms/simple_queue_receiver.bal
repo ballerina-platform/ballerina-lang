@@ -62,7 +62,7 @@ public type SimpleQueueReceiver object {
     # + serviceType - type descriptor of the service to bind to
     public function register(typedesc serviceType) {
         var queueReceiver = self.queueReceiver;
-        if (queueReceiver is  QueueReceiver) {
+        if (queueReceiver is QueueReceiver) {
             queueReceiver.register(serviceType);
         } else {
             string errorMessage = "Queue receiver cannot be nil";

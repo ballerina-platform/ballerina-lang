@@ -38,10 +38,10 @@ public type QueueReceiver object {
                 self.createQueueReceiver(session, c.messageSelector);
                 log:printInfo("Message receiver created for queue " + queueName);
             } else {
-                log:printInfo("Message receiver is not properly initialised for queue");
+                log:printInfo("Message receiver is not properly initialized for queue");
             }
         } else {
-            log:printInfo("Message receiver is not properly initialised for queue");
+            log:printInfo("Message receiver is not properly initialized for queue");
         }
     }
 
@@ -127,11 +127,11 @@ function QueueReceiverActions.receiveFrom(Destination destination, int timeoutIn
             queueReceiver.createQueueReceiver(session, queueReceiver.config.messageSelector,
             destination = destination);
         } else {
-            log:printInfo("Session is (), Message receiver is not properly initialised for queue " +
+            log:printInfo("Session is (), Message receiver is not properly initialized for queue " +
             destination.destinationName);
         }
     } else {
-         log:printInfo("Message receiver is not properly initialised for queue " + destination.destinationName);
+         log:printInfo("Message receiver is not properly initialized for queue " + destination.destinationName);
     }
     var result = self.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
     self.queueReceiver.closeQueueReceiver(self);
