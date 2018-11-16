@@ -1,0 +1,16 @@
+{
+    "cases": [
+        {
+            "arguments": {
+                "node.line": 38,
+                "node.column": 20
+            },
+            "expected": {
+                "imports": [],
+                "globals": [],
+                "functions": [],
+                "services": []
+            }
+        }
+    ]
+}
