@@ -41,5 +41,6 @@ after_success:
 cache:
   directories:
   - $HOME/.m2
-  - composer/modules/web/node_modules
+  - composer/node_modules
+  - composer/*/node_modules
   - tool-plugins/vscode/node_modules
