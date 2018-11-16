@@ -211,8 +211,17 @@ function stampConstraintMapToAnydata() returns anydata {
     return anydataValue;
 }
 
-//---------------------------------- Negative Test cases -----------------------------------------------------------
+function stampConstraintMapToUnion() returns map<Teacher>|xml {
+    Teacher p1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
+    Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
 
+    map<Teacher> teacherMap = { "a": p1, "b": p2 };
+    map<Teacher>|xml anydataValue = map<Teacher>|xml.stamp(teacherMap);
+
+    return anydataValue;
+}
+
+//---------------------------------- Negative Test cases -----------------------------------------------------------
 
 type EmployeeClosedRecord record {
     string name;

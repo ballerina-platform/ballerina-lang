@@ -65,6 +65,13 @@ type ExtendedEmployeeWithMap record {
     map<anydata> address;
 };
 
+type ExtendedEmployeeWithRecord record {
+    string name;
+    string status;
+    string batch;
+    Address|string address;
+};
+
 type ExtendedEmployeeWithUnion record {
     string name;
     string status;
@@ -192,11 +199,11 @@ function stampExtendedRecordToOpenRecordV2() returns ExtendedEmployeeWithMap|err
     return employee;
 }
 
-function stampExtendedRecordToOpenRecordV3() returns ExtendedEmployeeWithUnion|error  {
+function stampExtendedRecordToOpenRecordV3() returns ExtendedEmployeeWithRecord|error  {
     Address addressValue = {no: 23, streetName: "Palm Grove", city:"Colombo"};
     ExtendedEmployee extendedEmployee = { name: "Raja", status: "single", batch: "LK2014", address:addressValue};
 
-    ExtendedEmployeeWithUnion|error  employee = ExtendedEmployeeWithUnion.stamp(extendedEmployee);
+    ExtendedEmployeeWithRecord|error  employee = ExtendedEmployeeWithRecord.stamp(extendedEmployee);
 
     return employee;
 }

@@ -1029,7 +1029,6 @@ public class SymbolResolver extends BLangNodeVisitor {
                 return !(arrayConstraintTypeTag == TypeTags.INT || arrayConstraintTypeTag == TypeTags.BOOLEAN ||
                         arrayConstraintTypeTag == TypeTags.FLOAT || arrayConstraintTypeTag == TypeTags.BYTE ||
                         arrayConstraintTypeTag == TypeTags.STRING || arrayConstraintTypeTag == TypeTags.DECIMAL);
-            case TypeTags.UNION:
             case TypeTags.INT:
             case TypeTags.BOOLEAN:
             case TypeTags.STRING:

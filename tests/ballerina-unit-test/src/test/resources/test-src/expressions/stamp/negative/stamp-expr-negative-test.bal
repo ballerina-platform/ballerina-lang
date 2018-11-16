@@ -41,13 +41,6 @@ function stampStringValueToAny() returns any {
     return anyValue;
 }
 
-function stampJSONToUnion() returns int|float|json {
-    json jsonVar = { name: "Raja", status: "single", batch: "LK2014", school: "Hindu College" };
-
-    int|float|json unionValue = (int|float|json).stamp(jsonVar);
-    return unionValue;
-}
-
 function stampAnyToString() returns string? {
     any value = "mohan";
     string? stringValue = string.stamp(value);

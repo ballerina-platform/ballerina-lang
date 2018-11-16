@@ -137,6 +137,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
@@ -858,7 +859,11 @@ public class CPU {
         BType stampType = ((TypeRefCPEntry) ctx.constPool[j]).getType();
 
         if (stampType.getTag() == TypeTags.UNION_TAG) {
-            stampType = ((BUnionType) stampType).getMemberTypes().get(0);
+            Predicate<BType> errorPredicate = e -> e.getTag() == TypeTags.ERROR_TAG;
+            ((BUnionType) stampType).getMemberTypes().removeIf(errorPredicate);
+            if (((BUnionType) stampType).getMemberTypes().size() == 1) {
+                stampType = ((BUnionType) stampType).getMemberTypes().get(0);
+            }
         }
 
         if (!checkIsLikeType(valueToBeStamped, stampType)) {
@@ -4099,8 +4104,6 @@ public class CPU {
         }
 
         switch (targetType.getTag()) {
-            case TypeTags.UNION_TAG:
-                return checkIsLikeUnionType(sourceValue, targetType);
             case TypeTags.RECORD_TYPE_TAG:
                 return checkIsLikeRecordType(sourceValue, targetType);
             case TypeTags.JSON_TAG:
@@ -4197,16 +4200,6 @@ public class CPU {
             }
         }
         return true;
-    }
-
-    private static boolean checkIsLikeUnionType(BValue sourceValue, BType targetType) {
-        BUnionType targetUnionType = (BUnionType) targetType;
-        for (BType memberType : targetUnionType.getMemberTypes()) {
-            if (checkIsLikeType(sourceValue, memberType)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private static boolean checkIsType(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {

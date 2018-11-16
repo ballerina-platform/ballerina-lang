@@ -170,5 +170,36 @@ public class UnionTypeStampInbuiltFunctionTest {
         Assert.assertEquals(results.length, 1);
         Assert.assertEquals(stampedValue.getType().getClass(), BAnydataType.class);
     }
+
+    @Test
+    public void testStampUnionToConstraintMapToUnion() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampUnionToConstraintMapToUnion");
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+        Assert.assertEquals(employee0.size(), 2);
+
+        Assert.assertEquals(employee0.getType().getClass(), BMapType.class);
+        Assert.assertEquals(((BMapType) employee0.getType()).getConstrainedType().getClass(), BRecordType.class);
+        Assert.assertEquals(((BMapType) employee0.getType()).getConstrainedType().getName(), "Teacher");
+
+        Assert.assertEquals(employee0.getMap().get("a").getType().getName(), "Teacher");
+        Assert.assertEquals(((BValue) ((BMap) employee0.getMap().get("a")).getMap().get("age")).getType().getTag(),
+                TypeTags.INT_TAG);
+        Assert.assertEquals(((BValue) ((BMap) employee0.getMap().get("a")).getMap().get("school")).getType().getClass(),
+                BStringType.class);
+        Assert.assertEquals(((BValue) ((BMap) employee0.getMap().get("a")).getMap().get("batch")).getType().getClass(),
+                BStringType.class);
+
+
+        Assert.assertEquals(employee0.getMap().get("b").getType().getName(), "Teacher");
+        Assert.assertEquals(((BValue) ((BMap) employee0.getMap().get("b")).getMap().get("age")).getType().getTag(),
+                TypeTags.INT_TAG);
+        Assert.assertEquals(((BValue) ((BMap) employee0.getMap().get("b")).getMap().get("school")).getType().getClass(),
+                BStringType.class);
+        Assert.assertEquals(((BValue) ((BMap) employee0.getMap().get("b")).getMap().get("batch")).getType().getClass(),
+                BStringType.class);
+    }
 }
 

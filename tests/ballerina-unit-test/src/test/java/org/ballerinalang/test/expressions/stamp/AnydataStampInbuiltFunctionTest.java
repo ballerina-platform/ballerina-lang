@@ -175,9 +175,9 @@ public class AnydataStampInbuiltFunctionTest {
     }
 
     @Test
-    public void testStampAnydataMapToAnyMap() {
+    public void testStampAnydataMapToAnydataMap() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampAnydataMapToAnyMap");
+        BValue[] results = BRunUtil.invoke(compileResult, "stampAnydataMapToAnydataMap");
         BMap<String, BValue> mapValue = (BMap<String, BValue>) results[0];
 
         Assert.assertEquals(results.length, 1);
@@ -204,5 +204,27 @@ public class AnydataStampInbuiltFunctionTest {
 
         Assert.assertEquals(results.length, 1);
         Assert.assertEquals(mapValue.getType().getClass(), BAnydataType.class);
+    }
+
+    @Test
+    public void testStampAnydataMapToUnion() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampAnydataMapToUnion");
+        BMap<String, BValue> mapValue = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+        Assert.assertEquals(mapValue.size(), 5);
+
+        Assert.assertEquals(mapValue.getType().getClass(), BMapType.class);
+        Assert.assertEquals(((BMapType) mapValue.getType()).getConstrainedType().getClass(), BAnydataType.class);
+
+        Assert.assertEquals(mapValue.get("name").stringValue(), "Raja");
+        Assert.assertEquals(mapValue.get("name").getType().getClass(), BStringType.class);
+
+        Assert.assertEquals(mapValue.get("age").stringValue(), "25");
+        Assert.assertEquals(mapValue.get("age").getType().getTag(), TypeTags.INT_TAG);
+
+        Assert.assertEquals(mapValue.get("status").stringValue(), "single");
+        Assert.assertEquals(mapValue.get("status").getType().getClass(), BStringType.class);
     }
 }

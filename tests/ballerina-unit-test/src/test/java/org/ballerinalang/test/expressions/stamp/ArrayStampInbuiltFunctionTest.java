@@ -24,6 +24,7 @@ import org.ballerinalang.model.types.BAnydataType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStringType;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -157,5 +158,23 @@ public class ArrayStampInbuiltFunctionTest {
 
         Assert.assertEquals((mapValue0).getType().getClass(), BAnydataType.class);
         Assert.assertEquals((mapValue1).getType().getClass(), BAnydataType.class);
+    }
+
+    @Test
+    public void testStampAnydataArrayToUnion() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampAnydataArrayToUnion");
+        BMap<String, BValue> mapValue0 = (BMap<String, BValue>) results[0];
+        BMap<String, BValue> mapValue1 = (BMap<String, BValue>) results[1];
+
+        Assert.assertEquals(results.length, 2);
+
+        Assert.assertEquals(mapValue0.getType().getName(), "Employee");
+        Assert.assertEquals(mapValue0.getMap().get("age").getType().getTag(), TypeTags.INT_TAG);
+        Assert.assertEquals(mapValue0.getMap().get("school").getType().getClass(), BStringType.class);
+
+        Assert.assertEquals(mapValue1.getType().getName(), "Employee");
+        Assert.assertEquals(mapValue1.getMap().get("age").getType().getTag(), TypeTags.INT_TAG);
+        Assert.assertEquals(mapValue1.getMap().get("school").getType().getClass(), BStringType.class);
     }
 }

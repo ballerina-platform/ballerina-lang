@@ -70,7 +70,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void testStampNegativeTest() {
 
-        Assert.assertEquals(compileResult.getErrorCount(), 16);
+        Assert.assertEquals(compileResult.getErrorCount(), 14);
 
         //Negative test case to verify the unsupported type for stamp operation.
         BAssertUtil.validateError(compileResult, 0,
@@ -92,25 +92,20 @@ public class StampInbuiltFunctionNegativeTest {
                 "stamp function on type 'string[]' is not supported",
                 39, 20);
 
-        //Negative test case to confirm values cannot be stamped as union type.
-        BAssertUtil.validateError(compileResult, 8,
-                "Incompatible stamp type: type 'json' cannot be stamped as type 'int|float|json'",
-                47, 33);
-
         //Negative test case to confirm values cannot be stamped as primitive type.
-        BAssertUtil.validateError(compileResult, 10,
+        BAssertUtil.validateError(compileResult, 8,
                 "stamp function on type 'any' is not supported",
-                53, 27);
+                46, 27);
 
         //Negative test case to confirm values cannot be stamped as primitive type arrays.
-        BAssertUtil.validateError(compileResult, 12,
+        BAssertUtil.validateError(compileResult, 10,
                 "Incompatible stamp type: type 'json' cannot be stamped as type 'int[]'",
-                62, 26);
+                55, 26);
 
         //Negative test case to confirm invalid types cannot be used as argument for stamp function.
-        BAssertUtil.validateError(compileResult, 14,
+        BAssertUtil.validateError(compileResult, 12,
                 "undefined symbol 'TestType'",
-                70, 24);
+                63, 24);
     }
 
     @Test
@@ -355,12 +350,16 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void testUnionStampNegativeTest() {
 
-        Assert.assertEquals(unionNegativeTestCompileResult.getErrorCount(), 2);
+        Assert.assertEquals(unionNegativeTestCompileResult.getErrorCount(), 4);
 
-        //Negative test case to confirm tuple cannot be stamped as json.
         BAssertUtil.validateError(unionNegativeTestCompileResult, 0,
                 "Incompatible stamp type: type 'int|float|xml' cannot be stamped as type 'Employee'",
                 12, 30);
+
+        BAssertUtil.validateError(unionNegativeTestCompileResult, 2,
+                "Incompatible stamp type: type " +
+                        "'int|float|(string,string)' cannot be stamped as type 'int|float|(string,int)'",
+                18, 49);
     }
 
     @Test

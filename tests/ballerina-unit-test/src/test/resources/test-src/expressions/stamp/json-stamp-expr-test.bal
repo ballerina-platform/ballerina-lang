@@ -161,6 +161,14 @@ function stampJSONToAnydataV3() returns anydata {
     return anydataValue;
 }
 
+function stampJSONToUnion() returns json|map<anydata>|error {
+
+    json jsonValue = { name: "John", status: "single", batch: "LK2014" };
+    json|map<anydata>|error outputValue = json|map<anydata>.stamp(jsonValue);
+
+    return outputValue;
+}
+
 //----------------------------- Negative Test cases ---------------------------------------------------------------
 
 function stampJSONToRecordNegative() returns Student|error {

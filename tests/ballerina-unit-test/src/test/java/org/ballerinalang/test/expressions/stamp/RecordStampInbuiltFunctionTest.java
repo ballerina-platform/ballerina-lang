@@ -26,7 +26,6 @@ import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStringType;
-import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -308,12 +307,13 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue.size(), 4);
 
         Assert.assertEquals(mapValue.getType().getClass(), BRecordType.class);
-        Assert.assertEquals(mapValue.getType().getName(), "ExtendedEmployeeWithUnion");
+        Assert.assertEquals(mapValue.getType().getName(), "ExtendedEmployeeWithRecord");
 
         Assert.assertEquals(mapValue.get("batch").getType().getClass(), BStringType.class);
         Assert.assertEquals(mapValue.get("batch").stringValue(), "LK2014");
 
-        Assert.assertEquals(mapValue.get("address").getType().getClass(), BUnionType.class);
+        Assert.assertEquals(mapValue.get("address").getType().getClass(), BRecordType.class);
+        Assert.assertEquals(mapValue.get("address").getType().getName(), "Address");
     }
 
     @Test
@@ -369,7 +369,7 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue.get("batch").getType().getClass(), BStringType.class);
         Assert.assertEquals(mapValue.get("batch").stringValue(), "LK2014");
 
-        Assert.assertEquals(mapValue.get("address").getType().getClass(), BUnionType.class);
+        Assert.assertEquals(mapValue.get("address").getType().getClass(), BMapType.class);
     }
 
     @Test

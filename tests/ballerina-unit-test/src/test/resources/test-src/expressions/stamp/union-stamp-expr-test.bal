@@ -100,3 +100,15 @@ function stampUnionToAnydataV2() returns anydata {
 
     return anydataValue;
 }
+
+function stampUnionToConstraintMapToUnion() returns int|float|map<Teacher>|error  {
+    Teacher p1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
+    Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
+
+    map<Teacher> teacherMap = { "a": p1, "b": p2 };
+
+    int|float|map<Teacher> unionVar = teacherMap;
+
+    int|float|map<Teacher>|error  mapValue = int|float|map<Teacher>.stamp(unionVar);
+    return mapValue;
+}

@@ -501,6 +501,24 @@ public class MapStampInbuiltFunctionTest {
         Assert.assertEquals(mapVaue.getMap().get("b").getType().getClass(), BRecordType.class);
     }
 
+    @Test
+    public void testStampConstraintMapToUnion() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampConstraintMapToUnion");
+        BMap<String, BValue> mapVaue = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+        Assert.assertEquals(mapVaue.size(), 2);
+
+        Assert.assertEquals(mapVaue.getType().getClass(), BMapType.class);
+        Assert.assertEquals(((BMapType) mapVaue.getType()).getConstrainedType().getClass(), BRecordType.class);
+        Assert.assertEquals(((BMapType) mapVaue.getType()).getConstrainedType().getName(), "Teacher");
+        Assert.assertEquals(mapVaue.getMap().get("a").getType().getName(), "Teacher");
+        Assert.assertEquals(mapVaue.getMap().get("a").getType().getClass(), BRecordType.class);
+        Assert.assertEquals(mapVaue.getMap().get("b").getType().getName(), "Teacher");
+        Assert.assertEquals(mapVaue.getMap().get("b").getType().getClass(), BRecordType.class);
+    }
+
     //---------------------------------- Negative Test cases ----------------------------------------------
 
     @Test

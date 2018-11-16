@@ -336,7 +336,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
         if (type.getTag() == TypeTags.JSON_TAG && ((BJSONType) type).getConstrainedType() != null) {
             this.stamp(((BJSONType) type).getConstrainedType());
         } else if (type.getTag() == TypeTags.MAP_TAG) {
-            for (Object mapEntry : (this).values()) {
+            for (Object mapEntry : this.values()) {
                 ((BValue) mapEntry).stamp(((BMapType) type).getConstrainedType());
             }
         } else if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
@@ -351,6 +351,8 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
                 String fieldName = valueEntry.getKey().toString();
                 ((BValue) valueEntry.getValue()).stamp(targetTypeField.getOrDefault(fieldName, restFieldType));
             }
+        } else if (type.getTag() == TypeTags.UNION_TAG) {
+            return;
         }
 
         this.type = type;

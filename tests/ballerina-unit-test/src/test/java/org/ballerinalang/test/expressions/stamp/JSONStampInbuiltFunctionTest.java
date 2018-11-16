@@ -274,6 +274,14 @@ public class JSONStampInbuiltFunctionTest {
     }
 
     @Test
+    public void testStampJSONToUnion() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampJSONToUnion");
+        Assert.assertEquals(results.length, 1);
+        Assert.assertEquals(results[0].getType().getClass(), BJSONType.class);
+    }
+
+    @Test
     public void testStampJSONToAnydataV3() {
 
         BValue[] results = BRunUtil.invoke(compileResult, "stampJSONToAnydataV3");

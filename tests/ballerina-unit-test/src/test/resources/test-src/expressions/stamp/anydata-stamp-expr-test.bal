@@ -77,7 +77,7 @@ function stampAnydataToTuple() returns (string,Teacher)|error  {
     return returnValue;
 }
 
-function stampAnydataMapToAnyMap() returns map<anydata> {
+function stampAnydataMapToAnydataMap() returns map<anydata> {
     map<anydata> anydataMap = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
 
     map<anydata> mapValue = map<anydata>.stamp(anydataMap);
@@ -90,4 +90,11 @@ function stampAnydataToAnydata() returns anydata {
     anydata returnValue = anydata.stamp(anydataValue);
 
     return returnValue;
+}
+
+function stampAnydataMapToUnion() returns map<anydata>|json|xml {
+    map<anydata> anydataMap = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
+
+    map<anydata>|json|xml mapValue = map<anydata>|json|xml.stamp(anydataMap);
+    return mapValue;
 }

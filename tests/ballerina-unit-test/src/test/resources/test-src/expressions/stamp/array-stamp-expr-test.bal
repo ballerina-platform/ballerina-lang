@@ -99,3 +99,14 @@ function stampRecordToAnydataArrayV2() returns anydata[] {
     return anydataArray;
 }
 
+function stampAnydataArrayToUnion() returns Employee[]|int|error  {
+
+    Employee p1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
+    Employee p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
+
+    Employee[] teacherArray = [p1, p2];
+    Employee[]|int|error  employeeArray = Employee[]|int.stamp(teacherArray);
+
+    return employeeArray;
+}
+
