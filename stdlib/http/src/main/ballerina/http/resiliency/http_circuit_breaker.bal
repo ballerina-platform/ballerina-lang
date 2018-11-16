@@ -56,7 +56,7 @@ public type CircuitHealth record {
     time:Time lastRequestTime?;
     time:Time lastErrorTime?;
     time:Time lastForcedOpenTime?;
-    Bucket[] totalBuckets;
+    Bucket[] totalBuckets = [];
     !...
 };
 
@@ -69,10 +69,10 @@ public type CircuitHealth record {
 #                     the upstream service
 # + statusCodes - Array of HTTP response status codes which are considered as failures
 public type CircuitBreakerConfig record {
-    RollingWindow rollingWindow;
-    float failureThreshold;
-    int resetTimeMillis;
-    int[] statusCodes;
+    RollingWindow rollingWindow = {};
+    float failureThreshold = 0.0;
+    int resetTimeMillis = 0;
+    int[] statusCodes = [];
     !...
 };
 
@@ -112,11 +112,11 @@ public type Bucket record {
 # + noOfBuckets - Number of buckets derived from the `RollingWindow`
 # + rollingWindow - `RollingWindow` options provided in the `CircuitBreakerConfig`
 public type CircuitBreakerInferredConfig record {
-    float failureThreshold;
-    int resetTimeMillis;
-    boolean[] statusCodes;
-    int noOfBuckets;
-    RollingWindow rollingWindow;
+    float failureThreshold = 0.0;
+    int resetTimeMillis = 0;
+    boolean[] statusCodes = [];
+    int noOfBuckets = 0;
+    RollingWindow rollingWindow = {};
     !...
 };
 

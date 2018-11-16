@@ -30,8 +30,8 @@
 # + maxLifetime - Maximum lifetime of a connection in the pool. Default is 30 minutes
 # + validationTimeout - Maximum amount of time that a connection will be tested for aliveness. Default 5 seconds
 public type PoolOptions record {
-    string connectionInitSql;
-    string dataSourceClassName;
+    string connectionInitSql = "";
+    string dataSourceClassName = "";
     boolean autoCommit = true;
     boolean isXA = false;
     int maximumPoolSize = 10;

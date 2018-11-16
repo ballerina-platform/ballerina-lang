@@ -16,21 +16,21 @@
 
 public type TransactionContext record {
     @readonly string contextVersion = "1.0";
-    @readonly string transactionId;
-    @readonly int transactionBlockId;
-    @readonly string coordinationType;
-    @readonly string registerAtURL;
+    @readonly string transactionId = "";
+    @readonly int transactionBlockId = 0;
+    @readonly string coordinationType = "";
+    @readonly string registerAtURL = "";
 };
 
 type RegistrationRequest record {
-    string transactionId;
-    string participantId;
-    RemoteProtocol[] participantProtocols;
+    string transactionId = "";
+    string participantId = "";
+    RemoteProtocol[] participantProtocols = [];
 };
 
 type RegistrationResponse record {
-    string transactionId;
-    RemoteProtocol[] coordinatorProtocols;
+    string transactionId = "";
+    RemoteProtocol[] coordinatorProtocols = [];
 };
 
 function toProtocolArray(RemoteProtocol[] remoteProtocols) returns Protocol[] {
@@ -43,11 +43,11 @@ function toProtocolArray(RemoteProtocol[] remoteProtocols) returns Protocol[] {
 }
 
 public type RequestError record {
-    string errorMessage;
+    string errorMessage = "";
 };
 
 public type PrepareRequest record {
-    string transactionId;
+    string transactionId = "";
 };
 
 public type PrepareResponse record {
@@ -55,8 +55,8 @@ public type PrepareResponse record {
 };
 
 public type NotifyRequest record {
-    string transactionId;
-    string message;
+    string transactionId = "";
+    string message = "";
 };
 
 public type NotifyResponse record {

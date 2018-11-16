@@ -618,7 +618,7 @@ returns error? {
 #
 # + topic - The topic for which notification would happen
 type TopicRegistration record {
-    string topic;
+    string topic = "";
     !...
 };
 
