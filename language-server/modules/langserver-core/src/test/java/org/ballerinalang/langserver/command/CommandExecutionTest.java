@@ -18,9 +18,17 @@
 package org.ballerinalang.langserver.command;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.langserver.command.executors.CreateTestExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.LSCompilerUtil;
+import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
+import org.ballerinalang.langserver.compiler.workspace.ExtendedWorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.completion.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.ExecuteCommandParams;
@@ -30,9 +38,17 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -48,7 +64,7 @@ import static org.ballerinalang.langserver.command.CommandUtil.CommandArgument;
 public class CommandExecutionTest {
 
     private Endpoint serviceEndpoint;
-    
+
     private Gson gson = new Gson();
 
     private JsonParser parser = new JsonParser();
@@ -59,7 +75,7 @@ public class CommandExecutionTest {
     public void init() throws Exception {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
-    
+
     @Test(dataProvider = "package-import-data-provider")
     public void testImportPackageCommand(String config, String source) {
         String configJsonPath = "command" + File.separator + config;
@@ -104,7 +120,7 @@ public class CommandExecutionTest {
                 .forEach(element -> element.getAsJsonObject().remove("textDocument"));
         Assert.assertEquals(responseJson, expected);
     }
-    
+
     @Test(description = "Test Create Constructor for object")
     public void testCreateConstructor() {
         String configJsonPath = "command" + File.separator + "createConstructor.json";
@@ -120,7 +136,7 @@ public class CommandExecutionTest {
                 .forEach(element -> element.getAsJsonObject().remove("textDocument"));
         Assert.assertEquals(responseJson, expected);
     }
-    
+
     @Test(dataProvider = "create-function-data-provider")
     public void testCreateFunction(String config, String source) {
         String configJsonPath = "command" + File.separator + config;
@@ -153,6 +169,130 @@ public class CommandExecutionTest {
         responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
                 .forEach(element -> element.getAsJsonObject().remove("textDocument"));
         Assert.assertEquals(responseJson, expected);
+    }
+
+    @Test(dataProvider = "testgen-fail-data-provider")
+    public void testTestGenerationFailCases(String config, Path source) throws IOException {
+        String configJsonPath = "command" + File.separator + config;
+        Path sourcePath = sourcesPath.resolve("source").resolve(source);
+        Path testFilePath = LSCompilerUtil.getCurrentModulePath(sourcePath).resolve("tests")
+                .resolve(CreateTestExecutor.generateTestFileName(sourcePath));
+
+        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
+        JsonArray cases = configJsonObject.getAsJsonArray("cases");
+
+        for (JsonElement testCase : cases) {
+            // Clear old test file
+            Files.deleteIfExists(testFilePath);
+
+            List<Object> args = new ArrayList<>();
+            JsonObject testCaseConfig = testCase.getAsJsonObject();
+            JsonObject arguments = testCaseConfig.get("arguments").getAsJsonObject();
+            args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, sourcePath.toUri().toString()));
+            args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, arguments.get("node.line").getAsString()));
+            args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN,
+                                         arguments.get("node.column").getAsString()));
+            JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_CREATE_TEST);
+            JsonElement resultElm = responseJson.get("result");
+            if (resultElm.getAsBoolean()) {
+                Assert.fail("This test should expected to fail but received:\n" + resultElm.toString());
+            }
+        }
+    }
+
+    @Test(dataProvider = "testgen-data-provider")
+    public void testTestGeneration(String config, Path source) throws IOException {
+        String configJsonPath = "command" + File.separator + config;
+        Path sourcePath = sourcesPath.resolve("source").resolve(source);
+        Path testFilePath = LSCompilerUtil.getCurrentModulePath(sourcePath).resolve("tests")
+                .resolve(CreateTestExecutor.generateTestFileName(sourcePath));
+
+        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
+        JsonArray cases = configJsonObject.getAsJsonArray("cases");
+
+        for (JsonElement testCase : cases) {
+            // Clear old test file
+            Files.deleteIfExists(testFilePath);
+
+            List<Object> args = new ArrayList<>();
+            JsonObject testCaseConfig = testCase.getAsJsonObject();
+            JsonObject arguments = testCaseConfig.get("arguments").getAsJsonObject();
+            args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, sourcePath.toUri().toString()));
+            args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, arguments.get("node.line").getAsString()));
+            args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN,
+                                         arguments.get("node.column").getAsString()));
+            JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_CREATE_TEST);
+            JsonElement resultElm = responseJson.get("result");
+            String content = resultElm.getAsJsonObject().get("edit").getAsJsonObject()
+                    .getAsJsonArray("documentChanges").get(0).getAsJsonObject().getAsJsonArray("edits").get(0)
+                    .getAsJsonObject().get("newText").getAsString();
+
+            // Need to write all text-edits into the test file
+            try (FileOutputStream outputStream = new FileOutputStream(testFilePath.toFile())) {
+                byte[] strToBytes = content.getBytes(Charset.defaultCharset());
+                outputStream.write(strToBytes);
+            }
+
+            // Compile the test file through the actual path, since it depends on the source-code
+            LSCompiler compiler = new LSCompiler(ExtendedWorkspaceDocumentManagerImpl.getInstance());
+            Path currentModule = LSCompilerUtil.getCurrentModulePath(testFilePath);
+            BallerinaFile balFile = compiler.compileFile(currentModule, CompilerPhase.TAINT_ANALYZE);
+            // Check for compiler errors and diagnostics
+            if (!balFile.getBLangPackage().isPresent() ||
+                    (balFile.getDiagnostics().isPresent() && !balFile.getDiagnostics().get().isEmpty())) {
+                Assert.fail("Generated test file has errors! path: " + testFilePath);
+            }
+
+            JsonObject result = testCaseConfig.get("expected").getAsJsonObject();
+            List<String> imports = new ArrayList<>();
+            List<String> globals = new ArrayList<>();
+            List<String> functions = new ArrayList<>();
+            List<String> services = new ArrayList<>();
+            result.get("imports").getAsJsonArray().forEach(importNode -> imports.add(importNode.getAsString()));
+            result.get("globals").getAsJsonArray().forEach(global -> globals.add(global.getAsString()));
+            result.get("functions").getAsJsonArray().forEach(func -> functions.add(func.getAsString()));
+            result.get("services").getAsJsonArray().forEach(service -> services.add(service.getAsString()));
+            BLangPackage bLangPackage = balFile.getBLangPackage().get();
+            BLangTestablePackage testablePkg = bLangPackage.getTestablePkg();
+            testablePkg.getCompilationUnits()
+                    .forEach(unit -> unit.getTopLevelNodes()
+                            .forEach(node -> {
+                                         if (node instanceof BLangImportPackage) {
+                                             BLangImportPackage importPkg = (BLangImportPackage) node;
+                                             imports.removeIf(pkgName -> {
+                                                 return pkgName.equals(importPkg.orgName.value + "/" + importPkg.alias);
+                                             });
+                                         }
+                                     }
+                            )
+                    );
+            // Remove found values from the expected values
+            testablePkg.getGlobalVariables().forEach(variable -> {
+                globals.removeIf(global -> variable.name.value.equals(global));
+            });
+            testablePkg.getFunctions().forEach(function -> {
+                functions.removeIf(func -> function.name.value.equals(func));
+            });
+            testablePkg.getServices().forEach(service -> {
+                services.removeIf(ser -> service.name.value.equals(ser));
+            });
+            // Check for pending expected values
+            String failMsgTemplate = "Generated test file does not contain following %s:\n%s";
+            if (!imports.isEmpty()) {
+                Assert.fail(String.format(failMsgTemplate, "imports", String.join(", ", imports)));
+            }
+            if (!globals.isEmpty()) {
+                Assert.fail(String.format(failMsgTemplate, "globals", String.join(", ", globals)));
+            }
+            if (!functions.isEmpty()) {
+                Assert.fail(String.format(failMsgTemplate, "functions", String.join(", ", functions)));
+            }
+            if (!services.isEmpty()) {
+                Assert.fail(String.format(failMsgTemplate, "services", String.join(", ", services)));
+            }
+        }
+        // Clear old test file
+        Files.deleteIfExists(testFilePath);
     }
 
     @DataProvider(name = "package-import-data-provider")
@@ -202,15 +342,37 @@ public class CommandExecutionTest {
         };
     }
 
+    @DataProvider(name = "testgen-data-provider")
+    public Object[][] testGenerationDataProvider() {
+        return new Object[][]{
+                {"testGenerationForFunctions.json", Paths.get("testgen", "module1", "functions.bal")},
+                {"testGenerationForServices.json", Paths.get("testgen", "module2", "services.bal")}
+        };
+    }
+
+    @DataProvider(name = "testgen-fail-data-provider")
+    public Object[][] testGenerationNegativeDataProvider() {
+        return new Object[][]{
+                {"testGenerationForServicesNegative.json", Paths.get("testgen", "module2", "services.bal")},
+        };
+    }
+
+    @DataProvider(name = "testgen-append-data-provider")
+    public Object[][] testGenerationAppendDataProvider() {
+        return new Object[][]{
+                {"testGenerationForServicesNegative.json", Paths.get("testgen", "module2", "services.bal")},
+        };
+    }
+
     @AfterClass
     public void cleanupLanguageServer() {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
-    
+
     private List argsToTreeMap(List<Object> args) {
         return gson.fromJson(gson.toJsonTree(args).getAsJsonArray().toString(), List.class);
     }
-    
+
     private JsonObject getCommandResponse(List<Object> args, String command) {
         List treeMapList = argsToTreeMap(args);
         ExecuteCommandParams params  = new ExecuteCommandParams(command, treeMapList);

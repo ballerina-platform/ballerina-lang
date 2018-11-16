@@ -1,7 +1,7 @@
 {
     "arguments": {
-        "node.line" : 3,
-        "node.column" : 4
+        "node.line": 3,
+        "node.column": 4
     },
     "expected": {
         "result": {
@@ -14,11 +14,11 @@
                             {
                                 "range": {
                                     "start": {
-                                        "line": 2,
+                                        "line": 3,
                                         "character": 3
                                     },
                                     "end": {
-                                        "line": 2,
+                                        "line": 3,
                                         "character": 3
                                     }
                                 },
