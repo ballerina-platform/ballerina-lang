@@ -1,6 +1,6 @@
 {
     "extends": [
-        "./../configs/common.tslint.json"
+        "../../configs/common.tslint.json"
     ],
     "linterOptions": {
         "exclude": [
