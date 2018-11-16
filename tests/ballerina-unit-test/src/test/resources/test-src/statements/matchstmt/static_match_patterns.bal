@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/io;
+
 function testStaticMatchPatternsBasic1() returns string[] {
     string | int | boolean a1 =  12;
     string | int | boolean a2 =  "Hello";
@@ -219,4 +221,143 @@ function testStringLiteralKeyInRecordMatch() returns string {
         {"x": 12, y: "B"} => return "Value is 'Correct'";
     }
     return "Value is 'Default'";
+}
+
+function testStaticMatchOrPatterns1() returns string[] {
+    string | int | boolean a1 =  12;
+    string | int | boolean a2 =  "Hello";
+    string | int | boolean a3 =  true;
+
+    string | int | boolean a4 =  15;
+    string | int | boolean a5 =  "HelloAgain";
+    string | int | boolean a6 =  false;
+
+    string | int | boolean a7 =  "NothingToMatch";
+    string | int | boolean a8 =  13;
+    string | int | boolean a9 =  14;
+    string | int | boolean a10 =  "World";
+    string | int | boolean a11 =  "Test";
+
+    string[] result = [baz(a1), baz(a2), baz(a3), baz(a4), baz(a5), baz(a6), baz(a7), baz(a8), baz(a9), baz(a10), baz(a11)];
+
+    return result;
+}
+
+
+
+function baz(string | int | boolean a) returns string {
+    match a {
+        12 | 13 | 14 => return "Value is : " + io:sprintf("%s", a);
+        "Hello" | "World" => return "Value is : " + io:sprintf("%s", a);
+        15 | "Test" => return "Value is : " + io:sprintf("%s", a);
+        true | false => return "Value is : " + io:sprintf("%s", a);
+        "HelloAgain" => return "Value is : " + io:sprintf("%s", a);
+    }
+
+    return "Default value is : " + io:sprintf("%s", a);
+}
+
+
+function testStaticMatchOrPatterns2() returns string[] {
+
+    int t1 = 15;
+    (int, string) t2 = (12, "Ballerina");
+    anydata t3 = t2;
+    (int, string) t4 = (15, "Ballerina");
+    (int, string) t5 = (20, "Ballerina");
+    (int, string) t6 = (20, "Balo");
+    (int, string) t7 = (20, "NothingToMatch");
+
+    (int, string, byte) t8 = (15, "Bal", 100);
+
+    (int, string, byte, int) t9 = (15, "Bal", 200, 230);
+    (int, string, string, int, string) t10 = (15, "Bal", "Ballerina", 5678, "Test");
+    (int, string, string, int, string) t11 = (15, "Bal", "Ballerina", 5678, "NothingToMatch");
+
+    string[] result = [caz1(t1), caz1(t2), caz1(t3), caz1(t4), caz1(t5), caz1(t6), caz1(t7), caz1(t8), caz1(t9), caz1(t10), caz1(t11)];
+
+    return result;
+}
+
+function caz1(anydata f) returns string {
+
+    match f {
+        (15) | (12, "Ballerina") => return "Value is : " + io:sprintf("%s", f);
+        (15, "Ballerina") | (20, "Ballerina") | (20, "Balo") => return "Value is : " + io:sprintf("%s", f);
+        (15, "Bal", 100) | (15, "Bal", 200, 400) | (15, "Bal", "Ballerina", 5678, "Test") => return "Value is : " + io:sprintf("%s", f);
+    }
+
+    return "Default Value is : " + io:sprintf("%s", f);
+}
+
+type AnotherFoo record {
+    int x;
+    (string, Foo, string) y;
+};
+
+
+function testStaticMatchOrPatterns3() returns string[] {
+
+    Foo f1 = {x: 12, y: "Ballerina"};
+    map m1 = {x: 10, y: "B"};
+    Foo f2 = {x: 12, y: "Ballerina", z: true};
+    map m2 = {x: 10, z: "Ballerina"};
+    AnotherFoo af1 = {x:15, y:("John", {x:12, y:"Ballerina"}, "Snow"), z:15.1};
+    AnotherFoo af2 = {x: 15, y: ("Stark", f1, "Sansa"), z: 15.1};
+    AnotherFoo af3 = {x: 15, y: ("Stark", {x: 12, y: "Ballerina", z: true}, "Sansa"), z:15.1};
+    AnotherFoo af4 = {x: 15, y: ("Tyrion", {x: 12, y: "Ballerina"}, "Lanister"), z: 56.9, x: 40};
+    int i1 = 16;
+    int i2 = 12;
+
+    string[] result = [caz2(f1), caz2(m1), caz2(f2), caz2(m2), caz2(af1), caz2(af2), caz2(af3), caz2(af4), caz2(i1), caz2(i2)];
+
+    return result;
+}
+
+function caz2(Foo|AnotherFoo|map|int f) returns string {
+
+    match f {
+        {x: 12, y: "B"} | {x: 12, y: "Ballerina"} => return "Value is : 1st pattern - " + io:sprintf("%s", f);
+        {x: 10, y: "Ballerina"} | {x: 12, y: "Ballerina", z: true} => return "Value is : 2nd pattern - " + io:sprintf("%s", f);
+        {x: 15, y: ("Stark", {x: 12, y: "Ballerina", z: true}, "Sansa"), z:15.1} |
+            {x: 15, y: ("Tyrion", {x: 12, y: "Ballerina"}, "Lanister"), z: 56.9, x: 40} => return "Value is : 3rd pattern - " + io:sprintf("%s", f);
+        16 | 15 | {x: 10, y: "B"} => return "Value is : 4th pattern - " + io:sprintf("%s", f);
+        {x:15, y:("John", {x:12, y:"Ballerina"}, "Snow"), z:15.1} => return "Value is : 5th pattern - " + io:sprintf("%s", f);
+    }
+
+    return "Value is Default pattern - " + io:sprintf("%s", f);
+}
+
+
+function testStaticMatchOrPatterns4() returns string[] {
+
+    Foo f1 = {x: 12, y: "Ballerina"};
+    map m1 = {x: 10, y: "B"};
+    Foo f2 = {x: 12, y: "Ballerina", z: true};
+    map m2 = {x: 10, z: "Ballerina"};
+    AnotherFoo af1 = {x:15, y:("John", {x:12, y:"Ballerina"}, "Snow"), z:15.1};
+    AnotherFoo af2 = {x: 15, y: ("Stark", f1, "Sansa"), z: 15.1};
+    AnotherFoo af3 = {x: 15, y: ("Stark", {x: 12, y: "Ballerina", z: true}, "Sansa"), z:15.1};
+    AnotherFoo af4 = {x: 15, y: ("Tyrion", {x: 12, y: "Ballerina"}, "Lanister"), z: 56.9, x: 40};
+    int i1 = 16;
+    int i2 = 12;
+    float f = 7.8;
+
+    string[] result = [caz3(f1), caz3(m1), caz3(f2), caz3(m2), caz3(af1), caz3(af2), caz3(af3), caz3(af4), caz3(i1), caz3(i2), caz3(f)];
+
+    return result;
+}
+
+function caz3(any f) returns string {
+
+    match f {
+        {x: 12, y: "B"} | {x: 12, y: "Ballerina"} => return "Value is : 1st pattern - " + io:sprintf("%s", f);
+        {x: 10, y: "Ballerina"} | {x: 12, y: "Ballerina", z: true} => return "Value is : 2nd pattern - " + io:sprintf("%s", f);
+        {x: 15, y: ("Stark", {x: 12, y: "Ballerina", z: true}, "Sansa"), z:15.1} |
+            {x: 15, y: ("Tyrion", {x: 12, y: "Ballerina"}, "Lanister"), z: 56.9, x: 40} => return "Value is : 3rd pattern - " + io:sprintf("%s", f);
+        16 | 15 | {x: 10, y: "B"} => return "Value is : 4th pattern - " + io:sprintf("%s", f);
+        {x:15, y:("John", {x:12, y:"Ballerina"}, "Snow"), z:15.1} => return "Value is : 5th pattern - " + io:sprintf("%s", f);
+    }
+
+    return "Value is Default pattern - " + io:sprintf("%s", f);
 }
