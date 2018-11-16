@@ -518,22 +518,6 @@
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
 
-            <!-- ballerina-mb -->
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-mb</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-sources</classifier>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-mb</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-binary-repo</classifier>
-            </dependency>
-
             <!-- ballerina-mime -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -1661,7 +1645,6 @@
                 <module>stdlib/time</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
-                <module>stdlib/mb</module>
                 <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/mysql</module>
@@ -1745,7 +1728,6 @@
                 <module>stdlib/time</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
-                <module>stdlib/mb</module>
                 <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/mysql</module>
@@ -1825,7 +1807,6 @@
                 <module>stdlib/time</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
-                <module>stdlib/mb</module>
                 <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/mysql</module>
