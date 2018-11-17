@@ -1278,18 +1278,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitFlushWorker(BallerinaParser.FlushWorkerContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code invokeFork}
-	 * labeled alternative in {@link BallerinaParser#triggerWorker}.
-	 * @param ctx the parse tree
-	 */
-	void enterInvokeFork(BallerinaParser.InvokeForkContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code invokeFork}
-	 * labeled alternative in {@link BallerinaParser#triggerWorker}.
-	 * @param ctx the parse tree
-	 */
-	void exitInvokeFork(BallerinaParser.InvokeForkContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#waitForCollection}.
 	 * @param ctx the parse tree
 	 */

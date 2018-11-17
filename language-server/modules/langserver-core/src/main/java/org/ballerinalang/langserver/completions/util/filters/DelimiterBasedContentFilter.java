@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.langserver.completions.util.filters;
 
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;

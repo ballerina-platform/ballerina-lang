@@ -1741,15 +1741,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitInvokeFork(BallerinaParser.InvokeForkContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addWorkerSendStmt(getCurrentPos(ctx), getWS(ctx), "FORK", true, false);
-    }
-
-    @Override
     public void exitWorkerReceiveExpression(BallerinaParser.WorkerReceiveExpressionContext ctx) {
         if (ctx.exception != null) {
             return;

@@ -306,7 +306,6 @@ statement
     |   panicStatement
     |   returnStatement
     |   workerSendAsyncStatement
-    |   triggerWorker
     |   expressionStmt
     |   transactionStatement
     |   abortStatement
@@ -587,11 +586,6 @@ workerSendAsyncStatement
 
 flushWorker
     :   FLUSH Identifier?
-    ;
-
-// Todo need to remove this grammar rule
-triggerWorker
-    :   expression RARROW FORK SEMICOLON              #invokeFork
     ;
 
 waitForCollection
