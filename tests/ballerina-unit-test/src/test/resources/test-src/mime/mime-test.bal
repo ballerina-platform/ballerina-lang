@@ -321,7 +321,7 @@ function testSetEntityBodyMultipleTimes(io:ReadableByteChannel byteChannel, stri
     } else if (result is error) {
         return result.reason();
     }
-    return "An error in reading character channel";
+    return "";
 }
 
 function testSetJsonAndGetByteChannel(json jsonContent) returns io:ReadableByteChannel|error {
