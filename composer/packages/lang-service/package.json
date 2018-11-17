@@ -9,15 +9,15 @@
   "main": "lib/src/index.js",
   "typings": "lib/src/index.d.ts",
   "scripts": {
-    "clean": "rimraf lib && rimraf coverage",
-    "lint": "tslint -t stylish --project .",
     "prepublishOnly": "npm run build",
-    "prebuild": "npm run clean && npm run lint && echo Using TypeScript && tsc --version",
-    "build": "tsc --pretty",
-    "test": "jest",
-    "coverage": "jest --coverage",
-    "watch": "npm run build -- --watch",
-    "watch:test": "jest --watch"
+    "prebuild": "npm run clean && npm run lint",
+    "clean": "composer pkg:clean",
+    "lint": "composer pkg:lint",
+    "build": "composer pkg:build",
+    "test": "composer pkg:test",
+    "coverage": "composer pkg:test:coverage",
+    "watch": "composer pkg:watch",
+    "watch:test": "composer pkg:test:watch"
   },
   "dependencies": {
     "fs-extra": "^7.0.1",
@@ -31,31 +31,15 @@
     "ws": "^6.1.0"
   },
   "devDependencies": {
+    "@ballerina/composer-cli": "^0.983.1-SNAPSHOT",
     "@types/fs-extra": "^5.0.4",
     "@types/glob": "^7.1.1",
     "@types/jest": "^22.0.1",
     "@types/lodash": "^4.14.117",
     "@types/node": "^8.0.0",
-    "@types/ws": "^6.0.1",
-    "coveralls": "^2.0.0",
-    "jest": "^22.0.4",
-    "ts-jest": "^22.0.1",
-    "ts-node": "^3.2.0",
-    "tslint": "^5.11.0",
-    "typescript": "^3.1.6"
+    "@types/ws": "^6.0.1"
   },
   "engines": {
     "node": ">=6.0.0"
-  },
-  "jest": {
-    "transform": {
-      ".(ts)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
-    },
-    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|js)$",
-    "moduleFileExtensions": [
-      "ts",
-      "js"
-    ],
-    "testEnvironment": "node"
   }
 }

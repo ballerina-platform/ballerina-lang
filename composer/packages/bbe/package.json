@@ -3,43 +3,24 @@
   "version": "0.983.1-SNAPSHOT",
   "description": "Provides components for displaying Ballerina By Examples",
   "main": "lib/src/index.js",
-  "dependencies": {
-    "lodash": "^4.17.11",
-    "react-dom": "^16.2.0",
-    "react": "16.2.0",
-    "semantic-ui-react": "^0.82.5"
-  },
   "scripts": {
-    "clean": "rimraf lib && rimraf coverage",
-    "lint": "tslint -t stylish --project .",
-    "prebuild": "npm run clean && npm run lint && echo Using TypeScript && tsc --version",
-    "compile": "tsc -p ./",
-    "build": "npm run compile",
-    "watch": "tsc -watch -p ./",
-    "test": "jest",
-    "test-coverage": "npm run test -- --coverage",
-    "storybook": "start-storybook -p 9001 -c .storybook"
+    "prepublishOnly": "npm run build",
+    "prebuild": "npm run clean && npm run lint",
+    "clean": "composer pkg:clean",
+    "lint": "composer pkg:lint",
+    "build": "composer pkg:build",
+    "test": "composer pkg:test",
+    "coverage": "composer pkg:test:coverage",
+    "watch": "composer pkg:watch",
+    "watch:test": "composer pkg:test:watch",
+    "storybook": "composer pkg:storybook"
+  },
+  "dependencies": {
+    "lodash": "^4.17.11"
   },
   "devDependencies": {
-    "@storybook/addon-actions": "^3.4.11",
-    "@storybook/react": "^4.0.0-alpha.3",
-    "@types/jest": "^23.3.5",
-    "@types/lodash": "^4.14.116",
-    "@types/node": "^10.11.7",
-    "@types/react": "16.0.36",
-    "@types/react-dom": "^16.0.9",
-    "@types/react-test-renderer": "^16.0.3",
-    "@types/storybook__react": "^3.0.9",
-    "awesome-typescript-loader": "^5.2.1",
-    "jest": "^23.6.0",
-    "jest-config": "^23.6.0",
-    "react-docgen-typescript-webpack-plugin": "^1.1.0",
-    "react-test-renderer": "16.2.0",
-    "rimraf": "^2.6.2",
-    "ts-jest": "^23.10.4",
-    "ts-loader": "^5.2.1",
-    "tslint": "^5.11.0",
-    "typescript": "^3.1.6"
+    "@ballerina/composer-cli": "^0.983.1-SNAPSHOT",
+    "@types/lodash": "^4.14.118"
   },
   "author": "ballerina.io",
   "license": "Apache-2.0"

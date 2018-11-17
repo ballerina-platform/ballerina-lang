@@ -9,53 +9,30 @@
   "main": "lib/src/index.js",
   "typings": "lib/src/index.d.ts",
   "scripts": {
-    "clean": "rimraf lib && rimraf coverage",
-    "compile": "tsc -p ./",
-    "format": "prettier --write \"{src,__tests__}/**/*.ts\" --single-quote --trailing-comma es5",
-    "lint": "tslint -t stylish --project .",
     "prepublishOnly": "npm run build",
-    "prebuild": "npm run clean && npm run lint && echo Using TypeScript && tsc --version",
-    "build": "npm run compile",
-    "test": "echo \"No Tests\"",
-    "coverage": "jest --coverage",
-    "watch": "npm run compile -- --watch",
-    "watch:test": "jest --watch",
-    "gen-ast-interfaces": "npm run compile && node lib/scripts/generate-ast-interfaces"
+    "prebuild": "npm run clean && npm run lint",
+    "clean": "composer pkg:clean",
+    "lint": "composer pkg:lint",
+    "build": "composer pkg:build",
+    "test": "composer pkg:test",
+    "coverage": "composer pkg:test:coverage",
+    "watch": "composer pkg:watch",
+    "watch:test": "composer pkg:test:watch",
+    "gen-ast-interfaces": "npm run build && node lib/scripts/generate-ast-interfaces"
   },
   "dependencies": {
-    "glob": "^7.1.3",
-    "lodash": "^4.17.11"
-  },
-  "devDependencies": {
     "@ballerina/lang-service": "^0.983.1-SNAPSHOT",
-    "@types/glob": "^7.1.1",
-    "@types/jest": "^22.0.1",
-    "@types/lodash": "^4.14.117",
-    "@types/node": "^8.10.37",
-    "coveralls": "^2.0.0",
-    "jest": "^22.0.4",
+    "glob": "^7.1.3",
+    "lodash": "^4.17.11",
     "prettier": "^1.5.2",
     "prettier-tslint": "^0.4.0",
-    "rimraf": "^2.0.0",
-    "ts-jest": "^22.0.1",
-    "ts-node": "^3.2.0",
-    "tslint": "^5.0.0",
-    "tslint-config-prettier": "^1.1.0",
-    "typescript": "^2.3.0",
     "vscode-uri": "^1.0.6"
+  },
+  "devDependencies": {
+    "@ballerina/composer-cli": "^0.983.1-SNAPSHOT",
+    "@types/lodash": "^4.14.117"
   },
   "engines": {
     "node": ">=6.0.0"
-  },
-  "jest": {
-    "transform": {
-      ".(ts)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
-    },
-    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|js)$",
-    "moduleFileExtensions": [
-      "ts",
-      "js"
-    ],
-    "testEnvironment": "node"
   }
 }

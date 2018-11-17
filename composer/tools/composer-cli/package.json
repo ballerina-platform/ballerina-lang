@@ -1,0 +1,29 @@
+{
+  "private": true,
+  "name": "@ballerina/composer-cli",
+  "version": "0.983.1-SNAPSHOT",
+  "description": "Includes a CLI util to help with composer packages development",
+  "bin": {
+    "composer": "./bin/composer"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "src"
+  ],
+  "scripts": {
+    "clean": "../../node_modules/.bin/rimraf lib",
+    "lint": "../../node_modules/.bin/tslint -t stylish --project .",
+    "prebuild": "npm run clean",
+    "build": "../../node_modules/.bin/tsc --pretty"
+  },
+  "author": "ballerina.io",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "yargs": "^12.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^10.12.9",
+    "@types/yargs": "^12.0.1"
+  }
+}
