@@ -26,15 +26,15 @@ ANNOTATION  : 'annotation' ;
 PARAMETER   : 'parameter' ;
 TRANSFORMER : 'transformer' ;
 WORKER      : 'worker' ;
-ENDPOINT    : 'endpoint' ;
+LISTENER    : 'listener' ;
 REMOTE      : 'remote' ;
-BIND        : 'bind' ;
 XMLNS       : 'xmlns' ;
 RETURNS     : 'returns';
 VERSION     : 'version';
 DEPRECATED  : 'deprecated';
 CHANNEL     : 'channel';
 ABSTRACT    : 'abstract';
+CLIENT      : 'client';
 
 FROM        : 'from' { inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; } ;
 ON          : 'on' ;
@@ -536,7 +536,7 @@ VARIABLE    : 'variable';
 MODULE      : 'module';
 
 ReferenceType
-    :   TYPE|ENDPOINT|SERVICE|VARIABLE|VAR|ANNOTATION|MODULE|FUNCTION|PARAMETER
+    :   TYPE|SERVICE|VARIABLE|VAR|ANNOTATION|MODULE|FUNCTION|PARAMETER
     ;
 
 DocumentationText
