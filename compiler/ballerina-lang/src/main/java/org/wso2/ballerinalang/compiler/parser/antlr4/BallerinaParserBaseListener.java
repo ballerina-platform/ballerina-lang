@@ -1516,18 +1516,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterInvokeFork(BallerinaParser.InvokeForkContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitInvokeFork(BallerinaParser.InvokeForkContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterWaitForCollection(BallerinaParser.WaitForCollectionContext ctx) { }
 	/**
 	 * {@inheritDoc}

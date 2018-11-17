@@ -49,7 +49,6 @@ import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRu
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleServiceDefinitionContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleServiceEndpointAttachmentContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleStatementContextResolver;
-import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleTriggerWorkerContext;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleVariableDefinitionStatementContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleWorkerReplyContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
@@ -120,8 +119,9 @@ public enum CompletionItemResolver {
             new ParserRuleStatementContextResolver()),
     PARSER_RULE_VAR_DEF_STMT_CONTEXT(BallerinaParser.VariableDefinitionStatementContext.class,
             new ParserRuleVariableDefinitionStatementContextResolver()),
-    PARSER_RULE_TRIGGER_WORKER_CONTEXT(BallerinaParser.TriggerWorkerContext.class,
-            new ParserRuleTriggerWorkerContext()),
+    // todo we have removed this from the grammar
+//    PARSER_RULE_TRIGGER_WORKER_CONTEXT(BallerinaParser.TriggerWorkerContext.class,
+//            new ParserRuleTriggerWorkerContext()),
     PARSER_RULE_WORKER_REPLY_CONTEXT(BallerinaParser.WorkerReceiveExpressionContext.class,
             new ParserRuleWorkerReplyContext()),
     PARSER_RULE_GLOBAL_VAR_DEF_CONTEXT(BallerinaParser.GlobalVariableDefinitionContext.class,

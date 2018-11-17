@@ -31,7 +31,6 @@ import org.ballerinalang.langserver.index.dao.BRecordTypeSymbolDAO;
 import org.ballerinalang.langserver.index.dao.DAOType;
 import org.ballerinalang.langserver.index.dataholder.BLangPackageContent;
 import org.ballerinalang.langserver.index.dto.BFunctionSymbolDTO;
-import org.ballerinalang.langserver.index.dto.BObjectTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BRecordTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.OtherTypeSymbolDTO;
 import org.ballerinalang.model.elements.PackageID;
