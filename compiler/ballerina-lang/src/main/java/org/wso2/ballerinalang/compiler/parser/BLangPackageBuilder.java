@@ -2313,29 +2313,30 @@ public class BLangPackageBuilder {
                                                            boolean isDeclaredWithVar) {
         BLangSimpleVariableDef variableDefinitionNode = createSimpleVariableDef(pos, ws, identifier, false,
                 isDeclaredWithVar);
-        addForeachStatement(pos, ws, variableDefinitionNode);
+        addForeachStatement(pos, ws, variableDefinitionNode, isDeclaredWithVar);
     }
 
     void addForeachStatementWithRecordVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws,
                                                            boolean isDeclaredWithVar) {
         BLangTupleVariableDef variableDefinitionNode = createTupleVariableDef(pos, ws, false, isDeclaredWithVar);
-        addForeachStatement(pos, ws, variableDefinitionNode);
+        addForeachStatement(pos, ws, variableDefinitionNode, isDeclaredWithVar);
     }
 
     void addForeachStatementWithTupleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws,
                                                           boolean isDeclaredWithVar) {
         BLangRecordVariableDef variableDefinitionNode = createRecordVariableDef(pos, ws, false, isDeclaredWithVar);
-        addForeachStatement(pos, ws, variableDefinitionNode);
+        addForeachStatement(pos, ws, variableDefinitionNode, isDeclaredWithVar);
     }
 
     private void addForeachStatement(DiagnosticPos pos, Set<Whitespace> ws,
-                                     VariableDefinitionNode variableDefinitionNode) {
+                                     VariableDefinitionNode variableDefinitionNode, boolean isDeclaredWithVar) {
         BLangForeach foreach = (BLangForeach) TreeBuilder.createForeachNode();
         foreach.addWS(ws);
         foreach.pos = pos;
         foreach.setVariableDefinitionNode(variableDefinitionNode);
         foreach.setCollection(this.exprNodeStack.pop());
-
+        foreach.isDeclaredWithVar= isDeclaredWithVar;
+        
         BLangBlockStmt foreachBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         foreachBlock.pos = pos;
         foreach.setBody(foreachBlock);
