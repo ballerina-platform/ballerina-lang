@@ -28,7 +28,6 @@ import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
-import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
@@ -218,7 +217,6 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -1567,154 +1565,87 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForeach foreach) {
+        // Get the symbol from the collection.
+        BVarSymbol collectionSymbol = (BVarSymbol) ((BLangSimpleVarRef) foreach.collection).symbol;
+        // Get the variable definition from the foreach statement.
+        BLangSimpleVariableDef variableDefinitionNode = (BLangSimpleVariableDef) foreach.variableDefinitionNode;
 
-        // Note - int $index$ = 0;
+        // Note - int $index$ = 0; -------------------------------------------------------------------------------------
 
+        // Create a new symbol for the $index$.
         BVarSymbol indexSymbol = new BVarSymbol(0, names.fromString("$index$"), this.env.scope.owner.pkgID,
                 symTable.intType, this.env.scope.owner);
 
-        BLangIdentifier indexIdentifier = ASTBuilderUtil.createIdentifier(foreach.pos, "$index$");
-
         BLangLiteral indexInitialValue = ASTBuilderUtil.createLiteral(foreach.pos, symTable.intType, (long) 0);
+        BLangSimpleVariable indexVariableDefinition = ASTBuilderUtil.createVariable(foreach.pos, "$index$",
+                symTable.intType, indexInitialValue, indexSymbol);
+        BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDef(foreach.pos, indexVariableDefinition);
 
-        BLangSimpleVariable indexVariableDefinition = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
-        indexVariableDefinition.pos = foreach.pos;
-        indexVariableDefinition.name = indexIdentifier;
-        indexVariableDefinition.symbol = indexSymbol;
-        indexVariableDefinition.expr = indexInitialValue;
-
-        BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDef(foreach.pos);
-        variableDef.pos = foreach.pos;
-        variableDef.var = indexVariableDefinition;
-
-        // Note - (index < data.length())
-
-        BLangSimpleVarRef lhsExpr = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-        lhsExpr.pos = foreach.pos;
-        lhsExpr.variableName = indexIdentifier;
-        lhsExpr.symbol = indexSymbol;
-        lhsExpr.type = symTable.intType;
-
-        BLangIdentifier lengthIdentifier = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        lengthIdentifier.pos = foreach.pos;
-        lengthIdentifier.value = "length";
-
-        BLangSimpleVarRef rhsRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-        rhsRef.pos = foreach.pos;
-        rhsRef.variableName = ((BLangSimpleVarRef) foreach.collection).variableName;
-        rhsRef.symbol = ((BLangSimpleVarRef) foreach.collection).symbol;
-        rhsRef.type = foreach.collection.type;
-
+        // Note - index < data.length()
+        BLangSimpleVarRef lhsExpr = ASTBuilderUtil.createVariableRef(foreach.pos, indexSymbol);
+        BLangIdentifier lengthIdentifier = ASTBuilderUtil.createIdentifier(foreach.pos, "length");
+        BLangSimpleVarRef rhsRef = ASTBuilderUtil.createVariableRef(foreach.pos, collectionSymbol);
 
         BLangInvocation rhsExpr = (BLangInvocation) TreeBuilder.createInvocationNode();
         rhsExpr.pos = foreach.pos;
         rhsExpr.name = lengthIdentifier;
         rhsExpr.builtinMethodInvocation = true;
         rhsExpr.builtInMethod = BLangBuiltInMethod.LENGTH;
-        // Todo - Remove casting since the expr is changed to BLangExpression in df-analysis branch.
         rhsExpr.expr = rhsRef;
         rhsExpr.symbol = symResolver.resolveBuiltinOperator(names.fromIdNode(lengthIdentifier), symTable.arrayType);
         rhsExpr.type = symTable.intType;
 
-        // Todo - Can we set the binary expression directly?
-        BLangBinaryExpr binaryExpr = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
-        binaryExpr.pos = foreach.pos;
-        binaryExpr.lhsExpr = lhsExpr;
-        binaryExpr.rhsExpr = rhsExpr;
-        binaryExpr.type = symTable.booleanType;
-        binaryExpr.opKind = OperatorKind.LESS_THAN;
-        binaryExpr.opSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(binaryExpr.opKind,
-                binaryExpr.lhsExpr.type, binaryExpr.rhsExpr.type);
-
-        BLangBracedOrTupleExpr whileNodeExpression =
-                (BLangBracedOrTupleExpr) TreeBuilder.createBracedOrTupleExpression();
-        whileNodeExpression.pos = foreach.pos;
-        whileNodeExpression.type = symTable.booleanType;
-        whileNodeExpression.isBracedExpr = true;
-        whileNodeExpression.expressions = new LinkedList<BLangExpression>() {{
-            add(binaryExpr);
-        }};
+        BOperatorSymbol operatorSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.LESS_THAN,
+                lhsExpr.type, rhsExpr.type);
+        BLangBinaryExpr binaryExpr = ASTBuilderUtil.createBinaryExpr(foreach.pos, lhsExpr, rhsExpr,
+                symTable.booleanType, OperatorKind.LESS_THAN, operatorSymbol);
 
         BLangWhile whileNode = (BLangWhile) TreeBuilder.createWhileNode();
         whileNode.pos = foreach.pos;
-        whileNode.expr = whileNodeExpression;
+        whileNode.expr = binaryExpr;
         whileNode.body = foreach.body;
 
-        // Note - int i = data[$index$];
+        // Note - int i = data[$index$]; -------------------------------------------------------------------------------
 
-        BLangSimpleVarRef indexRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-        indexRef.pos = foreach.pos;
-        indexRef.variableName = indexIdentifier;
-        indexRef.symbol = indexSymbol;
-        indexRef.type = symTable.intType;
+        BLangSimpleVarRef indexRef = ASTBuilderUtil.createVariableRef(foreach.pos, indexSymbol);
+        BLangSimpleVarRef collectionReference = ASTBuilderUtil.createVariableRef(foreach.pos, collectionSymbol);
+        BLangIndexBasedAccess indexBasedAccessExpression = ASTBuilderUtil.createIndexBasesAccessExpr(foreach.pos,
+                symTable.intType, indexSymbol, indexRef);
+        indexBasedAccessExpression.expr = collectionReference;
 
+        // Update the variable by setting the type and the expression. i.e.- int i; -> int i = data[$index$];
+        variableDefinitionNode.var.expr = indexBasedAccessExpression;
 
-        BLangSimpleVarRef expRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-        expRef.pos = foreach.pos;
-        expRef.variableName = ((BLangSimpleVarRef) foreach.collection).variableName;
-        expRef.symbol = ((BLangSimpleVarRef) foreach.collection).symbol;
-        expRef.type = foreach.collection.type;
-
-        BLangIndexBasedAccess valueExpression = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
-        valueExpression.pos = foreach.pos;
-        valueExpression.indexExpr = indexRef;
-        valueExpression.symbol = indexSymbol;
-        valueExpression.expr = expRef;
-        valueExpression.originalType = symTable.intType; // Todo - Generify?
-        valueExpression.type = symTable.intType; // Todo - Generify?
-
-//        BLangSimpleVariable valueVariable = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
-//        valueVariable.name =
-//
-//        BLangSimpleVariableDef valueAssignment = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
-//        valueAssignment.pos = foreach.pos;
-//        valueAssignment.var = ?;
-//        valueAssignment.type = symTable.intType; // Todo - Generify?
-
-
-        BLangSimpleVariableDef variableDefinitionNode = (BLangSimpleVariableDef) foreach.variableDefinitionNode;
-        variableDefinitionNode.var.expr = valueExpression;
-        variableDefinitionNode.var.type =  variableDefinitionNode.var.typeNode.type;
-
-
-
+        // Add the variable definition to the top of the while node's body statements.
         whileNode.body.stmts.add(0, variableDefinitionNode);
 
-        // Note - $index$ += 1;
+        // Note - $index$ += 1; (i.e. - $index$ = $index$ + 1;) --------------------------------------------------------
 
-        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-        varRef.pos = foreach.pos;
-        varRef.variableName = indexIdentifier;
-        varRef.symbol = indexSymbol;
-        varRef.type = symTable.intType;
+        // Note - $index$ ...
+        BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(foreach.pos, indexSymbol);
+        BLangLiteral incrementCount = ASTBuilderUtil.createLiteral(foreach.pos, symTable.intType, (long) 1);
 
-        BLangLiteral incrementValue = ASTBuilderUtil.createLiteral(foreach.pos, symTable.intType, (long) 1);
+        // Note - $index$ + 1
+        BOperatorSymbol addOperatorSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.ADD,
+                varRef.type, incrementCount.type);
+        BLangBinaryExpr modifiedExpr = ASTBuilderUtil.createBinaryExpr(foreach.pos, varRef, incrementCount,
+                symTable.intType, OperatorKind.ADD, addOperatorSymbol);
 
-        BLangBinaryExpr modifiedExpr = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
-        modifiedExpr.pos = foreach.pos;
-        modifiedExpr.lhsExpr = varRef;
-        modifiedExpr.rhsExpr = incrementValue;
-        modifiedExpr.opKind = OperatorKind.ADD;
-        modifiedExpr.opSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(modifiedExpr.opKind,
-                modifiedExpr.lhsExpr.type, modifiedExpr.rhsExpr.type);
-        modifiedExpr.type = symTable.intType;
+        // Note - $index$ = $index$ + 1;
+        BLangAssignment assignmentNode = ASTBuilderUtil.createAssignmentStmt(foreach.pos, varRef, modifiedExpr, false);
 
-        BLangCompoundAssignment assignmentNode = (BLangCompoundAssignment) TreeBuilder.createCompoundAssignmentNode();
-        assignmentNode.pos = foreach.pos;
-        assignmentNode.varRef = varRef;
-        assignmentNode.expr = incrementValue;
-        assignmentNode.opKind = OperatorKind.ADD;
-        assignmentNode.modifiedExpr = modifiedExpr;
-
+        // Add the assignment node to the end of the while node's body.
         whileNode.body.addStatement(assignmentNode);
 
+        // Create a new block statement node.
+        BLangBlockStmt blockNode = ASTBuilderUtil.createBlockStmt(foreach.pos);
 
-        BLangBlockStmt blockNode = (BLangBlockStmt) TreeBuilder.createBlockNode();
-        blockNode.pos = foreach.pos;
-
+        // Add the variable definition node to the block.
         blockNode.addStatement(variableDef);
+        // Add the while node to the block.
         blockNode.addStatement(whileNode);
 
+        // Rewrite the block.
         rewrite(blockNode, this.env);
         result = blockNode;
     }
