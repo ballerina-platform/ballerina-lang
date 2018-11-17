@@ -102,5 +102,9 @@ public enum Flag {
     /**
      * Indicates flagged node is a testable node.
      */
-    TESTABLE
+    TESTABLE,
+    /**
+     * Indicates Flagged node is a client node.
+     */
+    CLIENT,
 }

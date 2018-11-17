@@ -232,11 +232,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Update globalVar for endpoints.
         pkgNode.globalVars.stream().filter(var -> var.symbol.type.tsymbol != null && Symbols
-                .isFlagOn(var.symbol.type.tsymbol.flags, Flags.REMOTE))
-                .map(varNode -> varNode.symbol).forEach(varSymbol -> {
-            varSymbol.flags |= Flags.REMOTE;
-            varSymbol.tag = SymTag.ENDPOINT;
-        });
+                .isFlagOn(var.symbol.type.tsymbol.flags, Flags.CLIENT)).map(varNode -> varNode.symbol)
+                .forEach(varSymbol -> varSymbol.tag = SymTag.ENDPOINT);
     }
 
     public void visit(BLangAnnotation annotationNode) {
@@ -425,6 +422,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangFunction funcNode) {
         boolean validAttachedFunc = validateFuncReceiver(funcNode);
+        boolean remoteFlagSetOnNode = Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.REMOTE);
         if (funcNode.attachedOuterFunction) {
             if (Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.PUBLIC)) { //no visibility modifiers allowed
                 dlog.error(funcNode.pos, DiagnosticCode.ATTACHED_FUNC_CANT_HAVE_VISIBILITY_MODIFIERS, funcNode.name);
@@ -450,20 +448,17 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (funcNode.symbol.bodyExist) {
                 dlog.error(funcNode.pos, DiagnosticCode.IMPLEMENTATION_ALREADY_EXIST, funcNode.name);
             }
-            if (Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.REMOTE) && !Symbols
-                    .isFlagOn(funcSymbol.flags, Flags.REMOTE)) {
+            if (remoteFlagSetOnNode && !Symbols.isFlagOn(funcSymbol.flags, Flags.REMOTE)) {
                 dlog.error(funcNode.pos, DiagnosticCode.REMOTE_ON_NON_REMOTE_FUNCTION, funcNode.name.value);
             }
-            if (!Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.REMOTE) && Symbols
-                    .isFlagOn(funcSymbol.flags, Flags.REMOTE)) {
+            if (!remoteFlagSetOnNode && Symbols.isFlagOn(funcSymbol.flags, Flags.REMOTE)) {
                 dlog.error(funcNode.pos, DiagnosticCode.REMOTE_REQUIRED_ON_REMOTE_FUNCTION);
             }
             validateAttachedFunction(funcNode, funcNode.receiver.type.tsymbol.name);
             visitObjectAttachedFunction(funcNode);
             return;
         }
-        if (funcNode.receiver == null && !funcNode.attachedFunction && Symbols
-                .isFlagOn(Flags.asMask(funcNode.flagSet), Flags.REMOTE)) {
+        if (funcNode.receiver == null && !funcNode.attachedFunction && remoteFlagSetOnNode) {
             dlog.error(funcNode.pos, DiagnosticCode.REMOTE_IN_NON_OBJECT_FUNCTION, funcNode.name.value);
         }
         BInvokableSymbol funcSymbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
@@ -684,8 +679,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 varNode.type, varName, env);
         varSymbol.markdownDocumentation = getMarkdownDocAttachment(varNode.markdownDocumentationAttachment);
         varNode.symbol = varSymbol;
-        if (varNode.symbol.type.tsymbol != null && Symbols.isFlagOn(varNode.symbol.type.tsymbol.flags, Flags.REMOTE)) {
-            varSymbol.flags |= Flags.REMOTE;
+        if (varNode.symbol.type.tsymbol != null && Symbols.isFlagOn(varNode.symbol.type.tsymbol.flags, Flags.CLIENT)) {
             varSymbol.tag = SymTag.ENDPOINT;
         }
     }
@@ -1062,8 +1056,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else {
             varSymbol = new BVarSymbol(Flags.asMask(flagSet), varName,
                     env.enclPkg.symbol.pkgID, varType, env.scope.owner);
-            if (varType.tsymbol != null && Symbols.isFlagOn(varType.tsymbol.flags, Flags.REMOTE)) {
-                varSymbol.flags |= Flags.REMOTE;
+            if (varType.tsymbol != null && Symbols.isFlagOn(varType.tsymbol.flags, Flags.CLIENT)) {
                 varSymbol.tag = SymTag.ENDPOINT;
             }
         }
@@ -1168,9 +1161,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         funcNode.symbol.flags |= Flags.REMOTE;
 
-        // Make Given Object as endpoint if not marked already.
-        if (!Symbols.isFlagOn(objectSymbol.flags, Flags.REMOTE)) {
-            objectSymbol.flags |= Flags.REMOTE;
+        if (!Symbols.isFlagOn(objectSymbol.flags, Flags.CLIENT)) {
+            this.dlog.error(funcNode.pos, DiagnosticCode.REMOTE_FUNCTION_IN_NON_CLIENT_OBJECT);
         }
     }
 

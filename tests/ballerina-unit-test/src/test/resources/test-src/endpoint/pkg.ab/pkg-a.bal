@@ -13,7 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-public type DummyEndpoint object {
+public type DummyEndpoint client object {
     public remote function invoke1 (string a) returns error? {
         error e = error("i1");
         return e;

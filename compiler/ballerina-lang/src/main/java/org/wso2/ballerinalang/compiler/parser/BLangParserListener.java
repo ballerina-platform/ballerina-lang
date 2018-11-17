@@ -222,21 +222,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        boolean constrained = ctx.nameReference() != null;
+        //        boolean constrained = ctx.nameReference() != null;
         this.pkgBuilder.endServiceDef(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
-                getCurrentPosFromIdentifier(ctx.Identifier()), constrained);
-    }
-
-    @Override
-    public void exitServiceEndpointAttachments(BallerinaParser.ServiceEndpointAttachmentsContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-        if (ctx.recordLiteral() != null) {
-            this.pkgBuilder.addAnonymousEndpointBind(getWS(ctx));
-            return;
-        }
-        this.pkgBuilder.addServiceEndpointAttachments(ctx.nameReference().size(), getWS(ctx));
+                getCurrentPosFromIdentifier(ctx.Identifier()), false);
     }
 
     /**
@@ -261,50 +249,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.addServiceBody(getWS(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterResourceDefinition(BallerinaParser.ResourceDefinitionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-        this.pkgBuilder.startResourceDef();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitResourceDefinition(BallerinaParser.ResourceDefinitionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        boolean markdownDocExists = ctx.documentationString() != null;
-        boolean isDeprecated = ctx.deprecatedAttachment() != null;
-        boolean hasParameters = ctx.resourceParameterList() != null;
-        this.pkgBuilder.endResourceDef(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), markdownDocExists,
-                isDeprecated, hasParameters);
-    }
-
-    @Override
-    public void enterResourceParameterList(BallerinaParser.ResourceParameterListContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-        final BallerinaParser.ResourceDefinitionContext parent = (BallerinaParser.ResourceDefinitionContext) ctx.parent;
-        this.pkgBuilder.addResourceAnnotation(parent.annotationAttachment().size());
-    }
-
-    @Override
-    public void exitResourceParameterList(BallerinaParser.ResourceParameterListContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
     }
 
     /**
@@ -486,7 +430,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                         ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext) ||
                         ctx.parent.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
         boolean isAbstract = ((ObjectTypeNameLabelContext) ctx.parent).ABSTRACT() != null;
-        this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous, isAbstract);
+        boolean isClient = ((ObjectTypeNameLabelContext) ctx.parent).CLIENT() != null;
+        this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous, isAbstract,
+                isClient);
     }
 
     @Override

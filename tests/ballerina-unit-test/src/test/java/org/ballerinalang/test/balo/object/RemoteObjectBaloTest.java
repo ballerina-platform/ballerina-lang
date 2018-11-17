@@ -39,10 +39,10 @@ public class RemoteObjectBaloTest {
     @BeforeClass
     public void setup() {
         BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
-        compileResult = BCompileUtil.compile("test-src/balo/test_balo/object/test_endpoint_objects.bal");
+        compileResult = BCompileUtil.compile("test-src/balo/test_balo/object/test_client_objects.bal");
     }
 
-    @Test(description = "Test Basic object as struct")
+    @Test
     public void testRemoteObject() {
         BValue[] result = BRunUtil.invoke(compileResult, "testCheck");
         Assert.assertEquals(result.length, 1);

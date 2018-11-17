@@ -651,6 +651,10 @@ public class SymbolResolver extends BLangNodeVisitor {
         objectSymbol.type = objectType;
         objectTypeNode.symbol = objectSymbol;
 
+        if (objectTypeNode.flagSet.contains(Flag.CLIENT)) {
+            objectSymbol.flags |= Flags.CLIENT;
+        }
+
         resultType = objectType;
     }
 

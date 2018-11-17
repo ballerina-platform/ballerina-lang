@@ -13,7 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-type TestEP object {
+type TestEP client object {
     remote function action1(string s, int i) returns boolean {
         if (i > 5) {
             return true;

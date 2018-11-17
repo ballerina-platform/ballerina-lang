@@ -30,7 +30,7 @@ public remote function test2(string value) {
 public remote extern function test3(string value) returns int;
 
 
-type Foo object {
+type Foo client object {
 
     function abc (string value) returns int;
 
@@ -148,3 +148,30 @@ function testFunc10 (string s) {
     // Uninitilized variable
     var y = ep->pqr("test");
 }
+
+type Baz object {
+    //a remote function in a non client object
+    remote function action1(string s) returns int {
+        return 10;
+    }
+
+    function nonAction(float f) returns string {
+        return "done";
+    }
+
+    //a remote function in a non client object
+    remote function action2(int i) {
+    }
+};
+
+// client objects requires at least one remote function
+type Bax client object {
+
+    function nonAction1(float f) returns string {
+        return "done";
+    }
+
+    function nonAction2(float f) returns string {
+        return "done";
+    }
+};

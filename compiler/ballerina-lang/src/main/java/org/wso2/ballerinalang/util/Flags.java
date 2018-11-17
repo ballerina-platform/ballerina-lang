@@ -27,22 +27,23 @@ import java.util.Set;
  */
 public class Flags {
     public static final int PUBLIC = 1;
-    public static final int NATIVE = 2;
-    public static final int FINAL = 4;
-    public static final int ATTACHED = 8;
-    public static final int DEPRECATED = 16;
-    public static final int READONLY = 32;
-    public static final int FUNCTION_FINAL = 64;
-    public static final int INTERFACE = 128;
-    public static final int DEFAULTABLE_CHECKED = 256;
-    public static final int DEFAULTABLE = 512;
-    public static final int RECORD = 1024;
-    public static final int PRIVATE = 2048;
-    public static final int COMPENSATE = 4096;
-    public static final int ABSTRACT = 8192;
-    public static final int OPTIONAL = 16384;
-    public static final int TESTABLE = 32768;
-    public static final int REMOTE = 65536;
+    public static final int NATIVE = 1 << 1;
+    public static final int FINAL = 1 << 2;
+    public static final int ATTACHED = 1 << 3;
+    public static final int DEPRECATED = 1 << 4;
+    public static final int READONLY = 1 << 5;
+    public static final int FUNCTION_FINAL = 1 << 6;
+    public static final int INTERFACE = 1 << 7;
+    public static final int DEFAULTABLE_CHECKED = 1 << 8;
+    public static final int DEFAULTABLE = 1 << 9;
+    public static final int RECORD = 1 << 10;
+    public static final int PRIVATE = 1 << 11;
+    public static final int COMPENSATE = 1 << 12;
+    public static final int ABSTRACT = 1 << 13;
+    public static final int OPTIONAL = 1 << 14;
+    public static final int TESTABLE = 1 << 15;
+    public static final int REMOTE = 1 << 16;
+    public static final int CLIENT = 1 << 17;
 
     public static int asMask(Set<Flag> flagSet) {
         int mask = 0;
@@ -98,6 +99,9 @@ public class Flags {
                     break;
                 case TESTABLE:
                     mask |= TESTABLE;
+                    break;
+                case CLIENT:
+                    mask |= CLIENT;
                     break;
             }
         }
@@ -156,6 +160,9 @@ public class Flags {
                     break;
                 case OPTIONAL:
                     flagVal = OPTIONAL;
+                    break;
+                case CLIENT:
+                    flagVal = CLIENT;
                     break;
                 default:
                     continue;

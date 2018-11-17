@@ -29,11 +29,11 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Endpoint related test cases.
+ * Client Object and Remote function related test cases.
  *
  * @since 0.985.0
  */
-public class NewEndpointTest {
+public class ClientObjectTest {
 
     private CompileResult remoteBasic;
 
@@ -76,44 +76,54 @@ public class NewEndpointTest {
     @Test
     public void testRemoteBasicsNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/new/remote_basic_negative.bal");
-        int errIndex = 0;
-        BAssertUtil.validateError(compileResult, errIndex++,
+        int errIdx = 0;
+        BAssertUtil.validateError(compileResult, errIdx++,
                 "remote modifier not allowed in non-object attached function test1", 22, 1);
-        BAssertUtil.validateError(compileResult, errIndex++,
+        BAssertUtil.validateError(compileResult, errIdx++,
                 "remote modifier not allowed in non-object attached function test2", 26, 1);
-        BAssertUtil.validateError(compileResult, errIndex++,
+        BAssertUtil.validateError(compileResult, errIdx++,
                 "remote modifier not allowed in non-object attached function test3", 30, 1);
 
+        BAssertUtil.validateError(compileResult, errIdx++, "attempt to refer non-remote function abc as remote", 45, 1);
+        BAssertUtil.validateError(compileResult, errIdx++, "remote modifier required here", 50, 1);
         BAssertUtil
-                .validateError(compileResult, errIndex++, "attempt to refer non-remote function abc as remote", 45, 1);
-        BAssertUtil.validateError(compileResult, errIndex++, "remote modifier required here", 50, 1);
-        BAssertUtil.validateError(compileResult, errIndex++,
-                "invalid remote function invocation syntax, use '->' operator", 57, 13);
-        BAssertUtil.validateError(compileResult, errIndex++, "undefined remote function 'abc' in endpoint Foo", 59, 13);
+                .validateError(compileResult, errIdx++, "invalid remote function invocation syntax, use '->' operator",
+                        57, 13);
+        BAssertUtil.validateError(compileResult, errIdx++, "undefined remote function 'abc' in endpoint Foo", 59, 13);
 
-        BAssertUtil.validateError(compileResult, errIndex++, "unknown type 'XXX'", 65, 5);
-        BAssertUtil.validateError(compileResult, errIndex++, "invalid remote function invocation, expected an endpoint",
-                67, 13);
-        BAssertUtil.validateError(compileResult, errIndex++, "invalid remote function invocation, expected an endpoint",
-                71, 9);
-        BAssertUtil.validateError(compileResult, errIndex++, "invalid remote function invocation, expected an endpoint",
-                75, 9);
-        BAssertUtil.validateError(compileResult, errIndex++,
+        BAssertUtil.validateError(compileResult, errIdx++, "unknown type 'XXX'", 65, 5);
+        BAssertUtil
+                .validateError(compileResult, errIdx++, "invalid remote function invocation, expected an endpoint", 67,
+                        13);
+        BAssertUtil
+                .validateError(compileResult, errIdx++, "invalid remote function invocation, expected an endpoint", 71,
+                        9);
+        BAssertUtil
+                .validateError(compileResult, errIdx++, "invalid remote function invocation, expected an endpoint", 75,
+                        9);
+        BAssertUtil.validateError(compileResult, errIdx++,
                 "endpoint declaration not allowed here, declare at the top of a function or at module level", 89, 9);
-        BAssertUtil.validateError(compileResult, errIndex++,
+        BAssertUtil.validateError(compileResult, errIdx++,
                 "endpoint declaration not allowed here, declare at the top of a function or at module level", 97, 9);
 
-        BAssertUtil.validateError(compileResult, errIndex++,
-                "invalid remote function invocation syntax, use '->' operator", 112, 13);
-        BAssertUtil.validateError(compileResult, errIndex++,
-                "invalid remote function invocation syntax, use '->' operator", 120, 13);
-        BAssertUtil.validateError(compileResult, errIndex++,
+        BAssertUtil
+                .validateError(compileResult, errIdx++, "invalid remote function invocation syntax, use '->' operator",
+                        112, 13);
+        BAssertUtil
+                .validateError(compileResult, errIdx++, "invalid remote function invocation syntax, use '->' operator",
+                        120, 13);
+        BAssertUtil.validateError(compileResult, errIdx++,
                 "endpoint declaration not allowed here, declare at the top of a function or at module level", 126, 5);
-        BAssertUtil.validateError(compileResult, errIndex++,
+        BAssertUtil.validateError(compileResult, errIdx++,
                 "endpoint declaration not allowed here, declare at the top of a function or at module level", 134, 5);
-        BAssertUtil.validateError(compileResult, errIndex++, "action invocation as an expression not allowed here", 142,
-                12);
+        BAssertUtil
+                .validateError(compileResult, errIdx++, "action invocation as an expression not allowed here", 142, 12);
 
-        Assert.assertEquals(compileResult.getErrorCount(), errIndex);
+        BAssertUtil.validateError(compileResult, errIdx++, "a remote function in a non client object", 154, 5);
+        BAssertUtil.validateError(compileResult, errIdx++, "a remote function in a non client object", 163, 5);
+        BAssertUtil
+                .validateError(compileResult, errIdx++, "client objects requires at least one remote function", 170, 5);
+
+        Assert.assertEquals(compileResult.getErrorCount(), errIdx);
     }
 }
