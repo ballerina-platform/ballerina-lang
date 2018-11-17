@@ -22,6 +22,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.ForeachNode;
+import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -41,6 +42,10 @@ public class BLangForeach extends BLangStatement implements ForeachNode {
     public List<BLangExpression> varRefs = new ArrayList<>();
     public BLangBlockStmt body;
     public List<BType> varTypes;
+
+    public VariableDefinitionNode variableDefinitionNode;
+    public BType varType;
+    public boolean isDeclaredWithVar;
 
     @Override
     public ExpressionNode getCollection() {
@@ -70,6 +75,26 @@ public class BLangForeach extends BLangStatement implements ForeachNode {
     @Override
     public void setBody(BlockNode body) {
         this.body = (BLangBlockStmt) body;
+    }
+
+    @Override
+    public boolean setDeclaredWithVar() {
+        return false;
+    }
+
+    @Override
+    public boolean isDeclaredWithVar() {
+        return isDeclaredWithVar;
+    }
+
+    @Override
+    public VariableDefinitionNode getVariableDefinitionNode() {
+        return variableDefinitionNode;
+    }
+
+    @Override
+    public void setVariableDefinitionNode(VariableDefinitionNode variableDefinitionNode) {
+        this.variableDefinitionNode = variableDefinitionNode;
     }
 
     @Override

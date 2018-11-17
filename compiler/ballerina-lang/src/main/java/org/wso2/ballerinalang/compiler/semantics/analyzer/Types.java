@@ -667,6 +667,37 @@ public class Types {
         return checkFieldEquivalency(lhsType, rhsType, unresolvedTypes);
     }
 
+    BType checkForeachTypeBindingPatternTypes(BLangNode collection) {
+        BType collectionType = collection.type;
+        switch (collectionType.tag) {
+            case TypeTags.ARRAY:
+                BArrayType bArrayType = (BArrayType) collectionType;
+                return bArrayType.eType;
+            //                BArrayType bArrayType = (BArrayType) collectionType;
+            //                return new BTupleType(new LinkedList<BType>() {{
+            //                    add(bArrayType.eType);
+            //                }});
+            case TypeTags.MAP:
+                break;
+            case TypeTags.JSON:
+                // Todo - Remove?
+                break;
+            case TypeTags.XML:
+                break;
+            case TypeTags.TABLE:
+                break;
+            case TypeTags.RECORD:
+                // Todo - Remove?
+                break;
+            case TypeTags.SEMANTIC_ERROR:
+                break;
+            default:
+                dlog.error(collection.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION, collectionType);
+                break;
+        }
+        return null;
+    }
+
     List<BType> checkForeachTypes(BLangNode collection, int variableSize) {
         BType collectionType = collection.type;
         List<BType> errorTypes;

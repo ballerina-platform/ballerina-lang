@@ -25,6 +25,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.RecordVariableNode.BLangRecordVariableKeyValueNode;
+import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.clauses.GroupByNode;
 import org.ballerinalang.model.tree.clauses.HavingNode;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
@@ -1267,11 +1268,29 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangForeach foreach) {
+
+
+        // Todo - Only consider simple variable definitions in the first phase.
+
+        VariableNode variable = foreach.variableDefinitionNode.getVariable();
+
+        if (variable.getKind() != NodeKind.VARIABLE) {
+            dlog.error(foreach.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION);
+            return;
+        }
+
         typeChecker.checkExpr(foreach.collection, env);
-        foreach.varTypes = types.checkForeachTypes(foreach.collection, foreach.varRefs.size());
+
+
+        foreach.varType = types.checkForeachTypeBindingPatternTypes(foreach.collection);
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(foreach.body, env);
-        handleForeachVariables(foreach, foreach.varTypes, blockEnv);
+        handleForeachVariables(foreach, foreach.varType, blockEnv);
         analyzeStmt(foreach.body, blockEnv);
+
+        //        foreach.varTypes = types.checkForeachTypes(foreach.collection, foreach.varRefs.size());
+        //        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(foreach.body, env);
+        //        handleForeachVariables(foreach, foreach.varTypes, blockEnv);
+        //        analyzeStmt(foreach.body, blockEnv);
     }
 
     public void visit(BLangWhile whileNode) {
@@ -2218,6 +2237,29 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 dlog.error(simpleVarRef.pos, DiagnosticCode.REDECLARED_SYMBOL, varName);
             }
         }
+    }
+
+    private void handleForeachVariables(BLangForeach foreachStmt, BType varType, SymbolEnv env) {
+
+        BLangSimpleVariable variable = (BLangSimpleVariable) foreachStmt.variableDefinitionNode.getVariable();
+
+        Name name = names.fromIdNode(variable.name);
+        // Check variable symbol for existence.
+        BSymbol symbol = symResolver.lookupSymbol(env, name, SymTag.VARIABLE);
+        if (symbol != symTable.notFoundSymbol) {
+            dlog.error(variable.pos, DiagnosticCode.REDECLARED_SYMBOL, name);
+            return;
+        }
+
+        if (!foreachStmt.isDeclaredWithVar) {
+            BType typeNodeType = symResolver.resolveTypeNode(variable.typeNode, env);
+            if(!types.isSameType(varType,typeNodeType )){
+                dlog.error(variable.typeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES, varType,typeNodeType);
+                return;
+            }
+        }
+
+        variable.symbol = symbolEnter.defineVarSymbol(variable.pos, Collections.emptySet(), varType, name, env);
     }
 
     private void checkRetryStmtValidity(BLangExpression retryCountExpr) {
