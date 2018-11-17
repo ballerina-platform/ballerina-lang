@@ -1268,12 +1268,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangForeach foreach) {
-
-
-        // Todo - Only consider simple variable definitions in the first phase.
-
+        // Note - Only consider simple variable definitions in the first phase.
         VariableNode variable = foreach.variableDefinitionNode.getVariable();
-
         if (variable.getKind() != NodeKind.VARIABLE) {
             dlog.error(foreach.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION);
             return;
@@ -1281,16 +1277,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         typeChecker.checkExpr(foreach.collection, env);
 
-
         foreach.varType = types.checkForeachTypeBindingPatternTypes(foreach.collection);
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(foreach.body, env);
         handleForeachVariables(foreach, foreach.varType, blockEnv);
         analyzeStmt(foreach.body, blockEnv);
-
-        //        foreach.varTypes = types.checkForeachTypes(foreach.collection, foreach.varRefs.size());
-        //        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(foreach.body, env);
-        //        handleForeachVariables(foreach, foreach.varTypes, blockEnv);
-        //        analyzeStmt(foreach.body, blockEnv);
     }
 
     public void visit(BLangWhile whileNode) {

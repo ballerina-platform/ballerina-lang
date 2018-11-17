@@ -2334,17 +2334,7 @@ public class BLangPackageBuilder {
         foreach.addWS(ws);
         foreach.pos = pos;
         foreach.setVariableDefinitionNode(variableDefinitionNode);
-
-        ExpressionNode expressionNode = this.exprNodeStack.pop();
-        foreach.setCollection(expressionNode);
-
-        // Todo
-        variableDefinitionNode.getVariable().setInitialExpression(expressionNode);
-
-
-        //        foreach.addWS(commaWsStack.pop());
-        //        List<ExpressionNode> lExprList = exprNodeListStack.pop();
-        //        lExprList.forEach(expressionNode -> foreach.addVariable((BLangVariableReference) expressionNode));
+        foreach.setCollection(this.exprNodeStack.pop());
 
         BLangBlockStmt foreachBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         foreachBlock.pos = pos;
