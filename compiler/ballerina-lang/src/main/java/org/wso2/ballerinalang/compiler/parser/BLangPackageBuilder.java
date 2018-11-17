@@ -971,12 +971,19 @@ public class BLangPackageBuilder {
                                        String identifier,
                                        boolean exprAvailable,
                                        boolean isDeclaredWithVar) {
+        BLangSimpleVariableDef varDefNode = createSimpleVariableDef(pos, ws, identifier, exprAvailable,
+                isDeclaredWithVar);
+        addStmtToCurrentBlock(varDefNode);
+    }
+
+    private BLangSimpleVariableDef createSimpleVariableDef(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
+                                                           boolean isExpressionAvailable, boolean isDeclaredWithVar) {
         BLangSimpleVariable var = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         BLangSimpleVariableDef varDefNode = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
         var.pos = pos;
         var.addWS(ws);
         var.setName(this.createIdentifier(identifier));
-        if (exprAvailable) {
+        if (isExpressionAvailable) {
             var.setInitialExpression(this.exprNodeStack.pop());
         }
 
@@ -988,15 +995,22 @@ public class BLangPackageBuilder {
         varDefNode.pos = pos;
         varDefNode.setVariable(var);
         varDefNode.addWS(ws);
-        addStmtToCurrentBlock(varDefNode);
+        return varDefNode;
     }
 
     void addTupleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean isDeclaredWithVar) {
+        BLangTupleVariableDef varDefNode = createTupleVariableDef(pos, ws, true, isDeclaredWithVar);
+        addStmtToCurrentBlock(varDefNode);
+    }
+
+    private BLangTupleVariableDef createTupleVariableDef(DiagnosticPos pos, Set<Whitespace> ws,
+                                                         boolean isExpressionAvailable, boolean isDeclaredWithVar) {
         BLangTupleVariable var = (BLangTupleVariable) this.varStack.pop();
         BLangTupleVariableDef varDefNode = (BLangTupleVariableDef) TreeBuilder.createTupleVariableDefinitionNode();
         Set<Whitespace> wsOfSemiColon = removeNthFromLast(ws, 0);
-        var.setInitialExpression(this.exprNodeStack.pop());
-
+        if (isExpressionAvailable) {
+            var.setInitialExpression(this.exprNodeStack.pop());
+        }
         varDefNode.pos = pos;
         varDefNode.setVariable(var);
         varDefNode.addWS(wsOfSemiColon);
@@ -1004,13 +1018,21 @@ public class BLangPackageBuilder {
         if (!isDeclaredWithVar) {
             var.setTypeNode(this.typeNodeStack.pop());
         }
-        addStmtToCurrentBlock(varDefNode);
+        return varDefNode;
     }
 
     void addRecordVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean isDeclaredWithVar) {
+        BLangRecordVariableDef varDefNode = createRecordVariableDef(pos, ws, true, isDeclaredWithVar);
+        addStmtToCurrentBlock(varDefNode);
+    }
+
+    private BLangRecordVariableDef createRecordVariableDef(DiagnosticPos pos, Set<Whitespace> ws,
+                                                           boolean isExpressionAvailable, boolean isDeclaredWithVar) {
         BLangRecordVariableDef varDefNode = (BLangRecordVariableDef) TreeBuilder.createRecordVariableDefinitionNode();
         BLangRecordVariable var = (BLangRecordVariable) this.varStack.pop();
-        var.setInitialExpression(this.exprNodeStack.pop());
+        if (isExpressionAvailable) {
+            var.setInitialExpression(this.exprNodeStack.pop());
+        }
         varDefNode.pos = pos;
         varDefNode.setVariable(var);
         varDefNode.addWS(ws);
@@ -1019,7 +1041,7 @@ public class BLangPackageBuilder {
         if (!isDeclaredWithVar) {
             var.setTypeNode(this.typeNodeStack.pop());
         }
-        addStmtToCurrentBlock(varDefNode);
+        return varDefNode;
     }
 
     void addTypeInitExpression(DiagnosticPos pos, Set<Whitespace> ws, String initName, boolean typeAvailable,
@@ -2287,14 +2309,43 @@ public class BLangPackageBuilder {
         this.operatorWs.push(ws);
     }
 
-    void addForeachStatement(DiagnosticPos pos, Set<Whitespace> ws) {
+    void addForeachStatementWithSimpleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
+                                                           boolean isDeclaredWithVar) {
+        BLangSimpleVariableDef variableDefinitionNode = createSimpleVariableDef(pos, ws, identifier, false,
+                isDeclaredWithVar);
+        addForeachStatement(pos, ws, variableDefinitionNode);
+    }
+
+    void addForeachStatementWithRecordVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws,
+                                                           boolean isDeclaredWithVar) {
+        BLangTupleVariableDef variableDefinitionNode = createTupleVariableDef(pos, ws, false, isDeclaredWithVar);
+        addForeachStatement(pos, ws, variableDefinitionNode);
+    }
+
+    void addForeachStatementWithTupleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws,
+                                                          boolean isDeclaredWithVar) {
+        BLangRecordVariableDef variableDefinitionNode = createRecordVariableDef(pos, ws, false, isDeclaredWithVar);
+        addForeachStatement(pos, ws, variableDefinitionNode);
+    }
+
+    private void addForeachStatement(DiagnosticPos pos, Set<Whitespace> ws,
+                                     VariableDefinitionNode variableDefinitionNode) {
         BLangForeach foreach = (BLangForeach) TreeBuilder.createForeachNode();
         foreach.addWS(ws);
         foreach.pos = pos;
-        foreach.setCollection(exprNodeStack.pop());
-        foreach.addWS(commaWsStack.pop());
-        List<ExpressionNode> lExprList = exprNodeListStack.pop();
-        lExprList.forEach(expressionNode -> foreach.addVariable((BLangVariableReference) expressionNode));
+        foreach.setVariableDefinitionNode(variableDefinitionNode);
+
+        ExpressionNode expressionNode = this.exprNodeStack.pop();
+        foreach.setCollection(expressionNode);
+
+        // Todo
+        variableDefinitionNode.getVariable().setInitialExpression(expressionNode);
+
+
+        //        foreach.addWS(commaWsStack.pop());
+        //        List<ExpressionNode> lExprList = exprNodeListStack.pop();
+        //        lExprList.forEach(expressionNode -> foreach.addVariable((BLangVariableReference) expressionNode));
+
         BLangBlockStmt foreachBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         foreachBlock.pos = pos;
         foreach.setBody(foreachBlock);
