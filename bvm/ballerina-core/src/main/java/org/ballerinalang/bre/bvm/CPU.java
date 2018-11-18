@@ -130,6 +130,7 @@ import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -1854,7 +1855,7 @@ public class CPU {
                 if (sf.refRegs[i] == null) {
                     sf.intRegs[k] = sf.refRegs[j] == null ? 1 : 0;
                 } else {
-                    sf.intRegs[k] = isEqual(sf.refRegs[i], sf.refRegs[j]) ? 1 : 0;
+                    sf.intRegs[k] = isEqual(sf.refRegs[i], sf.refRegs[j], new ArrayList<>()) ? 1 : 0;
                 }
                 break;
             case InstructionCodes.REF_EQ:
@@ -1912,7 +1913,7 @@ public class CPU {
                 if (sf.refRegs[i] == null) {
                     sf.intRegs[k] = (sf.refRegs[j] != null) ? 1 : 0;
                 } else {
-                    sf.intRegs[k] = (!isEqual(sf.refRegs[i], sf.refRegs[j])) ? 1 : 0;
+                    sf.intRegs[k] = (!isEqual(sf.refRegs[i], sf.refRegs[j], new ArrayList<>())) ? 1 : 0;
                 }
                 break;
             case InstructionCodes.REF_NEQ:
@@ -4263,11 +4264,12 @@ public class CPU {
     /**
      * Deep value equality check for anydata.
      *
-     * @param lhsValue  The value on the left hand side
-     * @param rhsValue  The value on the right hand side
+     * @param lhsValue          The value on the left hand side
+     * @param rhsValue          The value on the right hand side
+     * @param checkedValues     Structured value pairs already compared or being compared
      * @return True if values are equal, else false.
      */
-    private static boolean isEqual(BValue lhsValue, BValue rhsValue) {
+    private static boolean isEqual(BValue lhsValue, BValue rhsValue, List<ValuePair> checkedValues) {
         if (lhsValue == rhsValue) {
             return true;
         }
@@ -4303,10 +4305,10 @@ public class CPU {
             case TypeTags.MAP_TAG:
             case TypeTags.JSON_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                return isMappingType(rhsValTypeTag) && isEqual((BMap) lhsValue, (BMap) rhsValue);
+                return isMappingType(rhsValTypeTag) && isEqual((BMap) lhsValue, (BMap) rhsValue, checkedValues);
             case TypeTags.TUPLE_TAG:
             case TypeTags.ARRAY_TAG:
-                return isListType(rhsValTypeTag) && isEqual((BNewArray) lhsValue, (BNewArray) rhsValue);
+                return isListType(rhsValTypeTag) && isEqual((BNewArray) lhsValue, (BNewArray) rhsValue, checkedValues);
         }
         return false;
     }
@@ -4322,17 +4324,24 @@ public class CPU {
     /**
      * Deep equality check for an array/tuple.
      *
-     * @param lhsList   The array/tuple on the left hand side
-     * @param rhsList   The array/tuple on the right hand side
+     * @param lhsList           The array/tuple on the left hand side
+     * @param rhsList           The array/tuple on the right hand side
+     * @param checkedValues     Structured value pairs already compared or being compared
      * @return True if the array/tuple values are equal, else false.
      */
-    private static boolean isEqual(BNewArray lhsList, BNewArray rhsList) {
+    private static boolean isEqual(BNewArray lhsList, BNewArray rhsList, List<ValuePair> checkedValues) {
+        ValuePair compValuePair = new ValuePair(lhsList, rhsList);
+        if (checkedValues.contains(compValuePair)) {
+            return true;
+        }
+        checkedValues.add(compValuePair);
+
         if (lhsList.size() != rhsList.size()) {
             return false;
         }
 
         for (int i = 0; i < lhsList.size(); i++) {
-            if (!isEqual(lhsList.getBValue(i), rhsList.getBValue(i))) {
+            if (!isEqual(lhsList.getBValue(i), rhsList.getBValue(i), checkedValues)) {
                 return false;
             }
         }
@@ -4342,11 +4351,18 @@ public class CPU {
     /**
      * Deep equality check for a map.
      *
-     * @param lhsMap    Map on the left hand side
-     * @param rhsMap    Map on the right hand side
+     * @param lhsMap            Map on the left hand side
+     * @param rhsMap            Map on the right hand side
+     * @param checkedValues     Structured value pairs already compared or being compared
      * @return True if the map values are equal, else false.
      */
-    private static boolean isEqual(BMap lhsMap, BMap rhsMap) {
+    private static boolean isEqual(BMap lhsMap, BMap rhsMap, List<ValuePair> checkedValues) {
+        ValuePair compValuePair = new ValuePair(lhsMap, rhsMap);
+        if (checkedValues.contains(compValuePair)) {
+            return true;
+        }
+        checkedValues.add(compValuePair);
+
         if (lhsMap.size() != rhsMap.size()) {
             return false;
         }
@@ -4358,7 +4374,7 @@ public class CPU {
         Iterator<Map.Entry<String, BValue>> mapIterator = lhsMap.getMap().entrySet().iterator();
         while (mapIterator.hasNext()) {
             Map.Entry<String, BValue> lhsMapEntry = mapIterator.next();
-            if (!isEqual(lhsMapEntry.getValue(), rhsMap.get(lhsMapEntry.getKey()))) {
+            if (!isEqual(lhsMapEntry.getValue(), rhsMap.get(lhsMapEntry.getKey()), checkedValues)) {
                 return false;
             }
         }
@@ -4367,7 +4383,7 @@ public class CPU {
 
     /**
      * Reference equality check for values. If both the values are simple basic types, returns the same
-     * result as {@link CPU#isEqual(BValue, BValue)}
+     * result as {@link CPU#isEqual(BValue, BValue, List)}
      *
      * @param lhsValue  The value on the left hand side
      * @param rhsValue  The value on the right hand side
@@ -4385,7 +4401,7 @@ public class CPU {
         }
 
         if (isSimpleBasicType(lhsValue.getType()) && isSimpleBasicType(rhsValue.getType())) {
-            return isEqual(lhsValue, rhsValue);
+            return isEqual(lhsValue, rhsValue, Collections.emptyList());
         }
 
         return false;
@@ -4393,7 +4409,7 @@ public class CPU {
 
     /**
      * Reference inequality check for values. If both the values are simple basic types, returns the same
-     * result as the negation of {@link CPU#isEqual(BValue, BValue)}
+     * result as the negation of {@link CPU#isEqual(BValue, BValue, List)}
      *
      * @param lhsValue  The value on the left hand side
      * @param rhsValue  The value on the right hand side
@@ -4406,7 +4422,7 @@ public class CPU {
         }
 
         if (isSimpleBasicType(lhsValue.getType()) && isSimpleBasicType(rhsValue.getType())) {
-            return !isEqual(lhsValue, rhsValue);
+            return !isEqual(lhsValue, rhsValue, Collections.emptyList());
         }
 
         return lhsValue != rhsValue;
@@ -4438,6 +4454,31 @@ public class CPU {
 
             TypePair other = (TypePair) obj;
             return this.sourceType.equals(other.sourceType) && this.targetType.equals(other.targetType);
+        }
+    }
+
+    /**
+     * BValue vector of size two, to hold two values being compared.
+     *
+     * @since 0.985.0
+     */
+    private static class ValuePair {
+        BValue lhsValue;
+        BValue rhsValue;
+
+        ValuePair(BValue lhsValue, BValue rhsValue) {
+            this.lhsValue = lhsValue;
+            this.rhsValue = rhsValue;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof ValuePair)) {
+                return false;
+            }
+
+            ValuePair otherValuePair = (ValuePair) obj;
+            return this.lhsValue == otherValuePair.lhsValue && this.rhsValue == otherValuePair.rhsValue;
         }
     }
 }
