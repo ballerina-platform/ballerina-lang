@@ -3,6 +3,9 @@
 import * as Ballerina from "./ast-interfaces";
 
 export interface Visitor {
+  beginVisitASTNode?(node: Ballerina.ASTNode): void;
+  endVisitASTNode?(node: Ballerina.ASTNode): void;
+
   beginVisitAbort?(node: Ballerina.Abort): void;
   endVisitAbort?(node: Ballerina.Abort): void;
 

@@ -5,6 +5,7 @@ export interface ASTNode {
   id: string;
   kind: string;
   viewState?: any;
+  ws?: any[];
 }
 
 export interface Abort extends ASTNode {
