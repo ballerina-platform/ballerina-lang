@@ -654,7 +654,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private void analyseUnreachableStructuredBindingPatterns(List<BLangMatchStructuredBindingPatternClause> clauses) {
         BLangMatchStructuredBindingPatternClause finalPattern = clauses.get(clauses.size() - 1);
-        if (finalPattern.bindingPatternVariable.getKind() == NodeKind.VARIABLE) {
+        if (finalPattern.bindingPatternVariable.getKind() == NodeKind.VARIABLE && finalPattern.typeGuardExpr == null) {
             finalPattern.isLastPattern = true;
         }
 

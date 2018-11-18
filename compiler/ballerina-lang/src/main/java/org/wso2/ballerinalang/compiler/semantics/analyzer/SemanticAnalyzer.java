@@ -575,9 +575,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean checkTypeAndVarCountConsistency(BLangTupleVariable varNode) {
-
         BTupleType tupleTypeNode;
-
+        /*
+          This switch block will resolve the tuple type of the tuple variable.
+          For example consider the following - (int, string)|(boolean, float) (a, b) = foo();
+          Since the varNode type is a union, the types of 'a' and 'b' will be resolved as follows:
+          Type of 'a' will be (int | boolean) while the type of 'b' will be (string | float).
+          Consider anydata (a, b) = foo();
+          Here, the type of 'a'and type of 'b' will be both anydata.
+         */
         switch (varNode.type.tag) {
             case TypeTags.UNION:
                 BUnionType unionType = ((BUnionType) varNode.type);
@@ -603,16 +609,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
                 break;
             case TypeTags.ANY:
+            case TypeTags.ANYDATA:
                 List<BType> memberTupleTypes = new ArrayList<>();
                 for (int i = 0; i < varNode.memberVariables.size(); i++) {
-                    memberTupleTypes.add(symTable.anyType);
-                }
-                tupleTypeNode = new BTupleType(memberTupleTypes);
-                break;
-            case TypeTags.ANYDATA:
-                memberTupleTypes = new ArrayList<>();
-                for (int i = 0; i < varNode.memberVariables.size(); i++) {
-                    memberTupleTypes.add(symTable.anydataType);
+                    memberTupleTypes.add(varNode.type);
                 }
                 tupleTypeNode = new BTupleType(memberTupleTypes);
                 break;
@@ -654,8 +654,19 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean validateRecordVariable(BLangRecordVariable recordVar) {
-
         BRecordType recordVarType;
+        /*
+          This switch block will resolve the record type of the record variable.
+          For example consider the following -
+          type Foo record {int a, boolean b};
+          type Bar record {string a, float b};
+          Foo|Bar {a, b} = foo();
+          Since the varNode type is a union, the types of 'a' and 'b' will be resolved as follows:
+          Type of 'a' will be a union of the types of field 'a' in both Foo and Bar.
+          i.e. type of 'a' is (int | string) and type of 'b' is (boolean | float).
+          Consider anydata {a, b} = foo();
+          Here, the type of 'a'and type of 'b' will be both anydata.
+         */
         switch (recordVar.type.tag) {
             case TypeTags.UNION:
                 BUnionType unionType = (BUnionType) recordVar.type;
@@ -675,27 +686,26 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     recordVarType = (BRecordType) symTable.recordType;
                     List<BField> fields = new ArrayList<>();
 
-                    for (int i = 0; i < recordVar.variableList.size(); i++) {
-                        String fieldName = recordVar.variableList.get(i).key.value;
-                        Set<BType> memberTypes = new HashSet<>();
-
-                        for (BRecordType possibleType : possibleTypes) {
-                            Map<String, BType> possibleTypeFields = possibleType.fields
-                                    .stream()
-                                    .collect(Collectors.toMap(
-                                            field -> field.getName().getValue(),
-                                            BField::getType
-                                    ));
-                            memberTypes.add(possibleTypeFields.get(fieldName) == null ?
-                                    possibleType.restFieldType : possibleTypeFields.get(fieldName));
-                        }
-
-                        BType fieldType = memberTypes.size() > 1 ? new BUnionType(null, memberTypes, false) :
-                                memberTypes.iterator().next();
-                        fields.add(new BField(names.fromString(fieldName),
-                                new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
-                                        fieldType, recordSymbol), false));
-                    }
+                    recordVar.variableList.stream()
+                            .map(bLangRecordVariableKeyValue -> bLangRecordVariableKeyValue.key.value)
+                            .forEach(fieldName -> {
+                                Set<BType> memberTypes = new HashSet<>();
+                                possibleTypes.forEach(possibleType -> {
+                                    Map<String, BType> possibleTypeFields = possibleType.fields
+                                            .stream()
+                                            .collect(Collectors.toMap(
+                                                    field -> field.getName().getValue(),
+                                                    BField::getType
+                                            ));
+                                    memberTypes.add(possibleTypeFields.get(fieldName) == null ?
+                                            possibleType.restFieldType : possibleTypeFields.get(fieldName));
+                                });
+                                BType fieldType = memberTypes.size() > 1 ? new BUnionType(null, memberTypes, false) :
+                                        memberTypes.iterator().next();
+                                fields.add(new BField(names.fromString(fieldName),
+                                        new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
+                                                fieldType, recordSymbol), false));
+                            });
                     if (recordVar.restParam != null) {
                         Set<BType> memberTypes = possibleTypes.stream()
                                 .map(possibleType -> possibleType.restFieldType)
@@ -714,10 +724,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 recordVarType = (BRecordType) recordVar.type;
                 break;
             case TypeTags.ANY:
-                recordVarType = createSameTypedFieldsRecordType(recordVar, symTable.anyType);
-                break;
             case TypeTags.ANYDATA:
-                recordVarType = createSameTypedFieldsRecordType(recordVar, symTable.anyType);
+                recordVarType = createSameTypedFieldsRecordType(recordVar, recordVar.type);
                 break;
             default:
                 dlog.error(recordVar.pos, DiagnosticCode.INVALID_RECORD_BINDING_PATTERN, recordVar.type);
@@ -776,13 +784,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private BRecordType createSameTypedFieldsRecordType(BLangRecordVariable recordVar, BType fieldTypes) {
         BRecordTypeSymbol recordSymbol =
                 Symbols.createRecordSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
-        List<BField> fields = new ArrayList<>();
-
-        for (int i = 0; i < recordVar.variableList.size(); i++) {
-            String fieldName = recordVar.variableList.get(i).key.value;
-            fields.add(new BField(names.fromString(fieldName), new BVarSymbol(0, names.fromString(fieldName),
-                    env.enclPkg.symbol.pkgID, fieldTypes, recordSymbol), false));
-        }
+        List<BField> fields = recordVar.variableList.stream()
+                .map(bLangRecordVariableKeyValue -> bLangRecordVariableKeyValue.key.value)
+                .map(fieldName -> new BField(names.fromString(fieldName), new BVarSymbol(0,
+                        names.fromString(fieldName), env.enclPkg.symbol.pkgID, fieldTypes, recordSymbol),
+                        false))
+                .collect(Collectors.toList());
 
         BRecordType recordVarType = (BRecordType) symTable.recordType;
         recordVarType.fields = fields;
