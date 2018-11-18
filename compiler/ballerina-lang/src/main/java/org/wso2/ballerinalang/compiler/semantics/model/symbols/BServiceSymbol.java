@@ -31,7 +31,9 @@ import java.util.List;
  */
 public class BServiceSymbol extends BTypeSymbol {
 
-    public List<BEndpointVarSymbol> boundEndpoints = new ArrayList<>();
+    public List<BVarSymbol> boundListners = new ArrayList<>();
+
+    public BObjectTypeSymbol objectType;
 
     public BServiceSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
         super(SymTag.SERVICE, flags, name, pkgID, type, owner);
@@ -41,7 +43,6 @@ public class BServiceSymbol extends BTypeSymbol {
     public BServiceSymbol createLabelSymbol() {
         BServiceSymbol copy = Symbols
                 .createServiceSymbol(flags, Names.EMPTY, pkgID, type, owner);
-        copy.boundEndpoints = boundEndpoints;
         copy.isLabel = true;
         return copy;
     }
