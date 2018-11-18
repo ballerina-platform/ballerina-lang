@@ -50,6 +50,7 @@ import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.net.grpc.exception.ServerRuntimeException;
 import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.ballerinalang.net.grpc.exception.UnsupportedFieldTypeException;
 import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
@@ -102,6 +103,41 @@ public class MessageUtils {
             }
         }
         return headerStruct;
+    }
+
+    private static boolean isHeaderExists(Resource resource) {
+        if (resource == null || resource.getParamDetails() == null) {
+            throw new RuntimeException("Invalid resource input arguments");
+        }
+        for (ParamDetail detail : resource.getParamDetails()) {
+            BType paramType = detail.getVarType();
+            if (paramType != null && PROTOCOL_STRUCT_PACKAGE_GRPC.equals(paramType.getPackagePath()) &&
+                    "Headers".equals(paramType.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns BType of the request parameter.
+     *
+     * @param resource Service resource.
+     * @return b7a message.
+     */
+    static BType getRequestParamType(Resource resource) {
+        if (resource.getParamDetails().size() > 3) {
+            throw new ServerRuntimeException("Invalid resource input arguments. arguments must not be greater than " +
+                    "three");
+        }
+        List<ParamDetail> paramDetails = resource.getParamDetails();
+        boolean headerExists = isHeaderExists(resource);
+        if ((headerExists && paramDetails.size() == 3) || (!headerExists && paramDetails.size() == 2)) {
+            return paramDetails.get(GrpcConstants.REQUEST_MESSAGE_PARAM_INDEX)
+                    .getVarType();
+        } else {
+            return null;
+        }
     }
 
     public static long copy(InputStream from, OutputStream to) throws IOException {
@@ -234,7 +270,7 @@ public class MessageUtils {
      * @return generated protobuf message.
      */
     public static Message generateProtoMessage(BValue responseValue, Descriptors.Descriptor outputType) {
-        Message responseMessage = new Message(outputType.getName());
+        Message responseMessage = new Message(outputType.getName(), null);
         for (Descriptors.FieldDescriptor fieldDescriptor : outputType.getFields()) {
             String fieldName = fieldDescriptor.getName();
             switch (fieldDescriptor.getType().toProto().getNumber()) {
@@ -581,7 +617,7 @@ public class MessageUtils {
         List<Descriptors.Descriptor> descriptors = EmptyProto.getDescriptor()
                 .getMessageTypes();
         for (Descriptors.Descriptor descriptor : descriptors) {
-            if (descriptor.equals(messageDescriptor)) {
+            if (descriptor.getFullName().equals(messageDescriptor.getFullName())) {
                 return true;
             }
         }

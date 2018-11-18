@@ -17,23 +17,38 @@
  */
 package org.ballerinalang.net.grpc;
 
+import com.google.protobuf.ByteString;
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.InvalidProtocolBufferException;
+import org.ballerinalang.bre.Context;
+import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.exception.ClientRuntimeException;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
+import org.ballerinalang.util.codegen.ProgramFile;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_BOOL_MESSAGE;
+import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_BYTES_MESSAGE;
+import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_DOUBLE_MESSAGE;
+import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_FLOAT_MESSAGE;
+import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_INT32_MESSAGE;
+import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_INT64_MESSAGE;
+import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_STRING_MESSAGE;
+import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_UINT32_MESSAGE;
+import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_UINT64_MESSAGE;
 import static org.ballerinalang.net.grpc.MessageUtils.setNestedMessages;
 import static org.ballerinalang.net.grpc.MethodDescriptor.generateFullMethodName;
+import static org.ballerinalang.net.grpc.ServicesBuilderUtils.hexStringToByteArray;
 
 /**
  * This class contains proto descriptors of the service.
@@ -42,14 +57,13 @@ import static org.ballerinalang.net.grpc.MethodDescriptor.generateFullMethodName
  */
 public final class ServiceDefinition {
     
-    private byte[] rootDescriptorData;
-    private List<byte[]> dependentDescriptorData;
+    private String rootDescriptor;
+    private BMap<String, BValue> descriptorMap;
     private Descriptors.FileDescriptor fileDescriptor;
     
-    public ServiceDefinition(byte[] rootDescriptorData, List<byte[]> depDescriptorData) {
-        this.rootDescriptorData = new byte[rootDescriptorData.length];
-        this.rootDescriptorData = Arrays.copyOf(rootDescriptorData, rootDescriptorData.length);
-        dependentDescriptorData = depDescriptorData;
+    public ServiceDefinition(String rootDescriptor, BMap<String, BValue> descriptorMap) {
+        this.rootDescriptor = rootDescriptor;
+        this.descriptorMap = descriptorMap;
     }
     
     /**
@@ -61,29 +75,56 @@ public final class ServiceDefinition {
         if (fileDescriptor != null) {
             return fileDescriptor;
         }
-        Descriptors.FileDescriptor[] depSet = new Descriptors.FileDescriptor[dependentDescriptorData.size()];
-        int i = 0;
-        for (byte[] dis : dependentDescriptorData) {
-            try {
-                DescriptorProtos.FileDescriptorProto fileDescriptorSet = DescriptorProtos.FileDescriptorProto
-                        .parseFrom(dis);
-                depSet[i] = Descriptors.FileDescriptor.buildFrom(fileDescriptorSet, new Descriptors
-                        .FileDescriptor[] {});
-                i++;
-            } catch (InvalidProtocolBufferException | Descriptors.DescriptorValidationException e) {
-                throw new ClientRuntimeException("Error while gen extracting depend descriptors. ", e);
-            }
-        }
-        
-        try (InputStream targetStream = new ByteArrayInputStream(rootDescriptorData)) {
-            DescriptorProtos.FileDescriptorProto descriptorProto = DescriptorProtos.FileDescriptorProto.parseFrom
-                    (targetStream);
-            fileDescriptor = Descriptors.FileDescriptor.buildFrom(descriptorProto, depSet);
-            return fileDescriptor;
+        try {
+            return fileDescriptor = getFileDescriptor(rootDescriptor, descriptorMap);
         } catch (IOException | Descriptors.DescriptorValidationException e) {
             throw new ClientRuntimeException("Error while generating service descriptor : ", e);
         }
     }
+
+    private Descriptors.FileDescriptor getFileDescriptor(String rootDescriptor, BMap<String, BValue>
+            descriptorMap) throws InvalidProtocolBufferException, Descriptors.DescriptorValidationException {
+        byte[] descriptor = hexStringToByteArray(rootDescriptor);
+        if (descriptor.length == 0) {
+            throw new ClientRuntimeException("Error while reading the service proto descriptor. input descriptor " +
+                    "string is null.");
+        }
+        DescriptorProtos.FileDescriptorProto descriptorProto = DescriptorProtos.FileDescriptorProto.parseFrom
+                (descriptor);
+        if (descriptorProto == null) {
+            throw new ClientRuntimeException("Error while reading the service proto descriptor. File proto descriptor" +
+                    " is null.");
+        }
+        Descriptors.FileDescriptor[] fileDescriptors = new Descriptors.FileDescriptor[descriptorProto
+                .getDependencyList().size()];
+        int i = 0;
+        for (ByteString dependency : descriptorProto.getDependencyList().asByteStringList()) {
+            if (descriptorMap.hasKey(dependency.toString(Charset.forName("UTF8")))) {
+                fileDescriptors[i++] = getFileDescriptor(descriptorMap.get(dependency.toString(Charset.forName
+                        ("UTF8"))).stringValue(), descriptorMap);
+            }
+        }
+        if (fileDescriptors.length > 0 && i == 0) {
+            throw new ClientRuntimeException("Error while reading the service proto descriptor. Couldn't find any " +
+                    "dependent descriptors.");
+        }
+        return Descriptors.FileDescriptor.buildFrom(descriptorProto, fileDescriptors);
+    }
+
+//    /**
+//     * Convert Hex string value to byte array.
+//     * @param s hexadecimal string value
+//     * @return Byte array
+//     */
+//    private byte[] hexStringToByteArray(String s) {
+//        int len = s.length();
+//        byte[] data = new byte[len / 2];
+//        for (int i = 0; i < len; i += 2) {
+//            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+//                    + Character.digit(s.charAt(i + 1), 16));
+//        }
+//        return data;
+//    }
 
     private Descriptors.ServiceDescriptor getServiceDescriptor() throws GrpcClientException {
         Descriptors.FileDescriptor descriptor = getDescriptor();
@@ -98,7 +139,7 @@ public final class ServiceDefinition {
         return descriptor.getFile().getServices().get(0);
     }
 
-    public Map<String, MethodDescriptor> getMethodDescriptors() throws GrpcClientException {
+    public Map<String, MethodDescriptor> getMethodDescriptors(Context context) throws GrpcClientException {
         Map<String, MethodDescriptor> descriptorMap = new HashMap<>();
         Descriptors.ServiceDescriptor serviceDescriptor = getServiceDescriptor();
 
@@ -111,8 +152,12 @@ public final class ServiceDefinition {
                     MethodDescriptor.<Message, Message>newBuilder()
                             .setType(MessageUtils.getMethodType(methodDescriptor.toProto()))
                             .setFullMethodName(fullMethodName)
-                            .setRequestMarshaller(ProtoUtils.marshaller(new Message(reqMessage.getName())))
-                            .setResponseMarshaller(ProtoUtils.marshaller(new Message(resMessage.getName())))
+                            .setRequestMarshaller(ProtoUtils.marshaller(new Message(reqMessage.getName(), context
+                                    .getProgramFile(), getBallerinaValueType(reqMessage.getName(), context
+                                    .getProgramFile()))))
+                            .setResponseMarshaller(ProtoUtils.marshaller(new Message(resMessage.getName(), context
+                                    .getProgramFile(), getBallerinaValueType(resMessage.getName(), context
+                                    .getProgramFile()))))
                             .setSchemaDescriptor(methodDescriptor)
                             .build();
             descriptorMap.put(fullMethodName, descriptor);
@@ -125,5 +170,35 @@ public final class ServiceDefinition {
             setNestedMessages(resMessage, messageRegistry);
         }
         return Collections.unmodifiableMap(descriptorMap);
+    }
+
+    /**
+     * Returns corresponding Ballerina type for the proto buffer type.
+     *
+     * @param protoType Protocol buffer type
+     * @param programFile   Ballerina Program File
+     * @return .
+     */
+    private static BType getBallerinaValueType(String protoType, ProgramFile programFile) throws GrpcClientException {
+        if (protoType.equalsIgnoreCase(WRAPPER_DOUBLE_MESSAGE) || protoType
+                .equalsIgnoreCase(WRAPPER_FLOAT_MESSAGE)) {
+            return BTypes.typeFloat;
+        } else if (protoType.equalsIgnoreCase(WRAPPER_INT32_MESSAGE) || protoType
+                .equalsIgnoreCase(WRAPPER_INT64_MESSAGE) || protoType
+                .equalsIgnoreCase(WRAPPER_UINT32_MESSAGE) || protoType
+                .equalsIgnoreCase(WRAPPER_UINT64_MESSAGE)) {
+            return BTypes.typeInt;
+        } else if (protoType.equalsIgnoreCase(WRAPPER_BOOL_MESSAGE)) {
+            return BTypes.typeBoolean;
+        } else if (protoType.equalsIgnoreCase(WRAPPER_STRING_MESSAGE)) {
+            return BTypes.typeString;
+        } else if (protoType.equalsIgnoreCase(WRAPPER_BYTES_MESSAGE)) {
+            return new BArrayType(BTypes.typeByte);
+        } else {
+            if (!programFile.getEntryPackage().typeDefInfoMap.containsKey(protoType)) {
+                throw new GrpcClientException("Error while retrieving Ballerina type for " + protoType);
+            }
+            return programFile.getEntryPackage().getStructInfo(protoType).getType();
+        }
     }
 }

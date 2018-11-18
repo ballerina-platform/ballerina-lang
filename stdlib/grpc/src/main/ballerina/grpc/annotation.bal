@@ -60,8 +60,10 @@ public annotation<resource> ResourceConfig GrpcResourceConfig;
 # Service descriptor data. This is for internal use.
 #
 # + descriptor - Service descriptor sets at compile time.
+# + descriptorMap -
 public type ServiceDescriptorData record {
     string descriptor = "";
+    map descMap = {};
     !...
 };
 
