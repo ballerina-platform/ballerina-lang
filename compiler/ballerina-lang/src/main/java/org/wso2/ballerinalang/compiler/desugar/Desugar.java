@@ -1566,29 +1566,40 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangForeach foreach) {
         BLangBlockStmt blockNode;
+
+        // We need to create a new variable for the expression as well. This is needed because integer ranges can be
+        // added as the expression so we cannot get the symbol in such cases.
+        BVarSymbol dataSymbol = new BVarSymbol(0, names.fromString("$data$"), this.env.scope.owner.pkgID,
+                foreach.collection.type, this.env.scope.owner);
+        BLangSimpleVariable dataVariable = ASTBuilderUtil.createVariable(foreach.pos, "$data$",
+                foreach.collection.type, foreach.collection, dataSymbol);
+        BLangSimpleVariableDef dataVariableDefinition = ASTBuilderUtil.createVariableDef(foreach.pos, dataVariable);
+
+        // Get the symbol of the variable (collection).
+        BVarSymbol symbol = dataVariable.symbol;
+
         switch (foreach.collection.type.tag) {
             case TypeTags.ARRAY:
-                blockNode = desugarForeachCodeBlockOfArray(foreach);
+                blockNode = desugarForeachCodeBlockOfArray(foreach, symbol);
                 break;
             case TypeTags.MAP:
-                blockNode = desugarForeachCodeBlockOfMap(foreach);
+                blockNode = desugarForeachCodeBlockOfMap(foreach, symbol);
                 break;
             case TypeTags.JSON:
-                blockNode = desugarForeachCodeBlockOfJson(foreach);
+                blockNode = desugarForeachCodeBlockOfJson(foreach, symbol);
                 break;
             default:
                 // Todo - log error
                 return;
         }
 
+        blockNode.stmts.add(0, dataVariableDefinition);
         // Rewrite the block.
         rewrite(blockNode, this.env);
         result = blockNode;
     }
 
-    private BLangBlockStmt desugarForeachCodeBlockOfArray(BLangForeach foreach) {
-        // Get the symbol from the collection.
-        BVarSymbol collectionSymbol = (BVarSymbol) ((BLangSimpleVarRef) foreach.collection).symbol;
+    private BLangBlockStmt desugarForeachCodeBlockOfArray(BLangForeach foreach, BVarSymbol collectionSymbol) {
         // Get the variable definition from the foreach statement.
         BLangSimpleVariableDef variableDefinitionNode = (BLangSimpleVariableDef) foreach.variableDefinitionNode;
 
@@ -1669,9 +1680,8 @@ public class Desugar extends BLangNodeVisitor {
         return blockNode;
     }
 
-    private BLangBlockStmt desugarForeachCodeBlockOfMap(BLangForeach foreach) {
+    private BLangBlockStmt desugarForeachCodeBlockOfMap(BLangForeach foreach, BVarSymbol collectionSymbol) {
         // Get the symbol from the collection.
-        BVarSymbol collectionSymbol = (BVarSymbol) ((BLangSimpleVarRef) foreach.collection).symbol;
         // Get the variable definition from the foreach statement.
         BLangSimpleVariableDef variableDefinitionNode = (BLangSimpleVariableDef) foreach.variableDefinitionNode;
 
@@ -1807,9 +1817,7 @@ public class Desugar extends BLangNodeVisitor {
         return blockNode;
     }
 
-    private BLangBlockStmt desugarForeachCodeBlockOfJson(BLangForeach foreach) {
-        // Get the symbol from the collection.
-        BVarSymbol collectionSymbol = (BVarSymbol) ((BLangSimpleVarRef) foreach.collection).symbol;
+    private BLangBlockStmt desugarForeachCodeBlockOfJson(BLangForeach foreach, BVarSymbol collectionSymbol) {
         // Get the variable definition from the foreach statement.
         BLangSimpleVariableDef variableDefinitionNode = (BLangSimpleVariableDef) foreach.variableDefinitionNode;
 
