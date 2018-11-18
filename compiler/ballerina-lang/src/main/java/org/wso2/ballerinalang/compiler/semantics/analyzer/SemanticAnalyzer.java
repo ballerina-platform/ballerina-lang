@@ -2244,11 +2244,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (!foreachStmt.isDeclaredWithVar) {
             BType typeNodeType = symResolver.resolveTypeNode(variable.typeNode, env);
             if (!types.isAssignable(varType, typeNodeType)) {
-                variable.type = symTable.semanticError;
                 dlog.error(variable.typeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES, varType, typeNodeType);
                 return;
             }
-            variable.type = typeNodeType;
         }
         variable.symbol = symbolEnter.defineVarSymbol(variable.pos, Collections.emptySet(), varType, name, env);
     }

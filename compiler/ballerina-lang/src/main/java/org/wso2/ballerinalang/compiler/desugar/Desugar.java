@@ -1764,7 +1764,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangBracedOrTupleExpr tupleExpression = (BLangBracedOrTupleExpr) TreeBuilder.createBracedOrTupleExpression();
         tupleExpression.expressions.add(indexReferenceInTuple);
         tupleExpression.expressions.add(dataAccessExpression);
-        tupleExpression.type = variableDefinitionNode.var.type;
+        tupleExpression.type = foreach.varType;
 
         // Update the variable by setting the type and the expression. i.e.- T i; -> T i = ($index$, data[$key$]);
         variableDefinitionNode.var.expr = tupleExpression;
