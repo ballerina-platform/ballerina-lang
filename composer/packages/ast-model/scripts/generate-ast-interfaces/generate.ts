@@ -30,6 +30,9 @@ export function genBaseVisitorFileCode(modelNames: string[]) {
         import * as Ballerina from "./ast-interfaces";
 
         export interface Visitor {
+            beginVisitASTNode?(node: Ballerina.ASTNode): void;
+            endVisitASTNode?(node: Ballerina.ASTNode): void;
+
             ${visitFunctions.join("\n")}
         }
     `;

@@ -4,9 +4,13 @@ import { Visitor } from "./base-visitor";
 const metaNodes = ["viewState", "ws", "position"];
 
 export function traversNode(node: ASTNode, visitor: Visitor) {
-    const beginVisitFn: any = (visitor as any)[`beginVisit${node.kind}`];
+    let beginVisitFn: any = (visitor as any)[`beginVisit${node.kind}`];
+    if (!beginVisitFn) {
+        beginVisitFn = visitor.beginVisitASTNode && visitor.beginVisitASTNode;
+    }
+
     if (beginVisitFn) {
-        beginVisitFn(node);
+        beginVisitFn.bind(visitor)(node);
     }
 
     const keys = Object.keys(node);
@@ -35,8 +39,11 @@ export function traversNode(node: ASTNode, visitor: Visitor) {
         traversNode(childNode, visitor);
     });
 
-    const endVisitFn: any = (visitor as any)[`endVisit${node.kind}`];
+    let endVisitFn: any = (visitor as any)[`endVisit${node.kind}`];
+    if (!endVisitFn) {
+        endVisitFn = visitor.endVisitASTNode && visitor.endVisitASTNode;
+    }
     if (endVisitFn) {
-        endVisitFn(node);
+        endVisitFn.bind(visitor)(node);
     }
 }
