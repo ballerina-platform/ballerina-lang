@@ -4458,27 +4458,26 @@ public class CPU {
     }
 
     /**
-     * BValue vector of size two, to hold two values being compared.
+     * Unordered BValue vector of size two, to hold two values being compared.
      *
      * @since 0.985.0
      */
     private static class ValuePair {
-        BValue lhsValue;
-        BValue rhsValue;
+        List<BValue> valueList = new ArrayList<>(2);
 
-        ValuePair(BValue lhsValue, BValue rhsValue) {
-            this.lhsValue = lhsValue;
-            this.rhsValue = rhsValue;
+        ValuePair(BValue valueOne, BValue valueTwo) {
+            valueList.add(valueOne);
+            valueList.add(valueTwo);
         }
 
         @Override
-        public boolean equals(Object obj) {
-            if (!(obj instanceof ValuePair)) {
+        public boolean equals(Object otherPair) {
+            if (!(otherPair instanceof ValuePair)) {
                 return false;
             }
 
-            ValuePair otherValuePair = (ValuePair) obj;
-            return this.lhsValue == otherValuePair.lhsValue && this.rhsValue == otherValuePair.rhsValue;
+            List otherValuePairValueList = ((ValuePair) otherPair).valueList;
+            return valueList.stream().allMatch(otherValuePairValueList::contains);
         }
     }
 }

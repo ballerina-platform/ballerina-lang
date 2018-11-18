@@ -1019,6 +1019,197 @@ public function testArrayTupleEqualityNegative() returns boolean {
     return equals || isEqual(g, f);
 }
 
+public function testSelfAndCyclicReferencingMapEqualityPositive() returns boolean {
+    map<anydata> m = { "3": "three", "0": 0 };
+    m["1"] = m;
+
+    map<anydata> n = { "0": 0, "3": "three" };
+    n["1"] = n;
+
+    boolean equals = isEqual(m, n);
+
+    map<anydata> o = { "0": 0 };
+    o["1"] = m;
+
+    map<anydata> p = { "0": 0 };
+    p["1"] = n;
+
+    equals = equals && o == p && !(o != p);
+
+    map<anydata> q = { one: 1 };
+    map<anydata> r = { one: 1 };
+    q.r = r;
+    r.q = q;
+    r.r = r;
+    q.q = q;
+
+    return equals && isEqual(q, r);
+}
+
+public function testSelfAndCyclicReferencingMapEqualityNegative() returns boolean {
+    map<anydata> m = { "3": "three", "0": 0 };
+    m["1"] = m;
+
+    map<anydata> n = { "0": 0, "3": "three" };
+    n["2"] = n;
+
+    boolean equals = m == n || !(n != m);
+
+    n["1"] = m;
+    map<anydata> o = { "0": 0 };
+    o["1"] = m;
+
+    map<anydata> p = { "0": "zero" };
+    p["1"] = n;
+
+    equals = equals || o == p || !(o != p);
+
+    map<anydata> q = { one: 1 };
+    map<anydata> r = { one: 1 };
+    map<anydata> s = { one: 2 };
+    q.r = r;
+    r.q = q;
+    r.r = r;
+    q.q = s;
+
+    return equals || isEqual(q, r);
+}
+
+public function testSelfAndCyclicReferencingJsonEqualityPositive() returns boolean {
+    json m = { "3": "three", "0": 0 };
+    m["1"] = m;
+
+    json n = { "0": 0, "3": "three" };
+    n["1"] = n;
+
+    boolean equals = isEqual(m, n);
+
+    json o = { "0": 0 };
+    o["1"] = m;
+
+    json p = { "0": 0 };
+    p["1"] = n;
+
+    equals = equals && o == p && !(o != p);
+
+    json q = { one: 1 };
+    json r = { one: 1 };
+    q.r = r;
+    r.q = q;
+    r.r = r;
+    q.q = q;
+
+    return equals && isEqual(q, r);
+}
+
+public function testSelfAndCyclicReferencingJsonEqualityNegative() returns boolean {
+    json m = { "3": "three", "0": 0 };
+    m["1"] = m;
+
+    json n = { "0": 0, "3": "three" };
+    n["2"] = n;
+
+    boolean equals = m == n || !(n != m);
+
+    n["1"] = m;
+    json o = { "0": 0 };
+    o["1"] = m;
+
+    json p = { "0": "zero" };
+    p["1"] = n;
+
+    equals = equals || o == p || !(o != p);
+
+    json q = { one: 1, t: 2 };
+    json r = { one: 1, t: 23 };
+    q.r = r;
+    r.q = q;
+    r.r = r;
+    q.q = q;
+
+    return equals || isEqual(q, r);
+}
+
+public function testSelfAndCyclicReferencingArrayEqualityPositive() returns boolean {
+    anydata[] m = [1, "hi"];
+    m[2] = m;
+
+    anydata[] n = [1, "hi"];
+    n[2] = n;
+
+    boolean equals = isEqual(m, n);
+
+    anydata[] o = [1, 3, 4.5, m, "hello"];
+    anydata[] p = [1, 3, 4.5, n, "hello"];
+
+    equals = equals && o == p && !(o != p);
+
+    o[5] = m;
+    p[5] = m;
+
+    return equals && o == p && !(o != p);
+}
+
+public function testSelfAndCyclicReferencingArrayEqualityNegative() returns boolean {
+    anydata[] m = [1, "hi", 3, "ballerina"];
+    m[2] = m;
+
+    anydata[] n = [1, "hi", 3, "ball"];
+    n[2] = n;
+
+    boolean equals = m == n || !(n != m);
+
+    anydata[] o = [1, 3, 4.5, m];
+    anydata[] p = [1, 3, 4.5, n];
+
+    equals = equals || o == p || !(p != o);
+
+    o[4] = m;
+    p[4] = n;
+
+    return equals || o == p || !(o != p);
+}
+
+public function testSelfAndCyclicReferencingTupleEqualityPositive() returns boolean {
+    (int, string, anydata) m = (1, "hi", false);
+    m[2] = m;
+
+    (int, string, anydata) n = (1, "hi", true);
+    n[2] = n;
+
+    boolean equals = isEqual(m, n);
+
+    (int, int, boolean, (int, string, anydata), anydata) o = (1, 3, true, m, "hello");
+    (int, int, boolean, (int, string, anydata), anydata) p = (1, 3, true, n, "hello");
+
+    equals = equals && o == p && !(o != p);
+
+    o[4] = m;
+    p[4] = m;
+
+    return equals && o == p && !(o != p);
+}
+
+public function testSelfAndCyclicReferencingTupleEqualityNegative() returns boolean {
+    (int, string, anydata, string) m = (1, "hi", 3, "ballerina");
+    m[2] = m;
+
+    (int, string, anydata, string) n = (1, "hi", 3, "ball");
+    n[2] = n;
+
+    boolean equals = m == n || !(n != m);
+
+    (int, int, boolean, anydata) o = (1, 3, true, m);
+    (int, int, boolean, anydata) p = (1, 3, true, n);
+
+    equals = equals || o == p || !(p != o);
+
+    o[3] = m;
+    p[3] = n;
+
+    return equals || o == p || !(o != p);
+}
+
 function isEqual(anydata a, anydata b) returns boolean {
     return a == b && !(b != a);
 }
