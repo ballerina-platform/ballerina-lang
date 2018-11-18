@@ -21,7 +21,7 @@ type Person object {
     public string name = "default";
 };
 
-function workerActionTest() {
+function workerActionFirstTest() {
     worker w1 {
         Person p1 = new Person();
         // Async send expr should be of anydata
@@ -43,7 +43,7 @@ function workerActionTest() {
     }
 }
 
-function workerWaitActionTest() {
+function workerActionSecTest() {
     future<int> f1 = start getId();
     future<string> f2 = start getName();
     future<boolean> f3 = start getStatus();
@@ -108,6 +108,44 @@ function workerWaitActionTest() {
     any validRes11 = wait {f1, f2};
 }
 
+function workerActionThirdTest() {
+    worker w1 {
+        int i =10;
+        i -> w2;
+
+        string msg = "hello";
+        msg -> w2;
+
+        if (true) {
+            i -> w2;
+        }
+    }
+    worker w2 {
+        print(<- w1);
+        string msg = "default";
+        if (true) {
+            msg = <- w1;
+        }
+    }
+}
+
+function workerActionFourthTest() {
+    worker w1 {
+        int i = 5;
+        var x1 = i ->> w2;
+        var x2 = i ->> w2;
+        var result = flush w2;
+    }
+    worker w2 {
+        int j =0 ;
+        j = <- w1;
+        j = <- w1;
+    }
+}
+
+function print(string str) {
+    string result = str.toUpper();
+}
 
 function getId() returns int {
     return 10;
