@@ -800,7 +800,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchStmtTypedBindingPatternClause patternClauseNode) {
+    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClauseNode) {
         setPreviousNode(patternClauseNode);
         if (patternClauseNode.variable != null) {
             this.acceptNode(patternClauseNode.variable);
@@ -812,7 +812,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchStmtStaticBindingPatternClause patternClauseNode) {
+    public void visit(BLangMatch.BLangMatchStaticBindingPatternClause patternClauseNode) {
         /*ignore*/
     }
 

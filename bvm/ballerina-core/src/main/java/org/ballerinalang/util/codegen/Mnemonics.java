@@ -62,6 +62,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.SGLOAD] = "sgload";
         mnemonics[InstructionCodes.BGLOAD] = "bgload";
         mnemonics[InstructionCodes.RGLOAD] = "rgload";
+        mnemonics[InstructionCodes.IS_LIKE] = "is_like";
 
         mnemonics[InstructionCodes.BIASTORE] = "biastore";
         mnemonics[InstructionCodes.IASTORE] = "iastore";

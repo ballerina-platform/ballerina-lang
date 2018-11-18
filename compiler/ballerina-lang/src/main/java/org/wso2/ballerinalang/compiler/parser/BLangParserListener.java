@@ -1033,7 +1033,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         if ((ctx.Identifier() != null) && ((ctx.parent instanceof BallerinaParser.TupleBindingPatternContext)
-                || (ctx.parent instanceof BallerinaParser.FieldBindingPatternContext))) {
+                || (ctx.parent instanceof BallerinaParser.FieldBindingPatternContext)
+                || (ctx.parent instanceof BallerinaParser.MatchPatternClauseContext))) {
             this.pkgBuilder.addBindingPatternMemberVariable(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
         }
     }
@@ -1475,7 +1476,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        if (ctx.simpleLiteral() != null && ctx.simpleLiteral().emptyTupleLiteral() == null) {
+        if (ctx.bindingPattern() != null) {
+            boolean isTypeGuardPresent = ctx.IF() != null;
+            this.pkgBuilder.addMatchStmtStructuredBindingPattern(getCurrentPos(ctx), getWS(ctx), isTypeGuardPresent);
+        } else if (ctx.expression() != null) {
             this.pkgBuilder.addMatchStmtStaticBindingPattern(getCurrentPos(ctx), getWS(ctx));
         } else {
             String identifier = ctx.Identifier() != null ? ctx.Identifier().getText() : null;

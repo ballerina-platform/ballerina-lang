@@ -389,6 +389,7 @@ public class CPU {
                     case InstructionCodes.ILSHIFT:
                     case InstructionCodes.IURSHIFT:
                     case InstructionCodes.TYPE_TEST:
+                    case InstructionCodes.IS_LIKE:
                         execBinaryOpCodes(ctx, sf, opcode, operands);
                         break;
     
@@ -2072,6 +2073,13 @@ public class CPU {
                 k = operands[2];
                 TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[j];
                 sf.intRegs[k] = checkIsType(sf.refRegs[i], typeRefCPEntry.getType()) ? 1 : 0;
+                break;
+            case InstructionCodes.IS_LIKE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[j];
+                sf.intRegs[k] = checkIsLike(sf.refRegs[i], typeRefCPEntry.getType()) ? 1 : 0;
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -4127,6 +4135,21 @@ public class CPU {
         return checkIsType(sourceType, targetType, new ArrayList<>());
     }
 
+    private static boolean checkIsLike(BValue sourceVal, BType targetType) {
+        if (checkIsType(sourceVal, targetType)) {
+            return true;
+        }
+        // todo add more is like tests
+        if (targetType.getTag() == TypeTags.RECORD_TYPE_TAG) {
+            return checkIsLikeRecordType(sourceVal, (BRecordType) targetType);
+        }
+
+        if (targetType.getTag() == TypeTags.TUPLE_TAG) {
+            return checkIsLikeTupleType(sourceVal, (BTupleType) targetType);
+        }
+        return false;
+    }
+
     private static boolean checkIsType(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
         // First check whether both types are the same.
         if (sourceType == targetType || sourceType.equals(targetType)) {
@@ -4243,7 +4266,7 @@ public class CPU {
         }
 
         // If both are sealed (one is sealed means other is also sealed) check the rest field type
-        if (sourceRecordType.sealed &&
+        if (!sourceRecordType.sealed &&
                 !checkIsType(sourceRecordType.restFieldType, targetType.restFieldType, unresolvedTypes)) {
             return false;
         }
@@ -4255,6 +4278,58 @@ public class CPU {
             BField sourceField = sourceFields.get(targetField.fieldName);
             return sourceField == null || !checkIsType(sourceField.fieldType, targetField.fieldType, unresolvedTypes);
         });
+    }
+
+    private static boolean checkIsLikeRecordType(BValue sourceVal, BRecordType targetType) {
+        if (sourceVal.getType().getTag() != TypeTags.RECORD_TYPE_TAG) {
+            return false;
+        }
+
+        if (targetType.getFields().length > ((BMap) sourceVal).size()) {
+            return false;
+        }
+
+        Map<String, BType> fieldMap = Arrays.stream(targetType.getFields())
+                .collect(Collectors.toMap(
+                        field -> field.fieldName,
+                        field -> field.fieldType
+                ));
+
+        BMap mapValue = (BMap) sourceVal;
+        for (Object keyObj : mapValue.getMap().keySet()) {
+            String key = (String) keyObj;
+            if (!fieldMap.containsKey(key)) {
+                if (targetType.sealed) {
+                    return false;
+                } else if (!checkIsLike(mapValue.get(key), targetType.restFieldType)) {
+                    return false;
+                }
+            } else if (!checkIsLike(mapValue.get(key), fieldMap.get(key))) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static boolean checkIsLikeTupleType(BValue sourceVal, BTupleType targetType) {
+        if (sourceVal.getType().getTag() != TypeTags.TUPLE_TAG) {
+            return false;
+        }
+
+        BRefValueArray source = (BRefValueArray) sourceVal;
+
+        if (source.getValues().length != targetType.getTupleTypes().size()) {
+            return false;
+        }
+
+        for (int i = 0; i < source.getValues().length; i++) {
+            if (!checkIsLike(source.get(i), targetType.getTupleTypes().get(i))) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private static boolean checkIsTableType(BType sourceType, BTableType targetType, List<TypePair> unresolvedTypes) {

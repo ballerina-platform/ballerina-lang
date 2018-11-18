@@ -415,7 +415,7 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchStmtTypedBindingPatternClause patternClauseNode) {
+    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClauseNode) {
         if (patternClauseNode.getVariableNode() != null &&
                 patternClauseNode.getVariableNode().getName() != null &&
                 patternClauseNode.getVariableNode().getName().getValue()
@@ -434,7 +434,7 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchStmtStaticBindingPatternClause patternClauseNode) {
+    public void visit(BLangMatch.BLangMatchStaticBindingPatternClause patternClauseNode) {
         /*ignore*/
     }
 
