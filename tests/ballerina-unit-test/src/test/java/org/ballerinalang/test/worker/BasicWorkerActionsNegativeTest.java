@@ -33,7 +33,7 @@ public class BasicWorkerActionsNegativeTest {
     @BeforeClass
     public void setup() {
         this.result = BCompileUtil.compile("test-src/workers/actions-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 27, "Worker actions negative test error count");
+        Assert.assertEquals(result.getErrorCount(), 33, "Worker actions negative test error count");
     }
 
     @Test(description = "Test negative scenarios of worker actions")
@@ -84,5 +84,15 @@ public class BasicWorkerActionsNegativeTest {
         BAssertUtil.validateError(result, 24, "invalid field name 'f2' in type '$anonType$6'", 103, 45);
         BAssertUtil.validateError(result, 25, "missing non-defaultable required record field 'f3'", 103, 45);
         BAssertUtil.validateError(result, 26, "missing non-defaultable required record field 'f2'", 104, 25);
+        BAssertUtil.validateError(result, 27, "worker send/receive interactions are invalid; worker(s) cannot " +
+                "move onwards from the state: '{w1=i -> w2, w2=FINISHED}'", 112, 5);
+        BAssertUtil.validateError(result, 28, "incompatible types: expected 'string', found 'int'", 114, 9);
+        BAssertUtil.validateError(result, 29, "invalid worker send statement position, must be a top level " +
+                "statement in a worker", 120, 13);
+        BAssertUtil.validateError(result, 30, "action invocation as an expression not allowed here", 124, 15);
+        BAssertUtil.validateError(result, 31, "invalid worker receive statement position, must be a top level " +
+                "statement in a worker", 127, 19);
+        BAssertUtil.validateError(result, 32, "invalid worker flush expression for 'w2', there are no worker send " +
+                "statements to 'w2' from 'w1'", 137, 22);
     }
 }
