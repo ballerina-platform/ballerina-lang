@@ -690,15 +690,18 @@ public class Types {
             case TypeTags.TABLE:
                 break;
             case TypeTags.RECORD:
-                // Todo - Remove?
-                break;
+                BRecordType recordType = (BRecordType) collectionType;
+                return new BTupleType(new LinkedList<BType>(){{
+                    add(symTable.stringType);
+                    add(inferRecordFieldType(recordType));
+                }});
             case TypeTags.SEMANTIC_ERROR:
                 break;
             default:
                 dlog.error(collection.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION, collectionType);
                 break;
         }
-        return null;
+        return symTable.semanticError;
     }
 
     List<BType> checkForeachTypes(BLangNode collection, int variableSize) {
