@@ -712,7 +712,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                         memberTypes.iterator().next();
                                 fields.add(new BField(names.fromString(fieldName),
                                         new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
-                                                fieldType, recordSymbol), false));
+                                                fieldType, recordSymbol)));
                             });
                     if (recordVar.restParam != null) {
                         Set<BType> memberTypes = possibleTypes.stream()
@@ -795,8 +795,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         List<BField> fields = recordVar.variableList.stream()
                 .map(bLangRecordVariableKeyValue -> bLangRecordVariableKeyValue.key.value)
                 .map(fieldName -> new BField(names.fromString(fieldName), new BVarSymbol(0,
-                        names.fromString(fieldName), env.enclPkg.symbol.pkgID, fieldTypes, recordSymbol),
-                        false))
+                        names.fromString(fieldName), env.enclPkg.symbol.pkgID, fieldTypes, recordSymbol)))
                 .collect(Collectors.toList());
 
         BRecordType recordVarType = (BRecordType) symTable.recordType;

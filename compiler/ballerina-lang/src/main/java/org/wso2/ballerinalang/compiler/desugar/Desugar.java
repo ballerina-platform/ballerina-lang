@@ -3185,7 +3185,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         BLangIf ifNode = ASTBuilderUtil.createIfElseStmt(pattern.pos, ifCondition, pattern.body, null);
-        ifNode.typeGuards = typeGuards;
+        ifNode.ifTypeGuards = typeGuards;
         return ifNode;
     }
 
@@ -3342,7 +3342,7 @@ public class Desugar extends BLangNodeVisitor {
                 BVarSymbol fieldSymbol = new BVarSymbol(0, names.fromString(fieldName),
                         env.enclPkg.symbol.pkgID, fieldType, recordSymbol);
 
-                fields.add(new BField(names.fromString(fieldName), fieldSymbol, false));
+                fields.add(new BField(names.fromString(fieldName), fieldSymbol));
                 typeDefFields.add(ASTBuilderUtil.createVariable(null, fieldName, fieldType, null, fieldSymbol));
             }
 
