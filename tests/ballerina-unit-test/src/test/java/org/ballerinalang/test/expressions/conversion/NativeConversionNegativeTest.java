@@ -61,16 +61,21 @@ public class NativeConversionNegativeTest {
         BAssertUtil.validateError(taintCheckResult, 0, "tainted value passed to sensitive parameter 'intArg'", 28, 22);
     }
 
-    @Test(description = "Test multiple from function with arguments")
+    @Test(description = "Test from function with multiple arguments")
     public void testFloatToIntWithMultipleArguments() {
-        Assert.assertEquals(negativeCompileResult.getErrorCount(), 4);
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 6);
         BAssertUtil.validateError(negativeCompileResult, 0, "too many arguments in call to 'from()'", 19, 12);
+    }
+
+    @Test(description = "Test from function with no arguments")
+    public void testToIntWithNoArguments() {
+        BAssertUtil.validateError(negativeCompileResult, 2, "not enough arguments in call to 'from()'", 24, 12);
     }
 
     @Test(description = "Test conversions not supported")
     public void testAnyToInt() {
-        BAssertUtil.validateError(negativeCompileResult, 0, "incompatible types: 'any' cannot be converted to 'int'",
-                                  24, 12);
+        BAssertUtil.validateError(negativeCompileResult, 4, "incompatible types: 'any' cannot be converted to 'int'",
+                                  29, 12);
     }
 }
 

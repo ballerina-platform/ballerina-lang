@@ -19,6 +19,11 @@ function floatToIntWithMultipleArguments() returns int {
     return int.from(a, a);
 }
 
+function testToIntWithNoArguments() {
+    float a = 5.0;
+    return int.from();
+}
+
 function anyToInt() returns int {
     any a = 5;
     return int.from(a);

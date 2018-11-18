@@ -22,7 +22,7 @@ function testSensitiveArg(@sensitive int intArg) {
     int c = intArg;
 }
 
-public function cloneTaintedValue() {
+public function convertTaintedValue() {
     float x = returnTaintedValue();
     int y = int.from(x);
     testSensitiveArg(y);
