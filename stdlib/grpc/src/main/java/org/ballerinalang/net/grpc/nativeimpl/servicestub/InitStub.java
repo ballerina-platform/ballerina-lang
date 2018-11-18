@@ -36,8 +36,6 @@ import org.ballerinalang.net.grpc.stubs.BlockingStub;
 import org.ballerinalang.net.grpc.stubs.NonBlockingStub;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.BLOCKING_TYPE;
@@ -95,29 +93,15 @@ public class InitStub extends BlockingNativeCallableUnit {
         }
         
         try {
-            // If there are more than one descriptors exist, other descriptors are considered as dependent
-            // descriptors.  client supported only one depth descriptor dependency.
-            List<byte[]> dependentDescriptors = new ArrayList<>();
-            byte[] fileDescriptor = null;
-            for (String key : descriptorMap.keys()) {
-                if (descriptorMap.get(key) == null) {
-                    continue;
-                }
-                if (descriptorKey.equals(key)) {
-                    fileDescriptor = hexStringToByteArray(descriptorMap.get(key).stringValue());
-                } else {
-                    dependentDescriptors.add(hexStringToByteArray(descriptorMap.get(key).stringValue()));
-                }
-            }
-            
-            if (fileDescriptor == null) {
+            if (!descriptorMap.hasKey(descriptorKey)) {
                 context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
                         .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while " +
                                 "establishing the connection. service descriptor is null."))));
                 return;
             }
-            ServiceDefinition serviceDefinition = new ServiceDefinition(fileDescriptor, dependentDescriptors);
-            Map<String, MethodDescriptor> methodDescriptorMap = serviceDefinition.getMethodDescriptors();
+            ServiceDefinition serviceDefinition = new ServiceDefinition(descriptorMap.get(descriptorKey).stringValue(),
+                    descriptorMap);
+            Map<String, MethodDescriptor> methodDescriptorMap = serviceDefinition.getMethodDescriptors(context);
             
             serviceStub.addNativeData(METHOD_DESCRIPTORS, methodDescriptorMap);
             if (BLOCKING_TYPE.equalsIgnoreCase(stubType)) {
@@ -136,16 +120,5 @@ public class InitStub extends BlockingNativeCallableUnit {
         } catch (RuntimeException | GrpcClientException e) {
             context.setError(MessageUtils.getConnectorError(context, e));
         }
-    }
-    
-    
-    private static byte[] hexStringToByteArray(String s) {
-        int len = s.length();
-        byte[] data = new byte[len / 2];
-        for (int i = 0; i < len; i += 2) {
-            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
-                    + Character.digit(s.charAt(i + 1), 16));
-        }
-        return data;
     }
 }

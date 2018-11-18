@@ -63,7 +63,7 @@ public class StandardDescriptorBuilder {
                 .getDescriptor());
     }
 
-    private static Descriptors.FileDescriptor getFileDescriptor(String libName) {
+    public static Descriptors.FileDescriptor getFileDescriptor(String libName) {
         return standardLibDescriptor.get(libName);
     }
 

@@ -16,6 +16,8 @@
 package org.ballerinalang.net.grpc;
 
 import com.google.protobuf.CodedInputStream;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.util.codegen.ProgramFile;
 
 import java.io.IOException;
 
@@ -27,13 +29,17 @@ import java.io.IOException;
 public class MessageParser {
 
     private final String messageName;
+    private final ProgramFile programFile;
+    private final BType bType;
 
-    MessageParser(String messageName) {
+    MessageParser(String messageName, ProgramFile programFile, BType bType) {
         this.messageName = messageName;
+        this.programFile = programFile;
+        this.bType = bType;
     }
 
     public Message parseFrom(CodedInputStream input) throws
             IOException {
-        return new Message(messageName, input);
+        return new Message(messageName, programFile, bType, input);
     }
 }

@@ -17,18 +17,29 @@
  */
 package org.ballerinalang.net.grpc;
 
+import com.google.protobuf.ByteString;
+import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
+import com.google.protobuf.InvalidProtocolBufferException;
+import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.listener.ServerCallHandler;
 import org.ballerinalang.net.grpc.listener.StreamingServerCallHandler;
 import org.ballerinalang.net.grpc.listener.UnaryServerCallHandler;
-import org.ballerinalang.net.grpc.proto.ServiceProtoUtils;
+import org.ballerinalang.net.grpc.proto.definition.StandardDescriptorBuilder;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.net.grpc.MessageUtils.getRequestParamType;
 import static org.ballerinalang.net.grpc.MessageUtils.setNestedMessages;
 
 /**
@@ -38,14 +49,15 @@ import static org.ballerinalang.net.grpc.MessageUtils.setNestedMessages;
  */
 public class ServicesBuilderUtils {
     
-    public static ServerServiceDefinition getServiceDefinition(Service service) throws GrpcServerException {
-        Descriptors.FileDescriptor fileDescriptor = ServiceProtoUtils.getDescriptor(service);
+    public static ServerServiceDefinition getServiceDefinition(Service service, Context context) throws
+            GrpcServerException {
+        Descriptors.FileDescriptor fileDescriptor = getDescriptor(service);
         Descriptors.ServiceDescriptor serviceDescriptor = fileDescriptor.findServiceByName(service.getName());
-        return getServiceDefinition(service, serviceDescriptor);
+        return getServiceDefinition(service, serviceDescriptor, context);
     }
     
     private static ServerServiceDefinition getServiceDefinition(Service service, Descriptors.ServiceDescriptor
-            serviceDescriptor) throws GrpcServerException {
+            serviceDescriptor, Context context) throws GrpcServerException {
         // Get full service name for the service definition. <package>.<service>
         final String serviceName = serviceDescriptor.getFullName();
         // Server Definition Builder for the service.
@@ -65,13 +77,10 @@ public class ServicesBuilderUtils {
             messageRegistry.addMessageDescriptor(responseDescriptor.getName(), responseDescriptor);
             setNestedMessages(responseDescriptor, messageRegistry);
 
-            MethodDescriptor.Marshaller reqMarshaller = ProtoUtils.marshaller(new Message(requestDescriptor
-                    .getName()));
-            MethodDescriptor.Marshaller resMarshaller = ProtoUtils.marshaller(new Message(responseDescriptor
-                    .getName()));
-
             MethodDescriptor.MethodType methodType;
             ServerCallHandler serverCallHandler;
+            MethodDescriptor.Marshaller reqMarshaller;
+            MethodDescriptor.Marshaller resMarshaller;
             Map<String, Resource> resourceMap = new HashMap<>();
             Resource mappedResource = null;
 
@@ -85,17 +94,27 @@ public class ServicesBuilderUtils {
             if (methodDescriptor.toProto().getServerStreaming() && methodDescriptor.toProto().getClientStreaming()) {
                 methodType = MethodDescriptor.MethodType.BIDI_STREAMING;
                 serverCallHandler = new StreamingServerCallHandler(methodDescriptor, resourceMap);
+                reqMarshaller = ProtoUtils.marshaller(new Message(requestDescriptor
+                        .getName(), context.getProgramFile(), getRequestParamType(resourceMap.get(GrpcConstants
+                        .ON_MESSAGE_RESOURCE))));
             } else if (methodDescriptor.toProto().getClientStreaming()) {
                 methodType = MethodDescriptor.MethodType.CLIENT_STREAMING;
                 serverCallHandler = new StreamingServerCallHandler(methodDescriptor, resourceMap);
+                reqMarshaller = ProtoUtils.marshaller(new Message(requestDescriptor
+                        .getName(), context.getProgramFile(), getRequestParamType(resourceMap.get(GrpcConstants
+                        .ON_MESSAGE_RESOURCE))));
             } else if (methodDescriptor.toProto().getServerStreaming()) {
                 methodType = MethodDescriptor.MethodType.SERVER_STREAMING;
                 serverCallHandler = new UnaryServerCallHandler(methodDescriptor, mappedResource);
+                reqMarshaller = ProtoUtils.marshaller(new Message(requestDescriptor
+                        .getName(), context.getProgramFile(), getRequestParamType(mappedResource)));
             } else {
                 methodType = MethodDescriptor.MethodType.UNARY;
                 serverCallHandler = new UnaryServerCallHandler(methodDescriptor, mappedResource);
+                reqMarshaller = ProtoUtils.marshaller(new Message(requestDescriptor
+                        .getName(), context.getProgramFile(), getRequestParamType(mappedResource)));
             }
-
+            resMarshaller = ProtoUtils.marshaller(new Message(responseDescriptor.getName(), null));
             MethodDescriptor.Builder methodBuilder = MethodDescriptor.newBuilder();
             MethodDescriptor grpcMethodDescriptor = methodBuilder.setType(methodType)
                     .setFullMethodName(methodName)
@@ -109,6 +128,88 @@ public class ServicesBuilderUtils {
 
     private ServicesBuilderUtils() {
 
+    }
+
+    /**
+     * Returns file descriptor for the service.
+     * Reads file descriptor from internal annotation attached to the service at compile time.
+     *
+     * @param service gRPC service.
+     * @return File Descriptor of the service.
+     * @throws GrpcServerException cannot read service descriptor
+     */
+    public static com.google.protobuf.Descriptors.FileDescriptor getDescriptor(
+            org.ballerinalang.connector.api.Service service) throws GrpcServerException {
+        try {
+            List<Annotation> annotationList = service.getAnnotationList("ballerina/grpc", "ServiceDescriptor");
+            if (annotationList == null || annotationList.size() != 1) {
+                throw new GrpcServerException("Couldn't find the service descriptor.");
+            }
+            Annotation descriptorAnn = annotationList.get(0);
+            Struct descriptorStruct = descriptorAnn.getValue();
+            if (descriptorStruct == null) {
+                throw new GrpcServerException("Couldn't find the service descriptor.");
+            }
+            String descriptorData = descriptorStruct.getStringField("descriptor");
+            Map<String, Value> descMap = descriptorStruct.getMapField("descMap");
+            return getFileDescriptor(descriptorData, descMap);
+        } catch (IOException | Descriptors.DescriptorValidationException e) {
+            throw new GrpcServerException("Error while reading the service proto descriptor. check the service " +
+                    "implementation. ", e);
+        }
+    }
+
+    private static Descriptors.FileDescriptor getFileDescriptor(String descriptorData, Map<String, Value> descMap)
+            throws InvalidProtocolBufferException, Descriptors.DescriptorValidationException, GrpcServerException {
+        byte[] descriptor = hexStringToByteArray(descriptorData);
+        if (descriptor.length == 0) {
+            throw new GrpcServerException("Error while reading the service proto descriptor. input descriptor string " +
+                    "is null.");
+        }
+        DescriptorProtos.FileDescriptorProto descriptorProto = DescriptorProtos.FileDescriptorProto.parseFrom
+                (descriptor);
+        if (descriptorProto == null) {
+            throw new GrpcServerException("Error while reading the service proto descriptor. File proto descriptor is" +
+                    " null.");
+        }
+        Descriptors.FileDescriptor[] fileDescriptors = new Descriptors.FileDescriptor[descriptorProto
+                .getDependencyList().size()];
+        int i = 0;
+        for (ByteString dependency : descriptorProto.getDependencyList().asByteStringList()) {
+            String dependencyKey = dependency.toString(Charset.forName("UTF8"));
+            if (descMap.containsKey(dependencyKey)) {
+                fileDescriptors[i++] = getFileDescriptor(descMap.get(dependencyKey).getStringValue(), descMap);
+            } else if (descMap.size() == 0) {
+                Descriptors.FileDescriptor dependentDescriptor = StandardDescriptorBuilder.getFileDescriptor
+                        (dependencyKey);
+                if (dependentDescriptor != null) {
+                    fileDescriptors[i++] = dependentDescriptor;
+                }
+            }
+        }
+        if (fileDescriptors.length > 0 && i == 0) {
+            throw new GrpcServerException("Error while reading the service proto descriptor. Couldn't find any " +
+                    "dependent descriptors.");
+        }
+        return Descriptors.FileDescriptor.buildFrom(descriptorProto, fileDescriptors);
+    }
+
+    /**
+     * Convert Hex string value to byte array.
+     * @param sDescriptor hexadecimal string value
+     * @return Byte array
+     */
+    public static byte[] hexStringToByteArray(String sDescriptor) {
+        if (sDescriptor == null) {
+            return new byte[0];
+        }
+        int len = sDescriptor.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(sDescriptor.charAt(i), 16) << 4)
+                    + Character.digit(sDescriptor.charAt(i + 1), 16));
+        }
+        return data;
     }
 
 }

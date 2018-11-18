@@ -83,8 +83,7 @@ public class ServiceDefinitionValidator {
             boolean isNameExists = false;
             boolean clientStreaming = false;
             for (BLangRecordLiteral.BLangRecordKeyValue keyValue : annVals) {
-                switch (((BLangSimpleVarRef) (keyValue.key).expr).variableName
-                        .getValue()) {
+                switch (((BLangSimpleVarRef) (keyValue.key).expr).variableName.getValue()) {
                     case "name":
                         isNameExists = true;
                         break;
