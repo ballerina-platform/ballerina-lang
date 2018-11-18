@@ -38,10 +38,12 @@ public class BLangIf extends BLangStatement implements IfNode {
     public BLangStatement elseStmt;
 
     // Cache of the type guards
-    public Map<BVarSymbol, BVarSymbol> typeGuards;
+    public Map<BVarSymbol, BVarSymbol> ifTypeGuards;
+    public Map<BVarSymbol, BVarSymbol> elseTypeGuards;
 
     public BLangIf() {
-        this.typeGuards = new HashMap<>();
+        this.ifTypeGuards = new HashMap<>();
+        this.elseTypeGuards = new HashMap<>();
     }
 
     @Override

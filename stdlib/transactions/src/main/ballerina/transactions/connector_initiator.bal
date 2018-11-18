@@ -17,12 +17,12 @@
 import ballerina/http;
 
 type InitiatorClientConfig record {
-    string registerAtURL;
-    int timeoutMillis;
+    string registerAtURL = "";
+    int timeoutMillis = 0;
     record {
-        int count;
-        int interval;
-    } retryConfig;
+        int count = 0;
+        int interval = 0;
+    } retryConfig = {};
 };
 
 type InitiatorClientEP object {

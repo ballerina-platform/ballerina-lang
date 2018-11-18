@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
 /**
  * Test class for runtime package.
  */
+@Test(groups = {"broken"})
 public class RuntimeTest {
 
     private CompileResult compileResult;

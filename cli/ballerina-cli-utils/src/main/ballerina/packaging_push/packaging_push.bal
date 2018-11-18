@@ -79,7 +79,7 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string md
 # This function will invoke the method to push the module.
 # + args - Arguments passed
 public function main (string... args) {
-    http:Client httpEndpoint;
+    http:Client httpEndpoint = new;
     string host = args[13];
     string strPort = args[14];
     if (host != "" && strPort != "") {

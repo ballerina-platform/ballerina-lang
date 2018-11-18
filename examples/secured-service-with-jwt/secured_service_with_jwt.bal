@@ -12,11 +12,11 @@ http:AuthProvider jwtAuthProvider = {
         password: "ballerina"
     }
 };
-// The endpoint used here is `http:SecureListener`. The JWT authentication
+// The endpoint used here is `http:Listener`. The JWT authentication
 // provider is set to this endpoint using the `authProviders` attribute. The
 // developer has the option to override the authentication and authorization
 // at the service and resource levels.
-endpoint http:SecureListener ep {
+endpoint http:Listener ep {
     port: 9090,
     authProviders:[jwtAuthProvider],
     // The secure hello world sample uses https.

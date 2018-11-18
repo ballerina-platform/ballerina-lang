@@ -78,11 +78,11 @@ public type CacheConfig record {
 # + cacheConfig - Configurations for the underlying cache storage and for controlling the HTTP caching behaviour
 public type HttpCachingClient object {
 
-    public string serviceUri;
-    public ClientEndpointConfig config;
+    public string serviceUri = "";
+    public ClientEndpointConfig config = {};
     public CallerActions httpClient;
     public HttpCache cache;
-    public CacheConfig cacheConfig;
+    public CacheConfig cacheConfig = {};
 
     # Takes a service URL, a `CliendEndpointConfig` and a `CacheConfig` and builds an HTTP client capable of
     # caching responses. The `CacheConfig` instance is used for initializing a new HTTP cache for the client and

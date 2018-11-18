@@ -38,6 +38,7 @@ import org.ballerinalang.model.tree.clauses.StreamingInput;
 import org.ballerinalang.model.tree.clauses.WhereNode;
 import org.ballerinalang.model.tree.clauses.WindowClauseNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
@@ -66,6 +67,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -175,9 +177,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.tree.NodeKind.BRACED_TUPLE_EXPR;
@@ -208,6 +212,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private BType resType;
     private boolean isSiddhiRuntimeEnabled;
     private boolean isGroupByAvailable;
+    private Map<BVarSymbol, Set<BType>> typeGuards;
 
     public static SemanticAnalyzer getInstance(CompilerContext context) {
         SemanticAnalyzer semAnalyzer = context.get(SYMBOL_ANALYZER_KEY);
@@ -923,7 +928,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 symbolEnter.defineShadowedSymbol(ifNode.expr.pos, varSymbol, ifBodyEnv);
 
                 // Cache the type guards, to be reused at the desugar.
-                ifNode.typeGuards.put(originalVarSymbol, varSymbol);
+                ifNode.ifTypeGuards.put(originalVarSymbol, varSymbol);
             }
         }
 
@@ -932,13 +937,28 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error(ifNode.expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.booleanType, actualType);
         }
 
+        // Add the type guards of 'if' to the current type guards map.
+        addTypeGuards(typeGuards);
+        // Reset the current type guards before visiting the body.
+        Map<BVarSymbol, Set<BType>> preTypeGuards = this.typeGuards;
+        resetTypeGards();
         analyzeStmt(ifNode.body, env);
+        // Restore the type guards after visiting the body
+        this.typeGuards = preTypeGuards;
 
         if (ifNode.elseStmt != null) {
+            // if this is the last 'else', add all the remaining type guards to the else.
+            if (ifNode.elseStmt.getKind() == NodeKind.BLOCK) {
+                addElseTypeGuards(ifNode);
+            }
             analyzeStmt(ifNode.elseStmt, env);
         }
+
+        // Reset the type guards when exiting from the if-else node
+        resetTypeGards();
     }
 
+    @Override
     public void visit(BLangMatch matchNode) {
 
         //first fail if both static and typed patterns have been defined in the match stmt
@@ -1601,12 +1621,37 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             ((BLangWhere) afterWhereNode).accept(this);
         }
 
-        //Create duplicate symbol for stream alias
-        if (streamingInput.getAlias() != null) {
-            BVarSymbol streamSymbol = (BVarSymbol) ((BLangSimpleVarRef) streamRef).symbol;
-            BVarSymbol streamAliasSymbol = ASTBuilderUtil.duplicateVarSymbol(streamSymbol);
-            streamAliasSymbol.name = names.fromString(streamingInput.getAlias());
-            symbolEnter.defineSymbol(streamingInput.pos, streamAliasSymbol, env);
+        if (isTableReference(streamingInput.getStreamReference())) {
+            if (streamingInput.getAlias() == null) {
+                dlog.error(streamingInput.pos, DiagnosticCode.UNDEFINED_INVOCATION_ALIAS, ((BLangInvocation) streamRef)
+                        .name.getValue());
+            }
+            if (streamingInput.getStreamReference().getKind() == NodeKind.INVOCATION) {
+                BInvokableSymbol functionSymbol = (BInvokableSymbol) ((BLangInvocation) streamRef).symbol;
+                symbolEnter.defineVarSymbol(streamingInput.pos, EnumSet.noneOf(Flag.class), ((BTableType) functionSymbol
+                        .retType).constraint, names.fromString(streamingInput.getAlias()), env);
+            } else {
+                BType constraint = ((BTableType) ((BLangVariableReference) streamingInput.getStreamReference()).type)
+                        .constraint;
+                symbolEnter.defineVarSymbol(streamingInput.pos, EnumSet.noneOf(Flag.class), constraint,
+                        names.fromString(streamingInput.getAlias()), env);
+            }
+        } else {
+            //Create duplicate symbol for stream alias
+            if (streamingInput.getAlias() != null) {
+                BVarSymbol streamSymbol = (BVarSymbol) ((BLangSimpleVarRef) streamRef).symbol;
+                BVarSymbol streamAliasSymbol = ASTBuilderUtil.duplicateVarSymbol(streamSymbol);
+                streamAliasSymbol.name = names.fromString(streamingInput.getAlias());
+                symbolEnter.defineSymbol(streamingInput.pos, streamAliasSymbol, env);
+            }
+        }
+    }
+
+    private boolean isTableReference(ExpressionNode streamReference) {
+        if (streamReference.getKind() == NodeKind.INVOCATION) {
+            return ((BLangInvocation) streamReference).type.tsymbol.type == symTable.tableType;
+        } else {
+            return ((BLangVariableReference) streamReference).type.tsymbol.type == symTable.tableType;
         }
     }
 
@@ -1688,7 +1733,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangGroupBy groupBy) {
         List<? extends ExpressionNode> variableExpressionList = groupBy.getVariables();
         for (ExpressionNode expressionNode : variableExpressionList) {
-            ((BLangExpression) expressionNode).accept(this);
+            if (isSiddhiRuntimeEnabled || !(expressionNode.getKind() == NodeKind.INVOCATION)) {
+                ((BLangExpression) expressionNode).accept(this);
+                return;
+            }
+
+            BLangInvocation invocationExpr = (BLangInvocation) expressionNode;
+            VariableReferenceNode variableReferenceNode = (VariableReferenceNode) invocationExpr.getExpression();
+            if (variableReferenceNode != null) {
+                ((BLangVariableReference) variableReferenceNode).accept(this);
+            }
+            typeChecker.checkExpr(invocationExpr, env);
         }
     }
 
@@ -2353,5 +2408,66 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error(pos, DiagnosticCode.INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT, func.funcName,
                     func.symbol.receiverSymbol.type);
         }
+    }
+
+    private void addElseTypeGuards(BLangIf ifNode) {
+        SymbolEnv elseEnv = SymbolEnv.createBlockEnv((BLangBlockStmt) ifNode.elseStmt, env);
+        for (Entry<BVarSymbol, Set<BType>> entry : this.typeGuards.entrySet()) {
+            BVarSymbol originalVarSymbol = entry.getKey();
+            BType remainingType = getRemainingType(originalVarSymbol.type, entry.getValue());
+            BVarSymbol varSymbol = new BVarSymbol(0, originalVarSymbol.name, elseEnv.scope.owner.pkgID, remainingType,
+                    this.env.scope.owner);
+            symbolEnter.defineShadowedSymbol(ifNode.expr.pos, varSymbol, elseEnv);
+
+            // Cache the type guards, to be reused at the desugar.
+            ifNode.elseTypeGuards.put(originalVarSymbol, varSymbol);
+        }
+    }
+
+    private void addTypeGuards(Map<BVarSymbol, BType> typeGuards) {
+        if (this.typeGuards == null) {
+            this.typeGuards = new HashMap<>();
+            this.typeGuards = typeGuards.entrySet().stream()
+                    .collect(Collectors.toMap(Map.Entry::getKey, e -> new HashSet() {
+                        { add(e.getValue()); }
+                    }));
+            return;
+        }
+
+        for (Entry<BVarSymbol, BType> entry : typeGuards.entrySet()) {
+            Set<BType> typGuardsForSymbol = this.typeGuards.get(entry.getKey());
+            if (typGuardsForSymbol == null) {
+                typGuardsForSymbol = new HashSet<>();
+                this.typeGuards.put(entry.getKey(), typGuardsForSymbol);
+            }
+
+            typGuardsForSymbol.add(entry.getValue());
+        }
+    }
+
+    private void resetTypeGards() {
+        this.typeGuards = null;
+    }
+
+    private BType getRemainingType(BType originalType, Set<BType> set) {
+        if (originalType.tag != TypeTags.UNION) {
+            return originalType;
+        }
+
+        List<BType> memberTypes = new ArrayList<>(((BUnionType) originalType).getMemberTypes());
+
+        for (BType removeType : set) {
+            if (removeType.tag != TypeTags.UNION) {
+                memberTypes.remove(removeType);
+            } else {
+                ((BUnionType) removeType).getMemberTypes().forEach(type -> memberTypes.remove(type));
+            }
+            
+            if (memberTypes.size() == 1) {
+                return memberTypes.get(0);
+            }
+        }
+
+        return new BUnionType(null, new HashSet<>(memberTypes), memberTypes.contains(symTable.nilType));
     }
 }

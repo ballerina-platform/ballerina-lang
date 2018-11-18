@@ -86,7 +86,7 @@ public type JWTAuthProvider object {
 
     function setAuthContext(internal:JwtPayload jwtPayload, string jwtToken) {
         runtime:UserPrincipal userPrincipal = runtime:getInvocationContext().userPrincipal;
-        userPrincipal.userId = jwtPayload.sub;
+        userPrincipal.userId = jwtPayload.iss + ":" + jwtPayload.sub;
         // By default set sub as username.
         userPrincipal.username = jwtPayload.sub;
         userPrincipal.claims = jwtPayload.customClaims;
@@ -127,12 +127,12 @@ const string AUTH_TYPE_JWT = "jwt";
 # + trustStoreFilePath - Path to the trust store file
 # + trustStorePassword - Trust store password
 public type JWTAuthProviderConfig record {
-    string issuer;
-    string audience;
-    int clockSkew;
-    string certificateAlias;
-    string trustStoreFilePath;
-    string trustStorePassword;
+    string issuer = "";
+    string audience = "";
+    int clockSkew = 0;
+    string certificateAlias = "";
+    string trustStoreFilePath = "";
+    string trustStorePassword = "";
     !...
 };
 

@@ -56,10 +56,11 @@
             <class name="org.ballerinalang.test.service.http.sample.IdleTimeoutResponseTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HttpPipeliningTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HttpStatusCodeTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.CipherStrengthSSLTestCase"/>
         </classes>
     </test>
 
-    <test name="ballerina-resiliency-tests" parallel="methods" thread-count="13">
+    <test name="ballerina-resiliency-tests" parallel="methods" thread-count="17">
         <classes>
             <class name="org.ballerinalang.test.service.resiliency.HttpResiliencyTest"/>
         </classes>
@@ -95,6 +96,12 @@
             <class name="org.ballerinalang.test.auth.ServiceLevelAuthnTest"/>
             <class name="org.ballerinalang.test.auth.OAuthConfigTest"/>
             <class name="org.ballerinalang.test.auth.LdapAuthStoreTest"/>
+            <class name="org.ballerinalang.test.auth.AuthnWithoutHTTPAnnotationsTest" />
+            <class name="org.ballerinalang.test.auth.AuthnWithMultipleProvidersTest" />
+            <class name="org.ballerinalang.test.auth.AuthzCacheTest" />
+            <class name="org.ballerinalang.test.auth.NoTokenPropagationTest"/>
+            <class name="org.ballerinalang.test.auth.SecureClientWrongAuthProviderTest"/>
+            <class name="org.ballerinalang.test.auth.TokenPropagationTest"/>
         </classes>
     </test>
 
@@ -110,22 +117,6 @@
     <test name="ballerina-transaction-tests" parallel="false">
         <classes>
             <class name="org.ballerinalang.test.transaction.MicroTransactionTestCase"/>
-        </classes>
-    </test>
-
-    <test name="ballerina-secure-listener-tests" parallel="false">
-        <groups>
-            <run>
-                <exclude name="broken"/>
-            </run>
-        </groups>
-        <classes>
-            <class name="org.ballerinalang.test.securelistener.SecureListenerBaseTest"/>
-            <class name="org.ballerinalang.test.securelistener.NoTokenPropagationTest"/>
-            <class name="org.ballerinalang.test.securelistener.SecureClientWrongAuthProviderTest"/>
-            <class name="org.ballerinalang.test.securelistener.SecureListenerNonSpecificHandlerTest"/>
-            <class name="org.ballerinalang.test.securelistener.SecureListenerSpecificHandlerTest"/>
-            <class name="org.ballerinalang.test.securelistener.TokenPropagationTest"/>
         </classes>
     </test>
 
@@ -188,7 +179,7 @@
         </classes>
     </test>
 
-    <test name="ballerina-streaming-tests" parallel="false">
+    <test name="ballerina-streaming-tests" parallel="false" enabled="false">
         <classes>
             <class name="org.ballerinalang.test.streaming.StreamsWithinServicesTestCase"/>
         </classes>
@@ -208,15 +199,15 @@
 
     <test name="ballerina-websub-tests" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.service.websub.WebSubBaseTest"/>
+            <!--<class name="org.ballerinalang.test.service.websub.WebSubBaseTest"/>-->
             <!-- WebSubServiceExtensionTestCase or any other test which does not have @BeforeClass and belongs to the
                 "websub-test" group needs to be the first test to run to ensure @BeforeGroup is executed before
                 @BeforeClass in test classes which have @BeforeClass -->
-            <class name="org.ballerinalang.test.service.websub.WebSubServiceExtensionTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.WebSubCoreFunctionalityTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.WebSubContentTypeSupportTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.WebSubDiscoveryWithMultipleSubscribersTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.WebSubRedirectionTestCase"/>
+            <!--<class name="org.ballerinalang.test.service.websub.WebSubServiceExtensionTestCase"/>-->
+            <!--<class name="org.ballerinalang.test.service.websub.WebSubCoreFunctionalityTestCase"/>-->
+            <!--<class name="org.ballerinalang.test.service.websub.WebSubContentTypeSupportTestCase"/>-->
+            <!--<class name="org.ballerinalang.test.service.websub.WebSubDiscoveryWithMultipleSubscribersTestCase"/>-->
+            <!--<class name="org.ballerinalang.test.service.websub.WebSubRedirectionTestCase"/>-->
         </classes>
     </test>
 

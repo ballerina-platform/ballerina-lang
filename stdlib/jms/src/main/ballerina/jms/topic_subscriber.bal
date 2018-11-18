@@ -31,17 +31,17 @@ public type TopicSubscriber object {
     public function init(TopicSubscriberEndpointConfiguration c) {
         self.config = c;
         self.consumerActions.topicSubscriber = self;
-        match (c.session) {
-            Session s => {
-                match (c.topicPattern) {
-                    string topicPattern => {
-                        self.createSubscriber(s, c.messageSelector);
-                        log:printInfo("Subscriber created for topic " + topicPattern);
-                    }
-                    () => {}
-                }
-            }
-            () => {log:printInfo("Topic subscriber is not properly initialised for topic");}
+        var session = c.session;
+        if (session is Session) {
+             var topicPattern = c.topicPattern;
+             if (topicPattern is string) {
+                 self.createSubscriber(session, c.messageSelector);
+                 log:printInfo("Subscriber created for topic " + topicPattern);
+             } else {
+                 log:printInfo("Topic subscriber is not properly initialized for topic");
+             }
+        } else {
+            log:printInfo("Topic subscriber is not properly initialized for topic");
         }
     }
 
@@ -83,10 +83,10 @@ public type TopicSubscriber object {
 # + messageSelector - Message selector condition to filter messages
 # + identifier - Identifier of topic subscriber endpoint
 public type TopicSubscriberEndpointConfiguration record {
-    Session? session;
-    string? topicPattern;
-    string messageSelector;
-    string identifier;
+    Session? session = ();
+    string? topicPattern = ();
+    string messageSelector = "";
+    string identifier = "";
     !...
 };
 
@@ -119,19 +119,18 @@ public type TopicSubscriberActions object {
 
 function TopicSubscriberActions.receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|
         error)? {
-    match (self.topicSubscriber) {
-        TopicSubscriber topicSubscriber => {
-            match (topicSubscriber.config.session) {
-                Session s => {
-                    validateTopic(destination);
-                    topicSubscriber.createSubscriber(s, topicSubscriber.config.messageSelector, destination =
-                        destination);
-                    log:printInfo("Subscriber created for topic " + destination.destinationName);
-                }
-                () => {}
-            }
-        }
-        () => {log:printInfo("Topic subscriber is not properly initialized.");}
+    var subscriber = self.topicSubscriber;
+    if (subscriber is TopicSubscriber) {
+          var session = subscriber.config.session;
+          if (session is Session) {
+            validateTopic(destination);
+            subscriber.createSubscriber(session, subscriber.config.messageSelector, destination = destination);
+            log:printInfo("Subscriber created for topic " + destination.destinationName);
+          } else {
+            log:printInfo("Session is (), Topic subscriber is not properly initialized");
+          }
+    } else {
+        log:printInfo("Topic subscriber is not properly initialized");
     }
     var result = self.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
     self.topicSubscriber.closeSubscriber(self);
