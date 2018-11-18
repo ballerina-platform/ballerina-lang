@@ -13,11 +13,10 @@ if (!existsSync(path.join(process.cwd(), "..", "..", "..", "examples"))) {
 }
 
 function fetchBalFiles(): string[] {
-    const bbeFiles = globSync(path.join(process.cwd(), "..", "..", "..", "{examples,tests}", "**", "*.bal"), {});
-    return bbeFiles.map((file) => URI.file(file).toString());
+    return globSync(path.join(process.cwd(), "..", "..", "..", "{examples,tests}", "**", "*.bal"), {});
 }
 
-export async function forEachAST(callback: (node: Ballerina.ASTNode) => void) {
+export async function forEachAST(callback: (node: Ballerina.ASTNode, filePath: string) => void) {
     const balFiles = fetchBalFiles();
     const server = new StdioBallerinaLangServer(process.env.BALLERINA_HOME);
     server.start();
@@ -35,10 +34,10 @@ export async function forEachAST(callback: (node: Ballerina.ASTNode) => void) {
         // tslint:disable-next-line:no-console
         console.log("getting ast for ", balFilePath);
         const astResp = await client.getAST({
-            documentIdentifier: { uri: balFilePath }
+            documentIdentifier: { uri: URI.file(balFilePath).toString() }
         });
         if (astResp.ast) {
-            callback(astResp.ast);
+            callback(astResp.ast, balFilePath);
         } else {
             // tslint:disable-next-line:no-console
             console.log(`Could not parse: ${balFilePath}`);
