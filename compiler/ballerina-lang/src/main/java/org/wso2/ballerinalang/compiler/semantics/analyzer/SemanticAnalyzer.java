@@ -2243,8 +2243,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         if (!foreachStmt.isDeclaredWithVar) {
             BType typeNodeType = symResolver.resolveTypeNode(variable.typeNode, env);
-            if(!types.isSameType(varType,typeNodeType )){
-                dlog.error(variable.typeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES, varType,typeNodeType);
+            if (!types.isAssignable(varType, typeNodeType)) {
+                dlog.error(variable.typeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES, varType, typeNodeType);
                 return;
             }
         }
