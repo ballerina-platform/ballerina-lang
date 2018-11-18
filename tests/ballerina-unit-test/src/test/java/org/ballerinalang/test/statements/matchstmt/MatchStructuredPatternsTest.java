@@ -102,7 +102,7 @@ public class MatchStructuredPatternsTest {
 
     @Test(description = "Test pattern will not be matched 2")
     public void testUnreachablePatterns() {
-        Assert.assertEquals(resultNegative2.getErrorCount(), 12);
+        Assert.assertEquals(resultNegative2.getErrorCount(), 18);
         int i = -1;
         String unreachablePattern = "unreachable pattern: " +
                 "preceding patterns are too general or the pattern ordering is not correct";
@@ -118,5 +118,11 @@ public class MatchStructuredPatternsTest {
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 76, 13);
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 95, 14);
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 96, 13);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 107, 14);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 109, 14);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 111, 13);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 122, 13);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 124, 13);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 125, 13);
     }
 }

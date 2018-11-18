@@ -99,3 +99,31 @@ function testMixedVariables() returns string {
 
     return "Default";
 }
+
+function testClosedRecordPatterns() returns string {
+    any k = 1;
+    match k {
+        var {var1: name, !...} => return "A";
+        var {var1: name2, !...} => return "A"; // unreachable
+        var {var3: name} => return "A";
+        var {var3: name, !...} => return "A"; // unreachable
+        var (a, b, {var1, var2: (d, {var2})}, c) => return "B";
+        var (a, b, {var1, var2: (d, {var2, !...})}, c) => return "B"; // unreachable
+    }
+
+    return "Default";
+}
+
+function testWithTypeGuard() returns string {
+    any k = 1;
+    match k {
+        var (a, b) if a is string => return "A";
+        var (a, b) => return "A";
+        var (a, b) if a is int => return "A"; // unreachable
+        var (a, b, c) if a is boolean => return "A";
+        var (a, b, c) if a is boolean => return "A"; // unreachable
+        var (a, b) if a is string => return "A"; // unreachable
+    }
+
+    return "A";
+}

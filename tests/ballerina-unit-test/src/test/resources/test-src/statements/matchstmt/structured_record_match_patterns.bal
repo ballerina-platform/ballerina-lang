@@ -303,3 +303,21 @@ function typeGuard4(RestParam|ClosedRec matchExpr) returns string {
 
     return "Default";
 }
+
+function testClosedRecord() returns string[] {
+    RestParam rec = {var1: 500};
+    RestParam rec2 = {var1: 500, var2: true};
+
+    string[] results = [matchClosedRecordPattern(rec), matchClosedRecordPattern(rec2)];
+
+    return results;
+}
+
+function matchClosedRecordPattern(any matchExpr) returns string {
+    match matchExpr {
+        var {var1, !...} => return "Matched with closed pattern";
+        var {var1} => return "Matched with opened pattern";
+    }
+
+    return "Default";
+}

@@ -593,11 +593,31 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    private void analyseUnreachableStructuredBindingPatterns(List<BLangMatchStructuredBindingPatternClause> clauses) {
+        BLangMatchStructuredBindingPatternClause finalPattern = clauses.get(clauses.size() - 1);
+        if (finalPattern.bindingPatternVariable.getKind() == NodeKind.VARIABLE && finalPattern.typeGuardExpr == null) {
+            finalPattern.isLastPattern = true;
+        }
+
+        for (int i = 0; i < clauses.size(); i++) {
+            for (int j = i + 1; j < clauses.size(); j++) {
+                BLangVariable precedingVar = clauses.get(i).bindingPatternVariable;
+                BLangVariable currentVar = clauses.get(j).bindingPatternVariable;
+                if (checkStructuredPatternSimilarity(precedingVar, currentVar) &&
+                        checkTypeGuardSimilarity(clauses.get(i).typeGuardExpr, clauses.get(j).typeGuardExpr)) {
+                    dlog.error(currentVar.pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN);
+                    clauses.remove(j--);
+                }
+            }
+        }
+    }
+
     /**
      * This method will check if two patterns are similar to each other.
      * Having similar patterns in the match block will result in unreachable pattern.
+     *
      * @param precedingPattern pattern taken to compare similarity.
-     * @param pattern the pattern that the precedingPattern is checked for similarity.
+     * @param pattern          the pattern that the precedingPattern is checked for similarity.
      * @return true if both patterns are similar..
      */
     private boolean checkLiteralSimilarity(BLangExpression precedingPattern, BLangExpression pattern) {
@@ -629,13 +649,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             if (precedingTupleLiteral.expressions.size() != tupleLiteral.expressions.size()) {
                 return false;
             }
-            for (int i = 0; i < precedingTupleLiteral.expressions.size(); i++) {
-                if (!checkLiteralSimilarity(precedingTupleLiteral.expressions.get(i),
-                        tupleLiteral.expressions.get(i))) {
-                    return false;
-                }
-            }
-            return true;
+            return IntStream.range(0, precedingTupleLiteral.expressions.size())
+                    .allMatch(i -> checkLiteralSimilarity(precedingTupleLiteral.expressions.get(i),
+                            tupleLiteral.expressions.get(i)));
         }
 
         if (types.isValueType(precedingPattern.type) && types.isValueType(pattern.type)) {
@@ -648,38 +664,44 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
             return (precedingLiteral.value.equals(literal.value));
         }
-
         return false;
     }
 
-    private void analyseUnreachableStructuredBindingPatterns(List<BLangMatchStructuredBindingPatternClause> clauses) {
-        BLangMatchStructuredBindingPatternClause finalPattern = clauses.get(clauses.size() - 1);
-        if (finalPattern.bindingPatternVariable.getKind() == NodeKind.VARIABLE && finalPattern.typeGuardExpr == null) {
-            finalPattern.isLastPattern = true;
-        }
-
-        for (int i = 0; i < clauses.size(); i++) {
-            for (int j = i + 1; j < clauses.size(); j++) {
-                BLangVariable precedingVar = clauses.get(i).bindingPatternVariable;
-                BLangVariable currentVar = clauses.get(j).bindingPatternVariable;
-                if (checkVariableSimilarity(precedingVar, currentVar) &&
-                        checkTypeGuardEquality(clauses.get(i).typeGuardExpr, clauses.get(j).typeGuardExpr)) {
-                    dlog.error(currentVar.pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN);
-                    clauses.remove(j--);
-                }
-            }
-        }
-    }
-
-    private boolean checkTypeGuardEquality(BLangExpression precedingGuard, BLangExpression currentGuard) {
+    /**
+     * This method will determine if the type guard of the preceding pattern will result in the current pattern
+     * being unreachable.
+     *
+     * @param precedingGuard type guard of the preceding structured pattern
+     * @param currentGuard   type guard of the cuurent structured pattern
+     * @return true if the current pattern is unreachable due to the type guard of the preceding pattern
+     */
+    private boolean checkTypeGuardSimilarity(BLangExpression precedingGuard, BLangExpression currentGuard) {
+        // check if type guard is a type test expr and compare the variable ref and type node
         if (precedingGuard != null && currentGuard != null) {
+            if (precedingGuard.getKind() == NodeKind.TYPE_TEST_EXPR &&
+                    currentGuard.getKind() == NodeKind.TYPE_TEST_EXPR &&
+                    ((BLangTypeTestExpr) precedingGuard).expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                    ((BLangTypeTestExpr) currentGuard).expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BLangTypeTestExpr precedingTypeTest = (BLangTypeTestExpr) precedingGuard;
+                BLangTypeTestExpr currentTypeTest = (BLangTypeTestExpr) currentGuard;
+                return ((BLangSimpleVarRef) precedingTypeTest.expr).variableName.toString().equals(
+                        ((BLangSimpleVarRef) currentTypeTest.expr).variableName.toString()) &&
+                        precedingTypeTest.typeNode.type.tag == currentTypeTest.typeNode.type.tag;
+            }
             return false;
         }
 
-        return precedingGuard == null && currentGuard == null;
+        return currentGuard != null || precedingGuard == null;
     }
 
-    private boolean checkVariableSimilarity(BLangVariable precedingVar, BLangVariable var) {
+    /**
+     * This method will determine if the current structured pattern will be unreachable due to a preceding pattern.
+     *
+     * @param precedingVar the structured pattern that appears on top
+     * @param var          the structured pattern that appears after the precedingVar
+     * @return true if the the current pattern is unreachable due to the preceding pattern
+     */
+    private boolean checkStructuredPatternSimilarity(BLangVariable precedingVar, BLangVariable var) {
         if (precedingVar.type.tag == TypeTags.SEMANTIC_ERROR || var.type.tag == TypeTags.SEMANTIC_ERROR) {
             return false;
         }
@@ -703,13 +725,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     return false;
                 }
 
-                if (!checkVariableSimilarity(
+                if (!checkStructuredPatternSimilarity(
                         precedingKeyValue.valueBindingPattern, recVarAsMap.get(precedingKeyValue.key.value))) {
                     return false;
                 }
-
             }
-            return true;
+
+            return !precedingRecVar.isClosed || recVar.isClosed;
         }
 
         if (precedingVar.getKind() == NodeKind.TUPLE_VARIABLE && var.getKind() == NodeKind.TUPLE_VARIABLE) {
@@ -720,7 +742,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
 
             for (int i = 0; i < memberVars.size(); i++) {
-                if (!checkVariableSimilarity(precedingMemberVars.get(i), memberVars.get(i))) {
+                if (!checkStructuredPatternSimilarity(precedingMemberVars.get(i), memberVars.get(i))) {
                     return false;
                 }
             }
@@ -733,7 +755,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         return precedingVar.getKind() == NodeKind.VARIABLE && var.getKind() == NodeKind.VARIABLE;
-
     }
 
     /**
@@ -744,7 +765,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
      * @return true if the pattern is valid, else false.
      */
     private boolean isValidStaticMatchPattern(BType matchType, BLangExpression literal) {
-
         if (types.isSameType(literal.type, matchType)) {
             return true;
         }

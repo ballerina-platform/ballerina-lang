@@ -3325,12 +3325,13 @@ public class Desugar extends BLangNodeVisitor {
 
             BRecordType recordVarType = new BRecordType(recordSymbol);
             recordVarType.fields = fields;
-            if (recordVariable.isClosed || recordVariable.restParam == null) {
-                // if rest param is null we treat as a closed record for structured match
+            if (recordVariable.isClosed) {
                 recordVarType.sealed = true;
             } else {
-                recordVarType.restFieldType =
-                        ((BMapType) ((BLangSimpleVariable) recordVariable.restParam).type).constraint;
+                // if rest param is null we treat it as an open record with anydata rest param
+                recordVarType.restFieldType = recordVariable.restParam != null ?
+                        ((BMapType) ((BLangSimpleVariable) recordVariable.restParam).type).constraint :
+                        symTable.anydataType;
             }
             recordSymbol.type = recordVarType;
             recordVarType.tsymbol = recordSymbol;

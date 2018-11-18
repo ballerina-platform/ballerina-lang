@@ -195,4 +195,18 @@ public class MatchStructuredRecordPatternsTest {
         Assert.assertEquals(results.get(++i), msg + "restparam : {\"var2\":true}");
         Assert.assertEquals(results.get(++i), msg + "restparam : {\"var2\":true, \"var3\":true}");
     }
+
+    @Test(description = "Test structured pattern with closed record")
+    public void testClosedRecord() {
+        BValue[] returns = BRunUtil.invoke(result, "testClosedRecord", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+
+        BStringArray results = (BStringArray) returns[0];
+
+        int i = -1;
+        String msg = "Matched with ";
+        Assert.assertEquals(results.get(++i), msg + "closed pattern");
+        Assert.assertEquals(results.get(++i), msg + "opened pattern");
+    }
 }
