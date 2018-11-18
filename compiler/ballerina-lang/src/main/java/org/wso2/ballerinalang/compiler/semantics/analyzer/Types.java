@@ -681,8 +681,10 @@ public class Types {
                     add(bMapType.constraint);
                 }});
             case TypeTags.JSON:
-                // Todo - Remove?
-                break;
+                return new BTupleType(new LinkedList<BType>() {{
+                    add(symTable.intType);
+                    add(symTable.jsonType);
+                }});
             case TypeTags.XML:
                 break;
             case TypeTags.TABLE:
