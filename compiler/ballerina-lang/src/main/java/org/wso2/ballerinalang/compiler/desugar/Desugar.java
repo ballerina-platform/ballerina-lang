@@ -2968,21 +2968,21 @@ public class Desugar extends BLangNodeVisitor {
                                                                                   List<BLangExpression> requiredArgs,
                                                                                   BInvokableSymbol bInvokableSymbol) {
         BType targetType = bInvokableSymbol.retType;
-        if (targetType != symTable.nilType) {
+        if (types.isValueType(targetType) || targetType == symTable.nilType) {
+            return ASTBuilderUtil.createBuiltInMethod(pos, expr, bInvokableSymbol, requiredArgs, symResolver,
+                                                      BLangBuiltInMethod.STAMP);
+        } else {
             BLangExpression sourceExpression = requiredArgs.get(0);
             BType sourceType = sourceExpression.type;
             List<BType> args = Lists.of(sourceType);
             BInvokableType opType = new BInvokableType(args, sourceType, null);
             BOperatorSymbol cloneSymbol = new BOperatorSymbol(names.fromString(BLangBuiltInMethod.CLONE.getName()),
                                                               null, opType, null, InstructionCodes.CLONE);
-            BLangInvocation.BLangBuiltInMethodInvocation cloneInvocation =
+            BLangBuiltInMethodInvocation cloneInvocation =
                     ASTBuilderUtil.createBuiltInMethod(pos, sourceExpression, cloneSymbol, new ArrayList<>(),
                                                        symResolver, BLangBuiltInMethod.CLONE);
             return ASTBuilderUtil.createBuiltInMethod(pos, expr, bInvokableSymbol, Lists.of(cloneInvocation),
                                                       symResolver, BLangBuiltInMethod.STAMP);
-        } else {
-            return ASTBuilderUtil.createBuiltInMethod(pos, expr, bInvokableSymbol, requiredArgs, symResolver,
-                                                      BLangBuiltInMethod.STAMP);
         }
     }
 

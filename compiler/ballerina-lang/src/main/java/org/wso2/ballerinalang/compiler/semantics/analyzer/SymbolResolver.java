@@ -351,6 +351,44 @@ public class SymbolResolver extends BLangNodeVisitor {
         return resolveTargetSymbolForStamping(targetType, variableSourceType, name, pos);
     }
 
+    BSymbol createSymbolForFromOperator(DiagnosticPos pos, Name name, BLangExpression targetTypeExpression,
+                                        List<BLangExpression> functionArgList) {
+        if (functionArgList.size() == 1) {
+            BLangExpression argumentExpression = functionArgList.get(0);
+            BType sourceType = argumentExpression.type;
+            if (targetTypeExpression.type.tag == TypeTags.TYPEDESC) {
+                BType targetType = getTargetType(targetTypeExpression);
+                if (targetType != symTable.semanticError) {
+                    // Check whether conversion is supported for any data types.
+                    if (types.isAnydata(sourceType) && types.isAnydata(targetType)) {
+                        // Check whether we can stamp the source and target types.
+                        BSymbol bSymbol;
+                        if (isStampSupportedForSourceType(sourceType) && canHaveStampInvocation(targetType)) {
+                            bSymbol = generateStampSymbol(name, sourceType, targetType);
+                            if (bSymbol != symTable.notFoundSymbol) {
+                                return bSymbol;
+                            }
+                        }
+                        // Check explicit type conversion support if stamp not available.
+                        bSymbol = resolveConversionOperator(sourceType, targetType);
+                        if (bSymbol != symTable.notFoundSymbol) {
+                            return bSymbol;
+                        }
+                    }
+                    dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION, sourceType, targetType);
+                }
+            } else {
+                dlog.error(pos, DiagnosticCode.FUNC_DEFINED_ON_NOT_SUPPORTED_TYPE, name, sourceType.toString());
+            }
+        } else if (functionArgList.size() > 1) {
+            dlog.error(pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, name);
+        } else {
+            dlog.error(pos, DiagnosticCode.NOT_ENOUGH_ARGS_FUNC_CALL, name);
+        }
+        resultType = symTable.semanticError;
+        return symTable.notFoundSymbol;
+    }
+
     private BType resolveTargetTypeForStamping(BLangExpression targetTypeExpression) {
         BType targetType = null;
 
