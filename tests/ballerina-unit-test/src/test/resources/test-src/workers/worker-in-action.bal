@@ -36,7 +36,7 @@ function ABCClient.testAction2() returns string {
 }
 
 public type Client object {
-    public ABCClient abcClient;
+    public ABCClient abcClient = new;
 
     public function init(ClientEndpointConfiguration config);
 
