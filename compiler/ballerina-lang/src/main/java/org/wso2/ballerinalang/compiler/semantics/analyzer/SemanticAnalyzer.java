@@ -1268,6 +1268,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangForeach foreach) {
+        // Todo - Support tuple and record variables.
         // Note - Only consider simple variable definitions in the first phase.
         VariableNode variable = foreach.variableDefinitionNode.getVariable();
         if (variable.getKind() != NodeKind.VARIABLE) {
@@ -2234,7 +2235,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BLangSimpleVariable variable = (BLangSimpleVariable) foreachStmt.variableDefinitionNode.getVariable();
 
         Name name = names.fromIdNode(variable.name);
-        // Check variable symbol for existence.
         BSymbol symbol = symResolver.lookupSymbol(env, name, SymTag.VARIABLE);
         if (symbol != symTable.notFoundSymbol) {
             dlog.error(variable.pos, DiagnosticCode.REDECLARED_SYMBOL, name);
@@ -2244,11 +2244,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (!foreachStmt.isDeclaredWithVar) {
             BType typeNodeType = symResolver.resolveTypeNode(variable.typeNode, env);
             if (!types.isAssignable(varType, typeNodeType)) {
+                variable.type = symTable.semanticError;
                 dlog.error(variable.typeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES, varType, typeNodeType);
                 return;
             }
+            variable.type = typeNodeType;
         }
-
         variable.symbol = symbolEnter.defineVarSymbol(variable.pos, Collections.emptySet(), varType, name, env);
     }
 

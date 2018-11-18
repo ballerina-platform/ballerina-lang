@@ -66,6 +66,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -673,12 +674,12 @@ public class Types {
             case TypeTags.ARRAY:
                 BArrayType bArrayType = (BArrayType) collectionType;
                 return bArrayType.eType;
-            //                BArrayType bArrayType = (BArrayType) collectionType;
-            //                return new BTupleType(new LinkedList<BType>() {{
-            //                    add(bArrayType.eType);
-            //                }});
             case TypeTags.MAP:
-                break;
+                BMapType bMapType = (BMapType) collectionType;
+                return new BTupleType(new LinkedList<BType>(){{
+                    add(symTable.intType);
+                    add(bMapType.constraint);
+                }});
             case TypeTags.JSON:
                 // Todo - Remove?
                 break;
