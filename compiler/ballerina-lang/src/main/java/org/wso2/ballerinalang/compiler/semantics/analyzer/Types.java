@@ -677,12 +677,12 @@ public class Types {
             case TypeTags.MAP:
                 BMapType bMapType = (BMapType) collectionType;
                 return new BTupleType(new LinkedList<BType>(){{
-                    add(symTable.intType);
+                    add(symTable.stringType);
                     add(bMapType.constraint);
                 }});
             case TypeTags.JSON:
                 return new BTupleType(new LinkedList<BType>() {{
-                    add(symTable.intType);
+                    add(symTable.stringType);
                     add(symTable.jsonType);
                 }});
             case TypeTags.XML:

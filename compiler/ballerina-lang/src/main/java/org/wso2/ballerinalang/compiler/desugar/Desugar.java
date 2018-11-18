@@ -1754,8 +1754,8 @@ public class Desugar extends BLangNodeVisitor {
         whileNode.body.stmts.add(0, keyVariableDefinition);
 
 
-        // Note - T i = ($index$, data[$key$]);
-        BLangSimpleVarRef indexReferenceInTuple = ASTBuilderUtil.createVariableRef(foreach.pos, indexSymbol);
+        // Note - T i = ($key$, data[$key$]);
+        BLangSimpleVarRef indexReferenceInTuple = ASTBuilderUtil.createVariableRef(foreach.pos, keySymbol);
 
         BLangSimpleVarRef collectionInTuple = ASTBuilderUtil.createVariableRef(foreach.pos, collectionSymbol);
         BLangSimpleVarRef keyInTuple = ASTBuilderUtil.createVariableRef(foreach.pos, keySymbol);
@@ -1892,8 +1892,8 @@ public class Desugar extends BLangNodeVisitor {
         whileNode.body.stmts.add(0, keyVariableDefinition);
 
 
-        // Note - T i = ($index$, data[$key$]);
-        BLangSimpleVarRef indexReferenceInTuple = ASTBuilderUtil.createVariableRef(foreach.pos, indexSymbol);
+        // Note - T i = ($key$, data[$key$]);
+        BLangSimpleVarRef indexReferenceInTuple = ASTBuilderUtil.createVariableRef(foreach.pos, keySymbol);
 
         BLangSimpleVarRef collectionInTuple = ASTBuilderUtil.createVariableRef(foreach.pos, collectionSymbol);
         BLangSimpleVarRef keyInTuple = ASTBuilderUtil.createVariableRef(foreach.pos, keySymbol);
