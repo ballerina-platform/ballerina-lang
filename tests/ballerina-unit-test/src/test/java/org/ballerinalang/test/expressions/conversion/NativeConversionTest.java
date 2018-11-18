@@ -44,13 +44,12 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 public class NativeConversionTest {
 
     private CompileResult compileResult;
-   // private CompileResult negativeResult;
+
     private CompileResult packageResult;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/expressions/conversion/native-conversion.bal");
-       // negativeResult = BCompileUtil.compile("test-src/expressions/conversion/native-conversion-negative.bal");
         packageResult = BCompileUtil.compile(this, "test-src/expressions/conversion/", "a.b");
     }
 
@@ -264,17 +263,18 @@ public class NativeConversionTest {
     }
 
     @Test(description = "Test converting a map with incompatible inner array to a struct",
-          expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = ".*cannot convert 'map' to type 'Person: error while mapping 'marks': "
-                  + "incompatible types: expected 'int\\[\\]\\|null', found 'float\\[\\]'.*")
+          expectedExceptions = { BLangRuntimeException.class },
+          expectedExceptionsMessageRegExp =
+                  ".*cannot convert 'map<anydata>' to type 'Person: error while mapping 'marks': "
+                          + "incompatible types: expected 'int\\[\\]\\|null', found 'float\\[\\]'.*")
     public void testMapWithIncompatibleArrayToStruct() {
         BRunUtil.invoke(compileResult, "testMapWithIncompatibleArrayToStruct");
     }
 
     @Test(description = "Test converting a map with incompatible inner struct to a struct",
-            expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*cannot convert 'map' to type 'Employee: error while mapping" +
-                    " 'partner': incompatible types: expected 'Person', found 'Student'.*")
+          expectedExceptions = { BLangRuntimeException.class },
+          expectedExceptionsMessageRegExp = ".*cannot convert 'map<anydata>' to type 'Employee: error while mapping" +
+                  " 'partner': incompatible types: expected 'Person', found 'Student'.*")
     public void testMapWithIncompatibleStructToStruct() {
         BRunUtil.invoke(compileResult, "testMapWithIncompatibleStructToStruct");
     }
@@ -338,14 +338,9 @@ public class NativeConversionTest {
         BRunUtil.invoke(compileResult, "testStructWithIncompatibleTypeMapToJson");
     }
 
-    @Test(description = "Test converting a struct with map of blob to a JSON", expectedExceptions = {
-            BLangRuntimeException.class }, 
-            expectedExceptionsMessageRegExp = ".*cannot convert 'Info' to type 'json'.*")
-    public void testStructWithIncompatibleTypeToJson() {
-      //  BRunUtil.invoke(negativeResult, "testStructWithIncompatibleTypeToJson");
-    }
 
-    @Test(description = "Test converting a JSON array to any array")
+
+    @Test(description = "Test converting a JSON array to any data array")
     public void testJsonToAnyArray() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToAnyArray");
         Assert.assertTrue(returns[0] instanceof BMap);
@@ -434,8 +429,9 @@ public class NativeConversionTest {
         BRunUtil.invoke(compileResult, "testNonArrayJsonToArray");
     }
 
-    @Test(description = "Test converting a null JSON to struct", expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: 'null' cannot be converted to 'Person'.*")
+    @Test(description = "Test converting a null JSON to struct",
+          expectedExceptions = { BLangRuntimeException.class },
+          expectedExceptionsMessageRegExp = "error: 'null' cannot be converted to 'Person'.*")
     public void testNullJsonToStruct() {
         BRunUtil.invoke(compileResult, "testNullJsonToStruct");
     }
@@ -722,8 +718,8 @@ public class NativeConversionTest {
     }
 
     @Test
-    public void anyToFloat() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "anyToFloat");
+    public void anydataToFloat() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "anydataToFloat");
         Assert.assertTrue(returns[0] instanceof BFloat);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 5.0);
     }
