@@ -356,6 +356,14 @@ public class NativeConversionTest {
         Assert.assertNull(array.get(6));
     }
 
+    @Test(description = "Test converting float to a int")
+    public void testFloaToInt() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatToInt");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        int expected = 10;
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), expected);
+    }
+
     @Test(description = "Test converting a JSON array to int array")
     public void testJsonToIntArray() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToIntArray");
