@@ -1,15 +1,15 @@
 import ballerina/task;
 import ballerina/io;
 
-int w1Count;
-int w2Count;
-error? errorW1;
-error? errorW2;
-string errorMsgW1;
-string errorMsgW2;
+int w1Count = 0;
+int w2Count = 0;
+error? errorW1 = ();
+error? errorW2 = ();
+string errorMsgW1 = "";
+string errorMsgW2 = "";
 
-task:Timer? timer1;
-task:Timer? timer2;
+task:Timer? timer1 = ();
+task:Timer? timer2 = ();
 
 function scheduleTimer(int w1Delay, int w1Interval, int w2Delay, int w2Interval, string errMsgW1, string errMsgW2) {
     worker default {
