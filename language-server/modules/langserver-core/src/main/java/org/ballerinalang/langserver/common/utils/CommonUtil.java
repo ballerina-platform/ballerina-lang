@@ -18,6 +18,8 @@ package org.ballerinalang.langserver.common.utils;
 import com.google.common.collect.Lists;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.command.testgen.TestGenerator.TestFunctionGenerator;
