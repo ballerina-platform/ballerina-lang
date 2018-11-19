@@ -43,7 +43,12 @@ serviceDefinition
     ;
 
 serviceBody
-    :   LEFT_BRACE objectFunctionDefinition* RIGHT_BRACE
+    :   LEFT_BRACE serviceBodyMember* RIGHT_BRACE
+    ;
+
+serviceBodyMember
+    :   objectFieldDefinition
+    |   objectFunctionDefinition
     ;
 
 callableUnitBody
