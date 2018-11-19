@@ -2609,7 +2609,7 @@ public class TypeChecker extends BLangNodeVisitor {
                                                      InstructionCodes.IS_FROZEN);
     }
 
-    private boolean isValidFreezeOrIsFrozenFunction(BType type) {
+    public boolean isValidFreezeOrIsFrozenFunction(BType type) {
         if (type.tag == TypeTags.NIL || (!types.isAnydata(type) && !isNonAnyDataFreezeAllowedType(type))) {
             return false;
         }

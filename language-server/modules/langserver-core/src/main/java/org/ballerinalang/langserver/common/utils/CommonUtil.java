@@ -53,6 +53,7 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextEdit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeChecker;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
@@ -89,6 +90,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -768,6 +770,15 @@ public class CommonUtil {
             symbolInfoList.add(lengthSymbolInfo);
         }
 
+        if (builtinFreezeFunctionAllowed(context, bType)) {
+            // For the any data value type, add the freeze, isFrozen builtin function
+            SymbolInfo freeze = getIterableOpSymbolInfo(Snippet.BUILTIN_FREEZE.get(), bType,
+                                                        ItemResolverConstants.BUILTIN_FREEZE_LABEL, context);
+            SymbolInfo isFrozen = getIterableOpSymbolInfo(Snippet.BUILTIN_IS_FROZEN.get(), bType,
+                                                          ItemResolverConstants.BUILTIN_IS_FROZEN_LABEL, context);
+            symbolInfoList.addAll(Arrays.asList(freeze, isFrozen));
+        }
+
         // Populate the Builtin Functions
         if (bType.tag == TypeTags.FLOAT) {
             SymbolInfo isNaN = getIterableOpSymbolInfo(Snippet.BUILTIN_IS_NAN.get(), bType,
@@ -941,6 +952,15 @@ public class CommonUtil {
             case TypeTags.TUPLE:
             case TypeTags.RECORD:
                 return true;
+        }
+        return false;
+    }
+
+    private static boolean builtinFreezeFunctionAllowed(LSContext context, BType bType) {
+        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+        if (compilerContext != null) {
+            TypeChecker typeChecker = TypeChecker.getInstance(compilerContext);
+            return typeChecker.isValidFreezeOrIsFrozenFunction(bType);
         }
         return false;
     }
