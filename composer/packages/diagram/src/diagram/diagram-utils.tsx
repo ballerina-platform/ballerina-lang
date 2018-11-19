@@ -1,4 +1,5 @@
 import React from "react";
+import { DiagramConfig } from "../config/default";
 import * as components from "../views/index";
 
 export class DiagramUtils {
@@ -12,5 +13,12 @@ export class DiagramUtils {
             children.push(<ChildComp model={node} />);
         });
         return children;
+    }
+
+    /**
+     * Get diagram config
+     */
+    public static getConfig() {
+        return DiagramConfig;
     }
 }
