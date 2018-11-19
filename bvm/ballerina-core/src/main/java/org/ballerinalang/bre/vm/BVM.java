@@ -723,6 +723,7 @@ public class BVM {
                         strand.respCallback.setBooleanReturn(sf.intRegs[j]);
                     }
                     break;
+                case InstructionCodes.DRET:
                 case InstructionCodes.RRET:
                     j = operands[1];
                     if (strand.fp > 0) {
