@@ -4175,17 +4175,9 @@ public class CPU {
         compensationTable.index++;
     }
 
-    private static boolean checkIsType(BValue sourceVal, BType targetType) {
-        if (targetType.getTag() == TypeTags.FINITE_TYPE_TAG) {
-            return checkFiniteTypeAssignable(sourceVal, targetType);
-        }
-
-        BType sourceType = sourceVal == null ? BTypes.typeNull : sourceVal.getType();
-        return checkIsType(sourceType, targetType, new ArrayList<>());
-    }
-
     private static boolean checkIsLikeType(BValue sourceValue, BType targetType) {
-        if (checkIsType(sourceValue, targetType)) {
+        BType sourceType = sourceValue == null ? BTypes.typeNull : sourceValue.getType();
+        if (checkIsType(sourceType, targetType, new ArrayList<>())) {
             return true;
         }
 
@@ -4202,6 +4194,11 @@ public class CPU {
                 return checkIsLikeTupleType(sourceValue, (BTupleType) targetType);
             case TypeTags.ANYDATA_TAG:
                 return isAssignable(sourceValue.getType(), targetType, new ArrayList<>());
+            case TypeTags.FINITE_TYPE_TAG:
+                return checkFiniteTypeAssignable(sourceValue, targetType);
+            case TypeTags.UNION_TAG:
+                return ((BUnionType) targetType).getMemberTypes().stream()
+                        .anyMatch(type -> checkIsType(sourceValue, type));
             default:
                 return false;
         }
@@ -4308,6 +4305,15 @@ public class CPU {
             }
         }
         return true;
+    }
+
+    private static boolean checkIsType(BValue sourceVal, BType targetType) {
+        if (isMutable(sourceVal)) {
+            BType sourceType = sourceVal == null ? BTypes.typeNull : sourceVal.getType();
+            return checkIsType(sourceType, targetType, new ArrayList<>());
+        }
+
+        return checkIsLikeType(sourceVal, targetType);
     }
 
     private static boolean checkIsType(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
@@ -4511,6 +4517,19 @@ public class CPU {
         }
 
         return checkIsType(sourceConstraint, targetConstraint, unresolvedTypes);
+    }
+
+    private static boolean isMutable(BValue value) {
+        if (value == null) {
+            return false;
+        }
+
+        // All the value types are immutable
+        if (value.getType().getTag() < TypeTags.JSON_TAG || value.getType().getTag() == TypeTags.FINITE_TYPE_TAG) {
+            return false;
+        }
+
+        return !value.isFrozen();
     }
 
     /**

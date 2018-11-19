@@ -640,7 +640,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatch.BLangMatchStaticBindingPatternClause clause) {
-        /*ignore*/
+        clause.body.accept(this);
     }
 
     @Override
