@@ -20,6 +20,12 @@
         <Package name="org.ballerinalang.langserver.workspace.repository" />
     </Match>
     <Match>
+        <Class name="org.ballerinalang.langserver.command.executors.CreateTestExecutor" />
+        <OR>
+            <Bug pattern="RV_RETURN_VALUE_IGNORED_BAD_PRACTICE"/>
+        </OR>
+    </Match>
+    <Match>
         <Package name="org.ballerinalang.langserver.common.utils" />
         <OR>
             <Bug pattern="DE_MIGHT_IGNORE"/>
@@ -59,7 +65,7 @@
         </OR>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.langserver.command.CommandUtil" />
+        <Class name="org.ballerinalang.langserver.command.docs.DocumentationGenerator" />
         <OR>
             <Bug pattern="BC_UNCONFIRMED_CAST" />
         </OR>

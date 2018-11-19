@@ -77,6 +77,7 @@ public enum DiagnosticCode {
     INVALID_WORKER_INTERACTION("worker.invalid.worker.interaction"),
     INVALID_MULTIPLE_FORK_JOIN_SEND("worker.multiple.fork.join.send"),
     INCOMPATIBLE_TYPE_REFERENCE("incompatible.type.reference"),
+    INCOMPATIBLE_RECORD_TYPE_REFERENCE("incompatible.record.type.reference"),
     REDECLARED_TYPE_REFERENCE("redeclared.type.reference"),
     REDECLARED_FUNCTION_FROM_TYPE_REFERENCE("redeclared.function.from.type.reference"),
 
@@ -326,7 +327,12 @@ public enum DiagnosticCode {
     UNNECESSARY_CONDITION("unnecessary.condition"),
 
     // Dataflow analysis related error codes
-    PARTIALLY_INITIALIZED_VARIABLE("partially.initialized.variable");
+    PARTIALLY_INITIALIZED_VARIABLE("partially.initialized.variable"),
+
+    // Seal inbuilt function related codes
+    INCOMPATIBLE_STAMP_TYPE("incompatible.stamp.type"),
+    NOT_SUPPORTED_SOURCE_TYPE_FOR_STAMP("not.supported.source.for.stamp")
+    ;
 
     private String value;
 

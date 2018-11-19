@@ -24,7 +24,7 @@ service<http:Service> contentBasedRouting bind serviceEP{
     cbrResource (endpoint conn, http:Request req) {
         string nyseString = "nyse";
         var jsonMsg = req.getJsonPayload();
-        string nameString;
+        string nameString = "";
         if (jsonMsg is json) {
             nameString = extractFieldValue1(jsonMsg.name);
         } else if (jsonMsg is error) {

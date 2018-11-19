@@ -1,5 +1,5 @@
 function testUndeclaredStructAccess() {        
-    string name;        
+    string name = "";
     dpt1[name] = "HR";      
 }
 
@@ -10,7 +10,7 @@ function testUndeclaredAttributeAccess() {
 }     
       
 type Department record {
-    string dptName;     
-    int count;
+    string dptName = "";
+    int count = 0;
     !...
 };

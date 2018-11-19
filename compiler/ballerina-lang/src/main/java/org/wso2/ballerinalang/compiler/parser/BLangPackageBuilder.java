@@ -212,6 +212,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -439,15 +440,16 @@ public class BLangPackageBuilder {
 
     void addRecordType(DiagnosticPos pos, Set<Whitespace> ws, boolean isFieldAnalyseRequired, boolean isAnonymous,
                        boolean sealed, boolean hasRestField) {
+        // If there is an explicitly defined rest field, take it.
+        BLangType restFieldType = null;
+        if (hasRestField && !sealed) {
+            restFieldType = (BLangType) this.typeNodeStack.pop();
+        }
         // Create an anonymous record and add it to the list of records in the current package.
         BLangRecordTypeNode recordTypeNode = populateRecordTypeNode(pos, ws, isAnonymous);
         recordTypeNode.isFieldAnalyseRequired = isFieldAnalyseRequired;
         recordTypeNode.sealed = sealed;
-
-        // If there is an explicitly defined rest field, take it.
-        if (hasRestField && !sealed) {
-            recordTypeNode.restFieldType = (BLangType) this.typeNodeStack.pop();
-        }
+        recordTypeNode.restFieldType = restFieldType;
 
         if (!isAnonymous) {
             addType(recordTypeNode);
@@ -468,7 +470,7 @@ public class BLangPackageBuilder {
     }
 
     private BLangRecordTypeNode populateRecordTypeNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isAnonymous) {
-        BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) TreeBuilder.createRecordTypeNode();
+        BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeNodeStack.pop();
         recordTypeNode.pos = pos;
         recordTypeNode.addWS(ws);
         recordTypeNode.isAnonymous = isAnonymous;
@@ -1336,7 +1338,7 @@ public class BLangPackageBuilder {
             invocationNode.addWS(commaWsStack.pop());
         }
 
-        invocationNode.expr = (BLangVariableReference) exprNodeStack.pop();
+        invocationNode.expr = (BLangExpression) exprNodeStack.pop();
         invocationNode.name = (BLangIdentifier) createIdentifier(invocation);
         invocationNode.pkgAlias = (BLangIdentifier) createIdentifier(null);
         addExpressionNode(invocationNode);
@@ -1740,6 +1742,12 @@ public class BLangPackageBuilder {
         attachMarkdownDocumentations(var);
         attachDeprecatedNode(var);
         this.compUnit.addTopLevelNode(var);
+    }
+
+    void startRecordType() {
+        BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) TreeBuilder.createRecordTypeNode();
+        typeNodeStack.push(recordTypeNode);
+        startVarList();
     }
 
     void startObjectType() {
@@ -3703,8 +3711,8 @@ public class BLangPackageBuilder {
     public void addTypeReference(DiagnosticPos currentPos, Set<Whitespace> ws) {
         TypeNode typeRef = typeNodeStack.pop();
         typeRef.addWS(ws);
-        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeNodeStack.peek();
-        objectTypeNode.addTypeReference(typeRef);
+        BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeNodeStack.peek();
+        structureTypeNode.addTypeReference(typeRef);
     }
 
     public void createTypeTestExpression(DiagnosticPos pos, Set<Whitespace> ws) {
