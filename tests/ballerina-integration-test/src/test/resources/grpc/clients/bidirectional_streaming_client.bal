@@ -29,13 +29,10 @@ public function main(string... args) {
     endpoint grpc:Client ep;
     // Executing unary non-blocking call registering server message listener.
     var res = chatEp->chat(ChatMessageListener);
-    match res {
-        error err => {
-            io:println("Error from Connector: " + err.reason());
-        }
-        grpc:Client con => {
-            ep = con;
-        }
+    if (res is error) {
+        io:println("Error from Connector: " + res.reason());
+    } else {
+        ep = con;
     }
     ChatMessage mes = new;
     mes.name = "Sam";
@@ -66,9 +63,8 @@ service<grpc:Service> ChatMessageListener {
 // Non-blocking client
 public type ChatStub object {
 
-    public grpc:Client clientEndpoint44;
-    public grpc:Stub stub;
-
+    public grpc:Client clientEndpoint44 = new;
+    public grpc:Stub stub = new;
 
     function initStub(grpc:Client ep) {
         grpc:Stub navStub = new;
@@ -77,15 +73,7 @@ public type ChatStub object {
     }
 
     function chat(typedesc listener, grpc:Headers? headers = ()) returns (grpc:Client|error) {
-        var res = stub.stub.streamingExecute("Chat/chat", listener, headers = headers);
-        match res {
-            error err1 => {
-                return err1;
-            }
-            grpc:Client con => {
-                return con;
-            }
-        }
+        return stub.stub.streamingExecute("Chat/chat", listener, headers = headers);
     }
 };
 
@@ -93,9 +81,8 @@ public type ChatStub object {
 // Non-blocking client endpoint
 public type ChatClient object {
 
-    public grpc:Client client;
-    public ChatStub stub;
-
+    public grpc:Client client = new;
+    public ChatStub stub = new;
 
     public function init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
@@ -113,8 +100,8 @@ public type ChatClient object {
 };
 
 type ChatMessage record {
-    string name;
-    string message;
+    string name = "";
+    string message = "";
 };
 
 @final string DESCRIPTOR_KEY4 = "Chat.proto";

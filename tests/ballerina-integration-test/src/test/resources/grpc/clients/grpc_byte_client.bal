@@ -24,23 +24,20 @@ function testByteArray() returns (string) {
     string statement = "Lion in Town.";
     byte[] bytes = statement.toByteArray("UTF-8");
     var addResponse = blockingEp->checkBytes(bytes);
-    match addResponse {
-        (byte[], grpc:Headers) payload => {
-            byte[] result;
-            grpc:Headers resHeaders;
-            (result, resHeaders) = payload;
-            return "byte array works";
-        }
-        error err => {
-            return "Error from Connector: " + err.reason();
-        }
+    if (addResponse is error) {
+        return "Error from Connector: " + addResponse.reason();
+    } else {
+        byte[] result = [];
+        grpc:Headers resHeaders = new;
+        (result, resHeaders) = addResponse;
+        return "byte array works";
     }
 }
 
 // This is an auto generated code segment of the client stub.
 public type byteServiceBlockingStub object {
-    public grpc:Client clientEndpoint;
-    public grpc:Stub stub;
+    public grpc:Client clientEndpoint = new;
+    public grpc:Stub stub = new;
 
     function initStub (grpc:Client ep) {
         grpc:Stub navStub = new;
@@ -49,24 +46,17 @@ public type byteServiceBlockingStub object {
     }
 
     function checkBytes (byte[] req, grpc:Headers? headers = ()) returns ((byte[], grpc:Headers)|error) {
-        var unionResp = self.stub.blockingExecute("grpcservices.byteService/checkBytes", req, headers = headers);
-        match unionResp {
-            error payloadError => {
-                return payloadError;
-            }
-            (any, grpc:Headers) payload => {
-                grpc:Headers resHeaders;
-                any result;
-                (result, resHeaders) = payload;
-                return (check <byte[]>result, resHeaders);
-            }
-        }
+        var unionResp = check self.stub.blockingExecute("grpcservices.byteService/checkBytes", req, headers = headers);
+        grpc:Headers resHeaders = new;
+        any result = ();
+        (result, resHeaders) = unionResp;
+        return (check <byte[]>result, resHeaders);
     }
 };
 
 public type byteServiceStub object {
-    public grpc:Client clientEndpoint;
-    public grpc:Stub stub;
+    public grpc:Client clientEndpoint = new;
+    public grpc:Stub stub = new;
 
     function initStub (grpc:Client ep) {
         grpc:Stub navStub = new;
@@ -80,8 +70,8 @@ public type byteServiceStub object {
 };
 
 public type byteServiceBlockingClient object {
-    public grpc:Client client;
-    public byteServiceBlockingStub stub;
+    public grpc:Client client = new;
+    public byteServiceBlockingStub stub = new;
 
     public function init (grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
@@ -100,8 +90,8 @@ public type byteServiceBlockingClient object {
 };
 
 public type byteServiceClient object {
-    public grpc:Client client;
-    public byteServiceStub stub;
+    public grpc:Client client = new;
+    public byteServiceStub stub = new;
 
     public function init (grpc:ClientEndpointConfig config) {
         // initialize client endpoint.

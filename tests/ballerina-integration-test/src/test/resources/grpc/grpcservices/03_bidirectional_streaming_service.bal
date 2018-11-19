@@ -27,7 +27,7 @@ endpoint grpc:Listener ep5 {
     clientStreaming:true,
     serverStreaming:true}
 service Chat bind ep5 {
-    map consMap;
+    map consMap = {};
     onOpen(endpoint client) {
         consMap[<string>client.id] = client;
     }
@@ -40,10 +40,13 @@ service Chat bind ep5 {
         int len = conKeys.length();
         int i = 0;
         while (i < len) {
-            con = check <grpc:Listener>consMap[conKeys[i]];
-            error? err = con->send(msg);
-            if (err is error) {
-                io:println("Error from Connector: " + err.reason());
+            var result = <grpc:Listener>consMap[conKeys[i]];
+            if (result is grpc:Listener) {
+                con = result;
+                error? err = con->send(msg);
+                if (err is error) {
+                    io:println("Error from Connector: " + err.reason());
+                }
             }
             i = i + 1;
         }
@@ -62,10 +65,13 @@ service Chat bind ep5 {
         int len = conKeys.length();
         int i = 0;
         while (i < len) {
-            con = check <grpc:Listener>consMap[conKeys[i]];
-            error? err = con->send(msg);
-            if (err is error) {
-                io:println("Error from Connector: " + err.reason());
+            var result = <grpc:Listener>consMap[conKeys[i]];
+            if (result is grpc:Listener) {
+                con = result;
+                error? err = con->send(msg);
+                if (err is error) {
+                    io:println("Error from Connector: " + err.reason());
+                }
             }
             i = i + 1;
         }
@@ -73,6 +79,6 @@ service Chat bind ep5 {
 }
 
 type ChatMessage5 record {
-    string name;
-    string message;
+    string name = "";
+    string message = "";
 };

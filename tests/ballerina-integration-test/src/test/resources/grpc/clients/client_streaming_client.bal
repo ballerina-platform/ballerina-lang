@@ -17,7 +17,7 @@ import ballerina/grpc;
 import ballerina/io;
 import ballerina/runtime;
 
-string response;
+string response = "";
 int total = 0;
 function testClientStreaming(string[] args) returns (string) {
     // Client endpoint configuration
@@ -28,13 +28,10 @@ function testClientStreaming(string[] args) returns (string) {
     endpoint grpc:Client ep;
     // Executing unary non-blocking call registering server message listener.
     var res = helloWorldEp->lotsOfGreetings(HelloWorldMessageListener);
-    match res {
-        error err => {
-            io:println("Error from Connector: " + err.reason());
-        }
-        grpc:Client con => {
-            ep = con;
-        }
+    if (res is error) {
+        io:println("Error from Connector: " + res.reason());
+    } else {
+        ep = res;
     }
 
     io:print("Initialized connection sucessfully.");
@@ -67,7 +64,7 @@ service<grpc:Service> HelloWorldMessageListener {
     // Resource registered to receive server messages
     onMessage(string message) {
         response = untaint message;
-        io:println("Response received from server: " + message);
+        io:println("Response received from server: " + response);
         total = 1;
     }
 
@@ -86,8 +83,8 @@ service<grpc:Service> HelloWorldMessageListener {
 // Non-blocking client
 public type HelloWorldStub object {
 
-    public grpc:Client clientEndpoint;
-    public grpc:Stub stub;
+    public grpc:Client clientEndpoint = new;
+    public grpc:Stub stub = new;
 
 
     function initStub(grpc:Client ep) {
@@ -97,15 +94,7 @@ public type HelloWorldStub object {
     }
 
     function lotsOfGreetings(typedesc listener, grpc:Headers? headers = ()) returns (grpc:Client|error) {
-        var res = self.stub.streamingExecute("grpcservices.HelloWorld7/lotsOfGreetings", listener, headers = headers);
-        match res {
-            error err => {
-                return err;
-            }
-            grpc:Client con => {
-                return con;
-            }
-        }
+        return self.stub.streamingExecute("grpcservices.HelloWorld7/lotsOfGreetings", listener, headers = headers);
     }
 };
 
@@ -113,8 +102,8 @@ public type HelloWorldStub object {
 // Non-blocking client endpoint
 public type HelloWorldClient object {
 
-    public grpc:Client client;
-    public HelloWorldStub stub;
+    public grpc:Client client = new;
+    public HelloWorldStub stub = new;
 
 
     public function init(grpc:ClientEndpointConfig con) {
