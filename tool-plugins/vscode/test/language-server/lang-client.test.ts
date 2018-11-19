@@ -42,7 +42,9 @@ suite("Language Server Tests", function () {
     });
 
     suiteTeardown((done: MochaDone): any => {
-        langClient.stop();
+        langClient.stop().then(()=>{
+            done();
+        });
     });
 
 
