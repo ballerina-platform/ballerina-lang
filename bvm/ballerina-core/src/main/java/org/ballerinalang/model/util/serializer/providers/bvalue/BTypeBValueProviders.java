@@ -29,7 +29,6 @@ import org.ballerinalang.model.util.serializer.BValueSerializer;
 import org.ballerinalang.model.util.serializer.SerializationBValueProvider;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ObjectTypeInfo;
@@ -37,10 +36,8 @@ import org.ballerinalang.util.codegen.RecordTypeInfo;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Contain SerializationBValueProviders for BType derived classes.
