@@ -545,7 +545,7 @@ public class TypeChecker extends BLangNodeVisitor {
             this.dlog.error(syncSendExpr.pos, DiagnosticCode.INVALID_TYPE_FOR_SEND, syncSendExpr.expr.type);
         }
 
-        if (!this.isInTopLevelWorkerEnv()) {
+        if (!isInTopLevelWorkerEnv()) {
             this.dlog.error(syncSendExpr.pos, DiagnosticCode.INVALID_WORKER_SEND_POSITION);
         }
 
@@ -624,8 +624,17 @@ public class TypeChecker extends BLangNodeVisitor {
     private boolean isInTopLevelWorkerEnv() {
         // Two scenarios are handled here when a variable comes as an assignment and when it is defined as a variable
         // definition: i = <- W1 and var i = <- W1;
-        return this.env.enclEnv.node.getKind() == NodeKind.WORKER ||
-                this.env.enclEnv.enclEnv.node.getKind() == NodeKind.WORKER;
+        boolean isTopLevel = false;
+        switch (this.env.node.getKind()) {
+            case BLOCK:
+                isTopLevel = this.env.enclEnv.node.getKind() == NodeKind.WORKER;
+                break;
+            case VARIABLE:
+            case EXPRESSION_STATEMENT:
+                isTopLevel = this.env.enclEnv.enclEnv.node.getKind() == NodeKind.WORKER;
+                break;
+        }
+        return isTopLevel;
     }
 
     private boolean workerExists(SymbolEnv env, String workerName) {
