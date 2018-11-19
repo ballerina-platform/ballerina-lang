@@ -232,6 +232,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitCompositeElement(o);
   }
 
+  public void visitConstantDefinition(@NotNull BallerinaConstantDefinition o) {
+    visitCompositeElement(o);
+  }
+
   public void visitContent(@NotNull BallerinaContent o) {
     visitCompositeElement(o);
   }
@@ -553,6 +557,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitCompositeElement(o);
   }
 
+  public void visitObjectCallableUnitSignature(@NotNull BallerinaObjectCallableUnitSignature o) {
+    visitCompositeElement(o);
+  }
+
   public void visitObjectDefaultableParameter(@NotNull BallerinaObjectDefaultableParameter o) {
     visitCompositeElement(o);
   }
@@ -790,6 +798,14 @@ public class BallerinaVisitor extends PsiElementVisitor {
   }
 
   public void visitServiceEndpointAttachments(@NotNull BallerinaServiceEndpointAttachments o) {
+    visitCompositeElement(o);
+  }
+
+  public void visitSetAssignmentClause(@NotNull BallerinaSetAssignmentClause o) {
+    visitCompositeElement(o);
+  }
+
+  public void visitSetClause(@NotNull BallerinaSetClause o) {
     visitCompositeElement(o);
   }
 

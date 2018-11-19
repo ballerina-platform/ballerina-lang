@@ -73,8 +73,8 @@ public class BallerinaFunctionDefinitionImpl extends BallerinaNamedElementImpl<B
 
   @Override
   @Nullable
-  public PsiElement getDoubleColon() {
-    return findChildByType(DOUBLE_COLON);
+  public PsiElement getDot() {
+    return findChildByType(DOT);
   }
 
   @Override

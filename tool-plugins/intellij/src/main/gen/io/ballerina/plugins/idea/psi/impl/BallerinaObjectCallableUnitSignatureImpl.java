@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaRecordFieldDefinitionListImpl extends BallerinaCompositeElementImpl implements BallerinaRecordFieldDefinitionList {
+public class BallerinaObjectCallableUnitSignatureImpl extends BallerinaCompositeElementImpl implements BallerinaObjectCallableUnitSignature {
 
-  public BallerinaRecordFieldDefinitionListImpl(@NotNull ASTNode node) {
+  public BallerinaObjectCallableUnitSignatureImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitRecordFieldDefinitionList(this);
+    visitor.visitObjectCallableUnitSignature(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,20 +43,32 @@ public class BallerinaRecordFieldDefinitionListImpl extends BallerinaCompositeEl
 
   @Override
   @NotNull
-  public List<BallerinaFieldDefinition> getFieldDefinitionList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaFieldDefinition.class);
+  public BallerinaAnyIdentifierName getAnyIdentifierName() {
+    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaAnyIdentifierName.class));
   }
 
   @Override
   @Nullable
-  public BallerinaRecordRestFieldDefinition getRecordRestFieldDefinition() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaRecordRestFieldDefinition.class);
+  public BallerinaFormalParameterList getFormalParameterList() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaFormalParameterList.class);
   }
 
   @Override
-  @NotNull
-  public List<BallerinaTypeReference> getTypeReferenceList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaTypeReference.class);
+  @Nullable
+  public BallerinaReturnParameter getReturnParameter() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaReturnParameter.class);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getLeftParenthesis() {
+    return findChildByType(LEFT_PARENTHESIS);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getRightParenthesis() {
+    return findChildByType(RIGHT_PARENTHESIS);
   }
 
 }

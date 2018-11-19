@@ -70,7 +70,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.DAY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DECIMAL_INTEGER_LITERAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DEPRECATED;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DIV;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCUMENTATION_TEMPLATE_ATTRIBUTE_DESCRIPTION;
+
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOUBLE_COLON;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ELLIPSIS;
@@ -626,8 +626,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(EXPRESSION, WHILE_STATEMENT_BODY).spaceIf(true)
                 .between(SIMPLE_LITERAL_EXPRESSION, WHILE_STATEMENT_BODY).spaceIf(true)
 
-                // Docs
-                .aroundInside(IDENTIFIER, DOCUMENTATION_TEMPLATE_ATTRIBUTE_DESCRIPTION).spaceIf(false)
                 ;
     }
 

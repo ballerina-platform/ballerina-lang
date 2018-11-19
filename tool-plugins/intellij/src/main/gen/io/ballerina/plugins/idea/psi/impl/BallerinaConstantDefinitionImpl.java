@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaRecordFieldDefinitionListImpl extends BallerinaCompositeElementImpl implements BallerinaRecordFieldDefinitionList {
+public class BallerinaConstantDefinitionImpl extends BallerinaCompositeElementImpl implements BallerinaConstantDefinition {
 
-  public BallerinaRecordFieldDefinitionListImpl(@NotNull ASTNode node) {
+  public BallerinaConstantDefinitionImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitRecordFieldDefinitionList(this);
+    visitor.visitConstantDefinition(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -42,21 +42,45 @@ public class BallerinaRecordFieldDefinitionListImpl extends BallerinaCompositeEl
   }
 
   @Override
-  @NotNull
-  public List<BallerinaFieldDefinition> getFieldDefinitionList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaFieldDefinition.class);
+  @Nullable
+  public BallerinaExpression getExpression() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
   }
 
   @Override
   @Nullable
-  public BallerinaRecordRestFieldDefinition getRecordRestFieldDefinition() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaRecordRestFieldDefinition.class);
+  public BallerinaTypeName getTypeName() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getAssign() {
+    return findChildByType(ASSIGN);
   }
 
   @Override
   @NotNull
-  public List<BallerinaTypeReference> getTypeReferenceList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaTypeReference.class);
+  public PsiElement getConst() {
+    return notNullChild(findChildByType(CONST));
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getPublic() {
+    return findChildByType(PUBLIC);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getSemicolon() {
+    return findChildByType(SEMICOLON);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getIdentifier() {
+    return findChildByType(IDENTIFIER);
   }
 
 }

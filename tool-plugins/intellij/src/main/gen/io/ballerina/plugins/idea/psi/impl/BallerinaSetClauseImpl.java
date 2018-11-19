@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaRecordFieldDefinitionListImpl extends BallerinaCompositeElementImpl implements BallerinaRecordFieldDefinitionList {
+public class BallerinaSetClauseImpl extends BallerinaCompositeElementImpl implements BallerinaSetClause {
 
-  public BallerinaRecordFieldDefinitionListImpl(@NotNull ASTNode node) {
+  public BallerinaSetClauseImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitRecordFieldDefinitionList(this);
+    visitor.visitSetClause(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,20 +43,14 @@ public class BallerinaRecordFieldDefinitionListImpl extends BallerinaCompositeEl
 
   @Override
   @NotNull
-  public List<BallerinaFieldDefinition> getFieldDefinitionList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaFieldDefinition.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaRecordRestFieldDefinition getRecordRestFieldDefinition() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaRecordRestFieldDefinition.class);
+  public List<BallerinaSetAssignmentClause> getSetAssignmentClauseList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaSetAssignmentClause.class);
   }
 
   @Override
   @NotNull
-  public List<BallerinaTypeReference> getTypeReferenceList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaTypeReference.class);
+  public PsiElement getSet() {
+    return notNullChild(findChildByType(SET));
   }
 
 }

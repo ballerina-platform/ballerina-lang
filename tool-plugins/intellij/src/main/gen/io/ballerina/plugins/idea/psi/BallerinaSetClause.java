@@ -21,24 +21,12 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaValueTypeName extends BallerinaCompositeElement {
+public interface BallerinaSetClause extends BallerinaCompositeElement {
 
-  @Nullable
-  PsiElement getBoolean();
+  @NotNull
+  List<BallerinaSetAssignmentClause> getSetAssignmentClauseList();
 
-  @Nullable
-  PsiElement getByte();
-
-  @Nullable
-  PsiElement getDecimal();
-
-  @Nullable
-  PsiElement getFloat();
-
-  @Nullable
-  PsiElement getInt();
-
-  @Nullable
-  PsiElement getString();
+  @NotNull
+  PsiElement getSet();
 
 }
