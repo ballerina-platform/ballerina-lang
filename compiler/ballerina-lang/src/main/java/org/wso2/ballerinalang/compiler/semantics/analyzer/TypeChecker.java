@@ -561,30 +561,26 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangWorkerReceive workerReceiveNode) {
-        // Validate if the receive type is anydata
-        if (!types.isAnydata(this.expType)) {
-            this.dlog.error(workerReceiveNode.pos, DiagnosticCode.INVALID_TYPE_FOR_RECEIVE, expType);
-        }
-
-        BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(workerReceiveNode.workerIdentifier),
+    public void visit(BLangWorkerReceive workerReceiveExpr) {
+        BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(workerReceiveExpr.workerIdentifier),
                                                   SymTag.VARIABLE);
 
-        if (workerReceiveNode.isChannel || symbol.getType().tag == TypeTags.CHANNEL) {
-            visitChannelReceive(workerReceiveNode, symbol);
+        if (workerReceiveExpr.isChannel || symbol.getType().tag == TypeTags.CHANNEL) {
+            visitChannelReceive(workerReceiveExpr, symbol);
             return;
         }
 
         if (!isInTopLevelWorkerEnv()) {
-            this.dlog.error(workerReceiveNode.pos, DiagnosticCode.INVALID_WORKER_RECEIVE_POSITION);
+            this.dlog.error(workerReceiveExpr.pos, DiagnosticCode.INVALID_WORKER_RECEIVE_POSITION);
         }
 
-        String workerName = workerReceiveNode.workerIdentifier.getValue();
+        String workerName = workerReceiveExpr.workerIdentifier.getValue();
         if (!this.workerExists(this.env, workerName)) {
-            this.dlog.error(workerReceiveNode.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
+            this.dlog.error(workerReceiveExpr.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
         }
         // We cannot predict the type of the receive expression as it depends on the type of the data sent by the other
         // worker/channel. Since receive is an expression now we infer the type of it from the lhs of the statement.
+        workerReceiveExpr.type = this.expType;
         resultType = this.expType;
     }
 
