@@ -34,7 +34,7 @@ function readAllCharacters() returns string|error? {
         if (readResult is string) {
             result = result + readResult;
         } else if (readResult is error) {
-            if (<string>readResult.detail()["message"] == "io.EOF"){
+            if (<string>readResult.detail()["message"] == "io.EOF") {
                 isDone = true;
             } else {
                 return readResult;
