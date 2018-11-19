@@ -1594,8 +1594,11 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.XML:
                 blockNode = desugarForeachCodeBlockOfXML(foreach, symbol);
                 break;
+            case TypeTags.TABLE:
+                blockNode = desugarForeachCodeBlockOfTable(foreach, symbol);
+                break;
             default:
-                // Todo - log error
+                // Todo - log error?
                 return;
         }
 
@@ -2173,6 +2176,63 @@ public class Desugar extends BLangNodeVisitor {
         blockNode.addStatement(variableDef);
         // Add the while node to the block.
         blockNode.addStatement(whileNode);
+        return blockNode;
+    }
+
+    private BLangBlockStmt desugarForeachCodeBlockOfTable(BLangForeach foreach, BVarSymbol collectionSymbol) {
+        // Get the symbol from the collection.
+        // Get the variable definition from the foreach statement.
+        BLangSimpleVariableDef variableDefinitionNode = (BLangSimpleVariableDef) foreach.variableDefinitionNode;
+
+        // Note - $data$.hasNext() -------------------------------------------------------------------------------------
+
+        BLangIdentifier hasNextIdentifier = ASTBuilderUtil.createIdentifier(foreach.pos, "hasNext");
+        BLangSimpleVarRef collectionReferenceInCondition = ASTBuilderUtil.createVariableRef(foreach.pos,
+                collectionSymbol);
+
+        Scope.ScopeEntry hasNextScopeEntry = symTable.rootScope.lookup(names.fromString("table.hasNext"));
+        BInvokableSymbol hasNextFunctionSymbol = (BInvokableSymbol) hasNextScopeEntry.symbol;
+
+        BLangInvocation hasNextExpression = (BLangInvocation) TreeBuilder.createInvocationNode();
+        hasNextExpression.pos = foreach.pos;
+        hasNextExpression.name = hasNextIdentifier;
+        hasNextExpression.expr = collectionReferenceInCondition;
+        hasNextExpression.symbol = hasNextFunctionSymbol;
+        hasNextExpression.type = symTable.booleanType;
+
+        BLangWhile whileNode = (BLangWhile) TreeBuilder.createWhileNode();
+        whileNode.pos = foreach.pos;
+        whileNode.expr = hasNextExpression;
+        whileNode.body = foreach.body;
+
+        // Note - R i = $data$.getNext(); ------------------------------------------------------------------------------
+
+        BLangIdentifier nextIdentifier = ASTBuilderUtil.createIdentifier(foreach.pos, "getNext");
+        BLangSimpleVarRef collectionReferenceInNext = ASTBuilderUtil.createVariableRef(foreach.pos,
+                collectionSymbol);
+
+        Scope.ScopeEntry nextScopeEntry = symTable.rootScope.lookup(names.fromString("table.getNext"));
+        BInvokableSymbol nextFunctionSymbol = (BInvokableSymbol) nextScopeEntry.symbol;
+
+        BLangInvocation nextExpression = (BLangInvocation) TreeBuilder.createInvocationNode();
+        nextExpression.pos = foreach.pos;
+        nextExpression.name = nextIdentifier;
+        nextExpression.expr = collectionReferenceInNext;
+        nextExpression.symbol = nextFunctionSymbol;
+        nextExpression.type = nextFunctionSymbol.type;
+
+        // Update the variable by setting the type and the expression. i.e.- R i; -> R i = $data$.getNext();
+        variableDefinitionNode.var.expr = nextExpression;
+
+        // Add the variable definition to the top of the while node's body statements.
+        whileNode.body.stmts.add(0, variableDefinitionNode);
+
+        // Create a new block statement node.
+        BLangBlockStmt blockNode = ASTBuilderUtil.createBlockStmt(foreach.pos);
+
+        // Add the while node to the block.
+        blockNode.addStatement(whileNode);
+
         return blockNode;
     }
 

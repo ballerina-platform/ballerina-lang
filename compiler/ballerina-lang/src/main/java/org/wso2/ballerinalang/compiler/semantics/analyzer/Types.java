@@ -697,7 +697,11 @@ public class Types {
                 bTypes.add(symTable.stringType);
                 return new BUnionType(null, bTypes, false);
             case TypeTags.TABLE:
-                break;
+                BTableType tableType = (BTableType) collectionType;
+                if (tableType.constraint.tag == TypeTags.NONE) {
+                    return symTable.anyType;
+                }
+                return tableType.constraint;
             case TypeTags.SEMANTIC_ERROR:
                 break;
             default:
