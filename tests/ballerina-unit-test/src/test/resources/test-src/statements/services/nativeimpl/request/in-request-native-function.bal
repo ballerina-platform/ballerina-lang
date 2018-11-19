@@ -4,7 +4,7 @@ import ballerina/mime;
 import ballerina/file;
 
 function testContentType(http:Request req, string contentTypeValue) returns string {
-    req.setContentType(contentTypeValue);
+    _ = req.setContentType(contentTypeValue);
     return req.getContentType();
 }
 
@@ -245,7 +245,7 @@ service<http:Service> hello bind mockEP {
         http:Request req = new;
         req.setHeader("Content-Type", "application/x-www-form-urlencoded");
         req.removeHeader("Content-Type");
-        string header;
+        string header = "";
         if (!req.hasHeader("Content-Type")) {
             header = "value is null";
         }
@@ -263,7 +263,7 @@ service<http:Service> hello bind mockEP {
         req.setHeader("Expect", "100-continue");
         req.setHeader("Range", "bytes=500-999");
         req.removeAllHeaders();
-        string header;
+        string header = "";
         if (!req.hasHeader("Range")) {
             header = "value is null";
         }

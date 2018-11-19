@@ -24,7 +24,7 @@ service HelloWorld100 bind ep100 {
     hello(endpoint caller, string name) {
         io:println("name: " + name);
         string message = "Hello " + name;
-        error? err;
+        error? err = ();
         if (name == "invalid") {
             err = caller->sendError(grpc:ABORTED, "Operation aborted");
         } else {
@@ -115,11 +115,11 @@ service HelloWorld100 bind ep100 {
 }
 
 type Request record {
-    string name;
-    string message;
-    int age;
+    string name = "";
+    string message = "";
+    int age = 0;
 };
 
 type Response record {
-    string resp;
+    string resp = "";
 };
