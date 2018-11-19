@@ -1,4 +1,5 @@
 import { Assignment, Block, Visitor } from "@ballerina/ast-model";
+import * as _ from "lodash";
 import { DiagramUtils } from "../diagram/diagram-utils";
 
 // Following element is created to calculate the width of a text rendered in an svg.
@@ -67,7 +68,7 @@ export const visitor: Visitor = {
                 height += statement.viewState.height;
             }
         });
-
+        getTextWidth("sample");
         node.viewState = {
             height,
         };
