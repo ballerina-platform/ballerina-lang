@@ -92,14 +92,18 @@ service<http:Service> mockHelloService bind serviceEndpoint1 {
                     foreach bodyPart in bodyParts {
                         if (bodyPart.hasHeader(mime:CONTENT_TYPE)
                             && bodyPart.getHeader(mime:CONTENT_TYPE).hasPrefix(http:MULTIPART_AS_PRIMARY_TYPE)) {
-                            mime:Entity[] childParts = check bodyPart.getBodyParts();
-                            foreach childPart in childParts {
+                            var childParts = bodyPart.getBodyParts();
+                            if (childParts is mime:Entity[]) {
+                                foreach childPart in childParts {
                                 // When performing passthrough scenarios, message needs to be built before
                                 // invoking the endpoint to create a message datasource.
                                 var childBlobContent = childPart.getByteArray();
+                                }
+                                io:println(bodyPart.getContentType());
+                                bodyPart.setBodyParts(untaint childParts, contentType = untaint bodyPart.getContentType());
+                            } else if (childParts is error) {
+                                log:printError(childParts.reason());
                             }
-                            io:println(bodyPart.getContentType());
-                            bodyPart.setBodyParts(untaint childParts, contentType = untaint bodyPart.getContentType());
                         } else {
                             var bodyPartBlobContent = bodyPart.getByteArray();
                         }
