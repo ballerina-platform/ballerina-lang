@@ -36,7 +36,6 @@
     "@types/glob": "^7.1.1",
     "@types/jest": "^22.0.1",
     "@types/lodash": "^4.14.117",
-    "@types/node": "^8.0.0",
     "@types/ws": "^6.0.1"
   },
   "engines": {

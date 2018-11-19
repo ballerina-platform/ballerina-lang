@@ -14,7 +14,7 @@
   "scripts": {
     "clean": "../../node_modules/.bin/rimraf lib",
     "lint": "../../node_modules/.bin/tslint -t stylish --project .",
-    "prebuild": "npm run clean",
+    "prebuild": "npm run clean && npm run lint",
     "build": "../../node_modules/.bin/tsc --pretty"
   },
   "author": "ballerina.io",

@@ -1,7 +1,2 @@
-
-
-
-
 export const DiagramConfig = {
-
-}
+};
