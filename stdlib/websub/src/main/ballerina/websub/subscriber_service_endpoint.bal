@@ -124,15 +124,15 @@ function Listener.sendSubscriptionRequests() {
             string topic = <string>subscriptionDetails.topic;
 
             http:SecureSocket? newSecureSocket;
-            var secureSocket = <http:SecureSocket>subscriptionDetails.secureSocket;
+            var secureSocket = trap <http:SecureSocket>subscriptionDetails.secureSocket;
             newSecureSocket = secureSocket is http:SecureSocket ? secureSocket : ();
 
             http:AuthConfig? auth;
-            var httpAuth = <http:AuthConfig>subscriptionDetails.auth;
+            var httpAuth = trap <http:AuthConfig>subscriptionDetails.auth;
             auth = httpAuth is http:AuthConfig ? httpAuth : ();
 
             http:FollowRedirects? followRedirects;
-            var httpFollowRedirects = <http:FollowRedirects>subscriptionDetails.followRedirects;
+            var httpFollowRedirects = trap <http:FollowRedirects>subscriptionDetails.followRedirects;
             followRedirects = httpFollowRedirects is http:FollowRedirects ? httpFollowRedirects : ();
 
             if (hub == "" || topic == "") {

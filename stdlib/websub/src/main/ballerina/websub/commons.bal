@@ -644,7 +644,7 @@ function retrieveSubscriberServiceAnnotations(typedesc serviceType) returns Subs
             if (subscriberServiceAnnotation is SubscriberServiceConfiguration) {
                 return subscriberServiceAnnotation;
             } else if (subscriberServiceAnnotation is error) {
-                panic subscriberServiceAnnotation;
+                return;
             }
         }
     }

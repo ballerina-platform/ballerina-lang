@@ -143,7 +143,7 @@ function respondToBadRequest(http:Listener conn, string msg) {
     log:printError(msg);
     http:Response res = new;  res.statusCode = http:BAD_REQUEST_400;
     RequestError requestError = {errorMessage:msg};
-    var resPayload = <json>requestError;
+    var resPayload = json.from(requestError);
     if (resPayload is json) {
         res.setJsonPayload(untaint resPayload);
         var resResult = ep->respond(res);
@@ -235,7 +235,7 @@ function registerLocalParticipantWithInitiator(string transactionId, int transac
                 //participatedTxn.coordinatorProtocols = [initiatorProto];
     
                 LocalParticipant participant = new(participantId, participatedTxn, [participantProtocol]);
-                initiatedTxn.participants[participantId] = <Participant>participant;
+                initiatedTxn.participants[participantId] = participant;
     
                 string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
                 participatedTransactions[participatedTxnId] = participatedTxn;

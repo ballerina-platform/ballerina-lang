@@ -448,7 +448,7 @@ function addTopicRegistrationsOnStartup() {
     if (dbResult is table) {
         table dt = dbResult;
         while (dt.hasNext()) {
-            var registrationDetails = <TopicRegistration>dt.getNext();
+            var registrationDetails = trap <TopicRegistration>dt.getNext();
             if (registrationDetails is TopicRegistration) {
                 var registerStatus = registerTopicAtHub(registrationDetails.topic, loadingOnStartUp = true);
                 if (registerStatus is error) {
@@ -486,7 +486,7 @@ function addSubscriptionsOnStartup() {
     if (dbResult is table) {
         table dt = dbResult;
         while (dt.hasNext()) {
-            var subscriptionDetails = <SubscriptionDetails>dt.getNext();
+            var subscriptionDetails = trap <SubscriptionDetails>dt.getNext();
             if (subscriptionDetails is SubscriptionDetails) {
                 addSubscription(subscriptionDetails);
             } else if (subscriptionDetails is error) {

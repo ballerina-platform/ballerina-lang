@@ -171,12 +171,12 @@ public type TimeWindow object {
             streamEventChunk.resetToFront();
 
             while (streamEventChunk.hasNext()) {
-                StreamEvent streamEvent = check <StreamEvent>streamEventChunk.next();
+                StreamEvent streamEvent = check trap <StreamEvent>streamEventChunk.next();
                 int currentTime = time:currentTime().time;
                 expiredEventQueue.resetToFront();
 
                 while (expiredEventQueue.hasNext()) {
-                    StreamEvent expiredEvent = check <StreamEvent>expiredEventQueue.next();
+                    StreamEvent expiredEvent = check trap <StreamEvent>expiredEventQueue.next();
                     int timeDiff = (expiredEvent.timestamp - currentTime) + timeInMillis;
                     if (timeDiff <= 0) {
                         expiredEventQueue.removeCurrent();
@@ -211,7 +211,7 @@ public type TimeWindow object {
                     StreamEvent[] events = [];
                     streamEventChunk.resetToFront();
                     while (streamEventChunk.hasNext()) {
-                        StreamEvent streamEvent = check <StreamEvent>streamEventChunk.next();
+                        StreamEvent streamEvent = check trap <StreamEvent>streamEventChunk.next();
                         events[lengthof events] = streamEvent;
                     }
                     nxtProc(events);
@@ -229,7 +229,7 @@ public type TimeWindow object {
         timerEventWrapper[0] = timerEvent;
         process(timerEventWrapper);
         if (!timerQueue.isEmpty()) {
-            task:Timer timer = check <task:Timer>timerQueue.removeFirst();
+            task:Timer timer = check trap <task:Timer>timerQueue.removeFirst();
             _ = timer.stop();
         }
         return ();
@@ -336,7 +336,7 @@ public type LengthBatchWindow object {
                     //        expiredEventQueue.addLast(toBeExpired);
                     //    }
                     //}
-                    StreamEvent firstInCurrentEventQueue = check <StreamEvent>currentEventQueue.getFirst();
+                    StreamEvent firstInCurrentEventQueue = check trap <StreamEvent>currentEventQueue.getFirst();
                     resetEvent = createResetStreamEvent(firstInCurrentEventQueue);
                     foreach currentEvent in currentEventQueue.asArray() {
                         outputStreamEventChunk.addLast(currentEvent);
@@ -355,10 +355,10 @@ public type LengthBatchWindow object {
                 streamEventChunks.resetToFront();
                 while streamEventChunks.hasNext() {
                     StreamEvent[] events = [];
-                    LinkedList streamEventChunk = check <LinkedList>streamEventChunks.next();
+                    LinkedList streamEventChunk = check trap <LinkedList>streamEventChunks.next();
                     streamEventChunk.resetToFront();
                     while (streamEventChunk.hasNext()) {
-                        StreamEvent streamEvent = check <StreamEvent>streamEventChunk.next();
+                        StreamEvent streamEvent = check trap <StreamEvent>streamEventChunk.next();
                         events[lengthof events] = streamEvent;
                     }
                     nxtProc(events);
@@ -490,7 +490,7 @@ public type TimeBatchWindow object {
                 resetEvent = createResetStreamEvent(check <StreamEvent>currentEventQueue.getFirst());
                 currentEventQueue.resetToFront();
                 while (currentEventQueue.hasNext()) {
-                    StreamEvent streamEvent = check <StreamEvent>currentEventQueue.next();
+                    StreamEvent streamEvent = check trap <StreamEvent>currentEventQueue.next();
                     outputStreamEvents.addLast(streamEvent);
                 }
             }
@@ -502,7 +502,7 @@ public type TimeBatchWindow object {
                     StreamEvent[] events = [];
                     outputStreamEvents.resetToFront();
                     while (outputStreamEvents.hasNext()) {
-                        StreamEvent streamEvent = check <StreamEvent>outputStreamEvents.next();
+                        StreamEvent streamEvent = check trap <StreamEvent>outputStreamEvents.next();
                         events[lengthof events] = streamEvent;
                     }
                     nxtProc(events);
@@ -604,12 +604,12 @@ public type ExternalTimeWindow object {
             streamEventChunk.resetToFront();
 
             while (streamEventChunk.hasNext()) {
-                StreamEvent streamEvent = check <StreamEvent>streamEventChunk.next();
+                StreamEvent streamEvent = check trap <StreamEvent>streamEventChunk.next();
                 int currentTime = getTimestamp(streamEvent.data[timeStamp]);
                 expiredEventQueue.resetToFront();
 
                 while (expiredEventQueue.hasNext()) {
-                    StreamEvent expiredEvent = check <StreamEvent>expiredEventQueue.next();
+                    StreamEvent expiredEvent = check trap <StreamEvent>expiredEventQueue.next();
                     int timeDiff = (getTimestamp(expiredEvent.data[timeStamp]) - currentTime) + timeInMillis;
                     if (timeDiff <= 0) {
                         expiredEventQueue.removeCurrent();
@@ -635,7 +635,7 @@ public type ExternalTimeWindow object {
                     StreamEvent[] events = [];
                     streamEventChunk.resetToFront();
                     while (streamEventChunk.hasNext()) {
-                        StreamEvent streamEvent = check <StreamEvent>streamEventChunk.next();
+                        StreamEvent streamEvent = check trap <StreamEvent>streamEventChunk.next();
                         events[lengthof events] = streamEvent;
                     }
                     nxtProc(events);
@@ -815,11 +815,11 @@ public type ExternalTimeBatchWindow object {
         LinkedList complexEventChunks = new;
 
         lock {
-            initTiming(check <StreamEvent>streamEventChunk.getFirst());
+            initTiming(check trap <StreamEvent>streamEventChunk.getFirst());
 
             while (streamEventChunk.hasNext()) {
 
-                StreamEvent currStreamEvent = check <StreamEvent>streamEventChunk.next();
+                StreamEvent currStreamEvent = <StreamEvent>streamEventChunk.next();
 
                 if (currStreamEvent.eventType == TIMER) {
                     if (lastScheduledTime <= currStreamEvent.timestamp) {
@@ -876,7 +876,7 @@ public type ExternalTimeBatchWindow object {
             function (StreamEvent[]) nxtProc => {
                 if (complexEventChunks.getSize() != 0) {
                     while (complexEventChunks.hasNext()) {
-                        StreamEvent[] streamEvent = check <StreamEvent[]>complexEventChunks.next();
+                        StreamEvent[] streamEvent = check trap <StreamEvent[]>complexEventChunks.next();
                         foreach event in streamEvent{
                         }
                         nxtProc(streamEvent);
@@ -944,7 +944,7 @@ public type ExternalTimeBatchWindow object {
             // mark the timestamp for the expiredType event
             expiredEventChunk.resetToFront();
             while (expiredEventChunk.hasNext()) {
-                StreamEvent expiredEvent = check <StreamEvent>expiredEventChunk.next();
+                StreamEvent expiredEvent = check trap <StreamEvent>expiredEventChunk.next();
                 expiredEvent.timestamp = currentTime;
             }
             // add expired event to newEventChunk.
@@ -975,7 +975,7 @@ public type ExternalTimeBatchWindow object {
             if (preserveCurrentEvents || storeExpiredEvents) {
                 currentEventChunk.resetToFront();
                 while (currentEventChunk.hasNext()) {
-                    StreamEvent currentEvent = check <StreamEvent>currentEventChunk.next();
+                    StreamEvent currentEvent = check trap <StreamEvent>currentEventChunk.next();
                     StreamEvent toExpireEvent = currentEvent.clone();
                     toExpireEvent.eventType = EXPIRED;
                     expiredEventChunk.addLast(toExpireEvent);
@@ -992,7 +992,7 @@ public type ExternalTimeBatchWindow object {
 
         StreamEvent[] streamEvents = [];
         while (newEventChunk.hasNext()) {
-            streamEvents[lengthof streamEvents] = check <StreamEvent>newEventChunk.next();
+            streamEvents[lengthof streamEvents] = check trap <StreamEvent>newEventChunk.next();
         }
         if (streamEvents != null) {
             complexEventChunks.addLast(streamEvents);
@@ -1008,7 +1008,7 @@ public type ExternalTimeBatchWindow object {
                 // mark the timestamp for the expiredType event
                 expiredEventChunk.resetToFront();
                 while (expiredEventChunk.hasNext()) {
-                    StreamEvent expiredEvent = check <StreamEvent>expiredEventChunk.next();
+                    StreamEvent expiredEvent = check trap <StreamEvent>expiredEventChunk.next();
 
                     if (outputExpectsExpiredEvents) {
                         // add expired event to newEventChunk.
@@ -1044,7 +1044,7 @@ public type ExternalTimeBatchWindow object {
             if (preserveCurrentEvents || storeExpiredEvents) {
                 currentEventChunk.resetToFront();
                 while (currentEventChunk.hasNext()) {
-                    StreamEvent currentEvent = check <StreamEvent>currentEventChunk.next();
+                    StreamEvent currentEvent = check trap <StreamEvent>currentEventChunk.next();
                     StreamEvent toExpireEvent = currentEvent.clone();
                     toExpireEvent.eventType = EXPIRED;
                     expiredEventChunk.addLast(toExpireEvent);
@@ -1061,7 +1061,7 @@ public type ExternalTimeBatchWindow object {
 
         StreamEvent[] streamEvents = [];
         while (newEventChunk.hasNext()) {
-            streamEvents[lengthof streamEvents] = check <StreamEvent>newEventChunk.next();
+            streamEvents[lengthof streamEvents] = check trap <StreamEvent>newEventChunk.next();
         }
         if (streamEvents != null) {
             complexEventChunks.addLast(streamEvents);
@@ -1160,10 +1160,10 @@ public type TimeLengthWindow object {
             int currentTime = time:currentTime().time;
 
             while (streamEventChunk.hasNext()) {
-                StreamEvent streamEvent = check <StreamEvent>streamEventChunk.next();
+                StreamEvent streamEvent = check trap <StreamEvent>streamEventChunk.next();
                 expiredEventChunk.resetToFront();
                 while (expiredEventChunk.hasNext()) {
-                    StreamEvent expiredEvent = check <StreamEvent>expiredEventChunk.next();
+                    StreamEvent expiredEvent = check trap <StreamEvent>expiredEventChunk.next();
                     int timeDiff = expiredEvent.timestamp - currentTime + timeInMilliSeconds;
                     if (timeDiff <= 0) {
                         expiredEventChunk.removeCurrent();
@@ -1183,7 +1183,7 @@ public type TimeLengthWindow object {
                         count += 1;
                         expiredEventChunk.addLast(clonedEvent);
                     } else {
-                        StreamEvent firstEvent = check <StreamEvent>expiredEventChunk.removeFirst();
+                        StreamEvent firstEvent = check trap <StreamEvent>expiredEventChunk.removeFirst();
                         if (firstEvent != null) {
                             firstEvent.timestamp = currentTime;
                             streamEventChunk.insertBeforeCurrent(firstEvent);
@@ -1204,7 +1204,7 @@ public type TimeLengthWindow object {
                     StreamEvent[] events = [];
                     streamEventChunk.resetToFront();
                     while (streamEventChunk.hasNext()) {
-                        StreamEvent streamEvent = check <StreamEvent>streamEventChunk.next();
+                        StreamEvent streamEvent = check trap <StreamEvent>streamEventChunk.next();
                         events[lengthof events] = streamEvent;
                     }
                     nxtProc(events);
@@ -1324,7 +1324,7 @@ public type UniqueLengthWindow object {
             int currentTime = time:currentTime().time;
             streamEventChunk.resetToFront();
             while (streamEventChunk.hasNext()) {
-                StreamEvent streamEvent = check <StreamEvent>streamEventChunk.next();
+                StreamEvent streamEvent = check trap <StreamEvent>streamEventChunk.next();
                 StreamEvent clonedEvent = streamEvent.clone();
                 clonedEvent.eventType = EXPIRED;
                 StreamEvent eventClonedForMap = clonedEvent.clone();
@@ -1332,7 +1332,7 @@ public type UniqueLengthWindow object {
                 string str = <string>eventClonedForMap.data[uniqueKey];
                 StreamEvent? oldEvent;
                 if (uniqueMap[str] != null) {
-                    oldEvent = check <StreamEvent>uniqueMap[str];
+                    oldEvent = check trap <StreamEvent>uniqueMap[str];
                 }
                 uniqueMap[str] = eventClonedForMap;
 
@@ -1344,7 +1344,7 @@ public type UniqueLengthWindow object {
                 } else {
                     if (oldEvent != null) {
                         while (expiredEventChunk.hasNext()) {
-                            StreamEvent firstEventExpired = check <StreamEvent>expiredEventChunk.next();
+                            StreamEvent firstEventExpired = check trap <StreamEvent>expiredEventChunk.next();
                             if (firstEventExpired.data[uniqueKey] == oldEvent.data[uniqueKey]) {
                                 expiredEventChunk.removeCurrent();
                             }
@@ -1353,7 +1353,7 @@ public type UniqueLengthWindow object {
                         streamEventChunk.insertBeforeCurrent(oldEvent);
                         oldEvent.timestamp = currentTime;
                     } else {
-                        StreamEvent firstEvent = check <StreamEvent>expiredEventChunk.removeFirst();
+                        StreamEvent firstEvent = check trap <StreamEvent>expiredEventChunk.removeFirst();
                         if (firstEvent != null) {
                             firstEvent.timestamp = currentTime;
                             streamEventChunk.insertBeforeCurrent(firstEvent);
@@ -1372,7 +1372,7 @@ public type UniqueLengthWindow object {
                     StreamEvent[] events = [];
                     streamEventChunk.resetToFront();
                     while (streamEventChunk.hasNext()) {
-                        StreamEvent streamEvent = check <StreamEvent>streamEventChunk.next();
+                        StreamEvent streamEvent = check trap <StreamEvent>streamEventChunk.next();
                         events[lengthof events] = streamEvent;
                     }
                     nxtProc(events);
@@ -1472,7 +1472,7 @@ public type DelayWindow object {
 
                 delayedEventQueue.resetToFront();
                 while (delayedEventQueue.hasNext()) {
-                    StreamEvent delayedEvent = check <StreamEvent>delayedEventQueue.next();
+                    StreamEvent delayedEvent = check trap <StreamEvent>delayedEventQueue.next();
                     //check if the event has delayed expected time period
                     if (streamEvent.timestamp >= delayedEvent.timestamp + delayInMilliSeconds) {
                         delayedEventQueue.removeCurrent();
@@ -1506,7 +1506,7 @@ public type DelayWindow object {
                     StreamEvent[] events = [];
                     streamEventChunk.resetToFront();
                     while (streamEventChunk.hasNext()) {
-                        StreamEvent streamEvent = check <StreamEvent>streamEventChunk.next();
+                        StreamEvent streamEvent = check trap <StreamEvent>streamEventChunk.next();
                         events[lengthof events] = streamEvent;
                     }
                     nxtProc(events);

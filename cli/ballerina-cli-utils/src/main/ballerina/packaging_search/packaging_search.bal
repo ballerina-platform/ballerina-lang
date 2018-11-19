@@ -41,17 +41,17 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
                 if (artifacts.length() > 0) {
                     int artifactsLength = artifacts.length();
                     printTitle("Ballerina Central");
-                    
+
                     int rightMargin = 3;
                     int width;
-                    var intTerminalWidth = <int> terminalWidth;
+                    var intTerminalWidth = int.from(terminalWidth);
                     if (intTerminalWidth is int) {
                         width = intTerminalWidth - rightMargin;
                     } else {
                         io:println("invalid terminal width : " + terminalWidth);
                         return;
                     }
-                    
+
                     int dateColWidth = 15;
                     int versionColWidth = 8;
                     int authorsColWidth = 15;
@@ -59,10 +59,10 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
                     float descColFactor = 16.0;
                     int additionalSpace = 7;
                     float remainingWidth = width - <float>(dateColWidth + versionColWidth + additionalSpace);
-                    
+
                     int nameColWidth = math:round(remainingWidth * (nameColFactor / (nameColFactor + descColFactor)));
-                    int descColWidth = math:round(remainingWidth * (descColFactor / (nameColFactor + descColFactor)));  
-                    
+                    int descColWidth = math:round(remainingWidth * (descColFactor / (nameColFactor + descColFactor)));
+
                     printInCLI("|NAME", nameColWidth);
                     int minDescColWidth = 60;
                     if (descColWidth >= minDescColWidth) {
@@ -71,14 +71,14 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
                     } else {
                         printInCLI("DESCRIPTION", descColWidth);
                     }
-                    
+
                     printInCLI("DATE", dateColWidth);
                     printInCLI("VERSION", versionColWidth);
 
                     io:println("");
 
                     printCharacter("|-", nameColWidth, "-");
-                    
+
                     if (descColWidth >= minDescColWidth) {
                         printCharacter("-", descColWidth - authorsColWidth, "-");
                         printCharacter("-", authorsColWidth, "-");
@@ -97,9 +97,9 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
                         string orgName = jsonElement.orgName.toString();
                         string packageName = jsonElement.packageName.toString();
                         printInCLI("|"+ orgName + "/" + packageName, nameColWidth);
-                        
+
                         string summary = jsonElement.summary.toString();
-                                        
+
                         if (descColWidth >= minDescColWidth) {
                             printInCLI(summary, descColWidth - authorsColWidth);
                             string authors = "";
@@ -118,7 +118,7 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
 
                         json createTimeJson = <json> jsonElement.createdDate;
                         printInCLI(getDateCreated(createTimeJson), dateColWidth);
-                        
+
                         string packageVersion = jsonElement.packageVersion.toString();
                         printInCLI(packageVersion, versionColWidth);
                         i = i + 1;

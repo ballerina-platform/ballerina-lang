@@ -81,7 +81,7 @@ public function getAsInt(@sensitive string key, int default = 0) returns int {
         return default;
     }
 
-    var envVar = <int> strVal;
+    var envVar = int.from(strVal);
     match envVar {
         int intVal => return intVal;
         error err => panic err;
@@ -116,7 +116,7 @@ public function getAsFloat(@sensitive string key, float default = 0.0) returns f
         return default;
     }
 
-    var envVar = <float> strVal;
+    var envVar = float.from(strVal);
     match envVar {
         float floatVal => return floatVal;
         error err => panic err;
@@ -151,7 +151,7 @@ public function getAsBoolean(@sensitive string key, boolean default = false) ret
         return default;
     }
 
-    return <boolean> strVal;
+    return boolean.from(strVal);
 }
 
 # Retrieves the specified configuration value as a map. If there is no mapping, an empty map will be returned.
