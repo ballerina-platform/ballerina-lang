@@ -45,6 +45,8 @@ import javax.xml.namespace.QName;
  */
 public abstract class BXML<T> implements BRefType<T>, BCollection {
 
+    BType type = BTypes.typeXML;
+
     /**
      * Start of a XML comment.
      */
@@ -262,7 +264,12 @@ public abstract class BXML<T> implements BRefType<T>, BCollection {
      */
     @Override
     public BType getType() {
-        return BTypes.typeXML;
+        return type;
+    }
+
+    @Override
+    public void stamp(BType type) {
+        this.type = type;
     }
 
     // private methods
