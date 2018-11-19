@@ -68,8 +68,12 @@ public type ChatStub object {
 
     function initStub(grpc:Client ep) {
         grpc:Stub navStub = new;
-        navStub.initStub(ep, "non-blocking", DESCRIPTOR_KEY4, descriptorMap4);
-        self.stub = navStub;
+        error? result = navStub.initStub(ep, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
+        if (result is error) {
+            panic result;
+        } else {
+            self.stub = navStub;
+        }
     }
 
     function chat(typedesc listener, grpc:Headers? headers = ()) returns (grpc:Client|error) {

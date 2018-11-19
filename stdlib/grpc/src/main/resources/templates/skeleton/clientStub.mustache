@@ -7,8 +7,12 @@ public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Stu
 
     function initStub (grpc:Client ep) {
         grpc:Stub navStub = new;
-        navStub.initStub(ep, "{{stubType}}", DESCRIPTOR_KEY, descriptorMap);
-        self.stub = navStub;
+        error? result = navStub.initStub(ep, "{{stubType}}", DESCRIPTOR_KEY, descriptorMap);
+        if (result is error) {
+            panic result;
+        } else {
+            self.stub = navStub;
+        }
     }
     {{#blockingFunctions}}
     function {{methodName}} ({{#if inputType}}{{inputType}} req, {{/if}}grpc:Headers? headers = ()) returns ({{#if outputType}}({{outputType}}, grpc:Headers){{else}}grpc:Headers{{/if}}|error) {

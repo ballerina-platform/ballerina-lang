@@ -41,8 +41,12 @@ public type byteServiceBlockingStub object {
 
     function initStub (grpc:Client ep) {
         grpc:Stub navStub = new;
-        navStub.initStub(ep, "blocking", DESCRIPTOR_KEY, descriptorMap);
-        self.stub = navStub;
+        error? result = navStub.initStub(ep, "blocking", DESCRIPTOR_KEY, descriptorMap);
+        if (result is error) {
+            panic result;
+        } else {
+            self.stub = navStub;
+        }
     }
 
     function checkBytes (byte[] req, grpc:Headers? headers = ()) returns ((byte[], grpc:Headers)|error) {
@@ -60,8 +64,12 @@ public type byteServiceStub object {
 
     function initStub (grpc:Client ep) {
         grpc:Stub navStub = new;
-        navStub.initStub(ep, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
-        self.stub = navStub;
+        error? result = navStub.initStub(ep, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
+        if (result is error) {
+            panic result;
+        } else {
+            self.stub = navStub;
+        }
     }
 
     function checkBytes (byte[] req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {

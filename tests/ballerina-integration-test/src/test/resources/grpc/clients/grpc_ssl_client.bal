@@ -46,8 +46,12 @@ public type grpcMutualSslServiceBlockingStub object {
 
     function initStub (grpc:Client ep) {
         grpc:Stub navStub = new;
-        navStub.initStub(ep, "blocking", DESCRIPTOR_KEY, descriptorMap);
-        self.stub = navStub;
+        error? result = navStub.initStub(ep, "blocking", DESCRIPTOR_KEY, descriptorMap);
+        if (result is error) {
+            panic result;
+        } else {
+            self.stub = navStub;
+        }
     }
 
     function hello (string req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
@@ -67,8 +71,12 @@ public type grpcMutualSslServiceStub object {
 
     function initStub (grpc:Client ep) {
         grpc:Stub navStub = new;
-        navStub.initStub(ep, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
-        self.stub = navStub;
+        error? result = navStub.initStub(ep, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
+        if (result is error) {
+            panic result;
+        } else {
+            self.stub = navStub;
+        }
     }
 
     function hello (string req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
