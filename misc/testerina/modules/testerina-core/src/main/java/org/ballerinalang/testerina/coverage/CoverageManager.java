@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.testerina.coverage;
 
-import org.ballerinalang.bre.coverage.ExecutedInstruction;
 import org.ballerinalang.testerina.coverage.impl.LCovCoverageDataFormatterImpl;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.ProjectLineNumberInfoHolder;
@@ -41,6 +40,7 @@ public class CoverageManager {
 
     private static Map<String, ProjectLineNumberInfoHolder> lineNumberInfoHolderForProject = new HashMap<>();
     private static CoverageDataFormatter coverageDataFormatter = new LCovCoverageDataFormatterImpl();
+    private static boolean coverageDisabled;
     private static final CoverageManager coverageManger = new CoverageManager();
 
     private CoverageManager() {
@@ -101,5 +101,23 @@ public class CoverageManager {
      */
     public static Map<String, ProgramFile> getProgramFilesForProject() {
         return programFilesForProject;
+    }
+
+    /**
+     * Getter for coverage disabled status.
+     *
+     * @return coverage disabled status
+     */
+    public static boolean isCoverageDisabled() {
+        return coverageDisabled;
+    }
+
+    /**
+     * Setter for coverage disabled status.
+     *
+     * @param coverageDisabled coverage disabled status
+     */
+    public static void setCoverageDisabled(boolean coverageDisabled) {
+        CoverageManager.coverageDisabled = coverageDisabled;
     }
 }

@@ -18,7 +18,7 @@
 
 package org.ballerinalang.testerina.test.coverage;
 
-import org.ballerinalang.bre.coverage.ExecutedInstruction;
+import org.ballerinalang.testerina.coverage.ExecutedInstruction;
 import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.testerina.core.entity.TestSuite;

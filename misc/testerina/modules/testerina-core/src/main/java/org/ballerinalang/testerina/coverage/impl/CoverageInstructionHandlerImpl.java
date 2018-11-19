@@ -19,8 +19,8 @@ package org.ballerinalang.testerina.coverage.impl;
 
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.bre.coverage.ExecutedInstruction;
-import org.ballerinalang.bre.coverage.InstructionHandler;
+import org.ballerinalang.testerina.coverage.ExecutedInstruction;
+import org.ballerinalang.bre.InstructionHandler;
 import org.ballerinalang.testerina.coverage.CoverageManager;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.debugger.ProjectLineNumberInfoHolder;
@@ -36,16 +36,26 @@ import java.util.Map;
  *
  * @since 0.985.0
  */
-@JavaSPIService("org.ballerinalang.bre.coverage.InstructionHandler")
+@JavaSPIService("org.ballerinalang.bre.InstructionHandler")
 public class CoverageInstructionHandlerImpl implements InstructionHandler {
 
     Map<String, List<ExecutedInstruction>> executedInstructionOrderMap;
     Map<String, ProjectLineNumberInfoHolder> lineNumberInfoHolderForProject;
+    CoverageManager coverageManager;
 
     public CoverageInstructionHandlerImpl() {
-        CoverageManager coverageManager = CoverageManager.getInstance();
+        coverageManager = CoverageManager.getInstance();
         this.executedInstructionOrderMap = coverageManager.getExecutedInstructionOrderMap();
         this.lineNumberInfoHolderForProject = coverageManager.getLineNumberInfoHolderForProject();
+    }
+
+    /**
+     * True when coverage reporting is enabled and should engage in handling instruction for coverage.
+     *
+     * @return true when coverage reporting is enabled.
+     */
+    public boolean shouldEngageIn() {
+        return !coverageManager.isCoverageDisabled();
     }
 
     /**

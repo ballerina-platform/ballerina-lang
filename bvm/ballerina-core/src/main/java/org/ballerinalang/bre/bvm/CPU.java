@@ -18,7 +18,7 @@
 package org.ballerinalang.bre.bvm;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.ballerinalang.bre.coverage.InstructionHandler;
+import org.ballerinalang.bre.InstructionHandler;
 import org.ballerinalang.channels.ChannelManager;
 import org.ballerinalang.channels.ChannelRegistry;
 import org.ballerinalang.model.types.BArrayType;
@@ -90,7 +90,6 @@ import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.ObjectTypeInfo;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.codegen.TypeDefInfo;
@@ -154,7 +153,10 @@ public class CPU {
                 ServiceLoader.load(InstructionHandler.class);
         Iterator<InstructionHandler> insHandlerServLoaderItr = insHandlerServLoader.iterator();
         while (insHandlerServLoaderItr.hasNext()) {
-            instructionHandlers.add(insHandlerServLoaderItr.next());
+            InstructionHandler instructionHandler = insHandlerServLoaderItr.next();
+            if (instructionHandler.shouldEngageIn()) {
+                instructionHandlers.add(instructionHandler);
+            }
         }
     }
 

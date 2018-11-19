@@ -18,7 +18,6 @@
 
 package org.ballerinalang.testerina.coverage;
 
-import org.ballerinalang.bre.coverage.ExecutedInstruction;
 import org.ballerinalang.testerina.core.entity.TestSuite;
 
 import java.io.IOException;

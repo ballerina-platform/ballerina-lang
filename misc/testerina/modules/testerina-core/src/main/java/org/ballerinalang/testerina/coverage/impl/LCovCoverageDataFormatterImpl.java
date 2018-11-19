@@ -18,7 +18,7 @@
 
 package org.ballerinalang.testerina.coverage.impl;
 
-import org.ballerinalang.bre.coverage.ExecutedInstruction;
+import org.ballerinalang.testerina.coverage.ExecutedInstruction;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.testerina.core.entity.Test;
 import org.ballerinalang.testerina.core.entity.TestSuite;
@@ -74,7 +74,6 @@ public class LCovCoverageDataFormatterImpl implements CoverageDataFormatter<LCov
     private static final String LCOV_EOR = "end_of_record";
 
     public LCovCoverageDataFormatterImpl() {
-
         CoverageManager coverageManager = CoverageManager.getInstance();
         lineNumberInfoHolderForProject = coverageManager.getLineNumberInfoHolderForProject();
     }

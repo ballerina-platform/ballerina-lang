@@ -280,6 +280,7 @@ public class BTestRunner {
                 programFilesForProject.put(programFile.getEntryPackage().getPkgPath(), programFile);
             }
             coverageManager.setProgramFilesForProject(programFilesForProject);
+            coverageManager.setCoverageDisabled(coverageDisabled);
         }
         outStream.println();
         outStream.println("Running tests");
