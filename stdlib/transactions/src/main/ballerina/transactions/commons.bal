@@ -191,7 +191,11 @@ function createTransactionContext(string coordinationType, int transactionBlockI
             registerAtURL:"http://" + coordinatorHost + ":" + coordinatorPort + initiatorCoordinatorBasePath + "/" +
                 transactionBlockId + registrationPath
         };
-        log:printInfo("Created transaction: " + txnId);
+        log:printInfo("createTransactionContext$ Created transaction: " + txnId);
+        log:printInfo("initiatedTransacitons--------------");
+        var js = check <json> initiatedTransactions;
+        log:printError(js.toString());
+        log:printInfo("------------------------------------");
         return txnContext;
     }
 }
@@ -206,7 +210,7 @@ function createTransactionContext(string coordinationType, int transactionBlockI
 # + return - TransactionContext if the registration is successul or an error in case of a failure.
 function registerLocalParticipantWithInitiator(string transactionId, int transactionBlockId, string registerAtURL)
     returns TransactionContext|error {
-
+    log:printInfo("registerLocalParticipantWithInitiator");
     string participantId = getParticipantId(transactionBlockId);
     //TODO: Protocol name should be passed down from the transaction statement
     LocalProtocol participantProtocol = {name:PROTOCOL_DURABLE};
@@ -218,6 +222,7 @@ function registerLocalParticipantWithInitiator(string transactionId, int transac
         TwoPhaseCommitTransaction initiatedTxn => {
             if (isRegisteredParticipant(participantId, initiatedTxn.participants)) { // Already-Registered
                 error err = {message:"Already-Registered. TID:" + transactionId + ",participant ID:" + participantId};
+                log:printError("Already registed: ", err=err);
                 return err;
             } else if (!protocolCompatible(initiatedTxn.coordinationType, [participantProtocol])) { // Invalid-Protocol
                 error err = {message:"Invalid-Protocol in local participant. TID:" + transactionId + ",participant ID:" +
@@ -245,6 +250,7 @@ function registerLocalParticipantWithInitiator(string transactionId, int transac
 }
 
 function removeParticipatedTransaction(string participatedTxnId) {
+    log:printInfo("Remove (participated) trx: " + participatedTxnId);
     boolean removed = participatedTransactions.remove(participatedTxnId);
     if (!removed) {
         error err = {message:"Removing participated transaction: " + participatedTxnId + " failed"};
@@ -253,6 +259,7 @@ function removeParticipatedTransaction(string participatedTxnId) {
 }
 
 function removeInitiatedTransaction(string transactionId) {
+    log:printInfo("Remove (initiated) trx: " + transactionId);
     boolean removed = initiatedTransactions.remove(transactionId);
     if (!removed) {
         error err = {message:"Removing initiated transaction: " + transactionId + " failed"};

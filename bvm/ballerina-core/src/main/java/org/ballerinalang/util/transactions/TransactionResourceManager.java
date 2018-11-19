@@ -1,22 +1,23 @@
 /*
-*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.util.transactions;
 
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -25,7 +26,6 @@ import org.ballerinalang.util.program.BLangFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +36,7 @@ import javax.transaction.xa.Xid;
 
 import static javax.transaction.xa.XAResource.TMNOFLAGS;
 import static javax.transaction.xa.XAResource.TMSUCCESS;
+
 /**
  * {@code TransactionResourceManager} registry for transaction contexts.
  *
@@ -51,16 +52,14 @@ public class TransactionResourceManager {
     private Map<Integer, BFunctionPointer> committedFuncRegistry;
     private Map<Integer, BFunctionPointer> abortedFuncRegistry;
 
-    private Map<String, List<SoftReference<BFunctionPointer>>> participantCommittedFuncReg;
-    private Map<String, List<SoftReference<BFunctionPointer>>> participantAbortedFuncReg;
+    private ParticipantRegistry participantRegistry;
 
     private TransactionResourceManager() {
         resourceRegistry = new HashMap<>();
         xidRegistry = new HashMap<>();
         committedFuncRegistry = new HashMap<>();
         abortedFuncRegistry = new HashMap<>();
-        participantAbortedFuncReg = new HashMap<>();
-        participantCommittedFuncReg = new HashMap<>();
+        participantRegistry = new ParticipantRegistry();
     }
 
     public static TransactionResourceManager getInstance() {
@@ -77,9 +76,9 @@ public class TransactionResourceManager {
     /**
      * This method will register connection resources with a particular transaction.
      *
-     * @param transactionId the global transaction id
+     * @param transactionId      the global transaction id
      * @param transactionBlockId the block id of the transaction
-     * @param txContext ballerina transaction context which includes the underlying connection info
+     * @param txContext          ballerina transaction context which includes the underlying connection info
      */
     public void register(String transactionId, int transactionBlockId, BallerinaTransactionContext txContext) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
@@ -90,51 +89,47 @@ public class TransactionResourceManager {
      * This method will register a committed function handler of a particular transaction.
      *
      * @param transactionBlockId the block id of the transaction
-     * @param bFunctionPointer the function pointer for the committed function
+     * @param bFunctionPointer   the function pointer for the committed function
      */
     public void registerCommittedFunction(int transactionBlockId, BFunctionPointer bFunctionPointer) {
         committedFuncRegistry.put(transactionBlockId, bFunctionPointer);
     }
 
     /**
-     * This method will register a committed function handler for a particular service/resource participated
-     * in a transaction.
-     *
-     * @param transactionId global transaction id
-     * @param bFunctionPointer the function pointer for the committed function
-     */
-    public void registerCommittedFunction(String transactionId, BFunctionPointer bFunctionPointer) {
-        participantCommittedFuncReg.computeIfAbsent(transactionId, s -> new ArrayList<>())
-                .add(new SoftReference<>(bFunctionPointer));
-    }
-
-    /**
      * This method will register an aborted function handler of a particular transaction.
      *
      * @param transactionBlockId the block id of the transaction
-     * @param bFunctionPointer the function pointer for the aborted function
+     * @param bFunctionPointer   the function pointer for the aborted function
      */
     public void registerAbortedFunction(int transactionBlockId, BFunctionPointer bFunctionPointer) {
         abortedFuncRegistry.put(transactionBlockId, bFunctionPointer);
     }
 
     /**
-     * This method will register an aborted function handler of a particular service/resource participated
-     * in a transaction.
+     * Register a participation in a global transaction.
      *
-     * @param transactionId global transaction id
-     * @param bFunctionPointer the function pointer for the aborted function
+     * @param gTransactionId global transaction id
+     * @param committed      function pointer to invoke when this transaction committed
+     * @param aborted        function pointer to invoke when this transaction aborted
+     * @param workerExecutionContext
+     * @since 0.985.0
      */
-    public void registerAbortedFunction(String transactionId, BFunctionPointer bFunctionPointer) {
-        participantAbortedFuncReg.computeIfAbsent(transactionId, s -> new ArrayList<>())
-                .add(new SoftReference<>(bFunctionPointer));
+    public void registerParticipation(String gTransactionId, BFunctionPointer committed, BFunctionPointer aborted,
+                                      WorkerExecutionContext workerExecutionContext) {
+        this.participantRegistry.register(gTransactionId, committed, aborted);
+
+        int transactionBlockId = -1; // This participant is registering without a transaction statement.
+
+        LocalTransactionInfo localTransactionInfo = workerExecutionContext.getLocalTransactionInfo();
+        TransactionUtils.notifyTransactionBegin(workerExecutionContext, localTransactionInfo.getGlobalTransactionId(),
+                localTransactionInfo.getURL(), transactionBlockId, localTransactionInfo.getProtocol());
     }
 
     /**
      * This method acts as the callback which notify all the resources participated in the given transaction. For local
      * transaction scenarios, this phase will be ignored.
      *
-     * @param transactionId the global transaction id
+     * @param transactionId      the global transaction id
      * @param transactionBlockId the block id of the transaction
      * @return the status of the prepare operation
      */
@@ -155,13 +150,17 @@ public class TransactionResourceManager {
                 }
             }
         }
+
+        if (participantRegistry.hasParticipants(transactionId)) {
+            return participantRegistry.prepareCommit(transactionId);
+        }
         return true;
     }
 
     /**
      * This method acts as the callback which commits all the resources participated in the given transaction.
      *
-     * @param transactionId the global transaction id
+     * @param transactionId      the global transaction id
      * @param transactionBlockId the block id of the transaction
      * @return the status of the commit operation
      */
@@ -196,9 +195,9 @@ public class TransactionResourceManager {
     /**
      * This method acts as the callback which aborts all the resources participated in the given transaction.
      *
-     * @param transactionId the global transaction id
+     * @param transactionId      the global transaction id
      * @param transactionBlockId the block id of the transaction
-     * @param isRetryAttempt whether this is a retry attempt
+     * @param isRetryAttempt     whether this is a retry attempt
      * @return the status of the abort operation
      */
     public boolean notifyAbort(String transactionId, int transactionBlockId, boolean isRetryAttempt) {
@@ -236,9 +235,9 @@ public class TransactionResourceManager {
      * This method starts a transaction for the given xa resource. If there is no transaction is started for the
      * given XID a new transaction is created.
      *
-     * @param transactionId the global transaction id
+     * @param transactionId      the global transaction id
      * @param transactionBlockId the block id of the transaction
-     * @param xaResource the XA resource which participates in the transaction
+     * @param xaResource         the XA resource which participates in the transaction
      */
     public void beginXATransaction(String transactionId, int transactionBlockId, XAResource xaResource) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
@@ -258,7 +257,7 @@ public class TransactionResourceManager {
     /**
      * This method marks the end of a transaction for the given transaction id.
      *
-     * @param transactionId the global transaction id
+     * @param transactionId      the global transaction id
      * @param transactionBlockId the block id of the transaction
      */
     void endXATransaction(String transactionId, int transactionBlockId) {
@@ -285,6 +284,7 @@ public class TransactionResourceManager {
     void rollbackTransaction(String transactionId, int transactionBlockId) {
         endXATransaction(transactionId, transactionBlockId);
         notifyAbort(transactionId, transactionBlockId, true);
+        participantRegistry.participantFailed(transactionId);
     }
 
     private void removeContextsFromRegistry(String transactionCombinedId) {
@@ -296,34 +296,46 @@ public class TransactionResourceManager {
         return transactionId + ":" + transactionBlockId;
     }
 
-    private void invokeCommittedFunction (String transactionId, int transactionBlockId) {
+    private void invokeCommittedFunction(String transactionId, int transactionBlockId) {
         BFunctionPointer fp = committedFuncRegistry.get(transactionBlockId);
-        BValue[] args = { new BString(transactionId + ":" + transactionBlockId)};
+        BValue[] args = {new BString(transactionId + ":" + transactionBlockId)};
         if (fp != null) {
             BLangFunctions.invokeCallable(fp.value(), args);
         }
-        List<SoftReference<BFunctionPointer>> funcs = participantCommittedFuncReg.get(transactionId);
+        List<BFunctionPointer> funcs = participantRegistry.getCommittedFuncs(transactionId);
         invokeFunctions(args, funcs);
+        participantRegistry.purge(transactionId);
     }
 
-    private void invokeAbortedFunction (String transactionId, int transactionBlockId) {
+    private void invokeAbortedFunction(String transactionId, int transactionBlockId) {
         BFunctionPointer fp = abortedFuncRegistry.get(transactionBlockId);
-        BValue[] args = { new BString(transactionId + ":" + transactionBlockId)};
+        BValue[] args = {new BString(transactionId + ":" + transactionBlockId)};
         if (fp != null) {
             BLangFunctions.invokeCallable(fp.value(), args);
         }
-        List<SoftReference<BFunctionPointer>> funcs = participantAbortedFuncReg.get(transactionId);
+        List<BFunctionPointer> funcs = participantRegistry.getAbortedFuncs(transactionId);
         invokeFunctions(args, funcs);
+        participantRegistry.purge(transactionId);
     }
 
-    private void invokeFunctions(BValue[] args, List<SoftReference<BFunctionPointer>> funcs) {
+    private void invokeFunctions(BValue[] args, List<BFunctionPointer> funcs) {
         if (funcs != null) {
-            for (SoftReference<BFunctionPointer> funcRef : funcs) {
-                BFunctionPointer func = funcRef.get();
+            for (BFunctionPointer func : funcs) {
                 if (func != null) {
                     BLangFunctions.invokeCallable(func.value(), args);
                 }
             }
         }
     }
+
+    public void notifySuccess(String transactionId) {
+        // let the transaction know that the corresponding service.resource finished successfully.
+    }
+
+    public void notifyFailure(String transactionId) {
+        participantRegistry.participantFailed(transactionId);
+        // the resource excepted (uncaught)
+        log.warn("Callable unit excepted corresponding to global trx id : " + transactionId);
+    }
+
 }

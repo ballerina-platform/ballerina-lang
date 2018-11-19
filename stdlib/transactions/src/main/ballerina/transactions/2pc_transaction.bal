@@ -51,9 +51,11 @@ type TwoPhaseCommitTransaction object {
         // First call prepare on all volatile participants
         PrepareDecision prepareVolatilesDecision = self.prepareParticipants(PROTOCOL_VOLATILE);
         if (prepareVolatilesDecision == PREPARE_DECISION_COMMIT) {
+            log:printInfo("commit 1");
             // if all volatile participants voted YES, Next call prepare on all durable participants
             PrepareDecision prepareDurablesDecision = self.prepareParticipants(PROTOCOL_DURABLE);
             if (prepareDurablesDecision == PREPARE_DECISION_COMMIT) {
+                log:printInfo("commit 2");
                 // If all durable participants voted YES (PREPARED or READONLY), next call notify(commit) on all
                 // (durable & volatile) participants and return committed to the initiator
                 var result = self.notifyParticipants(COMMAND_COMMIT, ());
@@ -75,6 +77,8 @@ type TwoPhaseCommitTransaction object {
             } else {
                 // If some durable participants voted NO, next call notify(abort) on all participants
                 // and return aborted to the initiator
+                log:printInfo("abort branch 1");
+
                 var result = self.notifyParticipants(COMMAND_ABORT, ());
                 match result {
                     error => {
@@ -99,6 +103,7 @@ type TwoPhaseCommitTransaction object {
         } else {
             // If some volatile participants voted NO, next call notify(abort) on all volatile articipants
             // and return aborted to the initiator
+
             var result = self.notifyParticipants(COMMAND_ABORT, PROTOCOL_VOLATILE);
             match result {
                 error => {
@@ -128,6 +133,7 @@ type TwoPhaseCommitTransaction object {
     # + return - error or nil retured when marking transaction for abortion is unsuccessful or successful
     #            respectively
     function markForAbortion() returns error? {
+        log:printInfo("markForAbortion");
         if (self.isInitiated) {
             self.state = TXN_STATE_ABORTED;
             log:printInfo("Marked initiated transaction for abortion");

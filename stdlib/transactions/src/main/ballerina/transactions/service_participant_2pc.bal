@@ -61,13 +61,13 @@ service Participant2pcService bind coordinatorListener {
                         res.statusCode = http:OK_200;
                         participatedTxn.state = TXN_STATE_PREPARED;
                         prepareRes.message = PREPARE_RESULT_PREPARED_STR;
-                        log:printInfo("Prepared transaction: " + transactionId);
+                        log:printInfo("service participant: Prepared transaction: " + transactionId);
                     } else {
                         res.statusCode = http:OK_200;
                         prepareRes.message = PREPARE_RESULT_ABORTED_STR;
                         participatedTxn.state = TXN_STATE_ABORTED;
                         removeParticipatedTransaction(participatedTxnId);
-                        log:printInfo("Aborted transaction: " + transactionId);
+                        log:printInfo("service participant: Aborted transaction: " + transactionId);
                     }
                 }
             }

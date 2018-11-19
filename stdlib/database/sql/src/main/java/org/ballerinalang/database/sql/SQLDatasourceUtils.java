@@ -1138,8 +1138,7 @@ public class SQLDatasourceUtils {
         String globalTransactionId = localTransactionInfo.getGlobalTransactionId();
         int transactionBlockId = localTransactionInfo.getCurrentTransactionBlockId();
 
-        int parentIp = context.getParentWorkerExecutionContext().ip;
-        localTransactionInfo.markFailure(parentIp);
+        localTransactionInfo.markFailure();
         if (localTransactionInfo.isRetryPossible(context.getParentWorkerExecutionContext(), transactionBlockId)) {
             return;
         }

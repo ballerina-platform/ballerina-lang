@@ -89,6 +89,7 @@ import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.ObjectTypeInfo;
+import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.codegen.TypeDefInfo;
@@ -161,10 +162,22 @@ public class CPU {
                 tryExec(ctx);
                 break;
             } catch (HandleErrorException e) {
+                //notifyTransactableCallableUnitExitDueToError(ctx, e);
                 ctx = e.ctx;
             }
         }
     }
+
+//    private static void notifyTransactableCallableUnitExitDueToError(WorkerExecutionContext ctx, HandleErrorException e) {
+//        // I need to verify about the correctness of this method to figure out an uncaught exception in a participated
+//        // resource.
+//        if (ctx.getGlobalTransactionEnabled() && e.ctx == null) {
+//            // Uncaught error propagates out of a resource.
+//            if (ctx.callableUnitInfo instanceof ResourceInfo) {
+//                ctx.getLocalTransactionInfo().notifyLocalParticipantFailure();
+//            }
+//        }
+//    }
 
     private static void tryExec(WorkerExecutionContext ctx) {
         BLangScheduler.workerRunning(ctx);
@@ -403,7 +416,8 @@ public class CPU {
                         i = operands[0];
                         j = operands[1];
                         k = operands[2];
-                        retryTransaction(ctx, i, j, k);
+                        l = operands[3];
+                        retryTransaction(ctx, i, j, k, l);
                         break;
                     case InstructionCodes.CALL:
                         callIns = (InstructionCALL) instruction;
@@ -432,8 +446,7 @@ public class CPU {
                         i = operands[0];
                         j = operands[1];
                         k = operands[2];
-                        l = operands[3];
-                        endTransaction(ctx, i, j, k, l);
+                        endTransaction(ctx, i, j, k);
                         break;
                     case InstructionCodes.WRKSEND:
                         InstructionWRKSendReceive wrkSendIns = (InstructionWRKSendReceive) instruction;
@@ -2641,7 +2654,8 @@ public class CPU {
     }
 
     private static void retryTransaction(WorkerExecutionContext ctx, int transactionBlockId, int trAbortEndIp,
-                                         int trEndEndIp) {
+                                         int trEndEndIp, int trEndStatusReg) {
+        ctx.workerLocal.intRegs[trEndStatusReg] = 0; // set trend status to normal.
         LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
         LocalTransactionInfo.TransactionFailure failure = localTransactionInfo.getAndClearFailure();
         if (localTransactionInfo.isRetryPossible(ctx, transactionBlockId)) {
@@ -2661,31 +2675,30 @@ public class CPU {
             // todo: remove this block including surrounding if and remove trEndEndIp from retry instruction!!!
         }
 
+        ctx.workerLocal.intRegs[trEndStatusReg] = 1;
         ctx.ip = trAbortEndIp;
     }
 
-    private static void endTransaction(WorkerExecutionContext ctx, int txBlockId, int status, int statusRegIndex,
-                                       int coordinatorStatusRegIndex) {
+    private static void endTransaction(WorkerExecutionContext ctx, int txBlockId, int status, int statusRegIndex) {
         LocalTransactionInfo localTxInfo = ctx.getLocalTransactionInfo();
         try {
             //In success case no need to do anything as with the transaction end phase it will be committed.
             switch (TransactionStatus.getConst(status)) {
                 case BLOCK_END: // 0
                     // set statusReg
-                    trBlockEnd(ctx, txBlockId, statusRegIndex, coordinatorStatusRegIndex, localTxInfo);
+                    transactionBlockEnd(ctx, txBlockId, statusRegIndex, localTxInfo);
                     break;
                 case FAILED: // -1
-                    trFailedEnd(ctx, txBlockId, localTxInfo);
+                    transactionFailedEnd(ctx, txBlockId, localTxInfo, statusRegIndex);
                     break;
                 case ABORTED: // -2
-                    trAbortedEnd(ctx, txBlockId, localTxInfo, statusRegIndex);
+                    transactionAbortedEnd(ctx, txBlockId, localTxInfo, statusRegIndex);
                     break;
                 case END: // 1
-                    trEndEnd(ctx, txBlockId, coordinatorStatusRegIndex, localTxInfo);
+                    transationEndEnd(ctx, txBlockId, localTxInfo);
                     break;
                 default:
-                    // todo: is this the proper thing to do, or do we create a ballerina error with a error code etc..
-                    throw new IllegalStateException("Invalid transaction end status: " + status);
+                    throw new IllegalArgumentException("Invalid transaction end status: " + status);
             }
         } catch (Throwable e) {
             ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
@@ -2693,9 +2706,13 @@ public class CPU {
         }
     }
 
-    private static void trAbortedEnd(WorkerExecutionContext ctx, int txBlockId, LocalTransactionInfo localTxInfo,
-                                     int statusRegIndex) {
-        trNotifyAbort(ctx, txBlockId, localTxInfo);
+    private static void transactionAbortedEnd(WorkerExecutionContext ctx, int txBlockId, LocalTransactionInfo localTxInfo,
+                                              int statusRegIndex) {
+        // notify only if, aborted by 'abort' statement.
+        // otherwise it already knows.
+        if (ctx.workerLocal.intRegs[statusRegIndex] == 0) {
+            notifyTransactionAbort(ctx, txBlockId, localTxInfo);
+        }
         setErrorRethrowReg(ctx, statusRegIndex);
     }
 
@@ -2713,55 +2730,54 @@ public class CPU {
         ctx.workerLocal.intRegs[statusRegIndex] = 0;
     }
 
-    private static void trEndEnd(WorkerExecutionContext ctx, int transactionBlockId, int coordinatorStatusRegIndex,
-                                 LocalTransactionInfo localTransactionInfo) {
+    private static void transationEndEnd(WorkerExecutionContext ctx, int transactionBlockId,
+                                         LocalTransactionInfo localTransactionInfo) {
         boolean isOuterTx = localTransactionInfo.onTransactionEnd(transactionBlockId);
-
-        if (ctx.getGlobalTransactionEnabled()) {
-            TransactionUtils.CoordinatorCommit coordinatorStatus = TransactionUtils.notifyTransactionEnd(ctx,
-                    localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
-            setCoordinatorStatusReg(ctx, coordinatorStatusRegIndex, coordinatorStatus);
-        }
-        // Note: For local only transactions we keep *coordinatorStatusReg* intact which was set in first tr_end.
 
         if (isOuterTx) {
             BLangVMUtils.removeTransactionInfo(ctx);
         }
     }
 
-    private static void setCoordinatorStatusReg(WorkerExecutionContext ctx, int coordinatorStatusRegIndex,
-                                                TransactionUtils.CoordinatorCommit coordinatorStatus) {
-        if (coordinatorStatus == TransactionUtils.CoordinatorCommit.COMMITTED) {
-            // Execute committed block.
-            ctx.workerLocal.intRegs[coordinatorStatusRegIndex] = 1;
-        } else {
-            // Skip committed block.
-            ctx.workerLocal.intRegs[coordinatorStatusRegIndex] = 0;
-        }
-    }
-
-    private static void trBlockEnd(WorkerExecutionContext ctx, int transactionBlockId, int statusRegIndex,
-                                   int coordinatorStatusRegIndex, LocalTransactionInfo localTransactionInfo) {
+    private static void transactionBlockEnd(WorkerExecutionContext ctx, int transactionBlockId, int statusRegIndex,
+                                            LocalTransactionInfo localTransactionInfo) {
         // Tx reached end of block, it may or may not successfully finished.
         LocalTransactionInfo.TransactionFailure failure = localTransactionInfo.getFailure();
-        if (failure == null) {
-            // Skip branching to retry block.
+        if (failure == null && ctx.getError() == null) {
+            // Skip branching to retry block as there is no local failure.
+            // Will set this reg if there is failure in global coordinated trx.
             ctx.workerLocal.intRegs[statusRegIndex] = 0;
 
-            // Execute committed block.
-            ctx.workerLocal.intRegs[coordinatorStatusRegIndex] = 1;
+            if (ctx.getGlobalTransactionEnabled()) {
+                TransactionUtils.CoordinatorCommit coordinatorStatus =
+                        notifyGlobalPrepareAndCommit(ctx, transactionBlockId, localTransactionInfo);
 
-            // Handle transaction success.
-            if (!ctx.getGlobalTransactionEnabled()) {
+                if (!TransactionUtils.CoordinatorCommit.COMMITTED.equals(coordinatorStatus)) {
+                    // Coordinator returned un-committed status, hence skip committed block, and goto failed block.
+                    ctx.workerLocal.intRegs[statusRegIndex] = 1;
+                }
+            } else {
                 notifyLocalPrepareAndCommit(transactionBlockId, localTransactionInfo);
             }
         } else {
             // Tx failed, branch to retry block.
             ctx.workerLocal.intRegs[statusRegIndex] = 1;
-            //  Skip committed block.
-            ctx.workerLocal.intRegs[coordinatorStatusRegIndex] = 0;
 
+            // This could be a transaction failure from a native/std library. Or due to an an error/exception.
+            // If transaction is not already marked as failed do so now for future references.
+            if (failure == null) {
+                localTransactionInfo.markFailure();
+            }
+            boolean notifyCoordinator = localTransactionInfo.onTransactionFailed(ctx, transactionBlockId);
+            if (notifyCoordinator) {
+                notifyTransactionAbort(ctx, transactionBlockId, localTransactionInfo);
+            }
         }
+    }
+
+    private static TransactionUtils.CoordinatorCommit notifyGlobalPrepareAndCommit(WorkerExecutionContext ctx, int transactionBlockId, LocalTransactionInfo localTransactionInfo) {
+        return TransactionUtils.notifyTransactionEnd(ctx,
+                localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
     }
 
     private static boolean notifyLocalPrepareAndCommit(int transactionBlockId,
@@ -2772,8 +2788,8 @@ public class CPU {
                 .notifyCommit(localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
     }
 
-    private static void trNotifyAbort(WorkerExecutionContext ctx, int transactionBlockId,
-                                      LocalTransactionInfo localTransactionInfo) {
+    private static void notifyTransactionAbort(WorkerExecutionContext ctx, int transactionBlockId,
+                                               LocalTransactionInfo localTransactionInfo) {
         if (ctx.getGlobalTransactionEnabled()) {
             TransactionUtils.notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(),
                     transactionBlockId);
@@ -2783,20 +2799,13 @@ public class CPU {
         }
     }
 
-    private static void trFailedEnd(WorkerExecutionContext ctx, int transactionBlockId,
-                                    LocalTransactionInfo localTransactionInfo) {
+    private static void transactionFailedEnd(WorkerExecutionContext ctx, int transactionBlockId,
+                                             LocalTransactionInfo localTransactionInfo, int runOnRetryBlockRegIndex) {
         // Invoking tr_end with transaction status of FAILED means tx has failed for some reason.
-
-        // This could be a transaction failure from a native/std library. Or due to an an
-        // error/exception.
-        // If transaction is not already marked as failed do so now for future references.
-        LocalTransactionInfo.TransactionFailure failure = localTransactionInfo.getFailure();
-        if (failure == null) {
-            localTransactionInfo.markFailure(0); // todo: remove this offendingIp behavior as we abandoned tracking it.
-        }
-        boolean notifyCoordinator = localTransactionInfo.onTransactionFailed(ctx, transactionBlockId);
-        if (notifyCoordinator) {
-            trNotifyAbort(ctx, transactionBlockId, localTransactionInfo);
+        if (localTransactionInfo.isRetryPossible(ctx, transactionBlockId)) {
+            ctx.workerLocal.intRegs[runOnRetryBlockRegIndex] = 1;
+        } else {
+            ctx.workerLocal.intRegs[runOnRetryBlockRegIndex] = 0;
         }
     }
 

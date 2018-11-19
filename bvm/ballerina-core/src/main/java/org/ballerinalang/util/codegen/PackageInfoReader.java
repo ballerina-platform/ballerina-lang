@@ -1296,7 +1296,7 @@ public class PackageInfoReader {
                 case InstructionCodes.ANY2C:
                 case InstructionCodes.ANY2E:
                 case InstructionCodes.IS_ASSIGNABLE:
-                case InstructionCodes.TR_RETRY:
+                case InstructionCodes.TR_END:
                 case InstructionCodes.XMLSEQLOAD:
                 case InstructionCodes.T2JSON:
                 case InstructionCodes.MAP2JSON:
@@ -1318,7 +1318,7 @@ public class PackageInfoReader {
                 case InstructionCodes.NEWQNAME:
                 case InstructionCodes.NEWXMLELEMENT:
                 case InstructionCodes.TR_BEGIN:
-                case InstructionCodes.TR_END:
+                case InstructionCodes.TR_RETRY:
                 case InstructionCodes.MAPLOAD:
                     i = codeStream.readInt();
                     j = codeStream.readInt();

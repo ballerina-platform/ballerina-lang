@@ -112,6 +112,9 @@ public class TransactionUtils {
         return BLangFunctions.invokeCallable(functionInfo, args);
     }
 
+    /**
+     * Indicate status of distributed transactions.
+     */
     public enum CoordinatorCommit {
         COMMITTED,
         ABORTED,

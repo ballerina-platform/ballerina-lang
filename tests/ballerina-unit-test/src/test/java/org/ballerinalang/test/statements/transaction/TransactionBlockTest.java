@@ -68,7 +68,7 @@ public class TransactionBlockTest {
     @Test
     public void testTransactionStmtWithnoAbortFailureFailure() {
         BValue[] returns = runFunctionWithTxConfig(2, false);
-        Assert.assertEquals(returns[0].stringValue(), "start inTrx retry inTrx retry aborted [TransactionError] end");
+        Assert.assertEquals(returns[0].stringValue(), "start inTrx retry inTrx aborted [TransactionError] end");
     }
 
     @Test

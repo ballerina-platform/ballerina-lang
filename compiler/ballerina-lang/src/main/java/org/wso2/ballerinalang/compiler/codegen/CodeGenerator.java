@@ -2898,6 +2898,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         abortInstructions.push(gotoAbortTransBlockEnd);
         failInstructions.push(gotoFailTransBlockEnd);
 
+        RegIndex trEndStatusReg = getRegIndex(TypeTags.BOOLEAN);
         // Start transaction.
         this.emit(InstructionCodes.TR_BEGIN, transactionIndexOperand, retryCountRegIndex, committedFuncRegIndex,
                 abortedFuncRegIndex);
@@ -2905,29 +2906,39 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Retry transaction.
         Operand txConclusionEndAddr = getOperand(-1);
-        this.emit(InstructionCodes.TR_RETRY, transactionIndexOperand, transStmtAbortEndAddr, txConclusionEndAddr);
+        this.emit(InstructionCodes.TR_RETRY, transactionIndexOperand, transStmtAbortEndAddr, txConclusionEndAddr,
+                trEndStatusReg);
 
         // Process transaction statements.
         this.genNode(transactionNode.transactionBody, this.env);
 
         // End the transaction.
         int transBlockEndAddr = nextIP();
-        RegIndex trStatusReg = getRegIndex(TypeTags.BOOLEAN);
-        RegIndex coordinatorStatusReg = getRegIndex(TypeTags.BOOLEAN);
         this.emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(TransactionStatus.BLOCK_END.value()),
-                trStatusReg, coordinatorStatusReg);
+                trEndStatusReg);
         // If transaction in failed state, goto retry.
-        this.emit(InstructionCodes.BR_TRUE, trStatusReg, transStmtFailEndAddr);
+        this.emit(InstructionCodes.BR_TRUE, trEndStatusReg, transStmtFailEndAddr);
 
         abortInstructions.pop();
         failInstructions.pop();
+
+
+        // committed body
+//        Operand endOfTxHandlingAddress = getOperand(-1);
+//        emit(InstructionCodes.BR_FALSE, coordinatorStatusReg, endOfTxHandlingAddress);
+        if (!transactionNode.committedBodyList.isEmpty()) {
+            this.genNode(transactionNode.committedBodyList.get(0), this.env);
+        }
+//        endOfTxHandlingAddress.value = nextIP();
 
         emit(InstructionCodes.GOTO, txConclusionEndAddr);
 
         // CodeGen for error handling.
         transStmtFailEndAddr.value = nextIP();
         emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(TransactionStatus.FAILED.value()),
-                trStatusReg, coordinatorStatusReg);
+                trEndStatusReg);
+        // If retry possible run on-retry block, otherwise goto retry instruction.
+        emit(InstructionCodes.BR_FALSE, trEndStatusReg, retryInstructionAddress);
         if (transactionNode.onRetryBody != null) {
             this.genNode(transactionNode.onRetryBody, this.env);
 
@@ -2936,13 +2947,13 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Steal error handling within transaction block to tx error handling section.
         ErrorTableEntry errorTableEntry = new ErrorTableEntry(retryInstructionAddress.value, transBlockEndAddr,
-                transStmtFailEndAddr.value, 0, -1);
+                transBlockEndAddr, 0, -1);
         errorTable.addErrorTableEntry(errorTableEntry);
 
         // Aborted block.
         transStmtAbortEndAddr.value = nextIP();
         emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(TransactionStatus.ABORTED.value()),
-                trStatusReg, coordinatorStatusReg);
+                trEndStatusReg);
         if (!transactionNode.abortedBodyList.isEmpty()) {
             this.genNode(transactionNode.abortedBodyList.get(0), this.env);
         }
@@ -2951,21 +2962,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         int transactionEndIp = nextIP();
         txConclusionEndAddr.value = transactionEndIp;
         emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(TransactionStatus.END.value()),
-                trStatusReg, coordinatorStatusReg);
+                trEndStatusReg);
 
         // Rethrow captured exceptions, if available
         Operand oneAfterRethrowInstructionAddress = getOperand(-1);
-        emit(InstructionCodes.BR_FALSE, trStatusReg, oneAfterRethrowInstructionAddress);
+        emit(InstructionCodes.BR_FALSE, trEndStatusReg, oneAfterRethrowInstructionAddress);
         emit(InstructionCodes.THROW, getOperand(-1));
-
-
-        Operand endOfTxHandlingAddress = getOperand(-1);
         oneAfterRethrowInstructionAddress.value = nextIP();
-        emit(InstructionCodes.BR_FALSE, coordinatorStatusReg, endOfTxHandlingAddress);
-        if (!transactionNode.committedBodyList.isEmpty()) {
-            this.genNode(transactionNode.committedBodyList.get(0), this.env);
-        }
-        endOfTxHandlingAddress.value = nextIP();
     }
 
     public void visit(BLangAbort abortNode) {

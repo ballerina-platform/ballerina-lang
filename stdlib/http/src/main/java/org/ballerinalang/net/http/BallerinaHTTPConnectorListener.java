@@ -28,6 +28,7 @@ import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.observability.ObservabilityUtils;
 import org.ballerinalang.util.observability.ObserverContext;
+import org.ballerinalang.util.transactions.TransactableCallableUnitCallback;
 import org.ballerinalang.util.transactions.TransactionResourceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,27 +117,16 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
             ctx.addTag(TAG_KEY_HTTP_URL, (String) inboundMessage.getProperty(HttpConstants.REQUEST_URL));
         });
 
-        registerTransactionHandlerFunctions(httpResource, properties);
-
         CallableUnitCallback callback = new HttpCallableUnitCallback(inboundMessage);
+        String gTransactionId = (String) properties.get(Constants.GLOBAL_TRANSACTION_ID);
+        if (gTransactionId != null) {
+            TransactableCallableUnitCallback trxUnitCallback = new TransactableCallableUnitCallback(callback, gTransactionId);
+            trxUnitCallback.setTransactionOnCommit(httpResource.getTransactionOnCommitFunc());
+            trxUnitCallback.setTransactionOnAbort(httpResource.getTransactionOnAbortFunc());
+            callback = trxUnitCallback;
+        }
         //TODO handle BallerinaConnectorException
         Executor.submit(balResource, callback, properties, observerContext.orElse(null), signatureParams);
-    }
-
-    private void registerTransactionHandlerFunctions(HttpResource httpResource, Map<String, Object> properties) {
-        String globalTransactionId = (String) properties.get(Constants.GLOBAL_TRANSACTION_ID);
-        if (globalTransactionId != null) {
-            TransactionResourceManager manager = TransactionResourceManager.getInstance();
-            BFunctionPointer transactionOnAbortFunc = httpResource.getTransactionOnAbortFunc();
-            if (transactionOnAbortFunc != null) {
-                manager.registerAbortedFunction(globalTransactionId, transactionOnAbortFunc);
-            }
-
-            BFunctionPointer transactionOnCommitFunc = httpResource.getTransactionOnCommitFunc();
-            if (transactionOnCommitFunc != null) {
-                manager.registerCommittedFunction(globalTransactionId, transactionOnCommitFunc);
-            }
-        }
     }
 
     protected boolean accessed(HttpCarbonMessage inboundMessage) {

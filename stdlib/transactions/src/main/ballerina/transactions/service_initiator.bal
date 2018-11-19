@@ -75,7 +75,7 @@ service InitiatorService bind coordinatorListener {
     register(endpoint conn, http:Request req, int transactionBlockId, RegistrationRequest regReq) {
         string participantId = regReq.participantId;
         string txnId = regReq.transactionId;
-
+        log:printInfo("service_initiator.bal.register");
         match (initiatedTransactions[txnId]) {
             () => {
                 respondToBadRequest(conn, "Transaction-Unknown. Invalid TID:" + txnId);

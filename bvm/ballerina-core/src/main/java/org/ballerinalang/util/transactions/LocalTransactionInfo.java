@@ -42,6 +42,8 @@ public class LocalTransactionInfo {
     private Map<String, BallerinaTransactionContext> transactionContextStore;
     private Stack<Integer> transactionBlockIdStack;
     private Stack<TransactionFailure> transactionFailure;
+    private static final TransactionResourceManager transactionResourceManager =
+            TransactionResourceManager.getInstance();
 
     public LocalTransactionInfo(String globalTransactionId, String url, String protocol) {
         this.globalTransactionId = globalTransactionId;
@@ -113,21 +115,25 @@ public class LocalTransactionInfo {
         if (!isGlobalTransactionEnabled) {
             return true;
         }
-        if (currentRetryCount != 0 && !TransactionUtils.isInitiator(context, globalTransactionId, transactionId)) {
+        boolean isNotInitiator = !TransactionUtils.isInitiator(context, globalTransactionId, transactionId);
+        if (currentRetryCount != 0 && isNotInitiator) {
             return false;
         }
         return true;
     }
 
     public boolean onTransactionFailed(WorkerExecutionContext context, int transactionBlockId) {
-        boolean bNotifyCoordinator = false;
         if (isRetryPossible(context, transactionBlockId)) {
             transactionContextStore.clear();
-            TransactionResourceManager.getInstance().rollbackTransaction(globalTransactionId, transactionBlockId);
+            transactionResourceManager.rollbackTransaction(globalTransactionId, transactionBlockId);
+            return false;
         } else {
-            bNotifyCoordinator = true;
+            return true;
         }
-        return bNotifyCoordinator;
+    }
+
+    public void notifyLocalParticipantFailure() {
+        transactionResourceManager.notifyFailure(globalTransactionId);
     }
 
     public boolean onTransactionEnd(int transactionBlockId) {
@@ -135,7 +141,7 @@ public class LocalTransactionInfo {
         transactionBlockIdStack.pop();
         --transactionLevel;
         if (transactionLevel == 0) {
-            TransactionResourceManager.getInstance().endXATransaction(globalTransactionId, transactionBlockId);
+            transactionResourceManager.endXATransaction(globalTransactionId, transactionBlockId);
             resetTransactionInfo();
             isOuterTx = true;
         }
@@ -157,8 +163,8 @@ public class LocalTransactionInfo {
         transactionContextStore.clear();
     }
 
-    public void markFailure(int offendingIp) {
-        transactionFailure.push(TransactionFailure.at(offendingIp));
+    public void markFailure() {
+        transactionFailure.push(TransactionFailure.at(-1));
     }
 
     public void clearFailure() {

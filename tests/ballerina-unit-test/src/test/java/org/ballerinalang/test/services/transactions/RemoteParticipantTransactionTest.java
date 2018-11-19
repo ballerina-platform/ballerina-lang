@@ -53,22 +53,38 @@ public class RemoteParticipantTransactionTest {
 
     @Test
     public void remoteParticipantTransactionSuccessTest() {
-        String result = invokeInitiatorFunc(false, false);
-        String target = "in-trx-block in-remote <payload-from-remote> in-trx-lastline " +
+        String result = invokeInitiatorFunc(false, false,
+                true, false, false, false);
+        String target = " in-trx-block in-remote <payload-from-remote> in-trx-lastline " +
                 "in-baz[oncommittedFunc] committed-block after-trx";
         Assert.assertEquals(result, target);
     }
 
     @Test
     public void remoteParticipantTransactionFailSuccessTest() {
-        String result = invokeInitiatorFunc(true, false);
-        String target = "in-trx-block in-remote <payload-from-remote> in-trx-lastline " +
+        String result = invokeInitiatorFunc(true, false,
+                true, true, false, false);
+        String target = " in-trx-block in-remote <payload-from-remote> throw-1 onretry-block " +
+                "in-trx-block in-remote <payload-from-remote> in-trx-lastline " +
                 "in-baz[oncommittedFunc] committed-block after-trx";
         Assert.assertEquals(result, target);
     }
 
-    private String invokeInitiatorFunc(boolean throw1, boolean throw2) {
-        BValue[] params = {new BBoolean(throw1), new BBoolean(throw2)};
+    @Test
+    public void remoteParticipantTransactionExceptionInRemote() {
+        String result = invokeInitiatorFunc(false, false,
+                        true, false,
+                true, false);
+        String target = " in-trx-block in-remote <payload-from-remote> in-trx-lastline " +
+                "in-baz[oncommittedFunc] committed-block after-trx";
+        Assert.assertEquals(result, target);
+    }
+
+    private String invokeInitiatorFunc(boolean throw1, boolean throw2, boolean remote1, boolean remote2,
+                                       boolean blowRemote, boolean blowRemote2) {
+        BValue[] params = {new BBoolean(throw1), new BBoolean(throw2),
+                new BBoolean(remote1), new BBoolean(remote2),
+                new BBoolean(blowRemote), new BBoolean(blowRemote2)};
         BValue[] ret = BRunUtil.invoke(programFile, "initiatorFunc", params);
         return ret[0].stringValue();
     }
