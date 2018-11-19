@@ -311,10 +311,6 @@ public class BTestRunner {
             if (suite.getTests().size() == 0) {
                 outStream.println("\tNo tests found\n");
                 return;
-            } else if (!coverageDisabled) {
-                //TODO: Add test coverage flag when compile time, since suite is generated with source it cannot be
-                // done for now
-                suite.getProgramFile().setFlags(suite.getProgramFile().getFlags() | ProgramFile.TEST_COVERAGE_FLAG);
             }
             shouldSkip.set(false);
             TestAnnotationProcessor.injectMocks(suite);

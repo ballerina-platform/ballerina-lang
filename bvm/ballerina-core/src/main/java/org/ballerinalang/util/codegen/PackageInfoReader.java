@@ -274,14 +274,13 @@ public class PackageInfoReader {
         }
     }
 
-    public void readFlags() throws IOException {
+    public void readEntryPoint() throws IOException {
         int pkdCPIndex = dataInStream.readInt();
         PackageRefCPEntry packageRefCPEntry = (PackageRefCPEntry) programFile.getCPEntry(pkdCPIndex);
         programFile.setEntryPkgCPIndex(pkdCPIndex);
         programFile.setEntryPkgName(packageRefCPEntry.getPackageName());
 
         int flags = dataInStream.readByte();
-        programFile.setFlags(flags);
         if ((flags & ProgramFile.EP_MAIN_FLAG) == ProgramFile.EP_MAIN_FLAG) {
             programFile.setMainEPAvailable(true);
         }

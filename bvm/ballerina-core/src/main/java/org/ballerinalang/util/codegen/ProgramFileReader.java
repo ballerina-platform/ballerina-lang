@@ -80,7 +80,7 @@ public class ProgramFileReader {
         programFile.setVersion(version);
 
         pkgInfoReader.readConstantPool(programFile);
-        pkgInfoReader.readFlags();
+        pkgInfoReader.readEntryPoint();
 
         // Read PackageInfo entries
         int pkgInfoCount = dataInStream.readShort();

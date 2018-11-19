@@ -146,7 +146,17 @@ import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class CPU {
 
-    private static InstructionHandler instructionHandler;
+    private static List<InstructionHandler> instructionHandlers = new ArrayList<>();
+
+    // 1 time loading of all the instruction handlers
+    static {
+        ServiceLoader<InstructionHandler> insHandlerServLoader =
+                ServiceLoader.load(InstructionHandler.class);
+        Iterator<InstructionHandler> insHandlerServLoaderItr = insHandlerServLoader.iterator();
+        while (insHandlerServLoaderItr.hasNext()) {
+            instructionHandlers.add(insHandlerServLoaderItr.next());
+        }
+    }
 
     public static void traceCode(Instruction[] code) {
         PrintStream printStream = System.out;
@@ -161,18 +171,6 @@ public class CPU {
     }
 
     public static void exec(WorkerExecutionContext ctx) {
-
-        if (instructionHandler == null) {
-            //TODO: Add debugger enabled scenario to the if statement
-            if ((ctx.programFile.getFlags() & ProgramFile.TEST_COVERAGE_FLAG) == ProgramFile.TEST_COVERAGE_FLAG) {
-                ServiceLoader<InstructionHandler> loader = ServiceLoader.load(InstructionHandler.class);
-                Iterator<InstructionHandler> iter = loader.iterator();
-                while (iter.hasNext()) {
-                    instructionHandler = iter.next();
-                }
-            }
-        }
-
         while (ctx != null && !ctx.isRootContext()) {
             try {
                 tryExec(ctx);
@@ -211,7 +209,7 @@ public class CPU {
 
                 Instruction instruction = ctx.code[ctx.ip];
 
-                if (instructionHandler != null) {
+                for(InstructionHandler instructionHandler : instructionHandlers) {
                     instructionHandler.handle(ctx);
                 }
 

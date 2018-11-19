@@ -24,6 +24,7 @@ import org.ballerinalang.bre.coverage.InstructionHandler;
 import org.ballerinalang.testerina.coverage.CoverageManager;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.debugger.ProjectLineNumberInfoHolder;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,24 +55,28 @@ public class CoverageInstructionHandlerImpl implements InstructionHandler {
      */
     public void handle(WorkerExecutionContext ctx) {
 
-        String entryPkgPath = ctx.programFile.getEntryPackage().pkgPath;
-        ProjectLineNumberInfoHolder projectLineNumberInfoHolderForPkg =
-                                                                    lineNumberInfoHolderForProject.get(entryPkgPath);
-
         String pkgPath = ctx.callableUnitInfo.getPkgPath();
-        LineNumberInfo lineNumberInfoCurrentPkg = projectLineNumberInfoHolderForPkg.getPackageInfoMap()
-                .get(pkgPath).getLineNumberInfo(ctx.ip);
+        // removing ballarina/* modules' Ips
+        if(!pkgPath.startsWith(Names.BUILTIN_ORG.getValue() + Names.ORG_NAME_SEPARATOR.getValue())) {
 
-        ExecutedInstruction executedInstruction = new ExecutedInstruction(ctx.ip, pkgPath,
-                lineNumberInfoCurrentPkg.getFileName(), ctx.callableUnitInfo.getName(), lineNumberInfoCurrentPkg);
-        if (executedInstructionOrderMap.get(entryPkgPath) != null) {
-            executedInstructionOrderMap.get(entryPkgPath).add(executedInstruction);
-        } else {
-            List<ExecutedInstruction> executedInstructionOrder = Collections.synchronizedList(new ArrayList<>());
-            executedInstructionOrder.add(executedInstruction);
-            executedInstructionOrderMap.put(entryPkgPath, executedInstructionOrder);
+            String entryPkgPath = ctx.programFile.getEntryPackage().pkgPath;
+            ProjectLineNumberInfoHolder projectLineNumberInfoHolderForPkg =
+                    lineNumberInfoHolderForProject.get(entryPkgPath);
+
+            LineNumberInfo lineNumberInfoCurrentPkg = projectLineNumberInfoHolderForPkg.getPackageInfoMap()
+                    .get(pkgPath).getLineNumberInfo(ctx.ip);
+
+            ExecutedInstruction executedInstruction = new ExecutedInstruction(ctx.ip, pkgPath,
+                    lineNumberInfoCurrentPkg.getFileName(), ctx.callableUnitInfo.getName(), lineNumberInfoCurrentPkg);
+            if (executedInstructionOrderMap.get(entryPkgPath) != null) {
+                executedInstructionOrderMap.get(entryPkgPath).add(executedInstruction);
+            } else {
+                List<ExecutedInstruction> executedInstructionOrder = Collections.synchronizedList(new ArrayList<>());
+                executedInstructionOrder.add(executedInstruction);
+                executedInstructionOrderMap.put(entryPkgPath, executedInstructionOrder);
+            }
+
         }
-
     }
 
 }
