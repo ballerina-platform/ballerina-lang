@@ -363,7 +363,8 @@ public class SymbolResolver extends BLangNodeVisitor {
                     if (types.isAnydata(sourceType) && types.isAnydata(targetType)) {
                         // Check whether we can stamp the source and target types.
                         BSymbol bSymbol;
-                        if (isStampSupportedForSourceType(sourceType) && canHaveStampInvocation(targetType)) {
+                        if (types.isAssignable(sourceType, targetType) && isStampSupportedForSourceType(sourceType) &&
+                                canHaveStampInvocation(targetType)) {
                             bSymbol = generateStampSymbol(name, sourceType, targetType);
                             if (bSymbol != symTable.notFoundSymbol) {
                                 return bSymbol;
