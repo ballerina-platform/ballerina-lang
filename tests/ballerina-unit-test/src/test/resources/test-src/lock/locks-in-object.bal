@@ -2,7 +2,7 @@ import ballerina/runtime;
 
 // Test when there is a lock block in a attached function
 type person object {
-    string stars;
+    string stars = "";
 
     public function update(string s) {
             lock {
@@ -29,7 +29,7 @@ function lockFieldInSameObject() returns string {
 //----------------------------------------------------
 // Test lock when a object is global
 type Student object {
-    int score;
+    int score = 0;
 };
 
 Student student = new;

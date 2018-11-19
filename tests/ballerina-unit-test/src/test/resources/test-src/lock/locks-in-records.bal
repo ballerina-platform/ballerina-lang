@@ -28,15 +28,15 @@ function incrementParam(Student param, CircuitBreakerInferredConfig conf) {
 }
 
 type Student record {
-    int score;
+    int score = 0;
 };
 
 public type CircuitBreakerInferredConfig record {
-    float failureThreshold;
-    int resetTimeMillis;
-    boolean[] statusCodes;
-    int noOfBuckets;
-    RollingWindow rollingWindow;
+    float failureThreshold = 0.0;
+    int resetTimeMillis = 0;
+    boolean[] statusCodes = [];
+    int noOfBuckets = 0;
+    RollingWindow rollingWindow = {};
     !...
 };
 
@@ -48,8 +48,8 @@ public type RollingWindow record {
 };
 
 public type Bucket record {
-    int id;
-    RollingWindow[] windows;
+    int id = 0;
+    RollingWindow[] windows = [];
 };
 
 //--------------------------------------------------------------------------
