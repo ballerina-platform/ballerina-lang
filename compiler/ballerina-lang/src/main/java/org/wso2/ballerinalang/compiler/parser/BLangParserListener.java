@@ -830,7 +830,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startVarList();
+        this.pkgBuilder.startRecordType();
     }
 
     @Override

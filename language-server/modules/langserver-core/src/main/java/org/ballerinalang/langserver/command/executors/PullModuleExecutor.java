@@ -51,7 +51,7 @@ public class PullModuleExecutor implements LSCommandExecutor {
 
     // A newCachedThreadPool with a limited max-threads
     private static ExecutorService executor = new ThreadPoolExecutor(0, Runtime.getRuntime().availableProcessors(), 60L,
-            TimeUnit.SECONDS, new SynchronousQueue<>());
+                                                                     TimeUnit.SECONDS, new SynchronousQueue<>());
 
     private static final String COMMAND = "PULL_MODULE";
 

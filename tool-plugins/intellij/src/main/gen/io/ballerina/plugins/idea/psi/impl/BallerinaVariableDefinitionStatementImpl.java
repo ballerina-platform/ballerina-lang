@@ -24,15 +24,9 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
-import io.ballerina.plugins.idea.stubs.BallerinaVariableDefinitionStatementStub;
 import io.ballerina.plugins.idea.psi.*;
-import com.intellij.psi.stubs.IStubElementType;
 
-public class BallerinaVariableDefinitionStatementImpl extends BallerinaNamedElementImpl<BallerinaVariableDefinitionStatementStub> implements BallerinaVariableDefinitionStatement {
-
-  public BallerinaVariableDefinitionStatementImpl(@NotNull BallerinaVariableDefinitionStatementStub stub, @NotNull IStubElementType type) {
-    super(stub, type);
-  }
+public class BallerinaVariableDefinitionStatementImpl extends BallerinaCompositeElementImpl implements BallerinaVariableDefinitionStatement {
 
   public BallerinaVariableDefinitionStatementImpl(@NotNull ASTNode node) {
     super(node);
@@ -49,32 +43,14 @@ public class BallerinaVariableDefinitionStatementImpl extends BallerinaNamedElem
 
   @Override
   @Nullable
-  public BallerinaExpression getExpression() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
-  }
-
-  @Override
-  @NotNull
-  public BallerinaTypeName getTypeName() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class));
+  public BallerinaVariableDefinitionStatementWithAssignment getVariableDefinitionStatementWithAssignment() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaVariableDefinitionStatementWithAssignment.class);
   }
 
   @Override
   @Nullable
-  public PsiElement getAssign() {
-    return findChildByType(ASSIGN);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getSemicolon() {
-    return findChildByType(SEMICOLON);
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getIdentifier() {
-    return notNullChild(findChildByType(IDENTIFIER));
+  public BallerinaVariableDefinitionStatementWithoutAssignment getVariableDefinitionStatementWithoutAssignment() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaVariableDefinitionStatementWithoutAssignment.class);
   }
 
   @Nullable

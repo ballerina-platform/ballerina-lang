@@ -498,6 +498,8 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
         int maskOptional = Flags.asMask(EnumSet.of(Flag.OPTIONAL));
+
+        recordTypeNode.fields.addAll(recordTypeNode.referencedFields);
         // Add struct level variables to the init function.
         recordTypeNode.fields.stream()
                 // Only add a field if it is required. Checking if it's required is enough since non-defaultable

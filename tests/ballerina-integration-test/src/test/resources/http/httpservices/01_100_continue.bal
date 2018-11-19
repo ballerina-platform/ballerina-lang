@@ -47,17 +47,26 @@ service<http:Service> helloContinue bind { port: 9090 } {
     }
     getFormParam(endpoint caller, http:Request req) {
         string replyMsg = "Result =";
-        mime:Entity[] bodyParts = check req.getBodyParts();
-        int i = 0;
-        while (i < bodyParts.length()) {
-            mime:Entity part = bodyParts[i];
-            mime:ContentDisposition contentDisposition = part.getContentDisposition();
-            replyMsg += " Key:" + contentDisposition.name + " Value: " + check part.getBodyAsString();
-            i += 1;
-        }
-        var responseError = caller->respond(untaint replyMsg);
-        if (responseError is error) {
-            log:printError(responseError.reason(), err = responseError);
+        var bodyParts = req.getBodyParts();
+        if (bodyParts is mime:Entity[]) {
+            int i = 0;
+            while (i < bodyParts.length()) {
+                mime:Entity part = bodyParts[i];
+                mime:ContentDisposition contentDisposition = part.getContentDisposition();
+                var result = part.getBodyAsString();
+                if (result is string) {
+                    replyMsg += " Key:" + contentDisposition.name + " Value: " + result;
+                } else if (result is error) {
+                    replyMsg += " Key:" + contentDisposition.name + " Value: " + result.reason();
+                }
+                i += 1;
+            }
+            var responseError = caller->respond(untaint replyMsg);
+            if (responseError is error) {
+                log:printError(responseError.reason(), err = responseError);
+            }
+        } else if (bodyParts is error) {
+            log:printError(bodyParts.reason(), err = bodyParts);
         }
     }
 
@@ -69,10 +78,14 @@ service<http:Service> helloContinue bind { port: 9090 } {
                 log:printError("Error sending response", err = responseError);
             }
         }
-        http:Response res = check clientEndpoint->forward("/backend/hello", untaint req);
-        var responseError = caller->respond(res);
-        if (responseError is error) {
-            log:printError("Error sending response", err = responseError);
+        var res = clientEndpoint->forward("/backend/hello", untaint req);
+        if (res is http:Response) {
+            var responseError = caller->respond(res);
+            if (responseError is error) {
+                log:printError("Error sending response", err = responseError);
+            }
+        } else if (res is error) {
+            log:printError(res.reason(), err = res);
         }
     }
 }
@@ -80,8 +93,12 @@ service<http:Service> helloContinue bind { port: 9090 } {
 service<http:Service> backend bind { port: 9224 } {
     hello (endpoint caller, http:Request request) {
         http:Response response = new;
-        string payload = check request.getTextPayload();
-        response.setTextPayload(untaint payload);
+        var payload = request.getTextPayload();
+        if (payload is string) {
+            response.setTextPayload(untaint payload);
+        } else if (payload is error) {
+            response.setTextPayload(untaint payload.reason());
+        }
         var responseError = caller->respond(response);
         if (responseError is error) {
             log:printError("Error sending response", err = responseError);

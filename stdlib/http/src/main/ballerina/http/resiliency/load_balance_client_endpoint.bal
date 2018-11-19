@@ -34,8 +34,13 @@ public type LoadBalanceClient object {
     # Returns the HTTP LoadBalancer actions associated with the endpoint.
     #
     # + return - The HTTP LoadBalancer actions associated with the endpoint
-    public function getCallerActions() returns LoadBalancerActions|error {
-        return check <LoadBalancerActions> self.httpEP.httpClient;
+    public function getCallerActions() returns LoadBalancerActions {
+        var loadBalancerActions = <LoadBalancerActions> self.httpEP.httpClient;
+        if (loadBalancerActions is error) {
+            panic loadBalancerActions;
+        } else {
+            return loadBalancerActions;
+        }
     }
 };
 

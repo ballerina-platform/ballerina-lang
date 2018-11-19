@@ -26,14 +26,11 @@ function testServerStreaming(string name) returns int {
     };
     // Executing unary non-blocking call registering server message listener.
     error? result = helloWorldEp->lotsOfReplies(name, HelloWorldMessageListener);
-    match result {
-        error payloadError => {
-            io:println("Error occured while sending event " + payloadError.reason());
-            return total;
-        }
-        () => {
-            io:println("Connected successfully");
-        }
+    if (result is error) {
+        io:println("Error occured while sending event " + result.reason());
+        return total;
+    } else {
+        io:println("Connected successfully");
     }
 
     int wait = 0;
@@ -74,8 +71,8 @@ service<grpc:Service> HelloWorldMessageListener {
 // Non-blocking client
 public type HelloWorldStub object {
 
-    public grpc:Client clientEndpoint;
-    public grpc:Stub stub;
+    public grpc:Client clientEndpoint = new;
+    public grpc:Stub stub = new;
 
     function initStub(grpc:Client ep) {
         grpc:Stub navStub = new;
@@ -92,8 +89,8 @@ public type HelloWorldStub object {
 // Non-blocking client endpoint
 public type HelloWorldClient object {
 
-    public grpc:Client client;
-    public HelloWorldStub stub;
+    public grpc:Client client = new;
+    public HelloWorldStub stub = new;
 
 
     public function init(grpc:ClientEndpointConfig config) {
