@@ -528,15 +528,15 @@ function testByteAndBoolean() returns (function (int, byte) returns
                 byte i = value;
                 byte[][] bArr = [];
                 if !boo2 {
-                bArr[0] = [c, b, 4, i];
+                    bArr[0] = [c, b, 4, i];
                 }
 
                 if boo1 {
-                bArr[1] = [i, c, 5, b, 3];
+                    bArr[1] = [i, c, 5, b, 3];
                 }
 
                 if !booF {
-                bArr[2] = [1, 2, 3, c, b];
+                    bArr[2] = [1, 2, 3, c, b];
                 }
 
                 return bArr;
