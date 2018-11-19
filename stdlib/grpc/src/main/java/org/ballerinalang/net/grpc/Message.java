@@ -56,8 +56,6 @@ public class Message {
     private String messageName;
     private int memoizedSize = -1;
     private HttpHeaders headers;
-    private ProgramFile programFile;
-    private BType bType;
     private BValue bMessage = null;
 
     private boolean isError = false;
@@ -68,10 +66,8 @@ public class Message {
         this.bMessage = bMessage;
     }
 
-    private Message(String messageName, ProgramFile programFile, BType bType) {
+    private Message(String messageName) {
         this.messageName = messageName;
-        this.programFile = programFile;
-        this.bType = bType;
     }
 
     public HttpHeaders getHeaders() {
@@ -106,7 +102,7 @@ public class Message {
             com.google.protobuf.CodedInputStream input,
             Map<Integer, Descriptors.FieldDescriptor> fieldDescriptors)
             throws IOException {
-        this(messageName, programFile, bType);
+        this(messageName);
         BMap<String, BValue> bMapValue = null;
         Map<String, BType> bMapFields = new HashMap<>();
         if (bType instanceof BRecordType) {

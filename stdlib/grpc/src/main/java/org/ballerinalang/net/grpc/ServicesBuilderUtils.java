@@ -39,7 +39,6 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -183,7 +182,7 @@ public class ServicesBuilderUtils {
                 .getDependencyList().size()];
         int i = 0;
         for (ByteString dependency : descriptorProto.getDependencyList().asByteStringList()) {
-            String dependencyKey = dependency.toString(Charset.forName("UTF8"));
+            String dependencyKey = dependency.toStringUtf8();
             if (descMap.containsKey(dependencyKey)) {
                 fileDescriptors[i++] = getFileDescriptor(descMap.get(dependencyKey).getStringValue(), descMap);
             } else if (descMap.size() == 0) {

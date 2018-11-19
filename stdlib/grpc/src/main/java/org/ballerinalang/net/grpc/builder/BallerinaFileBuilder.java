@@ -97,10 +97,6 @@ public class BallerinaFileBuilder {
     }
     
     public void build(String mode) {
-        // write definition objects to ballerina files.
-        if (this.balOutPath == null) {
-            this.balOutPath = BalGenConstants.DEFAULT_PACKAGE;
-        }
         // compute root descriptor source code.
         computeSourceContent(rootDescriptor, mode);
         // compute dependent descriptor source code.
@@ -136,6 +132,13 @@ public class BallerinaFileBuilder {
                     Descriptor dependentDescriptor = Descriptor.newBuilder(descriptorData).build();
                     stubFileObject.addDescriptor(dependentDescriptor);
                 }
+            }
+
+            // write definition objects to ballerina files.
+            if (this.balOutPath == null) {
+                this.balOutPath = StringUtils.isNotBlank(fileDescriptorSet.getPackage()) ?
+                        fileDescriptorSet.getPackage().replace(PACKAGE_SEPARATOR, FILE_SEPARATOR) : BalGenConstants
+                        .DEFAULT_PACKAGE;
             }
 
             for (DescriptorProtos.ServiceDescriptorProto serviceDescriptor : serviceDescriptotList) {
@@ -193,12 +196,7 @@ public class BallerinaFileBuilder {
                 EnumMessage enumMessage = EnumMessage.newBuilder(descriptorProto).build();
                 stubFileObject.addEnumMessage(enumMessage);
             }
-            // write definition objects to ballerina files.
-            if (this.balOutPath == null) {
-                this.balOutPath = StringUtils.isNotBlank(fileDescriptorSet.getPackage()) ?
-                        fileDescriptorSet.getPackage().replace(PACKAGE_SEPARATOR, FILE_SEPARATOR) : BalGenConstants
-                        .DEFAULT_PACKAGE;
-            }
+
             String stubFilePath = generateOutputFile(this.balOutPath, filename + STUB_FILE_PREFIX);
             writeOutputFile(stubFileObject, DEFAULT_SKELETON_DIR, SKELETON_TEMPLATE_NAME, stubFilePath);
         } catch (IOException | GrpcServerException e) {
