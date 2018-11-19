@@ -139,7 +139,7 @@ public class SQLDataIterator extends TableIterator {
         String columnName = null;
         int sqlType = -1;
         try {
-            BField[] structFields = this.type.getFields();
+            BField[] structFields = this.type.getFields().values().toArray(new BField[0]);
             for (ColumnDefinition columnDef : columnDefs) {
                 if (columnDef instanceof SQLColumnDefinition) {
                     SQLColumnDefinition def = (SQLColumnDefinition) columnDef;
@@ -296,7 +296,7 @@ public class SQLDataIterator extends TableIterator {
         if (structValue == null) {
             return null;
         }
-        BField[] internalStructFields = structType.getFields();
+        BField[] internalStructFields = structType.getFields().values().toArray(new BField[0]);
         BMap<String, BValue> struct = new BMap<>(structType);
         try {
             Object[] dataArray = structValue.getAttributes();
