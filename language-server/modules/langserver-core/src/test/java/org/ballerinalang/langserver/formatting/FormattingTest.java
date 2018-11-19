@@ -48,7 +48,7 @@ public class FormattingTest {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 
-    @Test(description = "test formatting functionality on functions", dataProvider = "fileProvider")
+    @Test(description = "test formatting functionality on functions", dataProvider = "fileProvider", enabled = false)
     public void formatTestSuit(String expectedFile, String testFile) throws IOException {
         Path expectedFilePath = formattingDirectory.resolve("expected").resolve(expectedFile);
         Path inputFilePath = formattingDirectory.resolve(testFile);

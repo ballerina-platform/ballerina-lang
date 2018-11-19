@@ -119,7 +119,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     public void visit(BLangFunction funcNode) {
         // Check for native functions
         BSymbol funcSymbol = funcNode.symbol;
-        if (Symbols.isNative(funcSymbol)) {
+        if (Symbols.isNative(funcSymbol) || !CommonUtil.isValidInvokableSymbol(funcSymbol)) {
             return;
         }
 
