@@ -649,7 +649,9 @@ public class NativeConversionTest {
         Assert.assertEquals(((BInteger) struct.get("y")).intValue(), 1);
     }
 
-    @Test
+    @Test(description = "Test converting incompatible recored types",
+          expectedExceptions = { BLangRuntimeException.class },
+          expectedExceptionsMessageRegExp = ".*'T1\\[\\]' cannot be cast to 'T2\\[\\]' .*")
     public void testStructArrayConversion2() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStructArrayConversion2");
         Assert.assertTrue(returns[0] instanceof BMap);
