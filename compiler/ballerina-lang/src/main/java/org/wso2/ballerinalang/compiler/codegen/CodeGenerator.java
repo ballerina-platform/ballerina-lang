@@ -2874,7 +2874,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangLock lockNode) {
-        if (lockNode.lockVariables.isEmpty() && lockNode.fieldVariables.isEmpty() && lockNode.selfVariables.isEmpty()) {
+        if (lockNode.lockVariables.isEmpty() && lockNode.fieldVariables.isEmpty()) {
             this.genNode(lockNode.body, this.env);
             return;
         }
@@ -2919,11 +2919,10 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         //lockVarCount, fieldVarCount [typeRefCP, pkgRefCP, varIndex], fieldVars[typeRefCP, pkgRefCP,
         // varIndex, fieldName], selfVars[typeRefCP, pkgRefCP, -1, fieldName]
-        Operand[] operands = new Operand[(lockNode.lockVariables.size() * 3) + 2 + (fieldVarCount * 4) +
-                (lockNode.selfVariables.size() * 4)];
+        Operand[] operands = new Operand[(lockNode.lockVariables.size() * 3) + 2 + (fieldVarCount * 4)];
         int i = 0;
         operands[i++] = new Operand(lockNode.lockVariables.size());
-        operands[i++] = getOperand(fieldVarCount + lockNode.selfVariables.size());
+        operands[i++] = getOperand(fieldVarCount);
 
         for (BVarSymbol varSymbol : lockNode.lockVariables) {
             BPackageSymbol pkgSymbol;
@@ -2958,29 +2957,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                 int fieldNameCPEntry = addUTF8CPEntry(currentPkgInfo, (String) ((BLangLiteral) expr.indexExpr).value);
                 operands[i++] = getOperand(fieldNameCPEntry);
             }
-        }
-
-        for (BVarSymbol varSymbol : lockNode.selfVariables) {
-            BSymbol ownerSymbol = varSymbol.owner;
-            PackageID pkgId;
-            if (ownerSymbol.tag == SymTag.SERVICE) {
-                pkgId = ownerSymbol.owner.pkgID;
-            } else {
-                pkgId = ownerSymbol.pkgID;
-            }
-
-            int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgId);
-            int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, varSymbol.getType().getDesc());
-
-            TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
-            operands[i++] = getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
-
-            operands[i++] = getOperand(pkgRefCPIndex);
-            // It is assumed that callee is referred by the first ref reg of local data, for locks within attached
-            // functions
-            operands[i++] = getOperand(0);
-            int fieldNameCPEntry = addUTF8CPEntry(currentPkgInfo, varSymbol.name.value);
-            operands[i++] = getOperand(fieldNameCPEntry);
         }
 
         return operands;
@@ -3641,8 +3617,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 }
             } else if (NodeKind.LOCK == parent.getKind()) {
                 BLangLock lockNode = (BLangLock) parent;
-                if (!lockNode.lockVariables.isEmpty() || !lockNode.fieldVariables.isEmpty() ||
-                        !lockNode.selfVariables.isEmpty()) {
+                if (!lockNode.lockVariables.isEmpty() || !lockNode.fieldVariables.isEmpty()) {
                     Operand[] operands = getOperands(lockNode);
                     emit((InstructionCodes.UNLOCK), operands);
                 }

@@ -41,6 +41,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -60,7 +61,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
     private final Lock writeLock = lock.writeLock();
     private BType type = BTypes.typeMap;
     private HashMap<String, Object> nativeData = new HashMap<>();
-    private HashMap<String, VarLock> lockMap = new HashMap<>();
+    private ConcurrentHashMap<String, VarLock> lockMap = new ConcurrentHashMap();
 
     public BMap() {
         map =  new LinkedHashMap<>();
@@ -425,13 +426,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
      * @return VarLock for the given field
      */
     public VarLock getFieldLock(String fieldName) {
-        if (lockMap.get(fieldName) == null) {
-            synchronized (map) {
-                if (lockMap.get(fieldName) == null) {
-                    lockMap.put(fieldName, new VarLock());
-                }
-            }
-        }
+        lockMap.putIfAbsent(fieldName, new VarLock());
 
         return lockMap.get(fieldName);
     }

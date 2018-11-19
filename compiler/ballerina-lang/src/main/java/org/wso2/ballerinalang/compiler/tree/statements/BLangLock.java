@@ -43,8 +43,6 @@ public class BLangLock extends BLangStatement implements LockNode {
 
     public Map<BVarSymbol, Set<BLangStructFieldAccessExpr>> fieldVariables = new HashMap<>();
 
-    public Set<BVarSymbol> selfVariables = new HashSet<>();
-
     public BLangLock() {
     }
 
@@ -82,10 +80,6 @@ public class BLangLock extends BLangStatement implements LockNode {
         exprList.removeIf(fieldExpr ->
                 ((BLangLiteral) fieldExpr.indexExpr).value.equals(((BLangLiteral) expr.indexExpr).value));
         exprList.add(expr);
-    }
-
-    public void addSelfVariable(BVarSymbol symbol) {
-        selfVariables.add(symbol);
     }
 
     @Override
