@@ -27,7 +27,8 @@ public type Stub object {
     # + stubType - Service Stub type. possible values: blocking, nonblocking.
     # + descriptorKey - Proto descriptor key. Key of proto descriptor.
     # + descriptorMap - Proto descriptor map. descriptor map with all dependent descriptors.
-    public extern function initStub(any clientEndpoint, string stubType, string descriptorKey, map descriptorMap);
+    public extern function initStub(any clientEndpoint, string stubType, string descriptorKey, map descriptorMap)
+        returns error?;
 
     # Calls when executing blocking call with gRPC service.
     #
@@ -45,8 +46,8 @@ public type Stub object {
     # + listenerService - Call back listener service. This service listens the response message from service.
     # + headers - Optional headers parameter. Passes header value if needed. Default sets to nil.
     # + return - Returns an error if encounters an error while sending the request, returns nil otherwise.
-    public extern function nonBlockingExecute(string methodID, any payload, typedesc listenerService, Headers?
-    headers = ()) returns error?;
+    public extern function nonBlockingExecute(string methodID, any payload, typedesc listenerService,
+                                              Headers? headers = ()) returns error?;
 
 
     # Calls when executing streaming call with gRPC service.

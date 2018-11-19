@@ -138,7 +138,7 @@ public class ProtoMessageTestCase {
         InputStream messageStream = new ByteArrayInputStream(msgArray);
         Message message1 = ProtoUtils.marshaller(new Message("Test3", result.getProgFile(), structureType)).parse
                 (messageStream);
-        Assert.assertEquals(message1.getFields().size(), message.getFields().size());
+        Assert.assertEquals(((BMap<String, BValue>) message1.getbMessage()).getMap().size(), bMapValue.size());
         Assert.assertFalse(message1.isError());
     }
 

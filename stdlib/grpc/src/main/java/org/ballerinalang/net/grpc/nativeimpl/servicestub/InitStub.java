@@ -26,6 +26,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.ServiceDefinition;
@@ -38,6 +39,7 @@ import org.wso2.transport.http.netty.contract.HttpClientConnector;
 
 import java.util.Map;
 
+import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.net.grpc.GrpcConstants.BLOCKING_TYPE;
 import static org.ballerinalang.net.grpc.GrpcConstants.CALLER_ACTIONS;
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_CONFIG;
@@ -53,6 +55,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB_REF_INDEX;
 import static org.ballerinalang.net.grpc.GrpcConstants.STUB_TYPE_STRING_INDEX;
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
  * {@code InitStub} is the InitStub function implementation of the gRPC service stub.
@@ -72,6 +75,10 @@ import static org.ballerinalang.net.grpc.GrpcConstants.STUB_TYPE_STRING_INDEX;
                 @Argument(name = "descriptorKey", type = TypeKind.STRING),
                 @Argument(name = "descriptorMap", type = TypeKind.MAP)
         },
+        returnType = {
+                @ReturnType(type = TypeKind.RECORD, structType = STRUCT_GENERIC_ERROR,
+                        structPackage = BALLERINA_BUILTIN_PKG)
+        },
         isPublic = true
 )
 public class InitStub extends BlockingNativeCallableUnit {
@@ -86,7 +93,7 @@ public class InitStub extends BlockingNativeCallableUnit {
         BMap<String, BValue> descriptorMap = (BMap<String, BValue>) context.getRefArgument(DESCRIPTOR_MAP_REF_INDEX);
         
         if (stubType == null || descriptorKey == null || descriptorMap == null) {
-            context.setError(MessageUtils.getConnectorError(new StatusRuntimeException(Status
+            context.setReturnValues(MessageUtils.getConnectorError(new StatusRuntimeException(Status
                     .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while initializing " +
                             "connector. message descriptor keys not exist. Please check the generated sub file"))));
             return;
@@ -94,7 +101,7 @@ public class InitStub extends BlockingNativeCallableUnit {
         
         try {
             if (!descriptorMap.hasKey(descriptorKey)) {
-                context.setError(MessageUtils.getConnectorError(new StatusRuntimeException(Status
+                context.setReturnValues(MessageUtils.getConnectorError(new StatusRuntimeException(Status
                         .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while " +
                                 "establishing the connection. service descriptor is null."))));
                 return;
@@ -111,14 +118,14 @@ public class InitStub extends BlockingNativeCallableUnit {
                 NonBlockingStub nonBlockingStub = new NonBlockingStub(clientConnector, endpointConfig);
                 serviceStub.addNativeData(SERVICE_STUB, nonBlockingStub);
             } else {
-                context.setError(MessageUtils.getConnectorError(new StatusRuntimeException(Status
+                context.setReturnValues(MessageUtils.getConnectorError(new StatusRuntimeException(Status
                         .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while " +
                                 "initializing connector. invalid connector type"))));
                 return;
             }
             serviceStub.addNativeData(CLIENT_END_POINT, clientEndpoint);
         } catch (RuntimeException | GrpcClientException e) {
-            context.setError(MessageUtils.getConnectorError(e));
+            context.setReturnValues(MessageUtils.getConnectorError(e));
         }
     }
 }

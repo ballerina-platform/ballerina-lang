@@ -99,7 +99,7 @@ public final class ServiceDefinition {
                 .getDependencyList().size()];
         int i = 0;
         for (ByteString dependency : descriptorProto.getDependencyList().asByteStringList()) {
-            if (descriptorMap.hasKey(dependency.toString(Charset.forName("UTF8")))) {
+            if (descriptorMap.hasKey(dependency.toStringUtf8())) {
                 fileDescriptors[i++] = getFileDescriptor(descriptorMap.get(dependency.toString(Charset.forName
                         ("UTF8"))).stringValue(), descriptorMap);
             }
@@ -110,21 +110,6 @@ public final class ServiceDefinition {
         }
         return Descriptors.FileDescriptor.buildFrom(descriptorProto, fileDescriptors);
     }
-
-//    /**
-//     * Convert Hex string value to byte array.
-//     * @param s hexadecimal string value
-//     * @return Byte array
-//     */
-//    private byte[] hexStringToByteArray(String s) {
-//        int len = s.length();
-//        byte[] data = new byte[len / 2];
-//        for (int i = 0; i < len; i += 2) {
-//            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
-//                    + Character.digit(s.charAt(i + 1), 16));
-//        }
-//        return data;
-//    }
 
     private Descriptors.ServiceDescriptor getServiceDescriptor() throws GrpcClientException {
         Descriptors.FileDescriptor descriptor = getDescriptor();

@@ -53,7 +53,6 @@ import java.util.Map;
  * @since 1.0.0
  */
 public class Message {
-    private Map<String, Object> fields = new HashMap<>();
     private String messageName;
     private int memoizedSize = -1;
     private HttpHeaders headers;
@@ -74,14 +73,6 @@ public class Message {
         this.messageName = messageName;
         this.programFile = programFile;
         this.bType = bType;
-    }
-
-    protected void addField(String fieldName, Object value) {
-        fields.put(fieldName, value);
-    }
-    
-    public Map<String, Object> getFields() {
-        return fields;
     }
 
     public HttpHeaders getHeaders() {
@@ -368,12 +359,9 @@ public class Message {
 
     @Override
     public String toString() {
-        StringBuilder payload = new StringBuilder("Message { fields: ");
-        if (fields != null) {
-            for (Map.Entry<String, Object> entry : fields.entrySet()) {
-                payload.append(entry.getKey()).append(":").append(entry.getValue()).append(",");
-            }
-            payload.append("}");
+        StringBuilder payload = new StringBuilder("Message : ");
+        if (bMessage != null) {
+            payload.append("{ ").append(bMessage.stringValue()).append(" }");
         } else {
             payload.append("null");
         }
