@@ -29,7 +29,7 @@ function testDecimalToOtherTypesConversion() returns (int, float, string, boolea
 }
 
 // Other types (int, float, string, boolean, any, json) to decimal conversion.
-function testOtherTypesToDecimalConversion() returns (decimal, decimal, decimal, decimal, decimal, decimal) {
+function testOtherTypesToDecimalConversion() returns (decimal, decimal, decimal, decimal, decimal, decimal)|error {
     int i = 12;
     decimal d1 = <decimal> i;
 
