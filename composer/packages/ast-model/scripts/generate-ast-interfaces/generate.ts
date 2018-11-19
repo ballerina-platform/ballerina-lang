@@ -12,6 +12,7 @@ export function genInterfacesFileCode(modelInfo: any) {
             id: string;
             kind: string;
             viewState?: any;
+            ws?: any[];
         }
 
         ${interfaces.join("\n")}
@@ -136,19 +137,13 @@ function getPropertyCode(model: any) {
         const property = model[key];
 
         let type = "any";
-        const typesFound: any = [];
-        Object.keys(property.type).forEach((key0) => {
-            typesFound.push(key0);
-        });
+        const typesFound: any = Object.keys(property.type).sort();
         if (typesFound.length > 0) {
             type = typesFound.join("|");
         }
 
         if (property.elementTypes) {
-            const elementTypesFound: any = [];
-            Object.keys(property.elementTypes).forEach((key0) => {
-                elementTypesFound.push(key0);
-            });
+            const elementTypesFound: any = Object.keys(property.elementTypes).sort();
             if (elementTypesFound.length > 1) {
                 type = `Array<${elementTypesFound.join("|")}>`;
             } else if (elementTypesFound.length === 1) {
