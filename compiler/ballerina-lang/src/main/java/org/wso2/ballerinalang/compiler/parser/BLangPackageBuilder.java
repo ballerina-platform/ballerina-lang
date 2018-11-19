@@ -43,7 +43,6 @@ import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.VariableNode;
-import org.ballerinalang.model.tree.WorkerNode;
 import org.ballerinalang.model.tree.clauses.GroupByNode;
 import org.ballerinalang.model.tree.clauses.HavingNode;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
@@ -99,7 +98,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
@@ -1524,33 +1522,27 @@ public class BLangPackageBuilder {
         this.compUnit.addTopLevelNode(function);
     }
 
-    void startWorker() {
-        WorkerNode workerNode = TreeBuilder.createWorkerNode();
-        this.invokableNodeStack.push(workerNode);
-        startBlock();
+    void startWorker(PackageID pkgID) {
+        this.startLambdaFunctionDef(pkgID);
+        this.startBlock();
     }
 
     void addWorker(DiagnosticPos pos, Set<Whitespace> ws, String workerName) {
-        // TODO This code will not work if there are workers inside a lambda and the lambda is inside a fork/join
-        BLangWorker worker = (BLangWorker) this.invokableNodeStack.pop();
-        worker.setName(createIdentifier(workerName));
-        worker.pos = pos;
-        worker.addWS(ws);
-        worker.setBody(this.blockNodeStack.pop());
-        if (this.forkJoinNodesStack.empty()) {
-            InvokableNode invokableNode = this.invokableNodeStack.peek();
-            invokableNode.getParameters().forEach(worker::addParameter);
-            worker.setReturnTypeNode(invokableNode.getReturnTypeNode());
-            invokableNode.addWorker(worker);
-            invokableNode.addFlag(Flag.PARALLEL);
-        } else {
-            ((BLangForkJoin) this.forkJoinNodesStack.peek()).workers.add(worker);
-        }
+        endCallableUnitBody(ws);
+        addLambdaFunctionDef(pos, ws, false, false, false);
+        String workerLambdaName = "0" + workerName;
+        addSimpleVariableDefStatement(pos, ws, workerLambdaName, true, true);
+
+        addNameReference(pos, ws, null, workerLambdaName);
+        startInvocationNode(ws);
+        createFunctionInvocation(pos, ws, false);
+        markLastInvocationAsAsync(pos);
+
+        addSimpleVariableDefStatement(pos, ws, workerName, true, true);
     }
 
     void attachWorkerWS(Set<Whitespace> ws) {
-        BLangWorker worker = (BLangWorker) this.invokableNodeStack.peek();
-        worker.addWS(ws);
+        //TODO: attach ws to
     }
 
     void startForkJoinStmt() {

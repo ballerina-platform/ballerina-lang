@@ -727,7 +727,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startWorker();
+        this.pkgBuilder.startWorker(diagnosticSrc.pkgID);
     }
 
     @Override
@@ -751,7 +751,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-
         this.pkgBuilder.attachWorkerWS(getWS(ctx));
     }
 
