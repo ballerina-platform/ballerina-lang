@@ -549,6 +549,24 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Freeze Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinFreezeSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_FREEZE_LABEL, "freeze();", "", SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get isFrozen Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinIsFrozenSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_IS_FROZEN_LABEL, "isFrozen();", "", SnippetType.SNIPPET);
+    }
+
+    /**
      * Get isNaN Builtin Function Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
