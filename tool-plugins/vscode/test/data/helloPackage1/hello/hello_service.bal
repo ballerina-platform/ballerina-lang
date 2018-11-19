@@ -4,7 +4,7 @@ import ballerina/http;
 
 # A service endpoint represents a listener.
 endpoint http:Listener listener {
-    port:9091
+    port:9090
 };
 
 # A service is a network-accessible API

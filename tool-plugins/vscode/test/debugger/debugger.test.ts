@@ -38,24 +38,14 @@ suite('Ballerina Debug Adapter', () => {
 
     let dc: DebugClientEx;
 
-    suiteSetup((done: MochaDone) => {
+    setup(() => {
         dc = new DebugClientEx('node', DEBUG_ADAPTER, 'ballerina', { cwd: PROJECT_ROOT });
         dc.defaultTimeout = 15000;
-        dc.start().then(() => {
-            done();
-        });
+        return dc.start();
     });
 
-    suiteTeardown((done: MochaDone) => {
-        dc.stop().then(()=>{
-            done();
-        });
-    });
-
-    teardown((done: MochaDone) => {
-        dc.disconnectRequest().then(() => {
-            done();
-        });
+    teardown(() => {
+        return dc.stop();
     });
 
     suite('vscode debugger integration tests', () => {
@@ -100,22 +90,13 @@ suite('Ballerina Debug Adapter', () => {
                 name: "Ballerina Debug",
             };
 
-            return Promise.all([
-                new Promise((resolve, reject) => {
-                    dc.on('output', (res) => {
-                        if (res.body.output.indexOf("started HTTP/WS") > -1) {
-                            http.get('http://0.0.0.0:9090/hello/sayHello');
-                            dc.removeAllListeners('output');
-                            resolve();
-                        }
-                        if (res.body.output.indexOf("error") > -1) {
-                            dc.removeAllListeners('output');
-                            reject();
-                        }
-                    });
-                }),
-                dc.hitBreakpoint(launchArgs, { path: PROGRAM, name: 'hello_world_service.bal', line: 11 })
-            ]);
+            dc.on('output', (res) => {
+                if (res.body.output.indexOf("started HTTP/WS") > -1) {
+                    http.get('http://0.0.0.0:9090/hello/sayHello');
+                }
+            });
+
+            return dc.hitBreakpoint(launchArgs, { path: PROGRAM, name: 'hello_world_service.bal', line: 11 });
         }).timeout(15000);
 
         test('should stop on a breakpoint, hello world service - package', () => {
@@ -128,27 +109,16 @@ suite('Ballerina Debug Adapter', () => {
                 name: "Ballerina Debug",
             };
 
-            return Promise.all([
-                new Promise((resolve, reject) => {
-                    dc.on('output', (res) => {
-                        if (res.body.output.indexOf("started HTTP/WS") > -1) {
-                            http.get('http://0.0.0.0:9091/hello/sayHello');
-                            dc.removeAllListeners('output');
-                            resolve();
-                        }
-                        if (res.body.output.indexOf("error") > -1) {
-                            dc.removeAllListeners('output');
-                            reject();
-                        }
-                    });
-                }),
-                dc.hitBreakpoint(launchArgs, { path: PROGRAM, name: 'hello_service.bal', line: 24 })
-            ]);
-
+            dc.on('output', (res) => {
+                if (res.body.output.indexOf("started HTTP/WS") > -1) {
+                    http.get('http://0.0.0.0:9090/hello/sayHello');
+                }
+            });
+            return dc.hitBreakpoint(launchArgs, { path: PROGRAM, name: 'hello_service.bal', line: 24 });
         }).timeout(15000);
 
         test('step In, hello world service - package', () => {
-            const PROGRAM = Path.join(DATA_ROOT, 'helloPackage2', 'hello', 'hello_service.bal');
+            const PROGRAM = Path.join(DATA_ROOT, 'helloPackage1', 'hello', 'hello_service.bal');
             const launchArgs = {
                 script: PROGRAM,
                 "ballerina.home": ballerinaHome,
@@ -156,35 +126,26 @@ suite('Ballerina Debug Adapter', () => {
                 name: "Ballerina Debug",
             };
 
-            return Promise.all([
-                new Promise((resolve, reject) => {
-                    dc.on('output', (res) => {
-                        if (res.body.output.indexOf("started HTTP/WS") > -1) {
-                            http.get('http://0.0.0.0:9092/hello/sayHello');
-                            dc.removeAllListeners('output');
-                            resolve();
-                        }
-                        if (res.body.output.indexOf("error") > -1) {
-                            dc.removeAllListeners('output');
-                            reject();
-                        }
+            dc.on('output', (res) => {
+                if (res.body.output.indexOf("started HTTP/WS") > -1) {
+                    http.get('http://0.0.0.0:9090/hello/sayHello');
+                }
+            });
+            dc.hitBreakpoint(launchArgs, { path: PROGRAM, name: 'hello_service.bal', line: 24 });
+
+            return dc.waitForEvent('stopped', 12000).then((event) => {
+                const threadId: any = event.body.threadId;
+                return dc.stepInRequest({
+                    threadId: threadId
+                });
+            }).then(() => {
+                return dc.waitForEvent('stopped', 12000).then(event => {
+                    assert.equal(event.body.reason, "breakpoint");
+                    return dc.stackTraceRequest({
+                        threadId: event.body.threadId,
                     });
-                }),
-                dc.hitBreakpoint(launchArgs, { path: PROGRAM, name: 'hello_service.bal', line: 24 }),
-                dc.waitForEvent('stopped', 12000).then((event) => {
-                    const threadId: any = event.body.threadId;
-                    return dc.stepInRequest({
-                        threadId: threadId
-                    });
-                }).then(() => {
-                    return dc.waitForEvent('stopped', 12000).then(event => {
-                        assert.equal(event.body.reason, "breakpoint");
-                        return dc.stackTraceRequest({
-                            threadId: event.body.threadId,
-                        });
-                    });
-                })
-            ]);
+                });
+            });
         }).timeout(15000);
     });
 
