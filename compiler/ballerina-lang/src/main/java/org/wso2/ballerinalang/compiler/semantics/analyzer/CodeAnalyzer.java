@@ -1451,10 +1451,19 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private void validateWorkerActionParameters(BLangWorkerSend send, BLangWorkerReceive receive) {
         this.typeChecker.checkExpr(send.expr, send.env, receive.type);
+        addImplicitCast(send.expr.type, receive);
     }
 
     private void validateWorkerActionParameters(BLangWorkerSyncSendExpr send, BLangWorkerReceive receive) {
         this.typeChecker.checkExpr(send.expr, send.env, receive.type);
+        addImplicitCast(send.expr.type, receive);
+    }
+
+    private void addImplicitCast(BType actualType, BLangWorkerReceive receive) {
+        if (receive.type != null && receive.type != symTable.semanticError) {
+            types.setImplicitCastExpr(receive, actualType, receive.type);
+            receive.type = actualType;
+        }
     }
 
     private boolean checkNextBreakValidityInTransaction() {
