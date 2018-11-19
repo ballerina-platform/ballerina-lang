@@ -244,6 +244,9 @@ public class LSCompilerUtil {
 
     /**
      * Returns top-level module path of a given file path.
+     * <p>
+     * If it is a non-project file; returns immediate parent.
+     * </p>
      *
      * @param filePath file path
      * @return top-level module path

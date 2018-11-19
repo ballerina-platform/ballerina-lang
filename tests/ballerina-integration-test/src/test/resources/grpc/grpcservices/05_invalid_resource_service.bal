@@ -25,7 +25,7 @@ service HelloWorld98 bind ep98 {
     hello(endpoint caller, string name) {
         log:printInfo("name: " + name);
         string message = "Hello " + name;
-        error? err;
+        error? err = ();
         if (name == "invalid") {
             err = caller->sendError(grpc:ABORTED, "Operation aborted");
         } else {
@@ -39,7 +39,7 @@ service HelloWorld98 bind ep98 {
 
     testInt(endpoint caller, string age) {
         log:printInfo("age: " + age);
-        int displayAge;
+        int displayAge = 0;
         if (age == "") {
             displayAge = -1;
         } else {

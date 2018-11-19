@@ -33,25 +33,19 @@ service<http:Service> retryDemoService bind serviceEndpoint1 {
     // the request data.
     invokeEndpoint(endpoint caller, http:Request request) {
         var backendResponse = backendClientEP->forward("/hello", request);
-        // `match` is used to handle union-type returns.
-        // If a response is returned, the normal process runs.
-        // If the service does not get the expected response,
-        // the error-handling logic is executed.
-        match backendResponse {
-            http:Response response => {
-                // '->' signifies remote call.
-                caller->respond(response) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        if (backendResponse is http:Response) {
+            var responseToCaller = caller->respond(backendResponse);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
             }
-            error responseError => {
-                // Create a new HTTP response by looking at the error message.
-                http:Response errorResponse = new;
-                errorResponse.statusCode = 500;
-                errorResponse.setPayload(responseError.reason());
-                caller->respond(errorResponse) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        } else if (backendResponse is error) {
+            http:Response response = new;
+            response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+            string errCause = <string> backendResponse.detail().message;
+            response.setPayload(errCause);
+            var responseToCaller = caller->respond(response);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
             }
         }
     }
@@ -92,17 +86,20 @@ service<http:Service> mockHelloService bind serviceEndpoint1 {
                     foreach bodyPart in bodyParts {
                         if (bodyPart.hasHeader(mime:CONTENT_TYPE)
                             && bodyPart.getHeader(mime:CONTENT_TYPE).hasPrefix(http:MULTIPART_AS_PRIMARY_TYPE)) {
-                            var childParts = bodyPart.getBodyParts();
-                            if (childParts is mime:Entity[]) {
+                            var nestedParts = bodyPart.getBodyParts();
+                            if (nestedParts is error) {
+                                log:printError(<string> nestedParts.detail().message);
+                                response.setPayload("Error in decoding nested multiparts!");
+                                response.statusCode = 500;
+                            } else {
+                                mime:Entity[] childParts = nestedParts;
                                 foreach childPart in childParts {
-                                // When performing passthrough scenarios, message needs to be built before
-                                // invoking the endpoint to create a message datasource.
-                                var childBlobContent = childPart.getByteArray();
+                                    // When performing passthrough scenarios, message needs to be built before
+                                    // invoking the endpoint to create a message datasource.
+                                    var childBlobContent = childPart.getByteArray();
                                 }
                                 io:println(bodyPart.getContentType());
                                 bodyPart.setBodyParts(untaint childParts, contentType = untaint bodyPart.getContentType());
-                            } else if (childParts is error) {
-                                log:printError(childParts.reason());
                             }
                         } else {
                             var bodyPartBlobContent = bodyPart.getByteArray();
@@ -117,8 +114,10 @@ service<http:Service> mockHelloService bind serviceEndpoint1 {
             } else {
                 response.setPayload("Hello World!!!");
             }
-            caller->respond(response) but {
-                error e => log:printError("Error sending response from mock service", err = e) };
+            var responseToCaller = caller->respond(response);
+            if (responseToCaller is error) {
+                log:printError("Error sending response from mock service", err = responseToCaller);
+            }
         }
     }
 }

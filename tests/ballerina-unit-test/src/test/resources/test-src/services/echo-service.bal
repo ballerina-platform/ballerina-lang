@@ -16,7 +16,7 @@ endpoint http:NonListener echoEP {
 @http:ServiceConfig {basePath:"/echo"}
 service<http:Service> echo bind echoEP {
 
-    string serviceLevelStr;
+    string serviceLevelStr = "";
 
     string serviceLevelStringVar = "sample value";
 
@@ -50,7 +50,7 @@ service<http:Service> echo bind echoEP {
     }
     setString (endpoint conn, http:Request req) {
         http:Response res = new;
-        string payloadData;
+        string payloadData = "";
         var payload = req.getTextPayload();
         if (payload is error) {
             done;
@@ -116,10 +116,10 @@ service<http:Service> echo bind echoEP {
     }
     getFormParams (endpoint conn, http:Request req) {
         var params = req.getFormParams();
-        string name;
-        string team;
         http:Response res = new;
         if (params is map<string>) {
+            string name = "";
+            string team = "";
             if (params.hasKey("firstName")) {
                 name = params.firstName;
             }

@@ -49,12 +49,12 @@ service HelloWorld bind ep {
 }
 
 type Person record {
-    string name;
-    Address address;
+    string name = "";
+    Address address = {};
 };
 
 type Address record {
-    int postalCode;
-    string state;
-    string country;
+    int postalCode = 0;
+    string state = "";
+    string country = "";
 };

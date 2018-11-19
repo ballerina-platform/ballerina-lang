@@ -26,7 +26,7 @@ service HelloWorld3 bind ep3 {
     testIntArrayInput(endpoint caller, TestInt req) {
         io:println(req);
         int[] numbers = req.values;
-        int result;
+        int result = 0;
         foreach number in numbers {
             result = result + number;
         }
@@ -42,7 +42,7 @@ service HelloWorld3 bind ep3 {
     testStringArrayInput(endpoint caller, TestString req) {
         io:println(req);
         string[] values = req.values;
-        string result;
+        string result = "";
         foreach value in values {
             result = result + "," + value;
         }
@@ -58,7 +58,7 @@ service HelloWorld3 bind ep3 {
     testFloatArrayInput(endpoint caller, TestFloat req) {
         io:println(req);
         float[] values = req.values;
-        float result;
+        float result = 0.0;
         foreach value in values {
             result = result + value;
         }
@@ -74,7 +74,7 @@ service HelloWorld3 bind ep3 {
     testBooleanArrayInput(endpoint caller, TestBoolean req) {
         io:println(req);
         boolean[] values = req.values;
-        boolean result;
+        boolean result = false;
         foreach value in values {
             result = result || value;
         }
@@ -90,7 +90,7 @@ service HelloWorld3 bind ep3 {
     testStructArrayInput(endpoint caller, TestStruct req) {
         io:println(req);
         A[] values = req.values;
-        string result;
+        string result = "";
         foreach value in values {
             result = result + "," + value.name;
         }
@@ -162,25 +162,25 @@ service HelloWorld3 bind ep3 {
 }
 
 type TestInt record {
-    int[] values;
+    int[] values = [];
 };
 
 type TestString record {
-    string[] values;
+    string[] values = [];
 };
 
 type TestFloat record {
-    float[] values;
+    float[] values = [];
 };
 
 type TestBoolean record {
-    boolean[] values;
+    boolean[] values = [];
 };
 
 type TestStruct record {
-    A[] values;
+    A[] values = [];
 };
 
 type A record {
-    string name;
+    string name = "";
 };
