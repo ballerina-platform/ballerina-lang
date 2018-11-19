@@ -582,6 +582,38 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             validateRecordVariable(recordVariable);
         }
     }
+    private void handleDeclaredWithVar(BLangVariable variable, BType rhsType, SymbolEnv env) {
+        if (NodeKind.VARIABLE == variable.getKind()) {
+            BLangSimpleVariable simpleVariable = (BLangSimpleVariable) variable;
+            Name varName = names.fromIdNode(simpleVariable.name);
+            if (varName == Names.IGNORE) {
+                dlog.error(simpleVariable.pos, DiagnosticCode.UNDERSCORE_NOT_ALLOWED);
+                return;
+            }
+
+            simpleVariable.type = rhsType;
+
+            int ownerSymTag = env.scope.owner.tag;
+            if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
+                // This is a variable declared in a function, an action or a resource
+                // If the variable is parameter then the variable symbol is already defined
+                if (simpleVariable.symbol == null) {
+                    symbolEnter.defineNode(simpleVariable, env);
+                }
+            }
+        } else if (NodeKind.TUPLE_VARIABLE == variable.getKind()) {
+            BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
+            tupleVariable.type = rhsType;
+            if (!(checkTypeAndVarCountConsistency(tupleVariable, (BTupleType) tupleVariable.type))) {
+                return;
+            }
+            symbolEnter.defineNode(tupleVariable, env);
+        } else if (NodeKind.RECORD_VARIABLE == variable.getKind()) {
+            BLangRecordVariable recordVariable = (BLangRecordVariable) variable;
+            recordVariable.type = rhsType;
+            validateRecordVariable(recordVariable);
+        }
+    }
 
     private boolean checkTypeAndVarCountConsistency(BLangTupleVariable varNode) {
         BTupleType tupleTypeNode;
@@ -1268,19 +1300,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangForeach foreach) {
-        // Todo - Support tuple and record variables.
-        // Note - Only consider simple variable definitions in the first phase.
-        VariableNode variable = foreach.variableDefinitionNode.getVariable();
-        if (variable.getKind() != NodeKind.VARIABLE) {
-            dlog.error(foreach.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION);
-            return;
-        }
-
         typeChecker.checkExpr(foreach.collection, env);
 
         foreach.varType = types.checkForeachTypeBindingPatternTypes(foreach.collection);
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(foreach.body, env);
-        handleForeachVariables(foreach, foreach.varType, blockEnv);
+        handleForeachVariables(foreach, blockEnv);
         analyzeStmt(foreach.body, blockEnv);
     }
 
@@ -2230,25 +2254,55 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void handleForeachVariables(BLangForeach foreachStmt, BType varType, SymbolEnv env) {
+    private void handleForeachVariables(BLangForeach foreachStmt, SymbolEnv env) {
 
-        BLangSimpleVariable variable = (BLangSimpleVariable) foreachStmt.variableDefinitionNode.getVariable();
+        BLangVariable variableNode = (BLangVariable) foreachStmt.variableDefinitionNode.getVariable();
 
-        Name name = names.fromIdNode(variable.name);
-        BSymbol symbol = symResolver.lookupSymbol(env, name, SymTag.VARIABLE);
-        if (symbol != symTable.notFoundSymbol) {
-            dlog.error(variable.pos, DiagnosticCode.REDECLARED_SYMBOL, name);
-            return;
-        }
 
-        if (!foreachStmt.isDeclaredWithVar) {
-            BType typeNodeType = symResolver.resolveTypeNode(variable.typeNode, env);
-            if (!types.isAssignable(varType, typeNodeType)) {
-                dlog.error(variable.typeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES, varType, typeNodeType);
+        if (foreachStmt.isDeclaredWithVar) {
+            handleDeclaredWithVar(variableNode, foreachStmt.varType, env);
+        } else {
+            BType typeNodeType = symResolver.resolveTypeNode(variableNode.typeNode, env);
+            if (!types.isAssignable(foreachStmt.varType, typeNodeType)) {
+                dlog.error(variableNode.typeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES, foreachStmt.varType,
+                        typeNodeType);
+                handleDeclaredWithVar(variableNode, typeNodeType, env);
+
+
                 return;
             }
+            handleDeclaredWithVar(variableNode, foreachStmt.varType, env);
+            //            variableNode.symbol = symbolEnter.defineVarSymbol(variableNode.pos, Collections.emptySet(),
+            //                    foreachStmt.varType, name, env);
         }
-        variable.symbol = symbolEnter.defineVarSymbol(variable.pos, Collections.emptySet(), varType, name, env);
+
+
+        //        if (variableNode.getKind() == NodeKind.VARIABLE) {
+        //            BLangSimpleVariable variable = (BLangSimpleVariable) variableNode;
+        //            Name name = names.fromIdNode(variable.name);
+        //            BSymbol symbol = symResolver.lookupSymbol(env, name, SymTag.VARIABLE);
+        //            if (symbol != symTable.notFoundSymbol) {
+        //                dlog.error(variable.pos, DiagnosticCode.REDECLARED_SYMBOL, name);
+        //                return;
+        //            }
+        //            if (!foreachStmt.isDeclaredWithVar) {
+        //                BType typeNodeType = symResolver.resolveTypeNode(variable.typeNode, env);
+        //                if (!types.isAssignable(foreachStmt.varType, typeNodeType)) {
+        //                    dlog.error(variable.typeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES, foreachStmt.varType,
+        //                            typeNodeType);
+        //                    return;
+        //                }
+        //            }
+        //            variable.symbol = symbolEnter.defineVarSymbol(variable.pos, Collections.emptySet(), foreachStmt
+        // .varType,
+        //                    name, env);
+        //        } else if (variableNode.getKind() == NodeKind.TUPLE_VARIABLE) {
+        //            BLangTupleVariable variable = (BLangTupleVariable) variableNode;
+        //            analyzeNode(variable, env);
+        //        } else if (variableNode.getKind() == NodeKind.RECORD_VARIABLE) {
+        //            BLangRecordVariable variable = (BLangRecordVariable) variableNode;
+        //            analyzeNode(variable, env);
+        //        }
     }
 
     private void checkRetryStmtValidity(BLangExpression retryCountExpr) {

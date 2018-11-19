@@ -2318,13 +2318,13 @@ public class BLangPackageBuilder {
 
     void addForeachStatementWithRecordVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws,
                                                            boolean isDeclaredWithVar) {
-        BLangTupleVariableDef variableDefinitionNode = createTupleVariableDef(pos, ws, false, isDeclaredWithVar);
+        BLangRecordVariableDef variableDefinitionNode = createRecordVariableDef(pos, ws, false, isDeclaredWithVar);
         addForeachStatement(pos, ws, variableDefinitionNode, isDeclaredWithVar);
     }
 
     void addForeachStatementWithTupleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws,
                                                           boolean isDeclaredWithVar) {
-        BLangRecordVariableDef variableDefinitionNode = createRecordVariableDef(pos, ws, false, isDeclaredWithVar);
+        BLangTupleVariableDef variableDefinitionNode = createTupleVariableDef(pos, ws, false, isDeclaredWithVar);
         addForeachStatement(pos, ws, variableDefinitionNode, isDeclaredWithVar);
     }
 
@@ -2335,8 +2335,8 @@ public class BLangPackageBuilder {
         foreach.pos = pos;
         foreach.setVariableDefinitionNode(variableDefinitionNode);
         foreach.setCollection(this.exprNodeStack.pop());
-        foreach.isDeclaredWithVar= isDeclaredWithVar;
-        
+        foreach.isDeclaredWithVar = isDeclaredWithVar;
+
         BLangBlockStmt foreachBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         foreachBlock.pos = pos;
         foreach.setBody(foreachBlock);

@@ -28,6 +28,7 @@ import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
+import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
@@ -1702,7 +1703,7 @@ public class Desugar extends BLangNodeVisitor {
                                                         BType lengthFunctionSourceType, BType valueType) {
         // Get the symbol from the collection.
         // Get the variable definition from the foreach statement.
-        BLangSimpleVariableDef variableDefinitionNode = (BLangSimpleVariableDef) foreach.variableDefinitionNode;
+        VariableDefinitionNode variableDefinitionNode = foreach.variableDefinitionNode;
 
         // Note - int $index$ = 0; -------------------------------------------------------------------------------------
 
@@ -1795,11 +1796,28 @@ public class Desugar extends BLangNodeVisitor {
         tupleExpression.expressions.add(dataAccessExpression);
         tupleExpression.type = foreach.varType;
 
-        // Update the variable by setting the type and the expression. i.e.- T i; -> T i = ($index$, data[$key$]);
-        variableDefinitionNode.var.expr = tupleExpression;
+        if (variableDefinitionNode.getVariable().getKind() == NodeKind.VARIABLE) {
+            // Update the variable by setting the type and the expression. i.e.- T i; -> T i = ($index$, data[$key$]);
+            BLangSimpleVariableDef simpleVariableDef = (BLangSimpleVariableDef) variableDefinitionNode;
+            simpleVariableDef.var.expr = tupleExpression;
 
-        // Add the variable definition to the top of the while node's body statements.
-        whileNode.body.stmts.add(1, variableDefinitionNode);
+            // Add the variable definition to the top of the while node's body statements.
+            whileNode.body.stmts.add(1, simpleVariableDef);
+        } else if (variableDefinitionNode.getVariable().getKind() == NodeKind.TUPLE_VARIABLE) {
+            // Update the variable by setting the type and the expression. i.e.- T i; -> T i = ($index$, data[$key$]);
+            BLangTupleVariableDef tupleVariableDef = (BLangTupleVariableDef) variableDefinitionNode;
+            tupleVariableDef.var.expr = tupleExpression;
+
+            // Add the variable definition to the top of the while node's body statements.
+            whileNode.body.stmts.add(1, tupleVariableDef);
+        } else if (variableDefinitionNode.getVariable().getKind() == NodeKind.RECORD_VARIABLE) {
+            // Update the variable by setting the type and the expression. i.e.- T i; -> T i = ($index$, data[$key$]);
+            BLangRecordVariableDef recordVariableDef = (BLangRecordVariableDef) variableDefinitionNode;
+            recordVariableDef.var.expr = tupleExpression;
+
+            // Add the variable definition to the top of the while node's body statements.
+            whileNode.body.stmts.add(1, recordVariableDef);
+        }
 
         // Note - $index$ += 1; (i.e. - $index$ = $index$ + 1;) --------------------------------------------------------
 
