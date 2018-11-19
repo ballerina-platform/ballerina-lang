@@ -109,9 +109,9 @@ public function cloneXML() returns (xml, xml, xml) {
 
 public function cloneMap() returns (map, map, map) {
 
-    map<map<map<json>>> a;
-    map<map<json>> b;
-    map<json> c;
+    map<map<map<json>>> a = {};
+    map<map<json>> b = {};
+    map<json> c = {};
     c["xxx"] = {"id": 123, "name": "Alex", "age": 21};
     b["yyy"] = c;
     a["zzz"] = b;
@@ -240,7 +240,7 @@ public function cloneNilableInt() returns (any, any, any, any, any, any) {
 }
 
 public function cloneTuple() returns ((map, int[]), (map, int[]), (map, int[])) {
-    map<int> m;
+    map<int> m = {};
     m["one"] = 100;
     int[] arr = [200];
     (map<int>, int[]) a = (m, arr);
@@ -311,7 +311,7 @@ public function cloneCyclicRecord() returns (any, any) {
 }
 
 public function cloneCyclicArray() returns (any, any) {
-    A[] arr;
+    A[] arr = [];
     int[] x = [10, 20, 30, 40];
     arr[0] = { a: 1, arr: [1, 2, 3, 4] };
     arr[1] = { a: 2, arr: [1, 2, 3, 4, 5] };
@@ -326,8 +326,8 @@ public function cloneCyclicArray() returns (any, any) {
 }
 
 public function cloneCyclicMapsArray() returns (any, any) {
-    map<anydata> x;
-    map<anydata> y;
+    map<anydata> x = {};
+    map<anydata> y = {};
     x["1"] = y;
     y["1"] = x;
     map<anydata>[] xx = [x, y];
