@@ -53,7 +53,7 @@ public class DocumentSymbolTest {
     }
     
     @Test(description = "Test the Document symbol", dataProvider = "document-data-provider")
-    public void testWorkspaceSymbol(String config, String source) throws IOException {
+    public void testDocumentSymbol(String config, String source) throws IOException {
         String configJsonPath = "docsymbol" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
         TestUtil.openDocument(serviceEndpoint, sourcePath);
