@@ -62,16 +62,16 @@ export function isCheckExpr(node: ASTNode) {
   return node.kind === "CheckExpr";
 }
 
-export function isCompensate(node: ASTNode) {
-  return node.kind === "Compensate";
-}
-
 export function isCompilationUnit(node: ASTNode) {
   return node.kind === "CompilationUnit";
 }
 
 export function isCompoundAssignment(node: ASTNode) {
   return node.kind === "CompoundAssignment";
+}
+
+export function isConstant(node: ASTNode) {
+  return node.kind === "Constant";
 }
 
 export function isConstrainedType(node: ASTNode) {
@@ -102,6 +102,14 @@ export function isEndpoint(node: ASTNode) {
   return node.kind === "Endpoint";
 }
 
+export function isErrorConstructor(node: ASTNode) {
+  return node.kind === "ErrorConstructor";
+}
+
+export function isErrorType(node: ASTNode) {
+  return node.kind === "ErrorType";
+}
+
 export function isExpressionStatement(node: ASTNode) {
   return node.kind === "ExpressionStatement";
 }
@@ -116,10 +124,6 @@ export function isFiniteTypeNode(node: ASTNode) {
 
 export function isForeach(node: ASTNode) {
   return node.kind === "Foreach";
-}
-
-export function isForever(node: ASTNode) {
-  return node.kind === "Forever";
 }
 
 export function isForkJoin(node: ASTNode) {
@@ -138,10 +142,6 @@ export function isGroupBy(node: ASTNode) {
   return node.kind === "GroupBy";
 }
 
-export function isHaving(node: ASTNode) {
-  return node.kind === "Having";
-}
-
 export function isIdentifier(node: ASTNode) {
   return node.kind === "Identifier";
 }
@@ -158,10 +158,6 @@ export function isIndexBasedAccessExpr(node: ASTNode) {
   return node.kind === "IndexBasedAccessExpr";
 }
 
-export function isIntRangeExpr(node: ASTNode) {
-  return node.kind === "IntRangeExpr";
-}
-
 export function isInvocation(node: ASTNode) {
   return node.kind === "Invocation";
 }
@@ -172,10 +168,6 @@ export function isJoinStreamingInput(node: ASTNode) {
 
 export function isLambda(node: ASTNode) {
   return node.kind === "Lambda";
-}
-
-export function isLimit(node: ASTNode) {
-  return node.kind === "Limit";
 }
 
 export function isLiteral(node: ASTNode) {
@@ -202,8 +194,8 @@ export function isMatchExpressionPatternClause(node: ASTNode) {
   return node.kind === "MatchExpressionPatternClause";
 }
 
-export function isMatchPatternClause(node: ASTNode) {
-  return node.kind === "MatchPatternClause";
+export function isMatchTypedPatternClause(node: ASTNode) {
+  return node.kind === "MatchTypedPatternClause";
 }
 
 export function isNamedArgsExpr(node: ASTNode) {
@@ -226,20 +218,8 @@ export function isOrderByVariable(node: ASTNode) {
   return node.kind === "OrderByVariable";
 }
 
-export function isOutputRateLimit(node: ASTNode) {
-  return node.kind === "OutputRateLimit";
-}
-
-export function isPatternClause(node: ASTNode) {
-  return node.kind === "PatternClause";
-}
-
-export function isPatternStreamingEdgeInput(node: ASTNode) {
-  return node.kind === "PatternStreamingEdgeInput";
-}
-
-export function isPatternStreamingInput(node: ASTNode) {
-  return node.kind === "PatternStreamingInput";
+export function isPanic(node: ASTNode) {
+  return node.kind === "Panic";
 }
 
 export function isRecordLiteralExpr(node: ASTNode) {
@@ -252,6 +232,10 @@ export function isRecordLiteralKeyValue(node: ASTNode) {
 
 export function isRecordType(node: ASTNode) {
   return node.kind === "RecordType";
+}
+
+export function isRecordVariableRef(node: ASTNode) {
+  return node.kind === "RecordVariableRef";
 }
 
 export function isResource(node: ASTNode) {
@@ -270,10 +254,6 @@ export function isReturn(node: ASTNode) {
   return node.kind === "Return";
 }
 
-export function isScope(node: ASTNode) {
-  return node.kind === "Scope";
-}
-
 export function isSelectClause(node: ASTNode) {
   return node.kind === "SelectClause";
 }
@@ -290,16 +270,8 @@ export function isSimpleVariableRef(node: ASTNode) {
   return node.kind === "SimpleVariableRef";
 }
 
-export function isStreamAction(node: ASTNode) {
-  return node.kind === "StreamAction";
-}
-
 export function isStreamingInput(node: ASTNode) {
   return node.kind === "StreamingInput";
-}
-
-export function isStreamingQuery(node: ASTNode) {
-  return node.kind === "StreamingQuery";
 }
 
 export function isStringTemplateLiteral(node: ASTNode) {
@@ -334,6 +306,10 @@ export function isTransaction(node: ASTNode) {
   return node.kind === "Transaction";
 }
 
+export function isTrapExpr(node: ASTNode) {
+  return node.kind === "TrapExpr";
+}
+
 export function isTry(node: ASTNode) {
   return node.kind === "Try";
 }
@@ -346,6 +322,14 @@ export function isTupleTypeNode(node: ASTNode) {
   return node.kind === "TupleTypeNode";
 }
 
+export function isTupleVariable(node: ASTNode) {
+  return node.kind === "TupleVariable";
+}
+
+export function isTupleVariableRef(node: ASTNode) {
+  return node.kind === "TupleVariableRef";
+}
+
 export function isTypeConversionExpr(node: ASTNode) {
   return node.kind === "TypeConversionExpr";
 }
@@ -356,6 +340,10 @@ export function isTypeDefinition(node: ASTNode) {
 
 export function isTypeInitExpr(node: ASTNode) {
   return node.kind === "TypeInitExpr";
+}
+
+export function isTypeTestExpr(node: ASTNode) {
+  return node.kind === "TypeTestExpr";
 }
 
 export function isTypedescExpression(node: ASTNode) {
@@ -392,14 +380,6 @@ export function isWhere(node: ASTNode) {
 
 export function isWhile(node: ASTNode) {
   return node.kind === "While";
-}
-
-export function isWindowClause(node: ASTNode) {
-  return node.kind === "WindowClause";
-}
-
-export function isWithin(node: ASTNode) {
-  return node.kind === "Within";
 }
 
 export function isWorker(node: ASTNode) {
