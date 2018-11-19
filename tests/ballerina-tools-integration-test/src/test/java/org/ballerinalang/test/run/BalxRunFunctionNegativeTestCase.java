@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static org.ballerinalang.test.utils.PackagingTestUtils.deleteFiles;
 
@@ -55,8 +56,8 @@ public class BalxRunFunctionNegativeTestCase extends BaseTest {
         // set up for testInvalidSourceArg
         tempProjectDir = Files.createTempDirectory("temp-entry-func-test");
         String fileName = "test_entry_function.bal";
-        String[] clientArgs = {"-o", tempProjectDir.toString().concat(File.separator).concat("entry"),
-                sourceRoot.concat(File.separator).concat(fileName)};
+        String[] clientArgs = {"-o", Paths.get(tempProjectDir.toString(), "entry").toString(),
+                new File(sourceRoot + "/"  + fileName).getAbsolutePath()};
         balClient.runMain("build", clientArgs, null, new String[0],
                 new LogLeecher[0], tempProjectDir.toString());
         Path generatedBalx = tempProjectDir.resolve("entry.balx");
@@ -78,9 +79,8 @@ public class BalxRunFunctionNegativeTestCase extends BaseTest {
     public void testWrongEntryFunctionNameWithColons() throws BallerinaTestException {
         String fileName = "test_entry_function_with_colons.bal";
         String[] clientArgs = {"-o",
-                tempProjectDirTwo.toString().concat(File.separator).concat("test_entry_function_with_colons"),
-                (new File("src/test/resources/run/balx/complex")).getAbsolutePath().concat(File.separator)
-                        .concat(fileName)};
+                Paths.get(tempProjectDirTwo.toString(), "test_entry_function_with_colons").toString(),
+                new File("src/test/resources/run/balx/complex/" + fileName).getAbsolutePath()};
         balClient.runMain("build", clientArgs, null, new String[0], new LogLeecher[0],
                           tempProjectDirTwo.toString());
         Path generatedBalx = tempProjectDirTwo.resolve(fileName.replace("bal", "balx"));

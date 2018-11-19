@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static org.ballerinalang.test.utils.PackagingTestUtils.deleteFiles;
 
@@ -57,10 +58,10 @@ public class BalxRunFunctionPositiveTestCase extends BaseTest {
         // set up for testMainWithNoReturn, testNoArg, testMultipleParams
         tempProjectDir = Files.createTempDirectory("temp-entry-func-test");
         String fileName = "test_entry_function.bal";
-        String[] clientArgs = {"-o", tempProjectDir.toString().concat(File.separator).concat("entry"),
-                                sourceRoot.concat(File.separator).concat(fileName)};
+        String[] clientArgs = {"-o", Paths.get(tempProjectDir.toString(), "entry").toString(),
+                new File(sourceRoot + "/"  + fileName).getAbsolutePath()};
         balClient.runMain("build", clientArgs, null, new String[0],
-                new LogLeecher[0], tempProjectDir.toString());
+                          new LogLeecher[0], tempProjectDir.toString());
         Path generatedBalx = tempProjectDir.resolve("entry.balx");
         balxPath = generatedBalx.toString();
         // create a temp directory for testFunctionNameWithColons
@@ -104,10 +105,8 @@ public class BalxRunFunctionPositiveTestCase extends BaseTest {
     public void testFunctionNameWithColons() throws BallerinaTestException {
         String arg = "test arg";
         String fileName = "test_entry_function_with_colons.bal";
-        String[] args = {"-o",
-                tempProjectDirTwo.toString().concat(File.separator).concat("test_entry_function_with_colons"),
-                (new File("src/test/resources/run/balx/complex")).getAbsolutePath().concat(File.separator)
-                        .concat(fileName)};
+        String[] args = {"-o", Paths.get(tempProjectDirTwo.toString(), "test_entry_function_with_colons").toString(),
+                new File("src/test/resources/run/balx/complex/" + fileName).getAbsolutePath()};
         balClient.runMain("build", args, null, new String[0], new LogLeecher[0], tempProjectDirTwo.toString());
         Path generatedBalx = tempProjectDirTwo.resolve(fileName.replace("bal", "balx"));
         String sourceArg = generatedBalx.toString() + ":colonsInName:Function";
