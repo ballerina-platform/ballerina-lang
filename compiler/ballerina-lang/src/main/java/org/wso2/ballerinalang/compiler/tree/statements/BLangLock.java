@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangStructFieldAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -71,10 +72,10 @@ public class BLangLock extends BLangStatement implements LockNode {
     }
 
     public void addFieldVariable(BLangStructFieldAccessExpr expr) {
-        fieldVariables.putIfAbsent((BVarSymbol) expr.expr.symbol,
+        fieldVariables.putIfAbsent((BVarSymbol) ((BLangVariableReference) expr.expr).symbol,
                 new HashSet<>());
 
-        Set<BLangStructFieldAccessExpr> exprList = fieldVariables.get(expr.expr.symbol);
+        Set<BLangStructFieldAccessExpr> exprList = fieldVariables.get(((BLangVariableReference) expr.expr).symbol);
 
         // remove the existing one to avoid duplicates if same field already exist
         exprList.removeIf(fieldExpr ->
