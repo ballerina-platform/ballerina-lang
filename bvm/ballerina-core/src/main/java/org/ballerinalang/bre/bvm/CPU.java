@@ -1722,49 +1722,27 @@ public class CPU {
 
                 switch (mapType.getTag()) {
                     case TypeTags.MAP_TAG:
-                    case TypeTags.OBJECT_TYPE_TAG:
                         if (isValidMapInsertion(mapType, value)) {
-                            try {
-                                bMap.put(sf.stringRegs[j], value);
-                            } catch (BLangFreezeException e) {
-                                // we would only reach here for record or map, not for object
-                                String errMessage = "";
-                                switch (bMap.getType().getTag()) {
-                                    case TypeTags.RECORD_TYPE_TAG:
-                                        errMessage = "Invalid update of record field: ";
-                                        break;
-                                    case TypeTags.MAP_TAG:
-                                        errMessage = "Invalid map insertion: ";
-                                        break;
-                                }
-                                ctx.setError(BLangVMErrors.createError(ctx, errMessage + e.getMessage()));
-                                handleError(ctx);
-                            }
+                            insertToMap(ctx, bMap, sf.stringRegs[j], value);
                         } else {
                             expType = ((BMapType) mapType).getConstrainedType();
                         }
                         break;
                     case TypeTags.RECORD_TYPE_TAG:
-                        BRecordType recordType = (BRecordType) mapType;
-                        BField targetField = recordType.getFields().get(sf.stringRegs[j]);
-                        BType targetFieldType = targetField == null ? recordType.restFieldType : targetField.fieldType;
-                        if (checkCast(value, targetFieldType, new ArrayList<>())) {
-                            try {
-                                bMap.put(sf.stringRegs[j], value);
-                            } catch (BLangFreezeException e) {
-                                // we would only reach here for record or map, not for object
-                                String errMessage = "";
-                                switch (bMap.getType().getTag()) {
-                                    case TypeTags.RECORD_TYPE_TAG:
-                                        errMessage = "Invalid update of record field: ";
-                                        break;
-                                    case TypeTags.MAP_TAG:
-                                        errMessage = "Invalid map insertion: ";
-                                        break;
-                                }
-                                ctx.setError(BLangVMErrors.createError(ctx, errMessage + e.getMessage()));
-                                handleError(ctx);
-                            }
+                    case TypeTags.OBJECT_TYPE_TAG:
+                        BStructureType structureType = (BStructureType) mapType;
+                        BField targetField = structureType.getFields().get(sf.stringRegs[j]);
+                        BType targetFieldType;
+
+                        if (structureType.getTag() == TypeTags.RECORD_TYPE_TAG) {
+                            targetFieldType = targetField == null ? ((BRecordType) structureType).restFieldType :
+                                                                    targetField.fieldType;
+                        } else {
+                            targetFieldType = targetField.getFieldType();
+                        }
+
+                        if (checkIsType(value.getType(), targetFieldType, new ArrayList<>())) {
+                            insertToMap(ctx, bMap, sf.stringRegs[j], value);
                         } else {
                             expType = targetFieldType;
                         }
@@ -4084,12 +4062,27 @@ public class CPU {
 
     }
 
+    private static void insertToMap(WorkerExecutionContext ctx, BMap bMap, String fieldName, BValue value) {
+        try {
+            bMap.put(fieldName, value);
+        } catch (BLangFreezeException e) {
+            // we would only reach here for record or map, not for object
+            String errMessage = "";
+            switch (bMap.getType().getTag()) {
+                case TypeTags.RECORD_TYPE_TAG:
+                    errMessage = "Invalid update of record field: ";
+                    break;
+                case TypeTags.MAP_TAG:
+                    errMessage = "Invalid map insertion: ";
+                    break;
+            }
+            ctx.setError(BLangVMErrors.createError(ctx, errMessage + e.getMessage()));
+            handleError(ctx);
+        }
+    }
+
     private static boolean isValidMapInsertion(BType mapType, BValue value) {
         if (value == null) {
-            return true;
-        }
-
-        if (mapType.getTag() == TypeTags.OBJECT_TYPE_TAG) {
             return true;
         }
 
