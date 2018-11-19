@@ -197,11 +197,12 @@ Definition ::= ( TypeDefinition
                | FunctionDefinition
                | AnnotationDefinition
                | GlobalEndpointDefinition
+               | ConstantDefinition
                ) {
     recoverWhile=TopLevelDefinitionRecover
 }
 
-private TopLevelDefinitionRecover ::= !(MARKDOWN_DOCUMENTATION_LINE_START|PARAMETER_DOCUMENTATION_START|RETURN_PARAMETER_DOCUMENTATION_START|DEPRECATED_TEMPLATE_START|'@'|extern|public|type|typedesc|service|function|enum|annotation|endpoint|int|float|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|channel|future|identifier|'{')
+private TopLevelDefinitionRecover ::= !(MARKDOWN_DOCUMENTATION_LINE_START|PARAMETER_DOCUMENTATION_START|RETURN_PARAMETER_DOCUMENTATION_START|DEPRECATED_TEMPLATE_START|'@'|extern|public|type|typedesc|service|function|enum|annotation|endpoint|int|float|decimal|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|channel|const|future|identifier|'{')
 
 ServiceDefinition ::= service (LT NameReference GT)? identifier ServiceEndpointAttachments?  ServiceBody {pin=1}
 ServiceEndpointAttachments ::= bind (NameReference (COMMA NameReference)* | RecordLiteral) {pin=1}
@@ -209,7 +210,7 @@ ServiceBody ::= LEFT_BRACE (/*ResourceDefinition+ | EndpointDefinition+ Resource
 
 // Note - Always sync with VariableDefinitionStatement
 VariableDefinitionStatementInService ::= TypeName identifier VariableAssignment? SEMICOLON {pin(".*")=2 elementType=VariableDefinitionStatement}
-ResourceDefinition ::=  documentationString? AnnotationAttachment* deprecatedAttachment? identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS CallableUnitBody {pin=4}
+ResourceDefinition ::=  documentationString? AnnotationAttachment* deprecatedAttachment? identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS ReturnParameter? CallableUnitBody {pin=4}
 resourceParameterList ::= endpointParameter | ParameterList
 endpointParameter ::= endpoint identifier (COMMA ParameterList)? {pin(".*")=1}
 
@@ -228,8 +229,8 @@ BlockWithEndpointAndWorker ::= EndpointDefinition* WorkerDefinition+ {elementTyp
 FunctionDefinition ::= (public)? (extern)? function (FunctionWithoutReceiver | FunctionWithReceiver) {
     pin=3 methods=[getIdentifier getName] stubClass="io.ballerina.plugins.idea.stubs.BallerinaFunctionDefinitionStub"
 }
-private FunctionWithReceiver ::=  (TypeName DOUBLE_COLON)? CallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=2}
-private FunctionWithoutReceiver ::= AttachedObject DOUBLE_COLON CallableUnitSignature CallableUnitBody {pin=2}
+private FunctionWithReceiver ::=  (TypeName DOT)? CallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=2}
+private FunctionWithoutReceiver ::= AttachedObject DOT CallableUnitSignature CallableUnitBody {pin=2}
 
 AttachedObject ::= identifier
 
@@ -278,10 +279,15 @@ ObjectDefaultableParameter ::= ObjectParameter ASSIGN Expression
 
 ObjectFunctionDefinition ::= documentationString? AnnotationAttachment* deprecatedAttachment? (public)? (extern)? function CallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=6}
 
+//TODO merge with callableUnitSignature later
+ObjectCallableUnitSignature ::= AnyIdentifierName LEFT_PARENTHESIS FormalParameterList? RIGHT_PARENTHESIS ReturnParameter? {pin=1}
+
 AnnotationDefinition ::= (public)? annotation (LT AttachmentPoint (COMMA AttachmentPoint)* GT)? identifier UserDefineTypeName? SEMICOLON {
     pin=2
     stubClass="io.ballerina.plugins.idea.stubs.BallerinaAnnotationDefinitionStub"
 }
+
+ConstantDefinition ::= PUBLIC? CONST TypeName? identifier ASSIGN Expression SEMICOLON {pin=2}
 
 //private AttachmentPointsRecover ::= !(GT | Identifier | SEMICOLON)
 
@@ -361,7 +367,7 @@ TupleTypeName ::= LEFT_PARENTHESIS TypeName (COMMA TypeName)* RIGHT_PARENTHESIS
 ObjectTypeName ::= abstract? object LEFT_BRACE ObjectBody RIGHT_BRACE {pin=2}
 RecordTypeName ::= record? LEFT_BRACE RecordFieldDefinitionList RIGHT_BRACE
 
-RecordFieldDefinitionList ::= FieldDefinition* RecordRestFieldDefinition?
+RecordFieldDefinitionList ::= (FieldDefinition | TypeReference)* RecordRestFieldDefinition?
 
 //BuiltInTypeName ::= AnyTypeName
 //                    | SimpleTypeName (LEFT_BRACKET RIGHT_BRACKET)+
@@ -374,7 +380,7 @@ ReferenceTypeName ::= BuiltInReferenceTypeName
 
 UserDefineTypeName ::= NameReference
 
-ValueTypeName ::=   boolean | int | float | string | byte
+ValueTypeName ::=   boolean | int | float | decimal | string | byte
 
 BuiltInReferenceTypeName ::= MapTypeName
                              | FutureTypeName
@@ -438,7 +444,7 @@ Statement ::=
 // Todo - Add more tokens (for record destructuring and panic)
 // Note - Literals are added for worker interactions - 10 -> w2;
 // NULL_LITERAL is added for match pattern -  null => return "error";
-private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|boolean|byte|any|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|await|var|while|match|foreach|continue|break|fork|try|throw|return|abort|retry|fail|lock|transaction|if|forever|object|check|error|panic|from|worker|done|identifier)
+private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|decimal|boolean|byte|any|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|await|var|const|while|match|foreach|continue|break|fork|try|throw|return|abort|retry|fail|lock|transaction|if|forever|object|check|error|panic|from|worker|done|identifier)
 
 //private StatementRecover ::= !(/*'!' | '&' | '(' | '*' | '+' | '-' |*/ ';' /*| '<-' | '^' | 'type' |*/ /*'{' | '|' |*/ '|=' | '||' | '}' | /*break | case | char | continue | decimali | default | defer | else | fallthrough | float | floati | for | func | go | goto | hex |*/ identifier | /* if | interface | map | oct | return | select |*/ string  | /*struct | switch | var | continue |try |*/ int )
 
@@ -945,6 +951,10 @@ GroupByClause ::= group by VariableReferenceList {pin=1}
 HavingClause ::= having Expression {pin=1}
 
 StreamingAction ::= EQUAL_GT LEFT_PARENTHESIS Parameter RIGHT_PARENTHESIS LEFT_BRACE Block RIGHT_BRACE {pin=1}
+
+SetClause ::= set SetAssignmentClause (COMMA SetAssignmentClause)* {pin=1}
+
+SetAssignmentClause ::= VariableReference ASSIGN Expression
 
 StreamingInput ::= VariableReference WhereClause? FunctionInvocation* WindowClause? FunctionInvocation* WhereClause? (as identifier)? {pin=1}
 
