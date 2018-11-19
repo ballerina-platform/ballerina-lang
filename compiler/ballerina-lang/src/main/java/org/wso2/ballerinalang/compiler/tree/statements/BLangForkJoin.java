@@ -18,15 +18,9 @@
 package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.SimpleVariableNode;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.ForkJoinNode;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,60 +34,14 @@ import java.util.List;
 public class BLangForkJoin extends BLangStatement implements ForkJoinNode {
 
     public List<BLangWorker> workers;
-    public List<BLangIdentifier> joinedWorkers;
-    public JoinType joinType = JoinType.ALL;
-    public int joinedWorkerCount;
-    public BLangBlockStmt joinedBody;
-
-    public BLangExpression timeoutExpression;
-    public BLangSimpleVariable timeoutVariable;
-    public BLangBlockStmt timeoutBody;
-    
-    public BLangSimpleVariable joinResultVar;
 
     public BLangForkJoin() {
         this.workers = new ArrayList<>();
-        this.joinedWorkers = new ArrayList<>();
     }
 
     @Override
     public List<BLangWorker> getWorkers() {
         return workers;
-    }
-
-    @Override
-    public List<BLangIdentifier> getJoinedWorkerIdentifiers() {
-        return joinedWorkers;
-    }
-
-    @Override
-    public JoinType getJoinType() {
-        return joinType;
-    }
-
-    @Override
-    public int getJoinCount() {
-        return joinedWorkerCount;
-    }
-
-    @Override
-    public BlockNode getJoinBody() {
-        return joinedBody;
-    }
-
-    @Override
-    public ExpressionNode getTimeOutExpression() {
-        return timeoutExpression;
-    }
-
-    @Override
-    public SimpleVariableNode getTimeOutVariable() {
-        return timeoutVariable;
-    }
-
-    @Override
-    public BlockNode getTimeoutBody() {
-        return timeoutBody;
     }
 
     @Override
@@ -108,22 +56,6 @@ public class BLangForkJoin extends BLangStatement implements ForkJoinNode {
 
     @Override
     public String toString() {
-        return "BLangForkJoin: " + Arrays.toString(workers.toArray()) +
-                (joinedBody != null ? " Join: " + joinType + " " + joinedWorkerCount + " " +
-                        (joinedWorkers.isEmpty() ? "" : Arrays.toString(joinedWorkers.toArray())) +
-                        " (" + joinResultVar + ") {" + joinedBody + "}" : "") +
-                (timeoutBody != null ? " Timeout: (" + timeoutExpression + ") (" + timeoutVariable + ")"
-                        + " {" + timeoutBody + "}" : "");
+        return "BLangForkJoin: " + Arrays.toString(workers.toArray());
     }
-
-    @Override
-    public SimpleVariableNode getJoinResultVar() {
-        return (BLangSimpleVariable) joinResultVar;
-    }
-
-    @Override
-    public void setJoinResultVar(SimpleVariableNode var) {
-        this.joinResultVar = (BLangSimpleVariable) var;
-    }
-    
 }

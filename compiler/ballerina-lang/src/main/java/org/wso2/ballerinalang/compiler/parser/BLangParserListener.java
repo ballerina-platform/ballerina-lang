@@ -47,7 +47,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
-import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.UNSEALED_ARRAY_INDICATOR;
@@ -1572,77 +1571,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.addForkJoinStmt(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    @Override
-    public void enterJoinClause(BallerinaParser.JoinClauseContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.startJoinCause();
-    }
-
-    @Override
-    public void exitJoinClause(BallerinaParser.JoinClauseContext ctx) {
-        this.pkgBuilder.addJoinCause(this.getWS(ctx), ctx.Identifier().getText());
-    }
-
-    @Override
-    public void exitAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        List<String> workerNames = new ArrayList<>();
-        if (ctx.Identifier() != null) {
-            workerNames = ctx.Identifier().stream().map(TerminalNode::getText).collect(Collectors.toList());
-        }
-        int joinCount = 0;
-        Object value;
-        if ((value = getIntegerLiteral(ctx, ctx.integerLiteral())) != null) {
-            if (value instanceof Long) {
-                try {
-                    joinCount = ((Long) value).intValue();
-                } catch (NumberFormatException ex) {
-                    // When ctx.IntegerLiteral() is not a string or missing, compilation fails due to
-                    // NumberFormatException.
-                    // Hence catching the error and ignore. Still Parser complains about missing IntegerLiteral.
-                }
-            }
-        }
-        this.pkgBuilder.addJoinCondition(getWS(ctx), "SOME", workerNames, joinCount);
-    }
-
-    @Override
-    public void exitAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        List<String> workerNames = new ArrayList<>();
-        if (ctx.Identifier() != null) {
-            workerNames = ctx.Identifier().stream().map(TerminalNode::getText).collect(Collectors.toList());
-        }
-        this.pkgBuilder.addJoinCondition(getWS(ctx), "ALL", workerNames, -1);
-    }
-
-    @Override
-    public void enterTimeoutClause(BallerinaParser.TimeoutClauseContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.startTimeoutCause();
-    }
-
-    @Override
-    public void exitTimeoutClause(BallerinaParser.TimeoutClauseContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addTimeoutCause(this.getWS(ctx), ctx.Identifier().getText());
     }
 
     @Override

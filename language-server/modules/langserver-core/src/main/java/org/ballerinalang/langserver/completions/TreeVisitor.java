@@ -552,27 +552,28 @@ public class TreeVisitor extends LSNodeVisitor {
         SymbolEnv folkJoinEnv = SymbolEnv.createFolkJoinEnv(forkJoin, this.symbolEnv);
         forkJoin.workers.forEach(e -> this.acceptNode(e, folkJoinEnv));
 
-        /* create code block and environment for join result section, i.e. (map results) */
-        BLangSimpleVariableDef variableDef = CompletionVisitorUtil.createVarDef(forkJoin.joinResultVar);
-        BLangBlockStmt joinResultsBlock = CompletionVisitorUtil.generateCodeBlock(variableDef);
-        SymbolEnv joinResultsEnv = SymbolEnv.createBlockEnv(joinResultsBlock, this.symbolEnv);
-        this.acceptNode(joinResultsBlock, joinResultsEnv);
-        /* create an environment for the join body, making the enclosing environment the earlier
-         * join result's environment */
-        SymbolEnv joinBodyEnv = SymbolEnv.createBlockEnv(forkJoin.joinedBody, joinResultsEnv);
-        this.acceptNode(forkJoin.joinedBody, joinBodyEnv);
-
-        if (forkJoin.timeoutExpression != null) {
-            /* create code black and environment for timeout section */
-            variableDef = CompletionVisitorUtil.createVarDef(forkJoin.timeoutVariable);
-            BLangBlockStmt timeoutVarBlock = CompletionVisitorUtil.generateCodeBlock(variableDef);
-            SymbolEnv timeoutVarEnv = SymbolEnv.createBlockEnv(timeoutVarBlock, this.symbolEnv);
-            this.acceptNode(timeoutVarBlock, timeoutVarEnv);
-            /* create an environment for the timeout body, making the enclosing environment the earlier
-             * timeout var's environment */
-            SymbolEnv timeoutBodyEnv = SymbolEnv.createBlockEnv(forkJoin.timeoutBody, timeoutVarEnv);
-            this.acceptNode(forkJoin.timeoutBody, timeoutBodyEnv);
-        }
+        // todo need to remove this block
+//        /* create code block and environment for join result section, i.e. (map results) */
+//        BLangSimpleVariableDef variableDef = CompletionVisitorUtil.createVarDef(forkJoin.joinResultVar);
+//        BLangBlockStmt joinResultsBlock = CompletionVisitorUtil.generateCodeBlock(variableDef);
+//        SymbolEnv joinResultsEnv = SymbolEnv.createBlockEnv(joinResultsBlock, this.symbolEnv);
+//        this.acceptNode(joinResultsBlock, joinResultsEnv);
+//        /* create an environment for the join body, making the enclosing environment the earlier
+//         * join result's environment */
+//        SymbolEnv joinBodyEnv = SymbolEnv.createBlockEnv(forkJoin.joinedBody, joinResultsEnv);
+//        this.acceptNode(forkJoin.joinedBody, joinBodyEnv);
+//
+//        if (forkJoin.timeoutExpression != null) {
+//            /* create code black and environment for timeout section */
+//            variableDef = CompletionVisitorUtil.createVarDef(forkJoin.timeoutVariable);
+//            BLangBlockStmt timeoutVarBlock = CompletionVisitorUtil.generateCodeBlock(variableDef);
+//            SymbolEnv timeoutVarEnv = SymbolEnv.createBlockEnv(timeoutVarBlock, this.symbolEnv);
+//            this.acceptNode(timeoutVarBlock, timeoutVarEnv);
+//            /* create an environment for the timeout body, making the enclosing environment the earlier
+//             * timeout var's environment */
+//            SymbolEnv timeoutBodyEnv = SymbolEnv.createBlockEnv(forkJoin.timeoutBody, timeoutVarEnv);
+//            this.acceptNode(forkJoin.timeoutBody, timeoutBodyEnv);
+//        }
     }
 
     @Override

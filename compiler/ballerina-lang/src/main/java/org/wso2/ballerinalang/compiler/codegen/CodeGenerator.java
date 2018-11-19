@@ -177,7 +177,6 @@ import org.wso2.ballerinalang.programfile.ConstantInfo;
 import org.wso2.ballerinalang.programfile.DefaultValue;
 import org.wso2.ballerinalang.programfile.ErrorTableEntry;
 import org.wso2.ballerinalang.programfile.FiniteTypeInfo;
-import org.wso2.ballerinalang.programfile.ForkjoinInfo;
 import org.wso2.ballerinalang.programfile.FunctionInfo;
 import org.wso2.ballerinalang.programfile.ImportPackageInfo;
 import org.wso2.ballerinalang.programfile.Instruction;
@@ -217,7 +216,6 @@ import org.wso2.ballerinalang.programfile.cpentries.BlobCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ByteCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPool;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
-import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FunctionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.IntegerCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.PackageRefCPEntry;
@@ -327,7 +325,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     private Stack<Integer> tryCatchErrorRangeToIPStack = new Stack<>();
 
     private int workerChannelCount = 0;
-    private int forkJoinCount = 0;
 
     public static CodeGenerator getInstance(CompilerContext context) {
         CodeGenerator codeGenerator = context.get(CODE_GENERATOR_KEY);
@@ -2597,150 +2594,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.genNode(workerNode.body, this.env);
     }
 
-    /* visit the workers within fork-join block */
-    private void processJoinWorkers(BLangForkJoin forkJoin, ForkjoinInfo forkjoinInfo,
-                                    SymbolEnv forkJoinEnv) {
-        UTF8CPEntry codeUTF8CPEntry = new UTF8CPEntry(AttributeInfo.Kind.CODE_ATTRIBUTE.toString());
-        int codeAttribNameIndex = this.currentPkgInfo.addCPEntry(codeUTF8CPEntry);
-        for (BLangWorker worker : forkJoin.workers) {
-            VariableIndex lvIndexesCopy = copyVarIndex(this.lvIndexes);
-            this.regIndexes = new VariableIndex(REG);
-            VariableIndex regIndexesCopy = this.regIndexes;
-            this.regIndexes = new VariableIndex(REG);
-            VariableIndex maxRegIndexesCopy = this.maxRegIndexes;
-            this.maxRegIndexes = new VariableIndex(REG);
-            List<RegIndex> regIndexListCopy = this.regIndexList;
-            this.regIndexList = new ArrayList<>();
-
-            WorkerInfo workerInfo = forkjoinInfo.getWorkerInfo(worker.name.value);
-            workerInfo.codeAttributeInfo.attributeNameIndex = codeAttribNameIndex;
-            workerInfo.codeAttributeInfo.codeAddrs = this.nextIP();
-            this.currentWorkerInfo = workerInfo;
-            this.genNode(worker.body, forkJoinEnv);
-            this.endWorkerInfoUnit(workerInfo.codeAttributeInfo);
-            this.emit(InstructionCodes.HALT);
-
-            this.lvIndexes = lvIndexesCopy;
-            this.regIndexes = regIndexesCopy;
-            this.maxRegIndexes = maxRegIndexesCopy;
-            this.regIndexList = regIndexListCopy;
-        }
-    }
-
-    private void populateForkJoinWorkerInfo(BLangForkJoin forkJoin, ForkjoinInfo forkjoinInfo) {
-        for (BLangWorker worker : forkJoin.workers) {
-            UTF8CPEntry workerNameCPEntry = new UTF8CPEntry(worker.name.value);
-            int workerNameCPIndex = this.currentPkgInfo.addCPEntry(workerNameCPEntry);
-            WorkerInfo workerInfo = new WorkerInfo(workerNameCPIndex, worker.name.value);
-            forkjoinInfo.addWorkerInfo(worker.name.value, workerInfo);
-        }
-    }
-
-    /* generate code for Join block */
-    private void processJoinBlock(BLangForkJoin forkJoin, ForkjoinInfo forkjoinInfo, SymbolEnv forkJoinEnv,
-                                  RegIndex joinVarRegIndex, Operand joinBlockAddr) {
-        UTF8CPEntry joinType = new UTF8CPEntry(forkJoin.joinType.name());
-        int joinTypeCPIndex = this.currentPkgInfo.addCPEntry(joinType);
-        forkjoinInfo.setJoinType(forkJoin.joinType.name());
-        forkjoinInfo.setJoinTypeCPIndex(joinTypeCPIndex);
-        joinBlockAddr.value = nextIP();
-
-        if (forkJoin.joinResultVar != null) {
-            visitForkJoinParameterDefs(forkJoin.joinResultVar, forkJoinEnv);
-            joinVarRegIndex.value = forkJoin.joinResultVar.symbol.varIndex.value;
-        }
-
-        if (forkJoin.joinedBody != null) {
-            this.genNode(forkJoin.joinedBody, forkJoinEnv);
-        }
-    }
-
-    /* generate code for timeout block */
-    private void processTimeoutBlock(BLangForkJoin forkJoin, SymbolEnv forkJoinEnv,
-                                     RegIndex timeoutVarRegIndex, Operand timeoutBlockAddr) {
-        /* emit a GOTO instruction to jump out of the timeout block */
-        Operand gotoAddr = getOperand(-1);
-        this.emit(InstructionCodes.GOTO, gotoAddr);
-        timeoutBlockAddr.value = nextIP();
-
-        if (forkJoin.timeoutVariable != null) {
-            visitForkJoinParameterDefs(forkJoin.timeoutVariable, forkJoinEnv);
-            timeoutVarRegIndex.value = forkJoin.timeoutVariable.symbol.varIndex.value;
-        }
-
-        if (forkJoin.timeoutBody != null) {
-            this.genNode(forkJoin.timeoutBody, forkJoinEnv);
-        }
-        gotoAddr.value = nextIP();
-    }
-
     public void visit(BLangForkJoin forkJoin) {
-        SymbolEnv forkJoinEnv = SymbolEnv.createForkJoinSymbolEnv(forkJoin, this.env);
-        ForkjoinInfo forkjoinInfo = new ForkjoinInfo(this.lvIndexes.toArray());
-        this.populateForkJoinWorkerInfo(forkJoin, forkjoinInfo);
-        int forkJoinInfoIndex = this.forkJoinCount++;
-        /* was I already inside a fork/join */
-        if (this.env.forkJoin != null) {
-            this.currentWorkerInfo.addForkJoinInfo(forkjoinInfo);
-        } else {
-            this.currentCallableUnitInfo.defaultWorkerInfo.addForkJoinInfo(forkjoinInfo);
-        }
-        ForkJoinCPEntry forkJoinCPEntry = new ForkJoinCPEntry(forkJoinInfoIndex);
-        Operand forkJoinCPIndex = getOperand(this.currentPkgInfo.addCPEntry(forkJoinCPEntry));
-        forkjoinInfo.setIndexCPIndex(forkJoinCPIndex.value);
-
-        RegIndex timeoutRegIndex = new RegIndex(-1, TypeTags.INT);
-        addToRegIndexList(timeoutRegIndex);
-
-        if (forkJoin.timeoutExpression != null) {
-            forkjoinInfo.setTimeoutAvailable(true);
-            this.genNode(forkJoin.timeoutExpression, forkJoinEnv);
-            timeoutRegIndex.value = forkJoin.timeoutExpression.regIndex.value;
-        }
-
-        // FORKJOIN forkJoinCPIndex timeoutRegIndex joinVarRegIndex joinBlockAddr timeoutVarRegIndex timeoutBlockAddr
-        RegIndex joinVarRegIndex = new RegIndex(-1, TypeTags.MAP);
-        Operand joinBlockAddr = getOperand(-1);
-        RegIndex timeoutVarRegIndex = new RegIndex(-1, TypeTags.MAP);
-        Operand timeoutBlockAddr = getOperand(-1);
-        this.emit(InstructionCodes.FORKJOIN, forkJoinCPIndex, timeoutRegIndex,
-                joinVarRegIndex, joinBlockAddr, timeoutVarRegIndex, timeoutBlockAddr);
-
-        VariableIndex lvIndexesCopy = copyVarIndex(this.lvIndexes);
-        VariableIndex regIndexesCopy = this.regIndexes;
-        VariableIndex maxRegIndexesCopy = this.maxRegIndexes;
-        List<RegIndex> regIndexListCopy = this.regIndexList;
-
-        this.processJoinWorkers(forkJoin, forkjoinInfo, forkJoinEnv);
-
-        this.lvIndexes = lvIndexesCopy;
-        this.regIndexes = regIndexesCopy;
-        this.maxRegIndexes = maxRegIndexesCopy;
-        this.regIndexList = regIndexListCopy;
-
-        int i = 0;
-        int[] joinWrkrNameCPIndexes = new int[forkJoin.joinedWorkers.size()];
-        String[] joinWrkrNames = new String[joinWrkrNameCPIndexes.length];
-        for (BLangIdentifier workerName : forkJoin.joinedWorkers) {
-            UTF8CPEntry workerNameCPEntry = new UTF8CPEntry(workerName.value);
-            int workerNameCPIndex = this.currentPkgInfo.addCPEntry(workerNameCPEntry);
-            joinWrkrNameCPIndexes[i] = workerNameCPIndex;
-            joinWrkrNames[i] = workerName.value;
-            i++;
-        }
-        forkjoinInfo.setJoinWrkrNameIndexes(joinWrkrNameCPIndexes);
-        forkjoinInfo.setJoinWorkerNames(joinWrkrNames);
-        forkjoinInfo.setWorkerCount(forkJoin.joinedWorkerCount);
-        this.processJoinBlock(forkJoin, forkjoinInfo, forkJoinEnv, joinVarRegIndex, joinBlockAddr);
-        this.processTimeoutBlock(forkJoin, forkJoinEnv, timeoutVarRegIndex, timeoutBlockAddr);
-    }
-
-    private void visitForkJoinParameterDefs(BLangSimpleVariable parameterDef, SymbolEnv forkJoinEnv) {
-        LocalVariableAttributeInfo localVariableAttributeInfo = new LocalVariableAttributeInfo(1);
-        parameterDef.symbol.varIndex = getLVIndex(parameterDef.type.tag);
-        this.genNode(parameterDef, forkJoinEnv);
-        LocalVariableInfo localVariableDetails = this.getLocalVarAttributeInfo(parameterDef.symbol);
-        localVariableAttributeInfo.localVars.add(localVariableDetails);
     }
 
     public void visit(BLangWorkerSend workerSendStmt) {

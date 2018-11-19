@@ -521,25 +521,26 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             forkJoin.workers.forEach(this::acceptNode);
         }
 
-        if (forkJoin.joinedBody != null) {
-            acceptNode(forkJoin.joinedBody);
-        }
-
-        if (forkJoin.joinResultVar != null) {
-            acceptNode(forkJoin.joinResultVar);
-        }
-
-        if (forkJoin.timeoutBody != null) {
-            acceptNode(forkJoin.timeoutBody);
-        }
-
-        if (forkJoin.timeoutExpression != null) {
-            acceptNode(forkJoin.timeoutExpression);
-        }
-
-        if (forkJoin.timeoutVariable != null) {
-            acceptNode(forkJoin.timeoutVariable);
-        }
+        // todo need to remove this block
+//        if (forkJoin.joinedBody != null) {
+//            acceptNode(forkJoin.joinedBody);
+//        }
+//
+//        if (forkJoin.joinResultVar != null) {
+//            acceptNode(forkJoin.joinResultVar);
+//        }
+//
+//        if (forkJoin.timeoutBody != null) {
+//            acceptNode(forkJoin.timeoutBody);
+//        }
+//
+//        if (forkJoin.timeoutExpression != null) {
+//            acceptNode(forkJoin.timeoutExpression);
+//        }
+//
+//        if (forkJoin.timeoutVariable != null) {
+//            acceptNode(forkJoin.timeoutVariable);
+//        }
     }
 
     @Override
