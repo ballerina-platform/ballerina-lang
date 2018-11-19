@@ -16,7 +16,7 @@ public type FooPerson record {
 type FooFamily record {
     string spouse = "";
     int noOfChildren = 0;
-    string[] children[];
+    string[] children = [];
 };
 
 public type FooEmployee record {

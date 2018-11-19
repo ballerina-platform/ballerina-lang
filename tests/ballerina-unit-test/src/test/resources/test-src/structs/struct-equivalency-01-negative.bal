@@ -38,7 +38,7 @@ function testEqOfStructsInSamePackage02() returns (string) {
 }
 
 public type person03 record {
-    int age = 9;
+    int age = 0;
     string name = "";
     string address = "";
 };
