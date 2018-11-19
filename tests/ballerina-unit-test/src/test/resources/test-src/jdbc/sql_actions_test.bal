@@ -716,10 +716,10 @@ function testBlobInParameter() returns (int, byte[]) {
     var dt = testDB->select("SELECT blob_type from BlobTable where row_id=3", ResultBlob);
     if (dt is table) {
         while (dt.hasNext()) {
-        var rs = <ResultBlob>dt.getNext();
-        if (rs is ResultBlob) {
-            blobVal = rs.BLOB_TYPE;
-        }
+            var rs = <ResultBlob>dt.getNext();
+            if (rs is ResultBlob) {
+                blobVal = rs.BLOB_TYPE;
+            }
         }
     }
     testDB.stop();

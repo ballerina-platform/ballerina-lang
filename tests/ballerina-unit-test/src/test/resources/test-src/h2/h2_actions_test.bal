@@ -100,7 +100,7 @@ function testGeneratedKeyOnInsert() returns (string) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    string returnVal= "";
+    string returnVal = "";
 
     var x = testDB->updateWithGeneratedKeys("insert into Customers (name,
             creditLimit,country) values ('Sam', 1200, 'USA')", ());
