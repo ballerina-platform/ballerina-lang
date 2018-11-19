@@ -1,24 +1,27 @@
-import * as yargs from "yargs";
-import * as path from "path";
 import { exec } from "child_process";
+import * as path from "path";
+import * as yargs from "yargs";
 
+// tslint:disable:no-console
 const pkgScripts: any = {
-    "pkg:watch": "tsc --pretty --watch",
-    "pkg:lint": "tslint -t stylish --project .",
-    "pkg:clean": "rimraf lib && rimraf coverage",
-    "pkg:test": "jest",
     "pkg:build": "tsc --pretty",
-    "pkg:test:watch": "jest --watch",
+    "pkg:build:webpack": "webpack --mode=production",
+    "pkg:clean": "rimraf lib && rimraf coverage && rimraf build",
+    "pkg:lint": "tslint -t stylish --project .",
+    "pkg:storybook": "npx start-storybook -p 9001 -c .storybook",
+    "pkg:test": "jest",
     "pkg:test:coverage": "jest --coverage",
-    "pkg:storybook": "start-storybook -p 9001 -c .storybook"
+    "pkg:test:watch": "jest --watch",
+    "pkg:watch": "tsc --pretty --watch",
+    "pkg:watch:webpack": "webpack-dev-server --mode=development --progress"
 };
 
-process.on('unhandledRejection', (reason, promise) => {
+process.on("unhandledRejection", (reason, promise) => {
     throw reason;
 });
-process.on('uncaughtException', error => {
+process.on("uncaughtException", (error) => {
     if (error) {
-        console.error('Uncaught Exception: ', error.toString());
+        console.error("Uncaught Exception: ", error.toString());
         if (error.stack) {
             console.error(error.stack);
         }
@@ -27,16 +30,19 @@ process.on('uncaughtException', error => {
 
 function run(script: string): Promise<number> {
     return new Promise((resolve, reject) => {
-        let env = process.env;
-        env.PATH = process.cwd() + '/../../node_modules/.bin:' + process.env.PATH;
+        const env = process.env;
+        env.TZ = "utc";
+        env.PATH = path.join(process.cwd(), "..", "..", "node_modules", ".bin")
+            + path.delimiter + process.env.PATH;
         const scriptProcess = exec(script, {
-            'env': env,
-            cwd: process.cwd()
+            cwd: process.cwd(),
+            env,
+            shell: "bash"
         });
         scriptProcess.stdout.pipe(process.stdout);
         scriptProcess.stderr.pipe(process.stderr);
-        scriptProcess.on('error', reject);
-        scriptProcess.on('close', (code) => resolve(code));
+        scriptProcess.on("error", reject);
+        scriptProcess.on("close", (code) => resolve(code));
     });
 }
 
@@ -51,24 +57,24 @@ function getScript(name: string): string {
 
 function getCommand(command: string, pkgName: string): any {
     return {
-        command: command,
-        describe: command + ' composer pkg ' + pkgName,
+        command,
+        describe: command + " composer pkg " + pkgName,
         handler: async () => {
             let exitCode: number = 0;
             try {
                 const args = getArgs(command);
                 console.log(command + " " + pkgName);
-                exitCode = await run(getScript(command) + " " + args.join(' '));
+                exitCode = await run(getScript(command) + " " + args.join(" "));
             } catch (err) {
                 console.error(err);
                 exitCode = 1;
             }
-            process.exit(exitCode)
+            process.exit(exitCode);
         }
-    }
+    };
 }
 
-(function () {
+(() => {
     const pkgPath = process.cwd();
     const pkgName = path.basename(pkgPath);
     yargs
@@ -80,19 +86,21 @@ function getCommand(command: string, pkgName: string): any {
         .command(getCommand("pkg:test:watch", pkgName))
         .command(getCommand("pkg:test:coverage", pkgName))
         .command(getCommand("pkg:storybook", pkgName))
+        .command(getCommand("pkg:build:webpack", pkgName))
+        .command(getCommand("pkg:watch:webpack", pkgName))
         .command({
-            command: 'cmd:hoist',
-            describe: 'hoist given command',
+            command: "cmd:hoist",
+            describe: "hoist given command",
             handler: async () => {
                 let exitCode: number = 0;
                 try {
-                    const args = getArgs('cmd:hoist');
-                    exitCode = await run(args.join(' '));
+                    const args = getArgs("cmd:hoist");
+                    exitCode = await run(args.join(" "));
                 } catch (err) {
                     console.error(err);
                     exitCode = 1;
                 }
-                process.exit(exitCode)
+                process.exit(exitCode);
             }
         });
 
@@ -100,7 +108,7 @@ function getCommand(command: string, pkgName: string): any {
     const argv = yargs.demandCommand(1).argv;
     const command = argv._[0];
     if (!command || commands.indexOf(command) === -1) {
-        console.log('non-existing or no command specified');
+        console.log("non-existing or no command specified");
         yargs.showHelp();
         process.exit(1);
     } else {
