@@ -30,6 +30,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -70,6 +74,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -108,7 +113,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtTypedBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -154,6 +158,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.wso2.ballerinalang.compiler.util.Constants.MAIN_FUNCTION_NAME;
 
@@ -503,6 +509,226 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatch matchStmt) {
+        analyzeExpr(matchStmt.expr);
+        if (!matchStmt.getTypedPatternClauses().isEmpty()) {
+            analyzeTypeMatchPatterns(matchStmt);
+        }
+
+        if (!matchStmt.getStaticPatternClauses().isEmpty()) {
+            analyzeStaticMatchPatterns(matchStmt);
+        }
+    }
+
+    /**
+     * This method is used to check the isLike test in a static match pattern.
+     * @param matchStmt the match statment containing static match patterns.
+     */
+    private void analyzeStaticMatchPatterns(BLangMatch matchStmt) {
+        if (matchStmt.exprTypes.isEmpty()) {
+            return;
+        }
+        List<BLangExpression> matchedSimplePatterns = new ArrayList<>();
+        List<BLangExpression> matchedRecordPatterns = new ArrayList<>();
+        List<BLangExpression> matchedTuplePatterns = new ArrayList<>();
+        for (BLangMatch.BLangMatchStaticBindingPatternClause pattern : matchStmt.getStaticPatternClauses()) {
+            List<BType> matchedExpTypes = matchStmt.exprTypes
+                    .stream()
+                    .filter(exprType -> isValidMatchPattern(exprType, pattern.literal))
+                    .collect(Collectors.toList());
+            if (matchedExpTypes.isEmpty()) {
+                // log error if a pattern will not match to any of the expected types
+                dlog.error(pattern.pos, DiagnosticCode.MATCH_STMT_UNMATCHED_PATTERN);
+                continue;
+            }
+
+            if (pattern.getLiteral().type.tag == TypeTags.MAP) {
+                matchedRecordPatterns.add(pattern.getLiteral());
+                continue;
+            }
+
+            if (pattern.getLiteral().type.tag == TypeTags.TUPLE) {
+                matchedTuplePatterns.add(pattern.getLiteral());
+                continue;
+            }
+
+            matchedSimplePatterns.add(pattern.getLiteral());
+        }
+        analyzeUnreachableStaticPatterns(matchedSimplePatterns);
+        analyzeUnreachableStaticPatterns(matchedTuplePatterns);
+        analyzeUnreachableStaticPatterns(matchedRecordPatterns);
+    }
+
+    private void analyzeUnreachableStaticPatterns(List<BLangExpression> matchedPatterns) {
+        for (int i = 0; i < matchedPatterns.size() - 1; i++) {
+            BLangExpression precedingPattern = matchedPatterns.get(i);
+            for (int j = i + 1; j < matchedPatterns.size(); j++) {
+                BLangExpression pattern = matchedPatterns.get(j);
+                if (checkLiteralSimilarity(precedingPattern, pattern)) {
+                    dlog.error(pattern.pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN);
+                    matchedPatterns.remove(j--);
+                }
+            }
+        }
+    }
+
+    /**
+     * This method will check if two patterns are similar to each other.
+     * Having similar patterns in the match block will result in unreachable pattern.
+     * @param precedingPattern pattern taken to compare similarity.
+     * @param pattern the pattern that the precedingPattern is checked for similarity.
+     * @return true if both patterns are similar..
+     */
+    private boolean checkLiteralSimilarity(BLangExpression precedingPattern, BLangExpression pattern) {
+        if (precedingPattern.type.tag == TypeTags.MAP && pattern.type.tag == TypeTags.MAP) {
+            BLangRecordLiteral precedingRecordLiteral = (BLangRecordLiteral) precedingPattern;
+            Map<String, BLangExpression> recordLiteral = ((BLangRecordLiteral) pattern).keyValuePairs
+                    .stream()
+                    .collect(Collectors.toMap(
+                            keyValuePair -> ((BLangSimpleVarRef) keyValuePair.key.expr).variableName.value,
+                            BLangRecordKeyValue::getValue
+                    ));
+
+            for (int i = 0; i < precedingRecordLiteral.keyValuePairs.size(); i++) {
+                BLangRecordKeyValue bLangRecordKeyValue = precedingRecordLiteral.keyValuePairs.get(i);
+                String key = ((BLangSimpleVarRef) bLangRecordKeyValue.key.expr).variableName.value;
+                if (!recordLiteral.containsKey(key)) {
+                    return false;
+                }
+                if (!checkLiteralSimilarity(bLangRecordKeyValue.valueExpr, recordLiteral.get(key))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        if (precedingPattern.type.tag == TypeTags.TUPLE && pattern.type.tag == TypeTags.TUPLE) {
+            BLangBracedOrTupleExpr precedingTupleLiteral = (BLangBracedOrTupleExpr) precedingPattern;
+            BLangBracedOrTupleExpr tupleLiteral = (BLangBracedOrTupleExpr) pattern;
+            if (precedingTupleLiteral.expressions.size() != tupleLiteral.expressions.size()) {
+                return false;
+            }
+            for (int i = 0; i < precedingTupleLiteral.expressions.size(); i++) {
+                if (!checkLiteralSimilarity(precedingTupleLiteral.expressions.get(i),
+                        tupleLiteral.expressions.get(i))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        if (types.isValueType(precedingPattern.type) && types.isValueType(pattern.type)) {
+            BLangLiteral literal = pattern.getKind() == NodeKind.BRACED_TUPLE_EXPR ?
+                    (BLangLiteral) ((BLangBracedOrTupleExpr) pattern).expressions.get(0) : (BLangLiteral) pattern;
+
+            BLangLiteral precedingLiteral = precedingPattern.getKind() == NodeKind.BRACED_TUPLE_EXPR ?
+                    (BLangLiteral) ((BLangBracedOrTupleExpr) precedingPattern).expressions.get(0) :
+                    (BLangLiteral) precedingPattern;
+
+            return (precedingLiteral.value.equals(literal.value));
+        }
+
+        return false;
+    }
+
+    /**
+     * This method will check if the static match pattern is valid based on the matching type.
+     *
+     * @param matchType type of the expression being matched.
+     * @param literal   the static match pattern.
+     * @return true if the pattern is valid, else false.
+     */
+    private boolean isValidMatchPattern(BType matchType, BLangExpression literal) {
+
+        if (types.isSameType(literal.type, matchType)) {
+            return true;
+        }
+
+        switch (matchType.tag) {
+            case TypeTags.ANY:
+            case TypeTags.ANYDATA:
+            case TypeTags.JSON:
+                return true;
+            case TypeTags.UNION:
+                BUnionType unionMatchType = (BUnionType) matchType;
+                return unionMatchType.memberTypes
+                        .stream()
+                        .anyMatch(memberMatchType -> isValidMatchPattern(memberMatchType, literal));
+            case TypeTags.TUPLE:
+                if (literal.type.tag == TypeTags.TUPLE) {
+                    BLangBracedOrTupleExpr tupleLiteral = (BLangBracedOrTupleExpr) literal;
+                    BTupleType literalTupleType = (BTupleType) literal.type;
+                    BTupleType matchTupleType = (BTupleType) matchType;
+                    if (literalTupleType.tupleTypes.size() != matchTupleType.tupleTypes.size()) {
+                        return false;
+                    }
+                    return IntStream.range(0, literalTupleType.tupleTypes.size())
+                            .allMatch(i ->
+                                    isValidMatchPattern(matchTupleType.tupleTypes.get(i),
+                                            tupleLiteral.expressions.get(i)));
+                }
+                break;
+            case TypeTags.MAP:
+                if (literal.type.tag == TypeTags.MAP) {
+                    // if match type is map, check if literals match to the constraint
+                    BLangRecordLiteral mapLiteral = (BLangRecordLiteral) literal;
+                    return IntStream.range(0, mapLiteral.keyValuePairs.size())
+                            .allMatch(i -> isValidMatchPattern(((BMapType) matchType).constraint,
+                                    mapLiteral.keyValuePairs.get(i).valueExpr));
+                }
+                break;
+            case TypeTags.RECORD:
+                if (literal.type.tag == TypeTags.MAP) {
+                    // if match type is record, the fields must match to the static pattern fields
+                    BLangRecordLiteral mapLiteral = (BLangRecordLiteral) literal;
+                    BRecordType recordMatchType = (BRecordType) matchType;
+                    Map<String, BType> recordFields = recordMatchType.fields
+                            .stream()
+                            .collect(Collectors.toMap(
+                                    field -> field.getName().getValue(),
+                                    BField::getType
+                            ));
+
+                    for (BLangRecordKeyValue literalKeyValue : mapLiteral.keyValuePairs) {
+                        String literalKeyName;
+                        if (literalKeyValue.key.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                            literalKeyName = ((BLangSimpleVarRef) literalKeyValue.key.expr).variableName.value;
+                        } else if (literalKeyValue.key.expr.getKind() == NodeKind.LITERAL) {
+                            literalKeyName = ((BLangLiteral) literalKeyValue.key.expr).value.toString();
+                        } else {
+                            return false;
+                        }
+
+                        if (recordFields.containsKey(literalKeyName)) {
+                            if (!isValidMatchPattern(recordFields.get(literalKeyName), literalKeyValue.valueExpr)) {
+                                return false;
+                            }
+                        } else if (recordMatchType.sealed ||
+                                !isValidMatchPattern(recordMatchType.restFieldType, literalKeyValue.valueExpr)) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+                break;
+            case TypeTags.BYTE:
+                if (literal.type.tag == TypeTags.INT) {
+                    return true;
+                }
+                break;
+            case TypeTags.FINITE:
+                if (literal.getKind() == NodeKind.LITERAL) {
+                    return types.isAssignableToFiniteType(matchType, (BLangLiteral) literal);
+                }
+                break;
+        }
+        return false;
+    }
+
+    private void analyzeTypeMatchPatterns(BLangMatch matchStmt) {
+        if (matchStmt.exprTypes.isEmpty()) {
+            return;
+        }
+
         boolean unmatchedExprTypesAvailable = false;
 
         // TODO Handle **any** as a expr type.. special case it..
@@ -512,7 +738,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         List<BType> unmatchedExprTypes = new ArrayList<>();
         for (BType exprType : matchStmt.exprTypes) {
             boolean assignable = false;
-            for (BLangMatchStmtTypedBindingPatternClause pattern : matchStmt.getTypedPatternClauses()) {
+            for (BLangMatch.BLangMatchTypedBindingPatternClause pattern : matchStmt.getTypedPatternClauses()) {
                 BType patternType = pattern.variable.type;
                 if (exprType.tag == TypeTags.SEMANTIC_ERROR || patternType.tag == TypeTags.SEMANTIC_ERROR) {
                     return;
@@ -551,7 +777,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         boolean matchedPatternsAvailable = false;
         for (int i = matchStmt.getTypedPatternClauses().size() - 1; i >= 0; i--) {
-            BLangMatch.BLangMatchStmtTypedBindingPatternClause pattern = matchStmt.getTypedPatternClauses().get(i);
+            BLangMatch.BLangMatchTypedBindingPatternClause pattern = matchStmt.getTypedPatternClauses().get(i);
             if (pattern.matchedTypesDirect.isEmpty() && pattern.matchedTypesIndirect.isEmpty()) {
                 if (matchedPatternsAvailable) {
                     dlog.error(pattern.pos, DiagnosticCode.MATCH_STMT_UNMATCHED_PATTERN);
@@ -567,7 +793,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!unmatchedExprTypesAvailable) {
             this.checkStatementExecutionValidity(matchStmt);
             boolean matchStmtReturns = true;
-            for (BLangMatchStmtTypedBindingPatternClause patternClause : matchStmt.getTypedPatternClauses()) {
+            for (BLangMatch.BLangMatchTypedBindingPatternClause patternClause : matchStmt.getTypedPatternClauses()) {
                 analyzeNode(patternClause.body, env);
                 matchStmtReturns = matchStmtReturns && this.statementReturns;
                 this.resetStatementReturns();
@@ -846,13 +1072,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangRecordLiteral recordLiteral) {
-        List<BLangRecordLiteral.BLangRecordKeyValue> keyValuePairs = recordLiteral.keyValuePairs;
+        List<BLangRecordKeyValue> keyValuePairs = recordLiteral.keyValuePairs;
         keyValuePairs.forEach(kv -> {
             analyzeExpr(kv.valueExpr);
         });
 
         Set<Object> names = new TreeSet<>((l, r) -> l.equals(r) ? 0 : 1);
-        for (BLangRecordLiteral.BLangRecordKeyValue recFieldDecl : keyValuePairs) {
+        for (BLangRecordKeyValue recFieldDecl : keyValuePairs) {
             BLangExpression key = recFieldDecl.getKey();
             if (key.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangSimpleVarRef keyRef = (BLangSimpleVarRef) key;
