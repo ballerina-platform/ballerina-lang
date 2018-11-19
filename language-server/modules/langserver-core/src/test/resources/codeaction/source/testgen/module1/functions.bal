@@ -23,7 +23,7 @@ public function returnMap(int n1, int n2, int n3) returns map {
 }
 
 public function returnConstrainedMap(int n1, int n2, int n3) returns map<string> {
-    map<string> m;
+    map<string> m = { key: "value" };
     return m;
 }
 

@@ -33,7 +33,7 @@ public type ClientEndpointConfiguration record {
     string name = "";
     string username = "";
     string password = "";
-    sql:PoolOptions poolOptions;
+    sql:PoolOptions poolOptions = {};
     map dbOptions = {};
     !...
 };

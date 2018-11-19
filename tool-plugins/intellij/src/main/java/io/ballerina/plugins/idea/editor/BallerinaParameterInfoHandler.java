@@ -45,7 +45,7 @@ import io.ballerina.plugins.idea.psi.BallerinaObjectParameter;
 import io.ballerina.plugins.idea.psi.BallerinaObjectParameterList;
 import io.ballerina.plugins.idea.psi.BallerinaParameter;
 import io.ballerina.plugins.idea.psi.BallerinaRestParameter;
-import io.ballerina.plugins.idea.psi.BallerinaTypeInitExpr;
+import io.ballerina.plugins.idea.psi.BallerinaTypeInitExpression;
 import io.ballerina.plugins.idea.psi.BallerinaTypes;
 import io.ballerina.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
@@ -147,12 +147,12 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         }
 
         // Check for type init expression.
-        BallerinaTypeInitExpr ballerinaTypeInitExpr;
+        BallerinaTypeInitExpression ballerinaTypeInitExpr;
         if (element instanceof LeafPsiElement) {
-            ballerinaTypeInitExpr = PsiTreeUtil.getParentOfType(element, BallerinaTypeInitExpr.class);
+            ballerinaTypeInitExpr = PsiTreeUtil.getParentOfType(element, BallerinaTypeInitExpression.class);
         } else {
             ballerinaTypeInitExpr = PsiTreeUtil.getParentOfType(ballerinaInvocationArgList,
-                    BallerinaTypeInitExpr.class);
+                    BallerinaTypeInitExpression.class);
         }
         if (ballerinaTypeInitExpr != null) {
             return ballerinaTypeInitExpr;
@@ -207,8 +207,8 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                     context.showHint(functionInvocation, functionInvocation.getTextOffset(), this);
                 }
             }
-        } else if (element instanceof BallerinaTypeInitExpr) {
-            BallerinaTypeInitExpr ballerinaTypeInitExpr = (BallerinaTypeInitExpr) element;
+        } else if (element instanceof BallerinaTypeInitExpression) {
+            BallerinaTypeInitExpression ballerinaTypeInitExpr = (BallerinaTypeInitExpression) element;
             BallerinaObjectInitializerParameterList objectInitializerParameterList = BallerinaPsiImplUtil
                     .getObjectInitializerParameterList(ballerinaTypeInitExpr);
             if (objectInitializerParameterList != null) {
@@ -268,9 +268,14 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             BallerinaFunctionInvocation functionInvocation = (BallerinaFunctionInvocation) o;
             BallerinaInvocationArgList invocationArgList = functionInvocation.getInvocationArgList();
             return getIndex(invocationArgList, offset);
-        } else if (o instanceof BallerinaTypeInitExpr) {
-            BallerinaTypeInitExpr ballerinaTypeInitExpr = (BallerinaTypeInitExpr) o;
-            BallerinaInvocationArgList invocationArgList = ballerinaTypeInitExpr.getInvocationArgList();
+        } else if (o instanceof BallerinaTypeInitExpression) {
+            BallerinaTypeInitExpression ballerinaTypeInitExpr = (BallerinaTypeInitExpression) o;
+            BallerinaInvocationArgList invocationArgList = null;
+            if (ballerinaTypeInitExpr.getInitWithType() != null) {
+                invocationArgList = ballerinaTypeInitExpr.getInitWithType().getInvocationArgList();
+            } else if (ballerinaTypeInitExpr.getInitWithoutType() != null) {
+                invocationArgList = ballerinaTypeInitExpr.getInitWithoutType().getInvocationArgList();
+            }
             return getIndex(invocationArgList, offset);
         } else if (o instanceof BallerinaInvocation) {
             BallerinaInvocation ballerinaTypeInitExpr = (BallerinaInvocation) o;

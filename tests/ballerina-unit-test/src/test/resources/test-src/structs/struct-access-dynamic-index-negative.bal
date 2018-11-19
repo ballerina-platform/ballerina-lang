@@ -1,12 +1,12 @@
 type Person record {
     string name = "default first name";
-    string lname;
-    map adrs;
+    string lname = "";
+    map adrs = {};
     int age = 999;
 };
 
 type StructField record {
-    string key;
+    string key = "";
 };
 
 function testExpressionAsStructIndex () returns (string) {

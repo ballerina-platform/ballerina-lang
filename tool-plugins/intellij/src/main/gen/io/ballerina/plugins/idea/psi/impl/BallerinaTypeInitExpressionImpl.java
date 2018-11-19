@@ -42,9 +42,15 @@ public class BallerinaTypeInitExpressionImpl extends BallerinaExpressionImpl imp
   }
 
   @Override
-  @NotNull
-  public BallerinaTypeInitExpr getTypeInitExpr() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaTypeInitExpr.class));
+  @Nullable
+  public BallerinaInitWithType getInitWithType() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaInitWithType.class);
+  }
+
+  @Override
+  @Nullable
+  public BallerinaInitWithoutType getInitWithoutType() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaInitWithoutType.class);
   }
 
 }
