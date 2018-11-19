@@ -1,7 +1,7 @@
 import ballerina/task;
 
 error? err = ();
-string origErrMsg;
+string origErrMsg = "";
 task:Timer? timer = ();
 
 function scheduleTimerWithError(int delay, int interval, string errMsg) {
