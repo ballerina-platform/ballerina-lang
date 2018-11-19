@@ -19,9 +19,6 @@
   },
   "author": "ballerina.io",
   "license": "Apache-2.0",
-  "dependencies": {
-    "semantic-ui-less": "^2.3.2"
-  },
   "devDependencies": {
     "babel-plugin-module-resolver": "^3.1.1",
     "watch": "^1.0.2",
