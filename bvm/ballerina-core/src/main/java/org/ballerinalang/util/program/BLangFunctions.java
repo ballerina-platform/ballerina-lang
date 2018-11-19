@@ -17,9 +17,7 @@
 */
 package org.ballerinalang.util.program;
 
-import org.ballerinalang.bre.BLangCallableUnitCallback;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.NativeCallContext;
 import org.ballerinalang.bre.bvm.AsyncInvocableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.AsyncTimer;
 import org.ballerinalang.bre.bvm.BLangScheduler;
@@ -36,8 +34,6 @@ import org.ballerinalang.bre.bvm.WorkerResponseContext;
 import org.ballerinalang.model.InterruptibleNativeCallableUnit;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BCallableFuture;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.states.State;
@@ -52,9 +48,7 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
-import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.util.observability.CallableUnitCallbackObserver;
 import org.ballerinalang.util.observability.CallbackObserver;
 import org.ballerinalang.util.observability.ObservabilityUtils;
 import org.ballerinalang.util.observability.ObserverContext;
@@ -404,9 +398,9 @@ public class BLangFunctions {
         respCtx.setWorkerExecutionContexts(workerExecutionContexts);
         /* create the future encapsulating the worker response context, and set it as the return value
          * to the parent */
-        BLangVMUtils.populateWorkerDataWithValues(parentCtx.workerLocal, retRegs,
-                new BValue[] { new BCallableFuture(callableUnitInfo.getName(), respCtx) },
-                new BType[] { BTypes.typeFuture });
+//        BLangVMUtils.populateWorkerDataWithValues(parentCtx.workerLocal, retRegs,
+//                new BValue[] { new BCallableFuture(callableUnitInfo.getName(), respCtx) },
+//                new BType[] { BTypes.typeFuture });
         return;
     }
 
@@ -416,54 +410,54 @@ public class BLangFunctions {
         BType[] retTypes = callableUnitInfo.getRetParamTypes();
         WorkerData caleeSF = BLangVMUtils.createWorkerDataForLocal(callableUnitInfo.getDefaultWorkerInfo(), parentCtx,
                 argRegs, callableUnitInfo.getParamTypes());
-        Context ctx = new NativeCallContext(parentCtx, callableUnitInfo, caleeSF);
+//        Context ctx = new NativeCallContext(parentCtx, callableUnitInfo, caleeSF);
         NativeCallableUnit nativeCallable = callableUnitInfo.getNativeCallableUnit();        
         if (nativeCallable == null) {
             return parentCtx;
         }
-        try {
-            ObserverContext observerContext = checkAndStartNativeCallableObservation(ctx, callableUnitInfo, flags);
-            if (nativeCallable.isBlocking()) {
-                nativeCallable.execute(ctx, null);
-                BLangVMUtils.populateWorkerDataWithValues(parentLocalData, retRegs, ctx.getReturnValues(), retTypes);
-                checkAndStopCallableObservation(observerContext, flags);
-                BLangScheduler.handleInterruptibleAfterCallback(parentCtx);
-                /* we want the parent to continue, since we got the response of the native call already */
-                return parentCtx;
-            } else {
-                CallableUnitCallback callback = getNativeCallableUnitCallback(parentCtx, ctx, observerContext,
-                        retRegs, retTypes, flags);
-                nativeCallable.execute(ctx, callback);
+//        try {
+//            ObserverContext observerContext = checkAndStartNativeCallableObservation(ctx, callableUnitInfo, flags);
+//            if (nativeCallable.isBlocking()) {
+//                nativeCallable.execute(ctx, null);
+//                BLangVMUtils.populateWorkerDataWithValues(parentLocalData, retRegs, ctx.getReturnValues(), retTypes);
+//                checkAndStopCallableObservation(observerContext, flags);
+//                BLangScheduler.handleInterruptibleAfterCallback(parentCtx);
+//                /* we want the parent to continue, since we got the response of the native call already */
+//                return parentCtx;
+//            } else {
+//                CallableUnitCallback callback = getNativeCallableUnitCallback(parentCtx, ctx, observerContext,
+//                        retRegs, retTypes, flags);
+//                nativeCallable.execute(ctx, callback);
                 /* we want the parent to suspend (i.e. go to wait for response state) and stay until notified */
                 return null;
-            }
-        } catch (BLangNullReferenceException e) {
-            return BLangVMUtils.handleNativeInvocationError(parentCtx,
-                    BLangVMErrors.createNullRefException(parentCtx));
-        } catch (Throwable e) {
-            return BLangVMUtils.handleNativeInvocationError(parentCtx,
-                    BLangVMErrors.createError(parentCtx, e.getMessage()));
-        }
+//            }
+//        } catch (BLangNullReferenceException e) {
+//            return BLangVMUtils.handleNativeInvocationError(parentCtx,
+//                    BLangVMErrors.createNullRefException(parentCtx));
+//        } catch (Throwable e) {
+//            return BLangVMUtils.handleNativeInvocationError(parentCtx,
+//                    BLangVMErrors.createError(parentCtx, e.getMessage()));
+//        }
     }
 
     private static void invokeNativeCallableAsync(CallableUnitInfo callableUnitInfo,
             WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs, int flags) {
-        WorkerData caleeSF = BLangVMUtils.createWorkerDataForLocal(callableUnitInfo.getDefaultWorkerInfo(), parentCtx,
-                argRegs, callableUnitInfo.getParamTypes());
-        Context nativeCtx = new NativeCallContext(parentCtx, callableUnitInfo, caleeSF);
-        NativeCallableUnit nativeCallable = callableUnitInfo.getNativeCallableUnit();
-        if (nativeCallable == null) {
-            return;
-        }
-        AsyncInvocableWorkerResponseContext respCtx;
-        if (nativeCallable.isBlocking()) {
-            respCtx = BLangScheduler.executeBlockingNativeAsync(nativeCallable, nativeCtx, flags);
-        } else {
-            respCtx = BLangScheduler.executeNonBlockingNativeAsync(nativeCallable, nativeCtx, flags);
-        }
-        BLangVMUtils.populateWorkerDataWithValues(parentCtx.workerLocal, retRegs,
-                new BValue[] { new BCallableFuture(callableUnitInfo.getName(), respCtx) },
-                new BType[] { BTypes.typeFuture });
+//        WorkerData caleeSF = BLangVMUtils.createWorkerDataForLocal(callableUnitInfo.getDefaultWorkerInfo(), parentCtx,
+//                argRegs, callableUnitInfo.getParamTypes());
+//        Context nativeCtx = new NativeCallContext(parentCtx, callableUnitInfo, caleeSF);
+//        NativeCallableUnit nativeCallable = callableUnitInfo.getNativeCallableUnit();
+//        if (nativeCallable == null) {
+//            return;
+//        }
+//        AsyncInvocableWorkerResponseContext respCtx;
+//        if (nativeCallable.isBlocking()) {
+//            respCtx = BLangScheduler.executeBlockingNativeAsync(nativeCallable, nativeCtx, flags);
+//        } else {
+//            respCtx = BLangScheduler.executeNonBlockingNativeAsync(nativeCallable, nativeCtx, flags);
+//        }
+//        BLangVMUtils.populateWorkerDataWithValues(parentCtx.workerLocal, retRegs,
+//                new BValue[] { new BCallableFuture(callableUnitInfo.getName(), respCtx) },
+//                new BType[] { BTypes.typeFuture });
     }
     
     private static void handleError(WorkerExecutionContext ctx) {
@@ -631,13 +625,13 @@ public class BLangFunctions {
         return null;
     }
 
-    private static CallableUnitCallback getNativeCallableUnitCallback(WorkerExecutionContext parentCtx, Context ctx,
-                                                                      ObserverContext observerContext, int[] retRegs,
-                                                                      BType[] retTypes, int flags) {
-        BLangCallableUnitCallback callback = new BLangCallableUnitCallback(ctx, parentCtx, retRegs, retTypes);
-        return (ObservabilityUtils.isObservabilityEnabled() && FunctionFlags.isObserved(flags)) ?
-                new CallableUnitCallbackObserver(observerContext, callback) : callback;
-    }
+//    private static CallableUnitCallback getNativeCallableUnitCallback(WorkerExecutionContext parentCtx, Context ctx,
+//                                                                      ObserverContext observerContext, int[] retRegs,
+//                                                                      BType[] retTypes, int flags) {
+//        BLangCallableUnitCallback callback = new BLangCallableUnitCallback(ctx, parentCtx, retRegs, retTypes);
+//        return (ObservabilityUtils.isObservabilityEnabled() && FunctionFlags.isObserved(flags)) ?
+//                new CallableUnitCallbackObserver(observerContext, callback) : callback;
+//    }
 
     private static ObserverContext startCallableObservation(WorkerExecutionContext parentCtx,
                                                             CallableUnitInfo callableUnitInfo) {

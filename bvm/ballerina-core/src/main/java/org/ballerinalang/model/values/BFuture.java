@@ -18,11 +18,12 @@
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.bre.bvm.WorkerResponseContext;
+import org.ballerinalang.bre.vm.SafeStrandCallback;
 
 /**
  * Ballerina base value for the "future" type.
  */
-public interface BFuture extends BRefType<WorkerResponseContext> {
+public interface BFuture extends BRefType<SafeStrandCallback> {
 
     /**
      * Cancels the current future, if its possible to do so.

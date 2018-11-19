@@ -19,6 +19,8 @@ package org.ballerinalang.bre;
 
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.vm.DataFrame;
+import org.ballerinalang.bre.vm.Strand;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -38,9 +40,13 @@ public interface Context {
 
     WorkerExecutionContext getParentWorkerExecutionContext();
 
+    Strand getStrand();
+
     CallableUnitInfo getCallableUnitInfo();
 
     WorkerData getLocalWorkerData();
+
+    DataFrame getDataFrame();
 
     DebugContext getDebugContext();
 
@@ -80,8 +86,9 @@ public interface Context {
 
     BValue getNullableRefArgument(int index);
 
-    void setReturnValues(BValue... values);
+    //TODO fix this method signature to set one BValue
+    void setReturnValues(BValue... value);
 
-    BValue[] getReturnValues();
+    BValue getReturnValue();
 
 }

@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.bre.bvm;
 
+import org.ballerinalang.bre.vm.Strand;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BRefType;
@@ -47,7 +48,7 @@ public class GlobalMemoryArea {
         globalMemBlock[pkgIndex].setIntField(varIndex, value);
     }
 
-    public boolean lockIntField(WorkerExecutionContext ctx, int pkgIndex, int varIndex) {
+    public boolean lockIntField(Strand ctx, int pkgIndex, int varIndex) {
         return globalMemBlock[pkgIndex].lockIntField(ctx, varIndex);
     }
 
@@ -64,7 +65,7 @@ public class GlobalMemoryArea {
         globalMemBlock[pkgIndex].setFloatField(varIndex, value);
     }
 
-    public boolean lockFloatField(WorkerExecutionContext ctx, int pkgIndex, int varIndex) {
+    public boolean lockFloatField(Strand ctx, int pkgIndex, int varIndex) {
         return globalMemBlock[pkgIndex].lockFloatField(ctx, varIndex);
     }
 
@@ -80,7 +81,7 @@ public class GlobalMemoryArea {
         globalMemBlock[pkgIndex].setStringField(varIndex, value);
     }
 
-    public boolean lockStringField(WorkerExecutionContext ctx, int pkgIndex, int varIndex) {
+    public boolean lockStringField(Strand ctx, int pkgIndex, int varIndex) {
         return globalMemBlock[pkgIndex].lockStringField(ctx, varIndex);
     }
 
@@ -96,7 +97,7 @@ public class GlobalMemoryArea {
         globalMemBlock[pkgIndex].setBooleanField(varIndex, value);
     }
 
-    public boolean lockBooleanField(WorkerExecutionContext ctx, int pkgIndex, int varIndex) {
+    public boolean lockBooleanField(Strand ctx, int pkgIndex, int varIndex) {
         return globalMemBlock[pkgIndex].lockBooleanField(ctx, varIndex);
     }
 
@@ -112,7 +113,7 @@ public class GlobalMemoryArea {
         globalMemBlock[pkgIndex].setRefField(varIndex, value);
     }
 
-    public boolean lockRefField(WorkerExecutionContext ctx, int pkgIndex, int varIndex) {
+    public boolean lockRefField(Strand ctx, int pkgIndex, int varIndex) {
         return globalMemBlock[pkgIndex].lockRefField(ctx, varIndex);
     }
 

@@ -63,7 +63,7 @@ resourceParameterList
     ;
 
 callableUnitBody
-    :   LEFT_BRACE endpointDeclaration* (statement* | workerDeclaration+) RIGHT_BRACE
+    :   LEFT_BRACE endpointDeclaration* statement* workerDeclaration* statement* RIGHT_BRACE
     ;
 
 

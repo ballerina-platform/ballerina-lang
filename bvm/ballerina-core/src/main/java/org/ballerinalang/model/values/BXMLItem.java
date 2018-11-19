@@ -33,7 +33,7 @@ import org.apache.axiom.om.impl.llom.OMAttributeImpl;
 import org.apache.axiom.om.impl.llom.OMDocumentImpl;
 import org.apache.axiom.om.impl.llom.OMElementImpl;
 import org.apache.axiom.om.impl.llom.OMProcessingInstructionImpl;
-import org.ballerinalang.bre.bvm.CPU;
+import org.ballerinalang.bre.vm.BVM;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.XMLNodeType;
 import org.ballerinalang.model.util.XMLUtils;
@@ -125,7 +125,7 @@ public final class BXMLItem extends BXML<OMNode> {
             handleXmlException("failed to create xml: ", t);
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -133,7 +133,7 @@ public final class BXMLItem extends BXML<OMNode> {
     public XMLNodeType getNodeType() {
         return nodeType;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -141,7 +141,7 @@ public final class BXMLItem extends BXML<OMNode> {
     public BBoolean isEmpty() {
         return new BBoolean(omNode == null);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -149,7 +149,7 @@ public final class BXMLItem extends BXML<OMNode> {
     public BBoolean isSingleton() {
         return new BBoolean(true);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -157,7 +157,7 @@ public final class BXMLItem extends BXML<OMNode> {
     public BString getItemType() {
         return new BString(nodeType.value());
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -166,10 +166,10 @@ public final class BXMLItem extends BXML<OMNode> {
         if (nodeType == XMLNodeType.ELEMENT) {
             return new BString(((OMElement) omNode).getQName().toString());
         }
-        
+
         return BTypes.typeString.getEmptyValue();
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -193,7 +193,7 @@ public final class BXMLItem extends BXML<OMNode> {
                 return BTypes.typeString.getZeroValue();
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -201,7 +201,7 @@ public final class BXMLItem extends BXML<OMNode> {
     public String getAttribute(String localName, String namespace) {
         return getAttribute(localName, namespace, XMLConstants.DEFAULT_NS_PREFIX);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -210,17 +210,17 @@ public final class BXMLItem extends BXML<OMNode> {
         if (nodeType != XMLNodeType.ELEMENT || localName == null || localName.isEmpty()) {
             return STRING_NULL_VALUE;
         }
-        QName attributeName = getQName(localName, namespace, prefix); 
+        QName attributeName = getQName(localName, namespace, prefix);
         OMAttribute attribute = ((OMElement) omNode).getAttribute(attributeName);
-        
+
         if (attribute != null) {
             return attribute.getAttributeValue();
         }
-        
+
         OMNamespace ns = ((OMElement) omNode).findNamespaceURI(localName);
         return ns == null ? STRING_NULL_VALUE : ns.getNamespaceURI();
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -237,7 +237,7 @@ public final class BXMLItem extends BXML<OMNode> {
         // Validate whether the attribute name is an XML supported qualified name, according to the XML recommendation.
         XMLValidationUtils.validateXMLName(localName);
         XMLValidationUtils.validateXMLName(prefix);
-        
+
         // If the attribute already exists, update the value.
         OMElement node = (OMElement) omNode;
         QName qname = getQName(localName, namespaceUri, prefix);
@@ -318,15 +318,15 @@ public final class BXMLItem extends BXML<OMNode> {
     @Override
     public BMap<?, ?> getAttributesMap() {
         BMap<String, BString> attrMap = new BMap<>();
-        
+
         if (nodeType != XMLNodeType.ELEMENT) {
             return attrMap;
         }
-        
+
         OMNamespace defaultNs = ((OMElement) omNode).getDefaultNamespace();
-        String namespaceOfPrefix = '{' + (defaultNs == null ? XMLConstants.XMLNS_ATTRIBUTE_NS_URI : 
+        String namespaceOfPrefix = '{' + (defaultNs == null ? XMLConstants.XMLNS_ATTRIBUTE_NS_URI :
                 defaultNs.getNamespaceURI()) + '}';
-        
+
         Iterator<OMNamespace> namespaceIterator = ((OMElement) omNode).getAllDeclaredNamespaces();
         while (namespaceIterator.hasNext()) {
             OMNamespace namespace = namespaceIterator.next();
@@ -336,13 +336,13 @@ public final class BXMLItem extends BXML<OMNode> {
             }
             attrMap.put(namespaceOfPrefix + prefix, new BString(namespace.getNamespaceURI()));
         }
-        
+
         Iterator<OMAttribute> attrIterator = ((OMElement) omNode).getAllAttributes();
         while (attrIterator.hasNext()) {
             OMAttribute attr = attrIterator.next();
             attrMap.put(attr.getQName().toString(), new BString(attr.getAttributeValue()));
         }
-        
+
         return attrMap;
     }
 
@@ -352,7 +352,7 @@ public final class BXMLItem extends BXML<OMNode> {
     @Override
     public void setAttributes(BMap<String, ?> attributes) {
         synchronized (this) {
-            if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
+            if (freezeStatus.getState() != BVM.FreezeStatus.State.UNFROZEN) {
                 handleInvalidUpdate(freezeStatus.getState());
             }
         }
@@ -367,14 +367,14 @@ public final class BXMLItem extends BXML<OMNode> {
         while (attrIterator.hasNext()) {
             omElement.removeAttribute(attrIterator.next());
         }
-        
+
         // Remove existing namespace declarations
         Iterator<OMNamespace> namespaceIterator = omElement.getAllDeclaredNamespaces();
         while (namespaceIterator.hasNext()) {
             namespaceIterator.next();
             namespaceIterator.remove();
         }
-        
+
         String localName, uri;
         for (String qname : attributes.keys()) {
             if (qname.startsWith("{") && qname.indexOf('}') > 0) {
@@ -384,14 +384,14 @@ public final class BXMLItem extends BXML<OMNode> {
                 localName = qname;
                 uri = STRING_NULL_VALUE;
             }
-            
-            // Validate whether the attribute name is an XML supported qualified name, 
+
+            // Validate whether the attribute name is an XML supported qualified name,
             // according to the XML recommendation.
             XMLValidationUtils.validateXMLName(localName);
             setAttribute(localName, uri, STRING_NULL_VALUE, attributes.get(qname).stringValue());
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -407,7 +407,7 @@ public final class BXMLItem extends BXML<OMNode> {
         }
         return new BXMLSequence(elementsSeq);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -425,7 +425,7 @@ public final class BXMLItem extends BXML<OMNode> {
         }
         return new BXMLSequence(elementsSeq);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -443,10 +443,10 @@ public final class BXMLItem extends BXML<OMNode> {
             default:
                 break;
         }
-        
+
         return new BXMLSequence(elementsSeq);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -456,10 +456,10 @@ public final class BXMLItem extends BXML<OMNode> {
         switch (nodeType) {
             case ELEMENT:
                 /*
-                 * Here we are not using "((OMElement) omNode).getChildrenWithName(qname))" method, since as per the 
+                 * Here we are not using "((OMElement) omNode).getChildrenWithName(qname))" method, since as per the
                  * documentation of AxiomContainer.getChildrenWithName, if the namespace part of the qname is empty, it
                  * will look for the elements which matches only the local part and returns. i.e: It will not match the
-                 * namespace. This is not the behavior we want. Hence we are explicitly creating an iterator which 
+                 * namespace. This is not the behavior we want. Hence we are explicitly creating an iterator which
                  * will return elements that will match both namespace and the localName, regardless whether they are
                  * empty or not.
                  */
@@ -476,14 +476,14 @@ public final class BXMLItem extends BXML<OMNode> {
         }
         return new BXMLSequence(elementsSeq);
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public void setChildren(BXML<?> seq) {
         synchronized (this) {
-            if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
+            if (freezeStatus.getState() != BVM.FreezeStatus.State.UNFROZEN) {
                 handleInvalidUpdate(freezeStatus.getState());
             }
         }
@@ -500,9 +500,9 @@ public final class BXMLItem extends BXML<OMNode> {
             default:
                 throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
         }
-        
+
         currentNode.removeChildren();
-        
+
         if (seq.getNodeType() == XMLNodeType.SEQUENCE) {
             BRefValueArray childSeq = ((BXMLSequence) seq).value();
             for (int i = 0; i < childSeq.size(); i++) {
@@ -519,7 +519,7 @@ public final class BXMLItem extends BXML<OMNode> {
     @Override
     public void addChildren(BXML<?> seq) {
         synchronized (this) {
-            if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
+            if (freezeStatus.getState() != BVM.FreezeStatus.State.UNFROZEN) {
                 handleInvalidUpdate(freezeStatus.getState());
             }
         }
@@ -536,7 +536,7 @@ public final class BXMLItem extends BXML<OMNode> {
             default:
                 throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
         }
-        
+
         if (seq.getNodeType() == XMLNodeType.SEQUENCE) {
             BRefValueArray childSeq = ((BXMLSequence) seq).value();
             for (int i = 0; i < childSeq.size(); i++) {
@@ -552,14 +552,14 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public BXML<?> strip() {
-        if (omNode == null || (nodeType == XMLNodeType.TEXT && 
+        if (omNode == null || (nodeType == XMLNodeType.TEXT &&
                 ((OMText) omNode).getText().isEmpty())) {
             return new BXMLSequence();
         }
-        
+
         return this;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -568,19 +568,19 @@ public final class BXMLItem extends BXML<OMNode> {
         if (startIndex > 1 || endIndex > 1 || startIndex < -1 || endIndex < -1) {
             throw new BallerinaException("index out of range: [" + startIndex + "," + endIndex + "]");
         }
-        
+
         if (startIndex == -1) {
             startIndex = 0;
         }
-        
+
         if (endIndex == -1) {
             endIndex = 1;
         }
-        
+
         if (startIndex == endIndex) {
             return new BXMLSequence();
-        } 
-        
+        }
+
         if (startIndex > endIndex) {
             throw new BallerinaException("invalid indices: " + startIndex + " < " + endIndex);
         }
@@ -647,7 +647,7 @@ public final class BXMLItem extends BXML<OMNode> {
         }
         return STRING_NULL_VALUE;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -678,13 +678,13 @@ public final class BXMLItem extends BXML<OMNode> {
                 clonedNode = omNode;
                 break;
         }
-        
+
         // adding the document element as parent, to get xpPaths work
         OMDocument doc = new OMDocumentImpl();
         doc.addChild(clonedNode);
         return new BXMLItem(clonedNode);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -718,7 +718,7 @@ public final class BXMLItem extends BXML<OMNode> {
     @Override
     public void removeAttribute(String qname) {
         synchronized (this) {
-            if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
+            if (freezeStatus.getState() != BVM.FreezeStatus.State.UNFROZEN) {
                 handleInvalidUpdate(freezeStatus.getState());
             }
         }
@@ -748,7 +748,7 @@ public final class BXMLItem extends BXML<OMNode> {
     @Override
     public void removeChildren(String qname) {
         synchronized (this) {
-            if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
+            if (freezeStatus.getState() != BVM.FreezeStatus.State.UNFROZEN) {
                 handleInvalidUpdate(freezeStatus.getState());
             }
         }
@@ -796,7 +796,7 @@ public final class BXMLItem extends BXML<OMNode> {
                 break;
         }
     }
-    
+
     private String getTextValue(OMNode node) {
         switch (node.getType()) {
             case OMNode.ELEMENT_NODE:
@@ -859,7 +859,7 @@ public final class BXMLItem extends BXML<OMNode> {
      * {@inheritDoc}
      */
     @Override
-    public synchronized void attemptFreeze(CPU.FreezeStatus freezeStatus) {
+    public synchronized void attemptFreeze(BVM.FreezeStatus freezeStatus) {
         if (isOpenForFreeze(this.freezeStatus, freezeStatus)) {
             this.freezeStatus = freezeStatus;
         }
