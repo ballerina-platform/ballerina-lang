@@ -26,7 +26,7 @@
       "kind":"Field",
       "detail":"Field",
       "sortText":"120",
-      "insertText":"keepAlive: ${1:ALWAYS|AUTO|NEVER}",
+      "insertText":"keepAlive: ${1:AUTO|ALWAYS|NEVER}",
       "insertTextFormat":"Snippet"
     },
     {
@@ -106,7 +106,7 @@
       "kind":"Property",
       "detail":"none",
       "sortText":"110",
-      "insertText":"host: \"\",\nport: 0,\nkeepAlive: ALWAYS|AUTO|NEVER,\nsecureSocket: ServiceSecureSocket?,\nhttpVersion: \"\",\nrequestLimits: RequestLimits?,\nfilters: [],\ntimeoutMillis: 0,\nmaxPipelinedRequests: 0,\nauthProviders: AuthProvider[]?,\npositiveAuthzCache: {},\nnegativeAuthzCache: {}"
+      "insertText":"host: \"\",\nport: 0,\nkeepAlive: AUTO|ALWAYS|NEVER,\nsecureSocket: ServiceSecureSocket?,\nhttpVersion: \"\",\nrequestLimits: RequestLimits?,\nfilters: [],\ntimeoutMillis: 0,\nmaxPipelinedRequests: 0,\nauthProviders: AuthProvider[]?,\npositiveAuthzCache: {},\nnegativeAuthzCache: {}"
     }
   ]
 }
