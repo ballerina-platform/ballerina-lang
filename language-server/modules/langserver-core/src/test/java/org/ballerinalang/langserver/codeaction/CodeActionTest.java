@@ -44,12 +44,13 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Test Cases for CodeActions.
- * 
+ *
  * @since 0.982.0
  */
 public class CodeActionTest {
@@ -60,12 +61,12 @@ public class CodeActionTest {
     private JsonParser parser = new JsonParser();
 
     private Path sourcesPath = new File(getClass().getClassLoader().getResource("codeaction").getFile()).toPath();
-    
+
     @BeforeClass
     public void init() throws Exception {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
-    
+
     @Test(dataProvider = "codeaction-no-diagnostics-data-provider")
     public void testCodeActionWithoutDiagnostics(String config, String source) {
         String configJsonPath = "codeaction" + File.separator + config;
@@ -76,12 +77,11 @@ public class CodeActionTest {
         JsonObject documentThis = expected.getAsJsonObject("actions").getAsJsonObject("documentThis");
         CodeActionContext codeActionContext = new CodeActionContext();
         Range range = gson.fromJson(configJsonObject.get("range"), Range.class);
-        
-        JsonObject responseJson = parser.parse(TestUtil
-                .getCodeActionResponse(this.serviceEndpoint, sourcePath.toString(), range, codeActionContext))
-                .getAsJsonObject();
-        JsonArray result = responseJson.getAsJsonArray("result");
-        
+
+        String response = TestUtil.getCodeActionResponse(this.serviceEndpoint, sourcePath.toString(), range,
+                                                         codeActionContext);
+        JsonArray result = parser.parse(response).getAsJsonObject().getAsJsonArray("result");
+
         Assert.assertEquals(numberOfCommands, result.size());
         result.forEach(element -> {
             String title = element.getAsJsonObject().get("title").getAsString();
@@ -105,14 +105,14 @@ public class CodeActionTest {
             }
         });
     }
-    
+
     @Test(dataProvider = "codeaction-diagnostics-data-provider")
     public void testCodeActionWithDiagnostics(String config, String source) throws IOException {
         String configJsonPath = "codeaction" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         TestUtil.openDocument(serviceEndpoint, sourcePath);
-        
+
         LSCompiler lsCompiler = new LSCompiler(WorkspaceDocumentManagerImpl.getInstance());
         BallerinaFile ballerinaFile = lsCompiler.compileFile(sourcePath, CompilerPhase.COMPILER_PLUGIN);
         List<Diagnostic> lsDiagnostics = new ArrayList<>();
@@ -121,30 +121,69 @@ public class CodeActionTest {
         Range range = gson.fromJson(configJsonObject.get("range"), Range.class);
         String res = TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range, codeActionContext);
         TestUtil.closeDocument(this.serviceEndpoint, sourcePath);
-        
+
         JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
         String title = expected.get("title").toString();
         String command = expected.get("command").toString();
         JsonArray args = expected.get("arguments").getAsJsonArray();
-        
+
         boolean codeActionFound = false;
         JsonObject responseJson = this.getResponseJson(res);
         for (JsonElement jsonElement : responseJson.getAsJsonArray("result")) {
             if (jsonElement.getAsJsonObject().get("title").toString().equals(title)
                     && jsonElement.getAsJsonObject().get("command").toString().equals(command)
                     && TestUtil.isArgumentsSubArray(jsonElement.getAsJsonObject().get("arguments").getAsJsonArray(),
-                    args)) {
+                                                    args)) {
                 codeActionFound = true;
                 break;
             }
         }
-        
+
         Assert.assertTrue(codeActionFound, "Cannot find expected Code Action for: " + title);
+    }
+
+    @Test(dataProvider = "codeaction-testgen-data-provider")
+    public void testCodeActionWithTestGen(String config, Path source) throws IOException {
+        String configJsonPath = "codeaction" + File.separator + config;
+        Path sourcePath = sourcesPath.resolve("source").resolve(source);
+        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
+        TestUtil.openDocument(serviceEndpoint, sourcePath);
+
+        LSCompiler lsCompiler = new LSCompiler(WorkspaceDocumentManagerImpl.getInstance());
+        BallerinaFile ballerinaFile = lsCompiler.compileFile(sourcePath, CompilerPhase.COMPILER_PLUGIN);
+        List<Diagnostic> lsDiagnostics = new ArrayList<>();
+        ballerinaFile.getDiagnostics().ifPresent(diagnostics -> lsDiagnostics.addAll(getLSDiagnostics(diagnostics)));
+        CodeActionContext context = new CodeActionContext(lsDiagnostics);
+        JsonArray ranges = configJsonObject.getAsJsonArray("cursor");
+        for (JsonElement rangeElement : ranges) {
+            JsonObject rangeObject = rangeElement.getAsJsonObject();
+            Position pos = new Position(rangeObject.get("line").getAsInt(), rangeObject.get("character").getAsInt());
+            Range range = new Range(pos, pos);
+            String res = TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range, context);
+
+            JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
+            String title = expected.get("title").toString();
+            String command = expected.get("command").toString();
+
+            boolean codeActionFound = false;
+            JsonObject responseJson = this.getResponseJson(res);
+            for (JsonElement jsonElement : responseJson.getAsJsonArray("result")) {
+                if (jsonElement.getAsJsonObject().get("title").toString().equals(title)
+                        && jsonElement.getAsJsonObject().get("command").toString().equals(command)) {
+                    codeActionFound = true;
+                    break;
+                }
+            }
+            String cursorStr = range.getStart().getLine() + ":" + range.getEnd().getCharacter();
+            Assert.assertTrue(codeActionFound,
+                              "Cannot find expected Code Action for: " + title + ", cursor at " + cursorStr);
+        }
+        TestUtil.closeDocument(this.serviceEndpoint, sourcePath);
     }
 
     @DataProvider(name = "codeaction-no-diagnostics-data-provider")
     public Object[][] codeActionDataProvider() {
-        return new Object[][] {
+        return new Object[][]{
                 {"singleDocGeneration.json", "singleDocGeneration.bal"},
                 {"singleDocGeneration1.json", "singleDocGeneration.bal"},
                 {"singleDocGeneration2.json", "singleDocGeneration.bal"},
@@ -155,12 +194,20 @@ public class CodeActionTest {
 
     @DataProvider(name = "codeaction-diagnostics-data-provider")
     public Object[][] codeActionWithDiagnosticDataProvider() {
-        return new Object[][] {
+        return new Object[][]{
                 {"undefinedPackageWithinFunction.json", "codeActionCommon.bal"},
                 {"undefinedFunctionCodeAction.json", "createUndefinedFunction.bal"},
                 {"undefinedFunctionCodeAction2.json", "createUndefinedFunction2.bal"},
                 {"variableAssignmentRequiredCodeAction.json", "createVariable.bal"},
                 {"packagePull.json", "packagePull.bal"}
+        };
+    }
+
+    @DataProvider(name = "codeaction-testgen-data-provider")
+    public Object[][] testGenCodeActionDataProvider() {
+        return new Object[][]{
+                {"testGenFunctionCodeAction.json", Paths.get("testgen", "module1", "functions.bal")},
+                {"testGenServiceCodeAction.json", Paths.get("testgen", "module2", "services.bal")}
         };
     }
 
@@ -174,7 +221,7 @@ public class CodeActionTest {
         responseJson.remove("id");
         return responseJson;
     }
-    
+
     private List<Diagnostic> getLSDiagnostics(List<org.ballerinalang.util.diagnostic.Diagnostic> ballerinaDiags) {
         List<Diagnostic> lsDiagnostics = new ArrayList<>();
         ballerinaDiags.forEach(diagnostic -> {
@@ -202,7 +249,7 @@ public class CodeActionTest {
 
             lsDiagnostics.add(lsDiagnostic);
         });
-        
+
         return lsDiagnostics;
     }
 }
