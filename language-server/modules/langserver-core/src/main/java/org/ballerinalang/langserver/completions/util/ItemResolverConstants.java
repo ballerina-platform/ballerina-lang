@@ -105,6 +105,7 @@ public class ItemResolverConstants {
     public static final String BUILTIN_IS_NAN_LABEL = "isNaN()";
     public static final String BUILTIN_IS_FINITE_LABEL = "isFinite()";
     public static final String BUILTIN_IS_INFINITE_LABEL = "isInfinite()";
+    public static final String BUILTIN_CLONE_LABEL = "clone()";
     public static final String BUILTIN_FREEZE_LABEL = "freeze()";
     public static final String BUILTIN_IS_FROZEN_LABEL = "isFrozen()";
 }
