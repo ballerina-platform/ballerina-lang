@@ -33,7 +33,7 @@ public class BasicWorkerActionsNegativeTest {
     @BeforeClass
     public void setup() {
         this.result = BCompileUtil.compile("test-src/workers/actions-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 33, "Worker actions negative test error count");
+        Assert.assertEquals(result.getErrorCount(), 32, "Worker actions negative test error count");
     }
 
     @Test(description = "Test negative scenarios of worker actions")
@@ -52,10 +52,11 @@ public class BasicWorkerActionsNegativeTest {
         BAssertUtil.validateError(result, 6, "variable assignment is required", 42, 9);
         BAssertUtil.validateError(result, 7, "invalid worker flush expression for 'w1', there are no worker " +
                 "send statements to 'w1' from 'w3'", 42, 9);
-        BAssertUtil.validateError(result, 8, "redeclared symbol 's1'", 59, 5);
+        BAssertUtil.validateError(result, 8, "incompatible types: expected 'future<string>', found 'future<int>'",
+                                  59, 22);
         BAssertUtil.validateError(result, 9, "variable assignment is required", 62, 5);
-        BAssertUtil.validateError(result, 10, "incompatible types: expected 'future<int>', found 'future<string>'",
-                                  76, 34);
+        BAssertUtil.validateError(result, 10, "incompatible types: expected 'future<int>', found 'future" +
+                "<string>'", 76, 34);
         BAssertUtil.validateError(result, 11, "incompatible types: expected 'future<int|boolean>', found 'future" +
                 "<string>'", 77, 37);
         BAssertUtil.validateError(result, 12, "incompatible types: expected 'future<map>', found 'future<int>'",
@@ -90,9 +91,7 @@ public class BasicWorkerActionsNegativeTest {
         BAssertUtil.validateError(result, 29, "invalid worker send statement position, must be a top level " +
                 "statement in a worker", 120, 13);
         BAssertUtil.validateError(result, 30, "action invocation as an expression not allowed here", 124, 15);
-        BAssertUtil.validateError(result, 31, "invalid worker receive statement position, must be a top level " +
-                "statement in a worker", 127, 19);
-        BAssertUtil.validateError(result, 32, "invalid worker flush expression for 'w2', there are no worker send " +
+        BAssertUtil.validateError(result, 31, "invalid worker flush expression for 'w2', there are no worker send " +
                 "statements to 'w2' from 'w1'", 137, 22);
     }
 }

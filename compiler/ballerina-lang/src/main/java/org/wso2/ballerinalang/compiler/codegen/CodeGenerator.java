@@ -2760,10 +2760,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                 .getUniqueNameCPIndex(), workerDataChannelInfo.getUniqueName());
         wrkrInvRefCPEntry.setWorkerDataChannelInfo(workerDataChannelInfo);
         Operand wrkrInvRefCPIndex = getOperand(currentPkgInfo.addCPEntry(wrkrInvRefCPEntry));
-        if (workerSendStmt.isForkJoinSend) {
-            this.currentWorkerInfo.setWrkrDtChnlRefCPIndex(wrkrInvRefCPIndex.value);
-            this.currentWorkerInfo.setWorkerDataChannelInfoForForkJoin(workerDataChannelInfo);
-        }
         workerDataChannelInfo.setDataChannelRefIndex(wrkrInvRefCPIndex.value);
 
         genNode(workerSendStmt.expr, this.env);

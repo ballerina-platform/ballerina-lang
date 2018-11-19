@@ -2546,12 +2546,10 @@ public class BLangPackageBuilder {
         this.matchStmtStack.peekFirst().patternClauses.add(patternClause);
     }
 
-    void addWorkerSendStmt(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean isForkJoinSend, boolean
-            hasKey) {
+    void addWorkerSendStmt(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean hasKey) {
         BLangWorkerSend workerSendNode = (BLangWorkerSend) TreeBuilder.createWorkerSendNode();
         workerSendNode.setWorkerName(this.createIdentifier(workerName));
         workerSendNode.expr = (BLangExpression) exprNodeStack.pop();
-        workerSendNode.isForkJoinSend = isForkJoinSend;
         workerSendNode.pos = pos;
         workerSendNode.addWS(ws);
         //added to use for channels as well

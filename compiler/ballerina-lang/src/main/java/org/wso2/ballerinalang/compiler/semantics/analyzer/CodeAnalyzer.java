@@ -1397,10 +1397,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         return action.getKind() == NodeKind.WORKER_SYNC_SEND;
     }
 
-    private static boolean isWorkerForkSend(BLangNode action) {
-        return ((BLangWorkerSend) action).isForkJoinSend;
-    }
-
     private String extractWorkerId(BLangNode action) {
         if (isWorkerSend(action)) {
             return ((BLangWorkerSend) action).workerIdentifier.value;
@@ -1412,7 +1408,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private void validateWorkerInteractions(WorkerActionSystem workerActionSystem) {
-        this.validateForkJoinSendsToFork(workerActionSystem);
         BLangNode currentAction;
         WorkerActionStateMachine currentSM;
         String currentWorkerId;
@@ -1426,11 +1421,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     continue;
                 }
                 currentAction = currentSM.currentAction();
-                if (isWorkerSend(currentAction) && isWorkerForkSend(currentAction)) {
-                    currentSM.next();
-                    systemRunning = true;
-                    continue;
-                }
                 if (isWorkerSend(currentAction) || isWorkerSyncSend(currentAction)) {
                     WorkerActionStateMachine otherSM = workerActionSystem.get(this.extractWorkerId(currentAction));
                     if (otherSM.currentIsReceive(currentWorkerId)) {
@@ -1451,25 +1441,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         } while (systemRunning);
         if (!workerActionSystem.everyoneDone()) {
             this.reportInvalidWorkerInteractionDiagnostics(workerActionSystem);
-        }
-    }
-
-    private void validateForkJoinSendsToFork(WorkerActionSystem workerActionSystem) {
-        for (Map.Entry<String, WorkerActionStateMachine> entry : workerActionSystem.entrySet()) {
-            this.validateForkJoinSendsToFork(entry.getValue());
-        }
-    }
-
-    private void validateForkJoinSendsToFork(WorkerActionStateMachine sm) {
-        boolean sentToFork = false;
-        for (BLangNode action : sm.actions) {
-            if (isWorkerSend(action) && isWorkerForkSend(action)) {
-                if (sentToFork) {
-                    this.dlog.error(action.pos, DiagnosticCode.INVALID_MULTIPLE_FORK_JOIN_SEND);
-                } else {
-                    sentToFork = true;
-                }
-            }
         }
     }
 
