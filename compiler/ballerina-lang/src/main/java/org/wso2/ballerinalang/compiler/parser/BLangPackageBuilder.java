@@ -1339,7 +1339,7 @@ public class BLangPackageBuilder {
             invocationNode.addWS(commaWsStack.pop());
         }
 
-        invocationNode.expr = (BLangVariableReference) exprNodeStack.pop();
+        invocationNode.expr = (BLangExpression) exprNodeStack.pop();
         invocationNode.name = (BLangIdentifier) createIdentifier(invocation);
         invocationNode.pkgAlias = (BLangIdentifier) createIdentifier(null);
         addExpressionNode(invocationNode);

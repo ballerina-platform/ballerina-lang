@@ -62,6 +62,11 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
     }
 
     @Override
+    public void setType(BType type) {
+
+    }
+
+    @Override
     public String stringValue() {
         return value.toString();
     }

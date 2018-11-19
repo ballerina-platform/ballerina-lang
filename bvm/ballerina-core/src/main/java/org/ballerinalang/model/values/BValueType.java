@@ -19,6 +19,7 @@
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.bre.bvm.CPU;
+import org.ballerinalang.model.types.BType;
 
 import java.math.BigDecimal;
 
@@ -96,4 +97,11 @@ public abstract class BValueType implements BValue {
         return this.stringValue();
     }
 
+
+    public abstract void setType(BType type);
+
+    @Override
+    public void stamp(BType type) {
+        this.setType(type);
+    }
 }

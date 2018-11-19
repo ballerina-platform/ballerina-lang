@@ -94,6 +94,8 @@ public interface InstructionCodes {
 
     int IS_LIKE = 60;
 
+    int STAMP = 62;
+
     int FREEZE = 63;
     int IS_FROZEN = 64;
 

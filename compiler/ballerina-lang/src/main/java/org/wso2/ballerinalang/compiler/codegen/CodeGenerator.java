@@ -1274,6 +1274,10 @@ public class CodeGenerator extends BLangNodeVisitor {
             case IS_FROZEN:
                 emit(InstructionCodes.IS_FROZEN, iExpr.expr.regIndex, regIndex);
                 break;
+            case STAMP:
+                genNode(iExpr.requiredArgs.get(0), this.env);
+                emit(InstructionCodes.STAMP, iExpr.requiredArgs.get(0).regIndex, getTypeCPIndex(iExpr.type), regIndex);
+                break;
         }
     }
 
