@@ -61,7 +61,7 @@ public class CompletionUtil {
         try {
             completionContext.put(CompletionKeys.CURRENT_LINE_SEGMENT_KEY, getSourceSegmentOfLine(completionContext));
             BLangNode symbolEnvNode = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
-            return CompletionItemResolver.getResolverByClass(symbolEnvNode.getClass()).resolveItems(completionContext);
+            return CompletionItemResolver.get(symbolEnvNode.getClass()).resolveItems(completionContext);
         } catch (Exception | AssertionError e) {
             return new ArrayList<>();
         }

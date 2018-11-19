@@ -21,7 +21,7 @@ import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -91,25 +91,22 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
 import java.util.Stack;
-import java.util.stream.Collectors;
 
 /**
  * Tree visitor for finding the node at the given position.
  */
 public class PositionTreeVisitor extends LSNodeVisitor {
 
-    private String fileName;
     private Position position;
     private boolean terminateVisitor = false;
     private SymbolTable symTable;
-    private LSServiceOperationContext context;
+    private LSContext context;
     private Object previousNode;
     private Stack<BLangNode> nodeStack;
 
-    public PositionTreeVisitor(LSServiceOperationContext context) {
+    public PositionTreeVisitor(LSContext context) {
         this.context = context;
         this.position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
-        this.fileName = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         this.symTable = SymbolTable.getInstance(context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY));
         this.position.setLine(this.position.getLine() + 1);
         this.nodeStack = new Stack<>();
@@ -117,24 +114,17 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     }
 
     public void visit(BLangPackage pkgNode) {
-        // Then visit each top-level element sorted using the compilation unit
-        List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes.stream()
-                .filter(node ->
-                                node.getPosition().getSource()
-                                        .getCompilationUnitName()
-                                        .equals(this.fileName)
-                ).collect(Collectors.toList());
-
-        if (topLevelNodes.isEmpty()) {
-            setTerminateVisitor(true);
-            acceptNode(null);
-        } else {
-            topLevelNodes.forEach(topLevelNode -> acceptNode((BLangNode) topLevelNode));
-        }
+        boolean isTestSrc = CommonUtil.isTestSource(this.context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY));
+        BLangPackage evalPkg = isTestSrc ? pkgNode.getTestablePkg() : pkgNode;
+        List<TopLevelNode> topLevelNodes = CommonUtil.getCurrentFileTopLevelNodes(evalPkg, this.context);
+        topLevelNodes.forEach(topLevelNode -> acceptNode((BLangNode) topLevelNode));
     }
 
     public void visit(BLangImportPackage importPkgNode) {
         BPackageSymbol pkgSymbol = importPkgNode.symbol;
+        if (pkgSymbol == null) {
+            return;
+        }
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgSymbol);
         acceptNode(pkgEnv.node);
     }
@@ -142,7 +132,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     public void visit(BLangFunction funcNode) {
         // Check for native functions
         BSymbol funcSymbol = funcNode.symbol;
-        if (Symbols.isNative(funcSymbol)) {
+        if (Symbols.isNative(funcSymbol) || !CommonUtil.isValidInvokableSymbol(funcSymbol)) {
             return;
         }
 
@@ -883,11 +873,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         if (typeDefinition.typeNode != null) {
             this.acceptNode(typeDefinition.typeNode);
         }
-
-//        if (typeDefinition.valueSpace != null) {
-//            typeDefinition.valueSpace.forEach(this::acceptNode);
-//        }
-
     }
 
     @Override
@@ -927,7 +912,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
      * @param node node to be accepted to visit.
      */
     private void acceptNode(BLangNode node) {
-        if (this.terminateVisitor) {
+        if (this.terminateVisitor || node == null) {
             return;
         }
         node.accept(this);

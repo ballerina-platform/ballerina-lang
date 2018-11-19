@@ -154,7 +154,7 @@ public class WorkspacePackageRepositoryTest {
 
     private CompilerContext getCompilerContext(Path filePath, String sourceRoot, String packageName,
                                                PackageRepository packageRepository) {
-        LSDocument sourceDocument = new LSDocument(filePath.toUri().toString(), sourceRoot);
+        LSDocument sourceDocument = new LSDocument(filePath, sourceRoot);
         WorkspaceDocumentManagerImpl documentManager = ExtendedWorkspaceDocumentManagerImpl.getInstance();
         PackageID packageID = new PackageID(Names.ANON_ORG, new Name(packageName), Names.DEFAULT_VERSION);
         return LSCompilerUtil.prepareCompilerContext(packageID, packageRepository, sourceDocument,

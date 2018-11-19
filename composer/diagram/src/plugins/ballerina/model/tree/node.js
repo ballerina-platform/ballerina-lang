@@ -19,7 +19,7 @@ import _ from 'lodash';
 import uuid from 'uuid/v4';
 import EventChannel from 'event_channel';
 import SimpleBBox from '../view/simple-bounding-box';
-import getSourceOf from '../source-gen';
+import { ASTUtil} from 'ast-model';
 
 /**
  * Base of all tree nodes.
@@ -193,9 +193,9 @@ class Node extends EventChannel {
     getSource(pretty, stripComments = false) {
         const regex = /\/\/.*\n*/g;
         if (stripComments) {
-            return getSourceOf(this, pretty).replace(regex, '').trim();
+            return ASTUtil.getSource(this, pretty).replace(regex, '').trim();
         }
-        return getSourceOf(this, pretty);
+        return ASTUtil.getSource(this);
     }
 
     [Symbol.iterator]() {
@@ -427,14 +427,14 @@ class Node extends EventChannel {
      * @memberof Node
      */
     clearWS() {
-        this.accept({
+        /*this.accept({
             beginVisit: (node) => {
                 delete node.ws;
             },
             endVisit: (node) => {
                 // do nothing.
             },
-        });
+        });*/
     }
 
     /**
