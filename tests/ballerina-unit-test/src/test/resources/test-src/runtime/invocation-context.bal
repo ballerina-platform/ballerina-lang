@@ -51,6 +51,6 @@ function testAttributes () returns boolean {
     json jsonAttribute = { name: "value" };
     runtime:getInvocationContext().attributes[attributeName] = attributeValue;
     runtime:getInvocationContext().attributes[jsonAttributeName] = jsonAttribute;
-    return (attributeValue == runtime:getInvocationContext().attributes[attributeName]) &&
-        (jsonAttribute == runtime:getInvocationContext().attributes[jsonAttributeName]);
+    return (attributeValue === runtime:getInvocationContext().attributes[attributeName]) &&
+        (jsonAttribute === runtime:getInvocationContext().attributes[jsonAttributeName]);
 }
