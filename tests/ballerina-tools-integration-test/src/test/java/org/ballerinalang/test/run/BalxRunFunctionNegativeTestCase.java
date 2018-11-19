@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static org.ballerinalang.test.utils.PackagingTestUtils.deleteFiles;
 
@@ -44,28 +45,49 @@ import static org.ballerinalang.test.utils.PackagingTestUtils.deleteFiles;
  */
 public class BalxRunFunctionNegativeTestCase extends BaseTest {
 
-    private String sourceRoot = (new File("src/test/resources/run/balx/")).getAbsolutePath();
+    private String sourceRoot = (new File("src/test/resources/run/balx/simple")).getAbsolutePath();
 
-    private Path tempProjectDir;
     private String balxPath;
+    private Path tempProjectDir;
+    private Path tempProjectDirTwo;
 
     @BeforeClass()
     public void setUp() throws BallerinaTestException, IOException {
+        // set up for testInvalidSourceArg
         tempProjectDir = Files.createTempDirectory("temp-entry-func-test");
         String fileName = "test_entry_function.bal";
-        String[] clientArgs = {"-o", tempProjectDir.toString().concat(File.separator).concat("entry"),
-                sourceRoot.concat(File.separator).concat(fileName)};
+        String[] clientArgs = {"-o", Paths.get(tempProjectDir.toString(), "entry").toString(),
+                new File(sourceRoot + "/"  + fileName).getAbsolutePath()};
         balClient.runMain("build", clientArgs, null, new String[0],
                 new LogLeecher[0], tempProjectDir.toString());
         Path generatedBalx = tempProjectDir.resolve("entry.balx");
         balxPath = generatedBalx.toString();
+        // create a temp directory for testWrongEntryFunctionNameWithColons
+        tempProjectDirTwo = Files.createTempDirectory("temp-entry-func-test-complex");
     }
 
-    @Test
-    public void testEmptyEntryFunctionName() throws BallerinaTestException {
+    @Test(description = "test an invalid source argument, ending with a colon, e.g., ballerina run <FILE_NAME>:")
+    public void testInvalidSourceArg() throws BallerinaTestException {
         String sourceArg = balxPath + ":";
-        LogLeecher errLogLeecher = new LogLeecher("ballerina: expected function name after final ':'",
-                LeecherType.ERROR);
+        LogLeecher errLogLeecher = new LogLeecher("error: no ballerina source files found in module " + balxPath +
+                                                          ":", LeecherType.ERROR);
+        balClient.runMain(sourceArg, new LogLeecher[]{errLogLeecher});
+        errLogLeecher.waitForText(2000);
+    }
+
+    @Test(description = "test an invalid function name with ballerina run, where the function name includes colons")
+    public void testWrongEntryFunctionNameWithColons() throws BallerinaTestException {
+        String fileName = "test_entry_function_with_colons.bal";
+        String[] clientArgs = {"-o",
+                Paths.get(tempProjectDirTwo.toString(), "test_entry_function_with_colons").toString(),
+                new File("src/test/resources/run/balx/complex/" + fileName).getAbsolutePath()};
+        balClient.runMain("build", clientArgs, null, new String[0], new LogLeecher[0],
+                          tempProjectDirTwo.toString());
+        Path generatedBalx = tempProjectDirTwo.resolve(fileName.replace("bal", "balx"));
+        String sourceArg = generatedBalx.toString() + ":colonsInName:WrongFunction";
+        LogLeecher errLogLeecher = new LogLeecher("ballerina: 'colonsInName:WrongFunction' function not found in '"
+                                                          + tempProjectDirTwo.resolve(fileName.replace("bal", "balx"))
+                                                          + "'", LeecherType.ERROR);
         balClient.runMain(sourceArg, new LogLeecher[]{errLogLeecher});
         errLogLeecher.waitForText(2000);
     }
@@ -74,6 +96,7 @@ public class BalxRunFunctionNegativeTestCase extends BaseTest {
     public void tearDown() throws BallerinaTestException {
         try {
             deleteFiles(tempProjectDir);
+            deleteFiles(tempProjectDirTwo);
         } catch (IOException e) {
             throw new BallerinaTestException("Error deleting files");
         }
