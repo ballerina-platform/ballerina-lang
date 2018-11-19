@@ -25,14 +25,11 @@ function testUnaryNonBlockingClient() returns int {
     };
     // Executing unary non-blocking call registering server message listener.
     error? result = helloWorldEp->hello("WSO2", HelloWorldMessageListener);
-    match result {
-        error payloadError => {
-            io:println("Error occured while sending event " + payloadError.reason());
-            return total;
-        }
-        () => {
-            io:println("Connected successfully");
-        }
+    if (result is error) {
+        io:println("Error occured while sending event " + result.reason());
+        return total;
+    } else {
+        io:println("Connected successfully");
     }
 
     int wait = 0;
@@ -72,8 +69,8 @@ service<grpc:Service> HelloWorldMessageListener {
 
 public type HelloWorldBlockingStub object {
 
-    public grpc:Client clientEndpoint;
-    public grpc:Stub stub;
+    public grpc:Client clientEndpoint = new;
+    public grpc:Stub stub = new;
 
 
     function initStub(grpc:Client ep) {
@@ -83,86 +80,51 @@ public type HelloWorldBlockingStub object {
     }
 
     function hello(string req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
-        var unionResp = self.stub.blockingExecute("grpcservices.HelloWorld100/hello", req, headers = headers);
-        match unionResp {
-            error payloadError => {
-                return payloadError;
-            }
-            (any, grpc:Headers) payload => {
-                any result;
-                grpc:Headers resHeaders;
-                (result, resHeaders) = payload;
-                return (<string>result, resHeaders);
-            }
-        }
+        var unionResp = check self.stub.blockingExecute("grpcservices.HelloWorld100/hello", req, headers = headers);
+        any result = ();
+        grpc:Headers resHeaders = new;
+        (result, resHeaders) = unionResp;
+        return (<string>result, resHeaders);
     }
 
     function testInt(int req, grpc:Headers? headers = ()) returns ((int, grpc:Headers)|error) {
-        var unionResp = self.stub.blockingExecute("grpcservices.HelloWorld100/testInt", req, headers = headers);
-        match unionResp {
-            error payloadError => {
-                return payloadError;
-            }
-            (any, grpc:Headers) payload => {
-                any result;
-                grpc:Headers resHeaders;
-                (result, resHeaders) = payload;
-                return (check <int>result, resHeaders);
-            }
-        }
+        var unionResp = check self.stub.blockingExecute("grpcservices.HelloWorld100/testInt", req, headers = headers);
+        any result = ();
+        grpc:Headers resHeaders = new;
+        (result, resHeaders) = unionResp;
+        return (check <int>result, resHeaders);
     }
 
     function testFloat(float req, grpc:Headers? headers = ()) returns ((float, grpc:Headers)|error) {
-        var unionResp = self.stub.blockingExecute("grpcservices.HelloWorld100/testFloat", req, headers = headers);
-        match unionResp {
-            error payloadError => {
-                return payloadError;
-            }
-            (any, grpc:Headers) payload => {
-                any result;
-                grpc:Headers resHeaders;
-                (result, resHeaders) = payload;
-                return (check <float>result, resHeaders);
-            }
-        }
+        var unionResp = check self.stub.blockingExecute("grpcservices.HelloWorld100/testFloat", req, headers = headers);
+        any result = ();
+        grpc:Headers resHeaders = new;
+        (result, resHeaders) = unionResp;
+        return (check <float>result, resHeaders);
     }
 
     function testBoolean(boolean req, grpc:Headers? headers = ()) returns ((boolean, grpc:Headers)|error) {
-        var unionResp = self.stub.blockingExecute("grpcservices.HelloWorld100/testBoolean", req, headers = headers);
-        match unionResp {
-            error payloadError => {
-                return payloadError;
-            }
-            (any, grpc:Headers) payload => {
-                any result;
-                grpc:Headers resHeaders;
-                (result, resHeaders) = payload;
-                return (check <boolean>result, resHeaders);
-            }
-        }
+        var unionResp = check self.stub.blockingExecute("grpcservices.HelloWorld100/testBoolean", req, headers = headers);
+        any result = ();
+        grpc:Headers resHeaders = new;
+        (result, resHeaders) = unionResp;
+        return (check <boolean>result, resHeaders);
     }
 
     function testStruct(Request req, grpc:Headers? headers = ()) returns ((Response, grpc:Headers)|error) {
-        var unionResp = self.stub.blockingExecute("grpcservices.HelloWorld100/testStruct", req, headers = headers);
-        match unionResp {
-            error payloadError => {
-                return payloadError;
-            }
-            (any, grpc:Headers) payload => {
-                any result;
-                grpc:Headers resHeaders;
-                (result, resHeaders) = payload;
-                return (check <Response>result, resHeaders);
-            }
-        }
+        var unionResp = check self.stub.blockingExecute("grpcservices.HelloWorld100/testStruct", req, headers = headers);
+        any result = ();
+        grpc:Headers resHeaders = new;
+        (result, resHeaders) = unionResp;
+        return (check <Response>result, resHeaders);
     }
 };
 
 
 public type HelloWorldStub object {
 
-    public grpc:Client clientEndpoint;
-    public grpc:Stub stub;
+    public grpc:Client clientEndpoint = new;
+    public grpc:Stub stub = new;
 
 
     function initStub(grpc:Client ep) {
@@ -195,8 +157,8 @@ public type HelloWorldStub object {
 
 public type HelloWorldBlockingClient object {
 
-    public grpc:Client client;
-    public HelloWorldBlockingStub stub;
+    public grpc:Client client = new;
+    public HelloWorldBlockingStub stub = new;
 
 
     public function init(grpc:ClientEndpointConfig con) {
@@ -218,8 +180,8 @@ public type HelloWorldBlockingClient object {
 
 public type HelloWorldClient object {
 
-    public grpc:Client client;
-    public HelloWorldStub stub;
+    public grpc:Client client = new;
+    public HelloWorldStub stub = new;
 
 
     public function init(grpc:ClientEndpointConfig con) {
@@ -252,11 +214,11 @@ map descriptorMap =
 };
 
 type Request record {
-    string name;
-    string message;
-    int age;
+    string name = "";
+    string message = "";
+    int age = 0;
 };
 
 type Response record {
-    string resp;
+    string resp = "";
 };

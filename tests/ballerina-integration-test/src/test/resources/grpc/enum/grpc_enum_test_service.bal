@@ -20,14 +20,12 @@ endpoint grpc:Listener listener {
     port:8555
 };
 
-map<orderInfo> ordersMap;
-
 @grpc:ServiceConfig
 service testEnumService bind listener {
     testEnum(endpoint caller, orderInfo orderReq) {
-        string permission;
-        match orderReq.mode {
-            r => permission = "r";
+        string permission = "";
+        if (orderReq.mode == r) {
+            permission = "r";
         }
         _ = caller->send(permission);
         _ = caller->complete();
@@ -35,8 +33,8 @@ service testEnumService bind listener {
 }
 
 type orderInfo record {
-    string id;
-    Mode mode;
+    string id = "";
+    Mode mode = r;
 };
 
 public type Mode "r";

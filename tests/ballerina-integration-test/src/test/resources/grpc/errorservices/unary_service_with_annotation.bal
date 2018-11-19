@@ -87,22 +87,22 @@ service TestService bind ep {
 }
 
 type Request record {
-    string name;
-    string message;
-    int age;
+    string name = "";
+    string message = "";
+    int age = 0;
 };
 
 type Response record {
-    string resp;
+    string resp = "";
 };
 
 type Person record {
-    string name;
-    Address address;
+    string name = "";
+    Address address = {};
 };
 
 type Address record {
-    int postalCode;
-    string state;
-    string country;
+    int postalCode = 0;
+    string state = "";
+    string country = "";
 };

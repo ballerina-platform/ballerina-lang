@@ -55,7 +55,11 @@ service<http:Service> nyseStockQuote1 bind passthroughEP1 {
         path: "/stocksAsMultiparts"
     }
     stocksAsMultiparts(endpoint caller, http:Request clientRequest) {
-        mime:Entity[] bodyParts = check clientRequest.getBodyParts();
-        _ = caller->respond(untaint bodyParts);
+        var bodyParts = clientRequest.getBodyParts();
+        if (bodyParts is mime:Entity[]) {
+            _ = caller->respond(untaint bodyParts);
+        } else if (bodyParts is error) {
+            _ = caller->respond(untaint bodyParts.reason());
+        }
     }
 }

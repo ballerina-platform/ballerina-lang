@@ -32,8 +32,12 @@ endpoint websub:Listener websubEP {
 }
 service<websub:Service> websubSubscriber bind websubEP {
     onNotification (websub:Notification notification) {
-        json payload = check notification.getJsonPayload();
-        io:println("WebSub Notification Received: " + payload.toString());
+        var payload = notification.getJsonPayload();
+        if (payload is json) {
+            io:println("WebSub Notification Received: " + payload.toString());
+        } else {
+            panic payload;
+        }
     }
 }
 
@@ -57,7 +61,12 @@ service<websub:Service> websubSubscriberTwo bind websubEP {
     }
 
     onNotification (websub:Notification notification) {
-        io:println("WebSub Notification Received by Two: " + check notification.getPayloadAsString());
+        var payload = notification.getPayloadAsString();
+        if (payload is string) {
+            io:println("WebSub Notification Received by Two: " + payload);
+        } else {
+            panic payload;
+        }
     }
 }
 

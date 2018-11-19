@@ -30,13 +30,14 @@ endpoint http:Client clientEP {
 public function main (string... args) {
     http:Request req = new;
     var resp = clientEP->get("/echo/");
-    match resp {
-        error err => io:println(err.message);
-        http:Response response => {
-            match (response.getTextPayload()) {
-                error payloadError => io:println(payloadError.message);
-                string res => io:println(res);
-            }
+    if (resp is http:Response) {
+        var payload = resp.getTextPayload();
+        if (payload is string) {
+            io:println(payload);
+        } else if (payload is error) {
+            io:println(<string> payload.detail().message);
         }
+    } else if (resp is error) {
+        io:println(<string> resp.detail().message);
     }
 }

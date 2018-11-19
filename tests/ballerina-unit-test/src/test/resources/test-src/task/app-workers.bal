@@ -1,10 +1,10 @@
 import ballerina/io;
 import ballerina/task;
 
-int w1Count;
+int w1Count = 0;
 error? errorW1 = ();
-string errorMsgW1;
-task:Appointment? app;
+string errorMsgW1 = "";
+task:Appointment? app = ();
 
 function scheduleAppointment(string cronExpression, string errMsgW1) {
     worker default {
@@ -47,7 +47,7 @@ function getCount() returns (int) {
 }
 
 function getError() returns (string) {
-    string w1ErrMsg;
+    string w1ErrMsg = "";
     if (errorW1 is error) {
         w1ErrMsg = errorW1.reason();
     }
