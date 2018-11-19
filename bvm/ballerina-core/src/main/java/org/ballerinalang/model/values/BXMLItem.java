@@ -654,7 +654,11 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public BXMLItem copy(Map<BValue, BValue> refs) {
-        OMNode clonedNode = null;
+        if (isFrozen()) {
+            return this;
+        }
+
+        OMNode clonedNode;
         switch (nodeType) {
             case ELEMENT:
                 clonedNode = ((OMElement) omNode).cloneOMElement();

@@ -90,6 +90,10 @@ public class BStringArray extends BNewArray {
 
     @Override
     public BValue copy(Map<BValue, BValue> refs) {
+        if (isFrozen()) {
+            return this;
+        }
+
         if (refs.containsKey(this)) {
             return refs.get(this);
         }

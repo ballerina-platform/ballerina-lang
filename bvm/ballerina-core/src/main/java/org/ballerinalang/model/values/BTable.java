@@ -322,6 +322,10 @@ public class BTable implements BRefType<Object>, BCollection {
             throw new BallerinaException("Trying to invoke clone built-in method over a closed table");
         }
 
+        if (isFrozen()) {
+            return this;
+        }
+
         if (refs.containsKey(this)) {
             return refs.get(this);
         }

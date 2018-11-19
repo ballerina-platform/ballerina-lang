@@ -65,6 +65,10 @@ public final class BXMLAttributes implements BRefType {
 
     @Override
     public BValue copy(Map<BValue, BValue> refs) {
+        if (isFrozen()) {
+            return this;
+        }
+
         return new BXMLAttributes(value);
     }
 }

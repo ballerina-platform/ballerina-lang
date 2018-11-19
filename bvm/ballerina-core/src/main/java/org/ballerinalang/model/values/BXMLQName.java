@@ -71,6 +71,10 @@ public final class BXMLQName implements BRefType {
 
     @Override
     public BValue copy(Map<BValue, BValue> refs) {
+        if (isFrozen()) {
+            return this;
+        }
+
         return new BXMLQName(localName, uri, prefix);
     }
     

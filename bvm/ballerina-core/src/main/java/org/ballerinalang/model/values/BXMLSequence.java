@@ -411,6 +411,10 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      */
     @Override
     public BXMLSequence copy(Map<BValue, BValue> refs) {
+        if (isFrozen()) {
+            return this;
+        }
+
         if (refs.containsKey(this)) {
             return (BXMLSequence) refs.get(this);
         }

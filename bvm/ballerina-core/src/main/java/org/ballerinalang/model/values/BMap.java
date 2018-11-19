@@ -349,6 +349,10 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
     public BValue copy(Map<BValue, BValue> refs) {
         readLock.lock();
         try {
+            if (isFrozen()) {
+                return this;
+            }
+
             if (refs.containsKey(this)) {
                 return refs.get(this);
             }
