@@ -2911,7 +2911,7 @@ public class CPU {
     private static void createNewIntRange(int[] operands, WorkerData sf) {
         long startValue = sf.longRegs[operands[0]];
         long endValue = sf.longRegs[operands[1]];
-        sf.refRegs[operands[2]] = new BIntRange(startValue, endValue);
+        sf.refRegs[operands[2]] = new BIntArray(LongStream.rangeClosed(startValue, endValue).toArray());
     }
 
     private static void createNewStruct(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
