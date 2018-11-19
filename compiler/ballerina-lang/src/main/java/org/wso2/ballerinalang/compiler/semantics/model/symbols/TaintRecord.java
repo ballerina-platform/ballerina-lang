@@ -35,7 +35,7 @@ public class TaintRecord {
      * untainted statues are used to change the argument tainted status accordingly.
      */
     public enum TaintedStatus {
-        IGNORED((byte) 0), TAINTED((byte) 1), UNTAINTED((byte) 2);
+        UNTAINTED((byte) 0), TAINTED((byte) 1), IGNORED((byte) 2);
 
         // Value used to represent the taint status in the compiled code.
         private final byte byteValue;
