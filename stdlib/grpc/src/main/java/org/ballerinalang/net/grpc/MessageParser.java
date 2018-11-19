@@ -16,10 +16,13 @@
 package org.ballerinalang.net.grpc;
 
 import com.google.protobuf.CodedInputStream;
+import com.google.protobuf.Descriptors;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.codegen.ProgramFile;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Proto Message Parser.
@@ -31,15 +34,43 @@ public class MessageParser {
     private final String messageName;
     private final ProgramFile programFile;
     private final BType bType;
+    private final Map<Integer, Descriptors.FieldDescriptor> fieldDescriptors;
 
-    MessageParser(String messageName, ProgramFile programFile, BType bType) {
+    public MessageParser(String messageName, ProgramFile programFile, BType bType) {
         this.messageName = messageName;
         this.programFile = programFile;
         this.bType = bType;
+        this.fieldDescriptors = computeFieldTagValues();
     }
 
+    /**
+     * Returns message object parse from {@code input}.
+     * @param input CodedInputStream of incoming message.
+     * @return Message object with bValue
+     * @throws IOException when error occurred.
+     */
     public Message parseFrom(CodedInputStream input) throws
             IOException {
-        return new Message(messageName, programFile, bType, input);
+        return new Message(messageName, programFile, bType, input, fieldDescriptors);
+    }
+
+    /**
+     * Returns message instance without bValue.
+     * @return message instance without bValue.
+     */
+    public Message getDefaultInstance() {
+        return new Message(messageName, null);
+    }
+
+    private Map<Integer, Descriptors.FieldDescriptor> computeFieldTagValues() {
+        Map<Integer, Descriptors.FieldDescriptor> fieldDescriptors = new HashMap<>();
+        Descriptors.Descriptor messageDescriptor = MessageRegistry.getInstance().getMessageDescriptor(messageName);
+        for (Descriptors.FieldDescriptor fieldDescriptor : messageDescriptor.getFields()) {
+            Descriptors.FieldDescriptor.Type fieldType = fieldDescriptor.getType();
+            int number = fieldDescriptor.getNumber();
+            int byteCode = ((number << 3) + MessageUtils.getFieldWireType(fieldType));
+            fieldDescriptors.put(byteCode, fieldDescriptor);
+        }
+        return fieldDescriptors;
     }
 }

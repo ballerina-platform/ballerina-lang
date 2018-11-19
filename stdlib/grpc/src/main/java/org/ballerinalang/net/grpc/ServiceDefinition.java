@@ -22,14 +22,10 @@ import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.exception.ClientRuntimeException;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
-import org.ballerinalang.util.codegen.ProgramFile;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -37,17 +33,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_BOOL_MESSAGE;
-import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_BYTES_MESSAGE;
-import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_DOUBLE_MESSAGE;
-import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_FLOAT_MESSAGE;
-import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_INT32_MESSAGE;
-import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_INT64_MESSAGE;
-import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_STRING_MESSAGE;
-import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_UINT32_MESSAGE;
-import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_UINT64_MESSAGE;
 import static org.ballerinalang.net.grpc.MessageUtils.setNestedMessages;
 import static org.ballerinalang.net.grpc.MethodDescriptor.generateFullMethodName;
+import static org.ballerinalang.net.grpc.ServicesBuilderUtils.getBallerinaValueType;
 import static org.ballerinalang.net.grpc.ServicesBuilderUtils.hexStringToByteArray;
 
 /**
@@ -132,20 +120,6 @@ public final class ServiceDefinition {
             String methodName = methodDescriptor.getName();
             Descriptors.Descriptor reqMessage = methodDescriptor.getInputType();
             Descriptors.Descriptor resMessage = methodDescriptor.getOutputType();
-            String fullMethodName = generateFullMethodName(serviceDescriptor.getFullName(), methodName);
-            MethodDescriptor descriptor =
-                    MethodDescriptor.<Message, Message>newBuilder()
-                            .setType(MessageUtils.getMethodType(methodDescriptor.toProto()))
-                            .setFullMethodName(fullMethodName)
-                            .setRequestMarshaller(ProtoUtils.marshaller(new Message(reqMessage.getName(), context
-                                    .getProgramFile(), getBallerinaValueType(reqMessage.getName(), context
-                                    .getProgramFile()))))
-                            .setResponseMarshaller(ProtoUtils.marshaller(new Message(resMessage.getName(), context
-                                    .getProgramFile(), getBallerinaValueType(resMessage.getName(), context
-                                    .getProgramFile()))))
-                            .setSchemaDescriptor(methodDescriptor)
-                            .build();
-            descriptorMap.put(fullMethodName, descriptor);
             MessageRegistry messageRegistry = MessageRegistry.getInstance();
             // update request message descriptors.
             messageRegistry.addMessageDescriptor(reqMessage.getName(), reqMessage);
@@ -153,37 +127,21 @@ public final class ServiceDefinition {
             // update response message descriptors
             messageRegistry.addMessageDescriptor(resMessage.getName(), resMessage);
             setNestedMessages(resMessage, messageRegistry);
+            String fullMethodName = generateFullMethodName(serviceDescriptor.getFullName(), methodName);
+            MethodDescriptor descriptor =
+                    MethodDescriptor.<Message, Message>newBuilder()
+                            .setType(MessageUtils.getMethodType(methodDescriptor.toProto()))
+                            .setFullMethodName(fullMethodName)
+                            .setRequestMarshaller(ProtoUtils.marshaller(new MessageParser(reqMessage.getName(), context
+                                    .getProgramFile(), getBallerinaValueType(reqMessage.getName(), context
+                                    .getProgramFile()))))
+                            .setResponseMarshaller(ProtoUtils.marshaller(new MessageParser(resMessage.getName(), context
+                                    .getProgramFile(), getBallerinaValueType(resMessage.getName(), context
+                                    .getProgramFile()))))
+                            .setSchemaDescriptor(methodDescriptor)
+                            .build();
+            descriptorMap.put(fullMethodName, descriptor);
         }
         return Collections.unmodifiableMap(descriptorMap);
-    }
-
-    /**
-     * Returns corresponding Ballerina type for the proto buffer type.
-     *
-     * @param protoType Protocol buffer type
-     * @param programFile   Ballerina Program File
-     * @return .
-     */
-    private static BType getBallerinaValueType(String protoType, ProgramFile programFile) throws GrpcClientException {
-        if (protoType.equalsIgnoreCase(WRAPPER_DOUBLE_MESSAGE) || protoType
-                .equalsIgnoreCase(WRAPPER_FLOAT_MESSAGE)) {
-            return BTypes.typeFloat;
-        } else if (protoType.equalsIgnoreCase(WRAPPER_INT32_MESSAGE) || protoType
-                .equalsIgnoreCase(WRAPPER_INT64_MESSAGE) || protoType
-                .equalsIgnoreCase(WRAPPER_UINT32_MESSAGE) || protoType
-                .equalsIgnoreCase(WRAPPER_UINT64_MESSAGE)) {
-            return BTypes.typeInt;
-        } else if (protoType.equalsIgnoreCase(WRAPPER_BOOL_MESSAGE)) {
-            return BTypes.typeBoolean;
-        } else if (protoType.equalsIgnoreCase(WRAPPER_STRING_MESSAGE)) {
-            return BTypes.typeString;
-        } else if (protoType.equalsIgnoreCase(WRAPPER_BYTES_MESSAGE)) {
-            return new BArrayType(BTypes.typeByte);
-        } else {
-            if (!programFile.getEntryPackage().typeDefInfoMap.containsKey(protoType)) {
-                throw new GrpcClientException("Error while retrieving Ballerina type for " + protoType);
-            }
-            return programFile.getEntryPackage().getStructInfo(protoType).getType();
-        }
     }
 }

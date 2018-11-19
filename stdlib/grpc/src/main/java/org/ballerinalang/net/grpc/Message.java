@@ -58,18 +58,17 @@ public class Message {
     private HttpHeaders headers;
     private ProgramFile programFile;
     private BType bType;
-    private BValue bMessage;
+    private BValue bMessage = null;
 
     private boolean isError = false;
     private Throwable error;
-
 
     public Message(String messageName, BValue bMessage) {
         this.messageName = messageName;
         this.bMessage = bMessage;
     }
 
-    public Message(String messageName, ProgramFile programFile, BType bType) {
+    private Message(String messageName, ProgramFile programFile, BType bType) {
         this.messageName = messageName;
         this.programFile = programFile;
         this.bType = bType;
@@ -104,17 +103,10 @@ public class Message {
             String messageName,
             ProgramFile programFile,
             BType bType,
-            com.google.protobuf.CodedInputStream input)
+            com.google.protobuf.CodedInputStream input,
+            Map<Integer, Descriptors.FieldDescriptor> fieldDescriptors)
             throws IOException {
         this(messageName, programFile, bType);
-        Descriptors.Descriptor messageDescriptor = getDescriptor();
-        Map<Integer, Descriptors.FieldDescriptor> fieldDescriptors = new HashMap<>();
-        for (Descriptors.FieldDescriptor fieldDescriptor : messageDescriptor.getFields()) {
-            Descriptors.FieldDescriptor.Type fieldType = fieldDescriptor.getType();
-            int number = fieldDescriptor.getNumber();
-            int byteCode = ((number << 3) + MessageUtils.getFieldWireType(fieldType));
-            fieldDescriptors.put(byteCode, fieldDescriptor);
-        }
         BMap<String, BValue> bMapValue = null;
         Map<String, BType> bMapFields = new HashMap<>();
         if (bType instanceof BRecordType) {
@@ -833,10 +825,6 @@ public class Message {
         return CodedOutputStream.computeTagSize(fieldDescriptor
                 .getNumber()) + CodedOutputStream.computeUInt32SizeNoTag
                 (message.getSerializedSize()) + message.getSerializedSize();
-    }
-
-    public MessageParser getParserForType() {
-        return new MessageParser(messageName, programFile, bType);
     }
 
     public byte[] toByteArray() {

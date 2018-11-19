@@ -136,32 +136,5 @@ public class BlockingStub extends AbstractStub {
             }
             dataContext.callback.notifySuccess();
         }
-
-//        /**
-//         * Returns corresponding Ballerina type for the proto buffer type.
-//         *
-//         * @param protoType Protocol buffer type
-//         * @param context   Ballerina Context
-//         * @return .
-//         */
-//        private static BType getBalType(String protoType, Context context) {
-//            if (protoType.equalsIgnoreCase(WRAPPER_DOUBLE_MESSAGE) || protoType
-//                    .equalsIgnoreCase(WRAPPER_FLOAT_MESSAGE)) {
-//                return BTypes.typeFloat;
-//            } else if (protoType.equalsIgnoreCase(WRAPPER_INT32_MESSAGE) || protoType
-//                    .equalsIgnoreCase(WRAPPER_INT64_MESSAGE) || protoType
-//                    .equalsIgnoreCase(WRAPPER_UINT32_MESSAGE) || protoType
-//                    .equalsIgnoreCase(WRAPPER_UINT64_MESSAGE)) {
-//                return BTypes.typeInt;
-//            } else if (protoType.equalsIgnoreCase(WRAPPER_BOOL_MESSAGE)) {
-//                return BTypes.typeBoolean;
-//            } else if (protoType.equalsIgnoreCase(WRAPPER_STRING_MESSAGE)) {
-//                return BTypes.typeString;
-//            } else if (protoType.equalsIgnoreCase(WRAPPER_BYTES_MESSAGE)) {
-//                return new BArrayType(BTypes.typeByte);
-//            } else {
-//                return context.getProgramFile().getEntryPackage().getStructInfo(protoType).getType();
-//            }
-//        }
     }
 }

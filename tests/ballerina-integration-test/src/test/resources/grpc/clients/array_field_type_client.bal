@@ -20,13 +20,6 @@ endpoint HelloWorldBlockingClient HelloWorldBlockingEp {
     url:"http://localhost:9092"
 };
 
-public function main() {
-    TestStruct testStruct = {values:[{name:"Sam"}, {name:"John"}]};
-    var res1 = testStructArrayInput(testStruct);
-    io:println(res1);
-    io:println("--------------------------");
-}
-
 function testIntArrayInput(TestInt req) returns (int|string) {
     io:println("testIntArrayInput: input:");
     io:println(req);

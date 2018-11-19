@@ -27,11 +27,16 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
+import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.listener.ServerCallHandler;
 import org.ballerinalang.net.grpc.listener.StreamingServerCallHandler;
 import org.ballerinalang.net.grpc.listener.UnaryServerCallHandler;
 import org.ballerinalang.net.grpc.proto.definition.StandardDescriptorBuilder;
+import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -39,7 +44,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.net.grpc.MessageUtils.getRequestParamType;
+import static org.ballerinalang.net.grpc.GrpcConstants.EMPTY_DATATYPE_NAME;
+import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_BOOL_MESSAGE;
+import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_BYTES_MESSAGE;
+import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_DOUBLE_MESSAGE;
+import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_FLOAT_MESSAGE;
+import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_INT32_MESSAGE;
+import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_INT64_MESSAGE;
+import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_STRING_MESSAGE;
+import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_UINT32_MESSAGE;
+import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_UINT64_MESSAGE;
 import static org.ballerinalang.net.grpc.MessageUtils.setNestedMessages;
 
 /**
@@ -79,8 +93,6 @@ public class ServicesBuilderUtils {
 
             MethodDescriptor.MethodType methodType;
             ServerCallHandler serverCallHandler;
-            MethodDescriptor.Marshaller reqMarshaller;
-            MethodDescriptor.Marshaller resMarshaller;
             Map<String, Resource> resourceMap = new HashMap<>();
             Resource mappedResource = null;
 
@@ -94,27 +106,22 @@ public class ServicesBuilderUtils {
             if (methodDescriptor.toProto().getServerStreaming() && methodDescriptor.toProto().getClientStreaming()) {
                 methodType = MethodDescriptor.MethodType.BIDI_STREAMING;
                 serverCallHandler = new StreamingServerCallHandler(methodDescriptor, resourceMap);
-                reqMarshaller = ProtoUtils.marshaller(new Message(requestDescriptor
-                        .getName(), context.getProgramFile(), getRequestParamType(resourceMap.get(GrpcConstants
-                        .ON_MESSAGE_RESOURCE))));
             } else if (methodDescriptor.toProto().getClientStreaming()) {
                 methodType = MethodDescriptor.MethodType.CLIENT_STREAMING;
                 serverCallHandler = new StreamingServerCallHandler(methodDescriptor, resourceMap);
-                reqMarshaller = ProtoUtils.marshaller(new Message(requestDescriptor
-                        .getName(), context.getProgramFile(), getRequestParamType(resourceMap.get(GrpcConstants
-                        .ON_MESSAGE_RESOURCE))));
             } else if (methodDescriptor.toProto().getServerStreaming()) {
                 methodType = MethodDescriptor.MethodType.SERVER_STREAMING;
                 serverCallHandler = new UnaryServerCallHandler(methodDescriptor, mappedResource);
-                reqMarshaller = ProtoUtils.marshaller(new Message(requestDescriptor
-                        .getName(), context.getProgramFile(), getRequestParamType(mappedResource)));
             } else {
                 methodType = MethodDescriptor.MethodType.UNARY;
                 serverCallHandler = new UnaryServerCallHandler(methodDescriptor, mappedResource);
-                reqMarshaller = ProtoUtils.marshaller(new Message(requestDescriptor
-                        .getName(), context.getProgramFile(), getRequestParamType(mappedResource)));
             }
-            resMarshaller = ProtoUtils.marshaller(new Message(responseDescriptor.getName(), null));
+            MethodDescriptor.Marshaller reqMarshaller = ProtoUtils.marshaller(new MessageParser(requestDescriptor
+                    .getName(), context.getProgramFile(), getBallerinaValueType(requestDescriptor.getName(), context
+                    .getProgramFile())));
+            MethodDescriptor.Marshaller resMarshaller = ProtoUtils.marshaller(new MessageParser(responseDescriptor
+                    .getName(), context.getProgramFile(), getBallerinaValueType(responseDescriptor.getName(), context
+                    .getProgramFile())));
             MethodDescriptor.Builder methodBuilder = MethodDescriptor.newBuilder();
             MethodDescriptor grpcMethodDescriptor = methodBuilder.setType(methodType)
                     .setFullMethodName(methodName)
@@ -210,6 +217,38 @@ public class ServicesBuilderUtils {
                     + Character.digit(sDescriptor.charAt(i + 1), 16));
         }
         return data;
+    }
+
+    /**
+     * Returns corresponding Ballerina type for the proto buffer type.
+     *
+     * @param protoType Protocol buffer type
+     * @param programFile   Ballerina Program File
+     * @return Mapping BType of the proto type.
+     */
+    static BType getBallerinaValueType(String protoType, ProgramFile programFile) throws BallerinaException {
+        if (protoType.equalsIgnoreCase(WRAPPER_DOUBLE_MESSAGE) || protoType
+                .equalsIgnoreCase(WRAPPER_FLOAT_MESSAGE)) {
+            return BTypes.typeFloat;
+        } else if (protoType.equalsIgnoreCase(WRAPPER_INT32_MESSAGE) || protoType
+                .equalsIgnoreCase(WRAPPER_INT64_MESSAGE) || protoType
+                .equalsIgnoreCase(WRAPPER_UINT32_MESSAGE) || protoType
+                .equalsIgnoreCase(WRAPPER_UINT64_MESSAGE)) {
+            return BTypes.typeInt;
+        } else if (protoType.equalsIgnoreCase(WRAPPER_BOOL_MESSAGE)) {
+            return BTypes.typeBoolean;
+        } else if (protoType.equalsIgnoreCase(WRAPPER_STRING_MESSAGE)) {
+            return BTypes.typeString;
+        } else if (protoType.equalsIgnoreCase(EMPTY_DATATYPE_NAME)) {
+            return BTypes.typeNull;
+        } else if (protoType.equalsIgnoreCase(WRAPPER_BYTES_MESSAGE)) {
+            return new BArrayType(BTypes.typeByte);
+        } else {
+            if (!programFile.getEntryPackage().typeDefInfoMap.containsKey(protoType)) {
+                throw new BallerinaException("Error while retrieving Ballerina type for " + protoType);
+            }
+            return programFile.getEntryPackage().getStructInfo(protoType).getType();
+        }
     }
 
 }

@@ -27,6 +27,7 @@ public type Stub object {
     # + stubType - Service Stub type. possible values: blocking, nonblocking.
     # + descriptorKey - Proto descriptor key. Key of proto descriptor.
     # + descriptorMap - Proto descriptor map. descriptor map with all dependent descriptors.
+    # + return - Returns an error if encounters an error while initializing the stub, returns nill otherwise.
     public extern function initStub(any clientEndpoint, string stubType, string descriptorKey, map descriptorMap)
         returns error?;
 

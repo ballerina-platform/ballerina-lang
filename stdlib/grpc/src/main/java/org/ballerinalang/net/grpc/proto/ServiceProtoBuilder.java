@@ -101,11 +101,11 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
         try {
             if (ServiceDefinitionValidator.validate(serviceNode, dlog)) {
-                Optional<BLangVariable> descriptorMapVar = ((ArrayList) ((BLangPackage) ((BLangService) serviceNode).parent)
-                        .globalVars).stream().filter(var -> ((BLangSimpleVariable) var).getName().getValue()
+                Optional<BLangVariable> descriptorMapVar = ((ArrayList) ((BLangPackage) ((BLangService) serviceNode)
+                        .parent).globalVars).stream().filter(var -> ((BLangSimpleVariable) var).getName().getValue()
                         .equals(DESCRIPTOR_MAP)).findFirst();
-                Optional<BLangVariable> descriptorKey = ((ArrayList) ((BLangPackage) ((BLangService) serviceNode).parent)
-                        .globalVars).stream().filter(var -> ((BLangSimpleVariable) var).getName().getValue()
+                Optional<BLangVariable> descriptorKey = ((ArrayList) ((BLangPackage) ((BLangService) serviceNode)
+                        .parent).globalVars).stream().filter(var -> ((BLangSimpleVariable) var).getName().getValue()
                         .equals("DESCRIPTOR_KEY")).findFirst();
 
                 if (descriptorKey.isPresent() && descriptorMapVar.isPresent()) {

@@ -32,6 +32,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.Message;
+import org.ballerinalang.net.grpc.MessageParser;
 import org.ballerinalang.net.grpc.MessageRegistry;
 import org.ballerinalang.net.grpc.ProtoUtils;
 import org.testng.Assert;
@@ -85,7 +86,7 @@ public class ProtoMessageTestCase {
         byte[] msgArray = message.toByteArray();
         //convert byte array back to message object.
         InputStream messageStream = new ByteArrayInputStream(msgArray);
-        Message message1 = ProtoUtils.marshaller(new Message("Test1", result.getProgFile(),
+        Message message1 = ProtoUtils.marshaller(new MessageParser("Test1", result.getProgFile(),
                 structureType)).parse(messageStream);
         Assert.assertEquals(message1.toString(), message.toString());
         Assert.assertFalse(message1.isError());
@@ -111,7 +112,7 @@ public class ProtoMessageTestCase {
         byte[] msgArray = message.toByteArray();
         //convert byte array back to message object.
         InputStream messageStream = new ByteArrayInputStream(msgArray);
-        Message message1 = ProtoUtils.marshaller(new Message("Test2", result.getProgFile(),
+        Message message1 = ProtoUtils.marshaller(new MessageParser("Test2", result.getProgFile(),
                 structureType)).parse(messageStream);
         Assert.assertEquals(message1.toString(), message.toString());
         Assert.assertFalse(message1.isError());
@@ -136,7 +137,7 @@ public class ProtoMessageTestCase {
         byte[] msgArray = message.toByteArray();
         //convert byte array back to message object.
         InputStream messageStream = new ByteArrayInputStream(msgArray);
-        Message message1 = ProtoUtils.marshaller(new Message("Test3", result.getProgFile(), structureType)).parse
+        Message message1 = ProtoUtils.marshaller(new MessageParser("Test3", result.getProgFile(), structureType)).parse
                 (messageStream);
         Assert.assertEquals(((BMap<String, BValue>) message1.getbMessage()).getMap().size(), bMapValue.size());
         Assert.assertFalse(message1.isError());

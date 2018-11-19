@@ -21,15 +21,6 @@ endpoint HelloWorldBlockingClient helloWorldBlockingEp {
     url:"http://localhost:9100"
 };
 
-public function main() {
-    //Person p1 = {name:"Danesh", address:{postalCode:10300, state:"Western", country:"Sri Lanka"}};
-    //StockQuote quote = {name: "IBM", symbol: "IBM", last: 1.0, low: 1.0, high:1.0};
-    //StockQuotes r1;
-    var temp = testUnaryBlockingClient("WSO2");
-    io:println(temp);
-
-}
-
 function testUnaryBlockingClient(string name) returns (string) {
     (string, grpc:Headers)|error unionResp = helloWorldBlockingEp->hello(name);
     if (unionResp is error) {
