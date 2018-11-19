@@ -641,7 +641,7 @@ public const GRAPE = "grape";
 
 type Fruit APPLE | ORRANGE | GRAPE;
 
-function textFiniteType_1() returns string {
+function testFiniteType_1() returns string {
     any a = APPLE;
     if (a is Fruit) {
         return "a is a fruit";
@@ -650,7 +650,7 @@ function textFiniteType_1() returns string {
     return "a is not a fruit";
 }
 
-function textFiniteType_2() returns string {
+function testFiniteType_2() returns string {
     any a = APPLE;
     if (a is APPLE) {
         return "a is an Apple";
