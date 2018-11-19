@@ -34,14 +34,26 @@ endpoint websub:Listener websubEP {
 service<websub:Service> websubSubscriber bind websubEP {
     onNotification (websub:Notification notification) {
         if (notification.getContentType() == mime:TEXT_PLAIN) {
-            string payload = check notification.getTextPayload();
-            io:println("Text WebSub Notification Received by websubSubscriber: ", payload);
+            var payload = notification.getTextPayload();
+            if (payload is string) {
+                io:println("Text WebSub Notification Received by websubSubscriber: ", payload);
+            } else {
+                panic payload;
+            }
         } else if (notification.getContentType() == mime:APPLICATION_XML) {
-            xml payload = check notification.getXmlPayload();
-            io:println("XML WebSub Notification Received by websubSubscriber: ", payload);
+            var payload = notification.getXmlPayload();
+            if (payload is xml) {
+                io:println("XML WebSub Notification Received by websubSubscriber: ", payload);
+            } else {
+                panic payload;
+            }
         } else if (notification.getContentType() == mime:APPLICATION_JSON) {
-            json payload = check notification.getJsonPayload();
-            io:println("JSON WebSub Notification Received by websubSubscriber: ", payload);
+            var payload = notification.getJsonPayload();
+            if (payload is json) {
+                io:println("JSON WebSub Notification Received by websubSubscriber: ", payload);
+            } else {
+                panic payload;
+            }
         }
     }
 }
@@ -56,14 +68,26 @@ service<websub:Service> websubSubscriber bind websubEP {
 service<websub:Service> websubSubscriberTwo bind websubEP {
     onNotification (websub:Notification notification) {
         if (notification.getContentType() == mime:TEXT_PLAIN) {
-            string payload = check notification.getTextPayload();
-            io:println("Text WebSub Notification Received by websubSubscriberTwo: ", payload);
+            var payload = notification.getTextPayload();
+            if (payload is string) {
+                io:println("Text WebSub Notification Received by websubSubscriberTwo: ", payload);
+            } else {
+                panic payload;
+            }
         } else if (notification.getContentType() == mime:APPLICATION_XML) {
-            xml payload = check notification.getXmlPayload();
-            io:println("XML WebSub Notification Received by websubSubscriberTwo: ", payload);
+            var payload = notification.getXmlPayload();
+            if (payload is xml) {
+                io:println("XML WebSub Notification Received by websubSubscriberTwo: ", payload);
+            } else {
+                panic payload;
+            }
         } else if (notification.getContentType() == mime:APPLICATION_JSON) {
-            json payload = check notification.getJsonPayload();
-            io:println("JSON WebSub Notification Received by websubSubscriberTwo: ", payload);
+            var payload = notification.getJsonPayload();
+            if (payload is json) {
+                io:println("JSON WebSub Notification Received by websubSubscriberTwo: ", payload);
+            } else {
+                panic payload;
+            }
         }
     }
 }
