@@ -799,7 +799,7 @@ public class CommonUtil {
                 .collect(Collectors.toList());
     }
 
-    static boolean isInvalidSymbol(BSymbol symbol) {
+    public static boolean isInvalidSymbol(BSymbol symbol) {
         return ("_".equals(symbol.name.getValue())
                 || "runtime".equals(symbol.getName().getValue())
                 || "transactions".equals(symbol.getName().getValue())
