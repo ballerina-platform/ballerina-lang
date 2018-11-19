@@ -668,7 +668,7 @@ public class Types {
         return checkFieldEquivalency(lhsType, rhsType, unresolvedTypes);
     }
 
-    BType checkForeachTypeBindingPatternTypes(BLangNode collection) {
+    BType checkForeachTypedBindingPatternType(BLangNode collection) {
         BType collectionType = collection.type;
         switch (collectionType.tag) {
             case TypeTags.ARRAY:
