@@ -6,8 +6,8 @@ type Employee record {
     float salary;
 };
 
-io:ReadableCSVChannel? rch;
-io:WritableCSVChannel? wch;
+io:ReadableCSVChannel? rch = ();
+io:WritableCSVChannel? wch = ();
 
 function initReadableCsvChannel(string filePath, string encoding, io:Separator fieldSeparator) {
     io:ReadableByteChannel byteChannel = untaint io:openReadableFile(filePath);
@@ -61,7 +61,7 @@ function getTable(string filePath, string encoding, io:Separator fieldSeperator)
     io:ReadableByteChannel byteChannel = io:openReadableFile(filePath);
     io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
     io:ReadableCSVChannel csv = new io:ReadableCSVChannel(charChannel, fs = fieldSeperator);
-    float total;
+    float total = 0.0;
     match csv.getTable(Employee) {
         table<Employee> tb => {
             foreach x in tb {
