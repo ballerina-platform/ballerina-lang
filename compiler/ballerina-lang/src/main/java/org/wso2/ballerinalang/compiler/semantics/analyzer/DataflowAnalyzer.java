@@ -932,11 +932,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatchTypedBindingPatternClause patternClauseNode) {
-        analyzeNode(patternClauseNode.body, env);
-    }
-
-    @Override
     public void visit(BLangRecordDestructure recordDestructure) {
         analyzeNode(recordDestructure.expr, env);
         checkAssignment(recordDestructure.varRef);

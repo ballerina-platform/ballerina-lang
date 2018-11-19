@@ -686,25 +686,6 @@ public class TreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClause) {
-        if (!CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
-                .isCursorBeforeNode(patternClause.getPosition(), patternClause, this, this.lsContext)) {
-            blockOwnerStack.push(patternClause);
-            // If the variable is not equal to '_', then define the variable in the block scope
-            if (!patternClause.variable.name.value.endsWith(Names.IGNORE.value)) {
-                SymbolEnv blockEnv = SymbolEnv.createBlockEnv(patternClause.body, symbolEnv);
-                cursorPositionResolver = BlockStatementScopeResolver.class;
-                acceptNode(patternClause.body, blockEnv);
-                blockOwnerStack.pop();
-                return;
-            }
-            // TODO: Check with the semantic analyzer implementation as well.
-            acceptNode(patternClause.body, symbolEnv);
-            blockOwnerStack.pop();
-        }
-    }
-
-    @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
         SymbolEnv annotationAttachmentEnv = new SymbolEnv(annAttachmentNode, symbolEnv.scope);
         PackageID packageID = annAttachmentNode.annotationSymbol.pkgID;
