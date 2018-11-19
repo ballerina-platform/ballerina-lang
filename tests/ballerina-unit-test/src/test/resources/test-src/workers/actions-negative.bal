@@ -56,7 +56,7 @@ function workerActionSecTest() {
     int s2 = wait f1;
 
     // Expected string got int
-    string s1 = wait f1;
+    string s3 = wait f1;
 
     // Variable assignment required
     wait f2;

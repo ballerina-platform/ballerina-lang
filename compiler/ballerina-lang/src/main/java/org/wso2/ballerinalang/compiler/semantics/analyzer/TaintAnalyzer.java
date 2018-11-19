@@ -856,9 +856,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             analyzeExprList(exprsList);
             return;
         }
-        if (workerSendNode.isForkJoinSend) {
-            currForkIdentifier = workerSendNode.workerIdentifier;
-        }
         workerSendNode.expr.accept(this);
         TaintedStatus taintedStatus = workerInteractionTaintedStatusMap.get(workerSendNode.workerIdentifier);
         if (taintedStatus == null) {

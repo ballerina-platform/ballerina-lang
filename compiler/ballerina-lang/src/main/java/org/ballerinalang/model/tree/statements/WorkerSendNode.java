@@ -34,6 +34,4 @@ public interface WorkerSendNode extends StatementNode {
     IdentifierNode getWorkerName();
 
     void setWorkerName(IdentifierNode identifierNode);
-
-    boolean isForkJoinedSend();
 }
