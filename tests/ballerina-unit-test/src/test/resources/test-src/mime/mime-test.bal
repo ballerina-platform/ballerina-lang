@@ -42,14 +42,14 @@ function testToStringOnContentDisposition(mime:ContentDisposition contentDisposi
 function testSetMediaTypeToEntity() returns string? {
     mime:Entity entity = new;
     mime:MediaType mediaType = getMediaTypeTestObj();
-    entity.setContentType(mediaType.toString());
+    _ = entity.setContentType(mediaType.toString());
     return entity.getContentType();
 }
 
 function testSetMediaTypeAndGetValueAsHeader() returns string {
     mime:Entity entity = new;
     mime:MediaType mediaType = getMediaTypeTestObj();
-    entity.setContentType(mediaType.toString());
+    _ = entity.setContentType(mediaType.toString());
     return entity.getHeader(mime:CONTENT_TYPE);
 }
 
@@ -188,20 +188,20 @@ function testGetXmlMultipleTimes(xml xmlContent) returns (xml) {
 
     if (returnContent1 is xml) {
         content1 = returnContent1;
-    } else if (returnContent1 is error) {
-        log:printError("error in returnContent1", err = returnContent1);
+    } else {
+        panic returnContent1;
     }
 
     if (returnContent2 is xml) {
         content2 = returnContent2;
-    } else if (returnContent2 is error) {
-        log:printError("error in returnContent2", err = returnContent2);
+    } else {
+        panic returnContent2;
     }
 
     if (returnContent3 is xml) {
         content3 = returnContent3;
-    } else if (returnContent3 is error) {
-        log:printError("error in returnContent3", err = returnContent3);
+    } else {
+        panic returnContent3;
     }
 
     xml returnContent = content1 + content2 + content3;
@@ -221,9 +221,9 @@ function testGetTextMultipleTimes(string textContent) returns (string) {
     string|error returnContent2 = entity.getText();
     string|error returnContent3 = entity.getText();
 
-    string content1;
-    string content2;
-    string content3;
+    string content1 = "";
+    string content2 = "";
+    string content3 = "";
 
     if (returnContent1 is string) {
         content1 = returnContent1;
@@ -260,9 +260,9 @@ function testGetByteArrayMultipleTimes(byte[] blobContent) returns (string) {
     byte[]|error returnContent2 = entity.getByteArray();
     byte[]|error returnContent3 = entity.getByteArray();
 
-    byte[] content1;
-    byte[] content2;
-    byte[] content3;
+    byte[] content1 = [];
+    byte[] content2 = [];
+    byte[] content3 = [];
 
     if (returnContent1 is byte[]) {
         content1 = returnContent1;
@@ -309,10 +309,19 @@ function testSetEntityBodyMultipleTimes(io:ReadableByteChannel byteChannel, stri
     mime:Entity entity = new;
     entity.setText(textdata);
     entity.setByteChannel(byteChannel);
-    io:ReadableByteChannel receivedByteChannel = check entity.getByteChannel();
-    io:ReadableCharacterChannel characterChannel = new io:ReadableCharacterChannel(receivedByteChannel, "utf-8");
-    string result = check characterChannel.read(30);
-    return result;
+    var result = entity.getByteChannel();
+    if (result is io:ReadableByteChannel) {
+        io:ReadableCharacterChannel characterChannel = new io:ReadableCharacterChannel(result, "utf-8");
+        var returnValue = characterChannel.read(30);
+        if (returnValue is string) {
+            return returnValue;
+        } else if (returnValue is error) {
+            return returnValue.reason();
+        }
+    } else if (result is error) {
+        return result.reason();
+    }
+    return "";
 }
 
 function testSetJsonAndGetByteChannel(json jsonContent) returns io:ReadableByteChannel|error {

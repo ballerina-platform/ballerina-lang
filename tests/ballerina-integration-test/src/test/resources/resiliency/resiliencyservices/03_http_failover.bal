@@ -214,14 +214,21 @@ service mock02 bind backendEP02 {
                 foreach bodyPart in mimeEntity {
                     if (bodyPart.hasHeader(mime:CONTENT_TYPE)
                         && bodyPart.getHeader(mime:CONTENT_TYPE).hasPrefix(http:MULTIPART_AS_PRIMARY_TYPE)) {
-                        mime:Entity[] childParts = check bodyPart.getBodyParts();
-                        foreach childPart in childParts {
-                            // When performing passthrough scenarios, message needs to be built before
-                            // invoking the endpoint to create a message datasource.
-                            var childBlobContent = childPart.getByteArray();
+                        var nestedMimeEntity = bodyPart.getBodyParts();
+                        if (nestedMimeEntity is error) {
+                            log:printError(<string> nestedMimeEntity.detail().message);
+                            response.setPayload("Error in decoding nested multiparts!");
+                            response.statusCode = 500;
+                        } else {
+                            mime:Entity[] childParts = nestedMimeEntity;
+                            foreach childPart in childParts {
+                                // When performing passthrough scenarios, message needs to be built before
+                                // invoking the endpoint to create a message datasource.
+                                var childBlobContent = childPart.getByteArray();
+                            }
+                            io:println(bodyPart.getContentType());
+                            bodyPart.setBodyParts(untaint childParts, contentType = untaint bodyPart.getContentType());
                         }
-                        io:println(bodyPart.getContentType());
-                        bodyPart.setBodyParts(untaint childParts, contentType = untaint bodyPart.getContentType());
                     } else {
                         var bodyPartBlobContent = bodyPart.getByteArray();
                     }

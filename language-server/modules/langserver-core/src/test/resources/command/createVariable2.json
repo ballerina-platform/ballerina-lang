@@ -1,7 +1,8 @@
 {
-    "variableName": "a",
-    "functionReturnType": "(int, string)",
-    "functionLocation": "4,4",
+    "arguments": {
+        "node.line": 4,
+        "node.column": 4
+    },
     "expected": {
         "result": {
             "edit": {
@@ -13,15 +14,15 @@
                             {
                                 "range": {
                                     "start": {
-                                        "line": 3,
+                                        "line": 4,
                                         "character": 3
                                     },
                                     "end": {
-                                        "line": 3,
+                                        "line": 4,
                                         "character": 3
                                     }
                                 },
-                                "newText": "(int, string) a = "
+                                "newText": "(int, string) c = "
                             }
                         ]
                     }
