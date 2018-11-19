@@ -26,8 +26,9 @@ endpoint mysql:Client mysqlDB {
     dbOptions: { useSSL: false}
 };
 
-public function main(string... args) {
+public function main(string... args) returns error? {
     string s1 = "static-value";
     io:println(s1);
     table t1 = check mysqlDB->select("SELECT id, age, name from employee where name = " + s1, ());
+    return;
 }
