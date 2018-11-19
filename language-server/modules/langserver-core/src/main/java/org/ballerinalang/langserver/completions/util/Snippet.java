@@ -133,6 +133,8 @@ public enum Snippet {
     // Builtin Functions' snippets
     BUILTIN_LENGTH(SnippetGenerator.getBuiltinLengthSnippet()),
 
+    BUILTIN_CLONE(SnippetGenerator.getBuiltinIsCloneSnippet()),
+
     BUILTIN_IS_NAN(SnippetGenerator.getBuiltinIsNaNSnippet()),
 
     BUILTIN_IS_FINITE(SnippetGenerator.getBuiltinIsFiniteSnippet()),
