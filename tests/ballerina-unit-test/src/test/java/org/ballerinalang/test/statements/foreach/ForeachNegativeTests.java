@@ -41,8 +41,8 @@ public class ForeachNegativeTests {
         BAssertUtil.validateError(compile, 4, "incompatible types: 'string' is not an iterable collection", 28, 18);
         BAssertUtil.validateError(compile, 5, "invalid assignment in variable 'p.id'", 41, 13);
         BAssertUtil.validateError(compile, 6, "too many variables are defined for iterable type 'string[]'", 49, 24);
-        BAssertUtil.validateError(compile, 7, "unreachable code", 68, 9);
-        BAssertUtil.validateError(compile, 8, "unreachable code", 73, 9);
-        BAssertUtil.validateError(compile, 9, "continue cannot be used outside of a loop", 75, 5);
+        BAssertUtil.validateError(compile, 7, "unreachable code", 73, 9);
+        BAssertUtil.validateError(compile, 8, "unreachable code", 78, 9);
+        BAssertUtil.validateError(compile, 9, "continue cannot be used outside of a loop", 80, 5);
     }
 }

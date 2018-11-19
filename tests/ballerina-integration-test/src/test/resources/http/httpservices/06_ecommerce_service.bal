@@ -168,11 +168,13 @@ service<http:Service> productmgt bind serviceEndpoint5 {
         path:"/{prodId}"
     }
     product (endpoint caller, http:Request req, string prodId) {
-        json payload = {};
-        payload = check <json>productsMap[prodId];
-
         http:Response res = new;
-        res.setJsonPayload(payload);
+        var result = <json>productsMap[prodId];
+        if (result is json) {
+            res.setPayload(result);
+        } else if (result is error) {
+            res.setPayload(result.reason());
+        }
         _ = caller -> respond(res);
     }
 
@@ -197,7 +199,7 @@ service<http:Service> productmgt bind serviceEndpoint5 {
 }
 
 function populateSampleProducts () returns (map) {
-    map productsMap;
+    map productsMap = {};
     json prod_1 = {"Product":{"ID":"123000", "Name":"ABC_1", "Description":"Sample product."}};
     json prod_2 = {"Product":{"ID":"123001", "Name":"ABC_2", "Description":"Sample product."}};
     json prod_3 = {"Product":{"ID":"123002", "Name":"ABC_3", "Description":"Sample product."}};
