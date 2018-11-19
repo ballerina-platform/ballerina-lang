@@ -43,6 +43,12 @@ public class BallerinaSimpleTypeNameImpl extends BallerinaTypeNameImpl implement
 
   @Override
   @Nullable
+  public BallerinaAnyDataTypeName getAnyDataTypeName() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaAnyDataTypeName.class);
+  }
+
+  @Override
+  @Nullable
   public BallerinaAnyTypeName getAnyTypeName() {
     return PsiTreeUtil.getChildOfType(this, BallerinaAnyTypeName.class);
   }
