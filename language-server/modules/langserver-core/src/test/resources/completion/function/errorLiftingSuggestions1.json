@@ -7,56 +7,56 @@
   "items": [
     {
       "label":"statusCode",
-      "kind":"Unit",
+      "kind":"Variable",
       "detail":"int",
       "sortText":"221",
       "insertText":"statusCode"
     },
     {
       "label":"reasonPhrase",
-      "kind":"Unit",
+      "kind":"Variable",
       "detail":"string",
       "sortText":"221",
       "insertText":"reasonPhrase"
     },
     {
       "label":"server",
-      "kind":"Unit",
+      "kind":"Variable",
       "detail":"string",
       "sortText":"221",
       "insertText":"server"
     },
     {
       "label":"resolvedRequestedURI",
-      "kind":"Unit",
+      "kind":"Variable",
       "detail":"string",
       "sortText":"221",
       "insertText":"resolvedRequestedURI"
     },
     {
       "label":"cacheControl",
-      "kind":"Unit",
+      "kind":"Variable",
       "detail":"ballerina/http:ResponseCacheControl?",
       "sortText":"221",
       "insertText":"cacheControl"
     },
     {
       "label":"receivedTime",
-      "kind":"Unit",
+      "kind":"Variable",
       "detail":"int",
       "sortText":"221",
       "insertText":"receivedTime"
     },
     {
       "label":"requestTime",
-      "kind":"Unit",
+      "kind":"Variable",
       "detail":"int",
       "sortText":"221",
       "insertText":"requestTime"
     },
     {
       "label":"entity",
-      "kind":"Unit",
+      "kind":"Variable",
       "detail":"ballerina/mime:Entity",
       "sortText":"221",
       "insertText":"entity"

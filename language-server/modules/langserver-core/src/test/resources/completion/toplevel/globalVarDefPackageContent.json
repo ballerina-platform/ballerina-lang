@@ -277,14 +277,6 @@
       "insertText":"FailoverConfig"
     },
     {
-      "label":"FailoverActionErrorData",
-      "kind":"Class",
-      "detail":"BType",
-      "documentation":"Data related to an error which occurred during an attempt to failover.\n",
-      "sortText":"170",
-      "insertText":"FailoverActionErrorData"
-    },
-    {
       "label":"FailoverInferredConfig",
       "kind":"Class",
       "detail":"BType",
@@ -354,31 +346,7 @@
       "detail":"BType",
       "documentation":"The configurations related to the load balance client endpoint.\n",
       "sortText":"170",
-      "insertText":"RetryInferredConfig"
-    },
-    {
-      "label":"SecureEndpointConfiguration",
-      "kind":"Class",
-      "detail":"BType",
-      "documentation":"Configuration for secure HTTP service endpoint.\n",
-      "sortText":"170",
-      "insertText":"SecureEndpointConfiguration"
-    },
-    {
-      "label":"AuthCacheConfig",
-      "kind":"Class",
-      "detail":"BType",
-      "documentation":"Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.\n",
-      "sortText":"170",
-      "insertText":"AuthCacheConfig"
-    },
-    {
-      "label":"AuthProvider",
-      "kind":"Class",
-      "detail":"BType",
-      "documentation":"Configuration for authentication providers.\n",
-      "sortText":"170",
-      "insertText":"AuthProvider"
+      "insertText":"LoadBalanceClientEndpointConfiguration"
     },
     {
       "label":"Remote",
@@ -443,14 +411,6 @@
       "documentation":"Configuration struct for WebSocket client endpoint.\n",
       "sortText":"170",
       "insertText":"WebSocketClientEndpointConfig"
-    },
-    {
-      "label":"APIListenerActions",
-      "kind":"Class",
-      "detail":"BType",
-      "documentation":"The caller actions for responding to client requests to api listener.\n",
-      "sortText":"170",
-      "insertText":"APIListenerActions"
     },
     {
       "label":"AuthHandlerRegistry",
@@ -536,7 +496,6 @@
       "label":"HttpCache",
       "kind":"Class",
       "detail":"BType",
-      "documentation":"Implements a cache for storing HTTP responses. This cache complies with the caching policy set when configuring\nHTTP caching in the HTTP client endpoint.\n",
       "sortText":"170",
       "insertText":"HttpCache"
     },
@@ -629,6 +588,14 @@
       "insertText":"CircuitBreakerClient"
     },
     {
+      "label":"LoadBalancerRule",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":"\nLoadBalancerRule provides a required interfaces to implement different algorithms.\n",
+      "sortText":"170",
+      "insertText":"LoadBalancerRule"
+    },
+    {
       "label":"RetryClient",
       "kind":"Class",
       "detail":"BType",
@@ -637,12 +604,12 @@
       "insertText":"RetryClient"
     },
     {
-      "label":"SecureListenerActions",
+      "label":"LoadBalancerRounRobinRule",
       "kind":"Class",
       "detail":"BType",
-      "documentation":"The caller actions for responding to client requests to secure listener.\n",
+      "documentation":"Implementation of round robin load balancing strategy.\n",
       "sortText":"170",
-      "insertText":"SecureListenerActions"
+      "insertText":"LoadBalancerRounRobinRule"
     },
     {
       "label":"WebSocketClientService",
