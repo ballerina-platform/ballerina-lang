@@ -17,6 +17,8 @@
 */
 package org.ballerinalang;
 
+import org.ballerinalang.bre.vm.BalxEmitter;
+import org.ballerinalang.bre.vm.Executor;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.RecoveryTask;
 import org.ballerinalang.util.codegen.FunctionInfo;
@@ -50,8 +52,7 @@ public class BLangProgramRunner {
         Debugger debugger = new Debugger(programFile);
         initDebugger(programFile, debugger);
 
-        BLangFunctions.invokePackageInitFunctions(programFile);
-        BLangFunctions.invokePackageStartFunctions(programFile);
+        Executor.initProgramFile(programFile);
     }
 
     public static void resumeStates(ProgramFile programFile) {
@@ -72,8 +73,9 @@ public class BLangProgramRunner {
 
         FunctionInfo functionInfo = getEntryFunctionInfo(entryPkgInfo, functionName);
         try {
-            entryFuncResult = BLangFunctions.invokeEntrypointCallable(programFile, functionInfo,
-                                                                      extractEntryFuncArgs(functionInfo, args));
+//            new BalxEmitter().emit(programFile);
+            entryFuncResult = Executor.executeEntryFunction(programFile, functionInfo,
+                    extractEntryFuncArgs(functionInfo, args));
         } finally {
             if (!programFile.isServiceEPAvailable()) {
                 if (debugger.isDebugEnabled()) {

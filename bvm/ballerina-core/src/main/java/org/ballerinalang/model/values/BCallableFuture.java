@@ -17,8 +17,7 @@
 */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.bre.bvm.AsyncInvocableWorkerResponseContext;
-import org.ballerinalang.bre.bvm.WorkerResponseContext;
+import org.ballerinalang.bre.vm.SafeStrandCallback;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
@@ -29,11 +28,11 @@ public class BCallableFuture implements BFuture {
 
     private String callableName;
     
-    private AsyncInvocableWorkerResponseContext respCtx;
+    private SafeStrandCallback strandCallback;
     
-    public BCallableFuture(String callableName, AsyncInvocableWorkerResponseContext respCtx) {
+    public BCallableFuture(String callableName, SafeStrandCallback strandCallback) {
         this.callableName = callableName;
-        this.respCtx = respCtx;
+        this.strandCallback = strandCallback;
     }
     
     @Override
@@ -48,27 +47,30 @@ public class BCallableFuture implements BFuture {
 
     @Override
     public BValue copy() {
-        return new BCallableFuture(this.callableName, this.respCtx);
+        return new BCallableFuture(this.callableName, this.strandCallback);
     }
 
     @Override
-    public WorkerResponseContext value() {
-        return this.respCtx;
+    public SafeStrandCallback value() {
+        return this.strandCallback;
     }
 
     @Override
     public boolean cancel() {
-        return this.respCtx.cancel();
+//        return this.respCtx.cancel();
+        return true;
     }
 
     @Override
     public boolean isDone() {
-        return this.respCtx.isDone();
+//        return this.respCtx.isDone();
+        return true;
     }
 
     @Override
     public boolean isCancelled() {
-        return this.respCtx.isCancelled();
+//        return this.respCtx.isCancelled();
+        return true;
     }
 
 }

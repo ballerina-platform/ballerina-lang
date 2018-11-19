@@ -1240,7 +1240,6 @@ public class PackageInfoReader {
                 case InstructionCodes.XMLATTRS2MAP:
                 case InstructionCodes.ANY2SCONV:
                 case InstructionCodes.XML2S:
-                case InstructionCodes.WAIT:
                 case InstructionCodes.XMLLOADALL:
                 case InstructionCodes.ARRAY2JSON:
                 case InstructionCodes.REASON:
@@ -1378,6 +1377,16 @@ public class PackageInfoReader {
                     h = codeStream.readInt();
                     l = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j, k, h, l));
+                    break;
+                case InstructionCodes.WAIT:
+                    int c = codeStream.readInt();
+                    int[] ops = new int[c + 2];
+                    ops[0] = c;
+                    ops[1] = codeStream.readInt();
+                    for (int p = 0; p < c; p++) {
+                        ops[p + 2] = codeStream.readInt();
+                    }
+                    packageInfo.addInstruction(InstructionFactory.get(opcode, ops));
                     break;
                 case InstructionCodes.IGLOAD:
                 case InstructionCodes.FGLOAD:

@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.bre.bvm.CPU;
+import org.ballerinalang.bre.vm.BVM;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
@@ -79,7 +79,7 @@ public class BRefValueArray extends BNewArray implements Serializable {
 
     public void add(long index, BRefType<?> value) {
         synchronized (this) {
-            if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
+            if (freezeStatus.getState() != BVM.FreezeStatus.State.UNFROZEN) {
                 handleInvalidUpdate(freezeStatus.getState());
             }
         }
@@ -144,7 +144,7 @@ public class BRefValueArray extends BNewArray implements Serializable {
     public BRefType<?>[] getValues() {
         return values;
     }
-    
+
     @Override
     public String toString() {
         return stringValue();
@@ -179,7 +179,7 @@ public class BRefValueArray extends BNewArray implements Serializable {
      * {@inheritDoc}
      */
     @Override
-    public synchronized void attemptFreeze(CPU.FreezeStatus freezeStatus) {
+    public synchronized void attemptFreeze(BVM.FreezeStatus freezeStatus) {
         if (isOpenForFreeze(this.freezeStatus, freezeStatus)) {
             this.freezeStatus = freezeStatus;
             for (int i = 0; i < this.size; i++) {

@@ -1420,19 +1420,17 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangWaitExpr waitExpr) {
-        Operand valueRegIndex;
-        if (waitExpr.type != null) {
-            valueRegIndex = calcAndGetExprRegIndex(waitExpr);
-        } else {
-            valueRegIndex = this.getOperand(-1);
-        }
+        Operand valueRegIndex = calcAndGetExprRegIndex(waitExpr);
 
+        Operand length = this.getOperand(-1);
         List<Operand> operands = new ArrayList<>();
+        operands.add(length);
         operands.add(valueRegIndex);
         for (BLangExpression expr : waitExpr.exprList) {
             genNode(expr, this.env);
             operands.add(expr.regIndex);
         }
+        length.value = operands.size() - 2;
         this.emit(InstructionCodes.WAIT, operands.toArray(new Operand[operands.size()]));
     }
 

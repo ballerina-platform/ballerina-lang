@@ -21,6 +21,7 @@ import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.bre.bvm.CPU.HandleErrorException;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.vm.DataFrame;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
@@ -133,59 +134,52 @@ public class BLangVMUtils {
     }
 
     @SuppressWarnings("rawtypes")
-    public static void populateWorkerDataWithValues(WorkerData data, int[] regIndexes, BValue[] vals, BType[] types) {
-        if (vals == null) {
-            return;
-        }
-        for (int i = 0; i < vals.length; i++) {
-            int callersRetRegIndex = regIndexes[i];
-            BType retType = types[i];
-            switch (retType.getTag()) {
-                case TypeTags.INT_TAG:
-                    if (vals[i] == null) {
-                        data.longRegs[callersRetRegIndex] = 0;
-                        break;
-                    }
-                    data.longRegs[callersRetRegIndex] = ((BInteger) vals[i]).intValue();
+    public static void populateWorkerDataWithValues(DataFrame data, int regIndex, BValue val, BType retType) {
+        switch (retType.getTag()) {
+            case TypeTags.INT_TAG:
+                if (val == null) {
+                    data.longRegs[regIndex] = 0;
                     break;
-                case TypeTags.BYTE_TAG:
-                    if (vals[i] == null) {
-                        data.intRegs[callersRetRegIndex] = 0;
-                        break;
-                    }
-                    data.intRegs[callersRetRegIndex] = ((BByte) vals[i]).byteValue();
+                }
+                data.longRegs[regIndex] = ((BInteger) val).intValue();
+                break;
+            case TypeTags.BYTE_TAG:
+                if (val == null) {
+                    data.intRegs[regIndex] = 0;
                     break;
-                case TypeTags.FLOAT_TAG:
-                    if (vals[i] == null) {
-                        data.doubleRegs[callersRetRegIndex] = 0;
-                        break;
-                    }
-                    data.doubleRegs[callersRetRegIndex] = ((BFloat) vals[i]).floatValue();
+                }
+                data.intRegs[regIndex] = ((BByte) val).byteValue();
+                break;
+            case TypeTags.FLOAT_TAG:
+                if (val == null) {
+                    data.doubleRegs[regIndex] = 0;
                     break;
-                case TypeTags.DECIMAL_TAG:
-                    if (vals[i] == null) {
-                        data.refRegs[callersRetRegIndex] = new BDecimal(BigDecimal.ZERO);
-                        break;
-                    }
-                    data.refRegs[callersRetRegIndex] = (BDecimal) vals[i];
+                }
+                data.doubleRegs[regIndex] = ((BFloat) val).floatValue();
+                break;
+            case TypeTags.DECIMAL_TAG:
+                if (val == null) {
+                    data.refRegs[regIndex] = new BDecimal(BigDecimal.ZERO);
                     break;
-                case TypeTags.STRING_TAG:
-                    if (vals[i] == null) {
-                        data.stringRegs[callersRetRegIndex] = BLangConstants.STRING_EMPTY_VALUE;
-                        break;
-                    }
-                    data.stringRegs[callersRetRegIndex] = vals[i].stringValue();
+                }
+                data.refRegs[regIndex] = (BDecimal) val;
+                break;
+            case TypeTags.STRING_TAG:
+                if (val == null) {
+                    data.stringRegs[regIndex] = BLangConstants.STRING_EMPTY_VALUE;
                     break;
-                case TypeTags.BOOLEAN_TAG:
-                    if (vals[i] == null) {
-                        data.intRegs[callersRetRegIndex] = 0;
-                        break;
-                    }
-                    data.intRegs[callersRetRegIndex] = ((BBoolean) vals[i]).booleanValue() ? 1 : 0;
+                }
+                data.stringRegs[regIndex] = val.stringValue();
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                if (val == null) {
+                    data.intRegs[regIndex] = 0;
                     break;
-                default:
-                    data.refRegs[callersRetRegIndex] = (BRefType) vals[i];
-            }
+                }
+                data.intRegs[regIndex] = ((BBoolean) val).booleanValue() ? 1 : 0;
+                break;
+            default:
+                data.refRegs[regIndex] = (BRefType) val;
         }
     }
     
