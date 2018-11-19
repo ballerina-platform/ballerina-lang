@@ -685,16 +685,19 @@ public class Types {
                     add(symTable.stringType);
                     add(symTable.jsonType);
                 }});
-            case TypeTags.XML:
-                break;
-            case TypeTags.TABLE:
-                break;
             case TypeTags.RECORD:
                 BRecordType recordType = (BRecordType) collectionType;
                 return new BTupleType(new LinkedList<BType>(){{
                     add(symTable.stringType);
                     add(inferRecordFieldType(recordType));
                 }});
+            case TypeTags.XML:
+                Set<BType> bTypes = new HashSet<>();
+                bTypes.add(symTable.xmlType);
+                bTypes.add(symTable.stringType);
+                return new BUnionType(null, bTypes, false);
+            case TypeTags.TABLE:
+                break;
             case TypeTags.SEMANTIC_ERROR:
                 break;
             default:
