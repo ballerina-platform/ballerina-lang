@@ -1135,13 +1135,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatch matchNode) {
-
-        //first fail if both static and typed patterns have been defined in the match stmt
-        if (!matchNode.getTypedPatternClauses().isEmpty() && !matchNode.getStaticPatternClauses().isEmpty()) {
-            dlog.error(matchNode.pos, DiagnosticCode.INVALID_PATTERN_CLAUSES_IN_MATCH_STMT);
-            return;
-        }
-
         List<BType> exprTypes;
         BType exprType = typeChecker.checkExpr(matchNode.expr, env, symTable.noType);
         if (exprType.tag == TypeTags.UNION) {
