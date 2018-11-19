@@ -145,7 +145,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
@@ -440,7 +439,7 @@ public class TypeChecker extends BLangNodeVisitor {
         // required fields missing.
         if (recordLiteral.type.tag == TypeTags.RECORD) {
             checkMissingRequiredFields((BRecordType) recordLiteral.type, recordLiteral.keyValuePairs,
-                                       recordLiteral.pos);
+                    recordLiteral.pos);
         }
     }
 
@@ -1904,6 +1903,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private boolean checkBuiltinFunctionInvocation(BLangInvocation iExpr, BLangBuiltInMethod function, BType... args) {
         Name funcName = names.fromString(iExpr.name.value);
+
         BSymbol funcSymbol = symResolver.resolveBuiltinOperator(funcName, args);
 
         if (funcSymbol == symTable.notFoundSymbol) {
@@ -2372,7 +2372,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 actualType = symTable.xmlType;
                 break;
-        case TypeTags.SEMANTIC_ERROR:
+            case TypeTags.SEMANTIC_ERROR:
                 // Do nothing
                 break;
             default:
@@ -2558,7 +2558,7 @@ public class TypeChecker extends BLangNodeVisitor {
      *
      * @param expr Expression to get type guards
      * @return A map of type guards, with the original variable symbol as keys
-     *         and their guarded type.
+     * and their guarded type.
      */
     Map<BVarSymbol, BType> getTypeGuards(BLangExpression expr) {
         Map<BVarSymbol, BType> typeGuards = new HashMap<>();
@@ -2607,6 +2607,14 @@ public class TypeChecker extends BLangNodeVisitor {
                 return getSymbolForFreezeBuiltinMethod(iExpr);
             case IS_FROZEN:
                 return getSymbolForIsFrozenBuiltinMethod(iExpr);
+            case STAMP:
+                List<BLangExpression> functionArgList = iExpr.argExprs;
+                // Resolve the type of the variables passed as arguments to stamp in-built function.
+                for (BLangExpression expression : functionArgList) {
+                    checkExpr(expression, env, symTable.noType);
+                }
+                return symResolver.createSymbolForStampOperator(iExpr.pos, new Name(function.getName()),
+                        functionArgList, iExpr.expr);
             default:
                 return symTable.notFoundSymbol;
         }

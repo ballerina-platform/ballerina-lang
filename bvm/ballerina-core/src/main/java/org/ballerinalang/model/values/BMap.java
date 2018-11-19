@@ -19,6 +19,9 @@ package org.ballerinalang.model.values;
 
 import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.model.types.BField;
+import org.ballerinalang.model.types.BJSONType;
+import org.ballerinalang.model.types.BMapType;
+import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -343,6 +346,33 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
     @Override
     public BType getType() {
         return this.type;
+    }
+
+    @Override
+    public void stamp(BType type) {
+        if (type.getTag() == TypeTags.JSON_TAG && ((BJSONType) type).getConstrainedType() != null) {
+            this.stamp(((BJSONType) type).getConstrainedType());
+        } else if (type.getTag() == TypeTags.MAP_TAG) {
+            for (Object mapEntry : this.values()) {
+                ((BValue) mapEntry).stamp(((BMapType) type).getConstrainedType());
+            }
+        } else if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
+            Map<String, BType> targetTypeField = new HashMap<>();
+            BType restFieldType = ((BRecordType) type).restFieldType;
+
+            for (BField field : ((BStructureType) type).getFields()) {
+                targetTypeField.put(field.getFieldName(), field.fieldType);
+            }
+
+            for (Map.Entry valueEntry : this.getMap().entrySet()) {
+                String fieldName = valueEntry.getKey().toString();
+                ((BValue) valueEntry.getValue()).stamp(targetTypeField.getOrDefault(fieldName, restFieldType));
+            }
+        } else if (type.getTag() == TypeTags.UNION_TAG) {
+            return;
+        }
+
+        this.type = type;
     }
 
     @Override
