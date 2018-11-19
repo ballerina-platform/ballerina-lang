@@ -100,4 +100,9 @@ public class ItemResolverConstants {
     public static final String ITR_AVERAGE_LABEL = "average()";
     public static final String ITR_SUM_LABEL = "sum()";
 
+    // Builtin Functions completion item labels
+    public static final String BUILTIN_LENGTH_LABEL = "length()";
+    public static final String BUILTIN_IS_NAN_LABEL = "isNaN()";
+    public static final String BUILTIN_IS_FINITE_LABEL = "isFinite()";
+    public static final String BUILTIN_IS_INFINITE_LABEL = "isInfinite()";
 }

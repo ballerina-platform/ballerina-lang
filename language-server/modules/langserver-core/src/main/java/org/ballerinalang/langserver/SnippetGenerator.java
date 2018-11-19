@@ -540,6 +540,43 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Length Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinLengthSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_LENGTH_LABEL, "length();", "", SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get isNaN Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinIsNaNSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_IS_NAN_LABEL, "isNaN();", "", SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get isFinite Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinIsFiniteSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_IS_FINITE_LABEL, "isFinite();", "", SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get isInFinite Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinIsInFiniteSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_IS_INFINITE_LABEL, "isInfinite();", "",
+                SnippetType.SNIPPET);
+    }
+
+    /**
      * Get Min Iterable Function Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
