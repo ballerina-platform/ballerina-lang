@@ -101,11 +101,12 @@ function finiteAssignmentRefValueTypeCaseTwo() returns POrInt {
 
 type PreparedResult "ss"|"sss"|"qqq";
 
-function testFiniteTypeWithMatch() returns PreparedResult {
-    match foo() {
-         PreparedResult x => return x;
-         () => return "qqq";
-         error => return "qqq";
+function testFiniteTypeWithTypeCheck() returns PreparedResult {
+    var result = foo();
+    if (result is PreparedResult) {
+        return result;
+    } else {
+        return "qqq";
     }
 }
 

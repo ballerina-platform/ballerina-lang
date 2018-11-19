@@ -1,12 +1,10 @@
 function arrayInitTest() returns (int) {
     int[] arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-    int size;
-    int index;
-    int sum;
+    int size = 11;
+    int index = 0;
+    int sum = 0;
 
     arr[5] = 50;
-
-    size = 11;
 
     while (index < size) {
         sum = sum + arr[index];

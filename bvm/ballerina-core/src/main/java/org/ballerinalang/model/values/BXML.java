@@ -18,6 +18,7 @@ package org.ballerinalang.model.values;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
+import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.XMLNodeType;
@@ -44,6 +45,8 @@ import javax.xml.namespace.QName;
  */
 public abstract class BXML<T> implements BRefType<T>, BCollection {
 
+    BType type = BTypes.typeXML;
+
     /**
      * Start of a XML comment.
      */
@@ -63,7 +66,9 @@ public abstract class BXML<T> implements BRefType<T>, BCollection {
      * End of a XML processing instruction.
      */
     public static final String PI_END = "?>";
-    
+
+    protected volatile CPU.FreezeStatus freezeStatus = new CPU.FreezeStatus(CPU.FreezeStatus.State.UNFROZEN);
+
     /**
      * Check whether the XML sequence is empty.
      * 
@@ -259,7 +264,12 @@ public abstract class BXML<T> implements BRefType<T>, BCollection {
      */
     @Override
     public BType getType() {
-        return BTypes.typeXML;
+        return type;
+    }
+
+    @Override
+    public void stamp(BType type) {
+        this.type = type;
     }
 
     // private methods
@@ -331,4 +341,11 @@ public abstract class BXML<T> implements BRefType<T>, BCollection {
      * @param qname Namespace qualified name of the children to be removed.
      */
     public abstract void removeChildren(String qname);
+
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized boolean isFrozen() {
+        return this.freezeStatus.isFrozen();
+    }
 }

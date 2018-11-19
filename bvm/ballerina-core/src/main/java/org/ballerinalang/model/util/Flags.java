@@ -23,9 +23,9 @@ package org.ballerinalang.model.util;
  * @since 0.95.7
  */
 public class Flags {
+
     public static final int PUBLIC = 1;
     public static final int NATIVE = 2;
-    public static final int CONST = 4;
     public static final int ATTACHED = 8;
 
     public static boolean isFlagOn(int bitmask, int flag) {

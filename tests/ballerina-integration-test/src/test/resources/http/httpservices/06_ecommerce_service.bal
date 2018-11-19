@@ -46,16 +46,11 @@ service<http:Service> Ecommerce bind serviceEndpoint5 {
         string reqPath = "/productsservice/" + untaint prodId;
         http:Request clientRequest = new;
         var clientResponse = productsService -> get(untaint reqPath, message = clientRequest);
-
-        match clientResponse {
-            error err => {
-                io:println("Error occurred while reading product response");
-            }
-            http:Response product => {
-                _ = caller -> respond(product);
-            }
+        if (clientResponse is http:Response) {
+            _ = caller -> respond(clientResponse);
+        } else if (clientResponse is error) {
+            io:println("Error occurred while reading product response");
         }
-
     }
 
     @http:ResourceConfig {
@@ -65,24 +60,18 @@ service<http:Service> Ecommerce bind serviceEndpoint5 {
     productMgt (endpoint caller, http:Request req) {
         http:Request clientRequest = new;
         var jsonReq = req.getJsonPayload();
-        match jsonReq {
-            error err => {
-                io:println("Error occurred while reading products payload");
-            }
-            json products => {
-                clientRequest.setJsonPayload(untaint products);
-            }
+        if (jsonReq is json) {
+            clientRequest.setPayload(untaint jsonReq);
+        } else if (jsonReq is error) {
+            io:println("Error occurred while reading products payload");
         }
 
         http:Response clientResponse = new;
         var clientRes = productsService -> post("/productsservice", clientRequest);
-        match clientRes {
-            error err => {
-                io:println("Error occurred while reading locator response");
-            }
-            http:Response prod => {
-                clientResponse = prod;
-            }
+        if (clientRes is http:Response) {
+            clientResponse = clientRes;
+        } else if (clientRes is error) {
+            io:println("Error occurred while reading locator response");
         }
         _ = caller -> respond(clientResponse);
     }
@@ -94,13 +83,10 @@ service<http:Service> Ecommerce bind serviceEndpoint5 {
     ordersInfo (endpoint caller, http:Request req) {
         http:Request clientRequest = new;
         var clientResponse = productsService -> get("/orderservice/orders", message = clientRequest);
-        match clientResponse {
-            error err => {
-                io:println("Error occurred while reading orders response");
-            }
-            http:Response orders => {
-                _ = caller -> respond(orders);
-            }
+        if (clientResponse is http:Response) {
+            _ = caller -> respond(clientResponse);
+        } else if (clientResponse is error) {
+            io:println("Error occurred while reading orders response");
         }
     }
 
@@ -111,15 +97,11 @@ service<http:Service> Ecommerce bind serviceEndpoint5 {
     ordersMgt (endpoint caller, http:Request req) {
         http:Request clientRequest = new;
         var clientResponse = productsService -> post("/orderservice/orders", clientRequest);
-        match clientResponse {
-            error err => {
-                io:println("Error occurred while writing orders response");
-            }
-            http:Response orders => {
-                _ = caller -> respond(orders);
-            }
+        if (clientResponse is http:Response) {
+            _ = caller -> respond(clientResponse);
+        } else if (clientResponse is error) {
+            io:println("Error occurred while writing orders respons");
         }
-
     }
 
     @http:ResourceConfig {
@@ -129,15 +111,11 @@ service<http:Service> Ecommerce bind serviceEndpoint5 {
     customersInfo (endpoint caller, http:Request req) {
         http:Request clientRequest = new;
         var clientResponse = productsService -> get("/customerservice/customers", message = clientRequest);
-        match clientResponse {
-            error err => {
-                io:println("Error occurred while reading customers response");
-            }
-            http:Response customer => {
-                _ = caller -> respond(customer);
-            }
+        if (clientResponse is http:Response) {
+            _ = caller -> respond(clientResponse);
+        } else if (clientResponse is error) {
+            io:println("Error occurred while reading customers response");
         }
-
     }
 
     @http:ResourceConfig {
@@ -147,13 +125,10 @@ service<http:Service> Ecommerce bind serviceEndpoint5 {
     customerMgt (endpoint caller, http:Request req) {
         http:Request clientRequest = new;
         var clientResponse = productsService -> post("/customerservice/customers", clientRequest);
-        match clientResponse {
-            error err => {
-                io:println("Error occurred while writing customers response");
-            }
-            http:Response customer => {
-                _ = caller -> respond(customer);
-            }
+        if (clientResponse is http:Response) {
+            _ = caller -> respond(clientResponse);
+        } else if (clientResponse is error) {
+            io:println("Error occurred while writing customers response");
         }
     }
 }
@@ -193,11 +168,13 @@ service<http:Service> productmgt bind serviceEndpoint5 {
         path:"/{prodId}"
     }
     product (endpoint caller, http:Request req, string prodId) {
-        json payload = {};
-        payload = check <json>productsMap[prodId];
-
         http:Response res = new;
-        res.setJsonPayload(payload);
+        var result = <json>productsMap[prodId];
+        if (result is json) {
+            res.setPayload(result);
+        } else if (result is error) {
+            res.setPayload(result.reason());
+        }
         _ = caller -> respond(res);
     }
 
@@ -207,26 +184,22 @@ service<http:Service> productmgt bind serviceEndpoint5 {
     }
     addProduct (endpoint caller, http:Request req) {
         var jsonReq = req.getJsonPayload();
+        if (jsonReq is json) {
+            string productId = extractFieldValue3(jsonReq.Product.ID);
+            productsMap[productId] = jsonReq;
+            json payload = {"Status":"Product is successfully added."};
 
-        match jsonReq {
-            error err => {
-                io:println("Error occurred while reading bank locator request");
-            }
-            json prod => {
-                string productId = extractFieldValue3(prod.Product.ID);
-                productsMap[productId] = prod;
-                json payload = {"Status":"Product is successfully added."};
-
-                http:Response res = new;
-                res.setJsonPayload(payload);
-                _ = caller -> respond(res);
-            }
+            http:Response res = new;
+            res.setPayload(payload);
+            _ = caller -> respond(res);
+        } else if (jsonReq is error) {
+            io:println("Error occurred while reading bank locator request");
         }
     }
 }
 
 function populateSampleProducts () returns (map) {
-    map productsMap;
+    map productsMap = {};
     json prod_1 = {"Product":{"ID":"123000", "Name":"ABC_1", "Description":"Sample product."}};
     json prod_2 = {"Product":{"ID":"123001", "Name":"ABC_2", "Description":"Sample product."}};
     json prod_3 = {"Product":{"ID":"123002", "Name":"ABC_3", "Description":"Sample product."}};

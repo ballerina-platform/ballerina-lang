@@ -47,8 +47,8 @@ public type Client object {
 # + url - The server url.
 # + secureSocket - The SSL configurations for the client endpoint.
 public type ClientEndpointConfig record {
-    string url;
-    SecureSocket? secureSocket;
+    string url = "";
+    SecureSocket? secureSocket = ();
     !...
 };
 
@@ -68,17 +68,17 @@ public type ClientEndpointConfig record {
 # + shareSession - Enable/disable new ssl session creation.
 # + ocspStapling - Enable/disable ocsp stapling.
 public type SecureSocket record {
-    TrustStore? trustStore;
-    KeyStore? keyStore;
-    string certFile;
-    string keyFile;
-    string keyPassword;
-    string trustedCertFile;
-    Protocols? protocol;
-    ValidateCert? certValidation;
-    string[] ciphers;
+    TrustStore? trustStore = ();
+    KeyStore? keyStore = ();
+    string certFile = "";
+    string keyFile = "";
+    string keyPassword = "";
+    string trustedCertFile = "";
+    Protocols? protocol = ();
+    ValidateCert? certValidation = ();
+    string[] ciphers = [];
     boolean verifyHostname = true;
     boolean shareSession = true;
-    boolean ocspStapling;
+    boolean ocspStapling = false;
     !...
 };

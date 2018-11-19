@@ -21,8 +21,7 @@ import ballerina/log;
 # + config - Simple topic subscrirber enpoint configuration
 public type SimpleTopicSubscriber object {
 
-    public SimpleTopicSubscriberEndpointConfiguration config;
-
+    public SimpleTopicSubscriberEndpointConfiguration config = {};
     private Connection? connection;
     private Session? session = ();
     private TopicSubscriber? subscriber = ();
@@ -59,16 +58,14 @@ public type SimpleTopicSubscriber object {
     #
     # + serviceType - Type descriptor of the service
     public function register(typedesc serviceType) {
-        match (self.subscriber) {
-            TopicSubscriber c => {
-                c.register(serviceType);
-            }
-            () => {
-                string errorMessage = "Topic Subscriber cannot be nil";
-                map errorDetail = { message: errorMessage };
-                error e = error(JMS_ERROR_CODE, errorDetail);
-                panic e;
-            }
+        var subscriber = self.subscriber;
+        if (subscriber is TopicSubscriber) {
+            subscriber.register(serviceType);
+        } else {
+            string errorMessage = "Topic Subscriber cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
 
@@ -81,14 +78,14 @@ public type SimpleTopicSubscriber object {
     #
     # + return - Topic subscriber actions
     public function getCallerActions() returns TopicSubscriberActions {
-        match (self.subscriber) {
-            TopicSubscriber c => return c.getCallerActions();
-            () => {
-                string errorMessage = "Topic Subscriber cannot be nil";
-                map errorDetail = { message: errorMessage };
-                error e = error(JMS_ERROR_CODE, errorDetail);
-                panic e;
-            }
+        var subscriber = self.subscriber;
+        if (subscriber is TopicSubscriber) {
+            return subscriber.getCallerActions();
+        } else {
+            string errorMessage = "Topic Subscriber cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
 
@@ -102,14 +99,14 @@ public type SimpleTopicSubscriber object {
     # + message - A message body to create a text message
     # + return - a message or nil if the session is nil
     public function createTextMessage(string message) returns Message|error {
-        match (self.session) {
-            Session s => return s.createTextMessage(message);
-            () => {
-                string errorMessage = "Session cannot be nil";
-                map errorDetail = { message: errorMessage };
-                error e = error(JMS_ERROR_CODE, errorDetail);
-                panic e;
-            }
+        var session = self.session;
+        if (session is Session) {
+            return session.createTextMessage(message);
+        } else {
+            string errorMessage = "Session cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
 
@@ -118,14 +115,14 @@ public type SimpleTopicSubscriber object {
     # + message - A message body to create a map message
     # + return - a message or nil if the session is nil.
     public function createMapMessage(map message) returns Message|error {
-        match (self.session) {
-            Session s => return s.createMapMessage(message);
-            () => {
-                string errorMessage = "Session cannot be nil";
-                map errorDetail = { message: errorMessage };
-                error e = error(JMS_ERROR_CODE, errorDetail);
-                panic e;
-            }
+        var session = self.session;
+        if (session is Session) {
+            return session.createMapMessage(message);
+        } else {
+            string errorMessage = "Session cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
 };
@@ -144,8 +141,8 @@ public type SimpleTopicSubscriberEndpointConfiguration record {
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
-    string messageSelector;
-    map properties;
-    string topicPattern;
+    string messageSelector = "";
+    map properties = {};
+    string topicPattern = "";
     !...
 };

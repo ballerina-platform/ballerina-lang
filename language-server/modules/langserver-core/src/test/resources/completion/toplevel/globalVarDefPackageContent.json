@@ -33,7 +33,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"invokeEndpoint(string path, http:Request outRequest, http:HttpOperation requestAction, http:CallerActions httpClient)(ballerina/http:Response|error)",
+      "label":"invokeEndpoint(string path, http:Request outRequest, FORWARD|GET|POST|DELETE|OPTIONS|PUT|PATCH|HEAD|NONE requestAction, http:CallerActions httpClient)(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "documentation":"The HEAD action implementation of the Circuit Breaker. This wraps the `head()` function of the underlying\nHTTP actions provider.",
@@ -48,15 +48,6 @@
       "documentation":"Creates an HTTP client capable of securing HTTP requests with authentication.\n",
       "sortText":"120",
       "insertText":"createHttpSecureClient(${1:url}, ${2:config})",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"roundRobin(http:LoadBalancerActions lb, http:CallerActions[] loadBalanceConfigArray)(ballerina/http:CallerActions)",
-      "kind":"Function",
-      "detail":"Function",
-      "documentation":"Round Robin Algorithm implementation with respect to load balancing endpoints.\n",
-      "sortText":"120",
-      "insertText":"roundRobin(${1:lb}, ${2:loadBalanceConfigArray})",
       "insertTextFormat":"Snippet"
     },
     {
@@ -286,14 +277,6 @@
       "insertText":"FailoverConfig"
     },
     {
-      "label":"FailoverActionErrorData",
-      "kind":"Class",
-      "detail":"BType",
-      "documentation":"Data related to an error which occurred during an attempt to failover.\n",
-      "sortText":"170",
-      "insertText":"FailoverActionErrorData"
-    },
-    {
       "label":"FailoverInferredConfig",
       "kind":"Class",
       "detail":"BType",
@@ -366,30 +349,6 @@
       "insertText":"LoadBalanceClientEndpointConfiguration"
     },
     {
-      "label":"SecureEndpointConfiguration",
-      "kind":"Class",
-      "detail":"BType",
-      "documentation":"Configuration for secure HTTP service endpoint.\n",
-      "sortText":"170",
-      "insertText":"SecureEndpointConfiguration"
-    },
-    {
-      "label":"AuthCacheConfig",
-      "kind":"Class",
-      "detail":"BType",
-      "documentation":"Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.\n",
-      "sortText":"170",
-      "insertText":"AuthCacheConfig"
-    },
-    {
-      "label":"AuthProvider",
-      "kind":"Class",
-      "detail":"BType",
-      "documentation":"Configuration for authentication providers.\n",
-      "sortText":"170",
-      "insertText":"AuthProvider"
-    },
-    {
       "label":"Remote",
       "kind":"Class",
       "detail":"BType",
@@ -430,20 +389,28 @@
       "insertText":"ServiceSecureSocket"
     },
     {
+      "label":"AuthCacheConfig",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":"Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.\n",
+      "sortText":"170",
+      "insertText":"AuthCacheConfig"
+    },
+    {
+      "label":"AuthProvider",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":"Configuration for authentication providers.\n",
+      "sortText":"170",
+      "insertText":"AuthProvider"
+    },
+    {
       "label":"WebSocketClientEndpointConfig",
       "kind":"Class",
       "detail":"BType",
       "documentation":"Configuration struct for WebSocket client endpoint.\n",
       "sortText":"170",
       "insertText":"WebSocketClientEndpointConfig"
-    },
-    {
-      "label":"APIListenerActions",
-      "kind":"Class",
-      "detail":"BType",
-      "documentation":"The caller actions for responding to client requests to api listener.\n",
-      "sortText":"170",
-      "insertText":"APIListenerActions"
     },
     {
       "label":"AuthHandlerRegistry",
@@ -529,7 +496,6 @@
       "label":"HttpCache",
       "kind":"Class",
       "detail":"BType",
-      "documentation":"Implements a cache for storing HTTP responses. This cache complies with the caching policy set when configuring\nHTTP caching in the HTTP client endpoint.\n",
       "sortText":"170",
       "insertText":"HttpCache"
     },
@@ -622,6 +588,14 @@
       "insertText":"CircuitBreakerClient"
     },
     {
+      "label":"LoadBalancerRule",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":"\nLoadBalancerRule provides a required interfaces to implement different algorithms.\n",
+      "sortText":"170",
+      "insertText":"LoadBalancerRule"
+    },
+    {
       "label":"RetryClient",
       "kind":"Class",
       "detail":"BType",
@@ -630,12 +604,12 @@
       "insertText":"RetryClient"
     },
     {
-      "label":"SecureListenerActions",
+      "label":"LoadBalancerRounRobinRule",
       "kind":"Class",
       "detail":"BType",
-      "documentation":"The caller actions for responding to client requests to secure listener.\n",
+      "documentation":"Implementation of round robin load balancing strategy.\n",
       "sortText":"170",
-      "insertText":"SecureListenerActions"
+      "insertText":"LoadBalancerRounRobinRule"
     },
     {
       "label":"WebSocketClientService",

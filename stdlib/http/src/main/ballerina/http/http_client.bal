@@ -24,8 +24,8 @@
 public type CallerActions object {
     //These properties are populated from the init call to the client connector as these were needed later stage
     //for retry and other few places.
-    public string serviceUri;
-    public ClientEndpointConfig config;
+    public string serviceUri = "";
+    public ClientEndpointConfig config = {};
 
     # The `post()` function can be used to send HTTP POST requests to HTTP endpoints.
     #
@@ -184,9 +184,9 @@ public type CallerActions object {
 # + cause - The error which caused the `HttpTimeoutError`
 # + statusCode - HTTP status code
 public type HttpTimeoutError record {
-    string message;
-    error? cause;
-    int statusCode;
+    string message = "";
+    error? cause = ();
+    int statusCode = 0;
     !...
 };
 

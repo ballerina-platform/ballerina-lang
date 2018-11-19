@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.langserver.index.tools;
 
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContextManager;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.index.DTOUtil;
@@ -62,7 +63,7 @@ public class IndexGenerator {
     private List<BPackageSymbol> getBLangPackages() {
         List<BPackageSymbol> bPackageSymbols = new ArrayList<>();
         List<String> packages = Arrays.asList("auth", "builtin", "cache", "config", "crypto", "file", "grpc", "h2",
-                "http", "io", "jms", "log", "math", "mb", "mime", "mysql", "reflect", "runtime", "sql",
+                "http", "io", "jms", "log", "math", "mime", "mysql", "reflect", "runtime", "sql",
                 "swagger", "system", "task", "time", "transactions", "websub");
         CompilerContext tempCompilerContext = LSContextManager.getInstance().getBuiltInPackagesCompilerContext();
         packages.forEach(pkg -> {
@@ -87,6 +88,7 @@ public class IndexGenerator {
         LSIndexImpl lsIndex = new LSIndexImpl("classpath:lang-server-index.sql");
         List<BPackageSymbol> bPackageSymbols = indexGenerator.getBLangPackages();
         List<BLangPackageContent> bPackageSymbolDTOs = bPackageSymbols.stream()
+                .filter(bPackageSymbol -> !CommonUtil.isInvalidSymbol(bPackageSymbol))
                 .map(packageSymbol -> {
                     try {
                         return DTOUtil.getBLangPackageContent(packageSymbol);
@@ -121,6 +123,7 @@ public class IndexGenerator {
 
     private static void insertBLangFunctions(int pkgEntryId, List<BInvokableSymbol> symbols, LSIndexImpl lsIndex) {
         List<BFunctionSymbolDTO> dtos = symbols.stream()
+                .filter(symbol -> !CommonUtil.isInvalidSymbol(symbol))
                 .map(bInvokableSymbol -> DTOUtil.getFunctionDTO(pkgEntryId, bInvokableSymbol))
                 .collect(Collectors.toList());
         try {
@@ -132,6 +135,7 @@ public class IndexGenerator {
 
     private void insertBLangRecords(int pkgEntryId, List<BRecordTypeSymbol> symbols, LSIndexImpl lsIndex) {
         List<BRecordTypeSymbolDTO> dtos = symbols.stream()
+                .filter(recordTypeSymbol -> !CommonUtil.isInvalidSymbol(recordTypeSymbol))
                 .map(recordTypeSymbol -> DTOUtil.getRecordTypeSymbolDTO(pkgEntryId, recordTypeSymbol))
                 .collect(Collectors.toList());
         try {
@@ -143,6 +147,7 @@ public class IndexGenerator {
 
     private void insertOtherTypes(int pkgEntryId, List<BTypeSymbol> symbols, LSIndexImpl lsIndex) {
         List<OtherTypeSymbolDTO> dtos = symbols.stream()
+                .filter(symbol -> !CommonUtil.isInvalidSymbol(symbol))
                 .map(symbol -> DTOUtil.getOtherTypeSymbolDTO(pkgEntryId, symbol))
                 .collect(Collectors.toList());
         try {
@@ -178,7 +183,7 @@ public class IndexGenerator {
             logger.error("Error Updating Endpoint Action Holders");
         }
     }
-    
+
     private List<BFunctionSymbolDTO> getObjectAttachedFunctionDTOs(int pkgId, int objId, BObjectTypeSymbol symbol) {
         return symbol.attachedFuncs.stream()
                 .map(bAttachedFunction -> DTOUtil.getFunctionDTO(pkgId, objId, bAttachedFunction.symbol))
@@ -188,6 +193,7 @@ public class IndexGenerator {
     private static List<Integer> insertBLangObjects(int pkgEntryId, List<BObjectTypeSymbol> bLangObjects,
                                                     ObjectType type, LSIndexImpl lsIndex) {
         List<BObjectTypeSymbolDTO> dtos = bLangObjects.stream()
+                .filter(symbol -> !CommonUtil.isInvalidSymbol(symbol))
                 .map(object -> DTOUtil.getObjectTypeSymbolDTO(pkgEntryId, object, type))
                 .collect(Collectors.toList());
         try {

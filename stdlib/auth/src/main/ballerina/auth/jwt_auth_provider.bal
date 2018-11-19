@@ -32,6 +32,7 @@ public type JWTAuthProvider object {
     #
     # + jwtAuthProviderConfig - JWT authentication provider configurations
     public new(jwtAuthProviderConfig) {
+        self.authCache = new;
     }
 
     # Authenticate with a jwt token
@@ -78,16 +79,14 @@ public type JWTAuthProvider object {
     }
 
     function addToAuthenticationCache(string jwtToken, int exp, internal:JwtPayload payload) {
-        CachedJWTAuthContext cachedContext = {};
-        cachedContext.jwtPayload = payload;
-        cachedContext.expiryTime = exp;
+        CachedJWTAuthContext cachedContext = {jwtPayload : payload, expiryTime : exp};
         self.authCache.put(jwtToken, cachedContext);
         log:printDebug("Add authenticated user :" + payload.sub + " to the cache");
     }
 
     function setAuthContext(internal:JwtPayload jwtPayload, string jwtToken) {
         runtime:UserPrincipal userPrincipal = runtime:getInvocationContext().userPrincipal;
-        userPrincipal.userId = jwtPayload.sub;
+        userPrincipal.userId = jwtPayload.iss + ":" + jwtPayload.sub;
         // By default set sub as username.
         userPrincipal.username = jwtPayload.sub;
         userPrincipal.claims = jwtPayload.customClaims;
@@ -114,10 +113,10 @@ public type JWTAuthProvider object {
 
 };
 
-@final string SCOPES = "scope";
-@final string GROUPS = "groups";
-@final string USERNAME = "name";
-@final string AUTH_TYPE_JWT = "jwt";
+const string SCOPES = "scope";
+const string GROUPS = "groups";
+const string USERNAME = "name";
+const string AUTH_TYPE_JWT = "jwt";
 
 # Represents JWT validator configurations
 #
@@ -128,12 +127,12 @@ public type JWTAuthProvider object {
 # + trustStoreFilePath - Path to the trust store file
 # + trustStorePassword - Trust store password
 public type JWTAuthProviderConfig record {
-    string issuer;
-    string audience;
-    int clockSkew;
-    string certificateAlias;
-    string trustStoreFilePath;
-    string trustStorePassword;
+    string issuer = "";
+    string audience = "";
+    int clockSkew = 0;
+    string certificateAlias = "";
+    string trustStoreFilePath = "";
+    string trustStorePassword = "";
     !...
 };
 

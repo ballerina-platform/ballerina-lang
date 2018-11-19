@@ -18,13 +18,10 @@ service<http:Service> passthroughService bind passthroughEP1 {
     }
     passthrough(endpoint caller, http:Request clientRequest) {
         var response = nyseEP1->get("/nyseStock/stocks", message = untaint clientRequest);
-        match response {
-            http:Response httpResponse => {
-                _ = caller->respond(httpResponse);
-            }
-            error err => {
-                _ = caller->respond({ "error": "error occurred while invoking the service" });
-            }
+        if (response is http:Response) {
+            _ = caller->respond(response);
+        } else if (response is error) {
+            _ = caller->respond({ "error": "error occurred while invoking the service" });
         }
     }
 
@@ -34,13 +31,10 @@ service<http:Service> passthroughService bind passthroughEP1 {
     }
     forwardMultipart(endpoint caller, http:Request clientRequest) {
         var response = nyseEP1->forward("/nyseStock/stocksAsMultiparts", clientRequest);
-        match response {
-            http:Response httpResponse => {
-                _ = caller->respond(httpResponse);
-            }
-            error err => {
-                _ = caller->respond({ "error": "error occurred while invoking the service" });
-            }
+        if (response is http:Response) {
+            _ = caller->respond(response);
+        } else if (response is error) {
+            _ = caller->respond({ "error": "error occurred while invoking the service" });
         }
     }
 }
@@ -61,7 +55,11 @@ service<http:Service> nyseStockQuote1 bind passthroughEP1 {
         path: "/stocksAsMultiparts"
     }
     stocksAsMultiparts(endpoint caller, http:Request clientRequest) {
-        mime:Entity[] bodyParts = check clientRequest.getBodyParts();
-        _ = caller->respond(untaint bodyParts);
+        var bodyParts = clientRequest.getBodyParts();
+        if (bodyParts is mime:Entity[]) {
+            _ = caller->respond(untaint bodyParts);
+        } else if (bodyParts is error) {
+            _ = caller->respond(untaint bodyParts.reason());
+        }
     }
 }

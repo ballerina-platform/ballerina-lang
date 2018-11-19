@@ -127,6 +127,18 @@ public class BallerinaStatementImpl extends BallerinaCompositeElementImpl implem
 
   @Override
   @Nullable
+  public BallerinaPanicStatement getPanicStatement() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaPanicStatement.class);
+  }
+
+  @Override
+  @Nullable
+  public BallerinaRecordDestructuringStatement getRecordDestructuringStatement() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaRecordDestructuringStatement.class);
+  }
+
+  @Override
+  @Nullable
   public BallerinaRetryStatement getRetryStatement() {
     return PsiTreeUtil.getChildOfType(this, BallerinaRetryStatement.class);
   }

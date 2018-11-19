@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -77,6 +78,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -91,6 +93,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -103,6 +106,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -205,7 +209,16 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define type definitions.
         this.typePrecedence = 0;
+
+        // First visit constants.
+        pkgNode.constants.forEach(constant -> defineNode(constant, pkgEnv));
+
+        // Visit type definitions.
         defineTypeNodes(pkgNode.typeDefinitions, pkgEnv);
+
+        // Resolve type node of constants. This is done after visiting the type definitions because otherwise if the
+        // constant's type node is a type, it wont get resolved.
+        resolveConstantTypeNode(pkgNode.constants, pkgEnv);
 
         pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));
 
@@ -351,8 +364,20 @@ public class SymbolEnter extends BLangNodeVisitor {
             defineNode(typeDef, env);
         }
         if (typeDefs.size() <= unresolvedTypes.size()) {
-            dlog.error(typeDefs.get(0).pos, DiagnosticCode.CYCLIC_TYPE_REFERENCE,
-                    unresolvedTypes.stream().map(type -> type.name).collect(Collectors.toList()));
+            // This situation can occur due to either a cyclic dependency or at least one of member types in type
+            // definition node cannot be resolved. So we iterate through each node recursively looking for cyclic
+            // dependencies or undefined types in type node.
+
+            // We need to maintain a list to keep track of all encountered unresolved types. We need to keep track of
+            // the location as well since the same unknown type can be specified in multiple places.
+            LinkedList<LocationData> unknownTypes = new LinkedList<>();
+            for (BLangTypeDefinition unresolvedType : unresolvedTypes) {
+                // We need to keep track of all visited types to print cyclic dependency.
+                LinkedList<String> references = new LinkedList<>();
+                references.add(unresolvedType.name.value);
+                checkErrors(unresolvedType, unresolvedType.typeNode, references, unknownTypes);
+            }
+
             // Create and define dummy symbols and continue. This done to keep the remaining compiler
             // phases running, and to make the semantic validations happen properly.
             unresolvedTypes.forEach(type -> createDummyTypeDefSymbol(type, env));
@@ -362,11 +387,103 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineTypeNodes(unresolvedTypes, env);
     }
 
+    private void checkErrors(BLangTypeDefinition unresolvedType, BLangType currentTypeNode, List<String> visitedNodes,
+                             List<LocationData> encounteredUnknownTypes) {
+        String unresolvedTypeNodeName = unresolvedType.name.value;
+        // Type node can be either user defined type or union type. Finite types will not be added to the
+        // unresolved list because they can be resolved.
+        if (currentTypeNode.getKind() == NodeKind.UNION_TYPE_NODE) {
+            // If the current type node is a union type node, we need to check all member nodes.
+            List<BLangType> memberTypeNodes = ((BLangUnionTypeNode) currentTypeNode).memberTypeNodes;
+            for (BLangType memberTypeNode : memberTypeNodes) {
+                if (memberTypeNode.getKind() == NodeKind.UNION_TYPE_NODE) {
+                    // Recursively check all members.
+                    checkErrors(unresolvedType, memberTypeNode, visitedNodes, encounteredUnknownTypes);
+                } else if (memberTypeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
+                    String memberTypeNodeName = ((BLangUserDefinedType) memberTypeNode).typeName.value;
+                    // Skip all types defined as anonymous types.
+                    if (memberTypeNodeName.startsWith("$")) {
+                        continue;
+                    }
+                    if (unresolvedTypeNodeName.equals(memberTypeNodeName)) {
+                        // Cyclic dependency detected. We need to add the `unresolvedTypeNodeName` or the
+                        // `memberTypeNodeName` to the end of the list to complete the cyclic dependency when
+                        // printing the error.
+                        visitedNodes.add(memberTypeNodeName);
+                        dlog.error(unresolvedType.pos, DiagnosticCode.CYCLIC_TYPE_REFERENCE, visitedNodes);
+                        // We need to remove the last occurrence since we use this list in a recursive call.
+                        // Otherwise, unwanted types will get printed in the cyclic dependency error.
+                        visitedNodes.remove(visitedNodes.lastIndexOf(memberTypeNodeName));
+                    } else {
+                        checkErrors(unresolvedType, memberTypeNode, visitedNodes, encounteredUnknownTypes);
+                    }
+                }
+            }
+        } else if (currentTypeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
+            String currentTypeNodeName = ((BLangUserDefinedType) currentTypeNode).typeName.value;
+            if (unresolvedTypeNodeName.equals(currentTypeNodeName)) {
+                // Cyclic dependency detected. We need to add the `unresolvedTypeNodeName` or the
+                // `memberTypeNodeName` to the end of the list to complete the cyclic dependency when
+                // printing the error.
+                visitedNodes.add(currentTypeNodeName);
+                dlog.error(unresolvedType.pos, DiagnosticCode.CYCLIC_TYPE_REFERENCE, visitedNodes);
+                // We need to remove the last occurrence since we use this list in a recursive call.
+                // Otherwise, unwanted types will get printed in the cyclic dependency error.
+                visitedNodes.remove(visitedNodes.lastIndexOf(currentTypeNodeName));
+            } else if (visitedNodes.contains(currentTypeNodeName)) {
+                // Cyclic dependency detected. But in here, all the types in the list might not be necessary for the
+                // cyclic dependency error message.
+                //
+                // Eg - A -> B -> C -> B // Last B is what we are currently checking
+                //
+                // In such case, we create a new list with relevant type names.
+                List<String> dependencyList = new LinkedList<>();
+                for (int i = visitedNodes.indexOf(currentTypeNodeName); i < visitedNodes.size(); i++) {
+                    dependencyList.add(visitedNodes.get(i));
+                }
+                // Add the `currentTypeNodeName` to complete the cycle.
+                dependencyList.add(currentTypeNodeName);
+                dlog.error(unresolvedType.pos, DiagnosticCode.CYCLIC_TYPE_REFERENCE, dependencyList);
+            } else {
+                // Check whether the current type node is in the unresolved list. If it is in the list, we need to
+                // check it recursively.
+                List<BLangTypeDefinition> typeDefinitions = unresolvedTypes.stream()
+                        .filter(typeDefinition -> typeDefinition.name.value.equals(currentTypeNodeName))
+                        .collect(Collectors.toList());
+                if (typeDefinitions.isEmpty()) {
+                    // If a type is declared, it should either get defined successfully or added to the unresolved
+                    // types list. If a type is not in either one of them, that means it is an undefined type.
+
+                    LocationData locationData = new LocationData(currentTypeNodeName, currentTypeNode.pos.sLine,
+                            currentTypeNode.pos.sCol);
+
+                    if (!encounteredUnknownTypes.contains(locationData)) {
+                        dlog.error(currentTypeNode.pos, DiagnosticCode.UNKNOWN_TYPE, currentTypeNodeName);
+                        encounteredUnknownTypes.add(locationData);
+                    }
+                } else {
+                    for (BLangTypeDefinition typeDefinition : typeDefinitions) {
+                        String typeName = typeDefinition.name.value;
+                        // Add the node name to the list.
+                        visitedNodes.add(typeName);
+                        // Recursively check for errors.
+                        checkErrors(unresolvedType, typeDefinition.typeNode, visitedNodes, encounteredUnknownTypes);
+                        // We need to remove the added type node here since we have finished checking errors.
+                        visitedNodes.remove(visitedNodes.lastIndexOf(typeName));
+                    }
+                }
+            }
+        }
+    }
+
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
         BType definedType = symResolver.resolveTypeNode(typeDefinition.typeNode, env);
         if (definedType == symTable.noType) {
-            this.unresolvedTypes.add(typeDefinition);
+            // This is to prevent concurrent modification exception.
+            if (!this.unresolvedTypes.contains(typeDefinition)) {
+                this.unresolvedTypes.add(typeDefinition);
+            }
             return;
         }
 
@@ -379,7 +496,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             for (BLangType typeRef : structureTypeNode.typeRefs) {
                 BType referencedType = symResolver.resolveTypeNode(typeRef, env);
                 if (referencedType == symTable.noType) {
-                    this.unresolvedTypes.add(typeDefinition);
+                    if (!this.unresolvedTypes.contains(typeDefinition)) {
+                        this.unresolvedTypes.add(typeDefinition);
+                    }
                     return;
                 }
             }
@@ -654,6 +773,49 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangConstant constant) {
+        // Create a new constant symbol.
+        Name name = names.fromIdNode(constant.name);
+        PackageID pkgID = env.enclPkg.symbol.pkgID;
+
+        BConstantSymbol constantSymbol = new BConstantSymbol(Flags.asMask(constant.flagSet), name, pkgID,
+                symTable.semanticError, symTable.semanticError, env.scope.owner);
+
+        // Update the symbol of the node.
+        constant.symbol = constantSymbol;
+
+        // Note - This is checked and error is logged in semantic analyzer.
+        if (((BLangExpression) constant.value).getKind() != NodeKind.LITERAL) {
+            if (symResolver.checkForUniqueSymbol(constant.pos, env, constantSymbol, SymTag.VARIABLE_NAME)) {
+                env.scope.define(constantSymbol.name, constantSymbol);
+            }
+            return;
+        }
+
+        // Visit the associated type definition. This will set the type of the type definition.
+        defineNode(constant.associatedTypeDefinition, env);
+
+        // Get the type of the associated type definition and set it as the type of the symbol. This is needed to
+        // resolve the types of any type definition which uses the constant in type node.
+        constantSymbol.type = constant.associatedTypeDefinition.symbol.type;
+        constantSymbol.literalValue = ((BLangLiteral) constant.value).value;
+        constantSymbol.literalValueTypeTag = ((BLangLiteral) constant.value).typeTag;
+        constantSymbol.markdownDocumentation = getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
+
+        // Note - constant.typeNode.type will be resolved in a `resolveConstantTypeNode()` later since at this
+        // point we might not be able to resolve the type properly because type definitions in the package are not yet
+        // visited.
+
+        // Add the symbol to the enclosing scope.
+        if (!symResolver.checkForUniqueSymbol(constant.pos, env, constantSymbol, SymTag.VARIABLE_NAME)) {
+            return;
+        }
+
+        // Add the symbol to the enclosing scope.
+        env.scope.define(constantSymbol.name, constantSymbol);
+    }
+
+    @Override
     public void visit(BLangSimpleVariable varNode) {
         // this is a field variable defined for object init function
         if (varNode.isField) {
@@ -767,6 +929,39 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     // Private methods
 
+    private void resolveConstantTypeNode(List<BLangConstant> constants, SymbolEnv env) {
+        // Resolve the type node and update the type of the typeNode.
+        for (BLangConstant constant : constants) {
+            // Constant symbol type will be an error type if the RHS of the constant definition node is invalid.
+            if (constant.symbol.type == symTable.semanticError) {
+                continue;
+            }
+
+            if (constant.typeNode != null) {
+                constant.symbol.literalValueType = symResolver.resolveTypeNode(constant.typeNode, env);
+            } else {
+                constant.symbol.literalValueType = symTable.getTypeFromTag(constant.symbol.literalValueTypeTag);
+            }
+
+            if (!isAllowedConstantType(constant.symbol)) {
+                dlog.error(constant.typeNode.pos, DiagnosticCode.CANNOT_DEFINE_CONSTANT_WITH_TYPE, constant.typeNode);
+            }
+        }
+    }
+
+    private boolean isAllowedConstantType(BConstantSymbol symbol) {
+        switch (symbol.literalValueType.tag) {
+            case TypeTags.BOOLEAN:
+            case TypeTags.INT:
+            case TypeTags.BYTE:
+            case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
+            case TypeTags.STRING:
+                return true;
+        }
+        return false;
+    }
+
     private boolean hasAnnotation(List<BLangAnnotationAttachment> annotationAttachmentList, String expectedAnnotation) {
         return annotationAttachmentList.stream()
                 .filter(annotation -> annotation.annotationName.value.equals(expectedAnnotation)).count() > 0;
@@ -850,6 +1045,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             case ENDPOINT:
                 pkgNode.globalEndpoints.add((BLangEndpoint) node);
                 break;
+            case CONSTANT:
+                pkgNode.constants.add((BLangConstant) node);
+                break;
         }
     }
 
@@ -873,7 +1071,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     Stream.concat(structureTypeNode.fields.stream(), structureTypeNode.referencedFields.stream())
                             .peek(field -> defineNode(field, typeDefEnv))
                             .filter(field -> field.symbol.type != symTable.semanticError) // filter out erroneous fields
-                            .map(field -> new BField(names.fromIdNode(field.name), field.symbol, field.expr != null))
+                            .map(field -> new BField(names.fromIdNode(field.name), field.symbol))
                             .collect(Collectors.toList());
 
             if (typeDef.symbol.kind != SymbolKind.RECORD) {
@@ -1027,7 +1225,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     /**
      * Define a symbol that is unique only for the current scope.
-     * 
+     *
      * @param pos Line number information of the source file
      * @param symbol Symbol to be defines
      * @param env Environment to define the symbol
@@ -1292,7 +1490,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void createDummyTypeDefSymbol(BLangTypeDefinition typeDef, SymbolEnv env) {
         // This is only to keep the flow running so that at the end there will be proper semantic errors
         typeDef.symbol = Symbols.createTypeSymbol(SymTag.TYPE_DEF, Flags.asMask(typeDef.flagSet),
-                names.fromIdNode(typeDef.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
+                names.fromIdNode(typeDef.name), env.enclPkg.symbol.pkgID, symTable.semanticError, env.scope.owner);
         defineSymbol(typeDef.pos, typeDef.symbol, env);
     }
 
@@ -1311,8 +1509,15 @@ public class SymbolEnter extends BLangNodeVisitor {
                 return Stream.empty();
             }
 
-            if (referredType.tag != TypeTags.OBJECT || !Symbols.isFlagOn(referredType.tsymbol.flags, Flags.ABSTRACT)) {
+            if (structureTypeNode.type.tag == TypeTags.OBJECT &&
+                    (referredType.tag != TypeTags.OBJECT || !Symbols.isFlagOn(referredType.tsymbol.flags,
+                                                                              Flags.ABSTRACT))) {
                 dlog.error(typeRef.pos, DiagnosticCode.INCOMPATIBLE_TYPE_REFERENCE, typeRef);
+                return Stream.empty();
+            }
+
+            if (structureTypeNode.type.tag == TypeTags.RECORD && referredType.tag != TypeTags.RECORD) {
+                dlog.error(typeRef.pos, DiagnosticCode.INCOMPATIBLE_RECORD_TYPE_REFERENCE, typeRef);
                 return Stream.empty();
             }
 
@@ -1398,5 +1603,32 @@ public class SymbolEnter extends BLangNodeVisitor {
                 (BLangStatement) createAssignmentStmt(varNode, paramSymbol, fieldSymbol));
         varNode.symbol = paramSymbol;
         return;
+    }
+
+    /**
+     * Used to store location data for encountered unknown types in `checkErrors` method.
+     *
+     * @since 0.985.0
+     */
+    class LocationData {
+
+        private String name;
+        private int row;
+        private int column;
+
+        LocationData(String name, int row, int column) {
+            this.name = name;
+            this.row = row;
+            this.column = column;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof LocationData)) {
+                return false;
+            }
+            LocationData data = (LocationData) o;
+            return name.equals(data.name) && row == data.row && column == data.column;
+        }
     }
 }

@@ -19,7 +19,7 @@ import _ from 'lodash';
 import NodeFactory from 'plugins/ballerina/model/node-factory';
 import AbstractResourceNode from './abstract-tree/resource-node';
 import TreeUtil from './../tree-util';
-
+import { ASTUtil } from "ast-model";
 /**
  * Node for a resource definition.
  * @class ResourceNode
@@ -219,7 +219,7 @@ class ResourceNode extends AbstractResourceNode {
             if (currentParam.getAnnotationAttachments().length > 0) {
                 const annotation = currentParam.getAnnotationAttachments()[0];
                 if (annotation.getAnnotationName().getValue() === 'QueryParam' &&
-                                                            annotation.getAttributes().length > 0) {
+                    annotation.getAttributes().length > 0) {
                     const attribute = annotation.getAttributes()[0];
                     const attributeValue = attribute.getValue();
                     const literal = attributeValue.getValue();
@@ -265,13 +265,27 @@ class ResourceNode extends AbstractResourceNode {
                 const statements = this.getBody().getStatements()
                         .filter((statement) => { return !TreeUtil.isEndpointTypeVariableDef(statement); });
                 this.getBody().setStatements(connectors, true);
-                defaultWorker.getBody().setStatements(statements);
+
+                let defaultWorkerStartPosition = ASTUtil.getStartPosition(this, "workers");
+                ASTUtil.reconcileWS(defaultWorker, this.getWorkers(), this.getRoot(), defaultWorkerStartPosition);
                 this.addWorkers(defaultWorker, -1, true);
+                // Iterate statements and reconcile whitespaces to match the default worker.
+                for (let statement in statements) {
+                    let startPosition = ASTUtil.getStartPosition(defaultWorker, "statements");
+                    ASTUtil.reconcileWS(statements[statement], defaultWorker.getBody().getStatements(),
+                        this.getRoot(), startPosition);
+                    defaultWorker.getBody().addStatements(statements[statement], -1, true);
+                }
             }
             const index = !_.isNil(dropBefore) ? this.getIndexOfWorkers(dropBefore) : -1;
             TreeUtil.generateWorkerName(this, node);
+
+            // Add new workers to resource.
+            ASTUtil.reconcileWS(node, this.getWorkers(), this.getRoot());
             this.addWorkers(node, index);
         } else if (TreeUtil.isEndpoint(node)) {
+            let startPosition = ASTUtil.getStartPosition(this, "endpointNodes");
+            ASTUtil.reconcileWS(node, this.getEndpointNodes(), this.getRoot(), startPosition);
             this.addEndpointNodes(node);
         }
     }

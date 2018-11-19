@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_KEY_VALUE;
 
@@ -75,7 +76,9 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
 
     @Override
     public String toString() {
-        return keyValuePairs.toString();
+        return " {" + keyValuePairs.stream()
+                .map(BLangRecordKeyValue::toString)
+                .collect(Collectors.joining(",")) + "}";
     }
 
     /**
@@ -110,7 +113,7 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
 
         @Override
         public String toString() {
-            return key + ((valueExpr != null) ? "=" + valueExpr : "");
+            return key + ((valueExpr != null) ? ": " + valueExpr : "");
         }
     }
 

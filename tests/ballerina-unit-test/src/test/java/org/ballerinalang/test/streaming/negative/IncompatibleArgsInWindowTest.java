@@ -51,7 +51,7 @@ public class IncompatibleArgsInWindowTest {
         System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertEquals(incompatibleArgsResult.getErrorCount(), 1);
         BAssertUtil.validateError(incompatibleArgsResult, 0,
-                                  "incompatible types: expected 'int', found 'string'",
+                                  "incompatible types: expected 'any[]', found 'string'",
                                   62, 58);
     }
 

@@ -25,28 +25,28 @@ import ballerina/io;
 @final string WARNING_110_RESPONSE_IS_STALE = "110 " + WARNING_AGENT + " \"Response is Stale\"";
 @final string WARNING_111_REVALIDATION_FAILED = "111 " + WARNING_AGENT + " \"Revalidation Failed\"";
 
-@final string WEAK_VALIDATOR_TAG = "W/";
-@final int STALE = 0;
+const string WEAK_VALIDATOR_TAG = "W/";
+const int STALE = 0;
 
-@final string FORWARD = "FORWARD";
-@final string GET = "GET";
-@final string POST = "POST";
-@final string DELETE = "DELETE";
-@final string OPTIONS = "OPTIONS";
-@final string PUT = "PUT";
-@final string PATCH = "PATCH";
-@final string HEAD = "HEAD";
+const string FORWARD = "FORWARD";
+const string GET = "GET";
+const string POST = "POST";
+const string DELETE = "DELETE";
+const string OPTIONS = "OPTIONS";
+const string PUT = "PUT";
+const string PATCH = "PATCH";
+const string HEAD = "HEAD";
 
 # Used for configuring the caching behaviour. Setting the `policy` field in the `CacheConfig` record allows
 # the user to control the caching behaviour.
-public type CachingPolicy "CACHE_CONTROL_AND_VALIDATORS"|"RFC_7234";
+public type CachingPolicy CACHE_CONTROL_AND_VALIDATORS|RFC_7234;
 
 # This is a more restricted mode of RFC 7234. Setting this as the caching policy restricts caching to instances
 # where the `cache-control` header and either the `etag` or `last-modified` header are present.
-@final public CachingPolicy CACHE_CONTROL_AND_VALIDATORS = "CACHE_CONTROL_AND_VALIDATORS";
+public const CACHE_CONTROL_AND_VALIDATORS = "CACHE_CONTROL_AND_VALIDATORS";
 
 # Caching behaviour is as specified by the RFC 7234 specification.
-@final public CachingPolicy RFC_7234 = "RFC_7234";
+public const RFC_7234 = "RFC_7234";
 
 # Provides a set of configurations for controlling the caching behaviour of the endpoint.
 #
@@ -78,11 +78,11 @@ public type CacheConfig record {
 # + cacheConfig - Configurations for the underlying cache storage and for controlling the HTTP caching behaviour
 public type HttpCachingClient object {
 
-    public string serviceUri;
-    public ClientEndpointConfig config;
+    public string serviceUri = "";
+    public ClientEndpointConfig config = {};
     public CallerActions httpClient;
     public HttpCache cache;
-    public CacheConfig cacheConfig;
+    public CacheConfig cacheConfig = {};
 
     # Takes a service URL, a `CliendEndpointConfig` and a `CacheConfig` and builds an HTTP client capable of
     # caching responses. The `CacheConfig` instance is used for initializing a new HTTP cache for the client and
@@ -241,7 +241,7 @@ public function createHttpCachingClient(string url, ClientEndpointConfig config,
     return httpCachingClient;
 }
 
-function HttpCachingClient::post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function HttpCachingClient.post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                        message) returns Response|error {
     Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
@@ -253,14 +253,14 @@ function HttpCachingClient::post(string path, Request|string|xml|json|byte[]|io:
     return inboundResponse;
 }
 
-function HttpCachingClient::head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function HttpCachingClient.head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                         message = ()) returns Response|error {
     Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
     return getCachedResponse(self.cache, self.httpClient, req, HEAD, path, self.cacheConfig.isShared);
 }
 
-function HttpCachingClient::put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function HttpCachingClient.put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                         message) returns Response|error {
     Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
@@ -272,7 +272,7 @@ function HttpCachingClient::put(string path, Request|string|xml|json|byte[]|io:R
     return inboundResponse;
 }
 
-function HttpCachingClient::execute(string httpMethod, string path,
+function HttpCachingClient.execute(string httpMethod, string path,
                                     Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message)
                                 returns Response|error {
     Request request = buildRequest(message);
@@ -289,7 +289,7 @@ function HttpCachingClient::execute(string httpMethod, string path,
     return inboundResponse;
 }
 
-function HttpCachingClient::patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function HttpCachingClient.patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                         message) returns Response|error {
     Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
@@ -301,7 +301,7 @@ function HttpCachingClient::patch(string path, Request|string|xml|json|byte[]|io
     return inboundResponse;
 }
 
-function HttpCachingClient::delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function HttpCachingClient.delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                         message) returns Response|error {
     Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
@@ -313,14 +313,14 @@ function HttpCachingClient::delete(string path, Request|string|xml|json|byte[]|i
     return inboundResponse;
 }
 
-function HttpCachingClient::get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function HttpCachingClient.get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                         message = ()) returns Response|error {
     Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
     return getCachedResponse(self.cache, self.httpClient, req, GET, path, self.cacheConfig.isShared);
 }
 
-function HttpCachingClient::options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+function HttpCachingClient.options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message = ()) returns Response|error {
     Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
@@ -332,7 +332,7 @@ function HttpCachingClient::options(string path, Request|string|xml|json|byte[]|
     return inboundResponse;
 }
 
-function HttpCachingClient::forward(string path, Request request) returns Response|error {
+function HttpCachingClient.forward(string path, Request request) returns Response|error {
     if (request.method == GET || request.method == HEAD) {
         return getCachedResponse(self.cache, self.httpClient, request, request.method, path, self.cacheConfig.isShared);
     }
@@ -344,30 +344,30 @@ function HttpCachingClient::forward(string path, Request request) returns Respon
     return inboundResponse;
 }
 
-function HttpCachingClient::submit(string httpVerb, string path,
+function HttpCachingClient.submit(string httpVerb, string path,
                                    Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message)
                                    returns HttpFuture|error {
     Request req = buildRequest(message);
     return self.httpClient.submit(httpVerb, path, req);
 }
 
-function HttpCachingClient::getResponse(HttpFuture httpFuture) returns Response|error {
+function HttpCachingClient.getResponse(HttpFuture httpFuture) returns Response|error {
     return self.httpClient.getResponse(httpFuture);
 }
 
-function HttpCachingClient::hasPromise(HttpFuture httpFuture) returns boolean {
+function HttpCachingClient.hasPromise(HttpFuture httpFuture) returns boolean {
     return self.httpClient.hasPromise(httpFuture);
 }
 
-function HttpCachingClient::getNextPromise(HttpFuture httpFuture) returns (PushPromise|error) {
+function HttpCachingClient.getNextPromise(HttpFuture httpFuture) returns (PushPromise|error) {
     return self.httpClient.getNextPromise(httpFuture);
 }
 
-function HttpCachingClient::getPromisedResponse(PushPromise promise) returns Response|error {
+function HttpCachingClient.getPromisedResponse(PushPromise promise) returns Response|error {
     return self.httpClient.getPromisedResponse(promise);
 }
 
-function HttpCachingClient::rejectPromise(PushPromise promise) {
+function HttpCachingClient.rejectPromise(PushPromise promise) {
     self.httpClient.rejectPromise(promise);
 }
 

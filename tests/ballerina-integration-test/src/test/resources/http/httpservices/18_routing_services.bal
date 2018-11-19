@@ -24,34 +24,31 @@ service<http:Service> contentBasedRouting bind serviceEP{
     cbrResource (endpoint conn, http:Request req) {
         string nyseString = "nyse";
         var jsonMsg = req.getJsonPayload();
-        string nameString;
-        match jsonMsg {
-            error payloadError => io:println("Error getting payload");
-            json payload =>  {
-                nameString = extractFieldValue1(payload.name);
-            }
+        string nameString = "";
+        if (jsonMsg is json) {
+            nameString = extractFieldValue1(jsonMsg.name);
+        } else if (jsonMsg is error) {
+            io:println("Error getting payload");
         }
         http:Request clientRequest = new;
         http:Response clientResponse = new;
         if (nameString == nyseString) {
             var result = nyseEP2 -> post("/stocks", clientRequest);
-            match result {
-                error err => {
-                    clientResponse.statusCode = 500;
-                    clientResponse.setTextPayload("Error sending request");
-                    _ = conn -> respond(clientResponse);
-                }
-                http:Response returnResponse => _ = conn -> respond(returnResponse);
+            if (result is http:Response) {
+                _ = conn -> respond(untaint result);
+            } else if (result is error) {
+                clientResponse.statusCode = 500;
+                clientResponse.setPayload("Error sending request");
+                _ = conn -> respond(clientResponse);
             }
         } else {
             var result = nasdaqEP -> post("/stocks", clientRequest);
-            match result {
-                error err => {
-                    clientResponse.statusCode = 500;
-                    clientResponse.setTextPayload("Error sending request");
-                    _ = conn -> respond(clientResponse);
-                }
-                http:Response returnResponse => _ = conn -> respond(returnResponse);
+            if (result is http:Response) {
+                _ = conn -> respond(untaint result);
+            } else if (result is error) {
+                clientResponse.statusCode = 500;
+                clientResponse.setPayload("Error sending request");
+                _ = conn -> respond(clientResponse);
             }
         }
     }
@@ -72,23 +69,21 @@ service<http:Service> headerBasedRouting bind serviceEP{
         http:Response clientResponse = new;
         if (nameString == nyseString) {
             var result = nyseEP2 -> post("/stocks", clientRequest);
-            match result {
-                error err => {
-                    clientResponse.statusCode = 500;
-                    clientResponse.setTextPayload("Error sending request");
-                    _ = conn -> respond(clientResponse);
-                }
-                http:Response returnResponse => _ = conn -> respond(returnResponse);
+            if (result is http:Response) {
+                _ = conn -> respond(untaint result);
+            } else if (result is error) {
+                clientResponse.statusCode = 500;
+                clientResponse.setPayload("Error sending request");
+                _ = conn -> respond(clientResponse);
             }
         } else {
             var result = nasdaqEP -> post("/stocks", clientRequest);
-            match result {
-                error err => {
-                    clientResponse.statusCode = 500;
-                    clientResponse.setTextPayload("Error sending request");
-                    _ = conn -> respond(clientResponse);
-                }
-                http:Response returnResponse => _ = conn -> respond(returnResponse);
+            if (result is http:Response) {
+                _ = conn -> respond(untaint result);
+            } else if (result is error) {
+                clientResponse.statusCode = 500;
+                clientResponse.setPayload("Error sending request");
+                _ = conn -> respond(clientResponse);
             }
         }
     }

@@ -113,32 +113,33 @@ extern function nativeRespond(Connection connection, Response response) returns 
 /// Ballerina Implementations ///
 /////////////////////////////////
 # Defines the HTTP redirect codes as a type.
-public type RedirectCode 300|301|302|303|304|305|307|308;
+public type RedirectCode REDIRECT_MULTIPLE_CHOICES_300|REDIRECT_MOVED_PERMANENTLY_301|REDIRECT_FOUND_302|REDIRECT_SEE_OTHER_303|
+REDIRECT_NOT_MODIFIED_304|REDIRECT_USE_PROXY_305|REDIRECT_TEMPORARY_REDIRECT_307|REDIRECT_PERMANENT_REDIRECT_308;
 
 # Represents the HTTP redirect status code `300 - Multiple Choices`.
-@final public RedirectCode REDIRECT_MULTIPLE_CHOICES_300 = 300;
+public const REDIRECT_MULTIPLE_CHOICES_300 = 300;
 # Represents the HTTP redirect status code `301 - Moved Permanently`.
-@final public RedirectCode REDIRECT_MOVED_PERMANENTLY_301 = 301;
+public const REDIRECT_MOVED_PERMANENTLY_301 = 301;
 # Represents the HTTP redirect status code `302 - Found`.
-@final public RedirectCode REDIRECT_FOUND_302 = 302;
+public const REDIRECT_FOUND_302 = 302;
 # Represents the HTTP redirect status code `303 - See Other`.
-@final public RedirectCode REDIRECT_SEE_OTHER_303 = 303;
+public const REDIRECT_SEE_OTHER_303 = 303;
 # Represents the HTTP redirect status code `304 - Not Modified`.
-@final public RedirectCode REDIRECT_NOT_MODIFIED_304 = 304;
+public const REDIRECT_NOT_MODIFIED_304 = 304;
 # Represents the HTTP redirect status code `305 - Use Proxy`.
-@final public RedirectCode REDIRECT_USE_PROXY_305 = 305;
+public const REDIRECT_USE_PROXY_305 = 305;
 # Represents the HTTP redirect status code `307 - Temporary Redirect`.
-@final public RedirectCode REDIRECT_TEMPORARY_REDIRECT_307 = 307;
+public const REDIRECT_TEMPORARY_REDIRECT_307 = 307;
 # Represents the HTTP redirect status code `308 - Permanent Redirect`.
-@final public RedirectCode REDIRECT_PERMANENT_REDIRECT_308 = 308;
+public const REDIRECT_PERMANENT_REDIRECT_308 = 308;
 
-function Connection::continue() returns error? {
+function Connection.continue() returns error? {
     Response res = new;
     res.statusCode = CONTINUE_100;
     return self.respond(res);
 }
 
-function Connection::redirect(Response response, RedirectCode code, string[] locations) returns error? {
+function Connection.redirect(Response response, RedirectCode code, string[] locations) returns error? {
     if (code == REDIRECT_MULTIPLE_CHOICES_300) {
         response.statusCode = MULTIPLE_CHOICES_300;
     } else if (code == REDIRECT_MOVED_PERMANENTLY_301) {
@@ -166,13 +167,13 @@ function Connection::redirect(Response response, RedirectCode code, string[] loc
     return self.respond(response);
 }
 
-function Connection::ok(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns error? {
+function Connection.ok(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns error? {
     Response response = buildResponse(message);
     response.statusCode = OK_200;
     return self.respond(response);
 }
 
-function Connection::created(string uri, Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
+function Connection.created(string uri, Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
                                                                                             returns error? {
     Response response = buildResponse(message);
     response.statusCode = CREATED_201;
@@ -182,7 +183,7 @@ function Connection::created(string uri, Response|string|xml|json|byte[]|io:Read
     return self.respond(response);
 }
 
-function Connection::accepted(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
+function Connection.accepted(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
                                                                                             returns error? {
     Response response = buildResponse(message);
     response.statusCode = ACCEPTED_202;

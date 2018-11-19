@@ -41,9 +41,4 @@ service<http:Service> FooService {
             b -> w1;
         }
     }
-
-    test6 (string dummyParam) {
-        io:println("test4-return");
-        return;
-    }
 }

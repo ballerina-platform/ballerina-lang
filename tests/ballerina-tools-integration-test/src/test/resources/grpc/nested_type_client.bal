@@ -26,49 +26,40 @@ public function main(string... args) {
     io:println("testInputNestedStruct output: " + output);
 
     Person|string result = testOutputNestedStruct("WSO2");
-    match result {
-        Person p2 => {
-            io:println("testOutputNestedStruct output: " + p2.name);
-        }
-        string err => {
-            io:println(err);
-        }
+    if (result is Person) {
+        io:println("testOutputNestedStruct output: " + result.name);
+    } else {
+        io:println(result);
     }
 }
 
 function testInputNestedStruct(Person p) returns string {
     (string, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testInputNestedStruct(p);
-    match unionResp {
-        (string, grpc:Headers) payload => {
-            string result;
-            (result, _) = payload;
-            return result;
-        }
-        error err => {
-            io:println("Error from Connector: " + err.message);
-            return "Error from Connector: " + err.message;
-        }
+    if (unionResp is error) {
+        io:println("Error from Connector: " + unionResp.reason());
+        return "Error from Connector: " + unionResp.reason();
+    } else {
+        string result;
+        (result, _) = unionResp;
+        return result;
     }
 }
 
 function testOutputNestedStruct(string name) returns Person|string {
     (Person, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testOutputNestedStruct(name);
-    match unionResp {
-        (Person, grpc:Headers) payload => {
-            Person result;
-            (result, _) = payload;
-            return result;
-        }
-        error err => {
-            return "Error from Connector: " + err.message;
-        }
+    if (unionResp is error) {
+        return "Error from Connector: " + unionResp.reason();
+    } else {
+        Person result;
+        (result, _) = unionResp;
+        return result;
     }
 }
 
 public type HelloWorldBlockingStub object {
 
-    public grpc:Client clientEndpoint;
-    public grpc:Stub stub;
+    public grpc:Client clientEndpoint = new;
+    public grpc:Stub stub = new;
 
     function initStub(grpc:Client ep) {
         grpc:Stub navStub = new;
@@ -77,40 +68,26 @@ public type HelloWorldBlockingStub object {
     }
 
     function testInputNestedStruct(Person req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
-        var unionResp = self.stub.blockingExecute("foo.HelloWorld/testInputNestedStruct", req, headers = headers);
-        match unionResp {
-            error payloadError => {
-                return payloadError;
-            }
-            (any, grpc:Headers) payload => {
-                any result;
-                grpc:Headers resHeaders;
-                (result, resHeaders) = payload;
-                return (<string>result, resHeaders);
-            }
-        }
+        var payload = check self.stub.blockingExecute("foo.HelloWorld/testInputNestedStruct", req, headers = headers);
+        any result = ();
+        grpc:Headers resHeaders = new;
+        (result, resHeaders) = payload;
+        return (<string>result, resHeaders);
     }
 
     function testOutputNestedStruct(string req, grpc:Headers? headers = ()) returns ((Person, grpc:Headers)|error) {
-        var unionResp = self.stub.blockingExecute("foo.HelloWorld/testOutputNestedStruct", req, headers = headers);
-        match unionResp {
-            error payloadError => {
-                return payloadError;
-            }
-            (any, grpc:Headers) payload => {
-                any result;
-                grpc:Headers resHeaders;
-                (result, resHeaders) = payload;
-                return (check <Person>result, resHeaders);
-            }
-        }
+        var payload = check self.stub.blockingExecute("foo.HelloWorld/testOutputNestedStruct", req, headers = headers);
+        any result;
+        grpc:Headers resHeaders;
+        (result, resHeaders) = payload;
+        return (check <Person>result, resHeaders);
     }
 };
 
 public type HelloWorldStub object {
 
-    public grpc:Client clientEndpoint;
-    public grpc:Stub stub;
+    public grpc:Client clientEndpoint = new;
+    public grpc:Stub stub = new;
 
     function initStub(grpc:Client ep) {
         grpc:Stub navStub = new;
@@ -130,8 +107,8 @@ public type HelloWorldStub object {
 
 public type HelloWorldBlockingClient object {
 
-    public grpc:Client client;
-    public HelloWorldBlockingStub stub;
+    public grpc:Client client = new;
+    public HelloWorldBlockingStub stub = new;
 
     public function init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
@@ -151,8 +128,8 @@ public type HelloWorldBlockingClient object {
 
 public type HelloWorldClient object {
 
-    public grpc:Client client;
-    public HelloWorldStub stub;
+    public grpc:Client client = new;
+    public HelloWorldStub stub = new;
 
     public function init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
@@ -172,15 +149,15 @@ public type HelloWorldClient object {
 
 
 type Person record {
-    string name;
-    Address address;
+    string name = "";
+    Address address = {};
 
 };
 
 type Address record {
-    int postalCode;
-    string state;
-    string country;
+    int postalCode = 0;
+    string state = "";
+    string country = "";
 
 };
 

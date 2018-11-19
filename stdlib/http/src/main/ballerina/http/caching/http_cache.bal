@@ -71,7 +71,7 @@ public type HttpCache object {
     }
 
     function get (string key) returns Response {
-        Response response;
+        Response response = new;
         var cacheEntry = <Response[]> self.cache.get(key);
         if (cacheEntry is Response[]) {
             response = cacheEntry[cacheEntry.length() - 1];
@@ -155,17 +155,12 @@ function isCacheableStatusCode (int statusCode) returns boolean {
 }
 
 function addEntry (cache:Cache cache, string key, Response inboundResponse) {
-    // TODO : Fix this logic.
-    var existingResponses = trap cache.get(key);
+    var existingResponses = cache.get(key);
     if (existingResponses is Response[]) {
         existingResponses[existingResponses.length()] = inboundResponse;
-    } else if (existingResponses is error) {
+    } else if (existingResponses is ()) {
         Response[] cachedResponses = [inboundResponse];
         cache.put(key, cachedResponses);
-        //panic err;
-    } else {
-        error e = error("unexpected error");
-        panic e;
     }
 }
 

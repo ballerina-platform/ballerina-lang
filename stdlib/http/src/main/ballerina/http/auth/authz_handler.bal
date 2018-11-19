@@ -27,8 +27,8 @@ import ballerina/io;
 # + negativeAuthzCache - `Cache` instance, which is cache negative authorizations
 public type HttpAuthzHandler object {
     public auth:AuthStoreProvider authStoreProvider;
-    public cache:Cache? positiveAuthzCache;
-    public cache:Cache? negativeAuthzCache;
+    public cache:Cache positiveAuthzCache;
+    public cache:Cache negativeAuthzCache;
 
     public new (authStoreProvider, positiveAuthzCache, negativeAuthzCache) {
     }
@@ -62,19 +62,28 @@ public type HttpAuthzHandler object {
     function cacheAuthzResult (string authzCacheKey, boolean authorized);
 };
 
-function HttpAuthzHandler::handle (string username, string serviceName, string resourceName, string method,
+function HttpAuthzHandler.handle (string username, string serviceName, string resourceName, string method,
                                                                                     string[] scopes) returns (boolean) {
-    // first, check in the cache. cache key is <username>-<resource>-<http method>,
+    // first, check in the cache. cache key is <username>-<resource>-<http method>-<scopes-separated-by-colon>,
     // since different resources can have different scopes
-    string authzCacheKey = runtime:getInvocationContext().userPrincipal.username +
+    string authzCacheKey = runtime:getInvocationContext().userPrincipal.userId +
                                                     "-" + serviceName +  "-" + resourceName + "-" + method;
+
+    string[] authCtxtScopes = runtime:getInvocationContext().userPrincipal.scopes;
+    //TODO: Make sure userPrincipal.scopes array is sorted to prevent cache-misses that could happen due to ordering
+    if (authCtxtScopes.length() > 0) {
+        authzCacheKey += "-";
+        foreach authCtxtScope in authCtxtScopes {
+            authzCacheKey += authCtxtScope + ",";
+        }
+    }
+
     var authorizedFromCache =  self.authorizeFromCache(authzCacheKey);
     if (authorizedFromCache is boolean) {
         return authorizedFromCache;
     } else {
         // if there are scopes set in the AuthenticationContext already from a previous authentication phase, try to
         // match against those.
-        string[] authCtxtScopes = runtime:getInvocationContext().userPrincipal.scopes;
         if (authCtxtScopes.length() > 0) {
             boolean authorized = checkForScopeMatch(scopes, authCtxtScopes, resourceName, method);
             // cache authz result
@@ -122,29 +131,23 @@ function checkForScopeMatch (string[] resourceScopes, string[] userScopes, strin
     return authorized;
 }
 
-function HttpAuthzHandler::authorizeFromCache(string authzCacheKey) returns (boolean|()) {
-    var positiveCache = trap self.positiveAuthzCache;
-    if (positiveCache is cache:Cache) {
-        return check <boolean> positiveCache.get(authzCacheKey);
+function HttpAuthzHandler.authorizeFromCache(string authzCacheKey) returns (boolean|()) {
+    var positiveCacheResponse = self.positiveAuthzCache.get(authzCacheKey);
+    if (positiveCacheResponse is boolean) {
+        return true;
     }
-    var negativeCache =  trap self.negativeAuthzCache;
-    if (negativeCache is cache:Cache) {
-        return check <boolean> negativeCache.get(authzCacheKey);
+    var negativeCacheResponse = self.negativeAuthzCache.get(authzCacheKey);
+    if (negativeCacheResponse is boolean) {
+        return false;
     }
     return ();
 }
 
-function HttpAuthzHandler::cacheAuthzResult (string authzCacheKey, boolean authorized) {
+function HttpAuthzHandler.cacheAuthzResult (string authzCacheKey, boolean authorized) {
     if (authorized) {
-        var cache = self.positiveAuthzCache;
-        if (cache is cache:Cache) {
-            cache.put(authzCacheKey, authorized);
-        }
+        self.positiveAuthzCache.put(authzCacheKey, authorized);
     } else {
-        var cache = self.negativeAuthzCache;
-        if (cache is cache:Cache) {
-            cache.put(authzCacheKey, authorized);
-        }
+        self.negativeAuthzCache.put(authzCacheKey, authorized);
     }
 }
 
@@ -165,7 +168,7 @@ function matchScopes (string[] scopesOfResource, string[] scopesForRequest) retu
     return false;
 }
 
-function HttpAuthzHandler::canHandle (Request req) returns (boolean) {
+function HttpAuthzHandler.canHandle (Request req) returns (boolean) {
     if (runtime:getInvocationContext().userPrincipal.username.length() == 0) {
         log:printError("Username not set in auth context. Unable to authorize");
         return false;

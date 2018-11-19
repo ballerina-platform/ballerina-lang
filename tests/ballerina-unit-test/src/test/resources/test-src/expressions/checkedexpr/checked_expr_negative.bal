@@ -7,37 +7,41 @@ function readLineError() returns error {
     return e;
 }
 
-function testCheckedExprSemanticErrors1() {
+function testCheckedExprSemanticErrors1() returns error? {
     string line = check readLineSuccess();
+    return ();
 }
 
-function testCheckedExprSemanticErrors2() {
+function testCheckedExprSemanticErrors2() returns error? {
     string line = check readLineError();
+    return ();
 }
 
-public type myerror error<string, record { int code; }>;
+public type MyError error<string, record { int code; }>;
 
-public type customError error<string, record { int code; string data; }>;
+public type CustomError error<string, record { int code; string data; }>;
 
-function readLine() returns myerror | customError {
-    myerror e = error("io error");
+function readLine() returns MyError | CustomError {
+    MyError e = error("io error");
     return e;
 }
 
-function testCheckedExprSemanticErrors3() {
+function testCheckedExprSemanticErrors3() returns error? {
     string line = check readLine();
+    return ();
 }
 
 function readLineInternal() returns string | int {
     return "Hello, World!!!";
 }
 
-function testCheckedExprSemanticErrors4() {
+function testCheckedExprSemanticErrors4() returns error? {
     string line = check readLineInternal();
+    return ();
 }
 
-function readLineProper() returns string | myerror | customError {
-    myerror e = error("io error");
+function readLineProper() returns string | MyError | CustomError {
+    MyError e = error("io error");
     return e;
 }
 

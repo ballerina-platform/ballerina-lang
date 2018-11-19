@@ -41,20 +41,26 @@ public type AuthnHandlerChain object {
     public function handleWithSpecificAuthnHandlers (string[] authProviderIds, Request req) returns (boolean);
 };
 
-function AuthnHandlerChain::handle (Request req) returns (boolean) {
+function AuthnHandlerChain.handle (Request req) returns (boolean) {
     foreach currentAuthProviderType, currentAuthHandler in self.authHandlerRegistry.getAll() {
         var authnHandler = <HttpAuthnHandler> currentAuthHandler;
         if (authnHandler.canHandle(req)) {
             log:printDebug(function() returns string {
                 return "Trying to authenticate with the auth provider: " + currentAuthProviderType;
             });
-            return authnHandler.handle(req);
+            boolean authnSuccessful = authnHandler.handle(req);
+            if (authnSuccessful) {
+                // If one of the authenticators from the chain could successfully authenticate the user, it is not
+                // required to look through other providers. The authenticator chain is using "OR" combination of
+                // provider results.
+                return true;
+            }
         }
     }
     return false;
 }
 
-function AuthnHandlerChain::handleWithSpecificAuthnHandlers (string[] authProviderIds, Request req) returns (boolean) {
+function AuthnHandlerChain.handleWithSpecificAuthnHandlers (string[] authProviderIds, Request req) returns (boolean) {
     foreach authProviderId in authProviderIds {
         var authnHandler =  self.authHandlerRegistry.get(authProviderId);
         if (authnHandler is HttpAuthnHandler) {
@@ -62,7 +68,13 @@ function AuthnHandlerChain::handleWithSpecificAuthnHandlers (string[] authProvid
                 log:printDebug(function() returns string {
                     return "Trying to authenticate with the auth provider: " + authProviderId;
                 });
-                return authnHandler.handle(req);
+                boolean authnSuccessful = authnHandler.handle(req);
+                if (authnSuccessful) {
+                    // If one of the authenticators from the chain could successfully authenticate the user, it is not
+                    // required to look through other providers. The authenticator chain is using "OR" combination of
+                    // provider results.
+                    return true;
+                }
             }
         }
     }

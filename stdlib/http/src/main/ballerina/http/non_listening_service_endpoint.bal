@@ -17,8 +17,8 @@
 
 @Description {value:"Mock service endpoint which does not open a listening port."}
 public type NonListener object {
-    private Connection conn;
-    private ServiceEndpointConfiguration config;
+    private Connection conn = new;
+    private ServiceEndpointConfiguration config = {};
 
     public function init (ServiceEndpointConfiguration c);
     public extern function initEndpoint () returns (error?);
@@ -28,7 +28,7 @@ public type NonListener object {
     public extern function stop ();
 };
 
-function NonListener::init (ServiceEndpointConfiguration c) {
+function NonListener.init (ServiceEndpointConfiguration c) {
     self.config = c;
     var err = self.initEndpoint();
     if (err is error) {

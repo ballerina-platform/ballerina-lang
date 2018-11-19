@@ -21,8 +21,8 @@
 # + loadBalanceClientConfig - The configurations for the load balance client endpoint
 public type LoadBalanceClient object {
 
-    public string epName;
-    public LoadBalanceClientEndpointConfiguration loadBalanceClientConfig;
+    public string epName = "";
+    public LoadBalanceClientEndpointConfiguration loadBalanceClientConfig = {};
 
     private Client httpEP = new;
 
@@ -35,7 +35,12 @@ public type LoadBalanceClient object {
     #
     # + return - The HTTP LoadBalancer actions associated with the endpoint
     public function getCallerActions() returns LoadBalancerActions {
-        return check <LoadBalancerActions> self.httpEP.httpClient;
+        var loadBalancerActions = <LoadBalancerActions> self.httpEP.httpClient;
+        if (loadBalancerActions is error) {
+            panic loadBalancerActions;
+        } else {
+            return loadBalancerActions;
+        }
     }
 };
 
@@ -55,29 +60,29 @@ public type LoadBalanceClient object {
 # + cache - The configurations for controlling the caching behaviour
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
 # + auth - HTTP authentication releated configurations
-# + algorithm - The algorithm to be used for load balancing. The HTTP module provides 'roundRobin()' by default
+# + lbRule - LoadBalancing rule
 # + failover - Configuration for load balancer whether to fail over in case of a failure
 public type LoadBalanceClientEndpointConfiguration record {
-    CircuitBreakerConfig? circuitBreaker;
+    CircuitBreakerConfig? circuitBreaker = ();
     int timeoutMillis = 60000;
     string httpVersion = "1.1";
     string forwarded = "disable";
     KeepAlive keepAlive = KEEPALIVE_AUTO;
     Chunking chunking = "AUTO";
-    FollowRedirects? followRedirects;
-    RetryConfig? retryConfig;
-    ProxyConfig? proxy;
-    ConnectionThrottling? connectionThrottling;
-    TargetService[] targets;
+    FollowRedirects? followRedirects = ();
+    RetryConfig? retryConfig = ();
+    ProxyConfig? proxy = ();
+    ConnectionThrottling? connectionThrottling = ();
+    TargetService[] targets = [];
     CacheConfig cache = {};
     Compression compression = COMPRESSION_AUTO;
-    AuthConfig? auth;
-    string algorithm = ROUND_ROBIN;
+    AuthConfig? auth = ();
+    LoadBalancerRule? lbRule = ();
     boolean failover = true;
     !...
 };
 
-function LoadBalanceClient::init(LoadBalanceClientEndpointConfiguration lbClientConfig) {
+function LoadBalanceClient.init(LoadBalanceClientEndpointConfiguration lbClientConfig) {
     self.httpEP.httpClient = createLoadBalancerClient(lbClientConfig);
     self.httpEP.config.circuitBreaker = lbClientConfig.circuitBreaker;
     self.httpEP.config.timeoutMillis = lbClientConfig.timeoutMillis;
@@ -118,8 +123,16 @@ function createLoadBalancerClient(LoadBalanceClientEndpointConfiguration loadBal
     ClientEndpointConfig config = createClientEPConfigFromLoalBalanceEPConfig(loadBalanceClientConfig,
                                                                             loadBalanceClientConfig.targets[0]);
     CallerActions[] lbClients = createLoadBalanceHttpClientArray(loadBalanceClientConfig);
-    return new LoadBalancerActions(loadBalanceClientConfig.targets[0].url, config, lbClients,
-                                            loadBalanceClientConfig.algorithm, 0, loadBalanceClientConfig.failover);
+    var lbRule = loadBalanceClientConfig.lbRule;
+
+    if (lbRule is LoadBalancerRule) {
+        return new LoadBalancerActions(loadBalanceClientConfig.targets[0].url, config, lbClients, lbRule,
+                loadBalanceClientConfig.failover);
+    } else {
+        LoadBalancerRounRobinRule loadBalancerRounRobinRule = new;
+        return new LoadBalancerActions(loadBalanceClientConfig.targets[0].url, config, lbClients,
+                loadBalancerRounRobinRule, loadBalanceClientConfig.failover);
+    }
 }
 
 function createLoadBalanceHttpClientArray(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig)

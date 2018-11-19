@@ -20,11 +20,11 @@
 //# WRITE - open the file in write mode
 //# READ/WRITE - open the file either to read or write
 //# APPEND - append to existing file instead of replacing
-public type Mode "r"|"w"|"rw"|"a";
-@final public Mode READ = "r";
-@final public Mode WRITE = "w";
-@final public Mode RW = "rw";
-@final public Mode APPEND = "a";
+public type Mode READ|WRITE|RW|APPEND;
+public const READ = "r";
+public const WRITE = "w";
+public const RW = "rw";
+public const APPEND = "a";
 
 # Retrieves a ReadableByteChannel from a given file path.
 #
@@ -56,3 +56,34 @@ public extern function openSecureSocket(@sensitive string host,
 # + return - ByteChannel represenation to read the memory content
 public extern function createReadableChannel(byte[] content) returns ReadableByteChannel;
 
+# Retrieves a readable CSV channel from a give file path.
+#
+# + path - File path which describes the location of the CSV
+# + fieldSeparator - CSV record seperator (i.e comma or tab)
+# + charset - Encoding characters in the file represents
+# + skipHeaders - Number of headers which should be skipped
+# + return - ReadableCSVChannel which could be used to iterate through the CSV records
+public function openReadableCsvFile(@sensitive string path,
+                            @sensitive Separator fieldSeparator = ",",
+                            @sensitive string charset = "UTF-8",
+                            @sensitive int skipHeaders=0) returns @tainted ReadableCSVChannel {
+    ReadableByteChannel byteChannel = openReadableFile(path);
+    ReadableCharacterChannel charChannel = new(byteChannel, charset);
+    return new ReadableCSVChannel(charChannel, fs = fieldSeparator, nHeaders = skipHeaders);
+}
+
+# Retrieves a writable CSV channel from a give file path.
+#
+# + path - File path which describes the location of the CSV
+# + fieldSeparator - CSV record seperator (i.e comma or tab)
+# + charset - Encoding characters in the file represents
+# + skipHeaders - Number of headers which should be skipped
+# + return - WritableCSVChannel which could be used to write CSV records
+public function openWritableCsvFile(@sensitive string path,
+                                    @sensitive Separator fieldSeparator = ",",
+                                    @sensitive string charset = "UTF-8",
+                                    @sensitive int skipHeaders=0) returns @tainted WritableCSVChannel {
+    WritableByteChannel byteChannel = openWritableFile(path);
+    WritableCharacterChannel charChannel = new(byteChannel, charset);
+    return new WritableCSVChannel(charChannel, fs = fieldSeparator);
+}

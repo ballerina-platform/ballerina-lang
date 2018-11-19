@@ -64,6 +64,7 @@ import org.ballerinalang.model.tree.clauses.WhereNode;
 import org.ballerinalang.model.tree.clauses.WindowClauseNode;
 import org.ballerinalang.model.tree.clauses.WithinClause;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.expressions.MatchExpressionNode.MatchExpressionPatternNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.TableQueryExpression;
@@ -125,6 +126,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -183,8 +185,9 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStaticBindingPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtTypedBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchTypedBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -210,6 +213,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -388,8 +392,9 @@ public class BLangPackageBuilder {
         this.compUnit = compUnit;
     }
 
-    void addAttachPoint(AttachPoint attachPoint) {
+    void addAttachPoint(AttachPoint attachPoint, Set<Whitespace> ws) {
         attachPointStack.push(attachPoint);
+        this.annotationStack.peek().addWS(ws);
     }
 
     void addValueType(DiagnosticPos pos, Set<Whitespace> ws, String typeName) {
@@ -436,15 +441,16 @@ public class BLangPackageBuilder {
 
     void addRecordType(DiagnosticPos pos, Set<Whitespace> ws, boolean isFieldAnalyseRequired, boolean isAnonymous,
                        boolean sealed, boolean hasRestField) {
+        // If there is an explicitly defined rest field, take it.
+        BLangType restFieldType = null;
+        if (hasRestField && !sealed) {
+            restFieldType = (BLangType) this.typeNodeStack.pop();
+        }
         // Create an anonymous record and add it to the list of records in the current package.
         BLangRecordTypeNode recordTypeNode = populateRecordTypeNode(pos, ws, isAnonymous);
         recordTypeNode.isFieldAnalyseRequired = isFieldAnalyseRequired;
         recordTypeNode.sealed = sealed;
-
-        // If there is an explicitly defined rest field, take it.
-        if (hasRestField && !sealed) {
-            recordTypeNode.restFieldType = (BLangType) this.typeNodeStack.pop();
-        }
+        recordTypeNode.restFieldType = restFieldType;
 
         if (!isAnonymous) {
             addType(recordTypeNode);
@@ -465,7 +471,7 @@ public class BLangPackageBuilder {
     }
 
     private BLangRecordTypeNode populateRecordTypeNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isAnonymous) {
-        BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) TreeBuilder.createRecordTypeNode();
+        BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeNodeStack.pop();
         recordTypeNode.pos = pos;
         recordTypeNode.addWS(ws);
         recordTypeNode.isAnonymous = isAnonymous;
@@ -485,10 +491,8 @@ public class BLangPackageBuilder {
 
         if (isOptional) {
             field.flagSet.add(Flag.OPTIONAL);
-        }
-
-        if (exprAvailable) {
-            field.flagSet.add(Flag.DEFAULTABLE);
+        } else if (!exprAvailable) {
+            field.flagSet.add(Flag.REQUIRED);
         }
     }
 
@@ -1335,7 +1339,7 @@ public class BLangPackageBuilder {
             invocationNode.addWS(commaWsStack.pop());
         }
 
-        invocationNode.expr = (BLangVariableReference) exprNodeStack.pop();
+        invocationNode.expr = (BLangExpression) exprNodeStack.pop();
         invocationNode.name = (BLangIdentifier) createIdentifier(invocation);
         invocationNode.pkgAlias = (BLangIdentifier) createIdentifier(null);
         addExpressionNode(invocationNode);
@@ -1653,6 +1657,21 @@ public class BLangPackageBuilder {
         return var;
     }
 
+    private LiteralNode generateConstantNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
+                                             boolean isTypeAvailable) {
+        BLangConstant constantNode = (BLangConstant) TreeBuilder.createConstantNode();
+        constantNode.pos = pos;
+        BLangIdentifier name = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        name.value = identifier;
+        constantNode.setName(name);
+        constantNode.addWS(ws);
+        if (isTypeAvailable) {
+            constantNode.setTypeNode(this.typeNodeStack.pop());
+        }
+        constantNode.setValue(this.exprNodeStack.pop());
+        return constantNode;
+    }
+
     private VariableNode generateBasicVarNodeWithoutType(DiagnosticPos pos,
                                                          Set<Whitespace> ws,
                                                          String identifier,
@@ -1668,6 +1687,49 @@ public class BLangPackageBuilder {
         return var;
     }
 
+    void addConstant(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean isPublic,
+                     boolean isTypeAvailable) {
+        BLangConstant constantNode = (BLangConstant) this.generateConstantNode(pos, ws, identifier, isTypeAvailable);
+        attachAnnotations(constantNode);
+        constantNode.flagSet.add(Flag.CONSTANT);
+        if (isPublic) {
+            constantNode.flagSet.add(Flag.PUBLIC);
+        }
+        attachMarkdownDocumentations(constantNode);
+        attachDeprecatedNode(constantNode);
+        this.compUnit.addTopLevelNode(constantNode);
+
+        // Check whether the value is a literal. If it is not a literal, it is an invalid case. So we don't need to
+        // consider it.
+        if (((BLangExpression) constantNode.value).getKind() == NodeKind.LITERAL) {
+            // Note - If the RHS is a literal, we need to create an anonymous type definition which can later be used
+            // in type definitions.
+
+            // Create a new literal.
+            BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+            literal.setValue(((BLangLiteral) constantNode.value).value);
+            literal.typeTag = ((BLangLiteral) constantNode.value).typeTag;
+
+            // Create a new finite type node.
+            BLangFiniteTypeNode finiteTypeNode = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
+            finiteTypeNode.valueSpace.add(literal);
+
+            // Create a new anonymous type definition.
+            BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
+            String genName = anonymousModelHelper.getNextAnonymousTypeKey(pos.src.pkgID);
+            IdentifierNode anonTypeGenName = createIdentifier(genName);
+            typeDef.setName(anonTypeGenName);
+            typeDef.flagSet.add(Flag.PUBLIC);
+            typeDef.typeNode = finiteTypeNode;
+            typeDef.pos = pos;
+
+            // We add this type definition to the `associatedTypeDefinition` field of the constant node. Then when we
+            // visit the constant node, we visit this type definition as well. By doing this, we don't need to change
+            // any of the type def visiting logic in symbol enter.
+            constantNode.associatedTypeDefinition = typeDef;
+        }
+    }
+
     void addGlobalVariable(DiagnosticPos pos,
                            Set<Whitespace> ws,
                            String identifier,
@@ -1681,6 +1743,12 @@ public class BLangPackageBuilder {
         attachMarkdownDocumentations(var);
         attachDeprecatedNode(var);
         this.compUnit.addTopLevelNode(var);
+    }
+
+    void startRecordType() {
+        BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) TreeBuilder.createRecordTypeNode();
+        typeNodeStack.push(recordTypeNode);
+        startVarList();
     }
 
     void startObjectType() {
@@ -1773,6 +1841,9 @@ public class BLangPackageBuilder {
             while (!exprNodeStack.isEmpty()) {
                 finiteTypeNode.valueSpace.add((BLangExpression) exprNodeStack.pop());
             }
+
+            // Reverse the collection so that they would appear in the correct order.
+            Collections.reverse(finiteTypeNode.valueSpace);
 
             if (!members.memberTypeNodes.isEmpty()) {
                 BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
@@ -2446,8 +2517,8 @@ public class BLangPackageBuilder {
     }
 
     void addMatchStmtSimpleBindingPattern(DiagnosticPos pos, Set<Whitespace> ws, String identifier) {
-        BLangMatchStmtTypedBindingPatternClause patternClause =
-                (BLangMatchStmtTypedBindingPatternClause) TreeBuilder.createMatchStatementSimpleBindingPattern();
+        BLangMatchTypedBindingPatternClause patternClause =
+                (BLangMatchTypedBindingPatternClause) TreeBuilder.createMatchStatementSimpleBindingPattern();
         patternClause.pos = pos;
         patternClause.addWS(ws);
 
@@ -2468,12 +2539,25 @@ public class BLangPackageBuilder {
     }
 
     void addMatchStmtStaticBindingPattern(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangMatchStmtStaticBindingPatternClause patternClause =
-                (BLangMatchStmtStaticBindingPatternClause) TreeBuilder.createMatchStatementLiteralBindingPattern();
+        BLangMatchStaticBindingPatternClause patternClause =
+                (BLangMatchStaticBindingPatternClause) TreeBuilder.createMatchStatementStaticBindingPattern();
         patternClause.pos = pos;
         patternClause.addWS(ws);
 
         patternClause.literal = (BLangExpression) this.exprNodeStack.pop();
+        patternClause.body = (BLangBlockStmt) blockNodeStack.pop();
+        patternClause.body.pos = pos;
+        this.matchStmtStack.peekFirst().patternClauses.add(patternClause);
+    }
+
+    void addMatchStmtStructuredBindingPattern(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangMatchStructuredBindingPatternClause patternClause =
+                (BLangMatch.BLangMatchStructuredBindingPatternClause)
+                        TreeBuilder.createMatchStatementStructuredBindingPattern();
+        patternClause.pos = pos;
+        patternClause.addWS(ws);
+
+        patternClause.bindingPatternVariable = this.varStack.pop();
         patternClause.body = (BLangBlockStmt) blockNodeStack.pop();
         patternClause.body.pos = pos;
         this.matchStmtStack.peekFirst().patternClauses.add(patternClause);
@@ -2585,7 +2669,7 @@ public class BLangPackageBuilder {
     }
 
     void endResourceDef(DiagnosticPos pos, Set<Whitespace> ws, String resourceName, boolean markdownDocPresent,
-                        boolean isDeprecated, boolean hasParameters) {
+                        boolean isDeprecated, boolean hasParameters, boolean hasRetParameter) {
         BLangResource resourceNode = (BLangResource) invokableNodeStack.pop();
         endEndpointDeclarationScope();
         resourceNode.pos = pos;
@@ -2612,11 +2696,20 @@ public class BLangPackageBuilder {
         }
 
         // Set the return type node
-        BLangValueType nillTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
-        nillTypeNode.pos = pos;
-        nillTypeNode.typeKind = TypeKind.NIL;
-        resourceNode.returnTypeNode = nillTypeNode;
-
+        BLangType returnTypeNode;
+        if (hasRetParameter) {
+            BLangVariable varNode = (BLangVariable) this.varStack.pop();
+            returnTypeNode = varNode.getTypeNode();
+            // set returns keyword to invocation node.
+            resourceNode.addWS(varNode.getWS());
+            varNode.getAnnotationAttachments().forEach(resourceNode::addReturnTypeAnnotationAttachment);
+        } else {
+            BLangValueType nillTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
+            nillTypeNode.pos = pos;
+            nillTypeNode.typeKind = TypeKind.NIL;
+            returnTypeNode = nillTypeNode;
+        }
+        resourceNode.setReturnTypeNode(returnTypeNode);
         serviceNodeStack.peek().addResource(resourceNode);
     }
 
@@ -3632,8 +3725,8 @@ public class BLangPackageBuilder {
     public void addTypeReference(DiagnosticPos currentPos, Set<Whitespace> ws) {
         TypeNode typeRef = typeNodeStack.pop();
         typeRef.addWS(ws);
-        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeNodeStack.peek();
-        objectTypeNode.addTypeReference(typeRef);
+        BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeNodeStack.peek();
+        structureTypeNode.addTypeReference(typeRef);
     }
 
     public void createTypeTestExpression(DiagnosticPos pos, Set<Whitespace> ws) {

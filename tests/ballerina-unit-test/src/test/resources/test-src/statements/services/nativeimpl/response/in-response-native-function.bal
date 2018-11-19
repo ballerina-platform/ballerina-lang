@@ -144,14 +144,11 @@ service<http:Service> hello bind mockEP {
         json jsonStr = {lang:value};
         res.setJsonPayload(untaint jsonStr);
         var returnResult = res.getJsonPayload();
-        match returnResult {
-            error err => {
-                res.setTextPayload("Error occurred");
-                res.statusCode = 500;
-            }
-            json payload => {
-                res.setJsonPayload(untaint payload.lang);
-            }
+        if (returnResult is error) {
+            res.setTextPayload("Error occurred");
+            res.statusCode = 500;
+        } else if (returnResult is json) {
+            res.setJsonPayload(untaint returnResult.lang);
         }
         _ = conn -> respond(res);
     }
@@ -162,9 +159,12 @@ service<http:Service> hello bind mockEP {
     GetTextPayload(endpoint conn, http:Request req, string valueStr) {
         http:Response res = new;
         res.setTextPayload(untaint valueStr);
-        match res.getTextPayload() {
-            error err => {res.setTextPayload("Error occurred"); res.statusCode =500;}
-            string payload =>  res.setTextPayload(untaint payload);
+        var returnResult = res.getTextPayload();
+        if (returnResult is error) {
+            res.setTextPayload("Error occurred");
+            res.statusCode =500;
+        } else if (returnResult is string) {
+            res.setTextPayload(untaint returnResult);
         }
         _ = conn -> respond(res);
     }
@@ -176,15 +176,13 @@ service<http:Service> hello bind mockEP {
         http:Response res = new;
         xml xmlStr = xml `<name>ballerina</name>`;
         res.setXmlPayload(xmlStr);
-        match res.getXmlPayload() {
-           error err => {
-                res.setTextPayload("Error occurred");
-                res.statusCode =500;
-           }
-           xml xmlPayload => {
-                var name = xmlPayload.getTextValue();
-                res.setTextPayload(untaint name);
-           }
+        var returnResult = res.getXmlPayload();
+        if (returnResult is error) {
+            res.setTextPayload("Error occurred");
+            res.statusCode =500;
+        } else if (returnResult is xml) {
+            var name = returnResult.getTextValue();
+            res.setTextPayload(untaint name);
         }
         _ = conn -> respond(res);
     }
@@ -196,7 +194,7 @@ service<http:Service> hello bind mockEP {
         http:Response res = new;
         res.setHeader(untaint key, value);
         res.removeHeader(untaint key);
-        string header;
+        string header = "";
         if (!res.hasHeader(key)) {
             header = "value is null";
         }
@@ -212,7 +210,7 @@ service<http:Service> hello bind mockEP {
         res.setHeader("Expect", "100-continue");
         res.setHeader("Range", "bytes=500-999");
         res.removeAllHeaders();
-        string header;
+        string header = "";
         if(!res.hasHeader("Range")) {
             header = "value is null";
         }

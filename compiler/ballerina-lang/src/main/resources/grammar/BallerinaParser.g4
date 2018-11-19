@@ -37,6 +37,7 @@ definition
     |   annotationDefinition
     |   globalVariableDefinition
     |   globalEndpointDefinition
+    |   constantDefinition
     ;
 
 serviceDefinition
@@ -53,7 +54,7 @@ serviceBody
     ;
 
 resourceDefinition
-    :   documentationString? annotationAttachment* deprecatedAttachment? Identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS callableUnitBody
+    :   documentationString? annotationAttachment* deprecatedAttachment? Identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS returnParameter? callableUnitBody
     ;
 
 resourceParameterList
@@ -67,7 +68,7 @@ callableUnitBody
 
 
 functionDefinition
-    :   (PUBLIC)? (EXTERN)? FUNCTION ((Identifier | typeName) DOUBLE_COLON)? callableUnitSignature (callableUnitBody | SEMICOLON)
+    :   (PUBLIC)? (EXTERN)? FUNCTION ((Identifier | typeName) DOT)? callableUnitSignature (callableUnitBody | SEMICOLON)
     ;
 
 lambdaFunction
@@ -152,6 +153,10 @@ annotationDefinition
     :   (PUBLIC)? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier userDefineTypeName? SEMICOLON
     ;
 
+constantDefinition
+    :   PUBLIC? CONST typeName? Identifier ASSIGN expression SEMICOLON
+    ;
+
 globalVariableDefinition
     :   (PUBLIC)? typeName Identifier (ASSIGN expression )? SEMICOLON
     |   channelType Identifier SEMICOLON
@@ -218,7 +223,7 @@ typeName
     ;
 
 recordFieldDefinitionList
-    :   fieldDefinition* recordRestFieldDefinition?
+    :   (fieldDefinition | typeReference)* recordRestFieldDefinition?
     ;
 
 // Temporary production rule name
@@ -417,7 +422,7 @@ matchStatement
 matchPatternClause
     :   typeName EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
     |   typeName Identifier EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
-    |   simpleLiteral EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
+    |   expression EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
     |   VAR bindingPattern EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
     ;
 
@@ -598,6 +603,7 @@ variableReference
     |   variableReference field                                                 # fieldVariableReference
     |   variableReference xmlAttrib                                             # xmlAttribVariableReference
     |   variableReference invocation                                            # invocationReference
+    |   typeDescExpr invocation                                                 # typeDescExprInvocationReference
     ;
 
 field
@@ -729,7 +735,11 @@ expression
     |   trapExpr                                                            # trapExpression
     |	expression matchExpression										    # matchExprExpression
     |   expression ELVIS expression                                         # elvisExpression
-    |   typeName                                                            # typeAccessExpression
+    |   typeDescExpr                                                        # typeAccessExpression
+    ;
+
+typeDescExpr
+    : typeName
     ;
 
 typeInitExpr

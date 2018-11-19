@@ -30,11 +30,11 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.TransactionStatus;
 import org.wso2.ballerinalang.compiler.PackageCache;
-import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -76,6 +76,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJ
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
@@ -169,6 +170,7 @@ import org.wso2.ballerinalang.programfile.CallableUnitInfo;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.PackageFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
+import org.wso2.ballerinalang.programfile.ConstantInfo;
 import org.wso2.ballerinalang.programfile.DefaultValue;
 import org.wso2.ballerinalang.programfile.ErrorTableEntry;
 import org.wso2.ballerinalang.programfile.FiniteTypeInfo;
@@ -414,10 +416,12 @@ public class CodeGenerator extends BLangNodeVisitor {
         visitBuiltinFunctions(pkgNode, pkgNode.startFunction);
         visitBuiltinFunctions(pkgNode, pkgNode.stopFunction);
 
+        // We don't need to visit constants since we don't do any code generation for constants.
         pkgNode.topLevelNodes.stream()
-                             .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.VARIABLE &&
-                                     pkgLevelNode.getKind() != NodeKind.XMLNS)
-                             .forEach(pkgLevelNode -> genNode((BLangNode) pkgLevelNode, this.env));
+                .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.CONSTANT)
+                .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.VARIABLE &&
+                        pkgLevelNode.getKind() != NodeKind.XMLNS)
+                .forEach(pkgLevelNode -> genNode((BLangNode) pkgLevelNode, this.env));
         // Add function symbol for all functions
         pkgNode.functions.forEach(funcNode -> {
             funcNode.symbol = funcNode.originalFuncSymbol;
@@ -478,6 +482,7 @@ public class CodeGenerator extends BLangNodeVisitor {
      * @param pkgNode package node
      */
     private void visitTopLevelNodes(BLangPackage pkgNode) {
+        pkgNode.constants.forEach(this::createConstantInfo);
         pkgNode.globalVars.forEach(this::createPackageVarInfo);
         pkgNode.typeDefinitions.forEach(this::createTypeDefinitionInfoEntry);
         pkgNode.annotations.forEach(this::createAnnotationInfoEntry);
@@ -510,11 +515,9 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangResource resourceNode) {
-        ResourceInfo resourceInfo = currentServiceInfo.resourceInfoMap.get(resourceNode.name.getValue());
-        currentCallableUnitInfo = resourceInfo;
-
         SymbolEnv resourceEnv = SymbolEnv
                 .createResourceActionSymbolEnv(resourceNode, resourceNode.symbol.scope, this.env);
+        currentCallableUnitInfo = currentServiceInfo.resourceInfoMap.get(resourceNode.name.getValue());
         visitInvokableNode(resourceNode, currentCallableUnitInfo, resourceEnv);
     }
 
@@ -1253,13 +1256,27 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangBuiltInMethodInvocation iExpr) {
         genNode(iExpr.expr, this.env);
         RegIndex regIndex = calcAndGetExprRegIndex(iExpr);
-        if (iExpr.builtInMethod == BLangBuiltInMethod.REASON) {
-            emit(InstructionCodes.REASON, iExpr.expr.regIndex, regIndex);
-        } else if (iExpr.builtInMethod == BLangBuiltInMethod.DETAIL) {
-            emit(InstructionCodes.DETAIL, iExpr.expr.regIndex, regIndex);
-        } else if (iExpr.builtInMethod == BLangBuiltInMethod.LENGTH) {
-            Operand typeCPIndex = getTypeCPIndex(iExpr.expr.type);
-            emit(InstructionCodes.LENGTHOF, iExpr.expr.regIndex, typeCPIndex, regIndex);
+        switch (iExpr.builtInMethod) {
+            case REASON:
+                emit(InstructionCodes.REASON, iExpr.expr.regIndex, regIndex);
+                break;
+            case DETAIL:
+                emit(InstructionCodes.DETAIL, iExpr.expr.regIndex, regIndex);
+                break;
+            case LENGTH:
+                Operand typeCPIndex = getTypeCPIndex(iExpr.expr.type);
+                emit(InstructionCodes.LENGTHOF, iExpr.expr.regIndex, typeCPIndex, regIndex);
+                break;
+            case FREEZE:
+                emit(InstructionCodes.FREEZE, iExpr.expr.regIndex, regIndex);
+                break;
+            case IS_FROZEN:
+                emit(InstructionCodes.IS_FROZEN, iExpr.expr.regIndex, regIndex);
+                break;
+            case STAMP:
+                genNode(iExpr.requiredArgs.get(0), this.env);
+                emit(InstructionCodes.STAMP, iExpr.requiredArgs.get(0).regIndex, getTypeCPIndex(iExpr.type), regIndex);
+                break;
         }
     }
 
@@ -2060,6 +2077,29 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     // Create info entries
 
+    private void createConstantInfo(BLangConstant constant) {
+        BConstantSymbol constantSymbol = constant.symbol;
+        int constantNameCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.name.value);
+        int finiteTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.type.getDesc());
+        int valueTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.literalValueType.getDesc());
+
+        ConstantInfo constantInfo = new ConstantInfo(constantNameCPIndex, finiteTypeSigCPIndex, valueTypeSigCPIndex,
+                constantSymbol.flags);
+        currentPkgInfo.constantInfoMap.put(constantSymbol.name.value, constantInfo);
+
+        BLangLiteral literal = new BLangLiteral();
+        literal.pos = constant.pos;
+        literal.value = ((BLangLiteral) constant.value).value;
+        literal.type = ((BLangLiteral) constant.value).type;
+        literal.typeTag = ((BLangLiteral) constant.value).typeTag;
+
+        DefaultValueAttributeInfo value = getDefaultValueAttributeInfo(literal);
+        constantInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, value);
+
+        // Add documentation attributes.
+        addDocAttachmentAttrInfo(constant.symbol.markdownDocumentation, constantInfo);
+    }
+
     private void createPackageVarInfo(BLangSimpleVariable varNode) {
         BVarSymbol varSymbol = varNode.symbol;
         varSymbol.varIndex = getPVIndex(varSymbol.type.tag);
@@ -2370,9 +2410,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         ResourceInfo resourceInfo = new ResourceInfo(currentPackageRefCPIndex, serviceNameCPIndex);
         resourceInfo.paramTypes = resourceType.paramTypes.toArray(new BType[0]);
         setParameterNames(resourceNode, resourceInfo);
-        resourceInfo.retParamTypes = new BType[0];
+        resourceInfo.retParamTypes = new BType[1];
+        resourceInfo.retParamTypes[0] = resourceNode.symbol.retType;
         resourceInfo.signatureCPIndex = addUTF8CPEntry(currentPkgInfo,
-                generateFunctionSig(resourceInfo.paramTypes));
+                generateFunctionSig(resourceInfo.paramTypes, resourceNode.symbol.retType));
         // Add worker info
         int workerNameCPIndex = addUTF8CPEntry(currentPkgInfo, "default");
         resourceInfo.defaultWorkerInfo = new WorkerInfo(workerNameCPIndex, "default");
@@ -3485,8 +3526,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         operands[1] = nextIndex;
         operands[2] = typeCPIndex;
         operands[3] = getOperand(2);
-        operands[4] = getOperand(((BVarSymbol) fpExpr.expr.symbol).type.tag);
-        operands[5] = getOperand(((BVarSymbol) fpExpr.expr.symbol).varIndex.value);
+        operands[4] = getOperand(((BVarSymbol) ((BLangVariableReference) fpExpr.expr).symbol).type.tag);
+        operands[5] = getOperand(((BVarSymbol) ((BLangVariableReference) fpExpr.expr).symbol).varIndex.value);
         return operands;
     }
 
