@@ -51,7 +51,7 @@ function test6(){
     }
 }
 
-function test8() {
+function test8() returns error? {
     json j = ["a" , "b", "c"];
     var jsonArray = <json[]> j;
     if (jsonArray is json[]) {
@@ -60,9 +60,9 @@ function test8() {
             io:println(y);
         }
     } else if (jsonArray is error) {
-        panic jsonArray;
+        return jsonArray;
     }
-
+    return ();
 }
 
 function test9(){
