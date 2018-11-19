@@ -21,7 +21,6 @@ package org.ballerinalang.test.record;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.BeforeClass;
@@ -89,7 +88,6 @@ public class OpenRecordEquivalencyRulesTest {
     public void testCRToORReqFieldToOptField() {
         BValue[] returns = BRunUtil.invoke(closedRecToOpenRec, "testReqFieldToOptField");
         assertEquals(returns[0].stringValue(), "{name:\"John Doe\", age:25}");
-        assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
     @Test(description = "RHS closed and LHS open with RHS optional fields corresponding to LHS optional fields")
@@ -135,7 +133,6 @@ public class OpenRecordEquivalencyRulesTest {
     public void testORToORReqFieldToOptField() {
         BValue[] returns = BRunUtil.invoke(openRecToOpenRec, "testReqFieldToOptField");
         assertEquals(returns[0].stringValue(), "{name:\"John Doe\", age:25}");
-        assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
     @Test(description = "RHS and LHS both open with RHS optional fields corresponding to LHS optional fields")

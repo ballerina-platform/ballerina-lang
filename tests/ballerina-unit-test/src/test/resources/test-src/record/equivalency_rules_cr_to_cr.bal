@@ -69,14 +69,10 @@ type AnotherPerson4 record {
     !...
 };
 
-function testReqFieldToOptField() returns (AnotherPerson4, int) {
+function testReqFieldToOptField() returns AnotherPerson4 {
     Person1 p = {name:"John Doe", age:25};
     AnotherPerson4 ap = p;
-
-    p = {name:"Jane Doe"};
-    AnotherPerson4 ap2 = p;
-
-    return (ap, ap2.age);
+    return ap;
 }
 
 

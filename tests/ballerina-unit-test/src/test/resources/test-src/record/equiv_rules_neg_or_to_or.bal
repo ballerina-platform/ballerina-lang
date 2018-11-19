@@ -24,7 +24,7 @@ type AnotherPerson record {
 };
 
 function testMissingRequiredField1() {
-    Person1 p = {};
+    Person1 p = {name:"John"};
     AnotherPerson ap = p;
 }
 
@@ -34,7 +34,7 @@ type Person2 record {
 };
 
 function testMissingRequiredField2() {
-    Person2 p = {};
+    Person2 p = {name:"John"};
     AnotherPerson ap = p;
 }
 
@@ -45,7 +45,7 @@ type Person3 record {
 };
 
 function testMismatchingRestField1() {
-    map<any> adr;
+    map<any> adr = {};
     Person3 p = {name:"John", age:25, address:adr};
     AnotherPerson ap = p;
 }
@@ -57,6 +57,6 @@ type Person4 record {
 };
 
 function testMismatchingRestField2() {
-    Person4 p = {};
+    Person4 p = {name:"John", age:25};
     AnotherPerson ap = p;
 }

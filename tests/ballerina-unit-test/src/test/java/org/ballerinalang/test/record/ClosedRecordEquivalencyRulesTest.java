@@ -21,7 +21,6 @@ package org.ballerinalang.test.record;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.BeforeClass;
@@ -38,12 +37,10 @@ import static org.testng.Assert.assertEquals;
 public class ClosedRecordEquivalencyRulesTest {
 
     private CompileResult closedRecToClosedRec;
-    private CompileResult openRecToClosedRec;
 
     @BeforeClass
     public void setup() {
         closedRecToClosedRec = BCompileUtil.compile("test-src/record/equivalency_rules_cr_to_cr.bal");
-        openRecToClosedRec = BCompileUtil.compile("test-src/record/equivalency_rules_or_to_cr.bal");
     }
 
     @Test(description = "Negative tests for when both LHS and RHS are closed")
@@ -76,7 +73,6 @@ public class ClosedRecordEquivalencyRulesTest {
     public void testCRToCRReqFieldToOptField() {
         BValue[] returns = BRunUtil.invoke(closedRecToClosedRec, "testReqFieldToOptField");
         assertEquals(returns[0].stringValue(), "{name:\"John Doe\", age:25}");
-        assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
     @Test(description = "RHS and LHS closed with RHS optional fields corresponding to LHS optional fields")
@@ -94,8 +90,9 @@ public class ClosedRecordEquivalencyRulesTest {
 
     @Test(description = "RHS open and LHS closed is disallowed")
     public void testORToCR() {
+        CompileResult openRecToClosedRec = BCompileUtil.compile("test-src/record/equivalency_rules_or_to_cr.bal");
         int index = 0;
-        assertEquals(openRecToClosedRec.getErrorCount(), 6);
+        assertEquals(openRecToClosedRec.getErrorCount(), 5);
         validateError(openRecToClosedRec, index++, "incompatible types: expected 'AnotherPerson1', found 'Person1'", 30,
                       25);
         validateError(openRecToClosedRec, index++, "incompatible types: expected 'AnotherPerson2', found 'Person1'", 42,
@@ -104,9 +101,7 @@ public class ClosedRecordEquivalencyRulesTest {
                       25);
         validateError(openRecToClosedRec, index++, "incompatible types: expected 'AnotherPerson4', found 'Person1'", 67,
                       25);
-        validateError(openRecToClosedRec, index++, "incompatible types: expected 'AnotherPerson4', found 'Person1'", 70,
-                      26);
-        validateError(openRecToClosedRec, index, "incompatible types: expected 'AnotherPerson4', found 'Person2'", 82,
+        validateError(openRecToClosedRec, index, "incompatible types: expected 'AnotherPerson4', found 'Person2'", 78,
                       25);
     }
 }

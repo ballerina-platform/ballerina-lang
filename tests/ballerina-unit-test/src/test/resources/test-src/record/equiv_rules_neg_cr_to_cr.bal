@@ -26,7 +26,7 @@ type Person1 record {
 };
 
 function testMissingRequiredField1() {
-    Person1 p = {};
+    Person1 p = {name:"John"};
     AnotherPerson ap = p;
 }
 
@@ -37,6 +37,6 @@ type Person2 record {
 };
 
 function testMissingRequiredField2() {
-    Person2 p = {};
+    Person2 p = {name:"John"};
     AnotherPerson ap = p;
 }
