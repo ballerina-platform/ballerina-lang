@@ -32,6 +32,7 @@ import org.ballerinalang.langserver.index.dao.BRecordTypeSymbolDAO;
 import org.ballerinalang.langserver.index.dao.DAOType;
 import org.ballerinalang.langserver.index.dataholder.BLangPackageContent;
 import org.ballerinalang.langserver.index.dto.BFunctionSymbolDTO;
+import org.ballerinalang.langserver.index.dto.BObjectTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BRecordTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.OtherTypeSymbolDTO;
 import org.ballerinalang.model.elements.PackageID;
@@ -161,7 +162,7 @@ public class IndexGenerator {
         List<Integer> epIds = insertBLangObjects(pkgEntryId, categories.getEndpoints(), ObjectType.ENDPOINT, lsIndex);
         List<Integer> actionHolderIds = insertBLangObjects(pkgEntryId, categories.getEndpointActionHolders(),
                 ObjectType.ACTION_HOLDER, lsIndex);
-//        List<Integer> objectIds = insertBLangObjects(pkgEntryId, categories.getObjects(), ObjectType.OBJECT, lsIndex);
+        List<Integer> objectIds = insertBLangObjects(pkgEntryId, categories.getObjects(), ObjectType.OBJECT, lsIndex);
 
         for (int i = 0; i < categories.getEndpointActionHolders().size(); i++) {
             objectAttachedFunctions.addAll(getObjectAttachedFunctionDTOs(pkgEntryId, actionHolderIds.get(i),
@@ -183,11 +184,11 @@ public class IndexGenerator {
         }
     }
 
-//    private List<BFunctionSymbolDTO> getObjectAttachedFunctionDTOs(int pkgId, int objId, BObjectTypeSymbol symbol) {
-//        return symbol.attachedFuncs.stream()
-//                .map(bAttachedFunction -> DTOUtil.getFunctionDTO(pkgId, objId, bAttachedFunction.symbol))
-//                .collect(Collectors.toList());
-//    }
+    private List<BFunctionSymbolDTO> getObjectAttachedFunctionDTOs(int pkgId, int objId, BObjectTypeSymbol symbol) {
+        return symbol.attachedFuncs.stream()
+                .map(bAttachedFunction -> DTOUtil.getFunctionDTO(pkgId, objId, bAttachedFunction.symbol))
+                .collect(Collectors.toList());
+    }
 
     private static List<Integer> insertBLangObjects(int pkgEntryId, List<BObjectTypeSymbol> bLangObjects,
                                                     ObjectType type, LSIndexImpl lsIndex) {
