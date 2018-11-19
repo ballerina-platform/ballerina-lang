@@ -18,6 +18,8 @@
 
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.bre.bvm.CPU;
+
 import java.math.BigDecimal;
 
 /**
@@ -69,6 +71,20 @@ public abstract class BValueType implements BValue {
      * @return the boolean value.
      */
     public abstract boolean booleanValue();
+
+    /**
+     * {@inheritDoc}
+     */
+    public void attemptFreeze(CPU.FreezeStatus freezeStatus) {
+        // do nothing, since value types are always frozen
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isFrozen() {
+        return true;
+    }
 
     /**
      * Default BValueType toString implementation.

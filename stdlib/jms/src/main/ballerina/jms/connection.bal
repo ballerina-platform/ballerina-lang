@@ -49,8 +49,8 @@ public type ConnectionConfiguration record {
     string initialContextFactory = "wso2mbInitialContextFactory";
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";
-    string? username;
-    string? password;
-    map properties;
+    string? username = ();
+    string? password = ();
+    map properties = {};
     !...
 };

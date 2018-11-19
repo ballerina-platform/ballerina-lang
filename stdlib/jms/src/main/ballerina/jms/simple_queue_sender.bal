@@ -23,7 +23,7 @@ import ballerina/log;
 # + config - configurations related to the SimpleQueueSender endpoint
 public type SimpleQueueSender object {
 
-    public SimpleQueueSenderEndpointConfiguration config;
+    public SimpleQueueSenderEndpointConfiguration config = {};
     private Connection? connection;
     private Session? session = ();
     private QueueSender? sender = ();
@@ -118,7 +118,7 @@ public type SimpleQueueSenderEndpointConfiguration record {
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
-    map properties;
-    string queueName;
+    map properties = {};
+    string queueName = "";
     !...
 };

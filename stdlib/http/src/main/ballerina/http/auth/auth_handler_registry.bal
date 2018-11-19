@@ -22,6 +22,7 @@ public type AuthHandlerRegistry object {
     private map<HttpAuthnHandler> httpAuthHandlers;
 
     public new () {
+        self.httpAuthHandlers = {};
     }
 
     # Add an HttpAuthnHandler to HttpAuthHandlerRegistry

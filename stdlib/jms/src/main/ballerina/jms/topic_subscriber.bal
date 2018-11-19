@@ -23,7 +23,7 @@ import ballerina/log;
 public type TopicSubscriber object {
 
     public TopicSubscriberActions consumerActions = new;
-    public TopicSubscriberEndpointConfiguration config;
+    public TopicSubscriberEndpointConfiguration config = {};
 
     # Initialize topic subscriber endpoint
     #
@@ -83,10 +83,10 @@ public type TopicSubscriber object {
 # + messageSelector - Message selector condition to filter messages
 # + identifier - Identifier of topic subscriber endpoint
 public type TopicSubscriberEndpointConfiguration record {
-    Session? session;
-    string? topicPattern;
-    string messageSelector;
-    string identifier;
+    Session? session = ();
+    string? topicPattern = ();
+    string messageSelector = "";
+    string identifier = "";
     !...
 };
 
@@ -95,7 +95,7 @@ public type TopicSubscriberEndpointConfiguration record {
 # + topicSubscriber - JMS topic subscriber
 public type TopicSubscriberActions object {
 
-    public TopicSubscriber? topicSubscriber;
+    public TopicSubscriber? topicSubscriber = ();
 
     # Acknowledges a received message
     #

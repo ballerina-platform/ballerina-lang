@@ -23,7 +23,7 @@ import ballerina/log;
 public type DurableTopicSubscriber object {
 
     public DurableTopicSubscriberActions consumerActions = new;
-    public DurableTopicSubscriberEndpointConfiguration config;
+    public DurableTopicSubscriberEndpointConfiguration config = {};
 
     # Initialize durable topic subscriber endpoint
     #
@@ -76,10 +76,10 @@ public type DurableTopicSubscriber object {
 # + messageSelector - JMS selector statement
 # + identifier - unique identifier for the subscription
 public type DurableTopicSubscriberEndpointConfiguration record {
-    Session? session;
-    string topicPattern;
-    string messageSelector;
-    string identifier;
+    Session? session = ();
+    string topicPattern = "";
+    string messageSelector = "";
+    string identifier = "";
     !...
 };
 

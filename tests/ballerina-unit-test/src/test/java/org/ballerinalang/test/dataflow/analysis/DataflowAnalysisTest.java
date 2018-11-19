@@ -33,7 +33,7 @@ public class DataflowAnalysisTest {
     @Test(description = "Test uninitialized variables")
     public void testUninitializedVariables() {
         CompileResult result = BCompileUtil.compile("test-src/dataflow/analysis/dataflow-analysis-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 46);
+        Assert.assertEquals(result.getErrorCount(), 48);
         int i = 0;
         BAssertUtil.validateError(result, i++, "variable 'msg' may not have been initialized", 53, 12);
         BAssertUtil.validateError(result, i++, "variable 'msg' may not have been initialized", 70, 12);
@@ -61,7 +61,7 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "variable 'globalVar' is not initialized", 309, 13);
         BAssertUtil.validateError(result, i++, "uninitialized field 'd'", 312, 5);
         BAssertUtil.validateError(result, i++, "undefined field 'f' in object 'Foo'", 315, 18);
-        BAssertUtil.validateError(result, i++, "variable 'globalVar' is not initialized", 316, 13);
+        BAssertUtil.validateError(result, i++, "variable 'globalVar' is not initialized", 316, 18);
         BAssertUtil.validateError(result, i++, "variable 'globalVar' is not initialized", 321, 16);
         BAssertUtil.validateError(result, i++, "variable 'd' is not initialized", 338, 16);
         BAssertUtil.validateError(result, i++, "variable 'val' may not have been initialized", 381, 12);
@@ -80,6 +80,8 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "variable 'a' is not initialized", 590, 17);
         BAssertUtil.validateError(result, i++, "unreachable code", 615, 9);
         BAssertUtil.validateError(result, i++, "variable 'msg' is not initialized", 624, 12);
-        BAssertUtil.validateError(result, i++, "unreachable code", 432, 9);
+        BAssertUtil.validateError(result, i++, "unreachable code", 632, 9);
+        BAssertUtil.validateError(result, i++, "uninitialized field 'a'", 645, 5);
+        BAssertUtil.validateError(result, i++, "uninitialized field 'c'", 647, 5);
     }
 }

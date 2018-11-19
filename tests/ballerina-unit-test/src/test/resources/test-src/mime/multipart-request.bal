@@ -172,36 +172,40 @@ function handleNestedParts (mime:Entity parentPart) returns (string) {
 }
 
 function handleContent (mime:Entity bodyPart) returns (string) {
-    mime:MediaType mediaType = check mime:getMediaType(bodyPart.getContentType());
-    string baseType = mediaType.getBaseType();
-    if (mime:APPLICATION_XML == baseType || mime:TEXT_XML == baseType) {
-        var payload = bodyPart.getXml();
-        if (payload is xml) {
-            return payload.getTextValue();
-        } else if (payload is error) {
-            return "Error in getting xml payload";
+    var mediaType = mime:getMediaType(bodyPart.getContentType());
+    if (mediaType is mime:MediaType) {
+        string baseType = mediaType.getBaseType();
+        if (mime:APPLICATION_XML == baseType || mime:TEXT_XML == baseType) {
+            var payload = bodyPart.getXml();
+            if (payload is xml) {
+                return payload.getTextValue();
+            } else if (payload is error) {
+                return "Error in getting xml payload";
+            }
+        } else if (mime:APPLICATION_JSON == baseType) {
+            var payload = bodyPart.getJson();
+            if (payload is json) {
+                return extractFieldValue(payload.bodyPart);
+            } else if (payload is error) {
+                return "Error in getting json payload";
+            }
+        } else if (mime:TEXT_PLAIN == baseType) {
+            var payload = bodyPart.getText();
+            if (payload is string) {
+                return payload;
+            } else if (payload is error) {
+                return "Error in getting string payload";
+            }
+        } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
+            var payload = bodyPart.getByteArray();
+            if (payload is byte[]) {
+                return mime:byteArrayToString(payload, mime:DEFAULT_CHARSET);
+            } else if (payload is error) {
+                return "Error in getting byte[] payload";
+            }
         }
-    } else if (mime:APPLICATION_JSON == baseType) {
-        var payload = bodyPart.getJson();
-        if (payload is json) {
-            return extractFieldValue(payload.bodyPart);
-        } else if (payload is error) {
-            return "Error in getting json payload";
-        }
-    } else if (mime:TEXT_PLAIN == baseType) {
-        var payload = bodyPart.getText();
-        if (payload is string) {
-            return payload;
-        } else if (payload is error) {
-            return "Error in getting string payload";
-        }
-    } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
-        var payload = bodyPart.getByteArray();
-        if (payload is byte[]) {
-            return mime:byteArrayToString(payload, mime:DEFAULT_CHARSET);
-        } else if (payload is error) {
-            return "Error in getting byte[] payload";
-        }
+    } else if (mediaType is error) {
+        return mediaType.reason();
     }
     return "";
 }

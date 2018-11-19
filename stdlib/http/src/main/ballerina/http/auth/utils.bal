@@ -15,28 +15,28 @@
 // under the License.
 
 # Auth annotation module.
-@final string ANN_MODULE = "ballerina/http";
+const string ANN_MODULE = "ballerina/http";
 # Resource level annotation name.
-@final string RESOURCE_ANN_NAME = "ResourceConfig";
+const string RESOURCE_ANN_NAME = "ResourceConfig";
 # Service level annotation name.
-@final string SERVICE_ANN_NAME = "ServiceConfig";
+const string SERVICE_ANN_NAME = "ServiceConfig";
 # Authentication header name.
-@final public string AUTH_HEADER = "Authorization";
+public const string AUTH_HEADER = "Authorization";
 # Basic authentication scheme.
-@final public string AUTH_SCHEME_BASIC = "Basic";
+public const string AUTH_SCHEME_BASIC = "Basic";
 # Bearer authentication scheme.
-@final public string AUTH_SCHEME_BEARER = "Bearer";
+public const string AUTH_SCHEME_BEARER = "Bearer";
 # Auth provider config name.
-@final public string AUTH_PROVIDER_CONFIG = "config";
+public const string AUTH_PROVIDER_CONFIG = "config";
 # LDAP auth provider config name.
-@final public string AUTH_PROVIDER_LDAP = "ldap";
+public const string AUTH_PROVIDER_LDAP = "ldap";
 
 # Authn scheme basic.
-@final public string AUTHN_SCHEME_BASIC = "basic";
+public const string AUTHN_SCHEME_BASIC = "basic";
 # Authn scheme JWT.
-@final public string AUTH_SCHEME_JWT = "jwt";
+public const string AUTH_SCHEME_JWT = "jwt";
 # Authn scheme OAuth2.
-@final public string AUTH_SCHEME_OAUTH2 = "oauth2";
+public const string AUTH_SCHEME_OAUTH2 = "oauth2";
 
 # Extracts the basic authentication header value from the request.
 #

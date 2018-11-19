@@ -21,7 +21,7 @@ import ballerina/log;
 # + config - Simple topic subscrirber enpoint configuration
 public type SimpleTopicSubscriber object {
 
-    public SimpleTopicSubscriberEndpointConfiguration config;
+    public SimpleTopicSubscriberEndpointConfiguration config = {};
     private Connection? connection;
     private Session? session = ();
     private TopicSubscriber? subscriber = ();
@@ -141,8 +141,8 @@ public type SimpleTopicSubscriberEndpointConfiguration record {
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
-    string messageSelector;
-    map properties;
-    string topicPattern;
+    string messageSelector = "";
+    map properties = {};
+    string topicPattern = "";
     !...
 };

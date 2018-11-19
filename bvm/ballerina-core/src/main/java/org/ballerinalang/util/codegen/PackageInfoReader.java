@@ -344,6 +344,9 @@ public class PackageInfoReader {
         // Read resource info entries.
         readResourceInfoEntries(packageInfo);
 
+        // Read constant info entries
+        readConstantInfoEntries(packageInfo);
+
         // Read global var info entries
         readGlobalVarInfoEntries(packageInfo);
 
@@ -607,8 +610,8 @@ public class PackageInfoReader {
     private void readConstantInfoEntries(PackageInfo packageInfo) throws IOException {
         int constCount = dataInStream.readShort();
         for (int i = 0; i < constCount; i++) {
-            PackageVarInfo packageVarInfo = getGlobalVarInfo(packageInfo, packageInfo);
-            packageInfo.addConstantInfo(packageVarInfo.getName(), packageVarInfo);
+            // Read constant info and ignore.
+            readConstantInfo(packageInfo, packageInfo);
         }
     }
 
@@ -617,6 +620,26 @@ public class PackageInfoReader {
         for (int i = 0; i < globalVarCount; i++) {
             PackageVarInfo packageVarInfo = getGlobalVarInfo(packageInfo, packageInfo);
             packageInfo.addPackageVarInfo(packageVarInfo.getName(), packageVarInfo);
+        }
+    }
+
+    private void readConstantInfo(PackageInfo packageInfo, ConstantPool constantPool) throws IOException {
+        // Read constant name cp index and ignore.
+        dataInStream.readInt();
+
+        // Read finite type cp index and ignore.
+        dataInStream.readInt();
+
+        // Read value type cp index and ignore.
+        dataInStream.readInt();
+
+        // Read and ignore flags.
+        dataInStream.readInt();
+
+        // Read and ignore attributes.
+        int attributesCount = dataInStream.readShort();
+        for (int k = 0; k < attributesCount; k++) {
+            getAttributeInfo(packageInfo, constantPool);
         }
     }
 
@@ -655,11 +678,11 @@ public class PackageInfoReader {
 
         // Set for the testable package
         packageInfo.setTestInitFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() +
-                                                                                TEST_INIT_FUNCTION_SUFFIX));
+                TEST_INIT_FUNCTION_SUFFIX));
         packageInfo.setTestStartFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() +
-                                                                                 TEST_START_FUNCTION_SUFFIX));
+                TEST_START_FUNCTION_SUFFIX));
         packageInfo.setTestStopFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() +
-                                                                                TEST_STOP_FUNCTION_SUFFIX));
+                TEST_STOP_FUNCTION_SUFFIX));
 
         // TODO Improve this. We should be able to this in a single pass.
         ServiceInfo[] serviceInfoEntries = packageInfo.getServiceInfoEntries();
@@ -1222,6 +1245,8 @@ public class PackageInfoReader {
                 case InstructionCodes.ARRAY2JSON:
                 case InstructionCodes.REASON:
                 case InstructionCodes.DETAIL:
+                case InstructionCodes.FREEZE:
+                case InstructionCodes.IS_FROZEN:
                 case InstructionCodes.CLONE:
                     i = codeStream.readInt();
                     j = codeStream.readInt();

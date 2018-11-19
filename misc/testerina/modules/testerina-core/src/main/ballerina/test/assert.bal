@@ -16,9 +16,9 @@
 
 import ballerina/reflect;
 
-@final string assertFailureErrorCategory = "assert-failure";
-@final string arraysNotEqualMessage = "Arrays are not equal";
-@final string arrayLengthsMismatchMessage = " (Array lengths are not the same)";
+const string assertFailureErrorCategory = "assert-failure";
+const string arraysNotEqualMessage = "Arrays are not equal";
+const string arrayLengthsMismatchMessage = " (Array lengths are not the same)";
 
 # The error struct for assertion errors.
 #
@@ -26,9 +26,9 @@ import ballerina/reflect;
 # + cause - The error which caused the assertion error
 # + category - The assert error category
 type AssertError record {
-    string message;
-    error? cause;
-    string category;
+    string message = "";
+    error? cause = ();
+    string category = "";
 };
 
 # Creates an AssertError with custom message and category.
