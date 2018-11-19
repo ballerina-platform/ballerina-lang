@@ -501,7 +501,7 @@ public class CPU {
                                 handleNullRefError(ctx);
                                 break;
                             }
-                            BLangVMErrors.attachStackFrame(error, ctx);
+//                            BLangVMErrors.attachStackFrame(error, ctx);
                             ctx.setError(error);
                         }
                         handleError(ctx);
@@ -820,7 +820,7 @@ public class CPU {
             } catch (HandleErrorException e) {
                 throw e;
             } catch (Throwable e) {
-                ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+//                ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                 handleError(ctx);
             }
         }
@@ -864,7 +864,7 @@ public class CPU {
 
                 FreezeStatus freezeStatus = new FreezeStatus(FreezeStatus.State.MID_FREEZE);
                 try {
-                    value.attemptFreeze(freezeStatus);
+//                    value.attemptFreeze(freezeStatus);
 
                     // if freeze is successful, set the status as frozen and the value itself as the return value
                     freezeStatus.setFrozen();
@@ -873,12 +873,12 @@ public class CPU {
                     // if freeze is unsuccessful due to an invalid value, set the frozen status of the value and its
                     // constituents to false, and return an error
                     freezeStatus.setUnfrozen();
-                    sf.refRegs[j] = BLangVMErrors.createError(ctx, e.getMessage());
+//                    sf.refRegs[j] = BLangVMErrors.createError(ctx, e.getMessage());
                 } catch (BallerinaException e) {
                     // if freeze is unsuccessful due to concurrent freeze attempts, set the frozen status of the value
                     // and its constituents to false, and panic
                     freezeStatus.setUnfrozen();
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+//                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1378,7 +1378,7 @@ public class CPU {
                 try {
                     sf.longRegs[k] = bIntArray.get(sf.longRegs[j]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+//                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1390,7 +1390,7 @@ public class CPU {
                 try {
                     sf.intRegs[k] = bByteArray.get(sf.longRegs[j]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+//                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1402,7 +1402,7 @@ public class CPU {
                 try {
                     sf.doubleRegs[k] = bFloatArray.get(sf.longRegs[j]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+//                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1414,7 +1414,7 @@ public class CPU {
                 try {
                     sf.stringRegs[k] = bStringArray.get(sf.longRegs[j]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+//                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1426,7 +1426,7 @@ public class CPU {
                 try {
                     sf.intRegs[k] = bBooleanArray.get(sf.longRegs[j]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+//                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1438,7 +1438,7 @@ public class CPU {
                 try {
                     sf.refRegs[k] = ListUtils.execListGetOperation(bNewArray, sf.longRegs[j]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+//                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1450,7 +1450,7 @@ public class CPU {
                 try {
                     sf.refRegs[k] = JSONUtils.getArrayElement(sf.refRegs[i], sf.longRegs[j]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+//                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1536,7 +1536,7 @@ public class CPU {
                 try {
                     bIntArray.add(sf.longRegs[j], sf.longRegs[k]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+//                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1548,7 +1548,7 @@ public class CPU {
                 try {
                     bByteArray.add(sf.longRegs[j], (byte) sf.intRegs[k]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+//                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1560,7 +1560,7 @@ public class CPU {
                 try {
                     bFloatArray.add(sf.longRegs[j], sf.doubleRegs[k]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+//                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1572,7 +1572,7 @@ public class CPU {
                 try {
                     bStringArray.add(sf.longRegs[j], sf.stringRegs[k]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+//                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1584,7 +1584,7 @@ public class CPU {
                 try {
                     bBooleanArray.add(sf.longRegs[j], sf.intRegs[k]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+//                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1599,9 +1599,9 @@ public class CPU {
                         ? ((BArrayType) list.getType()).getElementType()
                         : ((BTupleType) list.getType()).getTupleTypes().get((int) index);
                 if (!checkCast(refReg, elementType)) {
-                    ctx.setError(BLangVMErrors.createError(ctx,
-                            BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE,
-                                    elementType, (refReg != null) ? refReg.getType() : BTypes.typeNull)));
+//                    ctx.setError(BLangVMErrors.createError(ctx,
+//                            BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE,
+//                                    elementType, (refReg != null) ? refReg.getType() : BTypes.typeNull)));
                     handleError(ctx);
                     break;
                 }
@@ -1609,7 +1609,7 @@ public class CPU {
                 try {
                     ListUtils.execListAddOperation(list, index, refReg);
                 } catch (BLangFreezeException e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, "Failed to add element: " + e.getMessage()));
+//                    ctx.setError(BLangVMErrors.createError(ctx, "Failed to add element: " + e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1621,7 +1621,7 @@ public class CPU {
                 try {
                     JSONUtils.setArrayElement(sf.refRegs[i], sf.longRegs[j], sf.refRegs[k]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+//                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1682,14 +1682,14 @@ public class CPU {
                                 errMessage = "Invalid map insertion: ";
                                 break;
                         }
-                        ctx.setError(BLangVMErrors.createError(ctx,  errMessage + e.getMessage()));
+//                        ctx.setError(BLangVMErrors.createError(ctx,  errMessage + e.getMessage()));
                         handleError(ctx);
                     }
                 } else {
                     // We reach here only for map insertions. Hence bMap.getType() is always BMapType
                     BType expType = ((BMapType) bMap.getType()).getConstrainedType();
-                    ctx.setError(BLangVMErrors.createError(ctx, BLangExceptionHelper
-                            .getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION, expType, value.getType())));
+//                    ctx.setError(BLangVMErrors.createError(ctx, BLangExceptionHelper
+//                            .getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION, expType, value.getType())));
                     handleError(ctx);
                     break;
                 }
@@ -1701,7 +1701,7 @@ public class CPU {
                 try {
                     JSONUtils.setElement(sf.refRegs[i], sf.stringRegs[j], sf.refRegs[k]);
                 } catch (BLangFreezeException e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, "Failed to set element to JSON: " + e.getMessage()));
+//                    ctx.setError(BLangVMErrors.createError(ctx, "Failed to set element to JSON: " + e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1799,7 +1799,7 @@ public class CPU {
                 j = operands[1];
                 k = operands[2];
                 if (sf.longRegs[j] == 0) {
-                    ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
+//                    ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
                     handleError(ctx);
                     break;
                 }
@@ -1819,7 +1819,7 @@ public class CPU {
                 lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
                 rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
                 if (rhsValue.compareTo(BigDecimal.ZERO) == 0) {
-                    ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
+//                    ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
                     handleError(ctx);
                     break;
                 }
@@ -1831,7 +1831,7 @@ public class CPU {
                 j = operands[1];
                 k = operands[2];
                 if (sf.longRegs[j] == 0) {
-                    ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
+//                    ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
                     handleError(ctx);
                     break;
                 }
@@ -1843,7 +1843,7 @@ public class CPU {
                 j = operands[1];
                 k = operands[2];
                 if (sf.doubleRegs[j] == 0) {
-                    ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
+//                    ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
                     handleError(ctx);
                     break;
                 }
@@ -1857,7 +1857,7 @@ public class CPU {
                 lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
                 rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
                 if (rhsValue.compareTo(BigDecimal.ZERO) == 0) {
-                    ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
+//                    ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
                     handleError(ctx);
                     break;
                 }
@@ -2632,7 +2632,7 @@ public class CPU {
                 try {
                     sf.refRegs[i] = XMLUtils.createXMLElement(startTagName, endTagName, sf.stringRegs[l]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+//                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -2673,30 +2673,30 @@ public class CPU {
     private static boolean handleVariableLock(WorkerExecutionContext ctx, BType[] types,
                                               int[] pkgRegs, int[] varRegs) {
         boolean lockAcquired = true;
-        for (int i = 0; i < varRegs.length && lockAcquired; i++) {
-            BType paramType = types[i];
-            int pkgIndex = pkgRegs[i];
-            int regIndex = varRegs[i];
-            switch (paramType.getTag()) {
-                case TypeTags.INT_TAG:
-                    lockAcquired = ctx.programFile.globalMemArea.lockIntField(ctx, pkgIndex, regIndex);
-                    break;
-                case TypeTags.BYTE_TAG:
-                    lockAcquired = ctx.programFile.globalMemArea.lockBooleanField(ctx, pkgIndex, regIndex);
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    lockAcquired = ctx.programFile.globalMemArea.lockFloatField(ctx, pkgIndex, regIndex);
-                    break;
-                case TypeTags.STRING_TAG:
-                    lockAcquired = ctx.programFile.globalMemArea.lockStringField(ctx, pkgIndex, regIndex);
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    lockAcquired = ctx.programFile.globalMemArea.lockBooleanField(ctx, pkgIndex, regIndex);
-                    break;
-                default:
-                    lockAcquired = ctx.programFile.globalMemArea.lockRefField(ctx, pkgIndex, regIndex);
-            }
-        }
+//        for (int i = 0; i < varRegs.length && lockAcquired; i++) {
+//            BType paramType = types[i];
+//            int pkgIndex = pkgRegs[i];
+//            int regIndex = varRegs[i];
+//            switch (paramType.getTag()) {
+//                case TypeTags.INT_TAG:
+//                    lockAcquired = ctx.programFile.globalMemArea.lockIntField(ctx, pkgIndex, regIndex);
+//                    break;
+//                case TypeTags.BYTE_TAG:
+//                    lockAcquired = ctx.programFile.globalMemArea.lockBooleanField(ctx, pkgIndex, regIndex);
+//                    break;
+//                case TypeTags.FLOAT_TAG:
+//                    lockAcquired = ctx.programFile.globalMemArea.lockFloatField(ctx, pkgIndex, regIndex);
+//                    break;
+//                case TypeTags.STRING_TAG:
+//                    lockAcquired = ctx.programFile.globalMemArea.lockStringField(ctx, pkgIndex, regIndex);
+//                    break;
+//                case TypeTags.BOOLEAN_TAG:
+//                    lockAcquired = ctx.programFile.globalMemArea.lockBooleanField(ctx, pkgIndex, regIndex);
+//                    break;
+//                default:
+//                    lockAcquired = ctx.programFile.globalMemArea.lockRefField(ctx, pkgIndex, regIndex);
+//            }
+//        }
         return lockAcquired;
     }
 
@@ -2830,8 +2830,8 @@ public class CPU {
 
     private static void handleTypeCastError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex,
                                             String sourceType, String targetType) {
-        BError errorVal = BLangVMErrors.createTypeCastError(ctx, sourceType, targetType);
-        sf.refRegs[errorRegIndex] = errorVal;
+//        BError errorVal = BLangVMErrors.createTypeCastError(ctx, sourceType, targetType);
+//        sf.refRegs[errorRegIndex] = errorVal;
     }
 
     private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex,
@@ -2847,8 +2847,8 @@ public class CPU {
 
     private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf,
                                                   int errorRegIndex, String errorMessage) {
-        BError errorVal = BLangVMErrors.createTypeConversionError(ctx, errorMessage);
-        sf.refRegs[errorRegIndex] = errorVal;
+//        BError errorVal = BLangVMErrors.createTypeConversionError(ctx, errorMessage);
+//        sf.refRegs[errorRegIndex] = errorVal;
     }
 
     private static void createNewIntRange(int[] operands, WorkerData sf) {
@@ -2877,8 +2877,8 @@ public class CPU {
         if (retryCountRegIndex != -1) {
             retryCount = (int) ctx.workerLocal.longRegs[retryCountRegIndex];
             if (retryCount < 0) {
-                ctx.setError(BLangVMErrors
-                        .createError(ctx, BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RETRY_COUNT)));
+//                ctx.setError(BLangVMErrors
+//                        .createError(ctx, BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RETRY_COUNT)));
                 handleError(ctx);
                 return;
             }
@@ -2987,8 +2987,8 @@ public class CPU {
                 }
             }
         } catch (Throwable e) {
-            ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
-            handleError(ctx);
+//            ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+//            handleError(ctx);
         }
     }
 
@@ -3898,7 +3898,7 @@ public class CPU {
     }
 
     private static void handleNullRefError(WorkerExecutionContext ctx) {
-        ctx.setError(BLangVMErrors.createNullRefException(ctx));
+//        ctx.setError(BLangVMErrors.createNullRefException(ctx));
         handleError(ctx);
     }
 
@@ -3969,12 +3969,13 @@ public class CPU {
         int futureReg = operands[0];
         int retValReg = operands[1];
         BFuture future = (BFuture) ctx.workerLocal.refRegs[futureReg];
-        WorkerResponseContext respCtx = future.value();
-        if (retValReg != -1) {
-            return respCtx.joinTargetContextInfo(ctx, new int[]{retValReg});
-        } else {
-            return respCtx.joinTargetContextInfo(ctx, new int[0]);
-        }
+//        WorkerResponseContext respCtx = future.value();
+//        if (retValReg != -1) {
+//            return respCtx.joinTargetContextInfo(ctx, new int[]{retValReg});
+//        } else {
+//            return respCtx.joinTargetContextInfo(ctx, new int[0]);
+//        }
+        return null;
     }
 
     /**
