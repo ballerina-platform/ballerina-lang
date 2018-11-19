@@ -165,8 +165,8 @@ export class ASTUtil {
                 break;
             case "Function":
             case "Resource":
-                let functionWS = node.ws;
-                let functionOpeningBrace = ASTUtil.findOpeningBrace(functionWS);
+                const functionWS = node.ws;
+                const functionOpeningBrace = ASTUtil.findOpeningBrace(functionWS);
 
                 // TODO: handle calculation for start position.
                 prevPosition = functionOpeningBrace;
@@ -178,7 +178,7 @@ export class ASTUtil {
                         startPosition = ASTUtil.getCollectionStartPosition(node.endpointNodes, functionOpeningBrace,
                             insertBefore);
                     } else if (node.endpointNodes.length > 0) {
-                        let endpointWS = ASTUtil.extractWS(node.endpointNodes[node.endpointNodes.length - 1]);
+                        const endpointWS = ASTUtil.extractWS(node.endpointNodes[node.endpointNodes.length - 1]);
                         prevPosition = endpointWS[endpointWS.length - 1].i;
                     }
                 }
@@ -187,7 +187,8 @@ export class ASTUtil {
                     if (attachPoint === "workers") {
                         startPosition = ASTUtil.getCollectionStartPosition(node.workers, prevPosition, insertBefore);
                     } else if (node.workers.length > 0) {
-                        let workerWS = ASTUtil.extractWS(node.workers[node.workers.length - 1]);
+                        // tslint:disable-next-line:no-shadowed-variable
+                        const workerWS = ASTUtil.extractWS(node.workers[node.workers.length - 1]);
                         prevPosition = workerWS[workerWS.length - 1].i;
                     }
                 }
@@ -198,7 +199,7 @@ export class ASTUtil {
                 }
                 break;
             case "Worker":
-                let workerWS = node.ws;
+                const workerWS = node.ws;
                 prevPosition = ASTUtil.findOpeningBrace(workerWS);
                 if (node.body != null && attachPoint === "statements") {
                     startPosition = ASTUtil.getCollectionStartPosition(node.body.statements, prevPosition,
@@ -207,7 +208,7 @@ export class ASTUtil {
 
                 break;
             case "While":
-                let whileWS = node.ws;
+                const whileWS = node.ws;
                 prevPosition = ASTUtil.findOpeningBrace(whileWS);
                 if (node.body != null && attachPoint === "statements") {
                     startPosition = ASTUtil.getCollectionStartPosition(node.body.statements, prevPosition,
@@ -215,7 +216,7 @@ export class ASTUtil {
                 }
                 break;
             case "If":
-                let ifWS = node.ws;
+                const ifWS = node.ws;
                 prevPosition = ASTUtil.findOpeningBrace(ifWS);
                 if (node.body != null && attachPoint === "statements") {
                     startPosition = ASTUtil.getCollectionStartPosition(node.body.statements, prevPosition,
@@ -226,7 +227,7 @@ export class ASTUtil {
                 // If block is a else block continue.
                 // Else find the startPosition of the parent node of the block.
                 if (node.isElseBlock) {
-                    let elseWS = node.ws;
+                    const elseWS = node.ws;
                     prevPosition = ASTUtil.findOpeningBrace(elseWS);
                     if (node.statements && attachPoint === "statements") {
                         startPosition = ASTUtil.getCollectionStartPosition(node.statements, prevPosition,
@@ -255,13 +256,7 @@ export class ASTUtil {
      * @returns {number}
      */
     private static getCollectionStartPosition(collection: any[], entryPoint: number, insertBefore: number): number {
-        let startPosition;
-        if (collection.length > 0) {
-            startPosition = ASTUtil.getPositionToInsertBefore(collection, insertBefore);
-        } else {
-            startPosition = entryPoint + 1;
-        }
-        return startPosition;
+        return (collection.length > 0) ? ASTUtil.getPositionToInsertBefore(collection, insertBefore) : (entryPoint + 1);
     }
 
     /**
@@ -276,10 +271,10 @@ export class ASTUtil {
         let startPosition;
         if (collection.length > 0) {
             if (insertBefore === -1) {
-                let statementWS = ASTUtil.extractWS(collection[collection.length - 1]);
+                const statementWS = ASTUtil.extractWS(collection[collection.length - 1]);
                 startPosition = statementWS[statementWS.length - 1].i + 1;
             } else {
-                let statementWS = ASTUtil.extractWS(collection[insertBefore]);
+                const statementWS = ASTUtil.extractWS(collection[insertBefore]);
                 startPosition = statementWS[0].i;
             }
         }
@@ -294,6 +289,7 @@ export class ASTUtil {
      */
     private static findOpeningBrace(ws: any[]): number {
         let index = -1;
+        // tslint:disable-next-line:prefer-for-of
         for (let i = 0; i < ws.length; i++) {
             if (ws[i].text === "{") {
                 index = ws[i].i;
