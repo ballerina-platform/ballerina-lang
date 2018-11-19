@@ -26,16 +26,18 @@ service<jms:Consumer> jmsListener2 bind topicSubscriber2 {
 
     // OnMessage resource get invoked when a message is received.
     onMessage(endpoint subscriber, jms:Message message) {
-        var messageContent = message.getMapMessageContent();
-        if (messageContent is map) {
-             map messageRetrieved = messageContent;
+        var messageRetrieved = message.getMapMessageContent();
+        if (messageRetrieved is map) {
              io:print(messageRetrieved["a"]);
              io:print(messageRetrieved["b"]);
              io:print(messageRetrieved["c"]);
              io:println(messageRetrieved["d"]);
              var retrievedBlob = <byte[]>messageRetrieved["e"];
+             if (retrievedBlob is error) {
+                  panic retrievedBlob;
+             }
         } else {
-             panic messageContent;
+             panic messageRetrieved;
         }
     }
 }

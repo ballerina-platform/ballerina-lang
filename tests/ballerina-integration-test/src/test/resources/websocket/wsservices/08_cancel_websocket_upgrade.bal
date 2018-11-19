@@ -30,10 +30,10 @@ service<http:Service> simple bind ep1 {
         }
     }
     websocketProxy(endpoint httpEp, http:Request req, string path1, string path2) {
-       var returnVal = httpEp->cancelWebSocketUpgrade(404, "Cannot proceed");
-       if (returnVal is error) {
-            panic returnVal;
-       }
+        var returnVal = httpEp->cancelWebSocketUpgrade(404, "Cannot proceed");
+        if (returnVal is error) {
+             panic returnVal;
+        }
     }
 }
 
