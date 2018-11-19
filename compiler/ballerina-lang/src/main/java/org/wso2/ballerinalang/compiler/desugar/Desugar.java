@@ -53,6 +53,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntermediateCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -3649,11 +3651,17 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BType getSafeType(BType type, boolean liftError) {
-        // Since JSON is by default contains null, we need to create a new json type which
+
+        // Since JSON, ANY and ANYDATA is by default contains null, we need to create a new respective type which
         // is not-nullable.
-        if (type.tag == TypeTags.JSON) {
-            BJSONType jsonType = (BJSONType) type;
-            return new BJSONType(jsonType.tag, jsonType.constraint, jsonType.tsymbol, false);
+        switch (type.tag) {
+            case TypeTags.JSON:
+                BJSONType jsonType = (BJSONType) type;
+                return new BJSONType(jsonType.tag, jsonType.constraint, jsonType.tsymbol, false);
+            case TypeTags.ANY:
+                return new BAnyType(type.tag, type.tsymbol, false);
+            case TypeTags.ANYDATA:
+                return new BAnydataType(type.tag, type.tsymbol, false);
         }
 
         if (type.tag != TypeTags.UNION) {

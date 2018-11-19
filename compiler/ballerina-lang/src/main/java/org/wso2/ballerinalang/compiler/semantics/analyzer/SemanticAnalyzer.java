@@ -2462,7 +2462,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             } else {
                 ((BUnionType) removeType).getMemberTypes().forEach(type -> memberTypes.remove(type));
             }
-            
+
             if (memberTypes.size() == 1) {
                 return memberTypes.get(0);
             }
