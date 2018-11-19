@@ -776,7 +776,6 @@ public class CommonUtil {
                                                         ItemResolverConstants.BUILTIN_FREEZE_LABEL, context);
             SymbolInfo isFrozen = getIterableOpSymbolInfo(Snippet.BUILTIN_IS_FROZEN.get(), bType,
                                                           ItemResolverConstants.BUILTIN_IS_FROZEN_LABEL, context);
-            symbolInfoList.add(freeze);
             symbolInfoList.addAll(Arrays.asList(freeze, isFrozen));
         }
 
