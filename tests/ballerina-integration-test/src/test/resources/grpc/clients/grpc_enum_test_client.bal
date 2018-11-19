@@ -22,21 +22,18 @@ function testEnum() returns (string) {
 
     orderInfo orderReq = { id:"100500", mode:r };
     var addResponse = blockingEp->testEnum(orderReq);
-    match addResponse {
-        (string, grpc:Headers) payload => {
-            string result;
-            (result, _) = payload;
-            return result;
-        }
-        error err => {
-            return "Error from Connector: " + err.reason();
-        }
+    if (addResponse is error) {
+        return "Error from Connector: " + addResponse.reason();
+    } else {
+        string result = "";
+        (result, _) = addResponse;
+        return result;
     }
 }
 
 public type testEnumServiceBlockingStub object {
-    public grpc:Client clientEndpoint;
-    public grpc:Stub stub;
+    public grpc:Client clientEndpoint = new;
+    public grpc:Stub stub = new;
 
     function initStub (grpc:Client ep) {
         grpc:Stub navStub = new;
@@ -45,26 +42,18 @@ public type testEnumServiceBlockingStub object {
     }
 
     function testEnum (orderInfo req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
-
-        var unionResp = self.stub.blockingExecute("grpcservices.testEnumService/testEnum", req, headers = headers);
-        match unionResp {
-            error payloadError => {
-                return payloadError;
-            }
-            (any, grpc:Headers) payload => {
-                grpc:Headers resHeaders;
-                any result;
-                (result, resHeaders) = payload;
-                return (<string>result, resHeaders);
-            }
-        }
+        var unionResp = check self.stub.blockingExecute("grpcservices.testEnumService/testEnum", req, headers = headers);
+        grpc:Headers resHeaders = new;
+        any result = ();
+        (result, resHeaders) = unionResp;
+        return (<string>result, resHeaders);
     }
 
 };
 
 public type testEnumServiceStub object {
-    public grpc:Client clientEndpoint;
-    public grpc:Stub stub;
+    public grpc:Client clientEndpoint = new;
+    public grpc:Stub stub = new;
 
     function initStub (grpc:Client ep) {
         grpc:Stub navStub = new;
@@ -81,8 +70,8 @@ public type testEnumServiceStub object {
 
 
 public type testEnumServiceBlockingClient object {
-    public grpc:Client client;
-    public testEnumServiceBlockingStub stub;
+    public grpc:Client client = new;
+    public testEnumServiceBlockingStub stub = new;
 
     public function init (grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
@@ -101,8 +90,8 @@ public type testEnumServiceBlockingClient object {
 };
 
 public type testEnumServiceClient object {
-    public grpc:Client client;
-    public testEnumServiceStub stub;
+    public grpc:Client client = new;
+    public testEnumServiceStub stub = new;
 
     public function init (grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
@@ -122,8 +111,8 @@ public type testEnumServiceClient object {
 
 
 type orderInfo record {
-    string id;
-    Mode mode;
+    string id = "";
+    Mode mode = r;
 
 };
 

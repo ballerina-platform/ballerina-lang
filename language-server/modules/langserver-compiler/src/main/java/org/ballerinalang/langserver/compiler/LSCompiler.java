@@ -107,7 +107,7 @@ public class LSCompiler {
     public BallerinaFile compileFile(Path filePath, CompilerPhase phase) {
         String sourceRoot = LSCompilerUtil.getSourceRoot(filePath);
         String packageName = LSCompilerUtil.getPackageNameForGivenFile(sourceRoot, filePath.toString());
-        LSDocument sourceDocument = new LSDocument(filePath.toUri().toString(), sourceRoot);
+        LSDocument sourceDocument = new LSDocument(filePath, sourceRoot);
 
         PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
         PackageID packageID;
@@ -258,7 +258,7 @@ public class LSCompiler {
     private boolean isBallerinaFile(File file) {
         return !file.isDirectory() && file.getName().endsWith(BAL_EXTENSION);
     }
-    
+
     private PackageID generatePackageFromManifest(String pkgName, String sourceRoot) {
         Manifest manifest = LSCompilerUtil.getManifest(Paths.get(sourceRoot));
         Name orgName = manifest.getName() == null || manifest.getName().isEmpty() ?

@@ -37,14 +37,23 @@ import java.io.File;
  */
 public class BalRunFunctionNegativeTestCase extends BaseTest {
 
-    private String fileName = "test_entry_function.bal";
-    private String filePath = (new File("src/test/resources/run/file/" + fileName)).getAbsolutePath();
+    private String sourceRootPath = "src/test/resources/run/file/";
 
-    @Test
-    public void testEmptyEntryFunctionName() throws BallerinaTestException {
-        String sourceArg = filePath + ":";
-        LogLeecher errLogLeecher = new LogLeecher("ballerina: expected function name after final ':'",
+    @Test(description = "test an invalid source argument, ending with a colon, e.g., ballerina run <FILE_NAME>:")
+    public void testInvalidSourceArg() throws BallerinaTestException {
+        String sourceArg = (new File(sourceRootPath + "test_entry_function.bal")).getAbsolutePath() + ":";
+        LogLeecher errLogLeecher = new LogLeecher("error: no ballerina source files found in module " + sourceArg,
                 LeecherType.ERROR);
+        balClient.runMain(sourceArg, new LogLeecher[]{errLogLeecher});
+        errLogLeecher.waitForText(2000);
+    }
+
+    @Test(description = "test an invalid function name with ballerina run, where the function name includes colons")
+    public void testWrongEntryFunctionNameWithColons() throws BallerinaTestException {
+        String sourceArg = (new File(sourceRootPath + "test_entry_function_with_colons.bal")).getAbsolutePath() +
+                ":colonsInName:WrongFunction";
+        LogLeecher errLogLeecher = new LogLeecher("ballerina: 'colonsInName:WrongFunction' function not found in " +
+                                                          "'test_entry_function_with_colons.bal'", LeecherType.ERROR);
         balClient.runMain(sourceArg, new LogLeecher[]{errLogLeecher});
         errLogLeecher.waitForText(2000);
     }

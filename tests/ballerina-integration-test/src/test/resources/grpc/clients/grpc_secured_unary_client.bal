@@ -41,26 +41,23 @@ function testUnarySecuredBlocking() returns (string) {
     };
 
     (string, grpc:Headers)|error unionResp = helloWorldBlockingEp->hello("WSO2");
-    match unionResp {
-        (string, grpc:Headers) payload => {
-            string result;
-            (result, _) = payload;
-            io:println("Client Got Response : ");
-            io:println(result);
-            return result;
-        }
-        error err => {
-            io:println("Error from Connector: " + err.reason());
-            return "Error from Connector: " + err.reason();
-        }
+    if (unionResp is error) {
+        io:println("Error from Connector: " + unionResp.reason());
+        return "Error from Connector: " + unionResp.reason();
+    } else {
+        string result;
+        (result, _) = unionResp;
+        io:println("Client Got Response : ");
+        io:println(result);
+        return result;
     }
 }
 
 // This is an auto generated client stub which is used to communicate between gRPC client.
 public type HelloWorldBlockingStub object {
 
-    public grpc:Client clientEndpoint;
-    public grpc:Stub stub;
+    public grpc:Client clientEndpoint = new;
+    public grpc:Stub stub = new;
 
 
     function initStub(grpc:Client ep) {
@@ -70,26 +67,18 @@ public type HelloWorldBlockingStub object {
     }
 
     function hello(string req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
-        var unionResp = self.stub.blockingExecute("grpcservices.HelloWorld85/hello", req, headers = headers);
-        match unionResp {
-            error payloadError => {
-                return payloadError;
-            }
-            (any, grpc:Headers) payload => {
-                any result;
-                grpc:Headers resHeaders;
-                (result, resHeaders) = payload;
-                return (<string>result, resHeaders);
-            }
-        }
+        var unionResp = check self.stub.blockingExecute("grpcservices.HelloWorld85/hello", req, headers = headers);
+        any result = ();
+        grpc:Headers resHeaders = new;
+        (result, resHeaders) = unionResp;
+        return (<string>result, resHeaders);
     }
 };
 
 public type HelloWorldStub object {
 
-    public grpc:Client clientEndpoint;
-    public grpc:Stub stub;
-
+    public grpc:Client clientEndpoint = new;
+    public grpc:Stub stub = new;
 
     function initStub(grpc:Client ep) {
         grpc:Stub navStub = new;
@@ -105,9 +94,8 @@ public type HelloWorldStub object {
 
 public type HelloWorldBlockingClient object {
 
-    public grpc:Client client;
-    public HelloWorldBlockingStub stub;
-
+    public grpc:Client client = new;
+    public HelloWorldBlockingStub stub = new;
 
     public function init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
@@ -127,9 +115,8 @@ public type HelloWorldBlockingClient object {
 
 public type HelloWorldClient object {
 
-    public grpc:Client client;
-    public HelloWorldStub stub;
-
+    public grpc:Client client = new;
+    public HelloWorldStub stub = new;
 
     public function init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.

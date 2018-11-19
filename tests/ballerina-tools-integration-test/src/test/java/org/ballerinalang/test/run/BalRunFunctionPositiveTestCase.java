@@ -64,4 +64,15 @@ public class BalRunFunctionPositiveTestCase extends BaseTest {
                 "just", "the", "rest"}, new LogLeecher[]{outLogLeecher});
         outLogLeecher.waitForText(2000);
     }
+
+    @Test(description = "test running a function where the function name has colons. " +
+            "e.g., ballerina run <SOURCE>:functionWithColons:inName")
+    public void testFunctionNameWithColons() throws BallerinaTestException {
+        String arg = "test arg";
+        sourceArg = (new File("src/test/resources/run/file/test_entry_function_with_colons.bal")).getAbsolutePath() +
+                ":colonsInName:Function";
+        LogLeecher outLogLeecher = new LogLeecher(arg);
+        balClient.runMain(sourceArg, new String[]{PRINT_RETURN}, new String[]{arg}, new LogLeecher[]{outLogLeecher});
+        outLogLeecher.waitForText(2000);
+    }
 }

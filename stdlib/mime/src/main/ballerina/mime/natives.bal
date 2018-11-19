@@ -18,41 +18,41 @@ import ballerina/file;
 import ballerina/io;
 
 # Key name for `boundary` parameter in MediaType. This is needed for composite type media types.
-@final public string BOUNDARY = "boundary";
+public const string BOUNDARY = "boundary";
 
 # Key name for `start` parameter in MediaType. This determines which part in the multipart message contains the
 # payload.
-@final public string START = "start";
+public const string START = "start";
 
 # Key name for `type` parameter in MediaType. This indicates the MIME media type of the `root` body part.
-@final public string TYPE = "type";
+public const string TYPE = "type";
 
 # Key name for `charset` parameter in MediaType. This indicates the character set of the body text.
-@final public string CHARSET = "charset";
+public const string CHARSET = "charset";
 
 # Default charset to be used with MIME encoding and decoding.
-@final public string DEFAULT_CHARSET = "UTF-8";
+public const string DEFAULT_CHARSET = "UTF-8";
 
 # Permission to be used with opening a byte channel for overflow data.
-@final io:Mode READ_PERMISSION = "r";
+const READ_PERMISSION = "r";
 
 # Represents `content-id` header name.
-@final public string CONTENT_ID = "content-id";
+public const string CONTENT_ID = "content-id";
 
 # Represents `content-length` header name.
-@final public string CONTENT_LENGTH = "content-length";
+public const string CONTENT_LENGTH = "content-length";
 
 # Represents `content-type` header name.
-@final public string CONTENT_TYPE = "content-type";
+public const string CONTENT_TYPE = "content-type";
 
 # Represents `content-disposition` header name.
-@final public string CONTENT_DISPOSITION = "content-disposition";
+public const string CONTENT_DISPOSITION = "content-disposition";
 
 # Represents MIME error code.
-@final string MIME_ERROR_CODE = "{ballerina/mime}MIMEError";
+const string MIME_ERROR_CODE = "{ballerina/mime}MIMEError";
 
 type MIMEError record {
-    string message;
+    string message = "";
 };
 
 # Represents values in `Content-Disposition` header.
@@ -64,10 +64,10 @@ type MIMEError record {
 # + parameters - A set of parameters, specified in attribute=value notation
 public type ContentDisposition object {
 
-    public string fileName;
-    public string disposition;
-    public string name;
-    public map<string> parameters;
+    public string fileName = "";
+    public string disposition = "";
+    public string name = "";
+    public map<string> parameters = {};
 
     # Converts the `ContentDisposition` type to a string suitable for use as the value of a corresponding MIME header.
     # + return - The `string` represnetation of the `ContentDisposition` object
@@ -82,10 +82,10 @@ public type ContentDisposition object {
 # + parameters - A set of parameters, specified in an attribute=value notation
 public type MediaType object {
 
-    public string primaryType;
-    public string subType;
-    public string suffix;
-    public map<string> parameters;
+    public string primaryType = "";
+    public string subType = "";
+    public string suffix = "";
+    public map<string> parameters = {};
 
     # Gets “primaryType/subtype+suffix” combination in string format.
     #
@@ -141,9 +141,11 @@ public type Entity object {
     # Sets the content-type to entity.
     #
     # + mediaType - Content type that needs to be set to the entity
-    public function setContentType(@sensitive string mediaType) {
+    # + return - Nil if successful, error in case of invalid media-type
+    public function setContentType(@sensitive string mediaType) returns error? {
         self.cType = check getMediaType(mediaType);
         self.setHeader(CONTENT_TYPE, mediaType);
+        return;
     }
 
     # Gets the content type of entity.
@@ -524,7 +526,7 @@ function getEncoding(MediaType contentType) returns (string) {
 # Given the Content-Type in string, gets the MediaType object populated with it.
 #
 # + contentType - Content-Type in string
-# + return - `MediaType` object or an error in case of error
+# + return - `MediaType` object or an error in case of invalid content-type
 public extern function getMediaType(string contentType) returns MediaType|error;
 
 # Given the Content-Disposition as a string, gets the ContentDisposition object with it.

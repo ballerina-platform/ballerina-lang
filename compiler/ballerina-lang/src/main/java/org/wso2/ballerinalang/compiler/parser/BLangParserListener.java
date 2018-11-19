@@ -287,8 +287,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean markdownDocExists = ctx.documentationString() != null;
         boolean isDeprecated = ctx.deprecatedAttachment() != null;
         boolean hasParameters = ctx.resourceParameterList() != null;
+        boolean hasRetParameter = ctx.returnParameter() != null;
         this.pkgBuilder.endResourceDef(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), markdownDocExists,
-                isDeprecated, hasParameters);
+                isDeprecated, hasParameters, hasRetParameter);
     }
 
     @Override
@@ -688,6 +689,20 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
+    public void exitConstantDefinition(BallerinaParser.ConstantDefinitionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        boolean isPublic = ctx.PUBLIC() != null;
+        boolean isTypeAvailable = ctx.typeName() != null;
+        this.pkgBuilder.addConstant(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), isPublic,
+                isTypeAvailable);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void exitGlobalVariableDefinition(BallerinaParser.GlobalVariableDefinitionContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -816,7 +831,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startVarList();
+        this.pkgBuilder.startRecordType();
     }
 
     @Override

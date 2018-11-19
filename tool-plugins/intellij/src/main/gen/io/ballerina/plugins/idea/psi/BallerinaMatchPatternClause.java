@@ -24,7 +24,13 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaMatchPatternClause extends BallerinaCompositeElement {
 
   @Nullable
+  BallerinaBindingPatternPattern getBindingPatternPattern();
+
+  @Nullable
   BallerinaNamedPattern getNamedPattern();
+
+  @Nullable
+  BallerinaSimpleLiteralPattern getSimpleLiteralPattern();
 
   @Nullable
   BallerinaUnnamedPattern getUnnamedPattern();

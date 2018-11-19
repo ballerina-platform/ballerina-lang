@@ -17,18 +17,18 @@
 import ballerina/http;
 
 public type Participant2pcClientConfig record {
-    string participantURL;
-    int timeoutMillis;
+    string participantURL = "";
+    int timeoutMillis = 0;
     record {
-        int count;
-        int interval;
-    } retryConfig;
+        int count = 0;
+        int interval = 0;
+    } retryConfig = {};
 };
 
 public type Participant2pcClientEP object {
 
-    http:Client httpClient;
-    Participant2pcClientConfig conf;
+    http:Client httpClient = new;
+    Participant2pcClientConfig conf = {};
 
     public function init(Participant2pcClientConfig c) {
         endpoint http:Client httpEP {
@@ -51,7 +51,7 @@ public type Participant2pcClientEP object {
 
 public type Participant2pcClient object {
 
-    Participant2pcClientEP clientEP;
+    Participant2pcClientEP clientEP = new;
 
     public function prepare(string transactionId) returns string|error {
         endpoint http:Client httpClient = self.clientEP.httpClient;

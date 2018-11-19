@@ -1,7 +1,7 @@
 public type ConstPool record {
-    PackageId[] packages;
-    string[] strings;
-    int[] ints;
+    PackageId[] packages = [];
+    string[] strings = [];
+    int[] ints = [];
 };
 
 public type ConstPoolParser object {

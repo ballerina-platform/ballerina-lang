@@ -29,12 +29,24 @@ service<http:Service> testService16 bind { port: 9118 } {
         path: "/"
     }
     getPayload(endpoint caller, http:Request request) {
-        http:Response res = check clientEP19->get("/payloadTest", message = ());
-        //First get the payload as a byte array, then take it as an xml
-        byte[] binaryPayload = check res.getBinaryPayload();
-        xml payload = check res.getXmlPayload();
-        xml descendants = payload.selectDescendants("title");
-        _ = caller->respond(untaint descendants.getTextValue());
+        var res = clientEP19->get("/payloadTest", message = ());
+        if (res is http:Response) {
+            //First get the payload as a byte array, then take it as an xml
+            var binaryPayload = res.getBinaryPayload();
+            if (binaryPayload is byte[]) {
+                var payload = res.getXmlPayload();
+                if (payload is xml) {
+                    xml descendants = payload.selectDescendants("title");
+                    _ = caller->respond(untaint descendants.getTextValue());
+                } else if (payload is error) {
+                    _ = caller->respond(untaint payload.reason());
+                }
+            } else if (binaryPayload is error) {
+                _ = caller->respond(untaint binaryPayload.reason());
+            }
+        } else if (res is error) {
+            _ = caller->respond(untaint res.reason());
+        }
     }
 }
 

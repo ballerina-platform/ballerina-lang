@@ -38,12 +38,12 @@ public class ObjectTypeReferenceTest {
     @Test
     public void testSimpleObjectTypeReferenceNegative_1() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-1-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 10);
+        Assert.assertEquals(negativeResult.getErrorCount(), 9);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Employee1' is not an abstract object", 32,
                 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'salary'", 48, 6);
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[Foo, A, B, C, D, E]'", 52, 1);
+//        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[Foo, A, B, C, D, E]'", 52, 1);
         BAssertUtil.validateError(negativeResult, i++,
                 "no implementation found for the function 'getSalary' of non-abstract object 'Manager2'", 96, 5);
         BAssertUtil.validateError(negativeResult, i++,

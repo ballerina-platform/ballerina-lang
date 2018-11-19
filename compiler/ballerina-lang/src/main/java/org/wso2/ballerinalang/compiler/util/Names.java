@@ -71,6 +71,7 @@ public class Names {
     public static final Name EP_SPI_GET_CALLER_ACTIONS = new Name("getCallerActions");
     public static final Name EP_SPI_START = new Name("start");
     public static final Name EP_SPI_STOP = new Name("stop");
+    // Todo - Remove
     public static final Name ANNOTATION_FINAL = new Name("final");
     public static final Name ANNOTATION_READONLY = new Name("readonly");
 

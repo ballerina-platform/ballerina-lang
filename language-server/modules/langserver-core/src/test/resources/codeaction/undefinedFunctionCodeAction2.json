@@ -10,24 +10,16 @@
     }
   },
   "expected": {
-    "title":"Create Function  addTwoIntegers2(...)",
+    "title":"Create Function addTwoIntegers2(...)",
     "command":"CREATE_FUNC",
     "arguments":[
       {
-        "argumentK":"function.returns",
-        "argumentV":"int"
+        "argumentK":"node.line",
+        "argumentV":"3"
       },
       {
-        "argumentK":"function.returns.default",
-        "argumentV":"    return 0;"
-      },
-      {
-        "argumentK":"function.arguments",
-        "argumentV":"int a, int b"
-      },
-      {
-        "argumentK":"function.name",
-        "argumentV":"addTwoIntegers2"
+        "argumentK":"node.column",
+        "argumentV":"11"
       }
     ]
   }
