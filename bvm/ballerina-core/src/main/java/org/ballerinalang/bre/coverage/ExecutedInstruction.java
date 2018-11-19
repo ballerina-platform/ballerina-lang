@@ -27,13 +27,9 @@ import org.ballerinalang.util.codegen.LineNumberInfo;
 public class ExecutedInstruction {
 
     private int ip;
-
     private String pkgPath;
-
     private String fileName;
-
     private String functionName;
-
     private LineNumberInfo lineNumberInfo;
 
     public ExecutedInstruction(int ip, String pkgPath, String fileName, String functionName,
