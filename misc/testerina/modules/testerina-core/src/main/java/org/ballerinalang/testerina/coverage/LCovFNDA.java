@@ -20,16 +20,14 @@ package org.ballerinalang.testerina.coverage;
 /**
  * Lcov formatted function execution data.
  *
- * @since 0.985
+ * @since 0.985.0
  */
 public class LCovFNDA {
 
     private int executionCount;
-
     private String functionName;
 
     public LCovFNDA(int executionCount, String functionName) {
-
         this.executionCount = executionCount;
         this.functionName = functionName;
     }
@@ -40,7 +38,6 @@ public class LCovFNDA {
      * @return function hit count
      */
     public int getExecutionCount() {
-
         return executionCount;
     }
 
@@ -50,7 +47,6 @@ public class LCovFNDA {
      * @param executionCount function hit count
      */
     public void setExecutionCount(int executionCount) {
-
         this.executionCount = executionCount;
     }
 
@@ -60,7 +56,6 @@ public class LCovFNDA {
      * @return function name
      */
     public String getFunctionName() {
-
         return functionName;
     }
 
@@ -70,7 +65,6 @@ public class LCovFNDA {
      * @param functionName function name
      */
     public void setFunctionName(String functionName) {
-
         this.functionName = functionName;
     }
 }

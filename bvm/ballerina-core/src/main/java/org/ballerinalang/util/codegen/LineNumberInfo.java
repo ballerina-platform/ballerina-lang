@@ -117,6 +117,11 @@ public class LineNumberInfo {
         this.endIp = endIp;
     }
 
+    /**
+     * Getter for the end Ip for the line.
+     *
+     * @return end Ip for the line
+     */
     public int getEndIp() {
         return endIp;
     }

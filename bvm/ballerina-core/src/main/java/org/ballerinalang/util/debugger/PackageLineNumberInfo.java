@@ -28,7 +28,7 @@ import java.util.Map;
  * Initializes and holds line number info for a module.
  * This includes line number info for a program file.
  *
- * @since 0.985
+ * @since 0.985.0
  *
  */
 public class PackageLineNumberInfo {
@@ -39,7 +39,6 @@ public class PackageLineNumberInfo {
     Map<String, LineNumberInfo> lineNumbers = new HashMap<>();
 
     public PackageLineNumberInfo(int instructionCount) {
-
         this.ipLineNos = new LineNumberInfo[instructionCount];
     }
 
@@ -78,7 +77,6 @@ public class PackageLineNumberInfo {
      * @return line number info holder object
      */
     public LineNumberInfo getLineNumberInfo(int ip) {
-
         return ipLineNos[ip];
     }
 
@@ -88,7 +86,6 @@ public class PackageLineNumberInfo {
      * @return line number info map for the program file
      */
     public Map<String, LineNumberInfo> getLineNumbers() {
-
         return lineNumbers;
     }
 }

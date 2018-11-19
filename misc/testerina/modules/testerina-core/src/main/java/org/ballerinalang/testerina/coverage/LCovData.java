@@ -23,7 +23,8 @@ import java.util.List;
 /**
  * Lcov formatted coverage data holder.
  *
- * @since 0.985
+ * @since 0.985.0
+ *
  * <p>
  * SOURCE: http://ltp.sourceforge.net/coverage/lcov/geninfo.1.php
  * <p>
@@ -105,11 +106,9 @@ import java.util.List;
 public class LCovData {
 
     private String testName;
-
     private List<LCovSourceFile> lCovSourceFileList = new LinkedList<>();
 
     public LCovData(String testName) {
-
         this.testName = testName;
     }
 
@@ -119,7 +118,6 @@ public class LCovData {
      * @return test name
      */
     public String getTestName() {
-
         return testName;
     }
 
@@ -129,7 +127,6 @@ public class LCovData {
      * @param testName test name
      */
     public void setTestName(String testName) {
-
         this.testName = testName;
     }
 
@@ -139,7 +136,6 @@ public class LCovData {
      * @return executed source file list with coverage data
      */
     public List<LCovSourceFile> getlCovSourceFileList() {
-
         return lCovSourceFileList;
     }
 }

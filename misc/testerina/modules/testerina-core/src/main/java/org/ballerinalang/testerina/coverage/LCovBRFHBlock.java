@@ -20,16 +20,14 @@ package org.ballerinalang.testerina.coverage;
 /**
  * Lcov formatted branch coverage data info holder for found and hit count.
  *
- * @since 0.985
+ * @since 0.985.0
  */
 public class LCovBRFHBlock {
 
     private int numOfBranchesFound;
-
     private int numOfBranchesHit;
 
     public LCovBRFHBlock(int numOfBranchesFound, int numOfBranchesHit) {
-
         this.numOfBranchesFound = numOfBranchesFound;
         this.numOfBranchesHit = numOfBranchesHit;
     }
@@ -40,7 +38,6 @@ public class LCovBRFHBlock {
      * @return number of branches found
      */
     public int getNumOfBranchesFound() {
-
         return numOfBranchesFound;
     }
 
@@ -50,7 +47,6 @@ public class LCovBRFHBlock {
      * @param numOfBranchesFound number of branches found
      */
     public void setNumOfBranchesFound(int numOfBranchesFound) {
-
         this.numOfBranchesFound = numOfBranchesFound;
     }
 
@@ -60,7 +56,6 @@ public class LCovBRFHBlock {
      * @return number of branches hit
      */
     public int getNumOfBranchesHit() {
-
         return numOfBranchesHit;
     }
 
@@ -70,7 +65,6 @@ public class LCovBRFHBlock {
      * @param numOfBranchesHit number of branches hit
      */
     public void setNumOfBranchesHit(int numOfBranchesHit) {
-
         this.numOfBranchesHit = numOfBranchesHit;
     }
 }

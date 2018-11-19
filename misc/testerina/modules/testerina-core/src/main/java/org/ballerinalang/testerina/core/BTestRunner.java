@@ -68,8 +68,7 @@ public class BTestRunner {
     private TesterinaReport tReport = new TesterinaReport();
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
     private List<String> sourcePackages = new ArrayList<>();
-
-    private boolean coverageFlag = false;
+    private boolean coverageDisabled = false;
 
     /**
      * Executes a given set of ballerina program files.
@@ -79,7 +78,6 @@ public class BTestRunner {
      * @param groups          List of groups to be included
      */
     public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups) {
-
         runTest(sourceRoot, sourceFilePaths, groups, true);
     }
 
@@ -174,7 +172,6 @@ public class BTestRunner {
      * @param sourceFilePaths List of @{@link Path} of ballerina files
      */
     private void compileAndBuildSuites(String sourceRoot, Path[] sourceFilePaths) {
-
         outStream.println("Compiling tests");
         if (sourceFilePaths.length == 0) {
             outStream.println("    No tests found");
@@ -190,7 +187,7 @@ public class BTestRunner {
             // print errors
             for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
                 errStream.println(diagnostic.getKind().toString().toLowerCase(Locale.ENGLISH) + ":"
-                        + diagnostic.getPosition() + " " + diagnostic.getMessage());
+                                          + diagnostic.getPosition() + " " + diagnostic.getMessage());
             }
             if (compileResult.getErrorCount() > 0) {
                 throw new BLangCompilerException("compilation contains errors");
@@ -272,13 +269,11 @@ public class BTestRunner {
 
     /**
      * Run all tests.
-     *
      * @param buildWithTests build with tests or just execute tests
      */
     private void execute(boolean buildWithTests, String sourceRoot) {
-
         Map<String, TestSuite> testSuites = registry.getTestSuites();
-        if (coverageFlag) {
+        if (!coverageDisabled) {
             CoverageManager coverageManager = CoverageManager.getInstance();
             Map<String, ProgramFile> programFilesForProject = new HashMap<>();
             for (ProgramFile programFile : registry.getProgramFiles()) {
@@ -316,7 +311,7 @@ public class BTestRunner {
             if (suite.getTests().size() == 0) {
                 outStream.println("\tNo tests found\n");
                 return;
-            } else if (coverageFlag) {
+            } else if (!coverageDisabled) {
                 //TODO: Add test coverage flag when compile time, since suite is generated with source it cannot be
                 // done for now
                 suite.getProgramFile().setFlags(suite.getProgramFile().getFlags() | ProgramFile.TEST_COVERAGE_FLAG);
@@ -378,7 +373,7 @@ public class BTestRunner {
                 TesterinaResult functionResult = null;
                 try {
                     if (isTestDependsOnFailedFunctions(test.getDependsOnTestFunctions(), failedOrSkippedTests)) {
-                        shouldSkipTest.set(true);
+                      shouldSkipTest.set(true);
                     }
 
                     // Check whether the this test depends on any failed or skipped functions
@@ -391,7 +386,7 @@ public class BTestRunner {
                             test.getTestFunction().invoke();
                             // report the test result
                             functionResult = new TesterinaResult(test.getTestFunction().getName(), true, shouldSkip
-                                    .get(), null);
+                                .get(), null);
                             tReport.addFunctionResult(packageName, functionResult);
                         } else {
                             List<BValue[]> argList = extractArguments(valueSets);
@@ -414,7 +409,7 @@ public class BTestRunner {
                     failedOrSkippedTests.add(test.getTestFunction().getName());
                     // report the test result
                     functionResult = new TesterinaResult(test.getTestFunction().getName(), false, shouldSkip.get(),
-                            e.getMessage());
+                                                         e.getMessage());
                     tReport.addFunctionResult(packageName, functionResult);
                 }
 
@@ -467,10 +462,9 @@ public class BTestRunner {
         });
 
         // Coverage report handling
-        if (!buildWithTests && coverageFlag) {
+        if (!buildWithTests && !coverageDisabled) {
 
             try {
-
                 CoverageManager coverageManager = CoverageManager.getInstance();
                 CoverageDataFormatter coverageDataFormatter = coverageManager.getCoverageDataFormatter();
                 List<LCovData> packageLCovDataList = coverageDataFormatter.getFormattedCoverageData(
@@ -488,18 +482,15 @@ public class BTestRunner {
     }
 
     private boolean isTestDependsOnFailedFunctions(List<String> failedOrSkippedTests, List<String> dependentTests) {
-
         return failedOrSkippedTests.stream().parallel().anyMatch(dependentTests::contains);
     }
 
     /**
      * Extract function arguments from the values sets.
-     *
      * @param valueSets user provided value sets
      * @return a list of function arguments
      */
     private List<BValue[]> extractArguments(BValue[] valueSets) {
-
         List<BValue[]> argsList = new ArrayList<>();
 
         for (BValue value : valueSets) {
@@ -531,13 +522,11 @@ public class BTestRunner {
      * @return {@link TesterinaReport} object
      */
     public TesterinaReport getTesterinaReport() {
-
         return tReport;
     }
 
-    public void setCoverageFlag(boolean coverageFlag) {
-
-        this.coverageFlag = coverageFlag;
+    public void setCoverageDisabled(boolean coverageDisabled) {
+        this.coverageDisabled = coverageDisabled;
     }
 }
 

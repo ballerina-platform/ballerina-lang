@@ -30,12 +30,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Initializes and holds line number info for each module for the project
+ * Initializes and holds line number info for each module for the project.
  *
- * @since 0.985
+ * @since 0.985.0
  *
  */
-public class LineNumberInfoHolder {
+public class ProjectLineNumberInfoHolder {
 
     private Map<String, PackageLineNumberInfo> packageInfoMap = new HashMap<>();
 
@@ -74,7 +74,6 @@ public class LineNumberInfoHolder {
     }
 
     public Map<String, PackageLineNumberInfo> getPackageInfoMap() {
-
         return packageInfoMap;
     }
 }

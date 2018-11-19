@@ -18,8 +18,9 @@
 package org.ballerinalang.testerina.coverage;
 
 import org.ballerinalang.bre.coverage.ExecutedInstruction;
+import org.ballerinalang.testerina.coverage.impl.LCovCoverageDataFormatterImpl;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.debugger.LineNumberInfoHolder;
+import org.ballerinalang.util.debugger.ProjectLineNumberInfoHolder;
 
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * This is singleton object which manages data and objects required for the coverage data and reports.
  *
- * @since 0.985
+ * @since 0.985.0
  */
 public class CoverageManager {
 
@@ -38,10 +39,8 @@ public class CoverageManager {
     // for the project there can be multiple modules and each will have programFile
     private static Map<String, ProgramFile> programFilesForProject;
 
-    private static Map<String, LineNumberInfoHolder> lineNumberInfoHolderForProject = new HashMap<>();
-
-    private static CoverageDataFormatter coverageDataFormatter = new CoverageDataFormatter();
-
+    private static Map<String, ProjectLineNumberInfoHolder> lineNumberInfoHolderForProject = new HashMap<>();
+    private static CoverageDataFormatter coverageDataFormatter = new LCovCoverageDataFormatterImpl();
     private static final CoverageManager coverageManger = new CoverageManager();
 
     private CoverageManager() {
@@ -49,7 +48,6 @@ public class CoverageManager {
     }
 
     public static CoverageManager getInstance() {
-
         return coverageManger;
     }
 
@@ -63,9 +61,9 @@ public class CoverageManager {
         CoverageManager.programFilesForProject = programFilesForProject;
 
         programFilesForProject.forEach((pkgPath, prjctProgramFile) -> {
-            LineNumberInfoHolder lineNumberInfoHolder = new LineNumberInfoHolder();
-            lineNumberInfoHolder.processPkgInfo(prjctProgramFile.getPackageInfoEntries());
-            lineNumberInfoHolderForProject.put(pkgPath, lineNumberInfoHolder);
+            ProjectLineNumberInfoHolder projectLineNumberInfoHolder = new ProjectLineNumberInfoHolder();
+            projectLineNumberInfoHolder.processPkgInfo(prjctProgramFile.getPackageInfoEntries());
+            lineNumberInfoHolderForProject.put(pkgPath, projectLineNumberInfoHolder);
         });
     }
 
@@ -74,8 +72,7 @@ public class CoverageManager {
      *
      * @return map of line number info for each module of the project
      */
-    public static Map<String, LineNumberInfoHolder> getLineNumberInfoHolderForProject() {
-
+    public static Map<String, ProjectLineNumberInfoHolder> getLineNumberInfoHolderForProject() {
         return lineNumberInfoHolderForProject;
     }
 
@@ -85,17 +82,15 @@ public class CoverageManager {
      * @return map of execution data of each Ip from each module of the project
      */
     public static Map<String, List<ExecutedInstruction>> getExecutedInstructionOrderMap() {
-
         return executedInstructionOrderMap;
     }
 
     /**
-     * Getter for Ip coverage data into lcov coverage data formatter.
+     * Getter for Ip coverage data into target coverage data formatter.
      *
-     * @return Ip coverage data into lcov coverage data formatter
+     * @return Ip coverage data into target coverage data formatter
      */
     public static CoverageDataFormatter getCoverageDataFormatter() {
-
         return coverageDataFormatter;
     }
 
@@ -105,7 +100,6 @@ public class CoverageManager {
      * @return program files map for each module
      */
     public static Map<String, ProgramFile> getProgramFilesForProject() {
-
         return programFilesForProject;
     }
 }

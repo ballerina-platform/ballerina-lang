@@ -145,10 +145,20 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
         this.servicesAvailable = servicesAvailable;
     }
 
+    /**
+     * Getter for bitwise flag field.
+     *
+     * @return bitwise ORed "|" flags
+     */
     public int getFlags() {
         return flags;
     }
 
+    /**
+     * Setter for bitwise flag field.
+     *
+     * @param flags bitwise ORed "|" flags
+     */
     public void setFlags(int flags) {
         this.flags = flags;
     }

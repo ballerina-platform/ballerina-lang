@@ -20,18 +20,15 @@ package org.ballerinalang.testerina.coverage;
 /**
  * Lcov formatted line execution count.
  *
- * @since 0.985
+ * @since 0.985.0
  */
 public class LCovDA {
 
     private int lineNumber;
-
     private int lineExecutionCount;
-
     private int checksum;
 
     public LCovDA(int lineNumber, int lineExecutionCount, int checksum) {
-
         this.lineNumber = lineNumber;
         this.lineExecutionCount = lineExecutionCount;
         this.checksum = checksum;
@@ -43,7 +40,6 @@ public class LCovDA {
      * @return executed line number
      */
     public int getLineNumber() {
-
         return lineNumber;
     }
 
@@ -53,7 +49,6 @@ public class LCovDA {
      * @param lineNumber executed line number
      */
     public void setLineNumber(int lineNumber) {
-
         this.lineNumber = lineNumber;
     }
 
@@ -63,7 +58,6 @@ public class LCovDA {
      * @return number of times a line is executed
      */
     public int getLineExecutionCount() {
-
         return lineExecutionCount;
     }
 
@@ -73,7 +67,6 @@ public class LCovDA {
      * @param lineExecutionCount number of times a line is executed
      */
     public void setLineExecutionCount(int lineExecutionCount) {
-
         this.lineExecutionCount = lineExecutionCount;
     }
 
@@ -93,7 +86,6 @@ public class LCovDA {
      * @param checksum checksum value
      */
     public void setChecksum(int checksum) {
-
         this.checksum = checksum;
     }
 }

@@ -20,20 +20,16 @@ package org.ballerinalang.testerina.coverage;
 /**
  * Lcov formatted branch coverage data info holder
  *
- * @since 0.985
+ * @since 0.985.0
  */
 public class LCovBRDA {
 
     private int lineNumber;
-
     private int blockNumber;
-
     private int branchNumber;
-
     private String taken;
 
     public LCovBRDA(int lineNumber, int blockNumber, int branchNumber, String taken) {
-
         this.lineNumber = lineNumber;
         this.blockNumber = blockNumber;
         this.branchNumber = branchNumber;
@@ -46,7 +42,6 @@ public class LCovBRDA {
      * @return line number
      */
     public int getLineNumber() {
-
         return lineNumber;
     }
 
@@ -56,7 +51,6 @@ public class LCovBRDA {
      * @param lineNumber line number
      */
     public void setLineNumber(int lineNumber) {
-
         this.lineNumber = lineNumber;
     }
 
@@ -67,7 +61,6 @@ public class LCovBRDA {
      * @return source code block number
      */
     public int getBlockNumber() {
-
         return blockNumber;
     }
 
@@ -78,7 +71,6 @@ public class LCovBRDA {
      * @param blockNumber source code block number
      */
     public void setBlockNumber(int blockNumber) {
-
         this.blockNumber = blockNumber;
     }
 
@@ -89,7 +81,6 @@ public class LCovBRDA {
      * @return source code branch number
      */
     public int getBranchNumber() {
-
         return branchNumber;
     }
 
@@ -100,7 +91,6 @@ public class LCovBRDA {
      * @param branchNumber source code branch number
      */
     public void setBranchNumber(int branchNumber) {
-
         this.branchNumber = branchNumber;
     }
 
@@ -110,7 +100,6 @@ public class LCovBRDA {
      * @return line executed status
      */
     public String getTaken() {
-
         return taken;
     }
 
@@ -120,7 +109,6 @@ public class LCovBRDA {
      * @param taken line executed status
      */
     public void setTaken(String taken) {
-
         this.taken = taken;
     }
 }

@@ -20,16 +20,14 @@ package org.ballerinalang.testerina.coverage;
 /**
  * Lcov formatted function data.
  *
- * @since 0.985
+ * @since 0.985.0
  */
 public class LCovFN {
 
     private int funcStartLineNum;
-
     private String functionName;
 
     public LCovFN(int funcStartLineNum, String functionName) {
-
         this.funcStartLineNum = funcStartLineNum;
         this.functionName = functionName;
     }
@@ -40,7 +38,6 @@ public class LCovFN {
      * @return function start line number
      */
     public int getFuncStartLineNum() {
-
         return funcStartLineNum;
     }
 
@@ -50,7 +47,6 @@ public class LCovFN {
      * @param funcStartLineNum function start line number
      */
     public void setFuncStartLineNum(int funcStartLineNum) {
-
         this.funcStartLineNum = funcStartLineNum;
     }
 
@@ -60,7 +56,6 @@ public class LCovFN {
      * @return function name
      */
     public String getFunctionName() {
-
         return functionName;
     }
 
@@ -70,7 +65,6 @@ public class LCovFN {
      * @param functionName function name
      */
     public void setFunctionName(String functionName) {
-
         this.functionName = functionName;
     }
 }

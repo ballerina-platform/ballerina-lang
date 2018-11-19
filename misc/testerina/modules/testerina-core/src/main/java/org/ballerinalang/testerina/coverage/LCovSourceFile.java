@@ -23,31 +23,22 @@ import java.util.List;
 /**
  * Lcov formatted source file data.
  *
- * @since 0.985
+ * @since 0.985.0
  */
 public class LCovSourceFile {
 
     private String sourceFilePath;
-
     private List<LCovFN> lCovFNList = new LinkedList<>();
-
     private List<LCovFNDA> lCovFNDAList = new LinkedList<>();
-
     private List<LCovFNFHBlock> lCovFNFHBlockList = new LinkedList<>();
-
     private List<LCovBRDA> lCovBRDAList = new LinkedList<>();
-
     private List<LCovBRFHBlock> lCovBRFHBlockList = new LinkedList<>();
-
     private List<LCovDA> lCovDAList = new LinkedList<>();
-
     private int numOfLineExecuted;
-
     private int numOfInstrumentedLines;
 
     public LCovSourceFile(String sourceFilePath, int numOfLineExecuted,
                           int numOfInstrumentedLines) {
-
         this.sourceFilePath = sourceFilePath;
         this.numOfLineExecuted = numOfLineExecuted;
         this.numOfInstrumentedLines = numOfInstrumentedLines;
@@ -59,7 +50,6 @@ public class LCovSourceFile {
      * @return source file path
      */
     public String getSourceFilePath() {
-
         return sourceFilePath;
     }
 
@@ -69,7 +59,6 @@ public class LCovSourceFile {
      * @param sourceFilePath source file path
      */
     public void setSourceFilePath(String sourceFilePath) {
-
         this.sourceFilePath = sourceFilePath;
     }
 
@@ -79,7 +68,6 @@ public class LCovSourceFile {
      * @return lcov formatted function data list
      */
     public List<LCovFN> getlCovFNList() {
-
         return lCovFNList;
     }
 
@@ -99,7 +87,6 @@ public class LCovSourceFile {
      * @return lcov formatted function blocks with found and hit count list
      */
     public List<LCovFNFHBlock> getlCovFNFHBlockList() {
-
         return lCovFNFHBlockList;
     }
 
@@ -119,7 +106,6 @@ public class LCovSourceFile {
      * @return lcov formatted branch hit count list
      */
     public List<LCovBRFHBlock> getlCovBRFHBlockList() {
-
         return lCovBRFHBlockList;
     }
 
@@ -129,7 +115,6 @@ public class LCovSourceFile {
      * @return lcov formatted line hit count list
      */
     public List<LCovDA> getlCovDAList() {
-
         return lCovDAList;
     }
 
@@ -139,7 +124,6 @@ public class LCovSourceFile {
      * @return lcov formatted number of lines executed in the source file
      */
     public int getNumOfLineExecuted() {
-
         return numOfLineExecuted;
     }
 
@@ -149,7 +133,6 @@ public class LCovSourceFile {
      * @param numOfLineExecuted lcov formatted number of lines executed in the source file
      */
     public void setNumOfLineExecuted(int numOfLineExecuted) {
-
         this.numOfLineExecuted = numOfLineExecuted;
     }
 
@@ -159,7 +142,6 @@ public class LCovSourceFile {
      * @return lcov formatted number of instrumented lines in the source file
      */
     public int getNumOfInstrumentedLines() {
-
         return numOfInstrumentedLines;
     }
 
@@ -169,7 +151,6 @@ public class LCovSourceFile {
      * @param numOfInstrumentedLines lcov formatted number of instrumented lines in the source file
      */
     public void setNumOfInstrumentedLines(int numOfInstrumentedLines) {
-
         this.numOfInstrumentedLines = numOfInstrumentedLines;
     }
 }

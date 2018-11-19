@@ -23,7 +23,7 @@ import org.ballerinalang.bre.coverage.ExecutedInstruction;
 import org.ballerinalang.bre.coverage.InstructionHandler;
 import org.ballerinalang.testerina.coverage.CoverageManager;
 import org.ballerinalang.util.codegen.LineNumberInfo;
-import org.ballerinalang.util.debugger.LineNumberInfoHolder;
+import org.ballerinalang.util.debugger.ProjectLineNumberInfoHolder;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,17 +33,15 @@ import java.util.Map;
 /**
  * This is CPU Ip interceptor API for coverage data collection.
  *
- * @since 0.985
+ * @since 0.985.0
  */
 @JavaSPIService("org.ballerinalang.bre.coverage.InstructionHandler")
 public class CoverageInstructionHandlerImpl implements InstructionHandler {
 
     Map<String, List<ExecutedInstruction>> executedInstructionOrderMap;
-
-    Map<String, LineNumberInfoHolder> lineNumberInfoHolderForProject;
+    Map<String, ProjectLineNumberInfoHolder> lineNumberInfoHolderForProject;
 
     public CoverageInstructionHandlerImpl() {
-
         CoverageManager coverageManager = CoverageManager.getInstance();
         this.executedInstructionOrderMap = coverageManager.getExecutedInstructionOrderMap();
         this.lineNumberInfoHolderForProject = coverageManager.getLineNumberInfoHolderForProject();
@@ -57,10 +55,11 @@ public class CoverageInstructionHandlerImpl implements InstructionHandler {
     public void handle(WorkerExecutionContext ctx) {
 
         String entryPkgPath = ctx.programFile.getEntryPackage().pkgPath;
-        LineNumberInfoHolder lineNumberInfoHolderForPkg = lineNumberInfoHolderForProject.get(entryPkgPath);
+        ProjectLineNumberInfoHolder projectLineNumberInfoHolderForPkg =
+                                                                    lineNumberInfoHolderForProject.get(entryPkgPath);
 
         String pkgPath = ctx.callableUnitInfo.getPkgPath();
-        LineNumberInfo lineNumberInfoCurrentPkg = lineNumberInfoHolderForPkg.getPackageInfoMap()
+        LineNumberInfo lineNumberInfoCurrentPkg = projectLineNumberInfoHolderForPkg.getPackageInfoMap()
                 .get(pkgPath).getLineNumberInfo(ctx.ip);
 
         ExecutedInstruction executedInstruction = new ExecutedInstruction(ctx.ip, pkgPath,

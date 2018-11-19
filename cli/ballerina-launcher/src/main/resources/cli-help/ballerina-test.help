@@ -3,7 +3,7 @@ NAME
     test results.
 
 SYNOPSIS
-    ballerina test [--coverage] [-lg|--list-groups] [--groups <test_group, ...>]
+    ballerina test [--nocoverage] [-lg|--list-groups] [--groups <test_group, ...>]
         [--disable-groups <test_group, ...>] [--sourceroot <path>]
         [-e] [--debug <port>] [-c <config_file>]
         [--exclude-modules <modules, ...>]
@@ -28,8 +28,10 @@ DESCRIPTION
 
 OPTIONS
 
-     --coverage
-         This is to create coverage reports for the project / module.s
+     --nocoverage
+         As default, always on project target/coverage folder, there
+         will be coverage report created for the specified project / module.
+         This is to stop creating the coverage reports.
          This will output lcov formatted data file and from this UI rich
          report can be generated. To customize the location of the file and
          file name use config file.

@@ -521,6 +521,11 @@ public class Debugger {
         this.debugEnabled = true;
     }
 
+    /**
+     * Getter for debugger info holder.
+     *
+     * @return debugger info holder
+     */
     public DebugInfoHolder getDebugInfoHolder() {
         return debugInfoHolder;
     }

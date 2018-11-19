@@ -22,7 +22,7 @@ import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 /**
  * This is CPU Ip interceptor API for debugger and coverage data collection.
  *
- * @since 0.985
+ * @since 0.985.0
  */
 public interface InstructionHandler {
 

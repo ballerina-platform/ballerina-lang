@@ -52,7 +52,6 @@ public class Names {
     public static final Name TEST_START_FUNCTION_SUFFIX = new Name(".<teststart>");
     public static final Name TEST_STOP_FUNCTION_SUFFIX = new Name(".<teststop>");
     public static final Name INIT_ACTION_SUFFIX = new Name("<init>");
-    public static final Name START_ACTION_SUFFIX = new Name("<start>");
     public static final Name SELF = new Name("self");
     public static final Name OBJECT_INIT_SUFFIX = new Name("new");
     // TODO remove when current project name is read from manifest
