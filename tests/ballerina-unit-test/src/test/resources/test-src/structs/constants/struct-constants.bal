@@ -6,7 +6,7 @@ public function main (string... i) {
 }
 
 type Person record {
-    string name;
-    map adrs;
-    int age;
+    string name = "";
+    map adrs = {};
+    int age = 0;
 };

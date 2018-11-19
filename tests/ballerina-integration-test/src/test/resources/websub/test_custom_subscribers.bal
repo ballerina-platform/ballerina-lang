@@ -21,8 +21,8 @@ import ballerina/websub;
 @final string MOCK_HEADER = "MockHeader";
 
 public type WebhookListenerConfiguration record {
-    string host;
-    int port;
+    string host = "";
+    int port = 0;
 };
 
 public type MockActionEvent record {
@@ -120,12 +120,12 @@ public type WebhookServiceForPayload object {
 
 public type WebhookListenerForPayload object {
 
-    public WebhookListenerConfiguration webhookListenerConfig;
+    public WebhookListenerConfiguration webhookListenerConfig = {};
 
     private websub:Listener websubListener;
 
     public new() {
-        websubListener = new;
+        self.websubListener = new;
     }
 
     public function init(WebhookListenerConfiguration config) {
@@ -176,12 +176,12 @@ public type WebhookServiceForHeader object {
 
 public type WebhookListenerForHeader object {
 
-    public WebhookListenerConfiguration webhookListenerConfig;
+    public WebhookListenerConfiguration webhookListenerConfig = {};
 
     private websub:Listener websubListener;
 
     public new() {
-        websubListener = new;
+        self.websubListener = new;
     }
 
     public function init(WebhookListenerConfiguration config) {
@@ -227,12 +227,12 @@ public type WebhookServiceForHeaderAndPayload object {
 
 public type WebhookListenerForHeaderAndPayload object {
 
-    public WebhookListenerConfiguration webhookListenerConfig;
+    public WebhookListenerConfiguration webhookListenerConfig = {};
 
     private websub:Listener websubListener;
 
     public new() {
-        websubListener = new;
+        self.websubListener = new;
     }
 
     public function init(WebhookListenerConfiguration config) {

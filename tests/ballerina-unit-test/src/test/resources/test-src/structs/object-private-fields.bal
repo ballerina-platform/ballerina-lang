@@ -1,44 +1,44 @@
 import org.foo;
 
 public type employee01 object {
-    public int age;
-    public string name;
-    public string address;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
     public string zipcode = "95134";
 
-    string ssn;
-    int id;
+    string ssn = "";
+    int id = 0;
     int employeeId = 123456;
 };
 
 public type person object {
-    public int age;
-    public string name;
-    public string address;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
     public string zipcode = "95134";
-    public string ssn;
-    public int id;
+    public string ssn = "";
+    public int id = 0;
 };
 
 public type employee object {
-    public int age;
-    public string name;
-    public string address;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
     public string zipcode = "95134";
-    public string ssn;
-    public int id;
+    public string ssn = "";
+    public int id = 0;
     public int employeeId = 123456;
 };
 
 public type userA object {
-    public int age;
-    public string name;
+    public int age = 0;
+    public string name = "";
 };
 
 public type userB object {
-    public int age;
-    public string name;
-    public string address;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
 };
 
 public function textPrivateFieldAccess1 () returns (string, string, string, int, int) {
@@ -81,7 +81,7 @@ public function testCompileTimeStructEqWithPrivateFieldsTwoPackages () returns (
     return (u.age, u.name, u.zipcode);
 }
 
-public function testRuntimeStructEqWithPrivateFields () returns (string, string, string, int, int) {
+public function testRuntimeStructEqWithPrivateFields () returns (string, string, string, int, int)|error {
     employee e = new;
     e.age = 24;
     e.name = "jay";
@@ -90,16 +90,16 @@ public function testRuntimeStructEqWithPrivateFields () returns (string, string,
     e.id = 458;
 
     // This is a safe cast
-    person p = <person>e;
+    person p = <person> e;
 
-    // Now I want cat p back to be an employee instance.
-    var e1 = check < employee > p;
+    // Now I want p back to be an employee instance
+    var e1 = check <employee> p;
 
 
     return (e1.name, e1.zipcode, e1.ssn, e1.id, e1.employeeId);
 }
 
-public function testRuntimeStructEqWithPrivateFieldsTwoPackages1 () returns (string, string, string, int) {
+public function testRuntimeStructEqWithPrivateFieldsTwoPackages1 () returns (string, string, string, int)|error {
     employee e = new;
     e.age = 24;
     e.name = "jay";
@@ -109,20 +109,20 @@ public function testRuntimeStructEqWithPrivateFieldsTwoPackages1 () returns (str
     // This is a safe cast
     foo:userObject u = <foo:userObject>e;
 
-    // Now I want cat u back to be an employee instance.
-    var p = check < person > u;
+    // Now I want convert u back to be an employee instance.
+    var p = check <person> u;
 
 
     return (p.name, p.zipcode, p.ssn, p.id);
 }
 
-public function testRuntimeStructEqWithPrivateFieldsTwoPackages2 () returns (string, int) {
+public function testRuntimeStructEqWithPrivateFieldsTwoPackages2 () returns (string, int)|error {
     foo:userObject u = foo:newUserObject();
 
     // This is a safe cast
     var uA = <userA>u;
 
     // This is a unsafe cast
-    var uB = check < userB > uA;
+    var uB = check <userB> uA;
     return (uB.name, uB.age);
 }

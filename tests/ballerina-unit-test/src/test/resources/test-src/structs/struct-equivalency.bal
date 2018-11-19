@@ -4,12 +4,12 @@ import req;
 import req2;
 
 public type person1 record {
-    int age;
-    string name;
-    string address;
+    int age = 0;
+    string name = "";
+    string address = "";
     string zipcode = "95134";
-    string ssn;
-    int id;
+    string ssn = "";
+    int id = 0;
 };
 
 public function <person1 p>  person1 () {
@@ -32,12 +32,12 @@ public function <person1 p> setSSN (string ssn) {
 }
 
 public type employee1 record {
-    int age;
-    string name;
-    string address;
+    int age = 0;
+    string name = "";
+    string address = "";
     string zipcode = "95134";
-    string ssn;
-    int id;
+    string ssn = "";
+    int id = 0;
     int employeeId = 123456;
 };
 
@@ -75,12 +75,12 @@ function testEquivalenceOfPrivateStructsInSamePackage () returns (string) {
 }
 
 public type person2 record {
-    int age;
-    string name;
-    string address;
+    int age = 0;
+    string name = "";
+    string address = "";
     string zipcode = "95134";
-    string ssn;
-    int id;
+    string ssn = "";
+    int id = 0;
 };
 
 public function <person2 p> getName () returns (string) {
@@ -100,12 +100,12 @@ public function <person2 p> setSSN (string ssn) {
 }
 
 public type employee2 record {
-    int age;
-    string name;
-    string address;
+    int age = 0;
+    string name = "";
+    string address = "";
     string zipcode = "95134";
-    string ssn;
-    int id;
+    string ssn = "";
+    int id = 0;
     int employeeId = 123456;
 };
 
@@ -150,12 +150,12 @@ function testEqOfPublicStructs () returns (string) {
 
 
 public type employee3 record {
-    int age;
-    string name;
-    string address;
+    int age = 0;
+    string name = "";
+    string address = "";
     string zipcode = "95134";
-    string ssn;
-    int id;
+    string ssn = "";
+    int id = 0;
     int employeeId = 123456;
 };
 
@@ -201,8 +201,8 @@ function testEqOfPublicStructs2 () returns (string) {
 
 
 type userA record {
-    int age;
-    string name;
+    int age = 0;
+    string name = "";
 };
 
 function <userA ua> getName () returns (string) {
@@ -214,9 +214,9 @@ function <userA ua> getAge () returns (int) {
 }
 
 type userB record {
-    int age;
-    string name;
-    string address;
+    int age = 0;
+    string name = "";
+    string address = "";
 };
 
 function <userB ub> getName () returns (string) {
@@ -228,9 +228,9 @@ function <userB ub> getAge () returns (int) {
 }
 
 type userFoo record {
-    int age;
-    string name;
-    string address;
+    int age = 0;
+    string name = "";
+    string address = "";
     string zipcode = "23468";
 };
 
@@ -256,8 +256,8 @@ function testRuntimeEqPrivateStructsInSamePackage () returns (string) {
 
 
 public type userPA record {
-    int age;
-    string name;
+    int age = 0;
+    string name = "";
 };
 
 public function <userPA ua> getName () returns (string) {
@@ -269,9 +269,9 @@ public function <userPA ua> getAge () returns (int) {
 }
 
 public type userPB record {
-    int age;
-    string name;
-    string address;
+    int age = 0;
+    string name = "";
+    string address = "";
 };
 
 public function <userPB ub> getName () returns (string) {
@@ -283,9 +283,9 @@ public function <userPB ub> getAge () returns (int) {
 }
 
 public type userPFoo record {
-    int age;
-    string name;
-    string address;
+    int age = 0;
+    string name = "";
+    string address = "";
     string zipcode = "23468";
 };
 
@@ -341,8 +341,8 @@ function testRuntimeEqPublicStructs1 () returns (string) {
 }
 
 type personC record {
-    string name;
-    addressStruct address;
+    string name = "";
+    addressStruct address = {};
 };
 
 function <personC p> setContact(addressStruct ad){
@@ -354,8 +354,8 @@ function <personC p> getAddress() returns (string){
 }
 
 type addressStruct record {
-    int no;
-    string city;
+    int no = 0;
+    string city = "";
 };
 
 function <addressStruct ad> toString() returns (string){
@@ -363,9 +363,9 @@ function <addressStruct ad> toString() returns (string){
 }
 
 type officeAddressStruct record {
-    int no;
-    string city;
-    string department;
+    int no = 0;
+    string city = "";
+    string department = "";
 };
 
 function <officeAddressStruct ad> toString() returns (string){
@@ -421,7 +421,7 @@ function <AnyStruct a> call () returns (AnotherAnyStruct) {
 }
 
 type SomeStruct record {
-    string s;
+    string s = "";
 };
 
 function <SomeStruct b> shout (SomeOtherStruct aa) returns (string) {
@@ -438,7 +438,7 @@ function <SomeStruct b> call () returns (SomeOtherStruct) {
 }
 
 type SomeOtherStruct record {
-    string s;
+    string s = "";
 };
 
 type AnotherAnyStruct record {
