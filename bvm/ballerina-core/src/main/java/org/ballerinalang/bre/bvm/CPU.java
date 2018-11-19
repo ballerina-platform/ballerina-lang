@@ -140,6 +140,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
@@ -4211,13 +4212,13 @@ public class CPU {
             return false;
         }
 
-        BRefType<?>[] arrayValues = ((BRefValueArray) sourceValue).getValues();
-        for (int i = 0; i < ((BRefValueArray) sourceValue).size(); i++) {
-            if (!checkIsLikeType(arrayValues[i], targetType.getTupleTypes().get(i))) {
-                return false;
-            }
+        BRefValueArray source = (BRefValueArray) sourceValue;
+        if (source.getValues().length != targetType.getTupleTypes().size()) {
+            return false;
         }
-        return true;
+
+        return IntStream.range(0, source.getValues().length)
+                .allMatch(i -> checkIsLikeType(source.get(i), targetType.getTupleTypes().get(i)));
     }
 
     private static boolean checkIsLikeArrayType(BValue sourceValue, BArrayType targetType) {
