@@ -22,10 +22,9 @@ import ballerina/log;
 public type SimpleTopicSubscriber object {
 
     public SimpleTopicSubscriberEndpointConfiguration config;
-
     private Connection? connection;
-    private Session? session;
-    private TopicSubscriber? subscriber;
+    private Session? session = ();
+    private TopicSubscriber? subscriber = ();
 
     # Initialize simple topic subscirber endpoint
     #
@@ -33,15 +32,15 @@ public type SimpleTopicSubscriber object {
     public function init(SimpleTopicSubscriberEndpointConfiguration c) {
         self.config = c;
         Connection conn = new({
-                initialContextFactory: config.initialContextFactory,
-                providerUrl: config.providerUrl,
-                connectionFactoryName: config.connectionFactoryName,
-                properties: config.properties
+                initialContextFactory: self.config.initialContextFactory,
+                providerUrl: self.config.providerUrl,
+                connectionFactoryName: self.config.connectionFactoryName,
+                properties: self.config.properties
             });
         self.connection = conn;
 
         Session newSession = new(conn, {
-                acknowledgementMode: config.acknowledgementMode
+                acknowledgementMode: self.config.acknowledgementMode
             });
         self.session = newSession;
 
@@ -59,16 +58,14 @@ public type SimpleTopicSubscriber object {
     #
     # + serviceType - Type descriptor of the service
     public function register(typedesc serviceType) {
-        match (subscriber) {
-            TopicSubscriber c => {
-                c.register(serviceType);
-            }
-            () => {
-                string errorMessage = "Topic Subscriber cannot be nil";
-                map errorDetail = { message: errorMessage };
-                error e = error(JMS_ERROR_CODE, errorDetail);
-                panic e;
-            }
+        var subscriber = self.subscriber;
+        if (subscriber is TopicSubscriber) {
+            subscriber.register(serviceType);
+        } else {
+            string errorMessage = "Topic Subscriber cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
 
@@ -81,14 +78,14 @@ public type SimpleTopicSubscriber object {
     #
     # + return - Topic subscriber actions
     public function getCallerActions() returns TopicSubscriberActions {
-        match (subscriber) {
-            TopicSubscriber c => return c.getCallerActions();
-            () => {
-                string errorMessage = "Topic Subscriber cannot be nil";
-                map errorDetail = { message: errorMessage };
-                error e = error(JMS_ERROR_CODE, errorDetail);
-                panic e;
-            }
+        var subscriber = self.subscriber;
+        if (subscriber is TopicSubscriber) {
+            return subscriber.getCallerActions();
+        } else {
+            string errorMessage = "Topic Subscriber cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
 
@@ -102,14 +99,14 @@ public type SimpleTopicSubscriber object {
     # + message - A message body to create a text message
     # + return - a message or nil if the session is nil
     public function createTextMessage(string message) returns Message|error {
-        match (session) {
-            Session s => return s.createTextMessage(message);
-            () => {
-                string errorMessage = "Session cannot be nil";
-                map errorDetail = { message: errorMessage };
-                error e = error(JMS_ERROR_CODE, errorDetail);
-                panic e;
-            }
+        var session = self.session;
+        if (session is Session) {
+            return session.createTextMessage(message);
+        } else {
+            string errorMessage = "Session cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
 
@@ -118,14 +115,14 @@ public type SimpleTopicSubscriber object {
     # + message - A message body to create a map message
     # + return - a message or nil if the session is nil.
     public function createMapMessage(map message) returns Message|error {
-        match (session) {
-            Session s => return s.createMapMessage(message);
-            () => {
-                string errorMessage = "Session cannot be nil";
-                map errorDetail = { message: errorMessage };
-                error e = error(JMS_ERROR_CODE, errorDetail);
-                panic e;
-            }
+        var session = self.session;
+        if (session is Session) {
+            return session.createMapMessage(message);
+        } else {
+            string errorMessage = "Session cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
 };

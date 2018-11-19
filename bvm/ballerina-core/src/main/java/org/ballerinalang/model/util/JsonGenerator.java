@@ -19,6 +19,7 @@ package org.ballerinalang.model.util;
 
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -31,6 +32,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.util.Map.Entry;
 
@@ -242,7 +244,12 @@ public class JsonGenerator {
         this.processValueInit();
         this.writer.write(Double.toString(value));
     }
-    
+
+    public void writeNumber(BigDecimal value) throws IOException {
+        this.processValueInit();
+        this.writer.write(value.toString());
+    }
+
     public void writeBoolean(boolean value) throws IOException {
         this.processValueInit();
         this.writer.write(Boolean.toString(value));
@@ -291,6 +298,9 @@ public class JsonGenerator {
                 break;
             case TypeTags.FLOAT_TAG:
                 this.writeNumber(((BFloat) json).floatValue());
+                break;
+            case TypeTags.DECIMAL_TAG:
+                this.writeNumber(((BDecimal) json).decimalValue());
                 break;
             case TypeTags.INT_TAG:
                 this.writeNumber(((BInteger) json).intValue());

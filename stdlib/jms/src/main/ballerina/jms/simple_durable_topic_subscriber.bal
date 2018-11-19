@@ -22,12 +22,12 @@ import ballerina/log;
 # + config - configurations related to the endpoint
 public type SimpleDurableTopicSubscriber object {
 
-    public SimpleDurableTopicSubscriberEndpointConfiguration config;
+    public SimpleDurableTopicSubscriberEndpointConfiguration config = {};
 
-    private Connection? connection;
-    private Session? session;
-    private DurableTopicSubscriber? subscriber;
-    private SimpleDurableTopicSubscriberActions? consumerActions;
+    private Connection? connection = ();
+    private Session? session = ();
+    private DurableTopicSubscriber? subscriber = ();
+    private SimpleDurableTopicSubscriberActions? consumerActions = ();
 
     # Initializes the simple durable topic subscriber endpoint
     #
@@ -35,15 +35,15 @@ public type SimpleDurableTopicSubscriber object {
     public function init(SimpleDurableTopicSubscriberEndpointConfiguration c) {
         self.config = c;
         Connection conn = new({
-                initialContextFactory: config.initialContextFactory,
-                providerUrl: config.providerUrl,
-                connectionFactoryName: config.connectionFactoryName,
-                properties: config.properties
+                initialContextFactory: self.config.initialContextFactory,
+                providerUrl: self.config.providerUrl,
+                connectionFactoryName: self.config.connectionFactoryName,
+                properties: self.config.properties
             });
         self.connection = conn;
 
         Session newSession = new(conn, {
-                acknowledgementMode: config.acknowledgementMode
+                acknowledgementMode: self.config.acknowledgementMode
             });
         self.session = newSession;
 
@@ -64,14 +64,14 @@ public type SimpleDurableTopicSubscriber object {
     #
     # + serviceType - type descriptor of the service to bind to
     public function register(typedesc serviceType) {
-        match (subscriber) {
-            DurableTopicSubscriber c => {
-                c.register(serviceType);
-            }
-            () => {
-                error e = error("{ballerina/jms}JMSError", { message: "Topic Subscriber cannot be nil" });
-                panic e;
-            }
+        var subscriber = self.subscriber;
+        if (subscriber is DurableTopicSubscriber) {
+            subscriber.register(serviceType);
+        } else {
+            string errorMessage = "Topic Subscriber cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
 
@@ -84,14 +84,14 @@ public type SimpleDurableTopicSubscriber object {
     #
     # + return - Durable topic subscriber actions
     public function getCallerActions() returns SimpleDurableTopicSubscriberActions {
-        match (consumerActions) {
-            SimpleDurableTopicSubscriberActions c => return c;
-            () => {
-                string errorMessage = "Consumer actions cannot be nil";
-                map errorDetail = { message: errorMessage };
-                error e = error(JMS_ERROR_CODE, errorDetail);
-                panic e;
-            }
+        var consumerActions = self.consumerActions;
+        if (consumerActions is SimpleDurableTopicSubscriberActions) {
+            return consumerActions;
+        } else {
+            string errorMessage = "Consumer actions cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
 
@@ -105,14 +105,14 @@ public type SimpleDurableTopicSubscriber object {
     # + message - text content of the message
     # + return - the created message, or nil if the session is nil
     public function createTextMessage(string message) returns Message|error {
-        match (session) {
-            Session s => return s.createTextMessage(message);
-            () => {
-                string errorMessage = "Session cannot be nil";
-                map errorDetail = { message: errorMessage };
-                error e = error(JMS_ERROR_CODE, errorDetail);
-                panic e;
-            }
+        var session = self.session;
+        if (session is Session) {
+            return session.createTextMessage(message);
+        } else {
+            string errorMessage = "Session cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
 };
@@ -164,7 +164,7 @@ public type SimpleDurableTopicSubscriberActions object {
     # + timeoutInMilliSeconds - time to wait until a message is received
     # + return - Returns a message or nill if the timeout exceededs. Returns an error on jms provider internal error.
     public function receive(int timeoutInMilliSeconds = 0) returns (Message|error)? {
-        return helper.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
+        return self.helper.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
     }
 
     # Unsubscribes the durable subscriber from topic

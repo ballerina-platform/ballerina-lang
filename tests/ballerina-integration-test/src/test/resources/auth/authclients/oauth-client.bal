@@ -19,60 +19,60 @@ import ballerina/io;
 import ballerina/mime;
 
 endpoint http:Client clientEP1 {
-    url:"http://localhost:9095/foo",
+    url:"https://localhost:9095/foo",
     auth: {
         scheme: http:OAUTH2,
         refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
         clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
         clientSecret: "9205371918321623741",
-        refreshUrl: "http://localhost:9095/foo/token",
+        refreshUrl: "https://localhost:9095/foo/token",
         credentialBearer: http:POST_BODY_BEARER
     }
 };
 
 endpoint http:Client clientEP2 {
-    url:"http://localhost:9095/foo",
+    url:"https://localhost:9095/foo",
     auth: {
         scheme: http:OAUTH2,
         refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
         clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
         clientSecret: "9205371918321623741",
-        refreshUrl: "http://localhost:9095/foo/token",
+        refreshUrl: "https://localhost:9095/foo/token",
         credentialBearer: http:AUTH_HEADER_BEARER
     }
 };
 
 endpoint http:Client clientEP3 {
-    url:"http://localhost:9095/foo",
+    url:"https://localhost:9095/foo",
     auth: {
         scheme: http:OAUTH2,
         refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
         clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
         clientSecret: "9205371918321623741",
-        refreshUrl: "http://localhost:9095/foo/token"
+        refreshUrl: "https://localhost:9095/foo/token"
     }
 };
 
 endpoint http:Client clientEP4 {
-    url:"http://localhost:9095/foo",
+    url:"https://localhost:9095/foo",
     auth: {
         scheme: http:OAUTH2,
         refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
         clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
         clientSecret: "9205371918321623741",
-        refreshUrl: "http://localhost:9095/foo/token",
+        refreshUrl: "https://localhost:9095/foo/token",
         scopes: ["token-scope1", "token-scope2"]
     }
 };
 
 endpoint http:Client clientEP5 {
-    url:"http://localhost:9095/foo",
+    url:"https://localhost:9095/foo",
     auth: {
         scheme: http:OAUTH2,
         refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
         clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
         clientSecret: "9205371918321623741",
-        refreshUrl: "http://localhost:9095/foo/token",
+        refreshUrl: "https://localhost:9095/foo/token",
         credentialBearer: http:POST_BODY_BEARER,
         scopes: ["token-scope1", "token-scope2"]
 

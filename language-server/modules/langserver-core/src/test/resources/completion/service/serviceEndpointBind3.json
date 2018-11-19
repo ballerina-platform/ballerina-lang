@@ -7,6 +7,7 @@
   "items": [
     {
       "label":"host",
+      "kind":"Field",
       "detail":"Field",
       "sortText":"180",
       "insertText":"host: ${1:\"\"}",
@@ -14,6 +15,7 @@
     },
     {
       "label":"port",
+      "kind":"Field",
       "detail":"Field",
       "sortText":"180",
       "insertText":"port: ${1:0}",
@@ -21,6 +23,7 @@
     },
     {
       "label":"keepAlive",
+      "kind":"Field",
       "detail":"Field",
       "sortText":"180",
       "insertText":"keepAlive: ${1:ALWAYS|AUTO|NEVER}",
@@ -28,6 +31,7 @@
     },
     {
       "label":"secureSocket",
+      "kind":"Field",
       "detail":"Field",
       "sortText":"180",
       "insertText":"secureSocket: ${1:ServiceSecureSocket?}",
@@ -35,6 +39,7 @@
     },
     {
       "label":"httpVersion",
+      "kind":"Field",
       "detail":"Field",
       "sortText":"180",
       "insertText":"httpVersion: ${1:\"\"}",
@@ -42,6 +47,7 @@
     },
     {
       "label":"requestLimits",
+      "kind":"Field",
       "detail":"Field",
       "sortText":"180",
       "insertText":"requestLimits: ${1:RequestLimits?}",
@@ -49,6 +55,7 @@
     },
     {
       "label":"filters",
+      "kind":"Field",
       "detail":"Field",
       "sortText":"180",
       "insertText":"filters: ${1:[]}",
@@ -56,6 +63,7 @@
     },
     {
       "label":"timeoutMillis",
+      "kind":"Field",
       "detail":"Field",
       "sortText":"180",
       "insertText":"timeoutMillis: ${1:0}",
@@ -63,16 +71,42 @@
     },
     {
       "label":"maxPipelinedRequests",
+      "kind":"Field",
       "detail":"Field",
       "sortText":"180",
       "insertText":"maxPipelinedRequests: ${1:0}",
       "insertTextFormat":"Snippet"
     },
     {
+      "label":"authProviders",
+      "kind":"Field",
+      "detail":"Field",
+      "sortText":"180",
+      "insertText":"authProviders: ${1:AuthProvider[]?}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"positiveAuthzCache",
+      "kind":"Field",
+      "detail":"Field",
+      "sortText":"180",
+      "insertText":"positiveAuthzCache: {\n\t${1}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"negativeAuthzCache",
+      "kind":"Field",
+      "detail":"Field",
+      "sortText":"180",
+      "insertText":"negativeAuthzCache: {\n\t${1}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
       "label":"Add All Attributes",
+      "kind":"Property",
       "detail":"none",
       "sortText":"220",
-      "insertText":"host: \"\",\nport: 0,\nkeepAlive: ALWAYS|AUTO|NEVER,\nsecureSocket: ServiceSecureSocket?,\nhttpVersion: \"\",\nrequestLimits: RequestLimits?,\nfilters: [],\ntimeoutMillis: 0,\nmaxPipelinedRequests: 0"
+      "insertText":"host: \"\",\nport: 0,\nkeepAlive: ALWAYS|AUTO|NEVER,\nsecureSocket: ServiceSecureSocket?,\nhttpVersion: \"\",\nrequestLimits: RequestLimits?,\nfilters: [],\ntimeoutMillis: 0,\nmaxPipelinedRequests: 0,\nauthProviders: AuthProvider[]?,\npositiveAuthzCache: {},\nnegativeAuthzCache: {}"
     }
   ]
 }

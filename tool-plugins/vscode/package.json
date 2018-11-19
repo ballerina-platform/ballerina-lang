@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Intellisense, Diagram View, Debugging, code formatting and refactoring for Ballerina",
-    "version": "0.982.1-SNAPSHOT",
+    "version": "0.983.1-SNAPSHOT",
     "publisher": "ballerina",
     "repository": {
         "type": "git",
@@ -172,7 +172,7 @@
             },
             {
                 "command": "ballerina.showDocs",
-                "title": "Open Doc Prview",
+                "title": "Open Doc Preview",
                 "category": "Ballerina"
             }
         ],
@@ -201,6 +201,7 @@
         "cross-env": "^5.2.0",
         "glob": "^7.1.3",
         "lodash": "^4.17.11",
+        "ms-wmic": "^1.0.4",
         "openport": "0.0.4",
         "ps-node": "^0.1.6",
         "toml": "^2.3.3",
@@ -228,6 +229,7 @@
         "tslint": "^5.8.0",
         "typescript": "^2.6.1",
         "vsce": "^1.36.2",
-        "vscode-debugadapter-testsupport": "^1.32.0"
+        "vscode-debugadapter-testsupport": "^1.32.0",
+        "ast-model": "file:../../composer/ast-model"
     }
 }

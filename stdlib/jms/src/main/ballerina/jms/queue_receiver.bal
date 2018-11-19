@@ -22,7 +22,7 @@ import ballerina/log;
 # + config - configurations related to the QueueReceiver
 public type QueueReceiver object {
 
-    public QueueReceiverActions consumerActions;
+    public QueueReceiverActions consumerActions = new;
     public QueueReceiverEndpointConfiguration config;
 
     # Initializes the QueueReceiver endpoint
@@ -31,17 +31,17 @@ public type QueueReceiver object {
     public function init(QueueReceiverEndpointConfiguration c) {
         self.config = c;
         self.consumerActions.queueReceiver = self;
-        match (c.session) {
-            Session s => {
-                match (c.queueName) {
-                    string queueName => {
-                        self.createQueueReceiver(s, c.messageSelector);
-                        log:printInfo("Message receiver created for queue " + queueName);
-                    }
-                    () => {}
-                }
+        var session = c.session;
+        if (session is Session) {
+            var queueName = c.queueName;
+            if (queueName is string) {
+                self.createQueueReceiver(session, c.messageSelector);
+                log:printInfo("Message receiver created for queue " + queueName);
+            } else {
+                log:printInfo("Message receiver is not properly initialized for queue");
             }
-            () => { log:printInfo("Message receiver is not properly initialised for queue"); }
+        } else {
+            log:printInfo("Message receiver is not properly initialized for queue");
         }
     }
 
@@ -49,7 +49,7 @@ public type QueueReceiver object {
     #
     # + serviceType - type descriptor of the service to bind to
     public function register(typedesc serviceType) {
-        self.registerListener(serviceType, consumerActions);
+        self.registerListener(serviceType, self.consumerActions);
     }
 
     extern function registerListener(typedesc serviceType, QueueReceiverActions actions);
@@ -65,12 +65,12 @@ public type QueueReceiver object {
     #
     # + return - queue receiver action handler
     public function getCallerActions() returns QueueReceiverActions {
-        return consumerActions;
+        return self.consumerActions;
     }
 
     # Stops consuming messages through QueueReceiver endpoint
     public function stop() {
-        self.closeQueueReceiver(consumerActions);
+        self.closeQueueReceiver(self.consumerActions);
     }
 
     extern function closeQueueReceiver(QueueReceiverActions actions);
@@ -117,21 +117,21 @@ public type QueueReceiverActions object {
     public function receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|error)?;
 };
 
-function QueueReceiverActions::receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|
+function QueueReceiverActions.receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|
         error)? {
-    match (self.queueReceiver) {
-        QueueReceiver queueReceiver => {
-            match (queueReceiver.config.session) {
-                Session s => {
-                    validateQueue(destination);
-                    queueReceiver.createQueueReceiver(s, queueReceiver.config.messageSelector, destination = destination
-                    );
-                }
-                () => {}
-            }
+    var queueReceiver = self.queueReceiver;
+    if (queueReceiver is QueueReceiver) {
+        var session = queueReceiver.config.session;
+        if (session is Session) {
+            validateQueue(destination);
+            queueReceiver.createQueueReceiver(session, queueReceiver.config.messageSelector,
+            destination = destination);
+        } else {
+            log:printInfo("Session is (), Message receiver is not properly initialized for queue " +
+            destination.destinationName);
         }
-        () => { log:printInfo("Message receiver is not properly initialised for queue " +
-                destination.destinationName); }
+    } else {
+         log:printInfo("Message receiver is not properly initialized for queue " + destination.destinationName);
     }
     var result = self.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
     self.queueReceiver.closeQueueReceiver(self);

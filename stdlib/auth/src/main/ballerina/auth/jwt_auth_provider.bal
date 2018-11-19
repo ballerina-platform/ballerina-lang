@@ -43,7 +43,7 @@ public type JWTAuthProvider object {
         if (self.authCache.hasKey(jwtToken)) {
             match self.authenticateFromCache(jwtToken) {
                 internal:JwtPayload payload => {
-                    setAuthContext(payload, jwtToken);
+                    self.setAuthContext(payload, jwtToken);
                     return true;
                 }
                 () => {
@@ -54,7 +54,7 @@ public type JWTAuthProvider object {
 
         match internal:validate(jwtToken, self.jwtAuthProviderConfig) {
             internal:JwtPayload payload => {
-                setAuthContext(payload, jwtToken);
+                self.setAuthContext(payload, jwtToken);
                 self.addToAuthenticationCache(jwtToken, payload.exp, payload);
                 return true;
             }
@@ -87,7 +87,7 @@ public type JWTAuthProvider object {
 
     function setAuthContext(internal:JwtPayload jwtPayload, string jwtToken) {
         runtime:UserPrincipal userPrincipal = runtime:getInvocationContext().userPrincipal;
-        userPrincipal.userId = jwtPayload.sub;
+        userPrincipal.userId = jwtPayload.iss + ":" + jwtPayload.sub;
         // By default set sub as username.
         userPrincipal.username = jwtPayload.sub;
         userPrincipal.claims = jwtPayload.customClaims;

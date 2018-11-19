@@ -18,9 +18,11 @@
 
 package org.ballerinalang.test.packaging;
 
+import org.apache.commons.io.FileUtils;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
+import org.ballerinalang.test.context.LogLeecher.LeecherType;
 import org.ballerinalang.test.utils.PackagingTestUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -28,6 +30,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -150,7 +153,8 @@ public class ModuleBuildTestCase extends BaseTest {
         // Create empty directory
         createEmptyDir(projectPath.resolve("emptypkg"));
 
-        LogLeecher clientLeecher = new LogLeecher("error: no ballerina source files found in module emptypkg");
+        LogLeecher clientLeecher = new LogLeecher("error: no ballerina source files found in module emptypkg",
+                                                  LeecherType.ERROR);
         balClient.runMain("build", new String[]{"emptypkg"}, envVariables, new String[0],
                           new LogLeecher[]{clientLeecher}, projectPath.toString());
         clientLeecher.waitForText(3000);
@@ -169,7 +173,8 @@ public class ModuleBuildTestCase extends BaseTest {
         // Create empty directory
         createDirWithTextFile(projectPath);
 
-        LogLeecher clientLeecher = new LogLeecher("error: no ballerina source files found in module otherpkg");
+        LogLeecher clientLeecher = new LogLeecher("error: no ballerina source files found in module otherpkg",
+                                                  LeecherType.ERROR);
         balClient.runMain("build", new String[]{"otherpkg"}, envVariables, new String[0],
                           new LogLeecher[]{clientLeecher}, projectPath.toString());
         clientLeecher.waitForText(3000);
@@ -190,7 +195,8 @@ public class ModuleBuildTestCase extends BaseTest {
         // Create a directory with a text file
         createDirWithTextFile(projectPath);
 
-        LogLeecher clientLeecher = new LogLeecher("error: no ballerina source files found to compile");
+        LogLeecher clientLeecher = new LogLeecher("error: no ballerina source files found to compile",
+                                                  LeecherType.ERROR);
         balClient.runMain("build", new String[0], envVariables, new String[0], new LogLeecher[]{clientLeecher},
                           projectPath.toString());
         clientLeecher.waitForText(3000);
@@ -205,10 +211,70 @@ public class ModuleBuildTestCase extends BaseTest {
     public void testBuildEmptyProject() throws BallerinaTestException, IOException {
         Path projectPath = tempProjectDirectory.resolve("emptyProject");
         initProject(projectPath, EMPTY_PROJECT_OPTS);
-        LogLeecher clientLeecher = new LogLeecher("error: no ballerina source files found to compile");
+        LogLeecher clientLeecher = new LogLeecher("error: no ballerina source files found to compile",
+                                                  LeecherType.ERROR);
         balClient.runMain("build", new String[0], envVariables, new String[0], new LogLeecher[]{clientLeecher},
                           projectPath.toString());
         clientLeecher.waitForText(3000);
+    }
+
+    /**
+     * Building a project with a module only with tests.
+     *
+     * @throws BallerinaTestException When an error occurs executing the command.
+     */
+    @Test(description = "Test building and testing a module only with tests")
+    public void testModuleOnlyWithTest() throws BallerinaTestException, IOException {
+        // Copy the module with tests to the temp project directory
+        Path projectPath = tempProjectDirectory.resolve("testModuleBuild");
+        String resourcePath = (new File("src/test/resources/testModule")).getAbsolutePath();
+        FileUtils.copyDirectory(Paths.get(resourcePath).toFile(), projectPath.toFile());
+        // Initialize the project
+        initProject(projectPath, EMPTY_PROJECT_OPTS);
+
+        // Test for ballerina build on module with test sources
+        String buildMsg = "Compiling source\n" +
+                    "    foo:0.0.0\n" +
+                    "\n" +
+                    "Running tests\n" +
+                    "    foo:0.0.0\n" +
+                    "I'm the before suite function!\n" +
+                    "I'm the before function!\n" +
+                    "I'm in test function!\n" +
+                    "I'm the after function!\n" +
+                    "I'm the after suite function!\n" +
+                    "\t[pass] testFunction\n" +
+                    "\n" +
+                    "\t1 passing\n" +
+                    "\t0 failing\n" +
+                    "\t0 skipped\n";
+
+        LogLeecher firstLeecher = new LogLeecher(buildMsg);
+        balClient.runMain("build", new String[] {"foo"}, envVariables, new String[0], new LogLeecher[]{firstLeecher},
+                          projectPath.toString());
+        Assert.assertTrue(Files.notExists(projectPath.resolve("target").resolve("foo.balx")));
+
+
+        // Test for ballerina test on module with test sources
+        String testExecMsg = "Compiling tests\n" +
+                "    foo:0.0.0\n" +
+                "\n" +
+                "Running tests\n" +
+                "    foo:0.0.0\n" +
+                "I'm the before suite function!\n" +
+                "I'm the before function!\n" +
+                "I'm in test function!\n" +
+                "I'm the after function!\n" +
+                "I'm the after suite function!\n" +
+                "\t[pass] testFunction\n" +
+                "\n" +
+                "\t1 passing\n" +
+                "\t0 failing\n" +
+                "\t0 skipped\n";
+
+        LogLeecher secLeecher = new LogLeecher(buildMsg);
+        balClient.runMain("test", new String[] {"foo"}, envVariables, new String[0], new LogLeecher[]{secLeecher},
+                          projectPath.toString());
     }
 
     /**

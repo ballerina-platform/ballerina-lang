@@ -1,4 +1,4 @@
 $ ballerina run passthrough.bal
 Initiating service(s) in 'passthrough.bal'
-ballerina: started HTTP/WS endpoint 0.0.0.0:9092
-ballerina: started HTTP/WS endpoint 0.0.0.0:9090
+[ballerina/http] started HTTP/WS endpoint 0.0.0.0:9092
+[ballerina/http] started HTTP/WS endpoint 0.0.0.0:9090

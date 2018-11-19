@@ -19,9 +19,9 @@
  */
 
 import {
-    workspace, window, commands, Uri,
+    workspace, window, commands, languages, Uri,
     ConfigurationChangeEvent, extensions,
-    Extension, ExtensionContext
+    Extension, ExtensionContext, IndentAction,
 } from "vscode";
 import {
     INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY,
@@ -138,6 +138,18 @@ export class BallerinaExtension {
                 this.showMsgAndRestart(CONFIG_CHANGED);
             }
         });
+
+        languages.setLanguageConfiguration('ballerina', {
+            onEnterRules: [
+                {
+                    beforeText: new RegExp('^\\s*#'),
+                    action: {
+                        appendText: '# ',
+                        indentAction: IndentAction.None,
+                    }
+                }
+            ]
+        });
     }
 
     showMsgAndRestart(msg: string): void {
@@ -237,7 +249,8 @@ export class BallerinaExtension {
 
 
     isValidBallerinaHome(homePath: string = this.ballerinaHome): boolean {
-        if (fs.existsSync(path.join(homePath,'bin','ballerina'))) {
+        const ballerinaCmd = process.platform === 'win32' ? 'ballerina.bat' : 'ballerina'
+        if (fs.existsSync(path.join(homePath, 'bin', ballerinaCmd))) {
             return true;
         }
         return false;
@@ -263,6 +276,9 @@ export class BallerinaExtension {
         let path = '';
         switch (platform) {
             case 'win32': // Windows
+                if (process.env.BALLERINA_HOME) {
+                    return process.env.BALLERINA_HOME;
+                }
                 try {
                     path = execSync('where ballerina').toString().trim();
                 } catch (error) {

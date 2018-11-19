@@ -18,17 +18,17 @@ public type Select object {
 
     private function (StreamEvent[]) nextProcessorPointer;
     private Aggregator [] aggregatorArr;
-    private (function(StreamEvent o) returns string)? groupbyFunc;
+    private ((function(StreamEvent o) returns string) []) groupbyFuncArray;
     private function(StreamEvent o, Aggregator []  aggregatorArr1) returns map selectFunc;
     private map<Aggregator[]> aggregatorsCloneMap;
 
 
-    new(nextProcessorPointer, aggregatorArr, groupbyFunc, selectFunc) {
+    new(nextProcessorPointer, aggregatorArr, groupbyFuncArray, selectFunc) {
     }
 
     public function process(StreamEvent[] streamEvents) {
         StreamEvent[] outputStreamEvents = [];
-        if (aggregatorArr.length() > 0) {
+        if (lengthof aggregatorArr > 0) {
             map<StreamEvent> groupedEvents;
             foreach event in streamEvents {
 
@@ -36,10 +36,13 @@ public type Select object {
                     aggregatorsCloneMap.clear();
                 }
 
-                string groupbyKey = groupbyFunc but {
-                    (function(StreamEvent o) returns string) groupbyFunction => groupbyFunction(event),
-                    () => DEFAULT
-                };
+                string groupbyKey;
+                match groupbyFuncArray {
+                    (function(StreamEvent o) returns string) [] groupbyFunctionArray => {
+                        groupbyKey = getGroupByKey(groupbyFunctionArray, event);
+                    }
+                }
+
                 Aggregator[] aggregatorsClone;
                 match (aggregatorsCloneMap[groupbyKey]) {
                     Aggregator[] aggregators => {
@@ -60,7 +63,7 @@ public type Select object {
             foreach key in groupedEvents.keys() {
                 match groupedEvents[key] {
                     StreamEvent e => {
-                        outputStreamEvents[outputStreamEvents.length()] = e;
+                        outputStreamEvents[lengthof outputStreamEvents] = e;
                     }
                     () => {}
                 }
@@ -68,21 +71,31 @@ public type Select object {
         } else {
             foreach event in streamEvents {
                 StreamEvent e = new ((OUTPUT, selectFunc(event, aggregatorArr)), event.eventType, event.timestamp);
-                outputStreamEvents[outputStreamEvents.length()] = e;
+                outputStreamEvents[lengthof outputStreamEvents] = e;
             }
         }
-        if (outputStreamEvents.length() > 0) {
+        if (lengthof outputStreamEvents > 0) {
             nextProcessorPointer(outputStreamEvents);
         }
+    }
+
+    public function getGroupByKey((function(StreamEvent o) returns string) [] groupbyFunctionArray, StreamEvent e)
+                        returns string {
+        string key = "";
+        foreach func in groupbyFunctionArray {
+            key += func(e);
+            key += ",";
+        }
+        return key;
     }
 };
 
 public function createSelect(function (StreamEvent[]) nextProcPointer,
-                                Aggregator [] aggregatorArr,
-                                (function(StreamEvent o) returns string)? groupbyFunc,
-                                function(StreamEvent o, Aggregator [] aggregatorArr1) returns map selectFunc)
-        returns Select {
+                             Aggregator[] aggregatorArr,
+                             ((function (StreamEvent o) returns string)[]) groupbyFuncArray,
+                             function (StreamEvent o, Aggregator[] aggregatorArr1) returns map selectFunc)
+                    returns Select {
 
-    Select select = new(nextProcPointer, aggregatorArr, groupbyFunc, selectFunc);
+    Select select = new(nextProcPointer, aggregatorArr, groupbyFuncArray, selectFunc);
     return select;
 }

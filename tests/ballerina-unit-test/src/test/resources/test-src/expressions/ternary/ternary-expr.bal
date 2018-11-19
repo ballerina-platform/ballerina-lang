@@ -69,44 +69,6 @@ function test10 (string s) returns (Person) {
     return s == "tom" ? tom : bob;
 }
 
-function test11 (int input) returns (string) {
-    int i = 0;
-    string output = "";
-    while (i < 5) {
-        i = i + 1;
-        try {
-            if (i == 3) {
-                break;
-            }
-        } catch (error e) {
-            output = output + "Error";
-        } finally {
-            output = output + (input == 1 ? "run_" : "time_");
-            output = output + i + " ";
-        }
-    }
-    return output;
-}
-
-function test12 (int input) returns (string) {
-    int i = 0;
-    string output = "";
-    while (i < 5) {
-        i = i + 1;
-        try {
-            if (i == 3) {
-                return output;
-            }
-         } catch (error e) {
-            output = output + "Error";
-        } finally {
-            output = output + (input == 1 ? "run_" : "time_");
-            output = output + i + " ";
-        }
-    }
-    return output;
-}
-
 function testNestedTernary1 (int value) returns (string, string) {
     string s1 = value > 70 ? "morethan70" : value > 40 ? "morethan40" : value > 20 ? "morethan20" : "lessthan20";
     string s2 = value > 70 ? "morethan70" : (value > 40 ? "morethan40" : (value > 20 ? "morethan20" : "lessthan20"));

@@ -18,7 +18,6 @@
 package org.ballerinalang.langserver.completions.resolvers;
 
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -106,10 +105,7 @@ public abstract class AbstractItemResolver {
      * @return {@link Boolean}      Whether invocation or Field Access
      */
     protected boolean isInvocationOrInteractionOrFieldAccess(LSServiceOperationContext context) {
-        List<String> poppedTokens = CommonUtil.popNFromStack(context.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY), 2)
-                .stream()
-                .map(Token::getText)
-                .collect(Collectors.toList());
+        List<String> poppedTokens = CommonUtil.popNFromList(CommonUtil.getPoppedTokenStrings(context), 2);
         ParserRuleContext parserRuleContext = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
         return poppedTokens.contains(UtilSymbolKeys.DOT_SYMBOL_KEY)
                 || poppedTokens.contains(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)
@@ -125,11 +121,8 @@ public abstract class AbstractItemResolver {
      * @param ctx                   Completion operation context
      * @return {@link Boolean}      Whether annotation context start or not
      */
-    protected boolean isAnnotationStart(LSServiceOperationContext ctx) {
-        List<String> poppedTokens = CommonUtil.popNFromStack(ctx.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY), 4)
-                .stream()
-                .map(Token::getText)
-                .collect(Collectors.toList());
+    boolean isAnnotationStart(LSServiceOperationContext ctx) {
+        List<String> poppedTokens = CommonUtil.popNFromList(CommonUtil.getPoppedTokenStrings(ctx), 4);
         return poppedTokens.contains(UtilSymbolKeys.ANNOTATION_START_SYMBOL_KEY);
     }
 
@@ -139,7 +132,7 @@ public abstract class AbstractItemResolver {
      * @param visibleSymbols    List of visible symbols
      * @return {@link List}     List of completion items
      */
-    protected List<CompletionItem> populateBasicTypes(List<SymbolInfo> visibleSymbols) {
+    List<CompletionItem> populateBasicTypes(List<SymbolInfo> visibleSymbols) {
         visibleSymbols.removeIf(CommonUtil.invalidSymbolsPredicate());
         List<CompletionItem> completionItems = new ArrayList<>();
         visibleSymbols.forEach(symbolInfo -> {

@@ -18,7 +18,7 @@
 public type ReadableDataChannel object {
 
     public new(ReadableByteChannel byteChannel, ByteOrder bOrder = "BE") {
-        init(byteChannel, bOrder);
+        self.init(byteChannel, bOrder);
     }
 
     #Initializes data channel.

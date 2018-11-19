@@ -104,9 +104,9 @@ function createStreamingConstruct() {
     aggregatorArr[1] = countAggregator;
 
     streams:Select select = streams:createSelect(outputProcess.process, aggregatorArr,
-        function (streams:StreamEvent e) returns string {
+        [function (streams:StreamEvent e) returns string {
             return <string>e.data["inputStream.name"];
-        },
+        }],
         function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map {
             streams:Sum sumAggregator1 = check <streams:Sum>aggregatorArr1[0];
             streams:Count countAggregator1 = check <streams:Count>aggregatorArr1[1];
@@ -120,7 +120,7 @@ function createStreamingConstruct() {
         }
     );
 
-    streams:Window tmpWindow = streams:timeWindow(1000, nextProcessPointer = select.process);
+    streams:Window tmpWindow = streams:timeWindow([1000], nextProcessPointer = select.process);
     streams:Filter filter = streams:createFilter(tmpWindow.process, function (map m) returns boolean {
             // simplify filter
             return check <int>m["inputStream.age"] > getValue();

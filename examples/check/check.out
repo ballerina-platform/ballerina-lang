@@ -8,7 +8,7 @@ bob has a valid city
 Bob's result 2:true
 
 validating tom...
-Tom's result 1:{message:"address not found", cause:null}
+Tom's result 1:{message:"address not found"}
 error: ballerina/runtime:CallFailedException, message: call failed
         at main(check.bal:61)
 caused by error, message: address not found

@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 import ballerina/cache;
 
 # Implements a cache for storing HTTP responses. This cache complies with the caching policy set when configuring
@@ -27,9 +26,9 @@ import ballerina/cache;
 # + isShared - Specifies whether the HTTP caching layer should behave as a public cache or a private cache
 public type HttpCache object {
 
-    public cache:Cache cache;
+    public cache:Cache cache = new;
     public CachingPolicy policy = CACHE_CONTROL_AND_VALIDATORS;
-    public boolean isShared;
+    public boolean isShared = false;
 
     function isAllowedToCache (Response response) returns boolean {
         if (self.policy == CACHE_CONTROL_AND_VALIDATORS) {
@@ -44,7 +43,7 @@ public type HttpCache object {
 
         if ((respCacheControl.noStore ?: false) ||
             (requestCacheControl.noStore ?: false) ||
-            ((respCacheControl.isPrivate ?: false)  && isShared)) {
+            ((respCacheControl.isPrivate ?: false)  && self.isShared)) {
             // TODO: Need to consider https://tools.ietf.org/html/rfc7234#section-3.2 as well here
             return;
         }
@@ -53,37 +52,41 @@ public type HttpCache object {
         // TODO: Consider cache control extensions as well here
         if (inboundResponse.hasHeader(EXPIRES) ||
             (respCacheControl.maxAge ?: -1) >= 0 ||
-            ((respCacheControl.sMaxAge ?: -1) >= 0 && isShared) ||
+            ((respCacheControl.sMaxAge ?: -1) >= 0 && self.isShared) ||
             isCacheableStatusCode(inboundResponse.statusCode) ||
             !(respCacheControl.isPrivate ?: false)) {
 
             // IMPT: The call to getBinaryPayload() builds the payload from the stream. If this is not done, the stream
             // will be read by the client and the response will be after the first cache hit.
-            match inboundResponse.getBinaryPayload() {
-                byte[] => {}
-                error => {}
-            }
-            log:printDebug("Adding new cache entry for: " + key);
-            addEntry(cache, key, inboundResponse);
+            var binaryPayload = inboundResponse.getBinaryPayload();
+            log:printDebug(function() returns string {
+                return "Adding new cache entry for: " + key;
+            });
+            addEntry(self.cache, key, inboundResponse);
         }
     }
 
     function hasKey (string key) returns boolean {
-        return cache.hasKey(key);
+        return self.cache.hasKey(key);
     }
 
     function get (string key) returns Response {
-        match <Response[]>cache.get(key) {
-            Response[] cacheEntry => return cacheEntry[cacheEntry.length() - 1];
-            error err => panic err;
+        Response response;
+        var cacheEntry = <Response[]> self.cache.get(key);
+        if (cacheEntry is Response[]) {
+            response = cacheEntry[cacheEntry.length() - 1];
+        } else if (cacheEntry is error) {
+            panic cacheEntry;
         }
+        return response;
     }
 
     function getAll (string key) returns Response[]|() {
-        match trap <Response[]>cache.get(key) {
-            Response[] cacheEntry => return cacheEntry;
-            error err => return ();
+        var cacheEntry = <Response[]> self.cache.get(key);
+        if (cacheEntry is Response[]) {
+            return cacheEntry;
         }
+        return ();
     }
 
     function getAllByETag (string key, string etag) returns Response[] {
@@ -91,9 +94,9 @@ public type HttpCache object {
         Response[] matchingResponses = [];
         int i = 0;
 
-        match getAll(key) {
-            Response[] responses => cachedResponses = responses;
-            () => cachedResponses = [];
+        var responses = self.getAll(key);
+        if (responses is Response[]) {
+            cachedResponses = responses;
         }
 
         foreach cachedResp in cachedResponses {
@@ -111,9 +114,9 @@ public type HttpCache object {
         Response[] matchingResponses = [];
         int i = 0;
 
-        match getAll(key) {
-            Response[] responses => cachedResponses = responses;
-            () => cachedResponses = [];
+        var responses = self.getAll(key);
+        if (responses is Response[]) {
+            cachedResponses = responses;
         }
 
         foreach cachedResp in cachedResponses {
@@ -127,7 +130,7 @@ public type HttpCache object {
     }
 
     function remove (string key) {
-        cache.remove(key);
+        self.cache.remove(key);
     }
 };
 
@@ -152,19 +155,12 @@ function isCacheableStatusCode (int statusCode) returns boolean {
 }
 
 function addEntry (cache:Cache cache, string key, Response inboundResponse) {
-    // TODO : Fix this logic.
-    var existingResponses = trap cache.get(key);
-    match existingResponses {
-        Response[] cachedRespArray => cachedRespArray[cachedRespArray.length()] = inboundResponse;
-        error err => {
-            Response[] cachedResponses = [inboundResponse];
-            cache.put(key, cachedResponses);
-            //panic err;
-        }
-        any => {
-            error e = error("unexpected error");
-            panic e;
-        }
+    var existingResponses = cache.get(key);
+    if (existingResponses is Response[]) {
+        existingResponses[existingResponses.length()] = inboundResponse;
+    } else if (existingResponses is ()) {
+        Response[] cachedResponses = [inboundResponse];
+        cache.put(key, cachedResponses);
     }
 }
 

@@ -71,29 +71,27 @@ function testSafeAssignOpInAssignmentStatement6 () returns boolean {
     return statusFailure;
 }
 
-type person record {
+type Person record {
     string name;
 };
 
-public type myerror record {
-    string message;
-    error? cause;
-    int code;
+public type MyErrorData record {
     !...
 };
 
-public type customError record {
-    string message;
-    error? cause;
-    int code;
+type MyError error<string, MyErrorData>;
+
+public type CustomErrorData record {
     string data;
     !...
 };
 
-function getPerson() returns person | myerror {
+type CustomError error<string, CustomErrorData>;
+
+function getPerson() returns Person | MyError {
    //myerror e = error("ddd");
     //return e;
-    person p = {name:"Diayasena"};
+    Person p = {name:"Diayasena"};
     return  p;
 }
 
@@ -103,17 +101,17 @@ function testSafeAssignOpInAssignmentStatement7 () returns string {
 }
 
 
-function readLineError() returns string | myerror {
-    myerror e = error("io error");
+function readLineError() returns string | MyError {
+    MyError e = error("io error");
     return e;
 }
 
-function readLineCustomError() returns string | customError {
-    customerror e = error("custom io error", { data: "foo.txt"});
+function readLineCustomError() returns string | CustomError {
+    CustomError e = error("custom io error", { data: "foo.txt"});
     return e;
 }
 
-function readLineSuccess() returns string | myerror {
+function readLineSuccess() returns string | MyError {
     return "Ballerina";
 }
 
@@ -122,12 +120,12 @@ function testCheckExprInBinaryExpr1() returns error? {
     return ();
 }
 
-function testCheckExprInBinaryExpr2() returns myerror? {
+function testCheckExprInBinaryExpr2() returns MyError? {
     string str = "hello, " + check readLineError();
     return ();
 }
 
-function testCheckExprInBinaryExpr3() returns string | customError {
+function testCheckExprInBinaryExpr3() returns string | CustomError {
     string str = "hello, " + check readLineSuccess();
     return str;
 }
@@ -140,18 +138,18 @@ function testCheckExprInBinaryExpr5() {
     string str = "hello, " + check readLineError();
 }
 
-function testCheckExprInBinaryExpr6() returns string | customError {
+function testCheckExprInBinaryExpr6() returns string | CustomError {
     string str = "hello, " + check readLineCustomError();
     return str;
 }
 
-// This test case should panic an error since customError is not assignable to the myerror
-function testCheckExprInBinaryExpr7() returns string | customError {
+// This test case should panic an error since customError is not assignable to the MyError
+function testCheckExprInBinaryExpr7() returns string | CustomError {
     string str = "hello, " + check readLineError();
     return str;
 }
 
-function readLineProper() returns string | myerror | customError {
+function readLineProper() returns string | MyError | CustomError {
     return "Hello, World!!!";
 }
 
@@ -160,11 +158,11 @@ function testCheckExprInBinaryExpr8() returns string {
     return str;
 }
 
-function foo(string s) returns string | customError {
+function foo(string s) returns string | CustomError {
     return "(" + s + "|" + s + ")";
 }
 
-function bar(string s1, string s2) returns string | customError  {
+function bar(string s1, string s2) returns string | CustomError  {
     return s1 + " " + s2;
 }
 
