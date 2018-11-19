@@ -280,6 +280,10 @@ public class SymbolResolver extends BLangNodeVisitor {
         return types.getConversionOperator(sourceType, targetType);
     }
 
+    public BSymbol resolveTypeAssertionOperator(BType sourceType, BType targetType) {
+        return types.getTypeAssertionOperator(sourceType, targetType);
+    }
+
     public BSymbol resolveBinaryOperator(OperatorKind opKind,
                                          BType lhsType,
                                          BType rhsType) {
@@ -364,7 +368,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             resultType = symTable.semanticError;
             return symTable.notFoundSymbol;
         }
-        
+
         BLangExpression argumentExpression = functionArgList.get(0);
         BType variableSourceType = argumentExpression.type;
         // Create in-built function can only called on typedesc.
@@ -515,6 +519,12 @@ public class SymbolResolver extends BLangNodeVisitor {
         List<BType> paramTypes = Lists.of(type);
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
         return new BOperatorSymbol(names.fromString(method.getName()), null, opType, null, opcode);
+    }
+
+    BOperatorSymbol createTypeAssertionSymbol(BType type, BType retType) {
+        List<BType> paramTypes = Lists.of(type);
+        BInvokableType opType = new BInvokableType(paramTypes, retType, null);
+        return new BOperatorSymbol(Names.CAST_OP, null, opType, null, InstructionCodes.TYPE_ASSERTION);
     }
 
     public BSymbol resolveUnaryOperator(DiagnosticPos pos,

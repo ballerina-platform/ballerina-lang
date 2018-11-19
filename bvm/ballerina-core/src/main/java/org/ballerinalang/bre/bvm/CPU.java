@@ -601,6 +601,7 @@ public class CPU {
                     case InstructionCodes.CHECKCAST:
                     case InstructionCodes.IS_ASSIGNABLE:
                     case InstructionCodes.O2JSON:
+                    case InstructionCodes.TYPE_ASSERTION:
                         execTypeCastOpcodes(ctx, sf, opcode, operands);
                         break;
 
@@ -2280,6 +2281,22 @@ public class CPU {
         TypeRefCPEntry typeRefCPEntry;
 
         switch (opcode) {
+            case InstructionCodes.TYPE_ASSERTION:
+                i = operands[0];
+                cpIndex = operands[1];
+                j = operands[2];
+                typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
+
+                bRefTypeValue = sf.refRegs[i];
+
+                if (typeRefCPEntry.getType() == bRefTypeValue.getType()) {
+                    sf.refRegs[j] = bRefTypeValue;
+                } else {
+                    ctx.setError(BLangVMErrors.createError(ctx,  "value of type '" + bRefTypeValue.getType() + "' " +
+                            "cannot be asserted as '" + typeRefCPEntry.getType() + "'"));
+                    handleError(ctx);
+                }
+                break;
             case InstructionCodes.I2ANY:
                 i = operands[0];
                 j = operands[1];

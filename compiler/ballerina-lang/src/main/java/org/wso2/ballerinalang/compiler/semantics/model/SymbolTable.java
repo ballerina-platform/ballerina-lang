@@ -482,10 +482,10 @@ public class SymbolTable {
         defineConversionOperator(decimalType, floatType, true, InstructionCodes.D2F);
         defineConversionOperator(decimalType, booleanType, true, InstructionCodes.D2B);
         defineConversionOperator(decimalType, stringType, true, InstructionCodes.D2S);
-//        defineConversionOperator(stringType, floatType, false, InstructionCodes.S2F);
-//        defineConversionOperator(stringType, decimalType, false, InstructionCodes.S2D);
-//        defineConversionOperator(stringType, intType, false, InstructionCodes.S2I);
-//        defineConversionOperator(stringType, booleanType, true, InstructionCodes.S2B);
+        defineConversionOperator(stringType, floatType, false, InstructionCodes.S2F);
+        defineConversionOperator(stringType, decimalType, false, InstructionCodes.S2D);
+        defineConversionOperator(stringType, intType, false, InstructionCodes.S2I);
+        defineConversionOperator(stringType, booleanType, true, InstructionCodes.S2B);
         defineConversionOperator(booleanType, stringType, true, InstructionCodes.B2S);
         defineConversionOperator(booleanType, intType, true, InstructionCodes.B2I);
         defineConversionOperator(booleanType, floatType, true, InstructionCodes.B2F);
