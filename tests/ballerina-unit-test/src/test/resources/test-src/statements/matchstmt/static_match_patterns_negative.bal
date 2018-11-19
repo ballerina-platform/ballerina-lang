@@ -211,7 +211,7 @@ function tupleTypes() returns string {
 
 type Foo record {
     int x;
-    boolean? y;
+    boolean y?;
     string...
 };
 
@@ -248,7 +248,7 @@ function finiteTypes() returns string {
 }
 
 type Obj object {
-    int var1;
+    int var1 = 12;
 };
 
 function nonAnydataTypes() returns string {

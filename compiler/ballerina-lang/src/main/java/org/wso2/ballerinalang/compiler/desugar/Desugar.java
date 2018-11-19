@@ -3145,6 +3145,11 @@ public class Desugar extends BLangNodeVisitor {
         Map<BVarSymbol, BVarSymbol> typeGuards = new HashMap<>();
 
         BLangExpression ifCondition = createPatternIfCondition(pattern, matchExprVar.symbol);
+        if (NodeKind.MATCH_TYPED_PATTERN_CLAUSE == pattern.getKind()) {
+            BLangBlockStmt patternBody = getMatchPatternBody(pattern, matchExprVar);
+            return ASTBuilderUtil.createIfElseStmt(pattern.pos,
+                    ifCondition, patternBody, null);
+        }
 
         // Create a variable reference for _$$_
         BLangSimpleVarRef matchExprVarRef = ASTBuilderUtil.createVariableRef(pattern.pos, matchExprVar.symbol);
@@ -3187,6 +3192,33 @@ public class Desugar extends BLangNodeVisitor {
         BLangIf ifNode = ASTBuilderUtil.createIfElseStmt(pattern.pos, ifCondition, pattern.body, null);
         ifNode.ifTypeGuards = typeGuards;
         return ifNode;
+    }
+
+    private BLangBlockStmt getMatchPatternBody(BLangMatchBindingPatternClause pattern,
+                                               BLangSimpleVariable matchExprVar) {
+
+        BLangBlockStmt body;
+
+        BLangMatchTypedBindingPatternClause patternClause = (BLangMatchTypedBindingPatternClause) pattern;
+        // Add the variable definition to the body of the pattern` clause
+        if (patternClause.variable.name.value.equals(Names.IGNORE.value)) {
+            return patternClause.body;
+        }
+
+        // create TypeName i = <TypeName> _$$_
+        // Create a variable reference for _$$_
+        BLangSimpleVarRef matchExprVarRef = ASTBuilderUtil.createVariableRef(patternClause.pos,
+                matchExprVar.symbol);
+        BLangExpression patternVarExpr = addConversionExprIfRequired(matchExprVarRef, patternClause.variable.type);
+
+        // Add the variable def statement
+        BLangSimpleVariable patternVar = ASTBuilderUtil.createVariable(patternClause.pos, "",
+                patternClause.variable.type, patternVarExpr, patternClause.variable.symbol);
+        BLangSimpleVariableDef patternVarDef = ASTBuilderUtil.createVariableDef(patternVar.pos, patternVar);
+        patternClause.body.stmts.add(0, patternVarDef);
+        body = patternClause.body;
+
+        return body;
     }
 
     private BLangBlockStmt getMatchPatternElseBody(BLangMatchBindingPatternClause pattern,
