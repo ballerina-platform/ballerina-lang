@@ -1619,7 +1619,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangBlockStmt desugarForeachOfListTypes(BLangForeach foreach, BVarSymbol collectionSymbol) {
         // Get the variable definition from the foreach statement.
-        BLangSimpleVariableDef variableDefinitionNode = (BLangSimpleVariableDef) foreach.variableDefinitionNode;
+        VariableDefinitionNode variableDefinitionNode = foreach.variableDefinitionNode;
 
         // Note - int $index$ = 0; -------------------------------------------------------------------------------------
 
@@ -1664,11 +1664,32 @@ public class Desugar extends BLangNodeVisitor {
                 symTable.intType, indexSymbol, indexRef);
         indexBasedAccessExpression.expr = collectionReference;
 
-        // Update the variable by setting the type and the expression. i.e.- T i; -> T i = $data$[$index$];
-        variableDefinitionNode.var.expr = indexBasedAccessExpression;
+        variableDefinitionNode.getVariable().setInitialExpression(indexBasedAccessExpression);
+        whileNode.body.stmts.add(0, (BLangStatement) variableDefinitionNode);
 
-        // Add the variable definition to the top of the while node's body statements.
-        whileNode.body.stmts.add(0, variableDefinitionNode);
+//        if (variableDefinitionNode.getVariable().getKind() == NodeKind.VARIABLE) {
+//            // Update the variable by setting the type and the expression. i.e.- T i; -> T i = ($index$, data[$key$]);
+//            BLangSimpleVariableDef simpleVariableDef = (BLangSimpleVariableDef) variableDefinitionNode;
+//            simpleVariableDef.var.expr = indexBasedAccessExpression;
+//
+//            // Add the variable definition to the top of the while node's body statements.
+//            whileNode.body.stmts.add(0, simpleVariableDef);
+//        } else if (variableDefinitionNode.getVariable().getKind() == NodeKind.TUPLE_VARIABLE) {
+//            // Update the variable by setting the type and the expression. i.e.- T i; -> T i = ($index$, data[$key$]);
+//            BLangTupleVariableDef tupleVariableDef = (BLangTupleVariableDef) variableDefinitionNode;
+//            tupleVariableDef.var.expr = indexBasedAccessExpression;
+//
+//            // Add the variable definition to the top of the while node's body statements.
+//            whileNode.body.stmts.add(0, tupleVariableDef);
+//        } else if (variableDefinitionNode.getVariable().getKind() == NodeKind.RECORD_VARIABLE) {
+//            // Update the variable by setting the type and the expression. i.e.- T i; -> T i = ($index$, data[$key$]);
+//            BLangRecordVariableDef recordVariableDef = (BLangRecordVariableDef) variableDefinitionNode;
+//            recordVariableDef.var.expr = indexBasedAccessExpression;
+//
+//            // Add the variable definition to the top of the while node's body statements.
+//            whileNode.body.stmts.add(0, recordVariableDef);
+//        }
+
 
         // Note - $index$ += 1; (i.e. - $index$ = $index$ + 1;) --------------------------------------------------------
 
@@ -1796,28 +1817,31 @@ public class Desugar extends BLangNodeVisitor {
         tupleExpression.expressions.add(dataAccessExpression);
         tupleExpression.type = foreach.varType;
 
-        if (variableDefinitionNode.getVariable().getKind() == NodeKind.VARIABLE) {
-            // Update the variable by setting the type and the expression. i.e.- T i; -> T i = ($index$, data[$key$]);
-            BLangSimpleVariableDef simpleVariableDef = (BLangSimpleVariableDef) variableDefinitionNode;
-            simpleVariableDef.var.expr = tupleExpression;
+        variableDefinitionNode.getVariable().setInitialExpression(tupleExpression);
+        whileNode.body.stmts.add(1, (BLangStatement) variableDefinitionNode);
 
-            // Add the variable definition to the top of the while node's body statements.
-            whileNode.body.stmts.add(1, simpleVariableDef);
-        } else if (variableDefinitionNode.getVariable().getKind() == NodeKind.TUPLE_VARIABLE) {
-            // Update the variable by setting the type and the expression. i.e.- T i; -> T i = ($index$, data[$key$]);
-            BLangTupleVariableDef tupleVariableDef = (BLangTupleVariableDef) variableDefinitionNode;
-            tupleVariableDef.var.expr = tupleExpression;
-
-            // Add the variable definition to the top of the while node's body statements.
-            whileNode.body.stmts.add(1, tupleVariableDef);
-        } else if (variableDefinitionNode.getVariable().getKind() == NodeKind.RECORD_VARIABLE) {
-            // Update the variable by setting the type and the expression. i.e.- T i; -> T i = ($index$, data[$key$]);
-            BLangRecordVariableDef recordVariableDef = (BLangRecordVariableDef) variableDefinitionNode;
-            recordVariableDef.var.expr = tupleExpression;
-
-            // Add the variable definition to the top of the while node's body statements.
-            whileNode.body.stmts.add(1, recordVariableDef);
-        }
+//        if (variableDefinitionNode.getVariable().getKind() == NodeKind.VARIABLE) {
+//            // Update the variable by setting the type and the expression. i.e.- T i; -> T i = ($index$, data[$key$]);
+//            BLangSimpleVariableDef simpleVariableDef = (BLangSimpleVariableDef) variableDefinitionNode;
+//            simpleVariableDef.var.expr = tupleExpression;
+//
+//            // Add the variable definition to the top of the while node's body statements.
+//            whileNode.body.stmts.add(1, simpleVariableDef);
+//        } else if (variableDefinitionNode.getVariable().getKind() == NodeKind.TUPLE_VARIABLE) {
+//            // Update the variable by setting the type and the expression. i.e.- T i; -> T i = ($index$, data[$key$]);
+//            BLangTupleVariableDef tupleVariableDef = (BLangTupleVariableDef) variableDefinitionNode;
+//            tupleVariableDef.var.expr = tupleExpression;
+//
+//            // Add the variable definition to the top of the while node's body statements.
+//            whileNode.body.stmts.add(1, tupleVariableDef);
+//        } else if (variableDefinitionNode.getVariable().getKind() == NodeKind.RECORD_VARIABLE) {
+//            // Update the variable by setting the type and the expression. i.e.- T i; -> T i = ($index$, data[$key$]);
+//            BLangRecordVariableDef recordVariableDef = (BLangRecordVariableDef) variableDefinitionNode;
+//            recordVariableDef.var.expr = tupleExpression;
+//
+//            // Add the variable definition to the top of the while node's body statements.
+//            whileNode.body.stmts.add(1, recordVariableDef);
+//        }
 
         // Note - $index$ += 1; (i.e. - $index$ = $index$ + 1;) --------------------------------------------------------
 
@@ -2207,7 +2231,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangBlockStmt desugarForeachOfTableType(BLangForeach foreach, BVarSymbol collectionSymbol) {
         // Get the symbol from the collection.
         // Get the variable definition from the foreach statement.
-        BLangSimpleVariableDef variableDefinitionNode = (BLangSimpleVariableDef) foreach.variableDefinitionNode;
+        VariableDefinitionNode variableDefinitionNode =  foreach.variableDefinitionNode;
 
         // Note - $data$.hasNext() -------------------------------------------------------------------------------------
 
@@ -2247,10 +2271,10 @@ public class Desugar extends BLangNodeVisitor {
         nextExpression.type = nextFunctionSymbol.type;
 
         // Update the variable by setting the type and the expression. i.e.- R i; -> R i = $data$.getNext();
-        variableDefinitionNode.var.expr = nextExpression;
+        variableDefinitionNode.getVariable().setInitialExpression(nextExpression);
 
         // Add the variable definition to the top of the while node's body statements.
-        whileNode.body.stmts.add(0, variableDefinitionNode);
+        whileNode.body.stmts.add(0, (BLangStatement) variableDefinitionNode);
 
         // Create a new block statement node.
         BLangBlockStmt blockNode = ASTBuilderUtil.createBlockStmt(foreach.pos);
