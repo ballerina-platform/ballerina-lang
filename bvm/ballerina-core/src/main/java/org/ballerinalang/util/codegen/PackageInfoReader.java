@@ -1382,11 +1382,12 @@ public class PackageInfoReader {
                     break;
                 case InstructionCodes.WAIT:
                     int c = codeStream.readInt();
-                    int[] ops = new int[c + 2];
+                    int[] ops = new int[c + 3];
                     ops[0] = c;
                     ops[1] = codeStream.readInt();
+                    ops[2] = codeStream.readInt();
                     for (int p = 0; p < c; p++) {
-                        ops[p + 2] = codeStream.readInt();
+                        ops[p + 3] = codeStream.readInt();
                     }
                     packageInfo.addInstruction(InstructionFactory.get(opcode, ops));
                     break;

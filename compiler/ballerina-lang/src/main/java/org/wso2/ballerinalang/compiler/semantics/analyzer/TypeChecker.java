@@ -1146,7 +1146,11 @@ public class TypeChecker extends BLangNodeVisitor {
         // Handle union types in lhs
         if (resultType.tag == TypeTags.UNION) {
             HashSet<BType> memberTypes = collectMemberTypes((BUnionType) resultType, new HashSet<>());
-            resultType = new BUnionType(null, memberTypes, false);
+            if (memberTypes.size() == 1) {
+                resultType = memberTypes.toArray(new BType[0])[0];
+            } else {
+                resultType = new BUnionType(null, memberTypes, false);
+            }
         } else if (resultType != symTable.semanticError) {
             // Handle other types except for semantic errors
             resultType = ((BFutureType) resultType).constraint;
