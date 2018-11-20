@@ -34,7 +34,7 @@ type Info record {
     !...
 };
 
-function testStructWithIncompatibleTypeToJson () returns json|error {
+function testStructWithIncompatibleTypeToJson () returns json {
     Info info = {};
     var j = <json>info;
     if (j is json) {
