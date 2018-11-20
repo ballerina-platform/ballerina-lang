@@ -147,7 +147,7 @@ function createFailoverHttpClientArray(FailoverClientEndpointConfiguration failo
         httpClientRequired = true;
     }
 
-    foreach target in failoverClientConfig.targets {
+    foreach var target in failoverClientConfig.targets {
         ClientEndpointConfig epConfig = createClientEPConfigFromFailoverEPConfig(failoverClientConfig, target);
         uri = target.url;
         if (uri.hasSuffix("/")) {

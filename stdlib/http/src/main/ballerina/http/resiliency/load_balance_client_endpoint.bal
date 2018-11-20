@@ -152,7 +152,7 @@ function createLoadBalanceHttpClientArray(LoadBalanceClientEndpointConfiguration
         httpClientRequired = true;
     }
 
-    foreach target in loadBalanceClientConfig.targets {
+    foreach var target in loadBalanceClientConfig.targets {
         ClientEndpointConfig epConfig = createClientEPConfigFromLoalBalanceEPConfig(loadBalanceClientConfig, target);
         uri = target.url;
         if (uri.hasSuffix("/")) {

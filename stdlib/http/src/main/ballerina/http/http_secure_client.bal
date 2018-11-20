@@ -374,7 +374,7 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     Request refreshTokenRequest = new;
     string textPayload = "grant_type=refresh_token&refresh_token=" + refreshToken;
     string scopeString = EMPTY_STRING;
-    foreach requestScope in scopes {
+    foreach var requestScope in scopes {
         scopeString = scopeString + WHITE_SPACE + requestScope;
     }
     if (scopeString != EMPTY_STRING) {

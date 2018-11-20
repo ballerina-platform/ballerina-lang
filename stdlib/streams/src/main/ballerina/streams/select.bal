@@ -30,7 +30,7 @@ public type Select object {
         StreamEvent[] outputStreamEvents = [];
         if (lengthof aggregatorArr > 0) {
             map<StreamEvent> groupedEvents;
-            foreach event in streamEvents {
+            foreach var event in streamEvents {
 
                 if (event.eventType == RESET) {
                     aggregatorsCloneMap.clear();
@@ -50,7 +50,7 @@ public type Select object {
                     }
                     () => {
                         int i = 0;
-                        foreach aggregator in aggregatorArr {
+                        foreach var aggregator in aggregatorArr {
                             aggregatorsClone[i] = aggregator.clone();
                             i += 1;
                         }
@@ -60,7 +60,7 @@ public type Select object {
                 StreamEvent e = new ((OUTPUT, selectFunc(event, aggregatorsClone)), event.eventType, event.timestamp);
                 groupedEvents[groupbyKey] = e;
             }
-            foreach key in groupedEvents.keys() {
+            foreach var key in groupedEvents.keys() {
                 match groupedEvents[key] {
                     StreamEvent e => {
                         outputStreamEvents[lengthof outputStreamEvents] = e;
@@ -69,7 +69,7 @@ public type Select object {
                 }
             }
         } else {
-            foreach event in streamEvents {
+            foreach var event in streamEvents {
                 StreamEvent e = new ((OUTPUT, selectFunc(event, aggregatorArr)), event.eventType, event.timestamp);
                 outputStreamEvents[lengthof outputStreamEvents] = e;
             }
@@ -82,7 +82,7 @@ public type Select object {
     public function getGroupByKey((function(StreamEvent o) returns string) [] groupbyFunctionArray, StreamEvent e)
                         returns string {
         string key = "";
-        foreach func in groupbyFunctionArray {
+        foreach var func in groupbyFunctionArray {
             key += func(e);
             key += ",";
         }

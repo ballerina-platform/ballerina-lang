@@ -24,7 +24,7 @@ public type GroupBy object {
 
     public function process(StreamEvent[] streamEvents) {
         if (self.groupByFields.length() > 0) {
-            foreach streamEvent in streamEvents {
+            foreach var streamEvent in streamEvents {
                 string key = self.generateGroupByKey(streamEvent);
                 if (!self.groupedStreamEvents.hasKey(key)) {
                     StreamEvent[] events = [];
@@ -38,7 +38,7 @@ public type GroupBy object {
                 }
             }
 
-            foreach arr in self.groupedStreamEvents.values() {
+            foreach var arr in self.groupedStreamEvents.values() {
                 var eventArr = <StreamEvent[]>arr;
                 if (eventArr is StreamEvent[]) {
                     self.nextProcessorPointer(eventArr);
@@ -54,7 +54,7 @@ public type GroupBy object {
     function generateGroupByKey(StreamEvent event) returns string {
         string key = "";
 
-        foreach field in self.groupByFields {
+        foreach var field in self.groupByFields {
             key += ", ";
             string? fieldValue = <string> event.data[field];
             match fieldValue {

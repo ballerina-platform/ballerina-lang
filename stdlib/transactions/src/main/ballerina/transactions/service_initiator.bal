@@ -93,7 +93,7 @@ service InitiatorService bind coordinatorListener {
                     txn.participants[participantId] = <Participant>participant;
                     RemoteProtocol[] coordinatorProtocols = [];
                     int i = 0;
-                    foreach participantProtocol in participantProtocols {
+                    foreach var participantProtocol in participantProtocols {
                         RemoteProtocol coordinatorProtocol = {
                             name:participantProtocol.name,
                             url:getCoordinatorProtocolAt(participantProtocol.name, transactionBlockId)

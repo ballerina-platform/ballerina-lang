@@ -223,7 +223,7 @@ function Request.parseCacheControlHeader () {
     string cacheControl = self.getHeader(CACHE_CONTROL);
     string[] directives = cacheControl.split(",");
 
-    foreach directive in directives {
+    foreach var directive in directives {
         directive = directive.trim();
         if (directive == NO_CACHE) {
             reqCC.noCache = true;

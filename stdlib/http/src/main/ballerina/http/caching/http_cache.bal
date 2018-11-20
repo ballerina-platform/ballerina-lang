@@ -99,7 +99,7 @@ public type HttpCache object {
             cachedResponses = responses;
         }
 
-        foreach cachedResp in cachedResponses {
+        foreach var cachedResp in cachedResponses {
             if (cachedResp.getHeader(ETAG) == etag && !etag.hasPrefix(WEAK_VALIDATOR_TAG)) {
                 matchingResponses[i] = cachedResp;
                 i = i + 1;
@@ -119,7 +119,7 @@ public type HttpCache object {
             cachedResponses = responses;
         }
 
-        foreach cachedResp in cachedResponses {
+        foreach var cachedResp in cachedResponses {
             if (cachedResp.hasHeader(ETAG) && weakValidatorEquals(etag, cachedResp.getHeader(ETAG))) {
                 matchingResponses[i] = cachedResp;
                 i = i + 1;

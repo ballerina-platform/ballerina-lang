@@ -110,7 +110,7 @@ function Listener.stop() {
 function Listener.sendSubscriptionRequests() {
     map[] subscriptionDetailsArray = self.retrieveSubscriptionParameters();
 
-    foreach subscriptionDetails in subscriptionDetailsArray {
+    foreach var subscriptionDetails in subscriptionDetailsArray {
         if (subscriptionDetails.keys().length() == 0) {
             continue;
         }

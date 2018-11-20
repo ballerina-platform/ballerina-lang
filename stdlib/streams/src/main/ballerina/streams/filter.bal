@@ -25,7 +25,7 @@ public type Filter object {
     public function process(StreamEvent[] streamEvents) {
         StreamEvent[] newStreamEventArr = [];
         int index = 0;
-        foreach event in streamEvents {
+        foreach var event in streamEvents {
             if (self.conditionFunc(event.data)) {
                 newStreamEventArr[index] = event;
                 index += 1;

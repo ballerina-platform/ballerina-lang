@@ -507,7 +507,7 @@ function handle304Response(Response validationResponse, Response cachedResponse,
             // Assuming ETags are the only strong validators
             Response[] matchingCachedResponses = cache.getAllByETag(getCacheKey(httpMethod, path), etag);
 
-            foreach resp in matchingCachedResponses {
+            foreach var resp in matchingCachedResponses {
                 updateResponse(resp, validationResponse);
             }
             log:printDebug("304 response received, with a strong validator. Response(s) updated");
@@ -516,7 +516,7 @@ function handle304Response(Response validationResponse, Response cachedResponse,
             // The weak validator should be either an ETag or a last modified date. Precedence given to ETag
             Response[] matchingCachedResponses = cache.getAllByWeakETag(getCacheKey(httpMethod, path), etag);
 
-            foreach resp in matchingCachedResponses {
+            foreach var resp in matchingCachedResponses {
                 updateResponse(resp, validationResponse);
             }
             log:printDebug("304 response received, with a weak validator. Response(s) updated");
@@ -712,10 +712,10 @@ function replaceHeaders(Response cachedResponse, Response validationResponse) {
 
     log:printDebug("Updating response headers using validation response.");
     
-    foreach headerName in headerNames {
+    foreach var headerName in headerNames {
         cachedResponse.removeHeader(headerName);
         string[] headerValues = validationResponse.getHeaders(headerName);
-        foreach value in headerValues {
+        foreach var value in headerValues {
             cachedResponse.addHeader(headerName, value);
         }
     }
@@ -726,7 +726,7 @@ function retain2xxWarnings(Response cachedResponse) {
         string[] warningHeaders = cachedResponse.getHeaders(WARNING);
         cachedResponse.removeHeader(WARNING);
         // TODO: Need to handle this in a better way using regex when the required regex APIs are there
-        foreach warningHeader in warningHeaders {
+        foreach var warningHeader in warningHeaders {
             if (warningHeader.contains("214") || warningHeader.contains("299")) {
                 log:printDebug(function() returns string {
                     return "Adding warning header: " + warningHeader;

@@ -30,7 +30,7 @@ public type Connection object {
         Response response = buildResponse(message);
         FilterContext? filterContext = self.filterContext;
         if (filterContext is FilterContext) {
-            foreach filter in self.config.filters {
+            foreach var filter in self.config.filters {
                 if (!filter.filterResponse(response, filterContext)){
                     Response res = new;
                     res.statusCode = 500;
@@ -158,7 +158,7 @@ function Connection.redirect(Response response, RedirectCode code, string[] loca
         response.statusCode = PERMANENT_REDIRECT_308;
     }
     string locationsStr = "";
-    foreach location in locations {
+    foreach var location in locations {
         locationsStr = locationsStr + location + ",";
     }
     locationsStr = locationsStr.substring(0, (locationsStr.length()) - 1);
