@@ -45,8 +45,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -100,8 +100,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -493,10 +493,10 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
         foreach.variableDefinitionNode = ASTBuilderUtil.createTupleVariableDef(foreachVariables.pos, foreachVariables);
         foreach.isDeclaredWithVar = true;
-        Set<BType> types = new HashSet<>();
+        List<BType> types = new LinkedList<>();
         types.add(foreachVariables.memberVariables.get(0).type);
         types.add(foreachVariables.memberVariables.get(1).type);
-        foreach.type = new BUnionType(null, types, false);
+        foreach.varType = new BTupleType(types);
 
         outputLambdaFunc.function.body.stmts.add(foreach);
 
