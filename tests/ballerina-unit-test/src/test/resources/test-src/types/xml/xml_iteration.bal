@@ -63,29 +63,27 @@ function mapOpTest() returns xml[] {
 }
 
 function filterOpTest() returns xml[] {
-    xml[] books = bookstore["book"].
-                  filter(function (xml book) returns boolean {
-                           var result = <int>book["year"].getTextValue();
-                           if (result is int) {
-                              return result > 2004;
-                           } else {
-                              return false;
-                           }
-                   });
+    xml[] books = bookstore["book"].filter(function (xml book) returns boolean {
+                                               var result = <int>book["year"].getTextValue();
+                                               if (result is int) {
+                                                  return result > 2004;
+                                               } else {
+                                                  return false;
+                                               }
+                                            });
     return books;
 }
 
 function chainedIterableOps() returns xml[] {
-    xml[] authors = bookstore["book"].
-                    filter(function (xml book) returns boolean {
-                           var result = <int>book["year"].getTextValue();
-                           if (result is int) {
-                              return result > 2004;
-                           } else {
-                              return false;
-                           }
-                     }).map(function (xml book) returns xml {
-                             return book["author"];
-                     });
+    xml[] authors = bookstore["book"].filter(function (xml book) returns boolean {
+                                               var result = <int>book["year"].getTextValue();
+                                               if (result is int) {
+                                                  return result > 2004;
+                                               } else {
+                                                  return false;
+                                               }
+                                            }).map(function (xml book) returns xml {
+                                                  return book["author"];
+                                            });
     return authors;
 }
