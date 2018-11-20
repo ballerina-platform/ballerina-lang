@@ -22,10 +22,10 @@ import ballerina/io;
 # + keyStoreFilePath - Key store file path
 # + keyStorePassword - Key store password
 public type JWTIssuerConfig record {
-    string keyAlias;
-    string keyPassword;
-    string keyStoreFilePath;
-    string keyStorePassword;
+    string keyAlias = "";
+    string keyPassword = "";
+    string keyStoreFilePath = "";
+    string keyStorePassword = "";
     !...
 };
 
@@ -57,7 +57,10 @@ function createHeader(JwtHeader header) returns (string|error) {
     }
     headerJson[ALG] = header.alg;
     headerJson[TYP] = "JWT";
-    headerJson = addMapToJson(headerJson, header.customClaims);
+    var customClaims = header["customClaims"];
+    if (customClaims is map) {
+        headerJson = addMapToJson(headerJson, customClaims);
+    }
     string headerValInString = headerJson.toString();
     string encodedPayload = check headerValInString.base64Encode();
     return encodedPayload;
@@ -73,12 +76,15 @@ function createPayload(JwtPayload payload) returns (string|error) {
     payloadJson[SUB] = payload.sub;
     payloadJson[ISS] = payload.iss;
     payloadJson[EXP] = payload.exp;
-    payloadJson[IAT] = payload.iat;
+    payloadJson[IAT] = payload["iat"] ?: 0;
     if (payload.jti != "") {
         payloadJson[JTI] = payload.jti;
     }
     payloadJson[AUD] = convertStringArrayToJson(payload.aud);
-    payloadJson = addMapToJson(payloadJson, payload.customClaims);
+    var customClaims = payload["customClaims"];
+    if (customClaims is map) {
+        payloadJson = addMapToJson(payloadJson, customClaims);
+    }
     string payloadInString = payloadJson.toString();
     return payloadInString.base64Encode();
 }

@@ -80,7 +80,7 @@ public class CompressionTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns.length == 0 || returns[0] == null,
                            "Invalid Return Values.");
-        Assert.assertTrue(((BMap)((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue()
+        Assert.assertTrue(((BMap) ((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue()
                 .contains("Path of the folder to be decompressed is not available"));
     }
 
@@ -95,7 +95,7 @@ public class CompressionTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns.length == 0 || returns[0] == null,
                            "Invalid Return Values.");
-        Assert.assertTrue(((BMap)((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue()
+        Assert.assertTrue(((BMap) ((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue()
                 .contains("Path to place the decompressed file is not available"));
     }
 
@@ -112,7 +112,7 @@ public class CompressionTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns.length == 0 || returns[0] == null,
                            "Invalid Return Values.");
-        Assert.assertEquals(((BMap)((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue()
+        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue()
                 .startsWith("Path of the folder to be decompressed is not available"), true);
     }
 
@@ -129,7 +129,7 @@ public class CompressionTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns.length == 0 || returns[0] == null,
                            "Invalid Return Values.");
-        Assert.assertEquals(((BMap)((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue()
+        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue()
                 .startsWith("Path to place the decompressed file is not available"), true);
     }
 
@@ -182,7 +182,7 @@ public class CompressionTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns.length == 0 || returns[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BMap)((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue()
+        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue()
                 .startsWith("Error occurred when compressing"), true);
     }
 
@@ -196,7 +196,7 @@ public class CompressionTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns.length == 0 || returns[0] == null, "Invalid Return Values.");
-        Assert.assertTrue(((BMap)((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue()
+        Assert.assertTrue(((BMap) ((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue()
                 .contains("Path of the folder to be compressed is not available"));
     }
 
@@ -210,7 +210,7 @@ public class CompressionTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns.length == 0 || returns[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BMap)((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue()
+        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue()
                 .startsWith("Error occurred when compressing"), true);
     }
 
@@ -224,7 +224,7 @@ public class CompressionTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns.length == 0 || returns[0] == null, "Invalid Return Values.");
-        Assert.assertTrue(((BMap)((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue()
+        Assert.assertTrue(((BMap) ((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue()
                 .contains("Path of the folder to be compressed is not available"));
     }
 
@@ -260,7 +260,7 @@ public class CompressionTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns.length == 0 || returns[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BMap)((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue(),
+        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue(),
                 "Length of the byte array is empty");
     }
 
@@ -276,7 +276,7 @@ public class CompressionTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns.length == 0 || returns[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BMap)((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue(),
+        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue(),
                 "Path to place the decompressed file is not available");
     }
 
@@ -293,7 +293,7 @@ public class CompressionTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns.length == 0 || returns[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BMap)((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue(),
+        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue(),
                 "Path to place the decompressed file is not available");
     }
 
@@ -324,7 +324,7 @@ public class CompressionTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns.length == 0 || returns[0] == null, "Invalid Return Values.");
-        Assert.assertTrue(((BMap)((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue()
+        Assert.assertTrue(((BMap) ((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue()
                 .contains("Path of the folder to be compressed is not available"));
     }
 
@@ -338,7 +338,7 @@ public class CompressionTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns.length == 0 || returns[0] == null, "Invalid Return Values.");
-        Assert.assertTrue(((BMap)((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue()
+        Assert.assertTrue(((BMap) ((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue()
                 .contains("Path of the folder to be compressed is not available"));
 
     }
@@ -355,8 +355,8 @@ public class CompressionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "decompressBlob", inputArg);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertFalse(returns.length == 0 || returns[0] == null,"Invalid Return Values.");
-        Assert.assertEquals(((BMap)((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue(),
+        Assert.assertFalse(returns.length == 0 || returns[0] == null, "Invalid Return Values.");
+        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue(),
                 "Arbitrary File Write attack attempted via an " +
                 "archive file. File name: ../../../../../../../../../../../../../../../../../../../../../../../../.." +
                 "/../../../../../../../../../../../../../../../tmp/evil.txt");
