@@ -678,17 +678,13 @@ public class Types {
             return false;
         }
 
-        // RHS type should have at least all the fields as well attached functions of LHS type.
-        if (lhsType.fields.size() > rhsType.fields.size()) {
-            return false;
-        }
-
-        // If only one is a closed record, the records aren't equivalent
+        // If the LHS record is closed and the RHS record is open, the records aren't equivalent
         if (lhsType.sealed && !rhsType.sealed) {
             return false;
         }
 
-        // The rest field types should match if they are open records
+        // If both are open records, the rest field type of the RHS record should be assignable to the rest field
+        // type of the LHS type.
         if ((!lhsType.sealed && !rhsType.sealed) &&
                 !isAssignable(rhsType.restFieldType, lhsType.restFieldType, unresolvedTypes)) {
             return false;
@@ -1458,20 +1454,30 @@ public class Types {
         return true;
     }
 
-    private boolean checkFieldEquivalency(BStructureType lhsType, BStructureType rhsType,
-                                          List<TypePair> unresolvedTypes) {
-        Map<Name, BField> rhsFields = rhsType.fields.stream().collect(
-                Collectors.toMap(BField::getName, field -> field));
+    private boolean checkFieldEquivalency(BRecordType lhsType, BRecordType rhsType, List<TypePair> unresolvedTypes) {
+        Map<Name, BField> rhsFields = rhsType.fields.stream().collect(Collectors.toMap(BField::getName, f -> f));
 
+        // Check if the RHS record has corresponding fields to those of the LHS record.
         for (BField lhsField : lhsType.fields) {
             BField rhsField = rhsFields.get(lhsField.name);
 
-            if (rhsField == null || !isAssignable(rhsField.type, lhsField.type, unresolvedTypes)) {
+            // If the LHS field is a required one, there has to be a corresponding required field in the RHS record.
+            if (!Symbols.isOptional(lhsField.symbol) && (rhsField == null || Symbols.isOptional(rhsField.symbol))) {
                 return false;
             }
+
+            // If there is a corresponding RHS field, it should be assignable to the LHS field.
+            if (rhsField != null && !isAssignable(rhsField.type, lhsField.type, unresolvedTypes)) {
+                return false;
+            }
+
+            rhsFields.remove(lhsField.name);
         }
 
-        return true;
+        // If there are any remaining RHS fields, the types of those should be assignable to the rest field type of
+        // the LHS record.
+        return rhsFields.entrySet().stream().allMatch(
+                fieldEntry -> isAssignable(fieldEntry.getValue().type, lhsType.restFieldType, unresolvedTypes));
     }
 
     private boolean checkPublicObjectEquivalency(BStructureType lhsType, BStructureType rhsType,

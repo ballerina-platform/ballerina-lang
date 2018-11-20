@@ -107,7 +107,7 @@ public class Message {
         Map<String, BType> bMapFields = new HashMap<>();
         if (bType instanceof BRecordType) {
             bMapValue = BLangConnectorSPIUtil.createBStruct(programFile, bType.getPackagePath(), bType.getName());
-            for (BField messageField : ((BRecordType) bType).getFields()) {
+            for (BField messageField : ((BRecordType) bType).getFields().values()) {
                 bMapFields.put(messageField.fieldName, messageField.fieldType);
             }
             bMessage = bMapValue;
