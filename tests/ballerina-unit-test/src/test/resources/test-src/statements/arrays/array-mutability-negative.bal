@@ -16,63 +16,63 @@
 
 // Super Type
 type Person record {
-    string name;
+    string name = "";
     !...
 };
 
 // Assignable to Person type
 type Employee record {
-    string name;
-    boolean intern;
+    string name = "";
+    boolean intern = false;
     !...
 };
 
 function mismatchingCovariace() {
-    Employee[] x1;
+    Employee[] x1 = [];
     Person[] x2 = x1;
 
-    Person[] x3;
+    Person[] x3 = [];
     Employee[] x4 = x3; // Compile Error
 
-    Employee[][] x5;
+    Employee[][] x5 = [];
     Person[][] x6 = x5;
 
-    Person[][] x7;
+    Person[][] x7 = [];
     Employee[][] x8 = x7; // Compile Error
 
-    Employee[][] x9;
+    Employee[][] x9 = [];
     Person[] x10 = x9; // Compile Error
     Person[][][] x11 = x9; // Compile Error
 
-    (int|Person?)[] x12;
+    (int|Person?)[] x12 = [];
     (int|Person|boolean?)[] x13 = x12;
     (int|Person)[] x14 = x12; // Compile Error
 
-    int[] x15;
+    int[] x15 = [];
     int[3] x16 = x15; // Compile Error
 
-    int[3][] x17;
+    int[3][] x17 = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
     int[3][3] x18 = x17; // Compile Error
 }
 
 type Animal object {
-    public string name;
+    public string name = "";
 
     public function getName() returns string {
-        return name;
+        return self.name;
     }
 };
 
 type Cat object { // Not Assignable to Animal Object
-    public string catName;
-    public int age;
+    public string catName = "";
+    public int age = 0;
 
     public function getName() returns string {
-        return catName;
+        return self.catName;
     }
 
     public function getNameAndAge() returns (string, int) {
-        return (catName, age);
+        return (self.catName, self.age);
     }
 };
 
@@ -82,11 +82,11 @@ function mismatchingCovariace2() {
 }
 
 function testUnionOfArrays2() {
-    (int|boolean)[] x1;
-    int[]|boolean[] x2;
+    (int|boolean)[] x1 = [0, 0, 0];
+    int[]|boolean[] x2 = [0, 0, 0];
 
-    int[] intArray;
-    boolean[] boolArray;
+    int[] intArray = [];
+    boolean[] boolArray = [];
 
     x2 = x1; // Compile Error
 }

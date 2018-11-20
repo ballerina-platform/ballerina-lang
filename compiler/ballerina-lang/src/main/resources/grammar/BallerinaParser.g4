@@ -601,6 +601,7 @@ variableReference
     |   variableReference field                                                 # fieldVariableReference
     |   variableReference xmlAttrib                                             # xmlAttribVariableReference
     |   variableReference invocation                                            # invocationReference
+    |   typeDescExpr invocation                                                 # typeDescExprInvocationReference
     ;
 
 field
@@ -732,7 +733,11 @@ expression
     |   trapExpr                                                            # trapExpression
     |	expression matchExpression										    # matchExprExpression
     |   expression ELVIS expression                                         # elvisExpression
-    |   typeName                                                            # typeAccessExpression
+    |   typeDescExpr                                                        # typeAccessExpression
+    ;
+
+typeDescExpr
+    : typeName
     ;
 
 typeInitExpr

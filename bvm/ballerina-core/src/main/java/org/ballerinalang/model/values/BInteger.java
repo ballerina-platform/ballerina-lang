@@ -31,6 +31,7 @@ import java.math.MathContext;
 public final class BInteger extends BValueType implements BRefType<Long> {
 
     private long value;
+    private BType type = BTypes.typeInt;
 
     public BInteger(long value) {
         this.value = value;
@@ -68,7 +69,12 @@ public final class BInteger extends BValueType implements BRefType<Long> {
 
     @Override
     public BType getType() {
-        return BTypes.typeInt;
+        return type;
+    }
+
+    @Override
+    public void setType(BType type) {
+        this.type = type;
     }
 
     @Override
