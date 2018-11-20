@@ -25,7 +25,7 @@ public function noParamEntry() returns int {
 
 public function combinedTypeEntry(int i, float f, string s, byte b, boolean bool, json j, xml x, Employee e,
                                   string... args) returns string {
-    string restArgs;
+    string restArgs = "";
     foreach str in args {
         restArgs += str + " ";
     }
@@ -36,5 +36,5 @@ public function combinedTypeEntry(int i, float f, string s, byte b, boolean bool
 }
 
 public type Employee record {
-    string name;
+    string name = "";
 };
