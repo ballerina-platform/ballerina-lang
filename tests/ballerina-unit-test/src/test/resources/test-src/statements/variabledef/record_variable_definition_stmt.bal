@@ -232,7 +232,7 @@ function testRecordInsideTupleInsideRecord2WithVar() returns (string, int, int, 
 type UnionOne record {
     boolean var1;
     int var2;
-    float var3;
+    float var3?;
 };
 
 type UnionTwo record {
@@ -251,4 +251,24 @@ function testRecordVarWithUnionType() returns (int, float, (UnionOne|UnionTwo)) 
     UnionThree u3 = {var1: 50, var2: 51.1, var3: u1};
     UnionThree {var1, var2, var3, ...rest} = u3;
     return (var1, var2, var3);
+}
+
+type WithRestParam record {
+    int var1;
+    string...
+};
+
+function testRecordVarWithRestParam() returns (int, string?, string?, int, string?, string?) {
+    WithRestParam u1 = {var1: 12, var2: "Bal"};
+    WithRestParam {var1, var2, var3} = u1;
+    var {var1: iVar1, var2: iVar2, var3: iVar3} = u1;
+    return (var1, var2, var3, iVar1, iVar2, iVar3);
+}
+
+function testWithMap() returns (int?, int?, int?, anydata, anydata, anydata) {
+    map<int> intMap = { a: 1, b: 2 };
+    map<anydata> anydataMap = { a: true, b: 100.1, c: "Bal" };
+    map<int> { a, b, c } = intMap;
+    var {a: A, b: B, c: C} = anydataMap;
+    return (a, b, c, A, B, C);
 }

@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
+import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -128,6 +129,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
@@ -960,7 +962,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         BLangVariable var = bLangTupleVariableDef.var;
         if (var.expr == null) {
             addUninitializedVar(var);
-            return;
         }
     }
 
@@ -973,7 +974,18 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         BLangVariable var = bLangRecordVariableDef.var;
         if (var.expr == null) {
             addUninitializedVar(var);
-            return;
+        }
+    }
+
+    @Override
+    public void visit(BLangErrorVariable bLangErrorVariable) {
+    }
+
+    @Override
+    public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
+        BLangVariable var = bLangErrorVariableDef.errorVariable;
+        if (var.expr == null) {
+            addUninitializedVar(var);
         }
     }
 

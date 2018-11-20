@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
+import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -126,6 +127,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
@@ -410,6 +412,15 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(bLangRecordVariable, env, bLangRecordVariable.symbol);
             analyzeNode(bLangRecordVariable.expr, varInitEnv);
             setTaintedStatus(bLangRecordVariable, this.taintedStatus);
+        }
+    }
+
+    @Override
+    public void visit(BLangErrorVariable bLangErrorVariable) {
+        if (bLangErrorVariable.expr != null) {
+            SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(bLangErrorVariable, env, bLangErrorVariable.symbol);
+            analyzeNode(bLangErrorVariable.expr, varInitEnv);
+            setTaintedStatus(bLangErrorVariable, this.taintedStatus);
         }
     }
 
@@ -1467,6 +1478,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         visit(bLangRecordVariableDef.var);
     }
 
+    @Override
+    public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
+        visit(bLangErrorVariableDef.errorVariable);
+    }
+
     /**
      * If any one of the given expressions are tainted, the final result will be tainted.
      *
@@ -1537,6 +1553,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             BLangSimpleVariable simpleVarNode = (BLangSimpleVariable) varNode;
             if (taintedStatus != TaintedStatus.IGNORED && (overridingAnalysis || !simpleVarNode.symbol.tainted)) {
                 setTaintedStatus(simpleVarNode.symbol, taintedStatus);
+            }
+        }
+
+        if (varNode.getKind() == NodeKind.ERROR_VARIABLE) {
+            setTaintedStatus(((BLangErrorVariable) varNode).reason, taintedStatus);
+            if (((BLangErrorVariable) varNode).detail != null) {
+                setTaintedStatus(((BLangErrorVariable) varNode).detail, taintedStatus);
             }
         }
     }

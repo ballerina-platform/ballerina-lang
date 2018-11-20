@@ -55,6 +55,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -350,6 +351,14 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         return resolveTargetSymbolForStamping(targetType, variableSourceType, name, pos);
+    }
+
+    public BSymbol createSymbolForDetailBuiltInMethod(BLangIdentifier name, BType type) {
+        if (type.tag != TypeTags.ERROR) {
+            return symTable.notFoundSymbol;
+        }
+        return symTable.createOperator(names.fromIdNode(name), new ArrayList<>(),
+                ((BErrorType) type).detailType, InstructionCodes.DETAIL);
     }
 
     private BType resolveTargetTypeForStamping(BLangExpression targetTypeExpression) {

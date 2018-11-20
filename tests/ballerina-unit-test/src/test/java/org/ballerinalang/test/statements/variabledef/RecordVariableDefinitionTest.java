@@ -46,9 +46,9 @@ public class RecordVariableDefinitionTest {
     @BeforeClass
     public void setup() {
         result = BCompileUtil.
-                compile("test-src/statements/variabledef/record-variable-definition-stmt.bal");
+                compile("test-src/statements/variabledef/record_variable_definition_stmt.bal");
         resultNegative = BCompileUtil.
-                compile("test-src/statements/variabledef/record-variable-definition-stmt-negative.bal");
+                compile("test-src/statements/variabledef/record_variable_definition_stmt_negative.bal");
     }
 
     @Test(description = "Test simple record variable definition")
@@ -239,9 +239,33 @@ public class RecordVariableDefinitionTest {
         Assert.assertEquals(((BMap) returns[2]).get("restP1").stringValue(), "stringP1");
     }
 
+    @Test(description = "Test record var def with rest parameter")
+    public void testRecordVarWithRestParam() {
+        BValue[] returns = BRunUtil.invoke(result, "testRecordVarWithRestParam");
+        Assert.assertEquals(returns.length, 6);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 12);
+        Assert.assertEquals(returns[1].stringValue(), "Bal");
+        Assert.assertNull(returns[2]);
+        Assert.assertEquals(((BInteger) returns[3]).intValue(), 12);
+        Assert.assertEquals(returns[4].stringValue(), "Bal");
+        Assert.assertNull(returns[5]);
+    }
+
+    @Test(description = "Test record var def with map")
+    public void testWithMap() {
+        BValue[] returns = BRunUtil.invoke(result, "testWithMap");
+        Assert.assertEquals(returns.length, 6);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
+        Assert.assertNull(returns[2]);
+        Assert.assertTrue(((BBoolean) returns[3]).booleanValue());
+        Assert.assertEquals(((BFloat) returns[4]).floatValue(), 100.1);
+        Assert.assertEquals(returns[5].stringValue(), "Bal");
+    }
+
     @Test
     public void testNegativeRecordVariables() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 11);
+        Assert.assertEquals(resultNegative.getErrorCount(), 14);
         String redeclaredSymbol = "redeclared symbol ";
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'fName'", 37, 26);
@@ -264,5 +288,11 @@ public class RecordVariableDefinitionTest {
                 "incompatible types: expected 'string', found 'boolean'", 99, 14);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'boolean', found 'string'", 100, 15);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'map<boolean>', found 'map<int>'", 128, 27);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'boolean', found 'boolean?'", 130, 17);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'int', found 'int?'", 133, 13);
     }
 }

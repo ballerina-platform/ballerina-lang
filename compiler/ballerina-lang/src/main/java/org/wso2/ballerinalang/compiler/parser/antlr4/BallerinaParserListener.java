@@ -924,6 +924,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitStructuredBindingPattern(BallerinaParser.StructuredBindingPatternContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#errorBindingPattern}.
+	 * @param ctx the parse tree
+	 */
+	void enterErrorBindingPattern(BallerinaParser.ErrorBindingPatternContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#errorBindingPattern}.
+	 * @param ctx the parse tree
+	 */
+	void exitErrorBindingPattern(BallerinaParser.ErrorBindingPatternContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#tupleBindingPattern}.
 	 * @param ctx the parse tree
 	 */

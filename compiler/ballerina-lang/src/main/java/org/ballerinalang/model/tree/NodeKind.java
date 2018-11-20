@@ -46,6 +46,7 @@ public enum NodeKind {
     VARIABLE,
     TUPLE_VARIABLE,
     RECORD_VARIABLE,
+    ERROR_VARIABLE,
     WORKER,
     XMLNS,
     CHANNEL,

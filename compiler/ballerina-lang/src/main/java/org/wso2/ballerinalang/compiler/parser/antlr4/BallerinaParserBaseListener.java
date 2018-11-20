@@ -1096,6 +1096,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterErrorBindingPattern(BallerinaParser.ErrorBindingPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitErrorBindingPattern(BallerinaParser.ErrorBindingPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterTupleBindingPattern(BallerinaParser.TupleBindingPatternContext ctx) { }
 	/**
 	 * {@inheritDoc}

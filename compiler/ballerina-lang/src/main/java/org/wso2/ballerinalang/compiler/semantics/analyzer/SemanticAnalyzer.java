@@ -50,17 +50,20 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -76,6 +79,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
+import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
@@ -134,6 +138,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
@@ -181,6 +186,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -478,6 +484,32 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         typeChecker.checkExpr(rhsExpr, varInitEnv, lhsType);
     }
 
+    public void visit(BLangErrorVariable varNode) {
+        if (varNode.isDeclaredWithVar) {
+            handleDeclaredWithVar(varNode);
+            return;
+        }
+
+        if (varNode.type == null) {
+            varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
+        }
+
+        if (!validateErrorVariable(varNode)) {
+            varNode.type = symTable.semanticError;
+            return;
+        }
+
+        symbolEnter.defineNode(varNode, env);
+
+        if (varNode.expr == null) {
+            // we have no rhs to do type checking
+            return;
+        }
+
+        typeChecker.checkExpr(varNode.expr, env, varNode.type);
+
+    }
+
     public void visit(BLangRecordVariable varNode) {
 
         if (varNode.isDeclaredWithVar) {
@@ -562,6 +594,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         } else if (NodeKind.TUPLE_VARIABLE == variable.getKind()) {
             if (TypeTags.TUPLE != rhsType.tag) {
                 dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, rhsType);
+                variable.type = symTable.semanticError;
                 return;
             }
 
@@ -569,16 +602,44 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             tupleVariable.type = rhsType;
 
             if (!(checkTypeAndVarCountConsistency(tupleVariable))) {
+                tupleVariable.type = symTable.semanticError;
                 return;
             }
 
             symbolEnter.defineNode(tupleVariable, env);
 
         } else if (NodeKind.RECORD_VARIABLE == variable.getKind()) {
+            if (TypeTags.RECORD != rhsType.tag && TypeTags.MAP != rhsType.tag && TypeTags.JSON != rhsType.tag) {
+                dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_RECORD_VAR, rhsType);
+                variable.type = symTable.semanticError;
+                return;
+            }
+
             BLangRecordVariable recordVariable = (BLangRecordVariable) variable;
             recordVariable.type = rhsType;
 
-            validateRecordVariable(recordVariable);
+            if (!validateRecordVariable(recordVariable)) {
+                recordVariable.type = symTable.semanticError;
+                return;
+            }
+
+            symbolEnter.defineNode(recordVariable, env);
+
+        } else if (NodeKind.ERROR_VARIABLE == variable.getKind()) {
+            if (TypeTags.ERROR != rhsType.tag) {
+                dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_ERROR_VAR, rhsType);
+                variable.type = symTable.semanticError;
+                return;
+            }
+
+            BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
+            errorVariable.type = rhsType;
+            if (!validateErrorVariable(errorVariable)) {
+                errorVariable.type = symTable.semanticError;
+                return;
+            }
+
+            symbolEnter.defineNode(errorVariable, env);
         }
     }
 
@@ -731,6 +792,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             case TypeTags.RECORD:
                 recordVarType = (BRecordType) recordVar.type;
                 break;
+            case TypeTags.MAP:
+                recordVarType = createSameTypedFieldsRecordType(recordVar, ((BMapType) recordVar.type).constraint);
+                break;
             case TypeTags.ANY:
             case TypeTags.ANYDATA:
                 recordVarType = createSameTypedFieldsRecordType(recordVar, recordVar.type);
@@ -770,7 +834,19 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     dlog.error(recordVar.pos, DiagnosticCode.INVALID_FIELD_IN_RECORD_BINDING_PATTERN,
                             variable.getKey().getValue(), recordVar.type);
                 } else {
-                    value.type = recordVarType.restFieldType;
+                    BType restType;
+                    if (recordVarType.restFieldType.tag == TypeTags.ANYDATA ||
+                            recordVarType.restFieldType.tag == TypeTags.ANY) {
+                        restType = recordVarType.restFieldType;
+                    } else {
+                        restType = new BUnionType(null,
+                                new LinkedHashSet<BType>() {{
+                                    add(recordVarType.restFieldType);
+                                    add(symTable.nilType);
+                                }},
+                                true);
+                    }
+                    value.type = restType;
                     value.accept(this);
                 }
                 continue;
@@ -789,13 +865,51 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return validRecord;
     }
 
+    private boolean validateErrorVariable(BLangErrorVariable errorVariable) {
+        BErrorType errorType;
+        switch (errorVariable.type.tag) {
+            case TypeTags.ERROR:
+                errorType = (BErrorType) errorVariable.type;
+                break;
+            case TypeTags.ANY:
+            case TypeTags.ANYDATA:
+                BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.RECORD, Flags.PUBLIC, Names.ERROR,
+                        env.enclPkg.symbol.pkgID, null, env.enclPkg.symbol);
+                errorType = new BErrorType(errorSymbol, symTable.stringType,
+                        new BMapType(TypeTags.MAP, errorVariable.type, null));
+                break;
+            default:
+                dlog.error(errorVariable.pos, DiagnosticCode.INVALID_ERROR_BINDING_PATTERN, errorVariable.type);
+                return false;
+        }
+
+        errorVariable.reason.type = errorType.reasonType;
+        errorVariable.reason.accept(this);
+        if (errorVariable.detail != null) {
+            errorVariable.detail.type = errorType.detailType;
+            errorVariable.detail.accept(this);
+        }
+        return true;
+    }
+
     private BRecordType createSameTypedFieldsRecordType(BLangRecordVariable recordVar, BType fieldTypes) {
+        BType fieldType;
+        if (fieldTypes.tag == TypeTags.ANYDATA || fieldTypes.tag == TypeTags.ANY) {
+            fieldType = fieldTypes;
+        } else {
+            fieldType = new BUnionType(null,
+                    new LinkedHashSet<BType>() {{
+                        add(fieldTypes);
+                        add(symTable.nilType);
+                    }},
+                    true);
+        }
         BRecordTypeSymbol recordSymbol =
                 Symbols.createRecordSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
         List<BField> fields = recordVar.variableList.stream()
                 .map(bLangRecordVariableKeyValue -> bLangRecordVariableKeyValue.key.value)
                 .map(fieldName -> new BField(names.fromString(fieldName), new BVarSymbol(0,
-                        names.fromString(fieldName), env.enclPkg.symbol.pkgID, fieldTypes, recordSymbol)))
+                        names.fromString(fieldName), env.enclPkg.symbol.pkgID, fieldType, recordSymbol)))
                 .collect(Collectors.toList());
 
         BRecordType recordVarType = (BRecordType) symTable.recordType;
@@ -850,6 +964,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         analyzeDef(varDefNode.var, env);
+    }
+
+    public void visit(BLangErrorVariableDef varDefNode) {
+        analyzeDef(varDefNode.errorVariable, env);
     }
 
     public void visit(BLangRecordVariableDef varDefNode) {

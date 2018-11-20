@@ -20,7 +20,7 @@ type Age record {
 };
 
 type Person record {
-    string name;
+    string name?;
     boolean married;
 };
 
@@ -103,7 +103,7 @@ function testVariableAssignment2() {
 type UnionOne record {
     boolean var1;
     int var2;
-    float var3;
+    float var3?;
 };
 
 type UnionTwo record {
@@ -121,4 +121,14 @@ function testRecordVarWithUnionType() {
     UnionOne u1 = {var1: false, var2: 12, restP1: "stringP1", restP2: true};
     UnionThree u3 = {var1: 50, var2: 51.1, var3: u1};
     UnionThree {var1, var2, var3: {var1: var3, var2: var4}, ...rest} = u3;
+}
+
+function testWithMap() {
+    map<int> intMap = {a: 1, b: 2};
+    map<boolean> {a, b} = intMap; // expected 'map<boolean>', found 'map<int>'
+    boolean? A = a;
+    boolean B = b; // expected 'boolean', found 'boolean?'
+    var {a: x, b: y} = intMap;
+    int? X = x;
+    int Y = y; // expected 'int', found 'int?'
 }

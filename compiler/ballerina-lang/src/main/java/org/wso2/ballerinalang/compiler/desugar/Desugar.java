@@ -71,6 +71,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
+import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -168,6 +169,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
@@ -239,6 +241,8 @@ public class Desugar extends BLangNodeVisitor {
     private static final String QUERY_TABLE_WITHOUT_JOIN_CLAUSE = "queryTableWithoutJoinClause";
     private static final String CREATE_FOREVER = "startForever";
     private static final String BASE_64 = "base64";
+    private static final String ERROR_REASON_FUNCTION_NAME = "reason";
+    private static final String ERROR_DETAIL_FUNCTION_NAME = "detail";
 
     private SymbolTable symTable;
     private SymbolResolver symResolver;
@@ -763,6 +767,32 @@ public class Desugar extends BLangNodeVisitor {
         result = rewrite(blockStmt, env);
     }
 
+    @Override
+    public void visit(BLangErrorVariableDef varDefNode) {
+
+        BLangErrorVariable errorVariable = varDefNode.errorVariable;
+
+        //create error destruct block stmt
+        final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varDefNode.pos);
+
+        //create a array of any-type based on the dimension
+        BType runTimeType = errorVariable.type;
+
+        //create a simple var for the error 'error x = ($error$)'
+        final BLangSimpleVariable error = ASTBuilderUtil.createVariable(varDefNode.pos, "", runTimeType, null,
+                new BVarSymbol(0, names.fromString("$error$"), this.env.scope.owner.pkgID, runTimeType,
+                        this.env.scope.owner));
+        error.expr = errorVariable.expr;
+        final BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(varDefNode.pos, blockStmt);
+        variableDef.var = error;
+
+        //create the variable definition statements using the root block stmt created
+        createVarDefStmts(errorVariable, blockStmt, error.symbol, null);
+
+        //finally rewrite the populated block statement
+        result = rewrite(blockStmt, env);
+    }
+
     /**
      * This method iterate through each member of the tupleVar and create the relevant var def statements. This method
      * does the check for node kind of each member and call the related var def creation method.
@@ -785,20 +815,23 @@ public class Desugar extends BLangNodeVisitor {
                 BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(variable.pos, symTable.intType, (long) index);
                 createSimpleVarDefStmt((BLangSimpleVariable) variable, parentBlockStmt, indexExpr, tupleVarSymbol,
                         parentIndexAccessExpr);
-            } else if (variable.getKind() == NodeKind.TUPLE_VARIABLE) { //else recursively create the var def statements
-                BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
-                BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(tupleVariable.pos, symTable.intType,
-                        (long) index);
-                BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(tupleVariable.pos,
+                continue;
+            }
+
+            BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(variable.pos, symTable.intType,
+                    (long) index);
+
+            if (variable.getKind() == NodeKind.TUPLE_VARIABLE) { //else recursively create the var def statements
+                BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(variable.pos,
                         new BArrayType(symTable.anyType), tupleVarSymbol, indexExpr);
                 if (parentIndexAccessExpr != null) {
                     arrayAccessExpr.expr = parentIndexAccessExpr;
                 }
                 createVarDefStmts((BLangTupleVariable) variable, parentBlockStmt, tupleVarSymbol, arrayAccessExpr);
-            } else if (variable.getKind() == NodeKind.RECORD_VARIABLE) {
-                BLangRecordVariable recordVariable = (BLangRecordVariable) variable;
-                BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(recordVariable.pos, symTable.intType,
-                        (long) index);
+                continue;
+            }
+
+            if (variable.getKind() == NodeKind.RECORD_VARIABLE) {
                 BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(
                         parentTupleVariable.pos, new BMapType(TypeTags.RECORD, symTable.anyType, null),
                         tupleVarSymbol, indexExpr);
@@ -806,6 +839,16 @@ public class Desugar extends BLangNodeVisitor {
                     arrayAccessExpr.expr = parentIndexAccessExpr;
                 }
                 createVarDefStmts((BLangRecordVariable) variable, parentBlockStmt, tupleVarSymbol, arrayAccessExpr);
+                continue;
+            }
+
+            if (variable.getKind() == NodeKind.ERROR_VARIABLE) {
+                BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(
+                        parentTupleVariable.pos, symTable.errorType, tupleVarSymbol, indexExpr);
+                if (parentIndexAccessExpr != null) {
+                    arrayAccessExpr.expr = parentIndexAccessExpr;
+                }
+                createVarDefStmts((BLangErrorVariable) variable, parentBlockStmt, tupleVarSymbol, arrayAccessExpr);
             }
         }
     }
@@ -836,35 +879,47 @@ public class Desugar extends BLangNodeVisitor {
 
         List<BLangRecordVariableKeyValue> variableList = parentRecordVariable.variableList;
         for (BLangRecordVariableKeyValue recordFieldKeyValue : variableList) {
-            if (recordFieldKeyValue.valueBindingPattern.getKind() == NodeKind.VARIABLE) {
+            BLangVariable variable = recordFieldKeyValue.valueBindingPattern;
+            if (variable.getKind() == NodeKind.VARIABLE) {
                 BLangLiteral indexExpr = ASTBuilderUtil.
-                        createLiteral((recordFieldKeyValue.valueBindingPattern).pos, symTable.stringType,
+                        createLiteral(variable.pos, symTable.stringType,
                                 recordFieldKeyValue.key.value);
-                createSimpleVarDefStmt((BLangSimpleVariable) recordFieldKeyValue.valueBindingPattern, parentBlockStmt,
+                createSimpleVarDefStmt((BLangSimpleVariable) variable, parentBlockStmt,
                         indexExpr, recordVarSymbol, parentIndexAccessExpr);
-            } else if (recordFieldKeyValue.valueBindingPattern.getKind() == NodeKind.TUPLE_VARIABLE) {
-                BLangTupleVariable tupleVariable = (BLangTupleVariable) recordFieldKeyValue.valueBindingPattern;
-                BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(tupleVariable.pos, symTable.stringType,
-                        recordFieldKeyValue.key.value);
-                BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(tupleVariable.pos,
+                continue;
+            }
+
+            BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(
+                    variable.pos, symTable.stringType, recordFieldKeyValue.key.value);
+
+            if (variable.getKind() == NodeKind.TUPLE_VARIABLE) {
+                BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(variable.pos,
                         new BArrayType(symTable.anyType), recordVarSymbol, indexExpr);
                 if (parentIndexAccessExpr != null) {
                     arrayAccessExpr.expr = parentIndexAccessExpr;
                 }
-                createVarDefStmts((BLangTupleVariable) recordFieldKeyValue.valueBindingPattern,
-                        parentBlockStmt, recordVarSymbol, arrayAccessExpr);
-            } else if (recordFieldKeyValue.valueBindingPattern.getKind() == NodeKind.RECORD_VARIABLE) {
-                BLangRecordVariable recordVariable = (BLangRecordVariable) recordFieldKeyValue.valueBindingPattern;
-                BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(recordVariable.pos, symTable.stringType,
-                        recordFieldKeyValue.key.value);
+                createVarDefStmts((BLangTupleVariable) variable, parentBlockStmt, recordVarSymbol, arrayAccessExpr);
+                continue;
+            }
+
+            if (variable.getKind() == NodeKind.RECORD_VARIABLE) {
                 BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(
                         parentRecordVariable.pos, new BMapType(TypeTags.RECORD, symTable.anyType, null),
                         recordVarSymbol, indexExpr);
                 if (parentIndexAccessExpr != null) {
                     arrayAccessExpr.expr = parentIndexAccessExpr;
                 }
-                createVarDefStmts((BLangRecordVariable) recordFieldKeyValue.valueBindingPattern, parentBlockStmt,
-                        recordVarSymbol, arrayAccessExpr);
+                createVarDefStmts((BLangRecordVariable) variable, parentBlockStmt, recordVarSymbol, arrayAccessExpr);
+                continue;
+            }
+
+            if (variable.getKind() == NodeKind.ERROR_VARIABLE) {
+                BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(
+                        parentRecordVariable.pos, variable.type, recordVarSymbol, indexExpr);
+                if (parentIndexAccessExpr != null) {
+                    arrayAccessExpr.expr = parentIndexAccessExpr;
+                }
+                createVarDefStmts((BLangErrorVariable) variable, parentBlockStmt, recordVarSymbol, arrayAccessExpr);
             }
         }
 
@@ -925,6 +980,79 @@ public class Desugar extends BLangNodeVisitor {
             filterOperation.inputType = filterOperation.outputType = getStringAnyTupleType();
             iterableContext.operations.add(filterOperation);
         }
+    }
+
+    /**
+     * This method will create the relevant var def statements for reason and details of the error variable.
+     * The var def statements are created by creating the reason() and detail() builtin methods.
+     */
+    private void createVarDefStmts(BLangErrorVariable parentErrorVariable, BLangBlockStmt parentBlockStmt,
+                                   BVarSymbol errorVarySymbol, BLangIndexBasedAccess parentIndexBasedAccess) {
+        parentErrorVariable.reason.expr = createErrorReasonBuiltinFunction(parentErrorVariable, parentBlockStmt,
+                errorVarySymbol, parentIndexBasedAccess);
+        if (parentErrorVariable.detail == null) {
+            return;
+        }
+        parentErrorVariable.detail.expr = createErrorDetailBuiltinFunction(parentErrorVariable, parentBlockStmt,
+                errorVarySymbol, parentIndexBasedAccess);
+    }
+
+    private BLangInvocation createErrorDetailBuiltinFunction(BLangErrorVariable parentErrorVariable,
+                                                             BLangBlockStmt parentBlockStmt,
+                                                             BVarSymbol errorVarySymbol,
+                                                             BLangIndexBasedAccess parentIndexBasedAccess) {
+        BLangInvocation detailInvocation = createInvocationNode(
+                ERROR_DETAIL_FUNCTION_NAME, new ArrayList<>(), parentErrorVariable.detail.type);
+        detailInvocation.builtinMethodInvocation = true;
+        detailInvocation.builtInMethod = BLangBuiltInMethod.getFromString(ERROR_DETAIL_FUNCTION_NAME);
+        if (parentIndexBasedAccess != null) {
+            detailInvocation.expr = parentIndexBasedAccess;
+            detailInvocation.symbol = symResolver.createSymbolForDetailBuiltInMethod(
+                    ASTBuilderUtil.createIdentifier(parentIndexBasedAccess.pos, ERROR_DETAIL_FUNCTION_NAME),
+                    parentIndexBasedAccess.type);
+        } else {
+            detailInvocation.expr = ASTBuilderUtil.
+                    createVariableRef(parentErrorVariable.detail.pos, errorVarySymbol);
+            detailInvocation.symbol = symResolver.resolveBuiltinOperator(
+                    names.fromString(ERROR_DETAIL_FUNCTION_NAME), errorVarySymbol.type);
+        }
+
+        if (parentErrorVariable.detail.getKind() == NodeKind.VARIABLE) {
+            final BLangSimpleVariableDef detailVariableDef =
+                    ASTBuilderUtil.createVariableDefStmt(parentErrorVariable.detail.pos, parentBlockStmt);
+            detailVariableDef.var = (BLangSimpleVariable) parentErrorVariable.detail;
+        }
+        if (parentErrorVariable.detail.getKind() == NodeKind.RECORD_VARIABLE) {
+            BLangRecordVariableDef recordVariableDef = ASTBuilderUtil.createRecordVariableDef(
+                    parentErrorVariable.detail.pos, (BLangRecordVariable) parentErrorVariable.detail);
+            parentBlockStmt.addStatement(recordVariableDef);
+        }
+
+        return detailInvocation;
+    }
+
+    private BLangInvocation createErrorReasonBuiltinFunction(BLangErrorVariable parentErrorVariable,
+                                                             BLangBlockStmt parentBlockStmt,
+                                                             BVarSymbol errorVarySymbol,
+                                                             BLangIndexBasedAccess parentIndexBasedAccess) {
+        BLangInvocation reasonInvocation = createInvocationNode(ERROR_REASON_FUNCTION_NAME, new ArrayList<>(),
+                parentErrorVariable.reason.type);
+        reasonInvocation.builtinMethodInvocation = true;
+        reasonInvocation.builtInMethod = BLangBuiltInMethod.getFromString(ERROR_REASON_FUNCTION_NAME);
+        if (parentIndexBasedAccess != null) {
+            reasonInvocation.expr = parentIndexBasedAccess;
+            reasonInvocation.symbol = symResolver.resolveBuiltinOperator(
+                    names.fromString(ERROR_REASON_FUNCTION_NAME), parentIndexBasedAccess.type);
+        } else {
+            reasonInvocation.expr = ASTBuilderUtil.createVariableRef(parentErrorVariable.reason.pos, errorVarySymbol);
+            reasonInvocation.symbol = symResolver.resolveBuiltinOperator(
+                    names.fromString(ERROR_REASON_FUNCTION_NAME), errorVarySymbol.type);
+        }
+
+        BLangSimpleVariableDef reasonVariableDef =
+                ASTBuilderUtil.createVariableDefStmt(parentErrorVariable.reason.pos, parentBlockStmt);
+        reasonVariableDef.var = parentErrorVariable.reason;
+        return reasonInvocation;
     }
 
     private BLangLambdaFunction createFuncToFilterOutRestParam(BLangRecordVarRef recordVarRef, DiagnosticPos pos) {
@@ -1086,9 +1214,8 @@ public class Desugar extends BLangNodeVisitor {
      *  string s = x[name][1]; // tuple variable inside record variable
      */
     private void createSimpleVarDefStmt(BLangSimpleVariable simpleVariable, BLangBlockStmt parentBlockStmt,
-                                        BLangLiteral indexExpr, BVarSymbol tupleVarSymbol,
+                                        BLangLiteral indexExpr, BVarSymbol varSymbol,
                                         BLangIndexBasedAccess parentArrayAccessExpr) {
-
         Name varName = names.fromIdNode(simpleVariable.name);
         if (varName == Names.IGNORE) {
             return;
@@ -1099,7 +1226,7 @@ public class Desugar extends BLangNodeVisitor {
         simpleVariableDef.var = simpleVariable;
 
         simpleVariable.expr = createIndexBasedAccessExpr(simpleVariable.type, simpleVariable.pos,
-                indexExpr, tupleVarSymbol, parentArrayAccessExpr);
+                indexExpr, varSymbol, parentArrayAccessExpr);
     }
 
     @Override
@@ -1239,10 +1366,10 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangExpression createIndexBasedAccessExpr(BType varType, DiagnosticPos varPos, BLangLiteral indexExpr,
-                                                       BVarSymbol tupleVarSymbol, BLangIndexBasedAccess parentExpr) {
+                                                       BVarSymbol varSymbol, BLangIndexBasedAccess parentExpr) {
 
         BLangIndexBasedAccess arrayAccess = ASTBuilderUtil.createIndexBasesAccessExpr(varPos,
-                symTable.anyType, tupleVarSymbol, indexExpr);
+                symTable.anyType, varSymbol, indexExpr);
 
         if (parentExpr != null) {
             arrayAccess.expr = parentExpr;

@@ -434,6 +434,11 @@ bindingPattern
 structuredBindingPattern
     :   tupleBindingPattern
     |   recordBindingPattern
+    |   errorBindingPattern
+    ;
+
+errorBindingPattern
+    :   TYPE_ERROR LEFT_PARENTHESIS Identifier (COMMA (Identifier | recordBindingPattern))? RIGHT_PARENTHESIS
     ;
 
 tupleBindingPattern

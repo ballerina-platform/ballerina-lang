@@ -50,8 +50,8 @@ public class TupleVariableDefinitionTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/statements/variabledef/tuple-variable-definition.bal");
-        resultNegative = BCompileUtil.compile("test-src/statements/variabledef/tuple-variable-definition-negative.bal");
+        result = BCompileUtil.compile("test-src/statements/variabledef/tuple_variable_definition.bal");
+        resultNegative = BCompileUtil.compile("test-src/statements/variabledef/tuple_variable_definition_negative.bal");
     }
 
     @Test(description = "Test tuple basic variable definition")
