@@ -167,7 +167,7 @@ type Bar object {
 };
 
 function testArrowExprInRecord() returns int {
-    Foo f;
+    Foo f = {};
     return f.lambda(5);
 }
 

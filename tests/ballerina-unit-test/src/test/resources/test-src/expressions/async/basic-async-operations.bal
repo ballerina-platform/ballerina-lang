@@ -1,7 +1,7 @@
 import ballerina/runtime;
 import ballerina/io;
 
-int globalResult;
+int globalResult = 0;
 
 function testAsyncNonNativeBasic1() returns int {
   future<int> f1 = start add(5, 2);

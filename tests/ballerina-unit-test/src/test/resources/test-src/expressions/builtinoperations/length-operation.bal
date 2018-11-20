@@ -56,7 +56,7 @@ function arrayLengthAccessTestArrayInitializerCase (int x, int y) returns (int) 
     return tempArr[0];
 }
 
-function arrayLengthAccessTestMapInitializerCase (int x, int y) returns (int) {
+function arrayLengthAccessTestMapInitializerCase (int x, int y) returns (int|error) {
     int[] arr = [];
     arr[0] = x;
     arr[1] = y;
@@ -162,7 +162,7 @@ function lengthOfMap () returns (int) {
 }
 
 function lengthOfEmptyMap () returns (int) {
-    map namesMap;
+    map namesMap = {};
     int length = namesMap.length();
     return length;
 }
