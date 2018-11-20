@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -58,6 +59,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -249,13 +251,18 @@ public class IterableCodeDesugar {
                 funcNode);
         ctx.iteratorResultVariables = foreachVariables;
 
-        final BLangForeach foreachStmt = ASTBuilderUtil.createForeach(pos,
-                funcNode.body,
-                ASTBuilderUtil.createVariableRef(pos, ctx.collectionVar.symbol),
-                ASTBuilderUtil.createVariableRefList(pos, foreachVariables),
-                ctx.foreachTypes);
-        // foreach variable are the result variables.
+        BLangTupleVariable tupleVariable = (BLangTupleVariable) TreeBuilder.createTupleVariableNode();
+        tupleVariable.memberVariables.addAll(foreachVariables);
+        BLangTupleVariableDef variableDef = ASTBuilderUtil.createTupleVariableDef(null, tupleVariable);
 
+        final BLangForeach foreachStmt = ASTBuilderUtil.createForeach(pos, funcNode.body,
+                ASTBuilderUtil.createVariableRef(pos, ctx.collectionVar.symbol));
+
+        foreachStmt.isDeclaredWithVar = true;
+        foreachStmt.variableDefinitionNode = variableDef;
+        foreachStmt.varType = new BTupleType(ctx.foreachTypes);
+
+        // foreach variable are the result variables.
         if (isReturningIteratorFunction(ctx)) {
             generateAggregator(foreachStmt.body, ctx);
             generateFinalResult(funcNode.body, ctx);
@@ -290,15 +297,20 @@ public class IterableCodeDesugar {
         final List<BLangSimpleVariable> foreachVariables = createForeachVariables(ctx, ctx.getFirstOperation().argVar,
                 funcNode);
 
+        BLangTupleVariable tupleVariable = (BLangTupleVariable) TreeBuilder.createTupleVariableNode();
+        tupleVariable.memberVariables.addAll(foreachVariables);
+        BLangTupleVariableDef variableDef = ASTBuilderUtil.createTupleVariableDef(null, tupleVariable);
+
         // Define all undefined variables.
         defineRequiredVariables(ctx, streamOperations, foreachVariables, funcNode);
 
         // Generate foreach iteration.
-        final BLangForeach foreachStmt = ASTBuilderUtil.createForeach(pos,
-                funcNode.body,
-                ASTBuilderUtil.createVariableRef(pos, ctx.collectionVar.symbol),
-                ASTBuilderUtil.createVariableRefList(pos, foreachVariables),
-                ctx.foreachTypes);
+        final BLangForeach foreachStmt = ASTBuilderUtil.createForeach(pos, funcNode.body,
+                ASTBuilderUtil.createVariableRef(pos, ctx.collectionVar.symbol));
+
+        foreachStmt.isDeclaredWithVar = true;
+        foreachStmt.variableDefinitionNode = variableDef;
+        foreachStmt.varType = new BTupleType(ctx.foreachTypes);
 
         if (foreachVariables.size() > 1) {
             // Create tuple, for lambda invocation.
