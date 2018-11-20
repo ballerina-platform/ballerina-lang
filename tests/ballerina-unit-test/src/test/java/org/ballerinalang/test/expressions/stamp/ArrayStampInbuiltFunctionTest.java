@@ -177,4 +177,42 @@ public class ArrayStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue1.getMap().get("age").getType().getTag(), TypeTags.INT_TAG);
         Assert.assertEquals(mapValue1.getMap().get("school").getType().getClass(), BStringType.class);
     }
+
+    @Test
+    public void testStampArrayValueToTuple() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampArrayValueToTuple");
+        Assert.assertEquals(results.length, 2);
+
+        BValue tupleValue1 = results[0];
+        BValue tupleValue2 = results[1];
+
+        Assert.assertEquals(tupleValue1.getType().getClass(), BRecordType.class);
+        Assert.assertEquals(tupleValue1.getType().getName(), "Employee");
+
+        Assert.assertEquals(tupleValue2.getType().getClass(), BRecordType.class);
+        Assert.assertEquals(tupleValue2.getType().getName(), "Student");
+
+        Assert.assertEquals(((BMap) tupleValue2).size(), 4);
+
+        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("name")).stringValue(), "Raja");
+        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("name")).getType().getClass(),
+                BStringType.class);
+
+        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("status")).stringValue(), "single");
+        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("status")).getType().getClass(),
+                BStringType.class);
+
+        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("batch")).stringValue(), "LK2014");
+        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("batch")).getType().getClass(),
+                BStringType.class);
+
+        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("school")).stringValue(), "Hindu College");
+        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("school")).getType().getClass(),
+                BStringType.class);
+
+        Assert.assertEquals(((BValue) ((BMap) tupleValue1).getMap().get("school")).stringValue(), "Royal College");
+        Assert.assertEquals(((BValue) ((BMap) tupleValue1).getMap().get("school")).getType().getClass(),
+                BAnydataType.class);
+    }
 }

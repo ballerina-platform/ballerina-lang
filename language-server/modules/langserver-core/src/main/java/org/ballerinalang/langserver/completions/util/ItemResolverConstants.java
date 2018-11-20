@@ -67,6 +67,7 @@ public class ItemResolverConstants {
     // Symbol Types Constants
     public static final String ANNOTATION_TYPE = "Annotation";
     public static final String PACKAGE_TYPE = "Package";
+    public static final String CONSTANT_TYPE = "Constant";
     public static final String FUNCTION_TYPE = "Function";
     public static final String RESOURCE_TYPE = "Resource";
     public static final String KEYWORD_TYPE = "Keyword";
@@ -89,6 +90,8 @@ public class ItemResolverConstants {
     public static final String TRUE_KEYWORD = "true";
     public static final String FALSE_KEYWORD = "false";
     public static final String PUBLIC_KEYWORD = "public";
+    public static final String FINAL_KEYWORD = "final";
+    public static final String CONST_KEYWORD = "const";
     
     // Iterable operators completion item labels
     public static final String ITR_FOREACH_LABEL = "foreach(<@lambda:function>)";
