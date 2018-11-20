@@ -42,38 +42,34 @@ public type JWTAuthProvider object {
     #            If an error occur during authentication, the error will be returned.
     public function authenticate(string jwtToken) returns boolean|error {
         if (self.authCache.hasKey(jwtToken)) {
-            match self.authenticateFromCache(jwtToken) {
-                internal:JwtPayload payload => {
-                    self.setAuthContext(payload, jwtToken);
-                    return true;
-                }
-                () => {
-                    return false;
-                }
+            var payload = self.authenticateFromCache(jwtToken);
+            if (payload is internal:JwtPayload) {
+                self.setAuthContext(payload, jwtToken);
+                return true;
+            } else {
+                return false;
             }
         }
 
-        match internal:validate(jwtToken, self.jwtAuthProviderConfig) {
-            internal:JwtPayload payload => {
-                self.setAuthContext(payload, jwtToken);
-                self.addToAuthenticationCache(jwtToken, payload.exp, payload);
-                return true;
-            }
-            error err => return err;
+        var payload = internal:validate(jwtToken, self.jwtAuthProviderConfig);
+        if (payload is internal:JwtPayload) {
+            self.setAuthContext(payload, jwtToken);
+            self.addToAuthenticationCache(jwtToken, payload.exp, payload);
+            return true;
+        } else {
+            return payload;
         }
     }
 
     function authenticateFromCache(string jwtToken) returns internal:JwtPayload|() {
-        match <CachedJWTAuthContext>self.authCache.get(jwtToken) {
-            CachedJWTAuthContext context => {
-                // convert to current time and check the expiry time
-                if (context.expiryTime > (time:currentTime().time / 1000)) {
-                    internal:JwtPayload payload = context.jwtPayload;
-                    log:printDebug("Authenticate user :" + payload.sub + " from cache");
-                    return payload;
-                }
+        var context = <CachedJWTAuthContext>self.authCache.get(jwtToken);
+        if (context is CachedJWTAuthContext) {
+            // convert to current time and check the expiry time
+            if (context.expiryTime > (time:currentTime().time / 1000)) {
+                internal:JwtPayload payload = context.jwtPayload;
+                log:printDebug("Authenticate user :" + payload.sub + " from cache");
+                return payload;
             }
-            error => {}
         }
         return ();
     }
@@ -91,19 +87,15 @@ public type JWTAuthProvider object {
         userPrincipal.username = jwtPayload.sub;
         userPrincipal.claims = jwtPayload.customClaims;
         if (jwtPayload.customClaims.hasKey(SCOPES)) {
-            match jwtPayload.customClaims[SCOPES] {
-                string scopeString => {
-                    userPrincipal.scopes = scopeString.split(" ");
-                }
-                any => {}
+            var scopeString = jwtPayload.customClaims[SCOPES];
+            if (scopeString is string) {
+                userPrincipal.scopes = scopeString.split(" ");
             }
         }
         if (jwtPayload.customClaims.hasKey(USERNAME)) {
-            match jwtPayload.customClaims[USERNAME] {
-                string name => {
-                    userPrincipal.username = name;
-                }
-                any => {}
+            var name = jwtPayload.customClaims[USERNAME];
+            if (name is string) {
+                userPrincipal.username = name;
             }
         }
         runtime:AuthContext authContext = runtime:getInvocationContext().authContext;
