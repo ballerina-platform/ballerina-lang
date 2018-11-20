@@ -38,15 +38,16 @@ public class FilterUtils {
     /**
      * Get the invocations and fields against an identifier (functions, actions and fields).
      *
-     * @param context               Text Document Service context (Completion Context)
-     * @param variableName          Variable name to evaluate against (Can be package alias or defined variable)
-     * @param delimiter             delimiter String either dot or action invocation symbol
-     * @param symbolInfos           List of visible symbol info
+     * @param context      Text Document Service context (Completion Context)
+     * @param variableName Variable name to evaluate against (Can be package alias or defined variable)
+     * @param delimiter    delimiter String either dot or action invocation symbol
+     * @param symbolInfos  List of visible symbol info
+     * @param addBuiltIn   Add built-in functions
      * @return {@link ArrayList}    List of filtered symbol info
      */
     public static List<SymbolInfo> getInvocationAndFieldSymbolsOnVar(LSServiceOperationContext context,
                                                                      String variableName, String delimiter,
-                                                                     List<SymbolInfo> symbolInfos) {
+                                                                     List<SymbolInfo> symbolInfos, boolean addBuiltIn) {
         ArrayList<SymbolInfo> resultList = new ArrayList<>();
         SymbolTable symbolTable = context.get(DocumentServiceKeys.SYMBOL_TABLE_KEY);
         ParserRuleContext parserRuleContext = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
@@ -121,8 +122,9 @@ public class FilterUtils {
                     });
                 }
             });
-
-            CommonUtil.populateIterableAndBuiltinFunctions(variable, resultList, context);
+            if (addBuiltIn) {
+                CommonUtil.populateIterableAndBuiltinFunctions(variable, resultList, context);
+            }
         } else if (delimiter.equals(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)) {
             SymbolInfo packageSymbol = symbolInfos.stream().filter(item -> {
                 Scope.ScopeEntry scopeEntry = item.getScopeEntry();
@@ -134,6 +136,21 @@ public class FilterUtils {
         }
 
         return resultList;
+    }
+
+    /**
+     * Get the invocations and fields against an identifier (functions, actions and fields).
+     *
+     * @param context               Text Document Service context (Completion Context)
+     * @param variableName          Variable name to evaluate against (Can be package alias or defined variable)
+     * @param delimiter             delimiter String either dot or action invocation symbol
+     * @param symbolInfos           List of visible symbol info
+     * @return {@link ArrayList}    List of filtered symbol info
+     */
+    public static List<SymbolInfo> getInvocationAndFieldSymbolsOnVar(LSServiceOperationContext context,
+                                                                     String variableName, String delimiter,
+                                                                     List<SymbolInfo> symbolInfos) {
+        return getInvocationAndFieldSymbolsOnVar(context, variableName, delimiter, symbolInfos, true);
     }
 
     /**

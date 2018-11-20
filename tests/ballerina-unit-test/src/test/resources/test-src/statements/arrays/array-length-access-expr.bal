@@ -41,7 +41,7 @@ function arrayLengthAccessTestArrayInitializerCase(int x, int y) returns (int) {
     return tempArr[0];
 }
 
-function arrayLengthAccessTestMapInitializerCase(int x, int y) returns (int) {
+function arrayLengthAccessTestMapInitializerCase(int x, int y) returns (int|error) {
     int[] arr = [];
     arr[0] = x;
     arr[1] = y;
@@ -123,7 +123,7 @@ function arrayLengthAccessTestStructFieldAccessCase(int x, int y) returns (int) 
 
 function arrayLengthAccessNullArrayCase(int x, int y) returns (int) {
     int z = x + y;
-    int[] arr;
+    int[] arr = [];
     int length;
     length = arr.length();
     return length;

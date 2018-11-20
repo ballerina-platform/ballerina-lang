@@ -48,6 +48,11 @@ public class BService implements BRefType {
     }
 
     @Override
+    public void stamp(BType type) {
+
+    }
+
+    @Override
     public BValue copy() {
         return null;
     }

@@ -13,8 +13,12 @@ service<jms:Consumer> jmsListener5 bind queueConsumer5 {
 
     // OnMessage resource get invoked when a message is received.
     onMessage(endpoint consumer, jms:Message message) {
-        string messageText = check message.getTextMessageContent();
-        io:println("Message : " + messageText);
+        var messageText = message.getTextMessageContent();
+        if (messageText is string) {
+             io:println("Message : " + messageText);
+        } else {
+             panic messageText;
+        }
     }
 }
 

@@ -25,13 +25,12 @@ import ballerina/time;
 # + trustStoreFilePath - Trust store file path
 # + trustStorePassword - Trust store password
 public type JWTValidatorConfig record {
-    string issuer;
-    string audience;
-    int clockSkew;
-    string certificateAlias;
-    string trustStoreFilePath;
-    string trustStorePassword;
-    !...
+    string issuer = "";
+    string audience = "";
+    int clockSkew = 0;
+    string certificateAlias = "";
+    string trustStoreFilePath = "";
+    string trustStorePassword = "";
 };
 
 # Validity given JWT token.
@@ -53,8 +52,8 @@ public function validate(string jwtToken, JWTValidatorConfig config) returns Jwt
     }
 
     string[] aud = [];
-    JwtHeader header = { alg: "" };
-    JwtPayload payload = { iss: "", sub: "", aud: aud, exp: 0 };
+    JwtHeader header = {};
+    JwtPayload payload = {};
     var decodedJwt = parseJWT(encodedJWTComponents);
     if (decodedJwt is (JwtHeader, JwtPayload)) {
         (header, payload) = decodedJwt;
@@ -129,7 +128,7 @@ function getDecodedJWTComponents(string[] encodedJWTComponents) returns ((json, 
 }
 
 function parseHeader(json jwtHeaderJson) returns (JwtHeader) {
-    JwtHeader jwtHeader = { alg: "" };
+    JwtHeader jwtHeader = {};
     map customClaims = {};
 
     string[] keys = jwtHeaderJson.getKeys();
@@ -221,6 +220,7 @@ config) returns (boolean|error) {
         error jwtError = error(INTERNAL_ERROR_CODE, { message : "JWT token is expired" });
         return jwtError;
     }
+    //TODO : Validate nbf field of jwtPayload availability first
     if (!validateNotBeforeTime(jwtPayload)) {
         error jwtError = error(INTERNAL_ERROR_CODE, { message : "JWT token is used before Not_Before_Time" });
         return jwtError;
@@ -278,7 +278,7 @@ function validateExpirationTime(JwtPayload jwtPayload, JWTValidatorConfig config
 }
 
 function validateNotBeforeTime(JwtPayload jwtPayload) returns (boolean) {
-    return time:currentTime().time > jwtPayload.nbf;
+    return time:currentTime().time > (jwtPayload["nbf"] ?: 0);
 }
 
 function convertToStringArray(json jsonData) returns (string[]) {

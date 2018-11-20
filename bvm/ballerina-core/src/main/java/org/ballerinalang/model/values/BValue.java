@@ -37,6 +37,8 @@ public interface BValue {
 
     BType getType();
 
+    void stamp(BType type);
+
     /**
      * Deep copy {@link BValue}.
      *
@@ -66,7 +68,7 @@ public interface BValue {
 
     /**
      * Default serialize implementation for {@link BValue}.
-     * 
+     *
      * @param outputStream Represent the output stream that the data will be written to.
      */
     public default void serialize(OutputStream outputStream) {

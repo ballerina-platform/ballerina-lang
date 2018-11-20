@@ -78,12 +78,12 @@ function unionTypeAgainstUnionTypeWhichAlwaysFalse() returns string {
 }
 
 type A record {
-    int x;
-    string y;
+    int x = 0;
+    string y = "";
 };
 
 type B record {
-    int x;
+    int x = 0;
 };
 
 function testSimpleRecordTypes() returns string {
@@ -102,15 +102,15 @@ function testSimpleRecordTypes() returns string {
 }
 
 type X record {
-    int p;
-    string q;
-    A r;
+    int p = 0;
+    string q = "";
+    A r = {};
 };
 
 type Y record {
-    int p;
-    string q;
-    B r;
+    int p = 0;
+    string q = "";
+    B r = {};
 };
 
 function testNestedRecordTypes() returns string {
@@ -163,11 +163,11 @@ function testSimpleConstrainedMap() returns (boolean, boolean, boolean, boolean,
 }
 
 type A3 record {
-    int x;
+    int x = 0;
 };
 
 type B3 record {
-    int x;
+    int x = 0;
     !...
 };
 

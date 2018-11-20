@@ -135,7 +135,6 @@ public type ServiceEndpointConfiguration record {
     AuthProvider[]? authProviders = ();
     AuthCacheConfig positiveAuthzCache = {};
     AuthCacheConfig negativeAuthzCache = {};
-    !...
 };
 
 # Configures the SSL/TLS options to be used for HTTP service.

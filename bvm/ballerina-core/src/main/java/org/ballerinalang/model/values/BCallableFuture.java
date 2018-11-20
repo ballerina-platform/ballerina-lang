@@ -34,7 +34,7 @@ public class BCallableFuture implements BFuture {
         this.callableName = callableName;
         this.strandCallback = strandCallback;
     }
-    
+
     @Override
     public String stringValue() {
         return "callable future: " + this.callableName;
@@ -43,6 +43,11 @@ public class BCallableFuture implements BFuture {
     @Override
     public BType getType() {
         return BTypes.typeFuture;
+    }
+
+    @Override
+    public void stamp(BType type) {
+
     }
 
     @Override

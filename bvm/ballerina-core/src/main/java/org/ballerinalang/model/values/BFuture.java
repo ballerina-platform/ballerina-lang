@@ -19,6 +19,7 @@ package org.ballerinalang.model.values;
 
 import org.ballerinalang.bre.bvm.WorkerResponseContext;
 import org.ballerinalang.bre.vm.SafeStrandCallback;
+import org.ballerinalang.model.types.BType;
 
 /**
  * Ballerina base value for the "future" type.
@@ -46,5 +47,9 @@ public interface BFuture extends BRefType<SafeStrandCallback> {
      * @return true if its cancelled, or else, false
      */
     boolean isCancelled();
-    
+
+    @Override
+    default void stamp(BType type) {
+
+    }
 }
