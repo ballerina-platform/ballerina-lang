@@ -174,7 +174,7 @@ function byteOrInt(int a) returns byte|int|string[]|Foo|error {
     } else if (a == 3) {
         return ["DD", "GG"];
     }
-    Foo foo = {name: "bar"};
+    Foo foo = { name: "bar" };
     return foo;
 }
 
