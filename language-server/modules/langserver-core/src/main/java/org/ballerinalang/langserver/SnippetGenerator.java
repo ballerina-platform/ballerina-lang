@@ -587,6 +587,15 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get stamp Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinStampSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_STAMP_LABEL, "stamp(${1});", "", SnippetType.SNIPPET);
+    }
+
+    /**
      * Get isNaN Builtin Function Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block

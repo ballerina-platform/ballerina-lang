@@ -54,6 +54,7 @@ import org.eclipse.lsp4j.TextEdit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeChecker;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
@@ -779,6 +780,13 @@ public class CommonUtil {
             symbolInfoList.addAll(Arrays.asList(freeze, isFrozen));
         }
 
+        if (builtinStampFunctionAllowed(context, bType)) {
+            // For the any data value type, add the stamp builtin function
+            SymbolInfo stamp = getIterableOpSymbolInfo(Snippet.BUILTIN_STAMP.get(), bType,
+                                                       ItemResolverConstants.BUILTIN_STAMP_LABEL, context);
+            symbolInfoList.add(stamp);
+        }
+
         // Populate the Builtin Functions
         if (bType.tag == TypeTags.FLOAT) {
             SymbolInfo isNaN = getIterableOpSymbolInfo(Snippet.BUILTIN_IS_NAN.get(), bType,
@@ -951,6 +959,15 @@ public class CommonUtil {
         if (compilerContext != null) {
             TypeChecker typeChecker = TypeChecker.getInstance(compilerContext);
             return typeChecker.isValidFreezeOrIsFrozenFunction(bType);
+        }
+        return false;
+    }
+
+    private static boolean builtinStampFunctionAllowed(LSContext context, BType bType) {
+        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+        if (compilerContext != null) {
+            Types types = Types.getInstance(compilerContext);
+            return types.isAnydata(bType);
         }
         return false;
     }

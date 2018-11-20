@@ -110,4 +110,5 @@ public class ItemResolverConstants {
     public static final String BUILTIN_IS_INFINITE_LABEL = "isInfinite()";
     public static final String BUILTIN_FREEZE_LABEL = "freeze()";
     public static final String BUILTIN_IS_FROZEN_LABEL = "isFrozen()";
+    public static final String BUILTIN_STAMP_LABEL = "stamp(anydata a)";
 }
