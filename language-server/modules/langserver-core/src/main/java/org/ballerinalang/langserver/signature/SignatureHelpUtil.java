@@ -114,7 +114,7 @@ public class SignatureHelpUtil {
         
         if (!idAgainst.isEmpty() && (delimiter.equals(UtilSymbolKeys.DOT_SYMBOL_KEY)
                 || delimiter.equals(UtilSymbolKeys.PKG_DELIMITER_KEYWORD))) {
-            functions = FilterUtils.getInvocationAndFieldSymbolsOnVar(ctx, idAgainst, delimiter, visibleSymbols);
+            functions = FilterUtils.getInvocationAndFieldSymbolsOnVar(ctx, idAgainst, delimiter, visibleSymbols, false);
         } else if (!idAgainst.isEmpty() && (delimiter.equals(UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY))) {
             functions = getEndpointActionsByName(idAgainst, visibleSymbols);
         } else {

@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -68,10 +69,23 @@ public class CreateVariableExecutor implements LSCommandExecutor {
 
     private static final String COMMAND = "CREATE_VAR";
 
-    private static Set<String> getAllEntries(String currentPkgName, BLangPackage packageNode,
-                                             BLangInvocation functionNode
-            , CompilerContext context) {
+    private static Set<String> getAllEntries(BLangInvocation functionNode, CompilerContext context) {
         Set<String> strings = new HashSet<>();
+        BLangPackage packageNode = null;
+        BLangNode parent = functionNode.parent;
+        while (parent != null) {
+            if (parent instanceof BLangPackage) {
+                packageNode = (BLangPackage) parent;
+                break;
+            }
+            if (parent instanceof BLangFunction) {
+                BLangFunction bLangFunction = (BLangFunction) parent;
+                bLangFunction.requiredParams.forEach(var -> strings.add(var.name.value));
+                bLangFunction.defaultableParams.forEach(def -> strings.add(def.var.name.value));
+            }
+            parent = parent.parent;
+        }
+
         if (packageNode != null) {
             packageNode.getGlobalVariables().forEach(globalVar -> strings.add(globalVar.name.value));
             packageNode.getGlobalEndpoints().forEach(endpoint -> strings.add(endpoint.getName().getValue()));
@@ -131,11 +145,12 @@ public class CreateVariableExecutor implements LSCommandExecutor {
         LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
 
         BLangInvocation functionNode = getFunctionNode(sLine, sCol, documentUri, documentManager, lsCompiler, context);
-        String currentPkgName = context.get(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY);
+        if (functionNode == null) {
+            throw new LSCommandExecutorException("Couldn't find the function node!");
+        }
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         BLangPackage packageNode = CommonUtil.getPackageNode(functionNode);
-        String variableName = CommonUtil.generateName(1, getAllEntries(currentPkgName, packageNode, functionNode,
-                                                                       compilerContext));
+        String variableName = CommonUtil.generateName(1, getAllEntries(functionNode, compilerContext));
 
         if (packageNode == null) {
             throw new LSCommandExecutorException("Package node cannot be null");
