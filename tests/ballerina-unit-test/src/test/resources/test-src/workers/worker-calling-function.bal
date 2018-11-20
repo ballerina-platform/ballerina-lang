@@ -1,5 +1,5 @@
 function testWorkerInVM () returns int {
-    int q;
+    int q = 0;
     q = testWorker();
     return q;
 }
@@ -7,7 +7,7 @@ function testWorkerInVM () returns int {
 function testWorker () returns int {
 
     worker w1 {
-        int result;
+        int result = 0;
         int i = 10;
         i -> sampleWorker;
         result <- sampleWorker;
@@ -16,7 +16,7 @@ function testWorker () returns int {
 
     worker sampleWorker {
         int r = 120;
-        int i;
+        int i = 0;
         i <- w1;
         r = changeMessage(i);
         r -> w1;
