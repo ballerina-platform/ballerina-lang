@@ -78,10 +78,7 @@ public class ProtoMessageTestCase {
         BMap<String, BValue> bMapValue = BLangConnectorSPIUtil.createBStruct(result.getProgFile(), structureType
                 .getPackagePath(), structureType.getName());
         bMapValue.put("name", new BString("John"));
-//        Map<String, Object> fieldsMap = new HashMap<>();
-//        fieldsMap.put("name", "John");
         Message message = new Message("Test1", bMapValue);
-//        message = addMessageFieldValues(message, fieldsMap);
         Assert.assertEquals(message.getSerializedSize(), 6);
         byte[] msgArray = message.toByteArray();
         //convert byte array back to message object.

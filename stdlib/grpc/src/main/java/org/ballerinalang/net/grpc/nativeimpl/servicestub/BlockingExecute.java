@@ -116,7 +116,6 @@ public class BlockingExecute extends AbstractExecute {
         
         if (connectionStub instanceof BlockingStub) {
             BValue payloadBValue = context.getRefArgument(1);
-            //Message requestMsg = MessageUtils.generateProtoMessage(payloadBValue, methodDescriptor.getInputType());
             Message requestMsg = new Message(methodDescriptor.getInputType().getName(), payloadBValue);
             // Update request headers when request headers exists in the context.
             BValue headerValues = context.getNullableRefArgument(MESSAGE_HEADER_REF_INDEX);
