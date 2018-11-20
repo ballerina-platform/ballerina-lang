@@ -84,11 +84,12 @@ public class BVMScheduler {
         @Override
         public void run() {
             WorkerExecutionContext runInCaller = null;
+            BError error;
+            Strand strand = this.nativeCtx.getStrand();
             CallableUnitInfo cui = this.nativeCtx.getCallableUnitInfo();
             BType retType = cui.getRetParamTypes()[0];
             try {
                 this.nativeCallable.execute(this.nativeCtx, null);
-                Strand strand = this.nativeCtx.getStrand();
                 if (strand.fp > 0) {
                     strand.popFrame();
                     DataFrame retFrame = strand.currentFrame;
@@ -103,15 +104,16 @@ public class BVMScheduler {
                 }
                 return;
             } catch (BLangNullReferenceException e) {
-                BError error = BLangVMErrors.createNullRefException(this.nativeCtx.getStrand());
-//                runInCaller = this.respCtx.signal(new WorkerSignal(new WorkerExecutionContext(error),
-//                        SignalType.ERROR, result));
+                error = BLangVMErrors.createNullRefException(this.nativeCtx.getStrand());
             } catch (Throwable e) {
-                BError error = BLangVMErrors.createError(this.nativeCtx.getStrand(), e.getMessage());
-//                runInCaller = this.respCtx.signal(new WorkerSignal(new WorkerExecutionContext(error),
-//                        SignalType.ERROR, result));
+                error = BLangVMErrors.createError(this.nativeCtx.getStrand(), e.getMessage());
             }
-//            executeNow(runInCaller);
+            strand.setError(error);
+            strand.popFrame();
+            strand = BVM.handleError(strand);
+            if (strand != null) {
+                BVM.execute(strand);
+            }
         }
         
     }
