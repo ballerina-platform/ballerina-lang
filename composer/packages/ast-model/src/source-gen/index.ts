@@ -15,7 +15,7 @@ class SourceGenVisitor implements Visitor {
     public getSource(): string {
         return Object.keys(this.ws)
             .map((i) => (parseInt(i, 10)))
-            .sort()
+            .sort((a, b) => (a - b))
             .reduce((source, i) => (source + this.ws[i].ws + this.ws[i].text), "");
     }
 

@@ -20,27 +20,20 @@ export async function forEachAST(callback: (node: Ballerina.ASTNode, filePath: s
     const balFiles = fetchBalFiles();
     const server = new StdioBallerinaLangServer(process.env.BALLERINA_HOME);
     server.start();
-    // tslint:disable-next-line:no-console
-    console.log("server started");
 
     const client = await createStdioLangClient(server.lsProcess as ChildProcess, () => {/**/}, () => {/**/});
     if (!client) {
         // tslint:disable-next-line:no-console
-        console.log("Could not initiate language client");
+        console.error("Could not initiate language client");
     }
 
     await client.init();
     const promises = balFiles.map(async (balFilePath, index) => {
-        // tslint:disable-next-line:no-console
-        console.log("getting ast for ", balFilePath);
         const astResp = await client.getAST({
             documentIdentifier: { uri: URI.file(balFilePath).toString() }
         });
         if (astResp.ast) {
             callback(astResp.ast, balFilePath);
-        } else {
-            // tslint:disable-next-line:no-console
-            console.log(`Could not parse: ${balFilePath}`);
         }
     });
     try {

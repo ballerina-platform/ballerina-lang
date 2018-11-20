@@ -9,7 +9,7 @@ const pkgScripts: any = {
     "pkg:clean": "rimraf lib && rimraf coverage && rimraf build",
     "pkg:lint": "tslint -t stylish --project .",
     "pkg:storybook": "npx start-storybook -p 9001 -c .storybook",
-    "pkg:test": "jest",
+    "pkg:test": "jest --colors",
     "pkg:test:coverage": "jest --coverage",
     "pkg:test:watch": "jest --watch",
     "pkg:watch": "tsc --pretty --watch",
