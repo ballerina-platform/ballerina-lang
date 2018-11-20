@@ -40,50 +40,99 @@ public class ForeachTypedBindingPatternsTests {
     }
 
     @Test
-    public void testArrayWithSimpleVariable() {
-        BValue[] returns = BRunUtil.invoke(program, "testArrayWithSimpleVariable");
+    public void testArrayWithSimpleVariableWithoutType() {
+        BValue[] returns = BRunUtil.invoke(program, "testArrayWithSimpleVariableWithoutType");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "0:A 1:B 2:C ");
     }
 
     @Test
-    public void testArrayWithTuple() {
-        BValue[] returns = BRunUtil.invoke(program, "testArrayWithTuple");
+    public void testArrayWithSimpleVariableWithType() {
+        BValue[] returns = BRunUtil.invoke(program, "testArrayWithSimpleVariableWithType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "0:A 1:B 2:C ");
+    }
+
+    @Test
+    public void testArrayWithTupleWithoutType() {
+        BValue[] returns = BRunUtil.invoke(program, "testArrayWithTupleWithoutType");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "1:A 2:B 3:C ");
     }
 
     @Test
-    public void testArrayWithTupleInTuple() {
-        BValue[] returns = BRunUtil.invoke(program, "testArrayWithTupleInTuple");
+    public void testArrayWithTupleWithType() {
+        BValue[] returns = BRunUtil.invoke(program, "testArrayWithTupleWithType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "1:A 2:B 3:C ");
+    }
+
+    @Test
+    public void testArrayWithTupleInTupleWithoutType() {
+        BValue[] returns = BRunUtil.invoke(program, "testArrayWithTupleInTupleWithoutType");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "1:A:2.0 2:B:3.0 3:C:4.0 ");
     }
 
     @Test
-    public void testArrayWithRecordInTuple() {
-        BValue[] returns = BRunUtil.invoke(program, "testArrayWithRecordInTuple");
+    public void testArrayWithTupleInTupleWithType() {
+        BValue[] returns = BRunUtil.invoke(program, "testArrayWithTupleInTupleWithType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "1:A:2.0 2:B:3.0 3:C:4.0 ");
+    }
+
+    @Test
+    public void testArrayWithRecordInTupleWithoutType() {
+        BValue[] returns = BRunUtil.invoke(program, "testArrayWithRecordInTupleWithoutType");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "1:1:A 2:2:B 3:3:C ");
     }
 
     @Test
-    public void testArrayWithRecord() {
-        BValue[] returns = BRunUtil.invoke(program, "testArrayWithRecord");
+    public void testArrayWithRecordInTupleWithType() {
+        BValue[] returns = BRunUtil.invoke(program, "testArrayWithRecordInTupleWithType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "1:1:A 2:2:B 3:3:C ");
+    }
+
+    @Test
+    public void testArrayWithRecordWithoutType() {
+        BValue[] returns = BRunUtil.invoke(program, "testArrayWithRecordWithoutType");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "1:A 2:B 3:C ");
     }
 
     @Test
-    public void testArrayWithRecordInRecord() {
-        BValue[] returns = BRunUtil.invoke(program, "testArrayWithRecordInRecord");
+    public void testArrayWithRecordWithType() {
+        BValue[] returns = BRunUtil.invoke(program, "testArrayWithRecordWithType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "1:A 2:B 3:C ");
+    }
+
+    @Test
+    public void testArrayWithRecordInRecordWithoutType() {
+        BValue[] returns = BRunUtil.invoke(program, "testArrayWithRecordInRecordWithoutType");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "1:1:A 2:2:B 3:3:C ");
     }
 
     @Test
-    public void testArrayWithTupleInRecord() {
-        BValue[] returns = BRunUtil.invoke(program, "testArrayWithTupleInRecord");
+    public void testArrayWithRecordInRecordWithType() {
+        BValue[] returns = BRunUtil.invoke(program, "testArrayWithRecordInRecordWithType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "1:1:A 2:2:B 3:3:C ");
+    }
+
+    @Test
+    public void testArrayWithTupleInRecordWithoutType() {
+        BValue[] returns = BRunUtil.invoke(program, "testArrayWithTupleInRecordWithoutType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "1:1:A 2:2:B 3:3:C ");
+    }
+
+    @Test
+    public void testArrayWithTupleInRecordWithType() {
+        BValue[] returns = BRunUtil.invoke(program, "testArrayWithTupleInRecordWithType");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "1:1:A 2:2:B 3:3:C ");
     }
