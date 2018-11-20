@@ -743,19 +743,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangForkJoin forkJoin) {
         analyzeWorkers(forkJoin.workers, true);
-        if (currForkIdentifier != null) {
-            TaintedStatus taintedStatus = workerInteractionTaintedStatusMap.get(currForkIdentifier);
-            if (taintedStatus != null) {
-                setTaintedStatus(forkJoin.joinResultVar, taintedStatus);
-            }
-        }
-        overridingAnalysis = false;
-        if (forkJoin.joinedBody != null) {
-            forkJoin.joinedBody.accept(this);
-        }
-        if (forkJoin.timeoutBody != null) {
-            forkJoin.timeoutBody.accept(this);
-        }
         overridingAnalysis = true;
     }
 

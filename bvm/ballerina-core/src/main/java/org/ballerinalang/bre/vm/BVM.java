@@ -474,13 +474,13 @@ public class BVM {
 //                    handleCHNSend(ctx, chnSendIns.channelName, chnSendIns.dataType,
 //                            chnSendIns.dataReg, chnSendIns.keyType, chnSendIns.keyReg);
                     break;
-                case InstructionCodes.FORKJOIN:
+//                case InstructionCodes.FORKJOIN:
 //                    InstructionFORKJOIN forkJoinIns = (InstructionFORKJOIN) instruction;
 //                    ctx = invokeForkJoin(ctx, forkJoinIns);
 //                    if (ctx == null) {
 //                        return;
 //                    }
-                    break;
+//                    break;
                 case InstructionCodes.PANIC:
                     i = operands[0];
                     if (i >= 0) {
@@ -3169,11 +3169,11 @@ public class BVM {
         return result;
     }
 
-    private static WorkerExecutionContext invokeForkJoin(WorkerExecutionContext ctx, InstructionFORKJOIN forkJoinIns) {
-        ForkjoinInfo forkjoinInfo = forkJoinIns.forkJoinCPEntry.getForkjoinInfo();
-        return BLangFunctions.invokeForkJoin(ctx, forkjoinInfo, forkJoinIns.joinBlockAddr, forkJoinIns.joinVarRegIndex,
-                forkJoinIns.timeoutRegIndex, forkJoinIns.timeoutBlockAddr, forkJoinIns.timeoutVarRegIndex);
-    }
+//    private static WorkerExecutionContext invokeForkJoin(WorkerExecutionContext ctx, InstructionFORKJOIN forkJoinIns) {
+//        ForkjoinInfo forkjoinInfo = forkJoinIns.forkJoinCPEntry.getForkjoinInfo();
+//        return BLangFunctions.invokeForkJoin(ctx, forkjoinInfo, forkJoinIns.joinBlockAddr, forkJoinIns.joinVarRegIndex,
+//                forkJoinIns.timeoutRegIndex, forkJoinIns.timeoutBlockAddr, forkJoinIns.timeoutVarRegIndex);
+//    }
 
     private static boolean handleWorkerReceive(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo,
                                                BType type, int reg) {

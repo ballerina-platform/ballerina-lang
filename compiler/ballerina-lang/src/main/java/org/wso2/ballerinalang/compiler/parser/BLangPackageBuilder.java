@@ -1558,41 +1558,6 @@ public class BLangPackageBuilder {
         this.addStmtToCurrentBlock(forkJoin);
     }
 
-    void startJoinCause() {
-        startBlock();
-    }
-
-    void addJoinCause(Set<Whitespace> ws, String identifier) {
-        BLangForkJoin forkJoin = (BLangForkJoin) this.forkJoinNodesStack.peek();
-        forkJoin.joinedBody = (BLangBlockStmt) this.blockNodeStack.pop();
-        Set<Whitespace> varWS = removeNthFromLast(ws, 3);
-        forkJoin.addWS(ws);
-        forkJoin.joinResultVar = (BLangSimpleVariable) this.generateBasicVarNode(
-                (DiagnosticPos) this.typeNodeStack.peek().getPosition(), varWS, identifier, false);
-    }
-
-    void addJoinCondition(Set<Whitespace> ws, String joinType, List<String> workerNames, int joinCount) {
-        BLangForkJoin forkJoin = (BLangForkJoin) this.forkJoinNodesStack.peek();
-        forkJoin.joinedWorkerCount = joinCount;
-        forkJoin.joinType = ForkJoinNode.JoinType.valueOf(joinType);
-        forkJoin.addWS(ws);
-        workerNames.forEach(s -> forkJoin.joinedWorkers.add((BLangIdentifier) createIdentifier(s)));
-    }
-
-    void startTimeoutCause() {
-        startBlock();
-    }
-
-    void addTimeoutCause(Set<Whitespace> ws, String identifier) {
-        BLangForkJoin forkJoin = (BLangForkJoin) this.forkJoinNodesStack.peek();
-        forkJoin.timeoutBody = (BLangBlockStmt) this.blockNodeStack.pop();
-        forkJoin.timeoutExpression = (BLangExpression) this.exprNodeStack.pop();
-        Set<Whitespace> varWS = removeNthFromLast(ws, 3);
-        forkJoin.addWS(ws);
-        forkJoin.timeoutVariable = (BLangSimpleVariable) this.generateBasicVarNode(
-                (DiagnosticPos) this.typeNodeStack.peek().getPosition(), varWS, identifier, false);
-    }
-
     void endCallableUnitBody(Set<Whitespace> ws) {
         BlockNode block = this.blockNodeStack.pop();
         InvokableNode invokableNode = this.invokableNodeStack.peek();

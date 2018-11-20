@@ -49,7 +49,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.NativeUnitLoader;
 import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionCompensate;
-import org.ballerinalang.util.codegen.Instruction.InstructionFORKJOIN;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
 import org.ballerinalang.util.codegen.Instruction.InstructionLock;
 import org.ballerinalang.util.codegen.Instruction.InstructionScopeEnd;
@@ -1484,19 +1483,6 @@ public class PackageInfoReader {
                     BType dataType = getParamTypes(packageInfo, dataSigCPEntry.getValue())[0];
                     packageInfo.addInstruction(new Instruction.InstructionCHNSend(opcode, chnName, dataType,
                             dataIndex, keyType, keyIndex));
-                    break;
-                case InstructionCodes.FORKJOIN:
-                    int forkJoinIndexCPIndex = codeStream.readInt();
-                    ForkJoinCPEntry forkJoinIndexCPEntry =
-                            (ForkJoinCPEntry) packageInfo.getCPEntry(forkJoinIndexCPIndex);
-                    int timeoutRegIndex = codeStream.readInt();
-                    int joinVarRegIndex = codeStream.readInt();
-                    int joinBlockAddr = codeStream.readInt();
-                    int timeoutVarRegIndex = codeStream.readInt();
-                    int timeoutBlockAddr = codeStream.readInt();
-                    packageInfo.addInstruction(new InstructionFORKJOIN(opcode, forkJoinIndexCPIndex,
-                            forkJoinIndexCPEntry, timeoutRegIndex, joinVarRegIndex, joinBlockAddr,
-                            timeoutVarRegIndex, timeoutBlockAddr));
                     break;
                 case InstructionCodes.ITR_NEXT:
                     int iteratorIndex = codeStream.readInt();

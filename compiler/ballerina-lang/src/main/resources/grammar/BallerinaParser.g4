@@ -528,22 +528,7 @@ compensateStatement
 
 // typeName is only message
 forkJoinStatement
-    :   FORK LEFT_BRACE workerDeclaration* RIGHT_BRACE joinClause? timeoutClause?
-    ;
-
-// below typeName is only 'message[]'
-joinClause
-    :   JOIN (LEFT_PARENTHESIS joinConditions RIGHT_PARENTHESIS)? LEFT_PARENTHESIS typeName Identifier RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
-    ;
-
-joinConditions
-    :   SOME integerLiteral (Identifier (COMMA Identifier)*)?     # anyJoinCondition
-    |   ALL (Identifier (COMMA Identifier)*)?                     # allJoinCondition
-    ;
-
-// below typeName is only 'message[]'
-timeoutClause
-    :   TIMEOUT LEFT_PARENTHESIS expression RIGHT_PARENTHESIS LEFT_PARENTHESIS typeName Identifier RIGHT_PARENTHESIS  LEFT_BRACE statement* RIGHT_BRACE
+    :   FORK LEFT_BRACE workerDeclaration* RIGHT_BRACE
     ;
 
 // Depricated since 0.983.0, use trap expressoin. TODO : Remove this.

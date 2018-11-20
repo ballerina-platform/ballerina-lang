@@ -79,13 +79,11 @@ import org.ballerinalang.persistence.store.PersistenceStore;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.TransactionStatus;
 import org.ballerinalang.util.codegen.ErrorTableEntry;
-import org.ballerinalang.util.codegen.ForkjoinInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionCHNReceive;
 import org.ballerinalang.util.codegen.Instruction.InstructionCHNSend;
-import org.ballerinalang.util.codegen.Instruction.InstructionFORKJOIN;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
 import org.ballerinalang.util.codegen.Instruction.InstructionLock;
 import org.ballerinalang.util.codegen.Instruction.InstructionVCALL;
@@ -485,13 +483,6 @@ public class CPU {
                         InstructionCHNSend chnSendIns = (InstructionCHNSend) instruction;
                         handleCHNSend(ctx, chnSendIns.channelName, chnSendIns.dataType,
                                 chnSendIns.dataReg, chnSendIns.keyType, chnSendIns.keyReg);
-                        break;
-                    case InstructionCodes.FORKJOIN:
-                        InstructionFORKJOIN forkJoinIns = (InstructionFORKJOIN) instruction;
-                        ctx = invokeForkJoin(ctx, forkJoinIns);
-                        if (ctx == null) {
-                            return;
-                        }
                         break;
                     case InstructionCodes.PANIC:
                         i = operands[0];
@@ -3036,12 +3027,6 @@ public class CPU {
                 result = data.refRegs[reg];
         }
         return result;
-    }
-
-    private static WorkerExecutionContext invokeForkJoin(WorkerExecutionContext ctx, InstructionFORKJOIN forkJoinIns) {
-        ForkjoinInfo forkjoinInfo = forkJoinIns.forkJoinCPEntry.getForkjoinInfo();
-        return BLangFunctions.invokeForkJoin(ctx, forkjoinInfo, forkJoinIns.joinBlockAddr, forkJoinIns.joinVarRegIndex,
-                forkJoinIns.timeoutRegIndex, forkJoinIns.timeoutBlockAddr, forkJoinIns.timeoutVarRegIndex);
     }
 
     private static boolean handleWorkerReceive(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo,

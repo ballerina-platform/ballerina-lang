@@ -1144,50 +1144,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitForkJoinStatement(BallerinaParser.ForkJoinStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#joinClause}.
-	 * @param ctx the parse tree
-	 */
-	void enterJoinClause(BallerinaParser.JoinClauseContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#joinClause}.
-	 * @param ctx the parse tree
-	 */
-	void exitJoinClause(BallerinaParser.JoinClauseContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code anyJoinCondition}
-	 * labeled alternative in {@link BallerinaParser#joinConditions}.
-	 * @param ctx the parse tree
-	 */
-	void enterAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code anyJoinCondition}
-	 * labeled alternative in {@link BallerinaParser#joinConditions}.
-	 * @param ctx the parse tree
-	 */
-	void exitAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code allJoinCondition}
-	 * labeled alternative in {@link BallerinaParser#joinConditions}.
-	 * @param ctx the parse tree
-	 */
-	void enterAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code allJoinCondition}
-	 * labeled alternative in {@link BallerinaParser#joinConditions}.
-	 * @param ctx the parse tree
-	 */
-	void exitAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#timeoutClause}.
-	 * @param ctx the parse tree
-	 */
-	void enterTimeoutClause(BallerinaParser.TimeoutClauseContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#timeoutClause}.
-	 * @param ctx the parse tree
-	 */
-	void exitTimeoutClause(BallerinaParser.TimeoutClauseContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#tryCatchStatement}.
 	 * @param ctx the parse tree
 	 */

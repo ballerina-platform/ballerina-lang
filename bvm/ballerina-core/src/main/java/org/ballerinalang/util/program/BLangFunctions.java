@@ -19,13 +19,10 @@ package org.ballerinalang.util.program;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.AsyncInvocableWorkerResponseContext;
-import org.ballerinalang.bre.bvm.AsyncTimer;
 import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
-import org.ballerinalang.bre.bvm.ForkJoinTimeoutCallback;
-import org.ballerinalang.bre.bvm.ForkJoinWorkerResponseContext;
 import org.ballerinalang.bre.bvm.InitWorkerResponseContext;
 import org.ballerinalang.bre.bvm.SyncCallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerData;
@@ -42,7 +39,6 @@ import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo.WorkerSet;
-import org.ballerinalang.util.codegen.ForkjoinInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -52,16 +48,11 @@ import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.observability.CallbackObserver;
 import org.ballerinalang.util.observability.ObservabilityUtils;
 import org.ballerinalang.util.observability.ObserverContext;
-import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -529,60 +520,6 @@ public class BLangFunctions {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
             throw new BLangRuntimeException("error: " + stackTraceStr);
         }
-    }
-
-    public static WorkerExecutionContext invokeForkJoin(WorkerExecutionContext parentCtx, ForkjoinInfo forkjoinInfo,
-            int joinTargetIp, int joinVarReg, int timeoutRegIndex, int timeoutTargetIp, int timeoutVarReg) {
-        WorkerInfo[] workerInfos = forkjoinInfo.getWorkerInfos();
-
-        Set<String> joinWorkerNames = new LinkedHashSet<>(Lists.of(forkjoinInfo.getJoinWorkerNames()));
-        if (joinWorkerNames.isEmpty()) {
-            /* if no join workers are specified, that means, all should be considered */
-            joinWorkerNames.addAll(forkjoinInfo.getWorkerInfoMap().keySet());
-        }
-
-        Map<String, String> channels = getChannels(forkjoinInfo);
-
-        int reqJoinCount;
-        if (forkjoinInfo.getJoinType().equalsIgnoreCase(JOIN_TYPE_SOME)) {
-            reqJoinCount = forkjoinInfo.getWorkerCount();
-        } else {
-            reqJoinCount = joinWorkerNames.size();
-        }
-
-        SyncCallableWorkerResponseContext respCtx = new ForkJoinWorkerResponseContext(parentCtx, joinTargetIp,
-                joinVarReg, timeoutTargetIp, timeoutVarReg, workerInfos.length, reqJoinCount, 
-                joinWorkerNames, channels);
-
-        if (forkjoinInfo.isTimeoutAvailable()) {
-            long timeout = parentCtx.workerLocal.longRegs[timeoutRegIndex];
-            //fork join timeout is in seconds, hence converting to milliseconds
-            AsyncTimer.schedule(new ForkJoinTimeoutCallback(respCtx), timeout);
-        }
-        Map<String, Object> globalProps = parentCtx.globalProps;
-        BLangScheduler.workerWaitForResponse(parentCtx);
-        for (int i = 1; i < workerInfos.length; i++) {
-            executeWorker(respCtx, parentCtx, forkjoinInfo.getArgRegs(), workerInfos[i], globalProps, false);
-        }
-
-        return executeWorker(respCtx, parentCtx, forkjoinInfo.getArgRegs(),
-                workerInfos[0], globalProps, true);
-    }
-
-    private static WorkerExecutionContext executeWorker(WorkerResponseContext respCtx,
-            WorkerExecutionContext parentCtx, int[] argRegs, WorkerInfo workerInfo,
-            Map<String, Object> globalProps, boolean runInCaller) {
-        WorkerData workerLocal = BLangVMUtils.createWorkerDataForLocal(workerInfo, parentCtx, argRegs);
-        WorkerExecutionContext ctx = new WorkerExecutionContext(parentCtx, respCtx, parentCtx.callableUnitInfo,
-                workerInfo, workerLocal, runInCaller);
-        return BLangScheduler.schedule(ctx);
-    }
-
-    private static Map<String, String> getChannels(ForkjoinInfo forkjoinInfo) {
-        Map<String, String> channels = new HashMap<>();
-        forkjoinInfo.getWorkerInfoMap().forEach((k, v) -> channels.put(k, v.getWorkerDataChannelInfoForForkJoin()
-                != null ? v.getWorkerDataChannelInfoForForkJoin().getChannelName() : null));
-        return channels;
     }
 
     private static void checkAndObserveServiceCallable(WorkerExecutionContext parentCtx,

@@ -358,14 +358,14 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
         if (forkJoin.getWorkers() != null) {
             forkJoin.getWorkers().forEach(this::acceptNode);
         }
-
-        if (forkJoin.joinedBody != null) {
-            this.acceptNode(forkJoin.joinedBody);
-        }
-
-        if (forkJoin.timeoutBody != null) {
-            this.acceptNode(forkJoin.timeoutBody);
-        }
+        // todo need to remove this block
+//        if (forkJoin.joinedBody != null) {
+//            this.acceptNode(forkJoin.joinedBody);
+//        }
+//
+//        if (forkJoin.timeoutBody != null) {
+//            this.acceptNode(forkJoin.timeoutBody);
+//        }
     }
 
     @Override

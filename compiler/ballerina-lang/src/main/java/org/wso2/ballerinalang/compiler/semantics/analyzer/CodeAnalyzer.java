@@ -21,7 +21,6 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
-import org.ballerinalang.model.tree.statements.ForkJoinNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -351,33 +350,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.initNewWorkerActionSystem();
         this.checkStatementExecutionValidity(forkJoin);
         forkJoin.workers.forEach(e -> analyzeNode(e, env));
-        analyzeNode(forkJoin.joinedBody, env);
-        if (forkJoin.timeoutBody != null) {
-            boolean joinReturns = this.statementReturns;
-            this.resetStatementReturns();
-            analyzeNode(forkJoin.timeoutBody, env);
-            this.statementReturns = joinReturns && this.statementReturns;
-        }
-        this.checkForkJoinWorkerCount(forkJoin);
         this.finalizeCurrentWorkerActionSystem();
         this.forkJoinCount--;
-        analyzeExpr(forkJoin.timeoutExpression);
     }
 
     private boolean inForkJoin() {
         return this.forkJoinCount > 0;
-    }
-
-    private void checkForkJoinWorkerCount(BLangForkJoin forkJoin) {
-        if (forkJoin.joinType == ForkJoinNode.JoinType.SOME) {
-            int wc = forkJoin.joinedWorkers.size();
-            if (wc == 0) {
-                wc = forkJoin.workers.size();
-            }
-            if (forkJoin.joinedWorkerCount > wc) {
-                this.dlog.error(forkJoin.pos, DiagnosticCode.FORK_JOIN_INVALID_WORKER_COUNT);
-            }
-        }
     }
 
     private boolean inWorker() {

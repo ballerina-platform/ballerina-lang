@@ -1243,43 +1243,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv forkJoinEnv = SymbolEnv.createFolkJoinEnv(forkJoin, this.env);
         forkJoin.workers.forEach(e -> this.symbolEnter.defineNode(e, forkJoinEnv));
         forkJoin.workers.forEach(e -> this.analyzeDef(e, forkJoinEnv));
-        if (!this.isJoinResultType(forkJoin.joinResultVar)) {
-            this.dlog.error(forkJoin.joinResultVar.pos, DiagnosticCode.INVALID_WORKER_JOIN_RESULT_TYPE);
-        }
-        /* create code black and environment for join result section, i.e. (map results) */
-        BLangBlockStmt joinResultsBlock = this.generateCodeBlock(this.createVarDef(forkJoin.joinResultVar));
-        SymbolEnv joinResultsEnv = SymbolEnv.createBlockEnv(joinResultsBlock, this.env);
-        this.analyzeNode(joinResultsBlock, joinResultsEnv);
-        /* create an environment for the join body, making the enclosing environment the earlier
-         * join result's environment */
-        SymbolEnv joinBodyEnv = SymbolEnv.createBlockEnv(forkJoin.joinedBody, joinResultsEnv);
-        this.analyzeNode(forkJoin.joinedBody, joinBodyEnv);
-
-        if (forkJoin.timeoutExpression != null) {
-            if (!this.isJoinResultType(forkJoin.timeoutVariable)) {
-                this.dlog.error(forkJoin.timeoutVariable.pos, DiagnosticCode.INVALID_WORKER_TIMEOUT_RESULT_TYPE);
-            }
-            /* create code black and environment for timeout section */
-            BLangBlockStmt timeoutVarBlock = this.generateCodeBlock(this.createVarDef(forkJoin.timeoutVariable));
-            SymbolEnv timeoutVarEnv = SymbolEnv.createBlockEnv(timeoutVarBlock, this.env);
-            this.typeChecker.checkExpr(forkJoin.timeoutExpression,
-                    timeoutVarEnv, symTable.intType);
-            this.analyzeNode(timeoutVarBlock, timeoutVarEnv);
-            /* create an environment for the timeout body, making the enclosing environment the earlier
-             * timeout var's environment */
-            SymbolEnv timeoutBodyEnv = SymbolEnv.createBlockEnv(forkJoin.timeoutBody, timeoutVarEnv);
-            this.analyzeNode(forkJoin.timeoutBody, timeoutBodyEnv);
-        }
-
-        this.validateJoinWorkerList(forkJoin, forkJoinEnv);
-    }
-
-    private void validateJoinWorkerList(BLangForkJoin forkJoin, SymbolEnv forkJoinEnv) {
-        forkJoin.joinedWorkers.forEach(e -> {
-            if (!this.workerExists(forkJoinEnv, e.value)) {
-                this.dlog.error(forkJoin.pos, DiagnosticCode.UNDEFINED_WORKER, e.value);
-            }
-        });
     }
 
     @Override
