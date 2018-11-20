@@ -81,6 +81,13 @@ function test9(){
     io:println("done");
 }
 
+function test10(){
+    string[] data = ["mon", "tue", "wed", "thu", "fri"];
+    foreach var (i, {j, k: {l, m}}) in data {
+        io:println(i + " " + j + " " + l + " " + m);
+    }
+}
+
 public function main () {
     io:println("done");
 }

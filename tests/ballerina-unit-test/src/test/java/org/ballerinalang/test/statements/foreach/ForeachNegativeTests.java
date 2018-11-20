@@ -33,7 +33,7 @@ public class ForeachNegativeTests {
     @Test
     public void testSemanticErrors() {
         CompileResult compile = BCompileUtil.compile("test-src/statements/foreach/foreach-negative.bal");
-        Assert.assertEquals(compile.getErrorCount(), 13);
+        Assert.assertEquals(compile.getErrorCount(), 14);
         int index = 0;
         BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
                 "'string' in type definition", 4, 17);
@@ -49,11 +49,13 @@ public class ForeachNegativeTests {
         BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
                 "'string' in type definition", 41, 17);
         BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
-                        "'string' in type definition", 49, 17);
+                "'string' in type definition", 49, 17);
         BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
                 "'json' in type definition", 58, 21);
         BAssertUtil.validateError(compile, index++, "unreachable code", 73, 9);
         BAssertUtil.validateError(compile, index++, "unreachable code", 78, 9);
-        BAssertUtil.validateError(compile, index, "continue cannot be used outside of a loop", 80, 5);
+        BAssertUtil.validateError(compile, index++, "continue cannot be used outside of a loop", 80, 5);
+        BAssertUtil.validateError(compile, index, "invalid tuple variable; expecting a tuple type but found " +
+                "'string' in type definition", 86, 17);
     }
 }
