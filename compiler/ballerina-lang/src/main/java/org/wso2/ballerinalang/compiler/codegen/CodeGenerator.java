@@ -854,21 +854,30 @@ public class CodeGenerator extends BLangNodeVisitor {
         Operand mapVarRegIndex = calcAndGetExprRegIndex(waitLiteral);
         Operand typeCPIndex = getTypeCPIndex(waitLiteral.type);
         emit(InstructionCodes.NEWMAP, mapVarRegIndex, typeCPIndex);
+
         // Create a list to store the operands
         List<Operand> operands = new ArrayList<>();
+        Operand length = this.getOperand(-1);
+        operands.add(length);
         // Add the map index
+        operands.add(typeCPIndex);
         operands.add(mapVarRegIndex);
         for (BLangWaitForAllExpr.BLangWaitKeyValue keyValue : waitLiteral.keyValuePairs) {
             // Get index of the identifier
             UTF8CPEntry waitKeyCPEntry = new UTF8CPEntry(keyValue.key.value);
             Operand waitKeyCPIndex = getOperand(currentPkgInfo.addCPEntry(waitKeyCPEntry));
-            operands.add(waitKeyCPIndex);
+
             // Get index of the expression
             BLangExpression expr = keyValue.valueExpr != null ? keyValue.valueExpr : keyValue.keyExpr;
             genNode(expr, this.env);
+
+            Operand exprTypeCPIndex = getTypeCPIndex(expr.type);
+            operands.add(exprTypeCPIndex);
+            operands.add(waitKeyCPIndex);
             operands.add(expr.regIndex);
         }
-        // Emit the wait instruction by passing the map
+        length.value = operands.size() - 3;
+        // length of operands, type of wait, regIndex of map, exprs: [type of expr, regIndex of key, regIndex of expr]
         this.emit(InstructionCodes.WAITALL, operands.toArray(new Operand[operands.size()]));
     }
 
@@ -1422,12 +1431,19 @@ public class CodeGenerator extends BLangNodeVisitor {
         Operand length = this.getOperand(-1);
         List<Operand> operands = new ArrayList<>();
         operands.add(length);
+
+        Operand typeCPIndex = getTypeCPIndex(waitExpr.type);
+        operands.add(typeCPIndex);
         operands.add(valueRegIndex);
+
         for (BLangExpression expr : waitExpr.exprList) {
             genNode(expr, this.env);
+            Operand exprTypeCPIndex = getTypeCPIndex(expr.type);
+            operands.add(exprTypeCPIndex);
             operands.add(expr.regIndex);
         }
-        length.value = operands.size() - 2;
+        length.value = operands.size() - 3;
+        // length of operands, type of wait, regIndex of value, expressions: type of expr, regIndex of expr
         this.emit(InstructionCodes.WAIT, operands.toArray(new Operand[operands.size()]));
     }
 
