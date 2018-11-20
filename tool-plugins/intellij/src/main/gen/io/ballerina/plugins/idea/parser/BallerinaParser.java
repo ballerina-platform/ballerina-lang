@@ -6199,7 +6199,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|decimal|boolean|byte|any|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|await|var|const|while|match|foreach|continue|break|fork|try|throw|return|abort|retry|fail|lock|transaction|if|forever|object|check|error|panic|from|worker|done|identifier)
+  // !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|decimal|boolean|byte|any|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|await|var|while|match|foreach|continue|break|fork|try|throw|return|abort|retry|fail|lock|transaction|if|forever|object|check|error|panic|from|worker|done|identifier)
   static boolean StatementRecover(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "StatementRecover")) return false;
     boolean r;
@@ -6209,7 +6209,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|decimal|boolean|byte|any|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|await|var|const|while|match|foreach|continue|break|fork|try|throw|return|abort|retry|fail|lock|transaction|if|forever|object|check|error|panic|from|worker|done|identifier
+  // BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|decimal|boolean|byte|any|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|await|var|while|match|foreach|continue|break|fork|try|throw|return|abort|retry|fail|lock|transaction|if|forever|object|check|error|panic|from|worker|done|identifier
   private static boolean StatementRecover_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "StatementRecover_0")) return false;
     boolean r;
@@ -6243,7 +6243,6 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     if (!r) r = consumeToken(b, FUTURE);
     if (!r) r = consumeToken(b, AWAIT);
     if (!r) r = consumeToken(b, VAR);
-    if (!r) r = consumeToken(b, CONST);
     if (!r) r = consumeToken(b, WHILE);
     if (!r) r = consumeToken(b, MATCH);
     if (!r) r = consumeToken(b, FOREACH);
