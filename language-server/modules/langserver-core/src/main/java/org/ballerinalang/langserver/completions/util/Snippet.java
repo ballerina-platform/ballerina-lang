@@ -72,6 +72,10 @@ public enum Snippet {
 
     KW_PUBLIC(SnippetGenerator.getPublicKeywordSnippet()),
 
+    KW_FINAL(SnippetGenerator.getFinalKeywordSnippet()),
+
+    KW_CONST(SnippetGenerator.getConstKeywordSnippet()),
+
     KW_TYPE(SnippetGenerator.getTypeKeywordSnippet()),
 
     KW_VAR(SnippetGenerator.getVarKeywordSnippet()),

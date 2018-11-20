@@ -288,9 +288,19 @@ public class Types {
             if (source.tag == TypeTags.JSON) {
                 return ((BJSONType) source).getConstraint().tag == TypeTags.NONE ||
                         isStampingAllowed(((BJSONType) source).getConstraint(), ((BArrayType) target).eType);
+            } else if (source.tag == TypeTags.TUPLE) {
+                BType arrayElementType = ((BArrayType) target).eType;
+                for (BType tupleMemberType : ((BTupleType) source).getTupleTypes()) {
+                    if (!isStampingAllowed(tupleMemberType, arrayElementType)) {
+                        return false;
+                    }
+                }
+                return true;
             }
         } else if (target.tag == TypeTags.UNION) {
             return checkUnionEquivalencyForStamping(source, target);
+        } else if (target.tag == TypeTags.TUPLE && source.tag == TypeTags.TUPLE) {
+            return checkTupleEquivalencyForStamping(source, target);
         }
 
         return false;
@@ -377,6 +387,26 @@ public class Types {
                 .anyMatch(assignable -> !assignable);
 
         return !notAssignable;
+    }
+
+    private boolean checkTupleEquivalencyForStamping(BType source, BType target) {
+        if (source.tag != TypeTags.TUPLE || target.tag != TypeTags.TUPLE) {
+            return false;
+        }
+
+        BTupleType lhsTupleType = (BTupleType) target;
+        BTupleType rhsTupleType = (BTupleType) source;
+
+        if (lhsTupleType.tupleTypes.size() != rhsTupleType.tupleTypes.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < lhsTupleType.tupleTypes.size(); i++) {
+            if (!isStampingAllowed(rhsTupleType.tupleTypes.get(i), lhsTupleType.tupleTypes.get(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private boolean isAssignable(BType source, BType target, List<TypePair> unresolvedTypes) {

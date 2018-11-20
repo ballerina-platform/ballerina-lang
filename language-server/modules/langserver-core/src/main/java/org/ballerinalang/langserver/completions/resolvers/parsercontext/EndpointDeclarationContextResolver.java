@@ -49,7 +49,8 @@ public class EndpointDeclarationContextResolver extends AbstractItemResolver {
                 PackageID packageID = bSymbol.pkgID;
                 String nameAlias = CommonUtil.getLastItem(packageID.getNameComps()).getValue();
                 if (bSymbol instanceof BPackageSymbol && pkgAlias.equals(nameAlias)) {
-                    return this.getCompletionItemList(getEndpointEntries(info.getScopeEntry().symbol.scope.entries));
+                    List<SymbolInfo> endpointEntries = getEndpointEntries(info.getScopeEntry().symbol.scope.entries);
+                    return this.getCompletionItemList(endpointEntries, context);
                 }
             }
 
@@ -57,7 +58,7 @@ public class EndpointDeclarationContextResolver extends AbstractItemResolver {
         }
 
         List<CompletionItem> completionItems = new ArrayList<>();
-        completionItems.addAll(this.getCompletionItemList(this.getEndpointEntries(visibleSymbols)));
+        completionItems.addAll(this.getCompletionItemList(this.getEndpointEntries(visibleSymbols), context));
         completionItems.addAll(this.getPackagesCompletionItems(context));
         return completionItems;
     }

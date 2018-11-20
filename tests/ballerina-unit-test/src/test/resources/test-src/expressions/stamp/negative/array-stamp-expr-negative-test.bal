@@ -59,11 +59,3 @@ function stampAnyArrayToMap() returns map {
 
     return mapValue;
 }
-
-function stampAnyArrayToTuple() returns (string, string, string) {
-
-    anydata[] anyArray = ["Mohan", "Single", "LK2014"];
-    (string, string, string) tupleValue = (string, string, string).stamp(anyArray);
-
-    return tupleValue;
-}
