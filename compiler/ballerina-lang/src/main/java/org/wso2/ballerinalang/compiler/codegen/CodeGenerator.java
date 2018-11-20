@@ -2611,6 +2611,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangForkJoin forkJoin) {
+         /* ignore */
     }
 
     public void visit(BLangWorkerSend workerSendStmt) {

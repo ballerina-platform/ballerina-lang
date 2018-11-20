@@ -1569,8 +1569,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
-        forkJoin.workers = rewrite(forkJoin.workers, env);
-        result = forkJoin;
+         result = forkJoin;
     }
 
     @Override

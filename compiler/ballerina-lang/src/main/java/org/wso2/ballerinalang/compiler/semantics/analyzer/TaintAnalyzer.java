@@ -742,8 +742,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
-        analyzeWorkers(forkJoin.workers, true);
-        overridingAnalysis = true;
+        /* ignore */
     }
 
     @Override
