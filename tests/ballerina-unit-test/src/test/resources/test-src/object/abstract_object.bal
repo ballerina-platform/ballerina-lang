@@ -15,7 +15,7 @@
 // under the License.
 
 public type Address abstract object {
-    public string city;
+    public string city = "";
 
     public function getCity() returns string;
 };

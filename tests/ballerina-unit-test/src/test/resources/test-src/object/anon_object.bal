@@ -31,14 +31,15 @@ function testAnonObjectAsPkgVar() returns (string) {
 }
 
 type employee object {
-    public string fname;
-    public string lname;
-    public int age;
-    public object {public string line01;
-            public string line02;
-            public string city;
-            public string state;
-            public string zipcode;
+    public string fname = "";
+    public string lname = "";
+    public int age = 0;
+    public object {
+            public string line01 = "";
+            public string line02 = "";
+            public string city = "";
+            public string state = "";
+            public string zipcode = "";
           new (line01, city, state, zipcode) {}} address;
 
     public object {
@@ -117,8 +118,8 @@ function testAnonObjectWithRecordLiteral() returns (int, string) {
 type Foo object {
     public record {int age; string name;} details;
 
-    private int length;
-    private string kind;
+    private int length = 0;
+    private string kind = "";
 
     new (details, kind) {
     }
@@ -141,5 +142,5 @@ function testObjectWithSelfReference() returns (int, string) {
     }} sample = new;
 
     sample.test(10, "Jewell");
-    return (sample.age, sample. name);
+    return (sample.age, sample.name);
 }

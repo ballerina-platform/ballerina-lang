@@ -20,7 +20,7 @@ function testAbstractAnonObjectInMatch() returns (string, string) {
     Person p = new();
     Employee e =  new();
     
-    (string, string) names = ("","");
+    (string, string) names = ("", "");
     match (p) {
         abstract object{ public function getName() returns string;} obj => { names[0] = obj.getName(); }
     }
