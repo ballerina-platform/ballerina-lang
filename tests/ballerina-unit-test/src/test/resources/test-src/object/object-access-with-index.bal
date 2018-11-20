@@ -1,6 +1,6 @@
 type Department object {
-    public string dptName;
-    public Person[] employees;
+    public string dptName = "";
+    public Person[] employees = [];
 
     new (dptName = "", employees) {
         
@@ -9,20 +9,20 @@ type Department object {
 
 type Person object {
     public string name = "default first name";
-    public string lname;
-    public map adrs;
+    public string lname = "";
+    public map adrs = {};
     public int age = 999;
-    public Family family;
+    public Family family = new;
 };
 
 type Family object {
-    public string spouse;
-    public int noOfChildren;
-    public string[] children;
+    public string spouse = "";
+    public int noOfChildren = 0;
+    public string[] children = [];
 };
 
 function testCreateObject () returns (string, map, int) {
-    map address1;
+    map address1 = {};
     map address = {"country":"USA", "state":"CA"};
     Person emp = new ();
     emp.name = "Jack";
@@ -42,7 +42,7 @@ function testObjectOfObject () returns (string) {
     Person[] emps = [emp1, emp2];
     Department dpt = new (emps);
 
-    string country;
+    string country = "";
     country = dpt["employees"][0]["adrs"]["country"] but { () => "", any a => <string> a};
     return country;
 }
@@ -76,7 +76,7 @@ function testExpressionAsIndex () returns (string) {
 }
 
 function testObjectExpressionAsIndex () returns (string) {
-    string country;
+    string country = "";
     Department dpt = new ([]);
     Family fmly = new ();
     fmly.children = [];

@@ -32,7 +32,7 @@ function threeDimensionArrayDeclarationAndAccess() {
 }
 
 function threeDimensionArrayValueAssigning() {
-    int[3][2][3] x1;
+    int[3][2][3] x1 = [[[0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0]]];
     x1[2][1][2] = 1;
     x1[3][1][2] = 1;
     x1[2][3][1] = 1;
@@ -43,9 +43,9 @@ function threeDimensionArrayValueAssigning() {
 }
 
 function arrayAssignments() {
-    int[] x1;
+    int[] x1 = [];
     int[2][3] x2 = [x1, x1];
-    int[3] x3;
+    int[3] x3 = [0, 0, 0];
     int[2][3] x4 = [x3, x3];
     int[2][] x5 = [x1, x1];
     x5[1][4] = 12;

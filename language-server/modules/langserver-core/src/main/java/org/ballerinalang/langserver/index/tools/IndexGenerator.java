@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.langserver.index.tools;
 
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContextManager;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.index.DTOUtil;
@@ -87,6 +88,7 @@ public class IndexGenerator {
         LSIndexImpl lsIndex = new LSIndexImpl("classpath:lang-server-index.sql");
         List<BPackageSymbol> bPackageSymbols = indexGenerator.getBLangPackages();
         List<BLangPackageContent> bPackageSymbolDTOs = bPackageSymbols.stream()
+                .filter(bPackageSymbol -> !CommonUtil.isInvalidSymbol(bPackageSymbol))
                 .map(packageSymbol -> {
                     try {
                         return DTOUtil.getBLangPackageContent(packageSymbol);
@@ -121,6 +123,7 @@ public class IndexGenerator {
 
     private static void insertBLangFunctions(int pkgEntryId, List<BInvokableSymbol> symbols, LSIndexImpl lsIndex) {
         List<BFunctionSymbolDTO> dtos = symbols.stream()
+                .filter(symbol -> !CommonUtil.isInvalidSymbol(symbol))
                 .map(bInvokableSymbol -> DTOUtil.getFunctionDTO(pkgEntryId, bInvokableSymbol))
                 .collect(Collectors.toList());
         try {
@@ -132,6 +135,7 @@ public class IndexGenerator {
 
     private void insertBLangRecords(int pkgEntryId, List<BRecordTypeSymbol> symbols, LSIndexImpl lsIndex) {
         List<BRecordTypeSymbolDTO> dtos = symbols.stream()
+                .filter(recordTypeSymbol -> !CommonUtil.isInvalidSymbol(recordTypeSymbol))
                 .map(recordTypeSymbol -> DTOUtil.getRecordTypeSymbolDTO(pkgEntryId, recordTypeSymbol))
                 .collect(Collectors.toList());
         try {
@@ -143,6 +147,7 @@ public class IndexGenerator {
 
     private void insertOtherTypes(int pkgEntryId, List<BTypeSymbol> symbols, LSIndexImpl lsIndex) {
         List<OtherTypeSymbolDTO> dtos = symbols.stream()
+                .filter(symbol -> !CommonUtil.isInvalidSymbol(symbol))
                 .map(symbol -> DTOUtil.getOtherTypeSymbolDTO(pkgEntryId, symbol))
                 .collect(Collectors.toList());
         try {
@@ -159,15 +164,15 @@ public class IndexGenerator {
                 ObjectType.ACTION_HOLDER, lsIndex);
         List<Integer> objectIds = insertBLangObjects(pkgEntryId, categories.getObjects(), ObjectType.OBJECT, lsIndex);
 
-//        for (int i = 0; i < categories.getEndpointActionHolders().size(); i++) {
-//            objectAttachedFunctions.addAll(getObjectAttachedFunctionDTOs(pkgEntryId, actionHolderIds.get(i),
-//                    categories.getEndpointActionHolders().get(i)));
-//        }
+        for (int i = 0; i < categories.getEndpointActionHolders().size(); i++) {
+            objectAttachedFunctions.addAll(getObjectAttachedFunctionDTOs(pkgEntryId, actionHolderIds.get(i),
+                    categories.getEndpointActionHolders().get(i)));
+        }
 
-//        for (int i = 0; i < categories.getObjects().size(); i++) {
-//            objectAttachedFunctions.addAll(getObjectAttachedFunctionDTOs(pkgEntryId, objectIds.get(i),
-//                    categories.getObjects().get(i)));
-//        }
+        for (int i = 0; i < categories.getObjects().size(); i++) {
+            objectAttachedFunctions.addAll(getObjectAttachedFunctionDTOs(pkgEntryId, objectIds.get(i),
+                    categories.getObjects().get(i)));
+        }
 
         try {
             ((BObjectTypeSymbolDAO) lsIndex.getDaoFactory().get(DAOType.OBJECT_TYPE))
@@ -187,14 +192,15 @@ public class IndexGenerator {
 
     private static List<Integer> insertBLangObjects(int pkgEntryId, List<BObjectTypeSymbol> bLangObjects,
                                                     ObjectType type, LSIndexImpl lsIndex) {
-//        List<BObjectTypeSymbolDTO> dtos = bLangObjects.stream()
-//                .map(object -> DTOUtil.getObjectTypeSymbolDTO(pkgEntryId, object, type))
-//                .collect(Collectors.toList());
-////        try {
-//            return ((BObjectTypeSymbolDAO) lsIndex.getDaoFactory().get(DAOType.OBJECT_TYPE)).insertBatch(dtos);
-//        } catch (LSIndexException e) {
-//            logger.error("Error Insert BLangObjects");
-//        }
+        List<BObjectTypeSymbolDTO> dtos = bLangObjects.stream()
+                .filter(symbol -> !CommonUtil.isInvalidSymbol(symbol))
+                .map(object -> DTOUtil.getObjectTypeSymbolDTO(pkgEntryId, object, type))
+                .collect(Collectors.toList());
+        try {
+            return ((BObjectTypeSymbolDAO) lsIndex.getDaoFactory().get(DAOType.OBJECT_TYPE)).insertBatch(dtos);
+        } catch (LSIndexException e) {
+            logger.error("Error Insert BLangObjects");
+        }
         return new ArrayList<>();
     }
 }

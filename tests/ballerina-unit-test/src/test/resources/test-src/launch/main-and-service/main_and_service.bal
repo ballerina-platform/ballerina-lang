@@ -21,11 +21,14 @@ service<http:Service> hello bind { port: 9090 } {
     sayHello(endpoint caller, http:Request req) {
         http:Response res = new;
         res.setPayload("Hello, World!");
-        caller->respond(res) but { error e => log:printError("Error sending response", err = e) };
+        var result = caller->respond(res);
+        if (result is error) {
+            log:printError("Error sending response", err = result);
+        }
     }
 }
 
 public function main(string... args) {
-    int i = check <int> args[0];
-    io:println(i);
+    error e = error("Main throwing an error");
+    panic e;
 }

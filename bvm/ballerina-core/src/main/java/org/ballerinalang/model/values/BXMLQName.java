@@ -55,6 +55,11 @@ public final class BXMLQName implements BRefType {
     }
 
     @Override
+    public void stamp(BType type) {
+
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (obj == null || !(obj instanceof BXMLQName)) {
             return false;

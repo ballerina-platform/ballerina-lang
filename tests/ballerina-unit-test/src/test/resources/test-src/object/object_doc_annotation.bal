@@ -4,7 +4,7 @@
 # + b - struct `field b` documentation
 # + c - struct `field c` documentation
 type Test object {
-    public int a;
-    public int b;
-    public int c;
+    public int a = 0;
+    public int b = 0;
+    public int c = 0;
 };

@@ -28,8 +28,15 @@ import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
  */
 public class BAnydataType extends BBuiltInRefType {
 
+    private boolean nullable = true;
+
     public BAnydataType(int tag, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
+    }
+
+    public BAnydataType(int tag, BTypeSymbol tsymbol, boolean nullable) {
+        super(tag, tsymbol);
+        this.nullable = nullable;
     }
 
     public String getDesc() {
@@ -42,7 +49,7 @@ public class BAnydataType extends BBuiltInRefType {
     }
 
     public boolean isNullable() {
-        return true;
+        return nullable;
     }
 
     @Override

@@ -93,6 +93,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangAct
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangAttachedFunctionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangBuiltInMethodInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -1272,6 +1273,10 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
             case IS_FROZEN:
                 emit(InstructionCodes.IS_FROZEN, iExpr.expr.regIndex, regIndex);
+                break;
+            case STAMP:
+                genNode(iExpr.requiredArgs.get(0), this.env);
+                emit(InstructionCodes.STAMP, iExpr.requiredArgs.get(0).regIndex, getTypeCPIndex(iExpr.type), regIndex);
                 break;
         }
     }
@@ -3379,6 +3384,14 @@ public class CodeGenerator extends BLangNodeVisitor {
         Operand typeCPIndex = getTypeCPIndex(typeTestExpr.typeNode.type);
         emit(InstructionCodes.TYPE_TEST, typeTestExpr.expr.regIndex, typeCPIndex,
                 calcAndGetExprRegIndex(typeTestExpr));
+    }
+
+    @Override
+    public void visit(BLangIsLikeExpr isLikeExpr) {
+        genNode(isLikeExpr.expr, env);
+        Operand typeCPIndex = getTypeCPIndex(isLikeExpr.typeNode.type);
+        emit(InstructionCodes.IS_LIKE, isLikeExpr.expr.regIndex, typeCPIndex,
+                calcAndGetExprRegIndex(isLikeExpr));
     }
 
     // private helper methods of visitors.

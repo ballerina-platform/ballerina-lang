@@ -4,9 +4,9 @@ int lockWithinLockInt1 = 0;
 
 string lockWithinLockString1 = "";
 
-byte[] blobValue;
+byte[] blobValue = [];
 
-boolean boolValue;
+boolean boolValue = false;
 
 function lockWithinLock() returns (int, string) {
     lock {

@@ -281,7 +281,14 @@ public class CommandUtil {
     public static BLangInvocation getFunctionNode(int line, int column, String uri,
                                                   WorkspaceDocumentManager documentManager, LSCompiler lsCompiler,
                                                   LSContext context) {
-        return (BLangInvocation) getBLangNode(line, column, uri, documentManager, lsCompiler, context).getLeft();
+        Pair<BLangNode, Object> bLangNode = getBLangNode(line, column, uri, documentManager, lsCompiler, context);
+        if (bLangNode.getLeft() instanceof BLangInvocation) {
+            return (BLangInvocation) bLangNode.getLeft();
+        } else if (bLangNode.getRight() instanceof BLangInvocation) {
+            return (BLangInvocation) bLangNode.getRight();
+        } else {
+            return null;
+        }
     }
 
     public static Pair<BLangNode, Object> getBLangNode(int line, int column, String uri,
@@ -337,7 +344,7 @@ public class CommandUtil {
         CommandArgument lineStart = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, String.valueOf(line));
 
         return new Command(CommandConstants.ADD_DOCUMENTATION_TITLE, CommandConstants.CMD_ADD_DOCUMENTATION,
-                           new ArrayList<>(Arrays.asList(nodeTypeArg, docUriArg, lineStart)));
+                new ArrayList<>(Arrays.asList(nodeTypeArg, docUriArg, lineStart)));
     }
 
     /**
@@ -349,14 +356,14 @@ public class CommandUtil {
     private static Command getAllDocGenerationCommand(String docUri) {
         CommandArgument docUriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri);
         return new Command(CommandConstants.ADD_ALL_DOC_TITLE, CommandConstants.CMD_ADD_ALL_DOC,
-                           new ArrayList<>(Collections.singletonList(docUriArg)));
+                new ArrayList<>(Collections.singletonList(docUriArg)));
     }
 
     private static Command getConstructorGenerationCommand(String docUri, int line) {
         CommandArgument docUriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri);
         CommandArgument startLineArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, String.valueOf(line));
         return new Command(CommandConstants.CREATE_CONSTRUCTOR_TITLE, CommandConstants.CMD_CREATE_CONSTRUCTOR,
-                           new ArrayList<>(Arrays.asList(docUriArg, startLineArg)));
+                new ArrayList<>(Arrays.asList(docUriArg, startLineArg)));
     }
 
     /**
