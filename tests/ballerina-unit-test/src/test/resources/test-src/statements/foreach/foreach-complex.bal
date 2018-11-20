@@ -24,12 +24,14 @@ function testNestedForeach () returns (string) {
     Week w = {days:["mon", "tue", "wed", "thu", "fri"]};
     string[] people = ["tom", "bob", "sam"];
     output = "";
-    foreach i, s in w.days {
+    int i = 0;
+    foreach var s in w.days {
         concatIntString(i, s);
-        foreach _, k in people {
+        foreach var k in people {
             concatIntString(i, k);
         }
         concatString("\n");
+        i += 1;
     }
     return output;
 }
@@ -37,7 +39,7 @@ function testNestedForeach () returns (string) {
 function testIntRangeSimple(int a, int b) returns (string){
     int x = a;
     output = "";
-    foreach i in x ... b {
+    foreach var i in x ... b {
         concatInt(i);
     }
     return output;
@@ -45,8 +47,10 @@ function testIntRangeSimple(int a, int b) returns (string){
 
 function testIntRangeEmptySet() returns (string){
     output = "";
-    foreach i,j in 5 ... 0  {
+    int i = 0;
+    foreach var j in 5 ... 0  {
         concatTwoInts(i, j);
+        i += 1;
     }
     return output;
 }
@@ -54,8 +58,10 @@ function testIntRangeEmptySet() returns (string){
 function testIntRangeSimpleArity2(int a, int b) returns (string){
     int x = a;
     output = "";
-    foreach i, j in x ... b {
+    int i = 0;
+    foreach var j in x ... b {
         concatTwoInts(i, j);
+        i += 1;
     }
     return output;
 }
@@ -69,7 +75,7 @@ type data record {
 function testIntRangeComplex() returns (string){
     data d = {sx : 10};
     output = "";
-    foreach i in gx ... d.sx {
+    foreach var i in gx ... d.sx {
         concatInt(i);
     }
     return output;

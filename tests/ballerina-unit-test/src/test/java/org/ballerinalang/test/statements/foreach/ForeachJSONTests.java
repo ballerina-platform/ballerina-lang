@@ -88,8 +88,7 @@ public class ForeachJSONTests {
         Assert.assertEquals(returns[0].stringValue(), result);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error:.*NullReferenceException.*")
+    @Test
     public void testJSONNull() {
         String result = "";
         BValue[] returns = BRunUtil.invoke(program, "testJSONNull");
@@ -115,8 +114,7 @@ public class ForeachJSONTests {
 
     @Test
     public void testDeleteWhileIteration() {
-        String result = "bob 10 true [{\"subject\":\"maths\", \"marks\":75}, {\"subject\":\"English\", " +
-                "\"marks\":85}] bob 10 true ";
+        String result = "bob 10 true null bob 10 true ";
         BValue[] returns = BRunUtil.invoke(program, "testDeleteWhileIteration");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), result);
