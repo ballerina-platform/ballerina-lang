@@ -15,13 +15,10 @@ function getGlobalVars() returns (int, string, float, any) {
     return (glbVarInt, glbVarString, glbVarFloat, glbVarAny);
 }
 
-function accessGlobalVar() returns int {
-    var value = <int>glbVarAny;
-    if (value is error) {
-         panic value;
-    } else {
-         return (glbVarInt + value);
-    }
+function accessGlobalVar() returns int | error {
+    int value;
+    value = check <int>glbVarAny;
+    return (glbVarInt + value);
 }
 
 function changeGlobalVar(int addVal) returns float {
