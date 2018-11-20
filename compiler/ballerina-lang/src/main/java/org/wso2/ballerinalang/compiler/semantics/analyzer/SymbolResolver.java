@@ -538,11 +538,19 @@ public class SymbolResolver extends BLangNodeVisitor {
             if (!(sourceTypeTag == TypeTags.STRING && targetType.tag != TypeTags.STRING)) {
                 return resolveOperator(Names.CONVERSION_OP, Lists.of(sourceType, targetType));
             }
-        } else if (sourceTypeTag == TypeTags.UNION &&
-                ((BUnionType) sourceType).memberTypes.stream()
-                        .noneMatch(memType -> getExplicitlySimpleBasicTypedExpressionSymbol(
-                                memType, targetType) == symTable.notFoundSymbol)) {
-            return createTypeAssertionSymbol(sourceType, targetType);
+        } else {
+            switch (sourceTypeTag) {
+                case TypeTags.ANY:
+                case TypeTags.ANYDATA:
+                case TypeTags.JSON:
+                    return createTypeAssertionSymbol(sourceType, targetType);
+                case TypeTags.UNION:
+                    if (((BUnionType) sourceType).memberTypes.stream()
+                            .anyMatch(memType -> getExplicitlySimpleBasicTypedExpressionSymbol(
+                                    memType, targetType) != symTable.notFoundSymbol)) {
+                        return createTypeAssertionSymbol(sourceType, targetType);
+                    }
+            }
         }
         return symTable.notFoundSymbol;
     }

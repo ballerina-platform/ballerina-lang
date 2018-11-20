@@ -227,7 +227,7 @@ function printTitle(string title) {
 # + return - Date and time the module was created
 function getDateCreated(json jsonObj) returns string {
     string jsonTime = jsonObj.time.toString();
-    var timeInMillis = <int> jsonTime;
+    var timeInMillis = int.from(jsonTime);
     if (timeInMillis is int) {
         time:Time timeStruct = new(timeInMillis, { zoneId: "UTC", zoneOffset: 0 });
         string customTimeString = timeStruct.format("yyyy-MM-dd-E");

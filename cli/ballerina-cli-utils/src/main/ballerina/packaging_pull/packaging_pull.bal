@@ -68,7 +68,7 @@ public function invokePull (string... args) returns error? {
     string proxyPassword = args[7];
     string terminalWidth = args[8];
     string versionRange = args[9];
-    isBuild = untaint <boolean>args[10];
+    isBuild = untaint boolean.from(args[10]);
 
     if (isBuild) {
         logFormatter = new BuildLogFormatter();
@@ -155,7 +155,7 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
 
         if (httpResponse.hasHeader("content-length")) {
             contentLengthHeader = httpResponse.getHeader("content-length");
-            pkgSize = check <int> contentLengthHeader;
+            pkgSize = check int.from(contentLengthHeader);
         } else {
             return createError("module size information is missing from remote repository. please retry.");
         }
@@ -190,7 +190,7 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
 
             string toAndFrom = " [central.ballerina.io -> home repo]";
             int rightMargin = 3;
-            int width = (check <int>terminalWidth) - rightMargin;
+            int width = (check int.from(terminalWidth)) - rightMargin;
             check copy(pkgSize, sourceChannel, wch, fullPkgPath, toAndFrom, width);
 
             match wch.close() {

@@ -172,7 +172,7 @@ function parsePayload(json jwtPayloadJson) returns (JwtPayload) {
             jwtPayload.jti = jwtPayloadJson[key].toString();
         } else if (key == EXP) {
             string exp = jwtPayloadJson[key].toString();
-            var value = <int>exp;
+            var value = int.from(exp);
             if (value is int) {
                 jwtPayload.exp = value;
             } else {
@@ -180,7 +180,7 @@ function parsePayload(json jwtPayloadJson) returns (JwtPayload) {
             }
         } else if (key == NBF) {
             string nbf = jwtPayloadJson[key].toString();
-            var value = <int>nbf;
+            var value = int.from(nbf);
             if (value is int) {
                 jwtPayload.nbf = value;
             } else {
@@ -188,7 +188,7 @@ function parsePayload(json jwtPayloadJson) returns (JwtPayload) {
             }
         } else if (key == IAT) {
             string iat = jwtPayloadJson[key].toString();
-            var value = <int>iat;
+            var value = int.from(iat);
             if (value is int) {
                 jwtPayload.iat = value;
             } else {

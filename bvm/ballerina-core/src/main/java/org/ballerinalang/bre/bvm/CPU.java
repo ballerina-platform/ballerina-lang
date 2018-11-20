@@ -2290,7 +2290,7 @@ public class CPU {
                 bRefTypeValue = sf.refRegs[i];
 
                 if (isSimpleBasicType(typeRefCPEntry.getType())) {
-                    execExplicitlyTypedExpressionOpCode(sf, typeRefCPEntry.getType().getTag(), bRefTypeValue, j);
+                    execExplicitlyTypedExpressionOpCode(ctx, sf, typeRefCPEntry.getType(), bRefTypeValue, j);
                 } else if (typeRefCPEntry.getType() == bRefTypeValue.getType()) {
                     sf.refRegs[j] = bRefTypeValue;
                 } else {
@@ -2421,8 +2421,18 @@ public class CPU {
         }
     }
 
-    private static void execExplicitlyTypedExpressionOpCode(WorkerData sf, int targetTag, BRefType bRefTypeValue,
-                                                            int regIndex) {
+    private static void execExplicitlyTypedExpressionOpCode(WorkerExecutionContext ctx, WorkerData sf, BType targetType,
+                                                            BRefType bRefTypeValue, int regIndex) {
+        BType sourceType = bRefTypeValue.getType();
+        int targetTag = targetType.getTag();
+        if (!isSimpleBasicType(sourceType) ||
+                (sourceType.getTag() == TypeTags.STRING_TAG && targetTag != TypeTags.STRING_TAG)) {
+            ctx.setError(BLangVMErrors.createError(ctx,  "assertion error: expected '" + targetTag + "', found '" +
+                    bRefTypeValue.getType() + "'"));
+            handleError(ctx);
+            return;
+        }
+
         switch (targetTag) {
             case TypeTags.STRING_TAG:
                 sf.stringRegs[regIndex] = bRefTypeValue.stringValue();
