@@ -57,14 +57,11 @@ public class CompletionUtil {
      * @param completionContext     Completion context
      * @return {@link List}         List of resolved completion Items
      */
-    public static List<CompletionItem> getCompletionItems(LSServiceOperationContext completionContext) {
-        try {
-            completionContext.put(CompletionKeys.CURRENT_LINE_SEGMENT_KEY, getSourceSegmentOfLine(completionContext));
-            BLangNode symbolEnvNode = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
-            return CompletionItemResolver.get(symbolEnvNode.getClass()).resolveItems(completionContext);
-        } catch (Exception | AssertionError e) {
-            return new ArrayList<>();
-        }
+    public static List<CompletionItem> getCompletionItems(LSServiceOperationContext completionContext)
+            throws WorkspaceDocumentException {
+        completionContext.put(CompletionKeys.CURRENT_LINE_SEGMENT_KEY, getSourceSegmentOfLine(completionContext));
+        BLangNode symbolEnvNode = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
+        return CompletionItemResolver.get(symbolEnvNode.getClass()).resolveItems(completionContext);
     }
 
     /**
