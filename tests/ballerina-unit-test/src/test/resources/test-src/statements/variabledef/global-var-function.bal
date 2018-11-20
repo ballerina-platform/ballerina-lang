@@ -7,18 +7,21 @@ float glbVarFloatChange = 99.0;
 
 float glbVarFloat1 = glbVarFloat;
 
-json glbVarJson;
+json glbVarJson = {};
 
-float glbVarFloatLater;
+float glbVarFloatLater = 0.0;
 
 function getGlobalVars() returns (int, string, float, any) {
     return (glbVarInt, glbVarString, glbVarFloat, glbVarAny);
 }
 
 function accessGlobalVar() returns int {
-    int value;
-    value = check <int>glbVarAny;
-    return (glbVarInt + value);
+    var value = <int>glbVarAny;
+    if (value is error) {
+         panic value;
+    } else {
+         return (glbVarInt + value);
+    }
 }
 
 function changeGlobalVar(int addVal) returns float {
