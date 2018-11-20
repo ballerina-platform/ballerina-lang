@@ -232,6 +232,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 signatureContext.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
                 signatureContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                      bLangPackage.symbol.getName().getValue());
+                signatureContext.put(CompletionKeys.CLIENT_CAPABILITIES_KEY, this.clientCapabilities.getCompletion());
                 SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(signatureContext);
                 bLangPackage.accept(signatureTreeVisitor);
                 signatureHelp = SignatureHelpUtil.getFunctionSignatureHelp(signatureContext);
