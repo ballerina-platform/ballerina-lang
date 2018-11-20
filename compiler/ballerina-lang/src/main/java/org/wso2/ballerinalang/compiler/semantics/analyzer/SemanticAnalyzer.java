@@ -66,6 +66,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -791,6 +792,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 break;
             case TypeTags.RECORD:
                 recordVarType = (BRecordType) recordVar.type;
+                break;
+            case TypeTags.JSON:
+                recordVarType = ((BJSONType) recordVar.type).constraint.tag == TypeTags.NONE ?
+                        createSameTypedFieldsRecordType(recordVar, symTable.anydataType) :
+                        (BRecordType) ((BJSONType) recordVar.type).constraint;
                 break;
             case TypeTags.MAP:
                 recordVarType = createSameTypedFieldsRecordType(recordVar, ((BMapType) recordVar.type).constraint);

@@ -272,3 +272,18 @@ function testWithMap() returns (int?, int?, int?, anydata, anydata, anydata) {
     var {a: A, b: B, c: C} = anydataMap;
     return (a, b, c, A, B, C);
 }
+
+type JSONRec record {
+    float var1;
+    string var2;
+    !...
+};
+
+function testWithJSON() returns (anydata, anydata, anydata, anydata, float, string, float, string) {
+    json jsonVar = {a: 1, b: "Peter", c: {d: "Kuruvita", e: true}};
+    json<JSONRec> recJson = {var1: 1.1, var2: "Ballerina"};
+    json {a, b, c: {d, e}} = jsonVar;
+    json<JSONRec> {var1: f, var2: g} = recJson;
+    var {var1: h, var2: i} = recJson;
+    return (a, b, d, e, f, g, h, i);
+}
