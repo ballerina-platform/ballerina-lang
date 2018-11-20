@@ -38,7 +38,10 @@ service<http:WebSocketService> simpleProxy3 {
 
     onText(endpoint wsEp, string text) {
         if (text == "custom-headers") {
-            check wsEp->pushText(<string>wsEp.attributes[CUSTOM_HEADER]);
+            var returnVal = wsEp->pushText(<string>wsEp.attributes[CUSTOM_HEADER]);
+            if (returnVal is error) {
+                 panic returnVal;
+            }
         }
     }
 }

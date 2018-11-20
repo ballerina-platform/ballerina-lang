@@ -59,6 +59,11 @@ public abstract class BNewArray implements BRefType, BCollection {
     }
 
     @Override
+    public void stamp(BType type) {
+
+    }
+
+    @Override
     public BRefType<?> value() {
         return null;
     }
@@ -155,6 +160,11 @@ public abstract class BNewArray implements BRefType, BCollection {
         @Override
         public boolean hasNext() {
             return cursor < length;
+        }
+
+        @Override
+        public void stamp(BType type) {
+
         }
     }
 

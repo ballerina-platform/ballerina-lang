@@ -8,15 +8,31 @@ endpoint jms:SimpleQueueSender queueSender {
     queueName: "MyPropQueue"
 };
 
-public function main (string... args) {
+public function main () {
     // Create a Text message.
-    jms:Message m = check queueSender.createTextMessage("Test Text");
-    check m.setBooleanProperty("booleanProp", false);
-    check m.setIntProperty("intProp", 10);
-    check m.setFloatProperty("floatProp", 10.5);
-    check m.setStringProperty("stringProp", "TestString");
-    // Send the Ballerina message to the JMS provider.
-    _ = queueSender -> send(m);
+    var msg = queueSender.createTextMessage("Test Text");
+    if (msg is jms:Message) {
+         var returnVal = msg.setBooleanProperty("booleanProp", false);
+         if (returnVal is error) {
+              panic returnVal;
+         }
+         returnVal = msg.setIntProperty("intProp", 10);
+         if (returnVal is error) {
+              panic returnVal;
+         }
+         returnVal = msg.setFloatProperty("floatProp", 10.5);
+         if (returnVal is error) {
+              panic returnVal;
+         }
+         returnVal = msg.setStringProperty("stringProp", "TestString");
+         if (returnVal is error) {
+              panic returnVal;
+         }
+         // Send the Ballerina message to the JMS provider.
+         _ = queueSender -> send(msg);
+    } else {
+         panic msg;
+    }
 
     io:println("Message successfully sent by jms:SimpleQueueSender");
 }

@@ -42,7 +42,7 @@ function testObjectOfObject () returns (string) {
     Person[] emps = [emp1, emp2];
     Department dpt = new (emps);
 
-    string country;
+    string country = "";
     country = dpt["employees"][0]["adrs"]["country"] but { () => "", any a => <string> a};
     return country;
 }

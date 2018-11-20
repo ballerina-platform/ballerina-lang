@@ -83,8 +83,8 @@ function getCounts() returns (int, int) {
 }
 
 function getErrors() returns (string, string) {
-    string w1ErrMsg;
-    string w2ErrMsg;
+    string w1ErrMsg = "";
+    string w2ErrMsg = "";
     if (errorW1 is error) {
         w1ErrMsg = errorW1.reason();
     }

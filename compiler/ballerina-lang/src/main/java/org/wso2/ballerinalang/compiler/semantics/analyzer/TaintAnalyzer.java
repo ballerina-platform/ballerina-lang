@@ -176,7 +176,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
@@ -633,15 +632,20 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchStmtTypedBindingPatternClause clause) {
+    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause clause) {
         TaintedStatus observedTaintedStatusOfMatchExpr = this.taintedStatus;
         setTaintedStatus(clause.variable.symbol, observedTaintedStatusOfMatchExpr);
         clause.body.accept(this);
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchStmtStaticBindingPatternClause clause) {
+    public void visit(BLangMatch.BLangMatchStaticBindingPatternClause clause) {
         clause.body.accept(this);
+    }
+
+    @Override
+    public void visit(BLangMatch.BLangMatchStructuredBindingPatternClause clause) {
+        /*ignore*/
     }
 
     @Override

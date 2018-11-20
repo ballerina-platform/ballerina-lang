@@ -60,11 +60,12 @@ function testReadBool(string path, io:ByteOrder byteOrder) returns boolean|error
     return result;
 }
 
-function testWriteString(string path, string content, string encoding, io:ByteOrder byteOrder) {
+function testWriteString(string path, string content, string encoding, io:ByteOrder byteOrder) returns error? {
     io:WritableByteChannel ch = io:openWritableFile(path);
     io:WritableDataChannel dataChannel = new(ch, bOrder = byteOrder);
     var result = check dataChannel.writeString(content, encoding);
     var closeResult = dataChannel.close();
+    return result;
 }
 
 function testReadString(string path, int nBytes, string encoding, io:ByteOrder byteOrder) returns string|error {
