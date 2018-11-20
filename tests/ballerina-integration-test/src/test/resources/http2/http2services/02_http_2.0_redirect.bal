@@ -76,7 +76,7 @@ service<http:Service> testRedirect bind serviceEndpoint1 {
     maxRedirectClient(endpoint client, http:Request req) {
         var response = endPoint1->get("/redirect1/round1");
         if (response is http:Response) {
-            string value;
+            string value = "";
             if (response.hasHeader(http:LOCATION)) {
                 value = response.getHeader(http:LOCATION);
             }
@@ -94,9 +94,13 @@ service<http:Service> testRedirect bind serviceEndpoint1 {
     crossDomain(endpoint client, http:Request req) {
         var response = endPoint2->get("/redirect1/round1");
         if (response is http:Response) {
-            string value = check response.getTextPayload();
-            value = value + ":" + response.resolvedRequestedURI;
-            _ = client->respond(untaint value);
+            var value = response.getTextPayload();
+            if (value is string) {
+                value = value + ":" + response.resolvedRequestedURI;
+                _ = client->respond(untaint value);
+            } else {
+                panic value;
+            }
         } else if (response is error) {
             io:println("Connector error!");
         }
@@ -109,9 +113,13 @@ service<http:Service> testRedirect bind serviceEndpoint1 {
     NoRedirect(endpoint client, http:Request req) {
         var response = endPoint3->get("/redirect2");
         if (response is http:Response) {
-            string value = check response.getTextPayload();
-            value = value + ":" + response.resolvedRequestedURI;
-            _ = client->respond(untaint value);
+            var value = response.getTextPayload();
+            if (value is string) {
+                value = value + ":" + response.resolvedRequestedURI;
+                _ = client->respond(untaint value);
+            } else {
+                panic value;
+            }
         } else if (response is error) {
             io:println("Connector error!");
         }
@@ -124,9 +132,13 @@ service<http:Service> testRedirect bind serviceEndpoint1 {
     qpWithRelativePath(endpoint client, http:Request req) {
         var response = endPoint2->get("/redirect1/qpWithRelativePath");
         if (response is http:Response) {
-            string value = check response.getTextPayload();
-            value = value + ":" + response.resolvedRequestedURI;
-            _ = client->respond(untaint value);
+            var value = response.getTextPayload();
+            if (value is string) {
+                value = value + ":" + response.resolvedRequestedURI;
+                _ = client->respond(untaint value);
+            } else {
+                panic value;
+            }
         } else if (response is error) {
             io:println("Connector error!");
         }
@@ -139,9 +151,13 @@ service<http:Service> testRedirect bind serviceEndpoint1 {
     qpWithAbsolutePath(endpoint client, http:Request req) {
         var response = endPoint2->get("/redirect1/qpWithAbsolutePath");
         if (response is http:Response) {
-            string value = check response.getTextPayload();
-            value = value + ":" + response.resolvedRequestedURI;
-        _ = client->respond(untaint value);
+            var value = response.getTextPayload();
+            if (value is string) {
+                value = value + ":" + response.resolvedRequestedURI;
+                _ = client->respond(untaint value);
+            } else {
+                panic value;
+            }
         } else if (response is error) {
             io:println("Connector error!");
         }
@@ -154,9 +170,13 @@ service<http:Service> testRedirect bind serviceEndpoint1 {
     originalRequestWithQP(endpoint client, http:Request req) {
         var response = endPoint2->get("/redirect1/round4?key=value&lang=ballerina");
         if (response is http:Response) {
-            string value = check response.getTextPayload();
-            value = value + ":" + response.resolvedRequestedURI;
-            _ = client->respond(untaint value);
+            var value = response.getTextPayload();
+            if (value is string) {
+                value = value + ":" + response.resolvedRequestedURI;
+                _ = client->respond(untaint value);
+            } else {
+                panic value;
+            }
         } else if (response is error) {
             io:println("Connector error!");
         }
@@ -169,9 +189,13 @@ service<http:Service> testRedirect bind serviceEndpoint1 {
     test303(endpoint client, http:Request req) {
         var response = endPoint3->post("/redirect2/test303", "Test value!");
         if (response is http:Response) {
-            string value = check response.getTextPayload();
-            value = value + ":" + response.resolvedRequestedURI;
-            _ = client->respond(untaint value);
+            var value = response.getTextPayload();
+            if (value is string) {
+                value = value + ":" + response.resolvedRequestedURI;
+                _ = client->respond(untaint value);
+            } else {
+                panic value;
+            }
         } else if (response is error) {
             io:println("Connector error!");
         }
@@ -243,8 +267,8 @@ service<http:Service> redirect1 bind serviceEndpoint2 {
     }
     qpWithRelativePath(endpoint client, http:Request req) {
         http:Response res = new;
-        _ = client->redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307, ["/redirect1/processQP?key=value&lang=ballerina"
-            ]);
+        _ = client->redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307,
+                ["/redirect1/processQP?key=value&lang=ballerina"]);
     }
 
     @http:ResourceConfig {
@@ -253,8 +277,8 @@ service<http:Service> redirect1 bind serviceEndpoint2 {
     }
     qpWithAbsolutePath(endpoint client, http:Request req) {
         http:Response res = new;
-        _ = client->redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307, [
-                "http://localhost:9093/redirect1/processQP?key=value&lang=ballerina"]);
+        _ = client->redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307,
+                ["http://localhost:9093/redirect1/processQP?key=value&lang=ballerina"]);
     }
 
     @http:ResourceConfig {
