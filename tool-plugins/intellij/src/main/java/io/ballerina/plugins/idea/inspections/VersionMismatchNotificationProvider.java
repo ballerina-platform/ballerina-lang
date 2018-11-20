@@ -91,9 +91,9 @@ public class VersionMismatchNotificationProvider extends EditorNotifications.Pro
     private static EditorNotificationPanel createPanel(@NotNull Module module, @NotNull String sdkVersion,
             @NotNull String pluginVersion) {
         EditorNotificationPanel panel = new EditorNotificationPanel();
-        panel.setText("Ballerina SDK version (" + sdkVersion + ") of the module '" + module.getName()
-                + "' does not match with the Ballerina plugin version (" + pluginVersion + "). Code insight features "
-                + "might not work.");
+        panel.setText("Your Ballerina SDK version (" + sdkVersion + ") for the Module '" + module.getName()
+                + "' does not match your Ballerina plugin version (" + pluginVersion + "). Some features may "
+                + "not work properly.");
         return panel;
     }
 }

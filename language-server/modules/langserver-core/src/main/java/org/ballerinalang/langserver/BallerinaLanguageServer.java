@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver;
 
-import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.command.LSCommandExecutorProvider;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
@@ -47,7 +47,6 @@ import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
 
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -101,14 +100,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Language
     public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
         final InitializeResult res = new InitializeResult(new ServerCapabilities());
         final SignatureHelpOptions signatureHelpOptions = new SignatureHelpOptions(Arrays.asList("(", ","));
-        final List<String> commandList = new ArrayList<>(Arrays.asList(
-                CommandConstants.CMD_IMPORT_MODULE,
-                CommandConstants.CMD_ADD_DOCUMENTATION,
-                CommandConstants.CMD_ADD_ALL_DOC,
-                CommandConstants.CMD_CREATE_FUNCTION,
-                CommandConstants.CMD_CREATE_VARIABLE,
-                CommandConstants.CMD_CREATE_CONSTRUCTOR,
-                CommandConstants.CMD_PULL_MODULE));
+        final List<String> commandList = LSCommandExecutorProvider.getInstance().getCommandsList();
         final ExecuteCommandOptions executeCommandOptions = new ExecuteCommandOptions(commandList);
         final CompletionOptions completionOptions = new CompletionOptions();
         completionOptions.setTriggerCharacters(Arrays.asList(":", ".", ">", "@"));

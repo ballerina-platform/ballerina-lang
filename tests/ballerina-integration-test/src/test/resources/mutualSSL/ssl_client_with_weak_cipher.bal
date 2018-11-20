@@ -30,7 +30,7 @@ public function main(string... args) {
                 path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
                 password: "ballerina"
             },
-            ciphers: ["TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA"]
+            ciphers: ["TLS_RSA_WITH_AES_256_CBC_SHA"]
         }
     };
     http:Request req = new;

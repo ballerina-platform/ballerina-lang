@@ -19,8 +19,6 @@ package org.ballerinalang.langserver.completions.resolvers;
 
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
@@ -29,14 +27,9 @@ import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.model.tree.NodeKind;
 import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,44 +53,14 @@ public class ObjectTypeContextResolver extends AbstractItemResolver {
                 .stream()
                 .map(Token::getText)
                 .collect(Collectors.toList());
-        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) objectNode;
-        List<BLangVariable> fields = objectTypeNode.fields;
-        List<BLangFunction> functions = objectTypeNode.functions;
-        BLangFunction initFunction = objectTypeNode.initFunction;
-        Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
-        int line = position.getLine();
-        int col = position.getCharacter();
         
-        DiagnosticPos lastFieldPos = fields.isEmpty() ? null
-                : CommonUtil.toZeroBasedPosition(CommonUtil.getLastItem(fields).pos);
         if (poppedTokens.contains(UtilSymbolKeys.EQUAL_SYMBOL_KEY)) {
             // If the popped tokens contains the equal symbol, then the variable definition is being writing
             context.put(CompletionKeys.PARSER_RULE_CONTEXT_KEY,
                     new BallerinaParser.VariableDefinitionStatementContext(null, -1));
             return CompletionItemResolver
-                    .getResolverByClass(BallerinaParser.VariableDefinitionStatementContext.class)
+                    .get(BallerinaParser.VariableDefinitionStatementContext.class)
                     .resolveItems(context);
-        } else if (lastFieldPos != null
-                && (line < lastFieldPos.sLine || (line == lastFieldPos.sLine && col < lastFieldPos.sCol))) {
-            fillTypes(context, completionItems);
-        } else if (initFunction != null && objectTypeNode.initFunction.objInitFunction) {
-            DiagnosticPos initFuncPos = CommonUtil.toZeroBasedPosition(initFunction.pos);
-            DiagnosticPos firstFuncPos = functions.isEmpty() ? null
-                    : CommonUtil.toZeroBasedPosition(functions.get(0).pos);
-            if (line < initFuncPos.sLine || (line == initFuncPos.sLine && col < initFuncPos.sCol)) {
-                fillTypes(context, completionItems);
-            } else if ((firstFuncPos != null && line < firstFuncPos.sLine) || firstFuncPos == null) {
-                fillFunctionSignature(completionItems, isSnippet);
-            }
-        } else if (!functions.isEmpty()) {
-            DiagnosticPos firstFuncPos = CommonUtil.toZeroBasedPosition(functions.get(0).pos);
-            if (line < firstFuncPos.sLine) {
-                fillTypes(context, completionItems);
-                fillInitializerSignature(completionItems, isSnippet);
-                fillFunctionSignature(completionItems, isSnippet);
-            } else {
-                fillFunctionSignature(completionItems, isSnippet);
-            }
         } else {
             fillTypes(context, completionItems);
             fillInitializerSignature(completionItems, isSnippet);

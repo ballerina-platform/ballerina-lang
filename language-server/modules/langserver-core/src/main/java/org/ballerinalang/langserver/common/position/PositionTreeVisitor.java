@@ -91,14 +91,12 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
 import java.util.Stack;
-import java.util.stream.Collectors;
 
 /**
  * Tree visitor for finding the node at the given position.
  */
 public class PositionTreeVisitor extends LSNodeVisitor {
 
-    private String fileName;
     private Position position;
     private boolean terminateVisitor = false;
     private SymbolTable symTable;
@@ -109,7 +107,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     public PositionTreeVisitor(LSServiceOperationContext context) {
         this.context = context;
         this.position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
-        this.fileName = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         this.symTable = SymbolTable.getInstance(context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY));
         this.position.setLine(this.position.getLine() + 1);
         this.nodeStack = new Stack<>();
@@ -117,24 +114,17 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     }
 
     public void visit(BLangPackage pkgNode) {
-        // Then visit each top-level element sorted using the compilation unit
-        List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes.stream()
-                .filter(node ->
-                                node.getPosition().getSource()
-                                        .getCompilationUnitName()
-                                        .equals(this.fileName)
-                ).collect(Collectors.toList());
-
-        if (topLevelNodes.isEmpty()) {
-            setTerminateVisitor(true);
-            acceptNode(null);
-        } else {
-            topLevelNodes.forEach(topLevelNode -> acceptNode((BLangNode) topLevelNode));
-        }
+        boolean isTestSrc = CommonUtil.isTestSource(this.context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY));
+        BLangPackage evalPkg = isTestSrc ? pkgNode.getTestablePkg() : pkgNode;
+        List<TopLevelNode> topLevelNodes = CommonUtil.getCurrentFileTopLevelNodes(evalPkg, this.context);
+        topLevelNodes.forEach(topLevelNode -> acceptNode((BLangNode) topLevelNode));
     }
 
     public void visit(BLangImportPackage importPkgNode) {
         BPackageSymbol pkgSymbol = importPkgNode.symbol;
+        if (pkgSymbol == null) {
+            return;
+        }
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgSymbol);
         acceptNode(pkgEnv.node);
     }
@@ -878,11 +868,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         if (typeDefinition.typeNode != null) {
             this.acceptNode(typeDefinition.typeNode);
         }
-
-//        if (typeDefinition.valueSpace != null) {
-//            typeDefinition.valueSpace.forEach(this::acceptNode);
-//        }
-
     }
 
     @Override
@@ -922,7 +907,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
      * @param node node to be accepted to visit.
      */
     private void acceptNode(BLangNode node) {
-        if (this.terminateVisitor) {
+        if (this.terminateVisitor || node == null) {
             return;
         }
         node.accept(this);

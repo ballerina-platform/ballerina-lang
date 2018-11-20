@@ -80,6 +80,14 @@ export default class DocPreview extends React.Component {
                 defaultValue: param.variable.initialExpression.value,
             };
         });
+
+        if(node.restParameters) {
+            parameters[node.restParameters.name.value] = {
+                name: node.restParameters.name.value,
+                type: `${node.restParameters.typeNode.elementType.typeKind}...`,
+            }
+        }
+
         return parameters;
     }
 
@@ -103,10 +111,14 @@ export default class DocPreview extends React.Component {
                 return;
             }
 
-            const docDetails = this.getDocumentationDetails(node);
-            docElements.push(
-                <Documentation docDetails={docDetails}/>
-            );
+            try {
+                const docDetails = this.getDocumentationDetails(node);
+                docElements.push(
+                    <Documentation docDetails={docDetails}/>
+                );
+            } catch {
+                console.log(`error when getting doc details for ${node.id}`);
+            }
         });
         return docElements;
     }
