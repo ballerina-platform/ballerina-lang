@@ -143,7 +143,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
-import java.util.stream.Stream;
 
 import static java.util.Arrays.stream;
 import static org.ballerinalang.runtime.Constants.STATE_ID;
@@ -1737,30 +1736,42 @@ public class CPU {
                 }
 
                 BRefType<?> value = sf.refRegs[k];
-                if (isValidMapInsertion(bMap.getType(), value)) {
-                    try {
-                        bMap.put(sf.stringRegs[j], value);
-                    } catch (BLangFreezeException e) {
-                        // we would only reach here for record or map, not for object
-                        String errMessage = "";
-                        switch (bMap.getType().getTag()) {
-                            case TypeTags.RECORD_TYPE_TAG:
-                                errMessage = "Invalid update of record field: ";
-                                break;
-                            case TypeTags.MAP_TAG:
-                                errMessage = "Invalid map insertion: ";
-                                break;
+                BType mapType = bMap.getType();
+                BType expType = null;
+
+                switch (mapType.getTag()) {
+                    case TypeTags.MAP_TAG:
+                        if (isValidMapInsertion(mapType, value)) {
+                            insertToMap(ctx, bMap, sf.stringRegs[j], value);
+                        } else {
+                            expType = ((BMapType) mapType).getConstrainedType();
                         }
-                        ctx.setError(BLangVMErrors.createError(ctx,  errMessage + e.getMessage()));
-                        handleError(ctx);
-                    }
-                } else {
-                    // We reach here only for map insertions. Hence bMap.getType() is always BMapType
-                    BType expType = ((BMapType) bMap.getType()).getConstrainedType();
+                        break;
+                    case TypeTags.RECORD_TYPE_TAG:
+                    case TypeTags.OBJECT_TYPE_TAG:
+                        BStructureType structureType = (BStructureType) mapType;
+                        BField targetField = structureType.getFields().get(sf.stringRegs[j]);
+                        BType targetFieldType;
+
+                        if (structureType.getTag() == TypeTags.RECORD_TYPE_TAG) {
+                            targetFieldType = targetField == null ? ((BRecordType) structureType).restFieldType :
+                                                                    targetField.fieldType;
+                        } else {
+                            targetFieldType = targetField.getFieldType();
+                        }
+
+                        if (checkIsType(value, targetFieldType)) {
+                            insertToMap(ctx, bMap, sf.stringRegs[j], value);
+                        } else {
+                            expType = targetFieldType;
+                        }
+                        break;
+                }
+
+                if (expType != null) {
                     ctx.setError(BLangVMErrors.createError(ctx, BLangExceptionHelper
                             .getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION, expType, value.getType())));
                     handleError(ctx);
-                    break;
                 }
                 break;
             case InstructionCodes.JSONSTORE:
@@ -3383,9 +3394,9 @@ public class CPU {
                 return isAnydata(((BMapType) type).getConstrainedType());
             case TypeTags.RECORD_TYPE_TAG:
                 BRecordType recordType = (BRecordType) type;
-                List<BType> fieldTypes = stream(recordType.getFields())
-                                                .map(BField::getFieldType)
-                                                .collect(Collectors.toList());
+                List<BType> fieldTypes = recordType.getFields().values().stream()
+                        .map(BField::getFieldType)
+                        .collect(Collectors.toList());
                 return isAnydata(fieldTypes) && (recordType.sealed || isAnydata(recordType.restFieldType));
             case TypeTags.UNION_TAG:
                 return isAnydata(((BUnionType) type).getMemberTypes());
@@ -3450,7 +3461,7 @@ public class CPU {
                 lhsType.getAttachedFunctions().length - 1 :
                 lhsType.getAttachedFunctions().length;
 
-        if (lhsType.getFields().length > rhsType.getFields().length ||
+        if (lhsType.getFields().size() > rhsType.getFields().size() ||
                 lhsAttachedFunctionCount > rhsType.getAttachedFunctions().length) {
             return false;
         }
@@ -3478,10 +3489,6 @@ public class CPU {
             return false;
         }
 
-        if (lhsType.getFields().length > rhsType.getFields().length) {
-            return false;
-        }
-
         // If only one is a closed record, the records aren't equivalent
         if (lhsType.sealed && !rhsType.sealed) {
             return false;
@@ -3493,16 +3500,15 @@ public class CPU {
             return false;
         }
 
-        return checkFieldEquivalency(lhsType, rhsType);
+        return checkFieldEquivalency(lhsType, rhsType, unresolvedTypes);
     }
 
     private static boolean checkPrivateObjectsEquivalency(BStructureType lhsType, BStructureType rhsType,
                                                            List<TypePair> unresolvedTypes) {
-        Map<String, BField> rhsFields = stream(rhsType.getFields()).collect(
-                Collectors.toMap(BField::getFieldName, field -> field));
-        for (BField lhsField : lhsType.getFields()) {
-            BField rhsField = rhsFields.get(lhsField.fieldName);
-            if (rhsField == null || !isSameType(rhsField.fieldType, lhsField.fieldType)) {
+        Map<String, BField> rhsFields = rhsType.getFields();
+        for (Map.Entry<String, BField> lhsFieldEntry : lhsType.getFields().entrySet()) {
+            BField rhsField = rhsFields.get(lhsFieldEntry.getKey());
+            if (rhsField == null || !isSameType(rhsField.fieldType, lhsFieldEntry.getValue().fieldType)) {
                 return false;
             }
         }
@@ -3525,16 +3531,15 @@ public class CPU {
     private static boolean checkPublicObjectsEquivalency(BStructureType lhsType, BStructureType rhsType,
                                                            List<TypePair> unresolvedTypes) {
         // Check the whether there is any private fields in RHS type
-        if (stream(rhsType.getFields()).anyMatch(field -> !Flags.isFlagOn(field.flags, Flags.PUBLIC))) {
+        if (rhsType.getFields().values().stream().anyMatch(field -> !Flags.isFlagOn(field.flags, Flags.PUBLIC))) {
             return false;
         }
 
-        Map<String, BField> rhsFields =
-                stream(rhsType.getFields()).collect(Collectors.toMap(BField::getFieldName, field -> field));
-        for (BField lhsField : lhsType.getFields()) {
-            BField rhsField = rhsFields.get(lhsField.fieldName);
-            if (rhsField == null || !Flags.isFlagOn(lhsField.flags, Flags.PUBLIC) ||
-                    !isSameType(rhsField.fieldType, lhsField.fieldType)) {
+        Map<String, BField> rhsFields = rhsType.getFields();
+        for (Map.Entry<String, BField> lhsFieldEntry : lhsType.getFields().entrySet()) {
+            BField rhsField = rhsFields.get(lhsFieldEntry.getKey());
+            if (rhsField == null || !Flags.isFlagOn(lhsFieldEntry.getValue().flags, Flags.PUBLIC) ||
+                    !isSameType(rhsField.fieldType, lhsFieldEntry.getValue().fieldType)) {
                 return false;
             }
         }
@@ -3566,17 +3571,24 @@ public class CPU {
         return true;
     }
 
-    private static boolean checkFieldEquivalency(BRecordType lhsType, BRecordType rhsType) {
-        Map<String, BField> rhsFields = stream(rhsType.getFields()).collect(
-                Collectors.toMap(BField::getFieldName, field -> field));
-        for (BField lhsField : lhsType.getFields()) {
-            BField rhsField = rhsFields.get(lhsField.fieldName);
+    private static boolean checkFieldEquivalency(BRecordType lhsType, BRecordType rhsType,
+                                                 List<TypePair> unresolvedTypes) {
+        Map<String, BField> rhsFields = rhsType.getFields();
 
-            if (rhsField == null || !isSameType(rhsField.fieldType, lhsField.fieldType)) {
+        for (Map.Entry<String, BField> lhsFieldEntry : lhsType.getFields().entrySet()) {
+            BField rhsField = rhsFields.get(lhsFieldEntry.getKey());
+
+            if (rhsField == null || !isAssignable(rhsField.fieldType, lhsFieldEntry.getValue().fieldType,
+                                                  unresolvedTypes)) {
                 return false;
             }
+
+            rhsFields.remove(lhsFieldEntry.getKey());
         }
-        return true;
+
+        return rhsFields.entrySet().stream().allMatch(
+                fieldEntry -> isAssignable(fieldEntry.getValue().getFieldType(), lhsType.restFieldType,
+                                           unresolvedTypes));
     }
 
     private static boolean checkFunctionTypeEqualityForObjectType(BFunctionType source, BFunctionType target,
@@ -3609,7 +3621,7 @@ public class CPU {
 
     private static BAttachedFunction getMatchingInvokableType(BAttachedFunction[] rhsFuncs, BAttachedFunction lhsFunc,
                                                               List<TypePair> unresolvedTypes) {
-        return stream(rhsFuncs)
+        return Arrays.stream(rhsFuncs)
                 .filter(rhsFunc -> lhsFunc.funcName.equals(rhsFunc.funcName))
                 .filter(rhsFunc -> checkFunctionTypeEqualityForObjectType(rhsFunc.type, lhsFunc.type, unresolvedTypes))
                 .findFirst()
@@ -3679,15 +3691,15 @@ public class CPU {
         }
 
         BMap<String, BValue> jsonObject = (BMap<String, BValue>) json;
-        BField[] tFields = targetConstrainedType.getFields();
-        for (int i = 0; i < tFields.length; i++) {
-            String fieldName = tFields[i].getFieldName();
+        Map<String, BField> tFields = targetConstrainedType.getFields();
+        for (Map.Entry<String, BField> tFieldEntry : tFields.entrySet()) {
+            String fieldName = tFieldEntry.getKey();
             if (!jsonObject.hasKey(fieldName)) {
                 return false;
             }
 
             BValue fieldVal = jsonObject.get(fieldName);
-            if (!checkJSONCast(fieldVal, fieldVal.getType(), tFields[i].getFieldType(), unresolvedTypes)) {
+            if (!checkJSONCast(fieldVal, fieldVal.getType(), tFieldEntry.getValue().getFieldType(), unresolvedTypes)) {
                 return false;
             }
         }
@@ -4069,12 +4081,27 @@ public class CPU {
 
     }
 
+    private static void insertToMap(WorkerExecutionContext ctx, BMap bMap, String fieldName, BValue value) {
+        try {
+            bMap.put(fieldName, value);
+        } catch (BLangFreezeException e) {
+            // we would only reach here for record or map, not for object
+            String errMessage = "";
+            switch (bMap.getType().getTag()) {
+                case TypeTags.RECORD_TYPE_TAG:
+                    errMessage = "Invalid update of record field: ";
+                    break;
+                case TypeTags.MAP_TAG:
+                    errMessage = "Invalid map insertion: ";
+                    break;
+            }
+            ctx.setError(BLangVMErrors.createError(ctx, errMessage + e.getMessage()));
+            handleError(ctx);
+        }
+    }
+
     private static boolean isValidMapInsertion(BType mapType, BValue value) {
         if (value == null) {
-            return true;
-        }
-
-        if (mapType.getTag() == TypeTags.RECORD_TYPE_TAG || mapType.getTag() == TypeTags.OBJECT_TYPE_TAG) {
             return true;
         }
 
@@ -4327,7 +4354,7 @@ public class CPU {
         Map<String, BType> targetTypeField = new HashMap<>();
         BType restFieldType = targetType.restFieldType;
 
-        for (BField field : targetType.getFields()) {
+        for (BField field : targetType.getFields().values()) {
             targetTypeField.put(field.getFieldName(), field.fieldType);
         }
 
@@ -4480,7 +4507,7 @@ public class CPU {
             return false;
         }
 
-        if (targetType.getFields().length > sourceRecordType.getFields().length) {
+        if (targetType.getFields().size() > sourceRecordType.getFields().size()) {
             return false;
         }
 
@@ -4490,10 +4517,9 @@ public class CPU {
             return false;
         }
 
-        Map<String, BField> sourceFields = stream(sourceRecordType.getFields())
-                .collect(Collectors.toMap(BField::getFieldName, field -> field));
+        Map<String, BField> sourceFields = sourceRecordType.getFields();
 
-        return Stream.of(targetType.getFields()).noneMatch(targetField -> {
+        return targetType.getFields().values().stream().noneMatch(targetField -> {
             BField sourceField = sourceFields.get(targetField.fieldName);
             return sourceField == null || !checkIsType(sourceField.fieldType, targetField.fieldType, unresolvedTypes);
         });

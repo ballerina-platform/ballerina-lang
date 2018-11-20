@@ -67,8 +67,8 @@ public abstract class AbstractItemResolver {
         List<CompletionItem> completionItems = new ArrayList<>();
         symbolInfoList.removeIf(CommonUtil.invalidSymbolsPredicate());
         symbolInfoList.forEach(symbolInfo -> {
-            BSymbol bSymbol = symbolInfo.isIterableOperation() ? null : symbolInfo.getScopeEntry().symbol;
-            if (CommonUtil.isValidInvokableSymbol(bSymbol) || symbolInfo.isIterableOperation()) {
+            BSymbol bSymbol = symbolInfo.isCustomOperation() ? null : symbolInfo.getScopeEntry().symbol;
+            if (CommonUtil.isValidInvokableSymbol(bSymbol) || symbolInfo.isCustomOperation()) {
                 completionItems.add(populateBallerinaFunctionCompletionItem(symbolInfo));
             } else if (!(bSymbol instanceof BInvokableSymbol) && bSymbol instanceof BVarSymbol) {
                 String typeName = symbolInfo.getScopeEntry().symbol.type.toString();
@@ -269,9 +269,9 @@ public abstract class AbstractItemResolver {
      * @return completion item
      */
     private CompletionItem populateBallerinaFunctionCompletionItem(SymbolInfo symbolInfo) {
-        if (symbolInfo.isIterableOperation()) {
-            SymbolInfo.IterableOperationSignature signature =
-                    symbolInfo.getIterableOperationSignature();
+        if (symbolInfo.isCustomOperation()) {
+            SymbolInfo.CustomOperationSignature signature =
+                    symbolInfo.getCustomOperationSignature();
             return BFunctionCompletionItemBuilder.build(null, signature.getLabel(), signature.getInsertText());
         }
         BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;

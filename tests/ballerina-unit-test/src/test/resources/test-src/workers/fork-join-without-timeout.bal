@@ -1,4 +1,4 @@
-function testForkJoinWithoutTimeoutExpression() returns (int, float) {
+function testForkJoinWithoutTimeoutExpression() returns (int, float)|error {
     int x;
     float y;
     fork {
