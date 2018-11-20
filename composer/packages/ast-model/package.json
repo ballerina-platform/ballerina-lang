@@ -34,5 +34,9 @@
   },
   "engines": {
     "node": ">=6.0.0"
+  },
+  "jest": {
+    "testRegex": "(/tests/.*|\\.(test|spec))\\.js$",
+    "testEnvironment": "node"
   }
 }
