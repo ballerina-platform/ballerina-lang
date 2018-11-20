@@ -37,6 +37,8 @@ public class SafeStrandCallback extends StrandCallback {
 
     private Strand contStrand;
 
+    private BType expType;
+
     private int retReg;
 
     public SafeStrandCallback(CallableUnitInfo callableUnitInfo, BType retType) {
@@ -51,7 +53,7 @@ public class SafeStrandCallback extends StrandCallback {
             dataLock.lock();
             this.returnValueAvailable.set(true);
             if (contStrand != null) {
-                return CallbackReturnHandler.handleReturn(contStrand, retReg, this);
+                return CallbackReturnHandler.handleReturn(contStrand, expType, retReg, this);
             }
         } finally {
             dataLock.unlock();
@@ -68,8 +70,9 @@ public class SafeStrandCallback extends StrandCallback {
         dataLock.unlock();
     }
 
-    public void setRetData(Strand contStrand, int retReg) {
+    public void setRetData(Strand contStrand, BType expType, int retReg) {
         this.contStrand = contStrand;
+        this.expType = expType;
         this.retReg = retReg;
     }
 

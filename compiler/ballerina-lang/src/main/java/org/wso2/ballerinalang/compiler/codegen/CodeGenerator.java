@@ -1443,12 +1443,10 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         for (BLangExpression expr : waitExpr.exprList) {
             genNode(expr, this.env);
-            Operand exprTypeCPIndex = getTypeCPIndex(expr.type);
-            operands.add(exprTypeCPIndex);
             operands.add(expr.regIndex);
         }
         length.value = operands.size() - 3;
-        // length of operands, type of wait, regIndex of value, expressions: type of expr, regIndex of expr
+        // length of operands, type of wait, regIndex of value, expressions: regIndex of expr
         this.emit(InstructionCodes.WAIT, operands.toArray(new Operand[operands.size()]));
     }
 

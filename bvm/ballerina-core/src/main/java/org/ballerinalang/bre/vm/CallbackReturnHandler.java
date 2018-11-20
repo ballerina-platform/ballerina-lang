@@ -17,7 +17,13 @@
  */
 package org.ballerinalang.bre.vm;
 
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
 
 /**
  * This represents handler class which handles callback returns.
@@ -26,30 +32,52 @@ import org.ballerinalang.model.types.TypeTags;
  */
 public class CallbackReturnHandler {
 
-    static Strand handleReturn(Strand strand, int retReg, SafeStrandCallback... callbacks) {
+    static Strand handleReturn(Strand strand, BType expType, int retReg, SafeStrandCallback... callbacks) {
         try {
             strand.acquireExecutionLock();
             for (SafeStrandCallback callback : callbacks) {
                 callback.acquireDataLock();
 
                 if (callback.returnDataAvailable()) {
-                    handleReturn(strand.currentFrame, callback, retReg);
+                    handleReturn(strand.currentFrame, callback, expType, retReg);
                     callback.releaseDataLock();
                     return strand;
                 }
 
-                callback.setRetData(strand, retReg);
+                callback.setRetData(strand, expType, retReg);
                 callback.releaseDataLock();
             }
 
         } finally {
             strand.releaseExecutionLock();
-
         }
         return null;
     }
 
-    private static void handleReturn(DataFrame sf, SafeStrandCallback strandCallback, int retReg) {
+    private static void handleReturn(DataFrame sf, SafeStrandCallback strandCallback, BType expType, int retReg) {
+        if (expType.getTag() == TypeTags.UNION_TAG) {
+            switch (strandCallback.retType.getTag()) {
+                case TypeTags.INT_TAG:
+                    sf.refRegs[retReg] = new BInteger(strandCallback.getIntRetVal());
+                    break;
+                case TypeTags.BYTE_TAG:
+                    sf.refRegs[retReg] = new BByte((byte) strandCallback.getByteRetVal());
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    sf.refRegs[retReg] = new BFloat(strandCallback.getFloatRetVal());
+                    break;
+                case TypeTags.STRING_TAG:
+                    sf.refRegs[retReg] = new BString(strandCallback.getStringRetVal());
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    sf.refRegs[retReg] = new BBoolean(strandCallback.getBooleanRetVal() == 1);
+                    break;
+                default:
+                    sf.refRegs[retReg] = strandCallback.getRefRetVal();
+                    break;
+            }
+            return;
+        }
         switch (strandCallback.retType.getTag()) {
             case TypeTags.INT_TAG:
                 sf.longRegs[retReg] = strandCallback.getIntRetVal();

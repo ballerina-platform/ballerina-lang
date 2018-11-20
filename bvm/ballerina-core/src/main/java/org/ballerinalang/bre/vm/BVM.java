@@ -4156,18 +4156,18 @@ public class BVM {
 
     private static Strand execWait(Strand strand, int[] operands) {
         int c = operands[0];
-        int retValReg = operands[1];
-//        TypeRefCPEntry typeEntry = (TypeRefCPEntry) strand.currentFrame.constPool[operands[2]];
-//        BType retType =
+        TypeRefCPEntry typeEntry = (TypeRefCPEntry) strand.currentFrame.constPool[operands[1]];
+        BType expType = typeEntry.getType();
+        int retValReg = operands[2];
 
         SafeStrandCallback[] callbacks = new SafeStrandCallback[c];
         for (int i = 0; i < c; i++) {
-            int futureReg = operands[i + 2];
+            int futureReg = operands[i + 3];
             BFuture future = (BFuture) strand.currentFrame.refRegs[futureReg];
             callbacks[i] = future.value();
         }
         strand.createLock();
-        return CallbackReturnHandler.handleReturn(strand, retValReg, callbacks);
+        return CallbackReturnHandler.handleReturn(strand, expType, retValReg, callbacks);
     }
 
     /**
