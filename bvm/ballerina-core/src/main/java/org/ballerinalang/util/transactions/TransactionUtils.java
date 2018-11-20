@@ -17,23 +17,17 @@
 */
 package org.ballerinalang.util.transactions;
 
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
-
-import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
-import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
  * Utility methods used in transaction handling.
@@ -75,14 +69,8 @@ public class TransactionUtils {
     }
 
     private static void checkTransactionCoordinatorError(BValue value, WorkerExecutionContext ctx, String errMsg) {
-        if (value.getType().getTag() == TypeTags.OBJECT_TYPE_TAG
-                || value.getType().getTag() == TypeTags.RECORD_TYPE_TAG) {
-            PackageInfo errorPackageInfo = ctx.programFile.getPackageInfo(BALLERINA_BUILTIN_PKG);
-            StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
-            if (((BStructureType) value.getType()).getTypeInfo().equals(errorStructInfo)) {
-                throw new BallerinaException(
-                        errMsg + ((BMap<String, BValue>) value).get(BLangVMErrors.ERROR_MESSAGE_FIELD));
-            }
+        if (value.getType().getTag() == TypeTags.ERROR_TAG) {
+            throw new BallerinaException(errMsg + ((BError) value).details);
         }
     }
 
