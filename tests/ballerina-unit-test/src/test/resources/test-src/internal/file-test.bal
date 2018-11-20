@@ -20,6 +20,7 @@ import ballerina/log;
 import ballerina/time;
 
 string TEST_CONTENT = "Hello";
+const string INTERNAL_ERROR_CODE = "{ballerina/internal}InternalError";
 
 function createSourceAndTargetDirs(string pathValue) returns boolean {
     internal:Path parentPath = new(pathValue);
@@ -91,11 +92,11 @@ function testFolderContent(string rootPathValue) returns boolean|error {
                 testReadFile(xmlFilePath.getPathValue()) &&
                 paths.length() == 1;
         } else {
-            error listNotFound = error("File list fetching error");
+            error listNotFound = error(INTERNAL_ERROR_CODE, { message : "File list fetching error" });
             return listNotFound;
         }
     } else {
-        error directoryNotFound = error("Directory not found");
+        error directoryNotFound = error(INTERNAL_ERROR_CODE, { message : "Directory not found" });
         return directoryNotFound;
     }
 }
