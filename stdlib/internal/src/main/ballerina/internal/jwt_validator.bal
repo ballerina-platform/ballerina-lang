@@ -31,7 +31,6 @@ public type JWTValidatorConfig record {
     string certificateAlias = "";
     string trustStoreFilePath = "";
     string trustStorePassword = "";
-    !...
 };
 
 # Validity given JWT token.
@@ -84,7 +83,9 @@ public function validate(string jwtToken, JWTValidatorConfig config) returns Jwt
 function getJWTComponents(string jwtToken) returns (string[])|error {
     string[] jwtComponents = jwtToken.split("\\.");
     if (jwtComponents.length() != 3) {
-        log:printDebug("Invalid JWT token :" + jwtToken);
+        log:printDebug(function() returns string {
+            return "Invalid JWT token :" + jwtToken;
+        });
         error jwtError = error(INTERNAL_ERROR_CODE, { message : "Invalid JWT token" });
         return jwtError;
     }

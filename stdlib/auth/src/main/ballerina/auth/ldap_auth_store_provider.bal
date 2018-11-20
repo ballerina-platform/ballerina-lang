@@ -63,7 +63,7 @@ public type LdapAuthProviderConfig record {
     int ldapConnectionTimeout = 5000;
     int readTimeout = 60000;
     int retryAttempts = 0;
-    SecureClientSocket? secureClientSocket;
+    SecureClientSocket? secureClientSocket = ();
     !...
 };
 
