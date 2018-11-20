@@ -22,8 +22,8 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.JsonParser;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
@@ -71,9 +71,9 @@ public class FunctionsAndNilTest {
         returns = BRunUtil.invoke(result, "funcReturnNilOrError", params);
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].getClass(), BMap.class);
-        BMap<String, BValue> errorValue = (BMap<String, BValue>) returns[0];
-        Assert.assertEquals("dummy error message", errorValue.get(ERROR_MESSAGE_FIELD).stringValue());
+        Assert.assertEquals(returns[0].getClass(), BError.class);
+        BError errorValue = (BError) returns[0];
+        Assert.assertEquals("dummy error message", errorValue.reason);
     }
 
     @Test(description = "Test functions that returns nil type")
@@ -88,9 +88,9 @@ public class FunctionsAndNilTest {
         returns = BRunUtil.invoke(result, "funcReturnOptionallyError", params);
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].getClass(), BMap.class);
-        BMap<String, BValue> errorValue = (BMap<String, BValue>) returns[0];
-        Assert.assertEquals("dummy error message", errorValue.get(ERROR_MESSAGE_FIELD).stringValue());
+        Assert.assertEquals(returns[0].getClass(), BError.class);
+        BError errorValue = (BError) returns[0];
+        Assert.assertEquals("dummy error message", errorValue.reason);
     }
 
     @Test(description = "Test functions that returns nil type")
