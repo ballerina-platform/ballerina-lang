@@ -2,19 +2,18 @@ import org.foo;
 
 public type userA object {
 
-    public int age;
-    public string name;
+    public int age = 0;
+    public string name = "";
 
 };
 
 public type userB object {
 
-    public int age;
-    public string name;
-    public string address;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
 
-
-    string zipcode;
+    string zipcode = "";
 
 };
 

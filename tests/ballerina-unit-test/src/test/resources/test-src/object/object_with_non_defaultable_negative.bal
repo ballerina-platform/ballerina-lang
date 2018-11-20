@@ -2,10 +2,10 @@
 Person pp;
 Employee ee;
 
-public function testObjectWithInterface () returns (int, string) {
+public function testObjectWithInterface () returns (int, int) {
     Person p;
     Employee e;
-    return (p.attachInterface(7), p.month);
+    return (p.attachInterface(7), e.age);
     //return (5, "kk");
 }
 
