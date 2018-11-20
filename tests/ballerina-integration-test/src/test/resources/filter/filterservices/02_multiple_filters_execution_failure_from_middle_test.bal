@@ -32,7 +32,7 @@ public type Filter03 object {
     }
 };
 
-Filter03 filter03;
+Filter03 filter03 = new;
 
 // Filter2
 
@@ -42,7 +42,7 @@ public type Filter04 object {
     {
         endpoint http:Listener caller = listener;
         log:printInfo("Intercepting request for filter 2");
-        http:Response response;
+        http:Response response = new;
         response.statusCode = 405;
         response.setTextPayload("Not Allowed");
         _ = caller->respond(response);
@@ -54,7 +54,7 @@ public type Filter04 object {
     }
 };
 
-Filter04 filter04;
+Filter04 filter04 = new;
 
 // Filter3
 
@@ -69,7 +69,7 @@ public type Filter05 object {
     }
 };
 
-Filter05 filter05;
+Filter05 filter05 = new;
 
 endpoint http:Listener echoEP01 {
     port: 9091,
