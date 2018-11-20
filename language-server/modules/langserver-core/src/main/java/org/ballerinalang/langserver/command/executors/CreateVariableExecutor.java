@@ -148,7 +148,6 @@ public class CreateVariableExecutor implements LSCommandExecutor {
         if (functionNode == null) {
             throw new LSCommandExecutorException("Couldn't find the function node!");
         }
-        String currentPkgName = context.get(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY);
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         BLangPackage packageNode = CommonUtil.getPackageNode(functionNode);
         String variableName = CommonUtil.generateName(1, getAllEntries(functionNode, compilerContext));
