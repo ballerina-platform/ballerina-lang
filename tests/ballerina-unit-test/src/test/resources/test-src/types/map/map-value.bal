@@ -13,7 +13,7 @@ function testMapWithMap() returns (string){
     return list2String;
 }
 
-function testMapWithAnyValue() returns (int|error){
+function testMapWithAnyValue() returns (int|error) {
     map list1 = {"item1": 1, "item2": 2, "item3": 3, "item4": 4};
     any value = 5;
     list1["item5"] = value;

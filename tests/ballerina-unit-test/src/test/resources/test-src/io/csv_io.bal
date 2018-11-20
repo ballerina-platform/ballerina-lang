@@ -66,5 +66,8 @@ function getTable(string filePath, string encoding, io:Separator fieldSeperator)
         return total;
     } else if (tableResult is error) {
         return tableResult;
+    } else {
+        error e = error("Record channel not initialized properly");
+        return e;
     }
 }
