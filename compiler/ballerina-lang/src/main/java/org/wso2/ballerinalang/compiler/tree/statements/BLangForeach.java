@@ -19,17 +19,12 @@ package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.ForeachNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Implementation of Foreach Statement.
@@ -39,9 +34,7 @@ import java.util.List;
 public class BLangForeach extends BLangStatement implements ForeachNode {
 
     public BLangExpression collection;
-    public List<BLangExpression> varRefs = new ArrayList<>();
     public BLangBlockStmt body;
-    public List<BType> varTypes;
 
     public VariableDefinitionNode variableDefinitionNode;
     public BType varType;
@@ -55,16 +48,6 @@ public class BLangForeach extends BLangStatement implements ForeachNode {
     @Override
     public void setCollection(ExpressionNode collection) {
         this.collection = (BLangExpression) collection;
-    }
-
-    @Override
-    public List<BLangExpression> getVariables() {
-        return varRefs;
-    }
-
-    @Override
-    public void addVariable(VariableReferenceNode variableReferenceNode) {
-        this.varRefs.add((BLangVariableReference) variableReferenceNode);
     }
 
     @Override

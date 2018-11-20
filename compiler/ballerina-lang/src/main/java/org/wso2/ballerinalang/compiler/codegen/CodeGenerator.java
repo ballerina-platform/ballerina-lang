@@ -233,9 +233,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.Stack;
-import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
 
@@ -2865,37 +2863,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         endJumpAddr.value = nextIP();
     }
 
-    public void visit(BLangForeach foreach) {
-        // Calculate temporary scope variables for iteration.
-        Operand iteratorVar = getLVIndex(TypeTags.ITERATOR);
-        Operand conditionVar = getLVIndex(TypeTags.BOOLEAN);
-
-        // Create new Iterator for given collection.
-        this.genNode(foreach.collection, env);
-        this.emit(InstructionCodes.ITR_NEW, foreach.collection.regIndex, iteratorVar);
-
-        Operand foreachStartAddress = new Operand(nextIP());
-        Operand foreachEndAddress = new Operand(-1);
-        Instruction gotoStartInstruction = InstructionFactory.get(InstructionCodes.GOTO, foreachStartAddress);
-        Instruction gotoEndInstruction = InstructionFactory.get(InstructionCodes.GOTO, foreachEndAddress);
-
-        // Checks given iterator has a next value.
-        this.emit(InstructionCodes.ITR_HAS_NEXT, iteratorVar, conditionVar);
-        this.emit(InstructionCodes.BR_FALSE, conditionVar, foreachEndAddress);
-
-        // assign variables.
-        generateForeachVarAssignment(foreach, iteratorVar);
-
-        this.loopResetInstructionStack.push(gotoStartInstruction);
-        this.loopExitInstructionStack.push(gotoEndInstruction);
-        this.genNode(foreach.body, env);                        // generate foreach body.
-        this.loopResetInstructionStack.pop();
-        this.loopExitInstructionStack.pop();
-
-        this.emit(gotoStartInstruction);  // move to next iteration.
-        foreachEndAddress.value = this.nextIP();
-    }
-
     public void visit(BLangWhile whileNode) {
         Instruction gotoTopJumpInstr = InstructionFactory.get(InstructionCodes.GOTO, getOperand(this.nextIP()));
         this.genNode(whileNode.expr, this.env);
@@ -3472,27 +3439,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         chnReceiveArgRegs[i] = regIndex;
 
         emit(InstructionCodes.CHNRECEIVE, chnReceiveArgRegs);
-    }
-
-    private void generateForeachVarAssignment(BLangForeach foreach, Operand iteratorIndex) {
-        List<BLangVariableReference> variables = foreach.varRefs.stream()
-                .map(expr -> (BLangVariableReference) expr)
-                .collect(Collectors.toList());
-        // create Local variable Info entries.
-        variables.stream()
-                .filter(v -> v.type.tag != TypeTags.NONE)   // Ignoring ignored ("_") variables.
-                .forEach(varRef -> visitVarSymbol((BVarSymbol) varRef.symbol, lvIndexes, localVarAttrInfo));
-        List<Operand> nextOperands = new ArrayList<>();
-        nextOperands.add(iteratorIndex);
-        nextOperands.add(new Operand(variables.size()));
-        foreach.varTypes.forEach(v -> nextOperands.add(new Operand(v.tag)));
-        nextOperands.add(new Operand(variables.size()));
-        for (int i = 0; i < variables.size(); i++) {
-            BLangVariableReference varRef = variables.get(i);
-            nextOperands.add(Optional.ofNullable(((BVarSymbol) varRef.symbol).varIndex)
-                    .orElse(getRegIndex(foreach.varTypes.get(i).tag)));
-        }
-        this.emit(InstructionCodes.ITR_NEXT, nextOperands.toArray(new Operand[0]));
     }
 
     private void visitFunctionPointerLoad(BLangExpression fpExpr, BInvokableSymbol funcSymbol) {

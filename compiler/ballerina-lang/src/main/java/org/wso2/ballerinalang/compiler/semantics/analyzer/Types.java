@@ -64,7 +64,6 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -676,7 +675,7 @@ public class Types {
                 return bArrayType.eType;
             case TypeTags.MAP:
                 BMapType bMapType = (BMapType) collectionType;
-                return new BTupleType(new LinkedList<BType>(){{
+                return new BTupleType(new LinkedList<BType>() {{
                     add(symTable.stringType);
                     add(bMapType.constraint);
                 }});
@@ -687,7 +686,7 @@ public class Types {
                 }});
             case TypeTags.RECORD:
                 BRecordType recordType = (BRecordType) collectionType;
-                return new BTupleType(new LinkedList<BType>(){{
+                return new BTupleType(new LinkedList<BType>() {{
                     add(symTable.stringType);
                     add(inferRecordFieldType(recordType));
                 }});
@@ -1853,7 +1852,7 @@ public class Types {
 
     /**
      * Type vector of size two, to hold the source and the target types.
-     * 
+     *
      * @since 0.982.0
      */
     private static class TypePair {

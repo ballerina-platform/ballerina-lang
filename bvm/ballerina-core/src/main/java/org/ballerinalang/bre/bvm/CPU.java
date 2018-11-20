@@ -56,7 +56,6 @@ import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BFuture;
 import org.ballerinalang.model.values.BIntArray;
-import org.ballerinalang.model.values.BIntRange;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BIterator;
 import org.ballerinalang.model.values.BMap;
