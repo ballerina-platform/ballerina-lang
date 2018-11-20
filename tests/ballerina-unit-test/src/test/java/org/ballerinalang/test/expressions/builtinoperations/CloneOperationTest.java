@@ -27,6 +27,7 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BDecimal;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
@@ -542,5 +543,8 @@ public class CloneOperationTest {
         Assert.assertNotNull(results);
         Assert.assertNotSame(results[0], results[1]);
         Assert.assertSame(results[1].getType().getTag(), TypeTags.ERROR_TAG);
+        Assert.assertEquals(((BError)results[1]).reason,
+                "value '({id:100, name:\"Alex\", salary:300.5}, Employee)' of type '(Employee,any)' " +
+                "can not be cloned");
     }
 }
