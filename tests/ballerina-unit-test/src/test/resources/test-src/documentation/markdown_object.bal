@@ -2,9 +2,9 @@
 # + url - url for endpoint
 # + path - path for endpoint
 type TestConnector object {
-    string url;
-    string path;
-    private string abc; // Test private field
+    string url = "";
+    string path = "";
+    private string abc = ""; // Test private field
 
     # Test Connector action testAction
     # + return - whether successful or not
@@ -19,7 +19,7 @@ type TestConnector object {
 # overriden description
 # + return - description
 function TestConnector.testAction() returns boolean {
-    boolean value;
+    boolean value = false;
     return value;
 }
 
@@ -27,7 +27,7 @@ function TestConnector.testAction() returns boolean {
 # + ep - endpoint
 # + return - description
 function TestConnector.testSend(string ep) returns boolean {
-    boolean value;
+    boolean value = false;
     return value;
 }
 

@@ -3,9 +3,9 @@
 # + b - annotation `field b` documentation
 # + c - annotation `field c` documentation
 type Tst object {
-    public string a;
-    public string b;
-    public string c;
+    public string a = "";
+    public string b = "";
+    public string c = "";
 };
 
 # Documentation for Test annotation
