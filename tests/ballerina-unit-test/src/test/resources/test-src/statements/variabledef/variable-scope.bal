@@ -1,5 +1,5 @@
 function scopeIfValue(int a, int b, int c) returns int {
-    int k;
+    int k = 0;
     if(a > b) {
         k = k + c;
     } else {
