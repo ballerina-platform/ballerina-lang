@@ -48,6 +48,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -279,14 +280,14 @@ public class HttpFiltersDesugar {
         filtersField.symbol = filtersVal.symbol;
         filtersField.pos = resourceNode.pos;
 
-
-        BLangSimpleVarRef filterRef = new BLangSimpleVarRef();
         String filterVarName = GEN_VAR_PREFIX + HTTP_FILTER_VAR;
-        filterRef.variableName = ASTBuilderUtil.createIdentifier(resourceNode.pos, filterVarName);
-        filterRef.type = filterType;
-        filterRef.pos = resourceNode.pos;
-        filterRef.symbol = new BVarSymbol(0, new Name(filterVarName), resourceNode.symbol.pkgID, filterType,
-                                          resourceNode.symbol);
+        // Create a new symbol for the filter.
+        BVarSymbol filterSymbol = new BVarSymbol(0, new Name(filterVarName), resourceNode.symbol.pkgID, filterType,
+                resourceNode.symbol);
+        // Create a new variable definition. This is needed for the foreach node.
+        BLangSimpleVariable variable = ASTBuilderUtil.createVariable(resourceNode.pos, filterVarName, filterType,
+                null, filterSymbol);
+        BLangSimpleVariableDef variableDefinition = ASTBuilderUtil.createVariableDef(resourceNode.pos, variable);
 
         BLangDone doneNode = (BLangDone) TreeBuilder.createDoneNode();
         doneNode.pos = resourceNode.pos;
@@ -301,6 +302,9 @@ public class HttpFiltersDesugar {
         requestRef.pos = requestVar.pos;
         requestRef.symbol = requestVar.symbol;
 
+        // Create a new reference to the filter variable.
+        BLangSimpleVarRef filterRef = ASTBuilderUtil.createVariableRef(resourceNode.pos, filterSymbol);
+
         BLangInvocation filterRequestInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
         filterRequestInvocation.symbol = getFilterRequestFuncSymbol(filterType);
         filterRequestInvocation.pos = resourceNode.pos;
@@ -310,12 +314,12 @@ public class HttpFiltersDesugar {
         filterRequestInvocation.type = symTable.booleanType;
         filterRequestInvocation.expr = filterRef;
 
-        BLangUnaryExpr unaryExpr = ASTBuilderUtil.createUnaryExpr(
-                resourceNode.pos, filterRequestInvocation, symTable.booleanType, OperatorKind.NOT,
-                new BOperatorSymbol(names.fromString(OperatorKind.NOT.value()), symTable.rootPkgSymbol.pkgID,
-                                    new BInvokableType(createSingletonArrayList(symTable.booleanType),
-                                                       symTable.booleanType, null), symTable.rootPkgSymbol,
-                                    InstructionCodes.BNOT));
+        BInvokableType type = new BInvokableType(createSingletonArrayList(symTable.booleanType), symTable.booleanType,
+                null);
+        BOperatorSymbol operatorSymbol = new BOperatorSymbol(names.fromString(OperatorKind.NOT.value()),
+                symTable.rootPkgSymbol.pkgID, type, symTable.rootPkgSymbol, InstructionCodes.BNOT);
+        BLangUnaryExpr unaryExpr = ASTBuilderUtil.createUnaryExpr(resourceNode.pos, filterRequestInvocation,
+                symTable.booleanType, OperatorKind.NOT, operatorSymbol);
 
         BLangBracedOrTupleExpr ifBraceExpr = (BLangBracedOrTupleExpr) TreeBuilder.createBracedOrTupleExpression();
         ifBraceExpr.expressions.add(unaryExpr);
@@ -335,8 +339,9 @@ public class HttpFiltersDesugar {
         foreach.pos = resourceNode.pos;
         foreach.body = ifStatement;
         foreach.collection = filtersField;
-        foreach.varRefs.add(filterRef);
-        foreach.varTypes = createSingletonArrayList(filterType);
+        foreach.isDeclaredWithVar = false;
+        foreach.varType = filterType;
+        foreach.variableDefinitionNode = variableDefinition;
 
         resourceNode.body.stmts.add(2, foreach);
         //forEach statement END
