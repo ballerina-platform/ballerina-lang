@@ -166,7 +166,7 @@ public class SQLTransactionsTest {
     public void testLocalTransactonFailed() {
         BValue[] returns = BRunUtil.invoke(result, "testLocalTransactionFailed");
         Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "beforetx inTrx inFld inTrx inFld inTrx inFld inTrx inFld "
+        Assert.assertEquals(returns[0].stringValue(), "beforetx inTrx onRetry inTrx onRetry inTrx onRetry inTrx "
                 + "trxAborted afterTrx");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0, "Insertion count inside transaction is incorrect");
     }

@@ -108,9 +108,9 @@ public class TransactionResourceManager {
     /**
      * Register a participation in a global transaction.
      *
-     * @param gTransactionId global transaction id
-     * @param committed      function pointer to invoke when this transaction committed
-     * @param aborted        function pointer to invoke when this transaction aborted
+     * @param gTransactionId         global transaction id
+     * @param committed              function pointer to invoke when this transaction committed
+     * @param aborted                function pointer to invoke when this transaction aborted
      * @param workerExecutionContext
      * @since 0.985.0
      */
@@ -121,8 +121,10 @@ public class TransactionResourceManager {
         int transactionBlockId = -1; // This participant is registering without a transaction statement.
 
         LocalTransactionInfo localTransactionInfo = workerExecutionContext.getLocalTransactionInfo();
-        TransactionUtils.notifyTransactionBegin(workerExecutionContext, localTransactionInfo.getGlobalTransactionId(),
+        BValue[] bValues = TransactionUtils.notifyTransactionBegin(workerExecutionContext,
+                localTransactionInfo.getGlobalTransactionId(),
                 localTransactionInfo.getURL(), transactionBlockId, localTransactionInfo.getProtocol());
+        log.info("participant registered: " + bValues[0]);
     }
 
     /**
@@ -152,8 +154,11 @@ public class TransactionResourceManager {
         }
 
         if (participantRegistry.hasParticipants(transactionId)) {
-            return participantRegistry.prepareCommit(transactionId);
+            boolean status = participantRegistry.prepareCommit(transactionId);
+            log.info("Transaction prepare (participants): " + (status ? "success" : "failed"));
+            return status;
         }
+        log.info("Transaction prepare: success)");
         return true;
     }
 
@@ -335,7 +340,7 @@ public class TransactionResourceManager {
     public void notifyFailure(String transactionId) {
         participantRegistry.participantFailed(transactionId);
         // the resource excepted (uncaught)
-        log.warn("Callable unit excepted corresponding to global trx id : " + transactionId);
+        log.info("Callable unit excepted corresponding to global trx id : " + transactionId);
     }
 
 }

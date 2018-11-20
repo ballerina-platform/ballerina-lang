@@ -85,10 +85,8 @@ public class LocalTransactionInfo {
     }
 
     public void incrementCurrentRetryCount(int localTransactionID) {
-        int count = currentTransactionRetryCounts.containsKey(localTransactionID) ?
-                currentTransactionRetryCounts.get(localTransactionID) :
-                0;
-        currentTransactionRetryCounts.put(localTransactionID, count + 1);
+        currentTransactionRetryCounts.putIfAbsent(localTransactionID, 0);
+        currentTransactionRetryCounts.computeIfPresent(localTransactionID, (k, v) -> v + 1);
     }
 
     public BallerinaTransactionContext getTransactionContext(String connectorid) {
@@ -97,6 +95,18 @@ public class LocalTransactionInfo {
 
     public void registerTransactionContext(String connectorid, BallerinaTransactionContext txContext) {
         transactionContextStore.put(connectorid, txContext);
+    }
+
+    /**
+     * Is this a retry attempt or initial transaction run.
+     *
+     * Current retry count = 0 is initial run.
+     *
+     * @param transactionId transaction block id
+     * @return this is a retry runs
+     */
+    public boolean isRetryAttempt(int transactionId) {
+        return  getCurrentRetryCount(transactionId) > 0;
     }
 
     public boolean isRetryPossible(WorkerExecutionContext context, int transactionId) {
@@ -115,10 +125,10 @@ public class LocalTransactionInfo {
         if (!isGlobalTransactionEnabled) {
             return true;
         }
-        boolean isNotInitiator = !TransactionUtils.isInitiator(context, globalTransactionId, transactionId);
-        if (currentRetryCount != 0 && isNotInitiator) {
-            return false;
-        }
+//        boolean isNotInitiator = !TransactionUtils.isInitiator(context, globalTransactionId, transactionId);
+//        if (currentRetryCount != 0 && isNotInitiator) {
+//            return false;
+//        }
         return true;
     }
 
@@ -149,7 +159,7 @@ public class LocalTransactionInfo {
 
     }
 
-    private int getAllowedRetryCount(int localTransactionID) {
+    public int getAllowedRetryCount(int localTransactionID) {
         return allowedTransactionRetryCounts.get(localTransactionID);
     }
 

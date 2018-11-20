@@ -542,7 +542,7 @@ function testLocalTransactionFailed() returns (string, int) {
             _ = testDB->update("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country)
                         values ('Anne', 'Clerk', 111, 5000.75, 'USA')");
         } onretry {
-            a = a + " inFld";
+            a = a + " onRetry";
         } committed {
             a = a + " trxCommited";
         } aborted {

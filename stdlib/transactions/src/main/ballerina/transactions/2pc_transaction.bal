@@ -43,9 +43,11 @@ type TwoPhaseCommitTransaction object {
         // Prepare local resource managers
         boolean localPrepareSuccessful = prepareResourceManagers(self.transactionId, self.transactionBlockId);
         if (!localPrepareSuccessful) {
+            log:printInfo("Local prepare: failed");
             ret = {message:"Local prepare failed"};
             return ret;
         }
+        log:printInfo("Local prepare: success");
 
         // Prepare phase & commit phase
         // First call prepare on all volatile participants

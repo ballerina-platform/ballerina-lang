@@ -89,7 +89,6 @@ import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.ObjectTypeInfo;
-import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.codegen.TypeDefInfo;
@@ -2659,21 +2658,28 @@ public class CPU {
         LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
         LocalTransactionInfo.TransactionFailure failure = localTransactionInfo.getAndClearFailure();
         if (localTransactionInfo.isRetryPossible(ctx, transactionBlockId)) {
-            localTransactionInfo.incrementCurrentRetryCount(transactionBlockId);
+            if (localTransactionInfo.isRetryAttempt(transactionBlockId)) {
+                LocalTransactionInfo newLocalTransaction = createAndNotifyGlobalTx(ctx, transactionBlockId);
+                int allowedRetryCount = localTransactionInfo.getAllowedRetryCount(transactionBlockId);
+                newLocalTransaction.beginTransactionBlock(transactionBlockId,
+                        allowedRetryCount - 1);
+                ctx.setLocalTransactionInfo(newLocalTransaction);
+            }
+            ctx.getLocalTransactionInfo().incrementCurrentRetryCount(transactionBlockId);
             ctx.setError(null);
             // todo: communicate re-try intent to coordinator
             // tr_end will communicate the tx ending to coordinator
             return;
         }
 
-        BMap<String, BValue> error = ctx.getError();
-        if (failure == null && error == null) {
-            // this is suspicious, this should not happen.
-            // when re-try is exhausted it should probably be due to a error or tx failure.
-            ctx.ip = trEndEndIp;
-            throw new IllegalStateException("re-try exhausted transaction without failure or error");
-            // todo: remove this block including surrounding if and remove trEndEndIp from retry instruction!!!
-        }
+//        BMap<String, BValue> error = ctx.getError();
+//        if (failure == null && error == null) {
+//            // this is suspicious, this should not happen.
+//            // when re-try is exhausted it should probably be due to a error or tx failure.
+//            ctx.ip = trEndEndIp;
+//            throw new IllegalStateException("re-try exhausted transaction without failure or error");
+//            // todo: remove this block including surrounding if and remove trEndEndIp from retry instruction!!!
+//        }
 
         ctx.workerLocal.intRegs[trEndStatusReg] = 1;
         ctx.ip = trAbortEndIp;
@@ -2793,10 +2799,9 @@ public class CPU {
         if (ctx.getGlobalTransactionEnabled()) {
             TransactionUtils.notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(),
                     transactionBlockId);
-        } else {
-            TransactionResourceManager.getInstance()
-                    .notifyAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId, false);
         }
+        TransactionResourceManager.getInstance()
+                .notifyAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId, false);
     }
 
     private static void transactionFailedEnd(WorkerExecutionContext ctx, int transactionBlockId,

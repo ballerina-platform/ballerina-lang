@@ -120,11 +120,17 @@ function endTransaction(string transactionId, int transactionBlockId) returns st
                 } else {
                     log:printInfo("endTransaction: commiting:" + transactionId);
                     string|error ret = initiatedTxn.twoPhaseCommit();
-                    log:printInfo("endTransaction: remove committed:" + transactionId);
+                    log:printInfo("endTransaction: remove committed or aborted:" + transactionId);
                     removeInitiatedTransaction(transactionId);
                     match (ret) {
-                        string s => return s;
-                        error e => return e.message;
+                        string s => {
+                            log:printInfo("endTransaction status: " + s);
+                            return s;
+                        }
+                        error e => {
+                            log:printInfo("endTransaction status: " + e.message);
+                            return e.message;
+                        }
                     }
                 }
             }

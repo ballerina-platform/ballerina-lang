@@ -33,6 +33,7 @@ service<http:Service> hello bind { port: 10234 } {
         onabortFunc: bar
     }
     sayHello(endpoint caller, http:Request req) {
+        S1 = S1 + " in-remote";
         string textValue = check req.getTextPayload();
         log:printInfo("in remote: " + textValue);
         if (textValue == "blowUp") {
@@ -42,7 +43,6 @@ service<http:Service> hello bind { port: 10234 } {
         http:Response res = new;
 
         res.setPayload("payload-from-remote");
-        S1 = S1 + " in-remote";
 
         caller->respond(res) but { error e => log:printError(
                                                   "Error sending response", err = e) };
@@ -79,30 +79,38 @@ function initiatorFunc(boolean throw1, boolean throw2, boolean remote1, boolean 
             remoteExecuted = true;
             string blowOrNot = blowRemote1 ? "blowUp" : "Don't-blowUp";
             var resp = clientEP->post("/", blowOrNot);
-            match (resp) {
-                http:Response res => match (res.getTextPayload()) {
-                    string r => {
-                        log:printInfo(r);
-                        S1 = S1 + " <" + r + ">";
+            if (!blowRemote1) { // there is no valid response when remote is excepted.
+                match (resp) {
+                    http:Response res => match (res.getTextPayload()) {
+                        string r => {
+                            log:printInfo(r);
+                            S1 = S1 + " <" + untaint r + ">";
+                        }
+                        error err => log:printError(err.message);
                     }
                     error err => log:printError(err.message);
                 }
-                error err => log:printError(err.message);
+            } else {
+                S1 = S1 + " remote1-blown";
             }
         }
         if (trx_ran_once && remoteExecuted2 == false && remote2) {
             remoteExecuted = true;
             string blowOrNot = blowRemote2 ? "blowUp" : "Don't-blowUp";
             var resp = clientEP->post("/", blowOrNot);
-            match (resp) {
-                http:Response res => match (res.getTextPayload()) {
-                    string r => {
-                                    log:printInfo("remote-response: " + r);
-                                    S1 = S1 + " <" + untaint r + ">";
-                                }
+            if (!blowRemote2) { // there is no valid response when remote is excepted.
+                match (resp) {
+                    http:Response res => match (res.getTextPayload()) {
+                        string r => {
+                                        log:printInfo("remote-response: " + r);
+                                        S1 = S1 + " <" + untaint r + ">";
+                                    }
+                        error err => log:printError(err.message);
+                    }
                     error err => log:printError(err.message);
                 }
-                error err => log:printError(err.message);
+            } else {
+                S1 = S1 + " remote2-blown";
             }
         }
         if (throw1 && !thrown1) {

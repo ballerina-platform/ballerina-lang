@@ -313,6 +313,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     private Stack<Instruction> failInstructions = new Stack<>();
     private Stack<Integer> tryCatchErrorRangeFromIPStack = new Stack<>();
     private Stack<Integer> tryCatchErrorRangeToIPStack = new Stack<>();
+    private Stack<RegIndex> abortedFromStatus = new Stack<>();
 
     private int workerChannelCount = 0;
     private int forkJoinCount = 0;
@@ -2895,10 +2896,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         Instruction gotoAbortTransBlockEnd = InstructionFactory.get(InstructionCodes.GOTO, transStmtAbortEndAddr);
         Instruction gotoFailTransBlockEnd = InstructionFactory.get(InstructionCodes.GOTO, transStmtFailEndAddr);
 
+        RegIndex trEndStatusReg = getRegIndex(TypeTags.BOOLEAN);
+        abortedFromStatus.push(trEndStatusReg);
         abortInstructions.push(gotoAbortTransBlockEnd);
         failInstructions.push(gotoFailTransBlockEnd);
 
-        RegIndex trEndStatusReg = getRegIndex(TypeTags.BOOLEAN);
         // Start transaction.
         this.emit(InstructionCodes.TR_BEGIN, transactionIndexOperand, retryCountRegIndex, committedFuncRegIndex,
                 abortedFuncRegIndex);
@@ -2920,6 +2922,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.emit(InstructionCodes.BR_TRUE, trEndStatusReg, transStmtFailEndAddr);
 
         abortInstructions.pop();
+        abortedFromStatus.pop();
         failInstructions.pop();
 
 
@@ -2973,6 +2976,9 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     public void visit(BLangAbort abortNode) {
         generateFinallyInstructions(abortNode, NodeKind.TRANSACTION);
+        RegIndex index = abortedFromStatus.peek();
+        // Set aborted reason reg to false.
+        this.emit(InstructionCodes.BNE, index, index, index);
         this.emit(abortInstructions.peek());
     }
 
