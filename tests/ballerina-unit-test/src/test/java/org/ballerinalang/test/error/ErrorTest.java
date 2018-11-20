@@ -20,6 +20,7 @@ package org.ballerinalang.test.error;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
@@ -120,4 +121,11 @@ public class ErrorTest {
         Assert.assertEquals(returns[0].stringValue(), result.trim());
     }
 
+    @Test
+    public void customErrorDetailsTest() {
+        BValue[] returns = BRunUtil.invoke(basicErrorTest, "testCustomErrorDetails");
+        Assert.assertEquals(returns[0].stringValue(), "trxErr {message:\"\", cause:null, data:\"test\"}");
+        Assert.assertEquals(((BError) returns[0]).details.getType().getTag(), TypeTags.RECORD_TYPE_TAG);
+        Assert.assertEquals(((BError) returns[0]).details.getType().getName(), "TrxErrorData");
+    }
 }
