@@ -76,9 +76,13 @@ function createPayload(JwtPayload payload) returns (string|error) {
     payloadJson[SUB] = payload.sub;
     payloadJson[ISS] = payload.iss;
     payloadJson[EXP] = payload.exp;
-    payloadJson[IAT] = payload["iat"] ?: 0;
-    if (payload.jti != "") {
-        payloadJson[JTI] = payload.jti;
+    var iat = payload["iat"];
+    if (iat is int) {
+        payloadJson[IAT] = iat;
+    }
+    var jti = payload["jti"];
+    if (jti is string) {
+        payloadJson[JTI] = jti;
     }
     payloadJson[AUD] = convertStringArrayToJson(payload.aud);
     var customClaims = payload["customClaims"];
