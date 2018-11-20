@@ -335,9 +335,7 @@ public enum DiagnosticCode {
 
     // Seal inbuilt function related codes
     INCOMPATIBLE_STAMP_TYPE("incompatible.stamp.type"),
-    NOT_SUPPORTED_SOURCE_TYPE_FOR_STAMP("not.supported.source.for.stamp")
-    ;
-    PARTIALLY_INITIALIZED_VARIABLE("partially.initialized.variable"),
+    NOT_SUPPORTED_SOURCE_TYPE_FOR_STAMP("not.supported.source.for.stamp"),
 
     // Worker flush action related error codes
     INVALID_WORKER_FLUSH("invalid.worker.flush.expression"),

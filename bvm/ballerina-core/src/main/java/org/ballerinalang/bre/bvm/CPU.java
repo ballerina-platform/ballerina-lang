@@ -910,10 +910,10 @@ public class CPU {
         }
 
         if (!checkIsLikeType(valueToBeStamped, targetType)) {
-            BError error = BLangVMErrors.createError(ctx,
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_STAMP_OPERATION,
-                            valueToBeStamped.getType(), targetType));
-            sf.refRegs[k] = error;
+//            BError error = BLangVMErrors.createError(ctx,
+//                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_STAMP_OPERATION,
+//                            valueToBeStamped.getType(), targetType));
+//            sf.refRegs[k] = error;
             return;
         }
 
@@ -921,10 +921,10 @@ public class CPU {
             valueToBeStamped.stamp(targetType);
             sf.refRegs[k] = valueToBeStamped;
         } catch (BallerinaException e) {
-            BError error = BLangVMErrors.createError(ctx,
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_STAMP_OPERATION,
-                            valueToBeStamped.getType(), targetType));
-            sf.refRegs[k] = error;
+//            BError error = BLangVMErrors.createError(ctx,
+//                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_STAMP_OPERATION,
+//                            valueToBeStamped.getType(), targetType));
+//            sf.refRegs[k] = error;
         }
     }
 
