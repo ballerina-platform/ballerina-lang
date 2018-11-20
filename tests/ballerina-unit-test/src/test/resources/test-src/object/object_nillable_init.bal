@@ -21,7 +21,7 @@ type Employee object {
     public Person? p5 = ();
     public Person? p6 = ();
 
-    __init () {
+    function __init () {
         self.p5 = new;
         self.p6 = new();
     }

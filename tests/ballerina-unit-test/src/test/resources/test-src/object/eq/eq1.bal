@@ -42,7 +42,7 @@ public type employee object {
     public int id = 0;
     public int employeeId = 123456;
 
-    public __init (age, name) {}
+    public function __init (age, name) {}
 
     public function getName() returns (string);
 

@@ -2,7 +2,8 @@
 type Person object {
     public int age = 0;
 
-    __init (age) {
+    function __init (int age) {
+        self.age = age;
     }
 };
 
@@ -10,8 +11,8 @@ type Employee object {
 
     public int age = 0;
 
-    __init (age, int addVal) {
-        self.age = self.age + addVal;
+    function __init (int age, int addVal) {
+        self.age = age + addVal;
     }
 };
 

@@ -553,8 +553,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 visitObjectAttachedFunction(funcNode);
                 return;
             }
-            SymbolEnv objectEnv = SymbolEnv.createTypeEnv(null, funcNode.receiver.type.
-                    tsymbol.scope, env);
+            SymbolEnv objectEnv = SymbolEnv.createObjectMethodsEnv(null, (BObjectTypeSymbol) funcNode.receiver.type.
+                    tsymbol, env);
             BSymbol funcSymbol = symResolver.lookupSymbol(objectEnv, getFuncSymbolName(funcNode), SymTag.FUNCTION);
             if (funcSymbol == symTable.notFoundSymbol) {
                 dlog.error(funcNode.pos, DiagnosticCode.CANNOT_FIND_MATCHING_FUNCTION, funcNode.name,
@@ -817,12 +817,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
-        // this is a field variable defined for object init function
-        if (varNode.isField) {
-            defineInitFunctionParam(varNode);
-            return;
-        }
-
         // assign the type to var type node
         if (varNode.type == null) {
             varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
@@ -1106,13 +1100,15 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
             if (typeDef.symbol.kind == SymbolKind.OBJECT) {
                 BLangObjectTypeNode objTypeNode = (BLangObjectTypeNode) typeDef.typeNode;
-                SymbolEnv objEnv = SymbolEnv.createTypeEnv(objTypeNode, typeDef.symbol.scope, pkgEnv);
+                SymbolEnv objMethodsEnv =
+                        SymbolEnv.createObjectMethodsEnv(objTypeNode, (BObjectTypeSymbol) objTypeNode.symbol, pkgEnv);
+                //                SymbolEnv objEnv = SymbolEnv.createTypeEnv(objTypeNode, typeDef.symbol.scope, pkgEnv);
 
                 // Define the functions defined within the object
-                defineObjectInitFunction(objTypeNode, objEnv);
+                defineObjectInitFunction(objTypeNode, objMethodsEnv);
                 objTypeNode.functions.forEach(f -> {
                     f.setReceiver(ASTBuilderUtil.createReceiver(typeDef.pos, typeDef.symbol.type));
-                    defineNode(f, objEnv);
+                    defineNode(f, objMethodsEnv);
                 });
 
                 // Add the attached functions of the referenced types to this object.
@@ -1126,7 +1122,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
                     List<BAttachedFunction> functions = ((BObjectTypeSymbol) typeRef.type.tsymbol).attachedFuncs;
                     for (BAttachedFunction function : functions) {
-                        defineReferencedFunction(typeDef, objEnv, typeRef, function);
+                        defineReferencedFunction(typeDef, objMethodsEnv, typeRef, function);
                     }
                 }
             } else if (typeDef.symbol.kind == SymbolKind.RECORD) {

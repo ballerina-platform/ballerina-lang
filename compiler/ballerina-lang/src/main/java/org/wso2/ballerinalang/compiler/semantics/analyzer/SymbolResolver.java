@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -508,6 +509,10 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     public BSymbol resolveObjectField(DiagnosticPos pos, SymbolEnv env, Name fieldName, BTypeSymbol objectSymbol) {
         return lookupMemberSymbol(pos, objectSymbol.scope, env, fieldName, SymTag.VARIABLE);
+    }
+
+    public BSymbol resolveObjectMethod(DiagnosticPos pos, SymbolEnv env, Name fieldName, BObjectTypeSymbol objectSymbol) {
+        return lookupMemberSymbol(pos, objectSymbol.methodScope, env, fieldName, SymTag.VARIABLE);
     }
 
     public BType resolveTypeNode(BLangType typeNode, SymbolEnv env) {

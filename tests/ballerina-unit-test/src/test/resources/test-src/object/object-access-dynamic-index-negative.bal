@@ -4,16 +4,18 @@ type Person object {
     public map adrs = {};
     public int age = 999;
 
-    __init (name, adrs, age) {
-
+    function __init (string name, map adrs, int age) {
+        self.name = name;
+        self.age = age;
+        self.adrs = adrs;
     }
 };
 
 type ObjectField object {
     public string key = "";
 
-    __init (key) {
-
+    function __init (string key) {
+        self.key = key;
     }
 };
 

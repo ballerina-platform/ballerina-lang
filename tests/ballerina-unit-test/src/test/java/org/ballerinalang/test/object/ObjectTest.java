@@ -485,25 +485,25 @@ public class ObjectTest {
         int index = 0;
         Assert.assertEquals(result.getErrorCount(), 10);
         BAssertUtil.validateError(result, index++, "cannot find matching interface " +
-                "function 'test0' in the object 'Person'", 42, 1);
+                "function 'test0' in the object 'Person'", 41, 1);
         BAssertUtil.validateError(result, index++, "cannot find matching interface " +
-                "function 'test1' in the object 'Person'", 46, 1);
+                "function 'test1' in the object 'Person'", 45, 1);
         BAssertUtil.validateError(result, index++, "cannot find matching interface " +
-                "function 'test2' in the object 'Person'", 50, 1);
+                "function 'test2' in the object 'Person'", 49, 1);
         BAssertUtil.validateError(result, index++, "cannot find matching interface " +
-                "function 'test3' in the object 'Person'", 54, 1);
+                "function 'test3' in the object 'Person'", 53, 1);
         BAssertUtil.validateError(result, index++, "incompatible types: expected " +
-                "'string', found 'int'", 54, 44);
+                "'string', found 'int'", 53, 44);
         BAssertUtil.validateError(result, index++, "cannot find matching interface " +
-                "function 'test5' in the object 'Person'", 62, 1);
+                "function 'test5' in the object 'Person'", 61, 1);
         BAssertUtil.validateError(result, index++, "visibility modifiers not allowed " +
-                "in object attached function definition 'test6'", 66, 1);
+                "in object attached function definition 'test6'", 65, 1);
         BAssertUtil.validateError(result, index++, "cannot find matching interface " +
-                "function 'test9' in the object 'Person'", 78, 1);
+                "function 'test9' in the object 'Person'", 77, 1);
         BAssertUtil.validateError(result, index++, "cannot find matching interface " +
-                "function 'test12' in the object 'Person'", 90, 1);
+                "function 'test12' in the object 'Person'", 89, 1);
         BAssertUtil.validateError(result, index, "cannot find matching interface " +
-                "function 'test13' in the object 'Person'", 94, 1);
+                "function 'test13' in the object 'Person'", 93, 1);
     }
 
     @Test (description = "Negative test to test initializing objects with only interface functions")

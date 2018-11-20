@@ -1653,49 +1653,45 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void checkFunctionInvocationExpr(BLangInvocation iExpr, BStructureType structType) {
         // check for same object attached function
-        Name objFuncName = names.fromString(Symbols.getAttachedFuncSymbolName(structType
+        BSymbol funcSymbol;
+        Name funcName = names.fromString(Symbols.getAttachedFuncSymbolName(structType
                 .tsymbol.name.value, iExpr.name.value));
-        BSymbol funcSymbol = symResolver.resolveStructField(iExpr.pos, env, objFuncName, structType.tsymbol);
 
-        if (funcSymbol == symTable.notFoundSymbol) {
-            // Check, any function pointer in struct field with given name.
-            funcSymbol = symResolver.resolveStructField(iExpr.pos, env, names.fromIdNode(iExpr.name),
-                    structType.tsymbol);
-            if (structType.tag == TypeTags.OBJECT &&
-                    (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE)) {
+        if (structType.tag == TypeTags.OBJECT) {
+            funcSymbol =
+                    symResolver.resolveObjectMethod(iExpr.pos, env, funcName, (BObjectTypeSymbol) structType.tsymbol);
+            if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
                 dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_OBJECT, iExpr.name.value, structType);
                 resultType = symTable.semanticError;
                 return;
-            }
-
-            if (structType.tag == TypeTags.RECORD) {
-                if (funcSymbol == symTable.notFoundSymbol) {
-                    dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, iExpr.name.value,
-                            structType.getKind().typeName(), structType.tsymbol);
-                    resultType = symTable.semanticError;
-                    return;
-                }
-                if (funcSymbol.type.tag != TypeTags.INVOKABLE) {
-                    dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_POINTER_INVOCATION, iExpr.name.value,
-                            structType);
-                    resultType = symTable.semanticError;
-                    return;
-                }
             }
 
             if ((funcSymbol.flags & Flags.ATTACHED) != Flags.ATTACHED) {
                 iExpr.functionPointerInvocation = true;
             }
         } else {
-            // Attached function found
-            // Check for the explicit initializer function invocation
-            if (structType.tag == TypeTags.RECORD) {
-                BAttachedFunction initializerFunc = ((BRecordTypeSymbol) structType.tsymbol).initializerFunc;
-                if (initializerFunc != null && initializerFunc.funcName.value.equals(iExpr.name.value)) {
-                    dlog.error(iExpr.pos, DiagnosticCode.RECORD_INITIALIZER_INVOKED, structType.tsymbol.toString());
-                }
+            // function pointers in records.
+            // TODO: function pointers should not be allowed to be invoked in this manner
+            funcSymbol = symResolver.resolveStructField(iExpr.pos, env, funcName, structType.tsymbol);
+
+            if (funcSymbol == symTable.notFoundSymbol) {
+                dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, iExpr.name.value,
+                        structType.getKind().typeName(), structType.tsymbol);
+                resultType = symTable.semanticError;
+                return;
+            }
+            if (funcSymbol.type.tag != TypeTags.INVOKABLE) {
+                dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_POINTER_INVOCATION, iExpr.name.value, structType);
+                resultType = symTable.semanticError;
+                return;
+            }
+
+            BAttachedFunction initializerFunc = ((BRecordTypeSymbol) structType.tsymbol).initializerFunc;
+            if (initializerFunc != null && initializerFunc.funcName.value.equals(iExpr.name.value)) {
+                dlog.error(iExpr.pos, DiagnosticCode.RECORD_INITIALIZER_INVOKED, structType.tsymbol.toString());
             }
         }
+
         iExpr.symbol = funcSymbol;
         checkInvocationParamAndReturnType(iExpr);
     }

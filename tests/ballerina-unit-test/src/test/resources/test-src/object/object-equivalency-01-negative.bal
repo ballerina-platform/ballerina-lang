@@ -13,7 +13,10 @@ public type employee01 object {
     public string name = "";
     public string zipcode = "95134";
 
-    __init (age, name) {}
+    function __init (int age, string name) {
+        self.age = age;
+        self.name = name;
+    }
 };
 
 // Field name mismatch
@@ -37,7 +40,10 @@ public type employee02 object {
     public string name = "";
     public int address = 0;
 
-    __init (age, name) {}
+    function __init (int age, string name) {
+        self.age = age;
+        self.name = name;
+    }
 };
 
 // Type name mismatch
@@ -60,7 +66,10 @@ public type employee03 object {
     public int age = 0;
     public string name = "";
 
-    __init (age, name) {}
+    function __init (int age, string name) {
+        self.age = age;
+        self.name = name;
+    }
 };
 
 // Field count mismatch
@@ -88,7 +97,10 @@ public type employee04 object {
     private int id = 0;
     private string ss = "";
 
-    __init (age, name) {}
+    function __init (int age, string name) {
+        self.age = age;
+        self.name = name;
+    }
 };
 
 // Private fields in RHS object name mismatch
@@ -108,7 +120,10 @@ public type person05 object {
     private string address = "";
     private string id = "";
 
-    __init (age, name) {}
+    function __init (int age, string name) {
+        self.age = age;
+        self.name = name;
+    }
 };
 
 public type employee05 object {
@@ -119,7 +134,10 @@ public type employee05 object {
     public string id = "";
     public string ssn = "";
 
-    __init (age, name) {}
+    function __init (int age, string name) {
+        self.age = age;
+        self.name = name;
+    }
 };
 
 // Private fields in LHS object name mismatch
@@ -146,7 +164,10 @@ type employee06 object {
     public string id = "";
     public string ssn = "";
 
-    __init (age, name) {}
+    function __init (int age, string name) {
+        self.age = age;
+        self.name = name;
+    }
 };
 
 // Private Objects type mismatch
@@ -193,7 +214,10 @@ public type employee07 object {
     public string ssn = "";
 
 
-    __init (age, name) {}
+    function __init (int age, string name) {
+        self.age = age;
+        self.name = name;
+    }
 
     public function getName() returns (string);
 
@@ -253,7 +277,10 @@ public type employee08 object {
     public string ssn = "";
 
 
-    __init (age, name) {}
+    function __init (int age, string name) {
+        self.age = age;
+        self.name = name;
+    }
 
     public function getName() returns (string);
 
@@ -319,7 +346,10 @@ public type employee09 object {
     public string ssn = "";
 
 
-    __init (age, name) {}
+    function __init (int age, string name) {
+        self.age = age;
+        self.name = name;
+    }
 
     public function getName() returns (string);
 
@@ -353,7 +383,10 @@ public type PersonInOrder object {
     public string name = "";
     public string address = "";
 
-    public __init (name, age) {}
+    function __init (string name, int age) {
+        self.age = age;
+        self.name = name;
+    }
 
     public function getName() returns (string) {
         return self.name;
@@ -381,7 +414,10 @@ public type PersonNotInOrder object {
         return self.age;
     }
 
-    public __init (name, age) {}
+    function __init (string name, int age) {
+        self.age = age;
+        self.name = name;
+    }
 
     public int age = 0;
 

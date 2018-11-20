@@ -3,7 +3,7 @@ function testAnonObjectAsFuncParam() returns (int) {
     return testAnonObjectFunc(10, new (14, "sameera"));
 }
 
-function testAnonObjectFunc(int i, object {public int k = 10; public string s; __init (k, s){}} anonSt) returns (int) {
+function testAnonObjectFunc(int i, object {public int k = 10; public string s; function __init (int k, string s) {}} anonSt) returns (int) {
     return anonSt.k + i;
 }
 
@@ -19,7 +19,10 @@ object {
     public string fname = "";
     public string lname = "";
     public int age = 0;
-    __init (fname = "default fname", lname = "default lname") {}
+    function __init (string fname = "default fname", string lname = "default lname") {
+        self.fname = fname;
+        self.lname = lname;
+    }
 } person = new;
 
 function testAnonObjectAsPkgVar() returns (string) {
@@ -34,12 +37,19 @@ type employee object {
     public string fname;
     public string lname;
     public int age;
-    public object {public string line01;
-            public string line02;
-            public string city;
-            public string state;
-            public string zipcode;
-          __init (line01, city, state, zipcode) {}} address;
+    public object {
+        public string line01;
+        public string line02;
+        public string city;
+        public string state;
+        public string zipcode;
+        function __init (string line01, string city, string state, string zipcode) {
+                                self.line01 = line01;
+                                self.city = city;
+                                self.state = state;
+                                self.zipcode = zipcode;
+        }
+    } address;
 
     public object {
         public string month = "JAN";
@@ -47,7 +57,31 @@ type employee object {
         public string year = "1970";
         } dateOfBirth;
 
-    __init (fname, lname, age, address, dateOfBirth) {}
+    function __init (string fname, string lname, int age, 
+                        object {
+                            public string line01;
+                            public string line02;
+                            public string city;
+                            public string state;
+                            public string zipcode;
+                            function __init (string line01, string city, string state, string zipcode) {
+                                self.line01 = line01;
+                                self.city = city;
+                                self.state = state;
+                                self.zipcode = zipcode;
+                            }
+                        } address, 
+                        object {
+                            public string month = "JAN";
+                            public string day = "01";
+                            public string year = "1970";
+                        } dateOfBirth) {
+        self.fname = fname;
+        self.lname = lname;
+        self.age = age;
+        self.address = address;
+        self.dateOfBirth = dateOfBirth;
+    }
 };
 
 function testAnonObjectAsObjectField() returns (string) {
@@ -58,14 +92,14 @@ function testAnonObjectAsObjectField() returns (string) {
     return e.dateOfBirth.month + ":" + e.address.line01 + ":" + e.address["state"] + ":" + e.fname;
 }
 
-object { public int age; public string name; __init (age, string lname) {self.name = "a " + lname;} function getName() returns string {return self.name;}} p = new (5, "hello");
+object { public int age; public string name; function __init (int age, string lname) {self.name = "a " + lname;} function getName() returns string {return self.name;}} p = new (5, "hello");
 
 function testAnonObjectWithFunctionAsGlobalVar () returns string {
     return p.getName();
 }
 
 function testAnonObjectWithFunctionAsLocalVar () returns string {
-    object { public int age; public string name; __init (age, string lname) {self.name = "a " + lname;} function getName() returns string {return self.name;}} p1 = new (5, "hello");
+    object { public int age; public string name; function __init (int age, string lname) {self.name = "a " + lname;} function getName() returns string {return self.name;}} p1 = new (5, "hello");
     return p1.getName();
 }
 
@@ -76,8 +110,10 @@ public type Person object {
     public int length = 0;
     public string kind = "";
 
-    public __init (age, name, length) {
-
+    public function __init (int age, string name, int length) {
+        self.name = name;
+        self.age = age;
+        self.length = length;
     }
 
     public function getName () returns string {
@@ -97,7 +133,9 @@ function testObjectEquivalencyBetweenAnonAndNormalObject() returns (int, string,
         public string name; 
         public int length; 
         public string kind;
-        public __init (age, name, string value) {
+        public function __init (int age, string name, string value) {
+            self.name = name;
+            self.age = age;
             self.kind = " hello " + value;
         }
         public function getName () returns string { return self.name; }
@@ -116,7 +154,9 @@ function testAnonObjectWithRecordLiteral() returns (int, string) {
         private int length; 
         private string kind;
         
-        __init (details, kind) {
+        function __init (record {int age; string name;} details, string kind) {
+            self.details = details;
+            self.kind = kind;
         }
     
         function getName () returns string { return self.details.name; }
@@ -132,7 +172,9 @@ type Foo object {
     private int length = 0;
     private string kind = "";
 
-    __init (details, kind) {
+    function __init (record {int age; string name;} details, string kind) {
+        self.details = details;
+        self.kind = kind;
     }
 
     function getName () returns string {
@@ -150,7 +192,7 @@ function testObjectWithSelfReference() returns (int, string) {
     object {
         public int age; 
         public string name; 
-        __init () {
+        function __init () {
             self.age = 88;
             self.name = "Tyler ";
         }

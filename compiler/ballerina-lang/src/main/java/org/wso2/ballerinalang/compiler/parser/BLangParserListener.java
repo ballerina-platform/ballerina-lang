@@ -510,47 +510,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterObjectInitializer(BallerinaParser.ObjectInitializerContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.startObjectFunctionDef();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitObjectInitializer(BallerinaParser.ObjectInitializerContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        boolean publicFunc = ctx.PUBLIC() != null;
-        boolean bodyExists = ctx.callableUnitBody() != null;
-        boolean markdownDocExists = ctx.documentationString() != null;
-        this.pkgBuilder.endObjectInitFunctionDef(getCurrentPos(ctx), getWS(ctx), ctx.OBJECT_INIT().getText(),
-                publicFunc, bodyExists, markdownDocExists, false, ctx.annotationAttachment().size());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitObjectInitializerParameterList(BallerinaParser.ObjectInitializerParameterListContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.endObjectInitParamList(getWS(ctx), ctx.objectParameterList() != null,
-                ctx.objectParameterList() != null && ctx.objectParameterList().restParameter() != null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void exitFieldDefinition(BallerinaParser.FieldDefinitionContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -587,44 +546,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         this.pkgBuilder.addFieldVariable(currentPos, ws, name, exprAvailable, deprecatedDocExists, annotationCount,
                 isPrivate, isPublic);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterObjectParameterList(BallerinaParser.ObjectParameterListContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.startVarList();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitObjectParameter(BallerinaParser.ObjectParameterContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        boolean isField = ctx.typeName() == null;
-        this.pkgBuilder.addObjectParameter(getCurrentPos(ctx), getWS(ctx), isField, ctx.Identifier().getText(),
-                ctx.annotationAttachment().size());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitObjectDefaultableParameter(BallerinaParser.ObjectDefaultableParameterContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addDefaultableParam(getCurrentPos(ctx), getWS(ctx));
     }
 
     /**

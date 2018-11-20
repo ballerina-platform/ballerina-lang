@@ -8,7 +8,6 @@ type Person object {
 
     public int age = 0;
 
-
     function test0(int a, string name) returns string; //param type mismatch
 
     function test1(int a, string name) returns string; //param name mismatch

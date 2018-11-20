@@ -59,7 +59,8 @@ type Manager2 object {
         return self.name + " from inner function";
     }
 
-    __init(age=20) {
+    function __init(int age=20) {
+        self.age = age;
         self.name = "John";
         self.salary = 1000.0;
     }
@@ -79,7 +80,8 @@ type Manager3 object {
 
     *Employee2;
 
-    __init(age=20) {
+    function __init(int age=20) {
+        self.age = age;
         self.salary = 2500.0;
     } 
 };
@@ -111,7 +113,9 @@ type Manager4 object {
 
     *Employee3;
 
-    __init(name, age=25) {
+    function __init(string name, int age=25) {
+        self.name = name;
+        self.age = age;
         self.salary = 3000.0;
     }
 

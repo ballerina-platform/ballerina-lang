@@ -12,7 +12,8 @@ type Person object {
     public int age = 10;
     string month = "february";
 
-    __init (age) {
+    function __init (int age) {
+        self.age = age;
     }
 };
 

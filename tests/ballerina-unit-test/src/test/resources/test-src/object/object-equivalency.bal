@@ -11,7 +11,7 @@ public type person1 object {
     public string ssn = "";
     public int id = 0;
 
-    public __init () {}
+    public function __init () {}
 
     public function getName () returns (string);
 
@@ -47,7 +47,10 @@ public type employee1 object {
     public int id = 0;
     public int employeeId = 123456;
 
-    public __init (age, name){}
+    public function __init (int age, string name) {
+        self.age = age;
+        self.name = name;
+    }
 
     public function getName () returns (string);
 
@@ -555,7 +558,9 @@ type Foo "a" | "b" | "c";
 type Person object {
     private string name = "";
 
-    __init(name){}
+    function __init (string name) {
+        self.name = name;
+    }
 
     function getPerson() returns Person {
         error err = error("Unsupported operation");
@@ -567,7 +572,10 @@ type Employee object {
     private string name = "";
     private string id = "";
 
-    __init(name,id){}
+    function __init (string name, string id) {
+        self.id = id;
+        self.name = name;
+    }
 
     function getPerson() returns Person {
         return self;
@@ -623,7 +631,7 @@ public type ObjectWithNew object {
     public string name = "";
     public string id = "";
 
-    public __init () {
+    public function __init () {
     }
 
     public function getPerson() returns ObjectWithNew {
@@ -645,7 +653,7 @@ type A object {
 
     public string field = "";
     
-    __init () {
+    function __init () {
         self.field = "value A"; 
     }
 
@@ -658,7 +666,7 @@ type B object {
 
     public string field = "";
     
-    __init () {
+    function __init () {
         self.field = "value B"; 
     }
 
@@ -694,7 +702,10 @@ public type PersonInOrder object {
     public string name = "";
     public string address = "";
 
-    public __init (name, age) {}
+    public function __init (string name, int age) {
+        self.age = age;
+        self.name = name;
+    }
 
     public function getName() returns (string) {
         return self.name;
@@ -721,7 +732,10 @@ public type PersonNotInOrder object {
         return self.age;
     }
 
-    public __init (name, age) {}
+    public function __init (string name, int age) {
+        self.age = age;
+        self.name = name;
+    }
 
     public string name = "";
 

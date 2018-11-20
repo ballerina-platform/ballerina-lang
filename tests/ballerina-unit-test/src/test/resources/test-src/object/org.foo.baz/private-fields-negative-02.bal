@@ -4,7 +4,7 @@ public type FooDepartment object {
     public string dptName = "";
     public FooPerson[] employees = [];
 
-    public __init (employees) {}
+    public function __init (employees) {}
 };
 
 public type FooPerson object {
@@ -16,7 +16,7 @@ public type FooPerson object {
     public FooFamily family = new;
 
 
-    public __init (name, adrs, age){}
+    public function __init (name, adrs, age){}
 };
 
 type FooFamily object {
@@ -40,11 +40,11 @@ public type FooEmployee object {
             public string state = "";
             public string zipcode = "";
 
-            __init (city, state, zipcode) {}
+            function __init (city, state, zipcode) {}
         } address;
 
 
-    public __init (fname, lname, age, address){}
+    public function __init (fname, lname, age, address){}
 };
 
 public function createObj() returns (FooPerson) {

@@ -5,7 +5,7 @@ public type userPFoo object {
     public string address = "";
     public string zipcode = "23468";
 
-    public __init (age, name, address) {}
+    public function __init (age, name, address) {}
 
     public function getName () returns (string);
 
