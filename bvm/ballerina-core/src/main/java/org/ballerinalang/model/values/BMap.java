@@ -358,7 +358,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
             Map<String, BType> targetTypeField = new HashMap<>();
             BType restFieldType = ((BRecordType) type).restFieldType;
 
-            for (BField field : ((BStructureType) type).getFields()) {
+            for (BField field : ((BStructureType) type).getFields().values()) {
                 targetTypeField.put(field.getFieldName(), field.fieldType);
             }
 

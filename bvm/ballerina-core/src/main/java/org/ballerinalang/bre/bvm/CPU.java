@@ -1741,7 +1741,7 @@ public class CPU {
                             targetFieldType = targetField.getFieldType();
                         }
 
-                        if (checkIsType(value.getType(), targetFieldType, new ArrayList<>())) {
+                        if (checkIsType(value, targetFieldType)) {
                             insertToMap(ctx, bMap, sf.stringRegs[j], value);
                         } else {
                             expType = targetFieldType;
@@ -4301,7 +4301,7 @@ public class CPU {
         Map<String, BType> targetTypeField = new HashMap<>();
         BType restFieldType = targetType.restFieldType;
 
-        for (BField field : targetType.getFields()) {
+        for (BField field : targetType.getFields().values()) {
             targetTypeField.put(field.getFieldName(), field.fieldType);
         }
 
