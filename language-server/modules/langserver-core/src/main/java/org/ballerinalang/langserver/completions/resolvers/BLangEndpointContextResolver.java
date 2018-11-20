@@ -68,7 +68,7 @@ public class BLangEndpointContextResolver extends AbstractItemResolver {
             if (this.isInvocationOrInteractionOrFieldAccess(ctx)) {
                 Either<List<CompletionItem>, List<SymbolInfo>> filteredList =
                         SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(ctx);
-                completionItems.addAll(this.getCompletionItemList(filteredList));
+                completionItems.addAll(this.getCompletionItemList(filteredList, ctx));
             } else {
                 completionItems.addAll(this.getVarDefCompletionItems(ctx));
             }

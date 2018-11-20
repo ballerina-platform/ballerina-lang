@@ -33,6 +33,8 @@ import java.util.Map;
 public final class BString extends BValueType implements BRefType<String> {
 
     private String value;
+    private BType type = BTypes.typeString;
+
 
     public BString(String value) {
         this.value = value;
@@ -94,7 +96,12 @@ public final class BString extends BValueType implements BRefType<String> {
 
     @Override
     public BType getType() {
-        return BTypes.typeString;
+        return type;
+    }
+
+    @Override
+    public void setType(BType type) {
+        this.type = type;
     }
 
     @Override

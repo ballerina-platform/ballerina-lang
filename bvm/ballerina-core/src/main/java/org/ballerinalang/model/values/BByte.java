@@ -38,6 +38,8 @@ public final class BByte extends BValueType implements BRefType<Byte> {
         this.value = value;
     }
 
+    private BType type = BTypes.typeByte;
+
     @Override
     public byte byteValue() {
         return this.value;
@@ -70,7 +72,12 @@ public final class BByte extends BValueType implements BRefType<Byte> {
 
     @Override
     public BType getType() {
-        return BTypes.typeByte;
+        return type;
+    }
+
+    @Override
+    public void setType(BType type) {
+        this.type = type;
     }
 
     @Override

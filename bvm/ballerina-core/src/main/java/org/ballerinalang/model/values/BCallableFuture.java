@@ -30,14 +30,14 @@ import java.util.Map;
 public class BCallableFuture implements BFuture {
 
     private String callableName;
-    
+
     private AsyncInvocableWorkerResponseContext respCtx;
     
     public BCallableFuture(String callableName, AsyncInvocableWorkerResponseContext respCtx) {
         this.callableName = callableName;
         this.respCtx = respCtx;
     }
-    
+
     @Override
     public String stringValue() {
         return "callable future: " + this.callableName;
@@ -46,6 +46,11 @@ public class BCallableFuture implements BFuture {
     @Override
     public BType getType() {
         return BTypes.typeFuture;
+    }
+
+    @Override
+    public void stamp(BType type) {
+
     }
 
     @Override

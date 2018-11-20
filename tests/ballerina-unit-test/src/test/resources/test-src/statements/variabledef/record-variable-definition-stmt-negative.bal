@@ -42,10 +42,10 @@ function redeclaredSymbol() {
 
 function bindingPatternError() {
     Person p1 = {name: "John", married: true, age: 12};
-    Person {name1: fName1, married: maritalStatus1} = p1; // unknown field 'name1' in record type 'Person'
+    Person {name1: fName1, married: maritalStatus1} = p1;
 
     Person p2 = {name1: "John", married: true, age: 12};
-    Person {name1: fName2, married: maritalStatus2} = p2; // unknown field 'name1' in record type 'Person'
+    Person {name1: fName2, married: maritalStatus2} = p2;
 
     Person p3 = {name1: "John", married: true, age: 12};
     Person {name: fName3, married: maritalStatus3} = p3;

@@ -44,6 +44,8 @@ public final class BBoolean extends BValueType implements BRefType<Boolean> {
 
     private boolean value;
 
+    private BType type = BTypes.typeBoolean;
+
     public BBoolean(boolean value) {
         this.value = value;
     }
@@ -80,7 +82,12 @@ public final class BBoolean extends BValueType implements BRefType<Boolean> {
 
     @Override
     public BType getType() {
-        return BTypes.typeBoolean;
+        return type;
+    }
+
+    @Override
+    public void setType(BType type) {
+        this.type = type;
     }
 
     @Override

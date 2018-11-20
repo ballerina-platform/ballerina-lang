@@ -1252,7 +1252,6 @@ public class PackageInfoReader {
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
                     break;
-
                 case InstructionCodes.IALOAD:
                 case InstructionCodes.BIALOAD:
                 case InstructionCodes.FALOAD:
@@ -1333,6 +1332,7 @@ public class PackageInfoReader {
                 case InstructionCodes.XMLLOAD:
                 case InstructionCodes.NEW_INT_RANGE:
                 case InstructionCodes.LENGTHOF:
+                case InstructionCodes.STAMP:
                 case InstructionCodes.NEWSTREAM:
                 case InstructionCodes.CHECKCAST:
                 case InstructionCodes.MAP2T:
@@ -1356,6 +1356,7 @@ public class PackageInfoReader {
                 case InstructionCodes.RNEWARRAY:
                 case InstructionCodes.O2JSON:
                 case InstructionCodes.TYPE_TEST:
+                case InstructionCodes.IS_LIKE:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();

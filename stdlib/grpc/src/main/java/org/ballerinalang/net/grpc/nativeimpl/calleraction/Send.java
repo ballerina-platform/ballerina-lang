@@ -88,7 +88,8 @@ public class Send extends BlockingNativeCallableUnit {
             try {
                 // If there is no response message like conn -> send(), system doesn't send the message.
                 if (!MessageUtils.isEmptyResponse(outputType)) {
-                    Message responseMessage = MessageUtils.generateProtoMessage(responseValue, outputType);
+                    //Message responseMessage = MessageUtils.generateProtoMessage(responseValue, outputType);
+                    Message responseMessage = new Message(outputType.getName(), responseValue);
                     // Update response headers when request headers exists in the context.
                     HttpHeaders headers = null;
                     if (headerValues != null && headerValues.getType().getTag() == TypeTags.OBJECT_TYPE_TAG) {

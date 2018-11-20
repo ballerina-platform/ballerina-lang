@@ -64,7 +64,7 @@
         },
         {
             "arguments": {
-                "node.line": 26,
+                "node.line": 24,
                 "node.column": 20
             },
             "expected": {

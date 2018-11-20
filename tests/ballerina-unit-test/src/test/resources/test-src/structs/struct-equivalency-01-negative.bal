@@ -1,13 +1,13 @@
 
 public type person01 record {
-    int age;
-    string name;
-    string address;
+    int age = 0;
+    string name = "";
+    string address = "";
 };
 
 public type employee01 record {
-    int age;
-    string name;
+    int age = 0;
+    string name = "";
     string zipcode = "95134";
 };
 
@@ -19,15 +19,15 @@ function testEqOfStructsInSamePackage01() returns (string) {
 }
 
 public type person02 record {
-    int age;
-    string name;
-    string address;
+    int age = 0;
+    string name = "";
+    string address = "";
 };
 
 public type employee02 record {
-    int age;
-    string name;
-    int address;
+    int age = 0;
+    string name = "";
+    int address = 0;
 };
 
 // Type name mismatch
@@ -38,14 +38,14 @@ function testEqOfStructsInSamePackage02() returns (string) {
 }
 
 public type person03 record {
-    int age;
-    string name;
-    string address;
+    int age = 0;
+    string name = "";
+    string address = "";
 };
 
 public type employee03 record {
-    int age;
-    string name;
+    int age = 0;
+    string name = "";
 };
 
 // Field count mismatch
@@ -56,18 +56,18 @@ function testEqOfStructsInSamePackage03() returns (string) {
 }
 
 type person06 record {
-    int age;
-    string name;
-    int address;
-    string id;
+    int age = 0;
+    string name = "";
+    int address = 0;
+    string id = "";
 };
 
 type employee06 record {
-    int age;
-    string name;
-    string address;
-    string id;
-    string ssn;
+    int age = 0;
+    string name = "";
+    string address = "";
+    string id = "";
+    string ssn = "";
 };
 
 // Type mismatch
