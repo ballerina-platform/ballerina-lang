@@ -92,7 +92,7 @@ public class DebugInfoHolder {
      */
     public static class DebuggerPkgInfo {
 
-        public static boolean markDebugPoint(BreakPointDTO breakPointDTO, PackageLineNumberInfo packageLineNumberInfo) {
+        public static boolean markDebugPoint(BreakPointDTO breakPointDTO, ModuleLineNumberInfo moduleLineNumberInfo) {
             // TODO: Need to improve/change this logic.
             String fileName = breakPointDTO.getFileName();
             if (fileName.contains("/")) {
@@ -103,7 +103,7 @@ public class DebugInfoHolder {
                 fileName = pathArray[pathArray.length - 1];
             }
             String fileNameAndNo = fileName + ":" + breakPointDTO.getLineNumber();
-            LineNumberInfo lineNumberInfo = packageLineNumberInfo.getLineNumbers().get(fileNameAndNo);
+            LineNumberInfo lineNumberInfo = moduleLineNumberInfo.getLineNumbers().get(fileNameAndNo);
             if (lineNumberInfo == null) {
                 return false;
             }
@@ -111,9 +111,9 @@ public class DebugInfoHolder {
             return true;
         }
 
-        public static void clearDebugPoints(PackageLineNumberInfo packageLineNumberInfo) {
+        public static void clearDebugPoints(ModuleLineNumberInfo moduleLineNumberInfo) {
 
-            packageLineNumberInfo.getLineNumbers().values().forEach(l -> l.setDebugPoint(false));
+            moduleLineNumberInfo.getLineNumbers().values().forEach(l -> l.setDebugPoint(false));
         }
     }
 }

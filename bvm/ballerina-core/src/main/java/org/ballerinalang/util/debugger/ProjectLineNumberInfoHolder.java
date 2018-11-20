@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
  */
 public class ProjectLineNumberInfoHolder {
 
-    private Map<String, PackageLineNumberInfo> packageInfoMap = new HashMap<>();
+    private Map<String, ModuleLineNumberInfo> packageInfoMap = new HashMap<>();
 
     /**
      * Process and build information required for debugging the package.
@@ -47,7 +47,7 @@ public class ProjectLineNumberInfoHolder {
     public void processPkgInfo(PackageInfo[] packageInfos) {
 
         for (PackageInfo packageInfo : packageInfos) {
-            PackageLineNumberInfo packageLineNumberInfo = new PackageLineNumberInfo(packageInfo.getInstructionCount());
+            ModuleLineNumberInfo moduleLineNumberInfo = new ModuleLineNumberInfo(packageInfo.getInstructionCount());
 
             LineNumberTableAttributeInfo lineNumberTableAttributeInfo = (LineNumberTableAttributeInfo) packageInfo
                     .getAttributeInfo(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE);
@@ -61,19 +61,19 @@ public class ProjectLineNumberInfoHolder {
                     currentLineNoInfo = lineNoInfo;
                     continue;
                 }
-                packageLineNumberInfo.populateLineNumbers(currentLineNoInfo.getIp(),
+                moduleLineNumberInfo.populateLineNumbers(currentLineNoInfo.getIp(),
                         lineNoInfo.getIp(), currentLineNoInfo);
                 currentLineNoInfo = lineNoInfo;
             }
             if (currentLineNoInfo != null) {
-                packageLineNumberInfo.populateLineNumbers(currentLineNoInfo.getIp(),
+                moduleLineNumberInfo.populateLineNumbers(currentLineNoInfo.getIp(),
                         packageInfo.getInstructionCount(), currentLineNoInfo);
             }
-            packageInfoMap.put(packageInfo.getPkgPath(), packageLineNumberInfo);
+            packageInfoMap.put(packageInfo.getPkgPath(), moduleLineNumberInfo);
         }
     }
 
-    public Map<String, PackageLineNumberInfo> getPackageInfoMap() {
+    public Map<String, ModuleLineNumberInfo> getPackageInfoMap() {
         return packageInfoMap;
     }
 }

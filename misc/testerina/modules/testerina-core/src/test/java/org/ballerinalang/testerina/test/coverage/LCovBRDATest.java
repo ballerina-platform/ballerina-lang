@@ -25,6 +25,8 @@ import org.testng.annotations.Test;
 
 /**
  * Test cases for ballerina.test coverage package lcov data format classes.
+ *
+ * @since 0.985.0
  */
 public class LCovBRDATest {
 
@@ -32,34 +34,29 @@ public class LCovBRDATest {
 
     @BeforeTest
     public void beforeSuite() {
-
         lCovBRDA = new LCovBRDA(1, 1, 1, "-");
     }
 
     @Test(description = "Getter for line num with setter")
     public void getLineNumberWithSetTest() {
-
         lCovBRDA.setLineNumber(2);
         Assert.assertEquals(lCovBRDA.getLineNumber(), 2);
     }
 
     @Test(description = "Getter for block num with setter")
     public void getBlockNumberWithSetTest() {
-
         lCovBRDA.setBlockNumber(2);
         Assert.assertEquals(lCovBRDA.getBlockNumber(), 2);
     }
 
     @Test(description = "Getter for branch num with setter")
     public void getBranchNumberWithSetTest() {
-
         lCovBRDA.setBranchNumber(2);
         Assert.assertEquals(lCovBRDA.getBranchNumber(), 2);
     }
 
     @Test(description = "Getter for taken field with setter")
     public void getTakenWithSetTest() {
-
         lCovBRDA.setTaken("2");
         Assert.assertEquals(lCovBRDA.getTaken(), "2");
     }

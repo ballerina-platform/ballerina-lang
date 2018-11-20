@@ -1055,7 +1055,6 @@ public class PackageInfoReader {
         return docAttrInfo;
     }
 
-
     private LocalVariableInfo getLocalVariableInfo(PackageInfo packageInfo, ConstantPool constantPool)
             throws IOException {
         int varNameCPIndex = dataInStream.readInt();

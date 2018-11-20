@@ -18,18 +18,19 @@
 
 package org.ballerinalang.testerina.coverage.impl;
 
-import org.ballerinalang.testerina.coverage.ExecutedInstruction;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.testerina.core.entity.Test;
 import org.ballerinalang.testerina.core.entity.TestSuite;
 import org.ballerinalang.testerina.coverage.CoverageDataFormatter;
 import org.ballerinalang.testerina.coverage.CoverageManager;
+import org.ballerinalang.testerina.coverage.ExecutedInstruction;
 import org.ballerinalang.testerina.coverage.LCovDA;
 import org.ballerinalang.testerina.coverage.LCovData;
 import org.ballerinalang.testerina.coverage.LCovSourceFile;
 import org.ballerinalang.testerina.util.Constants;
+import org.ballerinalang.util.BLangUtils;
 import org.ballerinalang.util.codegen.LineNumberInfo;
-import org.ballerinalang.util.debugger.PackageLineNumberInfo;
+import org.ballerinalang.util.debugger.ModuleLineNumberInfo;
 import org.ballerinalang.util.debugger.ProjectLineNumberInfoHolder;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -95,14 +96,16 @@ public class LCovCoverageDataFormatterImpl implements CoverageDataFormatter<LCov
             String entryPkgPath = suite.getProgramFile().getEntryPackage().pkgPath;
             ProjectLineNumberInfoHolder projectLineNumberInfoHolderForPkg =
                     lineNumberInfoHolderForProject.get(entryPkgPath);
-            PackageLineNumberInfo entryPkgLineNumberInfo = projectLineNumberInfoHolderForPkg.getPackageInfoMap()
+            ModuleLineNumberInfo entryPkgLineNumberInfo = projectLineNumberInfoHolderForPkg.getPackageInfoMap()
                     .get(entryPkgPath);
 
+            // Calculating instrumented lines for each file
             Map<String, Integer> fileLineCoverage = new HashMap<>();
+            String[] pkgPathSlices = BLangUtils.getPkgPathSlices(entryPkgPath);
             entryPkgLineNumberInfo.getLineNumbers().keySet().forEach(key -> {
-                String fileNameWithPkg = entryPkgPath + File.separator + key.split(":")[0];
-                fileLineCoverage.put(fileNameWithPkg,
-                        fileLineCoverage.get(fileNameWithPkg) == null ? 1 : fileLineCoverage.get(fileNameWithPkg) + 1);
+                String fileNameWithModule = pkgPathSlices[1] + File.separator + key.split(":")[0];
+                fileLineCoverage.put(fileNameWithModule,
+                        fileLineCoverage.get(fileNameWithModule) == null ? 1 : fileLineCoverage.get(fileNameWithModule) + 1);
             });
 
             for (ExecutedInstruction executedInstruction : executedInstructionOrderMap.get(entryPkgPath)) {
@@ -123,7 +126,7 @@ public class LCovCoverageDataFormatterImpl implements CoverageDataFormatter<LCov
                     continue;
                 }
 
-                String sourceFilePath = entryPkgPath + File.separator
+                String sourceFilePath = pkgPathSlices[1] + File.separator
                         + executedInstruction.getFileName();
 
                 boolean lCovDataFound = false;
@@ -213,6 +216,7 @@ public class LCovCoverageDataFormatterImpl implements CoverageDataFormatter<LCov
 
         boolean skipTestFunctionIps = false;
 
+        //TODO: replace endsWith with equals
         if (executedInstruction.getFunctionName().endsWith(Names.TEST_INIT_FUNCTION_SUFFIX.getValue()) ||
                 executedInstruction.getFunctionName().endsWith(Names.TEST_START_FUNCTION_SUFFIX.getValue()) ||
                 executedInstruction.getFunctionName().endsWith(Names.TEST_STOP_FUNCTION_SUFFIX.getValue())) {

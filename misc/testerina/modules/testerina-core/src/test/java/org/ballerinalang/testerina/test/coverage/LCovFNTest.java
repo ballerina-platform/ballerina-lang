@@ -25,6 +25,8 @@ import org.testng.annotations.Test;
 
 /**
  * Test cases for ballerina.test coverage package lcov data format classes.
+ *
+ * @since 0.985.0
  */
 public class LCovFNTest {
 
@@ -32,20 +34,17 @@ public class LCovFNTest {
 
     @BeforeTest
     public void beforeSuite() {
-
         lCovFN = new LCovFN(1, "funcName");
     }
 
     @Test(description = "Getter for func start line num with setter")
     public void getFuncStartLineNumWithSetTest() {
-
         lCovFN.setFuncStartLineNum(2);
         Assert.assertEquals(lCovFN.getFuncStartLineNum(), 2);
     }
 
     @Test(description = "Getter for func name with setter")
     public void getFuncNameWithSetTest() {
-
         lCovFN.setFunctionName("funcName1");
         Assert.assertEquals(lCovFN.getFunctionName(), "funcName1");
     }

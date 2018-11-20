@@ -84,7 +84,7 @@ public class TestCmd implements BLauncherCmd {
     @CommandLine.Option(names = "--exclude-modules", split = ",", description = "modules to be excluded")
     private List<String> excludedModuleList;
 
-    @CommandLine.Option(names = "--nocoverage", hidden = false, description = "to stop creating coverage data file")
+    @CommandLine.Option(names = "--nocoverage", hidden = true, description = "to stop creating coverage data file")
     private boolean coverageDisabled;
 
     public void execute() {

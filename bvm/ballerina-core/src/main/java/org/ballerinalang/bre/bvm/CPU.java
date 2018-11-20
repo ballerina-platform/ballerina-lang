@@ -127,7 +127,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.ServiceLoader;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
@@ -144,21 +143,6 @@ import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class CPU {
-
-    private static List<InstructionHandler> instructionHandlers = new ArrayList<>();
-
-    // 1 time loading of all the instruction handlers
-    static {
-        ServiceLoader<InstructionHandler> insHandlerServLoader =
-                ServiceLoader.load(InstructionHandler.class);
-        Iterator<InstructionHandler> insHandlerServLoaderItr = insHandlerServLoader.iterator();
-        while (insHandlerServLoaderItr.hasNext()) {
-            InstructionHandler instructionHandler = insHandlerServLoaderItr.next();
-            if (instructionHandler.shouldEngageIn()) {
-                instructionHandlers.add(instructionHandler);
-            }
-        }
-    }
 
     public static void traceCode(Instruction[] code) {
         PrintStream printStream = System.out;
@@ -211,7 +195,7 @@ public class CPU {
 
                 Instruction instruction = ctx.code[ctx.ip];
 
-                for(InstructionHandler instructionHandler : instructionHandlers) {
+                for(InstructionHandler instructionHandler : ctx.programFile.getInstructionHandlers()) {
                     instructionHandler.handle(ctx);
                 }
 

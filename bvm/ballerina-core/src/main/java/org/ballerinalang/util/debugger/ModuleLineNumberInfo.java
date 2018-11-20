@@ -31,14 +31,14 @@ import java.util.Map;
  * @since 0.985.0
  *
  */
-public class PackageLineNumberInfo {
+public class ModuleLineNumberInfo {
 
     private LineNumberInfo[] ipLineNos;
 
     //key - fileName:ln, value - LineNumberInfo
     Map<String, LineNumberInfo> lineNumbers = new HashMap<>();
 
-    public PackageLineNumberInfo(int instructionCount) {
+    public ModuleLineNumberInfo(int instructionCount) {
         this.ipLineNos = new LineNumberInfo[instructionCount];
     }
 

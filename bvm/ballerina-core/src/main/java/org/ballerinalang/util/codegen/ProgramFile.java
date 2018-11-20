@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.util.codegen;
 
+import org.ballerinalang.bre.InstructionHandler;
 import org.ballerinalang.bre.bvm.GlobalMemoryArea;
 import org.ballerinalang.bre.bvm.GlobalMemoryBlock;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
@@ -81,6 +82,8 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
     private List<AnnAttributeValue> unresolvedAnnAttrValues = new ArrayList<>();
+
+    private List<InstructionHandler> instructionHandlers = new ArrayList<>();
 
     public int getMagicValue() {
         return magicValue;
@@ -246,4 +249,21 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
         return debugger;
     }
 
+    /**
+     * Getter for instruction handlers for this program.
+     *
+     * @return list of instruction handlers
+     */
+    public List<InstructionHandler> getInstructionHandlers() {
+        return instructionHandlers;
+    }
+
+    /**
+     * Setter for instruction handlers for this program.
+     *
+     * @param instructionHandlers list of instruction handlers
+     */
+    public void setInstructionHandlers(List<InstructionHandler> instructionHandlers) {
+        this.instructionHandlers = instructionHandlers;
+    }
 }

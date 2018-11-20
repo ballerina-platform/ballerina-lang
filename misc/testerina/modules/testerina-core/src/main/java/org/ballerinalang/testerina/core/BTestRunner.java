@@ -35,6 +35,7 @@ import org.ballerinalang.testerina.coverage.CoverageDataFormatter;
 import org.ballerinalang.testerina.coverage.CoverageManager;
 import org.ballerinalang.testerina.coverage.LCovData;
 import org.ballerinalang.testerina.util.TesterinaUtils;
+import org.ballerinalang.util.BLangUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.diagnostic.Diagnostic;
@@ -276,11 +277,13 @@ public class BTestRunner {
         if (!coverageDisabled) {
             CoverageManager coverageManager = CoverageManager.getInstance();
             Map<String, ProgramFile> programFilesForProject = new HashMap<>();
+
             for (ProgramFile programFile : registry.getProgramFiles()) {
                 programFilesForProject.put(programFile.getEntryPackage().getPkgPath(), programFile);
+                // Set coverage instruction handlers since coverage is enabled
+                programFile.setInstructionHandlers(BLangUtils.getInstructionHandlers());
             }
             coverageManager.setProgramFilesForProject(programFilesForProject);
-            coverageManager.setCoverageDisabled(coverageDisabled);
         }
         outStream.println();
         outStream.println("Running tests");
@@ -522,8 +525,14 @@ public class BTestRunner {
         return tReport;
     }
 
+    /**
+     * Setter for the flag coverage disabled.
+     *
+     * @param coverageDisabled coverage disabled flag
+     */
     public void setCoverageDisabled(boolean coverageDisabled) {
         this.coverageDisabled = coverageDisabled;
+        CoverageManager.getInstance().setCoverageDisabled(coverageDisabled);
     }
 }
 
