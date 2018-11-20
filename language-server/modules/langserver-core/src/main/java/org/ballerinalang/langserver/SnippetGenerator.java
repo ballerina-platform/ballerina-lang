@@ -400,6 +400,26 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Const Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getConstKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.CONST_KEYWORD, "const ", ItemResolverConstants.KEYWORD_TYPE,
+                SnippetType.KEYWORD);
+    }
+
+    /**
+     * Get Final Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getFinalKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.FINAL_KEYWORD, "final ", ItemResolverConstants.KEYWORD_TYPE,
+                SnippetType.KEYWORD);
+    }
+
+    /**
      * Get Transaction Statement Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
