@@ -253,7 +253,7 @@ public class IterableCodeDesugar {
 
         BLangTupleVariable tupleVariable = (BLangTupleVariable) TreeBuilder.createTupleVariableNode();
         tupleVariable.memberVariables.addAll(foreachVariables);
-        BLangTupleVariableDef variableDef = ASTBuilderUtil.createTupleVariableDef(null, tupleVariable);
+        BLangTupleVariableDef variableDef = ASTBuilderUtil.createTupleVariableDef(pos, tupleVariable);
 
         final BLangForeach foreachStmt = ASTBuilderUtil.createForeach(pos, funcNode.body,
                 ASTBuilderUtil.createVariableRef(pos, ctx.collectionVar.symbol));
@@ -299,7 +299,7 @@ public class IterableCodeDesugar {
 
         BLangTupleVariable tupleVariable = (BLangTupleVariable) TreeBuilder.createTupleVariableNode();
         tupleVariable.memberVariables.addAll(foreachVariables);
-        BLangTupleVariableDef variableDef = ASTBuilderUtil.createTupleVariableDef(null, tupleVariable);
+        BLangTupleVariableDef variableDef = ASTBuilderUtil.createTupleVariableDef(pos, tupleVariable);
 
         // Define all undefined variables.
         defineRequiredVariables(ctx, streamOperations, foreachVariables, funcNode);
