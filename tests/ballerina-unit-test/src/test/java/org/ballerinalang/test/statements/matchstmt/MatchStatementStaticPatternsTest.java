@@ -38,7 +38,7 @@ public class MatchStatementStaticPatternsTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/statements/matchstmt/static-match-patterns.bal");
+        result = BCompileUtil.compile("test-src/statements/matchstmt/static_match_patterns.bal");
         resultNegative = BCompileUtil.compile("test-src/statements/matchstmt/static_match_patterns_negative.bal");
         resultNegative2 = BCompileUtil.
                 compile("test-src/statements/matchstmt/unreachable_static_match_patterns_negative.bal");
@@ -81,6 +81,110 @@ public class MatchStatementStaticPatternsTest {
         Assert.assertEquals(results.get(++i), msg + "'Default'");
         Assert.assertEquals(results.get(++i), msg + "'15 & 34'");
         Assert.assertEquals(results.get(++i), msg + "'true'");
+    }
+
+    @Test(description = "Test static patterns with or conditions 1")
+    public void testStaticMatchOrPatterns1() {
+
+        BValue[] returns = BRunUtil.invoke(result, "testStaticMatchOrPatterns1", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+
+        BStringArray results = (BStringArray) returns[0];
+
+        int i = -1;
+        String msg = "Value is ";
+        Assert.assertEquals(results.get(++i), msg + ": 12");
+        Assert.assertEquals(results.get(++i), msg + ": Hello");
+        Assert.assertEquals(results.get(++i), msg + ": true");
+        Assert.assertEquals(results.get(++i), msg + ": 15");
+        Assert.assertEquals(results.get(++i), msg + ": HelloAgain");
+        Assert.assertEquals(results.get(++i), msg + ": false");
+        Assert.assertEquals(results.get(++i), "Default value is : NothingToMatch");
+        Assert.assertEquals(results.get(++i), msg + ": 13");
+        Assert.assertEquals(results.get(++i), msg + ": 14");
+        Assert.assertEquals(results.get(++i), msg + ": World");
+        Assert.assertEquals(results.get(++i), msg + ": Test");
+    }
+
+    @Test(description = "Test static patterns with or conditions 2")
+    public void testStaticMatchOrPatterns2() {
+
+        BValue[] returns = BRunUtil.invoke(result, "testStaticMatchOrPatterns2", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+
+        BStringArray results = (BStringArray) returns[0];
+
+        int i = -1;
+        String msg = "Value is ";
+        Assert.assertEquals(results.get(++i), msg + ": 15");
+        Assert.assertEquals(results.get(++i), msg + ": (12, \"Ballerina\")");
+        Assert.assertEquals(results.get(++i), msg + ": (12, \"Ballerina\")");
+        Assert.assertEquals(results.get(++i), msg + ": (15, \"Ballerina\")");
+        Assert.assertEquals(results.get(++i), msg + ": (20, \"Ballerina\")");
+        Assert.assertEquals(results.get(++i), msg + ": (20, \"Balo\")");
+        Assert.assertEquals(results.get(++i), "Default Value is : (20, \"NothingToMatch\")");
+        Assert.assertEquals(results.get(++i), msg + ": (15, \"Bal\", 100)");
+        Assert.assertEquals(results.get(++i), "Default Value is : (15, \"Bal\", 200, 230)");
+        Assert.assertEquals(results.get(++i), msg + ": (15, \"Bal\", \"Ballerina\", 5678, \"Test\")");
+        Assert.assertEquals(results.get(++i),
+                "Default Value is : (15, \"Bal\", \"Ballerina\", 5678, \"NothingToMatch\")");
+    }
+
+    @Test(description = "Test static patterns with or conditions 3")
+    public void testStaticMatchOrPatterns3() {
+
+        BValue[] returns = BRunUtil.invoke(result, "testStaticMatchOrPatterns3", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+
+        BStringArray results = (BStringArray) returns[0];
+
+        int i = -1;
+        String msg = "Value is ";
+        Assert.assertEquals(results.get(++i), msg + ": 1st pattern - {x:12, y:\"Ballerina\"}");
+        Assert.assertEquals(results.get(++i), msg + ": 4th pattern - {\"x\":10, \"y\":\"B\"}");
+        Assert.assertEquals(results.get(++i), msg + ": 2nd pattern - {x:12, y:\"Ballerina\", z:true}");
+        Assert.assertEquals(results.get(++i), "Value is Default pattern - {\"x\":10, \"z\":\"Ballerina\"}");
+        Assert.assertEquals(results.get(++i), msg +
+                ": 5th pattern - {x:15, y:(\"John\", {x:12, y:\"Ballerina\"}, \"Snow\"), z:15.1}");
+        Assert.assertEquals(results.get(++i),
+                "Value is Default pattern - {x:15, y:(\"Stark\", {x:12, y:\"Ballerina\"}, \"Sansa\"), z:15.1}");
+        Assert.assertEquals(results.get(++i), msg +
+                ": 3rd pattern - {x:15, y:(\"Stark\", {x:12, y:\"Ballerina\", z:true}, \"Sansa\"), z:15.1}");
+        Assert.assertEquals(results.get(++i), msg +
+                ": 3rd pattern - {x:40, y:(\"Tyrion\", {x:12, y:\"Ballerina\"}, \"Lanister\"), z:56.9}");
+        Assert.assertEquals(results.get(++i), msg + ": 4th pattern - 16");
+        Assert.assertEquals(results.get(++i), "Value is Default pattern - 12");
+    }
+
+    @Test(description = "Test static patterns with or conditions 4")
+    public void testStaticMatchOrPatterns4() {
+
+        BValue[] returns = BRunUtil.invoke(result, "testStaticMatchOrPatterns4", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+
+        BStringArray results = (BStringArray) returns[0];
+
+        int i = -1;
+        String msg = "Value is ";
+        Assert.assertEquals(results.get(++i), msg + ": 1st pattern - {x:12, y:\"Ballerina\"}");
+        Assert.assertEquals(results.get(++i), msg + ": 4th pattern - {\"x\":10, \"y\":\"B\"}");
+        Assert.assertEquals(results.get(++i), msg + ": 2nd pattern - {x:12, y:\"Ballerina\", z:true}");
+        Assert.assertEquals(results.get(++i), "Value is Default pattern - {\"x\":10, \"z\":\"Ballerina\"}");
+        Assert.assertEquals(results.get(++i), msg +
+                ": 5th pattern - {x:15, y:(\"John\", {x:12, y:\"Ballerina\"}, \"Snow\"), z:15.1}");
+        Assert.assertEquals(results.get(++i),
+                "Value is Default pattern - {x:15, y:(\"Stark\", {x:12, y:\"Ballerina\"}, \"Sansa\"), z:15.1}");
+        Assert.assertEquals(results.get(++i), msg +
+                ": 3rd pattern - {x:15, y:(\"Stark\", {x:12, y:\"Ballerina\", z:true}, \"Sansa\"), z:15.1}");
+        Assert.assertEquals(results.get(++i), msg +
+                ": 3rd pattern - {x:40, y:(\"Tyrion\", {x:12, y:\"Ballerina\"}, \"Lanister\"), z:56.9}");
+        Assert.assertEquals(results.get(++i), msg + ": 4th pattern - 16");
+        Assert.assertEquals(results.get(++i), "Value is Default pattern - 12");
+        Assert.assertEquals(results.get(++i), "Value is Default pattern - 7.8");
     }
 
     @Test(description = "Test record static match pattern")
@@ -242,6 +346,7 @@ public class MatchStatementStaticPatternsTest {
                 "invalid key: only identifiers are allowed for record literal keys", 265, 10);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 265, 9);
     }
+
     @Test(description = "Test unreachable pattern")
     public void testUnreachablePatterns() {
         Assert.assertEquals(resultNegative2.getErrorCount(), 8);

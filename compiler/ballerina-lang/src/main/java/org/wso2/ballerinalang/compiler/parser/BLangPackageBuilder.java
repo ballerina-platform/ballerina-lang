@@ -2550,16 +2550,19 @@ public class BLangPackageBuilder {
         this.matchStmtStack.peekFirst().patternClauses.add(patternClause);
     }
 
-    void addMatchStmtStructuredBindingPattern(DiagnosticPos pos, Set<Whitespace> ws) {
+    void addMatchStmtStructuredBindingPattern(DiagnosticPos pos, Set<Whitespace> ws, boolean isTypeGuardPresent) {
         BLangMatchStructuredBindingPatternClause patternClause =
-                (BLangMatch.BLangMatchStructuredBindingPatternClause)
-                        TreeBuilder.createMatchStatementStructuredBindingPattern();
+                (BLangMatchStructuredBindingPatternClause) TreeBuilder.createMatchStatementStructuredBindingPattern();
         patternClause.pos = pos;
         patternClause.addWS(ws);
 
         patternClause.bindingPatternVariable = this.varStack.pop();
         patternClause.body = (BLangBlockStmt) blockNodeStack.pop();
         patternClause.body.pos = pos;
+
+        if (isTypeGuardPresent) {
+            patternClause.typeGuardExpr = (BLangExpression) exprNodeStack.pop();
+        }
         this.matchStmtStack.peekFirst().patternClauses.add(patternClause);
     }
 
