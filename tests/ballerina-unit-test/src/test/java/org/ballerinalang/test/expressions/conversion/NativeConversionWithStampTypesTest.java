@@ -22,7 +22,9 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
+import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -62,8 +64,7 @@ public class NativeConversionWithStampTypesTest {
         Assert.assertEquals(employee.get("school").stringValue(), "ABC College");
     }
 
-    @Test(description = "Test converting a record which can be stamp, into a json and check previous values are not "
-            + "changed")
+    @Test(description = "Test converting a record into a json and check previous values are not changed")
     public void testConvertStampRecordToJSON() {
 
         BValue[] results = BRunUtil.invoke(compileResult, "testConvertStampRecordToJSON");
@@ -83,8 +84,7 @@ public class NativeConversionWithStampTypesTest {
         Assert.assertEquals(json.get("school").stringValue(), "ABC College");
     }
 
-    @Test(description = "Test converting a record which can be stamp, into a map and check previous values are not "
-            + "changed")
+    @Test(description = "Test converting a record into a map and check previous values are not changed")
     public void testConvertStampRecordToMap() {
 
         BValue[] results = BRunUtil.invoke(compileResult, "testConvertStampRecordToMap");
@@ -99,5 +99,29 @@ public class NativeConversionWithStampTypesTest {
 
         Assert.assertEquals(employee.get("name").stringValue(), "Mike");
         Assert.assertEquals(map.get("name").stringValue(), "Waruna");
+    }
+
+    @Test(description = "Test converting a tuple into a map and check previous values are not changed")
+    public void testConvertStampTupleToMap() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "testConvertStampTupleToMap");
+        BRefValueArray original = (BRefValueArray) results[0];
+        BRefValueArray converted = (BRefValueArray) results[1];
+
+        Assert.assertEquals(results.length, 2);
+        Assert.assertEquals(original.getValues().length, 2);
+        Assert.assertEquals(converted.getValues().length, 2);
+
+        ((BMap) ((BRefValueArray) results[0]).getValues()[1]).getMap();
+        Assert.assertEquals(converted.getType().getClass(), BTupleType.class);
+
+        Assert.assertEquals(original.getValues()[0].stringValue(), "Vinod");
+        Assert.assertEquals(converted.getValues()[0].stringValue(), "Chathura");
+
+        BMap<String, BValue> originalMap = ((BMap<String, BValue>) original.getValues()[1]);
+        BMap<String, BValue> convertedMap = ((BMap<String, BValue>) converted.getValues()[1]);
+
+        Assert.assertEquals(originalMap.get("school").toString(), "ABC College");
+        Assert.assertEquals(convertedMap.get("school").stringValue(), "ABC College");
     }
 }

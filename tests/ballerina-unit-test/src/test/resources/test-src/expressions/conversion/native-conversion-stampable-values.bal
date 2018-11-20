@@ -55,3 +55,13 @@ function testConvertStampRecordToMap() returns (Employee, map) {
     e.name = "Mike";
     return (e, m);
 }
+
+function testConvertStampTupleToMap() returns ((string, Employee), (string, Employee)) {
+    (string, Person) tupleValue = ("Waruna", { name: "John", age: 25, status: "single", batch: "Batch9", school:
+    "ABC College" });
+
+    (string, Employee) returnValue = (string, Employee).from(tupleValue);
+    returnValue[0] = "Chathura";
+    tupleValue[0] = "Vinod";
+    return (tupleValue, returnValue);
+}
