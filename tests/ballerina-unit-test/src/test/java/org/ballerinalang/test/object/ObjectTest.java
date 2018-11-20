@@ -456,13 +456,12 @@ public class ObjectTest {
     public void testObjectNegativeTestForReturnDifferentType() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_new_in_return_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 5);
-        BAssertUtil.validateError(result, 0, "too many arguments in call to 'new()'", 23, 12);
-        BAssertUtil.validateError(result, 1, "cannot infer type of the object from 'Person?'", 27, 12);
-        BAssertUtil.validateError(result, 2, "cannot infer type of the object from 'Person?'", 31, 26);
-        BAssertUtil.validateError(result, 3, "cannot infer type of the object from 'other'", 32, 19);
+        BAssertUtil.validateError(result, 0, "too many arguments in call to 'new()'", 19, 12);
+        BAssertUtil.validateError(result, 1, "cannot infer type of the object from 'Person?'", 23, 12);
+        BAssertUtil.validateError(result, 2, "cannot infer type of the object from 'Person?'", 27, 26);
+        BAssertUtil.validateError(result, 3, "cannot infer type of the object from 'other'", 28, 19);
         BAssertUtil.validateError(result, 4, "invalid variable definition; can not infer the assignment type.",
-                32, 19);
-        BAssertUtil.validateError(result, 5, "cannot infer type of the object from 'error'", 33, 21);
+                28, 19);
     }
 
     @Test (description = "Negative test to test returning different type without type name")
@@ -475,16 +474,8 @@ public class ObjectTest {
     @Test (description = "Negative test to test self reference types")
     public void testSelfReferenceType() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_cyclic_self_reference.bal");
-        Assert.assertEquals(result.getErrorCount(), 5);
-        BAssertUtil.validateError(result, 0, "object un-initializable field " +
-                "'Employee emp' is not present as a constructor parameter", 7, 1);
-        BAssertUtil.validateError(result, 1, "object un-initializable field " +
-                "'Foo foo' is not present as a constructor parameter", 14, 1);
-        BAssertUtil.validateError(result, 2, "object un-initializable field " +
-                "'Bar bar' is not present as a constructor parameter", 14, 1);
-        BAssertUtil.validateError(result, 3, "object un-initializable field " +
-                "'Bar bar1' is not present as a constructor parameter", 22, 1);
-        BAssertUtil.validateError(result, 4, "cyclic type reference in " +
+        Assert.assertEquals(result.getErrorCount(), 1);
+        BAssertUtil.validateError(result, 0, "cyclic type reference in " +
                 "'[Person, Employee, Foo, Bar]'", 32, 5);
     }
 

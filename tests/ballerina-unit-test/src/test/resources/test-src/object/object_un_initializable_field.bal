@@ -14,7 +14,6 @@ type Person object {
 };
 
 type Employee object {
-<<<<<<< HEAD
     public int age = 0;
     public Foo foo;
     public Bar bar = {};

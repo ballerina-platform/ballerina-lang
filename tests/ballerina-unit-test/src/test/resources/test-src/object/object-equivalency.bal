@@ -555,7 +555,7 @@ type Foo "a" | "b" | "c";
 type Person object {
     private string name = "";
 
-    new(name){}
+    __init(name){}
 
     function getPerson() returns Person {
         error err = error("Unsupported operation");
@@ -567,7 +567,7 @@ type Employee object {
     private string name = "";
     private string id = "";
 
-    new(name,id){}
+    __init(name,id){}
 
     function getPerson() returns Person {
         return self;

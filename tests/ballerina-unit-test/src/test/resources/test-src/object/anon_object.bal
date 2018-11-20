@@ -3,7 +3,7 @@ function testAnonObjectAsFuncParam() returns (int) {
     return testAnonObjectFunc(10, new (14, "sameera"));
 }
 
-function testAnonObjectFunc(int i, object {public int k = 10; public string s; new (k, s){}} anonSt) returns (int) {
+function testAnonObjectFunc(int i, object {public int k = 10; public string s; __init (k, s){}} anonSt) returns (int) {
     return anonSt.k + i;
 }
 
@@ -19,7 +19,7 @@ object {
     public string fname = "";
     public string lname = "";
     public int age = 0;
-    new (fname = "default fname", lname = "default lname") {}
+    __init (fname = "default fname", lname = "default lname") {}
 } person = new;
 
 function testAnonObjectAsPkgVar() returns (string) {
@@ -58,14 +58,14 @@ function testAnonObjectAsObjectField() returns (string) {
     return e.dateOfBirth.month + ":" + e.address.line01 + ":" + e.address["state"] + ":" + e.fname;
 }
 
-object { public int age; public string name; new (age, string lname) {self.name = "a " + lname;} function getName() returns string {return self.name;}} p = new (5, "hello");
+object { public int age; public string name; __init (age, string lname) {self.name = "a " + lname;} function getName() returns string {return self.name;}} p = new (5, "hello");
 
 function testAnonObjectWithFunctionAsGlobalVar () returns string {
     return p.getName();
 }
 
 function testAnonObjectWithFunctionAsLocalVar () returns string {
-    object { public int age; public string name; new (age, string lname) {self.name = "a " + lname;} function getName() returns string {return self.name;}} p1 = new (5, "hello");
+    object { public int age; public string name; __init (age, string lname) {self.name = "a " + lname;} function getName() returns string {return self.name;}} p1 = new (5, "hello");
     return p1.getName();
 }
 
@@ -92,13 +92,18 @@ function Person.getKind() returns string {
 }
 
 function testObjectEquivalencyBetweenAnonAndNormalObject() returns (int, string, string) {
-    object { public int age; public string name; public int length; public string kind;
-    public new (age, name, string value) {
-        self.kind = " hello " + value;
-    }
-    public function getName () returns string { return self.name; }
-
-    public function getKind() returns string{ return self.name + self.kind; } } value = new (5, "passed Name", "sample value");
+    object { 
+        public int age; 
+        public string name; 
+        public int length; 
+        public string kind;
+        public __init (age, name, string value) {
+            self.kind = " hello " + value;
+        }
+        public function getName () returns string { return self.name; }
+    
+        public function getKind() returns string{ return self.name + self.kind; }
+    } value = new (5, "passed Name", "sample value");
 
     Person person1 = value;
 
@@ -106,10 +111,17 @@ function testObjectEquivalencyBetweenAnonAndNormalObject() returns (int, string,
 }
 
 function testAnonObjectWithRecordLiteral() returns (int, string) {
-    object { public record {int age; string name;} details; private int length; private string kind;
-    new (details, kind) {
-    }
-    function getName () returns string { return self.details.name; }} value = new ({age:8, name:"sanjiva"}, "passed kind");
+    object { 
+        public record {int age; string name;} details; 
+        private int length; 
+        private string kind;
+        
+        __init (details, kind) {
+        }
+    
+        function getName () returns string { return self.details.name; }
+        
+    } value = new ({age:8, name:"sanjiva"}, "passed kind");
 
     return (value.details.age, value.getName());
 }
@@ -135,10 +147,19 @@ function testObjectWithAnonRecordLiteral() returns (int, string) {
 }
 
 function testObjectWithSelfReference() returns (int, string) {
-    object {public int age; public string name; new () {self.age = 88;self.name = "Tyler ";}function test(int a, string n) {
-        self.age = self.age + a;
-        self.name = self.name + n;
-    }} sample = new;
+    object {
+        public int age; 
+        public string name; 
+        __init () {
+            self.age = 88;
+            self.name = "Tyler ";
+        }
+        
+        function test(int a, string n) {
+            self.age = self.age + a;
+            self.name = self.name + n;
+        }
+    } sample = new;
 
     sample.test(10, "Jewell");
     return (sample.age, sample.name);

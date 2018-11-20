@@ -2,7 +2,7 @@
 Person pp;
 Employee ee;
 
-public function testObjectWithInterface () returns (int, int) {
+public function testObjectWithInterface () returns (int, string) {
     Person p;
     Employee e;
     return (p.attachInterface(7), p.month);
