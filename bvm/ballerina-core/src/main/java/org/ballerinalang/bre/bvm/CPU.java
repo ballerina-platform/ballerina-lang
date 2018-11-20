@@ -140,6 +140,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
@@ -391,6 +392,7 @@ public class CPU {
                     case InstructionCodes.ILSHIFT:
                     case InstructionCodes.IURSHIFT:
                     case InstructionCodes.TYPE_TEST:
+                    case InstructionCodes.IS_LIKE:
                         execBinaryOpCodes(ctx, sf, opcode, operands);
                         break;
 
@@ -2120,6 +2122,13 @@ public class CPU {
                 k = operands[2];
                 TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[j];
                 sf.intRegs[k] = checkIsType(sf.refRegs[i], typeRefCPEntry.getType()) ? 1 : 0;
+                break;
+            case InstructionCodes.IS_LIKE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[j];
+                sf.intRegs[k] = checkIsLikeType(sf.refRegs[i], typeRefCPEntry.getType()) ? 1 : 0;
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -4200,13 +4209,13 @@ public class CPU {
             return false;
         }
 
-        BRefType<?>[] arrayValues = ((BRefValueArray) sourceValue).getValues();
-        for (int i = 0; i < ((BRefValueArray) sourceValue).size(); i++) {
-            if (!checkIsLikeType(arrayValues[i], targetType.getTupleTypes().get(i))) {
-                return false;
-            }
+        BRefValueArray source = (BRefValueArray) sourceValue;
+        if (source.getValues().length != targetType.getTupleTypes().size()) {
+            return false;
         }
-        return true;
+
+        return IntStream.range(0, source.getValues().length)
+                .allMatch(i -> checkIsLikeType(source.get(i), targetType.getTupleTypes().get(i)));
     }
 
     private static boolean checkIsLikeArrayType(BValue sourceValue, BArrayType targetType) {

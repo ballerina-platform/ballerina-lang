@@ -76,4 +76,6 @@ public interface MatchNode {
     List<? extends MatchTypedBindingPatternNode> getTypedPatternClauses();
 
     List<? extends MatchStaticBindingPatternNode> getStaticPatternClauses();
+
+    List<? extends MatchStructuredBindingPatternNode> getStructuredPatternClauses();
 }

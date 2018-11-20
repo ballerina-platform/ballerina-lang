@@ -201,7 +201,7 @@ public class CommandExecutionTest {
         }
     }
 
-    @Test(dataProvider = "testgen-data-provider", enabled = false)
+    @Test(dataProvider = "testgen-data-provider")
     public void testTestGeneration(String config, Path source) throws IOException {
         String configJsonPath = "command" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);

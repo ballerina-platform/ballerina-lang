@@ -22,7 +22,10 @@ service<http:WebSocketService> onBinaryContinuation bind { port: 9088 } {
     onBinary(endpoint caller, byte[] data, boolean final) {
         if (final) {
             appendToArray(untaint data, content);
-            check caller->pushBinary(content);
+            var returnVal = caller->pushBinary(content);
+            if (returnVal is error) {
+                 panic returnVal;
+            }
         } else {
             appendToArray(untaint data, content);
         }
