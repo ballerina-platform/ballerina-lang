@@ -24,8 +24,8 @@ import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -72,7 +72,7 @@ public class ParseHeader extends BlockingNativeCallableUnit {
             if (headerValue.contains(SEMICOLON)) {
                 value = HeaderUtil.getHeaderValue(value);
             }
-            BRefValueArray contentTuple = new BRefValueArray(parseHeaderTupleType);
+            BValueArray contentTuple = new BValueArray(parseHeaderTupleType);
             contentTuple.add(0, new BString(value));
             contentTuple.add(1, HeaderUtil.getParamMap(headerValue));
 

@@ -29,13 +29,13 @@ import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStreamingJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayOutputStream;
@@ -501,7 +501,7 @@ public class MimeUtil {
             return (BString) dataSource;
         } else if (type.getTag() == TypeTags.ARRAY_TAG &&
                 ((BArrayType) type).getElementType().getTag() == TypeTags.BYTE_TAG) {
-            return new BString(new String(((BByteArray) dataSource).getBytes(), StandardCharsets.UTF_8));
+            return new BString(new String(((BValueArray) dataSource).getBytes(), StandardCharsets.UTF_8));
         }
 
         return new BString(dataSource.stringValue());

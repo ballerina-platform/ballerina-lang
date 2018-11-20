@@ -44,31 +44,26 @@ import org.ballerinalang.model.util.ListUtils;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BByte;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BClosure;
 import org.ballerinalang.model.values.BCollection;
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BFuture;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BIntRange;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BIterator;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStream;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLAttributes;
@@ -300,7 +295,7 @@ public class CPU {
                     case InstructionCodes.BACONST:
                         cpIndex = operands[0];
                         i = operands[1];
-                        sf.refRegs[i] = new BByteArray(((BlobCPEntry) ctx.constPool[cpIndex]).getValue());
+                        sf.refRegs[i] = new BValueArray(((BlobCPEntry) ctx.constPool[cpIndex]).getValue());
                         break;
 
                     case InstructionCodes.IMOVE:
@@ -637,33 +632,33 @@ public class CPU {
                     case InstructionCodes.INEWARRAY:
                         i = operands[0];
                         j = operands[2];
-                        sf.refRegs[i] = new BIntArray((int) sf.longRegs[j]);
+                        sf.refRegs[i] = new BValueArray(BTypes.typeInt, (int) sf.longRegs[j]);
                         break;
                     case InstructionCodes.BINEWARRAY:
                         i = operands[0];
                         j = operands[2];
-                        sf.refRegs[i] = new BByteArray((int) sf.longRegs[j]);
+                        sf.refRegs[i] = new BValueArray(BTypes.typeByte, (int) sf.longRegs[j]);
                         break;
                     case InstructionCodes.FNEWARRAY:
                         i = operands[0];
                         j = operands[2];
-                        sf.refRegs[i] = new BFloatArray((int) sf.longRegs[j]);
+                        sf.refRegs[i] = new BValueArray(BTypes.typeFloat, (int) sf.longRegs[j]);
                         break;
                     case InstructionCodes.SNEWARRAY:
                         i = operands[0];
                         j = operands[2];
-                        sf.refRegs[i] = new BStringArray((int) sf.longRegs[j]);
+                        sf.refRegs[i] = new BValueArray(BTypes.typeString, (int) sf.longRegs[j]);
                         break;
                     case InstructionCodes.BNEWARRAY:
                         i = operands[0];
                         j = operands[2];
-                        sf.refRegs[i] = new BBooleanArray((int) sf.longRegs[j]);
+                        sf.refRegs[i] = new BValueArray(BTypes.typeBoolean, (int) sf.longRegs[j]);
                         break;
                     case InstructionCodes.RNEWARRAY:
                         i = operands[0];
                         cpIndex = operands[1];
                         typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
-                        sf.refRegs[i] = new BRefValueArray(typeRefCPEntry.getType());
+                        sf.refRegs[i] = new BValueArray(typeRefCPEntry.getType());
                         break;
                     case InstructionCodes.NEWSTRUCT:
                         createNewStruct(ctx, operands, sf);
@@ -681,9 +676,9 @@ public class CPU {
                         k = operands[3];
                         l = operands[4];
                         typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
-                        BStringArray indexColumns = (BStringArray) sf.refRegs[j];
-                        BStringArray keyColumns = (BStringArray) sf.refRegs[k];
-                        BRefValueArray dataRows = (BRefValueArray) sf.refRegs[l];
+                        BValueArray indexColumns = (BValueArray) sf.refRegs[j];
+                        BValueArray keyColumns = (BValueArray) sf.refRegs[k];
+                        BValueArray dataRows = (BValueArray) sf.refRegs[l];
                         sf.refRegs[i] = new BTable(typeRefCPEntry.getType(), indexColumns, keyColumns, dataRows);
                         break;
                     case InstructionCodes.NEWSTREAM:
@@ -1375,7 +1370,7 @@ public class CPU {
         int i = operands[0];
         int j = operands[1];
         int k = operands[2];
-        sf.refRegs[k] = new BIntArray(LongStream.rangeClosed(sf.longRegs[i], sf.longRegs[j]).toArray());
+        sf.refRegs[k] = new BValueArray(LongStream.rangeClosed(sf.longRegs[i], sf.longRegs[j]).toArray());
     }
 
     private static void execLoadOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, int[] operands) {
@@ -1385,11 +1380,11 @@ public class CPU {
         int pkgIndex;
         int lvIndex; // Index of the local variable
 
-        BIntArray bIntArray;
-        BByteArray bByteArray;
-        BFloatArray bFloatArray;
-        BStringArray bStringArray;
-        BBooleanArray bBooleanArray;
+        BValueArray bIntArray;
+        BValueArray bByteArray;
+        BValueArray bFloatArray;
+        BValueArray bStringArray;
+        BValueArray bBooleanArray;
         BMap<String, BRefType> bMap;
 
         switch (opcode) {
@@ -1422,9 +1417,9 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bIntArray = Optional.of((BIntArray) sf.refRegs[i]).get();
+                bIntArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    sf.longRegs[k] = bIntArray.get(sf.longRegs[j]);
+                    sf.longRegs[k] = bIntArray.getInt(sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1434,9 +1429,9 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bByteArray = Optional.of((BByteArray) sf.refRegs[i]).get();
+                bByteArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    sf.intRegs[k] = bByteArray.get(sf.longRegs[j]);
+                    sf.intRegs[k] = bByteArray.getByte(sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1446,9 +1441,9 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bFloatArray = Optional.of((BFloatArray) sf.refRegs[i]).get();
+                bFloatArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    sf.doubleRegs[k] = bFloatArray.get(sf.longRegs[j]);
+                    sf.doubleRegs[k] = bFloatArray.getFloat(sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1458,9 +1453,9 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bStringArray = Optional.of((BStringArray) sf.refRegs[i]).get();
+                bStringArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    sf.stringRegs[k] = bStringArray.get(sf.longRegs[j]);
+                    sf.stringRegs[k] = bStringArray.getString(sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1470,9 +1465,9 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bBooleanArray = Optional.of((BBooleanArray) sf.refRegs[i]).get();
+                bBooleanArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    sf.intRegs[k] = bBooleanArray.get(sf.longRegs[j]);
+                    sf.intRegs[k] = bBooleanArray.getBoolean(sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1568,11 +1563,11 @@ public class CPU {
         int k;
         int pkgIndex;
 
-        BIntArray bIntArray;
-        BByteArray bByteArray;
-        BFloatArray bFloatArray;
-        BStringArray bStringArray;
-        BBooleanArray bBooleanArray;
+        BValueArray bIntArray;
+        BValueArray bByteArray;
+        BValueArray bFloatArray;
+        BValueArray bStringArray;
+        BValueArray bBooleanArray;
         BMap<String, BRefType> bMap;
 
         switch (opcode) {
@@ -1580,7 +1575,7 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bIntArray = Optional.of((BIntArray) sf.refRegs[i]).get();
+                bIntArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
                     bIntArray.add(sf.longRegs[j], sf.longRegs[k]);
                 } catch (Exception e) {
@@ -1592,7 +1587,7 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bByteArray = Optional.of((BByteArray) sf.refRegs[i]).get();
+                bByteArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
                     bByteArray.add(sf.longRegs[j], (byte) sf.intRegs[k]);
                 } catch (Exception e) {
@@ -1604,7 +1599,7 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bFloatArray = Optional.of((BFloatArray) sf.refRegs[i]).get();
+                bFloatArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
                     bFloatArray.add(sf.longRegs[j], sf.doubleRegs[k]);
                 } catch (Exception e) {
@@ -1616,7 +1611,7 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bStringArray = Optional.of((BStringArray) sf.refRegs[i]).get();
+                bStringArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
                     bStringArray.add(sf.longRegs[j], sf.stringRegs[k]);
                 } catch (Exception e) {
@@ -1628,7 +1623,7 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bBooleanArray = Optional.of((BBooleanArray) sf.refRegs[i]).get();
+                bBooleanArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
                     bBooleanArray.add(sf.longRegs[j], sf.intRegs[k]);
                 } catch (Exception e) {
@@ -3331,7 +3326,7 @@ public class CPU {
     }
 
     private static boolean checkTupleCast(BValue sourceValue, BType targetType, List<TypePair> unresolvedTypes) {
-        BRefValueArray source = (BRefValueArray) sourceValue;
+        BValueArray source = (BValueArray) sourceValue;
         BTupleType target = (BTupleType) targetType;
         List<BType> targetTupleTypes = target.getTupleTypes();
         if (source.size() != targetTupleTypes.size()) {
@@ -3691,7 +3686,7 @@ public class CPU {
                     return false;
                 }
                 BArrayType arrayType = (BArrayType) targetType;
-                BRefValueArray array = (BRefValueArray) json;
+                BValueArray array = (BValueArray) json;
                 for (int i = 0; i < array.size(); i++) {
                     // get the element type of source and json, and recursively check for json casting.
                     BType sourceElementType = sourceType.getTag() == TypeTags.ARRAY_TAG
@@ -4199,12 +4194,12 @@ public class CPU {
     }
 
     private static boolean checkIsLikeTupleType(BValue sourceValue, BTupleType targetType) {
-        if (!(sourceValue instanceof BRefValueArray)) {
+        if (!(sourceValue instanceof BValueArray)) {
             return false;
         }
 
-        BRefType<?>[] arrayValues = ((BRefValueArray) sourceValue).getValues();
-        for (int i = 0; i < ((BRefValueArray) sourceValue).size(); i++) {
+        BRefType<?>[] arrayValues = ((BValueArray) sourceValue).getValues();
+        for (int i = 0; i < ((BValueArray) sourceValue).size(); i++) {
             if (!checkIsLikeType(arrayValues[i], targetType.getTupleTypes().get(i))) {
                 return false;
             }
@@ -4213,13 +4208,13 @@ public class CPU {
     }
 
     private static boolean checkIsLikeArrayType(BValue sourceValue, BArrayType targetType) {
-        if (!(sourceValue instanceof BRefValueArray)) {
+        if (!(sourceValue instanceof BValueArray)) {
             return false;
         }
 
         BType arrayElementType = targetType.getElementType();
-        BRefType<?>[] arrayValues = ((BRefValueArray) sourceValue).getValues();
-        for (int i = 0; i < ((BRefValueArray) sourceValue).size(); i++) {
+        BRefType<?>[] arrayValues = ((BValueArray) sourceValue).getValues();
+        for (int i = 0; i < ((BValueArray) sourceValue).size(); i++) {
             if (!checkIsLikeType(arrayValues[i], arrayElementType)) {
                 return false;
             }
@@ -4244,8 +4239,8 @@ public class CPU {
         if (targetType.getConstrainedType() != null) {
             return checkIsLikeType(sourceValue, targetType.getConstrainedType());
         } else if (sourceValue.getType().getTag() == TypeTags.ARRAY_TAG) {
-            BRefType<?>[] arrayValues = ((BRefValueArray) sourceValue).getValues();
-            for (int i = 0; i < ((BRefValueArray) sourceValue).size(); i++) {
+            BRefType<?>[] arrayValues = ((BValueArray) sourceValue).getValues();
+            for (int i = 0; i < ((BValueArray) sourceValue).size(); i++) {
                 if (!checkIsLikeType(arrayValues[i], targetType)) {
                     return false;
                 }

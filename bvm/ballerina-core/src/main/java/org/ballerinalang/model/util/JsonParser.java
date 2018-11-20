@@ -26,9 +26,9 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.BufferedInputStream;
@@ -266,7 +266,7 @@ public class JsonParser {
                     currentJsonNode = parentNode;
                     return FIELD_END_STATE;
                 } else {
-                    ((BRefValueArray) parentNode).append(currentJsonNode);
+                    ((BValueArray) parentNode).append(currentJsonNode);
                     currentJsonNode = parentNode;
                     return ARRAY_ELEMENT_END_STATE;
                 }
@@ -287,7 +287,7 @@ public class JsonParser {
             if (currentJsonNode != null) {
                 this.nodesStack.push(currentJsonNode);
             }
-            currentJsonNode = new BRefValueArray(new BArrayType(BTypes.typeJSON));
+            currentJsonNode = new BValueArray(new BArrayType(BTypes.typeJSON));
             return FIRST_ARRAY_ELEMENT_READY_STATE;
         }
         
@@ -661,7 +661,7 @@ public class JsonParser {
                     ch = buff[i];
                     sm.processLocation(ch);
                     if (ch == sm.currentQuoteChar) {
-                        ((BRefValueArray) sm.currentJsonNode).append(new BString(sm.value()));
+                        ((BValueArray) sm.currentJsonNode).append(new BString(sm.value()));
                         state = ARRAY_ELEMENT_END_STATE;
                     } else if (ch == REV_SOL) { 
                         state = STRING_AE_ESC_CHAR_PROCESSING_STATE;
@@ -805,7 +805,7 @@ public class JsonParser {
                     double doubleValue = Double.parseDouble(str);
                     switch (type) {
                     case ARRAY_ELEMENT:
-                        ((BRefValueArray) this.currentJsonNode).append(new BFloat(doubleValue));
+                        ((BValueArray) this.currentJsonNode).append(new BFloat(doubleValue));
                         break;
                     case FIELD:
                             ((BMap<String, BValue>) this.currentJsonNode).put(this.fieldNames.pop(),
@@ -825,7 +825,7 @@ public class JsonParser {
                 if (ch == 't' && TRUE.equals(str)) {
                     switch (type) {
                     case ARRAY_ELEMENT:
-                        ((BRefValueArray) this.currentJsonNode).append(new BBoolean(true));
+                        ((BValueArray) this.currentJsonNode).append(new BBoolean(true));
                         break;
                     case FIELD:
                         ((BMap<String, BValue>) this.currentJsonNode).put(this.fieldNames.pop(), new BBoolean(true));
@@ -839,7 +839,7 @@ public class JsonParser {
                 } else if (ch == 'f' && FALSE.equals(str)) {
                     switch (type) {
                     case ARRAY_ELEMENT:
-                        ((BRefValueArray) this.currentJsonNode).append(new BBoolean(false));
+                        ((BValueArray) this.currentJsonNode).append(new BBoolean(false));
                         break;
                     case FIELD:
                         ((BMap<String, BValue>) this.currentJsonNode).put(this.fieldNames.pop(), new BBoolean(false));
@@ -853,7 +853,7 @@ public class JsonParser {
                 } else if (ch == 'n' && NULL.equals(str)) {
                     switch (type) {
                     case ARRAY_ELEMENT:
-                        ((BRefValueArray) this.currentJsonNode).append(null);
+                        ((BValueArray) this.currentJsonNode).append(null);
                         break;
                     case FIELD:
                         ((BMap<String, BValue>) this.currentJsonNode).put(this.fieldNames.pop(), null);
@@ -869,7 +869,7 @@ public class JsonParser {
                         long longValue = Long.parseLong(str);
                         switch (type) {
                         case ARRAY_ELEMENT:
-                            ((BRefValueArray) this.currentJsonNode).append(new BInteger(longValue));
+                            ((BValueArray) this.currentJsonNode).append(new BInteger(longValue));
                             break;
                         case FIELD:
                                 ((BMap<String, BValue>) this.currentJsonNode).put(this.fieldNames.pop(),

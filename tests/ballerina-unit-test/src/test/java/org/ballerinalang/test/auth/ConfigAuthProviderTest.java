@@ -26,8 +26,8 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -109,17 +109,17 @@ public class ConfigAuthProviderTest {
     public void testReadScopesOfNonExistingUser() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadScopesOfNonExistingUser");
         Assert.assertTrue(returns != null);
-        Assert.assertEquals(((BStringArray) returns[0]).size(), 0);
+        Assert.assertEquals(((BValueArray) returns[0]).size(), 0);
     }
 
     @Test(description = "Test case for reading groups of a user")
     public void testReadScopesOfUser() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadScopesOfUser");
         Assert.assertTrue(returns != null);
-        BStringArray groups = ((BStringArray) returns[0]);
+        BValueArray groups = ((BValueArray) returns[0]);
         Assert.assertEquals(groups.size(), 1);
 
-        Assert.assertEquals(groups.get(0), "scope1");
+        Assert.assertEquals(groups.getString(0), "scope1");
     }
 
     @AfterClass

@@ -23,8 +23,8 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -52,7 +52,7 @@ public class GetHeaderNames extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-        BStringArray bStringArray = new BStringArray();
+        BValueArray bStringArray = new BValueArray();
         if (entityStruct.getNativeData(ENTITY_HEADERS) == null) {
             context.setReturnValues(bStringArray);
             return;

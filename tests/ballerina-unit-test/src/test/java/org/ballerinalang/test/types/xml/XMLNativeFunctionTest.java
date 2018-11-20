@@ -23,9 +23,9 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.model.values.BXMLSequence;
@@ -516,7 +516,7 @@ public class XMLNativeFunctionTest {
         
         // Check children
         Assert.assertTrue(returns[3] instanceof BXML);
-        BRefValueArray children = ((BXMLSequence) returns[3]).value();
+        BValueArray children = ((BXMLSequence) returns[3]).value();
         Assert.assertEquals(children.size(), 3);
         Assert.assertEquals(children.get(0).stringValue(), "<newFname>supun-new</newFname>");
         Assert.assertEquals(children.get(1).stringValue(), "<newMname>thilina-new</newMname>");
@@ -542,7 +542,7 @@ public class XMLNativeFunctionTest {
 
         // Check children
         Assert.assertTrue(returns[3] instanceof BXML);
-        BRefValueArray children = ((BXMLSequence) returns[3]).value();
+        BValueArray children = ((BXMLSequence) returns[3]).value();
         Assert.assertEquals(children.size(), 3);
         Assert.assertEquals(children.get(0).stringValue(), "<fname xmlns=\"http://sample.com/test\">supun</fname>");
         Assert.assertEquals(children.get(1).stringValue(), "<lname xmlns=\"http://sample.com/test\">setunga</lname>");
@@ -573,7 +573,7 @@ public class XMLNativeFunctionTest {
 
         // Check children
         Assert.assertTrue(returns[3] instanceof BXML);
-        BRefValueArray children = ((BXMLSequence) returns[3]).value();
+        BValueArray children = ((BXMLSequence) returns[3]).value();
         Assert.assertEquals(children.size(), 3);
         Assert.assertEquals(children.get(0).stringValue(), "<fname xmlns=\"http://sample.com/test\">supun</fname>");
         Assert.assertEquals(children.get(1).stringValue(), "<lname xmlns=\"http://sample.com/test\">setunga</lname>");
@@ -758,7 +758,7 @@ public class XMLNativeFunctionTest {
         
         // Check children of the copied xml
         Assert.assertTrue(returns[3] instanceof BXML);
-        BRefValueArray children = ((BXMLSequence) ((BXML) returns[0]).children()).value();
+        BValueArray children = ((BXMLSequence) ((BXML) returns[0]).children()).value();
         Assert.assertEquals(children.size(), 3);
         Assert.assertEquals(children.get(0).stringValue(), "<newFname>supun-new</newFname>");
         Assert.assertEquals(children.get(1).stringValue(), "<newMname>thilina-new</newMname>");
@@ -774,7 +774,7 @@ public class XMLNativeFunctionTest {
         
         // Check children of the original xml
         Assert.assertTrue(returns[3] instanceof BXML);
-        BRefValueArray originalChildren = ((BXMLSequence) returns[3]).value();
+        BValueArray originalChildren = ((BXMLSequence) returns[3]).value();
         Assert.assertEquals(originalChildren.size(), 2);
         Assert.assertEquals(originalChildren.get(0).stringValue(),
                 "<fname xmlns:ns0=\"http://sample.com/test\">supun</fname>");
@@ -913,7 +913,7 @@ public class XMLNativeFunctionTest {
     public void testToJsonForEmptyValue() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testToJsonForEmptyValue");
 
-        Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].stringValue(), "[]");
     }
 
@@ -1210,7 +1210,7 @@ public class XMLNativeFunctionTest {
     public void testToJSONWithSequenceWithValueArray() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testToJSONWithSequenceWithValueArray");
 
-        Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].stringValue(), "[\"a\", \"b\", \"c\"]");
     }
 
@@ -1227,7 +1227,7 @@ public class XMLNativeFunctionTest {
     public void testToJSONWithSequenceWithElementAndText() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testToJSONWithSequenceWithElementAndText");
 
-        Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].stringValue(), "[\"a\", \"b\", {\"key\":\"value3\"}]");
     }
 
@@ -1235,7 +1235,7 @@ public class XMLNativeFunctionTest {
     public void testToJSONWithSequenceWithElementAndTextArray() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testToJSONWithSequenceWithElementAndTextArray");
 
-        Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].stringValue(), "[\"a\", \"b\", {\"key\":[\"value3\", \"value4\", \"value4\"]}]");
     }
 
@@ -1243,7 +1243,7 @@ public class XMLNativeFunctionTest {
     public void testToJSONWithSequenceWithDifferentElements() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testToJSONWithSequenceWithDifferentElements");
 
-        Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].stringValue(), "[\"a\", \"b\", {\"key\":[\"value3\", \"value4\", \"value4\"], "
                 + "\"bookName\":\"Book1\", \"bookId\":[\"001\", \"001\"]}]");
     }

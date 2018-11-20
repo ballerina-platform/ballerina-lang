@@ -49,8 +49,8 @@ public class BTable implements BRefType<Object>, BCollection {
     private TableProvider tableProvider;
     private String tableName;
     protected BStructureType constraintType;
-    private BStringArray primaryKeys;
-    private BStringArray indices;
+    private BValueArray primaryKeys;
+    private BValueArray indices;
     private boolean tableClosed;
     private volatile CPU.FreezeStatus freezeStatus = new CPU.FreezeStatus(CPU.FreezeStatus.State.UNFROZEN);
 
@@ -72,7 +72,7 @@ public class BTable implements BRefType<Object>, BCollection {
     }
 
     public BTable(String query, BTable fromTable, BTable joinTable,
-                  BStructureType constraintType, BRefValueArray params) {
+                  BStructureType constraintType, BValueArray params) {
         this.tableProvider = TableProvider.getInstance();
         if (joinTable != null) {
             this.tableName = tableProvider.createTable(fromTable.tableName, joinTable.tableName, query,
@@ -83,7 +83,7 @@ public class BTable implements BRefType<Object>, BCollection {
         this.constraintType = constraintType;
     }
 
-    public BTable(BType type, BStringArray indexColumns, BStringArray keyColumns, BRefValueArray dataRows) {
+    public BTable(BType type, BValueArray indexColumns, BValueArray keyColumns, BValueArray dataRows) {
         //Create table with given constraints.
         BType constrainedType = ((BTableType) type).getConstrainedType();
         this.tableProvider = TableProvider.getInstance();
@@ -117,7 +117,7 @@ public class BTable implements BRefType<Object>, BCollection {
         return tableWrapper.toString();
     }
 
-    private String createStringValueEntry(String key, BStringArray contents) {
+    private String createStringValueEntry(String key, BValueArray contents) {
         String stringValue = "[]";
         if (contents != null) {
             stringValue = contents.stringValue();
@@ -350,7 +350,7 @@ public class BTable implements BRefType<Object>, BCollection {
         tableProvider.dropTable(this.tableName);
     }
 
-    private void insertInitialData(BRefValueArray data) {
+    private void insertInitialData(BValueArray data) {
         int count = (int) data.size();
         for (int i = 0; i < count; i++) {
             addData((BMap<String, BValue>) data.get(i));

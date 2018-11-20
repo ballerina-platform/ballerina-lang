@@ -33,13 +33,13 @@ import java.io.Writer;
  * 
  * @since 0.981.0
  */
-public class BStreamingJSON extends BRefValueArray {
+public class BStreamingJSON extends BValueArray {
 
     JSONDataSource datasource;
 
     public BStreamingJSON(JSONDataSource datasource) {
         this.datasource = datasource;
-        this.values = (BRefType[]) newArrayInstance(BRefType.class);
+        this.refValues = (BRefType[]) newArrayInstance(BRefType.class);
         this.arrayType = new BArrayType(BTypes.typeJSON);
     }
 
@@ -84,7 +84,7 @@ public class BStreamingJSON extends BRefValueArray {
 
             // First serialize the values loaded to memory
             for (int i = 0; i < size; i++) {
-                gen.serialize(values[i]);
+                gen.serialize(refValues[i]);
             }
 
             // Then serialize remaining data in the data-source
@@ -112,7 +112,7 @@ public class BStreamingJSON extends BRefValueArray {
         if (datasource.hasNext()) {
             buildDatasource();
         }
-        return values;
+        return refValues;
     }
 
     @Override

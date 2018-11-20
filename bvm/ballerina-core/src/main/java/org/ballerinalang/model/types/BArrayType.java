@@ -17,15 +17,10 @@
 */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.values.BBooleanArray;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BDecimalArray;
-import org.ballerinalang.model.values.BFloatArray;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BNewArray;
-import org.ballerinalang.model.values.BRefValueArray;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 
 /**
@@ -74,20 +69,20 @@ public class BArrayType extends BType implements BIndexedType {
             int tag = elementType.getTag();
             switch (tag) {
                 case TypeTags.INT_TAG:
-                    return (V) new BIntArray(size);
+                    return (V) new BValueArray(BTypes.typeInt, size);
                 case TypeTags.FLOAT_TAG:
-                    return (V) new BFloatArray(size);
+                    return (V) new BValueArray(BTypes.typeFloat, size);
                 case TypeTags.DECIMAL_TAG:
                     return (V) new BDecimalArray(size);
                 case TypeTags.BOOLEAN_TAG:
-                    return (V) new BBooleanArray(size);
+                    return (V) new BValueArray(BTypes.typeBoolean, size);
                 case TypeTags.STRING_TAG:
-                    return (V) new BStringArray(size);
+                    return (V) new BValueArray(BTypes.typeString, size);
                 case TypeTags.BYTE_TAG:
-                    return (V) new BByteArray(size);
+                    return (V) new BValueArray(BTypes.typeByte, size);
                 case TypeTags.ARRAY_TAG: // fall through
                 default:
-                    return (V) new BRefValueArray(this);
+                    return (V) new BValueArray(this);
             }
         } else {
             return getEmptyValue();
@@ -99,19 +94,19 @@ public class BArrayType extends BType implements BIndexedType {
         int tag = elementType.getTag();
         switch (tag) {
             case TypeTags.INT_TAG:
-                return (V) new BIntArray();
+                return (V) new BValueArray(BTypes.typeInt);
             case TypeTags.FLOAT_TAG:
-                return (V) new BFloatArray();
+                return (V) new BValueArray(BTypes.typeFloat);
             case TypeTags.DECIMAL_TAG:
                 return (V) new BDecimalArray();
             case TypeTags.BOOLEAN_TAG:
-                return (V) new BBooleanArray();
+                return (V) new BValueArray(BTypes.typeBoolean);
             case TypeTags.STRING_TAG:
-                return (V) new BStringArray();
+                return (V) new BValueArray(BTypes.typeString);
             case TypeTags.BYTE_TAG:
-                return (V) new BByteArray();
+                return (V) new BValueArray(BTypes.typeByte);
             default:
-                return (V) new BRefValueArray();
+                return (V) new BValueArray();
         }
     }
 

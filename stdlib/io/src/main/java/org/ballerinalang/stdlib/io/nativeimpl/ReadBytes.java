@@ -25,12 +25,11 @@ import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -83,7 +82,7 @@ public class ReadBytes implements NativeCallableUnit {
      * @return Once the callback is processed we further return back the result.
      */
     private static EventResult readResponse(EventResult<Integer, EventContext> result) {
-        BRefValueArray contentTuple = new BRefValueArray(readTupleType);
+        BValueArray contentTuple = new BValueArray(readTupleType);
         EventContext eventContext = result.getContext();
         Context context = eventContext.getContext();
         Throwable error = eventContext.getError();
@@ -94,7 +93,7 @@ public class ReadBytes implements NativeCallableUnit {
             context.setReturnValues(errorStruct);
         } else {
             Integer numberOfBytes = result.getResponse();
-            contentTuple.add(0, new BByteArray(content));
+            contentTuple.add(0, new BValueArray(content));
             contentTuple.add(1, new BInteger(numberOfBytes));
             context.setReturnValues(contentTuple);
         }

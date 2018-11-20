@@ -20,7 +20,7 @@ package org.ballerinalang.persistence.serializable.reftypes.impl;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.persistence.Deserializer;
 import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
@@ -32,7 +32,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import java.util.ArrayList;
 
 /**
- * Implementation of @{@link SerializableRefType} to serialize and deserialize {@link BRefValueArray} objects.
+ * Implementation of @{@link SerializableRefType} to serialize and deserialize {@link BValueArray} objects.
  *
  * @since 0.981.1
  */
@@ -42,7 +42,7 @@ public class SerializableBRefArray implements SerializableRefType {
     private String pkgPath;
     private ArrayList<Object> values = new ArrayList<>();
 
-    public SerializableBRefArray(BRefValueArray bRefValueArray, SerializableState state) {
+    public SerializableBRefArray(BValueArray bRefValueArray, SerializableState state) {
         BArrayType arrayType = (BArrayType) bRefValueArray.getType();
         if (arrayType != null) {
             structName = arrayType.getElementType().getName();
@@ -73,6 +73,6 @@ public class SerializableBRefArray implements SerializableRefType {
             }
             type = new BArrayType(structInfo.getType());
         }
-        return new BRefValueArray(bRefTypes, type);
+        return new BValueArray(bRefTypes, type);
     }
 }

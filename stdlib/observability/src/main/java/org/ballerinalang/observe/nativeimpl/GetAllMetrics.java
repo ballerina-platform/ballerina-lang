@@ -27,9 +27,9 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -69,13 +69,13 @@ public class GetAllMetrics extends BlockingNativeCallableUnit {
         PackageInfo observePackage = context.getProgramFile().getPackageInfo(OBSERVE_PACKAGE_PATH);
         StructureTypeInfo metricStructInfo = observePackage.getStructInfo(METRIC);
 
-        BRefValueArray bMetrics = new BRefValueArray(observePackage.getTypeInfo(METRIC).getType());
+        BValueArray bMetrics = new BValueArray(observePackage.getTypeInfo(METRIC).getType());
         int metricIndex = 0;
         for (Metric metric : metrics) {
             MetricId metricId = metric.getId();
             BValue metricValue = null;
             String metricType = null;
-            BRefValueArray summary = null;
+            BValueArray summary = null;
             if (metric instanceof Counter) {
                 metricValue = new BInteger(((Counter) metric).getValue());
                 metricType = MetricConstants.COUNTER;

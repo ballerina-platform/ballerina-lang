@@ -21,9 +21,9 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -55,7 +55,7 @@ public class Pong implements NativeCallableUnit {
             BMap<String, BValue> wsConnection = (BMap<String, BValue>) context.getRefArgument(0);
             WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
-            byte[] binaryData = ((BByteArray) context.getRefArgument(1)).getBytes();
+            byte[] binaryData = ((BValueArray) context.getRefArgument(1)).getBytes();
             ChannelFuture future = connectionInfo.getWebSocketConnection().pong(ByteBuffer.wrap(binaryData));
             WebSocketUtil.handleWebSocketCallback(context, callback, future);
         } catch (Exception e) {

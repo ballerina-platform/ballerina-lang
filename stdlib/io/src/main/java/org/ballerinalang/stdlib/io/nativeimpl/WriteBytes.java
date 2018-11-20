@@ -22,11 +22,11 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -104,7 +104,7 @@ public class WriteBytes implements NativeCallableUnit {
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         BMap<String, BValue> channel = (BMap<String, BValue>) context.getRefArgument(BYTE_CHANNEL_INDEX);
-        byte[] content = ((BByteArray) context.getRefArgument(CONTENT_INDEX)).getBytes();
+        byte[] content = ((BValueArray) context.getRefArgument(CONTENT_INDEX)).getBytes();
         int offset = (int) context.getIntArgument(START_OFFSET_INDEX);
         Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
         EventContext eventContext = new EventContext(context, callback);

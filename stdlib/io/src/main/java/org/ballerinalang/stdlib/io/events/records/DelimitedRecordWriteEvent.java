@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.io.events.records;
 
-import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.stdlib.io.events.Event;
@@ -42,7 +42,7 @@ public class DelimitedRecordWriteEvent implements Event {
     /**
      * Content which will be written to the channel.
      */
-    private BStringArray content;
+    private BValueArray content;
     /**
      * Holds the context to the event.
      */
@@ -50,12 +50,12 @@ public class DelimitedRecordWriteEvent implements Event {
 
     private static final Logger log = LoggerFactory.getLogger(DelimitedRecordWriteEvent.class);
 
-    public DelimitedRecordWriteEvent(DelimitedRecordChannel channel, BStringArray content) {
+    public DelimitedRecordWriteEvent(DelimitedRecordChannel channel, BValueArray content) {
         this.channel = channel;
         this.content = content;
     }
 
-    public DelimitedRecordWriteEvent(DelimitedRecordChannel channel, BStringArray content, EventContext context) {
+    public DelimitedRecordWriteEvent(DelimitedRecordChannel channel, BValueArray content, EventContext context) {
         this.channel = channel;
         this.content = content;
         this.context = context;

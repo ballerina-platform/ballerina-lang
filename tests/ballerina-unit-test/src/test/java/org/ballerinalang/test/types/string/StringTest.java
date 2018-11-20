@@ -22,12 +22,11 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -473,11 +472,11 @@ public class StringTest {
     public void testSplit() {
         BValue[] args = {new BString("name1 name2 name3"), new BString(" ")};
         BValue[] returns = BRunUtil.invoke(result, "split", args);
-        Assert.assertTrue(returns[0] instanceof BStringArray);
-        BStringArray bStringArray = (BStringArray) returns[0];
-        Assert.assertEquals(bStringArray.get(0), "name1");
-        Assert.assertEquals(bStringArray.get(1), "name2");
-        Assert.assertEquals(bStringArray.get(2), "name3");
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        BValueArray bStringArray = (BValueArray) returns[0];
+        Assert.assertEquals(bStringArray.getString(0), "name1");
+        Assert.assertEquals(bStringArray.getString(1), "name2");
+        Assert.assertEquals(bStringArray.getString(2), "name3");
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
@@ -500,7 +499,7 @@ public class StringTest {
         byte[] bytes = content.getBytes(StandardCharsets.UTF_8);
         BValue[] args = {new BString(content), new BString("UTF-8")};
         BValue[] returns = BRunUtil.invoke(result, "toByteArray", args);
-        BByteArray bByteArray = (BByteArray) returns[0];
+        BValueArray bByteArray = (BValueArray) returns[0];
         Assert.assertEquals(bByteArray.size(), bytes.length);
         ByteArrayUtils.assertJBytesWithBBytes(bytes, bByteArray.getBytes());
     }

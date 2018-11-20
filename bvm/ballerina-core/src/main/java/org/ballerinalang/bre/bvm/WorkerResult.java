@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.bre.bvm;
 
-import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BValueArray;
 
 /**
  * This class holds data about the result of a given worker.
@@ -26,9 +26,9 @@ import org.ballerinalang.model.values.BRefValueArray;
  */
 public class WorkerResult {
     private String workerName;
-    private BRefValueArray result;
+    private BValueArray result;
 
-    public WorkerResult(String workerName, BRefValueArray result) {
+    public WorkerResult(String workerName, BValueArray result) {
         this.workerName = workerName;
         this.result = result;
     }
@@ -37,7 +37,7 @@ public class WorkerResult {
         return workerName;
     }
 
-    public BRefValueArray getResult() {
+    public BValueArray getResult() {
         return result;
     }
 }

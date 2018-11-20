@@ -23,8 +23,8 @@ import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
@@ -93,7 +93,7 @@ public class ResponseWriter {
      */
     private static void serializeMultiparts(String boundaryString, BMap<String, BValue> entity,
                                             OutputStream messageOutputStream) {
-        BRefValueArray bodyParts = EntityBodyHandler.getBodyPartArray(entity);
+        BValueArray bodyParts = EntityBodyHandler.getBodyPartArray(entity);
         try {
             if (bodyParts != null && bodyParts.size() > 0) {
                 MultipartDataSource multipartDataSource = new MultipartDataSource(entity, boundaryString);

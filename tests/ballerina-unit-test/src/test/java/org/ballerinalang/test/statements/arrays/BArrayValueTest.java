@@ -20,12 +20,10 @@ package org.ballerinalang.test.statements.arrays;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BFloatArray;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -57,9 +55,9 @@ public class BArrayValueTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "lazyInitSizeZero", args);
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
 
-        BStringArray arrayValue = (BStringArray) returns[0];
+        BValueArray arrayValue = (BValueArray) returns[0];
         Assert.assertEquals(arrayValue.size(), 0);
     }
 
@@ -68,16 +66,16 @@ public class BArrayValueTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "addValueToIntArray");
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BIntArray.class);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
 
-        BIntArray arrayValue = (BIntArray) returns[0];
+        BValueArray arrayValue = (BValueArray) returns[0];
         Assert.assertEquals(arrayValue.size(), 200, "Invalid arrays size.");
-        Assert.assertEquals(arrayValue.get(0), (-10), "Invalid value returned.");
-        Assert.assertEquals(arrayValue.get(15), 20, "Invalid value returned.");
-        Assert.assertEquals(arrayValue.get(99), 2147483647, "Invalid value returned.");
-        Assert.assertEquals(arrayValue.get(100), -4, "Invalid value returned.");
-        Assert.assertEquals(arrayValue.get(115), -2147483647, "Invalid value returned.");
-        Assert.assertEquals(arrayValue.get(199), 6, "Invalid value returned.");
+        Assert.assertEquals(arrayValue.getInt(0), (-10), "Invalid value returned.");
+        Assert.assertEquals(arrayValue.getInt(15), 20, "Invalid value returned.");
+        Assert.assertEquals(arrayValue.getInt(99), 2147483647, "Invalid value returned.");
+        Assert.assertEquals(arrayValue.getInt(100), -4, "Invalid value returned.");
+        Assert.assertEquals(arrayValue.getInt(115), -2147483647, "Invalid value returned.");
+        Assert.assertEquals(arrayValue.getInt(199), 6, "Invalid value returned.");
     }
 
     @Test(description = "Test add value operation on float arrays")
@@ -85,19 +83,19 @@ public class BArrayValueTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "addValueToFloatArray");
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloatArray.class);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
 
-        BFloatArray arrayValue = (BFloatArray) returns[0];
+        BValueArray arrayValue = (BValueArray) returns[0];
         Assert.assertEquals(arrayValue.size(), 200, "Invalid arrays size.");
 
-        Assert.assertEquals(arrayValue.get(0), new Double(-10.0), DELTA, "Invalid value returned.");
-        Assert.assertEquals(arrayValue.get(15), new Double(2.5), DELTA, "Invalid value returned.");
-        Assert.assertEquals(arrayValue.get(99), new Double(2147483647.1), DELTA,
+        Assert.assertEquals(arrayValue.getFloat(0), new Double(-10.0), DELTA, "Invalid value returned.");
+        Assert.assertEquals(arrayValue.getFloat(15), new Double(2.5), DELTA, "Invalid value returned.");
+        Assert.assertEquals(arrayValue.getFloat(99), new Double(2147483647.1), DELTA,
                 "Invalid value returned.");
-        Assert.assertEquals(arrayValue.get(100), new Double(4.3), DELTA, "Invalid value returned.");
-        Assert.assertEquals(arrayValue.get(115), new Double(-2147483647.7), DELTA,
+        Assert.assertEquals(arrayValue.getFloat(100), new Double(4.3), DELTA, "Invalid value returned.");
+        Assert.assertEquals(arrayValue.getFloat(115), new Double(-2147483647.7), DELTA,
                 "Invalid value returned.");
-        Assert.assertEquals(arrayValue.get(199), new Double(6.9), DELTA, "Invalid value returned.");
+        Assert.assertEquals(arrayValue.getFloat(199), new Double(6.9), DELTA, "Invalid value returned.");
     }
 
     @Test(description = "test default value of an element in an integer array")

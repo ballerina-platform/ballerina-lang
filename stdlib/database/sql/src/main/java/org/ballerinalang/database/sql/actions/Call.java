@@ -22,7 +22,7 @@ import org.ballerinalang.database.sql.Constants;
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.database.sql.SQLDatasourceUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -56,8 +56,8 @@ public class Call extends AbstractSQLAction {
     public void execute(Context context) {
         try {
             String query = context.getStringArgument(0);
-            BRefValueArray structTypes = (BRefValueArray) context.getNullableRefArgument(1);
-            BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(2);
+            BValueArray structTypes = (BValueArray) context.getNullableRefArgument(1);
+            BValueArray parameters = (BValueArray) context.getNullableRefArgument(2);
 
             SQLDatasource datasource = retrieveDatasource(context);
 

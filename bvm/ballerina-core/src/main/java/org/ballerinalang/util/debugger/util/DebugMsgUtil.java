@@ -24,7 +24,7 @@ import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.debugger.DebugConstants;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 import org.ballerinalang.util.debugger.dto.CommandDTO;
@@ -114,7 +114,7 @@ public class DebugMsgUtil {
             return null;
         }
         List<BreakPointDTO> bPoints = new ArrayList<>();
-        BRefValueArray jsonArray = (BRefValueArray) json;
+        BValueArray jsonArray = (BValueArray) json;
         for (int i = 0; i < jsonArray.size(); i++) {
             BMap<String, BRefType<?>> element = (BMap) jsonArray.get(i);
             BreakPointDTO bPoint = new BreakPointDTO();

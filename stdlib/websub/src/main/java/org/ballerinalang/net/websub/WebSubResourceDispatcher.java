@@ -20,8 +20,8 @@ package org.ballerinalang.net.websub;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpService;
@@ -227,7 +227,7 @@ class WebSubResourceDispatcher {
      */
     private static String retrieveResourceName(String topic, BMap<String, BValue> topicResourceMap) {
         if (topicResourceMap.get(topic) != null) {
-            return (((BRefValueArray) topicResourceMap.get(topic)).getBValue(0)).stringValue();
+            return (((BValueArray) topicResourceMap.get(topic)).getBValue(0)).stringValue();
         } else {
             throw new BallerinaConnectorException("resource not specified for topic : " + topic);
         }

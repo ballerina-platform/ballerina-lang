@@ -19,8 +19,8 @@ package org.ballerinalang.nativeimpl.llvm.gen;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -55,9 +55,9 @@ public class LLVMTargetMachineEmitToFile extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         LLVM.LLVMTargetMachineRef t = FFIUtil.getRecodeArgumentNative(context, 0);
         LLVM.LLVMModuleRef m = FFIUtil.getRecodeArgumentNative(context, 1);
-        BByteArray fileNameByteArray = (BByteArray) context.getRefArgument(2);
+        BValueArray fileNameByteArray = (BValueArray) context.getRefArgument(2);
         int codegen = (int) context.getIntArgument(0);
-        BByteArray errorMsgByteArray = (BByteArray) context.getRefArgument(3);
+        BValueArray errorMsgByteArray = (BValueArray) context.getRefArgument(3);
 
         int returnValue = LLVM.LLVMTargetMachineEmitToFile(t, m, fileNameByteArray.getBytes(), codegen,
                 errorMsgByteArray.getBytes());

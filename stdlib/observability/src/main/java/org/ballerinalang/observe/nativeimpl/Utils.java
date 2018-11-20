@@ -24,8 +24,8 @@ import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.metrics.PercentileValue;
@@ -59,7 +59,7 @@ public class Utils {
         return BLangVMStructs.createBStruct(errorStructInfo, message);
     }
 
-    public static BRefValueArray createBSnapshots(Snapshot[] snapshots, Context context) {
+    public static BValueArray createBSnapshots(Snapshot[] snapshots, Context context) {
         if (snapshots != null && snapshots.length > 0) {
             PackageInfo observePackage = context.getProgramFile().
                     getPackageInfo(ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH);
@@ -68,11 +68,11 @@ public class Utils {
             StructureTypeInfo percentileStructInfo = observePackage.
                     getStructInfo(ObserveNativeImplConstants.PERCENTILE_VALUE);
 
-            BRefValueArray bSnapshots = new BRefValueArray(observePackage.
+            BValueArray bSnapshots = new BValueArray(observePackage.
                     getTypeInfo(ObserveNativeImplConstants.SNAPSHOT).getType());
             int index = 0;
             for (Snapshot snapshot : snapshots) {
-                BRefValueArray bPercentiles = new BRefValueArray(observePackage.
+                BValueArray bPercentiles = new BValueArray(observePackage.
                         getTypeInfo(ObserveNativeImplConstants.PERCENTILE_VALUE).getType());
                 int percentileIndex = 0;
                 for (PercentileValue percentileValue : snapshot.getPercentileValues()) {
@@ -94,16 +94,16 @@ public class Utils {
         }
     }
 
-    public static BRefValueArray createBStatisticConfig(StatisticConfig[] configs, Context context) {
+    public static BValueArray createBStatisticConfig(StatisticConfig[] configs, Context context) {
         PackageInfo observePackage = context.getProgramFile().
                 getPackageInfo(ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH);
         StructureTypeInfo statisticConfigInfo = observePackage.
                 getStructInfo(ObserveNativeImplConstants.STATISTIC_CONFIG);
         if (configs != null) {
-            BRefValueArray bStatsConfig = new BRefValueArray(statisticConfigInfo.getType());
+            BValueArray bStatsConfig = new BValueArray(statisticConfigInfo.getType());
             int index = 0;
             for (StatisticConfig config : configs) {
-                BRefValueArray bPercentiles = new BRefValueArray(BTypes.typeFloat);
+                BValueArray bPercentiles = new BValueArray(BTypes.typeFloat);
                 int percentileIndex = 0;
                 for (Double percentile : config.getPercentiles()) {
                     bPercentiles.add(percentileIndex, new BFloat(percentile));
@@ -116,7 +116,7 @@ public class Utils {
             }
             return bStatsConfig;
         } else {
-            return new BRefValueArray(statisticConfigInfo.getType());
+            return new BValueArray(statisticConfigInfo.getType());
         }
     }
 }

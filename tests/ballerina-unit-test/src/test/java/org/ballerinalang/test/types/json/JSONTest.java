@@ -28,10 +28,9 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.testng.Assert;
@@ -150,7 +149,7 @@ public class JSONTest {
         BValue[] args = {new BString("[\"supun\", 45, true, null]")};
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testParse", args);
 
-        Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ARRAY_TAG);
         Assert.assertEquals(returns[0].stringValue(), "[\"supun\", 45, true, null]");
     }
@@ -428,21 +427,21 @@ public class JSONTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetKeys", args);
 
-        Assert.assertTrue(returns[0] instanceof BStringArray);
-        BStringArray keys = (BStringArray) returns[0];
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        BValueArray keys = (BValueArray) returns[0];
         Assert.assertEquals(keys.size(), 3);
-        Assert.assertEquals(keys.get(0), "fname");
-        Assert.assertEquals(keys.get(1), "lname");
-        Assert.assertEquals(keys.get(2), "age");
+        Assert.assertEquals(keys.getString(0), "fname");
+        Assert.assertEquals(keys.getString(1), "lname");
+        Assert.assertEquals(keys.getString(2), "age");
 
-        Assert.assertTrue(returns[1] instanceof BStringArray);
-        Assert.assertEquals(((BStringArray) returns[1]).size(), 0);
+        Assert.assertTrue(returns[1] instanceof BValueArray);
+        Assert.assertEquals(((BValueArray) returns[1]).size(), 0);
 
-        Assert.assertTrue(returns[2] instanceof BStringArray);
-        Assert.assertEquals(((BStringArray) returns[2]).size(), 0);
+        Assert.assertTrue(returns[2] instanceof BValueArray);
+        Assert.assertEquals(((BValueArray) returns[2]).size(), 0);
 
-        Assert.assertTrue(returns[3] instanceof BStringArray);
-        Assert.assertEquals(((BStringArray) returns[3]).size(), 0);
+        Assert.assertTrue(returns[3] instanceof BValueArray);
+        Assert.assertEquals(((BValueArray) returns[3]).size(), 0);
     }
 
     @Test(description = "Convert a complex json object to xml, with an unsupported tag name")

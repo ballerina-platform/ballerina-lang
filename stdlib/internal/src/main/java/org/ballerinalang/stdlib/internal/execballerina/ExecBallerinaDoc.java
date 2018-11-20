@@ -24,8 +24,8 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -152,7 +152,7 @@ public class ExecBallerinaDoc extends BlockingNativeCallableUnit {
         StringBuilder commandToPass = new StringBuilder(" ");
         
         // Module list
-        BStringArray bPackageList = (BStringArray) context.getRefArgument(0);
+        BValueArray bPackageList = (BValueArray) context.getRefArgument(0);
         
         // Source root path
         Path sourceRootPath;
@@ -201,7 +201,7 @@ public class ExecBallerinaDoc extends BlockingNativeCallableUnit {
      * @param packageList List of packages in the project.
      * @return The command.
      */
-    private static String getCommandAsString(Context context, StringBuilder commandToPass, BStringArray bPackageList,
+    private static String getCommandAsString(Context context, StringBuilder commandToPass, BValueArray bPackageList,
                                              List<String> packageList) {
         // Output path
         BValue outputDir = context.getNullableRefArgument(2);
@@ -233,8 +233,8 @@ public class ExecBallerinaDoc extends BlockingNativeCallableUnit {
         
         // Exclude packages
         BValue bExclude = context.getNullableRefArgument(4);
-        if (bExclude instanceof BStringArray) {
-            BStringArray bExcludePackages = (BStringArray) bExclude;
+        if (bExclude instanceof BValueArray) {
+            BValueArray bExcludePackages = (BValueArray) bExclude;
             String missingExcludePackage = null;
             for (String packageName : bExcludePackages.getStringArray()) {
                 if (!packageList.contains(packageName)) {

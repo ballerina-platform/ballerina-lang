@@ -37,19 +37,14 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BBooleanArray;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BFloatArray;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.ballerinalang.net.grpc.exception.UnsupportedFieldTypeException;
 import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
@@ -244,10 +239,10 @@ public class MessageUtils {
                         BMap<String, BValue> response = (BMap<String, BValue>) responseValue;
                         if (fieldDescriptor.isRepeated()) {
                             BValue bValue = response.get(fieldName);
-                            BFloatArray valueArray = (BFloatArray) bValue;
+                            BValueArray valueArray = (BValueArray) bValue;
                             Double[] messages = new Double[(int) valueArray.size()];
                             for (int i = 0; i < valueArray.size(); i++) {
-                                double indexValue = valueArray.get(i);
+                                double indexValue = valueArray.getFloat(i);
                                 messages[i] = indexValue;
                             }
                             responseMessage.addField(fieldName, messages);
@@ -268,10 +263,10 @@ public class MessageUtils {
                     if (responseValue instanceof BMap) {
                         if (fieldDescriptor.isRepeated()) {
                             BValue bValue = ((BMap<String, BValue>) responseValue).get(fieldName);
-                            BFloatArray valueArray = (BFloatArray) bValue;
+                            BValueArray valueArray = (BValueArray) bValue;
                             Float[] messages = new Float[(int) valueArray.size()];
                             for (int i = 0; i < valueArray.size(); i++) {
-                                float indexValue = Float.parseFloat(String.valueOf(valueArray.get(i)));
+                                float indexValue = Float.parseFloat(String.valueOf(valueArray.getFloat(i)));
                                 messages[i] = indexValue;
                             }
                             responseMessage.addField(fieldName, messages);
@@ -295,10 +290,10 @@ public class MessageUtils {
                     if (responseValue instanceof BMap) {
                         if (fieldDescriptor.isRepeated()) {
                             BValue bValue = ((BMap<String, BValue>) responseValue).get(fieldName);
-                            BIntArray valueArray = (BIntArray) bValue;
+                            BValueArray valueArray = (BValueArray) bValue;
                             Long[] messages = new Long[(int) valueArray.size()];
                             for (int i = 0; i < valueArray.size(); i++) {
-                                long indexValue = valueArray.get(i);
+                                long indexValue = valueArray.getInt(i);
                                 messages[i] = indexValue;
                             }
                             responseMessage.addField(fieldName, messages);
@@ -321,10 +316,10 @@ public class MessageUtils {
                     if (responseValue instanceof BMap) {
                         if (fieldDescriptor.isRepeated()) {
                             BValue bValue = ((BMap<String, BValue>) responseValue).get(fieldName);
-                            BIntArray valueArray = (BIntArray) bValue;
+                            BValueArray valueArray = (BValueArray) bValue;
                             Integer[] messages = new Integer[(int) valueArray.size()];
                             for (int i = 0; i < valueArray.size(); i++) {
-                                int indexValue = Integer.parseInt(String.valueOf(valueArray.get(i)));
+                                int indexValue = Integer.parseInt(String.valueOf(valueArray.getInt(i)));
                                 messages[i] = indexValue;
                             }
                             responseMessage.addField(fieldName, messages);
@@ -346,10 +341,10 @@ public class MessageUtils {
                     if (responseValue instanceof BMap) {
                         if (fieldDescriptor.isRepeated()) {
                             BValue bValue = ((BMap<String, BValue>) responseValue).get(fieldName);
-                            BBooleanArray valueArray = (BBooleanArray) bValue;
+                            BValueArray valueArray = (BValueArray) bValue;
                             Boolean[] messages = new Boolean[(int) valueArray.size()];
                             for (int i = 0; i < valueArray.size(); i++) {
-                                int indexValue = valueArray.get(i);
+                                int indexValue = valueArray.getBoolean(i);
                                 messages[i] = indexValue != 0;
                             }
                             responseMessage.addField(fieldName, messages);
@@ -371,10 +366,10 @@ public class MessageUtils {
                     if (responseValue instanceof BMap) {
                         if (fieldDescriptor.isRepeated()) {
                             BValue bValue = ((BMap<String, BValue>) responseValue).get(fieldName);
-                            BStringArray valueArray = (BStringArray) bValue;
+                            BValueArray valueArray = (BValueArray) bValue;
                             String[] messages = new String[(int) valueArray.size()];
                             for (int i = 0; i < valueArray.size(); i++) {
-                                String indexValue = valueArray.get(i);
+                                String indexValue = valueArray.getString(i);
                                 messages[i] = indexValue;
                             }
                             responseMessage.addField(fieldName, messages);
@@ -401,10 +396,10 @@ public class MessageUtils {
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES_VALUE: {
                     byte[] value;
                     if (responseValue instanceof BMap) {
-                        value = ((BByteArray) ((BMap) responseValue).get(fieldName)).getBytes();
+                        value = ((BValueArray) ((BMap) responseValue).get(fieldName)).getBytes();
                         responseMessage.addField(fieldName, value);
-                    } else if (responseValue instanceof BByteArray) {
-                        value = ((BByteArray) responseValue).getBytes();
+                    } else if (responseValue instanceof BValueArray) {
+                        value = ((BValueArray) responseValue).getBytes();
                         responseMessage.addField(fieldName, value);
                     }
                     break;
@@ -412,8 +407,8 @@ public class MessageUtils {
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE_VALUE: {
                     if (responseValue instanceof BMap) {
                         BValue bValue = ((BMap<String, BValue>) responseValue).get(fieldName);
-                        if (fieldDescriptor.isRepeated() && (bValue instanceof BRefValueArray)) {
-                            BRefValueArray valueArray = (BRefValueArray) bValue;
+                        if (fieldDescriptor.isRepeated() && (bValue instanceof BValueArray)) {
+                            BValueArray valueArray = (BValueArray) bValue;
                             Message[] messages = new Message[(int) valueArray.size()];
                             for (int i = 0; i < valueArray.size(); i++) {
                                 BValue value = valueArray.get(i);
@@ -455,7 +450,7 @@ public class MessageUtils {
         } else if (TypeKind.BOOLEAN.typeName().equals(structType.getName())) {
             bValue = new BBoolean((Boolean) fields.get(fieldName));
         } else if (structType instanceof BArrayType) {
-            bValue = new BByteArray((byte[]) fields.get(fieldName));
+            bValue = new BValueArray((byte[]) fields.get(fieldName));
         } else if (structType instanceof BStructureType) {
             BMap<String, BValue> requestStruct = BLangConnectorSPIUtil.createBStruct(programFile,
                     structType.getPackagePath(), structType.getName());
@@ -487,7 +482,7 @@ public class MessageUtils {
                     }
                 } else if (structFieldType instanceof BArrayType) {
                     if (((BArrayType) structFieldType).getElementType().getTag() == TypeTags.BYTE) {
-                        BByteArray bByteValue = (BByteArray) generateRequestStruct(request, programFile,
+                        BValueArray bByteValue = (BValueArray) generateRequestStruct(request, programFile,
                                 structFieldName, structFieldType);
                         requestStruct.put(structFieldName, bByteValue);
                         continue;
@@ -501,35 +496,35 @@ public class MessageUtils {
                     }
                     if (TypeKind.STRING.typeName().equals(elementType.getName())) {
                         List<String> messages = (List<String>) fields.get(structFieldName);
-                        BStringArray bArrayValue = new BStringArray();
+                        BValueArray bArrayValue = new BValueArray(BTypes.typeString);
                         for (String stringValue : messages) {
                             bArrayValue.add(arrayIndex++, stringValue);
                         }
                         requestStruct.put(structFieldName, bArrayValue);
                     } else if (TypeKind.INT.typeName().equals(elementType.getName())) {
                         List<Long> messages = (List<Long>) fields.get(structFieldName);
-                        BIntArray bArrayValue = new BIntArray();
+                        BValueArray bArrayValue = new BValueArray(BTypes.typeInt);
                         for (Long integerValue : messages) {
                             bArrayValue.add(arrayIndex++, integerValue);
                         }
                         requestStruct.put(structFieldName, bArrayValue);
                     } else if (TypeKind.FLOAT.typeName().equals(elementType.getName())) {
                         List<Float> messages = (List<Float>) fields.get(structFieldName);
-                        BFloatArray bArrayValue = new BFloatArray();
+                        BValueArray bArrayValue = new BValueArray(BTypes.typeFloat);
                         for (Float floatValue : messages) {
                             bArrayValue.add(arrayIndex++, Double.parseDouble(floatValue.toString()));
                         }
                         requestStruct.put(structFieldName, bArrayValue);
                     } else if (TypeKind.BOOLEAN.typeName().equals(elementType.getName())) {
                         List<Boolean> messages = (List<Boolean>) fields.get(structFieldName);
-                        BBooleanArray bArrayValue = new BBooleanArray();
+                        BValueArray bArrayValue = new BValueArray(BTypes.typeBoolean);
                         for (Boolean booleanValue : messages) {
                             bArrayValue.add(arrayIndex++, booleanValue ? 1 : 0);
                         }
                         requestStruct.put(structFieldName, bArrayValue);
                     } else if (elementType instanceof BStructureType) {
                         List<Message> messages = (List<Message>) fields.get(structFieldName);
-                        BRefValueArray bArrayValue = new BRefValueArray(elementType);
+                        BValueArray bArrayValue = new BValueArray(elementType);
                         for (Message message : messages) {
                             bArrayValue.add(arrayIndex++, (BRefType) generateRequestStruct(message, programFile,
                                     structFieldName, elementType));

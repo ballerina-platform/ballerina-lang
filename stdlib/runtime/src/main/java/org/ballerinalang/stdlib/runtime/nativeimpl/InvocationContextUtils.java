@@ -22,8 +22,8 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 
@@ -103,7 +103,7 @@ public class InvocationContextUtils {
         String userId = "";
         String username = "";
         BMap<String, BString> claims = new BMap<>();
-        BStringArray scopes = new BStringArray();
+        BValueArray scopes = new BValueArray();
         return BLangVMStructs.createBStruct(authContextInfo, userId, username, claims, scopes);
     }
 }

@@ -24,9 +24,8 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayInputStream;
@@ -73,7 +72,7 @@ public class TableProvider {
         return this.indexID++;
     }
 
-    public String createTable(BType constrainedType, BStringArray primaryKeys, BStringArray indexeColumns) {
+    public String createTable(BType constrainedType, BValueArray primaryKeys, BValueArray indexeColumns) {
         String tableName = TableConstants.TABLE_PREFIX + constrainedType.getName()
                 .toUpperCase() + "_" + getTableID();
         String sqlStmt = generateCreateTableStatment(tableName, constrainedType, primaryKeys);
@@ -88,7 +87,7 @@ public class TableProvider {
 
 
     public String createTable(String fromTableName, String joinTableName,  String query, BStructureType tableType,
-                              BRefValueArray params) {
+                              BValueArray params) {
         String newTableName = TableConstants.TABLE_PREFIX + tableType.getName().toUpperCase()
                            + "_" + getTableID();
         String sqlStmt = query.replaceFirst(TableConstants.TABLE_NAME_REGEX, fromTableName);
@@ -101,7 +100,7 @@ public class TableProvider {
     }
 
     public String createTable(String fromTableName, String query, BStructureType tableType,
-                              BRefValueArray params) {
+                              BValueArray params) {
         return createTable(fromTableName, null, query, tableType, params);
     }
 
@@ -149,7 +148,7 @@ public class TableProvider {
         return conn;
     }
 
-    private String generateCreateTableStatment(String tableName, BType constrainedType, BStringArray primaryKeys) {
+    private String generateCreateTableStatment(String tableName, BType constrainedType, BValueArray primaryKeys) {
         StringBuilder sb = new StringBuilder();
         sb.append(TableConstants.SQL_CREATE).append(tableName).append(" (");
         BField[] structFields = ((BStructureType) constrainedType).getFields();
@@ -195,7 +194,7 @@ public class TableProvider {
             if (primaryKeyCount > 0) {
                 sb.append(TableConstants.PRIMARY_KEY);
                 for (int i = 0; i < primaryKeyCount; i++) {
-                    sb.append(seperator).append(primaryKeys.get(i));
+                    sb.append(seperator).append(primaryKeys.getString(i));
                     seperator = ",";
                 }
                 sb.append(")");
@@ -212,12 +211,12 @@ public class TableProvider {
         return sb.toString();
     }
 
-    private void generateIndexesForTable(String tableName, BStringArray indexColumns) {
+    private void generateIndexesForTable(String tableName, BValueArray indexColumns) {
         int indexCount = (int) indexColumns.size();
         if (indexCount > 0) {
             for (int i = 0; i < indexCount; i++) {
                 StringBuilder sb = new StringBuilder();
-                String columnName = indexColumns.get(i);
+                String columnName = indexColumns.getString(i);
                 sb.append(TableConstants.SQL_CREATE_INDEX).append(TableConstants.INDEX).append(columnName)
                         .append(getIndexID()).append(TableConstants.SQL_ON).append(tableName).append("(")
                         .append(columnName).append(")");
@@ -240,7 +239,7 @@ public class TableProvider {
         }
     }
 
-    private void prepareAndExecuteStatement(String queryStatement, BRefValueArray params) {
+    private void prepareAndExecuteStatement(String queryStatement, BValueArray params) {
         PreparedStatement stmt = null;
         Connection conn = this.getConnection();
         try {

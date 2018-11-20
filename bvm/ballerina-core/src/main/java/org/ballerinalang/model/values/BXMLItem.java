@@ -398,7 +398,7 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public BXML<?> elements() {
-        BRefValueArray elementsSeq = new BRefValueArray();
+        BValueArray elementsSeq = new BValueArray();
         switch (nodeType) {
             case ELEMENT:
                 elementsSeq.add(0, this);
@@ -414,7 +414,7 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public BXML<?> elements(String qname) {
-        BRefValueArray elementsSeq = new BRefValueArray();
+        BValueArray elementsSeq = new BValueArray();
         switch (nodeType) {
             case ELEMENT:
                 if (getElementName().stringValue().equals(getQname(qname).toString())) {
@@ -432,7 +432,7 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public BXML<?> children() {
-        BRefValueArray elementsSeq = new BRefValueArray();
+        BValueArray elementsSeq = new BValueArray();
         switch (nodeType) {
             case ELEMENT:
                 Iterator<OMNode> childrenItr = ((OMElement) omNode).getChildren();
@@ -453,7 +453,7 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public BXML<?> children(String qname) {
-        BRefValueArray elementsSeq = new BRefValueArray();
+        BValueArray elementsSeq = new BValueArray();
         switch (nodeType) {
             case ELEMENT:
                 /*
@@ -505,7 +505,7 @@ public final class BXMLItem extends BXML<OMNode> {
         currentNode.removeChildren();
         
         if (seq.getNodeType() == XMLNodeType.SEQUENCE) {
-            BRefValueArray childSeq = ((BXMLSequence) seq).value();
+            BValueArray childSeq = ((BXMLSequence) seq).value();
             for (int i = 0; i < childSeq.size(); i++) {
                 currentNode.addChild((OMNode) childSeq.get(i).value());
             }
@@ -539,7 +539,7 @@ public final class BXMLItem extends BXML<OMNode> {
         }
         
         if (seq.getNodeType() == XMLNodeType.SEQUENCE) {
-            BRefValueArray childSeq = ((BXMLSequence) seq).value();
+            BValueArray childSeq = ((BXMLSequence) seq).value();
             for (int i = 0; i < childSeq.size(); i++) {
                 currentNode.addChild((OMNode) childSeq.get(i).value());
             }
@@ -603,7 +603,7 @@ public final class BXMLItem extends BXML<OMNode> {
                 break;
         }
 
-        return new BXMLSequence(new BRefValueArray(descendants.toArray(new BXML[descendants.size()]), BTypes.typeXML));
+        return new BXMLSequence(new BValueArray(descendants.toArray(new BXML[descendants.size()]), BTypes.typeXML));
     }
 
     /**

@@ -18,8 +18,8 @@
 package org.ballerinalang.launcher.util;
 
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -221,11 +221,11 @@ public class BRunUtil {
     }
 
     private static BValue[] spreadToBValueArray(BValue[] response) {
-        if (!(response != null && response.length > 0 && response[0] instanceof BRefValueArray)) {
+        if (!(response != null && response.length > 0 && response[0] instanceof BValueArray)) {
             return response;
         }
 
-        BRefValueArray refValueArray = (BRefValueArray) response[0];
+        BValueArray refValueArray = (BValueArray) response[0];
         int length = (int) refValueArray.size();
         BValue[] arr = new BValue[length];
         for (int i = 0; i < length; i++) {

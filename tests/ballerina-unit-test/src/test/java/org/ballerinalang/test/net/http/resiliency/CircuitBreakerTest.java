@@ -27,8 +27,8 @@ import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
@@ -75,8 +75,8 @@ public class CircuitBreakerTest {
 
         Assert.assertEquals(returnVals.length, 2);
 
-        BRefValueArray responses = (BRefValueArray) returnVals[0];
-        BRefValueArray errors = (BRefValueArray) returnVals[1];
+        BValueArray responses = (BValueArray) returnVals[0];
+        BValueArray errors = (BValueArray) returnVals[1];
 
         for (int i = 0; i < responses.size(); i++) {
             long statusCode;
@@ -112,8 +112,8 @@ public class CircuitBreakerTest {
 
         Assert.assertEquals(returnVals.length, 2);
 
-        BRefValueArray responses = (BRefValueArray) returnVals[0];
-        BRefValueArray errors = (BRefValueArray) returnVals[1];
+        BValueArray responses = (BValueArray) returnVals[0];
+        BValueArray errors = (BValueArray) returnVals[1];
 
         for (int i = 0; i < responses.size(); i++) {
             long statusCode;
@@ -151,8 +151,8 @@ public class CircuitBreakerTest {
 
         Assert.assertEquals(returnVals.length, 2);
 
-        BRefValueArray responses = (BRefValueArray) returnVals[0];
-        BRefValueArray errs = (BRefValueArray) returnVals[1];
+        BValueArray responses = (BValueArray) returnVals[0];
+        BValueArray errs = (BValueArray) returnVals[1];
         validateCBResponses(responses, errs, CB_CLIENT_TOP_MOST_SUCCESS_INDEX, expectedStatusCodes);
     }
 
@@ -170,8 +170,8 @@ public class CircuitBreakerTest {
 
         Assert.assertEquals(returnVals.length, 2);
 
-        BRefValueArray responses = (BRefValueArray) returnVals[0];
-        BRefValueArray errs = (BRefValueArray) returnVals[1];
+        BValueArray responses = (BValueArray) returnVals[0];
+        BValueArray errs = (BValueArray) returnVals[1];
         validateCBResponses(responses, errs, CB_CLIENT_FORCE_OPEN_INDEX, expectedStatusCodes);
     }
 
@@ -190,7 +190,7 @@ public class CircuitBreakerTest {
 
         Assert.assertEquals(returnVals.length, 2);
 
-        BRefValueArray responses = (BRefValueArray) returnVals[0];
+        BValueArray responses = (BValueArray) returnVals[0];
         for (int i = 0; i < responses.size(); i++) {
             BMap<String, BValue> res = (BMap<String, BValue>) responses.get(i);
             long statusCode = ((BInteger) res.get(STATUS_CODE_FIELD)).intValue();
@@ -211,7 +211,7 @@ public class CircuitBreakerTest {
 
         Assert.assertEquals(returnVals.length, 2);
 
-        BRefValueArray responses = (BRefValueArray) returnVals[0];
+        BValueArray responses = (BValueArray) returnVals[0];
         for (int i = 0; i < responses.size(); i++) {
             BMap<String, BValue> res = (BMap<String, BValue>) responses.get(i);
             long statusCode = ((BInteger) res.get(STATUS_CODE_FIELD)).intValue();
@@ -232,7 +232,7 @@ public class CircuitBreakerTest {
 
         Assert.assertEquals(returnVals.length, 2);
 
-        BRefValueArray responses = (BRefValueArray) returnVals[0];
+        BValueArray responses = (BValueArray) returnVals[0];
         for (int i = 0; i < responses.size(); i++) {
             BMap<String, BValue> res = (BMap<String, BValue>) responses.get(i);
             long statusCode = ((BInteger) res.get(STATUS_CODE_FIELD)).intValue();
@@ -252,7 +252,7 @@ public class CircuitBreakerTest {
                 StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream()), value);
     }
 
-    private void validateCBResponses(BRefValueArray responses, BRefValueArray errors,
+    private void validateCBResponses(BValueArray responses, BValueArray errors,
                                      int index, int[] expectedStatusCodes) {
         for (int i = 0; i < responses.size(); i++) {
             long statusCode;

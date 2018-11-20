@@ -25,10 +25,9 @@ import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -64,9 +63,9 @@ public class TestOptionalArgsInNativeFunc extends BlockingNativeCallableUnit {
         String c;
         long d;
         String e;
-        BIntArray z;
+        BValueArray z;
 
-        BRefValueArray tuple = new BRefValueArray(tupleType);
+        BValueArray tuple = new BValueArray(tupleType);
 
         try {
             a = ctx.getIntArgument(0);
@@ -74,7 +73,7 @@ public class TestOptionalArgsInNativeFunc extends BlockingNativeCallableUnit {
             c = ctx.getStringArgument(0);
             d = ctx.getIntArgument(1);
             e = ctx.getStringArgument(1);
-            z = (BIntArray) ctx.getRefArgument(0);
+            z = (BValueArray) ctx.getRefArgument(0);
 
             tuple.add(0, new BInteger(a));
             tuple.add(1, new BFloat(b));

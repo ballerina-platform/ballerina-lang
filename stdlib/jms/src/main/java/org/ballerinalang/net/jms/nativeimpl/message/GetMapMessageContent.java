@@ -23,12 +23,12 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -80,7 +80,7 @@ public class GetMapMessageContent extends AbstractBlockingAction {
                     } else if (value instanceof Float || value instanceof Double) {
                         messageContent.put(key, new BFloat((Double) value));
                     } else if (value instanceof byte[]) {
-                        messageContent.put(key, new BByteArray((byte[]) value));
+                        messageContent.put(key, new BValueArray((byte[]) value));
                     } else {
                         log.error("Couldn't set invalid data type to map : " + value.getClass().getSimpleName());
                     }

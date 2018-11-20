@@ -22,9 +22,9 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -99,8 +99,8 @@ public class MapInitializerExprTest {
         Assert.assertEquals(outerMap.get("name").stringValue(), "Supun");
 
         BValue adrsArray = outerMap.get("addressArray");
-        Assert.assertTrue(adrsArray instanceof BRefValueArray);
-        BRefValueArray addressArray = (BRefValueArray) adrsArray;
+        Assert.assertTrue(adrsArray instanceof BValueArray);
+        BValueArray addressArray = (BValueArray) adrsArray;
 
         BValue adrs1 = addressArray.get(0);
         Assert.assertTrue(adrs1 instanceof BMap<?, ?>);

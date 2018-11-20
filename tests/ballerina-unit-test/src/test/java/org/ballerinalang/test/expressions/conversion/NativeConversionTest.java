@@ -21,16 +21,13 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -85,11 +82,11 @@ public class NativeConversionTest {
         Assert.assertEquals(info.stringValue(), "{\"status\":\"single\"}");
 
         BValue marks = map.get("marks");
-        Assert.assertTrue(marks instanceof BIntArray);
-        BIntArray marksArray = (BIntArray) marks;
-        Assert.assertEquals(marksArray.get(0), 67);
-        Assert.assertEquals(marksArray.get(1), 38);
-        Assert.assertEquals(marksArray.get(2), 91);
+        Assert.assertTrue(marks instanceof BValueArray);
+        BValueArray marksArray = (BValueArray) marks;
+        Assert.assertEquals(marksArray.getInt(0), 67);
+        Assert.assertEquals(marksArray.getInt(1), 38);
+        Assert.assertEquals(marksArray.getInt(2), 91);
     }
 
     @Test
@@ -134,11 +131,11 @@ public class NativeConversionTest {
         Assert.assertEquals(addressMap.get("country").stringValue(), "SriLanka");
 
         BValue marks = struct.get("marks");
-        Assert.assertTrue(marks instanceof BIntArray);
-        BIntArray marksArray = (BIntArray) marks;
-        Assert.assertEquals(marksArray.get(0), 87);
-        Assert.assertEquals(marksArray.get(1), 94);
-        Assert.assertEquals(marksArray.get(2), 72);
+        Assert.assertTrue(marks instanceof BValueArray);
+        BValueArray marksArray = (BValueArray) marks;
+        Assert.assertEquals(marksArray.getInt(0), 87);
+        Assert.assertEquals(marksArray.getInt(1), 94);
+        Assert.assertEquals(marksArray.getInt(2), 72);
     }
 
     @Test
@@ -174,11 +171,11 @@ public class NativeConversionTest {
         Assert.assertEquals(addressMap.get("country").stringValue(), "SriLanka");
 
         BValue marks = struct.get("marks");
-        Assert.assertTrue(marks instanceof BIntArray);
-        BIntArray marksArray = (BIntArray) marks;
+        Assert.assertTrue(marks instanceof BValueArray);
+        BValueArray marksArray = (BValueArray) marks;
         Assert.assertEquals(marksArray.size(), 2);
-        Assert.assertEquals(marksArray.get(0), 56);
-        Assert.assertEquals(marksArray.get(1), 79);
+        Assert.assertEquals(marksArray.getInt(0), 56);
+        Assert.assertEquals(marksArray.getInt(1), 79);
     }
 
     @Test
@@ -207,8 +204,8 @@ public class NativeConversionTest {
         Assert.assertEquals(address.get("country").stringValue(), "SriLanka");
         Assert.assertEquals(address.get("city").stringValue(), "Colombo");
 
-        Assert.assertTrue(child.get("marks") instanceof BRefValueArray);
-        BRefValueArray marks = (BRefValueArray) child.get("marks");
+        Assert.assertTrue(child.get("marks") instanceof BValueArray);
+        BValueArray marks = (BValueArray) child.get("marks");
         Assert.assertEquals(marks.size(), 3);
         Assert.assertEquals(((BInteger) marks.get(0)).intValue(), 87);
         Assert.assertEquals(((BInteger) marks.get(1)).intValue(), 94);
@@ -350,7 +347,7 @@ public class NativeConversionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToAnyArray");
         Assert.assertTrue(returns[0] instanceof BMap);
         BMap<String, BValue> anyArrayStruct = (BMap<String, BValue>) returns[0];
-        BRefValueArray array = (BRefValueArray) anyArrayStruct.get("a");
+        BValueArray array = (BValueArray) anyArrayStruct.get("a");
 
         Assert.assertEquals(((BInteger) array.get(0)).intValue(), 4);
         Assert.assertEquals(array.get(1).stringValue(), "Supun");
@@ -366,12 +363,12 @@ public class NativeConversionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToIntArray");
         Assert.assertTrue(returns[0] instanceof BMap);
         BMap<String, BValue> anyArrayStruct = (BMap<String, BValue>) returns[0];
-        BIntArray array = (BIntArray) anyArrayStruct.get("a");
+        BValueArray array = (BValueArray) anyArrayStruct.get("a");
 
         Assert.assertEquals(array.getType().toString(), "int[]");
-        Assert.assertEquals(array.get(0), 4);
-        Assert.assertEquals(array.get(1), 3);
-        Assert.assertEquals(array.get(2), 9);
+        Assert.assertEquals(array.getInt(0), 4);
+        Assert.assertEquals(array.getInt(1), 3);
+        Assert.assertEquals(array.getInt(2), 9);
     }
 
     @Test(description = "Test converting a JSON string array to string array")
@@ -379,12 +376,12 @@ public class NativeConversionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToStringArray");
         Assert.assertTrue(returns[0] instanceof BMap);
         BMap<String, BValue> anyArrayStruct = (BMap<String, BValue>) returns[0];
-        BStringArray array = (BStringArray) anyArrayStruct.get("a");
+        BValueArray array = (BValueArray) anyArrayStruct.get("a");
 
         Assert.assertEquals(array.getType().toString(), "string[]");
-        Assert.assertEquals(array.get(0), "a");
-        Assert.assertEquals(array.get(1), "b");
-        Assert.assertEquals(array.get(2), "c");
+        Assert.assertEquals(array.getString(0), "a");
+        Assert.assertEquals(array.getString(1), "b");
+        Assert.assertEquals(array.getString(2), "c");
     }
 
     @Test(description = "Test converting a JSON integer array to string array")
@@ -392,12 +389,12 @@ public class NativeConversionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonIntArrayToStringArray");
         Assert.assertTrue(returns[0] instanceof BMap);
         BMap<String, BValue> anyArrayStruct = (BMap<String, BValue>) returns[0];
-        BStringArray array = (BStringArray) anyArrayStruct.get("a");
+        BValueArray array = (BValueArray) anyArrayStruct.get("a");
 
         Assert.assertEquals(array.getType().toString(), "string[]");
-        Assert.assertEquals(array.get(0), "4");
-        Assert.assertEquals(array.get(1), "3");
-        Assert.assertEquals(array.get(2), "9");
+        Assert.assertEquals(array.getString(0), "4");
+        Assert.assertEquals(array.getString(1), "3");
+        Assert.assertEquals(array.getString(2), "9");
     }
 
     @Test(description = "Test converting a JSON array to xml array",
@@ -421,7 +418,7 @@ public class NativeConversionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNullJsonArrayToArray");
         Assert.assertTrue(returns[0] instanceof BMap);
         BMap<String, BValue> anyArrayStruct = (BMap<String, BValue>) returns[0];
-        BStringArray array = (BStringArray) anyArrayStruct.get("a");
+        BValueArray array = (BValueArray) anyArrayStruct.get("a");
 
         Assert.assertNull(array);
     }
@@ -476,15 +473,15 @@ public class NativeConversionTest {
         Assert.assertEquals(((BInteger) age).intValue(), 2015);
 
         BValue marks = map.get("genre");
-        Assert.assertTrue(marks instanceof BStringArray);
-        BStringArray genreArray = (BStringArray) marks;
-        Assert.assertEquals(genreArray.get(0), "Adventure");
-        Assert.assertEquals(genreArray.get(1), "Drama");
-        Assert.assertEquals(genreArray.get(2), "Thriller");
+        Assert.assertTrue(marks instanceof BValueArray);
+        BValueArray genreArray = (BValueArray) marks;
+        Assert.assertEquals(genreArray.getString(0), "Adventure");
+        Assert.assertEquals(genreArray.getString(1), "Drama");
+        Assert.assertEquals(genreArray.getString(2), "Thriller");
 
         BValue actors = map.get("actors");
-        Assert.assertTrue(actors instanceof BRefValueArray);
-        BRefValueArray actorsArray = (BRefValueArray) actors;
+        Assert.assertTrue(actors instanceof BValueArray);
+        BValueArray actorsArray = (BValueArray) actors;
         Assert.assertTrue(actorsArray.get(0) instanceof BMap);
         Assert.assertEquals(actorsArray.get(0).stringValue(), "{fname:\"Leonardo\", lname:\"DiCaprio\", age:35}");
     }
@@ -520,7 +517,7 @@ public class NativeConversionTest {
         Assert.assertEquals(((BFloat) bValue.get("f")).floatValue(), 0.0);
         Assert.assertFalse(((BBoolean) bValue.get("b")).booleanValue());
         Assert.assertNull(bValue.get("j"));
-        Assert.assertEquals(((BByteArray) bValue.get("blb")).size(), 0);
+        Assert.assertEquals(((BValueArray) bValue.get("blb")).size(), 0);
     }
 
     @Test

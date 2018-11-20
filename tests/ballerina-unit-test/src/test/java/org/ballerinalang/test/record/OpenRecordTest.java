@@ -25,9 +25,9 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -426,8 +426,8 @@ public class OpenRecordTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testTupleRestField");
 
         BMap person = (BMap) returns[0];
-        BRefValueArray miscInfo = (BRefValueArray) person.get("misc");
-        Assert.assertTrue(person.get("misc") instanceof BRefValueArray);
+        BValueArray miscInfo = (BValueArray) person.get("misc");
+        Assert.assertTrue(person.get("misc") instanceof BValueArray);
 
         Assert.assertTrue(miscInfo.get(0) instanceof BFloat);
         Assert.assertTrue(miscInfo.get(1) instanceof BString);
@@ -448,7 +448,7 @@ public class OpenRecordTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testTupleRestFieldRHSIndexAccess");
         Assert.assertNotNull(returns[0]);
 
-        BRefValueArray tup = (BRefValueArray) returns[0];
+        BValueArray tup = (BValueArray) returns[0];
         Assert.assertEquals(((BFloat) tup.get(0)).floatValue(), 4.5);
         Assert.assertEquals(tup.get(1).stringValue(), "foo");
         Assert.assertEquals(((BMap) tup.get(2)).getType().getName(), "Animal");
@@ -461,7 +461,7 @@ public class OpenRecordTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAnyRestField");
 
         BMap person = (BMap) returns[0];
-        BRefValueArray pets = (BRefValueArray) person.get("pets");
+        BValueArray pets = (BValueArray) person.get("pets");
         Assert.assertEquals(pets.getType().toString(), "Animal[]");
         Assert.assertEquals(person.stringValue(),
                 "{name:\"Foo\", age:25, pets:[{kind:\"Cat\", name:\"Miaw\"}, {kind:\"Dog\", name:\"Woof\"}]}");
@@ -476,7 +476,7 @@ public class OpenRecordTest {
     @Test(description = "Test non-existent any rest field RHS index-based access")
     public void testAnyRestFieldRHSIndexAccess() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAnyRestFieldRHSIndexAccess");
-        BRefValueArray tup = (BRefValueArray) returns[0];
+        BValueArray tup = (BValueArray) returns[0];
 
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(tup.getType().toString(), "Animal[]");

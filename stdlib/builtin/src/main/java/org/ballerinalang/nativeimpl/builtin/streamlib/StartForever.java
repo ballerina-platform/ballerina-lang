@@ -24,8 +24,8 @@ import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BFunctionPointer;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStream;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -63,7 +63,7 @@ public class StartForever extends BlockingNativeCallableUnit {
 
         StringBuilder streamDefinitionQuery = new StringBuilder();
         String siddhiQuery = context.getStringArgument(0);
-        BRefValueArray inputStreamReferenceArray = (BRefValueArray) context.getRefArgument(0);
+        BValueArray inputStreamReferenceArray = (BValueArray) context.getRefArgument(0);
 
         for (int i = 0; i < inputStreamReferenceArray.size(); i++) {
             BStream stream = (BStream) inputStreamReferenceArray.get(i);
@@ -94,7 +94,7 @@ public class StartForever extends BlockingNativeCallableUnit {
             }
         }
 
-        BRefValueArray functionPointerArray = (BRefValueArray) context.getRefArgument(4);
+        BValueArray functionPointerArray = (BValueArray) context.getRefArgument(4);
         for (int i = 0; i < functionPointerArray.size(); i++) {
             BFunctionPointer functionPointer = (BFunctionPointer) functionPointerArray.get(i);
             String functionName = functionPointer.value().getName();

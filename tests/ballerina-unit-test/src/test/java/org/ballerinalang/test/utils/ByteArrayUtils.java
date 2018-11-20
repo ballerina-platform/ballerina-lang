@@ -18,7 +18,7 @@
 
 package org.ballerinalang.test.utils;
 
-import org.ballerinalang.model.values.BByteArray;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 
 import java.nio.charset.StandardCharsets;
@@ -50,17 +50,17 @@ public class ByteArrayUtils {
         return sb.toString();
     }
 
-    public static BByteArray createBByteArray(byte[] bytes) {
-        BByteArray byteArray = new BByteArray();
+    public static BValueArray createBByteArray(byte[] bytes) {
+        BValueArray byteArray = new BValueArray();
         for (int i = 0; i < bytes.length; i++) {
             byteArray.add(i, bytes[i]);
         }
         return byteArray;
     }
 
-    public static void assertJBytesWithBBytes(byte[] jBytes, BByteArray bBytes) {
+    public static void assertJBytesWithBBytes(byte[] jBytes, BValueArray bBytes) {
         for (int i = 0; i < jBytes.length; i++) {
-            Assert.assertEquals(bBytes.get(i), jBytes[i], "Invalid byte value returned.");
+            Assert.assertEquals(bBytes.getByte(i), jBytes[i], "Invalid byte value returned.");
         }
     }
 

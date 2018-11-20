@@ -20,13 +20,10 @@ package org.ballerinalang.test.statements.arrays;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BFloatArray;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -64,14 +61,14 @@ public class ArrayInitializerExprTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "arrayReturnTest", args);
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
 
-        BStringArray arrayValue = (BStringArray) returns[0];
+        BValueArray arrayValue = (BValueArray) returns[0];
         Assert.assertEquals(arrayValue.size(), 6);
 
-        Assert.assertEquals(arrayValue.get(0), "Lion");
-        Assert.assertEquals(arrayValue.get(1), "Cat");
-        Assert.assertEquals(arrayValue.get(5), "Croc");
+        Assert.assertEquals(arrayValue.getString(0), "Lion");
+        Assert.assertEquals(arrayValue.getString(1), "Cat");
+        Assert.assertEquals(arrayValue.getString(5), "Croc");
     }
     
 //    @Test(description = "Test arrays initializing with different types",
@@ -88,27 +85,27 @@ public class ArrayInitializerExprTest {
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testNestedArrayInit", args);
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BRefValueArray.class);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
 
-        BRefValueArray arrayValue = (BRefValueArray) returns[0];
+        BValueArray arrayValue = (BValueArray) returns[0];
         Assert.assertEquals(arrayValue.size(), 2);
 
         BValue element = arrayValue.get(0);
-        Assert.assertTrue(element instanceof BIntArray);
-        BIntArray elementArray = (BIntArray) element;
+        Assert.assertTrue(element instanceof BValueArray);
+        BValueArray elementArray = (BValueArray) element;
         Assert.assertEquals(elementArray.size(), 3);
-        Assert.assertEquals(elementArray.get(0), 1);
-        Assert.assertEquals(elementArray.get(1), 2);
-        Assert.assertEquals(elementArray.get(2), 3);
+        Assert.assertEquals(elementArray.getInt(0), 1);
+        Assert.assertEquals(elementArray.getInt(1), 2);
+        Assert.assertEquals(elementArray.getInt(2), 3);
         
         element = arrayValue.get(1);
-        Assert.assertTrue(element instanceof BIntArray);
-        elementArray = (BIntArray) element;
+        Assert.assertTrue(element instanceof BValueArray);
+        elementArray = (BValueArray) element;
         Assert.assertEquals(elementArray.size(), 4);
-        Assert.assertEquals(elementArray.get(0), 6);
-        Assert.assertEquals(elementArray.get(1), 7);
-        Assert.assertEquals(elementArray.get(2), 8);
-        Assert.assertEquals(elementArray.get(3), 9);
+        Assert.assertEquals(elementArray.getInt(0), 6);
+        Assert.assertEquals(elementArray.getInt(1), 7);
+        Assert.assertEquals(elementArray.getInt(2), 8);
+        Assert.assertEquals(elementArray.getInt(3), 9);
     }
 
     @Test(description = "Test array of maps inline initializing")
@@ -117,9 +114,9 @@ public class ArrayInitializerExprTest {
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testArrayOfMapsInit", args);
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BRefValueArray.class);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
 
-        BRefValueArray arrayValue = (BRefValueArray) returns[0];
+        BValueArray arrayValue = (BValueArray) returns[0];
         Assert.assertEquals(arrayValue.size(), 3);
 
         BValue adrs1 = arrayValue.get(0);
@@ -147,13 +144,13 @@ public class ArrayInitializerExprTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "floatArrayInitWithInt", args);
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloatArray.class);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
 
-        BFloatArray arrayValue = (BFloatArray) returns[0];
+        BValueArray arrayValue = (BValueArray) returns[0];
         Assert.assertEquals(arrayValue.size(), 3);
 
-        Assert.assertEquals(arrayValue.get(0), 2.0);
-        Assert.assertEquals(arrayValue.get(1), 4.0);
-        Assert.assertEquals(arrayValue.get(2), 5.0);
+        Assert.assertEquals(arrayValue.getFloat(0), 2.0);
+        Assert.assertEquals(arrayValue.getFloat(1), 4.0);
+        Assert.assertEquals(arrayValue.getFloat(2), 5.0);
     }
 }

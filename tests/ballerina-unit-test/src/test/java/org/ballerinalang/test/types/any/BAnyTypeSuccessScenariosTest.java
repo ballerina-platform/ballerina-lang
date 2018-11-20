@@ -24,9 +24,9 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -67,7 +67,7 @@ public class BAnyTypeSuccessScenariosTest {
     public void testInputAnyAsTable() {
         BValue[] returns = BRunUtil.invokeFunction(result, "inputAnyAsTableTest");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BRefValueArray.class);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
         Assert.assertEquals(returns[0].stringValue(), "[{\"id\":1, \"name\":\"Jane\"}, {\"id\":2, \"name\":\"Anne\"}]");
     }
 
@@ -151,6 +151,6 @@ public class BAnyTypeSuccessScenariosTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invokeFunction(result, "anyArrayWithMapArray", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].getClass(), BRefValueArray.class);
+        Assert.assertEquals(returns[0].getClass(), BValueArray.class);
     }
 }

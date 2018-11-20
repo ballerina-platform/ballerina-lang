@@ -20,7 +20,7 @@ package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -50,7 +50,7 @@ public class FindAll extends AbstractRegexFunction {
         String regex =  context.getStringArgument(1);
         try {
             Pattern pattern = validatePattern(regex);
-            BStringArray stringArray = new BStringArray();
+            BValueArray stringArray = new BValueArray();
             Matcher matcher = pattern.matcher(s);
             int i = 0;
             while (matcher.find()) {

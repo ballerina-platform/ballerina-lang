@@ -24,8 +24,8 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -101,8 +101,8 @@ public class UnionTypeTest {
     public void testUnionTypeWithMultipleRecordTypes() {
         BValue[] returns = BRunUtil.invoke(result, "testUnionTypeWithMultipleRecordTypes");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray) returns[0]).get(0), "FOO");
-        Assert.assertEquals(((BStringArray) returns[0]).get(1), "BAR");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(0), "FOO");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(1), "BAR");
     }
 
     @Test(description = "Test negative cases")

@@ -27,8 +27,8 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -149,7 +149,7 @@ public class AnydataTernaryConvTest {
         assertEquals(returns[0].getType().getTag(), TypeTags.ARRAY_TAG);
         assertEquals(((BArrayType) returns[0].getType()).getElementType().getTag(), TypeTags.ANYDATA_TAG);
 
-        BRefValueArray rets = (BRefValueArray) returns[0];
+        BValueArray rets = (BValueArray) returns[0];
         assertEquals(((BInteger) rets.get(0)).intValue(), 10);
         assertEquals(((BFloat) rets.get(1)).floatValue(), 23.45);
         assertTrue(((BBoolean) rets.get(2)).booleanValue());

@@ -20,8 +20,8 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -60,7 +60,7 @@ public class GetAll extends BlockingNativeCallableUnit {
         if (headersList != null) {
             String[] headerValue = new String[headersList.size()];
             headerValue = headers.getAll(headerName).toArray(headerValue);
-            context.setReturnValues(new BStringArray(headerValue));
+            context.setReturnValues(new BValueArray(headerValue));
         } else {
             context.setReturnValues();
         }

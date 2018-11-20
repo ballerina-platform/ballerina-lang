@@ -25,8 +25,8 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -51,8 +51,8 @@ public class IterableArrowExprTest {
     public void testMapIterable() {
         BValue[] returns = BRunUtil.invoke(basic, "testMapIterable");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray) returns[0]).get(0), "ANT");
-        Assert.assertEquals(((BStringArray) returns[0]).get(1), "BEAR");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(0), "ANT");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(1), "BEAR");
     }
 
     @Test(description = "Test arrow expression inside filter() and then inside map() followed by average()")
@@ -66,22 +66,22 @@ public class IterableArrowExprTest {
     public void testTwoLevelMapIterable() {
         BValue[] returns = BRunUtil.invoke(basic, "testTwoLevelMapIterable");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray) returns[0]).get(0), "ANT");
-        Assert.assertEquals(((BStringArray) returns[0]).get(1), "BEAR");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(0), "ANT");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(1), "BEAR");
     }
 
     @Test(description = "Test arrow expression inside map() then filter() then map()")
     public void testTwoLevelMapIterableWithFilter() {
         BValue[] returns = BRunUtil.invoke(basic, "testTwoLevelMapIterableWithFilter");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray) returns[0]).get(0), "BEAR");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(0), "BEAR");
     }
 
     @Test(description = "Test arrow expression with filter() first and then map")
     public void testFilterThenMap() {
         BValue[] returns = BRunUtil.invoke(basic, "testFilterThenMap");
         Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(((BStringArray) returns[0]).get(0), "ANT MAN");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(0), "ANT MAN");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
     }
 
@@ -89,8 +89,8 @@ public class IterableArrowExprTest {
     public void testFilterWithArityOne() {
         BValue[] returns = BRunUtil.invoke(basic, "testFilterWithArityOne");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray) returns[0]).get(0), "ANT");
-        Assert.assertEquals(((BStringArray) returns[0]).get(1), "TIGER");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(0), "ANT");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(1), "TIGER");
     }
 
     @Test(description = "Test arrow expression inside map() which returns a lambda collection")

@@ -28,8 +28,8 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -73,9 +73,9 @@ public class GetLdapScopesOfUser extends BlockingNativeCallableUnit {
             ldapConfiguration = (CommonLdapConfiguration) authStore.getNativeData(LdapConstants.LDAP_CONFIGURATION);
             String userName = context.getStringArgument(0);
             String[] externalRoles = doGetGroupsListOfUser(userName, ldapConfiguration);
-            context.setReturnValues(new BStringArray(externalRoles));
+            context.setReturnValues(new BValueArray(externalRoles));
         } catch (UserStoreException | NamingException e) {
-            context.setReturnValues(new BStringArray());
+            context.setReturnValues(new BValueArray());
         } finally {
             LdapUtils.removeServiceName();
         }

@@ -21,13 +21,12 @@ package org.ballerinalang.test.nativeimpl.functions.io.socket;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -142,14 +141,14 @@ public class ClientSocketTest {
     public void testReadRecords() {
         String content = "Ballerina,122\r\nC++,12";
         byte[] contentBytes = content.getBytes();
-        BValue[] args = { socket, new BByteArray(contentBytes) };
+        BValue[] args = { socket, new BValueArray(contentBytes) };
         final BValue[] writeReturns = BRunUtil.invokeStateful(socketClient, "write", args);
         BInteger returnedSize = (BInteger) writeReturns[0];
         Assert.assertEquals(returnedSize.intValue(), content.length(), "Write content size is not match.");
         args = new BValue[] { socket };
         final BValue[] readReturns = BRunUtil.invokeStateful(socketClient, "readRecord", args);
-        BStringArray fields = (BStringArray) readReturns[0];
-        Assert.assertEquals(fields.get(0), "Ballerina");
+        BValueArray fields = (BValueArray) readReturns[0];
+        Assert.assertEquals(fields.getString(0), "Ballerina");
     }
 
     @Test(dependsOnMethods = "testReadRecords",
@@ -157,7 +156,7 @@ public class ClientSocketTest {
     public void testWriteReadContent() {
         String content = "Hello World\n";
         byte[] contentBytes = content.getBytes();
-        BValue[] args = { socket, new BByteArray(contentBytes) };
+        BValue[] args = { socket, new BValueArray(contentBytes) };
         final BValue[] writeReturns = BRunUtil.invokeStateful(socketClient, "write", args);
         BInteger returnedSize = (BInteger) writeReturns[0];
         Assert.assertEquals(returnedSize.intValue(), content.length(), "Write content size is not match.");
@@ -168,7 +167,7 @@ public class ClientSocketTest {
 
         content = MockSocketServer.POISON_PILL;
         contentBytes = content.getBytes();
-        BRunUtil.invokeStateful(socketClient, "write", new BValue[] { socket, new BByteArray(contentBytes) });
+        BRunUtil.invokeStateful(socketClient, "write", new BValue[] { socket, new BValueArray(contentBytes) });
         args = new BValue[] { socket };
         BRunUtil.invokeStateful(socketClient, "closeSocket", args);
     }
@@ -208,7 +207,7 @@ public class ClientSocketTest {
         // Write content
         String content = "Hello World\n";
         byte[] contentBytes = content.getBytes();
-        args = new BValue[] { socket, new BByteArray(contentBytes) };
+        args = new BValue[] { socket, new BValueArray(contentBytes) };
         BValue[] writeReturns = BRunUtil.invokeStateful(socketClient, "write", args);
         BInteger returnedSize = (BInteger) writeReturns[0];
         Assert.assertEquals(returnedSize.intValue(), content.length(), "Write content size is not match.");
@@ -222,7 +221,7 @@ public class ClientSocketTest {
 
         content = "New Content\n";
         contentBytes = content.getBytes();
-        args = new BValue[] { socket, new BByteArray(contentBytes) };
+        args = new BValue[] { socket, new BValueArray(contentBytes) };
         writeReturns = BRunUtil.invokeStateful(socketClient, "write", args);
         BMap error = (BMap) ((BError) writeReturns[0]).getDetails();
         Assert.assertEquals(error.getMap().get("message").toString(), "Error occurred while writing to channel ",

@@ -22,8 +22,8 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -52,6 +52,6 @@ public class GetHeaders extends BlockingNativeCallableUnit {
         Http2PushPromise http2PushPromise =
                 HttpUtil.getPushPromise(pushPromiseStruct, HttpUtil.createHttpPushPromise(pushPromiseStruct));
         String headerName = context.getStringArgument(0);
-        context.setReturnValues(new BStringArray(http2PushPromise.getHeaders(headerName)));
+        context.setReturnValues(new BValueArray(http2PushPromise.getHeaders(headerName)));
     }
 }

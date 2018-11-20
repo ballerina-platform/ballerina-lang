@@ -21,8 +21,8 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.model.values.BXMLSequence;
 import org.testng.Assert;
@@ -63,7 +63,7 @@ public class XMLIterationTest {
         Assert.assertNotNull(returns);
 
         for (int i = 0; i < returns.length; i++) {
-            BRefValueArray tuple = (BRefValueArray) returns[i];
+            BValueArray tuple = (BValueArray) returns[i];
             Assert.assertEquals(((BInteger) tuple.get(0)).intValue(), i);
             Assert.assertEquals(tuple.get(1).stringValue(), titles[i]);
         }
@@ -78,7 +78,7 @@ public class XMLIterationTest {
         Assert.assertNotNull(returns);
 
         for (int i = 0; i < returns.length; i++) {
-            BRefValueArray tuple = (BRefValueArray) returns[i];
+            BValueArray tuple = (BValueArray) returns[i];
             Assert.assertEquals(((BInteger) tuple.get(0)).intValue(), i);
             Assert.assertEquals(tuple.get(1).stringValue(), titles[i]);
         }
@@ -91,7 +91,7 @@ public class XMLIterationTest {
         Assert.assertNotNull(returns);
 
         for (int i = 0; i < returns.length; i++) {
-            BRefValueArray retAuthors = ((BXMLSequence) returns[i]).value();
+            BValueArray retAuthors = ((BXMLSequence) returns[i]).value();
             long size = retAuthors.size();
 
             for (int j = 0; j < size; j++) {
@@ -123,7 +123,7 @@ public class XMLIterationTest {
 
         Assert.assertNotNull(returns);
 
-        BRefValueArray retAuthors = ((BXMLSequence) returns[0]).value();
+        BValueArray retAuthors = ((BXMLSequence) returns[0]).value();
         Assert.assertEquals(((BXMLItem) retAuthors.get(0)).getTextValue().stringValue(), authors[0][0]);
 
         retAuthors = ((BXMLSequence) returns[1]).value();

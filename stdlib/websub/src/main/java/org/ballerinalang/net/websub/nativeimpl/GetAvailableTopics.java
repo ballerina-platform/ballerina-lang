@@ -21,7 +21,7 @@ package org.ballerinalang.net.websub.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -44,6 +44,6 @@ public class GetAvailableTopics extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         String[] topics = Hub.getInstance().getTopics();
-        context.setReturnValues(new BStringArray(topics));
+        context.setReturnValues(new BValueArray(topics));
     }
 }

@@ -23,8 +23,8 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -176,7 +176,7 @@ public class IterableOperationsTests {
 
     @Test
     public void testBasicArray1() {
-        BStringArray sarray = new BStringArray(values);
+        BValueArray sarray = new BValueArray(values);
         BValue[] returns = BRunUtil.invoke(basic, "testBasicArray1", new BValue[] {sarray});
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
@@ -189,7 +189,7 @@ public class IterableOperationsTests {
 
     @Test
     public void testBasicArray2() {
-        BStringArray sarray = new BStringArray(values);
+        BValueArray sarray = new BValueArray(values);
         BValue[] returns = BRunUtil.invoke(basic, "testBasicArray2", new BValue[] {sarray});
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);

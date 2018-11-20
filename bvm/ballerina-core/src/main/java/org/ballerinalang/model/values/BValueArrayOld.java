@@ -26,7 +26,6 @@ import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.serializable.reftypes.Serializable;
 import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
-import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBRefArray;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 
@@ -42,17 +41,17 @@ import static org.ballerinalang.model.util.FreezeUtils.isOpenForFreeze;
 /**
  * @since 0.87
  */
-public class BRefValueArray extends BNewArray implements Serializable {
+public class BValueArrayOld extends BNewArray implements Serializable {
 
     BRefType<?>[] values;
 
-    public BRefValueArray(BRefType<?>[] values, BType type) {
+    public BValueArrayOld(BRefType<?>[] values, BType type) {
         this.values = values;
         super.arrayType = type;
         this.size = values.length;
     }
 
-    public BRefValueArray(BType type) {
+    public BValueArrayOld(BType type) {
         super.arrayType = type;
         if (type.getTag() == TypeTags.ARRAY_TAG) {
             BArrayType arrayType = (BArrayType) type;
@@ -73,7 +72,7 @@ public class BRefValueArray extends BNewArray implements Serializable {
         }
     }
 
-    public BRefValueArray() {
+    public BValueArrayOld() {
         values = (BRefType[]) newArrayInstance(BRefType.class);
     }
 
@@ -135,7 +134,7 @@ public class BRefValueArray extends BNewArray implements Serializable {
 
     @Override
     public BValue copy() {
-        BRefValueArray refValueArray = new BRefValueArray(Arrays.copyOf(values, values.length), arrayType);
+        BValueArray refValueArray = new BValueArray(Arrays.copyOf(values, values.length), arrayType);
         refValueArray.size = this.size;
         return refValueArray;
     }
@@ -198,7 +197,8 @@ public class BRefValueArray extends BNewArray implements Serializable {
 
     @Override
     public SerializableRefType serialize(SerializableState state) {
-        return new SerializableBRefArray(this, state);
+        return null;
+//        return new SerializableBRefArray(this, state);
     }
 
     /**

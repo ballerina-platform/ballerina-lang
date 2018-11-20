@@ -22,8 +22,8 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -52,7 +52,7 @@ public class GetAttributeNames extends BlockingNativeCallableUnit {
             BMap<String, BValue> sessionStruct = ((BMap<String, BValue>) context.getRefArgument(0));
             Session session = (Session) sessionStruct.getNativeData(HttpConstants.HTTP_SESSION);
             if (session != null && session.isValid()) {
-                context.setReturnValues(new BStringArray(session.getAttributeNames()));
+                context.setReturnValues(new BValueArray(session.getAttributeNames()));
             } else {
                 throw new IllegalStateException("Failed to get attribute names: No such session in progress");
             }
