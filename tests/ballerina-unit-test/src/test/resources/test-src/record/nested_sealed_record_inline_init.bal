@@ -3,7 +3,7 @@ string child = "Bob";
 type Person record {
     string name = "default first name";
     string fname = "";
-    string lname;
+    string lname = "";
     map adrs = {};
     int age = 999;
 
@@ -12,7 +12,7 @@ type Person record {
 };
 
 type Family record {
-    string spouse;
+    string spouse = "";
     int noOfChildren = 0;
     string[] children = ["Alex", child];
     !...
