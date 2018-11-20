@@ -177,7 +177,6 @@ import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -603,6 +602,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
         } else if (NodeKind.TUPLE_VARIABLE == variable.getKind()) {
             BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
+            if (TypeTags.TUPLE != rhsType.tag) {
+                dlog.error(variable.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, rhsType);
+                defineTupleVariable(tupleVariable, blockEnv);
+                return;
+            }
+
             tupleVariable.type = rhsType;
             if (!(checkTypeAndVarCountConsistency(tupleVariable, (BTupleType) tupleVariable.type, blockEnv))) {
                 return;
@@ -615,8 +620,42 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    private void defineSimpleVariable(BLangSimpleVariable variable, SymbolEnv blockEnv) {
+        Name name = names.fromIdNode(variable.name);
+        if (name == Names.IGNORE) {
+            return;
+        }
+        variable.type = symTable.semanticError;
+        symbolEnter.defineVarSymbol(variable.pos, variable.flagSet, variable.type, name, blockEnv);
+    }
+
+    private void defineTupleVariable(BLangTupleVariable tupleVariable, SymbolEnv blockEnv) {
+        for (BLangVariable memberVariable : tupleVariable.memberVariables) {
+            if (memberVariable.getKind() == NodeKind.VARIABLE) {
+                defineSimpleVariable((BLangSimpleVariable) memberVariable, blockEnv);
+            } else if (memberVariable.getKind() == NodeKind.TUPLE_VARIABLE) {
+                defineTupleVariable((BLangTupleVariable) memberVariable, blockEnv);
+            } else if (memberVariable.getKind() == NodeKind.RECORD_VARIABLE) {
+                defineRecordVariables((BLangRecordVariable) memberVariable, blockEnv);
+            }
+        }
+    }
+
+    private void defineRecordVariables(BLangRecordVariable recordVariable, SymbolEnv blockEnv) {
+        for (BLangRecordVariableKeyValue keyValue : recordVariable.variableList) {
+            BLangVariable valueBindingPattern = keyValue.valueBindingPattern;
+            if (valueBindingPattern.getKind() == NodeKind.VARIABLE) {
+                defineSimpleVariable((BLangSimpleVariable) valueBindingPattern, blockEnv);
+            } else if (valueBindingPattern.getKind() == NodeKind.TUPLE_VARIABLE) {
+                defineTupleVariable((BLangTupleVariable) valueBindingPattern, blockEnv);
+            } else if (valueBindingPattern.getKind() == NodeKind.RECORD_VARIABLE) {
+                defineRecordVariables((BLangRecordVariable) valueBindingPattern, blockEnv);
+            }
+        }
+    }
+
     private boolean checkTypeAndVarCountConsistency(BLangTupleVariable varNode) {
-      return  checkTypeAndVarCountConsistency(varNode, null, env);
+        return checkTypeAndVarCountConsistency(varNode, null, env);
     }
 
     private boolean checkTypeAndVarCountConsistency(BLangTupleVariable varNode, BTupleType tupleTypeNode,
@@ -1237,7 +1276,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
                 checkStaticMatchPatternLiteralType(binaryExpr.lhsExpr);
                 checkStaticMatchPatternLiteralType(binaryExpr.rhsExpr);
-                expression.type =  symTable.anyType;
+                expression.type = symTable.anyType;
                 return expression.type;
             case RECORD_LITERAL_EXPR:
                 BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
@@ -2239,33 +2278,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         if (node.keyExpr != null) {
             typeChecker.checkExpr(node.keyExpr, env);
-        }
-    }
-
-    private void handleForeachVariables(BLangForeach foreachStmt, List<BType> varTypes, SymbolEnv env) {
-        for (int i = 0; i < foreachStmt.varRefs.size(); i++) {
-            BLangExpression varRef = foreachStmt.varRefs.get(i);
-            // foreach variables supports only simpleVarRef expressions only.
-            if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
-                dlog.error(varRef.pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT, varRef);
-                continue;
-            }
-            BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRef;
-            simpleVarRef.lhsVar = true;
-            Name varName = names.fromIdNode(simpleVarRef.variableName);
-            if (varName == Names.IGNORE) {
-                simpleVarRef.type = this.symTable.noType;
-                typeChecker.checkExpr(simpleVarRef, env);
-                continue;
-            }
-            // Check variable symbol for existence.
-            BSymbol symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
-            if (symbol == symTable.notFoundSymbol) {
-                symbolEnter.defineVarSymbol(simpleVarRef.pos, Collections.emptySet(), varTypes.get(i), varName, env);
-                typeChecker.checkExpr(simpleVarRef, env);
-            } else {
-                dlog.error(simpleVarRef.pos, DiagnosticCode.REDECLARED_SYMBOL, varName);
-            }
         }
     }
 
