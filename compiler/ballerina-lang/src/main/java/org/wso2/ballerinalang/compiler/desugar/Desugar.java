@@ -1588,19 +1588,19 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.MAP:
                 scopeEntry = symTable.rootScope.lookup(names.fromString("map.keys"));
                  keysFunctionSymbol = (BInvokableSymbol) scopeEntry.symbol;
-                blockNode = desugarForeachOfMappingTypes(foreach, collectionSymbol, keysFunctionSymbol, symTable.mapType,
-                        ((BMapType) collectionSymbol.type).constraint);
+                blockNode = desugarForeachOfMappingTypes(foreach, collectionSymbol, "keys", keysFunctionSymbol,
+                        symTable.mapType, ((BMapType) collectionSymbol.type).constraint);
                 break;
             case TypeTags.JSON:
                 scopeEntry = symTable.rootScope.lookup(names.fromString("json.getKeys"));
                 keysFunctionSymbol = (BInvokableSymbol) scopeEntry.symbol;
-                blockNode = desugarForeachOfMappingTypes(foreach, collectionSymbol, keysFunctionSymbol,
+                blockNode = desugarForeachOfMappingTypes(foreach, collectionSymbol, "getKeys", keysFunctionSymbol,
                         symTable.jsonType, symTable.jsonType);
                 break;
             case TypeTags.RECORD:
                 scopeEntry = symTable.rootScope.lookup(names.fromString("map.keys"));
                 keysFunctionSymbol = (BInvokableSymbol) scopeEntry.symbol;
-                blockNode = desugarForeachOfMappingTypes(foreach, collectionSymbol, keysFunctionSymbol,
+                blockNode = desugarForeachOfMappingTypes(foreach, collectionSymbol, "keys", keysFunctionSymbol,
                         symTable.mapType, types.inferRecordFieldType((BRecordType) collectionSymbol.type));
                 break;
             case TypeTags.TABLE:
@@ -1632,11 +1632,11 @@ public class Desugar extends BLangNodeVisitor {
                 symTable.intType, indexInitialValue, indexSymbol);
         BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDef(foreach.pos, indexVariableDefinition);
 
-        // Create a new symbol for the $size$.
-        BVarSymbol sizeSymbol = new BVarSymbol(0, names.fromString("$index$"), this.env.scope.owner.pkgID,
-                symTable.intType, this.env.scope.owner);
-
         // Note - int $size$ = $data$.length(); ------------------------------------------------------------------------
+
+        // Create a new symbol for the $size$.
+        BVarSymbol sizeSymbol = new BVarSymbol(0, names.fromString("$size$"), this.env.scope.owner.pkgID,
+                symTable.intType, this.env.scope.owner);
 
         BLangIdentifier lengthIdentifier = ASTBuilderUtil.createIdentifier(foreach.pos, "length");
         BLangSimpleVarRef rhsRef = ASTBuilderUtil.createVariableRef(foreach.pos, collectionSymbol);
@@ -1713,7 +1713,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangBlockStmt desugarForeachOfMappingTypes(BLangForeach foreach, BVarSymbol collectionSymbol,
-                                                        BInvokableSymbol keysFunctionSymbol,
+                                                        String keyFunctionName, BInvokableSymbol keysFunctionSymbol,
                                                         BType lengthFunctionSourceType, BType valueType) {
         // Get the symbol from the collection.
         // Get the variable definition from the foreach statement.
@@ -1739,7 +1739,7 @@ public class Desugar extends BLangNodeVisitor {
                 arrayType, this.env.scope.owner);
 
         // Note - data.keys()
-        BLangIdentifier keysIdentifier = ASTBuilderUtil.createIdentifier(foreach.pos, "keys");
+        BLangIdentifier keysIdentifier = ASTBuilderUtil.createIdentifier(foreach.pos, keyFunctionName);
         BLangSimpleVarRef collectionReference = ASTBuilderUtil.createVariableRef(foreach.pos, collectionSymbol);
 
         BLangInvocation keysInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
@@ -1753,24 +1753,38 @@ public class Desugar extends BLangNodeVisitor {
                 keysInvocation, keysSymbol);
         BLangSimpleVariableDef keysVariableDefinition = ASTBuilderUtil.createVariableDef(foreach.pos, keysVariable);
 
-        // Note - $index$ < $keys$.length() ----------------------------------------------------------------------------
 
-        BLangSimpleVarRef lhsExpr = ASTBuilderUtil.createVariableRef(foreach.pos, indexSymbol);
+        // Note - int $size$ = $keys$.length(); ------------------------------------------------------------------------
+
+        // Create a new symbol for the $size$.
+        BVarSymbol sizeSymbol = new BVarSymbol(0, names.fromString("$size$"), this.env.scope.owner.pkgID,
+                symTable.intType, this.env.scope.owner);
+
         BLangIdentifier lengthIdentifier = ASTBuilderUtil.createIdentifier(foreach.pos, "length");
         BLangSimpleVarRef rhsRef = ASTBuilderUtil.createVariableRef(foreach.pos, keysSymbol);
 
-        BLangInvocation rhsExpr = (BLangInvocation) TreeBuilder.createInvocationNode();
-        rhsExpr.pos = foreach.pos;
-        rhsExpr.name = lengthIdentifier;
-        rhsExpr.builtinMethodInvocation = true;
-        rhsExpr.builtInMethod = BLangBuiltInMethod.LENGTH;
-        rhsExpr.expr = rhsRef;
-        rhsExpr.symbol = symResolver.resolveBuiltinOperator(names.fromIdNode(lengthIdentifier),
+        BLangInvocation invocation = (BLangInvocation) TreeBuilder.createInvocationNode();
+        invocation.pos = foreach.pos;
+        invocation.name = lengthIdentifier;
+        invocation.builtinMethodInvocation = true;
+        invocation.builtInMethod = BLangBuiltInMethod.LENGTH;
+        invocation.expr = rhsRef;
+        // Todo - Is type correct? Check in other methods.
+        invocation.symbol = symResolver.resolveBuiltinOperator(names.fromIdNode(lengthIdentifier),
                 lengthFunctionSourceType);
-        rhsExpr.type = symTable.intType;
+        invocation.type = symTable.intType;
+
+        BLangSimpleVariable sizeVariableDefinition = ASTBuilderUtil.createVariable(foreach.pos, "$size$",
+                symTable.intType, invocation, sizeSymbol);
+        BLangSimpleVariableDef sizeVariableDef = ASTBuilderUtil.createVariableDef(foreach.pos, sizeVariableDefinition);
+
+        // Note - $index$ < $size$ -------------------------------------------------------------------------------------
+
+        BLangSimpleVarRef lhsExpr = ASTBuilderUtil.createVariableRef(foreach.pos, indexSymbol);
+        BLangSimpleVarRef rhsExpr = ASTBuilderUtil.createVariableRef(foreach.pos, sizeSymbol);
 
         BOperatorSymbol operatorSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.LESS_THAN,
-                lhsExpr.type, rhsExpr.type);
+                lhsExpr.type, invocation.type);
         BLangBinaryExpr binaryExpr = ASTBuilderUtil.createBinaryExpr(foreach.pos, lhsExpr, rhsExpr,
                 symTable.booleanType, OperatorKind.LESS_THAN, operatorSymbol);
 
@@ -1828,7 +1842,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangAssignment assignmentNode = ASTBuilderUtil.createAssignmentStmt(foreach.pos, varRef, modifiedExpr, false);
 
         // Add the assignment node to the end of the while node's body.
-        whileNode.body.addStatement(assignmentNode);
+        whileNode.body.stmts.add(2, assignmentNode);
 
         // Create a new block statement node.
         BLangBlockStmt blockNode = ASTBuilderUtil.createBlockStmt(foreach.pos);
@@ -1837,6 +1851,8 @@ public class Desugar extends BLangNodeVisitor {
         blockNode.addStatement(keysVariableDefinition);
         // Add the index variable definition node to the block.
         blockNode.addStatement(indexVariableDefinition);
+        // Add the size variable definition node to the block.
+        blockNode.addStatement(sizeVariableDef);
         // Add the while node to the block.
         blockNode.addStatement(whileNode);
 
