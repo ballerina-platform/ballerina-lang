@@ -19,8 +19,12 @@ package org.ballerinalang.test.types.bytetype;
 
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -28,10 +32,17 @@ import org.testng.annotations.Test;
  */
 public class BByteValueNegativeTest {
 
+    private CompileResult result;
+
+    @BeforeClass
+    public void setup() {
+        result = BCompileUtil.compile("test-src/types/byte/byte-value-runtime-negative.bal");
+    }
+
     @Test(description = "Test byte value negative")
     public void testByteValueNegative() {
         CompileResult result = BCompileUtil.compile("test-src/types/byte/byte-value-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 26);
+        Assert.assertEquals(result.getErrorCount(), 29);
         String msg1 = "incompatible types: expected 'byte', found 'int'";
         String msg2 = "incompatible types: expected 'byte', found 'float'";
         String msg3 = "incompatible types: expected 'byte', found 'string'";
@@ -59,8 +70,10 @@ public class BByteValueNegativeTest {
         BAssertUtil.validateError(result, 18, msg4 , 24, 15);
         BAssertUtil.validateError(result, 19, msg4 , 27, 15);
         BAssertUtil.validateError(result, 20, msg4 , 30, 15);
-        BAssertUtil.validateError(result, 22, msg5, 35, 29);
-        BAssertUtil.validateError(result, 24, msg6, 43, 29);
+        BAssertUtil.validateError(result, 22, msg5, 38, 9);
+        BAssertUtil.validateError(result, 24, msg6, 55, 9);
+        BAssertUtil.validateError(result, 26, msg5, 63, 29);
+        BAssertUtil.validateError(result, 28, msg6, 71, 29);
     }
 
     @Test(description = "Test byte shift operators negative")
@@ -76,5 +89,23 @@ public class BByteValueNegativeTest {
         BAssertUtil.validateError(result, 5, msg , 6, 20);
         BAssertUtil.validateError(result, 6, msg , 7, 21);
         BAssertUtil.validateError(result, 7, msg , 7, 27);
+    }
+
+    @Test(description = "Test byte shift operators negative", expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*error:.*'int' cannot be converted to 'byte'.*")
+    public void byteValueRuntimeNegative1() {
+        BRunUtil.invoke(result, "invalidByteLiteral1", new BValue[]{});
+    }
+
+    @Test(description = "Test byte shift operators negative", expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*error:.*'int' cannot be converted to 'byte'.*")
+    public void byteValueRuntimeNegative2() {
+        BRunUtil.invoke(result, "invalidByteLiteral2", new BValue[]{});
+    }
+
+    @Test(description = "Test byte shift operators negative", expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*error:.*'int' cannot be converted to 'byte'.*")
+    public void byteValueRuntimeNegative3() {
+        BRunUtil.invoke(result, "invalidByteLiteral2", new BValue[]{});
     }
 }
