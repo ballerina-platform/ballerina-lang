@@ -30,7 +30,7 @@ public type Filter10 object {
     }
 };
 
-Filter10 filter10;
+Filter10 filter10 = new;
 
 // Filter2
 
@@ -38,7 +38,7 @@ public type Filter11 object {
     public function filterRequest (http:Listener listener, http:Request request, http:FilterContext context) returns boolean {
         endpoint http:Listener caller = listener;
         log:printInfo("Intercepting request for filter 2");
-        http:Response response;
+        http:Response response = new;
         response.statusCode = 403;
         response.setTextPayload("Authorization failure");
         var value = caller->respond(response);
@@ -50,7 +50,7 @@ public type Filter11 object {
     }
 };
 
-Filter11 filter11;
+Filter11 filter11 = new;
 
 endpoint http:Listener echoEP04 {
     port:9094,
