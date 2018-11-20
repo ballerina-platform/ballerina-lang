@@ -271,25 +271,6 @@ public class Instruction {
     }
 
     /**
-     * {@code {@link InstructionIteratorNext}} represents the ITR_NEXT instruction in Ballerina bytecode.
-     *
-     * @since 0.96.0
-     */
-    public static class InstructionIteratorNext extends Instruction {
-
-        public int iteratorIndex, arity;
-        public int[] typeTags, retRegs;
-
-        InstructionIteratorNext(int opcode, int iteratorIndex, int arity, int[] typeTags, int[] retRegs) {
-            super(opcode);
-            this.iteratorIndex = iteratorIndex;
-            this.arity = arity;
-            this.typeTags = typeTags;
-            this.retRegs = retRegs;
-        }
-    }
-
-    /**
      * {@code {@link InstructionLock}} represents the LOCK/UNLOCK instruction in Ballerina bytecode.
      *
      * @since 0.961.0

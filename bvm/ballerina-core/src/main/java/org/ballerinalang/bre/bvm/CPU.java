@@ -48,7 +48,6 @@ import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BClosure;
-import org.ballerinalang.model.values.BCollection;
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
@@ -57,7 +56,6 @@ import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BFuture;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BIterator;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
@@ -85,7 +83,6 @@ import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionCHNReceive;
 import org.ballerinalang.util.codegen.Instruction.InstructionCHNSend;
 import org.ballerinalang.util.codegen.Instruction.InstructionFORKJOIN;
-import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
 import org.ballerinalang.util.codegen.Instruction.InstructionLock;
 import org.ballerinalang.util.codegen.Instruction.InstructionVCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
@@ -760,11 +757,6 @@ public class CPU {
                     case InstructionCodes.XMLLOADALL:
                     case InstructionCodes.NEWXMLSEQ:
                         execXMLOpcodes(ctx, sf, opcode, operands);
-                        break;
-                    case InstructionCodes.ITR_NEW:
-                    case InstructionCodes.ITR_NEXT:
-                    case InstructionCodes.ITR_HAS_NEXT:
-                        execIteratorOperation(ctx, sf, instruction);
                         break;
                     case InstructionCodes.LOCK:
                         InstructionLock instructionLock = (InstructionLock) instruction;
@@ -2592,53 +2584,6 @@ public class CPU {
 
     public static boolean isByteLiteral(long longValue) {
         return (longValue >= BBYTE_MIN_VALUE && longValue <= BBYTE_MAX_VALUE);
-    }
-
-    private static void execIteratorOperation(WorkerExecutionContext ctx, WorkerData sf, Instruction instruction) {
-        int i, j;
-        BValue collection;
-        BIterator iterator;
-        InstructionIteratorNext nextInstruction;
-        switch (instruction.getOpcode()) {
-            case InstructionCodes.ITR_NEW:
-                i = instruction.getOperands()[0];   // collection
-                j = instruction.getOperands()[1];   // iterator variable (ref) index.
-
-                collection = sf.refRegs[i];
-                if (collection == null) {
-                    handleNullRefError(ctx);
-                    return;
-                } else if (!(collection instanceof BCollection)) {
-                    // Value is a value-type JSON.
-                    sf.refRegs[j] = new BIterator() {
-                        @Override
-                        public boolean hasNext() {
-                            return false;
-                        }
-
-                        @Override
-                        public BValue[] getNext(int arity) {
-                            return null;
-                        }
-                    };
-                    break;
-                }
-
-                sf.refRegs[j] = ((BCollection) collection).newIterator();
-                break;
-            case InstructionCodes.ITR_HAS_NEXT:
-                i = instruction.getOperands()[0];   // iterator
-                j = instruction.getOperands()[1];   // boolean variable index to store has next result
-                iterator = (BIterator) sf.refRegs[i];
-                sf.intRegs[j] = Optional.of(iterator).get().hasNext() ? 1 : 0;
-                break;
-            case InstructionCodes.ITR_NEXT:
-                nextInstruction = (InstructionIteratorNext) instruction;
-                iterator = (BIterator) sf.refRegs[nextInstruction.iteratorIndex];
-                BValue[] values = Optional.of(iterator).get().getNext(nextInstruction.arity);
-                copyValuesToRegistries(nextInstruction.typeTags, nextInstruction.retRegs, values, sf);
-                break;
-        }
     }
 
     private static void copyValuesToRegistries(int[] typeTags, int[] targetReg, BValue[] values, WorkerData sf) {

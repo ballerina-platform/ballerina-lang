@@ -50,7 +50,6 @@ import org.ballerinalang.natives.NativeUnitLoader;
 import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionCompensate;
 import org.ballerinalang.util.codegen.Instruction.InstructionFORKJOIN;
-import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
 import org.ballerinalang.util.codegen.Instruction.InstructionLock;
 import org.ballerinalang.util.codegen.Instruction.InstructionScopeEnd;
 import org.ballerinalang.util.codegen.Instruction.InstructionVCALL;
@@ -1182,8 +1181,6 @@ public class PackageInfoReader {
                 case InstructionCodes.BR_FALSE:
                 case InstructionCodes.TR_END:
                 case InstructionCodes.NEWSTRUCT:
-                case InstructionCodes.ITR_NEW:
-                case InstructionCodes.ITR_HAS_NEXT:
                 case InstructionCodes.IRET:
                 case InstructionCodes.FRET:
                 case InstructionCodes.SRET:
@@ -1489,13 +1486,6 @@ public class PackageInfoReader {
                     packageInfo.addInstruction(new InstructionFORKJOIN(opcode, forkJoinIndexCPIndex,
                             forkJoinIndexCPEntry, timeoutRegIndex, joinVarRegIndex, joinBlockAddr,
                             timeoutVarRegIndex, timeoutBlockAddr));
-                    break;
-                case InstructionCodes.ITR_NEXT:
-                    int iteratorIndex = codeStream.readInt();
-                    int[] typeTags = getArgRegs(codeStream);
-                    retRegs = getArgRegs(codeStream);
-                    packageInfo.addInstruction(new InstructionIteratorNext(opcode, iteratorIndex, retRegs.length,
-                            typeTags, retRegs));
                     break;
                 case InstructionCodes.LOCK:
                 case InstructionCodes.UNLOCK:
