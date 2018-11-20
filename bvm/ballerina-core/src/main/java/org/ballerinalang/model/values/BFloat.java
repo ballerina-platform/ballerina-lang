@@ -40,7 +40,7 @@ public final class BFloat extends BValueType implements BRefType<Double> {
 
     @Override
     public long intValue() {
-        return (long) this.value;
+        return Math.round(this.value);
     }
 
     @Override
@@ -55,12 +55,12 @@ public final class BFloat extends BValueType implements BRefType<Double> {
 
     @Override
     public BigDecimal decimalValue() {
-        return new BigDecimal(stringValue(), MathContext.DECIMAL128);
+        return new BigDecimal(value, MathContext.DECIMAL128);
     }
 
     @Override
     public boolean booleanValue() {
-        return false;
+        return value != 0.0;
     }
 
     @Override

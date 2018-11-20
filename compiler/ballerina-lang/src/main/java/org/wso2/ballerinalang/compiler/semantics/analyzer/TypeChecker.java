@@ -1150,11 +1150,10 @@ public class TypeChecker extends BLangNodeVisitor {
         conversionExpr.targetType = targetType;
         BType sourceType = checkExpr(conversionExpr.expr, env, symTable.noType);
 
-        BSymbol symbol = symResolver.resolveTypeAssertionOperator(sourceType, targetType);
+        BSymbol symbol = symResolver.resolveTypeConversionOrAssertionOperator(sourceType, targetType);
 
         if (symbol == symTable.notFoundSymbol) {
-            dlog.error(conversionExpr.pos, DiagnosticCode.INVALID_EXPLICIT_TYPE_FOR_EXPRESSION, sourceType,
-                       targetType);
+            dlog.error(conversionExpr.pos, DiagnosticCode.INVALID_EXPLICIT_TYPE_FOR_EXPRESSION, sourceType, targetType);
         } else {
             BOperatorSymbol conversionSym = (BOperatorSymbol) symbol;
             conversionExpr.conversionSymbol = conversionSym;

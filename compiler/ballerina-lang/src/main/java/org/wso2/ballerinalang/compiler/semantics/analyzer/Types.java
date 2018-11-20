@@ -819,19 +819,18 @@ public class Types {
         return targetType.accept(conversionVisitor, sourceType);
     }
 
-    BSymbol getTypeAssertionOperator(BType sourceType, BType targetType) {
+    BSymbol getTypeConversionOrAssertionOperator(BType sourceType, BType targetType) {
         if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR ||
                 sourceType == targetType) {
             return createConversionOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
         }
 
-        BSymbol symbol = symTable.notFoundSymbol;
-        if (isValueType(sourceType) && isValueType(targetType)) {
-            symbol = symResolver.resolveOperator(Names.CONVERSION_OP, Lists.of(sourceType, targetType));
+        if (isValueType(targetType)) {
+            return symResolver.getExplicitlySimpleBasicTypedExpressionSymbol(sourceType, targetType);
         } else if (isAssignable(targetType, sourceType)) {
-            symbol = symResolver.createTypeAssertionSymbol(sourceType, targetType);
+            return symResolver.createTypeAssertionSymbol(sourceType, targetType);
         }
-        return symbol;
+        return symTable.notFoundSymbol;
     }
 
     public BType getElementType(BType type) {

@@ -44,7 +44,7 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
 
     @Override
     public long intValue() {
-        return value.longValue();
+        return Math.round(value.doubleValue());
     }
 
     @Override
@@ -59,7 +59,7 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
 
     @Override
     public boolean booleanValue() {
-        return false;
+        return value.compareTo(BigDecimal.ZERO) != 0;
     }
 
     @Override

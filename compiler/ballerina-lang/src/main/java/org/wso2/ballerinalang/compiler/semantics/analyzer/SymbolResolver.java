@@ -280,8 +280,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         return types.getConversionOperator(sourceType, targetType);
     }
 
-    public BSymbol resolveTypeAssertionOperator(BType sourceType, BType targetType) {
-        return types.getTypeAssertionOperator(sourceType, targetType);
+    public BSymbol resolveTypeConversionOrAssertionOperator(BType sourceType, BType targetType) {
+        return types.getTypeConversionOrAssertionOperator(sourceType, targetType);
     }
 
     public BSymbol resolveBinaryOperator(OperatorKind opKind,
@@ -525,6 +525,26 @@ public class SymbolResolver extends BLangNodeVisitor {
         List<BType> paramTypes = Lists.of(type);
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
         return new BOperatorSymbol(Names.CAST_OP, null, opType, null, InstructionCodes.TYPE_ASSERTION);
+    }
+
+    BSymbol getExplicitlySimpleBasicTypedExpressionSymbol(BType sourceType, BType targetType) {
+        int sourceTypeTag = sourceType.tag;
+        if (types.isValueType(sourceType)) {
+            if (sourceType == targetType) {
+                return Symbols.createConversionOperatorSymbol(sourceType, targetType, symTable.errorType, false,
+                                                              true, InstructionCodes.NOP, null, null);
+            }
+
+            if (!(sourceTypeTag == TypeTags.STRING && targetType.tag != TypeTags.STRING)) {
+                return resolveOperator(Names.CONVERSION_OP, Lists.of(sourceType, targetType));
+            }
+        } else if (sourceTypeTag == TypeTags.UNION &&
+                ((BUnionType) sourceType).memberTypes.stream()
+                        .noneMatch(memType -> getExplicitlySimpleBasicTypedExpressionSymbol(
+                                memType, targetType) == symTable.notFoundSymbol)) {
+            return createTypeAssertionSymbol(sourceType, targetType);
+        }
+        return symTable.notFoundSymbol;
     }
 
     public BSymbol resolveUnaryOperator(DiagnosticPos pos,

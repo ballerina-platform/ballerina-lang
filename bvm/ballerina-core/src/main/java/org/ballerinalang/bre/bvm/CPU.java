@@ -2289,11 +2289,13 @@ public class CPU {
 
                 bRefTypeValue = sf.refRegs[i];
 
-                if (typeRefCPEntry.getType() == bRefTypeValue.getType()) {
+                if (isSimpleBasicType(typeRefCPEntry.getType())) {
+                    execExplicitlyTypedExpressionOpCode(sf, typeRefCPEntry.getType().getTag(), bRefTypeValue, j);
+                } else if (typeRefCPEntry.getType() == bRefTypeValue.getType()) {
                     sf.refRegs[j] = bRefTypeValue;
                 } else {
-                    ctx.setError(BLangVMErrors.createError(ctx,  "value of type '" + bRefTypeValue.getType() + "' " +
-                            "cannot be asserted as '" + typeRefCPEntry.getType() + "'"));
+                    ctx.setError(BLangVMErrors.createError(ctx,  "assertion error: expected '" +
+                            typeRefCPEntry.getType() + "', found '" + bRefTypeValue.getType() + "'"));
                     handleError(ctx);
                 }
                 break;
@@ -2416,6 +2418,27 @@ public class CPU {
                 break;
             default:
                 throw new UnsupportedOperationException();
+        }
+    }
+
+    private static void execExplicitlyTypedExpressionOpCode(WorkerData sf, int targetTag, BRefType bRefTypeValue,
+                                                            int regIndex) {
+        switch (targetTag) {
+            case TypeTags.STRING_TAG:
+                sf.stringRegs[regIndex] = bRefTypeValue.stringValue();
+                break;
+            case TypeTags.FLOAT_TAG:
+                sf.doubleRegs[regIndex] = ((BValueType) bRefTypeValue).floatValue();
+                break;
+            case TypeTags.DECIMAL_TAG:
+                sf.refRegs[regIndex] = new BDecimal(((BValueType) bRefTypeValue).decimalValue());
+                break;
+            case TypeTags.INT_TAG:
+                sf.longRegs[regIndex] = ((BValueType) bRefTypeValue).intValue();
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                sf.intRegs[regIndex] = ((BValueType) bRefTypeValue).booleanValue() ? 1 : 0;
+                break;
         }
     }
 
@@ -2546,7 +2569,7 @@ public class CPU {
             case InstructionCodes.D2I:
                 i = operands[0];
                 j = operands[1];
-                sf.longRegs[j] = Math.round(((BDecimal) sf.refRegs[i]).floatValue());
+                sf.longRegs[j] = Math.round(((BDecimal) sf.refRegs[i]).decimalValue().doubleValue());
                 break;
             case InstructionCodes.D2F:
                 i = operands[0];
