@@ -614,13 +614,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             validateRecordVariable(recordVariable, blockEnv);
         }
     }
-    private boolean checkTypeAndVarCountConsistency(BLangTupleVariable varNode, BTupleType tupleTypeNode) {
-        return checkTypeAndVarCountConsistency(varNode, tupleTypeNode, env);
+
+    private boolean checkTypeAndVarCountConsistency(BLangTupleVariable varNode) {
+      return  checkTypeAndVarCountConsistency(varNode, null, env);
     }
 
     private boolean checkTypeAndVarCountConsistency(BLangTupleVariable varNode, BTupleType tupleTypeNode,
                                                     SymbolEnv env) {
-        BTupleType tupleTypeNode;
+
+        if (tupleTypeNode == null) {
         /*
           This switch block will resolve the tuple type of the tuple variable.
           For example consider the following - (int, string)|(boolean, float) (a, b) = foo();
@@ -629,44 +631,45 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
           Consider anydata (a, b) = foo();
           Here, the type of 'a'and type of 'b' will be both anydata.
          */
-        switch (varNode.type.tag) {
-            case TypeTags.UNION:
-                BUnionType unionType = ((BUnionType) varNode.type);
+            switch (varNode.type.tag) {
+                case TypeTags.UNION:
+                    BUnionType unionType = ((BUnionType) varNode.type);
 
-                List<BTupleType> possibleTypes = unionType.memberTypes.stream()
-                        .filter(type -> TypeTags.TUPLE == type.tag)
-                        .map(BTupleType.class::cast)
-                        .filter(tupleType -> varNode.memberVariables.size() == tupleType.tupleTypes.size())
-                        .collect(Collectors.toList());
+                    List<BTupleType> possibleTypes = unionType.memberTypes.stream()
+                            .filter(type -> TypeTags.TUPLE == type.tag)
+                            .map(BTupleType.class::cast)
+                            .filter(tupleType -> varNode.memberVariables.size() == tupleType.tupleTypes.size())
+                            .collect(Collectors.toList());
 
-                if (possibleTypes.size() > 1) {
+                    if (possibleTypes.size() > 1) {
+                        List<BType> memberTupleTypes = new ArrayList<>();
+                        for (int i = 0; i < varNode.memberVariables.size(); i++) {
+                            Set<BType> memberTypes = new HashSet<>();
+                            for (BTupleType tupleType : possibleTypes) {
+                                memberTypes.add(tupleType.tupleTypes.get(i));
+                            }
+                            memberTupleTypes.add(new BUnionType(null, memberTypes, false));
+                        }
+                        tupleTypeNode = new BTupleType(memberTupleTypes);
+                    } else {
+                        tupleTypeNode = possibleTypes.get(0);
+                    }
+                    break;
+                case TypeTags.ANY:
+                case TypeTags.ANYDATA:
                     List<BType> memberTupleTypes = new ArrayList<>();
                     for (int i = 0; i < varNode.memberVariables.size(); i++) {
-                        Set<BType> memberTypes = new HashSet<>();
-                        for (BTupleType tupleType : possibleTypes) {
-                            memberTypes.add(tupleType.tupleTypes.get(i));
-                        }
-                        memberTupleTypes.add(new BUnionType(null, memberTypes, false));
+                        memberTupleTypes.add(varNode.type);
                     }
                     tupleTypeNode = new BTupleType(memberTupleTypes);
-                } else {
-                    tupleTypeNode = possibleTypes.get(0);
-                }
-                break;
-            case TypeTags.ANY:
-            case TypeTags.ANYDATA:
-                List<BType> memberTupleTypes = new ArrayList<>();
-                for (int i = 0; i < varNode.memberVariables.size(); i++) {
-                    memberTupleTypes.add(varNode.type);
-                }
-                tupleTypeNode = new BTupleType(memberTupleTypes);
-                break;
-            case TypeTags.TUPLE:
-                tupleTypeNode = (BTupleType) varNode.type;
-                break;
-            default:
-                dlog.error(varNode.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, varNode.type);
-                return false;
+                    break;
+                case TypeTags.TUPLE:
+                    tupleTypeNode = (BTupleType) varNode.type;
+                    break;
+                default:
+                    dlog.error(varNode.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, varNode.type);
+                    return false;
+            }
         }
 
         if (tupleTypeNode.tupleTypes.size() != varNode.memberVariables.size()) {
@@ -698,11 +701,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return true;
     }
 
-    private void validateRecordVariable(BLangRecordVariable recordVar) {
-        validateRecordVariable(recordVar, env);
+    private boolean validateRecordVariable(BLangRecordVariable recordVar) {
+        return validateRecordVariable(recordVar, env);
     }
 
-    private void validateRecordVariable(BLangRecordVariable recordVar, SymbolEnv env) {
+    private boolean validateRecordVariable(BLangRecordVariable recordVar, SymbolEnv env) {
         BRecordType recordVarType;
         /*
           This switch block will resolve the record type of the record variable.
