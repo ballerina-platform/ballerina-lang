@@ -180,7 +180,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean statementReturns;
     private boolean lastStatement;
     private boolean withinRetryBlock;
-    private int forkJoinCount;
     private int workerCount;
     private SymbolTable symTable;
     private Types types;
@@ -346,16 +345,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
-        this.forkJoinCount++;
-        this.initNewWorkerActionSystem();
-        this.checkStatementExecutionValidity(forkJoin);
-        forkJoin.workers.forEach(e -> analyzeNode(e, env));
-        this.finalizeCurrentWorkerActionSystem();
-        this.forkJoinCount--;
-    }
-
-    private boolean inForkJoin() {
-        return this.forkJoinCount > 0;
+         /* ignore */
     }
 
     private boolean inWorker() {
@@ -459,10 +449,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangReturn returnStmt) {
         this.checkStatementExecutionValidity(returnStmt);
 
-        if (this.inForkJoin() && this.inWorker()) {
-            this.dlog.error(returnStmt.pos, DiagnosticCode.FORK_JOIN_WORKER_CANNOT_RETURN);
-            return;
-        }
         if (checkReturnValidityInTransaction()) {
             this.dlog.error(returnStmt.pos, DiagnosticCode.RETURN_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
             return;

@@ -1535,6 +1535,13 @@ public class BLangPackageBuilder {
         String workerLambdaName = "0" + workerName;
         addSimpleVariableDefStatement(pos, ws, workerLambdaName, true, true);
 
+        // Check if the worker is in a fork. If so add the lambda function to the worker list in fork, else ignore.
+        if (!this.forkJoinNodesStack.empty()) {
+            List<? extends StatementNode> stmtsAdded = this.blockNodeStack.peek().getStatements();
+            BLangSimpleVariableDef lamdaWrkr = (BLangSimpleVariableDef) stmtsAdded.get(stmtsAdded.size() - 1);
+            this.forkJoinNodesStack.peek().addWorkers(lamdaWrkr);
+        }
+
         addNameReference(pos, ws, null, workerLambdaName);
         startInvocationNode(ws);
         createFunctionInvocation(pos, ws, false);

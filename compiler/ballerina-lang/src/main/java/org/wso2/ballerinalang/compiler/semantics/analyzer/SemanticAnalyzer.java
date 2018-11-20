@@ -1240,9 +1240,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
-        SymbolEnv forkJoinEnv = SymbolEnv.createFolkJoinEnv(forkJoin, this.env);
-        forkJoin.workers.forEach(e -> this.symbolEnter.defineNode(e, forkJoinEnv));
-        forkJoin.workers.forEach(e -> this.analyzeDef(e, forkJoinEnv));
+       /* ignore */
     }
 
     @Override

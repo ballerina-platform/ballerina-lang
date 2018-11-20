@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.model.tree.statements;
 
-import org.ballerinalang.model.tree.WorkerNode;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 
 import java.util.List;
 
@@ -26,6 +26,7 @@ import java.util.List;
  */
 public interface ForkJoinNode extends StatementNode {
 
-    List<? extends WorkerNode> getWorkers();
+    List<BLangSimpleVariableDef> getWorkers();
 
+    void addWorkers(BLangSimpleVariableDef workerDef);
 }

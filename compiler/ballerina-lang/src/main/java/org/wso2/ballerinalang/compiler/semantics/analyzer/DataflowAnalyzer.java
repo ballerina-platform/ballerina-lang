@@ -435,7 +435,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
-        forkJoin.workers.forEach(worker -> analyzeNode(worker, env));
+         /* ignore */
     }
 
     @Override
