@@ -8,11 +8,15 @@ endpoint jms:SimpleQueueSender queueSender {
     queueName: "testMbSimpleQueueReceiverProducer"
 };
 
-public function main (string... args) {
+public function main () {
     // Create a Text message.
-    jms:Message m = check queueSender.createTextMessage("Test Text");
-    // Send the Ballerina message to the JMS provider.
-    _ = queueSender -> send(m);
+    var msg = queueSender.createTextMessage("Test Text");
+    if (msg is jms:Message) {
+         // Send the Ballerina message to the JMS provider.
+         _ = queueSender -> send(msg);
+    } else {
+         panic msg;
+    }
 
     io:println("Message successfully sent by jms:SimpleQueueSender");
 }

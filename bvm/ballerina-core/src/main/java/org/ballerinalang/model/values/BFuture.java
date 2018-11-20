@@ -46,5 +46,9 @@ public interface BFuture extends BRefType<SafeStrandCallback> {
      * @return true if its cancelled, or else, false
      */
     boolean isCancelled();
-    
+
+    @Override
+    default void stamp(BType type) {
+
+    }
 }

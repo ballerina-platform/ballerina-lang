@@ -26,19 +26,36 @@ service<jms:Consumer> jmsListener3 bind queueConsumer3 {
 
     // OnMessage resource get invoked when a message is received.
     onMessage(endpoint consumer, jms:Message message) {
-        string messageText = check message.getTextMessageContent();
-        boolean booleanVal = check message.getBooleanProperty("booleanProp");
-        io:print("booleanVal:" + booleanVal);
-        int intVal = check message.getIntProperty("intProp");
-        io:print("|intVal:" + intVal);
-        float floatVal = check message.getFloatProperty("floatProp");
-        io:print("|floatVal:" + floatVal);
-
-        match (check message.getStringProperty("stringProp")) {
-            string s => io:print("|stringVal:" + s);
-            () => io:print("error");
+        var messageText = message.getTextMessageContent();
+        var booleanVal = message.getBooleanProperty("booleanProp");
+        if (booleanVal is boolean) {
+             io:print("booleanVal:" + booleanVal);
+        } else {
+             panic booleanVal;
         }
-        io:println("|message:" + messageText);
+        var intVal = message.getIntProperty("intProp");
+        if (intVal is int) {
+             io:print("|intVal:" + intVal);
+        } else {
+             panic intVal;
+        }
+        var floatVal = message.getFloatProperty("floatProp");
+        if (floatVal is float) {
+             io:print("|floatVal:" + floatVal);
+        } else {
+             panic floatVal;
+        }
+        var stringProp = message.getStringProperty("stringProp");
+        if (stringProp is string) {
+             io:print("|stringVal:" + stringProp);
+        } else if (stringProp is error) {
+             panic stringProp;
+        }
+        if (messageText is string) {
+             io:println("|message:" + messageText);
+        } else {
+             panic messageText;
+        }
     }
 }
 

@@ -137,6 +137,8 @@ public enum DiagnosticCode {
     UNSAFE_CONVERSION_ATTEMPT("unsafe.conversion.attempt"),
 
     INVALID_LITERAL_FOR_TYPE("invalid.literal.for.type"),
+    INVALID_LITERAL_FOR_MATCH_PATTERN("invalid.literal.for.match.pattern"),
+    INVALID_EXPR_WITH_TYPE_GUARD_FOR_MATCH_PATTERN("invalid.expr.with.type.guard.for.match"),
     ARRAY_LITERAL_NOT_ALLOWED("array.literal.not.allowed"),
     STRING_TEMPLATE_LIT_NOT_ALLOWED("string.template.literal.not.allowed"),
     INVALID_RECORD_LITERAL_KEY("invalid.record.literal.key"),
@@ -189,6 +191,8 @@ public enum DiagnosticCode {
     INVALID_INDEX_EXPR_TUPLE_FIELD_ACCESS("invalid.index.expr.tuple.field.access"),
     INVALID_ENUM_EXPR("invalid.enum.expr"),
     INVALID_EXPR_IN_MATCH_STMT("invalid.expr.in.match.stmt"),
+    INVALID_PATTERN_CLAUSES_IN_MATCH_STMT("invalid.pattern.clauses.in.match.stmt"),
+    STATIC_MATCH_ONLY_SUPPORTS_ANYDATA("static.value.match.only.supports.anydata"),
     UNINITIALIZED_VARIABLE("uninitialized.variable"),
     INVALID_ANY_VAR_DEF("invalid.any.var.def"),
     INVALID_RECORD_LITERAL("invalid.record.literal"),
@@ -327,6 +331,12 @@ public enum DiagnosticCode {
     UNNECESSARY_CONDITION("unnecessary.condition"),
 
     // Dataflow analysis related error codes
+    PARTIALLY_INITIALIZED_VARIABLE("partially.initialized.variable"),
+
+    // Seal inbuilt function related codes
+    INCOMPATIBLE_STAMP_TYPE("incompatible.stamp.type"),
+    NOT_SUPPORTED_SOURCE_TYPE_FOR_STAMP("not.supported.source.for.stamp")
+    ;
     PARTIALLY_INITIALIZED_VARIABLE("partially.initialized.variable"),
 
     // Worker flush action related error codes

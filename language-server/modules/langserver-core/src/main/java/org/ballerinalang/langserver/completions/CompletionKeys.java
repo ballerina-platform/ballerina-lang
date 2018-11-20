@@ -60,8 +60,6 @@ public class CompletionKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<WorkspaceDocumentManager> DOC_MANAGER_KEY
             = new LSContext.Key<>();
-    public static final LSContext.Key<String> CURRENT_LINE_SEGMENT_KEY
-            = new LSContext.Key<>();
     public static final LSContext.Key<Stack<Token>> FORCE_CONSUMED_TOKENS_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<TokenStream> TOKEN_STREAM_KEY

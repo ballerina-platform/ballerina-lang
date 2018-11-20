@@ -72,6 +72,10 @@ public enum Snippet {
 
     KW_PUBLIC(SnippetGenerator.getPublicKeywordSnippet()),
 
+    KW_FINAL(SnippetGenerator.getFinalKeywordSnippet()),
+
+    KW_CONST(SnippetGenerator.getConstKeywordSnippet()),
+
     KW_TYPE(SnippetGenerator.getTypeKeywordSnippet()),
 
     KW_VAR(SnippetGenerator.getVarKeywordSnippet()),
@@ -132,6 +136,10 @@ public enum Snippet {
 
     // Builtin Functions' snippets
     BUILTIN_LENGTH(SnippetGenerator.getBuiltinLengthSnippet()),
+
+    BUILTIN_FREEZE(SnippetGenerator.getBuiltinFreezeSnippet()),
+
+    BUILTIN_IS_FROZEN(SnippetGenerator.getBuiltinIsFrozenSnippet()),
 
     BUILTIN_IS_NAN(SnippetGenerator.getBuiltinIsNaNSnippet()),
 

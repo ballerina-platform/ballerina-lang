@@ -71,7 +71,7 @@ public class Send extends BlockingNativeCallableUnit {
             Descriptors.Descriptor inputType = (Descriptors.Descriptor) connectionStruct.getNativeData(GrpcConstants
                     .REQUEST_MESSAGE_DEFINITION);
             try {
-                Message requestMessage = MessageUtils.generateProtoMessage(responseValue, inputType);
+                Message requestMessage = new Message(inputType.getName(), responseValue);
                 requestSender.onNext(requestMessage);
             } catch (Exception e) {
                 LOG.error("Error while sending request message to server.", e);

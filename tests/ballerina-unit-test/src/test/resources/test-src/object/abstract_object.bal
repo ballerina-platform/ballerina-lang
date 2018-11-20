@@ -15,29 +15,29 @@
 // under the License.
 
 public type Address abstract object {
-    public string city;
+    public string city = "";
 
     public function getCity() returns string;
 };
 
 public type StudentAddress object {
-    public string city;
+    public string city = "";
 
     public new(city){}
 
     public function getCity() returns string {
-        return city;
+        return self.city;
     }
 };
 
 public type Employee object {
-    public string city;
+    public string city = "";
     public Address address;
 
     new(city, address) {}
 
     public function getCity() returns string {
-        return city;
+        return self.city;
     }
 };
 

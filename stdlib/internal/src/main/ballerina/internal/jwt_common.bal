@@ -36,7 +36,7 @@ const string IAT = "iat";
 # + kid - Key ID, hint indicating which key was used to secure the JWS
 # + customClaims - Map of custom claims
 public type JwtHeader record {
-    string alg;
+    string alg = "";
     string typ?;
     string cty?;
     string kid?;
@@ -54,11 +54,11 @@ public type JwtHeader record {
 # + iat - Issued at, identifies the time at which the JWT was issued
 # + customClaims - Map of custom claims
 public type JwtPayload record {
-    string iss;
-    string sub;
-    string[] aud;
+    string iss = "";
+    string sub = "";
+    string[] aud = [];
     string jti?;
-    int exp;
+    int exp = 0;
     int nbf?;
     int iat?;
     map customClaims?;

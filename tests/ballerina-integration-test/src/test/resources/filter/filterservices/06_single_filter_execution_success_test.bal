@@ -30,7 +30,7 @@ public type Filter12 object {
     }
 };
 
-Filter12 filter12;
+Filter12 filter12 = new;
 
 endpoint http:Listener echoEP05 {
     port: 9095,

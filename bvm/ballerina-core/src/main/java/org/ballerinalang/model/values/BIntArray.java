@@ -75,6 +75,11 @@ public class BIntArray extends BNewArray {
     }
 
     @Override
+    public void stamp(BType type) {
+
+    }
+
+    @Override
     public void grow(int newLength) {
         values = Arrays.copyOf(values, newLength);
     }
@@ -85,7 +90,7 @@ public class BIntArray extends BNewArray {
         intArray.size = this.size;
         return intArray;
     }
-    
+
     @Override
     public String stringValue() {
         StringJoiner sj = new StringJoiner(", ", "[", "]");

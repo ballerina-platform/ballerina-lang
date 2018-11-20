@@ -400,6 +400,26 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Const Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getConstKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.CONST_KEYWORD, "const ", ItemResolverConstants.KEYWORD_TYPE,
+                SnippetType.KEYWORD);
+    }
+
+    /**
+     * Get Final Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getFinalKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.FINAL_KEYWORD, "final ", ItemResolverConstants.KEYWORD_TYPE,
+                SnippetType.KEYWORD);
+    }
+
+    /**
      * Get Transaction Statement Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -546,6 +566,24 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getBuiltinLengthSnippet() {
         return new SnippetBlock(ItemResolverConstants.BUILTIN_LENGTH_LABEL, "length();", "", SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get Freeze Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinFreezeSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_FREEZE_LABEL, "freeze();", "", SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get isFrozen Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinIsFrozenSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_IS_FROZEN_LABEL, "isFrozen();", "", SnippetType.SNIPPET);
     }
 
     /**
