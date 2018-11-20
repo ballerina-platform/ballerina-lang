@@ -25,7 +25,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
- * error (reason, {detail}) = getError();
+ * error (reason, {detail}) = getError();.
  *
  * @since 0.985.0
  */
