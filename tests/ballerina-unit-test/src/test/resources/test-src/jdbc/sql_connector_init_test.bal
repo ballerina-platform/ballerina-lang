@@ -26,9 +26,9 @@ function testConnectionPoolProperties1() returns (json) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
+    var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
-    json j = check <json>dt;
+    json j = getJsonConversionResult(dt);
     testDB.stop();
     return j;
 }
@@ -42,9 +42,9 @@ function testConnectionPoolProperties2() returns (json) {
     };
 
 
-    table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
+    var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
-    json j = check <json>dt;
+    json j = getJsonConversionResult(dt);
     testDB.stop();
     return j;
 }
@@ -56,9 +56,9 @@ function testConnectionPoolProperties3() returns (json) {
         username: "SA"
     };
 
-    table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
+    var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
-    json j = check <json>dt;
+    json j = getJsonConversionResult(dt);
     testDB.stop();
     return j;
 }
@@ -72,9 +72,9 @@ function testConnectorWithDefaultPropertiesForListedDB() returns (json) {
         poolOptions: { }
     };
 
-    table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
+    var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
-    json j = check <json>dt;
+    json j = getJsonConversionResult(dt);
     testDB.stop();
     return j;
 }
@@ -91,9 +91,9 @@ function testConnectorWithWorkers() returns (json) {
         int x = 0;
         json y;
 
-        table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
+        var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
-        json j = check <json>dt;
+        json j = getJsonConversionResult(dt);
         testDB.stop();
         return j;
     }
@@ -111,9 +111,9 @@ function testConnectorWithDataSourceClass() returns (json) {
         dbOptions: propertiesMap
     };
 
-    table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
+    var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
-    json j = check <json>dt;
+    json j = getJsonConversionResult(dt);
     testDB.stop();
     return j;
 }
@@ -128,9 +128,9 @@ function testConnectorWithDataSourceClassAndProps() returns (json) {
         dbOptions: propertiesMap2
     };
 
-    table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
+    var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
-    json j = check <json>dt;
+    json j = getJsonConversionResult(dt);
     testDB.stop();
     return j;
 }
@@ -145,9 +145,9 @@ function testConnectorWithDataSourceClassWithoutURL() returns (json) {
     };
 
 
-    table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
+    var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
-    json j = check <json>dt;
+    json j = getJsonConversionResult(dt);
     testDB.stop();
     return j;
 }
@@ -163,9 +163,9 @@ function testConnectorWithDataSourceClassURLPriority() returns (json) {
     };
 
 
-    table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
+    var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
-    json j = check <json>dt;
+    json j = getJsonConversionResult(dt);
     testDB.stop();
     return j;
 }
@@ -181,9 +181,9 @@ function testPropertiesGetUsedOnlyIfDataSourceGiven() returns (json) {
         dbOptions: { "invalidProperty": 109 }
     };
 
-    table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
+    var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
-    json j = check <json>dt;
+    json j = getJsonConversionResult(dt);
     testDB.stop();
     return j;
 }
@@ -199,3 +199,19 @@ function testConnectionFailure() {
     };
 
 }
+
+function getJsonConversionResult(table|error tableOrError) returns json {
+    json retVal = {};
+    if (tableOrError is table) {
+        var jsonConversionResult = <json>tableOrError;
+        if (jsonConversionResult is json) {
+            retVal = jsonConversionResult;
+        } else if (jsonConversionResult is error) {
+            retVal = {"Error" : <string>jsonConversionResult.detail().message};
+        }
+    } else if (tableOrError is error) {
+        retVal = {"Error" : <string>tableOrError.detail().message};
+    }
+    return retVal;
+}
+

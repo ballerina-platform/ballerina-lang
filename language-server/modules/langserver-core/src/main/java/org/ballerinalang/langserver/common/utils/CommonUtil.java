@@ -53,6 +53,7 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextEdit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeChecker;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
@@ -66,14 +67,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BIntermediateCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -91,8 +90,10 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.io.File;
@@ -732,7 +733,8 @@ public class CommonUtil {
                 .collect(Collectors.toList());
     }
 
-    static void populateIterableOperations(SymbolInfo variable, List<SymbolInfo> symbolInfoList, LSContext context) {
+    static void populateIterableAndBuiltinFunctions(SymbolInfo variable, List<SymbolInfo> symbolInfoList,
+                                                    LSContext context) {
         BType bType = variable.getScopeEntry().symbol.getType();
 
         if (iterableType(bType)) {
@@ -759,6 +761,33 @@ public class CommonUtil {
             }
 
             // TODO: Add support for Table and Tuple collection
+        }
+
+        if (builtinLengthFunctionAllowed(bType)) {
+            // For the iterable types, add the length builtin function
+            SymbolInfo lengthSymbolInfo = getIterableOpSymbolInfo(Snippet.BUILTIN_LENGTH.get(), bType,
+                    ItemResolverConstants.BUILTIN_LENGTH_LABEL, context);
+            symbolInfoList.add(lengthSymbolInfo);
+        }
+
+        if (builtinFreezeFunctionAllowed(context, bType)) {
+            // For the any data value type, add the freeze, isFrozen builtin function
+            SymbolInfo freeze = getIterableOpSymbolInfo(Snippet.BUILTIN_FREEZE.get(), bType,
+                                                        ItemResolverConstants.BUILTIN_FREEZE_LABEL, context);
+            SymbolInfo isFrozen = getIterableOpSymbolInfo(Snippet.BUILTIN_IS_FROZEN.get(), bType,
+                                                          ItemResolverConstants.BUILTIN_IS_FROZEN_LABEL, context);
+            symbolInfoList.addAll(Arrays.asList(freeze, isFrozen));
+        }
+
+        // Populate the Builtin Functions
+        if (bType.tag == TypeTags.FLOAT) {
+            SymbolInfo isNaN = getIterableOpSymbolInfo(Snippet.BUILTIN_IS_NAN.get(), bType,
+                    ItemResolverConstants.BUILTIN_IS_NAN_LABEL, context);
+            SymbolInfo isFinite = getIterableOpSymbolInfo(Snippet.BUILTIN_IS_FINITE.get(), bType,
+                    ItemResolverConstants.BUILTIN_IS_FINITE_LABEL, context);
+            SymbolInfo isInfinite = getIterableOpSymbolInfo(Snippet.BUILTIN_IS_INFINITE.get(), bType,
+                    ItemResolverConstants.BUILTIN_IS_INFINITE_LABEL, context);
+            symbolInfoList.addAll(Arrays.asList(isNaN, isFinite, isInfinite));
         }
     }
 
@@ -799,7 +828,7 @@ public class CommonUtil {
                 .collect(Collectors.toList());
     }
 
-    static boolean isInvalidSymbol(BSymbol symbol) {
+    public static boolean isInvalidSymbol(BSymbol symbol) {
         return ("_".equals(symbol.name.getValue())
                 || "runtime".equals(symbol.getName().getValue())
                 || "transactions".equals(symbol.getName().getValue())
@@ -888,9 +917,16 @@ public class CommonUtil {
     }
 
     private static boolean iterableType(BType bType) {
-        return bType instanceof BArrayType || bType instanceof BMapType || bType instanceof BJSONType
-                || bType instanceof BXMLType || bType instanceof BTableType
-                || bType instanceof BIntermediateCollectionType;
+        switch (bType.tag) {
+            case TypeTags.ARRAY:
+            case TypeTags.MAP:
+            case TypeTags.JSON:
+            case TypeTags.XML:
+            case TypeTags.TABLE:
+            case TypeTags.INTERMEDIATE_COLLECTION:
+                return true;
+        }
+        return false;
     }
 
     private static boolean aggregateFunctionsAllowed(BType bType) {
@@ -904,6 +940,29 @@ public class CommonUtil {
                 || bSymbol.getName().getValue().contains(UtilSymbolKeys.DOLLAR_SYMBOL_KEY)
                 || bSymbol.getName().getValue().equals("main")
                 || bSymbol.getName().getValue().endsWith(".new");
+    }
+
+    private static boolean builtinLengthFunctionAllowed(BType bType) {
+        switch (bType.tag) {
+            case TypeTags.ARRAY:
+            case TypeTags.MAP:
+            case TypeTags.JSON:
+            case TypeTags.XML:
+            case TypeTags.TABLE:
+            case TypeTags.TUPLE:
+            case TypeTags.RECORD:
+                return true;
+        }
+        return false;
+    }
+
+    private static boolean builtinFreezeFunctionAllowed(LSContext context, BType bType) {
+        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+        if (compilerContext != null) {
+            TypeChecker typeChecker = TypeChecker.getInstance(compilerContext);
+            return typeChecker.isValidFreezeOrIsFrozenFunction(bType);
+        }
+        return false;
     }
 
     ///////////////////////////////

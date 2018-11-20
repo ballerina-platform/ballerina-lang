@@ -66,7 +66,7 @@ public class Register extends AbstractGrpcNativeFunction {
                 throw  new BallerinaConnectorException("Error when initializing service register builder.");
             }
 
-            servicesRegistryBuilder.addService(ServicesBuilderUtils.getServiceDefinition(service));
+            servicesRegistryBuilder.addService(ServicesBuilderUtils.getServiceDefinition(service, context));
             if (!isConnectorStarted(serviceEndpoint)) {
                 startServerConnector(serviceEndpoint, servicesRegistryBuilder.build());
             }

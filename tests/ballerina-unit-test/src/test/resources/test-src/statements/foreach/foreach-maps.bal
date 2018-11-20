@@ -1,4 +1,4 @@
-string output;
+string output = "";
 
 function stringConcat(string key, string value){
     output = output + key + ":" + value + " ";

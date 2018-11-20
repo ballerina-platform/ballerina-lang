@@ -130,7 +130,19 @@ public enum Snippet {
 
     ITR_SUM(SnippetGenerator.getIterableSumSnippet()),
 
+    // Builtin Functions' snippets
+    BUILTIN_LENGTH(SnippetGenerator.getBuiltinLengthSnippet()),
 
+    BUILTIN_FREEZE(SnippetGenerator.getBuiltinFreezeSnippet()),
+
+    BUILTIN_IS_FROZEN(SnippetGenerator.getBuiltinIsFrozenSnippet()),
+
+    BUILTIN_IS_NAN(SnippetGenerator.getBuiltinIsNaNSnippet()),
+
+    BUILTIN_IS_FINITE(SnippetGenerator.getBuiltinIsFiniteSnippet()),
+
+    BUILTIN_IS_INFINITE(SnippetGenerator.getBuiltinIsInFiniteSnippet()),
+    
     // Iterable operators' lambda function parameters
     ITR_ON_MAP_PARAMS(SnippetGenerator.getIterableOnMapParamSnippet()),
 

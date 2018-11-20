@@ -42,21 +42,15 @@ public class BallerinaTupleDestructuringStatementImpl extends BallerinaComposite
   }
 
   @Override
-  @NotNull
+  @Nullable
   public BallerinaExpression getExpression() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaExpression.class));
+    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
   }
 
   @Override
-  @Nullable
-  public BallerinaParameterList getParameterList() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaParameterList.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaVariableReferenceList getVariableReferenceList() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaVariableReferenceList.class);
+  @NotNull
+  public BallerinaTupleRefBindingPattern getTupleRefBindingPattern() {
+    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaTupleRefBindingPattern.class));
   }
 
   @Override
@@ -66,27 +60,9 @@ public class BallerinaTupleDestructuringStatementImpl extends BallerinaComposite
   }
 
   @Override
-  @NotNull
-  public PsiElement getLeftParenthesis() {
-    return notNullChild(findChildByType(LEFT_PARENTHESIS));
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getRightParenthesis() {
-    return notNullChild(findChildByType(RIGHT_PARENTHESIS));
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getSemicolon() {
-    return notNullChild(findChildByType(SEMICOLON));
-  }
-
-  @Override
   @Nullable
-  public PsiElement getVar() {
-    return findChildByType(VAR);
+  public PsiElement getSemicolon() {
+    return findChildByType(SEMICOLON);
   }
 
 }

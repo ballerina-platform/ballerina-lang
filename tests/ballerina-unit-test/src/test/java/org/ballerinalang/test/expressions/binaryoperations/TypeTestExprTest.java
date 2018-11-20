@@ -481,4 +481,20 @@ public class TypeTestExprTest {
         Assert.assertEquals(returns[0].stringValue(), "on");
         Assert.assertEquals(returns[1].stringValue(), "on");
     }
+
+    @Test
+    public void testFiniteType_1() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteType_1");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "a is a fruit");
+    }
+
+    @Test
+    public void testFiniteType_2() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteType_2");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "a is an Apple");
+    }
 }

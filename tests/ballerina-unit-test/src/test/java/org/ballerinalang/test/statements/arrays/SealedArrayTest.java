@@ -316,7 +316,7 @@ public class SealedArrayTest {
 
     @Test(description = "Test accessing invalid index of sealed array",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*message: array index out of range: index: 5, size: 3.*")
+            expectedExceptionsMessageRegExp = ".*error: array index out of range: index: 5, size: 3.*")
     public void invalidIndexAccess() {
         BValue[] args = {new BInteger(5)};
         BRunUtil.invoke(compileResult, "invalidIndexAccess", args);
@@ -324,14 +324,14 @@ public class SealedArrayTest {
 
     @Test(description = "Test accessing invalid index of sealed array when assigned to unsealed array",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*message: array index out of range: index: 4, size: 3.*")
+            expectedExceptionsMessageRegExp = ".*error: array index out of range: index: 4, size: 3.*")
     public void assignedArrayInvalidIndexAccess() {
         BRunUtil.invoke(compileResult, "assignedArrayInvalidIndexAccess");
     }
 
     @Test(description = "Test accessing invalid index of sealed array matched union type",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*message: array index out of range: index: 5, size: 3.*")
+            expectedExceptionsMessageRegExp = ".*error: array index out of range: index: 5, size: 3.*")
     public void accessInvalidIndexOfMatchedSealedArray() {
         BIntArray bIntArray = new BIntArray(3);
         bIntArray.add(0, 1);
@@ -344,7 +344,7 @@ public class SealedArrayTest {
     @Test(description = "Test accessing invalid index of sealed array matched union type",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*message: failed to set element to json: array index out of range: index: 4, size: 3.*")
+                    ".*error: failed to set element to json: array index out of range: index: 4, size: 3.*")
     public void accessInvalidIndexJSONArray() {
         BInteger bInteger = new BInteger(1);
         BInteger bInteger2 = new BInteger(4);
@@ -357,7 +357,7 @@ public class SealedArrayTest {
     @Test(description = "Test accessing invalid index of sealed array matched union type",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*message: failed to set element to json: array index out of range: index: 3, size: 3.*")
+                    ".*error: failed to set element to json: array index out of range: index: 3, size: 3.*")
     public void invalidIndexReferenceJSONArray() {
         BRunUtil.invoke(compileResult, "invalidIndexReferenceJSONArray");
     }
@@ -390,7 +390,7 @@ public class SealedArrayTest {
 
     @Test(description = "Test accessing invalid index of sealed array of constrained map",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*message: array index out of range: index: 3, size: 3.*")
+            expectedExceptionsMessageRegExp = ".*error: array index out of range: index: 3, size: 3.*")
     public void testSealedArrayConstrainedMapInvalidIndex() {
         BIntArray bIntArray = new BIntArray(3);
         bIntArray.add(0, 1);
