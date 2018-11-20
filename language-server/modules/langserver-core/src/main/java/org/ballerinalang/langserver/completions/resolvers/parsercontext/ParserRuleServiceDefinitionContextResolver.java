@@ -134,7 +134,7 @@ public class ParserRuleServiceDefinitionContextResolver extends AbstractItemReso
                             .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BEndpointVarSymbol
                                     && symbolInfo.getScopeEntry().symbol.type == listenerType)
                             .collect(Collectors.toList());
-                    completionItems.addAll(this.getCompletionItemList(endpointSymbols));
+                    completionItems.addAll(this.getCompletionItemList(endpointSymbols, ctx));
                 }
             } else {
                 // suggest all the visible, defined endpoints
@@ -142,7 +142,7 @@ public class ParserRuleServiceDefinitionContextResolver extends AbstractItemReso
                         .stream()
                         .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BEndpointVarSymbol)
                         .collect(Collectors.toList());
-                completionItems.addAll(this.getCompletionItemList(endpointSymbols));
+                completionItems.addAll(this.getCompletionItemList(endpointSymbols, ctx));
             }
         } else {
             boolean isSnippet = ctx.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
