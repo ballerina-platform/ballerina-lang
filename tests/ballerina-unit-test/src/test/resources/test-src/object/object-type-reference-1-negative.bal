@@ -20,7 +20,7 @@ type Person1 abstract object {
 };
 
 type Employee1 object {
-    public float salary;
+    public float salary = 0.0;
 };
 
 type Manager1 object {
