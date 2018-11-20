@@ -25,7 +25,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
+import java.util.List;
+import java.util.StringJoiner;
 import java.util.function.BiConsumer;
+
+import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
 
 /**
  * To represent a function template.
@@ -34,8 +38,8 @@ import java.util.function.BiConsumer;
  */
 public class FunctionTemplate extends AbstractTestTemplate {
     private final String testFunctionName;
-    private final String functionInvocation;
-    private final String functionInvocationField;
+    private final List<String> functionInvocations;
+    private final String dataProviderBasedFunctionInvocation;
     private final String dataProviderReturnType;
     private final String dataProviderReturnValue;
     private final String testFunctionParams;
@@ -48,8 +52,9 @@ public class FunctionTemplate extends AbstractTestTemplate {
         TestFunctionGenerator generator = new TestFunctionGenerator(importsConsumer, builtTestFile.packageID, function);
         this.testFunctionName = getSafeFunctionName("test" + upperCaseFirstLetter(functionName));
         this.isVoidFunction = (function.returnTypeNode == null || function.returnTypeNode.type instanceof BNilType);
-        this.functionInvocation = generator.getTargetFuncInvocation();
-        this.functionInvocationField = generator.getTargetFuncReturnType() + " actual = " + functionInvocation + ";";
+        this.functionInvocations = generator.getTargetFuncInvocations();
+        this.dataProviderBasedFunctionInvocation =
+                generator.getTargetFuncReturnType() + " actual = " + generator.getTargetFuncInvocation() + ";";
         this.testFunctionParams = generator.getTestFuncParams();
         this.dataProviderReturnType = generator.getDataProviderReturnType();
         this.dataProviderReturnValue = generator.getDataProviderReturnValue();
@@ -66,13 +71,20 @@ public class FunctionTemplate extends AbstractTestTemplate {
         String filename = (isVoidFunction) ? "voidFunction.bal" : "returnTypedFunction.bal";
         RendererOutput functionOutput = new TemplateBasedRendererOutput(filename);
         functionOutput.put(PlaceHolder.OTHER.get("testFunctionName"), testFunctionName);
-        functionOutput.put(PlaceHolder.OTHER.get("actual"),
-                           (isVoidFunction) ? functionInvocation + ";" : functionInvocationField);
-        if (!isVoidFunction) {
+        String functionInvocationLine;
+        if (isVoidFunction) {
+            StringJoiner lines = new StringJoiner(LINE_SEPARATOR);
+            functionInvocations.forEach(
+                    invocation -> lines.add("    " + invocation + ";")
+            );
+            functionInvocationLine = lines.toString();
+        } else {
+            functionInvocationLine = dataProviderBasedFunctionInvocation;
             functionOutput.put(PlaceHolder.OTHER.get("dataProviderReturnType"), dataProviderReturnType);
             functionOutput.put(PlaceHolder.OTHER.get("dataProviderReturnValue"), dataProviderReturnValue);
             functionOutput.put(PlaceHolder.OTHER.get("testFunctionParams"), testFunctionParams);
         }
+        functionOutput.put(PlaceHolder.OTHER.get("actual"), functionInvocationLine);
 
         //Append to root template
         rendererOutput.append(PlaceHolder.CONTENT, functionOutput.getRenderedContent());
