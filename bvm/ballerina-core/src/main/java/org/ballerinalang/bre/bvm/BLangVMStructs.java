@@ -58,14 +58,14 @@ public class BLangVMStructs {
 
         Map<String, BField> structFields = structType.getFields();
         int valCount = 0;
-        for (Map.Entry<String, BField> entry : structFields.entrySet()) {
+        for (BField field : structFields.values()) {
             BValue value;
             if (values.length >= valCount + 1) {
-                value = getBValue(entry.getValue().fieldType, values[valCount]);
+                value = getBValue(field.fieldType, values[valCount]);
             } else {
-                value = entry.getValue().fieldType.getEmptyValue();
+                value = field.fieldType.getEmptyValue();
             }
-            bStruct.put(entry.getValue().fieldName, value);
+            bStruct.put(field.fieldName, value);
             valCount++;
         }
         return bStruct;
