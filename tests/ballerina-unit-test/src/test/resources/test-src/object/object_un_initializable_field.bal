@@ -6,7 +6,7 @@ function test () returns int {
 
 type Person object {
 
-    public int age;
+    public int age = 0;
     public Employee emp;
 
     __init (age, emp) {
@@ -14,6 +14,7 @@ type Person object {
 };
 
 type Employee object {
+<<<<<<< HEAD
     public int age = 0;
     public Foo foo;
     public Bar bar = {};

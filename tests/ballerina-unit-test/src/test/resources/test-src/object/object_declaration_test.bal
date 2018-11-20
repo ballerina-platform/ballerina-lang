@@ -12,14 +12,14 @@ function testGetDefaultValuesInObject() returns (int, string, int, string) {
 type Person object {
     public int age = 0;
     public string name = "";
-    public Employee emp = new();
-    public Foo foo = new();
-    public Bar bar = new();
+    public Employee emp = new;
+    public Foo foo = new;
+    public Bar bar = new;
 };
 
 type Employee object {
-    public int age;
-    public string name;
+    public int age = 0;
+    public string name = "";
 
     __init (age = 6, string key = "abc") {
         self.name = "sample value";

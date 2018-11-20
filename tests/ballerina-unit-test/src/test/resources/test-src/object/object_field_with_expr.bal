@@ -12,8 +12,8 @@ type Person object {
 
 
 type Employee object {
-    public int pp;
-    public string name;
+    public int pp = 0;
+    public string name = "";
 
     __init (pp, name) {
 

@@ -455,7 +455,7 @@ public class ObjectTest {
     @Test (description = "Negative test to test returning different type without type name")
     public void testObjectNegativeTestForReturnDifferentType() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_new_in_return_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 6);
+        Assert.assertEquals(result.getErrorCount(), 5);
         BAssertUtil.validateError(result, 0, "too many arguments in call to 'new()'", 23, 12);
         BAssertUtil.validateError(result, 1, "cannot infer type of the object from 'Person?'", 27, 12);
         BAssertUtil.validateError(result, 2, "cannot infer type of the object from 'Person?'", 31, 26);
@@ -511,7 +511,7 @@ public class ObjectTest {
                 "function 'test9' in the object 'Person'", 78, 1);
         BAssertUtil.validateError(result, index++, "cannot find matching interface " +
                 "function 'test12' in the object 'Person'", 90, 1);
-        BAssertUtil.validateError(result, index++, "cannot find matching interface " +
+        BAssertUtil.validateError(result, index, "cannot find matching interface " +
                 "function 'test13' in the object 'Person'", 94, 1);
     }
 

@@ -257,6 +257,10 @@ public class Symbols {
         return (mask & attachPoint) == attachPoint;
     }
 
+    public static boolean isOptional(BSymbol sym) {
+        return (sym.flags & Flags.OPTIONAL) == Flags.OPTIONAL;
+    }
+
     public static BTypeSymbol createScopeSymbol(Name name, PackageID pkgID, BType type, BSymbol owner) {
         BTypeSymbol typeSymbol = createTypeSymbol(SymTag.SCOPE, 0, name, pkgID, type, owner);
         typeSymbol.kind = SymbolKind.SCOPE;

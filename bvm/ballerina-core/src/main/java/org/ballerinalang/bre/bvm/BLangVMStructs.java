@@ -36,6 +36,7 @@ import org.ballerinalang.util.program.BLangFunctions;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.Map;
 
 /**
  * Util Class for handling structs in Ballerina VM.
@@ -55,15 +56,17 @@ public class BLangVMStructs {
         BStructureType structType = structInfo.getType();
         BMap<String, BValue> bStruct = new BMap<>(structType);
 
-        BField[] structFields = structType.getFields();
-        for (int i = 0; i < structFields.length; i++) {
+        Map<String, BField> structFields = structType.getFields();
+        int valCount = 0;
+        for (BField field : structFields.values()) {
             BValue value;
-            if (values.length >= i + 1) {
-                value = getBValue(structFields[i].fieldType, values[i]);
+            if (values.length >= valCount + 1) {
+                value = getBValue(field.fieldType, values[valCount]);
             } else {
-                value = structFields[i].fieldType.getEmptyValue();
+                value = field.fieldType.getEmptyValue();
             }
-            bStruct.put(structFields[i].fieldName, value);
+            bStruct.put(field.fieldName, value);
+            valCount++;
         }
         return bStruct;
     }

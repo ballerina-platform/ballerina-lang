@@ -103,6 +103,9 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
 
         BLangInvocation functionNode = getFunctionNode(line, column, documentUri, documentManager, lsCompiler, context);
+        if (functionNode == null) {
+            throw new LSCommandExecutorException("Couldn't find the function node!");
+        }
         String functionName = functionNode.name.getValue();
 
         Path filePath = Paths.get(URI.create(documentUri));

@@ -856,47 +856,37 @@ public class CommonUtil {
     private static SymbolInfo getIterableOpSymbolInfo(SnippetBlock operation, @Nullable BType bType, String label,
                                                       LSContext context) {
         boolean isSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
-        String lambdaSignature = "";
-        SymbolInfo.IterableOperationSignature signature;
+        String signature = "";
+        SymbolInfo.CustomOperationSignature customOpSignature;
         SymbolInfo iterableOperation = new SymbolInfo();
         switch (operation.getLabel()) {
             case ItemResolverConstants.ITR_FOREACH_LABEL: {
                 String params = getIterableOpLambdaParam(bType, context);
-                lambdaSignature = operation.getString(isSnippet)
+                signature = operation.getString(isSnippet)
                         .replace(UtilSymbolKeys.ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
                 break;
             }
             case ItemResolverConstants.ITR_MAP_LABEL: {
                 String params = getIterableOpLambdaParam(bType, context);
-                lambdaSignature = operation
-                        .getString(isSnippet)
+                signature = operation.getString(isSnippet)
                         .replace(UtilSymbolKeys.ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
                 break;
             }
             case ItemResolverConstants.ITR_FILTER_LABEL: {
                 String params = getIterableOpLambdaParam(bType, context);
-                lambdaSignature = operation
-                        .getString(isSnippet)
+                signature = operation.getString(isSnippet)
                         .replace(UtilSymbolKeys.ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
                 break;
             }
-            case ItemResolverConstants.ITR_COUNT_LABEL:
-            case ItemResolverConstants.ITR_MIN_LABEL:
-            case ItemResolverConstants.ITR_MAX_LABEL:
-            case ItemResolverConstants.ITR_AVERAGE_LABEL:
-            case ItemResolverConstants.ITR_SUM_LABEL:
-                lambdaSignature = operation.getString(isSnippet);
-                break;
             default: {
-                // Do Nothing
+                signature = operation.getString(isSnippet);
                 break;
             }
-
         }
 
-        signature = new SymbolInfo.IterableOperationSignature(label, lambdaSignature);
-        iterableOperation.setIterableOperation(true);
-        iterableOperation.setIterableOperationSignature(signature);
+        customOpSignature = new SymbolInfo.CustomOperationSignature(label, signature);
+        iterableOperation.setCustomOperation(true);
+        iterableOperation.setCustomOperationSignature(customOpSignature);
         return iterableOperation;
     }
 
@@ -975,7 +965,7 @@ public class CommonUtil {
      * @return {@link Predicate}    Predicate for the check
      */
     public static Predicate<SymbolInfo> invalidSymbolsPredicate() {
-        return symbolInfo -> !symbolInfo.isIterableOperation()
+        return symbolInfo -> !symbolInfo.isCustomOperation()
                 && symbolInfo.getScopeEntry() != null
                 && isInvalidSymbol(symbolInfo.getScopeEntry().symbol);
     }

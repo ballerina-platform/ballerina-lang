@@ -118,3 +118,11 @@ function stampAnydataArrayToUnion() returns Employee[]|int|error  {
     return employeeArray;
 }
 
+function stampArrayValueToTuple() returns (Employee, Student)|error {
+    Employee[] arrayValue = [{ name: "Mohan", status: "single", batch: "LK2015", school: "Royal College" },
+    { name: "Raja", status: "single", batch: "LK2014", school: "Hindu College" }];
+
+    (Employee, Student)|error returnValue = (Employee, Student).stamp(arrayValue);
+    return returnValue;
+}
+

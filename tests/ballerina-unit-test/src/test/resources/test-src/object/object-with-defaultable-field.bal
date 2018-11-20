@@ -6,9 +6,9 @@ public function testObjectWithSimpleInit () returns (int, string, int, string) {
 
 type Person object {
     public int age = 10;
-    public string name;
+    public string name = "";
 
-    int year;
+    int year = 0;
     string month = "february";
 
     __init (year = 50, int count, name = "sample value1", string val1 = "default value") {

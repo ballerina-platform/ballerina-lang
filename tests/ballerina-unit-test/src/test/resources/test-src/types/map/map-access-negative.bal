@@ -1,5 +1,5 @@
 function incorrectMapAccessTest() returns (string?) {
-    map animals;
+    map animals = {};
     animals["dog"] = "Jimmy";
     return animals[0];
 }

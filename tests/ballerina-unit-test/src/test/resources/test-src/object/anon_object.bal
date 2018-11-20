@@ -15,7 +15,12 @@ function testAnonObjectAsLocalVar() returns (int) {
 }
 
 
-object { public string fname; public string lname; public int age; new (fname = "default fname", lname = "default lname") {}} person;
+object {
+    public string fname = "";
+    public string lname = "";
+    public int age = 0;
+    new (fname = "default fname", lname = "default lname") {}
+} person = new;
 
 function testAnonObjectAsPkgVar() returns (string) {
 
@@ -66,10 +71,10 @@ function testAnonObjectWithFunctionAsLocalVar () returns string {
 
 
 public type Person object {
-    public int age;
-    public string name;
-    public int length;
-    public string kind;
+    public int age = 0;
+    public string name = "";
+    public int length = 0;
+    public string kind = "";
 
     public __init (age, name, length) {
 
@@ -112,8 +117,8 @@ function testAnonObjectWithRecordLiteral() returns (int, string) {
 type Foo object {
     public record {int age; string name;} details;
 
-    private int length;
-    private string kind;
+    private int length = 0;
+    private string kind = "";
 
     __init (details, kind) {
     }
@@ -133,8 +138,8 @@ function testObjectWithSelfReference() returns (int, string) {
     object {public int age; public string name; new () {self.age = 88;self.name = "Tyler ";}function test(int a, string n) {
         self.age = self.age + a;
         self.name = self.name + n;
-    }} sample;
+    }} sample = new;
 
     sample.test(10, "Jewell");
-    return (sample.age, sample. name);
+    return (sample.age, sample.name);
 }
