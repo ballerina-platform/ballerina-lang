@@ -30,13 +30,13 @@ import org.testng.annotations.Test;
  *
  * @since 0.985.0
  */
-public class ForeachTypedBindingPatternsTests {
+public class ForeachArraysTypedBindingPatternsTests {
 
     private CompileResult program;
 
     @BeforeClass
     public void setup() {
-        program = BCompileUtil.compile("test-src/statements/foreach/foreach-typed-binding-patterns.bal");
+        program = BCompileUtil.compile("test-src/statements/foreach/foreach-arrays-typed-binding-patterns.bal");
     }
 
     @Test

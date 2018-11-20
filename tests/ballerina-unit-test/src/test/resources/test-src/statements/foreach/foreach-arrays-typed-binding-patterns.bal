@@ -27,12 +27,6 @@ function concatIntIntString(int i1, int i2, string s) {
     output = output + i1+ ":" + i2 + ":" + s + " ";
 }
 
-function concatIntStringString(int i1, string s1, string s2) {
-    output = output + i1+ ":" + s1 + ":" + s2 + " ";
-}
-
-// Test array -------------------------------------------------------------------------------------
-
 function testArrayWithSimpleVariableWithoutType() returns string {
     output = "";
 
