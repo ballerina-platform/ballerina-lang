@@ -14,7 +14,7 @@ public type personFoo object {
     public string ssn;
     public int id;
 
-    public new(age, name, ssn, id) {
+    public __init(age, name, ssn, id) {
         self.age = age;
         self.name = name;
         self.ssn = ssn;

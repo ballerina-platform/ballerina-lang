@@ -106,7 +106,7 @@ typeReference
     ;
 
 objectInitializer
-    :   documentationString? annotationAttachment* (PUBLIC)? NEW objectInitializerParameterList callableUnitBody
+    :   documentationString? annotationAttachment* (PUBLIC)? OBJECT_INIT objectInitializerParameterList callableUnitBody
     ;
 
 objectInitializerParameterList

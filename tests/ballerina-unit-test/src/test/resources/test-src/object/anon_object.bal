@@ -34,7 +34,7 @@ type employee object {
             public string city;
             public string state;
             public string zipcode;
-          new (line01, city, state, zipcode) {}} address;
+          __init (line01, city, state, zipcode) {}} address;
 
     public object {
         public string month = "JAN";
@@ -42,7 +42,7 @@ type employee object {
         public string year = "1970";
         } dateOfBirth;
 
-    new (fname, lname, age, address, dateOfBirth) {}
+    __init (fname, lname, age, address, dateOfBirth) {}
 };
 
 function testAnonObjectAsObjectField() returns (string) {
@@ -71,7 +71,7 @@ public type Person object {
     public int length;
     public string kind;
 
-    public new (age, name, length) {
+    public __init (age, name, length) {
 
     }
 
@@ -115,7 +115,7 @@ type Foo object {
     private int length;
     private string kind;
 
-    new (details, kind) {
+    __init (details, kind) {
     }
 
     function getName () returns string {

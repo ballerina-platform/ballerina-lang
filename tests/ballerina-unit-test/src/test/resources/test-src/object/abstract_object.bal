@@ -23,7 +23,7 @@ public type Address abstract object {
 public type StudentAddress object {
     public string city;
 
-    public new(city){}
+    public __init(city){}
 
     public function getCity() returns string {
         return city;
@@ -34,7 +34,7 @@ public type Employee object {
     public string city;
     public Address address;
 
-    new(city, address) {}
+    __init(city, address) {}
 
     public function getCity() returns string {
         return city;

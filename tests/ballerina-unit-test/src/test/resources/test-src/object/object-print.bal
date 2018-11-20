@@ -13,6 +13,6 @@ type Person object {
     int year = 50;
     string month = "February";
     
-    new (age, name, year, month) {
+    __init (age, name, year, month) {
     }
 };

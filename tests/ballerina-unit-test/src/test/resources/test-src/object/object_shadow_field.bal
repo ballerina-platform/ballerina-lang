@@ -9,7 +9,7 @@ type Person object {
     public int age = 10;
     public string name;
 
-    new (int a = 10, string n = "sample result") {
+    __init (int a = 10, string n = "sample result") {
         self.age = a;
         self.name = n;
     }

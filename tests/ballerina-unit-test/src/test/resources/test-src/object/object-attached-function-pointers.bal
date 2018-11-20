@@ -103,7 +103,7 @@ public type FooObj object {
     private (function(string[]) returns string) fp1;
     private (function(int[]) returns int) fp2;
 
-    new (fp1, fp2){
+    __init (fp1, fp2){
         string[] s = ["abc", "afg"];
         int[] i = [1,2,3,4,5];
         string a = fp1(s);
@@ -149,7 +149,7 @@ function test9() returns string {
 public type O1 object {
     private (function(string[]) returns string) fpO1;
 
-    new (fpO1){
+    __init (fpO1){
     }
 
     public function process(string[] vals) returns string{
@@ -160,7 +160,7 @@ public type O1 object {
 public type O2 object {
     private (function(string[]) returns string) fpO2;
 
-    new (fpO2){}
+    __init (fpO2){}
 
     public function process(string[] vals) returns string{
         return self.fpO2(vals);
@@ -170,7 +170,7 @@ public type O2 object {
 public type O3 object {
     private (function(string[]) returns string) fpO3;
 
-    new (fpO3){}
+    __init (fpO3){}
 
     public function process(string[] vals) returns string{
         return self.fpO3(vals);
@@ -180,7 +180,7 @@ public type O3 object {
 public type O4 object {
     private (function(string[]) returns string) fpO4;
 
-    new (fpO4){}
+    __init (fpO4){}
 
     public function process(string[] vals) returns string{
         return self.fpO4(vals);
@@ -190,7 +190,7 @@ public type O4 object {
 public type O5 object {
     private (function(string[]) returns string) fpO5;
 
-    new (fpO5){}
+    __init (fpO5){}
 
     public function process(string[] vals) returns string{
         return self.fpO5(vals);

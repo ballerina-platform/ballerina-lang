@@ -11,7 +11,7 @@ type Person object {
     int year;
     string month = "february";
 
-    new (year = 50, int count, name = "sample value1", string val1 = "default value") {
+    __init (year = 50, int count, name = "sample value1", string val1 = "default value") {
         self.age = self.age + count;
         self.month = val1;
     }

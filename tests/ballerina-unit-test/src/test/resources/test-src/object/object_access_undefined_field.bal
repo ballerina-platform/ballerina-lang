@@ -1,9 +1,9 @@
 type Person object {
 
-    public int age;
+    public int age = 0;
 
 
-    new (agea) {
+    __init (agea) {
         abc = "pp";
     }
 };

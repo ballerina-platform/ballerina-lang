@@ -9,7 +9,7 @@ public type ParentFoo object {
     private string s;
 
 
-    new (i, c){}
+    __init (i, c){}
 };
 
 type ChildFoo object {
@@ -17,7 +17,7 @@ type ChildFoo object {
     private string name;
 
 
-    new (name) {}
+    __init (name) {}
 };
 
 type PrivatePerson object {
@@ -26,7 +26,7 @@ type PrivatePerson object {
     public string name;
 
 
-    new (age, name){}
+    __init (age, name){}
     public function getPrivatePersonName() returns string;
 };
 

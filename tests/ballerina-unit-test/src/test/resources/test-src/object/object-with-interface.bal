@@ -24,7 +24,7 @@ type Employee object {
     int year = 50;
     string month = "february";
 
-    new (year, int count, name = "sample value1", string val1 = "default value") {
+    __init (year, int count, name = "sample value1", string val1 = "default value") {
         self.age = self.age + count + 50;
         self.month = val1 + " uuuu";
     }

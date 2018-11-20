@@ -13,7 +13,7 @@ public type employee01 object {
     public string name;
     public string zipcode = "95134";
 
-    new (age, name) {}
+    __init (age, name) {}
 };
 
 // Field name mismatch
@@ -37,7 +37,7 @@ public type employee02 object {
     public string name;
     public int address;
 
-    new (age, name) {}
+    __init (age, name) {}
 };
 
 // Type name mismatch
@@ -60,7 +60,7 @@ public type employee03 object {
     public int age;
     public string name;
 
-    new (age, name) {}
+    __init (age, name) {}
 };
 
 // Field count mismatch
@@ -88,7 +88,7 @@ public type employee04 object {
     private int id;
     private string ss;
 
-    new (age, name) {}
+    __init (age, name) {}
 };
 
 // Private fields in RHS object name mismatch
@@ -108,7 +108,7 @@ public type person05 object {
     private string address;
     private string id;
 
-    new (age, name) {}
+    __init (age, name) {}
 };
 
 public type employee05 object {
@@ -119,7 +119,7 @@ public type employee05 object {
     public string id;
     public string ssn;
 
-    new (age, name) {}
+    __init (age, name) {}
 };
 
 // Private fields in LHS object name mismatch
@@ -146,7 +146,7 @@ type employee06 object {
     public string id;
     public string ssn;
 
-    new (age, name) {}
+    __init (age, name) {}
 };
 
 // Private Objects type mismatch
@@ -193,7 +193,7 @@ public type employee07 object {
     public string ssn;
 
 
-    new (age, name) {}
+    __init (age, name) {}
 
     public function getName() returns (string);
 
@@ -253,7 +253,7 @@ public type employee08 object {
     public string ssn;
 
 
-    new (age, name) {}
+    __init (age, name) {}
 
     public function getName() returns (string);
 
@@ -319,7 +319,7 @@ public type employee09 object {
     public string ssn;
 
 
-    new (age, name) {}
+    __init (age, name) {}
 
     public function getName() returns (string);
 
@@ -353,7 +353,7 @@ public type PersonInOrder object {
     public string name;
     public string address;
 
-    public new (name, age) {}
+    public __init (name, age) {}
 
     public function getName() returns (string) {
         return self.name;
@@ -381,7 +381,7 @@ public type PersonNotInOrder object {
         return self.age;
     }
 
-    public new (name, age) {}
+    public __init (name, age) {}
 
     public int age;
 

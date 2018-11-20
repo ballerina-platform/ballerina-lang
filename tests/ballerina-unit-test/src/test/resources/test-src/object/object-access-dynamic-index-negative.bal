@@ -4,7 +4,7 @@ type Person object {
     public map adrs;
     public int age = 999;
 
-    new (name, adrs, age) {
+    __init (name, adrs, age) {
 
     }
 };
@@ -12,7 +12,7 @@ type Person object {
 type ObjectField object {
     public string key;
 
-    new (key) {
+    __init (key) {
 
     }
 };

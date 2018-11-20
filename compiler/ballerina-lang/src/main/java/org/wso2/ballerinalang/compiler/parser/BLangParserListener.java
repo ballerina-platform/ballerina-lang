@@ -530,8 +530,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean publicFunc = ctx.PUBLIC() != null;
         boolean bodyExists = ctx.callableUnitBody() != null;
         boolean markdownDocExists = ctx.documentationString() != null;
-        this.pkgBuilder.endObjectInitFunctionDef(getCurrentPos(ctx), getWS(ctx), ctx.NEW().getText(), publicFunc,
-                bodyExists, markdownDocExists, false, ctx.annotationAttachment().size());
+        this.pkgBuilder.endObjectInitFunctionDef(getCurrentPos(ctx), getWS(ctx), ctx.OBJECT_INIT().getText(),
+                publicFunc, bodyExists, markdownDocExists, false, ctx.annotationAttachment().size());
     }
 
     /**

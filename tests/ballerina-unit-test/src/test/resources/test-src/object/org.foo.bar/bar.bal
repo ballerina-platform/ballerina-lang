@@ -16,7 +16,7 @@ public type userBar object {
 
     private int ssn;
 
-    public new (name) {}
+    public __init (name) {}
 
     public function getName() returns (string);
 

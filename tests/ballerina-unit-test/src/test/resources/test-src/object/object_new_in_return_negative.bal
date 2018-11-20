@@ -4,7 +4,7 @@ type Person object {
     public int age;
 
 
-    new (age) {
+    __init (age) {
 
     }
 };
@@ -14,7 +14,7 @@ type Employee object {
     public int age;
 
 
-    new (age, int addVal) {
+    __init (age, int addVal) {
         self.age = self.age + addVal;
     }
 };

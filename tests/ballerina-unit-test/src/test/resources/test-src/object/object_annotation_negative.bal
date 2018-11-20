@@ -7,9 +7,9 @@ import ballerina/http;
 # + b - annotation `field b` documentation
 # + c - annotation `field c` documentation
 type Tst object {
-    public string a;
-    public string b;
-    public string cd;
+    public string a = "";
+    public string b = "";
+    public string cd = "";
 };
 
 annotation Test Tst;
@@ -26,9 +26,9 @@ annotation Test Tst;
 # + b - struct `field b` documentation
 # + c - struct `field c` documentation
 type Test object {
-    public int a;
-    public int b;
-    public int cdd;
+    public int a = 0;
+    public int b = 0;
+    public int cdd = 0;
 };
 
 # Gets a access parameter value (`true` or `false`) for a given key. Please note that #foo will always be bigger than #bar.
@@ -54,17 +54,17 @@ public type File object{
 };
 
 type Person object {
-    public string firstName;
-    public string lastName;
-    public int age;
-    public string city;
+    public string firstName = "";
+    public string lastName = "";
+    public int age = 0;
+    public string city = "";
 };
 
 type Employee object {
-    public string name;
-    public int age;
-    public string address;
-    public any ageAny;
+    public string name = "";
+    public int age = 0;
+    public string address = "";
+    public any ageAny = ();
 };
 
 # Test Connector
@@ -73,7 +73,7 @@ type Employee object {
 # + url - url for endpoint
 # + urls - urls for endpoint
 type TestConnector object {
-  public string url;
+  public string url = "";
 };
 
 # PizzaService HTTP Service

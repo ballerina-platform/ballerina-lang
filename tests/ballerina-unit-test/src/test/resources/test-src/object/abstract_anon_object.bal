@@ -1,6 +1,6 @@
 public type Person object {
-    public int age;
-    public string name;
+    public int age = 0;
+    public string name = "";
     
     public function getName() returns string {
         return "Person Name";
@@ -8,8 +8,8 @@ public type Person object {
 };
  
 public type Employee object {
-    public int age;
-    public string name;
+    public int age = 0;
+    public string name = "";
     
     public function getName() returns string {
         return "Employee Name";

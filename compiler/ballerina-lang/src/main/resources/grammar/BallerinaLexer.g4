@@ -103,6 +103,7 @@ TYPE_ANYDATA    : 'anydata' ;
 
 VAR         : 'var' ;
 NEW         : 'new' ;
+OBJECT_INIT : '__init' ;
 IF          : 'if' ;
 MATCH       : 'match' ;
 ELSE        : 'else' ;

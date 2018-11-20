@@ -11,7 +11,7 @@ public type person1 object {
     public string ssn;
     public int id;
 
-    public new () {}
+    public __init () {}
 
     public function getName () returns (string);
 
@@ -47,7 +47,7 @@ public type employee1 object {
     public int id;
     public int employeeId = 123456;
 
-    public new (age, name){}
+    public __init (age, name){}
 
     public function getName () returns (string);
 
@@ -618,7 +618,7 @@ public type ObjectWithNew object {
     public string name;
     public string id;
 
-    public new () {
+    public __init () {
     }
 
     public function getPerson() returns ObjectWithNew {
@@ -640,7 +640,7 @@ type A object {
 
     public string field;
     
-    new () {
+    __init () {
         self.field = "value A"; 
     }
 
@@ -653,7 +653,7 @@ type B object {
 
     public string field;
     
-    new () {
+    __init () {
         self.field = "value B"; 
     }
 
@@ -689,7 +689,7 @@ public type PersonInOrder object {
     public string name;
     public string address;
 
-    public new (name, age) {}
+    public __init (name, age) {}
 
     public function getName() returns (string) {
         return self.name;
@@ -716,7 +716,7 @@ public type PersonNotInOrder object {
         return age;
     }
 
-    public new (name, age) {}
+    public __init (name, age) {}
 
     public string name;
 

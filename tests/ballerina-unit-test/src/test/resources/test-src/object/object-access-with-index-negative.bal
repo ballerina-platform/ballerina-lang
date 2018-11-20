@@ -10,6 +10,6 @@ function testUndeclaredAttributeAccess() {
 }     
       
 type Department object {
-    public string dptName;
-    public int count;
+    public string dptName = "";
+    public int count = 0;
 };

@@ -2,7 +2,7 @@ type Department object {
     public string dptName;
     public Person[] employees;
 
-    new (dptName = "", employees) {
+    __init (dptName = "", employees) {
         
     }
 };

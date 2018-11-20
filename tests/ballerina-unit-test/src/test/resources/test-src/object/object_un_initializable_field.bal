@@ -9,20 +9,16 @@ type Person object {
     public int age;
     public Employee emp;
 
-
-    new (age, emp) {
-
+    __init (age, emp) {
     }
 };
 
 type Employee object {
-
-    public int age;
+    public int age = 0;
     public Foo foo;
-    public Bar bar;
+    public Bar bar = {};
 
-    new (age) {
-
+    __init (age) {
     }
 };
 
@@ -30,17 +26,11 @@ type Foo object {
 
     public int calc;
 
-
-    new (calc) {
-
+    __init (calc) {
     }
 };
 
 type Bar record {
-    int barVal;
-    string name;
+    int barVal = 0;
+    string name = "";
 };
-
-
-
-

@@ -6,7 +6,7 @@ public type employee object {
     public string address;
 
 
-    public new (int a = 10, name) {
+    public __init (int a = 10, name) {
         self.age = a;
     }
 

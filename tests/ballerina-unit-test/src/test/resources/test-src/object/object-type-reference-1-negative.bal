@@ -102,8 +102,8 @@ type P object {
 };
 
 type Q record {
-    int x;
-    string y;
+    int x = 0;
+    string y = "";
 };
 
 type R object {
