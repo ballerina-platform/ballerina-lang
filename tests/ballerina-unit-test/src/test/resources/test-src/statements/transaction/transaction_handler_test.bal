@@ -24,7 +24,7 @@ function testTransactionStmtWithNoHandlers() returns (string) {
 function testTransactionStmtCommitWithCommitHandler() returns (string) {
     a = "";
     a = a + "start";
-    transaction with oncommit = commitFunction{
+    transaction with oncommit = commitFunction {
         string id = transactions:getCurrentTransactionId();
         a = a + " inTrx";
         int i = 0;
@@ -39,7 +39,7 @@ function testTransactionStmtCommitWithCommitHandler() returns (string) {
 function testTransactionAbortStmtWithAbortHandler() returns (string) {
     a = "";
     a = a + "start";
-    transaction with onabort = abortFunction{
+    transaction with onabort = abortFunction {
         a = a + " inTrx";
         int i = 0;
         if (i == 0) {
@@ -73,7 +73,7 @@ function testTransactionAbortStmtWithNoAbortHandler() returns (string) {
 function testTransactionAbortStmtWithCommitHandler() returns (string) {
     a = "";
     a = a + "start";
-    transaction with oncommit = commitFunction{
+    transaction with oncommit = commitFunction {
         a = a + " inTrx";
         int i = 0;
         if (i == 0) {
@@ -132,7 +132,7 @@ function testTransactionThrowWithAllHandlers() returns (string) {
 }
 
 function testTransactionThrowWithAllHandlersHelper() returns string {
-    transaction with retries = 4, oncommit = commitFunction, onabort = abortFunction{
+    transaction with retries = 4, oncommit = commitFunction, onabort = abortFunction {
         a = a + " inTrx";
         int i = 0;
         if (i == 0) {
@@ -164,7 +164,7 @@ function testTransactionCommitAfterFailureWithAllHandlersHelper() returns string
     transaction with retries = 4, oncommit = commitFunction, onabort = abortFunction {
         a = a + " inTrx";
         if (i < 2) {
-            TrxError err = error(" trxErr", { data: "test"} );
+            TrxError err = error(" trxErr", { data: "test" });
             panic err;
         }
         a = a + " endTrx";
@@ -178,7 +178,7 @@ function testTransactionCommitAfterFailureWithAllHandlersHelper() returns string
 function testMultipleTransactionsWithAllHandlers() returns (string) {
     a = "";
     a = a + "start";
-    transaction with retries = 4, oncommit = commitFunction, onabort = abortFunction{
+    transaction with retries = 4, oncommit = commitFunction, onabort = abortFunction {
         a = a + " inFirstTrx";
 
         a = a + " endFirstTrx";
@@ -226,7 +226,7 @@ function testMultipleTransactionsFailedWithAllHandlersHelper(int i) returns stri
     transaction with retries = 0, oncommit = commitFunction, onabort = abortFunction {
         a = a + " inFirstTrx";
         if (i == 0) {
-            TrxError err = error(" trxErr", { data: "test"} );
+            TrxError err = error(" trxErr", { data: "test" });
             panic err;
         }
         a = a + " endFirstTrx";
@@ -239,7 +239,7 @@ function testMultipleTransactionsFailedWithAllHandlersHelper(int i) returns stri
 function testMultipleTransactionsWithAllHandlersWithID() returns (string, string, string, string, string) {
     a = "";
     a = a + "start";
-    transaction with retries = 4, oncommit = commitFunction, onabort = abortFunction{
+    transaction with retries = 4, oncommit = commitFunction, onabort = abortFunction {
         id1WithinTx = transactions:getCurrentTransactionId();
         a = a + " inFirstTrx";
 
