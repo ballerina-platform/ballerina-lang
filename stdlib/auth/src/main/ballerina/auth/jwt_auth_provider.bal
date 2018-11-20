@@ -67,7 +67,9 @@ public type JWTAuthProvider object {
             // convert to current time and check the expiry time
             if (context.expiryTime > (time:currentTime().time / 1000)) {
                 internal:JwtPayload payload = context.jwtPayload;
-                log:printDebug("Authenticate user :" + payload.sub + " from cache");
+                log:printDebug(function() returns string {
+                    return "Authenticate user :" + payload.sub + " from cache";
+                });
                 return payload;
             }
         }
@@ -77,7 +79,9 @@ public type JWTAuthProvider object {
     function addToAuthenticationCache(string jwtToken, int exp, internal:JwtPayload payload) {
         CachedJWTAuthContext cachedContext = {jwtPayload : payload, expiryTime : exp};
         self.authCache.put(jwtToken, cachedContext);
-        log:printDebug("Add authenticated user :" + payload.sub + " to the cache");
+        log:printDebug(function() returns string {
+            return "Add authenticated user :" + payload.sub + " to the cache";
+        });
     }
 
     function setAuthContext(internal:JwtPayload jwtPayload, string jwtToken) {
