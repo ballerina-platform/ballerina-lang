@@ -65,6 +65,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.COLON;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMMA;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMPLETE_PACKAGE_NAME;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMPOUND_OPERATOR;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.CONST;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CONTINUE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DAY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DECIMAL_INTEGER_LITERAL;
@@ -298,6 +299,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(PANIC).spaceIf(true)
 
                 .around(VAR).spaceIf(true)
+                .around(CONST).spaceIf(true)
                 .around(IF).spaceIf(true)
                 .around(MATCH).spaceIf(true)
                 .around(ELSE).spaceIf(true)
