@@ -1,5 +1,5 @@
 function testWhileStmt(int x, int y) returns (int) {
-    int z;
+    int z = 0;
     int a = y;
 
     while(x >= a) {
@@ -35,7 +35,12 @@ function testWhileScopeWithIf() returns (int, float) {
         if(i == 0){
             operator = args[0];
         } else {
-            values[i -1] =check <float>args[i];
+            var result = <float>args[i];
+            if (result is float) {
+                values[i -1] = result;
+            } else if (result is error) {
+                panic result;
+            }
         }
         i = i + 1;
     }
@@ -48,7 +53,7 @@ function testWhileScopeWithIf() returns (int, float) {
 }
 
 function testWhileStmtWithoutBraces(int x, int y) returns (int) {
-    int z;
+    int z = 0;
     int a = y;
 
     while x >= a {
@@ -64,9 +69,9 @@ function testWhileStmtWithDefaultValues() returns (int, string, float) {
     string fs;
     float ff;
     while(count <3) {
-        int i;
-        string s;
-        float f;
+        int i = 0;
+        string s = "";
+        float f = 0.0;
         i += 1;
         f += 1.0;
         s += "hello";
