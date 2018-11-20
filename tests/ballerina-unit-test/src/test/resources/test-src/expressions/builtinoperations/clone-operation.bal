@@ -347,3 +347,18 @@ public function cloneAnydata() returns (any, any, any) {
     }
     return (a, x, y);
 }
+
+public function cloneFrozenAnydata() returns (any, any, any) {
+    Person p = {id: 100, name: "Alex", salary: 300.5};
+    (Person | error) r = p.freeze();
+    (Person | error) q = r.clone();
+    (int,int) x = (1,1);
+    return (p, q, x);
+}
+
+public function cloneNonAnydata() returns (any, any) {
+    Employee p = {id: 100, name: "Alex", salary: 300.5};
+    (Employee, any) x = (p, Employee);
+    ((Employee, any) | error) q = x.clone();
+    return (x, q);
+}

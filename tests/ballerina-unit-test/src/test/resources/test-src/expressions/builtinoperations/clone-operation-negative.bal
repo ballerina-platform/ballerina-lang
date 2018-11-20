@@ -29,3 +29,9 @@ public function cloneNil() returns ((), ()) {
     () x = a.clone();
     return (a, x);
 }
+
+public function cloneError() returns error {
+    error a = error("Test");
+    error b = a.clone();
+    return b;
+}

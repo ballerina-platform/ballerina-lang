@@ -1000,6 +1000,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             case LENGTH:
                 this.taintedStatus = TaintedStatus.UNTAINTED;
                 break;
+            case FREEZE:
             case CLONE:
                 invocationExpr.expr.accept(this);
                 break;

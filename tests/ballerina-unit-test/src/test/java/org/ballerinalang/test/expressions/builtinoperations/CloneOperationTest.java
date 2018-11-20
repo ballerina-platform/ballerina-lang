@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BByteArray;
@@ -351,16 +352,11 @@ public class CloneOperationTest {
 
     @Test
     public void testCloneNegative() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 5);
+        Assert.assertEquals(negativeResult.getErrorCount(), 4);
         BAssertUtil.validateError(negativeResult, 0, "too many arguments in call to 'clone()'", 19, 13);
-        BAssertUtil.validateError(negativeResult, 1, "Cannot clone a value of a type other than anydata " +
-                "(boolean|int|byte|float|decimal|string|xml|table|anydata[]|map<anydata>|records (with only `anydata`" +
-                " fields)|()), but found 'typedesc'", 24, 18);
-        BAssertUtil.validateError(negativeResult, 2, "function invocation on type 'typedesc' is not supported", 24, 18);
-        BAssertUtil.validateError(negativeResult, 3, "Cannot clone a value of a type other than anydata " +
-                "(boolean|int|byte|float|decimal|string|xml|table|anydata[]|map<anydata>|records (with only `anydata`" +
-                " fields)|()), but found '()'", 29, 12);
-        BAssertUtil.validateError(negativeResult, 4, "function invocation on type '()' is not supported", 29, 12);
+        BAssertUtil.validateError(negativeResult, 1, "function invocation on type 'typedesc' is not supported", 24, 18);
+        BAssertUtil.validateError(negativeResult, 2, "function invocation on type '()' is not supported", 29, 12);
+        BAssertUtil.validateError(negativeResult, 3, "function invocation on type 'error' is not supported", 35, 15);
 
         Assert.assertEquals(taintCheckResult.getErrorCount(), 1);
         BAssertUtil.validateError(taintCheckResult, 0, "tainted value passed to sensitive parameter 'intArg'", 12, 22);
@@ -530,5 +526,21 @@ public class CloneOperationTest {
 
         Assert.assertNotSame(intArr1, intArr3);
         Assert.assertNotSame(intArr2, intArr4);
+    }
+
+    @Test
+    public void testCloneFrozenAnydata() {
+        BValue[] results = BRunUtil.invoke(result, "cloneFrozenAnydata");
+        Assert.assertNotNull(results);
+        Assert.assertSame(results[0], results[1]);
+        Assert.assertSame(results[0].getType().getTag(), TypeTags.RECORD_TYPE_TAG);
+    }
+
+    @Test
+    public void testCloneNonAnydata() {
+        BValue[] results = BRunUtil.invoke(result, "cloneNonAnydata");
+        Assert.assertNotNull(results);
+        Assert.assertNotSame(results[0], results[1]);
+        Assert.assertSame(results[1].getType().getTag(), TypeTags.ERROR_TAG);
     }
 }

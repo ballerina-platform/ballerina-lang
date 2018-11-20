@@ -2563,6 +2563,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 return getSymbolForFreezeBuiltinMethod(iExpr);
             case IS_FROZEN:
                 return getSymbolForIsFrozenBuiltinMethod(iExpr);
+            case CLONE:
+                return getSymbolForCloneBuiltinMethod(iExpr);
             case STAMP:
                 List<BLangExpression> functionArgList = iExpr.argExprs;
                 // Resolve the type of the variables passed as arguments to stamp in-built function.
@@ -2574,6 +2576,30 @@ public class TypeChecker extends BLangNodeVisitor {
             default:
                 return symTable.notFoundSymbol;
         }
+    }
+
+    private BSymbol getSymbolForCloneBuiltinMethod(BLangInvocation iExpr) {
+        BType type = iExpr.expr.type;
+        if (!isValidFreezeOrIsFrozenFunction(type)) {
+            return symTable.notFoundSymbol;
+        }
+
+        BType retType;
+        if (types.isAnydata(type)) {
+            retType = type;
+        } else {
+            if (type.tag == TypeTags.UNION) {
+                BUnionType unionType = (BUnionType) type;
+                if (unionType.getMemberTypes().stream().noneMatch(memType -> memType.tag == TypeTags.ERROR)) {
+                    unionType.memberTypes.add(symTable.errorType);
+                }
+                retType = unionType;
+            } else {
+                retType = new BUnionType(null, new LinkedHashSet<BType>() {{ add(type); add(symTable.errorType); }},
+                                         false);
+            }
+        }
+        return symResolver.createBuiltinMethodSymbol(BLangBuiltInMethod.CLONE, type, retType, InstructionCodes.CLONE);
     }
 
     private BSymbol getSymbolForFreezeBuiltinMethod(BLangInvocation iExpr) {
