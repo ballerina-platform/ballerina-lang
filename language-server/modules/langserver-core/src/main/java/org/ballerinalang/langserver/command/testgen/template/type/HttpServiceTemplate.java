@@ -34,6 +34,7 @@ import java.util.Optional;
 
 import static org.ballerinalang.langserver.command.testgen.AnnotationConfigsProcessor.isRecordValueExists;
 import static org.ballerinalang.langserver.command.testgen.AnnotationConfigsProcessor.searchStringField;
+import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
 
 /**
  * To represent a Service template.
@@ -117,7 +118,7 @@ public class HttpServiceTemplate extends AbstractTestTemplate {
         }
 
         //Append to root template
-        rendererOutput.append(PlaceHolder.DECLARATIONS, getServiceUriDeclaration() + System.lineSeparator());
+        rendererOutput.append(PlaceHolder.DECLARATIONS, getServiceUriDeclaration() + LINE_SEPARATOR);
         rendererOutput.append(PlaceHolder.CONTENT, serviceOutput.getRenderedContent());
     }
 

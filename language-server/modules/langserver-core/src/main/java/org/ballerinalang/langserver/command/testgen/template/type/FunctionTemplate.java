@@ -26,7 +26,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.function.BiConsumer;
+
+import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
 
 /**
  * To represent a function template.
@@ -68,17 +71,20 @@ public class FunctionTemplate extends AbstractTestTemplate {
         String filename = (isVoidFunction) ? "voidFunction.bal" : "returnTypedFunction.bal";
         RendererOutput functionOutput = new TemplateBasedRendererOutput(filename);
         functionOutput.put(PlaceHolder.OTHER.get("testFunctionName"), testFunctionName);
+        String functionInvocationLine;
         if (isVoidFunction) {
+            StringJoiner lines = new StringJoiner(LINE_SEPARATOR);
             functionInvocations.forEach(
-                    invocation -> functionOutput
-                            .append(PlaceHolder.OTHER.get("actual"), invocation + ";" + System.lineSeparator())
+                    invocation -> lines.add("    " + invocation + ";")
             );
+            functionInvocationLine = lines.toString();
         } else {
-            functionOutput.put(PlaceHolder.OTHER.get("actual"), dataProviderBasedFunctionInvocation);
+            functionInvocationLine = dataProviderBasedFunctionInvocation;
             functionOutput.put(PlaceHolder.OTHER.get("dataProviderReturnType"), dataProviderReturnType);
             functionOutput.put(PlaceHolder.OTHER.get("dataProviderReturnValue"), dataProviderReturnValue);
             functionOutput.put(PlaceHolder.OTHER.get("testFunctionParams"), testFunctionParams);
         }
+        functionOutput.put(PlaceHolder.OTHER.get("actual"), functionInvocationLine);
 
         //Append to root template
         rendererOutput.append(PlaceHolder.CONTENT, functionOutput.getRenderedContent());
