@@ -41,7 +41,8 @@ import java.nio.file.Path;
         functionName = "compressToByteArray",
         args = {@Argument(name = "dirPath", type = TypeKind.RECORD, structType = "Path",
                 structPackage = "ballerina/file")},
-        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE)},
+        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
+                        @ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
 public class CompressToByteArray extends BlockingNativeCallableUnit {
