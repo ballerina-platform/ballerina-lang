@@ -113,10 +113,14 @@ public class DivisionOperationTest {
         Assert.assertEquals(actualResult, expectedResult, DELTA, "Result of the division operation is incorrect");
     }
 
-    @Test(description = "Test float by zero", expectedExceptions = BLangRuntimeException.class)
+    @Test(description = "Test float by zero")
     public void testFloatDivideByZeroExpr() {
         BValue[] args = { new BFloat(300.0f), new BFloat(0) };
-        BRunUtil.invoke(result, "floatDivide", args);
+        BValue[] returns = BRunUtil.invoke(result, "floatDivide", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BFloat.class, "Return type of the division is invalid");
+        Assert.assertTrue(Double.isInfinite(((BFloat) returns[0]).floatValue()),
+                "Result of the division operation is incorrect");
     }
 
     @Test(description = "Test devide statement with errors")

@@ -38,6 +38,7 @@ import static org.ballerinalang.launcher.util.BAssertUtil.validateError;
  *
  * @since 0.985.0
  */
+@Test(groups = "broken")
 public class RefEqualAndNotEqualOperationsTest {
 
     CompileResult result;

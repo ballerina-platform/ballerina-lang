@@ -91,7 +91,7 @@ function testFunctionPointerAsFuncParam() returns (int, string) {
     return (sumFunction(5, 8), s);
 }
 
-function testAnyToFuncPointerConversion_1() returns (int) {
+function testAnyToFuncPointerConversion_1() returns (int|error) {
     any anyFunc = function (int a, int b) returns (int) {
                 int value =  a + b;
                 return value;
@@ -131,7 +131,7 @@ function testFuncPointerConversion() returns (int) {
     return personFunc(p);
 }
 
-function testAnyToFuncPointerConversion_2() returns (int) {
+function testAnyToFuncPointerConversion_2() returns (int|error) {
     any anyFunc = function (Student s) returns (int) {
                         return s.getAge();
                     };
