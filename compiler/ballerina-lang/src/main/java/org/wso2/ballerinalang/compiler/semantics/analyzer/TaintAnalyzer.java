@@ -354,11 +354,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangService serviceNode) {
-        BSymbol serviceSymbol = serviceNode.symbol;
-        SymbolEnv serviceEnv = SymbolEnv.createPkgLevelSymbolEnv(serviceNode, serviceSymbol.scope, env);
-        serviceNode.vars.forEach(var -> analyzeNode(var, serviceEnv));
-        analyzeNode(serviceNode.initFunction, serviceEnv);
-        serviceNode.resources.forEach(resource -> analyzeNode(resource, serviceEnv));
     }
 
     @Override
