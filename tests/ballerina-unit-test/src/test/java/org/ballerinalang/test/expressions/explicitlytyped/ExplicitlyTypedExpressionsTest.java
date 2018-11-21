@@ -46,12 +46,13 @@ import static org.ballerinalang.launcher.util.BAssertUtil.validateError;
 public class ExplicitlyTypedExpressionsTest {
 
     private CompileResult result;
-    private CompileResult resNegative;
+    private CompileResult resultNegative;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/expressions/explicitlytyped/explicitly_typed_expr.bal");
-        resNegative = BCompileUtil.compile("test-src/expressions/explicitlytyped/explicitly_typed_expr_negative.bal");
+        resultNegative = BCompileUtil.compile(
+                "test-src/expressions/explicitlytyped/explicitly_typed_expr_negative.bal");
     }
 
     @Test(dataProvider = "stringAsStringTests")
@@ -367,31 +368,31 @@ public class ExplicitlyTypedExpressionsTest {
 
     @Test
     public void testNegativeExprs() {
-        Assert.assertEquals(resNegative.getErrorCount(), 10);
+        Assert.assertEquals(resultNegative.getErrorCount(), 10);
         int errIndex = 0;
-        validateError(resNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as 'float'",
+        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as 'float'",
                       21, 16);
-        validateError(resNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as 'float'",
+        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as 'float'",
                       22, 18);
 
-        validateError(resNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as 'decimal'",
-                      24, 18);
-        validateError(resNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as 'decimal'",
-                      25, 18);
+        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as " +
+                              "'decimal'", 24, 18);
+        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as " +
+                              "'decimal'", 25, 18);
 
-        validateError(resNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as 'int'",
+        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as 'int'",
                       27, 14);
-        validateError(resNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as 'int'",
+        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as 'int'",
                       28, 18);
 
-        validateError(resNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as 'byte'",
+        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as 'byte'",
                       30, 18);
-        validateError(resNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as 'byte'",
+        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as 'byte'",
                       31, 15);
 
-        validateError(resNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as 'boolean'",
-                      33, 19);
-        validateError(resNegative, errIndex, "incompatible types: 'string' cannot be explicitly typed as 'boolean'",
+        validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be explicitly typed as " +
+                              "'boolean'", 33, 19);
+        validateError(resultNegative, errIndex, "incompatible types: 'string' cannot be explicitly typed as 'boolean'",
                       34, 19);
     }
 

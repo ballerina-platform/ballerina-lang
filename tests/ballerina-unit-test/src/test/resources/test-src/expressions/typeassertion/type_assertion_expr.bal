@@ -402,6 +402,12 @@ function testTypedescAssertionNegative() {
     int t2 = <int> a;
 }
 
+function testStringAsInvalidBasicType() {
+    string|int u1 = "I'm not an int!";
+    any a = u1;
+    int i = <int> a;
+}
+
 function testFunc(string s, int i) returns string {
     return <string> i + s;
 }

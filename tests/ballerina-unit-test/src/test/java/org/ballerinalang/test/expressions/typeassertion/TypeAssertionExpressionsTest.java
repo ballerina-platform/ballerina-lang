@@ -27,6 +27,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import static org.ballerinalang.launcher.util.BAssertUtil.validateError;
+
 /**
  * Class to test type assertion expressions.
  *
@@ -35,10 +37,12 @@ import org.testng.annotations.Test;
 public class TypeAssertionExpressionsTest {
 
     private CompileResult result;
+    private CompileResult resultNegative;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/expressions/typeassertion/type_assertion_expr.bal");
+        resultNegative = BCompileUtil.compile("test-src/expressions/typeassertion/type_assertion_expr_negative.bal");
     }
 
     @Test(dataProvider = "positiveTests")
@@ -150,6 +154,24 @@ public class TypeAssertionExpressionsTest {
             expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'int', found 'typedesc'.*")
     public void testTypedescAssertionNegative() {
         BRunUtil.invoke(result, "testTypedescAssertionNegative", new BValue[0]);
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'int', found 'string'.*")
+    public void testStringAsInvalidBasicType() {
+        BRunUtil.invoke(result, "testStringAsInvalidBasicType", new BValue[0]);
+    }
+
+    @Test
+    public void testAssertionNegatives() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 3);
+        int errIndex = 0;
+        validateError(resultNegative, errIndex++, "incompatible types: 'Def' cannot be explicitly typed as 'Abc'",
+                      19, 15);
+        validateError(resultNegative, errIndex++, "incompatible types: 'map<int>' cannot be explicitly typed as 'map'",
+                      22, 14);
+        validateError(resultNegative, errIndex, "incompatible types: 'stream<int|string>' cannot be explicitly " +
+                              "typed as 'stream<int|json>'", 25, 27);
     }
 
     @DataProvider
