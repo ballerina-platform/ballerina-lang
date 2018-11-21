@@ -2490,7 +2490,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         // There must be an implementation at the outer level, if the function is an interface.
         if (!env.enclPkg.objAttachedFunctions.contains(func.symbol)) {
-            dlog.error(pos, DiagnosticCode.INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT, func.funcName, func.symbol.receiverSymbol.type);
+            dlog.error(pos, DiagnosticCode.INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT, func.funcName,
+                    func.symbol.receiverSymbol.type);
         }
     }
 
