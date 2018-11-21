@@ -740,6 +740,12 @@ public class Types {
 
     public BType inferRecordFieldType(BRecordType recordType) {
         List<BField> fields = recordType.fields;
+
+        // If there are no fields in the record, return the rest field type as the inferred type.
+        if (fields.isEmpty()) {
+            return recordType.restFieldType;
+        }
+
         BType inferredType = fields.get(0).type; // If all the fields are the same, doesn't matter which one we pick
 
         // If it's an open record, the rest field type should also be of the same type as the mandatory fields.
