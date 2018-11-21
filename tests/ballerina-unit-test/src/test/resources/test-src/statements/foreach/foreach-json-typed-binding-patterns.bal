@@ -1,0 +1,163 @@
+string output = "";
+
+json jdata = {
+    name: "bob",
+    age: 10,
+    pass: true,
+    subjects: [
+        { subject: "maths", marks: 75 },
+        { subject: "English", marks: 85 }
+    ]
+};
+
+function concatIntString(int i, string s) {
+    output = output + i + ":" + s + " ";
+}
+
+function concatIntJson(int i, json j) {
+    output = output + i + ":" + j.toString() + " ";
+}
+
+function concatIntStringAny(int i, string s, any a) {
+    output = output + i + ":" + s + ":" + <string>a + " ";
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+function testJsonWithoutType() returns string {
+    output = "";
+
+    int i = 0;
+    foreach var (k, v) in jdata {
+        concatIntStringAny(i, k, v);
+        i += 1;
+    }
+    return output;
+}
+
+function testJsonWithType() returns string {
+    output = "";
+
+    int i = 0;
+    foreach (string, json) (k, v) in jdata {
+        concatIntStringAny(i, k, v);
+        i += 1;
+    }
+    return output;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+function testDirectAccessJsonArrayWithoutType() returns string {
+    output = "";
+
+    int i = 0;
+    foreach var (k, v) in jdata["subjects"] {
+        concatIntStringAny(i, k, v);
+        i += 1;
+    }
+    return output;
+}
+
+function testDirectAccessJsonArrayWithType() returns string {
+    output = "";
+
+    int i = 0;
+    foreach (string, json) (k, v) in jdata["subjects"] {
+        concatIntStringAny(i, k, v);
+        i += 1;
+    }
+    return output;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+function testJsonArrayWithoutType() returns string {
+    output = "";
+
+    json subjects = jdata["subjects"];
+
+    int i = 0;
+    if subjects is json[] {
+        foreach var v in subjects {
+            concatIntJson(i, v);
+            i += 1;
+        }
+    }
+    return output;
+}
+
+function testJsonArrayWithType() returns string {
+    output = "";
+
+    json subjects = jdata["subjects"];
+
+    int i = 0;
+    if subjects is json[] {
+        foreach json v in subjects {
+            concatIntJson(i, v);
+            i += 1;
+        }
+    }
+    return output;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+function testDirectAccessInvalidElementWithoutType() returns string {
+    output = "";
+
+    int i = 0;
+    foreach var (k, v) in jdata["random"] {
+        concatIntStringAny(i, k, v);
+        i += 1;
+    }
+    return output;
+}
+
+function testDirectAccessInvalidElementWithType() returns string {
+    output = "";
+
+    int i = 0;
+    foreach (string, json) (k, v) in jdata["random"] {
+        concatIntStringAny(i, k, v);
+        i += 1;
+    }
+    return output;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+function testIteratingCompleteJsonWithoutType() returns string {
+    output = "";
+
+    int i = 0;
+    foreach var (k, v) in jdata {
+        if v is json[] {
+            foreach var w in v {
+                concatIntStringAny(i, k, w);
+            }
+        } else {
+            concatIntStringAny(i, k, v);
+        }
+        i += 1;
+    }
+    return output;
+}
+
+function testIteratingCompleteJsonWithType() returns string {
+    output = "";
+
+    int i = 0;
+    foreach (string, json) (k, v) in jdata {
+        if v is json[] {
+            foreach json w in v {
+                concatIntStringAny(i, k, w);
+            }
+        } else {
+            concatIntStringAny(i, k, v);
+        }
+        i += 1;
+    }
+    return output;
+}
