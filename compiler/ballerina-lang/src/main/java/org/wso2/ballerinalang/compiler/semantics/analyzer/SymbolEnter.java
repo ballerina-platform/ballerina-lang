@@ -554,7 +554,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 return;
             }
             
-            // FIXME: remove this if check
             BSymbol funcSymbol = symTable.notFoundSymbol;
             if (funcNode.receiver.type.tag == TypeTags.OBJECT) {
                 SymbolEnv objectEnv = SymbolEnv.createObjectMethodsEnv(null, (BObjectTypeSymbol) funcNode.receiver.type.
@@ -1110,7 +1109,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 BLangObjectTypeNode objTypeNode = (BLangObjectTypeNode) typeDef.typeNode;
                 SymbolEnv objMethodsEnv =
                         SymbolEnv.createObjectMethodsEnv(objTypeNode, (BObjectTypeSymbol) objTypeNode.symbol, pkgEnv);
-                //                SymbolEnv objEnv = SymbolEnv.createTypeEnv(objTypeNode, typeDef.symbol.scope, pkgEnv);
 
                 // Define the functions defined within the object
                 defineObjectInitFunction(objTypeNode, objMethodsEnv);
