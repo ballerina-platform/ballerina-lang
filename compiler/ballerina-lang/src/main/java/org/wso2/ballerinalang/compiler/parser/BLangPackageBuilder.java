@@ -1618,15 +1618,16 @@ public class BLangPackageBuilder {
         return var;
     }
 
-    void addGlobalVariable(DiagnosticPos pos,
-                           Set<Whitespace> ws,
-                           String identifier,
-                           boolean exprAvailable,
-                           boolean publicVar) {
+    void addGlobalVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean exprAvailable,
+            boolean publicVar, boolean listenerVar) {
         BLangSimpleVariable var = (BLangSimpleVariable) this.generateBasicVarNode(pos, ws, identifier, exprAvailable);
         attachAnnotations(var);
         if (publicVar) {
             var.flagSet.add(Flag.PUBLIC);
+        }
+
+        if (listenerVar) {
+            var.flagSet.add(Flag.LISTENER);
         }
         attachMarkdownDocumentations(var);
         attachDeprecatedNode(var);

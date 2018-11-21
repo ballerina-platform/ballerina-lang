@@ -46,6 +46,7 @@ public class Flags {
     public static final int CLIENT = 1 << 17;
     public static final int RESOURCE = 1 << 18;
     public static final int SERVICE = 1 << 19;
+    public static final int LISTENER = 1 << 20;
 
     public static int asMask(Set<Flag> flagSet) {
         int mask = 0;
@@ -110,6 +111,9 @@ public class Flags {
                     break;
                 case SERVICE:
                     mask |= SERVICE;
+                    break;
+                case LISTENER:
+                    mask |= LISTENER;
                     break;
             }
         }
@@ -177,6 +181,9 @@ public class Flags {
                     break;
                 case SERVICE:
                     flagVal = SERVICE;
+                    break;
+                case LISTENER:
+                    flagVal = LISTENER;
                     break;
                 default:
                     continue;

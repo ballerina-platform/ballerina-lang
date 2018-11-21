@@ -165,7 +165,7 @@ public class SymbolTable {
         initializeType(channelType, TypeKind.CHANNEL.typeName());
 
         BServiceSymbol serviceSymbol = new BServiceSymbol(Flags.PUBLIC, Names.SERVICE, rootPkgSymbol.pkgID, null,
-                rootPkgSymbol);
+                rootPkgSymbol, null);
         this.anyServiceType = new BServiceType(serviceSymbol);
         serviceSymbol.type = this.anyServiceType;
         defineType(anyServiceType, serviceSymbol);

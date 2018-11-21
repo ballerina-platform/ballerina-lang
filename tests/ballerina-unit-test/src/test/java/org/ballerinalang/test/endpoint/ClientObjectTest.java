@@ -89,22 +89,22 @@ public class ClientObjectTest {
         BAssertUtil
                 .validateError(compileResult, errIdx++, "invalid remote function invocation syntax, use '->' operator",
                         57, 13);
-        BAssertUtil.validateError(compileResult, errIdx++, "undefined remote function 'abc' in endpoint Foo", 59, 13);
+        BAssertUtil.validateError(compileResult, errIdx++, "undefined remote function 'abc' in client object Foo", 59, 13);
 
         BAssertUtil.validateError(compileResult, errIdx++, "unknown type 'XXX'", 65, 5);
         BAssertUtil
-                .validateError(compileResult, errIdx++, "invalid remote function invocation, expected an endpoint", 67,
+                .validateError(compileResult, errIdx++, "invalid remote function invocation, expected an client object", 67,
                         13);
         BAssertUtil
-                .validateError(compileResult, errIdx++, "invalid remote function invocation, expected an endpoint", 71,
+                .validateError(compileResult, errIdx++, "invalid remote function invocation, expected an client object", 71,
                         9);
         BAssertUtil
-                .validateError(compileResult, errIdx++, "invalid remote function invocation, expected an endpoint", 75,
+                .validateError(compileResult, errIdx++, "invalid remote function invocation, expected an client object", 75,
                         9);
         BAssertUtil.validateError(compileResult, errIdx++,
-                "endpoint declaration not allowed here, declare at the top of a function or at module level", 89, 9);
+                "client object declaration not allowed here, declare at the top of a function or at module level", 89, 9);
         BAssertUtil.validateError(compileResult, errIdx++,
-                "endpoint declaration not allowed here, declare at the top of a function or at module level", 97, 9);
+                "client object declaration not allowed here, declare at the top of a function or at module level", 97, 9);
 
         BAssertUtil
                 .validateError(compileResult, errIdx++, "invalid remote function invocation syntax, use '->' operator",
@@ -113,9 +113,9 @@ public class ClientObjectTest {
                 .validateError(compileResult, errIdx++, "invalid remote function invocation syntax, use '->' operator",
                         120, 13);
         BAssertUtil.validateError(compileResult, errIdx++,
-                "endpoint declaration not allowed here, declare at the top of a function or at module level", 126, 5);
+                "client object declaration not allowed here, declare at the top of a function or at module level", 126, 5);
         BAssertUtil.validateError(compileResult, errIdx++,
-                "endpoint declaration not allowed here, declare at the top of a function or at module level", 134, 5);
+                "client object declaration not allowed here, declare at the top of a function or at module level", 134, 5);
         BAssertUtil
                 .validateError(compileResult, errIdx++, "action invocation as an expression not allowed here", 142, 12);
 

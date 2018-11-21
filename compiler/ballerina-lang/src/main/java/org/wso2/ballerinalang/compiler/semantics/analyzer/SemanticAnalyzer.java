@@ -445,6 +445,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, varNode.symbol);
 
         typeChecker.checkExpr(rhsExpr, varInitEnv, lhsType);
+        if (Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {
+            final BSymbol bSymbol = symResolver.lookupSymbol(env, Names.ABSTRACT_LISTENER, SymTag.TYPE);
+            if (bSymbol == symTable.notFoundSymbol) {
+                throw new AssertionError("Abstract Listener not defined.");
+            }
+            if (!types.isAssignable(varNode.symbol.type, bSymbol.type)) {
+                dlog.error(varNode.pos, DiagnosticCode.INVALID_LISTENER_VARIABLE, varNode.name);
+            }
+        }
     }
 
     public void visit(BLangRecordVariable varNode) {
@@ -987,6 +996,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             throw new AssertionError("Abstract Listener not defined.");
         }
         typeChecker.checkExpr(serviceNode.attachExpr, env, bSymbol.type);
+
+        // TODO : Fix this.
+        if (serviceNode.attachExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            final BLangSimpleVarRef attachExpr = (BLangSimpleVarRef) serviceNode.attachExpr;
+            if (!Symbols.isFlagOn(attachExpr.symbol.flags, Flags.LISTENER)) {
+                dlog.error(serviceNode.attachExpr.pos, DiagnosticCode.SYNTAX_ERROR, "invalid listener attachment");
+            }
+        } else if (serviceNode.attachExpr.getKind() != NodeKind.Type_INIT_EXPR) {
+            dlog.error(serviceNode.attachExpr.pos, DiagnosticCode.SYNTAX_ERROR, "invalid listener attachment");
+        }
     }
 
     private void validateConstructorAndCheckDefaultable(BLangTypeDefinition typeDef) {

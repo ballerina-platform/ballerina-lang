@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
@@ -545,23 +546,7 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangService serviceNode) {
         SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.symbol.scope, env);
-        serviceNode.resources = rewrite(serviceNode.resources, serviceEnv);
-
-        serviceNode.nsDeclarations.forEach(xmlns -> serviceNode.initFunction.body.stmts.add(xmlns));
-        serviceNode.vars.forEach(v -> {
-            BLangAssignment assignment = (BLangAssignment) createAssignmentStmt(v.var);
-            if (assignment.expr == null) {
-                assignment.expr = getInitExpr(v.var);
-            }
-            if (assignment.expr != null) {
-                serviceNode.initFunction.body.stmts.add(assignment);
-            }
-        });
-
-        serviceNode.vars = rewrite(serviceNode.vars, serviceEnv);
-        BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(serviceNode.pos, symTable.nilType);
-        serviceNode.initFunction.body.stmts.add(returnStmt);
-        serviceNode.initFunction = rewrite(serviceNode.initFunction, serviceEnv);
+        int i = ((BServiceSymbol) serviceNode.symbol).objectType.flags;
         result = serviceNode;
     }
 

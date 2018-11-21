@@ -54,11 +54,9 @@ public enum Flag {
      */
     PARALLEL,
     /**
-     * Indicates Flagged Node is a connector node.
-     * TODO need to fix this in a better way.
-     * this is needed for composer to identify whether user defined type is a connector or not.
+     * Indicates Flagged Node is a listener node.
      */
-    CONNECTOR,
+    LISTENER,
     /**
      * Indicates Flagged node is deprecated.
      */

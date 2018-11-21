@@ -787,9 +787,6 @@ public class SymbolResolver extends BLangNodeVisitor {
             return;
         }
 
-        if (symbol.kind == SymbolKind.CONNECTOR) {
-            userDefinedTypeNode.flagSet = EnumSet.of(Flag.CONNECTOR);
-        }
         resultType = symbol.type;
     }
 
