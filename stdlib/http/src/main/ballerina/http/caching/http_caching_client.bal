@@ -238,7 +238,12 @@ public function createHttpCachingClient(string url, ClientEndpointConfig config,
     log:printDebug(function() returns string {
         return "Created HTTP caching client: " + io:sprintf("%s", httpCachingClient);
     });
-    return httpCachingClient;
+    var cachingClient = <Client>httpCachingClient;
+    if (cachingClient is Client) {
+        return cachingClient;
+    } else {
+        panic cachingClient;
+    }
 }
 
 remote function HttpCachingClient.post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()

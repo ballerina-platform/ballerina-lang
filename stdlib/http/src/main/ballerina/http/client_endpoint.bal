@@ -392,7 +392,13 @@ function createRedirectClient(string url, ClientEndpointConfig configuration) re
     var redirectConfig = configuration.followRedirects;
     if (redirectConfig is FollowRedirects) {
         if (redirectConfig.enabled) {
-            return new RedirectClient(url, configuration, redirectConfig, createRetryClient(url, configuration));
+            var redirectClient = <Client>(new RedirectClient(url, configuration,
+                redirectConfig, createRetryClient(url, configuration)));
+            if (redirectClient is Client) {
+                return redirectClient;
+            } else {
+                panic redirectClient;
+            }
         } else {
             return createRetryClient(url, configuration);
         }
@@ -415,7 +421,7 @@ function checkForRetry(string url, ClientEndpointConfig config) returns Client {
 }
 
 function createCircuitBreakerClient(string uri, ClientEndpointConfig configuration) returns Client {
-    Client cbHttpClient = new;
+    Client cbHttpClient = new(configuration);
     var cbConfig = configuration.circuitBreaker;
     if (cbConfig is CircuitBreakerConfig) {
         validateCircuitBreakerConfiguration(cbConfig);
@@ -450,7 +456,13 @@ function createCircuitBreakerClient(string uri, ClientEndpointConfig configurati
                                         lastForcedOpenTime:circuitStartTime,
                                         totalBuckets: bucketArray
                                       };
-        return new CircuitBreakerClient(uri, configuration, circuitBreakerInferredConfig, cbHttpClient, circuitHealth);
+        var circuitBreakerClient = <Client>(new CircuitBreakerClient(uri, configuration,
+            circuitBreakerInferredConfig, cbHttpClient, circuitHealth));
+        if (circuitBreakerClient is Client) {
+            return circuitBreakerClient;
+        } else {
+            panic circuitBreakerClient;
+        }
     } else {
         //remove following once we can ignore
         if (configuration.cache.enabled) {
@@ -473,11 +485,21 @@ function createRetryClient(string url, ClientEndpointConfig configuration) retur
             statusCodes: statusCodes
         };
         if (configuration.cache.enabled) {
-            return new RetryClient(url, configuration, retryInferredConfig,
-                createHttpCachingClient(url, configuration, configuration.cache));
-        } else{
-            return new RetryClient(url, configuration, retryInferredConfig,
-                createHttpSecureClient(url, configuration));
+            var retryClient = <Client>(new RetryClient(url, configuration, retryInferredConfig,
+                createHttpCachingClient(url, configuration, configuration.cache)));
+            if (retryClient is Client) {
+                return retryClient;
+            } else {
+                panic retryClient;
+            }
+        } else {
+            var retryClient = <Client>(new RetryClient(url, configuration, retryInferredConfig,
+                createHttpSecureClient(url, configuration)));
+            if (retryClient is Client) {
+                return retryClient;
+            } else {
+                panic retryClient;
+            }
         }
     } else {
         //remove following once we can ignore
