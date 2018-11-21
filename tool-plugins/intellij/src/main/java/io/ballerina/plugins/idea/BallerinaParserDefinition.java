@@ -38,7 +38,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.ABSTRACT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ALL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ANNOTATION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ANY;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.AS;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ANYDATA;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ASCENDING;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.AWAIT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BINARY_INTEGER_LITERAL;
@@ -183,10 +183,10 @@ public class BallerinaParserDefinition implements ParserDefinition {
     // excluding keywords "foreach" and "map", which are also used as Iterable operations.
     // Todo - Annotate ReservedWord in the runtime to prevent highlighting as keywords.
     public static final TokenSet KEYWORDS = TokenSet
-            .create(ABORT, ABSTRACT, ALL, ANNOTATION, ANY, AS, AWAIT, BIND, BOOLEAN, BREAK, BUT, BYTE, CATCH, CHANNEL,
-                    CHECK, CONST, CONTINUE, DEPRECATED, DECIMAL, DONE, ELSE, ENDPOINT, ENUM, ERROR, EXTERN, FAIL,
-                    FINALLY, FLOAT, FORK, FUNCTION, FUTURE, IF, IMPORT, IN, INT, IS, JOIN, JSON, LENGTHOF, LOCK, MATCH,
-                    NEW, OBJECT, ONABORT, ONCOMMIT, ONRETRY, PARAMETER, PANIC, PRIVATE, PUBLIC, RECORD, RESOURCE,
+            .create(ABORT, ABSTRACT, ALL, ANNOTATION, ANY, ANYDATA, AWAIT, BIND, BOOLEAN, BREAK, BUT, BYTE, CATCH,
+                    CHANNEL, CHECK, CONST, CONTINUE, DEPRECATED, DECIMAL, DONE, ELSE, ENDPOINT, ENUM, ERROR, EXTERN,
+                    FAIL, FINALLY, FLOAT, FORK, FUNCTION, FUTURE, IF, IMPORT, IN, INT, IS, JOIN, JSON, LENGTHOF, LOCK,
+                    MATCH, NEW, OBJECT, ONABORT, ONCOMMIT, ONRETRY, PARAMETER, PANIC, PRIVATE, PUBLIC, RECORD, RESOURCE,
                     RETRIES, RETRY, RETURN, RETURNS, SERVICE, SOME, START, STREAM, STRING, TABLE, TIMEOUT, TRANSACTION,
                     TRY, TYPE, TYPEDESC, TRAP, THROW, UNTAINT, WHILE, WITH, WORKER, VAR, VERSION, XML, XMLNS,
                     BOOLEAN_LITERAL, NULL_LITERAL, FROM, ON, SELECT, GROUP, BY, HAVING, ORDER, WHERE, FOLLOWED, SET,
