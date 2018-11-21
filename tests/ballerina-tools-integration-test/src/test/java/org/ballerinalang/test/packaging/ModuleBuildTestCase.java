@@ -229,7 +229,7 @@ public class ModuleBuildTestCase extends BaseTest {
 
         Path genPkgPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
                                     ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, ORG_NAME, "foo", VERSION);
-        Assert.assertTrue(Files.exists(projectPath.resolve(genPkgPath).resolve("foo" + ".zip")));
+        Assert.assertTrue(Files.exists(projectPath.resolve(genPkgPath).resolve("foo.zip")));
         Assert.assertTrue(Files.exists(projectPath.resolve("target").resolve("foo.balx")));
     }
 
