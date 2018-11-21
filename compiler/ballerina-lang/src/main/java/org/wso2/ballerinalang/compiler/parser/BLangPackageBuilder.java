@@ -992,8 +992,12 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(varDefNode);
     }
 
-    void addTupleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean isDeclaredWithVar) {
+    void addTupleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean isFinal,
+                                      boolean isDeclaredWithVar) {
         BLangTupleVariable var = (BLangTupleVariable) this.varStack.pop();
+        if (isFinal) {
+            markVariableAsFinal(var);
+        }
         BLangTupleVariableDef varDefNode = (BLangTupleVariableDef) TreeBuilder.createTupleVariableDefinitionNode();
         Set<Whitespace> wsOfSemiColon = removeNthFromLast(ws, 0);
         var.setInitialExpression(this.exprNodeStack.pop());
@@ -1008,9 +1012,13 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(varDefNode);
     }
 
-    void addRecordVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean isDeclaredWithVar) {
+    void addRecordVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean isFinal,
+                                       boolean isDeclaredWithVar) {
         BLangRecordVariableDef varDefNode = (BLangRecordVariableDef) TreeBuilder.createRecordVariableDefinitionNode();
         BLangRecordVariable var = (BLangRecordVariable) this.varStack.pop();
+        if (isFinal) {
+            markVariableAsFinal(var);
+        }
         var.setInitialExpression(this.exprNodeStack.pop());
         varDefNode.pos = pos;
         varDefNode.setVariable(var);
@@ -1057,6 +1065,33 @@ public class BLangPackageBuilder {
 
         objectInitNode.objectInitInvocation = invocationNode;
         this.addExpressionNode(objectInitNode);
+    }
+
+    private void markVariableAsFinal(BLangTupleVariable tupleVariable) {
+        tupleVariable.flagSet.add(Flag.FINAL);
+        for (BLangVariable memberVariable : tupleVariable.memberVariables) {
+            if (memberVariable.getKind() == NodeKind.VARIABLE) {
+                memberVariable.flagSet.add(Flag.FINAL);
+            } else if (memberVariable.getKind() == NodeKind.TUPLE_VARIABLE) {
+                markVariableAsFinal((BLangTupleVariable) memberVariable);
+            } else if (memberVariable.getKind() == NodeKind.RECORD_VARIABLE) {
+                markVariableAsFinal((BLangRecordVariable) memberVariable);
+            }
+        }
+    }
+
+    private void markVariableAsFinal(BLangRecordVariable recordVariable) {
+        recordVariable.flagSet.add(Flag.FINAL);
+        for (BLangRecordVariableKeyValue keyValue : recordVariable.variableList) {
+            BLangVariable valueBindingPattern = keyValue.valueBindingPattern;
+            if (valueBindingPattern.getKind() == NodeKind.VARIABLE) {
+                valueBindingPattern.flagSet.add(Flag.FINAL);
+            } else if (valueBindingPattern.getKind() == NodeKind.TUPLE_VARIABLE) {
+                markVariableAsFinal((BLangTupleVariable) valueBindingPattern);
+            } else if (valueBindingPattern.getKind() == NodeKind.RECORD_VARIABLE) {
+                markVariableAsFinal((BLangRecordVariable) valueBindingPattern);
+            }
+        }
     }
 
     void addErrorConstructor(DiagnosticPos pos, Set<Whitespace> ws, boolean detailsExprAvailable) {
