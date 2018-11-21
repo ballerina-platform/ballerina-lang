@@ -133,7 +133,6 @@ function testUnconstrainedMapWithTupleWithoutType() returns string {
     return output;
 }
 
-
 function testUnconstrainedMapWithTupleWithType() returns string {
     output = "";
 
@@ -151,7 +150,6 @@ function testUnconstrainedMapWithTupleWithType() returns string {
     return output;
 }
 
-
 function testConstrainedMapWithTupleWithoutType() returns string {
     output = "";
 
@@ -168,7 +166,6 @@ function testConstrainedMapWithTupleWithoutType() returns string {
     }
     return output;
 }
-
 
 function testConstrainedMapWithTupleWithType() returns string {
     output = "";
@@ -223,7 +220,6 @@ function testUnconstrainedMapWithTupleInTupleWithoutType() returns string {
     return output;
 }
 
-
 function testUnconstrainedMapWithTupleInTupleWithType() returns string {
     output = "";
 
@@ -241,7 +237,6 @@ function testUnconstrainedMapWithTupleInTupleWithType() returns string {
     return output;
 }
 
-
 function testConstrainedMapWithTupleInTupleWithoutType() returns string {
     output = "";
 
@@ -258,7 +253,6 @@ function testConstrainedMapWithTupleInTupleWithoutType() returns string {
     }
     return output;
 }
-
 
 function testConstrainedMapWithTupleInTupleWithType() returns string {
     output = "";
@@ -317,7 +311,6 @@ function testUnconstrainedMapWithRecordInTupleWithoutType() returns string {
     return output;
 }
 
-
 function testUnconstrainedMapWithRecordInTupleWithType() returns string {
     output = "";
 
@@ -339,7 +332,6 @@ function testUnconstrainedMapWithRecordInTupleWithType() returns string {
     return output;
 }
 
-
 function testConstrainedMapWithRecordInTupleWithoutType() returns string {
     output = "";
 
@@ -360,7 +352,6 @@ function testConstrainedMapWithRecordInTupleWithoutType() returns string {
     }
     return output;
 }
-
 
 function testConstrainedMapWithRecordInTupleWithType() returns string {
     output = "";
@@ -423,7 +414,6 @@ function testUnconstrainedMapWithRecordWithoutType() returns string {
     return output;
 }
 
-
 function testUnconstrainedMapWithRecordWithType() returns string {
     output = "";
 
@@ -441,7 +431,6 @@ function testUnconstrainedMapWithRecordWithType() returns string {
     return output;
 }
 
-
 function testConstrainedMapWithRecordWithoutType() returns string {
     output = "";
 
@@ -458,7 +447,6 @@ function testConstrainedMapWithRecordWithoutType() returns string {
     }
     return output;
 }
-
 
 function testConstrainedMapWithRecordWithType() returns string {
     output = "";
@@ -485,6 +473,113 @@ function testConstrainedMapWithRecordWithAnyType() returns string {
     Data d3 = { i: 3, v: "C" };
 
     map<Data> m = { a: d1, b: d2, c: d3 };
+
+    int i = 0;
+    foreach (string, any) (k, v) in m {
+        concatIntStringAny(i, k, v);
+        i += 1;
+    }
+    return output;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+function testUnconstrainedMapWithRecordInRecordWithoutType() returns string {
+    output = "";
+
+    Data d11 = { i: 1, v: "A" };
+    Data d12 = { i: 2, v: "B" };
+    Data d13 = { i: 3, v: "C" };
+
+    Data2 d21 = { i: 2, v: d11 };
+    Data2 d22 = { i: 3, v: d12 };
+    Data2 d23 = { i: 4, v: d13 };
+
+    map m = { a: d21, b: d22, c: d23 };
+
+    int i = 0;
+    foreach var (k, v) in m {
+        concatIntStringAny(i, k, v);
+        i += 1;
+    }
+    return output;
+}
+
+function testUnconstrainedMapWithRecordInRecordWithType() returns string {
+    output = "";
+
+    Data d11 = { i: 1, v: "A" };
+    Data d12 = { i: 2, v: "B" };
+    Data d13 = { i: 3, v: "C" };
+
+    Data2 d21 = { i: 2, v: d11 };
+    Data2 d22 = { i: 3, v: d12 };
+    Data2 d23 = { i: 4, v: d13 };
+
+    map m = { a: d21, b: d22, c: d23 };
+
+    int i = 0;
+    foreach (string, any) (k, v) in m {
+        concatIntStringAny(i, k, v);
+        i += 1;
+    }
+    return output;
+}
+
+function testConstrainedMapWithRecordInRecordWithoutType() returns string {
+    output = "";
+
+    Data d11 = { i: 1, v: "A" };
+    Data d12 = { i: 2, v: "B" };
+    Data d13 = { i: 3, v: "C" };
+
+    Data2 d21 = { i: 2, v: d11 };
+    Data2 d22 = { i: 3, v: d12 };
+    Data2 d23 = { i: 4, v: d13 };
+
+    map<Data2> m = { a: d21, b: d22, c: d23 };
+
+    int i = 0;
+    foreach var (k, {i: u, v: {i: v, v: w}}) in m {
+        concatIntStringIntIntString(i, k, u, v, w);
+        i += 1;
+    }
+    return output;
+}
+
+function testConstrainedMapWithRecordInRecordWithType() returns string {
+    output = "";
+
+    Data d11 = { i: 1, v: "A" };
+    Data d12 = { i: 2, v: "B" };
+    Data d13 = { i: 3, v: "C" };
+
+    Data2 d21 = { i: 2, v: d11 };
+    Data2 d22 = { i: 3, v: d12 };
+    Data2 d23 = { i: 4, v: d13 };
+
+    map<Data2> m = { a: d21, b: d22, c: d23 };
+
+    int i = 0;
+    foreach (string, Data2) (k, {i: u, v: {i: v, v: w}}) in m {
+        concatIntStringIntIntString(i, k, u, v, w);
+        i += 1;
+    }
+    return output;
+}
+
+function testConstrainedMapWithRecordInRecordWithAnyType() returns string {
+    output = "";
+
+    Data d11 = { i: 1, v: "A" };
+    Data d12 = { i: 2, v: "B" };
+    Data d13 = { i: 3, v: "C" };
+
+    Data2 d21 = { i: 2, v: d11 };
+    Data2 d22 = { i: 3, v: d12 };
+    Data2 d23 = { i: 4, v: d13 };
+
+    map<Data2> m = { a: d21, b: d22, c: d23 };
 
     int i = 0;
     foreach (string, any) (k, v) in m {

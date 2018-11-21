@@ -219,4 +219,42 @@ public class ForeachMapsTypedBindingPatternsTests {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "0:a:{i:1, v:\"A\"} 1:b:{i:2, v:\"B\"} 2:c:{i:3, v:\"C\"} ");
     }
+
+    @Test
+    public void testUnconstrainedMapWithRecordInRecordWithoutType() {
+        BValue[] returns = BRunUtil.invoke(program, "testUnconstrainedMapWithRecordInRecordWithoutType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "0:a:{i:2, v:{i:1, v:\"A\"}} 1:b:{i:3, v:{i:2, v:\"B\"}} " +
+                "2:c:{i:4, v:{i:3, v:\"C\"}} ");
+    }
+
+    @Test
+    public void testUnconstrainedMapWithRecordInRecordWithType() {
+        BValue[] returns = BRunUtil.invoke(program, "testUnconstrainedMapWithRecordInRecordWithType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "0:a:{i:2, v:{i:1, v:\"A\"}} 1:b:{i:3, v:{i:2, v:\"B\"}} " +
+                "2:c:{i:4, v:{i:3, v:\"C\"}} ");
+    }
+
+    @Test
+    public void testConstrainedMapWithRecordInRecordWithoutType() {
+        BValue[] returns = BRunUtil.invoke(program, "testConstrainedMapWithRecordInRecordWithoutType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "0:a:2:1:A 1:b:3:2:B 2:c:4:3:C ");
+    }
+
+    @Test
+    public void testConstrainedMapWithRecordInRecordWithType() {
+        BValue[] returns = BRunUtil.invoke(program, "testConstrainedMapWithRecordInRecordWithType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "0:a:2:1:A 1:b:3:2:B 2:c:4:3:C ");
+    }
+
+    @Test
+    public void testConstrainedMapWithRecordInRecordWithAnyType() {
+        BValue[] returns = BRunUtil.invoke(program, "testConstrainedMapWithRecordInRecordWithAnyType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "0:a:{i:2, v:{i:1, v:\"A\"}} 1:b:{i:3, v:{i:2, v:\"B\"}} " +
+                "2:c:{i:4, v:{i:3, v:\"C\"}} ");
+    }
 }
