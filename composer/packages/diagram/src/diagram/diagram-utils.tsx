@@ -1,5 +1,5 @@
 import React from "react";
-import { DiagramConfig } from "../config/default";
+import { DefaultConfig, DiagramConfig } from "../config/default";
 import * as components from "../views/index";
 
 export class DiagramUtils {
@@ -18,7 +18,7 @@ export class DiagramUtils {
     /**
      * Get diagram config
      */
-    public static getConfig() {
-        return DiagramConfig;
+    public static getConfig(): DiagramConfig {
+        return DefaultConfig;
     }
 }
