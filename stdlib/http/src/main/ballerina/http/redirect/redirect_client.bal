@@ -107,9 +107,7 @@ public type RedirectClient client object {
     # + request - An HTTP inbound request message
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public remote function forward(string path, Request request) returns Response|error {
-        Client httpClient = self.httpClient;
-        var result = httpClient->forward(path, request);
-        return result;
+        return self.httpClient->forward(path, request);
     }
 
     # The `execute()` sends an HTTP request to a service with the specified HTTP verb. Redirect will be performed
@@ -121,12 +119,10 @@ public type RedirectClient client object {
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public remote function execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message) returns Response|error {
-        Client httpClient = self.httpClient;
         Request request = buildRequest(message);
         //Redirection is performed only for HTTP methods
         if (HTTP_NONE == extractHttpOperation(httpVerb)) {
-            var result = httpClient->execute(httpVerb, path, request);
-            return result;
+            return self.httpClient->execute(httpVerb, path, request);
         } else {
             return performRedirectIfEligible(self, path, request, extractHttpOperation(httpVerb));
         }
@@ -182,10 +178,8 @@ public type RedirectClient client object {
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
     public remote function submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                 message) returns HttpFuture|error {
-        Client httpClient = self.httpClient;
         Request request = buildRequest(message);
-        var result = httpClient->submit(httpVerb, path, request);
-        return result;
+        return self.httpClient->submit(httpVerb, path, request);
     }
 
     # Retrieves the `Response` for a previously submitted request.
@@ -193,9 +187,7 @@ public type RedirectClient client object {
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - An HTTP response message, or an error if the invocation fails
     public function getResponse(HttpFuture httpFuture) returns Response|error {
-        Client httpClient = self.httpClient;
-        var result = httpClient->getResponse(httpFuture);
-        return result;
+        return self.httpClient->getResponse(httpFuture);
     }
 
     # Checks whether a `PushPromise` exists for a previously submitted request.
@@ -203,9 +195,7 @@ public type RedirectClient client object {
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - A `boolean` that represents whether a `PushPromise` exists
     public function hasPromise(HttpFuture httpFuture) returns (boolean) {
-        Client httpClient = self.httpClient;
-        var result = httpClient->hasPromise(httpFuture);
-        return result;
+        return self.httpClient->hasPromise(httpFuture);
     }
 
     # Retrieves the next available `PushPromise` for a previously submitted request.
@@ -213,9 +203,7 @@ public type RedirectClient client object {
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - An HTTP Push Promise message, or an error if the invocation fails
     public function getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
-        Client httpClient = self.httpClient;
-        var result = httpClient->getNextPromise(httpFuture);
-        return result;
+        return self.httpClient->getNextPromise(httpFuture);
     }
 
     # Retrieves the promised server push `Response` message.
@@ -223,9 +211,7 @@ public type RedirectClient client object {
     # + promise - The related `PushPromise`
     # + return - A promised HTTP `Response` message, or an error if the invocation fails
     public function getPromisedResponse(PushPromise promise) returns Response|error {
-        Client httpClient = self.httpClient;
-        var result = httpClient->getPromisedResponse(promise);
-        return result;
+        return self.httpClient->getPromisedResponse(promise);
     }
 
     # Rejects a `PushPromise`.
@@ -233,8 +219,7 @@ public type RedirectClient client object {
     #
     # + promise - The Push Promise to be rejected
     public function rejectPromise(PushPromise promise) {
-        Client httpClient = self.httpClient;
-        httpClient->rejectPromise(promise);
+        self.httpClient->rejectPromise(promise);
     }
 };
 
