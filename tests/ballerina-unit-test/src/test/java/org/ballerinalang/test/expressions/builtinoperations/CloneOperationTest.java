@@ -547,4 +547,20 @@ public class CloneOperationTest {
                 "value '({id:100, name:\"Alex\", salary:300.5}, Employee)' of type '(Employee,any)' " +
                 "can not be cloned");
     }
+
+    @Test
+    public void testCloneLikeAnydata() {
+        BValue[] results = BRunUtil.invoke(result, "cloneLikeAnydata");
+        Assert.assertNotNull(results);
+        Assert.assertNotSame(results[0], results[1]);
+        BRefValueArray result1 = (BRefValueArray) results[0];
+        BMap person1 = (BMap) result1.get(0);
+        BIntArray arr1 = (BIntArray) result1.get(1);
+
+        BRefValueArray result2 = (BRefValueArray) results[1];
+        BMap person2 = (BMap) result2.get(0);
+        BIntArray arr2 = (BIntArray) result2.get(1);
+        Assert.assertEquals(person1.getMap().entrySet(), person2.getMap().entrySet());
+        Assert.assertEquals(arr1.stringValue(), arr2.stringValue());
+    }
 }

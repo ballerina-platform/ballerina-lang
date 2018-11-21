@@ -361,3 +361,11 @@ public function cloneNonAnydata() returns (any, any) {
     ((Employee, any) | error) q = x.clone();
     return (x, q);
 }
+
+public function cloneLikeAnydata() returns (any, any) {
+    Employee p = {id: 100, name: "Alex", salary: 300.5};
+    int[] q = [1, 2, 3];
+    (any, any) x = (p, q);
+    any y = x.clone();
+    return (x, y);
+}
