@@ -25,7 +25,7 @@ const int CACHE_CLEANUP_START_DELAY = 0;
 const int CACHE_CLEANUP_INTERVAL = 5000;
 
 # Map which stores all of the caches.
-map<Cache> cacheMap;
+map<Cache> cacheMap = {};
 
 # Cleanup task which cleans the cache periodically.
 task:Timer cacheCleanupTimer = createCacheCleanupTask();

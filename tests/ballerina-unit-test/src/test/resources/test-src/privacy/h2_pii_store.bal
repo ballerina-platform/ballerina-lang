@@ -25,9 +25,9 @@ endpoint h2:Client testDB {
     poolOptions: { maximumPoolSize: 1 }
 };
 
-@final string TABLE_NAME = "PII_STORE";
-@final string ID_CLOUMN = "id";
-@final string PII_COLUMN = "pii";
+final string TABLE_NAME = "PII_STORE";
+final string ID_CLOUMN = "id";
+final string PII_COLUMN = "pii";
 
 function pseudonymizePii (string pii) returns string|error {
     privacy:H2PiiStore piiStore = new(testDB, TABLE_NAME, ID_CLOUMN, PII_COLUMN);
