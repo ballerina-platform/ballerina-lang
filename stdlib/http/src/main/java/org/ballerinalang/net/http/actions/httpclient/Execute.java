@@ -38,7 +38,7 @@ import java.util.Locale;
         orgName = "ballerina", packageName = "http",
         functionName = "nativeExecute",
         args = {
-                @Argument(name = "callerActions", type = TypeKind.OBJECT),
+                @Argument(name = "client", type = TypeKind.OBJECT),
                 @Argument(name = "httpVerb", type = TypeKind.STRING),
                 @Argument(name = "path", type = TypeKind.STRING),
                 @Argument(name = "req", type = TypeKind.OBJECT, structType = "Request",
