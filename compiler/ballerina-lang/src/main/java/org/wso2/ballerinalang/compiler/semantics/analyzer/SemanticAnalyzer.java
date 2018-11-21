@@ -464,7 +464,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 dlog.error(varNode.pos, DiagnosticCode.SEALED_ARRAY_TYPE_NOT_INITIALIZED);
                 return;
             }
-            if (varNode.symbol.owner.tag == SymTag.PACKAGE) {
+            if (varNode.symbol.type.tag != TypeTags.CHANNEL && varNode.symbol.owner.tag == SymTag.PACKAGE) {
                 dlog.error(varNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varNode.name);
             }
             return;
