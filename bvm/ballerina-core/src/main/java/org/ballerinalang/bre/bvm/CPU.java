@@ -3978,7 +3978,7 @@ public class CPU {
         ErrorTableEntry match = ErrorTableEntry.getMatch(ctx.callableUnitInfo.getPackageInfo(), ip);
         if (match != null) {
             ctx.ip = match.ipTarget;
-            ctx.workerLocal.refRegs[match.regIndex] = ctx.getError();
+            //ctx.workerLocal.refRegs[match.regIndex] = ctx.getError();
             ctx.setError(null);
         } else {
             BLangScheduler.workerExcepted(ctx);
