@@ -194,3 +194,8 @@ function testVarDefWithUnionType5() returns ((string|int, int|boolean), float|(i
     ((string|int, int|boolean), float|(int, boolean), (string|float, string)) ((a, b), c, (d, e)) = fn3();
     return ((a, b), c, (d, e));
 }
+
+function testVarDefWithUnionType6() returns (int|float|string, int|boolean|string) {
+    (string, int)|(int, boolean)|(float, string) (a, b) = ("Test", 23);
+    return (a, b);
+}

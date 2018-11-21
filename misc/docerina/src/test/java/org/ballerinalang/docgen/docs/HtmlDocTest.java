@@ -442,6 +442,16 @@ public class HtmlDocTest {
         Assert.assertEquals(page.constructs.get(1).name, "content");
     }
 
+    @Test(description = "Annotation in a module should be shown in the constructs")
+    public void testConstants() {
+        BLangPackage bLangPackage = createPackage("public const string name = \"Ballerina\";" +
+                "public const age = 10;");
+        Page page = generatePage(bLangPackage);
+        Assert.assertEquals(page.constructs.size(), 2);
+        Assert.assertEquals(page.constructs.get(0).name, "name");
+        Assert.assertEquals(page.constructs.get(1).name, "age");
+    }
+
     @Test(description = "Structs in a module should be shown in the constructs")
     public void testStructs() {
         BLangPackage bLangPackage = createPackage("public type Message record {string message; error? cause;};");
@@ -625,7 +635,6 @@ public class HtmlDocTest {
     @Test(description = "Global variables should be available via construct with new docerina syntax")
     public void testGlobalVariablePropertiesExtractedWithNewSyntax() {
         BLangPackage bLangPackage = createPackage("# The Read Append access mode\n" +
-                "# + RA - mode\n" +
                 "@final\n" + "public string RA = \"RA\";");
 
         GlobalVariableDoc globalVariableDoc = Generator.createDocForNode(bLangPackage.getGlobalVariables().get(0));

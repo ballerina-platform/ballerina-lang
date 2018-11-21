@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -195,6 +196,10 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     }
 
     public void visit(BLangForever foreverStatement) {
+        /* ignore */
+    }
+
+    public void visit(BLangConstant constant) {
         /* ignore */
     }
 

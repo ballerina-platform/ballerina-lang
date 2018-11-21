@@ -30,6 +30,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -89,6 +90,18 @@ public class MarkdownDocumentationTest {
         Assert.assertNotNull(variableNode);
         documentationAttachment = variableNode.getMarkdownDocumentationAttachment();
         Assert.assertNull(documentationAttachment);
+
+        BLangConstant constantNode = (BLangConstant) packageNode.getConstants().get(0);
+        Assert.assertNotNull(constantNode);
+        documentationAttachment = constantNode.getMarkdownDocumentationAttachment();
+        Assert.assertNotNull(documentationAttachment);
+        Assert.assertEquals(documentationAttachment.getDocumentation(), "Documentation for constant with type.");
+
+        constantNode = (BLangConstant) packageNode.getConstants().get(1);
+        Assert.assertNotNull(constantNode);
+        documentationAttachment = constantNode.getMarkdownDocumentationAttachment();
+        Assert.assertNotNull(documentationAttachment);
+        Assert.assertEquals(documentationAttachment.getDocumentation(), "Documentation for constant without type.");
     }
 
     @Test(description = "Test doc finite types")

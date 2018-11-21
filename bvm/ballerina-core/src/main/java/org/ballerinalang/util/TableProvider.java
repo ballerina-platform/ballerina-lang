@@ -36,6 +36,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collection;
 
 /**
  * {@code TableProvider} creates In Memory database for tables.
@@ -152,7 +153,7 @@ public class TableProvider {
     private String generateCreateTableStatment(String tableName, BType constrainedType, BStringArray primaryKeys) {
         StringBuilder sb = new StringBuilder();
         sb.append(TableConstants.SQL_CREATE).append(tableName).append(" (");
-        BField[] structFields = ((BStructureType) constrainedType).getFields();
+        Collection<BField> structFields = ((BStructureType) constrainedType).getFields().values();
         String seperator = "";
         for (BField sf : structFields) {
             int type = sf.getFieldType().getTag();

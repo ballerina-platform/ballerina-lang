@@ -33,14 +33,14 @@ import ballerina/time;
 # + keyStorePassword - Password of the key-store file containing signing key
 # + signingAlg - Signing algorithm for signing newly issued JWT tokens
 public type InferredJwtAuthProviderConfig record {
-    string issuer;
-    string audience;
-    int expTime;
-    string keyAlias;
-    string keyPassword;
-    string keyStoreFilePath;
-    string keyStorePassword;
-    string signingAlg;
+    string issuer = "";
+    string audience = "";
+    int expTime = 0;
+    string keyAlias = "";
+    string keyPassword = "";
+    string keyStoreFilePath = "";
+    string keyStorePassword = "";
+    string signingAlg = "";
     !...
 };
 
@@ -52,15 +52,11 @@ function setAuthToken(string username, InferredJwtAuthProviderConfig authConfig)
     internal:JwtHeader header = createHeader(authConfig);
     internal:JwtPayload payload = createPayload(username, authConfig);
     internal:JWTIssuerConfig config = createJWTIssueConfig(authConfig);
-    match internal:issue(header, payload, config) {
-        string token => {
-            runtime:AuthContext authContext = runtime:getInvocationContext().authContext;
-            authContext.scheme = "jwt";
-            authContext.authToken = token;
-        }
-        error err => {
-            // Error issuing token.
-        }
+    var token = internal:issue(header, payload, config);
+    if (token is string) {
+        runtime:AuthContext authContext = runtime:getInvocationContext().authContext;
+        authContext.scheme = "jwt";
+        authContext.authToken = token;
     }
 }
 

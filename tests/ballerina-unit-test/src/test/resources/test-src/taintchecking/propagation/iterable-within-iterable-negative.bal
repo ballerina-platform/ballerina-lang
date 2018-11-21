@@ -1,4 +1,4 @@
-json globalVar;
+json globalVar = {};
 
 public function main (string... args) {
     taintedJsonReturn().address_components

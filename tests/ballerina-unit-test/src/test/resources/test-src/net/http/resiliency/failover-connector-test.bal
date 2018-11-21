@@ -58,7 +58,7 @@ function testFailureScenario () returns (http:Response | error) {
         timeoutMillis:5000
     };
 
-    http:Response response;
+    http:Response response = new;
     http:FailoverActions foClient = backendClientEP.getCallerActions();
     MockClient mockClient1 = new;
     MockClient mockClient2 = new;
@@ -79,8 +79,8 @@ function testFailureScenario () returns (http:Response | error) {
 }
 
 public type MockClient object {
-    public string serviceUri;
-    public http:ClientEndpointConfig config;
+    public string serviceUri = "";
+    public http:ClientEndpointConfig config = {};
 
     public function post (string path, http:Request req) returns (http:Response | error) {
         error httpConnectorError = error("Unsupported fuction for MockClient");

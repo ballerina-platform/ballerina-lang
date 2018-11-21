@@ -38,6 +38,12 @@ public enum BLangBuiltInMethod {
 
     STACKTRACE("stackTrace"),
 
+    FREEZE("freeze"),
+
+    IS_FROZEN("isFrozen"),
+
+    STAMP("stamp"),
+
     UNDEFINED("$undefined");
 
     private String name;

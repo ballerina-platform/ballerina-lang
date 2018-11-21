@@ -97,7 +97,9 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Stack;
 import java.util.stream.Stream;
@@ -343,6 +345,9 @@ public class PackageInfoReader {
 
         // Read resource info entries.
         readResourceInfoEntries(packageInfo);
+
+        // Read constant info entries
+        readConstantInfoEntries(packageInfo);
 
         // Read global var info entries
         readGlobalVarInfoEntries(packageInfo);
@@ -607,8 +612,8 @@ public class PackageInfoReader {
     private void readConstantInfoEntries(PackageInfo packageInfo) throws IOException {
         int constCount = dataInStream.readShort();
         for (int i = 0; i < constCount; i++) {
-            PackageVarInfo packageVarInfo = getGlobalVarInfo(packageInfo, packageInfo);
-            packageInfo.addConstantInfo(packageVarInfo.getName(), packageVarInfo);
+            // Read constant info and ignore.
+            readConstantInfo(packageInfo, packageInfo);
         }
     }
 
@@ -617,6 +622,26 @@ public class PackageInfoReader {
         for (int i = 0; i < globalVarCount; i++) {
             PackageVarInfo packageVarInfo = getGlobalVarInfo(packageInfo, packageInfo);
             packageInfo.addPackageVarInfo(packageVarInfo.getName(), packageVarInfo);
+        }
+    }
+
+    private void readConstantInfo(PackageInfo packageInfo, ConstantPool constantPool) throws IOException {
+        // Read constant name cp index and ignore.
+        dataInStream.readInt();
+
+        // Read finite type cp index and ignore.
+        dataInStream.readInt();
+
+        // Read value type cp index and ignore.
+        dataInStream.readInt();
+
+        // Read and ignore flags.
+        dataInStream.readInt();
+
+        // Read and ignore attributes.
+        int attributesCount = dataInStream.readShort();
+        for (int k = 0; k < attributesCount; k++) {
+            getAttributeInfo(packageInfo, constantPool);
         }
     }
 
@@ -655,11 +680,11 @@ public class PackageInfoReader {
 
         // Set for the testable package
         packageInfo.setTestInitFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() +
-                                                                                TEST_INIT_FUNCTION_SUFFIX));
+                TEST_INIT_FUNCTION_SUFFIX));
         packageInfo.setTestStartFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() +
-                                                                                 TEST_START_FUNCTION_SUFFIX));
+                TEST_START_FUNCTION_SUFFIX));
         packageInfo.setTestStopFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() +
-                                                                                TEST_STOP_FUNCTION_SUFFIX));
+                TEST_STOP_FUNCTION_SUFFIX));
 
         // TODO Improve this. We should be able to this in a single pass.
         ServiceInfo[] serviceInfoEntries = packageInfo.getServiceInfoEntries();
@@ -1222,11 +1247,12 @@ public class PackageInfoReader {
                 case InstructionCodes.ARRAY2JSON:
                 case InstructionCodes.REASON:
                 case InstructionCodes.DETAIL:
+                case InstructionCodes.FREEZE:
+                case InstructionCodes.IS_FROZEN:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
                     break;
-
                 case InstructionCodes.IALOAD:
                 case InstructionCodes.BIALOAD:
                 case InstructionCodes.FALOAD:
@@ -1307,6 +1333,7 @@ public class PackageInfoReader {
                 case InstructionCodes.XMLLOAD:
                 case InstructionCodes.NEW_INT_RANGE:
                 case InstructionCodes.LENGTHOF:
+                case InstructionCodes.STAMP:
                 case InstructionCodes.NEWSTREAM:
                 case InstructionCodes.CHECKCAST:
                 case InstructionCodes.MAP2T:
@@ -1330,6 +1357,7 @@ public class PackageInfoReader {
                 case InstructionCodes.RNEWARRAY:
                 case InstructionCodes.O2JSON:
                 case InstructionCodes.TYPE_TEST:
+                case InstructionCodes.IS_LIKE:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
@@ -1589,7 +1617,7 @@ public class PackageInfoReader {
             StructFieldInfo[] fieldInfoEntries = structureTypeInfo.getFieldInfoEntries();
 
             BStructureType structType = structureTypeInfo.getType();
-            BField[] structFields = new BField[fieldInfoEntries.length];
+            Map<String, BField> structFields = new LinkedHashMap<>();
             for (int i = 0; i < fieldInfoEntries.length; i++) {
                 // Get the BType from the type descriptor
                 StructFieldInfo fieldInfo = fieldInfoEntries[i];
@@ -1600,7 +1628,7 @@ public class PackageInfoReader {
                 // Create the StructField in the BStructType. This is required for the type equivalence algorithm
                 BField structField = new BField(fieldType,
                         fieldInfo.getName(), fieldInfo.flags);
-                structFields[i] = structField;
+                structFields.put(structField.fieldName, structField);
             }
 
             if (structType.getTag() == TypeTags.RECORD_TYPE_TAG && !((BRecordType) structType).sealed) {

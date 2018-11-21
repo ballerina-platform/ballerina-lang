@@ -1,4 +1,4 @@
 extern function foo(string param) {
-    string a;
+    string a = "";
     a = param;
 }

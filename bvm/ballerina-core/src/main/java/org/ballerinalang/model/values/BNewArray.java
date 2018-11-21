@@ -17,11 +17,14 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 import java.lang.reflect.Array;
+
+import static org.ballerinalang.model.util.FreezeUtils.isOpenForFreeze;
 
 /**
  * {@code BArray} represents an arrays in Ballerina.
@@ -32,6 +35,7 @@ import java.lang.reflect.Array;
 public abstract class BNewArray implements BRefType, BCollection {
 
     protected BType arrayType;
+    protected volatile CPU.FreezeStatus freezeStatus = new CPU.FreezeStatus(CPU.FreezeStatus.State.UNFROZEN);
 
     /**
      * The maximum size of arrays to allocate.
@@ -52,6 +56,11 @@ public abstract class BNewArray implements BRefType, BCollection {
     @Override
     public BType getType() {
         return arrayType;
+    }
+
+    @Override
+    public void stamp(BType type) {
+
     }
 
     @Override
@@ -151,6 +160,29 @@ public abstract class BNewArray implements BRefType, BCollection {
         @Override
         public boolean hasNext() {
             return cursor < length;
+        }
+
+        @Override
+        public void stamp(BType type) {
+
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized boolean isFrozen() {
+        return this.freezeStatus.isFrozen();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void attemptFreeze(CPU.FreezeStatus freezeStatus) {
+        if (isOpenForFreeze(this.freezeStatus, freezeStatus)) {
+            this.freezeStatus = freezeStatus;
         }
     }
 }

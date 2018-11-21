@@ -74,13 +74,9 @@ public enum Flag {
      */
     INTERFACE,
     /**
-     * Indicates Flagged type is checked for default values.
+     * Indicates Flagged record field is a required field.
      */
-    DEFAULTABLE_CHECKED,
-    /**
-     * Indicates Flagged type is a defaultable type.
-     */
-    DEFAULTABLE,
+    REQUIRED,
     /**
      * Temporary indicator for records.
      */
@@ -113,4 +109,8 @@ public enum Flag {
      * Indicates Flagged node is a service node.
      */
     SERVICE,
+    /**
+     * Indicates flagged node is a constant node.
+     */
+    CONSTANT,
 }

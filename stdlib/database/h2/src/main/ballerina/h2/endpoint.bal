@@ -27,14 +27,14 @@ import ballerina/sql;
 # + poolOptions - Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
 # + dbOptions - A map of DB specific properties
 public type ClientEndpointConfiguration record {
-    string host;
-    string path;
+    string host = "";
+    string path = "";
     int port = 9092;
-    string name;
-    string username;
-    string password;
-    sql:PoolOptions poolOptions;
-    map dbOptions;
+    string name = "";
+    string username = "";
+    string password = "";
+    sql:PoolOptions poolOptions = {};
+    map dbOptions = {};
     !...
 };
 
@@ -44,7 +44,7 @@ public type ClientEndpointConfiguration record {
 # + config - The configurations associated with the SQL endpoint
 public type Client object {
     private ClientEndpointConfiguration config;
-    private sql:CallerActions h2Client;
+    private sql:CallerActions h2Client = new;
 
     # Gets called when the endpoint is being initialized during the module initialization.
     #

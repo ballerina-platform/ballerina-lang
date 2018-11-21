@@ -19,6 +19,8 @@ package org.ballerinalang.net.grpc.builder.components;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Client Stub File definition bean class.
@@ -27,7 +29,12 @@ import java.util.List;
  */
 public class StubFile {
     private String rootDescriptorKey;
-    private List<Descriptor> descriptors = new ArrayList<>();
+    private Set<Descriptor> descriptors = new TreeSet<>((descriptor1, descriptor2) -> {
+        if (descriptor1.getKey().equalsIgnoreCase(descriptor2.getKey())) {
+            return 0;
+        }
+        return 1;
+    });
     private List<Message> messageList = new ArrayList<>();
     private List<EnumMessage> enumList = new ArrayList<>();
     private List<ServiceStub> stubList = new ArrayList<>();
@@ -52,7 +59,7 @@ public class StubFile {
     public void addDescriptor(Descriptor descriptor) {
         descriptors.add(descriptor);
     }
-    public List<Descriptor> getDescriptors() {
+    public Set<Descriptor> getDescriptors() {
         return descriptors;
     }
 

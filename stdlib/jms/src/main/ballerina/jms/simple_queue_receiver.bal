@@ -23,7 +23,7 @@ import ballerina/log;
 # + config - configurations related to the SimpleQueueReceiver endpoint
 public type SimpleQueueReceiver object {
 
-    public SimpleQueueReceiverEndpointConfiguration config;
+    public SimpleQueueReceiverEndpointConfiguration config = {};
 
     private Connection? connection;
     private Session? session = ();
@@ -61,16 +61,14 @@ public type SimpleQueueReceiver object {
     #
     # + serviceType - type descriptor of the service to bind to
     public function register(typedesc serviceType) {
-        match (self.queueReceiver) {
-            QueueReceiver c => {
-                c.register(serviceType);
-            }
-            () => {
-                string errorMessage = "Queue receiver cannot be nil";
-                map errorDetail = { message: errorMessage };
-                error e = error(JMS_ERROR_CODE, errorDetail);
-                panic e;
-            }
+        var queueReceiver = self.queueReceiver;
+        if (queueReceiver is QueueReceiver) {
+            queueReceiver.register(serviceType);
+        } else {
+            string errorMessage = "Queue receiver cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
 
@@ -83,14 +81,14 @@ public type SimpleQueueReceiver object {
     #
     # + return - simple queue receiver action handler
     public function getCallerActions() returns QueueReceiverActions {
-        match (self.queueReceiver) {
-            QueueReceiver c => return c.getCallerActions();
-            () => {
-                string errorMessage = "Queue receiver cannot be nil";
-                map errorDetail = { message: errorMessage };
-                error e = error(JMS_ERROR_CODE, errorDetail);
-                panic e;
-            }
+        var queueReceiver = self.queueReceiver;
+        if (queueReceiver is QueueReceiver) {
+            return queueReceiver.getCallerActions();
+        } else {
+            string errorMessage = "Queue receiver cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
 
@@ -104,14 +102,14 @@ public type SimpleQueueReceiver object {
     # + content - the text content used to initialize this message
     # + return - the created message, or nil if the session is nil
     public function createTextMessage(string content) returns Message|error {
-        match (self.session) {
-            Session s => return s.createTextMessage(content);
-            () => {
-                string errorMessage = "Session cannot be nil";
-                map errorDetail = { message: errorMessage };
-                error e = error(JMS_ERROR_CODE, errorDetail);
-                panic e;
-            }
+        var session = self.session;
+        if (session is Session) {
+            return session.createTextMessage(content);
+        } else {
+            string errorMessage = "Session cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
 };
@@ -131,8 +129,8 @@ public type SimpleQueueReceiverEndpointConfiguration record {
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
-    string messageSelector;
-    map properties;
-    string queueName;
+    string messageSelector = "";
+    map properties = {};
+    string queueName = "";
     !...
 };

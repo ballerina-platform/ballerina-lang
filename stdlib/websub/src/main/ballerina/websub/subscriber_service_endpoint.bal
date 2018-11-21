@@ -144,8 +144,18 @@ function Listener.sendSubscriptionRequests() {
                 var discoveredDetails = retrieveHubAndTopicUrl(resourceUrl, auth, newSecureSocket, followRedirects);
                 if (discoveredDetails is (string, string)) {
                     var (retHub, retTopic) = discoveredDetails;
-                    retHub = check http:decode(retHub, "UTF-8");
-                    retTopic = check http:decode(retTopic, "UTF-8");
+                    var hubDecodeResponse = http:decode(retHub, "UTF-8");
+                    if (hubDecodeResponse is string) {
+                        retHub = hubDecodeResponse;
+                    } else if (hubDecodeResponse is error) {
+                        panic hubDecodeResponse;
+                    }
+                    var topicDecodeResponse = http:decode(retTopic, "UTF-8");
+                    if (topicDecodeResponse is string) {
+                        retTopic = topicDecodeResponse;
+                    } else if (topicDecodeResponse is error) {
+                        panic topicDecodeResponse;
+                    }
                     subscriptionDetails["hub"] = retHub;
                     hub = retHub;
                     subscriptionDetails["topic"] = retTopic;
@@ -169,10 +179,10 @@ function Listener.sendSubscriptionRequests() {
 # + httpServiceSecureSocket - The SSL configurations for the service endpoint
 # + extensionConfig - The extension configuration to introduce custom subscriber services (webhooks)
 public type SubscriberServiceEndpointConfiguration record {
-    string host;
-    int port;
-    http:ServiceSecureSocket? httpServiceSecureSocket;
-    ExtensionConfig? extensionConfig;
+    string host = "";
+    int port = 0;
+    http:ServiceSecureSocket? httpServiceSecureSocket = ();
+    ExtensionConfig? extensionConfig = ();
     !...
 };
 
@@ -188,14 +198,14 @@ public type ExtensionConfig record {
 
     // TODO: make `Link` the default header and special case `Link` to extract the topic (rel="self").
     // <link href="<HUB_URL>"; rel="hub", href="<TOPIC_URL>"; rel="self"/>
-    string? topicHeader;
+    string? topicHeader = ();
 
     // e.g.,
     //  headerResourceMap = {
     //    "watch" : ("onWatch", WatchEvent),
     //    "create" : ("onCreate", CreateEvent)
     //  };
-    map<(string, typedesc)>? headerResourceMap;
+    map<(string, typedesc)>? headerResourceMap = ();
 
     // e.g.,
     //  payloadKeyResourceMap = {
@@ -204,7 +214,7 @@ public type ExtensionConfig record {
     //        "branch.deleted":  ("onBranchDelete", BranchDeletedEvent)
     //    }
     //  };
-    map<map<(string, typedesc)>>? payloadKeyResourceMap;
+    map<map<(string, typedesc)>>? payloadKeyResourceMap = ();
 
     // e.g.,
     //  headerAndPayloadKeyResourceMap = {
@@ -216,7 +226,7 @@ public type ExtensionConfig record {
     //        }
     //    }
     //  };
-    map<map<map<(string, typedesc)>>>? headerAndPayloadKeyResourceMap;
+    map<map<map<(string, typedesc)>>>? headerAndPayloadKeyResourceMap = ();
     !...
 };
 

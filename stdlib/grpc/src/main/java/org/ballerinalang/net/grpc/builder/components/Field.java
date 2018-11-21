@@ -18,8 +18,12 @@
 package org.ballerinalang.net.grpc.builder.components;
 
 import com.google.protobuf.DescriptorProtos;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
+import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.DOT;
@@ -76,8 +80,15 @@ public class Field {
                 String[] fieldTypeArray = fieldType.split(REGEX_DOT_SEPERATOR);
                 fieldType = fieldTypeArray[fieldTypeArray.length - 1];
             }
+            String fieldDefaultValue = FIELD_DEFAULT_VALUE_MAP.get(fieldDescriptor.getType());
             String fieldLabel = FIELD_LABEL_MAP.get(fieldDescriptor.getLabel());
-            return new Field(fieldDescriptor.getName(), fieldType, fieldLabel, fieldDescriptor.getDefaultValue());
+            String fieldName = fieldDescriptor.getName();
+            if (Arrays.stream(BallerinaLexer.ruleNames).anyMatch(fieldName::equalsIgnoreCase) || Names.ERROR.value
+                    .equalsIgnoreCase(fieldName)) {
+                fieldName = fieldType.toLowerCase(Locale.ENGLISH) + "_" + fieldName;
+            }
+            return new Field(fieldName, fieldType, fieldLabel, fieldDescriptor.getDefaultValue() !=
+                    null ? fieldDescriptor.getDefaultValue() : fieldDefaultValue);
         }
 
         private Builder(DescriptorProtos.FieldDescriptorProto fieldDescriptor) {
@@ -87,6 +98,7 @@ public class Field {
 
     private static final Map<DescriptorProtos.FieldDescriptorProto.Type, String> FIELD_TYPE_MAP;
     private static final Map<DescriptorProtos.FieldDescriptorProto.Label, String> FIELD_LABEL_MAP;
+    private static final Map<DescriptorProtos.FieldDescriptorProto.Type, String> FIELD_DEFAULT_VALUE_MAP;
 
     static {
         FIELD_TYPE_MAP = new HashMap<>();
@@ -105,6 +117,23 @@ public class Field {
         FIELD_TYPE_MAP.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_BOOL, "boolean");
         FIELD_TYPE_MAP.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING, "string");
         FIELD_TYPE_MAP.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES, "byte[]");
+
+        FIELD_DEFAULT_VALUE_MAP = new HashMap<>();
+        FIELD_DEFAULT_VALUE_MAP.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE, "0.0");
+        FIELD_DEFAULT_VALUE_MAP.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_FLOAT, "0.0");
+        FIELD_DEFAULT_VALUE_MAP.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT32, "0");
+        FIELD_DEFAULT_VALUE_MAP.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT64, "0");
+        FIELD_DEFAULT_VALUE_MAP.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_UINT32, "0");
+        FIELD_DEFAULT_VALUE_MAP.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_UINT64, "0");
+        FIELD_DEFAULT_VALUE_MAP.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_SINT32, "0");
+        FIELD_DEFAULT_VALUE_MAP.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_SINT64, "0");
+        FIELD_DEFAULT_VALUE_MAP.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED32, "0");
+        FIELD_DEFAULT_VALUE_MAP.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED64, "0");
+        FIELD_DEFAULT_VALUE_MAP.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_SFIXED32, "0");
+        FIELD_DEFAULT_VALUE_MAP.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_SFIXED64, "0");
+        FIELD_DEFAULT_VALUE_MAP.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_BOOL, "false");
+        FIELD_DEFAULT_VALUE_MAP.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING, "");
+        FIELD_DEFAULT_VALUE_MAP.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES, "[]");
 
         FIELD_LABEL_MAP = new HashMap<>();
         FIELD_LABEL_MAP.put(DescriptorProtos.FieldDescriptorProto.Label.LABEL_OPTIONAL, null);

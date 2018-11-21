@@ -1,9 +1,9 @@
 import ballerina/http;
 
-// The endpoint used here is `http:SecureListener`, which by default tries to
+// The endpoint used here is `http:Listener`, which by default tries to
 // authenticate and authorize each request. The developer has the option to
 // override the authentication and authorization at the service level and resource level.
-endpoint http:SecureListener ep {
+endpoint http:Listener ep {
     port: 9090,
     // The secure hello world sample uses https.
     secureSocket: {

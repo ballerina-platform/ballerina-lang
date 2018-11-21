@@ -18,11 +18,23 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/auth;
 
-endpoint http:APIListener listener7 {
-    port:9098
+http:AuthProvider basicAuthProvider07 = {
+    scheme:"basic",
+    authStoreProvider:"config"
 };
 
-service<http:Service> echo7 bind listener7 {
+endpoint http:Listener listener07 {
+    port:9098,
+    authProviders:[basicAuthProvider07],
+    secureSocket: {
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        }
+    }
+};
+
+service<http:Service> echo7 bind listener07 {
     test7 (endpoint caller, http:Request req) {
         http:Response res = new;
         _ = caller -> respond(res);

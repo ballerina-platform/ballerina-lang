@@ -27,26 +27,26 @@ import java.util.Set;
  */
 public class Flags {
     public static final int PUBLIC = 1;
-    public static final int NATIVE = 1 << 1;
-    public static final int FINAL = 1 << 2;
-    public static final int ATTACHED = 1 << 3;
-    public static final int DEPRECATED = 1 << 4;
-    public static final int READONLY = 1 << 5;
-    public static final int FUNCTION_FINAL = 1 << 6;
-    public static final int INTERFACE = 1 << 7;
-    public static final int DEFAULTABLE_CHECKED = 1 << 8;
-    public static final int DEFAULTABLE = 1 << 9;
-    public static final int RECORD = 1 << 10;
-    public static final int PRIVATE = 1 << 11;
-    public static final int COMPENSATE = 1 << 12;
-    public static final int ABSTRACT = 1 << 13;
-    public static final int OPTIONAL = 1 << 14;
-    public static final int TESTABLE = 1 << 15;
-    public static final int REMOTE = 1 << 16;
-    public static final int CLIENT = 1 << 17;
-    public static final int RESOURCE = 1 << 18;
-    public static final int SERVICE = 1 << 19;
-    public static final int LISTENER = 1 << 20;
+    public static final int NATIVE = PUBLIC << 1;
+    public static final int FINAL = NATIVE << 1;
+    public static final int ATTACHED = FINAL << 1;
+    public static final int DEPRECATED = ATTACHED << 1;
+    public static final int READONLY = DEPRECATED << 1;
+    public static final int FUNCTION_FINAL = READONLY << 1;
+    public static final int INTERFACE = FUNCTION_FINAL << 1;
+    public static final int REQUIRED = INTERFACE << 1;
+    public static final int RECORD = REQUIRED << 1;
+    public static final int PRIVATE = RECORD << 1;
+    public static final int COMPENSATE = PRIVATE << 1;
+    public static final int ABSTRACT = COMPENSATE << 1;
+    public static final int OPTIONAL = ABSTRACT << 1;
+    public static final int TESTABLE = OPTIONAL << 1;
+    public static final int CONSTANT = TESTABLE << 1;
+    public static final int REMOTE = CONSTANT << 1;
+    public static final int CLIENT = REMOTE << 1;
+    public static final int RESOURCE = CLIENT << 1;
+    public static final int SERVICE = RESOURCE << 1;
+    public static final int LISTENER = SERVICE << 1;
 
     public static int asMask(Set<Flag> flagSet) {
         int mask = 0;
@@ -82,11 +82,8 @@ public class Flags {
                 case INTERFACE:
                     mask |= INTERFACE;
                     break;
-                case DEFAULTABLE_CHECKED:
-                    mask |= DEFAULTABLE_CHECKED;
-                    break;
-                case DEFAULTABLE:
-                    mask |= DEFAULTABLE;
+                case REQUIRED:
+                    mask |= REQUIRED;
                     break;
                 case RECORD:
                     mask |= RECORD;
@@ -114,6 +111,9 @@ public class Flags {
                     break;
                 case LISTENER:
                     mask |= LISTENER;
+                    break;
+                case CONSTANT:
+                    mask |= CONSTANT;
                     break;
             }
         }
@@ -155,11 +155,8 @@ public class Flags {
                 case INTERFACE:
                     flagVal = INTERFACE;
                     break;
-                case DEFAULTABLE_CHECKED:
-                    flagVal = DEFAULTABLE_CHECKED;
-                    break;
-                case DEFAULTABLE:
-                    flagVal = DEFAULTABLE;
+                case REQUIRED:
+                    flagVal = REQUIRED;
                     break;
                 case RECORD:
                     flagVal = RECORD;
@@ -184,6 +181,9 @@ public class Flags {
                     break;
                 case LISTENER:
                     flagVal = LISTENER;
+                    break;
+                case CONSTANT:
+                    flagVal = CONSTANT;
                     break;
                 default:
                     continue;

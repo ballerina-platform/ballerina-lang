@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -82,6 +83,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -100,11 +102,15 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangPackage pkgNode) {
-        if (pkgNode.topLevelNodes.isEmpty()) {
+        List<TopLevelNode> topLevelNodes = new ArrayList<>(pkgNode.topLevelNodes);
+        if (pkgNode.containsTestablePkg()) {
+            topLevelNodes.addAll(pkgNode.getTestablePkg().topLevelNodes);
+        }
+        if (topLevelNodes.isEmpty()) {
             terminateVisitor = true;
             acceptNode(null);
         } else {
-            pkgNode.topLevelNodes.forEach(topLevelNode -> acceptNode((BLangNode) topLevelNode));
+            topLevelNodes.forEach(topLevelNode -> acceptNode((BLangNode) topLevelNode));
         }
     }
 
@@ -112,7 +118,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     public void visit(BLangFunction funcNode) {
         // Check for native functions
         BSymbol funcSymbol = funcNode.symbol;
-        if (Symbols.isNative(funcSymbol)) {
+        if (Symbols.isNative(funcSymbol) || !CommonUtil.isValidInvokableSymbol(funcSymbol)) {
             return;
         }
 
@@ -556,7 +562,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchStmtTypedBindingPatternClause patternClauseNode) {
+    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClauseNode) {
         if (patternClauseNode.variable != null) {
             this.acceptNode(patternClauseNode.variable);
         }
@@ -567,7 +573,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchStmtStaticBindingPatternClause patternClauseNode) {
+    public void visit(BLangMatch.BLangMatchStaticBindingPatternClause patternClauseNode) {
         /*ignore*/
     }
 

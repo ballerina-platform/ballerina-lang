@@ -32,7 +32,7 @@ function test4(){
 }
 
 type person record {
-    int id;
+    int id = 0;
 };
 
 function test5(){
@@ -51,13 +51,18 @@ function test6(){
     }
 }
 
-function test8(){
+function test8() returns error? {
     json j = ["a" , "b", "c"];
-    var a = check <json[]> j;
-    foreach x,y in a {
-        io:print(x);
-        io:println(y);
+    var jsonArray = <json[]> j;
+    if (jsonArray is json[]) {
+        foreach x,y in jsonArray {
+            io:print(x);
+            io:println(y);
+        }
+    } else if (jsonArray is error) {
+        return jsonArray;
     }
+    return ();
 }
 
 function test9(){

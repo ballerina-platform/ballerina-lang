@@ -30,7 +30,6 @@ import io.ballerina.plugins.idea.stubs.types.BallerinaPackageNameStubElementType
 import io.ballerina.plugins.idea.stubs.types.BallerinaPackageReferenceStubElementType;
 import io.ballerina.plugins.idea.stubs.types.BallerinaPackageVersionStubElementType;
 import io.ballerina.plugins.idea.stubs.types.BallerinaTypeDefinitionStubElementType;
-import io.ballerina.plugins.idea.stubs.types.BallerinaVariableDefinitionStatementStubElementType;
 import io.ballerina.plugins.idea.stubs.types.BallerinaWorkerDefinitionStubElementType;
 import org.jetbrains.annotations.NotNull;
 
@@ -67,8 +66,6 @@ public class BallerinaElementTypeFactory {
                 return new BallerinaPackageVersionStubElementType(name);
             case "ALIAS":
                 return new BallerinaAliasStubElementType(name);
-            case "VARIABLE_DEFINITION_STATEMENT":
-                return new BallerinaVariableDefinitionStatementStubElementType(name);
             case "NAME_REFERENCE":
                 return new BallerinaNameReferenceStubElementType(name);
             case "PACKAGE_REFERENCE":

@@ -43,6 +43,12 @@ public class BallerinaBuiltInReferenceTypeNameImpl extends BallerinaCompositeEle
 
   @Override
   @Nullable
+  public BallerinaErrorTypeName getErrorTypeName() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaErrorTypeName.class);
+  }
+
+  @Override
+  @Nullable
   public BallerinaFunctionTypeName getFunctionTypeName() {
     return PsiTreeUtil.getChildOfType(this, BallerinaFunctionTypeName.class);
   }

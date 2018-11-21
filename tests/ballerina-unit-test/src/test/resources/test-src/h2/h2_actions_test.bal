@@ -24,14 +24,16 @@ function testSelect() returns (int[]) {
 
     var val = testDB->select("select * from Customers where customerId=1 OR customerId=2", Customer);
 
-    int[] customerIds;
+    int[] customerIds = [];
 
     if (val is table<Customer>) {
         int i = 0;
         while (val.hasNext()) {
-            Customer rs = check <Customer>val.getNext();
-            customerIds[i] = rs.customerId;
-            i += 1;
+            var rs = <Customer>val.getNext();
+            if (rs is Customer) {
+                customerIds[i] = rs.customerId;
+                i += 1;
+            }
         }
         return customerIds;
     } else {
@@ -50,8 +52,10 @@ function testUpdate() returns (int) {
 
     var insertCountRet = testDB->update("insert into Customers (customerId, name, creditLimit, country)
                                 values (15, 'Anne', 1000, 'UK')");
-
-    int insertCount = check insertCountRet;
+    int insertCount = -1;
+    if (insertCountRet is int) {
+        insertCount = insertCountRet;
+    }
     testDB.stop();
     return insertCount;
 }
@@ -67,7 +71,7 @@ function testCall() returns (string) {
 
     var ret = testDB->call("{call JAVAFUNC('select * from Customers where customerId=1')}", [Customer]);
 
-    table[] dts;
+    table[] dts= [];
     if (ret is table[]) {
         dts = ret;
     } else if (ret is ()) {
@@ -76,10 +80,12 @@ function testCall() returns (string) {
         return <string> ret.detail().message;
     }
 
-    string name;
+    string name = "";
     while (dts[0].hasNext()) {
-        Customer rs = check <Customer>dts[0].getNext();
-        name = rs.name;
+        var rs = <Customer>dts[0].getNext();
+        if (rs is Customer) {
+            name = rs.name;
+        }
     }
     testDB.stop();
     return name;
@@ -94,7 +100,7 @@ function testGeneratedKeyOnInsert() returns (string) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    string returnVal;
+    string returnVal = "";
 
     var x = testDB->updateWithGeneratedKeys("insert into Customers (name,
             creditLimit,country) values ('Sam', 1200, 'USA')", ());
@@ -139,7 +145,7 @@ function testBatchUpdate() returns (int[]) {
 
     var x = testDB->batchUpdate("Insert into Customers values (?,?,?,?)", parameters1, parameters2);
 
-    int [] ret;
+    int [] ret = [];
     if (x is int[]) {
         ret = x;
     } else if (x is error) {
@@ -162,17 +168,23 @@ function testUpdateInMemory() returns (int, string) {
 
     var insertCountRet = testDB->update("insert into Customers2 (customerId, name, creditLimit, country)
                                 values (15, 'Anne', 1000, 'UK')");
-    int insertCount = check insertCountRet;
+    int insertCount = -1;
+    if (insertCountRet is int) {
+        insertCount = insertCountRet;
+    }
     io:println(insertCount);
 
     var x = testDB->select("SELECT  * from Customers2", Customer);
-    table t = check x;
-
-    json j = check <json>t;
-    string s = j.toString();
+    string s = "";
+    if (x is table) {
+        var res = <json>x;
+        if (res is json) {
+            s = res.toString();
+        }
+    }
 
     testDB.stop();
-    return (insertCount, j.toString());
+    return (insertCount, s);
 }
 
 function testInitWithNilDbOptions() returns (int[]) {
@@ -233,12 +245,15 @@ function testReInitEndpoint() returns int {
 
     testDB.init(config);
 
-    table dt = check testDB->select("select 1", Result);
-
-    int count;
-    while (dt.hasNext()) {
-        Result rs = check <Result>dt.getNext();
-        count = rs.val;
+    var dt = testDB->select("select 1", Result);
+    int count = -1;
+    if (dt is table) {
+        while (dt.hasNext()) {
+            var rs = <Result>dt.getNext();
+            if (rs is Result) {
+                count = rs.val;
+            }
+        }
     }
     testDB.stop();
 
@@ -250,13 +265,15 @@ function selectFunction(h2:Client testDBClient) returns (int[]) {
 
     var val = testDB->select("select * from Customers where customerId=1 OR customerId=2", Customer);
 
-    int[] customerIds;
+    int[] customerIds = [];
     if (val is table<Customer>) {
         int i = 0;
             while (val.hasNext()) {
-                Customer rs = check <Customer>val.getNext();
-                customerIds[i] = rs.customerId;
-                i += 1;
+                var rs = <Customer>val.getNext();
+                if (rs is Customer) {
+                    customerIds[i] = rs.customerId;
+                    i += 1;
+                }
             }
     } else if (val is error) {
         customerIds = [];
@@ -275,11 +292,19 @@ function testH2MemDBUpdate() returns (int, string) {
 
     var insertCountRet = testDB->update("CREATE TABLE student(id INTEGER,  name VARCHAR(30))");
     insertCountRet = testDB->update("insert into student (id, name) values (15, 'Anne')");
-    table dt = check testDB->select("Select * From student", ());
-    json j = check <json>dt;
-    string data = io:sprintf("%s", j);
+    var dt = testDB->select("Select * From student", ());
 
-    int insertCount = check insertCountRet;
+    string data = "";
+    if (dt is table) {
+        var j = <json>dt;
+        if (j is json) {
+            data = io:sprintf("%s", j);
+        }
+    }
+    int insertCount = -1;
+    if (insertCountRet is int) {
+        insertCount = insertCountRet;
+    }
     testDB.stop();
     return (insertCount, data);
 }

@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.debugger;
 
-import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
@@ -41,6 +40,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -544,7 +544,7 @@ public class VMDebuggerTest {
         BObjectType bObjectType;
         ObjectTypeInfo objectTypeInfo = new ObjectTypeInfo();
         bObjectType = new BObjectType(objectTypeInfo, objectName, packagePath, 0);
-        bObjectType.setFields(new BField[0]);
+        bObjectType.setFields(new LinkedHashMap<>());
         objectTypeInfo.setType(bObjectType);
         return new BMap(bObjectType);
     }

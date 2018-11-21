@@ -7,56 +7,56 @@
   "items": [
     {
       "label":"rawPath",
-      "kind":"Unit",
+      "kind":"Variable",
       "detail":"string",
       "sortText":"221",
       "insertText":"rawPath"
     },
     {
       "label":"method",
-      "kind":"Unit",
+      "kind":"Variable",
       "detail":"string",
       "sortText":"221",
       "insertText":"method"
     },
     {
       "label":"httpVersion",
-      "kind":"Unit",
+      "kind":"Variable",
       "detail":"string",
       "sortText":"221",
       "insertText":"httpVersion"
     },
     {
       "label":"userAgent",
-      "kind":"Unit",
+      "kind":"Variable",
       "detail":"string",
       "sortText":"221",
       "insertText":"userAgent"
     },
     {
       "label":"extraPathInfo",
-      "kind":"Unit",
+      "kind":"Variable",
       "detail":"string",
       "sortText":"221",
       "insertText":"extraPathInfo"
     },
     {
       "label":"cacheControl",
-      "kind":"Unit",
+      "kind":"Variable",
       "detail":"ballerina/http:RequestCacheControl?",
       "sortText":"221",
       "insertText":"cacheControl"
     },
     {
       "label":"entity",
-      "kind":"Unit",
+      "kind":"Variable",
       "detail":"ballerina/mime:Entity",
       "sortText":"221",
       "insertText":"entity"
     },
     {
       "label":"dirtyRequest",
-      "kind":"Unit",
+      "kind":"Variable",
       "detail":"boolean",
       "sortText":"221",
       "insertText":"dirtyRequest"
@@ -73,6 +73,7 @@
       "label":"hasHeader(string headerName)(boolean)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Checks whether the requested header key exists in the header map.\n",
       "sortText":"121",
       "insertText":"hasHeader(${1:headerName})",
       "insertTextFormat":"Snippet"
@@ -81,6 +82,7 @@
       "label":"getHeader(string headerName)(string)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Returns the value of the specified header. If the specified header key maps to multiple values, the first of\nthese values is returned.\n",
       "sortText":"121",
       "insertText":"getHeader(${1:headerName})",
       "insertTextFormat":"Snippet"
@@ -89,6 +91,7 @@
       "label":"getHeaders(string headerName)(string[])",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Gets all the header values to which the specified header key maps to.\n",
       "sortText":"121",
       "insertText":"getHeaders(${1:headerName})",
       "insertTextFormat":"Snippet"
@@ -97,6 +100,7 @@
       "label":"setHeader(string headerName, string headerValue)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Sets the specified header to the request. If a mapping already exists for the specified header key, the existing\nheader value is replaced with the specfied header value.\n",
       "sortText":"121",
       "insertText":"setHeader(${1:headerName}, ${2:headerValue})",
       "insertTextFormat":"Snippet"
@@ -105,6 +109,7 @@
       "label":"addHeader(string headerName, string headerValue)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Adds the specified header to the request. Existing header values are not replaced.\n",
       "sortText":"121",
       "insertText":"addHeader(${1:headerName}, ${2:headerValue})",
       "insertTextFormat":"Snippet"
@@ -113,6 +118,7 @@
       "label":"removeHeader(string key)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Removes the specified header from the request.\n",
       "sortText":"121",
       "insertText":"removeHeader(${1:key})",
       "insertTextFormat":"Snippet"
@@ -121,6 +127,7 @@
       "label":"removeAllHeaders()",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Removes all the headers from the request.",
       "sortText":"121",
       "insertText":"removeAllHeaders()",
       "insertTextFormat":"Snippet"
@@ -129,6 +136,7 @@
       "label":"getHeaderNames()(string[])",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Gets all the names of the headers of the request.\n",
       "sortText":"121",
       "insertText":"getHeaderNames()",
       "insertTextFormat":"Snippet"
@@ -137,14 +145,16 @@
       "label":"expects100Continue()(boolean)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Checks whether the client expects a `100-continue` response.\n",
       "sortText":"121",
       "insertText":"expects100Continue()",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"setContentType(string contentType)",
+      "label":"setContentType(string contentType)(error?)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Sets the `content-type` header to the request.\n",
       "sortText":"121",
       "insertText":"setContentType(${1:contentType})",
       "insertTextFormat":"Snippet"
@@ -153,6 +163,7 @@
       "label":"getContentType()(string)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Gets the type of the payload of the request (i.e: the `content-type` header value).\n",
       "sortText":"121",
       "insertText":"getContentType()",
       "insertTextFormat":"Snippet"
@@ -161,6 +172,7 @@
       "label":"getJsonPayload()(json|error)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Extracts `json` payload from the request. If the content type is not JSON, an `error` is returned.\n",
       "sortText":"121",
       "insertText":"getJsonPayload()",
       "insertTextFormat":"Snippet"
@@ -169,6 +181,7 @@
       "label":"getXmlPayload()(xml|error)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Extracts `xml` payload from the request. If the content type is not XML, an `error` is returned.\n",
       "sortText":"121",
       "insertText":"getXmlPayload()",
       "insertTextFormat":"Snippet"
@@ -177,6 +190,7 @@
       "label":"getTextPayload()(string|error)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Extracts `text` payload from the request. If the content type is not of type text, an `error` is returned.\n",
       "sortText":"121",
       "insertText":"getTextPayload()",
       "insertTextFormat":"Snippet"
@@ -185,6 +199,7 @@
       "label":"getPayloadAsString()(string|error)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Gets the request payload as a `string`. Content type is not checked during payload construction which\nmakes this different from `getTextPayload()` function.\n",
       "sortText":"121",
       "insertText":"getPayloadAsString()",
       "insertTextFormat":"Snippet"
@@ -193,6 +208,7 @@
       "label":"getBinaryPayload()(byte[]|error)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Gets the request payload as a `byte[]`.\n",
       "sortText":"121",
       "insertText":"getBinaryPayload()",
       "insertTextFormat":"Snippet"
@@ -201,30 +217,34 @@
       "label":"getByteChannel()(ballerina/io:ReadableByteChannel|error)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Gets the request payload as a `ByteChannel` except in the case of multiparts. To retrieve multiparts, use\n`getBodyParts()`.\n",
       "sortText":"121",
       "insertText":"getByteChannel()",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"getFormParams()(map\u003cstring\u003e|error)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"getFormParams()",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"getBodyParts()(ballerina/mime:Entity[]|error)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Extracts body parts from the request. If the content type is not a composite media type, an error\nis returned.",
       "sortText":"121",
       "insertText":"getBodyParts()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"getFormParams()(map\u003cstring\u003e|error)",
+      "kind":"Function",
+      "detail":"Function",
+      "documentation":"Gets the form parameters from the HTTP request as a `map`.\n",
+      "sortText":"121",
+      "insertText":"getFormParams()",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"setJsonPayload(json payload, string contentType \u003d application/json)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Sets a `json` as the payload.\n",
       "sortText":"121",
       "insertText":"setJsonPayload(${1:payload}, contentType \u003d ${2:\"application/json\"})",
       "insertTextFormat":"Snippet"
@@ -233,6 +253,7 @@
       "label":"setXmlPayload(xml payload, string contentType \u003d application/xml)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Sets an `xml` as the payload.\n",
       "sortText":"121",
       "insertText":"setXmlPayload(${1:payload}, contentType \u003d ${2:\"application/xml\"})",
       "insertTextFormat":"Snippet"
@@ -241,6 +262,7 @@
       "label":"setTextPayload(string payload, string contentType \u003d text/plain)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Sets a `string` as the payload.\n",
       "sortText":"121",
       "insertText":"setTextPayload(${1:payload}, contentType \u003d ${2:\"text/plain\"})",
       "insertTextFormat":"Snippet"
@@ -249,6 +271,7 @@
       "label":"setBinaryPayload(byte[] payload, string contentType \u003d application/octet-stream)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Sets a `byte[]` as the payload.\n",
       "sortText":"121",
       "insertText":"setBinaryPayload(${1:payload}, contentType \u003d ${2:\"application/octet-stream\"})",
       "insertTextFormat":"Snippet"
@@ -257,6 +280,7 @@
       "label":"setBodyParts(mime:Entity[] bodyParts, string contentType \u003d multipart/form-data)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Set multiparts as the payload.\n",
       "sortText":"121",
       "insertText":"setBodyParts(${1:bodyParts}, contentType \u003d ${2:\"multipart/form-data\"})",
       "insertTextFormat":"Snippet"
@@ -265,6 +289,7 @@
       "label":"setFileAsPayload(string filePath, string contentType \u003d application/octet-stream)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Sets the content of the specified file as the entity body of the request.\n",
       "sortText":"121",
       "insertText":"setFileAsPayload(${1:filePath}, contentType \u003d ${2:\"application/octet-stream\"})",
       "insertTextFormat":"Snippet"
@@ -273,6 +298,7 @@
       "label":"setByteChannel(io:ReadableByteChannel payload, string contentType \u003d application/octet-stream)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Sets a `ByteChannel` as the payload.\n",
       "sortText":"121",
       "insertText":"setByteChannel(${1:payload}, contentType \u003d ${2:\"application/octet-stream\"})",
       "insertTextFormat":"Snippet"
@@ -281,6 +307,7 @@
       "label":"setPayload(string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[] payload)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Sets the request payload.\n",
       "sortText":"121",
       "insertText":"setPayload(${1:payload})",
       "insertTextFormat":"Snippet"
@@ -289,6 +316,7 @@
       "label":"createNewEntity()(ballerina/mime:Entity)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Create a new `Entity` and link it with the request.\n",
       "sortText":"121",
       "insertText":"createNewEntity()",
       "insertTextFormat":"Snippet"
@@ -297,6 +325,7 @@
       "label":"setEntity(mime:Entity e)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Sets the provided `Entity` to the request.\n",
       "sortText":"121",
       "insertText":"setEntity(${1:e})",
       "insertTextFormat":"Snippet"
@@ -305,6 +334,7 @@
       "label":"getQueryParams()(map\u003cstring\u003e)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Gets the query parameters of the request, as a map.\n",
       "sortText":"121",
       "insertText":"getQueryParams()",
       "insertTextFormat":"Snippet"
@@ -313,6 +343,7 @@
       "label":"getMatrixParams(string path)(map)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Gets the matrix parameters of the request.\n",
       "sortText":"121",
       "insertText":"getMatrixParams(${1:path})",
       "insertTextFormat":"Snippet"
@@ -321,6 +352,7 @@
       "label":"getEntity()(ballerina/mime:Entity|error)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Gets the `Entity` associated with the request.\n",
       "sortText":"121",
       "insertText":"getEntity()",
       "insertTextFormat":"Snippet"
