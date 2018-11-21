@@ -121,8 +121,8 @@ public class ClientObjectTest {
         BAssertUtil.validateError(compileResult, errIdx++,
                 "client object declaration not allowed here, declare at the top of a function or at module level", 134,
                 5);
-        BAssertUtil
-                .validateError(compileResult, errIdx++, "action invocation as an expression not allowed here", 142, 12);
+        BAssertUtil.validateError(compileResult, errIdx++, "variable 'ep' is not initialized", 142, 12);
+        BAssertUtil.validateError(compileResult, errIdx++, "variable 'ep' is not initialized", 149, 13);
 
         BAssertUtil.validateError(compileResult, errIdx++, "a remote function in a non client object", 154, 5);
         BAssertUtil.validateError(compileResult, errIdx++, "a remote function in a non client object", 163, 5);
