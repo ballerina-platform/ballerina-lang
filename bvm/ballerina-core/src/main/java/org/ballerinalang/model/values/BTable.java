@@ -87,10 +87,8 @@ public class BTable implements BRefType<Object>, BCollection {
         //Create table with given constraints.
         BType constrainedType = ((BTableType) type).getConstrainedType();
         this.tableProvider = TableProvider.getInstance();
-        if (constrainedType != null) {
-            this.tableName = tableProvider.createTable(constrainedType, keyColumns, indexColumns);
-            this.constraintType = (BStructureType) constrainedType;
-        }
+        this.tableName = tableProvider.createTable(constrainedType, keyColumns, indexColumns);
+        this.constraintType = (BStructureType) constrainedType;
         this.primaryKeys = keyColumns;
         this.indices = indexColumns;
         //Insert initial data
@@ -154,7 +152,7 @@ public class BTable implements BRefType<Object>, BCollection {
         if (isIteratorGenerationConditionMet()) {
             generateIterator();
         }
-        if (!nextPrefetched && iterator != null) {
+        if (!nextPrefetched) {
             hasNextVal = iterator.next();
             nextPrefetched = true;
         }
@@ -171,7 +169,7 @@ public class BTable implements BRefType<Object>, BCollection {
         if (isIteratorGenerationConditionMet()) {
             generateIterator();
         }
-        if (!nextPrefetched && iterator != null) {
+        if (!nextPrefetched) {
             iterator.next();
         } else {
             nextPrefetched = false;
@@ -197,10 +195,7 @@ public class BTable implements BRefType<Object>, BCollection {
         // Make next row the current row
         moveToNext();
         // Create BStruct from current row
-        if (iterator != null) {
-            return (BMap<String, BValue>) iterator.generateNext();
-        }
-        return new BMap<>(BTypes.typeAny);
+        return (BMap<String, BValue>) iterator.generateNext();
     }
 
     /**
@@ -225,10 +220,6 @@ public class BTable implements BRefType<Object>, BCollection {
     }
 
     public void addData(BMap<String, BValue> data, Context context) {
-        if (this.constraintType == null) {
-            throw new BallerinaException("incompatible types: record of type:" + data.getType().getName()
-                    + " cannot be added to a table with no type");
-        }
         if (data.getType() != this.constraintType) {
             throw new BallerinaException("incompatible types: record of type:" + data.getType().getName()
                     + " cannot be added to a table with type:" + this.constraintType.getName());
@@ -256,10 +247,6 @@ public class BTable implements BRefType<Object>, BCollection {
 
         try {
             BType functionInputType = lambdaFunction.value().getParamTypes()[0];
-            if (this.constraintType == null) {
-                throw new BallerinaException("incompatible types: function with record type:"
-                        + functionInputType.getName() + " cannot be used to remove records from a table with no type");
-            }
             if (functionInputType != this.constraintType) {
                 throw new BallerinaException("incompatible types: function with record type:"
                         + functionInputType.getName() + " cannot be used to remove records from a table with type:"
@@ -334,7 +321,7 @@ public class BTable implements BRefType<Object>, BCollection {
     }
 
     protected boolean isIteratorGenerationConditionMet() {
-        return this.iterator == null && this.constraintType != null;
+        return this.iterator == null;
     }
 
     protected void resetIterationHelperAttributes() {
