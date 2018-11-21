@@ -32,6 +32,7 @@ function run(script: string): Promise<number> {
     return new Promise((resolve, reject) => {
         const env = process.env;
         env.TZ = "utc";
+        env.FORCE_COLOR = "true";
         env.PATH = path.join(process.cwd(), "..", "..", "node_modules", ".bin")
             + path.delimiter + process.env.PATH;
         const scriptProcess = exec(script, {
