@@ -22,10 +22,11 @@ import { render, renderDetailView } from './renderer';
 import { ExtendedLangClient } from '../core/extended-language-client';
 import { BallerinaExtension } from '../core';
 import { WebViewRPCHandler } from '../utils';
+import Traces from './traces';
 
 let traceLogsPanel: WebviewPanel | undefined;
 let traceDetailsPanel: WebviewPanel | undefined;
-let traces: Array<object> = [];
+let traces: Traces = new Traces();
 let status: StatusBarItem | undefined;
 
 function showTraces(context: ExtensionContext, langClient: ExtendedLangClient) {
@@ -83,13 +84,13 @@ function showTraces(context: ExtensionContext, langClient: ExtendedLangClient) {
         {
             methodName: 'getTraces',
             handler: (args: Array<Object>) => {
-                return Promise.resolve(traces);
+                return Promise.resolve(traces.getTraces());
             }
         },
         {
             methodName: 'clearLogs',
             handler: () => {
-                traces = [];
+                traces = new Traces();
                 updateStatus();
                 if (traceLogsPanel && traceLogsPanel.webview) {
                     traceLogsPanel.webview.postMessage({
@@ -141,51 +142,14 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 }
 
 function addNewTrace(trace: any) {
-    traces.push(trace);
-    traces = filterEmptyLogs(mergeRelatedMessages(traces));
+    traces.addTrace(trace);
 }
 
 function updateStatus() {
     if (!status) {
         return;
     }
-    const count = traces.length;
+    const count = traces.getTraces().length;
     status!.text = `$(mirror) ${count} Ballerina network logs`;
     status!.show();
-}
-
-function mergeRelatedMessages(traces: Array<any>) {
-    const newTraces = [];
-    if (traces.length < 2) {
-        return traces;
-    }
-    for (let index = 0; index < traces.length; index++) {
-        let record1 = traces[index];
-        let record2 = traces[index + 1];
-        if (record1.message.headerType.startsWith('DefaultHttpRequest')
-            && record2
-            && record1.thread === record2.thread
-            && (record2.message.headerType.startsWith('DefaultLastHttpContent')
-                || record2.message.headerType.startsWith('EmptyLastHttpContent'))) {
-            record1.message.payload = record2.message.payload;
-            record1.message.payload = record1.message.payload ? record1.message.payload : record2.message.headers;
-            newTraces.push(record1);
-        } else if (record1.message.headerType.startsWith('DefaultLastHttpContent') ||
-            record1.message.headerType.startsWith('EmptyLastHttpContent')) {
-            // do nothing
-        } else {
-            newTraces.push(record1);
-        }
-    }
-    return newTraces;
-}
-
-function filterEmptyLogs(traces: Array<any>) {
-    return traces.filter((trace: any) => {
-        if (trace.message.headers.trim() === "" && trace.message.payload.trim() === "") {
-            return false;
-        }
-        const direction = trace.message.direction || "";
-        return direction.length > 0;
-    });
 }

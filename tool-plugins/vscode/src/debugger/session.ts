@@ -52,6 +52,7 @@ export class BallerinaDebugSession extends LoggingDebugSession {
     private _debugPort: string | undefined;
     private _debugTests: boolean = false;
     private _noDebug: boolean | undefined;
+    private _executableArgs: Array<string> = [];
 
     constructor() {
         super('ballerina-debug.txt');
@@ -248,6 +249,8 @@ export class BallerinaDebugSession extends LoggingDebugSession {
                 executableArgs = executableArgs.concat(scriptArguments);
             }
 
+            this._executableArgs = executableArgs;
+
             let debugServer = this._debugServer = spawn(
                 executable,
                 executableArgs,
@@ -421,8 +424,7 @@ export class BallerinaDebugSession extends LoggingDebugSession {
             } else {
                 lookup(
                     {
-                        arguments: ['org.ballerinalang.launcher.Main', this._debugTests ? 'test' : 'run',
-                            '--debug', this._debugPort, this._debugTarget],
+                        arguments: ['org.ballerinalang.launcher.Main', ...this._executableArgs],
                     },
                     (err: Error, resultList: any) => {
                         resultList.forEach((process: ChildProcess) => {

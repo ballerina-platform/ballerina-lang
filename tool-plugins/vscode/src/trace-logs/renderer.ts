@@ -139,6 +139,9 @@ export function renderDetailView (context: ExtensionContext, langClient: Extende
         #trace-details {
             color: #ffffe6;
         }
+        #trace-details strong{
+            font-weight: 600;
+        }
         .ui.inverted.segment{
             background: #1e1e1e!important;
         }

@@ -68,9 +68,9 @@ export default class DetailView extends React.Component<DetailViewProps, DetailV
                             const splitIndex = header.indexOf(':');
                             if (splitIndex !== -1) {
                                 return ([
-                                    <b>
+                                    <strong>
                                         {header.substring(0, splitIndex)}
-                                    </b>,
+                                    </strong>,
                                     `${header.substring(splitIndex)}${endChar}`,
                                 ]
                                 );
@@ -82,7 +82,7 @@ export default class DetailView extends React.Component<DetailViewProps, DetailV
                 </code>
                 }
                 {
-                    trace.message.contentType === 'application/json' && isJson(payload) ?
+                    trace.message.contentType.indexOf('application/json') > -1 && isJson(payload) ?
                         <ReactJson
                             src={JSON.parse(payload)}
                             theme='eighties'
