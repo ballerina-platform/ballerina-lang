@@ -16,15 +16,15 @@
 
 function floatToIntWithMultipleArguments() returns int {
     float a = 5.0;
-    return int.from(a, a);
+    return int.create(a, a);
 }
 
 function testToIntWithNoArguments() {
     float a = 5.0;
-    return int.from();
+    return int.create();
 }
 
 function anyToInt() returns int {
     any a = 5;
-    return int.from(a);
+    return int.create(a);
 }

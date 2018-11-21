@@ -41,7 +41,7 @@ function testStructToStruct () returns (Student) {
                    info:{status:"single"},
                    marks:[24, 81]
                };
-    Student s =  Student.from(p);
+    Student s =  Student.create(p);
     return s;
 }
 

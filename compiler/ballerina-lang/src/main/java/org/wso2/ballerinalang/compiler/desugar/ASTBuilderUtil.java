@@ -453,18 +453,6 @@ public class ASTBuilderUtil {
         return invokeLambda;
     }
 
-    static BLangInvocation.BLangBuiltInMethodInvocation createBuiltInMethod(DiagnosticPos pos,
-                                                                            BLangExpression expr,
-                                                                            BInvokableSymbol invokableSymbol,
-                                                                            List<BLangExpression> requiredArgs,
-                                                                            SymbolResolver symResolver,
-                                                                            BLangBuiltInMethod builtInFunction) {
-        BLangInvocation invokeLambda = createInvocationExprMethod(pos, invokableSymbol, requiredArgs,
-                                                                  new ArrayList<>(), new ArrayList<>(), symResolver);
-        invokeLambda.expr = expr;
-        return new BLangInvocation.BLangBuiltInMethodInvocation(invokeLambda, builtInFunction);
-    }
-
     static List<BLangSimpleVarRef> createVariableRefList(DiagnosticPos pos, List<BLangSimpleVariable> args) {
         final List<BLangSimpleVarRef> varRefs = new ArrayList<>();
         args.forEach(variable -> varRefs.add(createVariableRef(pos, variable.symbol)));

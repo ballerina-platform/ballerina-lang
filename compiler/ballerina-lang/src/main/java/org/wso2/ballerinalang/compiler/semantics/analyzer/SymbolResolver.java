@@ -351,8 +351,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         return resolveTargetSymbolForStamping(targetType, variableSourceType, name, pos);
     }
 
-    BSymbol createSymbolForFromOperator(DiagnosticPos pos, Name name, List<BLangExpression> functionArgList,
-                                        BLangExpression targetTypeExpression) {
+    BSymbol createSymbolForCreateOperator(DiagnosticPos pos, Name name, List<BLangExpression> functionArgList,
+                                          BLangExpression targetTypeExpression) {
         // If there are more than one argument for from in-built function then fail.
         if (functionArgList.size() < 1) {
             dlog.error(pos, DiagnosticCode.NOT_ENOUGH_ARGS_FUNC_CALL, name);

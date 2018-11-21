@@ -33,7 +33,7 @@ type Employee record {
 
 function testConvertStampRecordToRecord() returns (Person, Employee) {
     Person p = { name: "John", age:25, status: "single", batch: "Batch9", school: "ABC College" };
-    Employee e = Employee.from(p);
+    Employee e = Employee.create(p);
     e.name = "Waruna";
     e.age =30;
     p.name = "Watson";
@@ -42,7 +42,7 @@ function testConvertStampRecordToRecord() returns (Person, Employee) {
 
 function testConvertStampRecordToJSON() returns (Employee, json) {
     Employee e = { name: "Waruna", status: "married", batch: "Batch9", school: "DEF College" };
-    json j = check json.from(e);
+    json j = check json.create(e);
     e.name = "John";
     j["school"] = "ABC College";
     return (e, j);
@@ -50,7 +50,7 @@ function testConvertStampRecordToJSON() returns (Employee, json) {
 
 function testConvertStampRecordToMap() returns (Employee, map) {
     Employee e = { name: "John", status: "single", batch: "Batch9", school: "ABC College" };
-    map<anydata> m = map<anydata>.from(e);
+    map<anydata> m = map<anydata>.create(e);
     m["name"] = "Waruna";
     e.name = "Mike";
     return (e, m);
@@ -60,7 +60,7 @@ function testConvertStampTupleToMap() returns ((string, Employee), (string, Empl
     (string, Person) tupleValue = ("Waruna", { name: "John", age: 25, status: "single", batch: "Batch9", school:
     "ABC College" });
 
-    (string, Employee) returnValue = (string, Employee).from(tupleValue);
+    (string, Employee) returnValue = (string, Employee).create(tupleValue);
     returnValue[0] = "Chathura";
     tupleValue[0] = "Vinod";
     return (tupleValue, returnValue);

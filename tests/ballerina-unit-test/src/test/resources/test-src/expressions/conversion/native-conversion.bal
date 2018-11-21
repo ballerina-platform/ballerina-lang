@@ -424,13 +424,13 @@ function testStructWithIncompatibleTypeMapToJson () returns (json) {
 function testJsonIntToString () returns string|error {
     json j = 5;
     int value;
-    value = check int.from(j);
-    return  string.from(value);
+    value = check int.create(j);
+    return  string.create(value);
 }
 
 function testFloatToInt() returns (int) {
     float f = 10.05344;
-    int i = int.from(f);
+    int i = int.create(f);
     return i;
 }
 
@@ -642,7 +642,7 @@ function testStructToMapWithRefTypeArray () returns (map, int)|error {
                             actors:[{fname:"Leonardo", lname:"DiCaprio", age:35},
                                     {fname:"Tom", lname:"Hardy", age:34}]};
 
-    map<anydata> m = map<anydata>.from(theRevenant);
+    map<anydata> m = map<anydata>.create(theRevenant);
 
     any a = m["writers"];
     var writers = check <person[]> a;
@@ -687,7 +687,7 @@ function testEmptyJSONtoStructWithoutDefaults () returns (StructWithoutDefaults 
 
 function testEmptyMaptoStructWithDefaults () returns (StructWithDefaults) {
     map<anydata> m;
-    var testStruct = check StructWithDefaults.from(m);
+    var testStruct = check StructWithDefaults.create(m);
 
     return testStruct;
 }
@@ -695,15 +695,15 @@ function testEmptyMaptoStructWithDefaults () returns (StructWithDefaults) {
 
 function testEmptyMaptoStructWithoutDefaults () returns (StructWithoutDefaults) {
     map<anydata> m;
-    var testStruct = check StructWithoutDefaults.from(m);
+    var testStruct = check StructWithoutDefaults.create(m);
 
     return testStruct;
 }
 
 function testSameTypeConversion() returns (int) {
     float f = 10.05;
-    var i =  int.from(f);
-    i =  int.from(i);
+    var i =  int.create(f);
+    i =  int.create(i);
     return i;
 }
 
@@ -778,7 +778,7 @@ function testJsonToMapUnconstrained() returns map|error {
     jx.o.a = "A";
     jx.o.b = "B";
     jx.o.c = true;
-    map<anydata> m = check map<anydata>.from(jx);
+    map<anydata> m = check map<anydata>.create(jx);
     return m;
 }
 
@@ -837,7 +837,7 @@ function testStructArrayConversion1() returns T1 {
     b[0].x = 5;
     b[0].y = 1;
     b[0].z = 2;
-    a =  T1[].from(b);
+    a =  T1[].create(b);
     return a[0];
 }
 
@@ -903,7 +903,7 @@ function testTupleConversionFail() {
     (T1, T1) x = (a, b);
     (T1, T2) x2;
     anydata y = x;
-    var result = <(T1, T2)>.from(y);
+    var result = <(T1, T2)>.create(y);
     if (result is (T1, T2)) {
         x2 = result;
     } else if (result is error) {
@@ -986,7 +986,7 @@ function testJsonToArrayFail() {
 
 function anydataToFloat() returns float {
     anydata a = 5;
-    return check float.from(a);
+    return check float.create(a);
 }
 
 type A record {
