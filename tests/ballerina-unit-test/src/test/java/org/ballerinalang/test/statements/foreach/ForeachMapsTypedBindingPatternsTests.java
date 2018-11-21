@@ -257,4 +257,41 @@ public class ForeachMapsTypedBindingPatternsTests {
         Assert.assertEquals(returns[0].stringValue(), "0:a:{i:2, v:{i:1, v:\"A\"}} 1:b:{i:3, v:{i:2, v:\"B\"}} " +
                 "2:c:{i:4, v:{i:3, v:\"C\"}} ");
     }
+
+    @Test
+    public void testUnconstrainedMapWithTupleInRecordWithoutType() {
+        BValue[] returns = BRunUtil.invoke(program, "testUnconstrainedMapWithTupleInRecordWithoutType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "0:a:{i:1, v:(1, \"A\")} 1:b:{i:2, v:(2, \"B\")} 2:c:{i:3, v:" +
+                "(3, \"C\")} ");
+    }
+
+    @Test
+    public void testUnconstrainedMapWithTupleInRecordWithType() {
+        BValue[] returns = BRunUtil.invoke(program, "testUnconstrainedMapWithTupleInRecordWithType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "0:a:{i:1, v:(1, \"A\")} 1:b:{i:2, v:(2, \"B\")} 2:c:{i:3, v:" +
+                "(3, \"C\")} ");
+    }
+
+    @Test
+    public void testConstrainedMapWithTupleInRecordWithoutType() {
+        BValue[] returns = BRunUtil.invoke(program, "testConstrainedMapWithTupleInRecordWithoutType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "0:a:1:1:A 1:b:2:2:B 2:c:3:3:C ");
+    }
+
+    @Test
+    public void testConstrainedMapWithTupleInRecordWithType() {
+        BValue[] returns = BRunUtil.invoke(program, "testConstrainedMapWithTupleInRecordWithType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "0:a:1:1:A 1:b:2:2:B 2:c:3:3:C ");
+    }
+    @Test
+    public void testConstrainedMapWithTupleInRecordWithAnyType() {
+        BValue[] returns = BRunUtil.invoke(program, "testConstrainedMapWithTupleInRecordWithAnyType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "0:a:{i:1, v:(1, \"A\")} 1:b:{i:2, v:(2, \"B\")} 2:c:{i:3, v:" +
+                "(3, \"C\")} ");
+    }
 }
