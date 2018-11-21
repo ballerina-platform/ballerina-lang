@@ -171,14 +171,29 @@ function parsePayload(json jwtPayloadJson) returns (JwtPayload) {
         } else if (key == JTI) {
             jwtPayload.jti = jwtPayloadJson[key].toString();
         } else if (key == EXP) {
-            var value = jwtPayloadJson[key].toString();
-            jwtPayload.exp = <int>value but { error => 0 };
+            string exp = jwtPayloadJson[key].toString();
+            var value = <int>exp;
+            if (value is int) {
+                jwtPayload.exp = value;
+            } else {
+                jwtPayload.exp = 0;
+            }
         } else if (key == NBF) {
-            var value = jwtPayloadJson[key].toString();
-            jwtPayload.nbf = <int>value but { error => 0 };
+            string nbf = jwtPayloadJson[key].toString();
+            var value = <int>nbf;
+            if (value is int) {
+                jwtPayload.nbf = value;
+            } else {
+                jwtPayload.nbf = 0;
+            }
         } else if (key == IAT) {
-            var value = jwtPayloadJson[key].toString();
-            jwtPayload.iat = <int>value but { error => 0 };
+            string iat = jwtPayloadJson[key].toString();
+            var value = <int>iat;
+            if (value is int) {
+                jwtPayload.iat = value;
+            } else {
+                jwtPayload.iat = 0;
+            }
         }
         else {
             if (jwtPayloadJson[key].length() > 0) {
