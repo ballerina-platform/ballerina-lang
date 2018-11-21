@@ -215,7 +215,6 @@ public class SymbolResolver extends BLangNodeVisitor {
                 || foundSym.getKind() != SymbolKind.XMLNS
                 // Check for redeclared variables in function, object-function, resource parameters.
                 || foundSym.owner.tag == SymTag.FUNCTION
-                || (foundSym.owner.tag == SymTag.SERVICE && foundSym.getKind() != SymbolKind.XMLNS)
                 || foundSym.owner.tag == SymTag.OBJECT) {
             // Found symbol is a global definition but not a xmlns, or it is a variable symbol, it is an redeclared
             // symbol.

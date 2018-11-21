@@ -128,16 +128,6 @@ public class Symbols {
         return symbol;
     }
 
-    public static BInvokableSymbol createResourceSymbol(int flags,
-                                                        Name name,
-                                                        PackageID pkgID,
-                                                        BType type,
-                                                        BSymbol owner) {
-        BInvokableSymbol symbol = createInvokableSymbol(SymTag.RESOURCE, flags, name, pkgID, type, owner);
-        symbol.kind = SymbolKind.RESOURCE;
-        return symbol;
-    }
-
     public static BTypeSymbol createTypeSymbol(int symTag,
                                                int flags,
                                                Name name,

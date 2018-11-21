@@ -34,7 +34,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -225,7 +224,6 @@ public class CompiledPackageSymbolEnter {
 
         // Define services.
         defineSymbols(dataInStream, rethrow(this::defineService));
-
 
         // Resolve unresolved types.
         resolveTypes();
@@ -615,15 +613,10 @@ public class CompiledPackageSymbolEnter {
 
     private void defineService(DataInputStream dataInStream) throws IOException {
         // Read connector name cp index
-        String serviceName = getUTF8CPEntryValue(dataInStream);
-        int flags = dataInStream.readInt();
+        getUTF8CPEntryValue(dataInStream);
+        dataInStream.readInt();
         // endpoint type is not required for service symbol.
         getUTF8CPEntryValue(dataInStream);
-
-        BServiceSymbol serviceSymbol = Symbols.createServiceSymbol(flags,
-                names.fromString(serviceName), this.env.pkgSymbol.pkgID, null, env.pkgSymbol);
-        serviceSymbol.type = new BServiceType(serviceSymbol);
-        this.env.pkgSymbol.scope.define(serviceSymbol.name, serviceSymbol);
     }
 
     private void defineResource(DataInputStream dataInStream) throws IOException {
@@ -649,6 +642,7 @@ public class CompiledPackageSymbolEnter {
         }
         readAttributes(dataInStream);
     }
+
 
     private void defineConstants(DataInputStream dataInStream) throws IOException {
         String constantName = getUTF8CPEntryValue(dataInStream);
@@ -1200,6 +1194,11 @@ public class CompiledPackageSymbolEnter {
                     return new BStreamType(TypeTags.STREAM, constraint, symTable.streamType.tsymbol);
                 case 'Q':
                     return new BChannelType(TypeTags.CHANNEL, constraint, symTable.channelType.tsymbol);
+                case 'X':
+                    if (constraint == null || constraint == symTable.anyType) {
+                        return symTable.anyServiceType;
+                    }
+                    return new BServiceType(constraint);
                 case 'G':
                 case 'T':
                 default:

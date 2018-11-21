@@ -54,7 +54,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
@@ -303,7 +302,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     private CallableUnitInfo currentCallableUnitInfo;
     private LocalVariableAttributeInfo localVarAttrInfo;
     private WorkerInfo currentWorkerInfo;
-    private ServiceInfo currentServiceInfo;
 
     // Required variables to generate code for assignment statements
     private boolean varAssignment = false;
@@ -504,20 +502,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangService serviceNode) {
-        BLangFunction initFunction = (BLangFunction) serviceNode.getInitFunction();
-        visit(initFunction);
-
-        currentServiceInfo = currentPkgInfo.getServiceInfo(serviceNode.getName().getValue());
-
-        SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.symbol.scope, this.env);
-        serviceNode.resources.forEach(resource -> genNode(resource, serviceEnv));
-    }
-
-    public void visit(BLangResource resourceNode) {
-        SymbolEnv resourceEnv = SymbolEnv
-                .createResourceActionSymbolEnv(resourceNode, resourceNode.symbol.scope, this.env);
-        currentCallableUnitInfo = currentServiceInfo.resourceInfoMap.get(resourceNode.name.getValue());
-        visitInvokableNode(resourceNode, currentCallableUnitInfo, resourceEnv);
+        /* Ignore */
     }
 
     public void visit(BLangFunction funcNode) {
@@ -2369,10 +2354,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
     }
 
-    @Override
-    public void visit(BLangEndpoint endpointNode) {
-    }
-
     private void createServiceInfoEntry(BLangService serviceNode) {
         // Add service name as an UTFCPEntry to the constant pool
         int serviceNameCPIndex = addUTF8CPEntry(currentPkgInfo, serviceNode.name.value);
@@ -2430,6 +2411,31 @@ public class CodeGenerator extends BLangNodeVisitor {
         callableUnitInfo.addWorkerInfo(worker.name.value, workerInfo);
     }
 
+    private void setParameterNames(BLangResource resourceNode, ResourceInfo resourceInfo) {
+        int paramCount = resourceNode.requiredParams.size();
+        resourceInfo.paramNameCPIndexes = new int[paramCount];
+        for (int i = 0; i < paramCount; i++) {
+            BLangSimpleVariable paramVar = resourceNode.requiredParams.get(i);
+            String paramName = null;
+            boolean isAnnotated = false;
+            for (BLangAnnotationAttachment annotationAttachment : paramVar.annAttachments) {
+                String attachmentName = annotationAttachment.getAnnotationName().getValue();
+                if ("PathParam".equalsIgnoreCase(attachmentName) || "QueryParam".equalsIgnoreCase(attachmentName)) {
+                    //TODO:
+                    //paramName = annotationAttachment.getAttributeNameValuePairs().get("value")
+                    // .getLiteralValue().stringValue();
+                    isAnnotated = true;
+                    break;
+                }
+            }
+            if (!isAnnotated) {
+                paramName = paramVar.name.getValue();
+            }
+            int paramNameCPIndex = addUTF8CPEntry(currentPkgInfo, paramName);
+            resourceInfo.paramNameCPIndexes[i] = paramNameCPIndex;
+        }
+    }
+
     private ErrorTableAttributeInfo getErrorTable(PackageInfo packageInfo) {
         ErrorTableAttributeInfo errorTable =
                 (ErrorTableAttributeInfo) packageInfo.getAttributeInfo(AttributeInfo.Kind.ERROR_TABLE);
@@ -2454,31 +2460,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         lineNumberInfo.setPackageInfo(packageInfo);
         lineNumberInfo.setIp(ip);
         return lineNumberInfo;
-    }
-
-    private void setParameterNames(BLangResource resourceNode, ResourceInfo resourceInfo) {
-        int paramCount = resourceNode.requiredParams.size();
-        resourceInfo.paramNameCPIndexes = new int[paramCount];
-        for (int i = 0; i < paramCount; i++) {
-            BLangSimpleVariable paramVar = resourceNode.requiredParams.get(i);
-            String paramName = null;
-            boolean isAnnotated = false;
-            for (BLangAnnotationAttachment annotationAttachment : paramVar.annAttachments) {
-                String attachmentName = annotationAttachment.getAnnotationName().getValue();
-                if ("PathParam".equalsIgnoreCase(attachmentName) || "QueryParam".equalsIgnoreCase(attachmentName)) {
-                    //TODO:
-                    //paramName = annotationAttachment.getAttributeNameValuePairs().get("value")
-                    // .getLiteralValue().stringValue();
-                    isAnnotated = true;
-                    break;
-                }
-            }
-            if (!isAnnotated) {
-                paramName = paramVar.name.getValue();
-            }
-            int paramNameCPIndex = addUTF8CPEntry(currentPkgInfo, paramName);
-            resourceInfo.paramNameCPIndexes[i] = paramNameCPIndex;
-        }
     }
 
     private WorkerDataChannelInfo getWorkerDataChannelInfo(CallableUnitInfo callableUnit,
