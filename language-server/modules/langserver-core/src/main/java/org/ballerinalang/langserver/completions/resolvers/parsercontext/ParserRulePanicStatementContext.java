@@ -32,12 +32,12 @@ import java.util.stream.Collectors;
  */
 public class ParserRulePanicStatementContext extends AbstractItemResolver {
     @Override
-    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
-        List<SymbolInfo> symbolInfoList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
+    public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
+        List<SymbolInfo> symbolInfoList = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
         List<SymbolInfo> filteredList = symbolInfoList.stream()
                 .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol.type instanceof BErrorType)
                 .collect(Collectors.toList());
         
-        return this.getCompletionItemList(filteredList);
+        return this.getCompletionItemList(filteredList, context);
     }
 }

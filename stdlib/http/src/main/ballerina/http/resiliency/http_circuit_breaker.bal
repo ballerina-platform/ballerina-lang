@@ -52,7 +52,7 @@ public type CircuitHealth record {
     boolean lastRequestSuccess = false;
     int totalRequestCount = 0;
     int lastUsedBucketId = 0;
-    time:Time startTime;
+    time:Time startTime = time:currentTime();
     time:Time lastRequestTime?;
     time:Time lastErrorTime?;
     time:Time lastForcedOpenTime?;

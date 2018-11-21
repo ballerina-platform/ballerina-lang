@@ -18,8 +18,12 @@
 package org.ballerinalang.net.grpc.builder.components;
 
 import com.google.protobuf.DescriptorProtos;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
+import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.DOT;
@@ -78,7 +82,12 @@ public class Field {
             }
             String fieldDefaultValue = FIELD_DEFAULT_VALUE_MAP.get(fieldDescriptor.getType());
             String fieldLabel = FIELD_LABEL_MAP.get(fieldDescriptor.getLabel());
-            return new Field(fieldDescriptor.getName(), fieldType, fieldLabel, fieldDescriptor.getDefaultValue() !=
+            String fieldName = fieldDescriptor.getName();
+            if (Arrays.stream(BallerinaLexer.ruleNames).anyMatch(fieldName::equalsIgnoreCase) || Names.ERROR.value
+                    .equalsIgnoreCase(fieldName)) {
+                fieldName = fieldType.toLowerCase(Locale.ENGLISH) + "_" + fieldName;
+            }
+            return new Field(fieldName, fieldType, fieldLabel, fieldDescriptor.getDefaultValue() !=
                     null ? fieldDescriptor.getDefaultValue() : fieldDefaultValue);
         }
 

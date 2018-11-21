@@ -79,7 +79,7 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
             sorterKey = ActionAndFieldAccessContextItemSorter.class;
             Either<List<CompletionItem>, List<SymbolInfo>> filteredList =
                     SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(context);
-            completionItems.addAll(this.getCompletionItemList(filteredList));
+            completionItems.addAll(this.getCompletionItemList(filteredList, context));
         } else if (checkOrTrapKW.equalsIgnoreCase(ItemResolverConstants.TRAP)) {
             List<SymbolInfo> filteredList = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
             // Remove the functions without a receiver symbol, bTypes not being packages and attached functions
@@ -93,7 +93,7 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
                         || (bSymbol instanceof BInvokableSymbol
                         && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED));
             });
-            completionItems.addAll(this.getCompletionItemList(filteredList));
+            completionItems.addAll(this.getCompletionItemList(filteredList, context));
             sorterKey = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY).getClass();
         } else {
             sorterKey = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY).getClass();

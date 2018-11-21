@@ -17,14 +17,18 @@ endpoint jms:TopicPublisher publisher {
     topicPattern: "testMapMessageSubscriber"
 };
 
-public function main(string... args) {
+public function main() {
     // Create a Text message.
     string stringValue = "abcde";
     byte[] blobValue = stringValue.toByteArray("UTF-8");
     map message = { "a": 1, "b": "abc", "c": true, "d": 1.2, "e": blobValue };
-    jms:Message m = check jmsSession.createMapMessage(message);
-    // Send the Ballerina message to the JMS provider.
-    _ = publisher->send(m);
+    var msg = jmsSession.createMapMessage(message);
+    if (msg is jms:Message) {
+         // Send the Ballerina message to the JMS provider.
+         _ = publisher->send(msg);
+    } else {
+         panic msg;
+    }
 
     io:println("Message successfully sent by TopicPublisher");
 }

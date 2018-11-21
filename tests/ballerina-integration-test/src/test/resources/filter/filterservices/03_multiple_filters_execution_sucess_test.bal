@@ -32,7 +32,7 @@ public type Filter06 object {
     }
 };
 
-Filter06 filter06;
+Filter06 filter06 = new;
 
 // Filter2
 
@@ -47,7 +47,7 @@ public type Filter07 object {
     }
 };
 
-Filter07 filter07;
+Filter07 filter07 = new;
 
 endpoint http:Listener echoEP02 {
     port: 9092,

@@ -1,6 +1,6 @@
 
 function testFieldWithExpr() returns (int, string) {
-    Person p;
+    Person p = new;
     return (p.ep.pp, p.ep.name);
 }
 
@@ -12,8 +12,8 @@ type Person object {
 
 
 type Employee object {
-    public int pp;
-    public string name;
+    public int pp = 0;
+    public string name = "";
 
     new (pp, name) {
 

@@ -1,9 +1,9 @@
 
 public type employee object {
 
-    public int age;
-    public string name;
-    public string address;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
 
 
     public new (int a = 10, name) {
@@ -14,7 +14,7 @@ public type employee object {
 
 };
 
-function employee::getAge() {
+function employee.getAge() {
     self.age = 12;
 }
 
@@ -22,14 +22,14 @@ function employee::getAge() {
 public type student object {
 
     public int age = 20;
-    public string name;
-    public string address;
+    public string name = "";
+    public string address = "";
 
 
     public function getAge();
 
 };
 
-function student::getAge() {
+function student.getAge() {
     self.age = 20;
 }

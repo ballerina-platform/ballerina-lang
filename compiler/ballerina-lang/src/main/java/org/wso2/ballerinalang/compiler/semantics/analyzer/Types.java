@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BSemanticErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -288,9 +289,19 @@ public class Types {
             if (source.tag == TypeTags.JSON) {
                 return ((BJSONType) source).getConstraint().tag == TypeTags.NONE ||
                         isStampingAllowed(((BJSONType) source).getConstraint(), ((BArrayType) target).eType);
+            } else if (source.tag == TypeTags.TUPLE) {
+                BType arrayElementType = ((BArrayType) target).eType;
+                for (BType tupleMemberType : ((BTupleType) source).getTupleTypes()) {
+                    if (!isStampingAllowed(tupleMemberType, arrayElementType)) {
+                        return false;
+                    }
+                }
+                return true;
             }
         } else if (target.tag == TypeTags.UNION) {
             return checkUnionEquivalencyForStamping(source, target);
+        } else if (target.tag == TypeTags.TUPLE && source.tag == TypeTags.TUPLE) {
+            return checkTupleEquivalencyForStamping(source, target);
         }
 
         return false;
@@ -379,6 +390,26 @@ public class Types {
         return !notAssignable;
     }
 
+    private boolean checkTupleEquivalencyForStamping(BType source, BType target) {
+        if (source.tag != TypeTags.TUPLE || target.tag != TypeTags.TUPLE) {
+            return false;
+        }
+
+        BTupleType lhsTupleType = (BTupleType) target;
+        BTupleType rhsTupleType = (BTupleType) source;
+
+        if (lhsTupleType.tupleTypes.size() != rhsTupleType.tupleTypes.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < lhsTupleType.tupleTypes.size(); i++) {
+            if (!isStampingAllowed(rhsTupleType.tupleTypes.get(i), lhsTupleType.tupleTypes.get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private boolean isAssignable(BType source, BType target, List<TypePair> unresolvedTypes) {
         if (isSameType(source, target)) {
             return true;
@@ -400,6 +431,10 @@ public class Types {
         }
 
         if (target.tag == TypeTags.ANYDATA && isAnydata(source)) {
+            return true;
+        }
+
+        if (target.tag == TypeTags.SERVICE && source.tag == TypeTags.SERVICE) {
             return true;
         }
 
@@ -648,17 +683,13 @@ public class Types {
             return false;
         }
 
-        // RHS type should have at least all the fields as well attached functions of LHS type.
-        if (lhsType.fields.size() > rhsType.fields.size()) {
-            return false;
-        }
-
-        // If only one is a closed record, the records aren't equivalent
+        // If the LHS record is closed and the RHS record is open, the records aren't equivalent
         if (lhsType.sealed && !rhsType.sealed) {
             return false;
         }
 
-        // The rest field types should match if they are open records
+        // If both are open records, the rest field type of the RHS record should be assignable to the rest field
+        // type of the LHS type.
         if ((!lhsType.sealed && !rhsType.sealed) &&
                 !isAssignable(rhsType.restFieldType, lhsType.restFieldType, unresolvedTypes)) {
             return false;
@@ -1239,6 +1270,11 @@ public class Types {
 
             return symTable.notFoundSymbol;
         }
+
+        @Override
+        public BSymbol visit(BServiceType t, BType s) {
+            return symTable.notFoundSymbol;
+        }
     };
 
     private BTypeVisitor<BType, Boolean> sameTypeVisitor = new BTypeVisitor<BType, Boolean>() {
@@ -1391,6 +1427,11 @@ public class Types {
         }
 
         @Override
+        public Boolean visit(BServiceType t, BType s) {
+            return t == s;
+        }
+
+        @Override
         public Boolean visit(BFiniteType t, BType s) {
             return s == t;
         }
@@ -1428,20 +1469,30 @@ public class Types {
         return true;
     }
 
-    private boolean checkFieldEquivalency(BStructureType lhsType, BStructureType rhsType,
-                                          List<TypePair> unresolvedTypes) {
-        Map<Name, BField> rhsFields = rhsType.fields.stream().collect(
-                Collectors.toMap(BField::getName, field -> field));
+    private boolean checkFieldEquivalency(BRecordType lhsType, BRecordType rhsType, List<TypePair> unresolvedTypes) {
+        Map<Name, BField> rhsFields = rhsType.fields.stream().collect(Collectors.toMap(BField::getName, f -> f));
 
+        // Check if the RHS record has corresponding fields to those of the LHS record.
         for (BField lhsField : lhsType.fields) {
             BField rhsField = rhsFields.get(lhsField.name);
 
-            if (rhsField == null || !isAssignable(rhsField.type, lhsField.type, unresolvedTypes)) {
+            // If the LHS field is a required one, there has to be a corresponding required field in the RHS record.
+            if (!Symbols.isOptional(lhsField.symbol) && (rhsField == null || Symbols.isOptional(rhsField.symbol))) {
                 return false;
             }
+
+            // If there is a corresponding RHS field, it should be assignable to the LHS field.
+            if (rhsField != null && !isAssignable(rhsField.type, lhsField.type, unresolvedTypes)) {
+                return false;
+            }
+
+            rhsFields.remove(lhsField.name);
         }
 
-        return true;
+        // If there are any remaining RHS fields, the types of those should be assignable to the rest field type of
+        // the LHS record.
+        return rhsFields.entrySet().stream().allMatch(
+                fieldEntry -> isAssignable(fieldEntry.getValue().type, lhsType.restFieldType, unresolvedTypes));
     }
 
     private boolean checkPublicObjectEquivalency(BStructureType lhsType, BStructureType rhsType,

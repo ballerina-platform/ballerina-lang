@@ -38,22 +38,47 @@ service<http:WebSocketService> castErrror {
 
     onText(endpoint wsEp, string text) {
         endpoint http:WebSocketClient val;
-        val = check <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
+        var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
+        if (returnVal is error) {
+             panic returnVal;
+        } else {
+             val = returnVal;
+        }
     }
     onBinary(endpoint wsEp, byte[] data) {
         endpoint http:WebSocketClient val;
-        val = check <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
+        var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
+        if (returnVal is error) {
+             panic returnVal;
+        } else {
+             val = returnVal;
+        }
     }
     onPing(endpoint wsEp, byte[] data) {
         endpoint http:WebSocketClient val;
-        val = check <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
+        var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
+        if (returnVal is error) {
+             panic returnVal;
+        } else {
+             val = returnVal;
+        }
     }
     onIdleTimeout(endpoint wsEp) {
         endpoint http:WebSocketClient val;
-        val = check <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
+        var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
+        if (returnVal is error) {
+             panic returnVal;
+        } else {
+             val = returnVal;
+        }
     }
     onClose(endpoint wsEp, int code, string reason) {
         endpoint http:WebSocketClient val;
-        val = check <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
+        var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
+        if (returnVal is error) {
+             panic returnVal;
+        } else {
+             val = returnVal;
+        }
     }
 }

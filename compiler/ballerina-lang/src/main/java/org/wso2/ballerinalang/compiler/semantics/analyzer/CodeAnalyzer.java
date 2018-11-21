@@ -36,7 +36,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -81,6 +80,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
@@ -921,10 +921,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.lastStatement = true;
     }
 
-    public void visit(BLangAction actionNode) {
-        /* not used, covered with functions */
-    }
-
     public void visit(BLangObjectTypeNode objectTypeNode) {
         SymbolEnv objectEnv = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, env);
         if (objectTypeNode.isFieldAnalyseRequired && Symbols.isPublic(objectTypeNode.symbol)) {
@@ -933,6 +929,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     .forEach(field -> analyzeNode(field, objectEnv));
         }
         objectTypeNode.functions.forEach(e -> this.analyzeNode(e, objectEnv));
+        if (Symbols.isFlagOn(objectTypeNode.symbol.flags, Flags.CLIENT) && objectTypeNode.functions.stream()
+                .noneMatch(func -> Symbols.isFlagOn(func.symbol.flags, Flags.REMOTE))) {
+            this.dlog.error(objectTypeNode.pos, DiagnosticCode.CLIENT_HAS_NO_REMOTE_FUNCTION);
+        }
     }
 
     private void analyseType(BType type, DiagnosticPos pos) {
@@ -987,6 +987,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangSimpleVariableDef varDefNode) {
         this.checkStatementExecutionValidity(varDefNode);
         analyzeNode(varDefNode.var, env);
+        // validate for endpoints here.
+        validateEndpointDeclaration(varDefNode);
     }
 
     public void visit(BLangCompoundAssignment compoundAssignment) {
@@ -1200,6 +1202,38 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         if (invocationExpr.actionInvocation) {
             validateActionInvocation(invocationExpr.pos, invocationExpr);
+        }
+    }
+
+    private void validateEndpointDeclaration(BLangSimpleVariableDef varDefNode) {
+        if (varDefNode.var.symbol.tag != SymTag.ENDPOINT || Objects.isNull(varDefNode.parent) || Objects
+                .isNull(varDefNode.parent.parent)) {
+            return;
+        }
+        // Check for valid parents nodes. (immediate parent is block node)
+        switch (varDefNode.parent.parent.getKind()) {
+            case RESOURCE:
+            case FUNCTION:
+                break;
+            default:
+                dlog.error(varDefNode.pos, DiagnosticCode.INVALID_ENDPOINT_DECLARATION);
+                return;
+        }
+        // Check with siblings now.
+        BLangBlockStmt blockStmt = (BLangBlockStmt) varDefNode.parent;
+        for (BLangStatement statement : blockStmt.stmts) {
+            if (statement == varDefNode) {
+                break;
+            }
+            if (statement.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+                dlog.error(varDefNode.pos, DiagnosticCode.INVALID_ENDPOINT_DECLARATION);
+                break;
+            }
+            BLangSimpleVariableDef def = (BLangSimpleVariableDef) statement;
+            if (def.var.symbol.tag != SymTag.ENDPOINT) {
+                dlog.error(varDefNode.pos, DiagnosticCode.INVALID_ENDPOINT_DECLARATION);
+                break;
+            }
         }
     }
 
@@ -1464,6 +1498,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
         // TODO: Fix me.
+    }
+
+    @Override
+    public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
     }
     
     @Override

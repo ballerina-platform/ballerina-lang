@@ -14,18 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/grpc;
-import ballerina/io;
+public type AbstractListener abstract object {
 
-endpoint grpc:Listener listener {
-    host:"localhost",
-    port:8557
+    public function __start() returns error?;
+
+    public function __stop() returns error?;
+
+    public function __attach(service s, map annotationData) returns error?;
 };
-
-@grpc:ServiceConfig
-service byteService bind listener {
-    checkBytes(endpoint caller, byte[] value) {
-        _ = caller->send(value);
-        _ = caller->complete();
-    }
-}

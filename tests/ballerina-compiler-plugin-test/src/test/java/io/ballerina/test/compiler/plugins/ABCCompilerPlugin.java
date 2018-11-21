@@ -20,7 +20,6 @@ package io.ballerina.test.compiler.plugins;
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.FunctionNode;
@@ -65,12 +64,6 @@ public class ABCCompilerPlugin extends AbstractCompilerPlugin {
     @Override
     public void process(ResourceNode resourceNode, List<AnnotationAttachmentNode> annotations) {
         addEvent(TestEvent.Kind.RESOURCE_ANN, resourceNode.getName().getValue(), annotations.size());
-
-    }
-
-    @Override
-    public void process(ActionNode actionNode, List<AnnotationAttachmentNode> annotations) {
-        addEvent(TestEvent.Kind.ACTION_ANN, actionNode.getName().getValue(), annotations.size());
 
     }
 
