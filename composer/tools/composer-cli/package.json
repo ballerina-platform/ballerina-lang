@@ -15,7 +15,8 @@
     "clean": "../../node_modules/.bin/rimraf lib",
     "lint": "../../node_modules/.bin/tslint -t stylish --project .",
     "prebuild": "npm run clean && npm run lint",
-    "build": "../../node_modules/.bin/tsc --pretty"
+    "build": "../../node_modules/.bin/tsc --pretty",
+    "watch": "npm run build -- --watch"
   },
   "author": "ballerina.io",
   "license": "Apache-2.0",
