@@ -392,13 +392,6 @@ public class XMLLiteralTest {
         Assert.assertEquals(returns[2].stringValue(), "{http://ballerina.com/b}foo");
     }
 
-    @Test
-    public void testNullXMLinXMLLiteral() {
-        BValue[] returns = BRunUtil.invoke(result, "testNullXMLinXMLLiteral");
-        Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "<root></root>");
-    }
-
     @Test(expectedExceptions = {BLangRuntimeException.class},
           expectedExceptionsMessageRegExp = "error: invalid xml qualified name: unsupported characters in '11'.*")
     public void testInvalidElementName_1() {
