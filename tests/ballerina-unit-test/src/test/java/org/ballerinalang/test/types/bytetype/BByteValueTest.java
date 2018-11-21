@@ -20,6 +20,7 @@ package org.ballerinalang.test.types.bytetype;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BInteger;
@@ -183,7 +184,7 @@ public class BByteValueTest {
         byte input3 = 89;
         byte input4 = 23;
 
-        BValueArray bByteArrayIn = new BValueArray();
+        BValueArray bByteArrayIn = new BValueArray(BTypes.typeByte);
         bByteArrayIn.add(0, input1);
         bByteArrayIn.add(1, input2);
         bByteArrayIn.add(2, input3);

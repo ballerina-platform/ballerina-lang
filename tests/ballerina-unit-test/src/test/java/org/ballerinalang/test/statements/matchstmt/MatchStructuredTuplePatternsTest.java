@@ -21,8 +21,8 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -89,9 +89,9 @@ public class MatchStructuredTuplePatternsTest {
     public void testMatchStatementBasics5() {
         BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternsBasics5", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
 
-        BStringArray results = (BStringArray) returns[0];
+        BValueArray results = (BValueArray) returns[0];
 
         int i = -1;
         String msg = "Matched with ";
@@ -105,9 +105,9 @@ public class MatchStructuredTuplePatternsTest {
     public void testStructuredMatchPatternComplex1() {
         BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternComplex1", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
 
-        BStringArray results = (BStringArray) returns[0];
+        BValueArray results = (BValueArray) returns[0];
 
         int i = -1;
         String msg = "Matched with ";
@@ -122,9 +122,9 @@ public class MatchStructuredTuplePatternsTest {
     public void testStructuredMatchPatternComplex2() {
         BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternComplex2", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
 
-        BStringArray results = (BStringArray) returns[0];
+        BValueArray results = (BValueArray) returns[0];
 
         int i = -1;
         String msg = "Matched with ";
@@ -138,9 +138,9 @@ public class MatchStructuredTuplePatternsTest {
     public void testStructuredMatchPatternComplex3() {
         BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternComplex3", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
 
-        BStringArray results = (BStringArray) returns[0];
+        BValueArray results = (BValueArray) returns[0];
 
         int i = -1;
         String msg = "Matched with ";
@@ -156,9 +156,9 @@ public class MatchStructuredTuplePatternsTest {
     public void testStructuredMatchPatternComplex4() {
         BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternComplex4", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
 
-        BStringArray results = (BStringArray) returns[0];
+        BValueArray results = (BValueArray) returns[0];
 
         int i = -1;
         String msg = "Matched with ";
@@ -172,9 +172,9 @@ public class MatchStructuredTuplePatternsTest {
     public void testStructuredMatchPatternWithTypeGuard1() {
         BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithTypeGuard1", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
 
-        BStringArray results = (BStringArray) returns[0];
+        BValueArray results = (BValueArray) returns[0];
 
         int i = -1;
         String msg = "Matched with ";
@@ -190,9 +190,9 @@ public class MatchStructuredTuplePatternsTest {
     public void testStructuredMatchPatternWithTypeGuard2() {
         BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithTypeGuard2", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
 
-        BStringArray results = (BStringArray) returns[0];
+        BValueArray results = (BValueArray) returns[0];
 
         int i = -1;
         String msg = "Matched with ";
@@ -207,9 +207,9 @@ public class MatchStructuredTuplePatternsTest {
     public void testStructuredMatchPatternWithTypeGuard3() {
         BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithTypeGuard3", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
 
-        BStringArray results = (BStringArray) returns[0];
+        BValueArray results = (BValueArray) returns[0];
 
         int i = -1;
         String msg = "Matched with ";
@@ -224,9 +224,9 @@ public class MatchStructuredTuplePatternsTest {
     public void testStructuredMatchPatternWithTypeGuard4() {
         BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithTypeGuard4", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
 
-        BStringArray results = (BStringArray) returns[0];
+        BValueArray results = (BValueArray) returns[0];
 
         int i = -1;
         String msg = "Matched with ";
@@ -246,9 +246,9 @@ public class MatchStructuredTuplePatternsTest {
     public void testStructuredMatchPatternWithTypeGuard5() {
         BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithTypeGuard5", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
 
-        BStringArray results = (BStringArray) returns[0];
+        BValueArray results = (BValueArray) returns[0];
 
         int i = -1;
         String msg = "Matched with ";

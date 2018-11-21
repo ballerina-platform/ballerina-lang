@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
@@ -84,7 +85,7 @@ public class ArrayAccessExprTest {
 
     @Test(description = "Test arrays arg value")
     public void testArrayArgValue() {
-        BValueArray arrayValue = new BValueArray();
+        BValueArray arrayValue = new BValueArray(BTypes.typeInt);
         arrayValue.add(0, 10);
         arrayValue.add(1, 1);
 

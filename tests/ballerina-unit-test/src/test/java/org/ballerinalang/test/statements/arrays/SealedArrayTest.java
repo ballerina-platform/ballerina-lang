@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
@@ -235,7 +236,7 @@ public class SealedArrayTest {
         Assert.assertEquals(returnValues[0].stringValue(),
                 "matched float array", "Couldn't match sealed array type");
 
-        bFloatArray = new BValueArray();
+        bFloatArray = new BValueArray(BTypes.typeFloat);
         bFloatArray.add(0, 01.0);
         bFloatArray.add(0, 12.2);
         bFloatArray.add(0, 23.3);
@@ -262,7 +263,7 @@ public class SealedArrayTest {
         Assert.assertEquals(returnValues[0].stringValue(),
                 "matched float array", "Couldn't match sealed array type");
 
-        bFloatArray = new BValueArray();
+        bFloatArray = new BValueArray(BTypes.typeFloat);
         bFloatArray.add(0, 01.0);
         bFloatArray.add(0, 12.2);
         bFloatArray.add(0, 23.3);
@@ -364,7 +365,7 @@ public class SealedArrayTest {
 
     @Test
     public void accessValidIndexOfMatchedUnsealedArray() {
-        BValueArray bIntArray = new BValueArray();
+        BValueArray bIntArray = new BValueArray(BTypes.typeInt);
         bIntArray.add(0, 1);
         bIntArray.add(0, 3);
         bIntArray.add(0, 5);
@@ -379,7 +380,7 @@ public class SealedArrayTest {
         bIntArray.add(0, 1);
         bIntArray.add(1, 3);
         bIntArray.add(2, 5);
-        BValueArray bIntArray2 = new BValueArray();
+        BValueArray bIntArray2 = new BValueArray(BTypes.typeInt);
         bIntArray2.add(0, 1);
         bIntArray2.add(1, 3);
         bIntArray2.add(2, 5);

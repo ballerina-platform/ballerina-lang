@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
@@ -46,7 +47,7 @@ public class ArrayTest {
 
     @Test
     public void testFloatArrayLength() {
-        BValueArray arrayValue = new BValueArray();
+        BValueArray arrayValue = new BValueArray(BTypes.typeFloat);
         arrayValue.add(0, 10);
         arrayValue.add(1, 11.1f);
         arrayValue.add(2, 12.2f);
@@ -61,7 +62,7 @@ public class ArrayTest {
 
     @Test
     public void testIntArrayLength() {
-        BValueArray arrayValue = new BValueArray();
+        BValueArray arrayValue = new BValueArray(BTypes.typeInt);
         arrayValue.add(0, 10);
         arrayValue.add(1, 11);
         arrayValue.add(2, 12);
@@ -75,7 +76,7 @@ public class ArrayTest {
 
     @Test
     public void testStringArrayLength() {
-        BValueArray arrayValue = new BValueArray();
+        BValueArray arrayValue = new BValueArray(BTypes.typeString);
         arrayValue.add(0, "Hello");
         arrayValue.add(1, "World");
         BValue[] args = {arrayValue};

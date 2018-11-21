@@ -19,6 +19,7 @@ package org.ballerinalang.test.vm;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
@@ -42,7 +43,7 @@ public class MainFunctionsTest {
     
     @Test
     public void basicMainInvocationTest() {
-        BValueArray args = new BValueArray();
+        BValueArray args = new BValueArray(BTypes.typeString);
         args.add(0, "V1");
         args.add(1, "V2");
         BRunUtil.invoke(result, "main", new BValue[] { args });

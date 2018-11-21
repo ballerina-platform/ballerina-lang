@@ -19,6 +19,7 @@ package org.ballerinalang.test.utils.debug;
 
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.codegen.FunctionInfo;
@@ -85,7 +86,7 @@ public class DebuggerExecutor implements Runnable {
 
         // Prepare main function arguments
 
-        BValueArray arrayArgs = new BValueArray();
+        BValueArray arrayArgs = new BValueArray(BTypes.typeString);
         for (int i = 0; i < args.length; i++) {
             arrayArgs.add(i, args[i]);
         }

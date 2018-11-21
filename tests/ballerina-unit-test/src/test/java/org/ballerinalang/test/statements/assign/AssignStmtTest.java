@@ -20,6 +20,7 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -88,7 +89,7 @@ public class AssignStmtTest {
         Assert.assertEquals(actualString, expectedString);
 
         // Array index to int assignment test
-        BValueArray arrayValue = new BValueArray();
+        BValueArray arrayValue = new BValueArray(BTypes.typeInt);
         arrayValue.add(0, 150);
         args = new BValue[] { arrayValue };
         returns = BRunUtil.invoke(result, "testArrayIndexToIntAssignStmt", args);

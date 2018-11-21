@@ -21,8 +21,8 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -49,9 +49,9 @@ public class MatchStatementStaticPatternsTest {
 
         BValue[] returns = BRunUtil.invoke(result, "testStaticMatchPatternsBasic1", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
 
-        BStringArray results = (BStringArray) returns[0];
+        BValueArray results = (BValueArray) returns[0];
 
         int i = -1;
         String msg = "Value is ";
@@ -69,9 +69,9 @@ public class MatchStatementStaticPatternsTest {
 
         BValue[] returns = BRunUtil.invoke(result, "testStaticMatchPatternsBasic2", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
 
-        BStringArray results = (BStringArray) returns[0];
+        BValueArray results = (BValueArray) returns[0];
 
         int i = -1;
         String msg = "Value is ";
@@ -88,9 +88,9 @@ public class MatchStatementStaticPatternsTest {
 
         BValue[] returns = BRunUtil.invoke(result, "testStaticMatchOrPatterns1", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
 
-        BStringArray results = (BStringArray) returns[0];
+        BValueArray results = (BValueArray) returns[0];
 
         int i = -1;
         String msg = "Value is ";
@@ -112,9 +112,9 @@ public class MatchStatementStaticPatternsTest {
 
         BValue[] returns = BRunUtil.invoke(result, "testStaticMatchOrPatterns2", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
 
-        BStringArray results = (BStringArray) returns[0];
+        BValueArray results = (BValueArray) returns[0];
 
         int i = -1;
         String msg = "Value is ";
@@ -137,9 +137,9 @@ public class MatchStatementStaticPatternsTest {
 
         BValue[] returns = BRunUtil.invoke(result, "testStaticMatchOrPatterns3", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
 
-        BStringArray results = (BStringArray) returns[0];
+        BValueArray results = (BValueArray) returns[0];
 
         int i = -1;
         String msg = "Value is ";
@@ -164,9 +164,9 @@ public class MatchStatementStaticPatternsTest {
 
         BValue[] returns = BRunUtil.invoke(result, "testStaticMatchOrPatterns4", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
 
-        BStringArray results = (BStringArray) returns[0];
+        BValueArray results = (BValueArray) returns[0];
 
         int i = -1;
         String msg = "Value is ";
@@ -192,9 +192,9 @@ public class MatchStatementStaticPatternsTest {
 
         BValue[] returns = BRunUtil.invoke(result, "testRecordStaticMatch");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
 
-        BStringArray results = (BStringArray) returns[0];
+        BValueArray results = (BValueArray) returns[0];
         Assert.assertEquals(5, results.size());
 
         int i = -1;
@@ -211,9 +211,9 @@ public class MatchStatementStaticPatternsTest {
 
         BValue[] returns = BRunUtil.invoke(result, "testTupleStaticMatch");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
 
-        BStringArray results = (BStringArray) returns[0];
+        BValueArray results = (BValueArray) returns[0];
         Assert.assertEquals(6, results.size());
 
         int i = -1;
@@ -231,9 +231,9 @@ public class MatchStatementStaticPatternsTest {
 
         BValue[] returns = BRunUtil.invoke(result, "testRecordAndTupleComplexStaticMatch");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
 
-        BStringArray results = (BStringArray) returns[0];
+        BValueArray results = (BValueArray) returns[0];
         Assert.assertEquals(1, results.size());
 
         int i = -1;

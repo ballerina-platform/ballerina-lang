@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.utils;
 
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 
@@ -51,7 +52,7 @@ public class ByteArrayUtils {
     }
 
     public static BValueArray createBByteArray(byte[] bytes) {
-        BValueArray byteArray = new BValueArray();
+        BValueArray byteArray = new BValueArray(BTypes.typeByte);
         for (int i = 0; i < bytes.length; i++) {
             byteArray.add(i, bytes[i]);
         }
