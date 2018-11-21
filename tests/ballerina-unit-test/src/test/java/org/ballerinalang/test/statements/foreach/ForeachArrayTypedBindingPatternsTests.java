@@ -136,4 +136,11 @@ public class ForeachArrayTypedBindingPatternsTests {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "1:1:A 2:2:B 3:3:C ");
     }
+
+    @Test
+    public void testEmptyArrayIteration() {
+        BValue[] returns = BRunUtil.invoke(program, "testEmptyArrayIteration");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "");
+    }
 }

@@ -114,4 +114,11 @@ public class ForeachJSONTypedBindingPatternsTests {
         Assert.assertEquals(returns[0].stringValue(), "0:name:bob 1:age:10 2:pass:true " +
                 "3:subjects:{\"subject\":\"maths\", \"marks\":75} 3:subjects:{\"subject\":\"English\", \"marks\":85} ");
     }
+
+    @Test
+    public void testEmptyJsonIteration() {
+        BValue[] returns = BRunUtil.invoke(program, "testEmptyJsonIteration");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "");
+    }
 }

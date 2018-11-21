@@ -679,3 +679,18 @@ function testConstrainedMapWithTupleInRecordWithAnyType() returns string {
     }
     return output;
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+function testEmptyMapIteration() returns string {
+    output = "";
+
+    map m = {};
+
+    int i = 0;
+    foreach var (k, v) in m {
+        concatIntStringAny(i, k, v);
+        i += 1;
+    }
+    return output;
+}

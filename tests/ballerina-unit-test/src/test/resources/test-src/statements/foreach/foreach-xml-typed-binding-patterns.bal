@@ -68,3 +68,20 @@ function testXmlInnerElementsWithSimpleVariableWithType() returns string {
     }
     return output;
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+function testEmptyXmlIteration() returns string {
+    output = "";
+
+    xml data = xml `ABC`;
+
+    int i = 0;
+    foreach var v in data.* {
+        if v is xml {
+            concatIntXml(i, v);
+            i += 1;
+        }
+    }
+    return output;
+}

@@ -80,4 +80,11 @@ public class ForeachRecordTypedBindingPatternsTests {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "0:i:1 1:t:(2, \"A\") ");
     }
+
+    @Test
+    public void testEmptyRecordIteration() {
+        BValue[] returns = BRunUtil.invoke(program, "testEmptyRecordIteration");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "");
+    }
 }

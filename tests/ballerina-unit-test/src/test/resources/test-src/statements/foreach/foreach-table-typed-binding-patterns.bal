@@ -59,3 +59,20 @@ function testRecordInTableWithoutType() returns string {
     }
     return output;
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+function testEmptyTableIteration() returns string {
+    output = "";
+
+    table<Employee> d = table {
+        { key id, name, salary }, []
+    };
+
+    int i = 0;
+    foreach var {id, name, salary} in d {
+    concatIntIntStringFloat(i, id, name, salary);
+        i += 1;
+    }
+    return output;
+}

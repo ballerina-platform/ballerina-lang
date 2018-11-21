@@ -287,11 +287,19 @@ public class ForeachMapTypedBindingPatternsTests {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "0:a:1:1:A 1:b:2:2:B 2:c:3:3:C ");
     }
+
     @Test
     public void testConstrainedMapWithTupleInRecordWithAnyType() {
         BValue[] returns = BRunUtil.invoke(program, "testConstrainedMapWithTupleInRecordWithAnyType");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "0:a:{i:1, v:(1, \"A\")} 1:b:{i:2, v:(2, \"B\")} 2:c:{i:3, v:" +
                 "(3, \"C\")} ");
+    }
+
+    @Test
+    public void testEmptyMapIteration() {
+        BValue[] returns = BRunUtil.invoke(program, "testEmptyMapIteration");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "");
     }
 }

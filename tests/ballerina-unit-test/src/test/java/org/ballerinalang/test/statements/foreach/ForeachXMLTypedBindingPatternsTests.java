@@ -82,4 +82,11 @@ public class ForeachXMLTypedBindingPatternsTests {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), expectedXml2);
     }
+
+    @Test
+    public void testEmptyXmlIteration() {
+        BValue[] returns = BRunUtil.invoke(program, "testEmptyXmlIteration");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "");
+    }
 }

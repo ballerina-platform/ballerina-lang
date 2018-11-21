@@ -226,3 +226,18 @@ function testArrayWithTupleInRecordWithType() returns string {
     }
     return output;
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+function testEmptyArrayIteration() returns string {
+    output = "";
+
+    string[] arr = [];
+
+    int i = 0;
+    foreach var v in arr {
+        concatIntString(i, v);
+        i += 1;
+    }
+    return output;
+}

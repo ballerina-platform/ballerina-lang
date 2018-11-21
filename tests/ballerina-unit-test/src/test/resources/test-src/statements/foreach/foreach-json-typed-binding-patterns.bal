@@ -161,3 +161,18 @@ function testIteratingCompleteJsonWithType() returns string {
     }
     return output;
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+function testEmptyJsonIteration() returns string {
+    output = "";
+
+    json j = {};
+
+    int i = 0;
+    foreach var (k, v) in j {
+        concatIntStringAny(i, k, v);
+        i += 1;
+    }
+    return output;
+}
