@@ -727,6 +727,8 @@ public class Types {
                     return symTable.anyType;
                 }
                 return tableType.constraint;
+            case TypeTags.STRING:
+                return symTable.stringType;
             case TypeTags.SEMANTIC_ERROR:
                 break;
             default:
