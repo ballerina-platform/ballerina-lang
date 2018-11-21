@@ -3613,6 +3613,10 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(foreverNode);
 
         // implicit import of streams module, user doesn't want to import explicitly
+        if (foreverNode.isSiddhiRuntimeEnabled()) {
+            return;
+        }
+        
         List<String> nameComps = getPackageNameComps(Names.STREAMS_MODULE.value);
         addImportPackageDeclaration(pos, null, Names.STREAMS_ORG.value, nameComps, null,
                 nameComps.get(nameComps.size() - 1));
