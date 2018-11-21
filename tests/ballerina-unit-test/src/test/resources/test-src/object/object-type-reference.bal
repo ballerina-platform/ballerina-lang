@@ -37,6 +37,12 @@ type Manager1 object {
     function getName() returns string {
         return self.name + " from inner function";
     }
+    
+    function __init() {
+        self.age = 99;
+        self.name = "sample name 2";
+        self.salary = 8.0;
+    }
 };
 
 function Manager1.getSalary() returns float {
@@ -83,6 +89,7 @@ type Manager3 object {
     function __init(int age=20) {
         self.age = age;
         self.salary = 2500.0;
+        self.name = "Doe";
     } 
 };
 

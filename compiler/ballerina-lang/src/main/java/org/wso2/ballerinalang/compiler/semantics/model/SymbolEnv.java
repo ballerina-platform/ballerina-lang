@@ -119,7 +119,8 @@ public class SymbolEnv {
         return objectEnv;
     }
 
-    public static SymbolEnv createObjectMethodsEnv(BLangObjectTypeNode node, BObjectTypeSymbol objSymbol, SymbolEnv env) {
+    public static SymbolEnv createObjectMethodsEnv(BLangObjectTypeNode node, BObjectTypeSymbol objSymbol,
+                                                   SymbolEnv env) {
         if (objSymbol.methodScope == null) {
             objSymbol.methodScope = new Scope(env.scope.owner);
         }
