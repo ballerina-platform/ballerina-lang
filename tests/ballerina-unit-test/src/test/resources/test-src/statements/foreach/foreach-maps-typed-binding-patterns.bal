@@ -27,6 +27,10 @@ function concatIntIntString(int i1, int i2, string s) {
     output = output + i1 + ":" + i2 + ":" + s + " ";
 }
 
+function concatStringIntString(int s1, int i, string s2) {
+    output = output + s1 + ":" + i + ":" + s2 + " ";
+}
+
 function concatIntStringAny(int i, string s, any a) {
     output = output + i + ":" + s + ":" + <string>a + " ";
 }
@@ -391,6 +395,96 @@ function testConstrainedMapWithRecordInTupleWithAnyType() returns string {
     (int, Data) t3 = (4, d3);
 
     map<(int, Data)> m = { a: t1, b: t2, c: t3 };
+
+    int i = 0;
+    foreach (string, any) (k, v) in m {
+        concatIntStringAny(i, k, v);
+        i += 1;
+    }
+    return output;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+function testUnconstrainedMapWithRecordWithoutType() returns string {
+    output = "";
+
+    Data d1 = { i: 1, v: "A" };
+    Data d2 = { i: 2, v: "B" };
+    Data d3 = { i: 3, v: "C" };
+
+    map m = { a: d1, b: d2, c: d3 };
+
+    int i = 0;
+    foreach var (k, v) in m {
+        concatIntStringAny(i, k, v);
+        i += 1;
+    }
+    return output;
+}
+
+
+function testUnconstrainedMapWithRecordWithType() returns string {
+    output = "";
+
+    Data d1 = { i: 1, v: "A" };
+    Data d2 = { i: 2, v: "B" };
+    Data d3 = { i: 3, v: "C" };
+
+    map m = { a: d1, b: d2, c: d3 };
+
+    int i = 0;
+    foreach (string, any) (k, v) in m {
+        concatIntStringAny(i, k, v);
+        i += 1;
+    }
+    return output;
+}
+
+
+function testConstrainedMapWithRecordWithoutType() returns string {
+    output = "";
+
+    Data d1 = { i: 1, v: "A" };
+    Data d2 = { i: 2, v: "B" };
+    Data d3 = { i: 3, v: "C" };
+
+    map<Data> m = { a: d1, b: d2, c: d3 };
+
+    int i = 0;
+    foreach var (k, {i: u, v}) in m {
+        concatIntStringIntString(i, k, u, v);
+        i += 1;
+    }
+    return output;
+}
+
+
+function testConstrainedMapWithRecordWithType() returns string {
+    output = "";
+
+    Data d1 = { i: 1, v: "A" };
+    Data d2 = { i: 2, v: "B" };
+    Data d3 = { i: 3, v: "C" };
+
+    map<Data> m = { a: d1, b: d2, c: d3 };
+
+    int i = 0;
+    foreach (string, Data) (k, {i: u, v}) in m {
+        concatIntStringIntString(i, k, u, v);
+        i += 1;
+    }
+    return output;
+}
+
+function testConstrainedMapWithRecordWithAnyType() returns string {
+    output = "";
+
+    Data d1 = { i: 1, v: "A" };
+    Data d2 = { i: 2, v: "B" };
+    Data d3 = { i: 3, v: "C" };
+
+    map<Data> m = { a: d1, b: d2, c: d3 };
 
     int i = 0;
     foreach (string, any) (k, v) in m {
