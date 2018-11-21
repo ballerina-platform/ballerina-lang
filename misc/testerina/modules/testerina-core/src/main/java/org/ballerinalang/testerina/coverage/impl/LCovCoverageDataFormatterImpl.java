@@ -105,6 +105,7 @@ public class LCovCoverageDataFormatterImpl implements CoverageDataFormatter<LCov
             String[] pkgPathSlices = BLangUtils.getPkgPathSlices(entryPkgPath);
             entryPkgLineNumberInfo.getLineNumbers().keySet().forEach(key -> {
                 String fileName = key.split(":")[0];
+
                 // skiping module init function Ips which comes with modulename:lineNo
                 if (!fileName.endsWith(".bal")) {
                     return;
@@ -139,73 +140,8 @@ public class LCovCoverageDataFormatterImpl implements CoverageDataFormatter<LCov
                     continue;
                 }
 
-                String sourceFilePath = pkgPathSlices[1] + File.separator
-                        + executedInstruction.getFileName();
-
-                boolean lCovDataFound = false;
-                for (LCovData lCovData : packageCoverageList) {
-
-                    if (lCovData.getTestName().equals(testName)) {
-                        lCovDataFound = true;
-
-                        boolean lCovSourceFileFound = false;
-                        for (LCovSourceFile lCovSourceFile : lCovData.getlCovSourceFileList()) {
-
-                            if (lCovSourceFile.getSourceFilePath().equals(sourceFilePath)) {
-                                lCovSourceFileFound = true;
-
-                                boolean lineNumFound = false;
-                                for (LCovDA lCovDA : lCovSourceFile.getlCovDAList()) {
-                                    if (lineNumberInfo.getLineNumber() == lCovDA.getLineNumber()) {
-                                        lineNumFound = true;
-
-                                        lCovDA.setLineExecutionCount(
-                                                lCovDA.getLineExecutionCount() + 1);
-
-                                        break;
-                                    }
-                                }
-                                if (!lineNumFound) {
-                                    LCovDA lCovDA = new LCovDA(lineNumberInfo.getLineNumber(), 1, 0);
-                                    lCovSourceFile.getlCovDAList().add(lCovDA);
-
-                                    lCovSourceFile.setNumOfLineExecuted(
-                                            lCovSourceFile.getNumOfLineExecuted() + 1);
-                                }
-
-                                break;
-                            }
-                        }
-                        if (!lCovSourceFileFound) {
-
-                            LCovDA lCovDA = new LCovDA(lineNumberInfo.getLineNumber(), 1, 0);
-
-                            LCovSourceFile lCovSourceFile = new LCovSourceFile(
-                                    //TODO: package path should be package folder path
-                                    sourceFilePath, 1,
-                                    fileLineCoverage.get(sourceFilePath));
-                            lCovSourceFile.getlCovDAList().add(lCovDA);
-
-                            lCovData.getlCovSourceFileList().add(lCovSourceFile);
-                        }
-
-                        break;
-                    }
-                }
-                if (!lCovDataFound) {
-                    LCovDA lCovDA = new LCovDA(lineNumberInfo.getLineNumber(), 1, 0);
-
-                    LCovSourceFile lCovSourceFile = new LCovSourceFile(
-                            //TODO: package path should be package folder path
-                            sourceFilePath, 1,
-                            fileLineCoverage.get(sourceFilePath));
-                    lCovSourceFile.getlCovDAList().add(lCovDA);
-
-                    LCovData lCovData = new LCovData(testName);
-                    lCovData.getlCovSourceFileList().add(lCovSourceFile);
-
-                    packageCoverageList.add(lCovData);
-                }
+                populateCoverageData(executedInstruction, packageCoverageList, lineNumberInfo, fileLineCoverage,
+                        pkgPathSlices);
             }
         });
 
@@ -217,7 +153,6 @@ public class LCovCoverageDataFormatterImpl implements CoverageDataFormatter<LCov
 
         boolean skipTestFunctionIps = false;
 
-        //TODO: replace endsWith with equals
         if (executedInstruction.getFunctionName().endsWith(Names.TEST_INIT_FUNCTION_SUFFIX.getValue()) ||
                 executedInstruction.getFunctionName().endsWith(Names.TEST_START_FUNCTION_SUFFIX.getValue()) ||
                 executedInstruction.getFunctionName().endsWith(Names.TEST_STOP_FUNCTION_SUFFIX.getValue())) {
@@ -238,6 +173,86 @@ public class LCovCoverageDataFormatterImpl implements CoverageDataFormatter<LCov
         }
 
         return skipTestFunctionIps;
+    }
+
+    // populate coverage data list for the project
+    private void populateCoverageData(ExecutedInstruction executedInstruction, List<LCovData> packageCoverageList,
+                                      LineNumberInfo lineNumberInfo, Map<String, Integer> fileLineCoverage,
+                                      String[] pkgPathSlices) {
+        String sourceFilePath = pkgPathSlices[1] + File.separator
+                + executedInstruction.getFileName();
+
+        boolean lCovDataFound = false;
+        for (LCovData lCovData : packageCoverageList) {
+
+            if (lCovData.getTestName().equals(testName)) {
+                lCovDataFound = true;
+                populateCoverageDataSourceFileSection(lCovData, sourceFilePath, lineNumberInfo, fileLineCoverage);
+
+                break;
+            }
+        }
+        if (!lCovDataFound) {
+            LCovDA lCovDA = new LCovDA(lineNumberInfo.getLineNumber(), 1, 0);
+
+            LCovSourceFile lCovSourceFile = new LCovSourceFile(
+                    sourceFilePath, 1,
+                    fileLineCoverage.get(sourceFilePath));
+            lCovSourceFile.getlCovDAList().add(lCovDA);
+
+            LCovData lCovData = new LCovData(testName);
+            lCovData.getlCovSourceFileList().add(lCovSourceFile);
+
+            packageCoverageList.add(lCovData);
+        }
+    }
+
+    // populate coverage data list for the source file section
+    private void populateCoverageDataSourceFileSection(LCovData lCovData, String sourceFilePath,
+                                      LineNumberInfo lineNumberInfo, Map<String, Integer> fileLineCoverage) {
+        boolean lCovSourceFileFound = false;
+        for (LCovSourceFile lCovSourceFile : lCovData.getlCovSourceFileList()) {
+
+            if (lCovSourceFile.getSourceFilePath().equals(sourceFilePath)) {
+                lCovSourceFileFound = true;
+                populateCoverageDataLineSection(lCovSourceFile, lineNumberInfo);
+
+                break;
+            }
+        }
+        if (!lCovSourceFileFound) {
+
+            LCovDA lCovDA = new LCovDA(lineNumberInfo.getLineNumber(), 1, 0);
+
+            LCovSourceFile lCovSourceFile = new LCovSourceFile(
+                    sourceFilePath, 1,
+                    fileLineCoverage.get(sourceFilePath));
+            lCovSourceFile.getlCovDAList().add(lCovDA);
+
+            lCovData.getlCovSourceFileList().add(lCovSourceFile);
+        }
+    }
+
+    // populate coverage data list for the source code line section for the given source file
+    private void populateCoverageDataLineSection(LCovSourceFile lCovSourceFile, LineNumberInfo lineNumberInfo) {
+        boolean lineNumFound = false;
+        for (LCovDA lCovDA : lCovSourceFile.getlCovDAList()) {
+            if (lineNumberInfo.getLineNumber() == lCovDA.getLineNumber()) {
+                lineNumFound = true;
+
+                lCovDA.setLineExecutionCount(
+                        lCovDA.getLineExecutionCount() + 1);
+
+                break;
+            }
+        }
+        if (!lineNumFound) {
+            LCovDA lCovDA = new LCovDA(lineNumberInfo.getLineNumber(), 1, 0);
+            lCovSourceFile.getlCovDAList().add(lCovDA);
+
+            lCovSourceFile.setNumOfLineExecuted(
+                    lCovSourceFile.getNumOfLineExecuted() + 1);
+        }
     }
 
     /**
