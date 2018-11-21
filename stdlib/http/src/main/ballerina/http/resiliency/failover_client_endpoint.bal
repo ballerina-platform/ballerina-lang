@@ -506,7 +506,7 @@ function createClientEPConfigFromFailoverEPConfig(FailoverClientEndpointConfigur
 }
 
 
-function createFailOverClient(FailoverClientEndpointConfiguration failoverClientConfig) returns Client {
+function createFailOverClient(FailoverClientEndpointConfiguration failoverClientConfig) returns FailoverClient {
     ClientEndpointConfig config = createClientEPConfigFromFailoverEPConfig(
                                       failoverClientConfig,
                                       failoverClientConfig.targets[0]);
@@ -517,12 +517,8 @@ function createFailOverClient(FailoverClientEndpointConfiguration failoverClient
         failoverCodesIndex:failoverCodes,
         failoverInterval:failoverClientConfig.intervalMillis
     };
-    var foClient = <Client> new FailoverClient(failoverClientConfig, failoverInferredConfig);
-    if (foClient is Client) {
-        return foClient;
-    } else {
-        panic foClient;
-    }
+
+    return new FailoverClient(failoverClientConfig, failoverInferredConfig);
 }
 
 function createFailoverHttpClientArray(FailoverClientEndpointConfiguration failoverClientConfig) returns Client[] {
