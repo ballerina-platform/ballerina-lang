@@ -31,7 +31,7 @@ public class BAnydataType extends BType {
      *
      * @param typeName string name of the type
      */
-    public BAnydataType(String typeName, String pkgPath) {
+    BAnydataType(String typeName, String pkgPath) {
         super(typeName, pkgPath, BValue.class);
     }
 

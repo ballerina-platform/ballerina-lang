@@ -178,6 +178,7 @@ public class CPU {
                 ctx = e.ctx;
             }
         }
+
     }
 
     private static void tryExec(WorkerExecutionContext ctx) {
@@ -842,7 +843,7 @@ public class CPU {
         int j = operands[1];
 
         BRefType<?> refRegVal = sf.refRegs[i];
-        if (!checkIsLikeType(refRegVal, new BAnydataType(null, null))) {
+        if (!checkIsLikeType(refRegVal, BTypes.typeAnydata)) {
             sf.refRegs[j] = BLangVMErrors.createError(ctx, BLangExceptionHelper
                     .getErrorMessage(RuntimeErrors.UNSUPPORTED_CLONE_OPERATION, refRegVal, refRegVal.getType()));
             return;
