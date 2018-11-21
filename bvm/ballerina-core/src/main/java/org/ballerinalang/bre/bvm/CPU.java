@@ -144,7 +144,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
-import static java.util.Arrays.stream;
 import static org.ballerinalang.runtime.Constants.STATE_ID;
 import static org.ballerinalang.util.BLangConstants.BBYTE_MAX_VALUE;
 import static org.ballerinalang.util.BLangConstants.BBYTE_MIN_VALUE;
@@ -4268,11 +4267,11 @@ public class CPU {
                     case TypeTags.BYTE_TAG:
                         return true;
                     default:
-                        return stream(((BRefValueArray) sourceValue).getValues())
+                        return Arrays.stream(((BRefValueArray) sourceValue).getValues())
                                 .allMatch(value -> checkIsLikeType(value, targetType));
                 }
             case TypeTags.TUPLE_TAG:
-                return stream(((BRefValueArray) sourceValue).getValues())
+                return Arrays.stream(((BRefValueArray) sourceValue).getValues())
                         .allMatch(value -> checkIsLikeType(value, targetType));
             case TypeTags.ANYDATA_TAG:
                 return true;
