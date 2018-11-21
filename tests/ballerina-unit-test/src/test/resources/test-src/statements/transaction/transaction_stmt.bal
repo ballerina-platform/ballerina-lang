@@ -485,9 +485,7 @@ function testValidReturn() returns (string) {
         a = a + " inOuterTxstart ";
         transaction {
             a = a + " inInnerTxstart ";
-           // if (i == 0) {
-                a = a + testReturn();
-            //}
+            a = a + testReturn();
             a = a + " endInnerTx";
         }
         a = a + testReturn();
