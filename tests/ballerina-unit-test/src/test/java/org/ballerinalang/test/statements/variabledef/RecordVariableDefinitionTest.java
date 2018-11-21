@@ -266,15 +266,11 @@ public class RecordVariableDefinitionTest {
     @Test(description = "Test record var def with json")
     public void testWithJSON() {
         BValue[] returns = BRunUtil.invoke(result, "testWithJSON");
-        Assert.assertEquals(returns.length, 8);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
-        Assert.assertEquals(returns[1].stringValue(), "Peter");
-        Assert.assertEquals(returns[2].stringValue(), "Kuruvita");
-        Assert.assertTrue(((BBoolean) returns[3]).booleanValue());
-        Assert.assertEquals(((BFloat) returns[4]).floatValue(), 1.1);
-        Assert.assertEquals(returns[5].stringValue(), "Ballerina");
-        Assert.assertEquals(((BFloat) returns[6]).floatValue(), 1.1);
-        Assert.assertEquals(returns[7].stringValue(), "Ballerina");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 1.1);
+        Assert.assertEquals(returns[1].stringValue(), "Ballerina");
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 1.1);
+        Assert.assertEquals(returns[3].stringValue(), "Ballerina");
     }
 
     @Test

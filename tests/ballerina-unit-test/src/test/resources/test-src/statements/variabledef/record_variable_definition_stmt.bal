@@ -279,11 +279,9 @@ type JSONRec record {
     !...
 };
 
-function testWithJSON() returns (anydata, anydata, anydata, anydata, float, string, float, string) {
-    json jsonVar = {a: 1, b: "Peter", c: {d: "Kuruvita", e: true}};
+function testWithJSON() returns (float, string, float, string) {
     json<JSONRec> recJson = {var1: 1.1, var2: "Ballerina"};
-    json {a, b, c: {d, e}} = jsonVar;
     json<JSONRec> {var1: f, var2: g} = recJson;
     var {var1: h, var2: i} = recJson;
-    return (a, b, d, e, f, g, h, i);
+    return (f, g, h, i);
 }

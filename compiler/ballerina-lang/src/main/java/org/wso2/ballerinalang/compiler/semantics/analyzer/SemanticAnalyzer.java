@@ -794,9 +794,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 recordVarType = (BRecordType) recordVar.type;
                 break;
             case TypeTags.JSON:
-                recordVarType = ((BJSONType) recordVar.type).constraint.tag == TypeTags.NONE ?
-                        createSameTypedFieldsRecordType(recordVar, symTable.anydataType) :
-                        (BRecordType) ((BJSONType) recordVar.type).constraint;
+                if (((BJSONType) recordVar.type).constraint.tag != TypeTags.RECORD) {
+                    dlog.error(recordVar.pos, DiagnosticCode.INVALID_RECORD_BINDING_PATTERN,
+                            "unconstrained " + recordVar.type);
+                    return false;
+                }
+                recordVarType = (BRecordType) ((BJSONType) recordVar.type).constraint;
                 break;
             case TypeTags.MAP:
                 recordVarType = createSameTypedFieldsRecordType(recordVar, ((BMapType) recordVar.type).constraint);
