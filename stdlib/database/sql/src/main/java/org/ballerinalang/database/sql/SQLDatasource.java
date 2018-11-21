@@ -426,7 +426,7 @@ public class SQLDatasource implements BValue {
     }
 
     @Override
-    public BValue copy() {
+    public BValue copy(Map<BValue, BValue> refs) {
         return null;
     }
 

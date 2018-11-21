@@ -19,7 +19,7 @@ import ballerina/math;
 
 public type Aggregator abstract object {
 
-    public function clone() returns Aggregator;
+    public function copy() returns Aggregator;
 
     public function process(any value, EventType eventType) returns any|error;
 
@@ -63,7 +63,7 @@ public type Sum object {
         }
     }
 
-    public function clone() returns Aggregator {
+    public function copy() returns Aggregator {
         Sum sumAggregator = new();
         return sumAggregator;
     }
@@ -118,7 +118,7 @@ public type Average object {
         return (self.count > 0) ? (self.sum / self.count) : 0.0;
     }
 
-    public function clone() returns Aggregator {
+    public function copy() returns Aggregator {
         Average avgAggregator = new();
         return avgAggregator;
     }
@@ -149,7 +149,7 @@ public type Count object {
         return self.count;
     }
 
-    public function clone() returns Aggregator {
+    public function copy() returns Aggregator {
         Count countAggregator = new();
         return countAggregator;
     }
@@ -189,7 +189,7 @@ public type DistinctCount object {
         return self.distinctValues.length();
     }
 
-    public function clone() returns Aggregator {
+    public function copy() returns Aggregator {
         DistinctCount distinctCountAggregator = new();
         return distinctCountAggregator;
     }
@@ -297,7 +297,7 @@ public type Max object {
         }
     }
 
-    public function clone() returns Aggregator {
+    public function copy() returns Aggregator {
         Max maxAggregator = new();
         return maxAggregator;
     }
@@ -406,7 +406,7 @@ public type Min object {
         }
     }
 
-    public function clone() returns Aggregator {
+    public function copy() returns Aggregator {
         Min minAggregator = new();
         return minAggregator;
     }
@@ -490,7 +490,7 @@ public type StdDev object {
         }
     }
 
-    public function clone() returns Aggregator {
+    public function copy() returns Aggregator {
         StdDev stdDevAggregator = new();
         return stdDevAggregator;
     }
@@ -546,7 +546,7 @@ public type MaxForever object {
         }
     }
 
-    public function clone() returns Aggregator {
+    public function copy() returns Aggregator {
         MaxForever maxForeverAggregator = new();
         return maxForeverAggregator;
     }
@@ -602,7 +602,7 @@ public type MinForever object {
         }
     }
 
-    public function clone() returns Aggregator {
+    public function copy() returns Aggregator {
         MinForever minForeverAggregator = new();
         return minForeverAggregator;
     }
