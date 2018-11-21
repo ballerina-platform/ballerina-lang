@@ -1,7 +1,7 @@
 import ballerina/runtime;
 
 function forkJoinWithTimeoutTest1() returns map {
-    map m;
+    map m = {};
     fork {
         worker w1 {
             int a = 5;
@@ -25,7 +25,7 @@ function forkJoinWithTimeoutTest1() returns map {
 }
 
 function forkJoinWithTimeoutTest2() returns map {
-    map m;
+    map m = {};
     fork {
         worker w1 {
             int a = 5;
@@ -45,7 +45,7 @@ function forkJoinWithTimeoutTest2() returns map {
 }
 
 function complexForkJoinWorkerSendReceive() returns map {
-    map m;
+    map m = {};
     m["x"] = 10;
     fork {
         worker w1 {
@@ -67,7 +67,7 @@ function complexForkJoinWorkerSendReceive() returns map {
 }
 
 function chainedWorkerSendReceive() returns map {
-    map m;
+    map m = {};
     fork {
         worker w1 {
             int a = 3;
@@ -95,8 +95,8 @@ function chainedWorkerSendReceive() returns map {
     return m;
 }
 
-function forkJoinWithSomeSelectedJoin1() returns int {
-    map m;
+function forkJoinWithSomeSelectedJoin1() returns int|error {
+    map m = {};
     m["x"] = 0;
     m["y"] = 0;
     fork {
@@ -129,7 +129,7 @@ function forkJoinWithSomeSelectedJoin1() returns int {
 }
 
 function forkJoinWithSomeSelectedJoin2() returns map {
-    map m;
+    map m = {};
     m["x"] = 0;
     fork {
         worker w1 {
@@ -159,7 +159,7 @@ function forkJoinWithSomeSelectedJoin2() returns map {
 }
 
 function forkJoinWithSomeSelectedJoin3() returns map {
-    map m;
+    map m = {};
     m["x"] = 0;
     fork {
         worker w1 {
@@ -190,8 +190,8 @@ function forkJoinWithSomeSelectedJoin3() returns map {
     return m;
 }
 
-function forkJoinWithSomeSelectedJoin4() returns int {
-    map m;
+function forkJoinWithSomeSelectedJoin4() returns int|error {
+    map m = {};
     m["x"] = 0;
     fork {
         worker w1 {
@@ -216,8 +216,8 @@ function forkJoinWithSomeSelectedJoin4() returns int {
     return x;
 }
 
-function forkJoinWithSomeSelectedJoin5() returns int {
-    map m;
+function forkJoinWithSomeSelectedJoin5() returns int|error {
+    map m = {};
     m["x"] = 0;
     fork {
         worker w1 {
@@ -248,7 +248,7 @@ function forkJoinWithSomeSelectedJoin5() returns int {
 }
 
 function forkJoinWithAllSelectedJoin1() returns map {
-    map m;
+    map m = {};
     m["x"] = 0;
     fork {
         worker w1 {
@@ -281,7 +281,7 @@ function forkJoinWithAllSelectedJoin1() returns map {
 }
 
 function forkJoinWithAllSelectedJoin2() returns int {
-    int result;
+    int result = 0;
     fork {
         worker w1 {
             int x = 10;
@@ -316,8 +316,8 @@ function forkJoinWithAllSelectedJoin2() returns int {
     return result;
 }
 
-function forkJoinWithMessagePassingTimeoutNotTriggered() returns map {
-    map m;
+function forkJoinWithMessagePassingTimeoutNotTriggered() returns map|error {
+    map m = {};
     fork {
         worker w1 {
             int a = 5;
@@ -343,10 +343,10 @@ function forkJoinWithMessagePassingTimeoutNotTriggered() returns map {
     return m;
 }
 
-function forkJoinInWorkers() returns int {
+function forkJoinInWorkers() returns int|error {
     worker wx {
         int x = 20;
-        map m;
+        map m = {};
         fork {
             worker w1 {
                 m["a"] = 10;
@@ -365,9 +365,9 @@ function forkJoinInWorkers() returns int {
     }
 }
 
-function largeForkJoinCreationTest() returns int {
+function largeForkJoinCreationTest() returns int|error {
     int result = 0;
-    map m;
+    map m = {};
     int c = 1000;
     while (c > 0) {
         m["x"] = 10;
@@ -442,8 +442,8 @@ function largeForkJoinCreationTest() returns int {
     return result;
 }
 
-function forkJoinWithStruct() returns string {
-    string result;
+function forkJoinWithStruct() returns string|error {
+    string result = "";
     fork {
         worker w1 {
             foo f = { x: 1, y: "w1" };
@@ -463,12 +463,12 @@ function forkJoinWithStruct() returns string {
 }
 
 type foo record {
-    int x;
-    string y;
+    int x = 0;
+    string y = "";
 };
 
-function forkJoinWithSameWorkerContent() returns string {
-    string result;
+function forkJoinWithSameWorkerContent() returns string|error {
+    string result = "";
     fork {
         worker w1 {
             any[] a = [];

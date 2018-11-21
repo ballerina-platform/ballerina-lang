@@ -303,6 +303,28 @@ public class TestGenerator {
         }
 
         /**
+         * Returns a list of target function invocations.
+         * <p>
+         * eg. ["foo(5, 20)","foo(100, 30)"]
+         * </p>
+         *
+         * @return function invocation
+         */
+        public List<String> getTargetFuncInvocations() {
+            List<String> invocations = new ArrayList<>();
+            IntStream.range(0, this.valueSpace.length - 1).forEach(
+                    j -> {
+                        StringJoiner paramsInvokeStr = new StringJoiner(", ");
+                        IntStream.range(0, this.namesSpace.length - 1).forEach(
+                                i -> paramsInvokeStr.add(this.valueSpace[j][i])
+                        );
+                        invocations.add(this.functionName + "(" + paramsInvokeStr.toString() + ")");
+                    }
+            );
+            return invocations;
+        }
+
+        /**
          * Returns target function invocation string.
          * <p>
          * eg. foo(x, y)
