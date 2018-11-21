@@ -24,7 +24,7 @@ function concatIntStringFloat(int i, string s, float f) {
 }
 
 function concatIntIntString(int i1, int i2, string s) {
-    output = output + i1+ ":" + i2 + ":" + s + " ";
+    output = output + i1 + ":" + i2 + ":" + s + " ";
 }
 
 function concatIntStringAny(int i, string s, any a) {
@@ -39,10 +39,17 @@ function concatIntStringIntStringFloat(int i1, string s1, int i2, string s2, flo
     output = output + i1 + ":" + s1 + ":" + i2 + ":" + s2 + ":" + f + " ";
 }
 
+function concatIntStringIntIntString(int i1, string s1, int i2, int i3, string s2) {
+    output = output + i1 + ":" + s1 + ":" + i2 + ":" + i3 + ":" + s2 + " ";
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+
 function testUnconstrainedMapWithoutType() returns string {
     output = "";
 
     map m = { a: "A", b: "B", c: "C" };
+
     int i = 0;
     foreach var (k, v) in m {
         concatIntStringAny(i, k, v);
@@ -55,6 +62,7 @@ function testUnconstrainedMapWithType() returns string {
     output = "";
 
     map m = { a: "A", b: "B", c: "C" };
+
     int i = 0;
     foreach (string, any) (k, v) in m {
         concatIntStringAny(i, k, v);
@@ -67,6 +75,7 @@ function testConstrainedMapWithoutType() returns string {
     output = "";
 
     map<anydata> m = { a: "A", b: "B", c: "C" };
+
     int i = 0;
     foreach var (k, v) in m {
         concatIntStringAny(i, k, v);
@@ -79,6 +88,7 @@ function testConstrainedMapWithType() returns string {
     output = "";
 
     map<anydata> m = { a: "A", b: "B", c: "C" };
+
     int i = 0;
     foreach (string, anydata) (k, v) in m {
         concatIntStringAny(i, k, v);
@@ -91,6 +101,7 @@ function testConstrainedMapWithAnyType() returns string {
     output = "";
 
     map<anydata> m = { a: "A", b: "B", c: "C" };
+
     int i = 0;
     foreach (string, any) (k, v) in m {
         concatIntStringAny(i, k, v);
@@ -109,6 +120,7 @@ function testUnconstrainedMapWithTupleWithoutType() returns string {
     (int, string) t3 = (3, "C");
 
     map m = { a: t1, b: t2, c: t3 };
+
     int i = 0;
     foreach var (k, v) in m {
         concatIntStringAny(i, k, v);
@@ -126,6 +138,7 @@ function testUnconstrainedMapWithTupleWithType() returns string {
     (int, string) t3 = (3, "C");
 
     map m = { a: t1, b: t2, c: t3 };
+
     int i = 0;
     foreach (string, any) (k, v) in m {
         concatIntStringAny(i, k, v);
@@ -143,6 +156,7 @@ function testConstrainedMapWithTupleWithoutType() returns string {
     (int, string) t3 = (3, "C");
 
     map<(int, string)> m = { a: t1, b: t2, c: t3 };
+
     int i = 0;
     foreach var (k, (u, v)) in m {
         concatIntStringIntString(i, k, u, v);
@@ -160,6 +174,7 @@ function testConstrainedMapWithTupleWithType() returns string {
     (int, string) t3 = (3, "C");
 
     map<(int, string)> m = { a: t1, b: t2, c: t3 };
+
     int i = 0;
     foreach (string, (int, string)) (k, (u, v)) in m {
         concatIntStringIntString(i, k, u, v);
@@ -176,6 +191,7 @@ function testConstrainedMapWithTupleWithAnyType() returns string {
     (int, string) t3 = (3, "C");
 
     map<(int, string)> m = { a: t1, b: t2, c: t3 };
+
     int i = 0;
     foreach (string, any) (k, v) in m {
         concatIntStringAny(i, k, v);
@@ -194,6 +210,7 @@ function testUnconstrainedMapWithTupleInTupleWithoutType() returns string {
     (int, (string, float)) t3 = (3, ("C", 4.0));
 
     map m = { a: t1, b: t2, c: t3 };
+
     int i = 0;
     foreach var (k, v) in m {
         concatIntStringAny(i, k, v);
@@ -211,6 +228,7 @@ function testUnconstrainedMapWithTupleInTupleWithType() returns string {
     (int, (string, float)) t3 = (3, ("C", 4.0));
 
     map m = { a: t1, b: t2, c: t3 };
+
     int i = 0;
     foreach (string, any) (k, v) in m {
         concatIntStringAny(i, k, v);
@@ -228,6 +246,7 @@ function testConstrainedMapWithTupleInTupleWithoutType() returns string {
     (int, (string, float)) t3 = (3, ("C", 4.0));
 
     map<(int, (string, float))> m = { a: t1, b: t2, c: t3 };
+
     int i = 0;
     foreach var (k, (u, (v, w))) in m {
         concatIntStringIntStringFloat(i, k, u, v, w);
@@ -245,6 +264,7 @@ function testConstrainedMapWithTupleInTupleWithType() returns string {
     (int, (string, float)) t3 = (3, ("C", 4.0));
 
     map<(int, (string, float))> m = { a: t1, b: t2, c: t3 };
+
     int i = 0;
     foreach (string, (int, (string, float))) (k, (u, (v, w))) in m {
         concatIntStringIntStringFloat(i, k, u, v, w);
@@ -261,6 +281,117 @@ function testConstrainedMapWithTupleInTupleWithAnyType() returns string {
     (int, (string, float)) t3 = (3, ("C", 4.0));
 
     map<(int, (string, float))> m = { a: t1, b: t2, c: t3 };
+
+    int i = 0;
+    foreach (string, any) (k, v) in m {
+        concatIntStringAny(i, k, v);
+        i += 1;
+    }
+    return output;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+function testUnconstrainedMapWithRecordInTupleWithoutType() returns string {
+    output = "";
+
+    Data d1 = { i: 1, v: "A" };
+    Data d2 = { i: 2, v: "B" };
+    Data d3 = { i: 3, v: "C" };
+
+    (int, Data) t1 = (2, d1);
+    (int, Data) t2 = (3, d2);
+    (int, Data) t3 = (4, d3);
+
+    map m = { a: t1, b: t2, c: t3 };
+
+    int i = 0;
+    foreach var (k, v) in m {
+        concatIntStringAny(i, k, v);
+        i += 1;
+    }
+    return output;
+}
+
+
+function testUnconstrainedMapWithRecordInTupleWithType() returns string {
+    output = "";
+
+    Data d1 = { i: 1, v: "A" };
+    Data d2 = { i: 2, v: "B" };
+    Data d3 = { i: 3, v: "C" };
+
+    (int, Data) t1 = (2, d1);
+    (int, Data) t2 = (3, d2);
+    (int, Data) t3 = (4, d3);
+
+    map m = { a: t1, b: t2, c: t3 };
+
+    int i = 0;
+    foreach (string, any) (k, v) in m {
+        concatIntStringAny(i, k, v);
+        i += 1;
+    }
+    return output;
+}
+
+
+function testConstrainedMapWithRecordInTupleWithoutType() returns string {
+    output = "";
+
+    Data d1 = { i: 1, v: "A" };
+    Data d2 = { i: 2, v: "B" };
+    Data d3 = { i: 3, v: "C" };
+
+    (int, Data) t1 = (2, d1);
+    (int, Data) t2 = (3, d2);
+    (int, Data) t3 = (4, d3);
+
+    map<(int, Data)> m = { a: t1, b: t2, c: t3 };
+
+    int i = 0;
+    foreach var (k, (u, {i: v, v: w})) in m {
+        concatIntStringIntIntString(i, k, u, v, w);
+        i += 1;
+    }
+    return output;
+}
+
+
+function testConstrainedMapWithRecordInTupleWithType() returns string {
+    output = "";
+
+    Data d1 = { i: 1, v: "A" };
+    Data d2 = { i: 2, v: "B" };
+    Data d3 = { i: 3, v: "C" };
+
+    (int, Data) t1 = (2, d1);
+    (int, Data) t2 = (3, d2);
+    (int, Data) t3 = (4, d3);
+
+    map<(int, Data)> m = { a: t1, b: t2, c: t3 };
+
+    int i = 0;
+    foreach (string, (int, Data)) (k, (u, {i: v, v: w})) in m {
+        concatIntStringIntIntString(i, k, u, v, w);
+        i += 1;
+    }
+    return output;
+}
+
+function testConstrainedMapWithRecordInTupleWithAnyType() returns string {
+    output = "";
+
+    Data d1 = { i: 1, v: "A" };
+    Data d2 = { i: 2, v: "B" };
+    Data d3 = { i: 3, v: "C" };
+
+    (int, Data) t1 = (2, d1);
+    (int, Data) t2 = (3, d2);
+    (int, Data) t3 = (4, d3);
+
+    map<(int, Data)> m = { a: t1, b: t2, c: t3 };
+
     int i = 0;
     foreach (string, any) (k, v) in m {
         concatIntStringAny(i, k, v);
