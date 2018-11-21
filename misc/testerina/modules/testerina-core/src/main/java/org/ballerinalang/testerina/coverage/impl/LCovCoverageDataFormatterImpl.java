@@ -33,6 +33,7 @@ import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.debugger.ModuleLineNumberInfo;
 import org.ballerinalang.util.debugger.ProjectLineNumberInfoHolder;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.observability.ObservabilityUtils;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.BufferedWriter;
@@ -103,7 +104,12 @@ public class LCovCoverageDataFormatterImpl implements CoverageDataFormatter<LCov
             Map<String, Integer> fileLineCoverage = new HashMap<>();
             String[] pkgPathSlices = BLangUtils.getPkgPathSlices(entryPkgPath);
             entryPkgLineNumberInfo.getLineNumbers().keySet().forEach(key -> {
-                String fileNameWithModule = pkgPathSlices[1] + File.separator + key.split(":")[0];
+                String fileName = key.split(":")[0];
+                // skiping module init function Ips which comes with modulename:lineNo
+                if (!fileName.endsWith(".bal")) {
+                    return;
+                }
+                String fileNameWithModule = pkgPathSlices[1] + File.separator + fileName;
                 fileLineCoverage.put(fileNameWithModule,
                         fileLineCoverage.get(fileNameWithModule) == null ? 1 : fileLineCoverage.get(fileNameWithModule) + 1);
             });
@@ -126,6 +132,13 @@ public class LCovCoverageDataFormatterImpl implements CoverageDataFormatter<LCov
                     continue;
                 }
 
+                // skiping module init function Ips which comes with modulename:lineNo
+                LineNumberInfo lineNumberInfo = entryPkgLineNumberInfo
+                        .getLineNumberInfo(executedInstruction.getIp());
+                if (!lineNumberInfo.getFileName().endsWith(".bal")) {
+                    continue;
+                }
+
                 String sourceFilePath = pkgPathSlices[1] + File.separator
                         + executedInstruction.getFileName();
 
@@ -142,8 +155,6 @@ public class LCovCoverageDataFormatterImpl implements CoverageDataFormatter<LCov
                                 lCovSourceFileFound = true;
 
                                 boolean lineNumFound = false;
-                                LineNumberInfo lineNumberInfo = entryPkgLineNumberInfo
-                                        .getLineNumberInfo(executedInstruction.getIp());
                                 for (LCovDA lCovDA : lCovSourceFile.getlCovDAList()) {
                                     if (lineNumberInfo.getLineNumber() == lCovDA.getLineNumber()) {
                                         lineNumFound = true;
@@ -167,8 +178,6 @@ public class LCovCoverageDataFormatterImpl implements CoverageDataFormatter<LCov
                         }
                         if (!lCovSourceFileFound) {
 
-                            LineNumberInfo lineNumberInfo = entryPkgLineNumberInfo
-                                    .getLineNumberInfo(executedInstruction.getIp());
                             LCovDA lCovDA = new LCovDA(lineNumberInfo.getLineNumber(), 1, 0);
 
                             LCovSourceFile lCovSourceFile = new LCovSourceFile(
@@ -178,17 +187,12 @@ public class LCovCoverageDataFormatterImpl implements CoverageDataFormatter<LCov
                             lCovSourceFile.getlCovDAList().add(lCovDA);
 
                             lCovData.getlCovSourceFileList().add(lCovSourceFile);
-
                         }
 
                         break;
                     }
-
                 }
                 if (!lCovDataFound) {
-
-                    LineNumberInfo lineNumberInfo = entryPkgLineNumberInfo
-                            .getLineNumberInfo(executedInstruction.getIp());
                     LCovDA lCovDA = new LCovDA(lineNumberInfo.getLineNumber(), 1, 0);
 
                     LCovSourceFile lCovSourceFile = new LCovSourceFile(
@@ -202,13 +206,10 @@ public class LCovCoverageDataFormatterImpl implements CoverageDataFormatter<LCov
 
                     packageCoverageList.add(lCovData);
                 }
-
             }
-
         });
 
         return packageCoverageList;
-
     }
 
     // return true if the function comes from tests folder

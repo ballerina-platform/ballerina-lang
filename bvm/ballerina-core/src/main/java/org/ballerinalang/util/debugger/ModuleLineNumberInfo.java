@@ -52,12 +52,7 @@ public class ModuleLineNumberInfo {
     void populateLineNumbers(int beginIp, int endIp, LineNumberInfo lineNumberInfo) {
 
         addLineNumberInfo(beginIp, endIp, lineNumberInfo);
-        String fileName = lineNumberInfo.getFileName();
-        if (fileName.contains(File.separator)) {
-            String[] pathArray = fileName.split(File.separatorChar == '\\' ? "\\\\" : File.separator);
-            fileName = pathArray[pathArray.length - 1];
-        }
-        String fileNameAndNo = fileName + ":" + lineNumberInfo.getLineNumber();
+        String fileNameAndNo = lineNumberInfo.getFileName() + ":" + lineNumberInfo.getLineNumber();
         lineNumbers.put(fileNameAndNo, lineNumberInfo);
     }
 
