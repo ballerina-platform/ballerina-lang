@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
@@ -414,6 +415,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         BServiceSymbol serviceSymbol = Symbols.createServiceSymbol(Flags.asMask(serviceNode.flagSet),
                 names.fromIdNode(serviceNode.name), env.enclPkg.symbol.pkgID, serviceNode.type, env.scope.owner);
         serviceSymbol.markdownDocumentation = getMarkdownDocAttachment(serviceNode.markdownDocumentationAttachment);
+
+        BType serviceObjectType = symResolver.resolveTypeNode(serviceNode.serviceUDT, env);
+        serviceSymbol.objectType = (BObjectTypeSymbol) serviceObjectType.tsymbol;
+        serviceNode.serviceType = (BObjectType) serviceObjectType;
+
         serviceNode.symbol = serviceSymbol;
         serviceNode.symbol.type = new BServiceType(serviceSymbol);
         defineSymbol(serviceNode.name.pos, serviceSymbol);
@@ -1141,6 +1147,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         objectSymbol.attachedFuncs.add(attachedFunc);
 
         validateRemoteFunctionAttachedToObject(funcNode, objectSymbol);
+        validateResourceFunctionAttachedToObject(funcNode, objectSymbol);
 
         // Check whether this attached function is a object initializer.
         if (!Names.OBJECT_INIT_SUFFIX.value.equals(funcNode.name.value)) {
@@ -1163,6 +1170,17 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         if (!Symbols.isFlagOn(objectSymbol.flags, Flags.CLIENT)) {
             this.dlog.error(funcNode.pos, DiagnosticCode.REMOTE_FUNCTION_IN_NON_CLIENT_OBJECT);
+        }
+    }
+
+    private void validateResourceFunctionAttachedToObject(BLangFunction funcNode, BObjectTypeSymbol objectSymbol) {
+        if (!Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.RESOURCE)) {
+            return;
+        }
+        funcNode.symbol.flags |= Flags.RESOURCE;
+
+        if (!Symbols.isFlagOn(objectSymbol.flags, Flags.SERVICE)) {
+            this.dlog.error(funcNode.pos, DiagnosticCode.RESOURCE_FUNCTION_IN_NON_SERVICE_OBJECT);
         }
     }
 

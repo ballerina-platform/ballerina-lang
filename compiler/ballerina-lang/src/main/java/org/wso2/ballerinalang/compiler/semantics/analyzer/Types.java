@@ -43,6 +43,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BSemanticErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -261,6 +262,10 @@ public class Types {
         }
 
         if (target.tag == TypeTags.ANYDATA && isAnydata(source)) {
+            return true;
+        }
+
+        if (target.tag == TypeTags.SERVICE && source.tag == TypeTags.SERVICE) {
             return true;
         }
 
@@ -1094,6 +1099,11 @@ public class Types {
 
             return symTable.notFoundSymbol;
         }
+
+        @Override
+        public BSymbol visit(BServiceType t, BType s) {
+            return symTable.notFoundSymbol;
+        }
     };
 
     private BTypeVisitor<BType, Boolean> sameTypeVisitor = new BTypeVisitor<BType, Boolean>() {
@@ -1243,6 +1253,11 @@ public class Types {
             }
             BErrorType source = (BErrorType) s;
             return isSameType(source.reasonType, t.reasonType) && isSameType(source.detailType, t.detailType);
+        }
+
+        @Override
+        public Boolean visit(BServiceType t, BType s) {
+            return t == s;
         }
 
         @Override

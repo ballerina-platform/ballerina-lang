@@ -94,6 +94,7 @@ public enum NodeKind {
     TYPE_TEST_EXPR,
     DOCUMENTATION_DESCRIPTION,
     DOCUMENTATION_PARAMETER,
+    SERVICE_CONSTRUCTOR,
 
     /* streams/tables expressions */
     SELECT_EXPRESSION,

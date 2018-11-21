@@ -93,6 +93,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
@@ -916,6 +917,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
         analyzeNode(errorConstructorExpr.detailsExpr, env);
         analyzeNode(errorConstructorExpr.reasonExpr, env);
+    }
+
+    public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
     }
 
     @Override

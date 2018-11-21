@@ -978,10 +978,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             a.attachPoint = AttachPoint.SERVICE;
             this.analyzeDef(a, serviceEnv);
         });
-        serviceNode.nsDeclarations.forEach(xmlns -> this.analyzeDef(xmlns, serviceEnv));
-        serviceNode.vars.forEach(v -> this.analyzeDef(v, serviceEnv));
-        this.analyzeDef(serviceNode.initFunction, serviceEnv);
-        serviceNode.resources.forEach(r -> this.analyzeDef(r, serviceEnv));
+
+        if (serviceNode.isAnonymousServiceValue) {
+            return;
+        }
+        final BSymbol bSymbol = symResolver.lookupSymbol(env, Names.ABSTRACT_LISTENER, SymTag.TYPE);
+        if (bSymbol == symTable.notFoundSymbol) {
+            throw new AssertionError("Abstract Listener not defined.");
+        }
+        typeChecker.checkExpr(serviceNode.attachExpr, env, bSymbol.type);
     }
 
     private void validateConstructorAndCheckDefaultable(BLangTypeDefinition typeDef) {

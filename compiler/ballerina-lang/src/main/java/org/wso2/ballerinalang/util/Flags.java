@@ -44,6 +44,8 @@ public class Flags {
     public static final int TESTABLE = 1 << 15;
     public static final int REMOTE = 1 << 16;
     public static final int CLIENT = 1 << 17;
+    public static final int RESOURCE = 1 << 18;
+    public static final int SERVICE = 1 << 19;
 
     public static int asMask(Set<Flag> flagSet) {
         int mask = 0;
@@ -102,6 +104,12 @@ public class Flags {
                     break;
                 case CLIENT:
                     mask |= CLIENT;
+                    break;
+                case RESOURCE:
+                    mask |= RESOURCE;
+                    break;
+                case SERVICE:
+                    mask |= SERVICE;
                     break;
             }
         }
@@ -163,6 +171,12 @@ public class Flags {
                     break;
                 case CLIENT:
                     flagVal = CLIENT;
+                    break;
+                case RESOURCE:
+                    flagVal = RESOURCE;
+                    break;
+                case SERVICE:
+                    flagVal = SERVICE;
                     break;
                 default:
                     continue;

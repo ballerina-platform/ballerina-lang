@@ -207,24 +207,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterServiceDefinition(BallerinaParser.ServiceDefinitionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-        this.pkgBuilder.startServiceDef(getCurrentPos(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void exitServiceDefinition(BallerinaParser.ServiceDefinitionContext ctx) {
         if (ctx.exception != null) {
             return;
         }
-        //        boolean constrained = ctx.nameReference() != null;
-        this.pkgBuilder.endServiceDef(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
-                getCurrentPosFromIdentifier(ctx.Identifier()), false);
+        final DiagnosticPos serviceDefPos = getCurrentPos(ctx);
+        final String serviceVarName = ctx.Identifier() != null ? ctx.Identifier().getText() : null;
+        final DiagnosticPos varPos =
+                ctx.Identifier() != null ? getCurrentPosFromIdentifier(ctx.Identifier()) : serviceDefPos;
+        this.pkgBuilder.endServiceDef(serviceDefPos, getWS(ctx), serviceVarName, varPos, false);
     }
 
     /**
@@ -235,8 +226,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-
-        this.pkgBuilder.startBlock();
+        this.pkgBuilder.startServiceDef(getCurrentPos(ctx));
+        this.pkgBuilder.startObjectType();
     }
 
     /**
@@ -248,7 +239,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addServiceBody(getWS(ctx));
+        boolean isFieldAnalyseRequired = (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext
+                || ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext)
+                || ctx.parent.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
+        this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, true, false, false, true);
     }
 
     /**
@@ -432,7 +426,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean isAbstract = ((ObjectTypeNameLabelContext) ctx.parent).ABSTRACT() != null;
         boolean isClient = ((ObjectTypeNameLabelContext) ctx.parent).CLIENT() != null;
         this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous, isAbstract,
-                isClient);
+                isClient, false);
     }
 
     @Override
@@ -589,12 +583,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean publicFunc = ctx.PUBLIC() != null;
         boolean isPrivate = ctx.PRIVATE() != null;
         boolean remoteFunc = ctx.REMOTE() != null;
+        boolean resourceFunc = ctx.RESOURCE() != null;
         boolean nativeFunc = ctx.EXTERN() != null;
         boolean bodyExists = ctx.callableUnitBody() != null;
         boolean markdownDocExists = ctx.documentationString() != null;
         boolean deprecatedDocExists = ctx.deprecatedAttachment() != null;
         this.pkgBuilder.endObjectAttachedFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, isPrivate, remoteFunc,
-                nativeFunc, bodyExists, markdownDocExists, deprecatedDocExists, ctx.annotationAttachment().size());
+                resourceFunc, nativeFunc, bodyExists, markdownDocExists, deprecatedDocExists,
+                ctx.annotationAttachment().size());
     }
 
     /**
@@ -1163,6 +1159,17 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.addErrorConstructor(getCurrentPos(ctx), getWS(ctx), ctx.COMMA() != null);
+    }
+
+    @Override
+    public void exitServiceConstructorExpression(BallerinaParser.ServiceConstructorExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        final DiagnosticPos serviceDefPos = getCurrentPos(ctx);
+        final String serviceVarName = null;
+        final DiagnosticPos varPos = serviceDefPos;
+        this.pkgBuilder.endServiceDef(serviceDefPos, getWS(ctx), serviceVarName, varPos, true);
     }
 
     @Override

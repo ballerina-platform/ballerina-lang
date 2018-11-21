@@ -107,4 +107,12 @@ public enum Flag {
      * Indicates Flagged node is a client node.
      */
     CLIENT,
+    /**
+     * Indicates Flagged node is a resource node.
+     */
+    RESOURCE,
+    /**
+     * Indicates Flagged node is a service node.
+     */
+    SERVICE,
 }

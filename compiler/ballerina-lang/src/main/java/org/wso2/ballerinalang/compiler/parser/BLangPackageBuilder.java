@@ -32,14 +32,12 @@ import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.DeprecatedNode;
 import org.ballerinalang.model.tree.DocumentableNode;
-import org.ballerinalang.model.tree.DocumentationNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.InvokableNode;
 import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
-import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.VariableNode;
@@ -65,7 +63,6 @@ import org.ballerinalang.model.tree.clauses.WindowClauseNode;
 import org.ballerinalang.model.tree.clauses.WithinClause;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.MatchExpressionNode.MatchExpressionPatternNode;
-import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.TableQueryExpression;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
@@ -84,7 +81,6 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
-import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -92,7 +88,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
@@ -146,6 +141,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
@@ -279,8 +275,6 @@ public class BLangPackageBuilder {
 
     private Stack<AnnotationNode> annotationStack = new Stack<>();
 
-    private Stack<DocumentationNode> docAttachmentStack = new Stack<>();
-
     private Stack<MarkdownDocumentationNode> markdownDocumentationStack = new Stack<>();
 
     private Stack<DeprecatedNode> deprecatedAttachmentStack = new Stack<>();
@@ -294,8 +288,6 @@ public class BLangPackageBuilder {
     private Stack<ForkJoinNode> forkJoinNodesStack = new Stack<>();
 
     private Stack<ServiceNode> serviceNodeStack = new Stack<>();
-
-    private BLangEndpoint lastBuiltEndpoint;
 
     private Stack<XMLAttributeNode> xmlAttributeNodeStack = new Stack<>();
 
@@ -1649,7 +1641,7 @@ public class BLangPackageBuilder {
     }
 
     void addObjectType(DiagnosticPos pos, Set<Whitespace> ws, boolean isFieldAnalyseRequired, boolean isAnonymous,
-            boolean isAbstract, boolean isClient) {
+            boolean isAbstract, boolean isClient, boolean isService) {
         BLangObjectTypeNode objectTypeNode = populateObjectTypeNode(pos, ws, isAnonymous);
         objectTypeNode.addWS(this.objectFieldBlockWs.pop());
         objectTypeNode.isFieldAnalyseRequired = isFieldAnalyseRequired;
@@ -1660,6 +1652,10 @@ public class BLangPackageBuilder {
 
         if (isClient) {
             objectTypeNode.flagSet.add(Flag.CLIENT);
+        }
+
+        if (isService) {
+            objectTypeNode.flagSet.add(Flag.SERVICE);
         }
 
         if (!isAnonymous) {
@@ -1693,13 +1689,6 @@ public class BLangPackageBuilder {
 
     void startFieldBlockList() {
         this.objectFieldBlockWs.push(new TreeSet<>());
-    }
-
-    void addObjectFieldsBlock(Set<Whitespace> ws) {
-        Set<Whitespace> fieldObjectWhitespace = this.objectFieldBlockWs.peek();
-        if (fieldObjectWhitespace != null && ws != null) {
-            fieldObjectWhitespace.addAll(ws);
-        }
     }
 
     void endFiniteType(Set<Whitespace> ws) {
@@ -1837,8 +1826,8 @@ public class BLangPackageBuilder {
     }
 
     void endObjectAttachedFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean privateFunc,
-            boolean remoteFunc, boolean nativeFunc, boolean bodyExists, boolean markdownDocPresent,
-            boolean deprecatedDocPresent, int annCount) {
+            boolean remoteFunc, boolean resourceFunc, boolean nativeFunc, boolean bodyExists,
+            boolean markdownDocPresent, boolean deprecatedDocPresent, int annCount) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
         function.pos = pos;
         function.addWS(ws);
@@ -1853,6 +1842,9 @@ public class BLangPackageBuilder {
         }
         if (remoteFunc) {
             function.flagSet.add(Flag.REMOTE);
+        }
+        if (resourceFunc) {
+            function.flagSet.add(Flag.RESOURCE);
         }
 
         if (nativeFunc) {
@@ -2494,92 +2486,33 @@ public class BLangPackageBuilder {
         serviceNodeStack.push(serviceNode);
     }
 
-    void addServiceBody(Set<Whitespace> ws) {
-        ServiceNode serviceNode = serviceNodeStack.peek();
-        serviceNode.addWS(ws);
-        blockNodeStack.pop().getStatements().forEach(stmt -> {
-            if (stmt.getKind() == NodeKind.XMLNS) {
-                serviceNode.addNamespaceDeclaration((BLangXMLNSStatement) stmt);
-            } else {
-                serviceNode.addVariable((VariableDefinitionNode) stmt);
-            }
-        });
-    }
-
-    void addAnonymousEndpointBind(Set<Whitespace> ws) {
-        BLangService serviceNode = (BLangService) serviceNodeStack.peek();
-        serviceNode.addWS(ws);
-        serviceNode.addAnonymousEndpointBind((RecordLiteralNode) exprNodeStack.pop());
-    }
-
-    void addServiceEndpointAttachments(int size, Set<Whitespace> ws) {
-        ServiceNode serviceNode = serviceNodeStack.peek();
-        serviceNode.addWS(ws);
-        for (int i = 0; i < size; i++) {
-            BLangNameReference nameReference = nameReferenceStack.pop();
-            BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-            varRef.pos = nameReference.pos;
-            varRef.addWS(nameReference.ws);
-            varRef.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
-            varRef.variableName = (BLangIdentifier) nameReference.name;
-            serviceNode.bindToEndpoint(varRef);
-        }
-    }
-
     void endServiceDef(DiagnosticPos pos, Set<Whitespace> ws, String serviceName, DiagnosticPos identifierPos,
-                       boolean constrained) {
+            boolean isAnonServiceValue) {
         BLangService serviceNode = (BLangService) serviceNodeStack.pop();
+        serviceNode.isAnonymousServiceValue = isAnonServiceValue;
+        if (serviceName == null) {
+            serviceName = this.anonymousModelHelper.getNextAnonymousTypeKey(pos.src.pkgID);
+        }
         BLangIdentifier identifier = (BLangIdentifier) createIdentifier(serviceName);
         identifier.pos = identifierPos;
         serviceNode.setName(identifier);
-        if (constrained) {
-            final BLangNameReference epName = nameReferenceStack.pop();
-            serviceNode.setServiceTypeStruct(createUserDefinedType(pos, epName.ws, (BLangIdentifier) epName.pkgAlias,
-                    (BLangIdentifier) epName.name));
+        serviceNode.serviceUDT = (BLangUserDefinedType) this.typeNodeStack.pop();
+        if (!isAnonServiceValue) {
+            serviceNode.attachExpr = (BLangExpression) this.exprNodeStack.pop();
         }
         serviceNode.pos = pos;
         serviceNode.addWS(ws);
         this.compUnit.addTopLevelNode(serviceNode);
-    }
 
-    void startResourceDef() {
-        ResourceNode resourceNode = TreeBuilder.createResourceNode();
-        invokableNodeStack.push(resourceNode);
-    }
-
-    void endResourceDef(DiagnosticPos pos, Set<Whitespace> ws, String resourceName, boolean markdownDocPresent,
-                        boolean isDeprecated, boolean hasParameters) {
-        BLangResource resourceNode = (BLangResource) invokableNodeStack.pop();
-        resourceNode.pos = pos;
-        resourceNode.addWS(ws);
-        BLangIdentifier name = (BLangIdentifier) createIdentifier(resourceName);
-        name.pos = pos;
-        resourceNode.setName(name);
-        if (markdownDocPresent) {
-            attachMarkdownDocumentations(resourceNode);
+        if (!isAnonServiceValue) {
+            return;
         }
-        if (isDeprecated) {
-            attachDeprecatedNode(resourceNode);
-        }
-        if (hasParameters) {
-            BLangSimpleVariable firstParam = (BLangSimpleVariable) varListStack.peek().get(0);
-            varListStack.pop().forEach(variableNode -> {
-                resourceNode.addParameter((SimpleVariableNode) variableNode);
-            });
-        }
-
-        // Set the return type node
-        BLangValueType nillTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
-        nillTypeNode.pos = pos;
-        nillTypeNode.typeKind = TypeKind.NIL;
-        resourceNode.returnTypeNode = nillTypeNode;
-
-        serviceNodeStack.peek().addResource(resourceNode);
-    }
-
-    void addResourceAnnotation(int annotCount) {
-        BLangResource resourceNode = (BLangResource) invokableNodeStack.peek();
-        attachAnnotations(resourceNode, annotCount);
+        final BLangServiceConstructorExpr serviceConstNode = (BLangServiceConstructorExpr) TreeBuilder
+                .createServiceConstructorNode();
+        serviceConstNode.serviceNode = serviceNode;
+        serviceConstNode.pos = pos;
+        serviceConstNode.addWS(ws);
+        addExpressionNode(serviceConstNode);
     }
 
     void createXMLQName(DiagnosticPos pos, Set<Whitespace> ws, String localname, String prefix) {

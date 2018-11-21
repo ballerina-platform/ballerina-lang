@@ -44,6 +44,7 @@ public class Names {
     public static final Name DEFAULT_VERSION = new Name("0.0.0");
     public static final Name CONVERSION_OP = new Name("<<type>>");
     public static final Name SERVICE = new Name("service");
+    public static final Name ABSTRACT_LISTENER = new Name("AbstractListener");
     public static final Name ERROR = new Name("error");
     public static final Name INIT_FUNCTION_SUFFIX = new Name(".<init>");
     public static final Name START_FUNCTION_SUFFIX = new Name(".<start>");
