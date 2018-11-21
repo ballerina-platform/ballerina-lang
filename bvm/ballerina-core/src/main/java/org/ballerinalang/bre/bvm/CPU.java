@@ -20,7 +20,6 @@ package org.ballerinalang.bre.bvm;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.channels.ChannelManager;
 import org.ballerinalang.channels.ChannelRegistry;
-import org.ballerinalang.model.types.BAnydataType;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BAttachedFunction;
 import org.ballerinalang.model.types.BField;
