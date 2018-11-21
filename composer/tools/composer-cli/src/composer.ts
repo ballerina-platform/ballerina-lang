@@ -36,8 +36,7 @@ function run(script: string): Promise<number> {
             + path.delimiter + process.env.PATH;
         const scriptProcess = exec(script, {
             cwd: process.cwd(),
-            env,
-            shell: "bash"
+            env
         });
         scriptProcess.stdout.pipe(process.stdout);
         scriptProcess.stderr.pipe(process.stderr);
