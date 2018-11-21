@@ -64,8 +64,8 @@ public class ComplexObjectSerializationTest {
         Assert.assertEquals(origType.toString(), newType.toString());
         Assert.assertEquals(origType.sealed, origType.sealed);
         Assert.assertEquals(origType.restFieldType.toString(), newType.restFieldType.toString());
-        Assert.assertEquals(((BRecordType) origType.getFields()[2].getFieldType()).sealed,
-                ((BRecordType) newType.getFields()[2].getFieldType()).sealed);
+        Assert.assertEquals(((BRecordType) origType.getFields().get("grades").fieldType).sealed,
+                            ((BRecordType) newType.getFields().get("grades").fieldType).sealed);
     }
 
     @SuppressWarnings("unchecked")

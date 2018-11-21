@@ -21,7 +21,7 @@ public type Filter13 object {
     public function filterRequest (http:Listener listener, http:Request request, http:FilterContext context) returns boolean {
         endpoint http:Listener caller = listener;
         log:printInfo("Intercepting request for filter 1");
-        http:Response response;
+        http:Response response = new;
         response.statusCode = 401;
         response.setTextPayload("Authentication failure");
         caller->respond(response) but {error e=> log:printError("Error", err=e)};
@@ -33,7 +33,7 @@ public type Filter13 object {
     }
 };
 
-Filter13 filter13;
+Filter13 filter13 = new;
 
 endpoint http:Listener echoEP06 {
     port:9096,

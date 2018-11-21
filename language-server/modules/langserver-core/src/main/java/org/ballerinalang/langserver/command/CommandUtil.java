@@ -281,7 +281,14 @@ public class CommandUtil {
     public static BLangInvocation getFunctionNode(int line, int column, String uri,
                                                   WorkspaceDocumentManager documentManager, LSCompiler lsCompiler,
                                                   LSContext context) {
-        return (BLangInvocation) getBLangNode(line, column, uri, documentManager, lsCompiler, context).getLeft();
+        Pair<BLangNode, Object> bLangNode = getBLangNode(line, column, uri, documentManager, lsCompiler, context);
+        if (bLangNode.getLeft() instanceof BLangInvocation) {
+            return (BLangInvocation) bLangNode.getLeft();
+        } else if (bLangNode.getRight() instanceof BLangInvocation) {
+            return (BLangInvocation) bLangNode.getRight();
+        } else {
+            return null;
+        }
     }
 
     public static Pair<BLangNode, Object> getBLangNode(int line, int column, String uri,
