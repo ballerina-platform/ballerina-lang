@@ -38,13 +38,19 @@ service<http:Service> redirected bind publisherServiceEPTwo {
     one(endpoint caller, http:Request req) {
         http:Response res = new;
         websub:addWebSubLinkHeader(res, ["http://localhost:8081/hub/one"], WEBSUB_TOPIC_FIVE);
-        caller->respond(res) but { error e => log:printError("Error sending response", err = e) };
+        var err = caller->respond(res);
+        if (err is error) {
+            log:printError("Error sending response", err = err);
+        }
     }
 
     two(endpoint caller, http:Request req) {
         http:Response res = new;
         websub:addWebSubLinkHeader(res, ["http://localhost:8081/hub/two"], WEBSUB_TOPIC_SIX);
-        caller->respond(res) but { error e => log:printError("Error sending response", err = e) };
+        var err = caller->respond(res);
+        if (err is error) {
+            log:printError("Error sending response", err = err);
+        }
     }
 }
 

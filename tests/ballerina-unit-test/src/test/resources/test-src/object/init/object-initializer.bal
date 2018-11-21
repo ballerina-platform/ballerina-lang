@@ -3,9 +3,9 @@ import initializers as inp;
 
 public type person object {
 
-    public int age;
-    public string name;
-    public string address;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
 
 
     new (int a = 10, string n = "Charles") {
@@ -16,7 +16,7 @@ public type person object {
     function getAge();
 };
 
-function person::getAge() {
+function person.getAge() {
     self.age = 12;
 }
 
@@ -32,7 +32,7 @@ function testObjectInitializerInAnotherPackage() returns (int, string){
 
 type employee object {
 
-    public int age;
+    public int age = 0;
     public string name = "A";
 
 

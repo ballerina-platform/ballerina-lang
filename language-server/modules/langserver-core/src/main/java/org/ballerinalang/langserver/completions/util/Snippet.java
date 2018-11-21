@@ -64,11 +64,17 @@ public enum Snippet {
 
     KW_CHECK(SnippetGenerator.getCheckKeywordSnippet()),
 
+    KW_EXTERN(SnippetGenerator.getExternKeywordSnippet()),
+
     KW_IMPORT(SnippetGenerator.getImportKeywordSnippet()),
 
     KW_LENGTHOF(SnippetGenerator.getLengthofKeywordSnippet()),
 
     KW_PUBLIC(SnippetGenerator.getPublicKeywordSnippet()),
+
+    KW_FINAL(SnippetGenerator.getFinalKeywordSnippet()),
+
+    KW_CONST(SnippetGenerator.getConstKeywordSnippet()),
 
     KW_TYPE(SnippetGenerator.getTypeKeywordSnippet()),
 
@@ -128,7 +134,23 @@ public enum Snippet {
 
     ITR_SUM(SnippetGenerator.getIterableSumSnippet()),
 
+    // Builtin Functions' snippets
+    BUILTIN_LENGTH(SnippetGenerator.getBuiltinLengthSnippet()),
 
+    BUILTIN_CLONE(SnippetGenerator.getBuiltinIsCloneSnippet()),
+
+    BUILTIN_FREEZE(SnippetGenerator.getBuiltinFreezeSnippet()),
+
+    BUILTIN_IS_FROZEN(SnippetGenerator.getBuiltinIsFrozenSnippet()),
+
+    BUILTIN_STAMP(SnippetGenerator.getBuiltinStampSnippet()),
+
+    BUILTIN_IS_NAN(SnippetGenerator.getBuiltinIsNaNSnippet()),
+
+    BUILTIN_IS_FINITE(SnippetGenerator.getBuiltinIsFiniteSnippet()),
+
+    BUILTIN_IS_INFINITE(SnippetGenerator.getBuiltinIsInFiniteSnippet()),
+    
     // Iterable operators' lambda function parameters
     ITR_ON_MAP_PARAMS(SnippetGenerator.getIterableOnMapParamSnippet()),
 

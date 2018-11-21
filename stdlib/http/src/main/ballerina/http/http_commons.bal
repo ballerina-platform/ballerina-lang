@@ -116,8 +116,8 @@ public type HttpOperation HTTP_FORWARD|HTTP_GET|HTTP_POST|HTTP_DELETE|HTTP_OPTIO
 # + path - Path to the trust store file
 # + password - Trust store password
 public type TrustStore record {
-    string path;
-    string password;
+    string path = "";
+    string password = "";
     !...
 };
 
@@ -126,8 +126,8 @@ public type TrustStore record {
 # + path - Path to the key store file
 # + password - Key store password
 public type KeyStore record {
-    string path;
-    string password;
+    string path = "";
+    string password = "";
     !...
 };
 
@@ -136,8 +136,8 @@ public type KeyStore record {
 # + name - SSL Protocol to be used (e.g.: TLS1.2)
 # + versions - SSL/TLS protocols to be enabled (e.g.: TLSv1,TLSv1.1,TLSv1.2)
 public type Protocols record {
-    string name;
-    string[] versions;
+    string name = "";
+    string[] versions = [];
     !...
 };
 
@@ -147,9 +147,9 @@ public type Protocols record {
 # + cacheSize - Maximum size of the cache
 # + cacheValidityPeriod - The time period for which a cache entry is valid
 public type ValidateCert record {
-    boolean enable;
-    int cacheSize;
-    int cacheValidityPeriod;
+    boolean enable = false;
+    int cacheSize = 0;
+    int cacheValidityPeriod = 0;
     !...
 };
 
@@ -159,9 +159,9 @@ public type ValidateCert record {
 # + cacheSize - Maximum size of the cache
 # + cacheValidityPeriod - The time period for which a cache entry is valid
 public type ServiceOcspStapling record {
-    boolean enable;
-    int cacheSize;
-    int cacheValidityPeriod;
+    boolean enable = false;
+    int cacheSize = 0;
+    int cacheValidityPeriod = 0;
     !...
 };
 
@@ -171,12 +171,12 @@ public type ServiceOcspStapling record {
 # + contentTypes - Content types which are allowed for compression
 public type CompressionConfig record {
     Compression enable = COMPRESSION_AUTO;
-    string[] contentTypes;
+    string[] contentTypes = [];
     !...
 };
 
 type HTTPError record {
-    string message;
+    string message = "";
 };
 
 //////////////////////////////

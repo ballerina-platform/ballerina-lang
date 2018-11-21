@@ -27,6 +27,8 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.exceptions.BLangFreezeException;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * Extern function to remove element from the map.
@@ -44,7 +46,11 @@ public class Remove extends BlockingNativeCallableUnit {
 
     public void execute(Context ctx) {
         BMap<String, BValue> map = (BMap<String, BValue>) ctx.getRefArgument(0);
-        boolean isRemoved = map.remove(ctx.getStringArgument(0));
-        ctx.setReturnValues(new BBoolean(isRemoved));
+        try {
+            boolean isRemoved = map.remove(ctx.getStringArgument(0));
+            ctx.setReturnValues(new BBoolean(isRemoved));
+        } catch (BLangFreezeException e) {
+            throw new BallerinaException("Failed to remove element from map: " + e.getMessage());
+        }
     }
 }

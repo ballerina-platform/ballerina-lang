@@ -54,7 +54,7 @@ public class ArrayMutabilityTest {
     @Test(description = "Check if correct type is saved in covariant array with record type",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*message: 'Employee' cannot be cast to 'Intern'.*")
+                    ".*error: 'Employee' cannot be cast to 'Intern'.*")
     public void testInvalidCast() {
         BRunUtil.invoke(compileResult, "testInvalidCast");
     }
@@ -62,7 +62,7 @@ public class ArrayMutabilityTest {
     @Test(description = "Test mutation of record type using covariant array",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*message: incompatible types: expected 'Employee', found 'Person'.*")
+                    ".*error: incompatible types: expected 'Employee', found 'Person'.*")
     public void testAssignmentOfSuperTypeMember() {
         BRunUtil.invoke(compileResult, "testAssignmentOfSuperTypeMember");
     }
@@ -70,7 +70,7 @@ public class ArrayMutabilityTest {
     @Test(description = "Test mutation of record type by assigning invalid record type",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*message: incompatible types: expected 'Employee', found 'Student'.*")
+                    ".*error: incompatible types: expected 'Employee', found 'Student'.*")
     public void testInvalidAssignment() {
         BRunUtil.invoke(compileResult, "testInvalidAssignment");
     }
@@ -78,7 +78,7 @@ public class ArrayMutabilityTest {
     @Test(description = "Test mutation of int array by inserting nil value to int? covariant array",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*message: incompatible types: expected 'int', found 'null'.*")
+                    ".*error: incompatible types: expected 'int', found 'null'.*")
     public void testCovarianceIntOrNilArray() {
         BRunUtil.invoke(compileResult, "testCovarianceIntOrNilArray");
     }
@@ -86,7 +86,7 @@ public class ArrayMutabilityTest {
     @Test(description = "Test mutation of arrays which include structural and simple values",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*message: incompatible types: expected 'boolean\\|float', found 'Person'.*")
+                    ".*error: incompatible types: expected 'boolean\\|float', found 'Person'.*")
     public void testCovarianceBooleanOrFloatOrRecordArray() {
         BRunUtil.invoke(compileResult, "testCovarianceBooleanOrFloatOrRecordArray");
     }
@@ -94,7 +94,7 @@ public class ArrayMutabilityTest {
     @Test(description = "Test mutation of sealed arrays",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*message: array index out of range: index: 3, size: 3.*")
+                    ".*error: array index out of range: index: 3, size: 3.*")
     public void testSealedArrays() {
         BRunUtil.invoke(compileResult, "testSealedArrays");
     }
@@ -102,7 +102,7 @@ public class ArrayMutabilityTest {
     @Test(description = "Test mutation of multidimensional sealed arrays",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*message: array index out of range: index: 3, size: 3.*")
+                    ".*error: array index out of range: index: 3, size: 3.*")
     public void testMultiDimensionalSealedArrays() {
         BRunUtil.invoke(compileResult, "testMultiDimensionalSealedArrays");
     }
@@ -110,7 +110,7 @@ public class ArrayMutabilityTest {
     @Test(description = "Test mutation of openly sealed arrays",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*message: array index out of range: index: 4, size: 4.*")
+                    ".*error: array index out of range: index: 4, size: 4.*")
     public void testOpenSealedArrays() {
         BRunUtil.invoke(compileResult, "testOpenSealedArrays");
     }
@@ -118,7 +118,7 @@ public class ArrayMutabilityTest {
     @Test(description = "Test mutation of object type",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*message: incompatible types: expected 'Dog', found 'Animal'.*")
+                    ".*error: incompatible types: expected 'Dog', found 'Animal'.*")
     public void testObjectTypes() {
         BRunUtil.invoke(compileResult, "testObjectTypes");
     }
@@ -132,7 +132,7 @@ public class ArrayMutabilityTest {
     @Test(description = "Test mutation of boolean array assigned to a union",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*message: incompatible types: expected 'boolean', found 'int'.*")
+                    ".*error: incompatible types: expected 'boolean', found 'int'.*")
     public void testUnionOfArrays2() {
         BRunUtil.invoke(compileResult, "testUnionOfArrays2");
     }
@@ -140,7 +140,7 @@ public class ArrayMutabilityTest {
     @Test(description = "Test mutation of int array assigned to a json array",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*message: incompatible types: expected 'int', found 'string'.*")
+                    ".*error: incompatible types: expected 'int', found 'string'.*")
     public void testJsonArrayMutability() {
         BRunUtil.invoke(compileResult, "testJsonArrayMutability");
     }
@@ -148,7 +148,7 @@ public class ArrayMutabilityTest {
     @Test(description = "Test mutation of boolean array assigned to a json array",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*message: incompatible types: expected 'boolean', found 'string'.*")
+                    ".*error: incompatible types: expected 'boolean', found 'string'.*")
     public void testJsonArrayMutability2() {
         BRunUtil.invoke(compileResult, "testJsonArrayMutability2");
     }
@@ -156,7 +156,7 @@ public class ArrayMutabilityTest {
     @Test(description = "Test mutation of arrays through chained assignments",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*message: incompatible types: expected 'int\\|string', found 'boolean'.*")
+                    ".*error: incompatible types: expected 'int\\|string', found 'boolean'.*")
     public void testChainingAssignment() {
         BRunUtil.invoke(compileResult, "testChainingAssignment");
     }
@@ -181,7 +181,7 @@ public class ArrayMutabilityTest {
                 "incompatible types: expected 'int[3][3]', found 'int[3][]'", 55, 21);
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'Animal[]', found 'Cat[]'", 81, 28);
-        BAssertUtil.validateError(resultNegative, i++,
+        BAssertUtil.validateError(resultNegative, i,
                 "incompatible types: expected 'int[]|boolean[]', found 'int|boolean[]'", 91, 10);
     }
 }

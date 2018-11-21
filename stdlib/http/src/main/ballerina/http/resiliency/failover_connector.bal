@@ -24,8 +24,8 @@ import ballerina/io;
 # + failoverCodes - Array of HTTP response status codes for which the failover mechanism triggers
 # + interval - Failover delay interval in milliseconds
 public type FailoverConfig record {
-    int[] failoverCodes;
-    int interval;
+    int[] failoverCodes = [];
+    int interval = 0;
     !...
 };
 
@@ -37,9 +37,9 @@ public type FailoverConfig record {
 # + failoverCodesIndex - An indexed array of HTTP response status codes for which the failover mechanism triggers
 # + failoverInterval - Failover delay interval in milliseconds
 public type FailoverInferredConfig record {
-    CallerActions[] failoverClientsArray;
-    boolean[] failoverCodesIndex;
-    int failoverInterval;
+    CallerActions[] failoverClientsArray = [];
+    boolean[] failoverCodesIndex = [];
+    int failoverInterval = 0;
     !...
 };
 

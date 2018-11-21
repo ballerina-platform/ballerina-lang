@@ -89,7 +89,11 @@ service<http:Service> echo bind testEP {
         body: "persons"
     }
     body8(endpoint caller, http:Request req, Person[] persons) {
-        json jsonPayload = check <json>persons;
-        _ = caller->respond(untaint jsonPayload);
+        var jsonPayload = <json>persons;
+        if (jsonPayload is json) {
+            _ = caller->respond(untaint jsonPayload);
+        } else {
+            panic jsonPayload;
+        }
     }
 }

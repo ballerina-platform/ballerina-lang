@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 
+import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getCurrentModulePath;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.prepareCompilerContext;
 
 /**
@@ -106,7 +107,7 @@ public class LSCompiler {
     public BallerinaFile compileFile(Path filePath, CompilerPhase phase) {
         String sourceRoot = LSCompilerUtil.getSourceRoot(filePath);
         String packageName = LSCompilerUtil.getPackageNameForGivenFile(sourceRoot, filePath.toString());
-        LSDocument sourceDocument = new LSDocument(filePath.toUri().toString(), sourceRoot);
+        LSDocument sourceDocument = new LSDocument(filePath, sourceRoot);
 
         PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
         PackageID packageID;
@@ -210,13 +211,12 @@ public class LSCompiler {
                     file -> {
                         if (isBallerinaPackage(file) || isBallerinaFile(file)) {
                             Path filePath = sourceDoc.getPath();
-                            Path fileNamePath = filePath.getFileName();
-                            final String fileName = (fileNamePath != null) ? fileNamePath.toString() : "";
-                            PackageID packageID = new PackageID(fileName);
+                            String relativeFilePath = getCurrentModulePath(filePath).relativize(filePath).toString();
+                            PackageID packageID = new PackageID(relativeFilePath);
                             CompilerContext compilerContext = prepareCompilerContext(packageID, pkgRepo, sourceDoc,
-                                    preserveWS, docManager);
-                            Compiler compiler = LSCompilerUtil.getCompiler(context, fileName, compilerContext, 
-                                    errStrategy);
+                                                                                     preserveWS, docManager);
+                            Compiler compiler = LSCompilerUtil.getCompiler(context, relativeFilePath, compilerContext,
+                                                                           errStrategy);
                             BLangPackage bLangPackage = compiler.compile(file.getName());
                             packages.add(bLangPackage);
                             LSPackageCache.getInstance(compilerContext).invalidate(bLangPackage.packageID);
@@ -258,7 +258,7 @@ public class LSCompiler {
     private boolean isBallerinaFile(File file) {
         return !file.isDirectory() && file.getName().endsWith(BAL_EXTENSION);
     }
-    
+
     private PackageID generatePackageFromManifest(String pkgName, String sourceRoot) {
         Manifest manifest = LSCompilerUtil.getManifest(Paths.get(sourceRoot));
         Name orgName = manifest.getName() == null || manifest.getName().isEmpty() ?

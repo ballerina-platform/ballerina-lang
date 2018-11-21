@@ -278,6 +278,5 @@ public class ServiceTest {
         BAssertUtil.validateError(negativeResult, 3, "unreachable code", 31, 9);
         BAssertUtil.validateError(negativeResult, 4, "worker send/receive interactions are invalid; worker(s) cannot "
                 + "move onwards from the state: '{w1=a -> w2, w2=b -> w1}'", 35, 9);
-        BAssertUtil.validateError(negativeResult, 5, "return statement is not allowed inside a resource", 47, 9);
     }
 }

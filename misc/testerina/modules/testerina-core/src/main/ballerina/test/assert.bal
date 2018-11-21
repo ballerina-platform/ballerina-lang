@@ -26,9 +26,9 @@ const string arrayLengthsMismatchMessage = " (Array lengths are not the same)";
 # + cause - The error which caused the assertion error
 # + category - The assert error category
 type AssertError record {
-    string message;
-    error? cause;
-    string category;
+    string message = "";
+    error? cause = ();
+    string category = "";
 };
 
 # Creates an AssertError with custom message and category.

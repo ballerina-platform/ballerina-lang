@@ -25,13 +25,12 @@ import ballerina/time;
 # + trustStoreFilePath - Trust store file path
 # + trustStorePassword - Trust store password
 public type JWTValidatorConfig record {
-    string issuer;
-    string audience;
-    int clockSkew;
-    string certificateAlias;
-    string trustStoreFilePath;
-    string trustStorePassword;
-    !...
+    string issuer = "";
+    string audience = "";
+    int clockSkew = 0;
+    string certificateAlias = "";
+    string trustStoreFilePath = "";
+    string trustStorePassword = "";
 };
 
 # Validity given JWT token.
@@ -53,8 +52,8 @@ public function validate(string jwtToken, JWTValidatorConfig config) returns Jwt
     }
 
     string[] aud = [];
-    JwtHeader header = { alg: "" };
-    JwtPayload payload = { iss: "", sub: "", aud: aud, exp: 0 };
+    JwtHeader header = {};
+    JwtPayload payload = {};
     var decodedJwt = parseJWT(encodedJWTComponents);
     if (decodedJwt is (JwtHeader, JwtPayload)) {
         (header, payload) = decodedJwt;
@@ -84,7 +83,9 @@ public function validate(string jwtToken, JWTValidatorConfig config) returns Jwt
 function getJWTComponents(string jwtToken) returns (string[])|error {
     string[] jwtComponents = jwtToken.split("\\.");
     if (jwtComponents.length() != 3) {
-        log:printDebug("Invalid JWT token :" + jwtToken);
+        log:printDebug(function() returns string {
+            return "Invalid JWT token :" + jwtToken;
+        });
         error jwtError = error(INTERNAL_ERROR_CODE, { message : "Invalid JWT token" });
         return jwtError;
     }
@@ -129,7 +130,7 @@ function getDecodedJWTComponents(string[] encodedJWTComponents) returns ((json, 
 }
 
 function parseHeader(json jwtHeaderJson) returns (JwtHeader) {
-    JwtHeader jwtHeader = { alg: "" };
+    JwtHeader jwtHeader = {};
     map customClaims = {};
 
     string[] keys = jwtHeaderJson.getKeys();
@@ -170,14 +171,29 @@ function parsePayload(json jwtPayloadJson) returns (JwtPayload) {
         } else if (key == JTI) {
             jwtPayload.jti = jwtPayloadJson[key].toString();
         } else if (key == EXP) {
-            var value = jwtPayloadJson[key].toString();
-            jwtPayload.exp = <int>value but { error => 0 };
+            string exp = jwtPayloadJson[key].toString();
+            var value = <int>exp;
+            if (value is int) {
+                jwtPayload.exp = value;
+            } else {
+                jwtPayload.exp = 0;
+            }
         } else if (key == NBF) {
-            var value = jwtPayloadJson[key].toString();
-            jwtPayload.nbf = <int>value but { error => 0 };
+            string nbf = jwtPayloadJson[key].toString();
+            var value = <int>nbf;
+            if (value is int) {
+                jwtPayload.nbf = value;
+            } else {
+                jwtPayload.nbf = 0;
+            }
         } else if (key == IAT) {
-            var value = jwtPayloadJson[key].toString();
-            jwtPayload.iat = <int>value but { error => 0 };
+            string iat = jwtPayloadJson[key].toString();
+            var value = <int>iat;
+            if (value is int) {
+                jwtPayload.iat = value;
+            } else {
+                jwtPayload.iat = 0;
+            }
         }
         else {
             if (jwtPayloadJson[key].length() > 0) {
@@ -203,8 +219,9 @@ config) returns (boolean|error) {
                         { message : "Mandatory fields(Issuer,Subject, Expiration time or Audience) are empty in the given JSON Web Token." });
         return jwtError;
     }
-    if (!validateSignature(encodedJWTComponents, jwtHeader, config)) {
-        error jwtError = error(INTERNAL_ERROR_CODE, { message : "Invalid signature" });
+    var signatureValidationResult = validateSignature(encodedJWTComponents, jwtHeader, config);
+    if (signatureValidationResult is error) {
+        error jwtError = error(INTERNAL_ERROR_CODE, { message : signatureValidationResult.reason() });
         return jwtError;
     }
     if (!validateIssuer(jwtPayload, config)) {
@@ -220,6 +237,7 @@ config) returns (boolean|error) {
         error jwtError = error(INTERNAL_ERROR_CODE, { message : "JWT token is expired" });
         return jwtError;
     }
+    //TODO : Validate nbf field of jwtPayload availability first
     if (!validateNotBeforeTime(jwtPayload)) {
         error jwtError = error(INTERNAL_ERROR_CODE, { message : "JWT token is used before Not_Before_Time" });
         return jwtError;
@@ -242,8 +260,8 @@ function validateMandatoryFields(JwtPayload jwtPayload) returns (boolean) {
     return true;
 }
 
-function validateSignature(string[] encodedJWTComponents, JwtHeader jwtHeader, JWTValidatorConfig config) returns (
-        boolean) {
+function validateSignature(string[] encodedJWTComponents, JwtHeader jwtHeader, JWTValidatorConfig config)
+returns error? {
     string assertion = encodedJWTComponents[0] + "." + encodedJWTComponents[1];
     string signPart = encodedJWTComponents[2];
     TrustStore trustStore = {
@@ -277,7 +295,7 @@ function validateExpirationTime(JwtPayload jwtPayload, JWTValidatorConfig config
 }
 
 function validateNotBeforeTime(JwtPayload jwtPayload) returns (boolean) {
-    return time:currentTime().time > jwtPayload.nbf;
+    return time:currentTime().time > (jwtPayload["nbf"] ?: 0);
 }
 
 function convertToStringArray(json jsonData) returns (string[]) {

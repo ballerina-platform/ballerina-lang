@@ -236,6 +236,179 @@ public class Types {
         return isAssignable(source, target, new ArrayList<>());
     }
 
+    boolean isStampingAllowed(BType source, BType target) {
+        return (isAssignable(source, target) || isAssignable(target, source) ||
+                checkTypeEquivalencyForStamping(source, target) || checkTypeEquivalencyForStamping(target, source));
+    }
+
+    private boolean checkTypeEquivalencyForStamping(BType source, BType target) {
+
+        if (target.tag == TypeTags.RECORD) {
+            if (source.tag == TypeTags.RECORD) {
+                TypePair pair = new TypePair(source, target);
+                List<TypePair> unresolvedTypes = new ArrayList<>();
+                unresolvedTypes.add(pair);
+                return checkRecordEquivalencyForStamping((BRecordType) source, (BRecordType) target, unresolvedTypes);
+            } else if (source.tag == TypeTags.MAP) {
+                int mapConstraintTypeTag = ((BMapType) source).constraint.tag;
+                if (mapConstraintTypeTag != TypeTags.ANY && ((BRecordType) target).sealed) {
+                    for (BField field : ((BStructureType) target).getFields()) {
+                        if (field.getType().tag != mapConstraintTypeTag) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+        } else if (target.tag == TypeTags.JSON) {
+            if (((BJSONType) target).getConstraint().tag != TypeTags.NONE) {
+                if (source.tag == TypeTags.RECORD) {
+                    return isStampingAllowed(((BRecordType) source).restFieldType,
+                            ((BJSONType) target).getConstraint());
+                } else if (source.tag == TypeTags.JSON) {
+                    if (((BJSONType) source).getConstraint().tag != TypeTags.NONE) {
+                        return isStampingAllowed(((BJSONType) source).getConstraint(),
+                                ((BJSONType) target).getConstraint());
+                    }
+                } else if (source.tag == TypeTags.MAP) {
+                    return isStampingAllowed(((BMapType) source).getConstraint(),
+                            ((BJSONType) target).getConstraint());
+                }
+            } else if (source.tag == TypeTags.JSON || source.tag == TypeTags.RECORD || source.tag == TypeTags.MAP) {
+                return true;
+            }
+
+        } else if (target.tag == TypeTags.MAP) {
+            if (source.tag == TypeTags.MAP) {
+                return isStampingAllowed(((BMapType) source).getConstraint(), ((BMapType) target).getConstraint());
+            } else if (source.tag == TypeTags.UNION) {
+                return checkUnionEquivalencyForStamping(source, target);
+            }
+        } else if (target.tag == TypeTags.ARRAY) {
+            if (source.tag == TypeTags.JSON) {
+                return ((BJSONType) source).getConstraint().tag == TypeTags.NONE ||
+                        isStampingAllowed(((BJSONType) source).getConstraint(), ((BArrayType) target).eType);
+            } else if (source.tag == TypeTags.TUPLE) {
+                BType arrayElementType = ((BArrayType) target).eType;
+                for (BType tupleMemberType : ((BTupleType) source).getTupleTypes()) {
+                    if (!isStampingAllowed(tupleMemberType, arrayElementType)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        } else if (target.tag == TypeTags.UNION) {
+            return checkUnionEquivalencyForStamping(source, target);
+        } else if (target.tag == TypeTags.TUPLE && source.tag == TypeTags.TUPLE) {
+            return checkTupleEquivalencyForStamping(source, target);
+        }
+
+        return false;
+    }
+
+    private boolean checkRecordEquivalencyForStamping(BRecordType rhsType, BRecordType lhsType,
+                                                      List<TypePair> unresolvedTypes) {
+        // Both records should be public or private.
+        // Get the XOR of both flags(masks)
+        // If both are public, then public bit should be 0;
+        // If both are private, then public bit should be 0;
+        // The public bit is on means, one is public, and the other one is private.
+        if (Symbols.isFlagOn(lhsType.tsymbol.flags ^ rhsType.tsymbol.flags, Flags.PUBLIC)) {
+            return false;
+        }
+
+        // If both records are private, they should be in the same package.
+        if (Symbols.isPrivate(lhsType.tsymbol) && rhsType.tsymbol.pkgID != lhsType.tsymbol.pkgID) {
+            return false;
+        }
+
+        // RHS type should have at least all the fields as well attached functions of LHS type.
+        if (lhsType.fields.size() > rhsType.fields.size()) {
+            return false;
+        }
+
+        // If only one is a closed record, the records aren't equivalent
+        if (lhsType.sealed && !rhsType.sealed) {
+            return false;
+        }
+
+        return checkFieldEquivalencyForStamping(lhsType, rhsType, unresolvedTypes);
+    }
+
+    private boolean checkFieldEquivalencyForStamping(BStructureType lhsType, BStructureType rhsType,
+                                                     List<TypePair> unresolvedTypes) {
+        Map<Name, BField> rhsFields = rhsType.fields.stream().collect(
+                Collectors.toMap(BField::getName, field -> field));
+
+        for (BField lhsField : lhsType.fields) {
+            BField rhsField = rhsFields.get(lhsField.name);
+
+            if (rhsField == null || !isStampingAllowed(rhsField.type, lhsField.type)) {
+                return false;
+            }
+        }
+
+        Map<Name, BField> lhsFields = lhsType.fields.stream().collect(
+                Collectors.toMap(BField::getName, field -> field));
+        for (BField rhsField : rhsType.fields) {
+            BField lhsField = lhsFields.get(rhsField.name);
+
+            if (lhsField == null && !isStampingAllowed(rhsField.type, ((BRecordType) lhsType).restFieldType)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private boolean checkUnionEquivalencyForStamping(BType source, BType target) {
+        Set<BType> sourceTypes = new HashSet<>();
+        Set<BType> targetTypes = new HashSet<>();
+
+        if (source.tag == TypeTags.UNION) {
+            BUnionType sourceUnionType = (BUnionType) source;
+            sourceTypes.addAll(sourceUnionType.memberTypes);
+        } else {
+            sourceTypes.add(source);
+        }
+
+        if (target.tag == TypeTags.UNION) {
+            BUnionType targetUnionType = (BUnionType) target;
+            targetTypes.addAll(targetUnionType.memberTypes);
+        } else {
+            targetTypes.add(target);
+        }
+
+        boolean notAssignable = sourceTypes
+                .stream()
+                .map(s -> targetTypes
+                        .stream()
+                        .anyMatch(t -> isStampingAllowed(s, t)))
+                .anyMatch(assignable -> !assignable);
+
+        return !notAssignable;
+    }
+
+    private boolean checkTupleEquivalencyForStamping(BType source, BType target) {
+        if (source.tag != TypeTags.TUPLE || target.tag != TypeTags.TUPLE) {
+            return false;
+        }
+
+        BTupleType lhsTupleType = (BTupleType) target;
+        BTupleType rhsTupleType = (BTupleType) source;
+
+        if (lhsTupleType.tupleTypes.size() != rhsTupleType.tupleTypes.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < lhsTupleType.tupleTypes.size(); i++) {
+            if (!isStampingAllowed(rhsTupleType.tupleTypes.get(i), lhsTupleType.tupleTypes.get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private boolean isAssignable(BType source, BType target, List<TypePair> unresolvedTypes) {
         if (isSameType(source, target)) {
             return true;
@@ -505,17 +678,13 @@ public class Types {
             return false;
         }
 
-        // RHS type should have at least all the fields as well attached functions of LHS type.
-        if (lhsType.fields.size() > rhsType.fields.size()) {
-            return false;
-        }
-
-        // If only one is a closed record, the records aren't equivalent
+        // If the LHS record is closed and the RHS record is open, the records aren't equivalent
         if (lhsType.sealed && !rhsType.sealed) {
             return false;
         }
 
-        // The rest field types should match if they are open records
+        // If both are open records, the rest field type of the RHS record should be assignable to the rest field
+        // type of the LHS type.
         if ((!lhsType.sealed && !rhsType.sealed) &&
                 !isAssignable(rhsType.restFieldType, lhsType.restFieldType, unresolvedTypes)) {
             return false;
@@ -572,9 +741,6 @@ public class Types {
             case TypeTags.TABLE:
                 BTableType tableType = (BTableType) collectionType;
                 if (variableSize == 1) {
-                    if (tableType.constraint.tag == TypeTags.NONE) {
-                        return Lists.of(symTable.anyType);
-                    }
                     return Lists.of(tableType.constraint);
                 } else if (variableSize == 2) {
                     return Lists.of(symTable.intType, tableType.constraint);
@@ -1285,20 +1451,30 @@ public class Types {
         return true;
     }
 
-    private boolean checkFieldEquivalency(BStructureType lhsType, BStructureType rhsType,
-                                          List<TypePair> unresolvedTypes) {
-        Map<Name, BField> rhsFields = rhsType.fields.stream().collect(
-                Collectors.toMap(BField::getName, field -> field));
+    private boolean checkFieldEquivalency(BRecordType lhsType, BRecordType rhsType, List<TypePair> unresolvedTypes) {
+        Map<Name, BField> rhsFields = rhsType.fields.stream().collect(Collectors.toMap(BField::getName, f -> f));
 
+        // Check if the RHS record has corresponding fields to those of the LHS record.
         for (BField lhsField : lhsType.fields) {
             BField rhsField = rhsFields.get(lhsField.name);
 
-            if (rhsField == null || !isAssignable(rhsField.type, lhsField.type, unresolvedTypes)) {
+            // If the LHS field is a required one, there has to be a corresponding required field in the RHS record.
+            if (!Symbols.isOptional(lhsField.symbol) && (rhsField == null || Symbols.isOptional(rhsField.symbol))) {
                 return false;
             }
+
+            // If there is a corresponding RHS field, it should be assignable to the LHS field.
+            if (rhsField != null && !isAssignable(rhsField.type, lhsField.type, unresolvedTypes)) {
+                return false;
+            }
+
+            rhsFields.remove(lhsField.name);
         }
 
-        return true;
+        // If there are any remaining RHS fields, the types of those should be assignable to the rest field type of
+        // the LHS record.
+        return rhsFields.entrySet().stream().allMatch(
+                fieldEntry -> isAssignable(fieldEntry.getValue().type, lhsType.restFieldType, unresolvedTypes));
     }
 
     private boolean checkPublicObjectEquivalency(BStructureType lhsType, BStructureType rhsType,

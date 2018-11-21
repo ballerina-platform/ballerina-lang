@@ -30,7 +30,6 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.TransactionStatus;
 import org.wso2.ballerinalang.compiler.PackageCache;
-import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
@@ -94,6 +93,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangAct
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangAttachedFunctionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangBuiltInMethodInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -1257,13 +1257,30 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangBuiltInMethodInvocation iExpr) {
         genNode(iExpr.expr, this.env);
         RegIndex regIndex = calcAndGetExprRegIndex(iExpr);
-        if (iExpr.builtInMethod == BLangBuiltInMethod.REASON) {
-            emit(InstructionCodes.REASON, iExpr.expr.regIndex, regIndex);
-        } else if (iExpr.builtInMethod == BLangBuiltInMethod.DETAIL) {
-            emit(InstructionCodes.DETAIL, iExpr.expr.regIndex, regIndex);
-        } else if (iExpr.builtInMethod == BLangBuiltInMethod.LENGTH) {
-            Operand typeCPIndex = getTypeCPIndex(iExpr.expr.type);
-            emit(InstructionCodes.LENGTHOF, iExpr.expr.regIndex, typeCPIndex, regIndex);
+        switch (iExpr.builtInMethod) {
+            case REASON:
+                emit(InstructionCodes.REASON, iExpr.expr.regIndex, regIndex);
+                break;
+            case DETAIL:
+                emit(InstructionCodes.DETAIL, iExpr.expr.regIndex, regIndex);
+                break;
+            case LENGTH:
+                Operand typeCPIndex = getTypeCPIndex(iExpr.expr.type);
+                emit(InstructionCodes.LENGTHOF, iExpr.expr.regIndex, typeCPIndex, regIndex);
+                break;
+            case FREEZE:
+                emit(InstructionCodes.FREEZE, iExpr.expr.regIndex, regIndex);
+                break;
+            case IS_FROZEN:
+                emit(InstructionCodes.IS_FROZEN, iExpr.expr.regIndex, regIndex);
+                break;
+            case CLONE:
+                emit(InstructionCodes.CLONE, iExpr.expr.regIndex, regIndex);
+                break;
+            case STAMP:
+                genNode(iExpr.requiredArgs.get(0), this.env);
+                emit(InstructionCodes.STAMP, iExpr.requiredArgs.get(0).regIndex, getTypeCPIndex(iExpr.type), regIndex);
+                break;
         }
     }
 
@@ -3370,6 +3387,14 @@ public class CodeGenerator extends BLangNodeVisitor {
         Operand typeCPIndex = getTypeCPIndex(typeTestExpr.typeNode.type);
         emit(InstructionCodes.TYPE_TEST, typeTestExpr.expr.regIndex, typeCPIndex,
                 calcAndGetExprRegIndex(typeTestExpr));
+    }
+
+    @Override
+    public void visit(BLangIsLikeExpr isLikeExpr) {
+        genNode(isLikeExpr.expr, env);
+        Operand typeCPIndex = getTypeCPIndex(isLikeExpr.typeNode.type);
+        emit(InstructionCodes.IS_LIKE, isLikeExpr.expr.regIndex, typeCPIndex,
+                calcAndGetExprRegIndex(isLikeExpr));
     }
 
     // private helper methods of visitors.

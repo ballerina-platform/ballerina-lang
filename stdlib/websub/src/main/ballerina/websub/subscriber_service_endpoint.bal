@@ -179,10 +179,10 @@ function Listener.sendSubscriptionRequests() {
 # + httpServiceSecureSocket - The SSL configurations for the service endpoint
 # + extensionConfig - The extension configuration to introduce custom subscriber services (webhooks)
 public type SubscriberServiceEndpointConfiguration record {
-    string host;
-    int port;
-    http:ServiceSecureSocket? httpServiceSecureSocket;
-    ExtensionConfig? extensionConfig;
+    string host = "";
+    int port = 0;
+    http:ServiceSecureSocket? httpServiceSecureSocket = ();
+    ExtensionConfig? extensionConfig = ();
     !...
 };
 
@@ -198,14 +198,14 @@ public type ExtensionConfig record {
 
     // TODO: make `Link` the default header and special case `Link` to extract the topic (rel="self").
     // <link href="<HUB_URL>"; rel="hub", href="<TOPIC_URL>"; rel="self"/>
-    string? topicHeader;
+    string? topicHeader = ();
 
     // e.g.,
     //  headerResourceMap = {
     //    "watch" : ("onWatch", WatchEvent),
     //    "create" : ("onCreate", CreateEvent)
     //  };
-    map<(string, typedesc)>? headerResourceMap;
+    map<(string, typedesc)>? headerResourceMap = ();
 
     // e.g.,
     //  payloadKeyResourceMap = {
@@ -214,7 +214,7 @@ public type ExtensionConfig record {
     //        "branch.deleted":  ("onBranchDelete", BranchDeletedEvent)
     //    }
     //  };
-    map<map<(string, typedesc)>>? payloadKeyResourceMap;
+    map<map<(string, typedesc)>>? payloadKeyResourceMap = ();
 
     // e.g.,
     //  headerAndPayloadKeyResourceMap = {
@@ -226,7 +226,7 @@ public type ExtensionConfig record {
     //        }
     //    }
     //  };
-    map<map<map<(string, typedesc)>>>? headerAndPayloadKeyResourceMap;
+    map<map<map<(string, typedesc)>>>? headerAndPayloadKeyResourceMap = ();
     !...
 };
 

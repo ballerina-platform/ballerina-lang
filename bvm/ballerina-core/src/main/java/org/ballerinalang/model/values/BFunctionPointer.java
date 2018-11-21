@@ -80,7 +80,12 @@ public class BFunctionPointer implements BRefType<FunctionInfo> {
     }
 
     @Override
-    public BValue copy() {
+    public void stamp(BType type) {
+
+    }
+
+    @Override
+    public BValue copy(Map<BValue, BValue> refs) {
         return new BFunctionPointer(functionInfo);
     }
 }

@@ -224,7 +224,7 @@ typeName
     ;
 
 recordFieldDefinitionList
-    :   fieldDefinition* recordRestFieldDefinition?
+    :   (fieldDefinition | typeReference)* recordRestFieldDefinition?
     ;
 
 // Temporary production rule name
@@ -423,8 +423,8 @@ matchStatement
 matchPatternClause
     :   typeName EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
     |   typeName Identifier EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
-    |   simpleLiteral EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
-    |   VAR bindingPattern EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
+    |   expression EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
+    |   VAR bindingPattern (IF expression)? EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
     ;
 
 bindingPattern
@@ -604,6 +604,7 @@ variableReference
     |   variableReference field                                                 # fieldVariableReference
     |   variableReference xmlAttrib                                             # xmlAttribVariableReference
     |   variableReference invocation                                            # invocationReference
+    |   typeDescExpr invocation                                                 # typeDescExprInvocationReference
     ;
 
 field
@@ -735,7 +736,11 @@ expression
     |   trapExpr                                                            # trapExpression
     |	expression matchExpression										    # matchExprExpression
     |   expression ELVIS expression                                         # elvisExpression
-    |   typeName                                                            # typeAccessExpression
+    |   typeDescExpr                                                        # typeAccessExpression
+    ;
+
+typeDescExpr
+    : typeName
     ;
 
 typeInitExpr

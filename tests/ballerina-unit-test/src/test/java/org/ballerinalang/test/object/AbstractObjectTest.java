@@ -31,6 +31,7 @@ import org.testng.annotations.Test;
 public class AbstractObjectTest {
 
     CompileResult anonAbstractObjects = BCompileUtil.compile("test-src/object/abstract_anon_object.bal");
+    CompileResult abstractObjects = BCompileUtil.compile("test-src/object/abstract_object.bal");
 
     @Test
     public void testAbstractObjectNegative() {
@@ -61,9 +62,7 @@ public class AbstractObjectTest {
         BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object '$anonType$2'", 4, 77);
         BAssertUtil.validateError(compileResult, index++,
                 "abstract object '$anonType$3' cannot have a constructor method", 7, 58);
-        BAssertUtil.validateError(compileResult, index++, "variable 'p4' is not initialized", 7, 5);
-        BAssertUtil.validateError(compileResult, index++, "variable 'p5' is not initialized", 8, 5);
-        BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object '$anonType$5'", 9, 81);
+        BAssertUtil.validateError(compileResult, index, "cannot initialize abstract object '$anonType$5'", 9, 81);
     }
 
     @Test
@@ -85,5 +84,11 @@ public class AbstractObjectTest {
         BValue[] result = BRunUtil.invoke(anonAbstractObjects, "testAbstractAnonObjectInVarDef");
         Assert.assertEquals(result[0].stringValue(), "Person Name");
         Assert.assertEquals(result[1].stringValue(), "Employee Name");
+    }
+
+    @Test(description = "Test abstract object as an object field")
+    public void testAbstractObjectInObject() {
+        BValue[] result = BRunUtil.invoke(abstractObjects, "testAbstractObjectInObject");
+        Assert.assertEquals(result[0].stringValue(), "{city:\"Colombo\", address:{city:\"Colombo\"}}");
     }
 }

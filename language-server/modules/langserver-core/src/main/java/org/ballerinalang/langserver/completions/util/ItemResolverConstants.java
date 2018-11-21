@@ -67,6 +67,7 @@ public class ItemResolverConstants {
     // Symbol Types Constants
     public static final String ANNOTATION_TYPE = "Annotation";
     public static final String PACKAGE_TYPE = "Package";
+    public static final String CONSTANT_TYPE = "Constant";
     public static final String FUNCTION_TYPE = "Function";
     public static final String RESOURCE_TYPE = "Resource";
     public static final String KEYWORD_TYPE = "Keyword";
@@ -85,9 +86,12 @@ public class ItemResolverConstants {
     // Keyword constants
     public static final String VAR_KEYWORD = "var";
     public static final String CHECK_KEYWORD = "check";
+    public static final String EXTERN_KEYWORD = "extern";
     public static final String TRUE_KEYWORD = "true";
     public static final String FALSE_KEYWORD = "false";
     public static final String PUBLIC_KEYWORD = "public";
+    public static final String FINAL_KEYWORD = "final";
+    public static final String CONST_KEYWORD = "const";
     
     // Iterable operators completion item labels
     public static final String ITR_FOREACH_LABEL = "foreach(<@lambda:function>)";
@@ -99,4 +103,13 @@ public class ItemResolverConstants {
     public static final String ITR_AVERAGE_LABEL = "average()";
     public static final String ITR_SUM_LABEL = "sum()";
 
+    // Builtin Functions completion item labels
+    public static final String BUILTIN_LENGTH_LABEL = "length()";
+    public static final String BUILTIN_IS_NAN_LABEL = "isNaN()";
+    public static final String BUILTIN_IS_FINITE_LABEL = "isFinite()";
+    public static final String BUILTIN_IS_INFINITE_LABEL = "isInfinite()";
+    public static final String BUILTIN_CLONE_LABEL = "clone()";
+    public static final String BUILTIN_FREEZE_LABEL = "freeze()";
+    public static final String BUILTIN_IS_FROZEN_LABEL = "isFrozen()";
+    public static final String BUILTIN_STAMP_LABEL = "stamp(anydata a)";
 }

@@ -1,10 +1,10 @@
 type Department record {
-    string dptName;
-    boolean y;
+    string dptName = "";
+    boolean y = false;
 };
 
 type person record {
-    string a;
+    string a = "";
 };
 
 function testInvalidFieldNameInit () {

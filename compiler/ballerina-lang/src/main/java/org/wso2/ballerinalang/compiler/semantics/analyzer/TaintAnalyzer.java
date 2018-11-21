@@ -23,6 +23,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -176,7 +177,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
@@ -611,7 +611,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         overridingAnalysis = false;
 
         // Copy the taint information from the original symbol to the newly created type guarded symbol
-        ifNode.typeGuards.forEach((originalSymbol, guardedSymbol) -> guardedSymbol.tainted = originalSymbol.tainted);
+        ifNode.ifTypeGuards.forEach((originalSymbol, guardedSymbol) -> guardedSymbol.tainted = originalSymbol.tainted);
+        ifNode.elseTypeGuards
+                .forEach((originalSymbol, guardedSymbol) -> guardedSymbol.tainted = originalSymbol.tainted);
 
         ifNode.body.accept(this);
         if (ifNode.elseStmt != null) {
@@ -631,15 +633,20 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchStmtTypedBindingPatternClause clause) {
+    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause clause) {
         TaintedStatus observedTaintedStatusOfMatchExpr = this.taintedStatus;
         setTaintedStatus(clause.variable.symbol, observedTaintedStatusOfMatchExpr);
         clause.body.accept(this);
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchStmtStaticBindingPatternClause clause) {
+    public void visit(BLangMatch.BLangMatchStaticBindingPatternClause clause) {
         clause.body.accept(this);
+    }
+
+    @Override
+    public void visit(BLangMatch.BLangMatchStructuredBindingPatternClause clause) {
+        /*ignore*/
     }
 
     @Override
@@ -959,8 +966,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             }
             this.taintedStatus = exprTaintedStatus;
         } else if (invocationExpr.builtinMethodInvocation) {
-            // TODO: Fix this properly.
-            taintedStatus = TaintedStatus.UNTAINTED;
+            analyzeBuiltInMethodInvocation(invocationExpr);
         } else {
             BInvokableSymbol invokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
             if (invokableSymbol.taintTable == null) {
@@ -982,6 +988,30 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             } else {
                 analyzeInvocation(invocationExpr);
             }
+        }
+    }
+
+    private void analyzeBuiltInMethodInvocation(BLangInvocation invocationExpr) {
+        BLangBuiltInMethod builtInMethod = invocationExpr.builtInMethod;
+        switch (builtInMethod) {
+            case IS_NAN:
+            case IS_INFINITE:
+            case IS_FINITE:
+            case LENGTH:
+                this.taintedStatus = TaintedStatus.UNTAINTED;
+                break;
+            case FREEZE:
+            case CLONE:
+                invocationExpr.expr.accept(this);
+                break;
+            case REASON:
+            case DETAIL:
+            case STACKTRACE:
+                //TODO:write proper taint analysis
+                this.taintedStatus = TaintedStatus.UNTAINTED;
+                break;
+            default:
+                throw new AssertionError("Taint checking failed for built-in method: " + builtInMethod);
         }
     }
 

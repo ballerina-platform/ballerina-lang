@@ -16,41 +16,41 @@
 
 // Super Type
 type Person record {
-    string name;
+    string name = "";
     !...
 };
 
 // Assignable to Person type
 type Employee record {
-    string name;
-    boolean intern;
+    string name = "";
+    boolean intern = false;
     !...
 };
 
 // Assignable to Employee type and Person Type
 type Intern record {
-    string name;
-    boolean intern;
-    int salary;
+    string name = "";
+    boolean intern = false;
+    int salary = 0;
     !...
 };
 
 // Assignable to Person type
 type Student record {
-    string name;
-    int studentId;
+    string name = "";
+    int studentId = 0;
     !...
 };
 
-Person[] personArray;
-Employee[] employeeArray;
+Person[] personArray = [];
+Employee[] employeeArray = [];
 
 Person person1 = { name: "John" };
 Employee employee1 = { name: "John", intern: true };
 Intern intern1 = { name: "John", intern: true, salary: 100 };
 Student student1 = { name: "John", studentId: 1 };
 
-function testValidArrayAssignment() returns (boolean, int) {
+function testValidArrayAssignment() returns (boolean, int)|error {
     personArray = employeeArray;
     personArray[0] = employee1;
     personArray[1] = intern1;
@@ -60,11 +60,15 @@ function testValidArrayAssignment() returns (boolean, int) {
     return (e.intern, i.salary);
 }
 
-function testInvalidCast()  {
+function testInvalidCast() returns error? {
     personArray = employeeArray;
     personArray[0] = employee1;
 
-    Intern e = check <Intern> personArray[0]; // Runtime Exception
+    var e = trap <Intern> personArray[0]; // Runtime Exception
+    if e is error {
+        panic e;
+    }
+    return ();
 }
 
 function testAssignmentOfSuperTypeMember() {
@@ -92,13 +96,13 @@ function testCovarianceBooleanOrFloatOrRecordArray() {
 }
 
 function testSealedArrays() {
-    int[3] x;
+    int[3] x = [0, 0, 0];
     int[] y = x;
     y[3] = 12; // Runtime Exception
 }
 
 function testMultiDimensionalSealedArrays() {
-    int[3][3] x;
+    int[3][3] x = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
     int[3][] y = x;
     y[0][0] = 10;
     y[0][3] = 12; // Runtime Exception
@@ -111,23 +115,23 @@ function testOpenSealedArrays() {
 }
 
 type Animal object {
-    public string name;
+    public string name = "";
 
     public function getName() returns string {
-        return name;
+        return self.name;
     }
 };
 
 type Dog object { // Assignable to Animal Object
-    public string name;
-    public int age;
+    public string name = "";
+    public int age = 0;
 
     public function getName() returns string {
-        return name;
+        return self.name;
     }
 
     public function getNameAndAge() returns (string, int) {
-        return (name, age);
+        return (self.name, self.age);
     }
 };
 
@@ -176,7 +180,7 @@ function testJsonArrayMutability2() {
 }
 
 function testChainingAssignment() {
-    (int|string)[] first;
+    (int|string)[] first = [];
     (int|string?)[] second = first;
     (int|string|boolean?)[] thrid = second;
     (int|string|boolean|Person?)[] fourth = thrid;

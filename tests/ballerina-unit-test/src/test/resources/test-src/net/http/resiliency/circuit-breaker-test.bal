@@ -48,24 +48,28 @@ function testTypicalScenario() returns (http:Response[], error[]) {
     http:Response[] responses = [];
     error[] errs = [];
     int counter = 0;
-    http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>backendClientEP.getCallerActions();
-    MockClient mockClient = new;
-    cbClient.httpClient = <http:CallerActions> mockClient;
+    var cbClient = <http:CircuitBreakerClient>backendClientEP.getCallerActions();
 
-    while (counter < 8) {
-        http:Request request = new;
-        request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_TYPICAL);
-        var serviceResponse = cbClient.get("/hello", message = request);
-        if (serviceResponse is http:Response) {
-            responses[counter] = serviceResponse;
-        } else if (serviceResponse is error) {
-            errs[counter] = serviceResponse;
+    if (cbClient is http:CircuitBreakerClient) {
+        MockClient mockClient = new;
+        cbClient.httpClient = <http:CallerActions> mockClient;
+        while (counter < 8) {
+            http:Request request = new;
+            request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_TYPICAL);
+            var serviceResponse = cbClient.get("/hello", message = request);
+            if (serviceResponse is http:Response) {
+                responses[counter] = serviceResponse;
+            } else if (serviceResponse is error) {
+                errs[counter] = serviceResponse;
+            }
+            counter = counter + 1;
+            // To ensure the reset timeout period expires
+            if (counter == 5) {
+                runtime:sleep(5000);
+            }
         }
-        counter = counter + 1;
-        // To ensure the reset timeout period expires
-        if (counter == 5) {
-            runtime:sleep(5000);
-        }
+    } else {
+        panic cbClient;
     }
     return (responses, errs);
 }
@@ -89,24 +93,28 @@ function testTrialRunFailure() returns (http:Response[], error[]) {
     http:Response[] responses = [];
     error[] errs = [];
     int counter = 0;
-    http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>backendClientEP.getCallerActions();
-    MockClient mockClient = new;
-    cbClient.httpClient = <http:CallerActions> mockClient;
+    var cbClient = <http:CircuitBreakerClient>backendClientEP.getCallerActions();
 
-    while (counter < 8) {
-        http:Request request = new;
-        request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_TRIAL_RUN_FAILURE);
-        var serviceResponse = cbClient.get("/hello", message = request);
-        if (serviceResponse is http:Response) {
-            responses[counter] = serviceResponse;
-        } else if (serviceResponse is error) {
-            errs[counter] = serviceResponse;
+    if (cbClient is http:CircuitBreakerClient) {
+        MockClient mockClient = new;
+        cbClient.httpClient = <http:CallerActions> mockClient;
+        while (counter < 8) {
+            http:Request request = new;
+            request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_TRIAL_RUN_FAILURE);
+            var serviceResponse = cbClient.get("/hello", message = request);
+            if (serviceResponse is http:Response) {
+                responses[counter] = serviceResponse;
+            } else if (serviceResponse is error) {
+                errs[counter] = serviceResponse;
+            }
+            counter = counter + 1;
+            // To ensure the reset timeout period expires
+            if (counter == 5) {
+                runtime:sleep(5000);
+            }
         }
-        counter = counter + 1;
-        // To ensure the reset timeout period expires
-        if (counter == 5) {
-            runtime:sleep(5000);
-        }
+    } else {
+        panic cbClient;
     }
     return (responses, errs);
 }
@@ -130,20 +138,24 @@ function testHttpStatusCodeFailure() returns (http:Response[], error[]) {
     http:Response[] responses = [];
     error[] errs = [];
     int counter = 0;
-    http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>backendClientEP.getCallerActions();
-    MockClient mockClient = new;
-    cbClient.httpClient = <http:CallerActions> mockClient;
+    var cbClient = <http:CircuitBreakerClient>backendClientEP.getCallerActions();
 
-    while (counter < 8) {
-        http:Request request = new;
-        request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_HTTP_SC_FAILURE);
-        var serviceResponse = cbClient.get("/hello", message = request);
-        if (serviceResponse is http:Response) {
-            responses[counter] = serviceResponse;
-        } else if (serviceResponse is error) {
-            errs[counter] = serviceResponse;
+    if (cbClient is http:CircuitBreakerClient) {
+        MockClient mockClient = new;
+        cbClient.httpClient = <http:CallerActions> mockClient;
+        while (counter < 8) {
+            http:Request request = new;
+            request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_HTTP_SC_FAILURE);
+            var serviceResponse = cbClient.get("/hello", message = request);
+            if (serviceResponse is http:Response) {
+                responses[counter] = serviceResponse;
+            } else if (serviceResponse is error) {
+                errs[counter] = serviceResponse;
+            }
+            counter = counter + 1;
         }
-        counter = counter + 1;
+    } else {
+        panic cbClient;
     }
     return (responses, errs);
 }
@@ -167,23 +179,27 @@ function testForceOpenScenario() returns (http:Response[], error[]) {
     http:Response[] responses = [];
     error[] errs = [];
     int counter = 0;
-    http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>backendClientEP.getCallerActions();
-    MockClient mockClient = new;
-    cbClient.httpClient = <http:CallerActions> mockClient;
+    var cbClient = <http:CircuitBreakerClient>backendClientEP.getCallerActions();
 
-    while (counter < 8) {
-        http:Request request = new;
-        request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_CB_FORCE_OPEN);
-        if (counter > 3) {
-            cbClient.forceOpen();
+    if (cbClient is http:CircuitBreakerClient) {
+        MockClient mockClient = new;
+        cbClient.httpClient = <http:CallerActions> mockClient;
+        while (counter < 8) {
+            http:Request request = new;
+            request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_CB_FORCE_OPEN);
+            if (counter > 3) {
+                cbClient.forceOpen();
+            }
+            var serviceResponse = cbClient.get("/hello", message = request);
+            if (serviceResponse is http:Response) {
+                responses[counter] = serviceResponse;
+            } else if (serviceResponse is error) {
+                errs[counter] = serviceResponse;
+            }
+            counter = counter + 1;
         }
-        var serviceResponse = cbClient.get("/hello", message = request);
-        if (serviceResponse is http:Response) {
-            responses[counter] = serviceResponse;
-        } else if (serviceResponse is error) {
-            errs[counter] = serviceResponse;
-        }
-        counter = counter + 1;
+    } else {
+        panic cbClient;
     }
     return (responses, errs);
 }
@@ -207,23 +223,27 @@ function testForceCloseScenario() returns (http:Response[], error[]) {
     http:Response[] responses = [];
     error[] errs = [];
     int counter = 0;
-    http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>backendClientEP.getCallerActions();
-    MockClient mockClient = new;
-    cbClient.httpClient = <http:CallerActions> mockClient;
+    var cbClient = <http:CircuitBreakerClient>backendClientEP.getCallerActions();
 
-    while (counter < 8) {
-        http:Request request = new;
-        request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_CB_FORCE_CLOSE);
-        if (counter > 2) {
-            cbClient.forceClose();
+    if (cbClient is http:CircuitBreakerClient) {
+        MockClient mockClient = new;
+        cbClient.httpClient = <http:CallerActions> mockClient;
+        while (counter < 8) {
+            http:Request request = new;
+            request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_CB_FORCE_CLOSE);
+            if (counter > 2) {
+                cbClient.forceClose();
+            }
+            var serviceResponse = cbClient.get("/hello", message = request);
+            if (serviceResponse is http:Response) {
+                responses[counter] = serviceResponse;
+            } else if (serviceResponse is error) {
+                errs[counter] = serviceResponse;
+            }
+            counter = counter + 1;
         }
-        var serviceResponse = cbClient.get("/hello", message = request);
-        if (serviceResponse is http:Response) {
-            responses[counter] = serviceResponse;
-        } else if (serviceResponse is error) {
-            errs[counter] = serviceResponse;
-        }
-        counter = counter + 1;
+    } else {
+        panic cbClient;
     }
     return (responses, errs);
 }
@@ -247,20 +267,24 @@ function testRequestVolumeThresholdSuccessResponseScenario() returns (http:Respo
     http:Response[] responses = [];
     error[] errs = [];
     int counter = 0;
-    http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>backendClientEP.getCallerActions();
-    MockClient mockClient = new;
-    cbClient.httpClient = <http:CallerActions> mockClient;
+    var cbClient = <http:CircuitBreakerClient>backendClientEP.getCallerActions();
 
-    while (counter < 6) {
-        http:Request request = new;
-        request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_REQUEST_VOLUME_THRESHOLD_SUCCESS);
-        var serviceResponse = cbClient.get("/hello", message = request);
-        if (serviceResponse is http:Response) {
-            responses[counter] = serviceResponse;
-        } else if (serviceResponse is error) {
-            errs[counter] = serviceResponse;
+    if (cbClient is http:CircuitBreakerClient) {
+        MockClient mockClient = new;
+        cbClient.httpClient = <http:CallerActions> mockClient;
+        while (counter < 6) {
+            http:Request request = new;
+            request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_REQUEST_VOLUME_THRESHOLD_SUCCESS);
+            var serviceResponse = cbClient.get("/hello", message = request);
+            if (serviceResponse is http:Response) {
+                responses[counter] = serviceResponse;
+            } else if (serviceResponse is error) {
+                errs[counter] = serviceResponse;
+            }
+            counter = counter + 1;
         }
-        counter = counter + 1;
+    } else {
+        panic cbClient;
     }
     return (responses, errs);
 }
@@ -284,20 +308,24 @@ function testRequestVolumeThresholdFailureResponseScenario() returns (http:Respo
     http:Response[] responses = [];
     error[] errs = [];
     int counter = 0;
-    http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>backendClientEP.getCallerActions();
-    MockClient mockClient = new;
-    cbClient.httpClient = <http:CallerActions> mockClient;
+    var cbClient = <http:CircuitBreakerClient>backendClientEP.getCallerActions();
 
-    while (counter < 6) {
-        http:Request request = new;
-        request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_REQUEST_VOLUME_THRESHOLD_FAILURE);
-        var serviceResponse = cbClient.get("/hello", message = request);
-        if (serviceResponse is http:Response) {
-            responses[counter] = serviceResponse;
-        } else if (serviceResponse is error) {
-            errs[counter] = serviceResponse;
+    if (cbClient is http:CircuitBreakerClient) {
+        MockClient mockClient = new;
+        cbClient.httpClient = <http:CallerActions> mockClient;
+        while (counter < 6) {
+            http:Request request = new;
+            request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_REQUEST_VOLUME_THRESHOLD_FAILURE);
+            var serviceResponse = cbClient.get("/hello", message = request);
+            if (serviceResponse is http:Response) {
+                responses[counter] = serviceResponse;
+            } else if (serviceResponse is error) {
+                errs[counter] = serviceResponse;
+            }
+            counter = counter + 1;
         }
-        counter = counter + 1;
+    } else {
+        panic cbClient;
     }
     return (responses, errs);
 }
@@ -305,8 +333,8 @@ function testRequestVolumeThresholdFailureResponseScenario() returns (http:Respo
 int actualRequestNumber = 0;
 
 public type MockClient object {
-    public string serviceUri;
-    public http:ClientEndpointConfig config;
+    public string serviceUri = "";
+    public http:ClientEndpointConfig config = {};
 
     public function post(string path, http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message) returns http:Response|error {
@@ -566,12 +594,16 @@ service<http:Service> circuitBreakerService bind mockEP {
         path: "/getState"
     }
     getState(endpoint caller, http:Request req) {
-        http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>clientEP.getCallerActions();
-        http:CircuitState currentState = cbClient.getCurrentState();
-        http:Response res = new;
-        if (currentState == http:CB_CLOSED_STATE) {
-            res.setPayload("Circuit Breaker is in CLOSED state");
-            _ = caller->respond(res);
+        var cbClient = <http:CircuitBreakerClient>clientEP.getCallerActions();
+        if (cbClient is http:CircuitBreakerClient) {
+            http:CircuitState currentState = cbClient.getCurrentState();
+            http:Response res = new;
+            if (currentState == http:CB_CLOSED_STATE) {
+                res.setPayload("Circuit Breaker is in CLOSED state");
+                _ = caller->respond(res);
+            }
+        } else if (cbClient is error) {
+            panic cbClient;
         }
     }
 }

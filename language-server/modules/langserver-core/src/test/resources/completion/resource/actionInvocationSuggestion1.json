@@ -9,22 +9,52 @@
       "label":"continue()(error?)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Sends a `100-continue` response to the caller.\n",
       "sortText":"121",
       "insertText":"continue()",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"redirect(http:Response response, http:RedirectCode code, string[] locations)(error?)",
+      "label":"redirect(http:Response response, 300|301|302|303|304|305|307|308 code, string[] locations)(error?)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Sends a redirect response to the user with the specified redirection status code.\n",
       "sortText":"121",
       "insertText":"redirect(${1:response}, ${2:code}, ${3:locations})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"ok(ballerina/http:Response|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]? message)(error?)",
+      "kind":"Function",
+      "detail":"Function",
+      "documentation":"Sends the outbound response to the caller with the status 200 OK.\n",
+      "sortText":"121",
+      "insertText":"ok(${1:message})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"created(string uri, ballerina/http:Response|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]? message \u003d ())(error?)",
+      "kind":"Function",
+      "detail":"Function",
+      "documentation":"Sends the outbound response to the caller with the status 201 Created.\n",
+      "sortText":"121",
+      "insertText":"created(${1:uri}, message \u003d ${2:()})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"accepted(ballerina/http:Response|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]? message \u003d ())(error?)",
+      "kind":"Function",
+      "detail":"Function",
+      "documentation":"Sends the outbound response to the caller with the status 202 Accepted.\n",
+      "sortText":"121",
+      "insertText":"accepted(message \u003d ${2:()})",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"respond(ballerina/http:Response|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]? message)(error?)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Sends the outbound response to the caller.\n",
       "sortText":"121",
       "insertText":"respond(${1:message})",
       "insertTextFormat":"Snippet"
@@ -33,6 +63,7 @@
       "label":"promise(http:PushPromise promise)(error?)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Pushes a promise to the caller.\n",
       "sortText":"121",
       "insertText":"promise(${1:promise})",
       "insertTextFormat":"Snippet"
@@ -41,6 +72,7 @@
       "label":"pushPromisedResponse(http:PushPromise promise, http:Response response)(error?)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Sends a promised push response to the caller.\n",
       "sortText":"121",
       "insertText":"pushPromisedResponse(${1:promise}, ${2:response})",
       "insertTextFormat":"Snippet"
@@ -49,6 +81,7 @@
       "label":"acceptWebSocketUpgrade(map headers)(ballerina/http:WebSocketListener)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Sends an upgrade request with custom headers.\n",
       "sortText":"121",
       "insertText":"acceptWebSocketUpgrade(${1:headers})",
       "insertTextFormat":"Snippet"
@@ -57,6 +90,7 @@
       "label":"cancelWebSocketUpgrade(int status, string reason)(error?)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Cancels the handshake.\n",
       "sortText":"121",
       "insertText":"cancelWebSocketUpgrade(${1:status}, ${2:reason})",
       "insertTextFormat":"Snippet"

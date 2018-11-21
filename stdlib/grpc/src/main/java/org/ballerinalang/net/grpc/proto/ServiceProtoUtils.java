@@ -18,9 +18,6 @@
 package org.ballerinalang.net.grpc.proto;
 
 import com.google.protobuf.DescriptorProtos;
-import com.google.protobuf.Descriptors;
-import org.ballerinalang.connector.api.Annotation;
-import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ResourceNode;
@@ -40,7 +37,6 @@ import org.ballerinalang.net.grpc.proto.definition.Message;
 import org.ballerinalang.net.grpc.proto.definition.MessageKind;
 import org.ballerinalang.net.grpc.proto.definition.Method;
 import org.ballerinalang.net.grpc.proto.definition.Service;
-import org.ballerinalang.net.grpc.proto.definition.StandardDescriptorBuilder;
 import org.ballerinalang.net.grpc.proto.definition.UserDefinedEnumMessage;
 import org.ballerinalang.net.grpc.proto.definition.UserDefinedMessage;
 import org.ballerinalang.net.grpc.proto.definition.WrapperMessage;
@@ -581,7 +577,7 @@ public class ServiceProtoUtils {
             //send inside match block.
             if (statementNode instanceof BLangMatch) {
                 BLangMatch langMatch = (BLangMatch) statementNode;
-                for (BLangMatch.BLangMatchStmtBindingPatternClause patternClause : langMatch.patternClauses) {
+                for (BLangMatch.BLangMatchBindingPatternClause patternClause : langMatch.patternClauses) {
                     BLangInvocation invocExp = getInvocationExpression(patternClause.body);
                     if (invocExp != null) {
                         return invocExp;
@@ -620,52 +616,6 @@ public class ServiceProtoUtils {
         return getMessageParamType(invocation.getArgumentExpressions());
     }
 
-    /**
-     * Returns file descriptor for the service.
-     * Reads file descriptor from internal annotation attached to the service at compile time.
-     *
-     * @param service gRPC service.
-     * @return File Descriptor of the service.
-     * @throws GrpcServerException cannot read service descriptor
-     */
-    public static com.google.protobuf.Descriptors.FileDescriptor getDescriptor(
-            org.ballerinalang.connector.api.Service service) throws GrpcServerException {
-        try {
-            List<Annotation> annotationList = service.getAnnotationList("ballerina/grpc", "ServiceDescriptor");
-            if (annotationList == null || annotationList.size() != 1) {
-                throw new GrpcServerException("Couldn't find the service descriptor.");
-            }
-            Annotation descriptorAnn = annotationList.get(0);
-            Struct descriptorStruct = descriptorAnn.getValue();
-            if (descriptorStruct == null) {
-                throw new GrpcServerException("Couldn't find the service descriptor.");
-            }
-            String descriptorData = descriptorStruct.getStringField("descriptor");
-            byte[] descriptor = hexStringToByteArray(descriptorData);
-            DescriptorProtos.FileDescriptorProto proto = DescriptorProtos.FileDescriptorProto.parseFrom(descriptor);
-            return Descriptors.FileDescriptor.buildFrom(proto,
-                    StandardDescriptorBuilder.getFileDescriptors(proto.getDependencyList().toArray()));
-        } catch (IOException | Descriptors.DescriptorValidationException e) {
-            throw new GrpcServerException("Error while reading the service proto descriptor. check the service " +
-                    "implementation. ", e);
-        }
-    }
-
-    /**
-     * Convert Hex string value to byte array.
-     * @param s hexadecimal string value
-     * @return Byte array
-     */
-    public static byte[] hexStringToByteArray(String s) {
-        int len = s.length();
-        byte[] data = new byte[len / 2];
-        for (int i = 0; i < len; i += 2) {
-            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
-                    + Character.digit(s.charAt(i + 1), 16));
-        }
-        return data;
-    }
-    
     /**
      * Write protobuf file definition content to the filename.
      *

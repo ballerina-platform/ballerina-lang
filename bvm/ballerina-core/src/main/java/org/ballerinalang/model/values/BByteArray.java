@@ -18,6 +18,7 @@
 
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -26,7 +27,10 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.StringJoiner;
+
+import static org.ballerinalang.model.util.FreezeUtils.handleInvalidUpdate;
 
 /**
  * {@code BByteArray} represents a byte array in Ballerina.
@@ -57,6 +61,12 @@ public class BByteArray extends BNewArray {
     }
 
     public void add(long index, byte value) {
+        synchronized (this) {
+            if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
+                handleInvalidUpdate(freezeStatus.getState());
+            }
+        }
+
         prepareForAdd(index, values.length);
         values[(int) index] = value;
     }
@@ -76,14 +86,28 @@ public class BByteArray extends BNewArray {
     }
 
     @Override
+    public void stamp(BType type) {
+
+    }
+
+    @Override
     public void grow(int newLength) {
         values = Arrays.copyOf(values, newLength);
     }
 
     @Override
-    public BValue copy() {
+    public BValue copy(Map<BValue, BValue> refs) {
+        if (isFrozen()) {
+            return this;
+        }
+
+        if (refs.containsKey(this)) {
+            return refs.get(this);
+        }
+
         BByteArray byteArray = new BByteArray(Arrays.copyOf(values, values.length));
         byteArray.size = this.size;
+        refs.put(this, byteArray);
         return byteArray;
     }
 

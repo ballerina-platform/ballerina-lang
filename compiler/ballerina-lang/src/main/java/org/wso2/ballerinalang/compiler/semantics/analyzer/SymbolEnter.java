@@ -1513,8 +1513,15 @@ public class SymbolEnter extends BLangNodeVisitor {
                 return Stream.empty();
             }
 
-            if (referredType.tag != TypeTags.OBJECT || !Symbols.isFlagOn(referredType.tsymbol.flags, Flags.ABSTRACT)) {
+            if (structureTypeNode.type.tag == TypeTags.OBJECT &&
+                    (referredType.tag != TypeTags.OBJECT || !Symbols.isFlagOn(referredType.tsymbol.flags,
+                                                                              Flags.ABSTRACT))) {
                 dlog.error(typeRef.pos, DiagnosticCode.INCOMPATIBLE_TYPE_REFERENCE, typeRef);
+                return Stream.empty();
+            }
+
+            if (structureTypeNode.type.tag == TypeTags.RECORD && referredType.tag != TypeTags.RECORD) {
+                dlog.error(typeRef.pos, DiagnosticCode.INCOMPATIBLE_RECORD_TYPE_REFERENCE, typeRef);
                 return Stream.empty();
             }
 

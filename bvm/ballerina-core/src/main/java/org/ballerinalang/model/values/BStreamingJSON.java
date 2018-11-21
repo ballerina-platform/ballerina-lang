@@ -19,6 +19,7 @@ package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.JSONDataSource;
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -191,6 +192,11 @@ public class BStreamingJSON extends BRefValueArray {
             }
 
             return array.datasource.hasNext();
+        }
+
+        @Override
+        public void stamp(BType type) {
+
         }
     }
 }

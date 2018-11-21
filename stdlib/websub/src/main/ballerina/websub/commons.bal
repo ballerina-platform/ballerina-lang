@@ -418,10 +418,10 @@ public function extractTopicAndHubUrls(http:Response response) returns (string, 
 # + leaseSeconds - The lease period for which the subscription is expected to be active
 # + secret - The secret to be used for authenticated content distribution with this subscription
 public type SubscriptionChangeRequest record {
-    string topic;
-    string callback;
-    int leaseSeconds;
-    string secret;
+    string topic = "";
+    string callback = "";
+    int leaseSeconds = 0;
+    string secret = "";
     !...
 };
 
@@ -431,8 +431,8 @@ public type SubscriptionChangeRequest record {
 # + topic - The topic for which the subscription/unsubscription was successful
 # + response - The response from the hub to the subscription/unsubscription request
 public type SubscriptionChangeResponse record {
-    string hub;
-    string topic;
+    string hub = "";
+    string topic = "";
     http:Response response;
     !...
 };
@@ -628,11 +628,11 @@ public function addWebSubLinkHeader(http:Response response, string[] hubs, strin
 # + leaseSeconds - The lease second period specified for the particular subscription
 # + createdAt - The time at which the subscription was created
 type SubscriptionDetails record {
-    string topic;
-    string callback;
-    string secret;
-    int leaseSeconds;
-    int createdAt;
+    string topic = "";
+    string callback = "";
+    string secret = "";
+    int leaseSeconds = 0;
+    int createdAt = 0;
     !...
 };
 
@@ -656,8 +656,8 @@ function retrieveSubscriberServiceAnnotations(typedesc serviceType) returns Subs
 # + payload - The payload to be sent
 # + contentType - The content-type of the payload
 type WebSubContent record {
-    string|xml|json|byte[]|io:ReadableByteChannel payload;
-    string contentType;
+    string|xml|json|byte[]|io:ReadableByteChannel payload = "";
+    string contentType = "";
     !...
 };
 
@@ -671,8 +671,8 @@ function isSuccessStatusCode(int statusCode) returns boolean {
 # + cause - The cause of the `HubStartedUpError`, if available
 # + startedUpHub - The `WebSubHub` object representing the started up Hub
 public type HubStartedUpError record {
-    string message;
-    error? cause;
+    string message = "";
+    error? cause = ();
     WebSubHub startedUpHub;
     !...
 };
@@ -683,12 +683,12 @@ public type HubStartedUpError record {
 # + leaseSeconds - The lease second period specified for the particular subscription
 # + createdAt - The time at which the subscription was created
 public type SubscriberDetails record {
-    string callback;
-    int leaseSeconds;
-    int createdAt;
+    string callback = "";
+    int leaseSeconds = 0;
+    int createdAt = 0;
     !...
 };
 
 type WebSubError record {
-    string message;
+    string message = "";
 };

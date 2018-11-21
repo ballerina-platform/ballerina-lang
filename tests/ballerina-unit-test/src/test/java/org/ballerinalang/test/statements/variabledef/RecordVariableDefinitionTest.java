@@ -241,16 +241,11 @@ public class RecordVariableDefinitionTest {
 
     @Test
     public void testNegativeRecordVariables() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 14);
+        Assert.assertEquals(resultNegative.getErrorCount(), 11);
         String redeclaredSymbol = "redeclared symbol ";
-        String invalidRecordBindingPattern = "invalid record binding pattern; ";
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'fName'", 37, 26);
         BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'fiName'", 40, 36);
-        BAssertUtil.validateError(resultNegative, ++i,
-                invalidRecordBindingPattern + "unknown field 'name1' in record type 'Person'", 45, 13);
-        BAssertUtil.validateError(resultNegative, ++i,
-                invalidRecordBindingPattern + "unknown field 'name1' in record type 'Person'", 48, 13);
         BAssertUtil.validateError(resultNegative, ++i,
                 "invalid closed record binding pattern on opened record type 'Person'", 54, 13);
         BAssertUtil.validateError(resultNegative, ++i,
@@ -269,7 +264,5 @@ public class RecordVariableDefinitionTest {
                 "incompatible types: expected 'string', found 'boolean'", 99, 14);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'boolean', found 'string'", 100, 15);
-        BAssertUtil.validateError(resultNegative, ++i,
-                "invalid record binding pattern with type 'UnionOne|UnionTwo'", 123, 36);
     }
 }

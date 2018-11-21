@@ -41,16 +41,4 @@ public class BallerinaTableColumnImpl extends BallerinaCompositeElementImpl impl
     else super.accept(visitor);
   }
 
-  @Override
-  @NotNull
-  public PsiElement getIdentifier() {
-    return notNullChild(findChildByType(IDENTIFIER));
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getPrimarykey() {
-    return findChildByType(PRIMARYKEY);
-  }
-
 }

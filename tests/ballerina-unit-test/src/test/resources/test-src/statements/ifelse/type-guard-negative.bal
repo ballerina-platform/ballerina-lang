@@ -74,3 +74,21 @@ function testUndefinedSymbol() returns string {
 
     return "";
 }
+
+function testTypeGuardInElse() returns string {
+    int|string x = 5;
+    if (x is int) {
+        int y = x;
+        return "int: " + <string> y;
+    } else {
+        if (x is string) {
+            return "string: " + x;
+        }
+
+        if (x is int) {
+            return "string: " + <string> x;
+        }
+    }
+
+    return "n/a";
+}
