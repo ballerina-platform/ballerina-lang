@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.985.0
  */
-public class ForeachXmlTypedBindingPatternsTests {
+public class ForeachXMLTypedBindingPatternsTests {
 
     private CompileResult program;
     private String expectedXml1 = "0:<p:person xmlns:p=\"foo\" xmlns:q=\"bar\">\n" +
