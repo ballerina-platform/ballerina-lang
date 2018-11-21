@@ -787,6 +787,13 @@ public class CommonUtil {
             symbolInfoList.add(stamp);
         }
 
+        if (builtinCloneFunctionAllowed(context, bType)) {
+            // For the any data, add the clone builtin function
+            SymbolInfo freeze = getIterableOpSymbolInfo(Snippet.BUILTIN_CLONE.get(), bType,
+                                                        ItemResolverConstants.BUILTIN_CLONE_LABEL, context);
+            symbolInfoList.add(freeze);
+        }
+
         // Populate the Builtin Functions
         if (bType.tag == TypeTags.FLOAT) {
             SymbolInfo isNaN = getIterableOpSymbolInfo(Snippet.BUILTIN_IS_NAN.get(), bType,
@@ -964,6 +971,15 @@ public class CommonUtil {
     }
 
     private static boolean builtinStampFunctionAllowed(LSContext context, BType bType) {
+        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+        if (compilerContext != null) {
+            Types types = Types.getInstance(compilerContext);
+            return types.isAnydata(bType);
+        }
+        return false;
+    }
+
+    private static boolean builtinCloneFunctionAllowed(LSContext context, BType bType) {
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         if (compilerContext != null) {
             Types types = Types.getInstance(compilerContext);
