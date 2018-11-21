@@ -230,7 +230,7 @@ function testVarRefWithUnionType5() returns ((string|int, int|boolean), float|(i
 
 function testFieldAndIndexBasedVarRefs() returns (anydata, anydata) {
     (int, (string, boolean)) t1 = (2002, ("S1", true));
-    map<anydata> m;
+    map<anydata> m = {};
     (m.var1, (m.var2, _)) = t1;
     return (m.var1, m.var2);
 }

@@ -33,6 +33,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.90
  */
+@Test(groups = "broken")
 public class FunctionPointersTest {
 
     private CompileResult fpProgram, privateFPProgram, globalProgram, structProgram;
