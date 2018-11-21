@@ -30,7 +30,7 @@ import ballerina/system;
 # + protocol - The protocol associated with the service endpoint
 public type Listener object {
 
-    @readonly public Remote remote = {};
+    @readonly public Remote remoteDetails = {};
     @readonly public Local local = {};
     @readonly public string protocol = "";
 
