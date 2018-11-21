@@ -249,6 +249,7 @@ public interface InstructionCodes {
     int WRKSEND = 190;
     int WRKRECEIVE = 191;
 
+    int WORKERSYNCSEND = 192;
     int WAIT = 193;
 
     int MAP2JSON = 194;
@@ -267,7 +268,7 @@ public interface InstructionCodes {
     int BNEWARRAY = 204;
     int RNEWARRAY = 205;
 
-    int WORKERSYNCSEND = 206;
+    int CLONE = 206;
     int FLUSH = 207;
     int LENGTHOF = 208;
     int WAITALL = 209;

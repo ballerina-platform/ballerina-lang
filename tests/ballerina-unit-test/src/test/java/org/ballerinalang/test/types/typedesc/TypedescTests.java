@@ -44,7 +44,7 @@ public class TypedescTests {
         final CompileResult compile = BCompileUtil.compile("test-src/types/typedesc/typedesc_negative.bal");
         Assert.assertEquals(compile.getErrorCount(), 2);
         BAssertUtil.validateError(compile, 0, "variable assignment is required", 2, 5);
-        BAssertUtil.validateError(compile, 1, "variable 'a' is not initialized", 3, 5);
+        BAssertUtil.validateError(compile, 1, "undefined symbol 'i'", 7, 9);
     }
 
 

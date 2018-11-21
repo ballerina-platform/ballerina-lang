@@ -3,8 +3,8 @@ channel<json> chn;
 function workerWithChannels() returns xml {
     worker w1 {
         json key = {"id":50, name:"john"};
-        xml result;
-        result = <- chn, key;
+        xml result = xml `tt`;
+        result <- chn, key;
         return result;
     }
 
