@@ -141,6 +141,8 @@ public enum Snippet {
 
     BUILTIN_IS_FROZEN(SnippetGenerator.getBuiltinIsFrozenSnippet()),
 
+    BUILTIN_STAMP(SnippetGenerator.getBuiltinStampSnippet()),
+
     BUILTIN_IS_NAN(SnippetGenerator.getBuiltinIsNaNSnippet()),
 
     BUILTIN_IS_FINITE(SnippetGenerator.getBuiltinIsFiniteSnippet()),
