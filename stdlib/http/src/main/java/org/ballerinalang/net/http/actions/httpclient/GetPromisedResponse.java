@@ -42,7 +42,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "getPromisedResponse",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.CALLER_ACTIONS,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.CLIENT_ENDPOINT,
                 structPackage = "ballerina/http"),
         args = {
                 @Argument(name = "client", type = TypeKind.OBJECT),
@@ -68,7 +68,7 @@ public class GetPromisedResponse extends AbstractHTTPAction {
         }
         BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
         HttpClientConnector clientConnector =
-                (HttpClientConnector) bConnector.getNativeData(HttpConstants.CALLER_ACTIONS);
+                (HttpClientConnector) bConnector.getNativeData(HttpConstants.CLIENT_ENDPOINT);
         clientConnector.getPushResponse(http2PushPromise).
                 setPushResponseListener(new PushResponseListener(dataContext), http2PushPromise.getPromisedStreamId());
     }
