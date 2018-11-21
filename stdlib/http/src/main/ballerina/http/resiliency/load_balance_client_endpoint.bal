@@ -406,21 +406,25 @@ function createLoadBalancerClient(LoadBalanceClientEndpointConfiguration loadBal
                                                                                     returns Client|error {
     ClientEndpointConfig config = createClientEPConfigFromLoalBalanceEPConfig(loadBalanceClientConfig,
                                                                             loadBalanceClientConfig.targets[0]);
-    Client[] lbClients = createLoadBalanceHttpClientArray(loadBalanceClientConfig);
-    var lbRule = loadBalanceClientConfig.lbRule;
-
-    if (lbRule is LoadBalancerRule) {
-        return <Client> (new LoadBalanceClient(loadBalanceClientConfig, lbClients, lbRule,
-                loadBalanceClientConfig.failover));
+    var lbClients = createLoadBalanceHttpClientArray(loadBalanceClientConfig);
+    if (lbClients is error) {
+        return lbClients;
     } else {
-        LoadBalancerRounRobinRule loadBalancerRounRobinRule = new;
-        return <Client> (new LoadBalanceClient(loadBalanceClientConfig, lbClients,
-                loadBalancerRounRobinRule, loadBalanceClientConfig.failover));
+        var lbRule = loadBalanceClientConfig.lbRule;
+
+        if (lbRule is LoadBalancerRule) {
+            return <Client> (new LoadBalanceClient(loadBalanceClientConfig, lbClients, lbRule,
+                    loadBalanceClientConfig.failover));
+        } else {
+            LoadBalancerRounRobinRule loadBalancerRounRobinRule = new;
+            return <Client> (new LoadBalanceClient(loadBalanceClientConfig, lbClients,
+                    loadBalancerRounRobinRule, loadBalanceClientConfig.failover));
+        }
     }
 }
 
 function createLoadBalanceHttpClientArray(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig)
-                                                                                    returns Client[] {
+                                                                                    returns Client[]|error {
     Client[] httpClients = [];
     int i = 0;
     boolean httpClientRequired = false;
@@ -444,16 +448,36 @@ function createLoadBalanceHttpClientArray(LoadBalanceClientEndpointConfiguration
             uri = uri.substring(0, lastIndex);
         }
         if (!httpClientRequired) {
-            httpClients[i] = createCircuitBreakerClient(uri, epConfig);
+            var circuitBreakerClient = createCircuitBreakerClient(uri, epConfig);
+            if (circuitBreakerClient is Client) {
+                httpClients[i] = circuitBreakerClient;
+            } else {
+                return circuitBreakerClient;
+            }
         } else {
             var retryConfig = epConfig.retryConfig;
             if (retryConfig is RetryConfig) {
-                httpClients[i] = createRetryClient(uri, epConfig);
+                var retryClient = createRetryClient(uri, epConfig);
+                if (retryClient is Client) {
+                    httpClients[i] = retryClient;
+                } else {
+                    return retryClient;
+                }
             } else {
                 if (epConfig.cache.enabled) {
-                    httpClients[i] = createHttpCachingClient(uri, epConfig, epConfig.cache);
+                    var httpCachingClient = createHttpCachingClient(uri, epConfig, epConfig.cache);
+                    if (httpCachingClient is Client) {
+                        httpClients[i] = httpCachingClient;
+                    } else {
+                        return httpCachingClient;
+                    }
                 } else {
-                    httpClients[i] = createHttpSecureClient(uri, epConfig);
+                    var httpSecureClient = createHttpSecureClient(uri, epConfig);
+                    if (httpSecureClient is Client) {
+                        httpClients[i] = httpSecureClient;
+                    } else {
+                        return httpSecureClient;
+                    }
                 }
             }
         }

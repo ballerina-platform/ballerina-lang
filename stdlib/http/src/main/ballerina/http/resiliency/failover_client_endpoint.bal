@@ -506,22 +506,25 @@ function createClientEPConfigFromFailoverEPConfig(FailoverClientEndpointConfigur
 }
 
 
-function createFailOverClient(FailoverClientEndpointConfiguration failoverClientConfig) returns FailoverClient {
+function createFailOverClient(FailoverClientEndpointConfiguration failoverClientConfig) returns Client|error {
     ClientEndpointConfig config = createClientEPConfigFromFailoverEPConfig(
-                                      failoverClientConfig,
-                                      failoverClientConfig.targets[0]);
-    Client[] clients = createFailoverHttpClientArray(failoverClientConfig);
-    boolean[] failoverCodes = populateErrorCodeIndex(failoverClientConfig.failoverCodes);
-    FailoverInferredConfig failoverInferredConfig = {
-        failoverClientsArray:clients,
-        failoverCodesIndex:failoverCodes,
-        failoverInterval:failoverClientConfig.intervalMillis
-    };
-
-    return new FailoverClient(failoverClientConfig, failoverInferredConfig);
+                                      failoverClientConfig, failoverClientConfig.targets[0]);
+    var failoverHttpClientArray = createFailoverHttpClientArray(failoverClientConfig);
+    if (failoverHttpClientArray is error) {
+        return failoverHttpClientArray;
+    } else {
+        Client[] clients = failoverHttpClientArray;
+        boolean[] failoverCodes = populateErrorCodeIndex(failoverClientConfig.failoverCodes);
+        FailoverInferredConfig failoverInferredConfig = {
+            failoverClientsArray:clients,
+            failoverCodesIndex:failoverCodes,
+            failoverInterval:failoverClientConfig.intervalMillis
+        };
+        return <Client>new FailoverClient(failoverClientConfig, failoverInferredConfig);
+    }
 }
 
-function createFailoverHttpClientArray(FailoverClientEndpointConfiguration failoverClientConfig) returns Client[] {
+function createFailoverHttpClientArray(FailoverClientEndpointConfiguration failoverClientConfig) returns Client[]|error {
     Client[] httpClients = [];
     int i = 0;
     boolean httpClientRequired = false;
@@ -545,16 +548,36 @@ function createFailoverHttpClientArray(FailoverClientEndpointConfiguration failo
             uri = uri.substring(0, lastIndex);
         }
         if (!httpClientRequired) {
-            httpClients[i] = createCircuitBreakerClient(uri, epConfig);
+            var circuitBreakerClient = createCircuitBreakerClient(uri, epConfig);
+            if (circuitBreakerClient is Client) {
+                httpClients[i] = circuitBreakerClient;
+            } else {
+                return circuitBreakerClient;
+            }
         } else {
             var retryConfig = epConfig.retryConfig;
             if (retryConfig is RetryConfig) {
-                httpClients[i] = createRetryClient(uri, epConfig);
+                var retryClient = createRetryClient(uri, epConfig);
+                if (retryClient is Client) {
+                    httpClients[i] = retryClient;
+                } else {
+                    return retryClient;
+                }
             } else {
                 if (epConfig.cache.enabled) {
-                    httpClients[i] = createHttpCachingClient(uri, epConfig, epConfig.cache);
+                    var httpCachingClient = createHttpCachingClient(uri, epConfig, epConfig.cache);
+                    if (httpCachingClient is Client) {
+                        httpClients[i] = httpCachingClient;
+                    } else {
+                        return httpCachingClient;
+                    }
                 } else {
-                    httpClients[i] = createHttpSecureClient(uri, epConfig);
+                    var httpSecureClient = createHttpSecureClient(uri, epConfig);
+                    if (httpSecureClient is Client) {
+                        httpClients[i] = httpSecureClient;
+                    } else {
+                        return httpSecureClient;
+                    }
                 }
             }
         }
