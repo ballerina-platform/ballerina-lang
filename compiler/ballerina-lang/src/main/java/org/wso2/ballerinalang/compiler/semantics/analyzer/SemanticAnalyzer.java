@@ -454,12 +454,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             });
         }
 
-        BType lhsType = varNode.symbol.type;
-        if (lhsType == symTable.noType && varNode.isDeclaredWithVar) {
-            varNode.symbol.type = lhsType = typeChecker.checkExpr(varNode.expr, env);
+        // If the variable is not declared with var, we can get the variable type from the type node. Then we need to
+        // update both varNode's type and symbol's type here.
+        if (varNode.symbol.type == symTable.noType && varNode.isDeclaredWithVar) {
+            varNode.symbol.type = varNode.type = typeChecker.checkExpr(varNode.expr, env);
         }
 
-        varNode.type = lhsType;
+        BType lhsType = varNode.symbol.type;
 
         // Analyze the init expression
         BLangExpression rhsExpr = varNode.expr;
@@ -554,18 +555,19 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
 
             simpleVariable.type = rhsType;
-            if (simpleVariable.symbol != null) {
-                simpleVariable.symbol.type = rhsType;
-            }
+
             int ownerSymTag = env.scope.owner.tag;
             if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
                 // This is a variable declared in a function, an action or a resource
                 // If the variable is parameter then the variable symbol is already defined
                 if (simpleVariable.symbol == null) {
                     symbolEnter.defineNode(simpleVariable, env);
-                    simpleVariable.symbol.type = rhsType;
                 }
             }
+
+            // Set the type to the symbol. If the variable is a global variable, a symbol is already created in the
+            // symbol enter. If the variable is a local variable, the symbol will be created above.
+            simpleVariable.symbol.type = rhsType;
         } else if (NodeKind.TUPLE_VARIABLE == variable.getKind()) {
             if (TypeTags.TUPLE != rhsType.tag) {
                 dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, rhsType);
