@@ -45,10 +45,6 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
         orgName = ORG_NAME,
         packageName = GrpcConstants.PROTOCOL_PACKAGE_GRPC,
         functionName = "complete",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = GrpcConstants.STREAMING_CLIENT,
-                structPackage = GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC),
-        returnType = @ReturnType(type = TypeKind.RECORD, structType = STRUCT_GENERIC_ERROR, structPackage =
-                BALLERINA_BUILTIN_PKG),
         isPublic = true
 )
 public class Complete extends BlockingNativeCallableUnit {

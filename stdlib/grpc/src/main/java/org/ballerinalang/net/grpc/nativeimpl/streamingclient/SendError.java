@@ -49,10 +49,6 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
         functionName = "sendError",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = GrpcConstants.STREAMING_CLIENT,
                 structPackage = GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC),
-        args = {@Argument(name = "statusCode", type = TypeKind.INT),
-                @Argument(name = "message", type = TypeKind.STRING)},
-        returnType = @ReturnType(type = TypeKind.RECORD, structType = STRUCT_GENERIC_ERROR, structPackage =
-                BALLERINA_BUILTIN_PKG),
         isPublic = true
 )
 public class SendError extends BlockingNativeCallableUnit {

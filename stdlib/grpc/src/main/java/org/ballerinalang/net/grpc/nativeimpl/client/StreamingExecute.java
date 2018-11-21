@@ -66,18 +66,6 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
         functionName = "streamingExecute",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = CLIENT_ENDPOINT_TYPE,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
-        args = {
-                @Argument(name = "methodID", type = TypeKind.STRING),
-                @Argument(name = "listenerService", type = TypeKind.TYPEDESC),
-                @Argument(name = "headers", type = TypeKind.OBJECT, structType = "Headers",
-                        structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC)
-        },
-        returnType = {
-                @ReturnType(type = TypeKind.OBJECT, structType = STREAMING_CLIENT,
-                        structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
-                @ReturnType(type = TypeKind.RECORD, structType = STRUCT_GENERIC_ERROR,
-                        structPackage = BALLERINA_BUILTIN_PKG),
-        },
         isPublic = true
 )
 public class StreamingExecute extends AbstractExecute {

@@ -67,15 +67,6 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
         functionName = "initStub",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = CLIENT_ENDPOINT_TYPE,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
-        args = {
-                @Argument(name = "stubType", type = TypeKind.STRING),
-                @Argument(name = "descriptorKey", type = TypeKind.STRING),
-                @Argument(name = "descriptorMap", type = TypeKind.MAP)
-        },
-        returnType = {
-                @ReturnType(type = TypeKind.RECORD, structType = STRUCT_GENERIC_ERROR,
-                        structPackage = BALLERINA_BUILTIN_PKG)
-        },
         isPublic = true
 )
 public class InitStub extends BlockingNativeCallableUnit {

@@ -85,9 +85,6 @@ import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_HOST_NAME_VERI
         orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "init",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = CLIENT_ENDPOINT_TYPE,
-                structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
-        args = {@Argument(name = "config", type = TypeKind.RECORD, structType = "ClientEndpointConfig")},
         isPublic = true
 )
 public class Init extends BlockingNativeCallableUnit {
