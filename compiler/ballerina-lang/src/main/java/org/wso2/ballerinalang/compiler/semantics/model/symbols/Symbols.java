@@ -111,7 +111,7 @@ public class Symbols {
                                                      PackageID pkgID,
                                                      BType type,
                                                      BSymbol owner) {
-        BServiceSymbol serviceSymbol = new BServiceSymbol(flags, name, pkgID, type, owner);
+        BServiceSymbol serviceSymbol = new BServiceSymbol(flags, name, pkgID, type, owner, null);
         serviceSymbol.kind = SymbolKind.SERVICE;
         return serviceSymbol;
     }
@@ -125,16 +125,6 @@ public class Symbols {
         BInvokableSymbol symbol = createInvokableSymbol(SymTag.FUNCTION, flags, name, pkgID, type, owner);
         symbol.bodyExist = bodyExist;
         symbol.kind = SymbolKind.FUNCTION;
-        return symbol;
-    }
-
-    public static BInvokableSymbol createActionSymbol(int flags,
-                                                      Name name,
-                                                      PackageID pkgID,
-                                                      BType type,
-                                                      BSymbol owner) {
-        BInvokableSymbol symbol = createInvokableSymbol(SymTag.ACTION, flags, name, pkgID, type, owner);
-        symbol.kind = SymbolKind.ACTION;
         return symbol;
     }
 

@@ -22,7 +22,6 @@ package org.ballerinalang.model.tree;
  */
 public enum NodeKind {
 
-    ACTION,
     ANNOTATION,
     ANNOTATION_ATTACHMENT,
     ANNOTATION_ATTRIBUTE,
@@ -97,6 +96,7 @@ public enum NodeKind {
     IS_LIKE,
     DOCUMENTATION_DESCRIPTION,
     DOCUMENTATION_PARAMETER,
+    SERVICE_CONSTRUCTOR,
 
     /* streams/tables expressions */
     SELECT_EXPRESSION,

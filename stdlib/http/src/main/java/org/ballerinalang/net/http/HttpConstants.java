@@ -154,7 +154,7 @@ public class HttpConstants {
     public static final String LISTENER_INTERFACE_ID = "listener.interface.id";
     public static final String PACKAGE_BALLERINA_BUILTIN = BALLERINA_BUILTIN_PKG;
 
-    public static final String CALLER_ACTIONS = "CallerActions";
+    public static final String CLIENT_ENDPOINT = "ClientEndpoint";
 
     public static final String REQUEST_URL = "REQUEST_URL";
     public static final String SRC_HANDLER = "SRC_HANDLER";
@@ -380,7 +380,7 @@ public class HttpConstants {
     public static final String SERVICE_ENDPOINT_PROTOCOL_FIELD = "protocol";
 
     //Remote struct field names
-    public static final String REMOTE_STRUCT_FIELD = "remote";
+    public static final String REMOTE_STRUCT_FIELD = "remoteDetails";
     public static final String REMOTE_HOST_FIELD = "host";
     public static final String REMOTE_PORT_FIELD = "port";
 

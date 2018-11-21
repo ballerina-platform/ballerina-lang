@@ -49,7 +49,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
@@ -64,7 +63,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
@@ -72,12 +70,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -206,7 +202,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private SymbolResolver symResolver;
     private TypeChecker typeChecker;
     private Types types;
-    private EndpointSPIAnalyzer endpointSPIAnalyzer;
     private BLangDiagnosticLog dlog;
 
     private SymbolEnv env;
@@ -235,7 +230,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
         this.types = Types.getInstance(context);
-        this.endpointSPIAnalyzer = EndpointSPIAnalyzer.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
@@ -254,14 +248,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
 
         // Visit constants first.
-        pkgNode.topLevelNodes.stream()
-                .filter(pkgLevelNode -> pkgLevelNode.getKind() == NodeKind.CONSTANT)
+        pkgNode.topLevelNodes.stream().filter(pkgLevelNode -> pkgLevelNode.getKind() == NodeKind.CONSTANT)
                 .forEach(constant -> analyzeDef((BLangNode) constant, pkgEnv));
 
-        pkgNode.topLevelNodes.stream()
-                .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.CONSTANT)
-                .filter(pkgLevelNode -> !(pkgLevelNode.getKind() == NodeKind.FUNCTION &&
-                        ((BLangFunction) pkgLevelNode).flagSet.contains(Flag.LAMBDA)))
+        pkgNode.topLevelNodes.stream().filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.CONSTANT)
+                .filter(pkgLevelNode -> !(pkgLevelNode.getKind() == NodeKind.FUNCTION
+                        && ((BLangFunction) pkgLevelNode).flagSet.contains(Flag.LAMBDA)))
                 .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
 
         while (pkgNode.lambdaFunctions.peek() != null) {
@@ -316,11 +308,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
             return;
         }
-
-        funcNode.endpoints.forEach(e -> {
-            symbolEnter.defineNode(e, funcEnv);
-            analyzeDef(e, funcEnv);
-        });
 
         if (funcNode.body != null) {
             analyzeStmt(funcNode.body, funcEnv);
@@ -464,7 +451,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 dlog.error(varNode.pos, DiagnosticCode.SEALED_ARRAY_TYPE_NOT_INITIALIZED);
                 return;
             }
-            if (varNode.symbol.type.tag != TypeTags.CHANNEL && varNode.symbol.owner.tag == SymTag.PACKAGE) {
+            if ((varNode.symbol.type.tag != TypeTags.CHANNEL && varNode.symbol.owner.tag == SymTag.PACKAGE) || Symbols
+                    .isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {
                 dlog.error(varNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varNode.name);
             }
             return;
@@ -476,6 +464,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, varNode.symbol);
 
         typeChecker.checkExpr(rhsExpr, varInitEnv, lhsType);
+        if (Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {
+            final BSymbol bSymbol = symResolver.lookupSymbol(env, Names.ABSTRACT_LISTENER, SymTag.TYPE);
+            if (bSymbol == symTable.notFoundSymbol) {
+                throw new AssertionError("Abstract Listener not defined.");
+            }
+            if (!types.isAssignable(varNode.symbol.type, bSymbol.type)) {
+                dlog.error(varNode.pos, DiagnosticCode.INVALID_LISTENER_VARIABLE, varNode.name);
+            }
+        }
     }
 
     public void visit(BLangRecordVariable varNode) {
@@ -597,8 +594,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BUnionType unionType = ((BUnionType) varNode.type);
 
                 List<BTupleType> possibleTypes = unionType.memberTypes.stream()
-                        .filter(type -> TypeTags.TUPLE == type.tag)
-                        .map(BTupleType.class::cast)
+                        .filter(type -> TypeTags.TUPLE == type.tag).map(BTupleType.class::cast)
                         .filter(tupleType -> varNode.memberVariables.size() == tupleType.tupleTypes.size())
                         .collect(Collectors.toList());
 
@@ -679,8 +675,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             case TypeTags.UNION:
                 BUnionType unionType = (BUnionType) recordVar.type;
                 List<BRecordType> possibleTypes = unionType.memberTypes.stream()
-                        .filter(type -> TypeTags.RECORD == type.tag)
-                        .map(BRecordType.class::cast)
+                        .filter(type -> TypeTags.RECORD == type.tag).map(BRecordType.class::cast)
                         .filter(rec -> doesRecordContainKeys(rec, recordVar.variableList, recordVar.restParam != null))
                         .collect(Collectors.toList());
                 if (possibleTypes.isEmpty()) {
@@ -689,8 +684,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
 
                 if (possibleTypes.size() > 1) {
-                    BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0,
-                            Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
+                    BRecordTypeSymbol recordSymbol = Symbols
+                            .createRecordSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
                     recordVarType = (BRecordType) symTable.recordType;
                     List<BField> fields = new ArrayList<>();
 
@@ -699,28 +694,26 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                             .forEach(fieldName -> {
                                 Set<BType> memberTypes = new HashSet<>();
                                 possibleTypes.forEach(possibleType -> {
-                                    Map<String, BType> possibleTypeFields = possibleType.fields
-                                            .stream()
-                                            .collect(Collectors.toMap(
-                                                    field -> field.getName().getValue(),
-                                                    BField::getType
-                                            ));
+                                    Map<String, BType> possibleTypeFields = possibleType.fields.stream().collect(
+                                            Collectors.toMap(field -> field.getName().getValue(), BField::getType));
                                     memberTypes.add(possibleTypeFields.get(fieldName) == null ?
-                                            possibleType.restFieldType : possibleTypeFields.get(fieldName));
+                                            possibleType.restFieldType :
+                                            possibleTypeFields.get(fieldName));
                                 });
-                                BType fieldType = memberTypes.size() > 1 ? new BUnionType(null, memberTypes, false) :
+                                BType fieldType = memberTypes.size() > 1 ?
+                                        new BUnionType(null, memberTypes, false) :
                                         memberTypes.iterator().next();
                                 fields.add(new BField(names.fromString(fieldName),
                                         new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
                                                 fieldType, recordSymbol)));
                             });
                     if (recordVar.restParam != null) {
-                        Set<BType> memberTypes = possibleTypes.stream()
-                                .map(possibleType -> possibleType.restFieldType)
+                        Set<BType> memberTypes = possibleTypes.stream().map(possibleType -> possibleType.restFieldType)
                                 .collect(Collectors.toSet());
 
                         recordVarType.restFieldType = memberTypes.size() > 1 ?
-                                new BUnionType(null, memberTypes, false) : memberTypes.iterator().next();
+                                new BUnionType(null, memberTypes, false) :
+                                memberTypes.iterator().next();
                     }
                     recordVarType.fields = fields;
                     recordSymbol.type = recordVarType;
@@ -752,12 +745,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        Map<String, BField> recordVarTypeFields = recordVarType.fields
-                .stream()
-                .collect(Collectors.toMap(
-                        field -> field.getName().getValue(),
-                        field -> field
-                ));
+        Map<String, BField> recordVarTypeFields = recordVarType.fields.stream()
+                .collect(Collectors.toMap(field -> field.getName().getValue(), field -> field));
 
         boolean validRecord = true;
         for (BLangRecordVariableKeyValueNode variable : recordVar.variableList) {
@@ -781,8 +770,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         if (recordVar.restParam != null) {
-            ((BLangVariable) recordVar.restParam).type = new BMapType(TypeTags.MAP,
-                    recordVarType.restFieldType, null);
+            ((BLangVariable) recordVar.restParam).type = new BMapType(TypeTags.MAP, recordVarType.restFieldType, null);
             symbolEnter.defineNode((BLangNode) recordVar.restParam, env);
         }
 
@@ -790,13 +778,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private BRecordType createSameTypedFieldsRecordType(BLangRecordVariable recordVar, BType fieldTypes) {
-        BRecordTypeSymbol recordSymbol =
-                Symbols.createRecordSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
+        BRecordTypeSymbol recordSymbol = Symbols
+                .createRecordSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
         List<BField> fields = recordVar.variableList.stream()
                 .map(bLangRecordVariableKeyValue -> bLangRecordVariableKeyValue.key.value)
-                .map(fieldName -> new BField(names.fromString(fieldName), new BVarSymbol(0,
-                        names.fromString(fieldName), env.enclPkg.symbol.pkgID, fieldTypes, recordSymbol)))
-                .collect(Collectors.toList());
+                .map(fieldName -> new BField(names.fromString(fieldName),
+                        new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID, fieldTypes,
+                                recordSymbol))).collect(Collectors.toList());
 
         BRecordType recordVarType = (BRecordType) symTable.recordType;
         recordVarType.fields = fields;
@@ -813,13 +801,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean doesRecordContainKeys(BRecordType recordVarType, List<BLangRecordVariableKeyValue> variableList,
-                                          boolean hasRestParam) {
-        Map<String, BField> recordVarTypeFields = recordVarType.fields
-                .stream()
-                .collect(Collectors.toMap(
-                        field -> field.getName().getValue(),
-                        field -> field
-                ));
+            boolean hasRestParam) {
+        Map<String, BField> recordVarTypeFields = recordVarType.fields.stream()
+                .collect(Collectors.toMap(field -> field.getName().getValue(), field -> field));
         for (BLangRecordVariableKeyValue var : variableList) {
             if (!recordVarTypeFields.containsKey(var.key.value) && recordVarType.sealed) {
                 return false;
@@ -1193,15 +1177,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
                 checkStaticMatchPatternLiteralType(binaryExpr.lhsExpr);
                 checkStaticMatchPatternLiteralType(binaryExpr.rhsExpr);
-                expression.type =  symTable.anyType;
+                expression.type = symTable.anyType;
                 return expression.type;
             case RECORD_LITERAL_EXPR:
                 BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
                 recordLiteral.type = new BMapType(TypeTags.MAP, symTable.anydataType, null);
                 for (BLangRecordLiteral.BLangRecordKeyValue recLiteralKeyValue : recordLiteral.keyValuePairs) {
-                    if (recLiteralKeyValue.key.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF ||
-                            (recLiteralKeyValue.key.expr.getKind() == NodeKind.LITERAL && typeChecker.checkExpr(
-                                    recLiteralKeyValue.key.expr, this.env).tag == TypeTags.STRING)) {
+                    if (recLiteralKeyValue.key.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF || (
+                            recLiteralKeyValue.key.expr.getKind() == NodeKind.LITERAL
+                                    && typeChecker.checkExpr(recLiteralKeyValue.key.expr, this.env).tag
+                                    == TypeTags.STRING)) {
                         BType fieldType = checkStaticMatchPatternLiteralType(recLiteralKeyValue.valueExpr);
                         types.setImplicitCastExpr(recLiteralKeyValue.valueExpr, fieldType, symTable.anyType);
                     } else {
@@ -1290,98 +1275,32 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         analyzeStmt(lockNode.body, env);
     }
 
-    public void visit(BLangAction actionNode) {
-        BSymbol actionSymbol = actionNode.symbol;
-
-        SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, env);
-
-        if (Symbols.isNative(actionSymbol)) {
-            return;
-        }
-
-        actionNode.requiredParams.forEach(p -> this.analyzeDef(p, actionEnv));
-        actionNode.defaultableParams.forEach(p -> this.analyzeDef(p, actionEnv));
-        if (actionNode.restParam != null) {
-            this.analyzeDef(actionNode.restParam, actionEnv);
-        }
-
-        actionNode.endpoints.forEach(e -> analyzeDef(e, actionEnv));
-        analyzeStmt(actionNode.body, actionEnv);
-        this.processWorkers(actionNode, actionEnv);
-    }
-
     public void visit(BLangService serviceNode) {
         BServiceSymbol serviceSymbol = (BServiceSymbol) serviceNode.symbol;
         SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceSymbol.scope, env);
-        handleServiceTypeStruct(serviceNode);
-        handleServiceEndpointBinds(serviceNode, serviceSymbol);
-        handleAnonymousEndpointBind(serviceNode);
         serviceNode.annAttachments.forEach(a -> {
             a.attachPoint = AttachPoint.SERVICE;
             this.analyzeDef(a, serviceEnv);
         });
-        serviceNode.nsDeclarations.forEach(xmlns -> this.analyzeDef(xmlns, serviceEnv));
-        serviceNode.vars.forEach(v -> this.analyzeDef(v, serviceEnv));
-        serviceNode.endpoints.forEach(e -> {
-            symbolEnter.defineNode(e, serviceEnv);
-            analyzeDef(e, serviceEnv);
-        });
-        this.analyzeDef(serviceNode.initFunction, serviceEnv);
-        serviceNode.resources.forEach(r -> this.analyzeDef(r, serviceEnv));
-    }
 
-    private void handleServiceTypeStruct(BLangService serviceNode) {
-        if (serviceNode.serviceTypeStruct == null) {
+        if (serviceNode.isAnonymousServiceValue) {
             return;
         }
-        final BType serviceStructType = symResolver.resolveTypeNode(serviceNode.serviceTypeStruct, env);
-        serviceNode.endpointType = endpointSPIAnalyzer.getEndpointTypeFromServiceType(
-                serviceNode.serviceTypeStruct.pos, serviceStructType);
-        if (serviceNode.endpointType != null) {
-            serviceNode.endpointClientType = endpointSPIAnalyzer.getClientType(
-                    (BObjectTypeSymbol) serviceNode.endpointType.tsymbol);
+        final BSymbol bSymbol = symResolver.lookupSymbol(env, Names.ABSTRACT_LISTENER, SymTag.TYPE);
+        if (bSymbol == symTable.notFoundSymbol) {
+            throw new AssertionError("Abstract Listener not defined.");
         }
-    }
+        typeChecker.checkExpr(serviceNode.attachExpr, env, bSymbol.type);
 
-    private void handleServiceEndpointBinds(BLangService serviceNode, BServiceSymbol serviceSymbol) {
-        for (BLangSimpleVarRef ep : serviceNode.boundEndpoints) {
-            typeChecker.checkExpr(ep, env);
-            if (ep.symbol == null || (ep.symbol.tag & SymTag.ENDPOINT) != SymTag.ENDPOINT) {
-                dlog.error(ep.pos, DiagnosticCode.ENDPOINT_INVALID_TYPE, ep.variableName);
-                continue;
+        // TODO : Fix this.
+        if (serviceNode.attachExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            final BLangSimpleVarRef attachExpr = (BLangSimpleVarRef) serviceNode.attachExpr;
+            if (!Symbols.isFlagOn(attachExpr.symbol.flags, Flags.LISTENER)) {
+                dlog.error(serviceNode.attachExpr.pos, DiagnosticCode.SYNTAX_ERROR, "invalid listener attachment");
             }
-            final BEndpointVarSymbol epSym = (BEndpointVarSymbol) ep.symbol;
-            if ((epSym.tag & SymTag.ENDPOINT) == SymTag.ENDPOINT) {
-                if (epSym.registrable) {
-                    serviceSymbol.boundEndpoints.add(epSym);
-                    if (serviceNode.endpointType == null) {
-                        serviceNode.endpointType = (BObjectType) epSym.type;
-                        serviceNode.endpointClientType = endpointSPIAnalyzer.getClientType(
-                                (BObjectTypeSymbol) serviceNode.endpointType.tsymbol);
-                    }
-                    // TODO : Validate serviceType endpoint type with bind endpoint types.
-                } else {
-                    dlog.error(ep.pos, DiagnosticCode.ENDPOINT_NOT_SUPPORT_REGISTRATION, epSym);
-                }
-            } else {
-                dlog.error(ep.pos, DiagnosticCode.ENDPOINT_INVALID_TYPE, epSym);
-            }
+        } else if (serviceNode.attachExpr.getKind() != NodeKind.Type_INIT_EXPR) {
+            dlog.error(serviceNode.attachExpr.pos, DiagnosticCode.SYNTAX_ERROR, "invalid listener attachment");
         }
-        if (serviceNode.endpointType == null) {
-            dlog.error(serviceNode.pos, DiagnosticCode.SERVICE_INVALID_ENDPOINT_TYPE, serviceNode.name);
-        }
-    }
-
-    private void handleAnonymousEndpointBind(BLangService serviceNode) {
-        if (serviceNode.anonymousEndpointBind == null) {
-            return;
-        }
-        if (serviceNode.endpointType == null) {
-            dlog.error(serviceNode.pos, DiagnosticCode.SERVICE_SERVICE_TYPE_REQUIRED_ANONYMOUS, serviceNode.name);
-            return;
-        }
-        this.typeChecker.checkExpr(serviceNode.anonymousEndpointBind, env,
-                endpointSPIAnalyzer.getEndpointConfigType((BObjectTypeSymbol) serviceNode.endpointType.tsymbol));
     }
 
     private void validateDefaultable(BLangRecordTypeNode recordTypeNode) {
@@ -1403,45 +1322,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             a.attachPoint = AttachPoint.RESOURCE;
             this.analyzeDef(a, resourceEnv);
         });
-        defineResourceEndpoint(resourceNode, resourceEnv);
         resourceNode.requiredParams.forEach(p -> analyzeDef(p, resourceEnv));
-        resourceNode.endpoints.forEach(e -> {
-            symbolEnter.defineNode(e, resourceEnv);
-            analyzeDef(e, resourceEnv);
-        });
         analyzeStmt(resourceNode.body, resourceEnv);
         this.processWorkers(resourceNode, resourceEnv);
-    }
-
-    private void defineResourceEndpoint(BLangResource resourceNode, SymbolEnv resourceEnv) {
-        if (!resourceNode.getParameters().isEmpty()) {
-            final BLangSimpleVariable variable = resourceNode.getParameters().get(0);
-            if (variable.type == symTable.endpointType) {
-                String actualVarName = variable.name.value.substring(1);
-                variable.name = new BLangIdentifier();
-                variable.name.value = actualVarName;
-                if (resourceEnv.enclService.endpointType != null) {
-                    variable.type = resourceEnv.enclService.endpointType;
-                    final BEndpointVarSymbol bEndpointVarSymbol = symbolEnter.defineEndpointVarSymbol(variable.pos,
-                            EnumSet.noneOf(Flag.class), variable.type, names.fromString(actualVarName), resourceEnv);
-                    variable.symbol = bEndpointVarSymbol;
-                    if (variable.type.tsymbol.kind == SymbolKind.OBJECT
-                            || variable.type.tsymbol.kind == SymbolKind.RECORD) {
-                        endpointSPIAnalyzer.populateEndpointSymbol((BObjectTypeSymbol) variable.type.tsymbol,
-                                bEndpointVarSymbol);
-                    }
-                } else {
-                    variable.type = symTable.semanticError;
-                    variable.symbol = symbolEnter.defineVarSymbol(variable.pos, EnumSet.noneOf(Flag.class),
-                            variable.type, names.fromString(actualVarName), resourceEnv);
-                }
-                // Replace old symbol with new one.
-                resourceNode.symbol.params.remove(0);
-                resourceNode.symbol.params.add(0, variable.symbol);
-                ((BInvokableType) resourceNode.symbol.type).paramTypes.remove(0);
-                ((BInvokableType) resourceNode.symbol.type).paramTypes.add(0, variable.type);
-            }
-        }
     }
 
     public void visit(BLangTryCatchFinally tryCatchFinally) {
@@ -1578,25 +1461,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangEndpoint endpointNode) {
-        endpointNode.annAttachments.forEach(annotationAttachment -> {
-            annotationAttachment.attachPoint = AttachPoint.ENDPOINT;
-            this.analyzeDef(annotationAttachment, env);
-        });
-        if (endpointNode.configurationExpr == null) {
-            return;
-        }
-        BType configType = symTable.semanticError;
-        if (endpointNode.symbol != null && endpointNode.symbol.type.tag == TypeTags.OBJECT) {
-            if (endpointNode.configurationExpr.getKind() == RECORD_LITERAL_EXPR) {
-                // Init expression.
-                configType = endpointSPIAnalyzer.getEndpointConfigType(
-                        (BObjectTypeSymbol) endpointNode.symbol.type.tsymbol);
-            } else {
-                // assign Expression.
-                configType = endpointNode.symbol.type;
-            }
-        }
-        this.typeChecker.checkExpr(endpointNode.configurationExpr, env, configType);
     }
 
     private boolean isInTopLevelWorkerEnv() {
@@ -1633,8 +1497,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(workerReceiveNode.workerIdentifier),
-                SymTag.VARIABLE);
+        BSymbol symbol = symResolver
+                .lookupSymbol(env, names.fromIdNode(workerReceiveNode.workerIdentifier), SymTag.VARIABLE);
 
         if (workerReceiveNode.isChannel || symbol.getType().tag == TypeTags.CHANNEL) {
             visitChannelReceive(workerReceiveNode, symbol);
@@ -1844,16 +1708,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         if (isTableReference(streamingInput.getStreamReference())) {
             if (streamingInput.getAlias() == null) {
-                dlog.error(streamingInput.pos, DiagnosticCode.UNDEFINED_INVOCATION_ALIAS, ((BLangInvocation) streamRef)
-                        .name.getValue());
+                dlog.error(streamingInput.pos, DiagnosticCode.UNDEFINED_INVOCATION_ALIAS,
+                        ((BLangInvocation) streamRef).name.getValue());
             }
             if (streamingInput.getStreamReference().getKind() == NodeKind.INVOCATION) {
                 BInvokableSymbol functionSymbol = (BInvokableSymbol) ((BLangInvocation) streamRef).symbol;
-                symbolEnter.defineVarSymbol(streamingInput.pos, EnumSet.noneOf(Flag.class), ((BTableType) functionSymbol
-                        .retType).constraint, names.fromString(streamingInput.getAlias()), env);
+                symbolEnter.defineVarSymbol(streamingInput.pos, EnumSet.noneOf(Flag.class),
+                        ((BTableType) functionSymbol.retType).constraint, names.fromString(streamingInput.getAlias()),
+                        env);
             } else {
-                BType constraint = ((BTableType) ((BLangVariableReference) streamingInput.getStreamReference()).type)
-                        .constraint;
+                BType constraint = ((BTableType) ((BLangVariableReference) streamingInput
+                        .getStreamReference()).type).constraint;
                 symbolEnter.defineVarSymbol(streamingInput.pos, EnumSet.noneOf(Flag.class), constraint,
                         names.fromString(streamingInput.getAlias()), env);
             }
@@ -2297,8 +2162,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         if (kind == BRACED_TUPLE_EXPR) {
             BLangBracedOrTupleExpr bracedOrTupleExpr = (BLangBracedOrTupleExpr) expr;
-            if (bracedOrTupleExpr.expressions.size() > 1 &&
-                    bracedOrTupleExpr.expressions.stream().anyMatch(literal -> literal.getKind() == LITERAL)) {
+            if (bracedOrTupleExpr.expressions.size() > 1 && bracedOrTupleExpr.expressions.stream()
+                    .anyMatch(literal -> literal.getKind() == LITERAL)) {
                 dlog.error(expr.pos, DiagnosticCode.INVALID_ANY_VAR_DEF);
                 return false;
             }
@@ -2650,7 +2515,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             this.typeGuards = new HashMap<>();
             this.typeGuards = typeGuards.entrySet().stream()
                     .collect(Collectors.toMap(Map.Entry::getKey, e -> new HashSet() {
-                        { add(e.getValue()); }
+                        {
+                            add(e.getValue());
+                        }
                     }));
             return;
         }
