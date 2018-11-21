@@ -51,10 +51,7 @@ public class MainFunctionsTest {
     @Test
     public void invalidMainFunctionSignatureTest() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/vm/invalid_main_function.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 2);
+        Assert.assertEquals(negativeResult.getErrorCount(), 1);
         validateError(negativeResult, 0, "the main function should be public", 17, 1);
-        validateError(negativeResult, 1,
-                      "invalid return type 'string', the main function may have no returns or may only return int",
-                      17, 25);
     }
 }

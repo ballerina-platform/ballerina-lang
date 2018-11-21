@@ -46,19 +46,19 @@ function testDecimalObject() returns (string, int, decimal, decimal) {
 
 // Record with decimal fields
 type Animal record {
-    decimal weight;
-    decimal height;
+    decimal weight = 0.0;
+    decimal height = 0.0;
 };
 
 // Object with decimal fields
 type Student object {
-    string name;
-    int age;
+    string name = "";
+    int age = 0;
     decimal weight = 65.65;
-    decimal height;
+    decimal height = 0.0;
 
     new(name = "Bob", age = 25, weight, height) {
-        weight = weight;
-        height = height;
+        self.weight = weight;
+        self.height = height;
     }
 };

@@ -17,11 +17,15 @@ endpoint jms:QueueSender queueSender {
     queueName: "MyQueue4"
 };
 
-public function main (string... args) {
+public function main () {
     // Create a Text message.
-    jms:Message m = check jmsSession.createTextMessage("Test Text");
-    // Send the Ballerina message to the JMS provider.
-    _ = queueSender -> send(m);
+    var msg = jmsSession.createTextMessage("Test Text");
+    if (msg is jms:Message) {
+         // Send the Ballerina message to the JMS provider.
+         _ = queueSender -> send(msg);
+    } else {
+         panic msg;
+    }
 
     io:println("Message successfully sent by QueueSender");
 }

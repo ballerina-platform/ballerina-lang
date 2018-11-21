@@ -75,6 +75,11 @@ public class BFloatArray extends BNewArray {
     }
 
     @Override
+    public void stamp(BType type) {
+
+    }
+
+    @Override
     public void grow(int newLength) {
         values = Arrays.copyOf(values, newLength);
     }

@@ -103,9 +103,12 @@ function testJSONToConstraintJsonUnsafeCast() returns (json | error) {
 }
 
 function testJSONToConstraintJsonUnsafeCastPositive() returns (json, json, json) {
-    json<Person> j;
-    j =check <json<Person>>getPersonEquivalentPlainJson();
-    return (j.name, j.age, j.address);
+    var j = <json<Person>>getPersonEquivalentPlainJson();
+    if (j is error) {
+         panic j;
+    } else {
+         return (j.name, j.age, j.address);
+    }
 }
 
 
@@ -178,11 +181,11 @@ function testConstrainedJsonWithFunctionGetKeys() returns (string[] | ()){
 }
 
 type StudentObj object {
-    string name;
-    int age;
+    string name = "";
+    int age = 0;
 
     function getName() returns string {
-        return name;
+        return self.name;
     }
 };
 

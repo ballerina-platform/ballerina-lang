@@ -135,9 +135,9 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtBindingPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStaticBindingPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtTypedBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchTypedBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -169,6 +169,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
@@ -387,7 +388,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangMatch match) {
         analyzeNode(match.expr, env);
         Map<BSymbol, InitStatus> uninitVars = new HashMap<>();
-        for (BLangMatchStmtBindingPatternClause patternClause : match.patternClauses) {
+        for (BLangMatch.BLangMatchBindingPatternClause patternClause : match.patternClauses) {
             BranchResult result = analyzeBranch(patternClause, env);
             // If the flow was terminated within the block, then that branch should not be considered for
             // analyzing the data-flow for the downstream code.
@@ -932,7 +933,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatchStmtTypedBindingPatternClause patternClauseNode) {
+    public void visit(BLangMatchTypedBindingPatternClause patternClauseNode) {
         analyzeNode(patternClauseNode.body, env);
     }
 
@@ -978,11 +979,15 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatchStmtStaticBindingPatternClause bLangMatchStmtLiteralBindingPatternClause) {
+    public void visit(BLangMatchStaticBindingPatternClause bLangMatchStaticBindingPatternClause) {
+    }
+
+    @Override
+    public void visit(BLangMatchStructuredBindingPatternClause bLangMatchStructuredBindingPatternClause) {
     }
 
     private void addUninitializedVar(BLangVariable variable) {
-        if (!this.uninitializedVars.containsKey(variable.symbol)) {
+        if (variable.symbol.type.tag != TypeTags.CHANNEL && !this.uninitializedVars.containsKey(variable.symbol)) {
             this.uninitializedVars.put(variable.symbol, InitStatus.UN_INIT);
         }
     }

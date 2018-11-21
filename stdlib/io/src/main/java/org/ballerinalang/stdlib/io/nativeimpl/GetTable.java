@@ -51,7 +51,9 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Extern function ballerina/io#loadToTable.
@@ -139,18 +141,19 @@ public class GetTable implements NativeCallableUnit {
     }
 
     private static BMap<String, BValue> getStruct(String[] fields, final BStructureType structType) {
-        BField[] internalStructFields = structType.getFields();
-        int fieldLength = internalStructFields.length;
+        Map<String, BField> internalStructFields = structType.getFields();
+        int fieldLength = internalStructFields.size();
         BMap<String, BValue> struct = null;
         if (fields.length > 0) {
-            if (internalStructFields.length != fields.length) {
+            if (internalStructFields.size() != fields.length) {
                 String msg = "Record row fields count and the give struct's fields count are mismatch";
                 throw new BallerinaIOException(msg);
             }
+            Iterator<Map.Entry<String, BField>> itr = internalStructFields.entrySet().iterator();
             struct = new BMap<>(structType);
             for (int i = 0; i < fieldLength; i++) {
                 String value = fields[i];
-                final BField internalStructField = internalStructFields[i];
+                final BField internalStructField = itr.next().getValue(); // TODO: 11/15/18 double check this logic
                 final int type = internalStructField.getFieldType().getTag();
                 String fieldName = internalStructField.fieldName;
                 switch (type) {

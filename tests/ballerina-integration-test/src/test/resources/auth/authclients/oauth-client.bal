@@ -19,7 +19,7 @@ import ballerina/io;
 import ballerina/mime;
 
 endpoint http:Client clientEP1 {
-    url:"https://localhost:9095/foo",
+    url: "https://localhost:9095/foo",
     auth: {
         scheme: http:OAUTH2,
         refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
@@ -31,7 +31,7 @@ endpoint http:Client clientEP1 {
 };
 
 endpoint http:Client clientEP2 {
-    url:"https://localhost:9095/foo",
+    url: "https://localhost:9095/foo",
     auth: {
         scheme: http:OAUTH2,
         refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
@@ -43,7 +43,7 @@ endpoint http:Client clientEP2 {
 };
 
 endpoint http:Client clientEP3 {
-    url:"https://localhost:9095/foo",
+    url: "https://localhost:9095/foo",
     auth: {
         scheme: http:OAUTH2,
         refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
@@ -54,7 +54,7 @@ endpoint http:Client clientEP3 {
 };
 
 endpoint http:Client clientEP4 {
-    url:"https://localhost:9095/foo",
+    url: "https://localhost:9095/foo",
     auth: {
         scheme: http:OAUTH2,
         refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
@@ -66,7 +66,7 @@ endpoint http:Client clientEP4 {
 };
 
 endpoint http:Client clientEP5 {
-    url:"https://localhost:9095/foo",
+    url: "https://localhost:9095/foo",
     auth: {
         scheme: http:OAUTH2,
         refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
@@ -79,7 +79,7 @@ endpoint http:Client clientEP5 {
     }
 };
 
-public function main (string arg) {
+public function main(string arg) {
     if (arg == "POST_BODY_BEARER") {
         var resp = clientEP1->get("/bar");
     } else if (arg == "AUTH_HEADER_BEARER") {

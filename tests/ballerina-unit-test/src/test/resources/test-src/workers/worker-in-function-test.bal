@@ -12,13 +12,13 @@ type TStruct record {
 function testSimpleWorkerVM(string msg) returns string {
     worker default {
         "a" -> sampleWorker;
-        string result;
+        string result = "";
         result <- sampleWorker;
         return result;
     }
 
     worker sampleWorker {
-        string m;
+        string m = "";
         m <- default;
         msg -> default;
     }

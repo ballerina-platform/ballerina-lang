@@ -3,14 +3,14 @@ import ballerina/runtime;
 
 int i = 0;
 
-function testForkJoin() returns (int, int) {
+function testForkJoin() returns (int, int)|error {
     endpoint http:Client c {
         url:"http://example.com"
     };
     fork {
         worker w1 {
             var clientResponse = c->get("");
-            int code;
+            int code = 0;
             match clientResponse {
                http:Response res => {
                    code = res.statusCode;

@@ -62,6 +62,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.SGLOAD] = "sgload";
         mnemonics[InstructionCodes.BGLOAD] = "bgload";
         mnemonics[InstructionCodes.RGLOAD] = "rgload";
+        mnemonics[InstructionCodes.IS_LIKE] = "is_like";
 
         mnemonics[InstructionCodes.BIASTORE] = "biastore";
         mnemonics[InstructionCodes.IASTORE] = "iastore";
@@ -75,6 +76,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.SGSTORE] = "sgstore";
         mnemonics[InstructionCodes.BGSTORE] = "bgstore";
         mnemonics[InstructionCodes.RGSTORE] = "rgstore";
+
+        mnemonics[InstructionCodes.STAMP] = "stamp";
 
         mnemonics[InstructionCodes.FREEZE] = "freeze";
         mnemonics[InstructionCodes.IS_FROZEN] = "isFrozen";
