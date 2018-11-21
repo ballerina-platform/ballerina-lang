@@ -27,6 +27,8 @@ import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import java.util.HashMap;
+
 /**
  * Make a deep copy of an XML.
  */
@@ -46,7 +48,7 @@ private static final String OPERATION = "get children from xml";
         try {
             // Accessing Parameters.
             BXML value = (BXML) ctx.getRefArgument(0);
-            result = value.copy();
+            result = value.copy(new HashMap<>());
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);
         }

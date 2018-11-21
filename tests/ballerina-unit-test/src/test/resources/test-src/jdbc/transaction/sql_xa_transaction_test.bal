@@ -271,7 +271,6 @@ function testXATransactonRetryHelper(h2:Client db1, h2:Client db2) {
     endpoint h2:Client testDB2 = db2;
     int i = 0;
     transaction {
-        io:println("Inside trx");
         if (i == 2) {
             _ = testDB1->update("insert into Customers (customerId, name, creditLimit, country)
                         values (4, 'John', 1000, 'UK')");

@@ -3221,6 +3221,13 @@ public class Desugar extends BLangNodeVisitor {
                                                                                 OperatorKind.OR, orSymbol);
                 result = rewriteExpr(binaryExprInf);
                 break;
+            case CLONE:
+                if (types.isValueType(iExpr.expr.type)) {
+                    result = iExpr.expr;
+                    break;
+                }
+                result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
+                break;
             case FREEZE:
             case IS_FROZEN:
                 visitFreezeBuiltInMethodInvocation(iExpr);
@@ -3940,11 +3947,8 @@ public class Desugar extends BLangNodeVisitor {
                     BLangTableLiteral table = new BLangTableLiteral();
                     table.type = type;
                     return rewriteExpr(table);
-                } else if (((BTableType) type).getConstraint().tag == TypeTags.NONE) {
-                    BLangTableLiteral table = new BLangTableLiteral();
-                    table.type = new BTableType(TypeTags.TABLE, symTable.noType, symTable.tableType.tsymbol);
-                    return rewriteExpr(table);
                 }
+
                 break;
             case TypeTags.ARRAY:
                 BLangArrayLiteral array = new BLangArrayLiteral();

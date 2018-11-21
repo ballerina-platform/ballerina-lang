@@ -1888,7 +1888,7 @@ public class Types {
 
     /**
      * Type vector of size two, to hold the source and the target types.
-     *
+     * 
      * @since 0.982.0
      */
     private static class TypePair {
