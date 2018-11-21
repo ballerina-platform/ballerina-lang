@@ -48,18 +48,19 @@ public class SafeStrandCallback extends StrandCallback {
     }
 
     @Override
-    public Strand signal() {
+    public void signal() {
         try {
             dataLock.lock();
             this.returnValueAvailable.set(true);
             if (contStrand != null) {
-                return CallbackReturnHandler.handleReturn(contStrand, expType, retReg, this);
+                Strand strand = CallbackReturnHandler.handleReturn(contStrand, expType, retReg, this);
+                if (strand != null) {
+                    BVMScheduler.schedule(strand);
+                }
             }
         } finally {
             dataLock.unlock();
         }
-
-        return null;
     }
 
     public void acquireDataLock() {

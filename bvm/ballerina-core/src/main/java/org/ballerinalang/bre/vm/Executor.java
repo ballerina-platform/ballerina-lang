@@ -117,7 +117,7 @@ public class Executor {
         StrandWaitCallback strandCallback = new StrandWaitCallback(functionInfo, functionInfo.getRetParamTypes()[0]); //TODO change to have single return type - rajith
         Strand strand = new Strand(programFile, strandCallback);
 
-        DataFrame idf = new DataFrame(functionInfo.getPackageInfo(), functionInfo,
+        StackFrame idf = new StackFrame(functionInfo.getPackageInfo(), functionInfo,
                 functionInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1);
         copyArgValues(args, idf, functionInfo.getParamTypes());
         strand.pushFrame(idf);
@@ -136,7 +136,7 @@ public class Executor {
         return result;
     }
 
-    private static void copyArgValues(BValue[] args, DataFrame callee, BType[] paramTypes) {
+    private static void copyArgValues(BValue[] args, StackFrame callee, BType[] paramTypes) {
         int longRegIndex = -1;
         int doubleRegIndex = -1;
         int stringRegIndex = -1;

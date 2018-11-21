@@ -45,9 +45,8 @@ public class StrandCallback implements BVMCallback {
     }
 
     @Override
-    public Strand signal() {
+    public void signal() {
         //TODO
-        return null;
     }
 
     @Override

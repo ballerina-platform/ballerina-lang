@@ -834,8 +834,8 @@ public class CPU {
 
         BRefType<?> refRegVal = sf.refRegs[i];
         if (!checkIsLikeType(refRegVal, BTypes.typeAnydata)) {
-            sf.refRegs[j] = BLangVMErrors.createError(ctx, BLangExceptionHelper
-                    .getErrorMessage(RuntimeErrors.UNSUPPORTED_CLONE_OPERATION, refRegVal, refRegVal.getType()));
+//            sf.refRegs[j] = BLangVMErrors.createError(ctx, BLangExceptionHelper
+//                    .getErrorMessage(RuntimeErrors.UNSUPPORTED_CLONE_OPERATION, refRegVal, refRegVal.getType()));
             return;
         }
         sf.refRegs[j] = (BRefType<?>) refRegVal.copy(new HashMap<>());

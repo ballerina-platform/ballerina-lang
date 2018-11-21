@@ -19,7 +19,7 @@ package org.ballerinalang.bre;
 
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.bre.vm.DataFrame;
+import org.ballerinalang.bre.vm.StackFrame;
 import org.ballerinalang.bre.vm.Strand;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
@@ -30,7 +30,6 @@ import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.program.BLangVMUtils;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
 import java.util.Map;
@@ -44,12 +43,12 @@ public class NativeCallContext implements Context {
     
     private CallableUnitInfo callableUnitInfo;
 
-    private DataFrame sf;
+    private StackFrame sf;
 
     private BValue returnValue;
 
     public NativeCallContext(Strand strand, CallableUnitInfo callableUnitInfo,
-                             DataFrame sf) {
+                             StackFrame sf) {
         this.strand = strand;
         this.callableUnitInfo = callableUnitInfo;
         this.sf = sf;
@@ -75,7 +74,7 @@ public class NativeCallContext implements Context {
     }
 
     @Override
-    public DataFrame getDataFrame() {
+    public StackFrame getDataFrame() {
         return sf;
     }
 

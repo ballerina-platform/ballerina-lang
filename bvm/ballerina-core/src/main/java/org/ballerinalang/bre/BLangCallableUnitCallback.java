@@ -19,7 +19,7 @@ package org.ballerinalang.bre;
 
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.bre.vm.BVMScheduler;
-import org.ballerinalang.bre.vm.DataFrame;
+import org.ballerinalang.bre.vm.StackFrame;
 import org.ballerinalang.bre.vm.Strand;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BError;
@@ -52,25 +52,30 @@ public class BLangCallableUnitCallback implements CallableUnitCallback {
     public void notifySuccess() {
         if (strand.fp > 0) {
             strand.popFrame();
-            DataFrame sf = strand.currentFrame;
+            StackFrame sf = strand.currentFrame;
             BLangVMUtils.populateWorkerDataWithValues(sf, this.retReg,
                     this.nativeCallCtx.getReturnValue(), this.retType);
             BVMScheduler.schedule(strand);
             return;
         }
-        Strand retStrand = strand.respCallback.signal();
-        if (retStrand != null) {
-            BVMScheduler.schedule(retStrand);
-        }
+        strand.respCallback.signal();
 //        //TODO fix - rajith
 //        BLangScheduler.handleInterruptibleAfterCallback(this.parentCtx);
     }
 
     @Override
     public void notifyFailure(BError error) {
+        if (strand.fp > 0) {
+            strand.popFrame();
+            StackFrame sf = strand.currentFrame;
+            strand.setError(error);
+            BVMScheduler.schedule(strand);
+            return;
+        }
+        strand.respCallback.setError(error);
+        strand.respCallback.signal();
         //TODO fix - rajith
 //        BLangScheduler.handleInterruptibleAfterCallback(this.parentCtx);
-//        BLangScheduler.resume(BLangScheduler.errorThrown(this.parentCtx, error));
     }
 
 }

@@ -19,10 +19,9 @@ package org.ballerinalang.bre.vm;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.bre.bvm.WorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerState;
+import org.ballerinalang.bre.vm.Strand.State;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BError;
@@ -34,17 +33,25 @@ import org.ballerinalang.util.program.BLangVMUtils;
 import java.util.concurrent.atomic.LongAdder;
 
 /**
- * This represents the Ballerina worker scheduling functionality. 
- * 
+ * This represents the Ballerina worker scheduling functionality.
+ *
  * @since 0.985.0
  */
 public class BVMScheduler {
 
     public static void schedule(Strand strand) {
+        if (strand.state == State.TERMINATED) {
+            return;
+        }
+        strand.state = State.RUNNABLE;
         ThreadPoolFactory.getInstance().getWorkerExecutor().submit(new CallableExecutor(strand));
     }
 
     public static void scheduleNative(NativeCallableUnit nativeCallable, Context nativeCtx) {
+        if (nativeCtx.getStrand().state == State.TERMINATED) {
+            return;
+        }
+        nativeCtx.getStrand().state = State.RUNNABLE;
         ThreadPoolFactory.getInstance().getWorkerExecutor()
                 .submit(new NativeCallableExecutor(nativeCallable, nativeCtx));
     }
@@ -59,28 +66,28 @@ public class BVMScheduler {
         public CallableExecutor(Strand strand) {
             this.strand = strand;
         }
-        
+
         @Override
         public void run() {
             BVM.execute(this.strand);
         }
-        
+
     }
-    
+
     /**
      * This represents the thread used to run a blocking native call in async mode.
      */
     private static class NativeCallableExecutor implements Runnable {
 
         private NativeCallableUnit nativeCallable;
-        
+
         private Context nativeCtx;
-        
+
         public NativeCallableExecutor(NativeCallableUnit nativeCallable, Context nativeCtx) {
             this.nativeCallable = nativeCallable;
             this.nativeCtx = nativeCtx;
         }
-        
+
         @Override
         public void run() {
             WorkerExecutionContext runInCaller = null;
@@ -92,16 +99,13 @@ public class BVMScheduler {
                 this.nativeCallable.execute(this.nativeCtx, null);
                 if (strand.fp > 0) {
                     strand.popFrame();
-                    DataFrame retFrame = strand.currentFrame;
+                    StackFrame retFrame = strand.currentFrame;
                     BLangVMUtils.populateWorkerDataWithValues(retFrame, this.nativeCtx.getDataFrame().retReg,
                             this.nativeCtx.getReturnValue(), retType);
                     BVM.execute(strand);
                     return;
                 }
-                Strand retStrand = strand.respCallback.signal();
-                if (retStrand != null) {
-                    BVM.execute(strand);
-                }
+                strand.respCallback.signal();
                 return;
             } catch (BLangNullReferenceException e) {
                 error = BLangVMErrors.createNullRefException(this.nativeCtx.getStrand());
@@ -110,21 +114,19 @@ public class BVMScheduler {
             }
             strand.setError(error);
             strand.popFrame();
-            strand = BVM.handleError(strand);
-            if (strand != null) {
-                BVM.execute(strand);
-            }
+            BVM.handleError(strand);
+            BVM.execute(strand);
         }
-        
+
     }
-    
+
     /**
      * This class represents the scheduler statistics.
      */
     public static class SchedulerStats {
-        
+
         private LongAdder[] stateCounts;
-        
+
         public SchedulerStats() {
             this.stateCounts = new LongAdder[6];
             for (int i = 0; i < this.stateCounts.length; i++) {
@@ -155,7 +157,7 @@ public class BVMScheduler {
         public long getWaitingForLockWorkerCount() {
             return this.stateCounts[5].longValue();
         }
-        
+
         public void stateTransition(WorkerExecutionContext currentCtx, WorkerState newState) {
 //            if (!schedulerStatsEnabled || currentCtx.isRootContext()) {
 //                return;
@@ -170,7 +172,7 @@ public class BVMScheduler {
 //                this.stateCounts[newState.ordinal()].increment();
 //            }
         }
-        
+
         @Override
         public String toString() {
             StringBuilder builder = new StringBuilder();
@@ -183,7 +185,7 @@ public class BVMScheduler {
             builder.append("\tWAITING FOR LOCK: " + this.getWaitingForLockWorkerCount() + "\n");
             return builder.toString();
         }
-        
+
     }
-    
+
 }

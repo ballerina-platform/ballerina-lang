@@ -30,7 +30,7 @@ import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
  * 
  * @since 0.985.0
  */
-public class DataFrame {
+public class StackFrame {
 
     public long[] longRegs;
 
@@ -56,9 +56,9 @@ public class DataFrame {
     // Return registry index
     public int retReg;
 
-    public DataFrame() {}
+    public StackFrame() {}
 
-    public DataFrame(CallableUnitInfo callableUnitInfo, int retTypeTag) {
+    public StackFrame(CallableUnitInfo callableUnitInfo, int retTypeTag) {
         int maxRetRegSize = 1; // Since we have single value return, this is 1
         switch (retTypeTag) {
             case TypeTags.INT_TAG:
@@ -83,7 +83,7 @@ public class DataFrame {
         this.callableUnitInfo = callableUnitInfo;
     }
 
-    public DataFrame(PackageInfo packageInfo, CallableUnitInfo callableUnitInfo, CodeAttributeInfo ci, int retReg) {
+    public StackFrame(PackageInfo packageInfo, CallableUnitInfo callableUnitInfo, CodeAttributeInfo ci, int retReg) {
         if (ci.maxLongRegs > 0) {
             this.longRegs = new long[ci.maxLongRegs];
         }

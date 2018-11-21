@@ -54,7 +54,7 @@ public class CallbackReturnHandler {
         return null;
     }
 
-    private static void handleReturn(DataFrame sf, SafeStrandCallback strandCallback, BType expType, int retReg) {
+    private static void handleReturn(StackFrame sf, SafeStrandCallback strandCallback, BType expType, int retReg) {
         if (expType.getTag() == TypeTags.UNION_TAG) {
             switch (strandCallback.retType.getTag()) {
                 case TypeTags.INT_TAG:
