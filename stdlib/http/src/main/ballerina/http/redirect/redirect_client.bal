@@ -320,13 +320,17 @@ function redirect(Response response, HttpOperation httpVerb, Request request, Re
 
 function performRedirection(string location, RedirectClient redirectClient, HttpOperation redirectMethod,
                                        Request request, Response response) returns @untainted Response|error {
-    Client retryClient = createRetryClient(location, createNewEndpoint(location, redirectClient.config));
-    log:printDebug(function() returns string {
-        return "Redirect using new clientEP : " + location;
-    });
-    Response|error result = invokeEndpoint("", createRedirectRequest(response.statusCode, request),
-        redirectMethod, retryClient);
-    return checkRedirectEligibility(result, location, redirectMethod, request, redirectClient);
+    var retryClient = createRetryClient(location, createNewEndpoint(location, redirectClient.config));
+    if (retryClient is Client) {
+        log:printDebug(function() returns string {
+                return "Redirect using new clientEP : " + location;
+            });
+        Response|error result = invokeEndpoint("", createRedirectRequest(response.statusCode, request),
+            redirectMethod, retryClient);
+        return checkRedirectEligibility(result, location, redirectMethod, request, redirectClient);
+    } else {
+        return retryClient;
+    }
 }
 
 //Create a new HTTP client endpoint configuration with a given location as the url.
