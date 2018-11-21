@@ -322,7 +322,7 @@ public class BTable implements BRefType<Object>, BCollection {
         }
 
         TableIterator cloneIterator = tableProvider.createIterator(this.tableName, this.constraintType);
-        BRefValueArray data = new BRefValueArray();
+        BValueArray data = new BValueArray();
         int cursor = 0;
         try {
             while (cloneIterator.next()) {

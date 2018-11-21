@@ -37,8 +37,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.StringJoiner;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
 
 import static org.ballerinalang.model.util.FreezeUtils.handleInvalidUpdate;
 import static org.ballerinalang.model.util.FreezeUtils.isOpenForFreeze;
@@ -358,33 +360,92 @@ public class BValueArray extends BNewArray implements Serializable {
     }
 
     @Override
-    public BValue copy() {
+    public BValue copy(Map<BValue, BValue> refs) {
         if (elementType != null) {
             if (elementType.getTag() == TypeTags.INT_TAG) {
+                if (isFrozen()) {
+                    return this;
+                }
+
+                if (refs.containsKey(this)) {
+                    return refs.get(this);
+                }
+
                 BValueArray intArray = new BValueArray(Arrays.copyOf(intValues, intValues.length));
                 intArray.size = this.size;
+                refs.put(this, intArray);
                 return intArray;
             } else if (elementType.getTag() == TypeTags.BOOLEAN_TAG) {
+                if (isFrozen()) {
+                    return this;
+                }
+
+                if (refs.containsKey(this)) {
+                    return refs.get(this);
+                }
+
                 BValueArray booleanArray = new BValueArray(Arrays.copyOf(booleanValues, booleanValues.length));
                 booleanArray.size = this.size;
+                refs.put(this, booleanArray);
                 return booleanArray;
             } else if (elementType.getTag() == TypeTags.BYTE_TAG) {
+                if (isFrozen()) {
+                    return this;
+                }
+
+                if (refs.containsKey(this)) {
+                    return refs.get(this);
+                }
+
                 BValueArray byteArray = new BValueArray(Arrays.copyOf(byteValues, byteValues.length));
                 byteArray.size = this.size;
+                refs.put(this, byteArray);
                 return byteArray;
             } else if (elementType.getTag() == TypeTags.FLOAT_TAG) {
+                if (isFrozen()) {
+                    return this;
+                }
+
+                if (refs.containsKey(this)) {
+                    return refs.get(this);
+                }
+
                 BValueArray floatArray = new BValueArray(Arrays.copyOf(floatValues, floatValues.length));
                 floatArray.size = size;
+                refs.put(this, floatArray);
                 return floatArray;
             } else if (elementType.getTag() == TypeTags.STRING_TAG) {
+                if (isFrozen()) {
+                    return this;
+                }
+
+                if (refs.containsKey(this)) {
+                    return refs.get(this);
+                }
+
                 BValueArray stringArray = new BValueArray(Arrays.copyOf(stringValues, stringValues.length));
                 stringArray.size = this.size;
+                refs.put(this, stringArray);
                 return stringArray;
             }
         }
 
-        BValueArray refValueArray = new BValueArray(Arrays.copyOf(refValues, refValues.length), arrayType);
+        if (isFrozen()) {
+            return this;
+        }
+
+        if (refs.containsKey(this)) {
+            return refs.get(this);
+        }
+
+        BRefType<?>[] values = new BRefType[size];
+        BValueArray refValueArray = new BValueArray(values, arrayType);
         refValueArray.size = this.size;
+        refs.put(this, refValueArray);
+        int bound = this.size;
+        IntStream.range(0, bound)
+                .forEach(i -> values[i] = this.refValues[i] == null ? null :
+                        (BRefType<?>) this.refValues[i].copy(refs));
         return refValueArray;
 
     }
