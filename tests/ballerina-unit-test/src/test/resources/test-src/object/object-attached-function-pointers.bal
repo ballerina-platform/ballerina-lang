@@ -31,12 +31,12 @@ type Person object {
     }
 
     function attachedFn6(int a, float b) returns (int) {
-        var foo = self.attachedFn3;
+        function (int a, float b) returns (int) foo = (x, y) => self.attachedFn3(x, y);
         return a + <int>b + foo(43, 10.8);
     }
 
     function attachedFn7(int a, float b) returns (int) {
-        var foo = self.attachedFn3;
+        function (int a, float b) returns (int) foo = (x, y) => self.attachedFn3(x, y);
         return a + <int>b + foo(43, 10.8);
     }
 };
@@ -55,33 +55,33 @@ function Person.attachedFn4() returns (function (int, float) returns (int)) {
 
 function test1() returns (int) {
     Person p = new;
-    var foo = p.attachedFn1;
+    function (int a, float b) returns (int) foo = (x, y) => p.attachedFn1(x, y);
     return foo(43, 10.8);
 }
 
 function test2() returns (int) {
     Person p = new;
-    var foo = p.attachedFn2;
+    function () returns (function (int, float) returns (int)) foo = () => p.attachedFn2();
     var bar = foo();
     return bar(43, 10.8);
 }
 
 function test3() returns (int) {
     Person p = new;
-    var foo = p.attachedFn3;
+    function (int a, float b) returns (int) foo = (x, y) => p.attachedFn3(x, y);
     return foo(43, 10.8);
 }
 
 function test4() returns (int) {
     Person p = new;
-    var foo = p.attachedFn4;
+    function () returns (function (int, float) returns (int)) foo = () => p.attachedFn4();
     var bar = foo();
     return bar(43, 10.8);
 }
 
 function test5() returns (int) {
     Person p = new;
-    var foo = p.attachedFn5;
+    function (int a, float b) returns (function (float) returns ((function (boolean) returns (int)))) foo = (x, y) => p.attachedFn5(x, y);
     var bar = foo(43, 10.8);
     var baz = bar(5.8);
     return baz(true);
@@ -89,13 +89,13 @@ function test5() returns (int) {
 
 function test6() returns (int) {
     Person p = new;
-    var foo = p.attachedFn6;
+    function (int a, float b) returns (int) foo = (x, y) => p.attachedFn6(x, y);
     return foo(43, 10.8);
 }
 
 function test7() returns (int) {
     Person p = new;
-    var foo = p.attachedFn7;
+    function (int a, float b) returns (int) foo = (x, y) => p.attachedFn7(x, y);
     return foo(43, 10.8);
 }
 
@@ -129,10 +129,10 @@ function test8() returns (string, int) {
     var bar = function (int[] v) returns int { return v[1];};
     FooObj fooObj = new (foo, bar);
     _ = fooObj.processStrArray(s);
-    var x = fooObj.processStrArray;
+    (function (string[] vals) returns string) x = (vals) => fooObj.processStrArray(vals);
     string q = x(s);
     _ = fooObj.processIntArray(i);
-    var y = fooObj.processIntArray;
+    (function (int[] vals) returns int) y = (vals) => fooObj.processIntArray(vals);
     int r = y(i);
 
     return(q, r);
@@ -203,7 +203,7 @@ public type O5 object {
         self.fpO5 = fpO5;
     }
 
-    public function process(string[] vals) returns string{
+    public function process(string[] vals) returns string {
         return self.fpO5(vals);
     }
 };

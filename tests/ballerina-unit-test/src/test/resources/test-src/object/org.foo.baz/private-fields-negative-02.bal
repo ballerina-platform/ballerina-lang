@@ -1,50 +1,63 @@
 
 public type FooDepartment object {
-
     public string dptName = "";
-    public FooPerson[] employees = [];
+    public FooPerson[] employees;
 
-    public function __init (employees) {}
+    public function __init (FooPerson[] employees) {
+        self.employees = employees;
+    }
 };
 
 public type FooPerson object {
-
     public string name = "default first name";
     public string lname = "";
     public map adrs = {};
     public int age = 999;
     public FooFamily family = new;
 
-
-    public function __init (name, adrs, age){}
+    public function __init (string name, map adrs, int age) {
+        self.age = age;
+        self.name = name;
+        self.adrs = adrs;
+    }
 };
 
 type FooFamily object {
-
     public string spouse = "";
     public int noOfChildren = 0;
     public string[] children = [];
-
 };
 
 public type FooEmployee object {
-
-    public string fname = "";
-    public string lname = "";
-    public int age = 0;
-
+    public string fname;
+    public string lname;
+    public int age;
 
     private object {
+            public string city;
+            public string state;
+            public string zipcode;
 
+            function __init (string city, string state, string zipcode) {
+                self.city = city;
+                self.state = state;
+                self.zipcode = zipcode;
+            }
+        } address;
+
+
+    public function __init (string fname, string lname, int age, object {
             public string city = "";
             public string state = "";
             public string zipcode = "";
 
-            function __init (city, state, zipcode) {}
-        } address;
-
-
-    public function __init (fname, lname, age, address){}
+            function __init (string city, string state, string zipcode) {}
+        } address) {
+        self.fname = fname;
+        self.lname = lname;
+        self.age = age;
+        self.address = address;
+    }
 };
 
 public function createObj() returns (FooPerson) {

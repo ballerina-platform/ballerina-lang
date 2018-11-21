@@ -3,7 +3,15 @@ function testAnonObjectAsFuncParam() returns (int) {
     return testAnonObjectFunc(10, new (14, "sameera"));
 }
 
-function testAnonObjectFunc(int i, object {public int k = 10; public string s; function __init (int k, string s) {}} anonSt) returns (int) {
+function testAnonObjectFunc(int i, object {
+                                        public int k = 10; 
+                                        public string s; 
+                                        
+                                        function __init (int k, string s) {
+                                            self.k = k;
+                                            self.s = s;
+                                        }
+                                    } anonSt) returns (int) {
     return anonSt.k + i;
 }
 
@@ -43,7 +51,7 @@ type employee object {
         public string city;
         public string state;
         public string zipcode;
-        function __init (string line01, string city, string state, string zipcode) {
+        public function __init (string line01, string city, string state, string zipcode) {
                                 self.line01 = line01;
                                 self.city = city;
                                 self.state = state;
@@ -55,7 +63,7 @@ type employee object {
         public string month = "JAN";
         public string day = "01";
         public string year = "1970";
-        } dateOfBirth;
+    } dateOfBirth;
 
     function __init (string fname, string lname, int age, 
                         object {
@@ -64,7 +72,7 @@ type employee object {
                             public string city;
                             public string state;
                             public string zipcode;
-                            function __init (string line01, string city, string state, string zipcode) {
+                            public function __init (string line01, string city, string state, string zipcode) {
                                 self.line01 = line01;
                                 self.city = city;
                                 self.state = state;

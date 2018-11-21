@@ -1,11 +1,9 @@
-
 function test () returns int {
     Person p = new(8, new (9));
     return p.emp.age;
 }
 
 type Person object {
-
     public int age = 0;
     public Employee emp;
 
@@ -26,7 +24,6 @@ type Employee object {
 };
 
 type Foo object {
-
     public int calc;
 
     function __init (int calc) {

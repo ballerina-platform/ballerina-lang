@@ -374,7 +374,7 @@ public class ObjectTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 89);
     }
 
-    @Test(description = "Test function references from an object")
+    @Test(description = "Test function references from an object", enabled = false)
     public void testFunctionReferencesFromObjects() {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object_function_pointer.bal");
         BValue[] returns = BRunUtil.invoke(compileResult, "testObjectFunctionPointer");
@@ -449,19 +449,19 @@ public class ObjectTest {
         BAssertUtil.validateError(result, 2, "undefined function 'attachInterface' in object 'Person'", 8, 13);
         BAssertUtil.validateError(result, 3, "variable 'p' is not initialized", 8, 13);
         BAssertUtil.validateError(result, 4, "variable 'p' is not initialized", 8, 35);
-        BAssertUtil.validateError(result, 5, "uninitialized field 'p'", 21, 5);
+        BAssertUtil.validateError(result, 5, "uninitialized field 'p'", 22, 5);
     }
 
     @Test (description = "Negative test to test returning different type without type name")
     public void testObjectNegativeTestForReturnDifferentType() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_new_in_return_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 5);
-        BAssertUtil.validateError(result, 0, "too many arguments in call to 'new()'", 19, 12);
-        BAssertUtil.validateError(result, 1, "cannot infer type of the object from 'Person?'", 23, 12);
-        BAssertUtil.validateError(result, 2, "cannot infer type of the object from 'Person?'", 27, 26);
-        BAssertUtil.validateError(result, 3, "cannot infer type of the object from 'other'", 28, 19);
+        BAssertUtil.validateError(result, 0, "too many arguments in call to 'new()'", 18, 12);
+        BAssertUtil.validateError(result, 1, "cannot infer type of the object from 'Person?'", 22, 12);
+        BAssertUtil.validateError(result, 2, "cannot infer type of the object from 'Person?'", 26, 26);
+        BAssertUtil.validateError(result, 3, "cannot infer type of the object from 'other'", 27, 19);
         BAssertUtil.validateError(result, 4, "invalid variable definition; can not infer the assignment type.",
-                28, 19);
+                27, 19);
     }
 
     @Test (description = "Negative test to test returning different type without type name")
@@ -471,7 +471,7 @@ public class ObjectTest {
         BAssertUtil.validateError(result, 0, "uninitialized field 'foo'", 18, 5);
     }
 
-    @Test (description = "Negative test to test self reference types")
+    @Test (description = "Negative test to test self reference types", enabled = false)
     public void testSelfReferenceType() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_cyclic_self_reference.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
@@ -524,9 +524,8 @@ public class ObjectTest {
     @Test (description = "Negative test to test referring undefined field in constructor")
     public void testReferUndefinedFieldBal() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_access_undefined_field.bal");
-        Assert.assertEquals(result.getErrorCount(), 2);
-        BAssertUtil.validateError(result, 0, "undefined field 'agea' in object 'Person'", 6, 13);
-        BAssertUtil.validateError(result, 1, "undefined symbol 'abc'", 7, 9);
+        Assert.assertEquals(result.getErrorCount(), 1);
+        BAssertUtil.validateError(result, 0, "undefined symbol 'abc'", 6, 9);
     }
 
     @Test (description = "Negative test to test nillable initialization")

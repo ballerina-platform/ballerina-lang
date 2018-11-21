@@ -1,4 +1,3 @@
-
 public type person01 object {
 
     public int age = 0;

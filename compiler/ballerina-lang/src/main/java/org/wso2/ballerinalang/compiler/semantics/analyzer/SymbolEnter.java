@@ -553,9 +553,15 @@ public class SymbolEnter extends BLangNodeVisitor {
                 visitObjectAttachedFunction(funcNode);
                 return;
             }
-            SymbolEnv objectEnv = SymbolEnv.createObjectMethodsEnv(null, (BObjectTypeSymbol) funcNode.receiver.type.
-                    tsymbol, env);
-            BSymbol funcSymbol = symResolver.lookupSymbol(objectEnv, getFuncSymbolName(funcNode), SymTag.FUNCTION);
+            
+            // FIXME: remove this if check
+            BSymbol funcSymbol = symTable.notFoundSymbol;
+            if (funcNode.receiver.type.tag == TypeTags.OBJECT) {
+                SymbolEnv objectEnv = SymbolEnv.createObjectMethodsEnv(null, (BObjectTypeSymbol) funcNode.receiver.type.
+                        tsymbol, env);
+                funcSymbol = symResolver.lookupSymbol(objectEnv, getFuncSymbolName(funcNode), SymTag.FUNCTION);
+            }
+
             if (funcSymbol == symTable.notFoundSymbol) {
                 dlog.error(funcNode.pos, DiagnosticCode.CANNOT_FIND_MATCHING_FUNCTION, funcNode.name,
                         funcNode.receiver.type.tsymbol.name);
@@ -600,7 +606,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        env.enclPkg.objAttachedFunctions.add(funcNode.symbol);
+        if (!funcNode.objInitFunction) {
+            env.enclPkg.objAttachedFunctions.add(funcNode.symbol);
+        }
         funcNode.receiver.symbol = funcNode.symbol.receiverSymbol;
     }
 
@@ -1357,11 +1365,10 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         BAttachedFunction attachedFunc = new BAttachedFunction(
                 names.fromIdNode(funcNode.name), funcSymbol, funcType);
-        objectSymbol.attachedFuncs.add(attachedFunc);
 
         // Check whether this attached function is a object initializer.
-        if (!Names.OBJECT_INIT_SUFFIX.value.equals(funcNode.name.value)) {
-            // Not a object initializer.
+        if (!funcNode.objInitFunction) {
+            objectSymbol.attachedFuncs.add(attachedFunc);
             return;
         }
 
