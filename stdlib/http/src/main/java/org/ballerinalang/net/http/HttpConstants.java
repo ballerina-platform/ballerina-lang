@@ -154,7 +154,7 @@ public class HttpConstants {
     public static final String LISTENER_INTERFACE_ID = "listener.interface.id";
     public static final String PACKAGE_BALLERINA_BUILTIN = BALLERINA_BUILTIN_PKG;
 
-    public static final String CALLER_ACTIONS = "CallerActions";
+    public static final String CLIENT_ENDPOINT = "ClientEndpoint";
 
     public static final String REQUEST_URL = "REQUEST_URL";
     public static final String SRC_HANDLER = "SRC_HANDLER";
