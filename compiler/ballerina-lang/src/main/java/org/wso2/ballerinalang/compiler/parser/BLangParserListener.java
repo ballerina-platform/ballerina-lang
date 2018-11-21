@@ -3339,43 +3339,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterMatchExpression(BallerinaParser.MatchExpressionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.startMatchExpression();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitMatchExpression(BallerinaParser.MatchExpressionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.endMatchExpression(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitMatchExpressionPatternClause(BallerinaParser.MatchExpressionPatternClauseContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        String identifier = ctx.Identifier() != null ? ctx.Identifier().getText() : null;
-        this.pkgBuilder.addMatchExprPattern(getCurrentPos(ctx), getWS(ctx), identifier);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void exitElvisExpression(BallerinaParser.ElvisExpressionContext ctx) {
         if (ctx.exception != null) {
             return;
