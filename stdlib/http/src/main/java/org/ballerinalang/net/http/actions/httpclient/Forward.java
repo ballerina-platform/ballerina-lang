@@ -43,7 +43,7 @@ import java.util.Locale;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "forward",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.CALLER_ACTIONS,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.CLIENT_ENDPOINT,
                 structPackage = "ballerina/http"),
         args = {
                 @Argument(name = "client", type = TypeKind.OBJECT),
