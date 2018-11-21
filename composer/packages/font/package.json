@@ -1,0 +1,19 @@
+{
+  "name": "@ballerina/font",
+  "version": "0.983.1-SNAPSHOT",
+  "description": "Ballerina Diagram Font",
+  "main": "build/index.js",
+  "scripts": {
+    "test-coverage": "echo \"Error: no test specified\"",
+    "build": "composer pkg:build && node scripts/build-font.js",
+    "watch": "echo \"Watching api-designer module\"",
+    "test": "echo \"Error: no test specified\""
+  },
+  "author": "ballerina.io",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@ballerina/composer-cli": "^0.983.1-SNAPSHOT",
+    "watch": "^1.0.2",
+    "webfont": "^8.1.4"
+  }
+}
