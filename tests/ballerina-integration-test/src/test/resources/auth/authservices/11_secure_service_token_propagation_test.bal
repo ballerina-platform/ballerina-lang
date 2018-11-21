@@ -7,8 +7,7 @@ http:AuthProvider basicAuthProvider11 = {
     issuer:"ballerina",
     keyAlias:"ballerina",
     keyPassword:"ballerina",
-    keyStore:
-    {
+    keyStore: {
         path:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
         password:"ballerina"
     }

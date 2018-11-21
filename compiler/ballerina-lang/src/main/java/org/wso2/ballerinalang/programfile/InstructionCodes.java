@@ -92,6 +92,8 @@ public interface InstructionCodes {
     int BGSTORE = 58;
     int RGSTORE = 59;
 
+    int IS_LIKE = 60;
+
     int STAMP = 62;
 
     int FREEZE = 63;

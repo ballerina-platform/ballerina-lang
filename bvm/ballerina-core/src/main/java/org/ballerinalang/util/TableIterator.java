@@ -47,6 +47,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Struct;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -187,7 +188,7 @@ public class TableIterator implements DataIterator {
         BMap<String, BValue> bStruct = new BMap<>(type);
         int index = 0;
         try {
-            BField[] structFields = type.getFields();
+            Collection<BField> structFields = type.getFields().values();
             for (BField sf : structFields) {
                 BType type = sf.getFieldType();
                 String fieldName = sf.fieldName;
@@ -402,8 +403,8 @@ public class TableIterator implements DataIterator {
     }
 
     private void generateColumnDefinitions() {
-        BField[] structFields = this.type.getFields();
-        columnDefs = new ArrayList<>(structFields.length);
+        Collection<BField> structFields = this.type.getFields().values();
+        columnDefs = new ArrayList<>(structFields.size());
         for (BField sf : structFields) {
             BType type = sf.getFieldType();
             TypeKind typeKind = TypeKind.ANY;

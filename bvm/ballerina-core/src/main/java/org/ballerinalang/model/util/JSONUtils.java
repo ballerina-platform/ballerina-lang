@@ -255,10 +255,11 @@ public class JSONUtils {
                         targetType, map.getType());
             }
 
-            for (BField field : ((BStructureType) targetType.getConstrainedType()).getFields()) {
-                String key = field.fieldName;
+            for (Entry<String, BField> fieldEntry :
+                    ((BStructureType) targetType.getConstrainedType()).getFields().entrySet()) {
+                String key = fieldEntry.getKey();
                 BValue value = map.get(key);
-                populateJSON(json, key, value, field.fieldType);
+                populateJSON(json, key, value, fieldEntry.getValue().fieldType);
             }
         }
         return json;

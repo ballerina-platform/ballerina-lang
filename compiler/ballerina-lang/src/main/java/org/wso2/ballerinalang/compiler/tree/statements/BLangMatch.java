@@ -19,15 +19,19 @@ package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.MatchNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
@@ -45,7 +49,7 @@ public class BLangMatch extends BLangStatement implements MatchNode {
     }
 
     public BLangExpression expr;
-    public List<BLangMatchStmtBindingPatternClause> patternClauses;
+    public List<BLangMatchBindingPatternClause> patternClauses;
     public List<BType> exprTypes;
 
     @Override
@@ -59,13 +63,32 @@ public class BLangMatch extends BLangStatement implements MatchNode {
     }
 
     @Override
-    public List<BLangMatchStmtTypedBindingPatternClause> getTypedPatternClauses() {
+    public List<BLangMatchTypedBindingPatternClause> getTypedPatternClauses() {
         return patternClauses
                 .stream()
                 .filter(pattern -> NodeKind.MATCH_TYPED_PATTERN_CLAUSE == (pattern.getKind()))
-                .map(BLangMatchStmtTypedBindingPatternClause.class::cast)
+                .map(BLangMatchTypedBindingPatternClause.class::cast)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<BLangMatchStaticBindingPatternClause> getStaticPatternClauses() {
+        return patternClauses
+                .stream()
+                .filter(pattern -> NodeKind.MATCH_STATIC_PATTERN_CLAUSE == (pattern.getKind()))
+                .map(BLangMatchStaticBindingPatternClause.class::cast)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<BLangMatchStructuredBindingPatternClause> getStructuredPatternClauses() {
+        return patternClauses
+                .stream()
+                .filter(pattern -> NodeKind.MATCH_STRUCTURED_PATTERN_CLAUSE == (pattern.getKind()))
+                .map(BLangMatchStructuredBindingPatternClause.class::cast)
+                .collect(Collectors.toList());
+    }
+
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
@@ -80,24 +103,30 @@ public class BLangMatch extends BLangStatement implements MatchNode {
     }
 
     /**
-     * {@code BLangMatchStmtBindingPatternClause} is the parent class for all the pattern clauses.
+     * {@code BLangMatchBindingPatternClause} is the parent class for all the pattern clauses.
      *
      * @since 0.985.0
      */
-    public abstract static class BLangMatchStmtBindingPatternClause extends BLangNode implements
-            MatchStatementBindingPatternNode {
+    public abstract static class BLangMatchBindingPatternClause extends BLangNode implements
+            MatchBindingPatternNode {
 
         // pattern clause's body
         public BLangBlockStmt body;
+
+        // match stmt expr
+        public BLangExpression matchExpr;
+
+        // flag to set the last pattern clause
+        public boolean isLastPattern;
     }
 
     /**
-     * {@code BLangMatchStmtTypedBindingPatternClause} represents a pattern inside a type switch statement.
+     * {@code BLangMatchTypedBindingPatternClause} represents a pattern inside a type switch statement.
      *
      * @since 0.966.0
      */
-    public static class BLangMatchStmtTypedBindingPatternClause extends BLangMatchStmtBindingPatternClause
-            implements MatchStatementTypedBindingPatternNode {
+    public static class BLangMatchTypedBindingPatternClause extends BLangMatchBindingPatternClause
+            implements MatchTypedBindingPatternNode {
 
         public BLangSimpleVariable variable;
 
@@ -132,14 +161,15 @@ public class BLangMatch extends BLangStatement implements MatchNode {
     }
 
     /**
-     * {@code BLangMatchStmtStaticBindingPatternClause} represents a static/constant pattern inside a type switch
+     * {@code BLangMatchStaticBindingPatternClause} represents a static/constant pattern inside a match
      * statement.
      *
      * @since 0.985.0
      */
-    public static class BLangMatchStmtStaticBindingPatternClause extends BLangMatchStmtBindingPatternClause
-            implements MatchStatementStaticBindingPatternNode {
+    public static class BLangMatchStaticBindingPatternClause extends BLangMatchBindingPatternClause
+            implements MatchStaticBindingPatternNode {
 
+        // static match literal expr
         public BLangExpression literal;
 
         @Override
@@ -165,6 +195,49 @@ public class BLangMatch extends BLangStatement implements MatchNode {
         @Override
         public String toString() {
             return String.valueOf(literal) + " => " + String.valueOf(body);
+        }
+    }
+
+    /**
+     * {@code BLangMatchStructuredBindingPatternClause} represents a structured pattern inside a match
+     * statement.
+     *
+     * @since 0.985.0
+     */
+    public static class BLangMatchStructuredBindingPatternClause extends BLangMatchBindingPatternClause
+            implements MatchStructuredBindingPatternNode {
+
+        // binding match pattern
+        public BLangVariable bindingPatternVariable;
+
+        // type guard expression
+        public BLangExpression typeGuardExpr;
+
+        public Map<BVarSymbol, BVarSymbol> typeGuards = new HashMap<>();
+
+        @Override
+        public NodeKind getKind() {
+            return NodeKind.MATCH_STRUCTURED_PATTERN_CLAUSE;
+        }
+
+        @Override
+        public BLangVariable getVariableNode() {
+            return bindingPatternVariable;
+        }
+
+        @Override
+        public BLangStatement getStatement() {
+            return body;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+
+        @Override
+        public String toString() {
+            return String.valueOf(bindingPatternVariable) + " => " + String.valueOf(body);
         }
     }
 }

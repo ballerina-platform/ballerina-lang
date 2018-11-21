@@ -34,6 +34,7 @@ import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -69,10 +70,10 @@ public class StartForever extends BlockingNativeCallableUnit {
             BStream stream = (BStream) inputStreamReferenceArray.get(i);
             siddhiQuery = siddhiQuery.replaceFirst("\\[\\[streamName\\]\\]", stream.getStreamId());
 
-            BField[] structFieldArray = ((BStructureType) stream.getConstraintType()).getFields();
+            Map<String, BField> structFields = ((BStructureType) stream.getConstraintType()).getFields();
             StringBuilder streamDefinition = new StringBuilder("define stream ");
             streamDefinition.append(stream.getStreamId()).append("( ");
-            generateStreamDefinition(structFieldArray, streamDefinition);
+            generateStreamDefinition(structFields, streamDefinition);
             streamDefinitionQuery.append(streamDefinition).append("\n ");
         }
 
@@ -103,22 +104,22 @@ public class StartForever extends BlockingNativeCallableUnit {
         }
     }
 
-    private void generateStreamDefinition(BField[] structFieldArray,
+    private void generateStreamDefinition(Map<String, BField> structFields,
                                           StringBuilder streamDefinition) {
-        BField structField = structFieldArray[0];
-        if (structField != null) {
-            addTypesToStreamDefinitionQuery(streamDefinition, structField);
+        Iterator<BField> fieldIterator = structFields.values().iterator();
+
+        if (!fieldIterator.hasNext()) {
+            return;
         }
 
-        for (int i = 1; i < structFieldArray.length; i++) {
-            structField = structFieldArray[i];
+        addTypesToStreamDefinitionQuery(streamDefinition, fieldIterator.next());
+
+        fieldIterator.forEachRemaining(field -> {
             streamDefinition.append(" , ");
-            addTypesToStreamDefinitionQuery(streamDefinition, structField);
-        }
+            addTypesToStreamDefinitionQuery(streamDefinition, field);
+        });
 
-        if (structField != null) {
-            streamDefinition.append(" ); ");
-        }
+        streamDefinition.append(" ); ");
     }
 
     private void addTypesToStreamDefinitionQuery(StringBuilder streamDefinition, BField structField) {

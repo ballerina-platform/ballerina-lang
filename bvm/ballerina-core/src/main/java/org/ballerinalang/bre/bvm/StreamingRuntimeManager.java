@@ -19,7 +19,6 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
@@ -40,6 +39,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -102,19 +102,17 @@ public class StreamingRuntimeManager {
                     // Here it is assumed that an event data will contain all the fields
                     // of the record. Otherwise, some fields will be missing from the record value.
                     BMap<String, BValue> output = new BMap<String, BValue>(structType);
-                    BField[] fields = structType.getFields();
-                    int i = 0;
+                    Iterator<String> fieldNamesIterator = structType.getFields().keySet().iterator();
                     for (Object field : event.getData()) {
                         if (field instanceof Long || field instanceof Integer) {
-                            output.put(fields[i].fieldName, new BInteger(((Number) field).longValue()));
+                            output.put(fieldNamesIterator.next(), new BInteger(((Number) field).longValue()));
                         } else if (field instanceof Double || field instanceof Float) {
-                            output.put(fields[i].fieldName, new BFloat(((Number) field).doubleValue()));
+                            output.put(fieldNamesIterator.next(), new BFloat(((Number) field).doubleValue()));
                         } else if (field instanceof Boolean) {
-                            output.put(fields[i].fieldName, new BBoolean(((Boolean) field)));
+                            output.put(fieldNamesIterator.next(), new BBoolean(((Boolean) field)));
                         } else if (field instanceof String) {
-                            output.put(fields[i].fieldName, new BString((String) field));
+                            output.put(fieldNamesIterator.next(), new BString((String) field));
                         }
-                        i++;
                     }
                     outputArray.add(j, output);
                     j++;

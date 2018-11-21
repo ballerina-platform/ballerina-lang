@@ -27,6 +27,7 @@ import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -334,6 +335,17 @@ public class TupleVariableDefinitionTest {
         validateTupleVarDefWithUnitionComplexResults(returns);
     }
 
+    @Test(description = "Test tuple definition with union type 6")
+    public void testVarDefWithUnionType6() {
+        BValue[] returns = BRunUtil.invoke(result, "testVarDefWithUnionType6");
+        Assert.assertEquals(returns.length, 2);
+
+        BString val1 = (BString) returns[0];
+        Assert.assertEquals(val1.stringValue(), "Test");
+        BInteger val2 = (BInteger) returns[1];
+        Assert.assertEquals(val2.intValue(), 23);
+    }
+
     private void validateTupleVarDefWithUnitionComplexResults(BValue[] returns) {
         Assert.assertEquals(returns.length, 3);
 
@@ -352,7 +364,7 @@ public class TupleVariableDefinitionTest {
 
     @Test
     public void testNegativeTupleVariables() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 24);
+        Assert.assertEquals(resultNegative.getErrorCount(), 23);
         int i = -1;
         String errorMsg1 = "invalid tuple binding pattern; member variable count mismatch with member type count";
         String errorMsg2 = "invalid tuple variable; expecting a tuple type but found ";
@@ -383,7 +395,5 @@ public class TupleVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i, errorMsg2 + "'any' in type definition", 84, 40);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected '((string,(int,(boolean,int))),(float,int))', found 'any'", 94, 84);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg2 + "'(string,int)|(int,boolean)' in type definition",
-                99, 34);
     }
 }

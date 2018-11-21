@@ -19,8 +19,8 @@ import ballerina/runtime;
 import ballerina/http;
 
 type Person object {
-    string name;
-    int age;
+    string name = "";
+    int age = 0;
 };
 
 @http:ServiceConfig {

@@ -39,6 +39,7 @@ import java.io.ByteArrayInputStream;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.Collection;
 
 /**
  * Includes utility methods required for table related operations.
@@ -53,7 +54,7 @@ public class TableUtils {
         StringBuilder sbSql = new StringBuilder();
         StringBuilder sbValues = new StringBuilder();
         sbSql.append(TableConstants.SQL_INSERT_INTO).append(tableName).append(" (");
-        BField[] structFields = ((BStructureType) constrainedType.getType()).getFields();
+        Collection<BField> structFields = ((BStructureType) constrainedType.getType()).getFields().values();
         String sep = "";
         for (BField sf : structFields) {
             String name = sf.getFieldName();
@@ -68,7 +69,7 @@ public class TableUtils {
     public static String generateDeleteDataStatment(String tableName, BMap<?, ?> constrainedType) {
         StringBuilder sbSql = new StringBuilder();
         sbSql.append(TableConstants.SQL_DELETE_FROM).append(tableName).append(TableConstants.SQL_WHERE);
-        BField[] structFields = ((BStructureType) constrainedType.getType()).getFields();
+        Collection<BField> structFields = ((BStructureType) constrainedType.getType()).getFields().values();
         String sep = "";
         for (BField sf : structFields) {
             String name = sf.getFieldName();
@@ -80,7 +81,7 @@ public class TableUtils {
 
     public static void prepareAndExecuteStatement(PreparedStatement stmt, BMap<String, BValue> constrainedType) {
         try {
-            BField[] structFields = ((BStructureType) constrainedType.getType()).getFields();
+            Collection<BField> structFields = ((BStructureType) constrainedType.getType()).getFields().values();
             int index = 1;
             for (BField sf : structFields) {
                 int type = sf.getFieldType().getTag();

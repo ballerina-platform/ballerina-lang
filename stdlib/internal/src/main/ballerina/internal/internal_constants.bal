@@ -16,3 +16,6 @@
 
 # Constant for the internal error code
 @final public string INTERNAL_ERROR_CODE = "{ballerina/internal}InternalError";
+
+# Constant for the compression error code
+@final public string COMPRESSION_ERROR_CODE = "{ballerina/internal}CompressionError";

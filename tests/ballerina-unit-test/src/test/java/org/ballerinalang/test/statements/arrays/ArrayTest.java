@@ -121,9 +121,9 @@ public class ArrayTest {
         BValueArray bBooleanArray = new BValueArray(boolArray);
         Assert.assertEquals(bBooleanArray.stringValue(), "[true, true, false]");
 
-        BXMLItem[] xmlArray = { new BXMLItem("<foo/>"), new BXMLItem("<bar>hello</bar>") };
+        BXMLItem[] xmlArray = { new BXMLItem("<foo> </foo>"), new BXMLItem("<bar>hello</bar>") };
         BValueArray bXmlArray = new BValueArray(xmlArray, BTypes.typeXML);
-        Assert.assertEquals(bXmlArray.stringValue(), "[<foo></foo>, <bar>hello</bar>]");
+        Assert.assertEquals(bXmlArray.stringValue(), "[<foo> </foo>, <bar>hello</bar>]");
     }
 
     @Test(description = "Test arrays with errors")
