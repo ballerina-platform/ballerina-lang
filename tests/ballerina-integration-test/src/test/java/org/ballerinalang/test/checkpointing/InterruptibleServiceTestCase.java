@@ -45,8 +45,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class InterruptibleServiceTestCase extends BaseTest {
 
-    private final int servicePort = Constant.DEFAULT_HTTP_PORT;
-
     private FileStorageProvider fileStorageProvider;
 
     private String balFilePath;
@@ -54,7 +52,7 @@ public class InterruptibleServiceTestCase extends BaseTest {
     private String[] args;
 
     @BeforeClass
-    public void setup() throws BallerinaTestException {
+    public void setup() {
         balFilePath = new File("src" + File.separator + "test" + File.separator +
                                        "resources" + File.separator + "checkpointing" + File.separator +
                                        "interruptibleService.bal").getAbsolutePath();
@@ -79,6 +77,7 @@ public class InterruptibleServiceTestCase extends BaseTest {
         try {
             int[] requiredPorts = new int[]{9090};
             ballerinaServer.startServer(balFilePath, args, requiredPorts);
+            int servicePort = Constant.DEFAULT_HTTP_PORT;
             HttpResponse response = HttpClientRequest.doGet(ballerinaServer
                     .getServiceURLHttp(servicePort, "s1/r1"));
             Assert.assertNotNull(response);

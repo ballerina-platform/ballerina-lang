@@ -23,6 +23,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -965,8 +966,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             }
             this.taintedStatus = exprTaintedStatus;
         } else if (invocationExpr.builtinMethodInvocation) {
-            // TODO: Fix this properly.
-            taintedStatus = TaintedStatus.UNTAINTED;
+            analyzeBuiltInMethodInvocation(invocationExpr);
         } else {
             BInvokableSymbol invokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
             if (invokableSymbol.taintTable == null) {
@@ -988,6 +988,30 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             } else {
                 analyzeInvocation(invocationExpr);
             }
+        }
+    }
+
+    private void analyzeBuiltInMethodInvocation(BLangInvocation invocationExpr) {
+        BLangBuiltInMethod builtInMethod = invocationExpr.builtInMethod;
+        switch (builtInMethod) {
+            case IS_NAN:
+            case IS_INFINITE:
+            case IS_FINITE:
+            case LENGTH:
+                this.taintedStatus = TaintedStatus.UNTAINTED;
+                break;
+            case FREEZE:
+            case CLONE:
+                invocationExpr.expr.accept(this);
+                break;
+            case REASON:
+            case DETAIL:
+            case STACKTRACE:
+                //TODO:write proper taint analysis
+                this.taintedStatus = TaintedStatus.UNTAINTED;
+                break;
+            default:
+                throw new AssertionError("Taint checking failed for built-in method: " + builtInMethod);
         }
     }
 

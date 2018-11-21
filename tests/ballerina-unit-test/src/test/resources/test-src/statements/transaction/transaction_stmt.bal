@@ -1,12 +1,3 @@
-import ballerina/io;
-
-public type TrxError record {
-    string message;
-    error? cause;
-    string data;
-    !...
-};
-
 @final int RETRYCOUNT = 4;
 @final int RETRYCOUNT_2 = -4;
 
@@ -207,39 +198,6 @@ function testNestedTransactionInnerPanic(int i) returns (string) {
     return a;
 }
 
-//function testNestedTransaction(int i) returns (string) {
-//    string a = "start";
-//    try {
-//        transaction {
-//            a = a + " inOuterTrx";
-//            transaction {
-//                a = a + " inInnerTrx";
-//                try {
-//                    if (i == -1) {
-//                        error err = error(" err" );
-//                        panic err;
-//                    } else if (i == 0) {
-//                        a = a + " abort";
-//                        abort;
-//                    } else if (i < -1) {
-//                        Trxerror err = error(" trxErr", { data: "test" });
-//                        panic err;
-//                    }
-//                } catch (TrxError err) {
-//                    a = a + err.message;
-//                }
-//                a = a + " endInnerTrx";
-//            }
-//            a = a + " endOuterTrx";
-//        }
-//        a = a + " ";
-//    } catch (error err) {
-//        a = a + err.message;
-//    }
-//    a = a + " end";
-//    return a;
-//}
-
 function testNestedTransactionWithFailed(int i) returns (string) {
     string a = "start";
     transaction with retries = 3 {
@@ -357,26 +315,6 @@ function testTransactionStmtWithConstRetryFailed() returns (string) {
     a = a + " end";
     return a;
 }
-
-//function testTransactionStmtWithConstRetryFailed2() returns (string) {
-//    string a = "start ";
-//    int i = 0;
-//    try {
-//        transaction with retries = RETRYCOUNT_2 {
-//            a = a + " inTrx";
-//            if (i == 0) {
-//                error err = { message: " err" };
-//                throw err;
-//            }
-//        } onretry {
-//            a = a + " inFailed";
-//        }
-//    } catch (error err) {
-//        a = a + err.message;
-//    }
-//    a = a + " end";
-//    return a;
-//}
 
 function testTransactionStmtWithConstRetryFailed2() returns (string) {
     string a = "start ";
