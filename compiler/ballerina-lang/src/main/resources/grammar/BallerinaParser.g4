@@ -613,7 +613,7 @@ invocationArg
     ;
 
 actionInvocation
-    :   START? nameReference RARROW functionInvocation
+    :   START? variableReference RARROW functionInvocation
     ;
 
 expressionList

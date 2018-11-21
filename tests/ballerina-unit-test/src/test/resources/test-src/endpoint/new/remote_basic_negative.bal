@@ -138,7 +138,7 @@ function testFunc8 (string s) {
 function testFunc9 (string s) returns boolean{
     Foo ep;
     string a = "abc";
-    // action invocation as an expression not allowed here
+    // Uninitilized variable
     return ep->pqr("test");
 }
 
@@ -174,4 +174,15 @@ type Bax client object {
     function nonAction2(float f) returns string {
         return "done";
     }
+};
+
+type dummy object {
+
+    Foo ff = new;
+
+    function nonAction1(float f) returns string {
+        _ = self.ff->pqr("test");
+        return "done";
+    }
+
 };
