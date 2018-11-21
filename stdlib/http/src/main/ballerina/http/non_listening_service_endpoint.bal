@@ -15,7 +15,7 @@
 // under the License.
 
 
-@Description {value:"Mock service endpoint which does not open a listening port."}
+# Mock service endpoint which does not open a listening port.
 public type NonListener object {
     private Connection conn = new;
     private ServiceEndpointConfiguration config = {};

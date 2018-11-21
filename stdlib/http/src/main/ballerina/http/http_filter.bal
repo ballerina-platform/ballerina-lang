@@ -20,11 +20,11 @@ public type Filter abstract object {
     # Request filter function. If a false is returned the response should have been sent from this function as it will
     # not be dispatched to the next filter or the resource.
     #
-    # + listener - The http endpoint
+    # + listenerObj - The http endpoint
     # + request - An inboud HTTP request message
     # + context - A filter context
     # + return - True if the filter succeeds
-    public function filterRequest(Listener listener, Request request, FilterContext context) returns boolean;
+    public function filterRequest(Listener listenerObj, Request request, FilterContext context) returns boolean;
 
     # Response filter function. If a false is returned a 500 Internal Server Error would be sent to the client.
     #

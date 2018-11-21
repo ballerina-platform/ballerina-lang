@@ -380,7 +380,7 @@ public class HttpConstants {
     public static final String SERVICE_ENDPOINT_PROTOCOL_FIELD = "protocol";
 
     //Remote struct field names
-    public static final String REMOTE_STRUCT_FIELD = "remote";
+    public static final String REMOTE_STRUCT_FIELD = "remoteDetails";
     public static final String REMOTE_HOST_FIELD = "host";
     public static final String REMOTE_PORT_FIELD = "port";
 
