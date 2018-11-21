@@ -1,6 +1,7 @@
 import { CompilationUnit, traversNode } from "@ballerina/ast-model";
 import React from "react";
 import { SvgCanvas } from "../views";
+import { visitor as initVisitor } from "../visitors/init-visitor";
 import { visitor as positioningVisitor } from "../visitors/positioning-visitor";
 import { visitor as sizingVisitor } from "../visitors/sizing-visitor";
 import { DiagramContext, DiagramMode, IDiagramContext } from "./diagram-context";
@@ -38,6 +39,8 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
         const children: any = [];
 
         if (ast) {
+            // Initialize AST node view state
+            traversNode(ast, initVisitor);
             // Calculate dimention of AST Nodes.
             traversNode(ast, sizingVisitor);
             // Calculate positions of the AST Nodes.

@@ -1,6 +1,8 @@
-import { Assignment, Block, Visitor } from "@ballerina/ast-model";
+import { Function, Visitor } from "@ballerina/ast-model";
 import * as _ from "lodash";
-import { DiagramUtils } from "../diagram/diagram-utils";
+// import { DiagramConfig } from "../config/default";
+// import { DiagramUtils } from "../diagram/diagram-utils";
+import { FunctionViewState } from "../view-model";
 
 // Following element is created to calculate the width of a text rendered in an svg.
 // Please see getTextWidth on how we do the calculation.
@@ -13,16 +15,17 @@ const textElement = document.createElementNS("http://www.w3.org/2000/svg", "text
 svg.appendChild(textElement);
 document.body.appendChild(svg);
 
-const config: any = DiagramUtils.getConfig();
+// const config: DiagramConfig = DiagramUtils.getConfig();
 
 /**
  * Get width of a given text and processed text
- * considering provided min and max widths.
+ * considering provided min and max width.
  * @param {string} text
  * @param {number} minWidth
  * @param {number} maxWidth
  * @return {object} {width,text}
  */
+/*
 function getTextWidth(text: string, minWidth = config.statement.width , maxWidth = config.statement.maxWidth) {
     textElement.innerHTML = _.escape(text);
     let width = config.statement.padding.left +
@@ -54,23 +57,24 @@ function getTextWidth(text: string, minWidth = config.statement.width , maxWidth
         w: width,
     };
 }
+*/
 
 export const visitor: Visitor = {
 
-    beginVisitAssignment(node: Assignment) {
-        node.viewState = {};
+    // tslint:disable-next-line:ban-types
+    endVisitFunction(node: Function) {
+        const viewState: FunctionViewState = node.viewState;
+        const body = viewState.body;
+        const header = viewState.header;
+
+        body.w = 600;
+        body.h = 200;
+
+        header.w = 600;
+        header.h = 40;
+
+        viewState.bBox.w = (body.w > header.w) ? body.w : header.w;
+        viewState.bBox.h = body.h + header.h;
     },
 
-    endVisitBlock(node: Block) {
-        let height: number = 0;
-        node.statements.forEach((statement) => {
-            if (statement.viewState) {
-                height += statement.viewState.height;
-            }
-        });
-        getTextWidth("sample");
-        node.viewState = {
-            height,
-        };
-    },
 };
