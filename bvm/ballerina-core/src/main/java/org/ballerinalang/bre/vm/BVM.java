@@ -375,6 +375,7 @@ public class BVM {
                     case InstructionCodes.ILSHIFT:
                     case InstructionCodes.IURSHIFT:
                     case InstructionCodes.TYPE_TEST:
+                    case InstructionCodes.IS_LIKE:
                         execBinaryOpCodes(strand, sf, opcode, operands);
                         break;
 
@@ -538,6 +539,10 @@ public class BVM {
                         BFunctionPointer fPointer = new BFunctionPointer(attachedFuncInfo, typeEntry.getType());
                         sf.refRegs[j] = fPointer;
                         findAndAddAdditionalVarRegIndexes(sf, operands, fPointer);
+                        break;
+
+                    case InstructionCodes.CLONE:
+                        createClone(strand, operands, sf);
                         break;
 
                     case InstructionCodes.I2ANY:
@@ -809,6 +814,19 @@ public class BVM {
                 handleError(strand);
             }
         }
+    }
+
+    private static void createClone(Strand ctx, int[] operands, StackFrame sf) {
+        int i = operands[0];
+        int j = operands[1];
+
+        BRefType<?> refRegVal = sf.refRegs[i];
+        if (!checkIsLikeType(refRegVal, BTypes.typeAnydata)) {
+            sf.refRegs[j] = BLangVMErrors.createError(ctx, BLangExceptionHelper
+                    .getErrorMessage(RuntimeErrors.UNSUPPORTED_CLONE_OPERATION, refRegVal, refRegVal.getType()));
+            return;
+        }
+        sf.refRegs[j] = (BRefType<?>) refRegVal.copy(new HashMap<>());
     }
 
     private static Strand invokeCallable(Strand strand, CallableUnitInfo callableUnitInfo,
@@ -2727,7 +2745,7 @@ public class BVM {
                 collection = sf.refRegs[i];
                 if (collection == null) {
                     handleNullRefError(ctx);
-                    break;
+                    return;
                 } else if (!(collection instanceof BCollection)) {
                     // Value is a value-type JSON.
                     sf.refRegs[j] = new BIterator() {
@@ -3852,7 +3870,7 @@ public class BVM {
         // TODO: do validation for type?
         BMap newMap = new BMap(BTypes.typeMap);
         ((BMap) sf.refRegs[i]).getMap().forEach((key, value)
-                -> newMap.put(key, value == null ? null : ((BValue) value).copy()));
+                -> newMap.put(key, value == null ? null : ((BValue) value).copy(new HashMap<>())));
         sf.refRegs[j] = newMap;
     }
 
@@ -4348,12 +4366,46 @@ public class BVM {
             case TypeTags.TUPLE_TAG:
                 return checkIsLikeTupleType(sourceValue, (BTupleType) targetType);
             case TypeTags.ANYDATA_TAG:
-                return isAssignable(sourceValue.getType(), targetType, new ArrayList<>());
+                return checkIsLikeAnydataType(sourceValue, targetType);
             case TypeTags.FINITE_TYPE_TAG:
                 return checkFiniteTypeAssignable(sourceValue, targetType);
             case TypeTags.UNION_TAG:
                 return ((BUnionType) targetType).getMemberTypes().stream()
                         .anyMatch(type -> checkIsType(sourceValue, type));
+            default:
+                return false;
+        }
+    }
+
+    private static boolean checkIsLikeAnydataType(BValue sourceValue, BType targetType) {
+        switch (sourceValue.getType().getTag()) {
+            case TypeTags.RECORD_TYPE_TAG:
+            case TypeTags.JSON_TAG:
+            case TypeTags.MAP_TAG:
+                return ((BMap) sourceValue).getMap().entrySet().stream()
+                        .allMatch(value -> checkIsLikeType((BValue) value, targetType));
+            case TypeTags.ARRAY_TAG:
+                BNewArray arr = (BNewArray) sourceValue;
+                switch (arr.getType().getTag()) {
+                    case TypeTags.INT_TAG:
+                    case TypeTags.FLOAT_TAG:
+                    case TypeTags.DECIMAL_TAG:
+                    case TypeTags.STRING_TAG:
+                    case TypeTags.BOOLEAN_TAG:
+                    case TypeTags.BYTE_TAG:
+                        return true;
+                    default:
+                        return Arrays.stream(((BRefValueArray) sourceValue).getValues())
+                                .allMatch(value -> checkIsLikeType(value, targetType));
+                }
+            case TypeTags.TUPLE_TAG:
+                return Arrays.stream(((BRefValueArray) sourceValue).getValues())
+                        .allMatch(value -> checkIsLikeType(value, targetType));
+            case TypeTags.ANYDATA_TAG:
+                return true;
+            case TypeTags.FINITE_TYPE_TAG:
+            case TypeTags.UNION_TAG:
+                return checkIsLikeType(sourceValue, targetType);
             default:
                 return false;
         }
@@ -4365,7 +4417,7 @@ public class BVM {
         }
 
         BRefValueArray source = (BRefValueArray) sourceValue;
-        if (source.getValues().length != targetType.getTupleTypes().size()) {
+        if (source.size() != targetType.getTupleTypes().size()) {
             return false;
         }
 
