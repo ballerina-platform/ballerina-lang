@@ -13,9 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.net.grpc.nativeimpl.client;
+package org.ballerinalang.net.grpc.nativeimpl.streamingclient;
 
-import com.google.protobuf.Descriptors;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
@@ -40,41 +39,42 @@ import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
- * Extern function to respond the server.
+ * Extern function to send server error the caller.
  *
  * @since 1.0.0
  */
 @BallerinaFunction(
         orgName = ORG_NAME,
         packageName = GrpcConstants.PROTOCOL_PACKAGE_GRPC,
-        functionName = "send",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = GrpcConstants.GRPC_CLIENT,
+        functionName = "sendError",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = GrpcConstants.STREAMING_CLIENT,
                 structPackage = GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC),
-        args = {@Argument(name = "res", type = TypeKind.ANY)},
+        args = {@Argument(name = "statusCode", type = TypeKind.INT),
+                @Argument(name = "message", type = TypeKind.STRING)},
         returnType = @ReturnType(type = TypeKind.RECORD, structType = STRUCT_GENERIC_ERROR, structPackage =
                 BALLERINA_BUILTIN_PKG),
         isPublic = true
 )
-public class Send extends BlockingNativeCallableUnit {
-    private static final Logger LOG = LoggerFactory.getLogger(Send.class);
-    
+public class SendError extends BlockingNativeCallableUnit {
+    private static final Logger LOG = LoggerFactory.getLogger(SendError.class);
+
     @Override
     public void execute(Context context) {
         BMap<String, BValue> connectionStruct = (BMap<String, BValue>) context.getRefArgument(0);
-        BValue responseValue = context.getRefArgument(1);
+        long statusCode = context.getIntArgument(0);
+        String errorMsg = context.getStringArgument(0);
+
         StreamObserver requestSender = (StreamObserver) connectionStruct.getNativeData(REQUEST_SENDER);
         if (requestSender == null) {
             context.setError(MessageUtils.getConnectorError(new StatusRuntimeException(Status
                     .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while sending the " +
-                            "message. endpoint does not exist"))));
+                            "error. endpoint does not exist"))));
         } else {
-            Descriptors.Descriptor inputType = (Descriptors.Descriptor) connectionStruct.getNativeData(GrpcConstants
-                    .REQUEST_MESSAGE_DEFINITION);
             try {
-                Message requestMessage = new Message(inputType.getName(), responseValue);
-                requestSender.onNext(requestMessage);
+                requestSender.onError(new Message(new StatusRuntimeException(Status.fromCodeValue((int) statusCode)
+                        .withDescription(errorMsg))));
             } catch (Exception e) {
-                LOG.error("Error while sending request message to server.", e);
+                LOG.error("Error while sending error to server.", e);
                 context.setError(MessageUtils.getConnectorError(e));
             }
         }

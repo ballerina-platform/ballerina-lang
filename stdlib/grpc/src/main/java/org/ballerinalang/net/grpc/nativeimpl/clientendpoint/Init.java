@@ -50,7 +50,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.net.grpc.GrpcConstants.CALLER_ACTIONS;
+import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_CONNECTOR;
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_CONFIG;
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_TYPE;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
@@ -126,7 +126,7 @@ public class Init extends BlockingNativeCallableUnit {
         HttpClientConnector clientConnector = httpConnectorFactory.createHttpClientConnector(properties,
                 senderConfiguration);
 
-        clientEndpoint.addNativeData(CALLER_ACTIONS, clientConnector);
+        clientEndpoint.addNativeData(CLIENT_CONNECTOR, clientConnector);
         clientEndpoint.addNativeData(CLIENT_ENDPOINT_CONFIG, endpointConfig);
 
     }

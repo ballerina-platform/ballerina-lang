@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.net.grpc.nativeimpl.servicestub;
+package org.ballerinalang.net.grpc.nativeimpl.client;
 
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
@@ -42,13 +42,14 @@ import org.ballerinalang.net.grpc.stubs.NonBlockingStub;
 import java.util.Map;
 
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
+import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_REF_INDEX;
+import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_TYPE;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.GrpcConstants.METHOD_DESCRIPTORS;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB;
-import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB_REF_INDEX;
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
@@ -60,7 +61,7 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
         orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "nonBlockingExecute",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = SERVICE_STUB,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = CLIENT_ENDPOINT_TYPE,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         args = {
                 @Argument(name = "methodID", type = TypeKind.STRING),
@@ -80,15 +81,15 @@ public class NonBlockingExecute extends AbstractExecute {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        BMap<String, BValue> serviceStub = (BMap<String, BValue>) context.getRefArgument(SERVICE_STUB_REF_INDEX);
-        if (serviceStub == null) {
+        BMap<String, BValue> clientEndpoint = (BMap<String, BValue>) context.getRefArgument(CLIENT_ENDPOINT_REF_INDEX);
+        if (clientEndpoint == null) {
             notifyErrorReply(context, "Error while getting connector. gRPC Client connector is " +
                     "not initialized properly");
             callback.notifySuccess();
             return;
         }
 
-        Object connectionStub = serviceStub.getNativeData(SERVICE_STUB);
+        Object connectionStub = clientEndpoint.getNativeData(SERVICE_STUB);
         if (connectionStub == null) {
             notifyErrorReply(context, "Error while getting connection stub. gRPC Client connector " +
                     "is not initialized properly");
@@ -103,7 +104,7 @@ public class NonBlockingExecute extends AbstractExecute {
             return;
         }
 
-        Map<String, MethodDescriptor> methodDescriptors = (Map<String, MethodDescriptor>) serviceStub.getNativeData
+        Map<String, MethodDescriptor> methodDescriptors = (Map<String, MethodDescriptor>) clientEndpoint.getNativeData
                 (METHOD_DESCRIPTORS);
         if (methodDescriptors == null) {
             notifyErrorReply(context, "Error while processing the request. method descriptors " +
