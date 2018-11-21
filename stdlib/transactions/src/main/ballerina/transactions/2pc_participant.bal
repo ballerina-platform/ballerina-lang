@@ -83,6 +83,7 @@ type RemoteParticipant object {
                 if (result is error) {
                     notifyResult = result;
                 }
+                // Else, nothing to do since we have set the notifyResult already
             }
             return notifyResult;
         }
@@ -207,6 +208,7 @@ type LocalParticipant object {
                 if (result is error) {
                     notifyResult = result;
                 }
+                // Else, nothing to do since we have set the notifyResult already
             }
             return notifyResult;
         }
