@@ -311,13 +311,13 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
     var scheme = config.auth.scheme;
     if (scheme is AuthScheme) {
         if (scheme == BASIC_AUTH) {
-            string username = config.auth.username but { () => EMPTY_STRING };
-            string password = config.auth.password but { () => EMPTY_STRING };
+            string username = config.auth.username ?: "";
+            string password = config.auth.password ?: "";
             string str = username + ":" + password;
             string token = check str.base64Encode();
             req.setHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + token);
         } else if (scheme == OAUTH2) {
-            string accessToken = config.auth.accessToken but { () => EMPTY_STRING };
+            string accessToken = config.auth.accessToken ?: "";
             if (accessToken == EMPTY_STRING) {
                 return updateRequestAndConfig(req, config);
             } else {
@@ -358,11 +358,11 @@ function updateRequestAndConfig(Request req, ClientEndpointConfig config) return
 # + config - Client endpoint configurations
 # + return - AccessToken received from the authorization server or `error` if error occured during HTTP client invocation
 function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (string|error) {
-    string refreshToken = config.auth.refreshToken but { () => EMPTY_STRING };
-    string clientId = config.auth.clientId but { () => EMPTY_STRING };
-    string clientSecret = config.auth.clientSecret but { () => EMPTY_STRING };
-    string refreshUrl = config.auth.refreshUrl but { () => EMPTY_STRING };
-    string[] scopes = config.auth.scopes but { () => [] };
+    string refreshToken = config.auth.refreshToken ?: "";
+    string clientId = config.auth.clientId ?: "";
+    string clientSecret = config.auth.clientSecret ?: "";
+    string refreshUrl = config.auth.refreshUrl ?: "";
+    string[] scopes = config.auth.scopes ?: [];
 
     if (refreshToken == EMPTY_STRING || clientId == EMPTY_STRING || clientSecret == EMPTY_STRING || refreshUrl == EMPTY_STRING) {
         error err = error("AccessTokenError", { message: "Failed to generate new access token since one or more of refresh token, client id, client secret,

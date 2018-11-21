@@ -1,5 +1,5 @@
 
-function testForkJoinReturnAnyType() returns (int, string) {
+function testForkJoinReturnAnyType() returns (int, string)|error {
     int p;
     string q;
     string r;

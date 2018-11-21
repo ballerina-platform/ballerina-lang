@@ -25,12 +25,14 @@ import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BTableType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.util.TableIterator;
 import org.ballerinalang.util.TableProvider;
 import org.ballerinalang.util.TableUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
 import java.util.List;
+import java.util.Map;
 import java.util.StringJoiner;
 
 import static org.ballerinalang.model.util.FreezeUtils.handleInvalidUpdate;
@@ -87,10 +89,8 @@ public class BTable implements BRefType<Object>, BCollection {
         //Create table with given constraints.
         BType constrainedType = ((BTableType) type).getConstrainedType();
         this.tableProvider = TableProvider.getInstance();
-        if (constrainedType != null) {
-            this.tableName = tableProvider.createTable(constrainedType, keyColumns, indexColumns);
-            this.constraintType = (BStructureType) constrainedType;
-        }
+        this.tableName = tableProvider.createTable(constrainedType, keyColumns, indexColumns);
+        this.constraintType = (BStructureType) constrainedType;
         this.primaryKeys = keyColumns;
         this.indices = indexColumns;
         //Insert initial data
@@ -154,7 +154,7 @@ public class BTable implements BRefType<Object>, BCollection {
         if (isIteratorGenerationConditionMet()) {
             generateIterator();
         }
-        if (!nextPrefetched && iterator != null) {
+        if (!nextPrefetched) {
             hasNextVal = iterator.next();
             nextPrefetched = true;
         }
@@ -171,7 +171,7 @@ public class BTable implements BRefType<Object>, BCollection {
         if (isIteratorGenerationConditionMet()) {
             generateIterator();
         }
-        if (!nextPrefetched && iterator != null) {
+        if (!nextPrefetched) {
             iterator.next();
         } else {
             nextPrefetched = false;
@@ -197,10 +197,7 @@ public class BTable implements BRefType<Object>, BCollection {
         // Make next row the current row
         moveToNext();
         // Create BStruct from current row
-        if (iterator != null) {
-            return (BMap<String, BValue>) iterator.generateNext();
-        }
-        return new BMap<>(BTypes.typeAny);
+        return (BMap<String, BValue>) iterator.generateNext();
     }
 
     /**
@@ -224,10 +221,6 @@ public class BTable implements BRefType<Object>, BCollection {
     }
 
     public void addData(BMap<String, BValue> data, Context context) {
-        if (this.constraintType == null) {
-            throw new BallerinaException("incompatible types: record of type:" + data.getType().getName()
-                    + " cannot be added to a table with no type");
-        }
         if (data.getType() != this.constraintType) {
             throw new BallerinaException("incompatible types: record of type:" + data.getType().getName()
                     + " cannot be added to a table with type:" + this.constraintType.getName());
@@ -255,10 +248,6 @@ public class BTable implements BRefType<Object>, BCollection {
 
         try {
             BType functionInputType = lambdaFunction.value().getParamTypes()[0];
-            if (this.constraintType == null) {
-                throw new BallerinaException("incompatible types: function with record type:"
-                        + functionInputType.getName() + " cannot be used to remove records from a table with no type");
-            }
             if (functionInputType != this.constraintType) {
                 throw new BallerinaException("incompatible types: function with record type:"
                         + functionInputType.getName() + " cannot be used to remove records from a table with type:"
@@ -319,8 +308,32 @@ public class BTable implements BRefType<Object>, BCollection {
     }
 
     @Override
-    public BValue copy() {
-        return null;
+    public BValue copy(Map<BValue, BValue> refs) {
+        if (tableClosed) {
+            throw new BallerinaException("Trying to invoke clone built-in method over a closed table");
+        }
+
+        if (isFrozen()) {
+            return this;
+        }
+
+        if (refs.containsKey(this)) {
+            return refs.get(this);
+        }
+
+        TableIterator cloneIterator = tableProvider.createIterator(this.tableName, this.constraintType);
+        BRefValueArray data = new BRefValueArray();
+        int cursor = 0;
+        try {
+            while (cloneIterator.next()) {
+                data.add(cursor++, cloneIterator.generateNext());
+            }
+            BTable table = new BTable(new BTableType(constraintType), this.indices, this.primaryKeys, data);
+            refs.put(this, table);
+            return table;
+        } finally {
+            cloneIterator.close();
+        }
     }
 
     @Override
@@ -334,7 +347,7 @@ public class BTable implements BRefType<Object>, BCollection {
     }
 
     protected boolean isIteratorGenerationConditionMet() {
-        return this.iterator == null && this.constraintType != null;
+        return this.iterator == null;
     }
 
     protected void resetIterationHelperAttributes() {

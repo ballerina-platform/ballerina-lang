@@ -384,8 +384,8 @@ function createAuthHandler(AuthProvider authProvider, string instanceId) returns
         jwtConfig.audience = authProvider.audience;
         jwtConfig.certificateAlias = authProvider.certificateAlias;
         jwtConfig.clockSkew = authProvider.clockSkew;
-        jwtConfig.trustStoreFilePath = authProvider.trustStore.path but { () => "" };
-        jwtConfig.trustStorePassword = authProvider.trustStore.password but { () => "" };
+        jwtConfig.trustStoreFilePath = authProvider.trustStore.path ?: "";
+        jwtConfig.trustStorePassword = authProvider.trustStore.password ?: "";
         auth:JWTAuthProvider jwtAuthProvider = new(jwtConfig);
         HttpJwtAuthnHandler jwtAuthnHandler = new(jwtAuthProvider);
         return <HttpAuthnHandler>jwtAuthnHandler;
@@ -409,8 +409,8 @@ function getInferredJwtAuthProviderConfig(AuthProvider authProvider) returns aut
     jwtAuthConfig.audience = authProvider.audience == "" ? defaultAudience : authProvider.audience;
     jwtAuthConfig.keyAlias = authProvider.keyAlias;
     jwtAuthConfig.keyPassword = authProvider.keyPassword;
-    jwtAuthConfig.keyStoreFilePath = authProvider.keyStore.path but { () => "" };
-    jwtAuthConfig.keyStorePassword = authProvider.keyStore.password but { () => "" };
+    jwtAuthConfig.keyStoreFilePath = authProvider.keyStore.path ?: "";
+    jwtAuthConfig.keyStorePassword = authProvider.keyStore.password ?: "";
     return jwtAuthConfig;
 }
 

@@ -2803,8 +2803,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BSymbol getSymbolForBuiltinMethodWithDynamicRetType(BLangInvocation iExpr, BLangBuiltInMethod function) {
         switch (function) {
+            case CLONE:
             case FREEZE:
-                return getSymbolForFreezeBuiltinMethod(iExpr);
+                return getSymbolForAnydataReturningBuiltinMethods(iExpr);
             case IS_FROZEN:
                 return getSymbolForIsFrozenBuiltinMethod(iExpr);
             case STAMP:
@@ -2820,9 +2821,9 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private BSymbol getSymbolForFreezeBuiltinMethod(BLangInvocation iExpr) {
+    private BSymbol getSymbolForAnydataReturningBuiltinMethods(BLangInvocation iExpr) {
         BType type = iExpr.expr.type;
-        if (!isValidFreezeOrIsFrozenFunction(type)) {
+        if (!isLikeAnydataOrNotNil(type)) {
             return symTable.notFoundSymbol;
         }
 
@@ -2846,21 +2847,21 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BSymbol getSymbolForIsFrozenBuiltinMethod(BLangInvocation iExpr) {
         BType type = iExpr.expr.type;
-        if (!isValidFreezeOrIsFrozenFunction(type)) {
+        if (!isLikeAnydataOrNotNil(type)) {
             return symTable.notFoundSymbol;
         }
         return symResolver.createBuiltinMethodSymbol(BLangBuiltInMethod.IS_FROZEN, type, symTable.booleanType,
                                                      InstructionCodes.IS_FROZEN);
     }
 
-    public boolean isValidFreezeOrIsFrozenFunction(BType type) {
-        if (type.tag == TypeTags.NIL || (!types.isAnydata(type) && !isNonAnyDataFreezeAllowedType(type))) {
+    public boolean isLikeAnydataOrNotNil(BType type) {
+        if (type.tag == TypeTags.NIL || (!types.isAnydata(type) && !isLikeAnydata(type))) {
             return false;
         }
         return true;
     }
 
-    private boolean isNonAnyDataFreezeAllowedType(BType type) {
+    private boolean isLikeAnydata(BType type) {
         int typeTag = type.tag;
         if (typeTag == TypeTags.ANY) {
             return true;
@@ -2871,7 +2872,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return true;
         }
 
-        if (type.tag == TypeTags.MAP && isNonAnyDataFreezeAllowedType(((BMapType) type).constraint)) {
+        if (type.tag == TypeTags.MAP && isLikeAnydata(((BMapType) type).constraint)) {
             return true;
         }
 
@@ -2879,19 +2880,19 @@ public class TypeChecker extends BLangNodeVisitor {
             BRecordType recordType = (BRecordType) type;
             return recordType.fields.stream()
                     .noneMatch(field -> !Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
-                            !(isNonAnyDataFreezeAllowedType(field.type)));
+                            !(isLikeAnydata(field.type)));
         }
 
         if (type.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) type;
-            return unionType.memberTypes.stream().anyMatch(this::isNonAnyDataFreezeAllowedType);
+            return unionType.memberTypes.stream().anyMatch(this::isLikeAnydata);
         }
 
         if (type.tag == TypeTags.TUPLE) {
             BTupleType tupleType = (BTupleType) type;
-            return tupleType.getTupleTypes().stream().allMatch(this::isNonAnyDataFreezeAllowedType);
+            return tupleType.getTupleTypes().stream().allMatch(this::isLikeAnydata);
         }
 
-        return type.tag == TypeTags.ARRAY && isNonAnyDataFreezeAllowedType(((BArrayType) type).eType);
+        return type.tag == TypeTags.ARRAY && isLikeAnydata(((BArrayType) type).eType);
     }
 }

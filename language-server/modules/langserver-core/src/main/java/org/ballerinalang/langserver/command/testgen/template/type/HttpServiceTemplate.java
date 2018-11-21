@@ -32,9 +32,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import java.util.List;
 import java.util.Optional;
 
-import static io.netty.util.internal.StringUtil.LINE_FEED;
 import static org.ballerinalang.langserver.command.testgen.AnnotationConfigsProcessor.isRecordValueExists;
 import static org.ballerinalang.langserver.command.testgen.AnnotationConfigsProcessor.searchStringField;
+import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
 
 /**
  * To represent a Service template.
@@ -118,7 +118,7 @@ public class HttpServiceTemplate extends AbstractTestTemplate {
         }
 
         //Append to root template
-        rendererOutput.append(PlaceHolder.DECLARATIONS, getServiceUriDeclaration() + LINE_FEED);
+        rendererOutput.append(PlaceHolder.DECLARATIONS, getServiceUriDeclaration() + LINE_SEPARATOR);
         rendererOutput.append(PlaceHolder.CONTENT, serviceOutput.getRenderedContent());
     }
 

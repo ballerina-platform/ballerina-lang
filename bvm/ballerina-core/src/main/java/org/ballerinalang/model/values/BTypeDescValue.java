@@ -22,6 +22,8 @@ import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
+import java.util.Map;
+
 /**
  * Ballerina Value that encapsulates a Ballerina Type.
  *
@@ -60,7 +62,7 @@ public class BTypeDescValue implements BRefType<BType> {
     }
 
     @Override
-    public BValue copy() {
+    public BValue copy(Map<BValue, BValue> refs) {
         return new BTypeDescValue(typeValue);
     }
 

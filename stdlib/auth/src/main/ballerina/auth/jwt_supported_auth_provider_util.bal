@@ -52,15 +52,11 @@ function setAuthToken(string username, InferredJwtAuthProviderConfig authConfig)
     internal:JwtHeader header = createHeader(authConfig);
     internal:JwtPayload payload = createPayload(username, authConfig);
     internal:JWTIssuerConfig config = createJWTIssueConfig(authConfig);
-    match internal:issue(header, payload, config) {
-        string token => {
-            runtime:AuthContext authContext = runtime:getInvocationContext().authContext;
-            authContext.scheme = "jwt";
-            authContext.authToken = token;
-        }
-        error err => {
-            // Error issuing token.
-        }
+    var token = internal:issue(header, payload, config);
+    if (token is string) {
+        runtime:AuthContext authContext = runtime:getInvocationContext().authContext;
+        authContext.scheme = "jwt";
+        authContext.authToken = token;
     }
 }
 

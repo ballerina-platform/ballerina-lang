@@ -24,6 +24,7 @@ import org.ballerinalang.model.values.LockableStructureType;
 import org.ballerinalang.util.BLangConstants;
 
 import java.util.Arrays;
+import java.util.Map;
 
 /**
  * The {@code GlobalMemoryBlock} represents the global memory block in Ballerina VM.
@@ -287,7 +288,7 @@ public final class GlobalMemoryBlock implements BRefType, LockableStructureType 
     }
 
     @Override
-    public BValue copy() {
+    public BValue copy(Map<BValue, BValue> refs) {
         GlobalMemoryBlock bStruct = new GlobalMemoryBlock(structType);
         bStruct.longFields = Arrays.copyOf(longFields, longFields.length);
         bStruct.doubleFields = Arrays.copyOf(doubleFields, doubleFields.length);
