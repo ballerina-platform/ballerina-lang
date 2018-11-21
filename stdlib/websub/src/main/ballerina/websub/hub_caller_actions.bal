@@ -24,21 +24,27 @@ import ballerina/mime;
 # Notification requests to a Hub.
 #
 # + hubUrl - The URL of the target Hub to which requests need to be sent
-public type CallerActions object {
+public type Client client object {
 
     public string hubUrl;
+    public HubClientEndpointConfig config = {};
 
     private http:Client httpClientEndpoint;
     private http:FollowRedirects? followRedirects;
 
-    new (hubUrl, httpClientEndpoint, followRedirects) {}
+    new (string hubUrl, http:FollowRedirects? followRedirects, HubClientEndpointConfig config) {
+        self.hubUrl = hubUrl;
+        self.httpClientEndpoint = new (config.url, config.clientSecureSocket, config.auth, config.followRedirects);
+        self.followRedirects = followRedirects;
+        self.config = config;
+    }
 
     # Sends a subscription request to a WebSub Hub.
     #
     # + subscriptionRequest - The `SubscriptionChangeRequest` containing subscription details
     # + return - `SubscriptionChangeResponse` indicating subscription details, if the request was successful else
     #            `error` if an error occurred with the subscription request
-    public function subscribe(SubscriptionChangeRequest subscriptionRequest)
+    public remote function subscribe(SubscriptionChangeRequest subscriptionRequest)
         returns @tainted SubscriptionChangeResponse|error;
 
     # Sends an unsubscription request to a WebSub Hub.
@@ -46,7 +52,7 @@ public type CallerActions object {
     # + unsubscriptionRequest - The `SubscriptionChangeRequest` containing unsubscription details
     # + return - `SubscriptionChangeResponse` indicating unsubscription details, if the request was successful else
     #            `error` if an error occurred with the unsubscription request
-    public function unsubscribe(SubscriptionChangeRequest unsubscriptionRequest)
+    public remote function unsubscribe(SubscriptionChangeRequest unsubscriptionRequest)
         returns @tainted SubscriptionChangeResponse|error;
 
     # Registers a topic in a Ballerina WebSub Hub against which subscribers can subscribe and the publisher will
@@ -54,13 +60,13 @@ public type CallerActions object {
     #
     # + topic - The topic to register
     # + return - `error` if an error occurred registering the topic
-    public function registerTopic(string topic) returns error?;
+    public remote function registerTopic(string topic) returns error?;
 
     # Unregisters a topic in a Ballerina WebSub Hub.
     #
     # + topic - The topic to unregister
     # + return - `error` if an error occurred unregistering the topic
-    public function unregisterTopic(string topic) returns error?;
+    public remote function unregisterTopic(string topic) returns error?;
 
     # Publishes an update to a remote Ballerina WebSub Hub.
     #
@@ -69,8 +75,8 @@ public type CallerActions object {
     # + contentType - The type of the update content, to set as the `ContentType` header
     # + headers - The headers, if any, that need to be set
     # + return - `error` if an error occurred with the update
-    public function publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload, string? contentType = (),
-                                  map<string>? headers = ()) returns error?;
+    public remote function publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
+                                         string? contentType = (), map<string>? headers = ()) returns error?;
 
     # Notifies a remote WebSub Hub that an update is available to fetch, for hubs that require publishing to
     # happen as such.
@@ -78,13 +84,13 @@ public type CallerActions object {
     # + topic - The topic for which the update occurred
     # + headers - The headers, if any, that need to be set
     # + return - `error` if an error occurred with the notification
-    public function notifyUpdate(string topic, map<string>? headers = ()) returns error?;
+    public remote function notifyUpdate(string topic, map<string>? headers = ()) returns error?;
 };
 
-function CallerActions.subscribe(SubscriptionChangeRequest subscriptionRequest)
+function Client.subscribe(SubscriptionChangeRequest subscriptionRequest)
     returns @tainted SubscriptionChangeResponse|error {
 
-    endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
+    http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_SUBSCRIBE, subscriptionRequest);
     var response = httpClientEndpoint->post("", builtSubscriptionRequest);
     int redirectCount = getRedirectionMaxCount(self.followRedirects);
@@ -92,10 +98,10 @@ function CallerActions.subscribe(SubscriptionChangeRequest subscriptionRequest)
                               redirectCount);
 }
 
-function CallerActions.unsubscribe(SubscriptionChangeRequest unsubscriptionRequest)
+function Client.unsubscribe(SubscriptionChangeRequest unsubscriptionRequest)
     returns @tainted SubscriptionChangeResponse|error {
 
-    endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
+    http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request builtUnsubscriptionRequest = buildSubscriptionChangeRequest(MODE_UNSUBSCRIBE, unsubscriptionRequest);
     var response = httpClientEndpoint->post("", builtUnsubscriptionRequest);
     int redirectCount = getRedirectionMaxCount(self.followRedirects);
@@ -103,8 +109,8 @@ function CallerActions.unsubscribe(SubscriptionChangeRequest unsubscriptionReque
                               redirectCount);
 }
 
-function CallerActions.registerTopic(string topic) returns error? {
-    endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
+function Client.registerTopic(string topic) returns error? {
+    http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = buildTopicRegistrationChangeRequest(MODE_REGISTER, topic);
     var registrationResponse = httpClientEndpoint->post("", request);
     if (registrationResponse is http:Response) {
@@ -124,8 +130,8 @@ function CallerActions.registerTopic(string topic) returns error? {
     return;
 }
 
-function CallerActions.unregisterTopic(string topic) returns error? {
-    endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
+function Client.unregisterTopic(string topic) returns error? {
+    http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = buildTopicRegistrationChangeRequest(MODE_UNREGISTER, topic);
     var unregistrationResponse = httpClientEndpoint->post("", request);
     if (unregistrationResponse is http:Response) {
@@ -145,10 +151,10 @@ function CallerActions.unregisterTopic(string topic) returns error? {
     return;
 }
 
-function CallerActions.publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
+function Client.publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
                                       string? contentType = (), map<string>? headers = ()) returns error? {
 
-    endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
+    http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = new;
     string queryParams = HUB_MODE + "=" + MODE_PUBLISH + "&" + HUB_TOPIC + "=" + topic;
     request.setPayload(payload);
@@ -180,8 +186,8 @@ function CallerActions.publishUpdate(string topic, string|xml|json|byte[]|io:Rea
     return;
 }
 
-function CallerActions.notifyUpdate(string topic, map<string>? headers = ()) returns error? {
-    endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
+function Client.notifyUpdate(string topic, map<string>? headers = ()) returns error? {
+    http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = new;
     string queryParams = HUB_MODE + "=" + MODE_PUBLISH + "&" + HUB_TOPIC + "=" + topic;
 
@@ -326,10 +332,7 @@ function invokeClientConnectorOnRedirection(@sensitive string hub, @sensitive st
 
 function subscribeWithRetries(string hubUrl, SubscriptionChangeRequest subscriptionRequest, http:AuthConfig? auth,
                               int remainingRedirects = 0) returns @tainted SubscriptionChangeResponse| error {
-    endpoint http:Client clientEndpoint {
-        url:hubUrl,
-        auth:auth
-    };
+    http:Client clientEndpoint = new (url = hubUrl, auth = auth);
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_SUBSCRIBE, subscriptionRequest);
     var response = clientEndpoint->post("", builtSubscriptionRequest);
     return processHubResponse(hubUrl, MODE_SUBSCRIBE, subscriptionRequest, response, clientEndpoint,
@@ -338,10 +341,7 @@ function subscribeWithRetries(string hubUrl, SubscriptionChangeRequest subscript
 
 function unsubscribeWithRetries(string hubUrl, SubscriptionChangeRequest unsubscriptionRequest, http:AuthConfig? auth,
                                 int remainingRedirects = 0) returns @tainted SubscriptionChangeResponse|error {
-    endpoint http:Client clientEndpoint {
-        url:hubUrl,
-        auth:auth
-    };
+    http:Client clientEndpoint = = new http:Client(url=hubUrl,auth=auth);
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_UNSUBSCRIBE, unsubscriptionRequest);
     var response = clientEndpoint->post("", builtSubscriptionRequest);
     return processHubResponse(hubUrl, MODE_UNSUBSCRIBE, unsubscriptionRequest, response, clientEndpoint,
