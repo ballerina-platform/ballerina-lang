@@ -1,7 +1,7 @@
 type Person object {
     public string name = "default first name";
-    public string lname;
-    public map adrs;
+    public string lname = "";
+    public map adrs = {};
     public int age = 999;
 
     new (name, adrs, age) {
@@ -10,7 +10,7 @@ type Person object {
 };
 
 type ObjectField object {
-    public string key;
+    public string key = "";
 
     new (key) {
 

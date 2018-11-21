@@ -1,8 +1,8 @@
 
 public type FooDepartment object {
 
-    public string dptName;
-    public FooPerson[] employees;
+    public string dptName = "";
+    public FooPerson[] employees = [];
 
     public new (employees) {}
 };
@@ -10,10 +10,10 @@ public type FooDepartment object {
 public type FooPerson object {
 
     public string name = "default first name";
-    public string lname;
-    public map adrs;
+    public string lname = "";
+    public map adrs = {};
     public int age = 999;
-    public FooFamily family;
+    public FooFamily family = new;
 
 
     public new (name, adrs, age){}
@@ -21,24 +21,24 @@ public type FooPerson object {
 
 type FooFamily object {
 
-    public string spouse;
-    public int noOfChildren;
-    public string[] children;
+    public string spouse = "";
+    public int noOfChildren = 0;
+    public string[] children = [];
 
 };
 
 public type FooEmployee object {
 
-    public string fname;
-    public string lname;
-    public int age;
+    public string fname = "";
+    public string lname = "";
+    public int age = 0;
 
 
     private object {
 
-            public string city;
-            public string state;
-            public string zipcode;
+            public string city = "";
+            public string state = "";
+            public string zipcode = "";
 
             new (city, state, zipcode) {}
         } address;
@@ -48,7 +48,7 @@ public type FooEmployee object {
 };
 
 public function createObj() returns (FooPerson) {
-    map address1;
+    map address1 = {};
     map address = {"country":"USA", "state":"CA"};
     FooPerson emp = new("Jack", address, 25);
     return emp;

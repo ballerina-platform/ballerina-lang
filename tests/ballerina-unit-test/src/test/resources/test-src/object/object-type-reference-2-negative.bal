@@ -21,6 +21,6 @@ type Foo object {
 };
 
 type Bar abstract object {
-    int x;
-    string y;
+    int x = 0;
+    string y = "";
 };

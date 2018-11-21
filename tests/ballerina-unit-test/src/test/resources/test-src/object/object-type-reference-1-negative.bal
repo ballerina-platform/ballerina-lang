@@ -20,7 +20,7 @@ type Person1 abstract object {
 };
 
 type Employee1 object {
-    public float salary;
+    public float salary = 0.0;
 };
 
 type Manager1 object {
@@ -33,11 +33,11 @@ type Manager1 object {
 };
 
 type EmployeeWithSalary abstract object {
-    public float salary;
+    public float salary = 0.0;
 };
 
 type AnotherEmployeeWithSalary abstract object {
-    public int salary;
+    public int salary = 0;
 };
 
 type ManagerWithTwoSalaries object {
@@ -86,7 +86,7 @@ type Person2 abstract object {
 
 type Employee2 abstract object {
     *Person2;
-    public float salary;
+    public float salary = 0.0;
 
     // Unimplemented function at the referenced type.
     public function getSalary() returns float;
@@ -102,8 +102,8 @@ type P object {
 };
 
 type Q record {
-    int x;
-    string y;
+    int x = 0;
+    string y = "";
 };
 
 type R object {
@@ -126,11 +126,11 @@ type ObjectWithRedeclaredFunction_2 abstract object {
 };
 
 type RedecalredFieldObject_1 abstract object {
-    int x;
+    int x = 0;
 };
 
 type RedecalredFieldObject_2 abstract object {
-    int x;
+    int x = 0;
     *RedecalredFieldObject_1;
 };
 

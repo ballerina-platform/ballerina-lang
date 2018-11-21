@@ -23,6 +23,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.StringJoiner;
 
 import static org.ballerinalang.model.util.FreezeUtils.handleInvalidUpdate;
@@ -85,9 +86,18 @@ public class BBooleanArray extends BNewArray {
     }
 
     @Override
-    public BValue copy() {
+    public BValue copy(Map<BValue, BValue> refs) {
+        if (isFrozen()) {
+            return this;
+        }
+
+        if (refs.containsKey(this)) {
+            return refs.get(this);
+        }
+
         BBooleanArray booleanArray = new BBooleanArray(Arrays.copyOf(values, values.length));
         booleanArray.size = this.size;
+        refs.put(this, booleanArray);
         return booleanArray;
     }
     

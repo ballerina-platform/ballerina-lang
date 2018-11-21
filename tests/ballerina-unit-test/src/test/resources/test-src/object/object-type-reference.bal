@@ -22,7 +22,7 @@ type Person1 abstract object {
 };
 
 type Employee1 abstract object {
-    public float salary;
+    public float salary = 0.0;
 
     public function getSalary() returns float; 
 };
@@ -85,7 +85,7 @@ type Manager3 object {
 };
 
 type Employee2 abstract object {
-    public float salary;
+    public float salary = 0.0;
     *Person1;
 
     public function getSalary() returns float; 
@@ -125,7 +125,7 @@ function Manager4.getName(string greeting = "Hello") returns string {
 }
 
 type Employee3 abstract object {
-    public float salary;
+    public float salary = 0.0;
     *Person3;
 
     public function getBonus(float ratio, int months=12) returns float;

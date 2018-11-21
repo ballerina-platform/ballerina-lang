@@ -86,7 +86,11 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
                         // Exit the loop at the end of the content
                         if (httpContent instanceof LastHttpContent) {
                             LastHttpContent lastHttpContent = (LastHttpContent) httpContent;
-                            if (lastHttpContent.trailingHeaders().isEmpty()) {
+                            if (lastHttpContent.decoderResult() != null && lastHttpContent.decoderResult()
+                                    .isFailure()) {
+                                transportError = Status.Code.ABORTED.toStatus().withDescription(lastHttpContent
+                                        .decoderResult().cause().getMessage());
+                            } else if (lastHttpContent.trailingHeaders().isEmpty()) {
                                 // This is a protocol violation as we expect to receive trailer headers with Last Http
                                 // content.
                                 transportError = Status.Code.INTERNAL.toStatus().withDescription("Received unexpected" +

@@ -2,7 +2,7 @@
 function ${testServiceFunctionName} () {
     endpoint http:WebSocketClient wsEndpoint { url: ${serviceUriStrName}, callbackService: ${callbackServiceName} };
     //Send a message
-    check wsEndpoint->pushText("hey");
+    _ = wsEndpoint->pushText("hey");
 }
 
 service<http:WebSocketClientService> ${callbackServiceName} {

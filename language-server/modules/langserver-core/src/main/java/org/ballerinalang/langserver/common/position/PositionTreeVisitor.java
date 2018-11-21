@@ -597,7 +597,8 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             BSymbol symbol = invocationExpr.symbol;
             if (symbol != null) {
                 addPosition(invocationExpr, this.previousNode, invocationExpr.name.getValue(), symbol.pkgID,
-                            symbol.kind.name(), symbol.kind.name(), invocationExpr.name.getValue(), symbol.owner);
+                            ContextConstants.FUNCTION, ContextConstants.FUNCTION, invocationExpr.name.getValue(),
+                            symbol.owner);
             } else {
                 BTypeSymbol tSymbol = invocationExpr.type.tsymbol;
                 addPosition(invocationExpr, this.previousNode, invocationExpr.name.getValue(), tSymbol.pkgID,

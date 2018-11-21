@@ -1,41 +1,41 @@
 type ClosedPerson record {
-    string name;
-    int age;
-    Address address;
+    string name = "";
+    int age = 0;
+    Address address = {};
     !...
 };
 
 type ClosedAddress record {
-    string street;
-    string city;
+    string street = "";
+    string city = "";
     !...
 };
 
 type Address record {
-    string street;
-    string city;
+    string street = "";
+    string city = "";
 };
 
 type ClosedFoo record {
-    string a;
-    string b;
-    string c;
-    string d;
-    string e;
+    string a = "";
+    string b = "";
+    string c = "";
+    string d = "";
+    string e = "";
     !...
 };
 
 type ClosedGrades record {
-    int maths;
-    int physics;
-    int chemistry;
+    int maths = 0;
+    int physics = 0;
+    int chemistry = 0;
     !...
 };
 
 type ClosedBar record {
-    float x;
-    float y;
-    float z;
+    float x = 0.0;
+    float y = 0.0;
+    float z = 0.0;
     !...
 };
 
@@ -69,7 +69,7 @@ function testForeachWithOpenRecords2() returns any[] {
 
 function testForeachOpWithClosedRecords() returns map {
     ClosedPerson p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }};
-    map rec;
+    map rec = {};
 
     p.foreach(function ((string, any) entry) {
             var (field, value) = entry;

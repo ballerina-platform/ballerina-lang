@@ -283,7 +283,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void testArrayStampNegativeTest() {
 
-        Assert.assertEquals(arrayNegativeTestCompileResult.getErrorCount(), 10);
+        Assert.assertEquals(arrayNegativeTestCompileResult.getErrorCount(), 8);
 
         //Negative test case to confirm array cannot be stamped as record.
         BAssertUtil.validateError(arrayNegativeTestCompileResult, 0,
@@ -304,11 +304,6 @@ public class StampInbuiltFunctionNegativeTest {
         BAssertUtil.validateError(arrayNegativeTestCompileResult, 6,
                 "incompatible stamp type: type 'anydata[]' cannot be stamped as type 'map'",
                 58, 20);
-
-        //Negative test case to confirm array cannot be stamped as tuple.
-        BAssertUtil.validateError(arrayNegativeTestCompileResult, 8,
-                "incompatible stamp type: type 'anydata[]' cannot be stamped as type " +
-                        "'(string,string,string)'", 66, 43);
     }
 
     @Test

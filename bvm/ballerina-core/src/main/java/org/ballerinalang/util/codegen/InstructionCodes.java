@@ -92,6 +92,8 @@ public interface InstructionCodes {
     int BGSTORE = 58;
     int RGSTORE = 59;
 
+    int IS_LIKE = 60;
+
     int STAMP = 62;
 
     int FREEZE = 63;
@@ -265,6 +267,9 @@ public interface InstructionCodes {
     int SNEWARRAY = 203;
     int BNEWARRAY = 204;
     int RNEWARRAY = 205;
+
+    int CLONE = 206;
+
     int LENGTHOF = 208;
 
     int NEWSTRUCT = 210;

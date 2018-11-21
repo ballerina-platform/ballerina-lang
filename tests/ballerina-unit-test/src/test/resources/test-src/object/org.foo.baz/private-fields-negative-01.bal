@@ -1,12 +1,12 @@
 
 public type ParentFoo object {
 
-    public int i;
-    public ChildFoo c;
+    public int i = 0;
+    public ChildFoo c = new("");
 
 
 
-    private string s;
+    private string s = "";
 
 
     new (i, c){}
@@ -14,7 +14,7 @@ public type ParentFoo object {
 
 type ChildFoo object {
 
-    private string name;
+    private string name = "";
 
 
     new (name) {}
@@ -22,8 +22,8 @@ type ChildFoo object {
 
 type PrivatePerson object {
 
-    public int age;
-    public string name;
+    public int age = 0;
+    public string name = "";
 
 
     new (age, name){}
@@ -42,6 +42,6 @@ public function privatePersonAsParamAndReturn(PrivatePerson p) returns (PrivateP
     return p;
 }
 
-function PrivatePerson::getPrivatePersonName() returns (string) {
+function PrivatePerson.getPrivatePersonName() returns (string) {
     return self.name;
 }

@@ -226,12 +226,14 @@ function testAssignNilToNonNillableField(string field, typedesc recordType) retu
         dbTable = "DataTypeTableNillable";
         rowId = 2;
     }
-    table dt = check testDB->select("SELECT " + field + " from " + dbTable + " where row_id=?", recordType, rowId);
+    var dt = testDB->select("SELECT " + field + " from " + dbTable + " where row_id=?", recordType, rowId);
     string errorMessage = "";
-    while (dt.hasNext()) {
-        var ret = trap dt.getNext();
-        if (ret is error) {
-            errorMessage = <string> ret.reason();
+    if (dt is table) {
+        while (dt.hasNext()) {
+            var ret = trap dt.getNext();
+            if (ret is error) {
+                errorMessage = <string>ret.reason();
+            }
         }
     }
     testDB.stop();
@@ -358,12 +360,14 @@ function testAssignToInvalidUnionField(string field) returns string {
         rowId = 1;
     }
 
-    table dt = check testDB->select("SELECT " + field + " from " + dbTable + " where row_id=?", InvalidUnion, rowId);
+    var dt = testDB->select("SELECT " + field + " from " + dbTable + " where row_id=?", InvalidUnion, rowId);
     string errorMessage = "";
-    while (dt.hasNext()) {
-        var ret = trap <InvalidUnion>dt.getNext();
-        if (ret is error) {
-            errorMessage = ret.reason();
+    if (dt is table) {
+        while (dt.hasNext()) {
+            var ret = trap <InvalidUnion>dt.getNext();
+            if (ret is error) {
+                errorMessage = ret.reason();
+            }
         }
     }
     testDB.stop();
@@ -379,13 +383,15 @@ function testAssignArrayToInvalidField(typedesc invalidType, int id) returns str
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table dt = check testDB->select("SELECT int_array, long_array, float_array, boolean_array,
+    var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array,
               string_array from ArrayTypes where row_id = ?", invalidType, id);
     string errorMessage = "";
-    while (dt.hasNext()) {
-        var ret = trap dt.getNext();
-        if (ret is error) {
-            errorMessage = ret.reason();
+    if (dt is table) {
+        while (dt.hasNext()) {
+            var ret = trap dt.getNext();
+            if (ret is error) {
+                errorMessage = ret.reason();
+            }
         }
     }
     testDB.stop();
@@ -400,12 +406,14 @@ function testInvalidUnionForArrays(typedesc invalidUnion) returns string {
         password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
-    table dt = check testDB->select("SELECT int_array from ArrayTypes where row_id = 1", invalidUnion);
+    var dt = testDB->select("SELECT int_array from ArrayTypes where row_id = 1", invalidUnion);
     string message = "";
-    while (dt.hasNext()) {
-        var ret = trap dt.getNext();
-        if (ret is error) {
-            message = <string> ret.reason();
+    if (dt is table) {
+        while (dt.hasNext()) {
+            var ret = trap dt.getNext();
+            if (ret is error) {
+                message = <string>ret.reason();
+            }
         }
     }
     testDB.stop();

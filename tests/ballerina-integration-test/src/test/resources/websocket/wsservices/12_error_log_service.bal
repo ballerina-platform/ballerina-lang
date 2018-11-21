@@ -28,7 +28,10 @@ service<http:WebSocketService> errorService bind { port: 9094 } {
 
     onText(endpoint ep, string text) {
         log:printError(string `text received: {{text}}`);
-        check ep->pushText(text);
+        var returnVal = ep->pushText(text);
+        if (returnVal is error) {
+             panic returnVal;
+        }
     }
 
     onError(endpoint ep, error err) {

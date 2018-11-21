@@ -14,18 +14,41 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/grpc;
-import ballerina/io;
-
-endpoint grpc:Listener listener {
-    host:"localhost",
-    port:8557
+type Person1 record {
+    string name;
+    !...
 };
 
-@grpc:ServiceConfig
-service byteService bind listener {
-    checkBytes(endpoint caller, byte[] value) {
-        _ = caller->send(value);
-        _ = caller->complete();
-    }
+type AnotherPerson record {
+    string name;
+    int age;
+};
+
+function testMissingRequiredField1() {
+    Person1 p = {name:"John"};
+    AnotherPerson ap = p;
+}
+
+type Person2 record {
+    string name;
+    int age?;
+    !...
+};
+
+function testMissingRequiredField2() {
+    Person2 p = {name:"John"};
+    AnotherPerson ap = p;
+}
+
+type Person3 record {
+    string name;
+    int age;
+    map<any> address;
+    !...
+};
+
+function testMismatchingRestField1() {
+    map<any> adr = {};
+    Person3 p = {name:"John", age:25, address:adr};
+    AnotherPerson ap = p;
 }
