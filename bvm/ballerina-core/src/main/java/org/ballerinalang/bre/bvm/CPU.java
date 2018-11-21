@@ -2286,16 +2286,26 @@ public class CPU {
                 cpIndex = operands[1];
                 j = operands[2];
                 typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
+                BType expectedType = typeRefCPEntry.getType();
 
                 bRefTypeValue = sf.refRegs[i];
 
-                if (isSimpleBasicType(typeRefCPEntry.getType())) {
-                    execExplicitlyTypedExpressionOpCode(ctx, sf, typeRefCPEntry.getType(), bRefTypeValue, j);
-                } else if (typeRefCPEntry.getType() == bRefTypeValue.getType()) {
+                if (bRefTypeValue == null) {
+                    if (expectedType.getTag() == TypeTags.NULL_TAG) {
+                        sf.refRegs[j] = null;
+                        break;
+                    }
+                    ctx.setError(BLangVMErrors.createError(ctx,  "assertion error: expected '" + expectedType + "', " +
+                            "found '()'"));
+                    handleError(ctx);
+                } else if (isSimpleBasicType(expectedType)) {
+                    execExplicitlyTypedExpressionOpCode(ctx, sf, expectedType, bRefTypeValue, j);
+                } else if (expectedType.equals(bRefTypeValue.getType())) {
                     sf.refRegs[j] = bRefTypeValue;
                 } else {
                     ctx.setError(BLangVMErrors.createError(ctx,  "assertion error: expected '" +
-                            typeRefCPEntry.getType() + "', found '" + bRefTypeValue.getType() + "'"));
+                            (expectedType.getTag() == TypeTags.NULL_TAG ? "()" : expectedType) + "', found '" +
+                            bRefTypeValue.getType() + "'"));
                     handleError(ctx);
                 }
                 break;
@@ -2427,7 +2437,7 @@ public class CPU {
         int targetTag = targetType.getTag();
         if (!isSimpleBasicType(sourceType) ||
                 (sourceType.getTag() == TypeTags.STRING_TAG && targetTag != TypeTags.STRING_TAG)) {
-            ctx.setError(BLangVMErrors.createError(ctx,  "assertion error: expected '" + targetTag + "', found '" +
+            ctx.setError(BLangVMErrors.createError(ctx,  "assertion error: expected '" + targetType + "', found '" +
                     bRefTypeValue.getType() + "'"));
             handleError(ctx);
             return;
