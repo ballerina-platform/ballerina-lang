@@ -543,7 +543,7 @@ public class CloneOperationTest {
         Assert.assertNotNull(results);
         Assert.assertNotSame(results[0], results[1]);
         Assert.assertSame(results[1].getType().getTag(), TypeTags.ERROR_TAG);
-        Assert.assertEquals(((BError)results[1]).reason,
+        Assert.assertEquals(((BError) results[1]).reason,
                 "value '({id:100, name:\"Alex\", salary:300.5}, Employee)' of type '(Employee,any)' " +
                 "can not be cloned");
     }
