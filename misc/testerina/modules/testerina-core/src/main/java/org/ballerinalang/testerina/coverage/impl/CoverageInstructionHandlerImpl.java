@@ -39,9 +39,9 @@ import java.util.Map;
 @JavaSPIService("org.ballerinalang.bre.InstructionHandler")
 public class CoverageInstructionHandlerImpl implements InstructionHandler {
 
-    Map<String, List<ExecutedInstruction>> executedInstructionOrderMap;
-    Map<String, ProjectLineNumberInfoHolder> lineNumberInfoHolderForProject;
-    CoverageManager coverageManager;
+    private Map<String, List<ExecutedInstruction>> executedInstructionOrderMap;
+    private Map<String, ProjectLineNumberInfoHolder> lineNumberInfoHolderForProject;
+    private CoverageManager coverageManager;
 
     public CoverageInstructionHandlerImpl() {
         coverageManager = CoverageManager.getInstance();

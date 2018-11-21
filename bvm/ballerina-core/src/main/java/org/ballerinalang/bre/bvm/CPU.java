@@ -792,15 +792,15 @@ public class CPU {
      * Handle sending a message to a channel. If there is a worker already waiting to accept this message, it is
      * resumed.
      *
-     * @param ctx         Current worker context
+     * @param ctx Current worker context
      * @param channelName Name os the channel to get the message
-     * @param dataType    Type od the message
-     * @param dataReg     Registry location of the message
-     * @param keyType     Type of message key
-     * @param keyReg      message key registry index
+     * @param dataType Type od the message
+     * @param dataReg Registry location of the message
+     * @param keyType Type of message key
+     * @param keyReg message key registry index
      */
     private static void handleCHNSend(WorkerExecutionContext ctx, String channelName, BType dataType, int dataReg,
-                                      BType keyType, int keyReg) {
+            BType keyType, int keyReg) {
         BRefType keyVal = null;
         if (keyType != null) {
             keyVal = extractValue(ctx.workerLocal, keyType, keyReg);
@@ -827,16 +827,16 @@ public class CPU {
      * Handles message receiving using a channel.
      * If the expected message is already available, it is assigned to the receiver reg and returns true.
      *
-     * @param ctx          Current worker context
-     * @param channelName  Name os the channel to get the message
+     * @param ctx Current worker context
+     * @param channelName Name os the channel to get the message
      * @param receiverType Type of the expected message
-     * @param receiverReg  Registry index of the receiving message
-     * @param keyType      Type of message key
-     * @param keyIndex     message key registry index
+     * @param receiverReg Registry index of the receiving message
+     * @param keyType Type of message key
+     * @param keyIndex message key registry index
      * @return true if a matching value is available
      */
     private static boolean handleCHNReceive(WorkerExecutionContext ctx, String channelName, BType receiverType,
-                                            int receiverReg, BType keyType, int keyIndex) {
+            int receiverReg, BType keyType, int keyIndex) {
         BValue keyVal = null;
         if (keyType != null) {
             keyVal = extractValue(ctx.workerLocal, keyType, keyIndex);
@@ -979,7 +979,7 @@ public class CPU {
 
     private static int expandIntRegs(WorkerData sf, BFunctionPointer fp) {
         int intIndex = 0;
-        if (fp.getAdditionalIndexCount(BTypes.typeBoolean.getTag()) > 0 ||
+        if (fp.getAdditionalIndexCount(BTypes.typeBoolean.getTag()) > 0  ||
                 fp.getAdditionalIndexCount(BTypes.typeByte.getTag()) > 0) {
             if (sf.intRegs == null) {
                 sf.intRegs = new int[0];
@@ -1071,7 +1071,7 @@ public class CPU {
                 }
                 case TypeTags.BOOLEAN_TAG: {
                     fp.addClosureVar(new BClosure(new BBoolean(ctx.workerLocal.intRegs[index] == 1),
-                            BTypes.typeBoolean), TypeTags.BOOLEAN_TAG);
+                                    BTypes.typeBoolean), TypeTags.BOOLEAN_TAG);
                     break;
                 }
                 case TypeTags.STRING_TAG: {
@@ -2036,7 +2036,7 @@ public class CPU {
                 bRefTypeValue = sf.refRegs[i];
 
                 if (checkCast(bRefTypeValue, typeRefCPEntry.getType())) {
-                    sf.refRegs[j] = bRefTypeValue;
+                        sf.refRegs[j] = bRefTypeValue;
                 } else {
                     handleTypeCastError(ctx, sf, j, bRefTypeValue != null ? bRefTypeValue.getType() : BTypes.typeNull,
                             typeRefCPEntry.getType());
@@ -2324,7 +2324,6 @@ public class CPU {
 
     private static void execXMLCreationOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode,
                                                int[] operands) {
-
         int i;
         int j;
         int k;
@@ -2770,7 +2769,7 @@ public class CPU {
     }
 
     public static void copyArgValueForWorkerReceive(WorkerData currentSF, int regIndex, BType paramType,
-                                                    BRefType passedInValue) {
+                                                     BRefType passedInValue) {
         switch (paramType.getTag()) {
             case TypeTags.INT_TAG:
                 currentSF.longRegs[regIndex] = ((BInteger) passedInValue).intValue();
@@ -2886,9 +2885,9 @@ public class CPU {
      * Checks whether the source type is the same as the target type or if the target type is any type, and if true
      * the return value would be true.
      *
-     * @param rhsType the source type - the type (of the value) being cast/assigned
-     * @param lhsType the target type against which cast/assignability is checked
-     * @return true if the lhsType is any or is the same as rhsType
+     * @param rhsType   the source type - the type (of the value) being cast/assigned
+     * @param lhsType   the target type against which cast/assignability is checked
+     * @return          true if the lhsType is any or is the same as rhsType
      */
     private static boolean isSameOrAnyType(BType rhsType, BType lhsType) {
         return lhsType.getTag() == TypeTags.ANY_TAG || rhsType.equals(lhsType);
@@ -2957,7 +2956,7 @@ public class CPU {
         if (sourceMapType.getConstrainedType().getTag() == TypeTags.RECORD_TYPE_TAG &&
                 targetMapType.getConstrainedType().getTag() == TypeTags.RECORD_TYPE_TAG) {
             return checkRecordEquivalency((BRecordType) targetMapType.getConstrainedType(),
-                    (BRecordType) sourceMapType.getConstrainedType(), unresolvedTypes);
+                                          (BRecordType) sourceMapType.getConstrainedType(), unresolvedTypes);
         }
 
         return false;
@@ -3011,7 +3010,7 @@ public class CPU {
     }
 
     private static boolean checkStructEquivalency(BStructureType rhsType, BStructureType lhsType,
-                                                  List<TypePair> unresolvedTypes) {
+                                                 List<TypePair> unresolvedTypes) {
         // If we encounter two types that we are still resolving, then skip it.
         // This is done to avoid recursive checking of the same type.
         TypePair pair = new TypePair(rhsType, lhsType);
@@ -3088,7 +3087,7 @@ public class CPU {
     }
 
     private static boolean checkEquivalencyOfTwoPrivateStructs(BStructureType lhsType, BStructureType rhsType,
-                                                               List<TypePair> unresolvedTypes) {
+                                                           List<TypePair> unresolvedTypes) {
         for (int fieldCounter = 0; fieldCounter < lhsType.getFields().length; fieldCounter++) {
             BField lhsField = lhsType.getFields()[fieldCounter];
             BField rhsField = rhsType.getFields()[fieldCounter];
@@ -3327,9 +3326,9 @@ public class CPU {
     /**
      * Check the compatibility of casting a JSON to a target type.
      *
-     * @param json            JSON to cast
-     * @param sourceType      Type of the source JSON
-     * @param targetType      Target type
+     * @param json       JSON to cast
+     * @param sourceType Type of the source JSON
+     * @param targetType Target type
      * @param unresolvedTypes Unresolved types
      * @return Runtime compatibility for casting
      */
@@ -3471,7 +3470,7 @@ public class CPU {
             handleTypeConversionError(ctx, sf, j, errorMsg);
         }
     }
-    
+
     private static void convertMapToStruct(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
         int i = operands[0];
         int cpIndex = operands[1];

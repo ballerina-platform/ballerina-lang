@@ -476,9 +476,7 @@ public class BTestRunner {
                         "%s", TesterinaUtils.formatError(e.getMessage()));
                 errStream.println(errorMsg);
             }
-
         }
-
     }
 
     private boolean isTestDependsOnFailedFunctions(List<String> failedOrSkippedTests, List<String> dependentTests) {
