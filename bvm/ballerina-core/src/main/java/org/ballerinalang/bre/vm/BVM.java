@@ -93,11 +93,9 @@ import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ErrorTableEntry;
-import org.ballerinalang.util.codegen.ForkjoinInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
-import org.ballerinalang.util.codegen.Instruction.InstructionFORKJOIN;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
 import org.ballerinalang.util.codegen.Instruction.InstructionLock;
 import org.ballerinalang.util.codegen.Instruction.InstructionVCALL;
@@ -127,7 +125,6 @@ import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.ballerinalang.util.observability.ObserverContext;
-import org.ballerinalang.util.program.BLangFunctions;
 import org.ballerinalang.util.program.BLangVMUtils;
 import org.ballerinalang.util.program.CompensationTable;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
@@ -147,7 +144,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
-import java.util.stream.Stream;
 
 import static org.ballerinalang.runtime.Constants.STATE_ID;
 import static org.ballerinalang.util.BLangConstants.BBYTE_MAX_VALUE;
@@ -180,9 +176,9 @@ public class BVM {
 
         int callersRetRegIndex;
 
-        DataFrame sf = strand.currentFrame;
+        StackFrame sf = strand.currentFrame;
 
-        while (sf.ip >= 0 && strand != null) {
+        while (sf.ip >= 0) {
             try {
 //            if (ctx.stop) {
 //                BLangScheduler.workerDone(ctx);
@@ -310,7 +306,7 @@ public class BVM {
                     case InstructionCodes.RGLOAD:
                     case InstructionCodes.MAPLOAD:
                     case InstructionCodes.JSONLOAD:
-                        strand = execLoadOpcodes(strand, sf, opcode, operands);
+                        execLoadOpcodes(strand, sf, opcode, operands);
                         break;
 
                     case InstructionCodes.IASTORE:
@@ -327,7 +323,7 @@ public class BVM {
                     case InstructionCodes.RGSTORE:
                     case InstructionCodes.MAPSTORE:
                     case InstructionCodes.JSONSTORE:
-                        strand = execStoreOpcodes(strand, sf, opcode, operands);
+                        execStoreOpcodes(strand, sf, opcode, operands);
                         break;
 
                     case InstructionCodes.IADD:
@@ -379,11 +375,11 @@ public class BVM {
                     case InstructionCodes.ILSHIFT:
                     case InstructionCodes.IURSHIFT:
                     case InstructionCodes.TYPE_TEST:
-                        strand = execBinaryOpCodes(strand, sf, opcode, operands);
+                        execBinaryOpCodes(strand, sf, opcode, operands);
                         break;
 
                     case InstructionCodes.LENGTHOF:
-                        strand = calculateLength(strand, operands, sf);
+                        calculateLength(strand, operands, sf);
                         break;
                     case InstructionCodes.TYPELOAD:
                         cpIndex = operands[0];
@@ -414,7 +410,7 @@ public class BVM {
                     case InstructionCodes.BR_TRUE:
                     case InstructionCodes.BR_FALSE:
                     case InstructionCodes.GOTO:
-                        strand = execCmpAndBranchOpcodes(strand, sf, opcode, operands);
+                        execCmpAndBranchOpcodes(strand, sf, opcode, operands);
                         break;
                     case InstructionCodes.INT_RANGE:
                         execIntegerRangeOpcodes(sf, operands);
@@ -476,12 +472,12 @@ public class BVM {
                             BError error = (BError) sf.refRegs[i];
                             if (error == null) {
                                 //TODO do we need this null check?
-                                strand = handleNullRefError(strand);
+                                handleNullRefError(strand);
                                 break;
                             }
                             strand.setError(error);
                         }
-                        strand = handleError(strand);
+                        handleError(strand);
                         break;
                     case InstructionCodes.ERROR:
                         createNewError(operands, sf);
@@ -492,7 +488,7 @@ public class BVM {
                         break;
                     case InstructionCodes.IS_FROZEN:
                     case InstructionCodes.FREEZE:
-                        strand = handleFreezeBuiltinMethods(strand, opcode, operands, sf);
+                        handleFreezeBuiltinMethods(strand, opcode, operands, sf);
                         break;
                     case InstructionCodes.STAMP:
                         handleStampBuildInMethod(strand, operands, sf);
@@ -500,7 +496,7 @@ public class BVM {
                     case InstructionCodes.FPCALL:
                         i = operands[0];
                         if (sf.refRegs[i] == null) {
-                            strand = handleNullRefError(strand);
+                            handleNullRefError(strand);
                             break;
                         }
                         cpIndex = operands[1];
@@ -530,7 +526,7 @@ public class BVM {
 
                         BMap<String, BValue> structVal = (BMap<String, BValue>) sf.refRegs[m];
                         if (structVal == null) {
-                            strand = handleNullRefError(strand);
+                            handleNullRefError(strand);
                             break;
                         }
 
@@ -604,7 +600,7 @@ public class BVM {
                     case InstructionCodes.XMLATTRS2MAP:
                     case InstructionCodes.XML2S:
                     case InstructionCodes.ANY2SCONV:
-                        strand = execTypeConversionOpcodes(strand, sf, opcode, operands);
+                        execTypeConversionOpcodes(strand, sf, opcode, operands);
                         break;
 
                     case InstructionCodes.INEWARRAY:
@@ -674,7 +670,7 @@ public class BVM {
 //                    i = operands[0]; //TODO remove - we don't need this anymore
                         j = operands[1];
                         if (strand.fp > 0) {
-                            DataFrame pf = strand.peekFrame(1);
+                            StackFrame pf = strand.peekFrame(1);
                             callersRetRegIndex = sf.retReg;
                             pf.longRegs[callersRetRegIndex] = sf.longRegs[j];
                         } else {
@@ -684,7 +680,7 @@ public class BVM {
                     case InstructionCodes.FRET:
                         j = operands[1];
                         if (strand.fp > 0) {
-                            DataFrame pf = strand.peekFrame(1);
+                            StackFrame pf = strand.peekFrame(1);
                             callersRetRegIndex = sf.retReg;
                             pf.doubleRegs[callersRetRegIndex] = sf.doubleRegs[j];
                         } else {
@@ -694,7 +690,7 @@ public class BVM {
                     case InstructionCodes.SRET:
                         j = operands[1];
                         if (strand.fp > 0) {
-                            DataFrame pf = strand.peekFrame(1);
+                            StackFrame pf = strand.peekFrame(1);
                             callersRetRegIndex = sf.retReg;
                             pf.stringRegs[callersRetRegIndex] = sf.stringRegs[j];
                         } else {
@@ -704,7 +700,7 @@ public class BVM {
                     case InstructionCodes.BRET:
                         j = operands[1];
                         if (strand.fp > 0) {
-                            DataFrame pf = strand.peekFrame(1);
+                            StackFrame pf = strand.peekFrame(1);
                             callersRetRegIndex = sf.retReg;
                             pf.intRegs[callersRetRegIndex] = sf.intRegs[j];
                         } else {
@@ -715,7 +711,7 @@ public class BVM {
                     case InstructionCodes.RRET:
                         j = operands[1];
                         if (strand.fp > 0) {
-                            DataFrame pf = strand.peekFrame(1);
+                            StackFrame pf = strand.peekFrame(1);
                             callersRetRegIndex = sf.retReg;
                             pf.refRegs[callersRetRegIndex] = sf.refRegs[j];
                         } else {
@@ -727,8 +723,8 @@ public class BVM {
                             strand.popFrame();
                             break;
                         }
-                        strand = strand.respCallback.signal();
-                        break;
+                        strand.respCallback.signal();
+                        return;
                     case InstructionCodes.XMLATTRSTORE:
                     case InstructionCodes.XMLATTRLOAD:
                     case InstructionCodes.XML2XMLATTRS:
@@ -743,12 +739,12 @@ public class BVM {
                     case InstructionCodes.XMLLOAD:
                     case InstructionCodes.XMLLOADALL:
                     case InstructionCodes.NEWXMLSEQ:
-                        strand = execXMLOpcodes(strand, sf, opcode, operands);
+                        execXMLOpcodes(strand, sf, opcode, operands);
                         break;
                     case InstructionCodes.ITR_NEW:
                     case InstructionCodes.ITR_NEXT:
                     case InstructionCodes.ITR_HAS_NEXT:
-                        strand = execIteratorOperation(strand, sf, instruction);
+                        execIteratorOperation(strand, sf, instruction);
                         break;
                     case InstructionCodes.LOCK:
                         InstructionLock instructionLock = (InstructionLock) instruction;
@@ -764,6 +760,9 @@ public class BVM {
                         break;
                     case InstructionCodes.WAIT:
                         strand = execWait(strand, operands);
+                        if (strand == null) {
+                            return;
+                        }
                         break;
                     case InstructionCodes.SCOPE_END:
 //                    Instruction.InstructionScopeEnd scopeEnd = (Instruction.InstructionScopeEnd) instruction;
@@ -807,7 +806,7 @@ public class BVM {
             } catch (Throwable e) {
                 //Can we remove this?
                 strand.setError(BLangVMErrors.createError(strand, e.getMessage()));
-                strand = handleError(strand);
+                handleError(strand);
             }
         }
     }
@@ -815,7 +814,7 @@ public class BVM {
     private static Strand invokeCallable(Strand strand, CallableUnitInfo callableUnitInfo,
                                        int[] argRegs, int retReg, int flags) {
         //TODO refactor when worker info is removed from compiler
-        DataFrame df = new DataFrame(callableUnitInfo.getPackageInfo(), callableUnitInfo,
+        StackFrame df = new StackFrame(callableUnitInfo.getPackageInfo(), callableUnitInfo,
                 callableUnitInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), retReg); //TODO change retRegs to be single int
         copyArgValues(strand.currentFrame, df, argRegs, callableUnitInfo.getParamTypes());
 
@@ -852,7 +851,7 @@ public class BVM {
     }
 
     private static Strand invokeNativeCallable(CallableUnitInfo callableUnitInfo, Strand strand,
-                                                               DataFrame sf, int retReg, int flags) {
+                                               StackFrame sf, int retReg, int flags) {
         BType retType = callableUnitInfo.getRetParamTypes()[0];
 
         Context ctx = new NativeCallContext(strand, callableUnitInfo, sf);
@@ -866,7 +865,7 @@ public class BVM {
 
                 if (strand.fp > 0) {
                     strand.popFrame();
-                    DataFrame retFrame = strand.currentFrame;
+                    StackFrame retFrame = strand.currentFrame;
                     BLangVMUtils.populateWorkerDataWithValues(retFrame, retReg, ctx.getReturnValue(), retType);
                     return strand;
                 }
@@ -874,7 +873,8 @@ public class BVM {
 //                checkAndStopCallableObservation(observerContext, flags);
 //                BLangScheduler.handleInterruptibleAfterCallback(parentCtx);
                 /* we want the parent to continue, since we got the response of the native call already */
-                return strand.respCallback.signal();
+                strand.respCallback.signal();
+                return strand;
             }
             CallableUnitCallback callback = getNativeCallableUnitCallback(strand, sf, ctx, observerContext,
                     retReg, retType, flags);
@@ -886,10 +886,11 @@ public class BVM {
             strand.setError(BLangVMErrors.createError(strand, e.getMessage()));
         }
         strand.popFrame();
-        return handleError(strand);
+        handleError(strand);
+        return strand;
     }
 
-    private static CallableUnitCallback getNativeCallableUnitCallback(Strand strand, DataFrame parentDf, Context ctx,
+    private static CallableUnitCallback getNativeCallableUnitCallback(Strand strand, StackFrame parentDf, Context ctx,
                                                                       ObserverContext observerContext, int retReg,
                                                                       BType retType, int flags) {
         BLangCallableUnitCallback callback = new BLangCallableUnitCallback(ctx, strand, retReg, retType);
@@ -903,7 +904,7 @@ public class BVM {
 
 
 
-    private static void copyArgValues(DataFrame caller, DataFrame callee, int[] argRegs, BType[] paramTypes) {
+    private static void copyArgValues(StackFrame caller, StackFrame callee, int[] argRegs, BType[] paramTypes) {
         int longRegIndex = -1;
         int doubleRegIndex = -1;
         int stringRegIndex = -1;
@@ -934,7 +935,7 @@ public class BVM {
         }
     }
 
-    private static void createNewError(int[] operands, DataFrame sf) {
+    private static void createNewError(int[] operands, StackFrame sf) {
         int i = operands[0];
         int j = operands[1];
         int k = operands[2];
@@ -943,7 +944,7 @@ public class BVM {
         sf.refRegs[l] = new BError(typeRefCPEntry.getType(), sf.stringRegs[j], sf.refRegs[k]);
     }
 
-    private static void handleErrorBuiltinMethods(int opcode, int[] operands, DataFrame sf) {
+    private static void handleErrorBuiltinMethods(int opcode, int[] operands, StackFrame sf) {
         int i = operands[0];
         int j = operands[1];
         BError error = (BError) sf.refRegs[i];
@@ -957,8 +958,8 @@ public class BVM {
         }
     }
 
-    private static Strand handleFreezeBuiltinMethods(Strand ctx, int opcode, int[] operands,
-                                                   DataFrame sf) {
+    private static void handleFreezeBuiltinMethods(Strand ctx, int opcode, int[] operands,
+                                                   StackFrame sf) {
         int i = operands[0];
         int j = operands[1];
         BRefType value = sf.refRegs[i];
@@ -987,17 +988,16 @@ public class BVM {
                     // and its constituents to false, and panic
                     freezeStatus.setUnfrozen();
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
-                    return handleError(ctx);
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.IS_FROZEN:
                 sf.intRegs[j] = (value == null || value.isFrozen())  ? 1 : 0;
                 break;
         }
-        return ctx;
     }
 
-    private static void handleStampBuildInMethod(Strand ctx, int[] operands, DataFrame sf) {
+    private static void handleStampBuildInMethod(Strand ctx, int[] operands, StackFrame sf) {
 
         int i = operands[0];
         int j = operands[1];
@@ -1108,7 +1108,7 @@ public class BVM {
     }
 
     private static Strand invokeCallable(Strand ctx, BFunctionPointer fp, FunctionCallCPEntry funcCallCPEntry,
-                                       FunctionInfo functionInfo, DataFrame sf, int flags) {
+                                         FunctionInfo functionInfo, StackFrame sf, int flags) {
         List<BClosure> closureVars = fp.getClosureVars();
         int[] argRegs = funcCallCPEntry.getArgRegs();
         if (closureVars.isEmpty()) {
@@ -1162,7 +1162,7 @@ public class BVM {
     }
 
     private static WorkerExecutionContext invokeCompensate(Strand ctx, BFunctionPointer fp,
-                                                           FunctionInfo functionInfo, DataFrame sf, int[] retRegs) {
+                                                           FunctionInfo functionInfo, StackFrame sf, int[] retRegs) {
         List<BClosure> closureVars = fp.getClosureVars();
         if (closureVars.isEmpty()) {
             //compensate functions has no args apart from closure vars
@@ -1216,7 +1216,7 @@ public class BVM {
         return null;
     }
 
-    private static int expandLongRegs(DataFrame sf, BFunctionPointer fp) {
+    private static int expandLongRegs(StackFrame sf, BFunctionPointer fp) {
         int longIndex = 0;
         if (fp.getAdditionalIndexCount(BTypes.typeInt.getTag()) > 0) {
             if (sf.longRegs == null) {
@@ -1230,7 +1230,7 @@ public class BVM {
         return longIndex;
     }
 
-    private static int expandIntRegs(DataFrame sf, BFunctionPointer fp) {
+    private static int expandIntRegs(StackFrame sf, BFunctionPointer fp) {
         int intIndex = 0;
         if (fp.getAdditionalIndexCount(BTypes.typeBoolean.getTag()) > 0 ||
                 fp.getAdditionalIndexCount(BTypes.typeByte.getTag()) > 0) {
@@ -1246,7 +1246,7 @@ public class BVM {
         return intIndex;
     }
 
-    private static int expandDoubleRegs(DataFrame sf, BFunctionPointer fp) {
+    private static int expandDoubleRegs(StackFrame sf, BFunctionPointer fp) {
         int doubleIndex = 0;
         if (fp.getAdditionalIndexCount(BTypes.typeFloat.getTag()) > 0) {
             if (sf.doubleRegs == null) {
@@ -1261,7 +1261,7 @@ public class BVM {
         return doubleIndex;
     }
 
-    private static int expandStringRegs(DataFrame sf, BFunctionPointer fp) {
+    private static int expandStringRegs(StackFrame sf, BFunctionPointer fp) {
         int stringIndex = 0;
         if (fp.getAdditionalIndexCount(BTypes.typeString.getTag()) > 0) {
             if (sf.stringRegs == null) {
@@ -1276,7 +1276,7 @@ public class BVM {
         return stringIndex;
     }
 
-    private static int expandRefRegs(DataFrame sf, BFunctionPointer fp) {
+    private static int expandRefRegs(StackFrame sf, BFunctionPointer fp) {
         int refIndex = 0;
         if (fp.getAdditionalIndexCount(BTypes.typeAny.getTag()) > 0) {
             if (sf.refRegs == null) {
@@ -1291,7 +1291,7 @@ public class BVM {
         return refIndex;
     }
 
-    private static void findAndAddAdditionalVarRegIndexes(DataFrame sf, int[] operands,
+    private static void findAndAddAdditionalVarRegIndexes(StackFrame sf, int[] operands,
                                                           BFunctionPointer fp) {
 
         int h = operands[3];
@@ -1344,7 +1344,7 @@ public class BVM {
         }
     }
 
-    private static Strand execCmpAndBranchOpcodes(Strand ctx, DataFrame sf, int opcode, int[] operands) {
+    private static void execCmpAndBranchOpcodes(Strand ctx, StackFrame sf, int opcode, int[] operands) {
         int i;
         int j;
         int k;
@@ -1475,17 +1475,16 @@ public class BVM {
             default:
                 throw new UnsupportedOperationException();
         }
-        return ctx;
     }
 
-    private static void execIntegerRangeOpcodes(DataFrame sf, int[] operands) {
+    private static void execIntegerRangeOpcodes(StackFrame sf, int[] operands) {
         int i = operands[0];
         int j = operands[1];
         int k = operands[2];
         sf.refRegs[k] = new BIntArray(LongStream.rangeClosed(sf.longRegs[i], sf.longRegs[j]).toArray());
     }
 
-    private static Strand execLoadOpcodes(Strand ctx, DataFrame sf, int opcode, int[] operands) {
+    private static void execLoadOpcodes(Strand ctx, StackFrame sf, int opcode, int[] operands) {
         int i;
         int j;
         int k;
@@ -1534,7 +1533,7 @@ public class BVM {
                     sf.longRegs[k] = bIntArray.get(sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
-                    return handleError(ctx);
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.BIALOAD:
@@ -1546,7 +1545,7 @@ public class BVM {
                     sf.intRegs[k] = bByteArray.get(sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
-                    return handleError(ctx);
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.FALOAD:
@@ -1558,7 +1557,7 @@ public class BVM {
                     sf.doubleRegs[k] = bFloatArray.get(sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
-                    return handleError(ctx);
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.SALOAD:
@@ -1570,7 +1569,7 @@ public class BVM {
                     sf.stringRegs[k] = bStringArray.get(sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
-                    return handleError(ctx);
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.BALOAD:
@@ -1582,7 +1581,7 @@ public class BVM {
                     sf.intRegs[k] = bBooleanArray.get(sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
-                    return handleError(ctx);
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.RALOAD:
@@ -1594,7 +1593,7 @@ public class BVM {
                     sf.refRegs[k] = ListUtils.execListGetOperation(bNewArray, sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
-                    return handleError(ctx);
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.JSONALOAD:
@@ -1606,7 +1605,7 @@ public class BVM {
                     sf.refRegs[k] = JSONUtils.getArrayElement(sf.refRegs[i], sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
-                    return handleError(ctx);
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.IGLOAD:
@@ -1649,7 +1648,8 @@ public class BVM {
                 k = operands[2];
                 bMap = (BMap<String, BRefType>) sf.refRegs[i];
                 if (bMap == null) {
-                    return handleNullRefError(ctx);
+                    handleNullRefError(ctx);
+                    break;
                 }
 
                 IntegerCPEntry exceptCPEntry = (IntegerCPEntry) sf.constPool[operands[3]];
@@ -1666,10 +1666,9 @@ public class BVM {
             default:
                 throw new UnsupportedOperationException();
         }
-        return ctx;
     }
 
-    private static Strand execStoreOpcodes(Strand ctx, DataFrame sf, int opcode, int[] operands) {
+    private static void execStoreOpcodes(Strand ctx, StackFrame sf, int opcode, int[] operands) {
         int i;
         int j;
         int k;
@@ -1692,7 +1691,7 @@ public class BVM {
                     bIntArray.add(sf.longRegs[j], sf.longRegs[k]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
-                    return handleError(ctx);
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.BIASTORE:
@@ -1704,7 +1703,7 @@ public class BVM {
                     bByteArray.add(sf.longRegs[j], (byte) sf.intRegs[k]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
-                    return handleError(ctx);
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.FASTORE:
@@ -1716,7 +1715,7 @@ public class BVM {
                     bFloatArray.add(sf.longRegs[j], sf.doubleRegs[k]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
-                    return handleError(ctx);
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.SASTORE:
@@ -1728,7 +1727,7 @@ public class BVM {
                     bStringArray.add(sf.longRegs[j], sf.stringRegs[k]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
-                    return handleError(ctx);
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.BASTORE:
@@ -1740,7 +1739,7 @@ public class BVM {
                     bBooleanArray.add(sf.longRegs[j], sf.intRegs[k]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
-                    return handleError(ctx);
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.RASTORE:
@@ -1757,14 +1756,15 @@ public class BVM {
                     ctx.setError(BLangVMErrors.createError(ctx,
                             BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE,
                                     elementType, (refReg != null) ? refReg.getType() : BTypes.typeNull)));
-                    return handleError(ctx);
+                    handleError(ctx);
+                    break;
                 }
 
                 try {
                     ListUtils.execListAddOperation(list, index, refReg);
                 } catch (BLangFreezeException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, "Failed to add element: " + e.getMessage()));
-                    return handleError(ctx);
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.JSONASTORE:
@@ -1776,7 +1776,7 @@ public class BVM {
                     JSONUtils.setArrayElement(sf.refRegs[i], sf.longRegs[j], sf.refRegs[k]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
-                    return handleError(ctx);
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.IGSTORE:
@@ -1817,7 +1817,8 @@ public class BVM {
                 k = operands[2];
                 bMap = (BMap<String, BRefType>) sf.refRegs[i];
                 if (bMap == null) {
-                    return handleNullRefError(ctx);
+                    handleNullRefError(ctx);
+                    break;
                 }
 
                 BRefType<?> value = sf.refRegs[k];
@@ -1827,7 +1828,7 @@ public class BVM {
                 switch (mapType.getTag()) {
                     case TypeTags.MAP_TAG:
                         if (isValidMapInsertion(mapType, value)) {
-                            ctx = insertToMap(ctx, bMap, sf.stringRegs[j], value);
+                            insertToMap(ctx, bMap, sf.stringRegs[j], value);
                         } else {
                             expType = ((BMapType) mapType).getConstrainedType();
                         }
@@ -1846,7 +1847,7 @@ public class BVM {
                         }
 
                         if (checkIsType(value, targetFieldType)) {
-                            ctx = insertToMap(ctx, bMap, sf.stringRegs[j], value);
+                            insertToMap(ctx, bMap, sf.stringRegs[j], value);
                         } else {
                             expType = targetFieldType;
                         }
@@ -1856,7 +1857,7 @@ public class BVM {
                 if (expType != null) {
                     ctx.setError(BLangVMErrors.createError(ctx, BLangExceptionHelper
                             .getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION, expType, value.getType())));
-                    ctx = handleError(ctx);
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.JSONSTORE:
@@ -1867,16 +1868,15 @@ public class BVM {
                     JSONUtils.setElement(sf.refRegs[i], sf.stringRegs[j], sf.refRegs[k]);
                 } catch (BLangFreezeException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, "Failed to set element to JSON: " + e.getMessage()));
-                    return handleError(ctx);
+                    handleError(ctx);
                 }
                 break;
             default:
                 throw new UnsupportedOperationException();
         }
-        return ctx;
     }
 
-    private static Strand execBinaryOpCodes(Strand ctx, DataFrame sf, int opcode, int[] operands) {
+    private static void execBinaryOpCodes(Strand ctx, StackFrame sf, int opcode, int[] operands) {
         int i;
         int j;
         int k;
@@ -1966,7 +1966,8 @@ public class BVM {
                 k = operands[2];
                 if (sf.longRegs[j] == 0) {
                     ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
-                    return handleError(ctx);
+                    handleError(ctx);
+                    break;
                 }
 
                 sf.longRegs[k] = sf.longRegs[i] / sf.longRegs[j];
@@ -1985,7 +1986,8 @@ public class BVM {
                 rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
                 if (rhsValue.compareTo(BigDecimal.ZERO) == 0) {
                     ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
-                    return handleError(ctx);
+                    handleError(ctx);
+                    break;
                 }
 
                 sf.refRegs[k] = new BDecimal(lhsValue.divide(rhsValue, MathContext.DECIMAL128));
@@ -1996,7 +1998,8 @@ public class BVM {
                 k = operands[2];
                 if (sf.longRegs[j] == 0) {
                     ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
-                    return handleError(ctx);
+                    handleError(ctx);
+                    break;
                 }
 
                 sf.longRegs[k] = sf.longRegs[i] % sf.longRegs[j];
@@ -2007,7 +2010,8 @@ public class BVM {
                 k = operands[2];
                 if (sf.doubleRegs[j] == 0) {
                     ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
-                    return handleError(ctx);
+                    handleError(ctx);
+                    break;
                 }
 
                 sf.doubleRegs[k] = sf.doubleRegs[i] % sf.doubleRegs[j];
@@ -2020,7 +2024,8 @@ public class BVM {
                 rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
                 if (rhsValue.compareTo(BigDecimal.ZERO) == 0) {
                     ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
-                    return handleError(ctx);
+                    handleError(ctx);
+                    break;
                 }
 
                 sf.refRegs[k] = new BDecimal(lhsValue.remainder(rhsValue, MathContext.DECIMAL128));
@@ -2099,7 +2104,8 @@ public class BVM {
                 j = operands[1];
                 k = operands[2];
                 if (sf.refRegs[i] == null || sf.refRegs[j] == null) {
-                    return handleNullRefError(ctx); //TODO is this correct?
+                    handleNullRefError(ctx);
+                    break;//TODO is this correct?
                 }
                 sf.intRegs[k] = sf.refRegs[i].equals(sf.refRegs[j]) ? 1 : 0;
                 break;
@@ -2157,7 +2163,8 @@ public class BVM {
                 j = operands[1];
                 k = operands[2];
                 if (sf.refRegs[i] == null || sf.refRegs[j] == null) {
-                    return handleNullRefError(ctx); //TODO is this correct?
+                    handleNullRefError(ctx);
+                    break;//TODO is this correct?
                 }
                 sf.intRegs[k] = (!sf.refRegs[i].equals(sf.refRegs[j])) ? 1 : 0;
                 break;
@@ -2244,10 +2251,9 @@ public class BVM {
             default:
                 throw new UnsupportedOperationException();
         }
-        return ctx;
     }
 
-    private static Strand execXMLOpcodes(Strand ctx, DataFrame sf, int opcode, int[] operands) {
+    private static void execXMLOpcodes(Strand ctx, StackFrame sf, int opcode, int[] operands) {
         int i;
         int j;
         int k;
@@ -2347,15 +2353,14 @@ public class BVM {
             case InstructionCodes.NEWXMLPI:
             case InstructionCodes.XMLSEQSTORE:
             case InstructionCodes.NEWXMLSEQ:
-                ctx = execXMLCreationOpcodes(ctx, sf, opcode, operands);
+                execXMLCreationOpcodes(ctx, sf, opcode, operands);
                 break;
             default:
                 throw new UnsupportedOperationException();
         }
-        return ctx;
     }
 
-    private static void execTypeCastOpcodes(Strand ctx, DataFrame sf, int opcode, int[] operands) {
+    private static void execTypeCastOpcodes(Strand ctx, StackFrame sf, int opcode, int[] operands) {
         int i;
         int j;
         int cpIndex; // Index of the constant pool
@@ -2486,7 +2491,7 @@ public class BVM {
         }
     }
 
-    private static Strand execTypeConversionOpcodes(Strand ctx, DataFrame sf, int opcode,
+    private static void execTypeConversionOpcodes(Strand ctx, StackFrame sf, int opcode,
                                                   int[] operands) {
         int i;
         int j;
@@ -2649,7 +2654,8 @@ public class BVM {
 
                 bRefType = sf.refRegs[i];
                 if (bRefType == null) {
-                    return handleNullRefError(ctx);
+                    handleNullRefError(ctx);
+                    break;
                 }
 
                 //                    TODO fix - rajith
@@ -2702,14 +2708,13 @@ public class BVM {
             default:
                 throw new UnsupportedOperationException();
         }
-        return ctx;
     }
 
     public static boolean isByteLiteral(long longValue) {
         return (longValue >= BBYTE_MIN_VALUE && longValue <= BBYTE_MAX_VALUE);
     }
 
-    private static Strand execIteratorOperation(Strand ctx, DataFrame sf, Instruction instruction) {
+    private static void execIteratorOperation(Strand ctx, StackFrame sf, Instruction instruction) {
         int i, j;
         BValue collection;
         BIterator iterator;
@@ -2721,7 +2726,8 @@ public class BVM {
 
                 collection = sf.refRegs[i];
                 if (collection == null) {
-                    return handleNullRefError(ctx);
+                    handleNullRefError(ctx);
+                    break;
                 } else if (!(collection instanceof BCollection)) {
                     // Value is a value-type JSON.
                     sf.refRegs[j] = new BIterator() {
@@ -2753,10 +2759,9 @@ public class BVM {
                 copyValuesToRegistries(nextInstruction.typeTags, nextInstruction.retRegs, values, sf);
                 break;
         }
-        return ctx;
     }
 
-    private static void copyValuesToRegistries(int[] typeTags, int[] targetReg, BValue[] values, DataFrame sf) {
+    private static void copyValuesToRegistries(int[] typeTags, int[] targetReg, BValue[] values, StackFrame sf) {
         for (int i = 0; i < typeTags.length; i++) {
             BValue source = values[i];
             int target = targetReg[i];
@@ -2782,7 +2787,7 @@ public class BVM {
         }
     }
 
-    private static Strand execXMLCreationOpcodes(Strand ctx, DataFrame sf, int opcode,
+    private static void execXMLCreationOpcodes(Strand ctx, StackFrame sf, int opcode,
                                                int[] operands) {
         int i;
         int j;
@@ -2804,7 +2809,7 @@ public class BVM {
                     sf.refRegs[i] = XMLUtils.createXMLElement(startTagName, endTagName, sf.stringRegs[l]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
-                    return handleError(ctx);
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.NEWXMLCOMMENT:
@@ -2839,7 +2844,6 @@ public class BVM {
                 sf.refRegs[i] = new BXMLSequence();
                 break;
         }
-        return ctx;
     }
 
     private static boolean handleVariableLock(Strand ctx, BType[] types,
@@ -2980,7 +2984,7 @@ public class BVM {
         debugger.notifyDebugHit(ctx, currentExecLine, ctx.getDebugContext().getWorkerId());
     }
 
-    private static void handleAnyToRefTypeCast(Strand ctx, DataFrame sf, int[] operands,
+    private static void handleAnyToRefTypeCast(Strand ctx, StackFrame sf, int[] operands,
                                                BType targetType) {
         int i = operands[0];
         int j = operands[1];
@@ -2995,41 +2999,41 @@ public class BVM {
         }
     }
 
-    private static void handleTypeCastError(Strand ctx, DataFrame sf, int errorRegIndex,
+    private static void handleTypeCastError(Strand ctx, StackFrame sf, int errorRegIndex,
                                             BType sourceType, BType targetType) {
         handleTypeCastError(ctx, sf, errorRegIndex, sourceType.toString(), targetType.toString());
     }
 
-    private static void handleTypeCastError(Strand ctx, DataFrame sf, int errorRegIndex,
+    private static void handleTypeCastError(Strand ctx, StackFrame sf, int errorRegIndex,
                                             String sourceType, String targetType) {
         BError errorVal = BLangVMErrors.createTypeCastError(ctx, sourceType, targetType);
         sf.refRegs[errorRegIndex] = errorVal;
     }
 
-    private static void handleTypeConversionError(Strand ctx, DataFrame sf, int errorRegIndex,
+    private static void handleTypeConversionError(Strand ctx, StackFrame sf, int errorRegIndex,
                                                   BType sourceType, BType targetType) {
         handleTypeConversionError(ctx, sf, errorRegIndex, sourceType.toString(), targetType.toString());
     }
 
-    private static void handleTypeConversionError(Strand ctx, DataFrame sf, int errorRegIndex,
+    private static void handleTypeConversionError(Strand ctx, StackFrame sf, int errorRegIndex,
                                                   String sourceTypeName, String targetTypeName) {
         String errorMsg = "'" + sourceTypeName + "' cannot be converted to '" + targetTypeName + "'";
         handleTypeConversionError(ctx, sf, errorRegIndex, errorMsg);
     }
 
-    private static void handleTypeConversionError(Strand ctx, DataFrame sf,
+    private static void handleTypeConversionError(Strand ctx, StackFrame sf,
                                                   int errorRegIndex, String errorMessage) {
         BError errorVal = BLangVMErrors.createTypeConversionError(ctx, errorMessage);
         sf.refRegs[errorRegIndex] = errorVal;
     }
 
-    private static void createNewIntRange(int[] operands, DataFrame sf) {
+    private static void createNewIntRange(int[] operands, StackFrame sf) {
         long startValue = sf.longRegs[operands[0]];
         long endValue = sf.longRegs[operands[1]];
         sf.refRegs[operands[2]] = new BIntRange(startValue, endValue);
     }
 
-    private static void createNewStruct(int[] operands, DataFrame sf) {
+    private static void createNewStruct(int[] operands, StackFrame sf) {
         int cpIndex = operands[0];
         int i = operands[1];
         StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) sf.constPool[cpIndex];
@@ -3167,9 +3171,9 @@ public class BVM {
 //        }
     }
 
-    private static Strand invokeVirtualFunction(Strand ctx, DataFrame sf, int receiver,
-                                                                FunctionInfo virtualFuncInfo, int[] argRegs,
-                                                                int retReg, int flags) {
+    private static Strand invokeVirtualFunction(Strand ctx, StackFrame sf, int receiver,
+                                                FunctionInfo virtualFuncInfo, int[] argRegs,
+                                                int retReg, int flags) {
         BMap<String, BValue> structVal = (BMap<String, BValue>) sf.refRegs[receiver];
 
         // TODO use ObjectTypeInfo once record init function is removed
@@ -3841,7 +3845,7 @@ public class BVM {
         }
     }
 
-    private static void  convertStructToMap(int[] operands, DataFrame sf) {
+    private static void  convertStructToMap(int[] operands, StackFrame sf) {
         int i = operands[0];
         int j = operands[1];
 
@@ -3852,7 +3856,7 @@ public class BVM {
         sf.refRegs[j] = newMap;
     }
 
-    private static void convertStructToJSON(Strand ctx, int[] operands, DataFrame sf) {
+    private static void convertStructToJSON(Strand ctx, int[] operands, StackFrame sf) {
         int i = operands[0];
         int cpIndex = operands[1];
         int j = operands[2];
@@ -3868,7 +3872,7 @@ public class BVM {
         }
     }
 
-    private static void convertArrayToJSON(Strand ctx, int[] operands, DataFrame sf) {
+    private static void convertArrayToJSON(Strand ctx, int[] operands, StackFrame sf) {
         int i = operands[0];
         int j = operands[1];
 
@@ -3882,7 +3886,7 @@ public class BVM {
         }
     }
 
-    private static void convertJSONToArray(Strand ctx, int[] operands, DataFrame sf) {
+    private static void convertJSONToArray(Strand ctx, int[] operands, StackFrame sf) {
         int i = operands[0];
         int cpIndex = operands[1];
         int j = operands[2];
@@ -3903,7 +3907,7 @@ public class BVM {
         }
     }
 
-    private static void convertMapToJSON(Strand ctx, int[] operands, DataFrame sf) {
+    private static void convertMapToJSON(Strand ctx, int[] operands, StackFrame sf) {
         int i = operands[0];
         int cpIndex = operands[1];
         int j = operands[2];
@@ -3919,7 +3923,7 @@ public class BVM {
         }
     }
 
-    private static void convertJSONToMap(Strand ctx, int[] operands, DataFrame sf) {
+    private static void convertJSONToMap(Strand ctx, int[] operands, StackFrame sf) {
         int i = operands[0];
         int cpIndex = operands[1];
         int j = operands[2];
@@ -3940,7 +3944,7 @@ public class BVM {
         }
     }
 
-    private static void  convertMapToStruct(Strand ctx, int[] operands, DataFrame sf) {
+    private static void  convertMapToStruct(Strand ctx, int[] operands, StackFrame sf) {
         int i = operands[0];
         int cpIndex = operands[1];
         int j = operands[2];
@@ -4047,7 +4051,7 @@ public class BVM {
                 targetType, mapValue.getType());
     }
 
-    private static void convertJSONToStruct(Strand ctx, int[] operands, DataFrame sf) {
+    private static void convertJSONToStruct(Strand ctx, int[] operands, StackFrame sf) {
         int i = operands[0];
         int cpIndex = operands[1];
         int j = operands[2];
@@ -4069,13 +4073,13 @@ public class BVM {
         }
     }
 
-    private static Strand handleNullRefError(Strand strand) {
+    private static void handleNullRefError(Strand strand) {
         strand.setError(BLangVMErrors.createNullRefException(strand));
-        return handleError(strand);
+        handleError(strand);
     }
 
-    public static Strand handleError(Strand strand) {
-        DataFrame sf = strand.currentFrame;
+    public static void handleError(Strand strand) {
+        StackFrame sf = strand.currentFrame;
         BLangVMErrors.attachStackFrame(strand.getError(), strand.programFile, sf);
         // TODO: Fix me
         int ip = sf.ip;
@@ -4085,15 +4089,14 @@ public class BVM {
             sf.ip = match.ipTarget;
             sf.refRegs[match.regIndex] = strand.getError();
             strand.setError(null);
-            return strand;
         } else if (strand.fp > 0) {
             strand.popFrame();
-            return handleError(strand);
+            handleError(strand);
         } else {
             strand.respCallback.setError(strand.getError());
             //Below is to return current thread from VM
             sf.ip = -1;
-            return strand.respCallback.signal();
+            strand.respCallback.signal();
         }
 //        } else {
 //            //                    TODO fix - rajith
@@ -4117,7 +4120,7 @@ public class BVM {
         return null;
     }
 
-    private static Strand calculateLength(Strand ctx, int[] operands, DataFrame sf) {
+    private static void calculateLength(Strand ctx, int[] operands, StackFrame sf) {
         int i = operands[0];
         int cpIndex = operands[1];
         int j = operands[2];
@@ -4126,32 +4129,33 @@ public class BVM {
         int typeTag = typeRefCPEntry.getType().getTag();
         if (typeTag == TypeTags.STRING_TAG) {
             sf.longRegs[j] = sf.stringRegs[i].length();
-            return ctx;
+            return;
         }
 
         BValue entity = sf.refRegs[i];
         if (entity == null) {
-            return handleNullRefError(ctx);
+            handleNullRefError(ctx);
+            return;
         }
 
         if (typeTag == TypeTags.XML_TAG) {
             sf.longRegs[j] = ((BXML) entity).length();
-            return ctx;
+            return;
         } else if (typeTag == TypeTags.TABLE_TAG) {
             BTable bTable = (BTable) entity;
             int tableLength = bTable.length();
             sf.longRegs[j] = tableLength;
-            return ctx;
+            return;
         } else if (entity instanceof BMap) {
             sf.longRegs[j] = ((BMap) entity).size();
-            return ctx;
+            return;
         } else if (entity instanceof BNewArray) {
             sf.longRegs[j] = ((BNewArray) entity).size();
-            return ctx;
+            return;
         }
 
         sf.longRegs[j] = -1;
-        return ctx;
+        return;
     }
 
     private static Strand execWait(Strand strand, int[] operands) {
@@ -4186,10 +4190,9 @@ public class BVM {
 
     }
 
-    private static Strand insertToMap(Strand ctx, BMap bMap, String fieldName, BValue value) {
+    private static void insertToMap(Strand ctx, BMap bMap, String fieldName, BValue value) {
         try {
             bMap.put(fieldName, value);
-            return ctx;
         } catch (BLangFreezeException e) {
             // we would only reach here for record or map, not for object
             String errMessage = "";
@@ -4201,8 +4204,8 @@ public class BVM {
                     errMessage = "Invalid map insertion: ";
                     break;
             }
-//            ctx.setError(BLangVMErrors.createError(ctx, errMessage + e.getMessage()));
-            return handleError(ctx);
+            ctx.setError(BLangVMErrors.createError(ctx, errMessage + e.getMessage()));
+            handleError(ctx);
         }
     }
 

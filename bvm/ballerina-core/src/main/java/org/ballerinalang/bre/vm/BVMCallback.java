@@ -27,7 +27,7 @@ import org.ballerinalang.model.values.BRefType;
  */
 public interface BVMCallback {
 
-    Strand signal();
+    void signal();
 
     void setIntReturn(long value);
 

@@ -28,12 +28,16 @@ import java.util.concurrent.Semaphore;
 public class Strand {
     public static final int DEFAULT_CONTROL_STACK_SIZE = 2000;
 
-    private DataFrame[] callStack;
+    public String name;
+
+    public volatile State state;
+
+    private StackFrame[] callStack;
 
     // Stack frame pointer;
     public int fp = -1;
 
-    public DataFrame currentFrame;
+    public StackFrame currentFrame;
 
     public ProgramFile programFile;
 
@@ -46,45 +50,45 @@ public class Strand {
     public Strand(ProgramFile programFile, StrandCallback respCallback) {
         this.programFile = programFile;
         this.respCallback = respCallback;
-        this.callStack = new DataFrame[DEFAULT_CONTROL_STACK_SIZE];
+        this.callStack = new StackFrame[DEFAULT_CONTROL_STACK_SIZE];
+        this.state = State.NEW;
     }
 
-    public DataFrame pushFrame(DataFrame frame) {
+    public StackFrame pushFrame(StackFrame frame) {
         callStack[++fp] = frame;
         currentFrame = frame;
         return currentFrame;
     }
 
-    public DataFrame popFrame() {
-        DataFrame poppedFrame = currentFrame;
+    public StackFrame popFrame() {
+        StackFrame poppedFrame = currentFrame;
         callStack[fp] = null;
         if (fp > 0) {
             currentFrame = callStack[--fp];
-        }  else {
+        } else {
             currentFrame = null;
             fp--;
         }
-
         return poppedFrame;
     }
 
-    public DataFrame peekFrame(int offset) {
-        DataFrame peekFrame = null;
+    public StackFrame peekFrame(int offset) {
+        StackFrame peekFrame = null;
         if (fp - offset >= 0 && fp - offset < callStack.length) {
             peekFrame = callStack[fp - offset];
         }
         return peekFrame;
     }
 
-    public DataFrame getRootFrame() {
+    public StackFrame getRootFrame() {
         return callStack[0];
     }
 
-    public DataFrame getCurrentFrame() {
+    public StackFrame getCurrentFrame() {
         return currentFrame;
     }
 
-    public DataFrame[] getStack() {
+    public StackFrame[] getStack() {
         return callStack;
     }
 
@@ -110,6 +114,13 @@ public class Strand {
 
     public void releaseExecutionLock() {
         executionLock.release();
+    }
+
+    public static enum State {
+        NEW,
+        RUNNABLE,
+        BLOCKED,
+        TERMINATED
     }
 }
 

@@ -18,7 +18,7 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.vm.DataFrame;
+import org.ballerinalang.bre.vm.StackFrame;
 import org.ballerinalang.bre.vm.Strand;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.model.types.BErrorType;
@@ -186,7 +186,7 @@ public class BLangVMErrors {
                 BTypes.typeError, reason, details);
     }
 
-    private static BError generateError(ProgramFile programFile, DataFrame sf, boolean attachCallStack,
+    private static BError generateError(ProgramFile programFile, StackFrame sf, boolean attachCallStack,
                                         BErrorType type, String reason, BMap<String, BValue> details) {
         BError error = new BError(type, reason, details);
         if (attachCallStack) {
@@ -215,7 +215,7 @@ public class BLangVMErrors {
         return error;
     }
 
-    public static void attachStackFrame(BError error, ProgramFile programFile, DataFrame sf) {
+    public static void attachStackFrame(BError error, ProgramFile programFile, StackFrame sf) {
         Optional.ofNullable(getStackFrame(programFile, sf)).ifPresent(error.callStack::add);
     }
 
@@ -277,7 +277,7 @@ public class BLangVMErrors {
         return BLangVMStructs.createBStruct(typeInfo, values);
     }
 
-    public static BMap<String, BValue> getStackFrame(ProgramFile programFile, DataFrame sf) {
+    public static BMap<String, BValue> getStackFrame(ProgramFile programFile, StackFrame sf) {
         if (sf == null) {
             return null;
         }

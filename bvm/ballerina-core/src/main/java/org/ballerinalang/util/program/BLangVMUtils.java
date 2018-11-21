@@ -21,7 +21,7 @@ import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.bre.bvm.CPU.HandleErrorException;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.bre.vm.DataFrame;
+import org.ballerinalang.bre.vm.StackFrame;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
@@ -134,7 +134,7 @@ public class BLangVMUtils {
     }
 
     @SuppressWarnings("rawtypes")
-    public static void populateWorkerDataWithValues(DataFrame data, int regIndex, BValue val, BType retType) {
+    public static void populateWorkerDataWithValues(StackFrame data, int regIndex, BValue val, BType retType) {
         switch (retType.getTag()) {
             case TypeTags.INT_TAG:
                 if (val == null) {

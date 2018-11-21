@@ -19,7 +19,7 @@ package org.ballerinalang.bre;
 
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.bre.vm.DataFrame;
+import org.ballerinalang.bre.vm.StackFrame;
 import org.ballerinalang.bre.vm.Strand;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
@@ -46,7 +46,7 @@ public interface Context {
 
     WorkerData getLocalWorkerData();
 
-    DataFrame getDataFrame();
+    StackFrame getDataFrame();
 
     DebugContext getDebugContext();
 

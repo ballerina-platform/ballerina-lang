@@ -37,9 +37,8 @@ public class StrandWaitCallback extends StrandCallback {
     }
 
     @Override
-    public Strand signal() {
+    public void signal() {
         this.check.release();
-        return null; // no need to return any strand
     }
 
     public void waitForResponse() {
