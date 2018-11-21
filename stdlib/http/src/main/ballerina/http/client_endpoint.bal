@@ -27,7 +27,7 @@ import ballerina/io;
 # + epName - The name of the client
 # + config - The configurations associated with the client
 # + httpClient - The provider which implements the HTTP methods
-public type ClientEndpoint client object {
+public type Client client object {
 
     public ClientEndpointConfig config = {};
 
@@ -238,9 +238,9 @@ public type ClientEndpointConfig record {
     !...
 };
 
-extern function createHttpClient(string uri, ClientEndpointConfig config) returns ClientEndpoint;
+extern function createHttpClient(string uri, ClientEndpointConfig config) returns Client;
 
-extern function createSimpleHttpClient(string uri, ClientEndpointConfig config) returns ClientEndpoint;
+extern function createSimpleHttpClient(string uri, ClientEndpointConfig config) returns Client;
 
 # Provides configurations for controlling the retry behaviour in failure scenarios.
 #
@@ -358,7 +358,7 @@ public type AuthConfig record {
     !...
 };
 
-function ClientEndpoint.init(ClientEndpointConfig c) {
+function Client.init(ClientEndpointConfig c) {
     self = createSimpleHttpClient(c.url, c);
     //boolean httpClientRequired = false;
     //string url = c.url;
@@ -390,7 +390,7 @@ function ClientEndpoint.init(ClientEndpointConfig c) {
     //}
 }
 
-function createRedirectClient(string url, ClientEndpointConfig configuration) returns ClientEndpoint {
+function createRedirectClient(string url, ClientEndpointConfig configuration) returns Client {
     var redirectConfig = configuration.followRedirects;
     if (redirectConfig is FollowRedirects) {
         if (redirectConfig.enabled) {
@@ -403,7 +403,7 @@ function createRedirectClient(string url, ClientEndpointConfig configuration) re
     }
 }
 
-function checkForRetry(string url, ClientEndpointConfig config) returns ClientEndpoint {
+function checkForRetry(string url, ClientEndpointConfig config) returns Client {
     var retryConfigVal = config.retryConfig;
     if (retryConfigVal is RetryConfig) {
         return createRetryClient(url, config);
@@ -416,12 +416,12 @@ function checkForRetry(string url, ClientEndpointConfig config) returns ClientEn
     }
 }
 
-function createCircuitBreakerClient(string uri, ClientEndpointConfig configuration) returns ClientEndpoint {
+function createCircuitBreakerClient(string uri, ClientEndpointConfig configuration) returns Client {
+    Client cbHttpClient = new;
     var cbConfig = configuration.circuitBreaker;
     if (cbConfig is CircuitBreakerConfig) {
         validateCircuitBreakerConfiguration(cbConfig);
         boolean [] statusCodes = populateErrorCodeIndex(cbConfig.statusCodes);
-        ClientEndpoint cbHttpClient = new;
         var redirectConfig = configuration.followRedirects;
         if (redirectConfig is FollowRedirects) {
             cbHttpClient = createRedirectClient(uri, configuration);
@@ -463,7 +463,7 @@ function createCircuitBreakerClient(string uri, ClientEndpointConfig configurati
     }
 }
 
-function createRetryClient(string url, ClientEndpointConfig configuration) returns ClientEndpoint {
+function createRetryClient(string url, ClientEndpointConfig configuration) returns Client {
     var retryConfig = configuration.retryConfig;
     if (retryConfig is RetryConfig) {
         boolean[] statusCodes = populateErrorCodeIndex(retryConfig.statusCodes);
@@ -492,22 +492,22 @@ function createRetryClient(string url, ClientEndpointConfig configuration) retur
 }
 
 //Since the struct equivalency doesn't work with private keyword, following functions are defined outside the object
-extern function nativePost(ClientEndpoint callerActions, @sensitive string path, Request req) returns Response|error;
+extern function nativePost(Client httpClient, @sensitive string path, Request req) returns Response|error;
 
-extern function nativeHead(ClientEndpoint callerActions, @sensitive string path, Request req) returns Response|error;
+extern function nativeHead(Client httpClient, @sensitive string path, Request req) returns Response|error;
 
-extern function nativePut(ClientEndpoint callerActions, @sensitive string path, Request req) returns Response|error;
+extern function nativePut(Client httpClient, @sensitive string path, Request req) returns Response|error;
 
-extern function nativeExecute(ClientEndpoint callerActions, @sensitive string httpVerb, @sensitive string path,
+extern function nativeExecute(Client httpClient, @sensitive string httpVerb, @sensitive string path,
                                                                         Request req) returns Response|error;
 
-extern function nativePatch(ClientEndpoint callerActions, @sensitive string path, Request req) returns Response|error;
+extern function nativePatch(Client httpClient, @sensitive string path, Request req) returns Response|error;
 
-extern function nativeDelete(ClientEndpoint callerActions, @sensitive string path, Request req) returns Response|error;
+extern function nativeDelete(Client httpClient, @sensitive string path, Request req) returns Response|error;
 
-extern function nativeGet(ClientEndpoint callerActions, @sensitive string path, Request req) returns Response|error;
+extern function nativeGet(Client httpClient, @sensitive string path, Request req) returns Response|error;
 
-extern function nativeOptions(ClientEndpoint callerActions, @sensitive string path, Request req) returns Response|error;
+extern function nativeOptions(Client httpClient, @sensitive string path, Request req) returns Response|error;
 
-extern function nativeSubmit(ClientEndpoint callerActions, @sensitive string httpVerb, string path, Request req)
+extern function nativeSubmit(Client httpClient, @sensitive string httpVerb, string path, Request req)
                                                                         returns HttpFuture|error;
