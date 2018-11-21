@@ -66,16 +66,6 @@
                 </excludes>
             </resource>
         </resources>
-        <plugins>
-            <plugin>
-                <groupId>org.antlr</groupId>
-                <artifactId>antlr4-maven-plugin</artifactId>
-                <configuration>
-                    <sourceDirectory>src/main/resources/grammar</sourceDirectory>
-                </configuration>
-            </plugin>
-        </plugins>
-
     </build>
 
     <properties>
