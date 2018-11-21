@@ -580,7 +580,7 @@ function testTupleMatchWithObjectEquivalency() returns string {
 
     int[] i = [1, 2, 3];
 
-    foreach y in i {
+    foreach var y in i {
         match res {
             (Foo, Person) x => {
                 return "SUCCESS";

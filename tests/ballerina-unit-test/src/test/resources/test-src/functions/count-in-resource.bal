@@ -17,7 +17,7 @@ service<http:Service> TestService bind testEP {
     testResource (endpoint caller, http:Request req) {
         json[] jsonArray = [];
         string[] strArray = ["foo", "bar"];
-        foreach s in strArray {
+        foreach var s in strArray {
             jsonArray[jsonArray.count()] = s;
         }
 

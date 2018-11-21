@@ -578,9 +578,9 @@ function testMultiLevelBlockStatements1() returns (function () returns (function
 function testMultiLevelBlockStatements2() returns (function(int[], int[], int[]) returns int) {
     int sum = 23;
     var foo = function (int[] i, int[] j, int[] k) returns int {
-        foreach x in i {
-            foreach y in j {
-                foreach z in k {
+        foreach var x in i {
+            foreach var y in j {
+                foreach var z in k {
                     sum = sum + x + y + z;
                 }
             }

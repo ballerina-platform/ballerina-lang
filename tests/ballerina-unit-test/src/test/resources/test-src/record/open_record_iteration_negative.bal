@@ -31,7 +31,7 @@ function testInvalidArgForForeachWithOpenRecords() {
     any[] vals = [];
     int i = 0;
 
-    foreach k, val, e in p {
+    foreach var (k, val, e) in p {
         vals[i] = val;
         i += 1;
     }

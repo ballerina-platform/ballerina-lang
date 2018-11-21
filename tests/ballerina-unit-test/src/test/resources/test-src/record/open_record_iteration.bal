@@ -54,7 +54,7 @@ function testForeachWithOpenRecords() returns (string[], any[]) {
     any[] values = [];
 
     int i = 0;
-    foreach f, v in p {
+    foreach var (f, v) in p {
         fields[i] = f;
         values[i] = v;
         i += 1;
@@ -69,7 +69,7 @@ function testForeachWithOpenRecords2() returns (string[], any[]) {
     any[] values = [];
 
     int i = 0;
-    foreach f, v in p {
+    foreach var (f, v) in p {
         fields[i] = f;
         values[i] = v;
         i += 1;
@@ -83,7 +83,7 @@ function testForeachWithOpenRecords3() returns any[] {
     any[] values = [];
 
     int i = 0;
-    foreach v in p {
+    foreach var v in p {
         values[i] = v;
         i += 1;
     }

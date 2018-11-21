@@ -130,7 +130,7 @@ public function queryStocksTable(string symbol, int volume) returns table<Stock>
     table<Stock> result = table {
         { symbol, price, volume }, []
     };
-    foreach stock in stocksTable {
+    foreach var stock in stocksTable {
         if (stock.symbol == symbol && stock.volume > volume) {
             var ret = result.add(stock);
         }

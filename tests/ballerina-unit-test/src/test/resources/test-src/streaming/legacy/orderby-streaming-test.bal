@@ -41,7 +41,7 @@ function testOrderBy() {
         from teacherStream window lengthBatch(10)
         select name, age, status order by age
         => (Employee[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 employeeStream.publish(e);
             }
         }
@@ -68,7 +68,7 @@ function startOrderBy() returns (Employee[]) {
 
     employeeStream.subscribe(printEmployeeNumber);
 
-    foreach teacher in teachers {
+    foreach var teacher in teachers {
         teacherStream.publish(teacher);
     }
 
@@ -101,7 +101,7 @@ function testOrderBy2() {
         from teacherStream2 window lengthBatch(10)
         select name, age, status order by age ascending
         => (Employee[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 employeeStream2.publish(e);
             }
         }
@@ -128,7 +128,7 @@ function startOrderBy2() returns (Employee[]) {
 
     employeeStream2.subscribe(printEmployeeNumber2);
 
-    foreach teacher in teachers {
+    foreach var teacher in teachers {
         teacherStream2.publish(teacher);
     }
 
@@ -160,7 +160,7 @@ function testOrderBy3() {
         from teacherStream3 window lengthBatch(10)
         select name, age, status order by age descending
         => (Employee[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 employeeStream3.publish(e);
             }
         }
@@ -187,7 +187,7 @@ function startOrderBy3() returns (Employee[]) {
 
     employeeStream3.subscribe(printEmployeeNumber3);
 
-    foreach teacher in teachers {
+    foreach var teacher in teachers {
         teacherStream3.publish(teacher);
     }
 
@@ -219,7 +219,7 @@ function testOrderBy4() {
         from teacherStream4 window lengthBatch(10)
         select name, age, status order by status, age
         => (Employee[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 employeeStream4.publish(e);
             }
         }
@@ -246,7 +246,7 @@ function startOrderBy4() returns (Employee[]) {
 
     employeeStream4.subscribe(printEmployeeNumber4);
 
-    foreach teacher in teachers {
+    foreach var teacher in teachers {
         teacherStream4.publish(teacher);
     }
 
@@ -278,7 +278,7 @@ function testOrderBy5() {
         from teacherStream5 window lengthBatch(10)
         select name, age, status order by status ascending, age descending
         => (Employee[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 employeeStream5.publish(e);
             }
         }
@@ -305,7 +305,7 @@ function startOrderBy5() returns (Employee[]) {
 
     employeeStream5.subscribe(printEmployeeNumber5);
 
-    foreach teacher in teachers {
+    foreach var teacher in teachers {
         teacherStream5.publish(teacher);
     }
 

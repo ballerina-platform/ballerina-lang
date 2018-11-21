@@ -50,7 +50,7 @@ function startTimeWindowTest2() returns (Teacher[]) {
     testTimeWindow();
 
     outputStreamTimeWindowTest2.subscribe(printTeachers);
-    foreach t in teachers {
+    foreach var t in teachers {
         inputStreamTimeWindowTest2.publish(t);
         runtime:sleep(1200);
     }
@@ -75,7 +75,7 @@ function testTimeWindow() {
         .school, count() as count
         group by inputStreamTimeWindowTest2.school
         => (Teacher [] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 outputStreamTimeWindowTest2.publish(e);
             }
         }

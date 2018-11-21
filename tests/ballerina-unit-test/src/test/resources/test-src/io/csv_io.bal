@@ -62,7 +62,7 @@ function getTable(string filePath, string encoding, io:Separator fieldSeperator)
     float total = 0.0;
     var tableResult = csv.getTable(Employee);
     if (tableResult is table<Employee>) {
-        foreach x in tableResult {
+        foreach var x in tableResult {
             total = total + x.salary;
         }
         return total;

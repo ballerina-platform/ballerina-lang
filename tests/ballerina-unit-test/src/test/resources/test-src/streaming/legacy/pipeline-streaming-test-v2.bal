@@ -42,7 +42,7 @@ function testPipelineQuery() {
         from teacherStream6 where age > 18
         select *
         => (Teacher[] teachers) {
-            foreach teacher in teachers {
+            foreach var teacher in teachers {
                 preProcessedStatusCountStream.publish(teacher);
             }
         }
@@ -52,7 +52,7 @@ function testPipelineQuery() {
         group by status
         having totalCount > 1
         => (StatusCount[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 filteredStatusCountStream2.publish(e);
             }
         }

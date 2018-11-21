@@ -61,7 +61,7 @@ function startAggregationQuery() returns (OutputRecord[]) {
     streamFunc();
 
     outputStream.subscribe(addToOutputDataArray);
-    foreach r in records {
+    foreach var r in records {
         inputStream.publish(r);
     }
 
@@ -80,7 +80,7 @@ function startAggregationQuery() returns (OutputRecord[]) {
 function streamFunc() {
 
     function (map[]) outputFunc = function (map[] events) {
-        foreach m in events {
+        foreach var m in events {
             // just cast input map into the output type
             OutputRecord o = check <OutputRecord>m;
             outputStream.publish(o);

@@ -54,7 +54,7 @@ function initRealtimeRequestCounter() {
         => (RequestCount[] counts) {
         // `counts` is the output of the streaming rules and is published to the `requestCountStream`.
         // The `select` clause should match the structure of the `RequestCount` struct.
-            foreach c in counts {
+            foreach var c in counts {
                 requestCountStream.publish(c);
             }
         }
@@ -62,7 +62,7 @@ function initRealtimeRequestCounter() {
         from requestCountStream
         select host, count, test
         => (RequestCount[] counts) {
-            foreach c in counts {
+            foreach var c in counts {
                 requestCountStream2.publish(c);
             }
         }

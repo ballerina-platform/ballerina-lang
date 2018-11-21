@@ -71,7 +71,7 @@ function testForEachInTableWithStmt() returns (int, int, float, string) {
     string name = "";
 
     if (dt is table<Person>) {
-        foreach x in dt {
+        foreach var x in dt {
             id = x.id;
             age = x.age;
             salary = x.salary;
@@ -96,9 +96,11 @@ function testForEachInTableWithIndex() returns (string, string) {
     string indexStr = "";
     string idStr = "";
     if (dt is table<Person>) {
-        foreach i, x in dt {
+        int i = 0;
+        foreach var x in dt {
             indexStr = indexStr + "," + i;
             idStr = idStr + "," + x.id;
+            i += 1;
         }
     }
     testDB.stop();

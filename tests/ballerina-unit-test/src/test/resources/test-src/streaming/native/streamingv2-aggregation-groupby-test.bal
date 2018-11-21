@@ -58,7 +58,7 @@ function startAggregationGroupByQuery() returns (TeacherOutput[]) {
     createStreamingConstruct();
 
     outputStream.subscribe(printTeachers);
-    foreach t in teachers {
+    foreach var t in teachers {
         runtime:sleep(1);
         inputStream.publish(t);
     }
@@ -88,7 +88,7 @@ function startAggregationGroupByQuery() returns (TeacherOutput[]) {
 function createStreamingConstruct() {
 
     function (map[]) outputFunc = function (map[] events) {
-        foreach m in events {
+        foreach var m in events {
             // just cast input map into the output type
             TeacherOutput t = check <TeacherOutput>m;
             outputStream.publish(t);

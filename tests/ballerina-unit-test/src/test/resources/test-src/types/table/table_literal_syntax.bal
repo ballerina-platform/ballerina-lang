@@ -210,7 +210,7 @@ function testUnconstraintTable() returns (int, json, xml, int, int, any, error?,
     }
     //Iterate with foreach
     int iter2 = 0;
-    foreach datarow in t1 {
+    foreach var datarow in t1 {
         iter2 = iter2 + 1;
     }
     //Get next row

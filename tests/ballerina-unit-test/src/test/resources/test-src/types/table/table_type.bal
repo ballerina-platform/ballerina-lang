@@ -1354,7 +1354,7 @@ function testGetPrimitiveTypesWithForEach() returns (int, int, float,
     boolean b = false;
     string s = "";
     if (selectRet is table<ResultPrimitive>) {
-        foreach x in selectRet {
+        foreach var x in selectRet {
             i = x.INT_TYPE;
             l = x.LONG_TYPE;
             f = x.FLOAT_TYPE;
@@ -1382,7 +1382,7 @@ function testMultipleRowsWithForEach() returns (int, int) {
     ResultPrimitiveInt rs2 = { INT_TYPE: -1 };
     if (selectRet is table<ResultPrimitiveInt>) {
         int i =0;
-        foreach x in selectRet {
+        foreach var x in selectRet {
             if (i ==0) {
                 rs1 = x;
             } else {
@@ -1496,7 +1496,7 @@ function testToJsonAndIterate() returns (json, int) {
     json result = getJsonConversionResult(selectRet);
     json j = [];
     int i = 0;
-    foreach row in result {
+    foreach var row in result {
         j[i] = row;
         i += 1;
     }

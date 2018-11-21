@@ -49,7 +49,7 @@ function testJoinQuery() {
         on stock.symbol == twitter.company
         select stock.symbol as symbol, twitter.tweet as tweet, stock.price as price
         => (StockWithPrice[] prices) {
-            foreach p in prices {
+            foreach var p in prices {
                 stockWithPriceStream.publish(p);
             }
         }

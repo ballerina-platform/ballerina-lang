@@ -40,7 +40,7 @@ function testPassthroughQuery() {
         from teacherStream6
         select *
         => (Employee[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 employeeStream3.publish(e);
             }
         }

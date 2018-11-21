@@ -812,13 +812,13 @@ function testLocalTransactionWithSelectAndForeachIteration() returns (int, int) 
     transaction {
         table<ResultCount> dt1 = check testDB->select("Select COUNT(*) as countval from Customers where
             registrationID = 900", ResultCount);
-        foreach row in dt1 {
+        foreach var row in dt1 {
             count = row.COUNTVAL;
         }
 
         table<ResultCount> dt2 = check testDB->select("Select COUNT(*) as countval from Customers where
             registrationID = 900", ResultCount);
-        foreach row in dt2 {
+        foreach var row in dt2 {
             count = row.COUNTVAL;
         }
     } onretry {

@@ -34,9 +34,11 @@ function foreachTest() returns (int, string)[] {
     (int, string)[] titles = [];
     int count = 0;
 
-    foreach i, x in bookstore["book"] {
+    int i = 0;
+    foreach var x in bookstore["book"] {
         titles[count] = (i, x["title"].getTextValue());
         count += 1;
+        i += 1;
     }
 
     return titles;
