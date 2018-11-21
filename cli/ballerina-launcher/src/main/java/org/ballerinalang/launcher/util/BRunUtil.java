@@ -18,6 +18,7 @@
 package org.ballerinalang.launcher.util;
 
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.codegen.FunctionInfo;
@@ -221,7 +222,12 @@ public class BRunUtil {
     }
 
     private static BValue[] spreadToBValueArray(BValue[] response) {
-        if (!(response != null && response.length > 0 && response[0] instanceof BValueArray)) {
+        if (!(response != null && response.length > 0 && response[0] instanceof BValueArray) ||
+                (((((BValueArray) response[0]).elementType == BTypes.typeByte) ||
+                        (((BValueArray) response[0]).elementType == BTypes.typeBoolean) ||
+                        (((BValueArray) response[0]).elementType == BTypes.typeString) ||
+                        (((BValueArray) response[0]).elementType == BTypes.typeFloat) ||
+                        (((BValueArray) response[0]).elementType == BTypes.typeInt)))) {
             return response;
         }
 

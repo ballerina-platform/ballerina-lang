@@ -185,7 +185,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             if (rs.next()) {
                 generatedKeys = getGeneratedKeys(rs);
             } else {
-                generatedKeys = new BValueArray();
+                generatedKeys = new BValueArray(BTypes.typeString);
             }
             BValueArray tuple = new BValueArray(executeUpdateWithKeysTupleType);
             tuple.add(0, updatedCount);
@@ -486,7 +486,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     }
 
     private BValueArray getGeneratedKeys(ResultSet rs) throws SQLException {
-        BValueArray generatedKeys = new BValueArray();
+        BValueArray generatedKeys = new BValueArray(BTypes.typeString);
         ResultSetMetaData metaData = rs.getMetaData();
         int columnCount = metaData.getColumnCount();
         int columnType;

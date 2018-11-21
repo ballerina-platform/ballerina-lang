@@ -769,7 +769,7 @@ public class JSONUtils {
      */
     public static BValueArray getKeys(BValue json) {
         if (json == null || !isJSONObject(json)) {
-            return new BValueArray();
+            return new BValueArray(BTypes.typeString);
         }
 
         String[] keys = ((BMap<String, BValue>) json).keys();

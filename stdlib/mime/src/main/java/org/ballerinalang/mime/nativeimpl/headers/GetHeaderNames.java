@@ -21,6 +21,7 @@ package org.ballerinalang.mime.nativeimpl.headers;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -52,7 +53,7 @@ public class GetHeaderNames extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-        BValueArray bStringArray = new BValueArray();
+        BValueArray bStringArray = new BValueArray(BTypes.typeString);
         if (entityStruct.getNativeData(ENTITY_HEADERS) == null) {
             context.setReturnValues(bStringArray);
             return;

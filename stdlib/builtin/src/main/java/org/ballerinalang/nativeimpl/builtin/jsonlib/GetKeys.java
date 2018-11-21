@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.builtin.jsonlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.values.BValue;
@@ -51,7 +52,7 @@ public class GetKeys extends BlockingNativeCallableUnit {
             // Accessing Parameters.
             BValue json = ctx.getNullableRefArgument(0);
             if (json == null) {
-                keys = new BValueArray();
+                keys = new BValueArray(BTypes.typeString);
             } else {
                 keys = JSONUtils.getKeys(json);
             }

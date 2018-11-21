@@ -23,6 +23,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructureType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -62,7 +63,7 @@ public class UnaryBlockingArrayValueTestCase extends GrpcBaseTest {
         StructureTypeInfo requestInfo = packageInfo.getStructInfo("TestInt");
         BStructureType requestType = requestInfo.getType();
         BMap<String, BValue> requestStruct = new BMap<String, BValue>(requestType);
-        BValueArray intArray = new BValueArray();
+        BValueArray intArray = new BValueArray(BTypes.typeInt);
         intArray.add(0, 1);
         intArray.add(1, 2);
         intArray.add(2, 3);
@@ -84,7 +85,7 @@ public class UnaryBlockingArrayValueTestCase extends GrpcBaseTest {
         StructureTypeInfo requestInfo = packageInfo.getStructInfo("TestString");
         BStructureType requestType = requestInfo.getType();
         BMap<String, BValue> requestStruct = new BMap<String, BValue>(requestType);
-        BValueArray stringArray = new BValueArray();
+        BValueArray stringArray = new BValueArray(BTypes.typeString);
         stringArray.add(0, "A");
         stringArray.add(1, "B");
         stringArray.add(2, "C");
@@ -104,7 +105,7 @@ public class UnaryBlockingArrayValueTestCase extends GrpcBaseTest {
         StructureTypeInfo requestInfo = packageInfo.getStructInfo("TestFloat");
         BStructureType requestType = requestInfo.getType();
         BMap<String, BValue> requestStruct = new BMap<String, BValue>(requestType);
-        BValueArray floatArray = new BValueArray();
+        BValueArray floatArray = new BValueArray(BTypes.typeFloat);
         floatArray.add(0, 1.1);
         floatArray.add(1, 1.2);
         floatArray.add(2, 1.3);
@@ -126,7 +127,7 @@ public class UnaryBlockingArrayValueTestCase extends GrpcBaseTest {
         StructureTypeInfo requestInfo = packageInfo.getStructInfo("TestBoolean");
         BStructureType requestType = requestInfo.getType();
         BMap<String, BValue> requestStruct = new BMap<String, BValue>(requestType);
-        BValueArray booleanArray = new BValueArray();
+        BValueArray booleanArray = new BValueArray(BTypes.typeBoolean);
         booleanArray.add(0, 1);
         booleanArray.add(1, 0);
         booleanArray.add(2, 1);

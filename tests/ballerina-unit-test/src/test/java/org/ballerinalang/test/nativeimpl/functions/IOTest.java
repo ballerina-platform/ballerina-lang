@@ -20,6 +20,7 @@ package org.ballerinalang.test.nativeimpl.functions;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -278,10 +279,10 @@ public class IOTest {
     @Test
     public void testFormatIntArray() {
         BValueArray fArgs = new BValueArray();
-        BValueArray arr = new BValueArray();
-        arr.add(0, 111);
-        arr.add(1, 222);
-        arr.add(2, 333);
+        BValueArray arr = new BValueArray(BTypes.typeInt);
+        arr.add(0, 111L);
+        arr.add(1, 222L);
+        arr.add(2, 333L);
 
         fArgs.add(0, arr);
         BValue[] args = {new BString("%s"), fArgs};

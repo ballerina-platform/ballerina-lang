@@ -63,7 +63,13 @@ public class BValueArray extends BNewArray implements Serializable {
         this.refValues = values;
         super.arrayType = type;
         this.size = values.length;
-        this.elementType = ((BArrayType) arrayType).getElementType();
+        if (type != null) {
+            if (type.getTag() == TypeTags.ARRAY_TAG) {
+                this.elementType = ((BArrayType) type).getElementType();
+            } else {
+                this.elementType = type;
+            }
+        }
     }
 
     public BValueArray(long[] values) {
@@ -253,6 +259,11 @@ public class BValueArray extends BNewArray implements Serializable {
     }
 
     public void add(long index, int value) {
+        if (elementType.getTag() == TypeTags.INT_TAG) {
+            add(index, (long) value);
+            return;
+        }
+
         synchronized (this) {
             if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
                 handleInvalidUpdate(freezeStatus.getState());
@@ -504,12 +515,12 @@ public class BValueArray extends BNewArray implements Serializable {
             } catch (IOException e) {
                 throw new BallerinaException("error occurred while writing the binary content to the output stream", e);
             }
-        }
-
-        try {
-            outputStream.write(this.stringValue().getBytes(Charset.defaultCharset()));
-        } catch (IOException e) {
-            throw new BallerinaException("error occurred while serializing data", e);
+        } else {
+            try {
+                outputStream.write(this.stringValue().getBytes(Charset.defaultCharset()));
+            } catch (IOException e) {
+                throw new BallerinaException("error occurred while serializing data", e);
+            }
         }
     }
 
