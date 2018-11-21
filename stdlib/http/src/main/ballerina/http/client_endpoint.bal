@@ -24,9 +24,7 @@ import ballerina/io;
 # provides includes functions for the standard HTTP methods, forwarding a received request and sending requests
 # using custom HTTP verbs.
 
-# + epName - The name of the client
 # + config - The configurations associated with the client
-# + httpClient - The provider which implements the HTTP methods
 public type Client client object {
 
     public ClientEndpointConfig config = {};
