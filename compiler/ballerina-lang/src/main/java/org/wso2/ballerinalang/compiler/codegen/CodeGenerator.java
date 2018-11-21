@@ -1282,8 +1282,12 @@ public class CodeGenerator extends BLangNodeVisitor {
                 emit(InstructionCodes.STAMP, iExpr.requiredArgs.get(0).regIndex, getTypeCPIndex(iExpr.type), regIndex);
                 break;
             case FROM:
-                emitConversionInstruction(iExpr, iExpr.requiredArgs.get(0), (BConversionOperatorSymbol) iExpr.symbol,
-                                          iExpr.requiredArgs.get(0).type);
+                if (iExpr.symbol.kind == SymbolKind.CONVERSION_OPERATOR) {
+                    BConversionOperatorSymbol symbol = (BConversionOperatorSymbol) iExpr.symbol;
+                    emitConversionInstruction(iExpr, iExpr.requiredArgs.get(0), symbol,
+                                              ((BInvokableType) symbol.type).paramTypes.get(1));
+                }
+                break;
         }
     }
 
@@ -1904,21 +1908,24 @@ public class CodeGenerator extends BLangNodeVisitor {
             return;
         }
         genNode(expr, this.env);
-        if (opcode == InstructionCodes.MAP2T ||
-                opcode == InstructionCodes.JSON2T ||
-                opcode == InstructionCodes.ANY2T ||
-                opcode == InstructionCodes.ANY2C ||
-                opcode == InstructionCodes.ANY2E ||
-                opcode == InstructionCodes.T2JSON ||
-                opcode == InstructionCodes.MAP2JSON ||
-                opcode == InstructionCodes.JSON2MAP ||
-                opcode == InstructionCodes.JSON2ARRAY ||
-                opcode == InstructionCodes.O2JSON ||
-                opcode == InstructionCodes.CHECKCAST) {
-            Operand typeCPIndex = getTypeCPIndex(targetType);
-            emit(opcode, expr.regIndex, typeCPIndex, convExprRegIndex);
-        } else {
-            emit(opcode, expr.regIndex, convExprRegIndex);
+        switch (opcode) {
+            case InstructionCodes.MAP2T:
+            case InstructionCodes.JSON2T:
+            case InstructionCodes.ANY2T:
+            case InstructionCodes.ANY2C:
+            case InstructionCodes.ANY2E:
+            case InstructionCodes.T2JSON:
+            case InstructionCodes.MAP2JSON:
+            case InstructionCodes.JSON2MAP:
+            case InstructionCodes.JSON2ARRAY:
+            case InstructionCodes.O2JSON:
+            case InstructionCodes.CHECKCAST:
+                Operand typeCPIndex = getTypeCPIndex(targetType);
+                emit(opcode, expr.regIndex, typeCPIndex, convExprRegIndex);
+                break;
+            default:
+                emit(opcode, expr.regIndex, convExprRegIndex);
+                break;
         }
     }
 

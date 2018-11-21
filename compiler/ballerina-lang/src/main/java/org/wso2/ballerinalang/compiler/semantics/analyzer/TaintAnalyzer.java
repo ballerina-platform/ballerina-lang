@@ -1003,6 +1003,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             case FREEZE:
             case CLONE:
                 invocationExpr.expr.accept(this);
+                break;
             case STAMP:
             case FROM:
                 invocationExpr.argExprs.forEach(expression -> expression.accept(this));

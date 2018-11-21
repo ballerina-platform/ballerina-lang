@@ -2572,6 +2572,14 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 return symResolver.createSymbolForStampOperator(iExpr.pos, new Name(function.getName()),
                         functionArgList, iExpr.expr);
+            case FROM:
+                functionArgList = iExpr.argExprs;
+                // Resolve the type of the variables passed as arguments to stamp in-built function.
+                for (BLangExpression expression : functionArgList) {
+                    checkExpr(expression, env, symTable.noType);
+                }
+                return symResolver.createSymbolForFromOperator(iExpr.pos, new Name(function.getName()),
+                                                               functionArgList, iExpr.expr);
             default:
                 return symTable.notFoundSymbol;
         }
