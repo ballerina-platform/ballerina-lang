@@ -27,8 +27,8 @@
   "author": "ballerina.io",
   "license": "Apache-2.0",
   "peerDependencies": {
-    "react-dom": "^16.2.0",
-    "react": "^16.2.0"
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0"
   },
   "devDependencies": {
     "@ballerina/composer-cli": "^0.983.1-SNAPSHOT",
