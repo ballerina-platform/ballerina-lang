@@ -1607,8 +1607,8 @@ public class Desugar extends BLangNodeVisitor {
                 blockNode = desugarForeachOfTableType(foreach, collectionSymbol);
                 break;
             default:
-                // Todo - log error?
-                return;
+                blockNode = ASTBuilderUtil.createBlockStmt(foreach.pos);
+                break;
         }
 
         blockNode.stmts.add(0, dataVariableDefinition);
@@ -1618,6 +1618,27 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangBlockStmt desugarForeachOfListTypes(BLangForeach foreach, BVarSymbol collectionSymbol) {
+
+        // We desugar the foreach statement to a while loop here.
+        //
+        // int[] data = [1, 2, 3];
+        //
+        // // Before desugaring.
+        // foreach int i in data {
+        //     io:println(i);
+        // }
+        //
+        // // After desugaring.
+        // int[] $data$ = data; // This is needed for int-range expressions // foreach x in 1...3
+        // int $index$ = 0;
+        // int $length$ = $data$.length()
+        // while $index$ < $length$ {
+        //     int i = $data$[$index$];
+        //     $index$ += 1;
+        //     // foreach node’s body.
+        //     io:println(i);
+        // }
+
         // Get the variable definition from the foreach statement.
         VariableDefinitionNode variableDefinitionNode = foreach.variableDefinitionNode;
 
@@ -1647,7 +1668,6 @@ public class Desugar extends BLangNodeVisitor {
         invocation.builtinMethodInvocation = true;
         invocation.builtInMethod = BLangBuiltInMethod.LENGTH;
         invocation.expr = rhsRef;
-        // Todo - Is type correct? Check in other methods.
         invocation.symbol = symResolver.resolveBuiltinOperator(names.fromIdNode(lengthIdentifier), symTable.arrayType);
         invocation.type = symTable.intType;
 
@@ -1715,6 +1735,28 @@ public class Desugar extends BLangNodeVisitor {
     private BLangBlockStmt desugarForeachOfMappingTypes(BLangForeach foreach, BVarSymbol collectionSymbol,
                                                         String keyFunctionName, BInvokableSymbol keysFunctionSymbol,
                                                         BType lengthFunctionSourceType, BType valueType) {
+        // We desugar the foreach statement to a while loop here.
+        //
+        // map data = {}; // Unconstrained
+        //
+        // // Before desugaring.
+        // foreach (int, any)(i, j) in data {
+        //     io:println(i, j);
+        // }
+        //
+        // // After desugaring.
+        // map $data$ = data;
+        // int $index$ = 0;
+        // string[] $keys$ = $data$.keys();
+        // int $size$ = $keys$.length();
+        // while $index$ < $size$ {
+        //     string $key$ = $keys$[$index$];
+        //     (int, any)(i, j) = ($index$, $data$[$key$]);
+        //     $index$ += 1;
+        //     // foreach node’s body.
+        //     io:println(i, j);
+        // }
+
         // Get the symbol from the collection.
         // Get the variable definition from the foreach statement.
         VariableDefinitionNode variableDefinitionNode = foreach.variableDefinitionNode;
@@ -1738,7 +1780,7 @@ public class Desugar extends BLangNodeVisitor {
         BVarSymbol keysSymbol = new BVarSymbol(0, names.fromString("$keys$"), this.env.scope.owner.pkgID,
                 arrayType, this.env.scope.owner);
 
-        // Note - data.keys()
+        // Note - data.keys() - In here, the function name depends on the type.
         BLangIdentifier keysIdentifier = ASTBuilderUtil.createIdentifier(foreach.pos, keyFunctionName);
         BLangSimpleVarRef collectionReference = ASTBuilderUtil.createVariableRef(foreach.pos, collectionSymbol);
 
@@ -1752,7 +1794,6 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVariable keysVariable = ASTBuilderUtil.createVariable(foreach.pos, "$keys$", arrayType,
                 keysInvocation, keysSymbol);
         BLangSimpleVariableDef keysVariableDefinition = ASTBuilderUtil.createVariableDef(foreach.pos, keysVariable);
-
 
         // Note - int $size$ = $keys$.length(); ------------------------------------------------------------------------
 
@@ -1769,7 +1810,6 @@ public class Desugar extends BLangNodeVisitor {
         invocation.builtinMethodInvocation = true;
         invocation.builtInMethod = BLangBuiltInMethod.LENGTH;
         invocation.expr = rhsRef;
-        // Todo - Is type correct? Check in other methods.
         invocation.symbol = symResolver.resolveBuiltinOperator(names.fromIdNode(lengthIdentifier),
                 lengthFunctionSourceType);
         invocation.type = symTable.intType;
@@ -1860,6 +1900,37 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangBlockStmt desugarForeachOfTableType(BLangForeach foreach, BVarSymbol collectionSymbol) {
+
+        // We desugar the foreach statement to a while loop here.
+        //
+        // type Employee record {
+        //     int id;
+        //     string name;
+        //     float salary;
+        // };
+        //
+        // table<Employee> data = table {
+        //     { key id, name, salary },
+        //     [
+        //       { 1, "Mary",  300.5 },
+        //       { 2, "John",  200.5 },
+        //       { 3, "Jim", 330.5 }
+        //     ]
+        // };
+        //
+        // // Before desugaring.
+        // foreach Employee i in data {
+        //     io:println(i);
+        // }
+        //
+        // // After desugaring.
+        // table<Employee> $data$ = data;
+        // while $data$.hasNext() {
+        //     Employee i = $data$.getNext();
+        //     // foreach node’s body.
+        //     io:println(i);
+        // }
+
         // Get the symbol from the collection.
         // Get the variable definition from the foreach statement.
         VariableDefinitionNode variableDefinitionNode =  foreach.variableDefinitionNode;
@@ -2304,7 +2375,7 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.STREAM:
             case TypeTags.FUTURE:
             case TypeTags.OBJECT:
-            case TypeTags.RECORD: // Todo - Add a new flag?
+            case TypeTags.RECORD:
                 List<BLangExpression> argExprs = new ArrayList<>(iExpr.requiredArgs);
                 argExprs.add(0, iExpr.expr);
                 final BLangAttachedFunctionInvocation attachedFunctionInvocation =
