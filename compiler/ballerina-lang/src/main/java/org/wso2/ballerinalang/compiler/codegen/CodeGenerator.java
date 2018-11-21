@@ -235,6 +235,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
@@ -2922,6 +2923,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         Operand gotoLockEndAddr = getOperand(-1);
         Instruction instructGotoLockEnd = InstructionFactory.get(InstructionCodes.GOTO, gotoLockEndAddr);
         Operand[] operands = getOperands(lockNode);
+        Operand[] unlockOps = getUnlockOperands(lockNode);
         ErrorTableAttributeInfo errorTable = getErrorTable(currentPkgInfo);
 
         int fromIP = nextIP();
@@ -2930,33 +2932,30 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.genNode(lockNode.body, this.env);
         int toIP = nextIP() - 1;
 
-        // has to load var regs again since the ref regs may have changed when executing the UNLOCK
-        lockNode.fieldVariables.values().forEach(exprList -> exprList.stream().forEach(expr ->visit(expr)));
-
-        emit((InstructionCodes.UNLOCK), operands);
+        emit((InstructionCodes.UNLOCK), unlockOps);
         emit(instructGotoLockEnd);
 
         ErrorTableEntry errorTableEntry = new ErrorTableEntry(fromIP, toIP, nextIP(), null);
         errorTable.addErrorTableEntry(errorTableEntry);
 
-        emit((InstructionCodes.UNLOCK), operands);
+        emit((InstructionCodes.UNLOCK), unlockOps);
         emit(InstructionFactory.get(InstructionCodes.PANIC, getOperand(-1)));
         gotoLockEndAddr.value = nextIP();
     }
 
     private Operand[] getOperands(BLangLock lockNode) {
         //need to visit all the vars because parent node of a nested structure may not be loaded yet
-        lockNode.fieldVariables.values().forEach(exprList -> exprList.stream().forEach(expr ->visit(expr)));
+        lockNode.fieldVariables.values().forEach(exprList -> exprList.stream().forEach(expr -> visit(expr)));
 
+        lockNode.uuid = UUID.randomUUID().toString();
         //count field vars
         int fieldVarCount = 0;
         for (Set<BLangStructFieldAccessExpr> fields : lockNode.fieldVariables.values()) {
             fieldVarCount += fields.size();
         }
 
-        //lockVarCount, fieldVarCount [typeRefCP, pkgRefCP, varIndex], fieldVars[typeRefCP, pkgRefCP,
-        // varIndex, fieldName], selfVars[typeRefCP, pkgRefCP, -1, fieldName]
-        Operand[] operands = new Operand[(lockNode.lockVariables.size() * 3) + 2 + (fieldVarCount * 4)];
+        //lockVarCount, fieldVarCount [typeRefCP, pkgRefCP, varIndex], uuid,  fieldVars[pkgRefCP, varIndex, fieldName]
+        Operand[] operands = new Operand[(lockNode.lockVariables.size() * 3) + 3 + (fieldVarCount * 3)];
         int i = 0;
         operands[i++] = new Operand(lockNode.lockVariables.size());
         operands[i++] = getOperand(fieldVarCount);
@@ -2978,22 +2977,58 @@ public class CodeGenerator extends BLangNodeVisitor {
             operands[i++] = varSymbol.varIndex;
         }
 
+        int uuidCPEntry = addUTF8CPEntry(currentPkgInfo, lockNode.uuid);
+        operands[i++] = getOperand(uuidCPEntry);
+
         for (Entry<BVarSymbol, Set<BLangStructFieldAccessExpr>> entry : lockNode.fieldVariables.entrySet()) {
             BSymbol symbol = entry.getKey();
             Set<BLangStructFieldAccessExpr> expressions = entry.getValue();
 
             int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, symbol.pkgID);
-            int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, symbol.getType().getDesc());
-            TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
 
             for (BLangStructFieldAccessExpr expr : expressions) {
-                operands[i++] = getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
                 operands[i++] = getOperand(pkgRefCPIndex);
                 operands[i++] = expr.expr.regIndex;
 
                 int fieldNameCPEntry = addUTF8CPEntry(currentPkgInfo, (String) ((BLangLiteral) expr.indexExpr).value);
                 operands[i++] = getOperand(fieldNameCPEntry);
             }
+        }
+
+        return operands;
+    }
+
+    private Operand[] getUnlockOperands(BLangLock lockNode) {
+        //count field vars
+        int fieldVarCount = 0;
+        for (Set<BLangStructFieldAccessExpr> fields : lockNode.fieldVariables.values()) {
+            fieldVarCount += fields.size();
+        }
+
+        //lockVarCount, fieldVarCount, uuid, [typeRefCP, pkgRefCP, varIndex],
+        Operand[] operands = new Operand[(lockNode.lockVariables.size() * 3) + 3];
+        int i = 0;
+        operands[i++] = new Operand(lockNode.lockVariables.size());
+        operands[i++] = getOperand(fieldVarCount);
+
+        int uuidCPEntry = addUTF8CPEntry(currentPkgInfo, lockNode.uuid);
+        operands[i++] = getOperand(uuidCPEntry);
+
+        for (BVarSymbol varSymbol : lockNode.lockVariables) {
+            BPackageSymbol pkgSymbol;
+            BSymbol ownerSymbol = varSymbol.owner;
+            if (ownerSymbol.tag == SymTag.SERVICE) {
+                pkgSymbol = (BPackageSymbol) ownerSymbol.owner;
+            } else {
+                pkgSymbol = (BPackageSymbol) ownerSymbol;
+            }
+            int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.pkgID);
+
+            int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, varSymbol.getType().getDesc());
+            TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
+            operands[i++] = getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
+            operands[i++] = getOperand(pkgRefCPIndex);
+            operands[i++] = varSymbol.varIndex;
         }
 
         return operands;
@@ -3655,7 +3690,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             } else if (NodeKind.LOCK == parent.getKind()) {
                 BLangLock lockNode = (BLangLock) parent;
                 if (!lockNode.lockVariables.isEmpty() || !lockNode.fieldVariables.isEmpty()) {
-                    Operand[] operands = getOperands(lockNode);
+                    Operand[] operands = getUnlockOperands(lockNode);
                     emit((InstructionCodes.UNLOCK), operands);
                 }
             }

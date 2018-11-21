@@ -3,11 +3,16 @@ import ballerina/runtime;
 // Test when there is a lock block in a attached function
 type person object {
     string stars = "";
+    Student std = new;
 
     public function update(string s) {
             lock {
                 foreach i in 1 ... 1000 {
                       self.stars = self.stars + s;
+                      self.std = new;
+                      self.std.score = i+1;
+                      self.std.grade = i;
+                      self.std = new;
                 }
             }
         }
@@ -30,6 +35,7 @@ function lockFieldInSameObject() returns string {
 // Test lock when a object is global
 type Student object {
     int score = 0;
+    int grade = 0;
 };
 
 Student student = new;
@@ -63,27 +69,29 @@ function increment() {
 // Test locking when an object is passed as a function parameter
 function objectParamLock() returns int {
         Student stParam = new;
-        workerFuncParam(stParam);
+        person p = new;
+        workerFuncParam(stParam, p);
         return stParam.score;
 }
 
-function workerFuncParam(Student param) {
+function workerFuncParam(Student param, person p) {
 
     worker w1 {
-        incrementParam(param);
+        incrementParam(param,p);
     }
 
     worker w2 {
-        incrementParam(param);
+        incrementParam(param,p);
     }
 
 }
 
-function incrementParam(Student param) {
+function incrementParam(Student param, person p) {
    lock {
         Student inLockObj = new;
         inLockObj.score = 10;
        foreach i in 1 ... 1000 {
+           p.std = new;
            param.score = param.score + i;
        }
     }

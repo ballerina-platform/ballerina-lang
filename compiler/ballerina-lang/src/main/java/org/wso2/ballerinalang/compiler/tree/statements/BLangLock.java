@@ -44,6 +44,8 @@ public class BLangLock extends BLangStatement implements LockNode {
 
     public Map<BVarSymbol, Set<BLangStructFieldAccessExpr>> fieldVariables = new HashMap<>();
 
+    public String uuid;
+
     public BLangLock() {
     }
 
