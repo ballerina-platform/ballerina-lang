@@ -36,25 +36,25 @@ function checkLessThanEqualForUnsupportedType () returns (boolean) {
 }
 
 function checkGreaterThan () returns (boolean) {
-    int a;
-    string b;
+    int a = 0;
+    string b = "";
     return a > b;
 }
 
 function checkGreaterThanEual () returns (boolean) {
-    int a;
-    string b;
+    int a = 0;
+    string b = "";
     return a >= b;
 }
 
 function checkLessThan () returns (boolean) {
-    int a;
-    string b;
+    int a = 0;
+    string b = "";
     return a < b;
 }
 
 function checkLessThanEqual () returns (boolean) {
-    int a;
-    string b;
+    int a = 0;
+    string b = "";
     return a <= b;
 }

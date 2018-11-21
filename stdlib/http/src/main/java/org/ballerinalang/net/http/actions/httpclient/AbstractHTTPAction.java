@@ -319,9 +319,9 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
      */
     private void send(DataContext dataContext, HttpCarbonMessage outboundRequestMsg, boolean async) {
         BMap<String, BValue> bConnector = (BMap<String, BValue>) dataContext.context.getRefArgument(0);
-        Struct httpClient = BLangConnectorSPIUtil.toStruct(bConnector);
+        Struct clientEndpoint = BLangConnectorSPIUtil.toStruct(bConnector);
         HttpClientConnector clientConnector = (HttpClientConnector)
-                httpClient.getNativeData(HttpConstants.CALLER_ACTIONS);
+                clientEndpoint.getNativeData(HttpConstants.CLIENT_ENDPOINT);
         String contentType = HttpUtil.getContentTypeFromTransportMessage(outboundRequestMsg);
         String boundaryString = null;
 

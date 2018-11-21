@@ -33,7 +33,7 @@ public type AuthnFilter object {
     # + request - An inboud HTTP request message
     # + context - A filter context
     # + return - True if the filter succeeds
-    public function filterRequest(Listener listener, Request request, FilterContext context) returns boolean {
+    public function filterRequest(Listener listenerObj, Request request, FilterContext context) returns boolean {
         // get auth config for this resource
         boolean authenticated = false;
         var (isSecured, authProviders) = getResourceAuthConfig(context);
@@ -47,9 +47,9 @@ public type AuthnFilter object {
             }
         } else {
             // not secured, no need to authenticate
-            return isAuthnSuccesfull(listener, true);
+            return isAuthnSuccesfull(listenerObj, true);
         }
-        return isAuthnSuccesfull(listener, authenticated);
+        return isAuthnSuccesfull(listenerObj, authenticated);
     }
 
     public function filterResponse(Response response, FilterContext context) returns boolean {
@@ -59,21 +59,22 @@ public type AuthnFilter object {
 
 # Verifies if the authentication is successful. If not responds to the user.
 #
-# + listener - The http endpoint
+# + listenerObj - The http endpoint
 # + authenticated - Authorization status for the request
 # + return - Authorization result to indicate if the filter can proceed(true) or not(false)
-function isAuthnSuccesfull(Listener listener, boolean authenticated) returns boolean {
-    endpoint Listener caller = listener;
-    Response response = new;
-    if (!authenticated) {
-        response.statusCode = 401;
-        response.setTextPayload("Authentication failure");
-        var err = caller->respond(response);
-        if (err is error) {
-            panic err;
-        }
-        return false;
-    }
+function isAuthnSuccesfull(Listener listenerObj, boolean authenticated) returns boolean {
+    //TODO:Fix this properly
+    //endpoint Listener callerObj = listenerObj;
+    //Response response = new;
+    //if (!authenticated) {
+    //    response.statusCode = 401;
+    //    response.setTextPayload("Authentication failure");
+    //    var err = callerObj->respond(response);
+    //    if (err is error) {
+    //        panic err;
+    //    }
+    //    return false;
+    //}
     return true;
 }
 
