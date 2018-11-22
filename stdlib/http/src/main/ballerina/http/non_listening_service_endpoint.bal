@@ -55,6 +55,10 @@ public type MockServer object {
         return self.register(s, annotationData);
     }
 
+    public function __init(ServiceEndpointConfiguration c) {
+        self.init(c);
+    }
+
     public function init (ServiceEndpointConfiguration c);
     public extern function initEndpoint () returns (error?);
     public extern function register (service s, map annotationData);
