@@ -24,8 +24,6 @@ export class MockLangClient implements DiagramLangClient {
 }
 
 export const commonProps = {
-  height: 1000,
   mode: DiagramMode.ACTION,
-  width: 1000,
   zoom: 1,
 };

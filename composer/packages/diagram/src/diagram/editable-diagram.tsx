@@ -34,19 +34,32 @@ export class EditableDiagram extends React.Component<EdiatableDiagramProps, Edit
         editingEnabled: true,
     };
 
+    private wrapperRef = React.createRef<HTMLDivElement>();
+
     public render() {
         const { height, width, mode, zoom } = this.props;
         const { ast } = this.state;
 
-        if (!ast) {
-            return <Loader />;
-        }
-
+        const wrapperDiv = this.wrapperRef.current;
+        const parentOffset = wrapperDiv ? wrapperDiv.offsetParent : undefined;
         // create props for the diagram
-        const diagramProps = { height, width, mode, zoom, ast };
+        const diagramProps = {
+            ast,
+            height: (!height && parentOffset) ? parentOffset.clientHeight : height,
+            mode,
+            width: (!width && parentOffset) ? parentOffset.clientWidth : width,
+            zoom,
+        };
 
         return <DiagramContext.Provider value={this.createContext()}>
-                <Diagram {...diagramProps} />
+                <div
+                    className="diagram-wrapper"
+                    style={{ width: "100%", height: "100%" }}
+                    ref={this.wrapperRef}
+                >
+                    {!ast && <Loader />}
+                    {ast && <Diagram {...diagramProps} />}
+                </div>
             </DiagramContext.Provider>;
     }
 
