@@ -24,6 +24,7 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.util.BLangConstants;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.StringJoiner;
 
 import static org.ballerinalang.model.util.FreezeUtils.handleInvalidUpdate;
@@ -93,9 +94,18 @@ public class BStringArray extends BNewArray {
     }
 
     @Override
-    public BValue copy() {
+    public BValue copy(Map<BValue, BValue> refs) {
+        if (isFrozen()) {
+            return this;
+        }
+
+        if (refs.containsKey(this)) {
+            return refs.get(this);
+        }
+
         BStringArray stringArray = new BStringArray(Arrays.copyOf(values, values.length));
         stringArray.size = this.size;
+        refs.put(this, stringArray);
         return stringArray;
     }
 

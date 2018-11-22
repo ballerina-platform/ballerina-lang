@@ -154,7 +154,7 @@ public class HttpConstants {
     public static final String LISTENER_INTERFACE_ID = "listener.interface.id";
     public static final String PACKAGE_BALLERINA_BUILTIN = BALLERINA_BUILTIN_PKG;
 
-    public static final String CLIENT_ENDPOINT = "ClientEndpoint";
+    public static final String HTTP_CLIENT = "Client";
 
     public static final String REQUEST_URL = "REQUEST_URL";
     public static final String SRC_HANDLER = "SRC_HANDLER";
@@ -332,7 +332,7 @@ public class HttpConstants {
     public static final String SSL_CONFIG_ENABLE_SESSION_CREATION = "shareSession";
 
     //Client Endpoint (CallerActions)
-    public static final String CLIENT_ENDPOINT_SERVICE_URI = "serviceUri";
+    public static final String CLIENT_ENDPOINT_SERVICE_URI = "url";
     public static final String CLIENT_ENDPOINT_CONFIG = "config";
     public static final int CLIENT_ENDPOINT_CONFIG_INDEX = 0;
     public static final int CLIENT_ENDPOINT_URL_INDEX = 0;

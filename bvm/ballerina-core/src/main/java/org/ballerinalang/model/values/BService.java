@@ -19,6 +19,8 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.model.types.BServiceType;
 import org.ballerinalang.model.types.BType;
 
+import java.util.Map;
+
 /**
  * The {@code BService} represents a service value in Ballerina.
  *
@@ -53,7 +55,7 @@ public class BService implements BRefType {
     }
 
     @Override
-    public BValue copy() {
+    public BValue copy(Map<BValue, BValue> refs) {
         return null;
     }
 }

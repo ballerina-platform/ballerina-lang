@@ -41,7 +41,7 @@ import org.wso2.transport.http.netty.message.ResponseHandle;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "getResponse",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.CLIENT_ENDPOINT,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.HTTP_CLIENT,
                 structPackage = "ballerina/http"),
         args = {
                 @Argument(name = "client", type = TypeKind.OBJECT),
@@ -68,7 +68,7 @@ public class GetResponse extends AbstractHTTPAction {
         }
         BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
         HttpClientConnector clientConnector =
-                (HttpClientConnector) bConnector.getNativeData(HttpConstants.CLIENT_ENDPOINT);
+                (HttpClientConnector) bConnector.getNativeData(HttpConstants.HTTP_CLIENT);
         clientConnector.getResponse(responseHandle).
                 setHttpConnectorListener(new ResponseListener(dataContext));
     }

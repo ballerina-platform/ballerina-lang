@@ -2726,6 +2726,13 @@ public class Desugar extends BLangNodeVisitor {
                                                                                 OperatorKind.OR, orSymbol);
                 result = rewriteExpr(binaryExprInf);
                 break;
+            case CLONE:
+                if (types.isValueType(iExpr.expr.type)) {
+                    result = iExpr.expr;
+                    break;
+                }
+                result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
+                break;
             case FREEZE:
             case IS_FROZEN:
                 visitFreezeBuiltInMethodInvocation(iExpr);
