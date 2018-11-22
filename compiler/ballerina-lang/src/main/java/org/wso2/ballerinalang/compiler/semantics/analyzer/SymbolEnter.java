@@ -238,9 +238,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define function nodes.
         pkgNode.functions.forEach(func -> defineNode(func, pkgEnv));
 
-        // Define service resource nodes.
-        defineServiceMembers(pkgNode.services, pkgEnv);
-
         // Define annotation nodes.
         pkgNode.annotations.forEach(annot -> defineNode(annot, pkgEnv));
 
@@ -1131,24 +1128,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private void defineServiceMembers(List<BLangService> services, SymbolEnv pkgEnv) {
-        services.forEach(service -> {
-            SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(service, service.symbol.scope, pkgEnv);
-            service.nsDeclarations.forEach(xmlns -> defineNode(xmlns, serviceEnv));
-            service.vars.forEach(varDef -> {
-                if (varDef.var.isDeclaredWithVar) {
-                    dlog.error(varDef.pos, DiagnosticCode.EXTRANEOUS_INPUT, "'var'");
-                } else {
-                    defineNode(varDef.var, serviceEnv);
-                }
-            });
-            defineServiceInitFunction(service, serviceEnv);
-            service.resources.stream()
-                    .peek(action -> action.flagSet.add(Flag.PUBLIC))
-                    .forEach(resource -> defineNode(resource, serviceEnv));
-        });
-    }
-
     private void defineInvokableSymbol(BLangInvokableNode invokableNode, BInvokableSymbol funcSymbol,
                                        SymbolEnv invokableEnv) {
         invokableNode.symbol = funcSymbol;
@@ -1292,13 +1271,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Adding record level variables to the init function is done at desugar phase
 
         defineNode(recordTypeNode.initFunction, conEnv);
-    }
-
-    private void defineServiceInitFunction(BLangService service, SymbolEnv conEnv) {
-        BLangFunction initFunction = ASTBuilderUtil.createInitFunction(service.pos, service.getName().getValue(),
-                Names.INIT_FUNCTION_SUFFIX);
-        service.initFunction = initFunction;
-        defineNode(service.initFunction, conEnv);
     }
 
     private void defineAttachedFunctions(BLangFunction funcNode, BInvokableSymbol funcSymbol,

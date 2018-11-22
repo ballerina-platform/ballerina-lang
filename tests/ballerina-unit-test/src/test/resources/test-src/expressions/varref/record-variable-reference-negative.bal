@@ -29,7 +29,7 @@ type Person record {
     string name;
     boolean married;
     Age age;
-    (string, int) extra;
+    (string, int) extra?;
     !...
 };
 
@@ -37,7 +37,7 @@ type Person2 record {
     string name;
     boolean married;
     ClosedAge age;
-    (string, int) extra;
+    (string, int) extra?;
     !...
 };
 
@@ -90,8 +90,8 @@ type Bar record {
 
 function testInvalidTypes() {
 
-    Bar fooVar1;
-    string fooVar2;
+    Bar fooVar1 = {var1: 0, var2: ("", 0, false)};
+    string fooVar2 = "";
 
     Foo f = {var1: "var1String", var2: {var1: 12, var2: ("barString", 14, true)}};
     {var1: fooVar1, var2: fooVar2};

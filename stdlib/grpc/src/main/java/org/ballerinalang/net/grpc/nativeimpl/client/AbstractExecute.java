@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.net.grpc.nativeimpl.servicestub;
+package org.ballerinalang.net.grpc.nativeimpl.client;
 
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;

@@ -14,15 +14,24 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#
-# LoadBalancerRule provides a required interfaces to implement different algorithms.
-#
-public type LoadBalancerRule abstract object {
+public function cloneWithParams() {
+    int a = 4;
+    int x = a.clone(true);
+}
 
-    # Provides an HTTP client which is choosen according to the algorithm.
-    #
-    # + loadBalanceCallerActionsArray - Array of HTTP clients which needs to be load balanced
-    # + return - Choosen `Client` from the algorithm or an `error`
-    #            for the failure in the algorithm implementation
-    public function getNextClient(Client[] loadBalanceCallerActionsArray) returns Client|error;
-};
+public function cloneInvalidType() {
+    typedesc a = int;
+    typedesc x = a.clone();
+}
+
+public function cloneNil() returns ((), ()) {
+    () a = ();
+    () x = a.clone();
+    return (a, x);
+}
+
+public function cloneError() returns error {
+    error a = error("Test");
+    error b = a.clone();
+    return b;
+}

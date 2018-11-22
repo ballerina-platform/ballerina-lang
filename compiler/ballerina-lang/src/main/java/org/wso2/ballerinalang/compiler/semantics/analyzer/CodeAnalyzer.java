@@ -1237,12 +1237,29 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void validateActionInvocation(DiagnosticPos pos, BLangNode bLangNode) {
-        BLangNode parent = bLangNode.parent;
+    private void validateActionInvocation(DiagnosticPos pos, BLangInvocation iExpr) {
+        final NodeKind clientNodeKind = iExpr.expr.getKind();
+        // Validation against node kind.
+        if (clientNodeKind != NodeKind.SIMPLE_VARIABLE_REF && clientNodeKind != NodeKind.FIELD_BASED_ACCESS_EXPR) {
+            dlog.error(pos, DiagnosticCode.INVALID_ACTION_INVOCATION_AS_EXPR);
+        } else if (clientNodeKind == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+            final BLangFieldBasedAccess fieldBasedAccess = (BLangFieldBasedAccess) iExpr.expr;
+            if (fieldBasedAccess.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+                dlog.error(pos, DiagnosticCode.INVALID_ACTION_INVOCATION_AS_EXPR);
+            } else {
+                final BLangSimpleVarRef selfName = (BLangSimpleVarRef) fieldBasedAccess.expr;
+                if (!Names.SELF.equals(selfName.symbol.name)) {
+                    dlog.error(pos, DiagnosticCode.INVALID_ACTION_INVOCATION_AS_EXPR);
+                }
+            }
+        }
+
+        // Validate for parent nodes.
+        BLangNode parent = iExpr.parent;
         while (parent != null) {
             final NodeKind kind = parent.getKind();
             // Allowed node types.
-            if (kind == NodeKind.ASSIGNMENT || kind == NodeKind.EXPRESSION_STATEMENT
+            if (kind == NodeKind.ASSIGNMENT || kind == NodeKind.EXPRESSION_STATEMENT || kind == NodeKind.RETURN
                     || kind == NodeKind.TUPLE_DESTRUCTURE || kind == NodeKind.VARIABLE) {
                 return;
             } else if (kind == NodeKind.CHECK_EXPR || kind == NodeKind.MATCH_EXPRESSION || kind == NodeKind.TRAP_EXPR) {

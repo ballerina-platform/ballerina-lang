@@ -2742,6 +2742,13 @@ public class Desugar extends BLangNodeVisitor {
                                                                                 OperatorKind.OR, orSymbol);
                 result = rewriteExpr(binaryExprInf);
                 break;
+            case CLONE:
+                if (types.isValueType(iExpr.expr.type)) {
+                    result = iExpr.expr;
+                    break;
+                }
+                result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
+                break;
             case FREEZE:
             case IS_FROZEN:
                 visitFreezeBuiltInMethodInvocation(iExpr);
@@ -3234,7 +3241,8 @@ public class Desugar extends BLangNodeVisitor {
 
         switch (patternClause.getKind()) {
             case MATCH_STATIC_PATTERN_CLAUSE:
-                BLangMatchStaticBindingPatternClause staticPattern = (BLangMatchStaticBindingPatternClause) patternClause;
+                BLangMatchStaticBindingPatternClause staticPattern =
+                        (BLangMatchStaticBindingPatternClause) patternClause;
                 patternType = staticPattern.literal.type;
                 break;
             case MATCH_STRUCTURED_PATTERN_CLAUSE:
@@ -4074,12 +4082,14 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangFunction createDefaultObjectConstructor(BLangObjectTypeNode objectTypeNode, SymbolEnv env) {
-        BLangFunction initFunction = ASTBuilderUtil.createInitFunction(objectTypeNode.pos, Names.EMPTY.value, Names.OBJECT_INIT_SUFFIX);
+        BLangFunction initFunction = ASTBuilderUtil
+                .createInitFunction(objectTypeNode.pos, Names.EMPTY.value, Names.OBJECT_INIT_SUFFIX);
 
         // Create the receiver
         initFunction.receiver = ASTBuilderUtil.createReceiver(objectTypeNode.pos, objectTypeNode.type);
-        BVarSymbol receiverSymbol = new BVarSymbol(Flags.asMask(EnumSet.noneOf(Flag.class)), names.fromIdNode(initFunction.receiver.name),
-                env.enclPkg.symbol.pkgID, objectTypeNode.type, env.scope.owner);
+        BVarSymbol receiverSymbol = new BVarSymbol(Flags.asMask(EnumSet.noneOf(Flag.class)),
+                names.fromIdNode(initFunction.receiver.name), env.enclPkg.symbol.pkgID, objectTypeNode.type,
+                env.scope.owner);
         env.scope.define(receiverSymbol.name, receiverSymbol);
         initFunction.receiver.symbol = receiverSymbol;
 
@@ -4090,7 +4100,9 @@ public class Desugar extends BLangNodeVisitor {
         // Create function symbol
         Name funcSymbolName = names.fromString(Symbols.getAttachedFuncSymbolName(objectTypeNode.type.tsymbol.name.value,
                 Names.OBJECT_INIT_SUFFIX.value));
-        initFunction.symbol = Symbols.createFunctionSymbol(Flags.asMask(initFunction.flagSet), funcSymbolName, env.enclPkg.symbol.pkgID, initFunction.type, env.scope.owner, initFunction.body != null);
+        initFunction.symbol = Symbols
+                .createFunctionSymbol(Flags.asMask(initFunction.flagSet), funcSymbolName, env.enclPkg.symbol.pkgID,
+                        initFunction.type, env.scope.owner, initFunction.body != null);
         initFunction.symbol.scope = new Scope(initFunction.symbol);
         initFunction.symbol.receiverSymbol = receiverSymbol;
 
@@ -4101,7 +4113,8 @@ public class Desugar extends BLangNodeVisitor {
 
         // Update Object type with attached function details
         BObjectTypeSymbol objectSymbol = ((BObjectTypeSymbol) objectTypeNode.type.tsymbol);
-        objectSymbol.initializerFunc = new BAttachedFunction(Names.OBJECT_INIT_SUFFIX, initFunction.symbol, (BInvokableType) initFunction.type);
+        objectSymbol.initializerFunc = new BAttachedFunction(Names.OBJECT_INIT_SUFFIX, initFunction.symbol,
+                (BInvokableType) initFunction.type);
         objectSymbol.attachedFuncs.add(objectSymbol.initializerFunc);
         objectTypeNode.initFunction = initFunction;
         return initFunction;

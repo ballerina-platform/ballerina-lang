@@ -1299,13 +1299,7 @@ public class BLangPackageBuilder {
         invocationExpr.addWS(ws);
         invocationExpr.async = async;
 
-        BLangNameReference nameReference = nameReferenceStack.pop();
-        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-        varRef.pos = nameReference.pos;
-        varRef.addWS(nameReference.ws);
-        varRef.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
-        varRef.variableName = (BLangIdentifier) nameReference.name;
-        invocationExpr.expr = varRef;
+        invocationExpr.expr = (BLangExpression) exprNodeStack.pop();
         exprNodeStack.push(invocationExpr);
     }
 
@@ -3454,9 +3448,11 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(foreverNode);
 
         // implicit import of streams module, user doesn't want to import explicitly
-        List<String> nameComps = getPackageNameComps(Names.STREAMS_MODULE.value);
-        addImportPackageDeclaration(pos, null, Names.STREAMS_ORG.value, nameComps, null,
-                nameComps.get(nameComps.size() - 1));
+        if(!foreverNode.isSiddhiRuntimeEnabled()) {
+            List<String> nameComps = getPackageNameComps(Names.STREAMS_MODULE.value);
+            addImportPackageDeclaration(pos, null, Names.STREAMS_ORG.value, nameComps, null,
+                                        nameComps.get(nameComps.size() - 1));
+        }
     }
 
     BLangLambdaFunction getScopesFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean bodyExists, String name) {

@@ -87,6 +87,7 @@ import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -289,7 +290,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return bSymbol;
     }
 
-    public BSymbol resolveBuiltinOperator(Name name, BType... args) {
+    public BSymbol resolveBuiltinOperator(Name method, BType... args) {
         BType type = args[0];
         switch (type.tag) {
             case TypeTags.RECORD:
@@ -310,11 +311,9 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         List<BType> argsList = Lists.of(type);
-        for (int i = 1; i < args.length; i++) {
-            argsList.add(args[i]);
-        }
-        BSymbol bSymbol = resolveOperator(name, argsList);
-        return bSymbol;
+        List<BType> paramTypes = Arrays.asList(args).subList(1, args.length);
+        argsList.addAll(paramTypes);
+        return resolveOperator(method, argsList);
     }
 
     BSymbol createSymbolForStampOperator(DiagnosticPos pos, Name name, List<BLangExpression> functionArgList,

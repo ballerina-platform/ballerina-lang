@@ -9696,8 +9696,8 @@ public class BallerinaParser extends Parser {
 	}
 
 	public static class ActionInvocationContext extends ParserRuleContext {
-		public NameReferenceContext nameReference() {
-			return getRuleContext(NameReferenceContext.class,0);
+		public VariableReferenceContext variableReference() {
+			return getRuleContext(VariableReferenceContext.class,0);
 		}
 		public TerminalNode RARROW() { return getToken(BallerinaParser.RARROW, 0); }
 		public FunctionInvocationContext functionInvocation() {
@@ -9721,21 +9721,21 @@ public class BallerinaParser extends Parser {
 	public final ActionInvocationContext actionInvocation() throws RecognitionException {
 		ActionInvocationContext _localctx = new ActionInvocationContext(_ctx, getState());
 		enterRule(_localctx, 240, RULE_actionInvocation);
-		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(1689);
-			_la = _input.LA(1);
-			if (_la==START) {
+			_errHandler.sync(this);
+			switch ( getInterpreter().adaptivePredict(_input,182,_ctx) ) {
+			case 1:
 				{
 				setState(1688);
 				match(START);
 				}
+				break;
 			}
-
 			setState(1691);
-			nameReference();
+			variableReference(0);
 			setState(1692);
 			match(RARROW);
 			setState(1693);
@@ -18842,8 +18842,8 @@ public class BallerinaParser extends Parser {
 		"\u0699\5\u0112\u008a\2\u0696\u0699\5\u0144\u00a3\2\u0697\u0699\5\u0146"+
 		"\u00a4\2\u0698\u0695\3\2\2\2\u0698\u0696\3\2\2\2\u0698\u0697\3\2\2\2\u0699"+
 		"\u00f1\3\2\2\2\u069a\u069c\7{\2\2\u069b\u069a\3\2\2\2\u069b\u069c\3\2"+
-		"\2\2\u069c\u069d\3\2\2\2\u069d\u069e\5\u0124\u0093\2\u069e\u069f\7\u00a4"+
-		"\2\2\u069f\u06a0\5\u00eav\2\u06a0\u00f3\3\2\2\2\u06a1\u06a6\5\u0112\u008a"+
+		"\2\2\u069c\u069d\3\2\2\2\u069d\u069e\5\u00e2r\2\u069e\u069f\7\u00a4\2"+
+		"\2\u069f\u06a0\5\u00eav\2\u06a0\u00f3\3\2\2\2\u06a1\u06a6\5\u0112\u008a"+
 		"\2\u06a2\u06a3\7\u0088\2\2\u06a3\u06a5\5\u0112\u008a\2\u06a4\u06a2\3\2"+
 		"\2\2\u06a5\u06a8\3\2\2\2\u06a6\u06a4\3\2\2\2\u06a6\u06a7\3\2\2\2\u06a7"+
 		"\u00f5\3\2\2\2\u06a8\u06a6\3\2\2\2\u06a9\u06aa\5\u0112\u008a\2\u06aa\u06ab"+
