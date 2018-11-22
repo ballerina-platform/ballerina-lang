@@ -975,7 +975,7 @@ public class BLangPackageBuilder {
         var.setName(this.createIdentifier(identifier));
 
         if (isFinal) {
-            var.flagSet.add(Flag.FINAL);
+            markVariableAsFinal(var);
         }
         if (isDeclaredWithVar) {
             var.isDeclaredWithVar = true;
@@ -1067,30 +1067,22 @@ public class BLangPackageBuilder {
         this.addExpressionNode(objectInitNode);
     }
 
-    private void markVariableAsFinal(BLangTupleVariable tupleVariable) {
-        tupleVariable.flagSet.add(Flag.FINAL);
-        for (BLangVariable memberVariable : tupleVariable.memberVariables) {
-            if (memberVariable.getKind() == NodeKind.VARIABLE) {
-                memberVariable.flagSet.add(Flag.FINAL);
-            } else if (memberVariable.getKind() == NodeKind.TUPLE_VARIABLE) {
-                markVariableAsFinal((BLangTupleVariable) memberVariable);
-            } else if (memberVariable.getKind() == NodeKind.RECORD_VARIABLE) {
-                markVariableAsFinal((BLangRecordVariable) memberVariable);
-            }
-        }
-    }
-
-    private void markVariableAsFinal(BLangRecordVariable recordVariable) {
-        recordVariable.flagSet.add(Flag.FINAL);
-        for (BLangRecordVariableKeyValue keyValue : recordVariable.variableList) {
-            BLangVariable valueBindingPattern = keyValue.valueBindingPattern;
-            if (valueBindingPattern.getKind() == NodeKind.VARIABLE) {
-                valueBindingPattern.flagSet.add(Flag.FINAL);
-            } else if (valueBindingPattern.getKind() == NodeKind.TUPLE_VARIABLE) {
-                markVariableAsFinal((BLangTupleVariable) valueBindingPattern);
-            } else if (valueBindingPattern.getKind() == NodeKind.RECORD_VARIABLE) {
-                markVariableAsFinal((BLangRecordVariable) valueBindingPattern);
-            }
+    private void markVariableAsFinal(BLangVariable variable) {
+        // Set the final flag to the variable.
+        variable.flagSet.add(Flag.FINAL);
+        switch (variable.getKind()) {
+            case TUPLE_VARIABLE:
+                // If the variable is a tuple variable, we need to set the final flag to the all member variables.
+                ((BLangTupleVariable) variable).memberVariables.parallelStream()
+                        .forEach(this::markVariableAsFinal);
+                break;
+            case RECORD_VARIABLE:
+                // If the variable is a record variable, we need to set the final flag to the all the variables in
+                // the record.
+                ((BLangRecordVariable) variable).variableList.parallelStream()
+                        .map(BLangRecordVariableKeyValue::getValue)
+                        .forEach(this::markVariableAsFinal);
+                break;
         }
     }
 
