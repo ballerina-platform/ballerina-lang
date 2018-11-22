@@ -10,11 +10,8 @@ function test() {
     p6 = new ();
 }
 
-
 type Person object {
-
     public int age = 0;
-
 };
 
 type Employee object {
@@ -24,15 +21,8 @@ type Employee object {
     public Person? p5 = ();
     public Person? p6 = ();
 
-    new () {
+    function __init () {
         self.p5 = new;
         self.p6 = new();
     }
 };
-
-
-
-
-
-
-

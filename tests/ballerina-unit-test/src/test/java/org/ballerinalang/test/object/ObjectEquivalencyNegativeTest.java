@@ -33,23 +33,23 @@ public class ObjectEquivalencyNegativeTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object-equivalency-01-negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 9);
         BAssertUtil.validateError(compileResult, 0,
-                "incompatible types: expected 'person01', found 'person01|error'", 22, 18);
+                "incompatible types: expected 'person01', found 'person01|error'", 24, 18);
         BAssertUtil.validateError(compileResult, 1,
-                "incompatible types: expected 'person02', found 'person02|error'", 46, 18);
+                "incompatible types: expected 'person02', found 'person02|error'", 51, 18);
         BAssertUtil.validateError(compileResult, 2,
-                "incompatible types: expected 'person03', found 'person03|error'", 69, 18);
+                "incompatible types: expected 'person03', found 'person03|error'", 77, 18);
         BAssertUtil.validateError(compileResult, 3,
-                "incompatible types: expected 'person04', found 'person04|error'", 97, 18);
+                "incompatible types: expected 'person04', found 'person04|error'", 108, 18);
         BAssertUtil.validateError(compileResult, 4,
-                "incompatible types: expected 'person05', found 'person05|error'", 128, 18);
+                "incompatible types: expected 'person05', found 'person05|error'", 145, 18);
         BAssertUtil.validateError(compileResult, 5,
-                "incompatible types: expected 'person06', found 'person06|error'", 155, 18);
+                "incompatible types: expected 'person06', found 'person06|error'", 175, 18);
         BAssertUtil.validateError(compileResult, 6,
-                "incompatible types: expected 'person07', found 'person07|error'", 214, 18);
+                "incompatible types: expected 'person07', found 'person07|error'", 237, 18);
         BAssertUtil.validateError(compileResult, 7,
-                "incompatible types: expected 'person08', found 'person08|error'", 280, 18);
+                "incompatible types: expected 'person08', found 'person08|error'", 306, 18);
         BAssertUtil.validateError(compileResult, 8,
-                "incompatible types: expected 'person09', found 'person09|error'", 346, 18);
+                "incompatible types: expected 'person09', found 'person09|error'", 375, 18);
     }
 
     @Test(description = "Test equivalence of objects that are in the same package from a third package")
