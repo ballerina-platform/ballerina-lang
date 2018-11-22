@@ -32,6 +32,7 @@ import org.testng.annotations.Test;
  *
  * @version 0.983
  */
+@Test(groups = "broken")
 public class LengthOperationTest {
 
     private CompileResult result;
