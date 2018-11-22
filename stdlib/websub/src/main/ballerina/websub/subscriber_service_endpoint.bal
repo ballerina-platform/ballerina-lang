@@ -30,35 +30,26 @@ public type Listener object {
 
     private http:Listener serviceEndpoint;
 
-    public new () {
+    public new (SubscriberServiceEndpointConfiguration config) {
         http:Listener httpEndpoint = new;
         self.serviceEndpoint = httpEndpoint;
+        init(config);
     }
 
     # Gets called when the endpoint is being initialized during module initialization.
     #
     # + c - The Subscriber Service Endpoint Configuration of the endpoint
-    public function init(SubscriberServiceEndpointConfiguration c);
+    function init(SubscriberServiceEndpointConfiguration c);
 
-    # Gets called whenever a service attaches itself to this endpoint and during module initialization.
-    #
-    # + serviceType - The service attached
-    public function register(typedesc serviceType);
+    public function __start() returns error?;
 
-    # Starts the registered service.
-    public function start();
+    public function __stop() returns error?;
 
-    # Returns the caller actions the client code uses.
-    #
-    # + return - `http:Connection` The connector that client code uses
-    public function getCallerActions() returns http:Connection;
-
-    # Stops the registered service.
-    public function stop();
+    public function __attach(service s, map<any> data) returns error?;
 
     extern function initWebSubSubscriberServiceEndpoint();
 
-    extern function registerWebSubSubscriberServiceEndpoint(typedesc serviceType);
+    extern function registerWebSubSubscriberServiceEndpoint(service serviceType);
 
     # Sends subscription requests to the specified/discovered hubs if specified to subscribe on startup.
     function sendSubscriptionRequests();
@@ -90,20 +81,20 @@ function Listener.init(SubscriberServiceEndpointConfiguration c) {
     self.initWebSubSubscriberServiceEndpoint();
 }
 
-function Listener.register(typedesc serviceType) {
-    self.registerWebSubSubscriberServiceEndpoint(serviceType);
+function Listener.__attach(service s, map<any> data) returns error? {
+    self.registerWebSubSubscriberServiceEndpoint(s, data);
 }
 
-function Listener.start() {
+function Listener.__start() {
     self.startWebSubSubscriberServiceEndpoint();
     self.sendSubscriptionRequests();
 }
 
-function Listener.getCallerActions() returns http:Connection {
-    return self.serviceEndpoint.getCallerActions();
-}
+//function Listener.getCallerActions() returns http:Connection {
+//    return self.serviceEndpoint.getCallerActions();
+//}
 
-function Listener.stop() {
+function Listener.__stop() {
     self.serviceEndpoint.stop();
 }
 
