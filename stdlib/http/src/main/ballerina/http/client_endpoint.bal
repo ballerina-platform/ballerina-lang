@@ -395,7 +395,7 @@ function Client.init(ClientEndpointConfig c) returns error? {
     } else {
         var cbClientError = createCircuitBreakerClient(url, c);
         if (cbClientError is error) {
-            return cbClient;
+            return cbClientError;
         }
     }
     return;
