@@ -76,10 +76,11 @@ public class FunctionPointersNegativeTest {
         BAssertUtil.validateError(result, ++i, "undefined symbol 'outputProcess'", 19, 50);
         BAssertUtil.validateError(result, ++i, "array index out of range: index: '3', size: '2'", 23, 29);
     }
-    
+
     @Test()
     public void testFPInvalidInvocation() {
-        CompileResult result = BCompileUtil.compile("test-src/expressions/lambda/negative/fp_invalid_invocation_negative.bal");
+        CompileResult result = BCompileUtil.compile("test-src/expressions/lambda/negative" +
+                "/fp_invalid_invocation_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 10);
         int i = 0;
         BAssertUtil.validateError(result, i++, "undefined function 'Person.getFullName'", 35, 16);

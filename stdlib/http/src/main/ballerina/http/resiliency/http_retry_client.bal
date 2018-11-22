@@ -56,7 +56,13 @@ public type RetryClient client object {
     # + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
     # + retryInferredConfig - Derived set of configurations associated with retry
     # + httpClient - HTTP client for outbound HTTP requests
-    public new(serviceUri, config, retryInferredConfig, httpClient) {}
+    public function __init(string serviceUri, ClientEndpointConfig config, RetryInferredConfig retryInferredConfig,
+                                        Client httpClient) {
+        self.serviceUri = serviceUri;
+        self.config = config;
+        self.retryInferredConfig = retryInferredConfig;
+        self.httpClient = httpClient;
+    }
 
     # The `post()` function wraps the underlying HTTP actions in a way to provide
     # retrying functionality for a given endpoint to recover from network level failures.

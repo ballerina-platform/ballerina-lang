@@ -537,7 +537,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         serviceNode.serviceType = (BObjectType) serviceObjectType;
 
         serviceNode.symbol = serviceSymbol;
-        serviceNode.symbol.type = new BServiceType(serviceSymbol);
+        serviceNode.symbol.type = new BServiceType(serviceObjectType);
         defineSymbol(serviceNode.name.pos, serviceSymbol);
     }
 
@@ -766,12 +766,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangResource resourceNode) {
-        BInvokableSymbol resourceSymbol = Symbols
-                .createResourceSymbol(Flags.asMask(resourceNode.flagSet), names.fromIdNode(resourceNode.name),
-                        env.enclPkg.symbol.pkgID, null, env.scope.owner);
-        resourceSymbol.markdownDocumentation = getMarkdownDocAttachment(resourceNode.markdownDocumentationAttachment);
-        SymbolEnv invokableEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceSymbol.scope, env);
-        defineInvokableSymbol(resourceNode, resourceSymbol, invokableEnv);
     }
 
     @Override

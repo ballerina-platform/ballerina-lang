@@ -35,7 +35,7 @@ public type WritableCSVChannel object {
 
     # + channel - ChracterChannel which will represent the content in the CSV
     # + fs - Field separator which will separate between the records in the CSV
-    public new(WritableCharacterChannel characterChannel, Separator fs = ",") {
+    public function __init(WritableCharacterChannel characterChannel, Separator fs = ",") {
         if (fs == TAB) {
             self.dc = new WritableTextRecordChannel(characterChannel, fmt = "TDF");
         } else if (fs == COLON) {

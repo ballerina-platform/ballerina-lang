@@ -9,7 +9,37 @@ function bar (string | int | boolean i)  returns (string | int | boolean) {
     string var5 = "test";
     Person p = { name : "Tom", age : 10};
 
-    match 
+    match var2 {
+        ("", 0, false) => {
+            
+        }
+        var (s, id, b) => {
+            
+        }
+    }
+
+    match var1 {
+        "Test" => {
+            
+        }
+    }
+
+    match var3 {
+        55.2 => {
+            
+        }
+    }
+
+    match p {
+        {name:"", age:0} => {
+            
+        }
+        var {name:x, age:y} => {
+            
+        }
+    }
+
+    return "";
 }
 
 type Person record {

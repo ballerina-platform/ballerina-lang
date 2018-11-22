@@ -19,27 +19,19 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 /**
  * {@link BServiceSymbol} represents a service symbol in a scope.
  *
- * @since 0.965.0
+ * @since 0.985.0
  */
-public class BServiceSymbol extends BTypeSymbol {
+public class BServiceSymbol extends BVarSymbol {
 
     public BObjectTypeSymbol objectType;
 
     public BServiceSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner, BObjectTypeSymbol obtype) {
-        super(SymTag.SERVICE, flags, name, pkgID, type, owner);
+        super(flags, name, pkgID, type, owner);
+        this.tag = SymTag.SERVICE;
         this.objectType = obtype;
-    }
-
-    @Override
-    public BServiceSymbol createLabelSymbol() {
-        BServiceSymbol copy = Symbols
-                .createServiceSymbol(flags, Names.EMPTY, pkgID, type, owner);
-        copy.isLabel = true;
-        return copy;
     }
 }
