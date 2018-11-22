@@ -22,34 +22,34 @@ export interface DiagramConfig {
     statement: DimentionConfig;
     canvas: DimentionConfig;
     panel: DimentionConfig;
+    panelHeading: DimentionConfig;
 }
 
-function initDimentionConfig(): DimentionConfig {
-    return {
-        height: 0,
-        margin: {
-            bottom: 0,
-            left: 0,
-            right: 0,
-            top: 0,
-        },
-        maxWidth: 0,
-        minWdith: 0,
-        padding: {
-            bottom: 0,
-            left: 0,
-            right: 0,
-            top: 0,
-        },
-        width: 0,
-    };
-}
+const defaultDimentionConfig: DimentionConfig = {
+    height: 0,
+    margin: {
+        bottom: 0,
+        left: 0,
+        right: 0,
+        top: 0,
+    },
+    maxWidth: 0,
+    minWdith: 0,
+    padding: {
+        bottom: 0,
+        left: 0,
+        right: 0,
+        top: 0,
+    },
+    width: 0,
+};
 
 export function initDiagramConfig(): DiagramConfig {
     return {
-        canvas: initDimentionConfig(),
-        panel: initDimentionConfig(),
-        statement: initDimentionConfig()
+        canvas: {...defaultDimentionConfig},
+        panel: {...defaultDimentionConfig},
+        panelHeading: {...defaultDimentionConfig},
+        statement: {...defaultDimentionConfig}
     };
 }
 
@@ -87,20 +87,28 @@ DefaultConfig.canvas.width = 500;
 DefaultConfig.canvas.height = 500;
 
 DefaultConfig.panel = {
-    height: 20,
+    ...DefaultConfig.panel,
     margin: {
         bottom: 30,
         left: 30,
         right: 30,
         top: 30,
     },
-    maxWidth: 0,
-    minWdith: 0,
     padding: {
         bottom: 40,
         left: 40,
         right: 40,
         top: 40,
     },
-    width: 0,
+};
+
+DefaultConfig.panelHeading = {
+    ...DefaultConfig.panelHeading,
+    height: 25,
+    padding: {
+        bottom: 0,
+        left: 10,
+        right: 10,
+        top: 0,
+    },
 };

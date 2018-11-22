@@ -1,7 +1,7 @@
-import { ASTKindChecker, CompilationUnit, Visitor} from "@ballerina/ast-model";
+import { ASTKindChecker, CompilationUnit, Function, Visitor } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
-import { ViewState } from "../view-model/index";
+import { FunctionViewState, ViewState } from "../view-model/index";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
@@ -48,5 +48,17 @@ export const visitor: Visitor = {
         viewState.bBox.h = height;
         viewState.bBox.w = width;
 
+    },
+
+    // tslint:disable-next-line:ban-types
+    beginVisitFunction(node: Function) {
+        const viewState: FunctionViewState = node.viewState;
+
+        // Position the header
+        viewState.header.x = viewState.bBox.x + config.panel.margin.left;
+        viewState.header.y = viewState.bBox.y + config.panel.margin.top;
+        // Position the body
+        viewState.body.x = viewState.bBox.x + config.panel.margin.left;
+        viewState.body.y = viewState.header.y + viewState.header.h;
     }
 };
