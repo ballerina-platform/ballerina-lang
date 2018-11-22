@@ -31,7 +31,10 @@ public type Client client object {
 
     public function __init(ClientEndpointConfig c) {
         self.config = c;
-        any a = self.init(self.config);
+        var err = self.init(self.config);
+        if (err is error) {
+            panic err;
+        }
     }
 
     # Gets invoked to initialize the endpoint. During initialization, configurations provided through the `config`
@@ -39,6 +42,7 @@ public type Client client object {
     # security, circuit breaking).
     #
     # + c - The configurations to be used when initializing the endpoint
+    # + return - An `error` if failed to init the client or ()
     public function init(ClientEndpointConfig c) returns error?;
 
     # The `post()` function can be used to send HTTP POST requests to HTTP endpoints.
@@ -358,7 +362,6 @@ public type AuthConfig record {
 };
 
 function Client.init(ClientEndpointConfig c) returns error? {
-    //self = createSimpleHttpClient(c.url, c);
     boolean httpClientRequired = false;
     string url = c.url;
     if (url.hasSuffix("/")) {
@@ -379,25 +382,19 @@ function Client.init(ClientEndpointConfig c) returns error? {
     if (httpClientRequired) {
         var redirectConfigVal = c.followRedirects;
         if (redirectConfigVal is FollowRedirects) {
-            var redirectClient = createRedirectClient(url, c);
-            if (redirectClient is Client) {
-                any rd = redirectClient;
-            } else {
-                return redirectClient;
+            var redirectClientErr = createRedirectClient(url, c);
+            if (redirectClientErr is error) {
+                return redirectClientErr;
             }
         } else {
-            var retryClient = checkForRetry(url, c);
-            if (retryClient is Client) {
-                any rt  = retryClient;
-            } else {
-                return retryClient;
+            var retryClientErr = checkForRetry(url, c);
+            if (retryClientErr is error) {
+                return retryClientErr;
             }
         }
     } else {
-        var cbClient = createCircuitBreakerClient(url, c);
-        if (cbClient is Client) {
-            any cb = cbClient;
-        } else {
+        var cbClientError = createCircuitBreakerClient(url, c);
+        if (cbClientError is error) {
             return cbClient;
         }
     }
