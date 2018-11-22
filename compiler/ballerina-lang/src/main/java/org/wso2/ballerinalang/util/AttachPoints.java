@@ -48,6 +48,7 @@ public class AttachPoints {
                     break;
                 case RESOURCE:
                     mask |= RESOURCE;
+                    break;
                 case REMOTE:
                     mask |= REMOTE;
                     break;
@@ -56,6 +57,7 @@ public class AttachPoints {
                     break;
                 case OBJECT:
                     mask |= OBJECT;
+                    break;
                 case CLIENT:
                     mask |= CLIENT;
                     break;
