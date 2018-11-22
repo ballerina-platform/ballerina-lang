@@ -28,7 +28,7 @@ public type HttpJwtAuthnHandler object {
     public auth:JWTAuthProvider jwtAuthenticator;
 
     public function __init(auth:JWTAuthProvider jwtAuthenticator) {
-        self.jwtAuthenticator = authzHandler;
+        self.jwtAuthenticator = jwtAuthenticator;
     }
 
     # Checks if the request can be authenticated with JWT
