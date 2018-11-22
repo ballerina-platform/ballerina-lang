@@ -32,25 +32,14 @@
   },
   "devDependencies": {
     "@ballerina/composer-cli": "^0.983.1-SNAPSHOT",
-    "@types/common-tags": "^1.4.0",
-    "@types/lodash": "^4.14.118",
-    "require-context": "^1.1.0",
-    "vscode-uri": "^1.0.6"
+    "@types/lodash.debounce": "^4.0.4",
+    "copyfiles": "^2.1.0"
   },
   "dependencies": {
     "@ballerina/ast-model": "^0.983.1-SNAPSHOT",
     "@ballerina/lang-service": "^0.983.1-SNAPSHOT",
     "@ballerina/theme": "^0.983.1-SNAPSHOT",
-    "axios": "^0.16.2",
-    "copyfiles": "^2.1.0",
-    "jquery": "^3.3.1",
-    "jsplumb": "2.3.5",
-    "lodash": "^4.17.11",
-    "log4javascript": "^1.4.15",
-    "react-autosuggest": "^9.0.1",
-    "react-custom-scrollbars": "^4.1.2",
-    "react-transition-group": "^1.1.2",
-    "uuid": "^3.1.0",
-    "winston": "^3.1.0"
+    "lodash.debounce": "^4.0.8",
+    "log4javascript": "^1.4.15"
   }
 }
