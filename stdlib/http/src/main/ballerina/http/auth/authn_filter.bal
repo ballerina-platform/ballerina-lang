@@ -29,7 +29,7 @@ public type AuthnFilter object {
 
     # Request filter method which attempts to authenticated the request.
     #
-    # + listener - The http endpoint
+    # + listenerObj - The http endpoint
     # + request - An inboud HTTP request message
     # + context - A filter context
     # + return - True if the filter succeeds
