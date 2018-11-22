@@ -61,12 +61,6 @@ public class BallerinaDefinitionImpl extends BallerinaCompositeElementImpl imple
 
   @Override
   @Nullable
-  public BallerinaGlobalEndpointDefinition getGlobalEndpointDefinition() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaGlobalEndpointDefinition.class);
-  }
-
-  @Override
-  @Nullable
   public BallerinaGlobalVariable getGlobalVariable() {
     return PsiTreeUtil.getChildOfType(this, BallerinaGlobalVariable.class);
   }
