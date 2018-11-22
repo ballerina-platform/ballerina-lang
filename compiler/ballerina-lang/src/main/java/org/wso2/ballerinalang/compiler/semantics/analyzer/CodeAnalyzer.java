@@ -1146,7 +1146,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
         // Validate worker synchronous send
-        validateActionInvocation(syncSendExpr.pos, syncSendExpr);
+        validateActions(syncSendExpr.pos, syncSendExpr);
         if (!this.inWorker()) {
             return;
         }
@@ -1157,7 +1157,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
         // Validate worker receive
-        validateActionInvocation(workerReceiveNode.pos, workerReceiveNode);
+        validateActions(workerReceiveNode.pos, workerReceiveNode);
 
         if (workerReceiveNode.isChannel) {
             if (workerReceiveNode.keyExpr != null) {
@@ -1322,6 +1322,28 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             final NodeKind kind = parent.getKind();
             // Allowed node types.
             if (kind == NodeKind.ASSIGNMENT || kind == NodeKind.EXPRESSION_STATEMENT || kind == NodeKind.RETURN
+                    || kind == NodeKind.TUPLE_DESTRUCTURE || kind == NodeKind.VARIABLE) {
+                return;
+            } else if (kind == NodeKind.CHECK_EXPR || kind == NodeKind.MATCH_EXPRESSION || kind == NodeKind.TRAP_EXPR) {
+                parent = parent.parent;
+                continue;
+            } else if (kind == NodeKind.ELVIS_EXPR
+                    && ((BLangElvisExpr) parent).lhsExpr.getKind() == NodeKind.INVOCATION
+                    && ((BLangInvocation) ((BLangElvisExpr) parent).lhsExpr).actionInvocation) {
+                parent = parent.parent;
+                continue;
+            }
+            break;
+        }
+        dlog.error(pos, DiagnosticCode.INVALID_ACTION_INVOCATION_AS_EXPR);
+    }
+
+    private void validateActions(DiagnosticPos pos, BLangNode bLangNode) {
+        BLangNode parent = bLangNode.parent;
+        while (parent != null) {
+            final NodeKind kind = parent.getKind();
+            // Allowed node types.
+            if (kind == NodeKind.ASSIGNMENT || kind == NodeKind.EXPRESSION_STATEMENT
                     || kind == NodeKind.TUPLE_DESTRUCTURE || kind == NodeKind.VARIABLE) {
                 return;
             } else if (kind == NodeKind.CHECK_EXPR || kind == NodeKind.MATCH_EXPRESSION || kind == NodeKind.TRAP_EXPR) {
