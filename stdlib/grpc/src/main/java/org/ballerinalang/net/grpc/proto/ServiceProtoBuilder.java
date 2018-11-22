@@ -180,7 +180,7 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
         BLangIdentifier pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         pkgAlias.setValue("grpc");
         annoAttachment.pkgAlias = pkgAlias;
-        annoAttachment.attachPoint = AttachPoint.SERVICE;
+        annoAttachment.attachPoints.add(AttachPoint.SERVICE);
         literalNode.pos = pos;
         BStructureTypeSymbol bStructSymbol = null;
         BSymbol annTypeSymbol = symResolver.lookupSymbolInPackage(service.pos, pkgEnv,
