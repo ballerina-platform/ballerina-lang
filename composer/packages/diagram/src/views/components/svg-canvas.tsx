@@ -5,7 +5,7 @@ export const SvgCanvas: React.StatelessComponent<{ model: CompilationUnitViewSta
     = ({ model, children }) => {
 
     return <svg
-        className="ballerina-diagram"
+        className="diagram-canvas"
         preserveAspectRatio="xMinYMin"
         width={model.bBox.w}
         height={model.bBox.h}

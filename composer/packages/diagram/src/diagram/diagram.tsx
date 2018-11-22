@@ -6,11 +6,10 @@ import { SvgCanvas } from "../views";
 import { visitor as initVisitor } from "../visitors/init-visitor";
 import { visitor as positioningVisitor } from "../visitors/positioning-visitor";
 import { visitor as sizingVisitor } from "../visitors/sizing-visitor";
+import { ControllerPanel } from "./controllers/controller-panel";
 import { DiagramContext, DiagramMode, IDiagramContext } from "./diagram-context";
 import { DiagramErrorBoundary } from "./diagram-error-boundary";
 import { DiagramUtils } from "./diagram-utils";
-import { EditToggleButton } from "./edit-toggle-button";
-import { ModeToggleButton } from "./mode-toggle-button";
 
 export interface CommonDiagramProps {
     height?: number;
@@ -35,9 +34,10 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
         currentMode: DiagramMode.ACTION,
     };
 
+    private containerRef = React.createRef<HTMLDivElement>();
+
     public render() {
         const { ast, width, height } = this.props;
-        const { currentMode } = this.state;
         const children: React.ReactNode[] = [];
         const cuViewState: CompilationUnitViewState = new CompilationUnitViewState();
         cuViewState.container.w = width ? width : DefaultConfig.canvas.width;
@@ -58,16 +58,12 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
 
         return <DiagramContext.Provider value={this.createContext()}>
             <DiagramErrorBoundary>
-                <div className="diagram-controllers">
-                    <div>{"Current Diagram Mode: " + DiagramMode[currentMode]}</div>
-                    <div>{"Editing Enabled: " + this.context.editingEnabled}</div>
-                    <EditToggleButton />
-                    <ModeToggleButton />
+                <div className="diagram-container" ref={this.containerRef}>
+                    <ControllerPanel stickTo={this.containerRef} />
+                    <SvgCanvas model={cuViewState}>
+                        {children}
+                    </SvgCanvas>
                 </div>
-                <SvgCanvas model={cuViewState}>
-                    {children}
-                </SvgCanvas>
-
             </DiagramErrorBoundary>
         </DiagramContext.Provider>;
     }
