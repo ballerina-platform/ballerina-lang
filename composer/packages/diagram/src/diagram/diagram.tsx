@@ -37,7 +37,8 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
     public render() {
         const { ast } = this.props;
         const { currentMode } = this.state;
-        const children: any = [];
+
+        const children: React.ReactNode[] = [];
         let viewState: ViewState = new ViewState(); // ToDo: fix once ast is required
 
         if (ast) {

@@ -4,6 +4,7 @@ import { ASTDidChangeParams, ASTDidChangeResponse, BallerinaASTNode, BallerinaEn
 import React from "react";
 import { CommonDiagramProps, Diagram } from "./diagram";
 import { DiagramContext, IDiagramContext } from "./diagram-context";
+import { Loader } from "./loader";
 
 export interface DiagramLangClient {
     getAST(params: GetASTParams): Thenable<GetASTResponse>;
@@ -36,6 +37,10 @@ export class EditableDiagram extends React.Component<EdiatableDiagramProps, Edit
     public render() {
         const { height, width, mode, zoom } = this.props;
         const { ast } = this.state;
+
+        if (!ast) {
+            return <Loader />;
+        }
 
         // create props for the diagram
         const diagramProps = { height, width, mode, zoom, ast };
