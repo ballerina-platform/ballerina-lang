@@ -1644,6 +1644,12 @@ public class TypeChecker extends BLangNodeVisitor {
             resultType = symTable.semanticError;
             return;
         }
+        if (Symbols.isFlagOn(funcSymbol.flags, Flags.REMOTE)) {
+            dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION_SYNTAX);
+        }
+        if (Symbols.isFlagOn(funcSymbol.flags, Flags.RESOURCE)) {
+            dlog.error(iExpr.pos, DiagnosticCode.INVALID_RESOURCE_FUNCTION_INVOCATION);
+        }
         // Set the resolved function symbol in the invocation expression.
         // This is used in the code generation phase.
         iExpr.symbol = funcSymbol;
@@ -1660,6 +1666,12 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_OBJECT, iExpr.name.value, objectType);
             resultType = symTable.semanticError;
             return;
+        }
+        if (Symbols.isFlagOn(funcSymbol.flags, Flags.REMOTE)) {
+            dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION_SYNTAX);
+        }
+        if (Symbols.isFlagOn(funcSymbol.flags, Flags.RESOURCE)) {
+            dlog.error(iExpr.pos, DiagnosticCode.INVALID_RESOURCE_FUNCTION_INVOCATION);
         }
         iExpr.symbol = funcSymbol;
         checkInvocationParamAndReturnType(iExpr);
