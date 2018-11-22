@@ -10,6 +10,7 @@ export const visitor: Visitor = {
     beginVisitCompilationUnit(node: CompilationUnit) {
         const viewState: CompilationUnitViewState = node.viewState;
 
+        // filter out visible children from top level nodes.
         const visibleChildren = node.topLevelNodes.filter((child) => {
             return ASTKindChecker.isFunction(child) || ASTKindChecker.isService(child);
         });
@@ -17,23 +18,21 @@ export const visitor: Visitor = {
         let width = 0;
         // Set the height of the toplevel nodes so that the other nodes would be positioned relative to it
         let height = config.canvas.padding.top;
-        // filter out visible children from top level nodes.
-
         visibleChildren.forEach((child, index) => {
             // we will get the maximum node's width.
             if (width <= child.viewState.bBox.w) {
                 width = child.viewState.bBox.w;
             }
             // for each top level node set x and y.
-            child.viewState.bBox.x = config.panel.margin.left;
-            const hasTopMargin = (index > 0) ? 1 : 0; // this is to remove top margin of the first panel.
-            child.viewState.bBox.y = height + config.panel.margin.top * hasTopMargin;
-            height = config.panel.margin.top + config.panel.margin.bottom + child.viewState.bBox.h + height;
+            child.viewState.bBox.x = config.panel.gutter.h;
+            // const hasTopMargin = (index > 0) ? 1 : 0; // this is to remove top margin of the first panel.
+            child.viewState.bBox.y = height;
+            height = config.panel.gutter.v + child.viewState.bBox.h + height;
         });
         // add the padding for the width
-        width += (config.panel.margin.left + config.panel.margin.right);
+        width += (config.panel.gutter.h * 2);
         // add the bottom padding to the canvas height.
-        height += (config.panel.margin.top + config.panel.margin.bottom);
+        height += (config.panel.gutter.v * 2);
         // if  the view port is taller we take the height of the view port.
         height = (height > viewState.container.h) ? height : viewState.container.h;
 
@@ -43,7 +42,7 @@ export const visitor: Visitor = {
         }
         // set all the children to same width.
         visibleChildren.forEach((child) => {
-            child.viewState.bBox.w = width - (config.panel.margin.left + config.panel.margin.right);
+            child.viewState.bBox.w = width - (config.panel.gutter.h * 2);
         });
 
         viewState.bBox.h = height;
@@ -56,14 +55,14 @@ export const visitor: Visitor = {
         const viewState: FunctionViewState = node.viewState;
 
         // Position the header
-        viewState.header.x = viewState.bBox.x + config.panel.margin.left;
-        viewState.header.y = viewState.bBox.y + config.panel.margin.top;
+        viewState.header.x = viewState.bBox.x;
+        viewState.header.y = viewState.bBox.y;
         // Position the body
-        viewState.body.x = viewState.bBox.x + config.panel.margin.left;
+        viewState.body.x = viewState.bBox.x;
         viewState.body.y = viewState.header.y + viewState.header.h;
 
         // Update the width of children
-        viewState.body.w = viewState.bBox.w - (config.panel.margin.left + config.panel.margin.right);
-        viewState.header.w = viewState.bBox.w - (config.panel.margin.left + config.panel.margin.right);
+        viewState.body.w = viewState.bBox.w;
+        viewState.header.w = viewState.bBox.w;
     }
 };

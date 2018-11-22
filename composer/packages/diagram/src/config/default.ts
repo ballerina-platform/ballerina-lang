@@ -21,8 +21,8 @@ export class DiagramConfig {
 
     public canvas = {
         padding: {
-            bottom: 100,
-            top: 50,
+            bottom: 0,
+            top: 40,
         },
         // tslint:disable-next-line:object-literal-sort-keys
         height: 500,
@@ -30,11 +30,9 @@ export class DiagramConfig {
     };
 
     public panel = {
-        margin: {
-            bottom: 0,
-            left: 30,
-            right: 30,
-            top: 30,
+        gutter: {
+            h: 30,
+            v: 30
         },
         padding: {
             bottom: 40,
