@@ -7,7 +7,7 @@ type Department record {
 
 type Person record {
     string name = "default first name";
-    string lname = "";
+    string lname= "";
     map adrs = {};
     int age = 999;
     Person? child = ();
@@ -23,4 +23,3 @@ function testStructLiteral2 () returns (Person) {
     Person p = {};
     return p;
 }
-
