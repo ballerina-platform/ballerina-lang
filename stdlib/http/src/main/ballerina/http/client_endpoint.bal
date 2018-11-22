@@ -31,6 +31,7 @@ public type Client client object {
 
     public new(ClientEndpointConfig c) {
         self.config = c;
+        self.init(self.config);
     }
 
     # Gets invoked to initialize the endpoint. During initialization, configurations provided through the `config`

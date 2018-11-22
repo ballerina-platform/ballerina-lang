@@ -33,7 +33,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
         orgName = "ballerina", packageName = "http",
         functionName = "nativeDelete",
         args = {
-                @Argument(name = "callerActions", type = TypeKind.OBJECT),
+                @Argument(name = "client", type = TypeKind.OBJECT),
                 @Argument(name = "path", type = TypeKind.STRING),
                 @Argument(name = "req", type = TypeKind.OBJECT, structType = "Request",
                         structPackage = "ballerina/http")
