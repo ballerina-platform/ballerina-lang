@@ -142,6 +142,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
@@ -1508,33 +1509,19 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
-        final boolean isExpectedErrorType = expType.tag == TypeTags.ERROR;
-        final BErrorType expectedResultType = isExpectedErrorType ? (BErrorType) expType : symTable.errorType;
-
-        // No matter what message expression has to be exist and it's type should be string type.
-        Optional.ofNullable(errorConstructorExpr.reasonExpr).map(expr -> checkExpr(expr, env, symTable.stringType))
-                .orElseThrow(AssertionError::new);
-
-        Optional.ofNullable(errorConstructorExpr.detailsExpr).ifPresent(expr -> {
-            if (isExpectedErrorType) {
-                checkExpr(expr, env, expectedResultType.detailType);
-            } else {
-                // Give correct error message.
-                BType givenType = checkExpr(expr, env, symTable.noType);
-                if (givenType.tag != TypeTags.MAP && givenType.tag != TypeTags.RECORD) {
-                    dlog.error(expr.pos, DiagnosticCode.REQUIRE_ERROR_MAPPING_VALUE);
-                } else {
-                    // TODO : improve this for union types.
-                    dlog.error(errorConstructorExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.errorType,
-                            expType);
-                }
-            }
-        });
-
-        if (!isExpectedErrorType) {
+        if (expType.tag != TypeTags.ERROR) {
+            dlog.error(errorConstructorExpr.pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, expType);
             resultType = symTable.semanticError;
             return;
         }
+
+        // No matter what, message expression has to exist and it's type should be string type.
+        Optional.ofNullable(errorConstructorExpr.reasonExpr)
+                .map(expr -> checkExpr(expr, env, symTable.stringType))
+                .orElseThrow(AssertionError::new);
+
+        Optional.ofNullable(errorConstructorExpr.detailsExpr)
+                .ifPresent(expr -> checkExpr(expr, env, ((BErrorType) expType).detailType));
         resultType = expType;
     }
 
