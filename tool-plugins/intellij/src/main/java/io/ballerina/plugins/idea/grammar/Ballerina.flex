@@ -86,7 +86,7 @@ HexNumeral = 0 [xX] {HexDigits}
 
 DottedHexNumber = {HexDigits} "." {HexDigits} | "." {HexDigits}
 
-DottedDecimalNumber = {DecimalNumeral} "." {Digits} | "." {Digit}+
+DottedDecimalNumber = {DecimalNumeral} "." {Digits} | "." {Digits}
 
 HexDigits = {HexDigit}+
 HexDigit = [0-9a-fA-F]
@@ -96,25 +96,16 @@ BinaryDigits = {BinaryDigit}+
 BinaryDigit = [01]
 
 HexadecimalFloatingPointLiteral =  {HexIndicator} {HexFloatingPointNumber}
+HexIndicator = 0 [xX]
 
 DecimalFloatingPointNumber = {DecimalNumeral} {ExponentPart} | {DottedDecimalNumber} {ExponentPart}?
-
-// §3.10.2 Floating-Point Literals
-
-DecimalFloatingPointLiteral = {Digits} "." ({Digits} {ExponentPart}? | {Digits}? {ExponentPart})
-    | "." {Digits} {ExponentPart}?
-    | {Digits} {ExponentPart}
-    | {Digits}
 ExponentPart = {ExponentIndicator} {SignedInteger}
 ExponentIndicator = [eE]
 SignedInteger = {Sign}? {Digits}
 Sign = [+-]
 
-HexIndicator = 0 [xX]
-HexFloatingPointNumber = {HexDigits} {BinaryExponent} | {DottedHexNumber} {BinaryExponent}?
 
-HexadecimalFloatingPointLiteral = {HexSignificand} {BinaryExponent}
-HexSignificand = {HexNumeral} "."? | '0' [xX] {HexDigits}? "." {HexDigits}
+HexFloatingPointNumber = {HexDigits} {BinaryExponent} | {DottedHexNumber} {BinaryExponent}?
 BinaryExponent = {BinaryExponentIndicator} {SignedInteger}
 BinaryExponentIndicator = [pP]
 
@@ -383,9 +374,11 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "check"                                     { return CHECK; }
     "compensation"                              { return COMPENSATION; }
     "compensate"                                { return COMPENSATE; }
+    "const"                                     { return CONST; }
     "continue"                                  { return CONTINUE; }
 
     "done"                                      { return DONE; }
+    "decimal"                                   { return DECIMAL; }
     "deprecated"                                { return DEPRECATED; }
     "descending"                                { return DESCENDING; }
 

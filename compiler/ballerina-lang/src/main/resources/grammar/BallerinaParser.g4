@@ -83,7 +83,7 @@ typeDefinition
     ;
 
 objectBody
-    :   objectMember* objectInitializer? objectMember*
+    :   objectMember* objectMember*
     ;
 objectMember
     :   objectFieldDefinition
@@ -93,14 +93,6 @@ objectMember
 
 typeReference
     :   MUL simpleTypeName SEMICOLON
-    ;
-
-objectInitializer
-    :   documentationString? annotationAttachment* (PUBLIC)? NEW objectInitializerParameterList callableUnitBody
-    ;
-
-objectInitializerParameterList
-    :   LEFT_PARENTHESIS objectParameterList? RIGHT_PARENTHESIS
     ;
 
 objectFieldDefinition
@@ -121,19 +113,6 @@ sealedLiteral
     ;
 
 restDescriptorPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
-
-objectParameterList
-    :   (objectParameter | objectDefaultableParameter) (COMMA (objectParameter | objectDefaultableParameter))* (COMMA restParameter)?
-    |   restParameter
-    ;
-
-objectParameter
-    :   annotationAttachment* typeName? Identifier
-    ;
-
-objectDefaultableParameter
-    :   objectParameter ASSIGN expression
-    ;
 
 objectFunctionDefinition
     :   documentationString? annotationAttachment* deprecatedAttachment? (PUBLIC | PRIVATE)? (REMOTE|RESOURCE)? (EXTERN)? FUNCTION callableUnitSignature (callableUnitBody | SEMICOLON)
@@ -933,6 +912,7 @@ reservedWord
     |   TYPE_MAP
     |   START
     |   CONTINUE
+    |   OBJECT_INIT
     ;
 
 

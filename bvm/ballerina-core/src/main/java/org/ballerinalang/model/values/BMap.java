@@ -374,13 +374,22 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
     }
 
     @Override
-    public BValue copy() {
+    public BValue copy(Map<BValue, BValue> refs) {
         readLock.lock();
         try {
-            BMap<K, BValue> newMap = BTypes.typeMap.getEmptyValue();
+            if (isFrozen()) {
+                return this;
+            }
+
+            if (refs.containsKey(this)) {
+                return refs.get(this);
+            }
+
+            BMap<K, BValue> newMap = new BMap<>(type);
+            refs.put(this, newMap);
             for (Map.Entry<K, V> entry: map.entrySet()) {
                 BValue value = entry.getValue();
-                newMap.put(entry.getKey(), value == null ? null : value.copy());
+                newMap.put(entry.getKey(), value == null ? null : value.copy(refs));
             }
             return newMap;
         } finally {

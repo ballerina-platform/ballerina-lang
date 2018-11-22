@@ -46,7 +46,7 @@ public class ServiceImpl extends AnnotatableNode implements Service {
         this.name = serviceInfo.getName();
         this.packagePath = serviceInfo.getPackagePath();
         this.packageVersion = serviceInfo.getPackageInfo().getPackageVersion();
-        this.endPointName = serviceInfo.getEndpointName();
+        this.endPointName = serviceInfo.getListenerName();
     }
 
     public void addResource(String name, Resource resource) {

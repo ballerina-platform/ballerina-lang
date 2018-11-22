@@ -49,6 +49,12 @@ public class BallerinaDefinitionImpl extends BallerinaCompositeElementImpl imple
 
   @Override
   @Nullable
+  public BallerinaConstantDefinition getConstantDefinition() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaConstantDefinition.class);
+  }
+
+  @Override
+  @Nullable
   public BallerinaFunctionDefinition getFunctionDefinition() {
     return PsiTreeUtil.getChildOfType(this, BallerinaFunctionDefinition.class);
   }

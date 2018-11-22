@@ -13,20 +13,17 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.net.grpc.nativeimpl.client;
+package org.ballerinalang.net.grpc.nativeimpl.streamingclient;
 
-import com.google.protobuf.Descriptors;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.GrpcConstants;
-import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;
@@ -40,41 +37,32 @@ import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
- * Extern function to respond the server.
+ * Extern function to inform the server, client finished sending messages.
  *
  * @since 1.0.0
  */
 @BallerinaFunction(
         orgName = ORG_NAME,
         packageName = GrpcConstants.PROTOCOL_PACKAGE_GRPC,
-        functionName = "send",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = GrpcConstants.GRPC_CLIENT,
-                structPackage = GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC),
-        args = {@Argument(name = "res", type = TypeKind.ANY)},
-        returnType = @ReturnType(type = TypeKind.RECORD, structType = STRUCT_GENERIC_ERROR, structPackage =
-                BALLERINA_BUILTIN_PKG),
+        functionName = "complete",
         isPublic = true
 )
-public class Send extends BlockingNativeCallableUnit {
-    private static final Logger LOG = LoggerFactory.getLogger(Send.class);
+public class Complete extends BlockingNativeCallableUnit {
+    private static final Logger LOG = LoggerFactory.getLogger(Complete.class);
     
     @Override
     public void execute(Context context) {
         BMap<String, BValue> connectionStruct = (BMap<String, BValue>) context.getRefArgument(0);
-        BValue responseValue = context.getRefArgument(1);
         StreamObserver requestSender = (StreamObserver) connectionStruct.getNativeData(REQUEST_SENDER);
         if (requestSender == null) {
             context.setError(MessageUtils.getConnectorError(new StatusRuntimeException(Status
-                    .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while sending the " +
+                    .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while completing the " +
                             "message. endpoint does not exist"))));
         } else {
-            Descriptors.Descriptor inputType = (Descriptors.Descriptor) connectionStruct.getNativeData(GrpcConstants
-                    .REQUEST_MESSAGE_DEFINITION);
             try {
-                Message requestMessage = new Message(inputType.getName(), responseValue);
-                requestSender.onNext(requestMessage);
+                requestSender.onCompleted();
             } catch (Exception e) {
-                LOG.error("Error while sending request message to server.", e);
+                LOG.error("Error while sending complete message to server.", e);
                 context.setError(MessageUtils.getConnectorError(e));
             }
         }
