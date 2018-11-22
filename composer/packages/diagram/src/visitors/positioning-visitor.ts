@@ -1,4 +1,4 @@
-import { CompilationUnit, isFunction, isService , Visitor} from "@ballerina/ast-model";
+import { ASTKindChecker, CompilationUnit, Visitor} from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
 import { ViewState } from "../view-model/index";
@@ -11,7 +11,7 @@ export const visitor: Visitor = {
         const viewState: ViewState = node.viewState;
 
         const visibleChildren = node.topLevelNodes.filter((child) => {
-            return isFunction(child) || isService(child);
+            return ASTKindChecker.isFunction(child) || ASTKindChecker.isService(child);
         });
 
         let width = 0;
