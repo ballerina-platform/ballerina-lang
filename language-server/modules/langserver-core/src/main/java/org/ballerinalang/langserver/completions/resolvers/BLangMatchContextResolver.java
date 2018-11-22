@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.completions.resolvers;
 
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
@@ -25,25 +26,29 @@ import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+
+import static org.ballerinalang.langserver.completions.util.MatchStatementResolverUtil.generateMatchPattern;
+import static org.ballerinalang.langserver.completions.util.MatchStatementResolverUtil.getStructuredFixedValueMatch;
+import static org.ballerinalang.langserver.completions.util.MatchStatementResolverUtil.getTupleDestructured;
+import static org.ballerinalang.langserver.completions.util.MatchStatementResolverUtil.getVariableValueDestructurePattern;
 
 /**
  * Completion Item resolver for the BLangMatch Scope.
  */
 public class BLangMatchContextResolver extends AbstractItemResolver {
+
+    private static final String LABEL_STRUCTURED_FIXED = "Structured Fixed Value Match";
+    private static final String LABEL_VARIABLE_VALUE = "Variable Value Destructure Match";
 
     @Override
     public List<CompletionItem> resolveItems(LSServiceOperationContext ctx) {
@@ -62,47 +67,52 @@ public class BLangMatchContextResolver extends AbstractItemResolver {
             case UNION: {
                 Set<BType> memberTypes = ((BUnionType) bLangMatch.expr.type).getMemberTypes();
                 memberTypes.forEach(bType ->
-                        completionItems.add(getMatchFieldSnippetCompletion(CommonUtil.getBTypeName(bType, ctx))));
+                        completionItems.addAll(getPatternClauseForType(bType, ctx)));
                 break;
             }
-            case JSON: {
-                ArrayList<Integer> typeTagsList = new ArrayList<>(Arrays.asList(TypeTags.INT, TypeTags.FLOAT,
-                        TypeTags.BOOLEAN, TypeTags.STRING, TypeTags.NIL, TypeTags.JSON));
-                visibleSymbols.forEach(symbolInfo -> {
-                    BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-                    if (bSymbol instanceof BTypeSymbol && typeTagsList.contains(bSymbol.getType().tag)) {
-                        completionItems.add(getMatchFieldSnippetCompletion(
-                                CommonUtil.getBTypeName(bSymbol.getType(), ctx)));
-                    }
-                });
+            case RECORD:
+            case TUPLE: {
+                completionItems.addAll(this.getPatternClauseForType(bLangMatch.expr.type, ctx));
                 break;
             }
-            case RECORD: {
-                visibleSymbols.forEach(symbolInfo -> {
-                    BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-                    if ((bSymbol instanceof BObjectTypeSymbol || bSymbol instanceof BRecordTypeSymbol)) {
-                        completionItems.add(getMatchFieldSnippetCompletion(
-                                CommonUtil.getBTypeName(bSymbol.getType(), ctx)));
-                    }
-                });
+            default: {
+                completionItems.add(getMatchFieldSnippetCompletion(getVariableValueDestructurePattern(ctx),
+                        CommonUtil.getBTypeName(bLangMatch.expr.type, ctx)));
                 break;
             }
-            default:
-                break;
         }
         
         return completionItems;
     }
 
-    private CompletionItem getMatchFieldSnippetCompletion(String type) {
+    private List<CompletionItem> getPatternClauseForType(BType bType, LSContext ctx) {
+        List<CompletionItem> completionItems = new ArrayList<>();
+        if (bType instanceof BTupleType) {
+            String tupleDestructured = "var " + getTupleDestructured((BTupleType) bType,
+                    new ArrayList<>(), ctx);
+            String variableValuePattern = generateMatchPattern(tupleDestructured, ctx);
+            String fixedValuePattern = generateMatchPattern(getStructuredFixedValueMatch(bType), ctx);
+            completionItems.add(this.getMatchFieldSnippetCompletion(variableValuePattern,
+                    bType.toString() + " : " + LABEL_VARIABLE_VALUE));
+            completionItems.add(this.getMatchFieldSnippetCompletion(fixedValuePattern,
+                    bType.toString() + " : " + LABEL_STRUCTURED_FIXED));
+        } else if (bType instanceof BRecordType) {
+            String fixedValuePattern = generateMatchPattern(getStructuredFixedValueMatch(bType), ctx);
+            completionItems.add(this.getMatchFieldSnippetCompletion(fixedValuePattern,
+                    bType.toString() + " : " + LABEL_STRUCTURED_FIXED));
+        } else {
+            String variableValuePattern = getVariableValueDestructurePattern(ctx);
+            completionItems.add(this.getMatchFieldSnippetCompletion(variableValuePattern,
+                    bType.toString() + " : " + LABEL_VARIABLE_VALUE));
+        }
+
+        return completionItems;
+    }
+
+    private CompletionItem getMatchFieldSnippetCompletion(String snippet, String label) {
         CompletionItem completionItem = new CompletionItem();
-        String insertText = type + " => {" +
-                CommonUtil.LINE_SEPARATOR +
-                "\t\t" +
-                CommonUtil.LINE_SEPARATOR +
-                "}";
-        completionItem.setInsertText(insertText);
-        completionItem.setLabel(type);
+        completionItem.setInsertText(snippet);
+        completionItem.setLabel(label);
         completionItem.setInsertTextFormat(InsertTextFormat.Snippet);
         completionItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
         completionItem.setKind(CompletionItemKind.Snippet);
