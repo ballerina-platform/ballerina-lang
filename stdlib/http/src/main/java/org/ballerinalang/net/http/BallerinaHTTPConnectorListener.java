@@ -120,7 +120,8 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         CallableUnitCallback callback = new HttpCallableUnitCallback(inboundMessage);
         String gTransactionId = (String) properties.get(Constants.GLOBAL_TRANSACTION_ID);
         if (gTransactionId != null) {
-            TransactableCallableUnitCallback trxUnitCallback = new TransactableCallableUnitCallback(callback, gTransactionId);
+            TransactableCallableUnitCallback trxUnitCallback =
+                    new TransactableCallableUnitCallback(callback, gTransactionId);
             trxUnitCallback.setTransactionOnCommit(httpResource.getTransactionOnCommitFunc());
             trxUnitCallback.setTransactionOnAbort(httpResource.getTransactionOnAbortFunc());
             callback = trxUnitCallback;

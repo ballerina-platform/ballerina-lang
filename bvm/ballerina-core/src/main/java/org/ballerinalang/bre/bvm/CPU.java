@@ -73,7 +73,7 @@ import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.persistence.states.State;
 import org.ballerinalang.persistence.store.PersistenceStore;
 import org.ballerinalang.runtime.Constants;
-import org.ballerinalang.util.TransactionStatus;
+import org.ballerinalang.util.Transactions;
 import org.ballerinalang.util.codegen.ErrorTableEntry;
 import org.ballerinalang.util.codegen.ForkjoinInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
@@ -166,17 +166,6 @@ public class CPU {
             }
         }
     }
-
-//    private static void notifyTransactableCallableUnitExitDueToError(WorkerExecutionContext ctx, HandleErrorException e) {
-//        // I need to verify about the correctness of this method to figure out an uncaught exception in a participated
-//        // resource.
-//        if (ctx.getGlobalTransactionEnabled() && e.ctx == null) {
-//            // Uncaught error propagates out of a resource.
-//            if (ctx.callableUnitInfo instanceof ResourceInfo) {
-//                ctx.getLocalTransactionInfo().notifyLocalParticipantFailure();
-//            }
-//        }
-//    }
 
     private static void tryExec(WorkerExecutionContext ctx) {
         BLangScheduler.workerRunning(ctx);
@@ -435,11 +424,13 @@ public class CPU {
                         }
                         break;
                     case InstructionCodes.TR_BEGIN:
+                        int h;
                         i = operands[0];
                         j = operands[1];
                         k = operands[2];
-                        l = operands[3];
-                        beginTransaction(ctx, i, j, k, l);
+                        h = operands[3];
+                        l = operands[4];
+                        beginTransaction(ctx, i, j, k, h, l);
                         break;
                     case InstructionCodes.TR_END:
                         i = operands[0];
@@ -2583,8 +2574,13 @@ public class CPU {
         sf.refRegs[i] = new BMap<>(structInfo.getType());
     }
 
-    private static void beginTransaction(WorkerExecutionContext ctx, int transactionBlockId, int retryCountRegIndex,
-                                         int committedFuncIndex, int abortedFuncIndex) {
+    private static void beginTransaction(WorkerExecutionContext ctx, int transactionType, int transactionBlockId,
+                                         int retryCountRegIndex, int committedFuncIndex, int abortedFuncIndex) {
+        if (transactionType == Transactions.TransactionType.PARTICIPANT.value) {
+            beginTransactionParticipant(ctx, transactionBlockId, committedFuncIndex, abortedFuncIndex);
+            return;
+        }
+
         //Transaction is attempted three times by default to improve resiliency
         int retryCount = TransactionConstants.DEFAULT_RETRY_COUNT;
         if (retryCountRegIndex != -1) {
@@ -2635,9 +2631,40 @@ public class CPU {
         localTransactionInfo.beginTransactionBlock(transactionBlockId, retryCount);
     }
 
+    private static void beginTransactionParticipant(WorkerExecutionContext ctx, int transactionBlockId,
+                                                    int committedFuncIndex, int abortedFuncIndex) {
+        LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
+        if (localTransactionInfo == null) {
+            // No transaction available to participate,
+            // We have no business here. This is a no-op.
+            return;
+        }
+
+        // Register committed function handler if exists.
+        TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
+        BFunctionPointer fpCommitted = null;
+        if (committedFuncIndex != -1) {
+            FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) ctx.constPool[committedFuncIndex];
+            fpCommitted = new BFunctionPointer(funcRefCPEntry.getFunctionInfo());
+            transactionResourceManager.registerCommittedFunction(transactionBlockId, fpCommitted);
+        }
+
+        // Register aborted function handler if exists.
+        BFunctionPointer fpAborted = null;
+        if (abortedFuncIndex != -1) {
+            FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) ctx.constPool[abortedFuncIndex];
+            fpAborted = new BFunctionPointer(funcRefCPEntry.getFunctionInfo());
+            transactionResourceManager.registerAbortedFunction(transactionBlockId, fpAborted);
+        }
+
+        String uniqueName = TransactionUtils.getUniqueName(ctx.callableUnitInfo);
+        transactionResourceManager.registerLocalParticipant(localTransactionInfo.getGlobalTransactionId(),
+                uniqueName, fpCommitted, fpAborted);
+    }
+
     private static LocalTransactionInfo createAndNotifyGlobalTx(WorkerExecutionContext ctx, int transactionBlockId) {
-        BValue[] txResult = TransactionUtils.notifyTransactionBegin(ctx, null, null, transactionBlockId,
-                TransactionConstants.DEFAULT_COORDINATION_TYPE);
+        BValue[] txResult = TransactionUtils.notifyTransactionBegin(ctx, null, null,
+                transactionBlockId, TransactionConstants.DEFAULT_COORDINATION_TYPE);
 
         BMap<String, BValue> txDataStruct = (BMap<String, BValue>) txResult[0];
         String globalTransactionId = txDataStruct.get(TransactionConstants.TRANSACTION_ID).stringValue();
@@ -2689,7 +2716,7 @@ public class CPU {
         LocalTransactionInfo localTxInfo = ctx.getLocalTransactionInfo();
         try {
             //In success case no need to do anything as with the transaction end phase it will be committed.
-            switch (TransactionStatus.getConst(status)) {
+            switch (Transactions.TransactionStatus.getConst(status)) {
                 case BLOCK_END: // 0
                     // set statusReg
                     transactionBlockEnd(ctx, txBlockId, statusRegIndex, localTxInfo);

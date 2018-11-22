@@ -26,6 +26,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
@@ -110,6 +111,10 @@ public class TransactionUtils {
         PackageInfo packageInfo = ctx.programFile.getPackageInfo(TransactionConstants.COORDINATOR_PACKAGE);
         FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
         return BLangFunctions.invokeCallable(functionInfo, args);
+    }
+
+    public static String getUniqueName(CallableUnitInfo callableUnitInfo) {
+        return callableUnitInfo.getPkgPath() + ":" + callableUnitInfo.getName();
     }
 
     /**

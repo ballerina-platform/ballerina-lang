@@ -1317,7 +1317,6 @@ public class PackageInfoReader {
                     break;
                 case InstructionCodes.NEWQNAME:
                 case InstructionCodes.NEWXMLELEMENT:
-                case InstructionCodes.TR_BEGIN:
                 case InstructionCodes.TR_RETRY:
                 case InstructionCodes.MAPLOAD:
                     i = codeStream.readInt();
@@ -1326,6 +1325,7 @@ public class PackageInfoReader {
                     h = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j, k, h));
                     break;
+                case InstructionCodes.TR_BEGIN:
                 case InstructionCodes.NEWTABLE:
                     i = codeStream.readInt();
                     j = codeStream.readInt();

@@ -19,7 +19,10 @@ package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.debugger.DebugCommand;
+import org.ballerinalang.util.transactions.LocalTransactionInfo;
+import org.ballerinalang.util.transactions.TransactionUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -162,5 +165,23 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
                 callback.notifyFailure(error);
             }
         }
+    }
+
+    void signalTransactionError(WorkerSignal signal) {
+        LocalTransactionInfo localTransactionInfo = signal.getSourceContext().getLocalTransactionInfo();
+        if (localTransactionInfo == null) {
+            return;
+        }
+        CallableUnitInfo callableUnitInfo = signal.getSourceContext().callableUnitInfo;
+        String uniqueName = TransactionUtils.getUniqueName(callableUnitInfo);
+        localTransactionInfo.notifyLocalParticipantFailure(uniqueName);
+    }
+
+    void signalTransactionParticipantSuccess(WorkerSignal signal) {
+        LocalTransactionInfo localTransactionInfo = signal.getSourceContext().getLocalTransactionInfo();
+        if (localTransactionInfo == null) {
+            return;
+        }
+        localTransactionInfo.notifyLocalParticipantSuccess();
     }
 }

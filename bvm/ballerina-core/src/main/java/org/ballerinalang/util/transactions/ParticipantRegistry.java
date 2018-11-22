@@ -26,6 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 
 /**
@@ -34,15 +36,17 @@ import java.util.stream.Collectors;
  * @since 0.985.0
  */
 class ParticipantRegistry {
-    Map<String, Deque<List<Participant>>> participantReg;
+    Map<String, Deque<List<Participant>>> resourceParticipantReg;
+    Map<String, Map<String, Participant>> localFunctionParticipants;
 
     ParticipantRegistry() {
-        participantReg = new HashMap<>();
+        resourceParticipantReg = new HashMap<>();
+        localFunctionParticipants = new HashMap<>();
     }
 
     void register(String gTransactionId, BFunctionPointer committed, BFunctionPointer aborted) {
         Participant participant = new Participant(gTransactionId, committed, aborted);
-        Deque<List<Participant>> participantStack = participantReg.computeIfAbsent(
+        Deque<List<Participant>> participantStack = resourceParticipantReg.computeIfAbsent(
                 gTransactionId, id -> new ArrayDeque<>());
         if (participantStack.isEmpty()) {
             participantStack.push(new ArrayList<>());
@@ -50,8 +54,14 @@ class ParticipantRegistry {
         participantStack.peek().add(participant);
     }
 
+    public void register(String gTransactionId, String participantName, BFunctionPointer committed, BFunctionPointer aborted) {
+        Participant participant = new Participant(gTransactionId, committed, aborted);
+        localFunctionParticipants.computeIfAbsent(gTransactionId, gid -> new HashMap<>())
+                .put(participantName, participant);
+    }
+
     void participantFailed(String transactionId) {
-        Deque<List<Participant>> participants = participantReg.get(transactionId);
+        Deque<List<Participant>> participants = resourceParticipantReg.get(transactionId);
         if (participants == null || participants.isEmpty()) {
             return;
         }
@@ -67,8 +77,21 @@ class ParticipantRegistry {
         participants.push(new ArrayList<>());
     }
 
+    void participantFailed(String gTransactionId, String uniqueName) {
+        Map<String, Participant> participants = localFunctionParticipants.get(gTransactionId);
+        if (participants == null) {
+            return;
+        }
+
+        Participant participant = participants.get(uniqueName);
+        if (participant == null) {
+            return;
+        }
+        participant.localTxStatus = LocalTxStatus.FAILED;
+    }
+
     public void purge(String transactionId) {
-        Deque<List<Participant>> participants = participantReg.get(transactionId);
+        Deque<List<Participant>> participants = resourceParticipantReg.get(transactionId);
         if (participants == null) {
             return;
         }
@@ -76,44 +99,87 @@ class ParticipantRegistry {
     }
 
     List<BFunctionPointer> getCommittedFuncs(String transactionId) {
-        Deque<List<Participant>> participants = participantReg.get(transactionId);
+        Deque<List<Participant>> participants = resourceParticipantReg.get(transactionId);
+        Stream<BFunctionPointer> resourceCommittedFuncs;
         if (participants == null || participants.isEmpty()) {
-            return new ArrayList<>();
+            resourceCommittedFuncs = Stream.empty();
+        } else {
+            resourceCommittedFuncs = participants.peek().stream()
+                    .filter(p -> p.committed != null)
+                    .map(p -> p.committed);
         }
-        return participants.peek().stream()
-                //.filter(p -> p.localTxStatus == LocalTxStatus.SUCCESS)
-                .filter(p -> p.committed != null)
-                .map(p -> p.committed)
-                .collect(Collectors.toList());
+
+        Stream<BFunctionPointer> localFuncCommitedFuncStream;
+        Map<String, Participant> localFuncParticipants = localFunctionParticipants.get(transactionId);
+        if (localFuncParticipants == null) {
+            localFuncCommitedFuncStream = Stream.empty();
+        } else {
+            localFuncCommitedFuncStream = localFuncParticipants.entrySet().stream()
+                    .map(e -> e.getValue())
+                    .filter(v -> v.committed != null)
+                    .map(v -> v.committed);
+        }
+
+        return Stream.concat(localFuncCommitedFuncStream, resourceCommittedFuncs).collect(Collectors.toList());
     }
 
     List<BFunctionPointer> getAbortedFuncs(String transactionId) {
-        Deque<List<Participant>> participantStack = participantReg.get(transactionId);
+        Deque<List<Participant>> participantStack = resourceParticipantReg.get(transactionId);
+        Stream<BFunctionPointer> resourceAbortedFunctions;
         if (participantStack == null || participantStack.isEmpty()) {
-            return new ArrayList<>();
+            resourceAbortedFunctions = Stream.empty();
+        } else {
+            List<Participant> participants = participantStack.peek();
+            if (participants != null && participants.isEmpty()) { // topmost participant list only get empty when
+                // last attempt was failed.
+                participantStack.pop();
+                participants = participantStack.peek();
+            }
+            if (participants == null) {
+                return new ArrayList<>();
+            }
+            resourceAbortedFunctions = participants.stream()
+                    .filter(p -> p.aborted != null)
+                    .map(p -> p.aborted);
         }
-        List<Participant> participants = participantStack.peek();
-        if (participants != null && participants.isEmpty()) { // topmost participant list only get empty when
-            // last attempt was failed.
-            participantStack.pop();
-            participants = participantStack.peek();
+        Stream<BFunctionPointer> localFuncParticipantAborted;
+        Map<String, Participant> localFuncParticipants = localFunctionParticipants.get(transactionId);
+        if (localFuncParticipants == null) {
+            localFuncParticipantAborted = Stream.empty();
+        } else {
+            localFuncParticipantAborted = localFuncParticipants.entrySet().stream()
+                    .map(e -> e.getValue())
+                    .filter(v -> v.aborted != null)
+                    .map(v -> v.aborted);
         }
-        if (participants == null) {
-            return new ArrayList<>();
-        }
-        return participants.stream()
-                .filter(p -> p.aborted != null)
-                .map(p -> p.aborted)
-                .collect(Collectors.toList());
+        return Stream.concat(localFuncParticipantAborted, resourceAbortedFunctions).collect(Collectors.toList());
     }
 
     boolean prepareCommit(String transactionId) {
-        Deque<List<Participant>> participants = participantReg.get(transactionId);
+        boolean resourceCommitSuccess = prepareAndCommitResources(transactionId);
+        boolean functionCommitSuccess = prepareAndCommitLocalParticipantFunctions(transactionId);
+        return resourceCommitSuccess && functionCommitSuccess;
+    }
+
+    private boolean prepareAndCommitLocalParticipantFunctions(String transactionId) {
+        Map<String, Participant> participants = localFunctionParticipants.get(transactionId);
+        if (participants == null) {
+            return true;
+        }
+        boolean participantFailed = participants.entrySet().stream()
+                .anyMatch(e -> e.getValue().localTxStatus == LocalTxStatus.FAILED);
+        return !participantFailed;
+    }
+
+    private boolean prepareAndCommitResources(String transactionId) {
+        Deque<List<Participant>> participants = resourceParticipantReg.get(transactionId);
         // Since all the participant (with matching transaction id) are marked failed
         // when single participant in this ResourceManager fails,
         // we can infer that having at least on non failed participant means this transaction attempt was a success.
 
         if (participants != null) {
+            // participants stack is not null and top of the stack is a empty list means
+            // local transaction failed and participant got a new stack frame with a empty list.
             if (participants.isEmpty() || participants.peek().isEmpty()) {
                 return false;
             }
@@ -124,7 +190,19 @@ class ParticipantRegistry {
     }
 
     public boolean hasParticipants(String transactionId) {
-        return participantReg.containsKey(transactionId);
+        return resourceParticipantReg.containsKey(transactionId) ||
+                localFunctionParticipants.containsKey(transactionId);
+    }
+
+    /**
+     * Remove participant information related to given global transaction.
+     * @param gTransactionId global transaction id
+     *
+     * @since 0.985.0
+     */
+    public void remove(String gTransactionId) {
+        resourceParticipantReg.remove(gTransactionId);
+        localFunctionParticipants.remove(gTransactionId);
     }
 
     static class Participant {

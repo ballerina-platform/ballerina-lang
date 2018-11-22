@@ -112,6 +112,7 @@ public class TransactionResourceManager {
      * @param committed              function pointer to invoke when this transaction committed
      * @param aborted                function pointer to invoke when this transaction aborted
      * @param workerExecutionContext
+     *
      * @since 0.985.0
      */
     public void registerParticipation(String gTransactionId, BFunctionPointer committed, BFunctionPointer aborted,
@@ -125,6 +126,22 @@ public class TransactionResourceManager {
                 localTransactionInfo.getGlobalTransactionId(),
                 localTransactionInfo.getURL(), transactionBlockId, localTransactionInfo.getProtocol());
         log.info("participant registered: " + bValues[0]);
+    }
+
+    /**
+     * Register a participant in the local transaction. This is intended for participant function registration.
+     *
+     * @param gTransactionId  global transaction id
+     * @param participantName name of the participant to uniquely identify it
+     * @param committed       function pointer to invoke when this transaction committed
+     * @param aborted         function pointer to invoke when this transaction aborted
+     *
+     * @since 0.985.0
+     */
+    public void registerLocalParticipant(String gTransactionId, String participantName, BFunctionPointer committed,
+                                         BFunctionPointer aborted) {
+        participantRegistry.register(gTransactionId, participantName, committed, aborted);
+
     }
 
     /**
@@ -193,7 +210,7 @@ public class TransactionResourceManager {
         }
         // TODO: 10/31/18 remove; there is nor commited function just a committed block
         invokeCommittedFunction(transactionId, transactionBlockId);
-        removeContextsFromRegistry(combinedId);
+        removeContextsFromRegistry(combinedId, transactionId);
         return commitSuccess;
     }
 
@@ -232,7 +249,7 @@ public class TransactionResourceManager {
         if (!isRetryAttempt) {
             invokeAbortedFunction(transactionId, transactionBlockId);
         }
-        removeContextsFromRegistry(combinedId);
+        removeContextsFromRegistry(combinedId, transactionId);
         return abortSuccess;
     }
 
@@ -292,9 +309,10 @@ public class TransactionResourceManager {
         participantRegistry.participantFailed(transactionId);
     }
 
-    private void removeContextsFromRegistry(String transactionCombinedId) {
+    private void removeContextsFromRegistry(String transactionCombinedId, String gTransactionId) {
         resourceRegistry.remove(transactionCombinedId);
         xidRegistry.remove(transactionCombinedId);
+        participantRegistry.remove(gTransactionId);
     }
 
     private String generateCombinedTransactionId(String transactionId, int transactionBlockId) {
@@ -310,6 +328,7 @@ public class TransactionResourceManager {
         List<BFunctionPointer> funcs = participantRegistry.getCommittedFuncs(transactionId);
         invokeFunctions(args, funcs);
         participantRegistry.purge(transactionId);
+
     }
 
     private void invokeAbortedFunction(String transactionId, int transactionBlockId) {
@@ -337,10 +356,14 @@ public class TransactionResourceManager {
         // let the transaction know that the corresponding service.resource finished successfully.
     }
 
-    public void notifyFailure(String transactionId) {
-        participantRegistry.participantFailed(transactionId);
+    public void notifyFailure(String gTransactionId) {
+        participantRegistry.participantFailed(gTransactionId);
         // the resource excepted (uncaught)
-        log.info("Callable unit excepted corresponding to global trx id : " + transactionId);
+        log.info("Callable unit excepted corresponding to global trx id : " + gTransactionId);
+    }
+
+    public void notifyFailure(String gTransactionId, String uniqueName) {
+        participantRegistry.participantFailed(gTransactionId, uniqueName);
     }
 
 }

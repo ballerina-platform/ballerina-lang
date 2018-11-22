@@ -47,13 +47,16 @@ public class ParticipantFunctionCompilerPlugin extends AbstractCompilerPlugin {
 
     @Override
     public void process(FunctionNode functionNode, List<AnnotationAttachmentNode> annotations) {
-        super.process(functionNode, annotations);
+        if (annotations.size() > 1) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, functionNode.getPosition(),
+                    "Transact-able function cannot have more than one transaction annotation");
+        }
     }
 
     @Override
     public void process(ResourceNode resourceNode, List<AnnotationAttachmentNode> annotations) {
         switch (annotations.size()) {
-            case 1:
+            case 1: // Only one transaction annotation in this resource.
                 AnnotationAttachmentNode annotationAttachmentNode = annotations.get(0);
                 validateResourceAnnotation(annotationAttachmentNode, resourceNode);
                 break;

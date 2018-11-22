@@ -18,8 +18,6 @@
 package org.ballerinalang.util.transactions;
 
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -142,8 +140,12 @@ public class LocalTransactionInfo {
         }
     }
 
-    public void notifyLocalParticipantFailure() {
-        transactionResourceManager.notifyFailure(globalTransactionId);
+    public void notifyLocalParticipantFailure(String uniqueName) {
+        transactionResourceManager.notifyFailure(globalTransactionId, uniqueName);
+    }
+
+    public void notifyLocalParticipantSuccess() {
+        transactionResourceManager.notifySuccess(globalTransactionId);
     }
 
     public boolean onTransactionEnd(int transactionBlockId) {

@@ -79,38 +79,44 @@ function initiatorFunc(boolean throw1, boolean throw2, boolean remote1, boolean 
             remoteExecuted = true;
             string blowOrNot = blowRemote1 ? "blowUp" : "Don't-blowUp";
             var resp = clientEP->post("/", blowOrNot);
-            if (!blowRemote1) { // there is no valid response when remote is excepted.
-                match (resp) {
-                    http:Response res => match (res.getTextPayload()) {
-                        string r => {
-                            log:printInfo(r);
-                            S1 = S1 + " <" + untaint r + ">";
+            match (resp) {
+                http:Response res => {
+                    log:printInfo("remote response status code: " + res.statusCode);
+                    if (res.statusCode == 500) {
+                        S1 = S1 + " remote1-blown";
+                    } else {
+                        match (res.getTextPayload()) {
+                            string r => {
+                                log:printInfo(r);
+                                S1 = S1 + " <" + untaint r + ">";
+                            }
+                            error err => log:printError(err.message);
                         }
-                        error err => log:printError(err.message);
                     }
-                    error err => log:printError(err.message);
                 }
-            } else {
-                S1 = S1 + " remote1-blown";
+                error err => log:printError(err.message);
             }
         }
         if (trx_ran_once && remoteExecuted2 == false && remote2) {
             remoteExecuted = true;
             string blowOrNot = blowRemote2 ? "blowUp" : "Don't-blowUp";
             var resp = clientEP->post("/", blowOrNot);
-            if (!blowRemote2) { // there is no valid response when remote is excepted.
-                match (resp) {
-                    http:Response res => match (res.getTextPayload()) {
-                        string r => {
-                                        log:printInfo("remote-response: " + r);
-                                        S1 = S1 + " <" + untaint r + ">";
-                                    }
-                        error err => log:printError(err.message);
+            match (resp) {
+                http:Response res => {
+                    log:printInfo("remote response status code: " + res.statusCode);
+                    if (res.statusCode == 500) {
+                        S1 = S1 + " remote2-blown";
+                    } else {
+                        match (res.getTextPayload()) {
+                            string r => {
+                                log:printInfo(r);
+                                S1 = S1 + " <" + untaint r + ">";
+                            }
+                            error err => log:printError(err.message);
+                        }
                     }
-                    error err => log:printError(err.message);
                 }
-            } else {
-                S1 = S1 + " remote2-blown";
+                error err => log:printError(err.message);
             }
         }
         if (throw1 && !thrown1) {

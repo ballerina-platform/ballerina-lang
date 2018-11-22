@@ -146,6 +146,7 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
     protected WorkerExecutionContext onError(WorkerSignal signal) {
         this.initWorkerErrors();
         WorkerExecutionContext sourceCtx = signal.getSourceContext();
+        signalTransactionError(signal);
         if (this.isFulfilled()) {
             printError(sourceCtx.getError());
         } else {
@@ -183,6 +184,8 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
             this.printStoredErrors();
             runInCallerCtx = this.onFulfillment(true);
         }
+        signalTransactionParticipantSuccess(signal);
+
         return runInCallerCtx;
     }
 
