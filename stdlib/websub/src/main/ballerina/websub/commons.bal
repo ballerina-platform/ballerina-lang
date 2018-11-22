@@ -506,9 +506,12 @@ public function startHub(string? host = (), int port, int? leaseSeconds = (), st
 public type WebSubHub object {
 
     public string hubUrl;
-    private http:Listener hubServiceEndpoint;
+    private http:Server hubServiceEndpoint;
 
-    new (hubUrl, hubServiceEndpoint) {}
+    new (string hubUrl, http:Server hubServiceEndpoint) {
+         self.hubUrl = hubUrl;
+         self.hubServiceEndpoint = hubServiceEndpoint;
+    }
 
     # Stops the started up Ballerina WebSub Hub.
     #
@@ -549,7 +552,7 @@ public type WebSubHub object {
 };
 
 function WebSubHub.stop() returns boolean {
-    self.hubServiceEndpoint.stop();
+    self.hubServiceEndpoint.__stop();
     return stopHubService(self.hubUrl);
 }
 

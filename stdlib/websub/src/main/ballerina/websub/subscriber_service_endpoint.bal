@@ -24,11 +24,11 @@ import ballerina/log;
 #
 # + config - The configuration for the endpoint
 # + serviceEndpoint - The underlying HTTP service endpoint
-public type Listener object {
+public type Server object {
 
     public SubscriberServiceEndpointConfiguration config = {};
 
-    private http:Listener serviceEndpoint;
+    private http:Server serviceEndpoint;
 
     public new (SubscriberServiceEndpointConfiguration config) {
         http:Listener httpEndpoint = new;
@@ -71,21 +71,20 @@ public type Listener object {
 
 };
 
-function Listener.init(SubscriberServiceEndpointConfiguration c) {
+function Server.init(SubscriberServiceEndpointConfiguration c) {
     self.config = c;
-    http:ServiceEndpointConfiguration serviceConfig = {
-        host: c.host, port: c.port, secureSocket: c.httpServiceSecureSocket
-    };
+    http:ServiceEndpointConfiguration serviceConfig = {host: c.host, port: c.port,
+                                                       secureSocket: c.httpServiceSecureSocket};
 
     self.serviceEndpoint.init(serviceConfig);
     self.initWebSubSubscriberServiceEndpoint();
 }
 
-function Listener.__attach(service s, map<any> data) returns error? {
+function Server.__attach(service s, map<any> data) returns error? {
     self.registerWebSubSubscriberServiceEndpoint(s, data);
 }
 
-function Listener.__start() {
+function Server.__start() {
     self.startWebSubSubscriberServiceEndpoint();
     self.sendSubscriptionRequests();
 }
@@ -260,9 +259,9 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:
 # + subscriptionDetails - Map containing subscription details
 function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth, http:SecureSocket? localSecureSocket,
                                               http:FollowRedirects? followRedirects, map subscriptionDetails) {
-    HubClientEndpointConfig websubHubClientEP =  {url:hub, clientSecureSocket: localSecureSocket, auth:auth,
+    HubClientEndpointConfig websubHubClientEPConfig =  {url:hub, clientSecureSocket: localSecureSocket, auth:auth,
                                                   followRedirects:followRedirects};
-    Client websubHubClientEP = new ();
+    Client websubHubClientEP = new (websubHubClientEPConfig);
 
     string topic = <string>subscriptionDetails.topic;
     string callback = <string>subscriptionDetails.callback;

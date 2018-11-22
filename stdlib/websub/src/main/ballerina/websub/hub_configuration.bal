@@ -53,9 +53,9 @@ const string DEFAULT_DB_PASSWORD = "";
 
 # Function to bind and start the Ballerina WebSub Hub service.
 #
-# + return - The `http:Listener` to which the service is bound
-function startHubService() returns http:Listener {
-    http:Listener hubServiceEP = new;
+# + return - The `http:Server` to which the service is bound
+function startHubService() returns http:Server {
+    http:Server hubServiceEP = new ();
     hubServiceEP.init({
             host: hubHost,
             port: hubPort,
