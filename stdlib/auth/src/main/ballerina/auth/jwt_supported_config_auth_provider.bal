@@ -14,14 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/log;
-import ballerina/runtime;
-import ballerina/time;
-import ballerina/config;
-import ballerina/crypto;
-import ballerina/internal;
-import ballerina/system;
-
 public type ConfigJwtAuthProvider object {
 
     public InferredJwtAuthProviderConfig configJwtAuthProviderConfig;
