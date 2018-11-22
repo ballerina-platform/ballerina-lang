@@ -24,12 +24,13 @@ public type Select object {
 
 
     new(nextProcessorPointer, aggregatorArr, groupbyFuncArray, selectFunc) {
+        self.aggregatorsCloneMap = {};
     }
 
     public function process(StreamEvent[] streamEvents) {
         StreamEvent[] outputStreamEvents = [];
         if (self.aggregatorArr.length() > 0) {
-            map<StreamEvent> groupedEvents;
+            map<StreamEvent> groupedEvents = {};
             foreach event in streamEvents {
 
                 if (event.eventType == RESET) {
