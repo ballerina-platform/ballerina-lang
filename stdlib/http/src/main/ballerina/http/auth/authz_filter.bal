@@ -31,7 +31,7 @@ public type AuthzFilter object {
 
     # Filter function implementation which tries to authorize the request
     #
-    # + listener - `Listener` instance that is the http endpoint
+    # + listenerObj - `Listener` instance that is the http endpoint
     # + request - `Request` instance
     # + context - `FilterContext` instance
     # + return - A flag to indicate if the request flow should be continued(true) or aborted(false), a code and a message
