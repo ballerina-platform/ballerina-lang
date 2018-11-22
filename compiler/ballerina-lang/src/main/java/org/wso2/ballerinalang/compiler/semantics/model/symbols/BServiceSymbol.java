@@ -34,4 +34,11 @@ public class BServiceSymbol extends BVarSymbol {
         this.tag = SymTag.SERVICE;
         this.objectType = obtype;
     }
+
+    // Todo - This is a temporary fix for URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD checkstyle issue. Need to remove this
+    // ones the issue is fixed.
+    @Override
+    public String toString() {
+        return super.toString() + objectType.toString();
+    }
 }
