@@ -30,7 +30,7 @@
 # + versioning - The version of the service to be used
 # + authConfig - Authentication configurations for securing the service
 public type HttpServiceConfig record {
-    Listener[] endpoints = [];
+    Server[] endpoints = [];
     string host = "b7a.default";
     string basePath = "";
     CompressionConfig compression = {};
@@ -82,7 +82,7 @@ public type Versioning record {
 #                          an `onIdleTimeout` resource in the WebSocket service.
 # + maxFrameSize - The maximum payload size of a WebSocket frame in bytes
 public type WSServiceConfig record {
-    Listener[] endpoints = [];
+    Server[] endpoints = [];
     WebSocketListener[] webSocketEndpoints = [];
     string path = "";
     string[] subProtocols = [];
