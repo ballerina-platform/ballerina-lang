@@ -102,47 +102,52 @@ public class LCovCoverageDataFormatterImpl implements CoverageDataFormatter<LCov
 
             // Calculating instrumented lines for each file
             Map<String, Integer> fileLineCoverage = new HashMap<>();
-            String[] pkgPathSlices = BLangUtils.getPkgPathSlices(entryPkgPath);
+            String[] modulePathSlices = BLangUtils.getModulePathSlices(entryPkgPath);
             entryPkgLineNumberInfo.getLineNumbers().keySet().forEach(key -> {
                 String fileName = key.split(BLangConstants.COLON)[0];
 
-                // skiping module init function Ips which comes with modulename:lineNo
+                // skipping module init function Ips which comes with modulename:lineNo
                 if (!fileName.endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
                     return;
                 }
-                String fileNameWithModule = pkgPathSlices[1] + File.separator + fileName;
+                String fileNameWithModule = modulePathSlices[1] + File.separator + fileName;
                 fileLineCoverage.put(fileNameWithModule,
                         fileLineCoverage.get(
                                 fileNameWithModule) == null ? 1 : fileLineCoverage.get(fileNameWithModule) + 1);
             });
 
-            for (ExecutedInstruction executedInstruction : executedInstructionOrderMap.get(entryPkgPath)) {
+            List<ExecutedInstruction> executedInstructionOrder = executedInstructionOrderMap.get(entryPkgPath);
+            // null check is mandatory for runtime executedInstructionOrder null scenarios.
+            // E.g. tests with invalid test group where executedInstructionOrderMap size=0
+            if (executedInstructionOrder != null) {
+                for (ExecutedInstruction executedInstruction : executedInstructionOrder) {
 
-                //TODO: init should be covered later. init has declarions and global configs for functions
-                //TODO: start should be covered later. start has declarions and global configs for services
-                if (executedInstruction.getFunctionName()
-                        .endsWith(Names.INIT_FUNCTION_SUFFIX.getValue()) ||
-                        executedInstruction.getFunctionName()
-                                .endsWith(Names.START_FUNCTION_SUFFIX.getValue()) ||
-                        executedInstruction.getFunctionName()
-                                .endsWith(Names.STOP_FUNCTION_SUFFIX.getValue())) {
-                    continue;
+                    //TODO: init should be covered later. init has declarions and global configs for functions
+                    //TODO: start should be covered later. start has declarions and global configs for services
+                    if (executedInstruction.getFunctionName()
+                            .endsWith(Names.INIT_FUNCTION_SUFFIX.getValue()) ||
+                            executedInstruction.getFunctionName()
+                                    .endsWith(Names.START_FUNCTION_SUFFIX.getValue()) ||
+                            executedInstruction.getFunctionName()
+                                    .endsWith(Names.STOP_FUNCTION_SUFFIX.getValue())) {
+                        continue;
+                    }
+
+                    // filter out the test source code Ips
+                    if (skipTestFunctionIps(executedInstruction, suite)) {
+                        continue;
+                    }
+
+                    // skipping module init function Ips which comes with modulename:lineNo
+                    LineNumberInfo lineNumberInfo = entryPkgLineNumberInfo
+                            .getLineNumberInfo(executedInstruction.getIp());
+                    if (!lineNumberInfo.getFileName().endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+                        continue;
+                    }
+
+                    populateCoverageData(executedInstruction, packageCoverageList, lineNumberInfo, fileLineCoverage,
+                            modulePathSlices);
                 }
-
-                // filter out the source code Ips
-                if (skipTestFunctionIps(executedInstruction, suite)) {
-                    continue;
-                }
-
-                // skiping module init function Ips which comes with modulename:lineNo
-                LineNumberInfo lineNumberInfo = entryPkgLineNumberInfo
-                        .getLineNumberInfo(executedInstruction.getIp());
-                if (!lineNumberInfo.getFileName().endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
-                    continue;
-                }
-
-                populateCoverageData(executedInstruction, packageCoverageList, lineNumberInfo, fileLineCoverage,
-                        pkgPathSlices);
             }
         });
 
@@ -160,12 +165,34 @@ public class LCovCoverageDataFormatterImpl implements CoverageDataFormatter<LCov
 
             skipTestFunctionIps = true;
 
+        }  else if (executedInstruction.getModulePath().equals(Names.DEFAULT_PACKAGE.getValue())) {
+            String functionName = executedInstruction.getFunctionName();
+
+            if (suite.getBeforeSuiteFunctionNames().contains(functionName) ||
+                    suite.getAfterSuiteFunctionNames().contains(functionName)) {
+                skipTestFunctionIps = true;
+            } else {
+                for (Test test : suite.getTests()) {
+                    if (functionName.equals(test.getBeforeTestFunction()) ||
+                            functionName.equals(test.getAfterTestFunction()) ||
+                            functionName.equals(test.getDataProvider())) {
+                        skipTestFunctionIps = true;
+                        break;
+                    }
+                    if (functionName.equals(test.getTestName())) {
+                        testName = functionName;
+                        skipTestFunctionIps = true;
+                        break;
+                    }
+                }
+            }
+
         } else if (executedInstruction.getFileName().startsWith("tests/")) {
 
-            String testFunctionName = executedInstruction.getFunctionName();
+            String functionName = executedInstruction.getFunctionName();
             for (Test test : suite.getTests()) {
-                if (testFunctionName.equals(test.getTestName())) {
-                    testName = testFunctionName;
+                if (functionName.equals(test.getTestName())) {
+                    testName = functionName;
                     break;
                 }
             }

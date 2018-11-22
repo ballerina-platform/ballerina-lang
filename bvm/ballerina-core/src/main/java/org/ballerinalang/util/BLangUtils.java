@@ -35,22 +35,26 @@ import java.util.ServiceLoader;
 public class BLangUtils {
 
     /**
-     * Returns string array of orgName, moduleName and moduleVersion for the given full package path.
+     * Returns string array of orgName, moduleName and moduleVersion for the given full module path.
      *
-     * @param fullPkgPath full package path
+     * @param fullModulePath full module path
      * @return string array of orgName, moduleName and moduleVersion
      */
-    public static String[] getPkgPathSlices(String fullPkgPath) {
-        String[] pkgVersionParts = fullPkgPath.split(Names.VERSION_SEPARATOR.getValue());
-        if (pkgVersionParts.length != 2) {
+    public static String[] getModulePathSlices(String fullModulePath) {
+        if (fullModulePath.equals(Names.DEFAULT_PACKAGE.getValue())) {
+            return new String[]{null, fullModulePath, null};
+        }
+
+        String[] moduleVersionParts = fullModulePath.split(Names.VERSION_SEPARATOR.getValue());
+        if (moduleVersionParts.length != 2) {
             throw new BallerinaException("Wrong module path. Format: organizationName/moduleName:moduleVersion");
         }
-        String[] pkgOrgParts = pkgVersionParts[0].split(Names.ORG_NAME_SEPARATOR.getValue());
-        if (pkgOrgParts.length != 2) {
+        String[] moduleOrgParts = moduleVersionParts[0].split(Names.ORG_NAME_SEPARATOR.getValue());
+        if (moduleOrgParts.length != 2) {
             throw new BallerinaException("Wrong module path. Format: organizationName/moduleName:moduleVersion");
         }
 
-        return new String[]{pkgOrgParts[0], pkgOrgParts[1], pkgVersionParts[1]};
+        return new String[]{moduleOrgParts[0], moduleOrgParts[1], moduleVersionParts[1]};
     }
 
     /**

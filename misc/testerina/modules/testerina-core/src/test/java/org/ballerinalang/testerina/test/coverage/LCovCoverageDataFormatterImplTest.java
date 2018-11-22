@@ -85,6 +85,7 @@ public class LCovCoverageDataFormatterImplTest {
     private void cleanup() {
         TesterinaRegistry.getInstance().setProgramFiles(new ArrayList<>());
         TesterinaRegistry.getInstance().setTestSuites(new HashMap<>());
+        CoverageManager.getInstance().getExecutedInstructionOrderMap().clear();
     }
 
 }

@@ -19,6 +19,7 @@ package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
+import org.ballerinalang.testerina.coverage.CoverageManager;
 import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
@@ -68,5 +69,6 @@ public class FunctionMockTest {
     public void cleanUp() {
         TesterinaRegistry.getInstance().setOrgName(null);
         TesterinaUtils.cleanUpDir(Paths.get(sourceRoot + "/.ballerina"));
+        CoverageManager.getInstance().getExecutedInstructionOrderMap().clear();
     }
 }

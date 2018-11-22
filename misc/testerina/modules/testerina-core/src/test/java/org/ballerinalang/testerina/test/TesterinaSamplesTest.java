@@ -20,6 +20,7 @@ package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
+import org.ballerinalang.testerina.coverage.CoverageManager;
 import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -83,6 +84,7 @@ public class TesterinaSamplesTest {
         TesterinaRegistry.getInstance().setProgramFiles(new ArrayList<>());
         TesterinaRegistry.getInstance().setTestSuites(new HashMap<>());
         TesterinaRegistry.getInstance().getInitializedPackages().clear();
+        CoverageManager.getInstance().getExecutedInstructionOrderMap().clear();
     }
 
     @AfterClass

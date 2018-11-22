@@ -27,15 +27,15 @@ import org.ballerinalang.util.codegen.LineNumberInfo;
 public class ExecutedInstruction {
 
     private int ip;
-    private String pkgPath;
+    private String modulePath;
     private String fileName;
     private String functionName;
     private LineNumberInfo lineNumberInfo;
 
-    public ExecutedInstruction(int ip, String pkgPath, String fileName, String functionName,
+    public ExecutedInstruction(int ip, String modulePath, String fileName, String functionName,
                                LineNumberInfo lineNumberInfo) {
         this.ip = ip;
-        this.pkgPath = pkgPath;
+        this.modulePath = modulePath;
         this.fileName = fileName;
         this.functionName = functionName;
         this.lineNumberInfo = lineNumberInfo;
@@ -60,21 +60,21 @@ public class ExecutedInstruction {
     }
 
     /**
-     * Getter for the executed Ip's full package path.
+     * Getter for the executed Ip's full module path.
      *
-     * @return the executed Ip's full package path
+     * @return the executed Ip's full module path
      */
-    public String getPkgPath() {
-        return pkgPath;
+    public String getModulePath() {
+        return modulePath;
     }
 
     /**
-     * Setter for the executed Ip's full package path.
+     * Setter for the executed Ip's full module path.
      *
-     * @param pkgPath the executed Ip's full package path
+     * @param modulePath the executed Ip's full module path
      */
-    public void setPkgPath(String pkgPath) {
-        this.pkgPath = pkgPath;
+    public void setModulePath(String modulePath) {
+        this.modulePath = modulePath;
     }
 
     /**
