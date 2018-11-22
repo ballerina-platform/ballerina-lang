@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
-# The Caller actions for SQL databases.
-public type CallerActions object {
+# Represents the base SQL Client
+public type Client client object {
+    *AbstractSQLClient;
 
     # The call operation implementation for SQL connector to invoke stored procedures/functions.
     #
@@ -25,27 +25,33 @@ public type CallerActions object {
     # + parameters - The parameters to be passed to the procedure/function call. The number of parameters is variable
     # + return - A `table[]` if there are tables returned by the call action and else nil,
     #            `error` will be returned if there is any error
-    public extern function call(@sensitive string sqlQuery, typedesc[]? recordType, Param... parameters)
-        returns @tainted table[]|()|error;
+    public remote function call(@sensitive string sqlQuery, typedesc[]? recordType, Param... parameters)
+        returns @tainted table[]|()|error {
+        return nativeCall(self, sqlQuery, recordType, ...parameters);
+    }
 
-    # The select operation implementation for SQL connector to select data from tables.
+    # The select operation implementation for SQL Client to select data from tables.
     #
     # + sqlQuery - SQL query to execute
     # + recordType - Type of the returned table
     # + loadToMemory - Indicates whether to load the retrieved data to memory or not
     # + parameters - The parameters to be passed to the select query. The number of parameters is variable
     # + return - A `table` returned by the sql query statement else `error` will be returned if there is any error
-    public extern function select(@sensitive string sqlQuery, typedesc? recordType, boolean loadToMemory = false,
-                                  Param... parameters) returns @tainted table|error;
+    public remote function select(@sensitive string sqlQuery, typedesc? recordType, boolean loadToMemory = false,
+    Param... parameters) returns @tainted table|error {
+        return nativeSelect(self, sqlQuery, recordType, loadToMemory = loadToMemory, ...parameters);
+    }
 
-    # The update operation implementation for SQL connector to update data and schema of the database.
+    # The update operation implementation for SQL Client to update data and schema of the database.
     #
     # + sqlQuery - SQL statement to execute
     # + parameters - The parameters to be passed to the update query. The number of parameters is variable
     # + return - `int` number of rows updated by the statement and else `error` will be returned if there is any error
-    public extern function update(@sensitive string sqlQuery, Param... parameters) returns int|error;
+    public remote function update(@sensitive string sqlQuery, Param... parameters) returns int|error {
+        return nativeUpdate(self, sqlQuery, ...parameters);
+    }
 
-    # The batchUpdate operation implementation for SQL connector to batch data insert.
+    # The batchUpdate operation implementation for SQL Client to batch data insert.
     #
     # + sqlQuery - SQL statement to execute
     # + parameters - Variable number of parameter arrays each representing the set of parameters of belonging to each
@@ -58,9 +64,11 @@ public type CallerActions object {
     #                            is unknown
     #            A value of -3 - Indicates that the command failed to execute successfully and occurs only if a driver
     #                            continues to process commands after a command fails
-    public extern function batchUpdate(@sensitive string sqlQuery, Param[]... parameters) returns int[]|error;
+    public remote function batchUpdate(@sensitive string sqlQuery, Param[]... parameters) returns int[]|error {
+        return nativeBatchUpdate(self, sqlQuery, ...parameters);
+    }
 
-    # The updateWithGeneratedKeys operation implementation for SQL connector which returns the auto
+    # The updateWithGeneratedKeys operation implementation for SQL Client which returns the auto
     # generated keys during the update action.
     #
     # + sqlQuery - SQL statement to execute
@@ -69,11 +77,28 @@ public type CallerActions object {
     # + return - A `Tuple` will be returned and would represent updated row count during the query exectuion,
     #            aray of auto generated key values during the query execution, in order.
     #            Else `error` will be returned if there is any error.
-    public extern function updateWithGeneratedKeys(@sensitive string sqlQuery, string[]? keyColumns,
-                                                   Param... parameters) returns (int, string[])|error;
+    public remote function updateWithGeneratedKeys(@sensitive string sqlQuery, string[]? keyColumns,
+       Param... parameters) returns (int, string[])|error {
+        return nativeUpdateWithGeneratedKeys(self, sqlQuery,keyColumns, ...parameters);
+    }
 };
+
+extern function nativeSelect(Client sqlClient, @sensitive string sqlQuery, typedesc? recordType,
+   boolean loadToMemory = false, Param... parameters) returns @tainted table|error;
+
+extern function nativeCall(Client sqlClient, @sensitive string sqlQuery, typedesc[]? recordType, Param... parameters)
+   returns @tainted table[]|()|error;
+
+extern function nativeUpdate(Client sqlClient, @sensitive string sqlQuery, Param... parameters) returns int|error;
+
+extern function nativeBatchUpdate(Client sqlClient, @sensitive string sqlQuery, Param[]... parameters)
+    returns int[]|error;
+
+extern function nativeUpdateWithGeneratedKeys(Client sqlClient, @sensitive string sqlQuery, string[]? keyColumns,
+    Param... parameters) returns (int, string[])|error;
 
 # An internal function used by clients to shutdown the connection pool.
 #
-# + callerActions - The CallerActions object which represents the connection pool.
-public extern function close(CallerActions callerActions);
+# + sqlClient - The Client object which represents the connection pool.
+public extern function close(Client sqlClient);
+
