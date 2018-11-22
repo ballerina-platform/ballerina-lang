@@ -397,8 +397,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         annAttachmentNode.annotationSymbol = annotationSymbol;
         if (annotationSymbol.attachPoints > 0 && !Symbols.isAttachPointPresent(annotationSymbol.attachPoints,
                 AttachPoints.asMask(annAttachmentNode.attachPoints))) {
-            String msg = String.join(",",
-                    (Iterable<String>) annAttachmentNode.attachPoints.stream().map(AttachPoint::getValue).iterator());
+            String msg = annAttachmentNode.attachPoints.stream()
+                    .map(AttachPoint::getValue)
+                    .collect(Collectors
+                    .joining(","));
             this.dlog.error(annAttachmentNode.pos, DiagnosticCode.ANNOTATION_NOT_ALLOWED,
                     annotationSymbol, msg);
         }
