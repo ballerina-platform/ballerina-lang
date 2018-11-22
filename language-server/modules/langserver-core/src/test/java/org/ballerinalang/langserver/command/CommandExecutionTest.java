@@ -172,7 +172,7 @@ public class CommandExecutionTest {
         Assert.assertEquals(responseJson, expected);
     }
 
-    @Test(dataProvider = "testgen-fail-data-provider")
+    @Test(dataProvider = "testgen-fail-data-provider", enabled = false)
     public void testTestGenerationFailCases(String config, Path source) throws IOException {
         String configJsonPath = "command" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
