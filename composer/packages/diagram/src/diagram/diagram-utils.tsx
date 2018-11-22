@@ -4,7 +4,7 @@ import * as components from "../views/index";
 
 export class DiagramUtils {
 
-    public static getComponents(nodeArray: any) {
+    public static getComponents(nodeArray: any): React.ReactNode[] {
         const children: any = [];
         nodeArray.forEach((node: any) => {
             const ChildComp = (components as any)[node.kind];
