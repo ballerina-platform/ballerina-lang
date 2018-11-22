@@ -1,5 +1,6 @@
 import { CompilationUnit, traversNode } from "@ballerina/ast-model";
 import React from "react";
+import { ViewState } from "../view-model/index";
 import { SvgCanvas } from "../views";
 import { visitor as initVisitor } from "../visitors/init-visitor";
 import { visitor as positioningVisitor } from "../visitors/positioning-visitor";
@@ -37,10 +38,15 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
         const { ast } = this.props;
         const { currentMode } = this.state;
         const children: any = [];
+        let viewState: ViewState = new ViewState(); // ToDo: fix once ast is required
 
         if (ast) {
             // Initialize AST node view state
             traversNode(ast, initVisitor);
+            // Set width and height to toplevel node.
+            viewState = ast.viewState;
+            viewState.bBox.w = this.props.width;
+            viewState.bBox.w = this.props.height;
             // Calculate dimention of AST Nodes.
             traversNode(ast, sizingVisitor);
             // Calculate positions of the AST Nodes.
@@ -57,9 +63,10 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
                     <EditToggleButton />
                     <ModeToggleButton />
                 </div>
-                <SvgCanvas>
+                <SvgCanvas model={viewState}>
                     {children}
                 </SvgCanvas>
+
             </DiagramErrorBoundary>
         </DiagramContext.Provider>;
     }
