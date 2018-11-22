@@ -37,7 +37,13 @@ public type LoadBalanceClient client object {
     # + loadBalanceClientsArray - Array of HTTP clients for load balancing
     # + lbRule - Load balancing rule
     # + failover - Whether to fail over in case of a failure
-    public new(loadBalanceClientConfig, loadBalanceClientsArray, lbRule, failover) {}
+    public function __init(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig,
+                                        Client[] loadBalanceClientsArray, LoadBalancerRule lbRule, boolean failover) {
+        self.loadBalanceClientConfig = loadBalanceClientConfig;
+        self.loadBalanceClientsArray = loadBalanceClientsArray;
+        self.lbRule = lbRule;
+        self.failover = failover;
+    }
 
     # The initialization function for the load balance client endpoint.
     #
