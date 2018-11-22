@@ -19,7 +19,7 @@
 package org.ballerinalang.testerina.util;
 
 /**
- * Constants for testerina
+ * Constants for testerina.
  *
  * @since 0.985
  */

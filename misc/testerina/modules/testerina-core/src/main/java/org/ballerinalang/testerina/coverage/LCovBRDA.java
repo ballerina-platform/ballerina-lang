@@ -18,7 +18,7 @@
 package org.ballerinalang.testerina.coverage;
 
 /**
- * Lcov formatted branch coverage data info holder
+ * Lcov formatted branch coverage data info holder.
  *
  * @since 0.985.0
  */
