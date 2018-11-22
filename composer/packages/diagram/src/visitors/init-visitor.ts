@@ -16,4 +16,8 @@ export const visitor: Visitor = {
         }
     },
 
+    beginVisitCompilationUnit(node: ASTNode) {
+        // view state will be set by the diagram component.
+    }
+
 };

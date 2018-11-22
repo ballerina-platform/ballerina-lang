@@ -1,7 +1,8 @@
 import * as React from "react";
-import { ViewState } from "../../view-model/index";
+import { CompilationUnitViewState } from "../../view-model/index";
 
-export const SvgCanvas: React.StatelessComponent<{ model: ViewState }> = ({ model, children }) => {
+export const SvgCanvas: React.StatelessComponent<{ model: CompilationUnitViewState }>
+    = ({ model, children }) => {
 
     return <svg
         className="ballerina-diagram"
