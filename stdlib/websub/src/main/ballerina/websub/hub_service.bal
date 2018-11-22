@@ -273,7 +273,7 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
 # + params - Parameters specified in the new subscription/unsubscription request
 function verifyIntentAndAddSubscription(string callback, string topic, map<string> params) {
     http:ClientEndpointConfig callbackEp = {url:callback, secureSocket: hubClientSecureSocket};
-    http:Client callbackEp = new (callbackEp);
+    http:Client callbackEp = new http:Client(callbackEp);
     string mode = params[HUB_MODE] ?: "";
     string strLeaseSeconds = params[HUB_LEASE_SECONDS] ?: "";
     int leaseSeconds = <int>strLeaseSeconds but {error => 0};
@@ -355,7 +355,7 @@ function changeTopicRegistrationInDatabase(string mode, string topic) {
     h2:ClientEndpointConfig subscriptionDbEpConfig = { path: hubDatabaseDirectory, name: hubDatabaseName,
                                                   username: hubDatabaseUsername, password: hubDatabasePassword,
                                                   poolOptions: { maximumPoolSize:5 }};
-    h2:Client subscriptionDbEp = new (subscriptionDbEpConfig);
+    h2:Client subscriptionDbEp = new h2:Client(subscriptionDbEpConfig);
 
     sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:topic};
     if (mode == MODE_REGISTER) {
@@ -386,7 +386,7 @@ function changeSubscriptionInDatabase(string mode, SubscriptionDetails subscript
     h2:ClientEndpointConfig subscriptionDbEpConfig = { path: hubDatabaseDirectory, name: hubDatabaseName,
                                                        username: hubDatabaseUsername, password: hubDatabasePassword,
                                                        poolOptions: { maximumPoolSize:5}};
-    h2:Client subscriptionDbEp = new (subscriptionDbEpConfig);
+    h2:Client subscriptionDbEp = new h2:Client(subscriptionDbEpConfig);
 
     sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:subscriptionDetails.topic};
     sql:Parameter para2 = {sqlType:sql:TYPE_VARCHAR, value:subscriptionDetails.callback};
@@ -432,7 +432,7 @@ function addTopicRegistrationsOnStartup() {
     h2:ClientEndpointConfig subscriptionDbEpConfig = { path: hubDatabaseDirectory, name: hubDatabaseName,
                                                        username: hubDatabaseUsername, password: hubDatabasePassword,
                                                        poolOptions: { maximumPoolSize:5}};
-    h2:Client subscriptionDbEp = new (subscriptionDbEpConfig);
+    h2:Client subscriptionDbEp = new h2:Client(subscriptionDbEpConfig);
     var dbResult = subscriptionDbEp->select("SELECT * FROM topics", TopicRegistration);
     if (dbResult is table) {
         table dt = dbResult;
@@ -461,7 +461,7 @@ function addSubscriptionsOnStartup() {
     h2:ClientEndpointConfig subscriptionDbEpConfig = { path: hubDatabaseDirectory, name: hubDatabaseName,
                                                        username: hubDatabaseUsername, password: hubDatabasePassword,
                                                        poolOptions: { maximumPoolSize:5}};
-    h2:Client subscriptionDbEp = new (subscriptionDbEpConfig);
+    h2:Client subscriptionDbEp = new h2:Client(subscriptionDbEpConfig);
 
     int time = time:currentTime().time;
     sql:Parameter para1 = {sqlType:sql:TYPE_BIGINT, value:time};
@@ -492,7 +492,7 @@ function clearSubscriptionDataInDb() {
     h2:ClientEndpointConfig subscriptionDbEpConfig = { path: hubDatabaseDirectory, name: hubDatabaseName,
                                                        username: hubDatabaseUsername, password: hubDatabasePassword,
                                                        poolOptions: { maximumPoolSize:5}};
-    h2:Client subscriptionDbEp = new (subscriptionDbEpConfig);
+    h2:Client subscriptionDbEp = new h2:Client(subscriptionDbEpConfig);
 
     var dbResult = subscriptionDbEp->update("DELETE FROM subscriptions");
     if (dbResult is error) {
@@ -516,7 +516,7 @@ function clearSubscriptionDataInDb() {
 #            `error` if an HTTP error occurred
 function fetchTopicUpdate(string topic) returns http:Response|error {
     http:ClientEndpointConfig topicEpConfig = {url:topic, secureSocket: hubClientSecureSocket};
-    http:Client topicEp = new (topicEpConfig);
+    http:Client topicEp = new http:Client(topicEpConfig);
     http:Request request = new;
 
     var fetchResponse = topicEp->get("", message = request);
@@ -532,7 +532,7 @@ function fetchTopicUpdate(string topic) returns http:Response|error {
 function distributeContent(string callback, SubscriptionDetails subscriptionDetails, WebSubContent webSubContent)
 returns error? {
     http:ClientEndpointConfig callbackEpConfig  = {url:callback, secureSocket: hubClientSecureSocket};
-    http:Client callbackEp = new (callbackEpConfig);
+    http:Client callbackEp = new http:Client(callbackEpConfig);
     http:Request request = new;
     request.setPayload(webSubContent.payload);
     check request.setContentType(webSubContent.contentType);

@@ -57,7 +57,7 @@ const string DEFAULT_DB_PASSWORD = "";
 function startHubService() returns http:Server {
     http:ServiceEndpointConfiguration httpEpConfig = {host: hubHost, port: hubPort,
                                                       secureSocket: hubServiceSecureSocket};
-    http:Server hubServiceEP = new (httpEpConfig);
+    http:Server hubServiceEP = new http:Server(httpEpConfig);
     hubServiceEP.__attach(hubService, {});
     hubServiceEP.__start();
     return hubServiceEP;

@@ -225,7 +225,7 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:
 
     http:ClientEndpointConfig resourceEPConfig = {url:resourceUrl, auth:auth, secureSocket: localSecureSocket,
                                                   followRedirects:followRedirects};
-    http:Client resourceEP = new (resourceEPConfig);
+    http:Client resourceEP = new http:Client(resourceEPConfig);
 
     http:Request request = new;
     var discoveryResponse = resourceEP->get("", message = request);
@@ -257,7 +257,7 @@ function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth,
                                               http:FollowRedirects? followRedirects, map subscriptionDetails) {
     HubClientEndpointConfig websubHubClientEPConfig =  {url:hub, clientSecureSocket: localSecureSocket, auth:auth,
                                                   followRedirects:followRedirects};
-    Client websubHubClientEP = new (websubHubClientEPConfig);
+    Client websubHubClientEP = new Client(websubHubClientEPConfig);
 
     string topic = <string>subscriptionDetails.topic;
     string callback = <string>subscriptionDetails.callback;
