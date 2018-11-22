@@ -18,14 +18,14 @@ import ballerina/grpc;
 import ballerina/io;
 
 function testUnarySecuredBlockingWithCerts(string path) returns (string) {
-    endpoint grpcMutualSslServiceBlockingClient helloWorldBlockingEp {
+    grpcMutualSslServiceBlockingClient helloWorldBlockingEp = new ({
         url:"https://localhost:9317",
         secureSocket:{
             keyFile: path + "/private.key",
             certFile: path + "/public.crt",
             trustedCertFile: path + "/public.crt"
         }
-    };
+    });
 
     (string, grpc:Headers)|error unionResp = helloWorldBlockingEp->hello("WSO2");
     if (unionResp is error) {
@@ -39,90 +39,50 @@ function testUnarySecuredBlockingWithCerts(string path) returns (string) {
         return result;
     }
 }
-// This is an auto generated client stub which is used to communicate between gRPC client.
-public type grpcMutualSslServiceBlockingStub object {
-    public grpc:Client clientEndpoint = new;
-    public grpc:Stub stub = new;
 
-    function initStub (grpc:Client ep) {
-        grpc:Stub navStub = new;
-        error? result = navStub.initStub(ep, "blocking", DESCRIPTOR_KEY, descriptorMap);
+public type grpcMutualSslServiceBlockingClient client object {
+    public grpc:Client grpcClient = new;
+
+    new (grpc:ClientEndpointConfig config) {
+        // initialize client endpoint.
+        grpc:Client c = new;
+        c.init(config);
+        error? result = c.initStub("blocking", DESCRIPTOR_KEY, descriptorMap);
         if (result is error) {
             panic result;
         } else {
-            self.stub = navStub;
+            self.grpcClient = c;
         }
     }
 
-    function hello (string req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
+    remote function hello (string req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
 
-        var unionResp = check self.stub.blockingExecute("grpcservices.grpcMutualSslService/hello", req, headers = headers);
+        var unionResp = check self.grpcClient->blockingExecute("grpcservices.grpcMutualSslService/hello", req, headers = headers);
         grpc:Headers resHeaders = new;
         any result = ();
         (result, resHeaders) = unionResp;
         return (<string>result, resHeaders);
     }
-
 };
 
-public type grpcMutualSslServiceStub object {
-    public grpc:Client clientEndpoint = new;
-    public grpc:Stub stub = new;
+public type grpcMutualSslServiceClient client object {
+    public grpc:Client grpcClient = new;
 
-    function initStub (grpc:Client ep) {
-        grpc:Stub navStub = new;
-        error? result = navStub.initStub(ep, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
+    new (grpc:ClientEndpointConfig config) {
+        // initialize client endpoint.
+        grpc:Client c = new;
+        c.init(config);
+        error? result = c.initStub("non-blocking", DESCRIPTOR_KEY, descriptorMap);
         if (result is error) {
             panic result;
         } else {
-            self.stub = navStub;
+            self.grpcClient = c;
         }
     }
 
     function hello (string req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
 
-        return self.stub.nonBlockingExecute("grpcservices.grpcMutualSslService/hello", req, listener, headers = headers);
-    }
-
-};
-
-public type grpcMutualSslServiceBlockingClient object {
-    public grpc:Client client = new;
-    public grpcMutualSslServiceBlockingStub stub = new;
-
-    public function init (grpc:ClientEndpointConfig config) {
-        // initialize client endpoint.
-        grpc:Client c = new;
-        c.init(config);
-        self.client = c;
-        // initialize service stub.
-        grpcMutualSslServiceBlockingStub s = new;
-        s.initStub(c);
-        self.stub = s;
-    }
-
-    public function getCallerActions () returns grpcMutualSslServiceBlockingStub {
-        return self.stub;
-    }
-};
-
-public type grpcMutualSslServiceClient object {
-    public grpc:Client client = new;
-    public grpcMutualSslServiceStub stub = new;
-
-    public function init (grpc:ClientEndpointConfig config) {
-        // initialize client endpoint.
-        grpc:Client c = new;
-        c.init(config);
-        self.client = c;
-        // initialize service stub.
-        grpcMutualSslServiceStub s = new;
-        s.initStub(c);
-        self.stub = s;
-    }
-
-    public function getCallerActions () returns grpcMutualSslServiceStub {
-        return self.stub;
+        return self.grpcClient->nonBlockingExecute("grpcservices.grpcMutualSslService/hello", req, listener, headers = headers);
     }
 };
 

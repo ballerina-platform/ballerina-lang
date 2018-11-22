@@ -21,11 +21,11 @@ string response = "";
 int total = 0;
 function testClientStreaming(string[] args) returns (string) {
     // Client endpoint configuration
-    endpoint HelloWorldClient helloWorldEp {
+    HelloWorldClient helloWorldEp = new ({
         url:"http://localhost:9096"
-    };
+    });
 
-    endpoint grpc:Client ep;
+    grpc:StreamingClient ep;
     // Executing unary non-blocking call registering server message listener.
     var res = helloWorldEp->lotsOfGreetings(HelloWorldMessageListener);
     if (res is error) {
@@ -79,49 +79,25 @@ service<grpc:Service> HelloWorldMessageListener {
     }
 }
 
-// Non-blocking client
-public type HelloWorldStub object {
-
-    public grpc:Client clientEndpoint = new;
-    public grpc:Stub stub = new;
-
-
-    function initStub(grpc:Client ep) {
-        grpc:Stub navStub = new;
-        error? result = navStub.initStub(ep, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
-        if (result is error) {
-            panic result;
-        } else {
-            self.stub = navStub;
-        }
-    }
-
-    function lotsOfGreetings(typedesc listener, grpc:Headers? headers = ()) returns (grpc:Client|error) {
-        return self.stub.streamingExecute("grpcservices.HelloWorld7/lotsOfGreetings", listener, headers = headers);
-    }
-};
-
-
 // Non-blocking client endpoint
-public type HelloWorldClient object {
+public type HelloWorldClient client object {
 
-    public grpc:Client client = new;
-    public HelloWorldStub stub = new;
+    private grpc:Client grpcClient = new;
 
-
-    public function init(grpc:ClientEndpointConfig con) {
+    new (grpc:ClientEndpointConfig con) {
         // initialize client endpoint.
         grpc:Client c = new;
         c.init(con);
-        self.client = c;
-        // initialize service stub.
-        HelloWorldStub s = new;
-        s.initStub(c);
-        self.stub = s;
-    }
+        error? result = c.initStub("non-blocking", DESCRIPTOR_KEY, descriptorMap);
+        if (result is error) {
+            panic result;
+        } else {
+            self.grpcClient = c;
+        }
+    };
 
-    public function getCallerActions() returns (HelloWorldStub) {
-        return self.stub;
+    remote function lotsOfGreetings(typedesc listener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|error) {
+        return self.grpcClient->streamingExecute("grpcservices.HelloWorld7/lotsOfGreetings", listener, headers = headers);
     }
 };
 

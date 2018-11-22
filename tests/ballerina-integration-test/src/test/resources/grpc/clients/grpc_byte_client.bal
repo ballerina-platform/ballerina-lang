@@ -18,9 +18,9 @@ import ballerina/io;
 import ballerina/grpc;
 
 function testByteArray() returns (string) {
-    endpoint byteServiceBlockingClient blockingEp {
+    byteServiceBlockingClient blockingEp  = new ({
         url:"http://localhost:8557"
-    };
+    });
     string statement = "Lion in Town.";
     byte[] bytes = statement.toByteArray("UTF-8");
     var addResponse = blockingEp->checkBytes(bytes);
@@ -34,23 +34,23 @@ function testByteArray() returns (string) {
     }
 }
 
-// This is an auto generated code segment of the client stub.
-public type byteServiceBlockingStub object {
-    public grpc:Client clientEndpoint = new;
-    public grpc:Stub stub = new;
+public type byteServiceBlockingClient client object {
+    public grpc:Client grpcClient = new;
 
-    function initStub (grpc:Client ep) {
-        grpc:Stub navStub = new;
-        error? result = navStub.initStub(ep, "blocking", DESCRIPTOR_KEY, descriptorMap);
+    new (grpc:ClientEndpointConfig config) {
+        // initialize client endpoint.
+        grpc:Client c = new;
+        c.init(config);
+        error? result = c.initStub("blocking", DESCRIPTOR_KEY, descriptorMap);
         if (result is error) {
             panic result;
         } else {
-            self.stub = navStub;
+            self.grpcClient = c;
         }
     }
 
-    function checkBytes (byte[] req, grpc:Headers? headers = ()) returns ((byte[], grpc:Headers)|error) {
-        var unionResp = check self.stub.blockingExecute("grpcservices.byteService/checkBytes", req, headers = headers);
+    remote function checkBytes (byte[] req, grpc:Headers? headers = ()) returns ((byte[], grpc:Headers)|error) {
+        var unionResp = check self.grpcClient->blockingExecute("grpcservices.byteService/checkBytes", req, headers = headers);
         grpc:Headers resHeaders = new;
         any result = ();
         (result, resHeaders) = unionResp;
@@ -58,62 +58,23 @@ public type byteServiceBlockingStub object {
     }
 };
 
-public type byteServiceStub object {
-    public grpc:Client clientEndpoint = new;
-    public grpc:Stub stub = new;
+public type byteServiceClient client object {
+    public grpc:Client grpcClient = new;
 
-    function initStub (grpc:Client ep) {
-        grpc:Stub navStub = new;
-        error? result = navStub.initStub(ep, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
+    new (grpc:ClientEndpointConfig config) {
+        // initialize client endpoint.
+        grpc:Client c = new;
+        c.init(config);
+        error? result = c.initStub("non-blocking", DESCRIPTOR_KEY, descriptorMap);
         if (result is error) {
             panic result;
         } else {
-            self.stub = navStub;
+            self.grpcClient = c;
         }
     }
 
-    function checkBytes (byte[] req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
-        return self.stub.nonBlockingExecute("grpcservices.byteService/checkBytes", req, listener, headers = headers);
-    }
-};
-
-public type byteServiceBlockingClient object {
-    public grpc:Client client = new;
-    public byteServiceBlockingStub stub = new;
-
-    public function init (grpc:ClientEndpointConfig config) {
-        // initialize client endpoint.
-        grpc:Client c = new;
-        c.init(config);
-        self.client = c;
-        // initialize service stub.
-        byteServiceBlockingStub s = new;
-        s.initStub(c);
-        self.stub = s;
-    }
-
-    public function getCallerActions () returns byteServiceBlockingStub {
-        return self.stub;
-    }
-};
-
-public type byteServiceClient object {
-    public grpc:Client client = new;
-    public byteServiceStub stub = new;
-
-    public function init (grpc:ClientEndpointConfig config) {
-        // initialize client endpoint.
-        grpc:Client c = new;
-        c.init(config);
-        self.client = c;
-        // initialize service stub.
-        byteServiceStub s = new;
-        s.initStub(c);
-        self.stub = s;
-    }
-
-    public function getCallerActions () returns byteServiceStub {
-        return self.stub;
+    remote function checkBytes (byte[] req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
+        return self.grpcClient->nonBlockingExecute("grpcservices.byteService/checkBytes", req, listener, headers = headers);
     }
 };
 
