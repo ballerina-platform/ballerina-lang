@@ -72,8 +72,7 @@ public type Socket object {
 # Represents a TCP server socket.
 public type ServerSocket object {
 
-    public function __init
-() {
+    public function __init() {
         self.init();
     }
 
