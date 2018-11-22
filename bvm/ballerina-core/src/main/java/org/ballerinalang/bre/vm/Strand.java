@@ -20,6 +20,8 @@ package org.ballerinalang.bre.vm;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.util.codegen.ProgramFile;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -47,11 +49,14 @@ public class Strand {
 
     private BError error;
 
+    public Map<String, Object> globalProps;
+
     public Strand(ProgramFile programFile, StrandCallback respCallback) {
         this.programFile = programFile;
         this.respCallback = respCallback;
         this.callStack = new StackFrame[DEFAULT_CONTROL_STACK_SIZE];
         this.state = State.NEW;
+        this.globalProps = new HashMap<>();
     }
 
     public StackFrame pushFrame(StackFrame frame) {

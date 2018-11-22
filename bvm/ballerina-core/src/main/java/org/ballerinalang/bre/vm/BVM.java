@@ -456,16 +456,16 @@ public class BVM {
 //                    }
                         break;
                     case InstructionCodes.CHNRECEIVE:
-//                    InstructionCHNReceive chnReceiveIns = (InstructionCHNReceive) instruction;
-//                    if (!handleCHNReceive(ctx, chnReceiveIns.channelName, chnReceiveIns.receiverType,
-//                            chnReceiveIns.receiverReg, chnReceiveIns.keyType, chnReceiveIns.keyReg)) {
-//                        return;
-//                    }
+                    Instruction.InstructionCHNReceive chnReceiveIns = (Instruction.InstructionCHNReceive) instruction;
+                    if (!handleCHNReceive(strand, chnReceiveIns.channelName, chnReceiveIns.receiverType,
+                            chnReceiveIns.receiverReg, chnReceiveIns.keyType, chnReceiveIns.keyReg)) {
+                        return;
+                    }
                         break;
                     case InstructionCodes.CHNSEND:
-//                    InstructionCHNSend chnSendIns = (InstructionCHNSend) instruction;
-//                    handleCHNSend(ctx, chnSendIns.channelName, chnSendIns.dataType,
-//                            chnSendIns.dataReg, chnSendIns.keyType, chnSendIns.keyReg);
+                    Instruction.InstructionCHNSend chnSendIns = (Instruction.InstructionCHNSend) instruction;
+                    handleCHNSend(strand, chnSendIns.channelName, chnSendIns.dataType, chnSendIns.dataReg,
+                                  chnSendIns.keyType, chnSendIns.keyReg);
                         break;
                     case InstructionCodes.PANIC:
                         i = operands[0];
@@ -1069,28 +1069,30 @@ public class BVM {
      * @param keyType     Type of message key
      * @param keyReg      message key registry index
      */
-    private static void handleCHNSend(WorkerExecutionContext ctx, String channelName, BType dataType, int dataReg,
-                                      BType keyType, int keyReg) {
+    private static void handleCHNSend(Strand ctx, String channelName, BType dataType, int dataReg, BType keyType,
+                                      int keyReg) {
         BRefType keyVal = null;
         if (keyType != null) {
-            keyVal = extractValue(ctx.workerLocal, keyType, keyReg);
+            keyVal = extractValue(ctx.currentFrame, keyType, keyReg);
         }
-        BRefType dataVal = extractValue(ctx.workerLocal, dataType, dataReg);
+        BRefType dataVal = extractValue(ctx.currentFrame, dataType, dataReg);
         ChannelRegistry.PendingContext pendingCtx = ChannelManager.channelSenderAction(channelName, keyVal, dataVal,
                 keyType, dataType);
         if (pendingCtx != null) {
             //inject the value to the ctx
-            copyArgValueForWorkerReceive(pendingCtx.context.workerLocal, pendingCtx.regIndex, dataType, dataVal);
-            if (pendingCtx.context.interruptible) {
-                String stateId = (String) pendingCtx.context.globalProps.get(STATE_ID);
-                PersistenceStore.persistState(new State(pendingCtx.context, stateId, pendingCtx.context.ip + 1));
-            }
-            BLangScheduler.resume(pendingCtx.context);
+            copyArgValueForWorkerReceive(ctx.currentFrame, pendingCtx.regIndex, dataType, dataVal);
+            // TODO fix - rajith
+//            if (pendingCtx.context.interruptible) {
+//                String stateId = (String) pendingCtx.context.globalProps.get(STATE_ID);
+//                PersistenceStore.persistState(new State(pendingCtx.context, stateId, pendingCtx.context.fp + 1));
+//            }
+            BVMScheduler.schedule(ctx);
         }
-        if (ctx.interruptible) {
-            String stateId = (String) ctx.globalProps.get(STATE_ID);
-            PersistenceStore.persistState(new State(ctx, stateId, ctx.ip + 1));
-        }
+           // TODO fix - rajith
+//        if (ctx.interruptible) {
+//            String stateId = (String) ctx.globalProps.get(STATE_ID);
+//            PersistenceStore.persistState(new State(ctx, stateId, ctx.fp + 1));
+//        }
     }
 
     /**
@@ -1105,20 +1107,21 @@ public class BVM {
      * @param keyIndex     message key registry index
      * @return true if a matching value is available
      */
-    private static boolean handleCHNReceive(WorkerExecutionContext ctx, String channelName, BType receiverType,
+    private static boolean handleCHNReceive(Strand ctx, String channelName, BType receiverType,
                                             int receiverReg, BType keyType, int keyIndex) {
         BValue keyVal = null;
         if (keyType != null) {
-            keyVal = extractValue(ctx.workerLocal, keyType, keyIndex);
+            keyVal = extractValue(ctx.currentFrame, keyType, keyIndex);
         }
         BValue value = ChannelManager.channelReceiverAction(channelName, keyVal, keyType, ctx, receiverReg,
                 receiverType);
         if (value != null) {
-            copyArgValueForWorkerReceive(ctx.workerLocal, receiverReg, receiverType, (BRefType) value);
-            if (ctx.interruptible) {
-                String stateId = (String) ctx.globalProps.get(STATE_ID);
-                PersistenceStore.persistState(new State(ctx, stateId, ctx.ip + 1));
-            }
+            copyArgValueForWorkerReceive(ctx.currentFrame, receiverReg, receiverType, (BRefType) value);
+                // TODO fix - rajith
+//            if (ctx.interruptible) {
+//                String stateId = (String) ctx.globalProps.get(STATE_ID);
+//                PersistenceStore.persistState(new State(ctx, stateId, ctx.fp + 1));
+//            }
             return true;
         }
 
@@ -3202,35 +3205,35 @@ public class BVM {
 
     private static void handleWorkerSend(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo,
                                          BType type, int reg) {
-        BRefType val = extractValue(ctx.workerLocal, type, reg);
-        WorkerDataChannel dataChannel = getWorkerChannel(ctx, workerDataChannelInfo.getChannelName());
-        dataChannel.putData(val);
+//        BRefType val = extractValue(ctx.workerLocal, type, reg);
+//        WorkerDataChannel dataChannel = getWorkerChannel(ctx, workerDataChannelInfo.getChannelName());
+//        dataChannel.putData(val);
     }
 
     private static WorkerDataChannel getWorkerChannel(WorkerExecutionContext ctx, String name) {
         return ctx.respCtx.getWorkerDataChannel(name);
     }
 
-    private static BRefType extractValue(WorkerData data, BType type, int reg) {
+    private static BRefType extractValue(StackFrame sf, BType type, int reg) {
         BRefType result;
         switch (type.getTag()) {
             case TypeTags.INT_TAG:
-                result = new BInteger(data.longRegs[reg]);
+                result = new BInteger(sf.longRegs[reg]);
                 break;
             case TypeTags.BYTE_TAG:
-                result = new BByte((byte) data.intRegs[reg]);
+                result = new BByte((byte) sf.intRegs[reg]);
                 break;
             case TypeTags.FLOAT_TAG:
-                result = new BFloat(data.doubleRegs[reg]);
+                result = new BFloat(sf.doubleRegs[reg]);
                 break;
             case TypeTags.STRING_TAG:
-                result = new BString(data.stringRegs[reg]);
+                result = new BString(sf.stringRegs[reg]);
                 break;
             case TypeTags.BOOLEAN_TAG:
-                result = new BBoolean(data.intRegs[reg] > 0);
+                result = new BBoolean(sf.intRegs[reg] > 0);
                 break;
             default:
-                result = data.refRegs[reg];
+                result = sf.refRegs[reg];
         }
         return result;
     }
@@ -3241,14 +3244,14 @@ public class BVM {
                 ctx, workerDataChannelInfo.getChannelName()).tryTakeData(ctx);
         if (passedInValue != null) {
             WorkerData currentFrame = ctx.workerLocal;
-            copyArgValueForWorkerReceive(currentFrame, reg, type, passedInValue.value);
+//            copyArgValueForWorkerReceive(currentFrame, reg, type, passedInValue.value);
             return true;
         } else {
             return false;
         }
     }
 
-    public static void copyArgValueForWorkerReceive(WorkerData currentSF, int regIndex, BType paramType,
+    public static void copyArgValueForWorkerReceive(StackFrame currentSF, int regIndex, BType paramType,
                                                     BRefType passedInValue) {
         switch (paramType.getTag()) {
             case TypeTags.INT_TAG:
