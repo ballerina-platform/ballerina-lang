@@ -714,6 +714,68 @@ function testBooleanInUnionAsBoolean() returns (boolean, boolean) {
     return(ft1, ft2);
 }
 
+function testNaNFloatAsInt() {
+    float f = 0.0/0;
+    int i = <int> f;
+}
+
+function testInfiniteFloatAsInt() {
+    float f = 1.0/0;
+    int i = <int> f;
+}
+
+function testOutOfIntRangePositiveFloatAsInt() {
+    float f = 9223372036854775807.5;
+    int i = <int> f;
+}
+
+function testOutOfIntRangeNegativeFloatAsInt() {
+    float f = -9223372036854775807.6;
+    int i = <int> f;
+}
+
+function testNaNFloatInUnionAsInt() {
+    float|int f = 0.0/0;
+    int i = <int> f;
+}
+
+function testInfiniteInUnionFloatAsInt() {
+    boolean|float f = 1.0/0;
+    int i = <int> f;
+}
+
+function testOutOfIntRangePositiveFloatInUnionAsInt() {
+    any f = 99223372036854775807.0;
+    int i = <int> f;
+}
+
+function testOutOfIntRangeNegativeFloatInUnionAsInt() {
+    anydata f = -81223372036854775807.0;
+    int i = <int> f;
+}
+
+function testOutOfIntRangePositiveDecimalAsInt() {
+    decimal f = 9223372036854775807.5;
+    int i = <int> f;
+}
+
+function testOutOfIntRangeNegativeDecimalAsInt() {
+    decimal f = -9323372036854775807.6;
+    int i = <int> f;
+}
+
+function testOutOfIntRangePositiveDecimalInUnionAsInt() {
+    decimal d = 99223372036854775807.0;
+    decimal|int f = d;
+    int i = <int> f;
+}
+
+function testOutOfIntRangeNegativeDecimalInUnionAsInt() {
+    decimal d = -81223372036854775807.0;
+    anydata f = d;
+    int i = <int> f;
+}
+
 function getString(string s) returns string {
     return s;
 }

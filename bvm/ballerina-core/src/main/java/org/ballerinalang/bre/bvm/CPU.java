@@ -146,6 +146,10 @@ import java.util.stream.LongStream;
 import static org.ballerinalang.runtime.Constants.STATE_ID;
 import static org.ballerinalang.util.BLangConstants.BBYTE_MAX_VALUE;
 import static org.ballerinalang.util.BLangConstants.BBYTE_MIN_VALUE;
+import static org.ballerinalang.util.BLangConstants.BINT_MAX_VALUE_BIG_DECIMAL_RANGE_MAX;
+import static org.ballerinalang.util.BLangConstants.BINT_MAX_VALUE_DOUBLE_RANGE_MAX;
+import static org.ballerinalang.util.BLangConstants.BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN;
+import static org.ballerinalang.util.BLangConstants.BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
 import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
 
 /**
@@ -2443,22 +2447,27 @@ public class CPU {
             return;
         }
 
-        switch (targetTag) {
-            case TypeTags.STRING_TAG:
-                sf.stringRegs[regIndex] = bRefTypeValue.stringValue();
-                break;
-            case TypeTags.FLOAT_TAG:
-                sf.doubleRegs[regIndex] = ((BValueType) bRefTypeValue).floatValue();
-                break;
-            case TypeTags.DECIMAL_TAG:
-                sf.refRegs[regIndex] = new BDecimal(((BValueType) bRefTypeValue).decimalValue());
-                break;
-            case TypeTags.INT_TAG:
-                sf.longRegs[regIndex] = ((BValueType) bRefTypeValue).intValue();
-                break;
-            case TypeTags.BOOLEAN_TAG:
-                sf.intRegs[regIndex] = ((BValueType) bRefTypeValue).booleanValue() ? 1 : 0;
-                break;
+        try {
+            switch (targetTag) {
+                case TypeTags.STRING_TAG:
+                    sf.stringRegs[regIndex] = bRefTypeValue.stringValue();
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    sf.doubleRegs[regIndex] = ((BValueType) bRefTypeValue).floatValue();
+                    break;
+                case TypeTags.DECIMAL_TAG:
+                    sf.refRegs[regIndex] = new BDecimal(((BValueType) bRefTypeValue).decimalValue());
+                    break;
+                case TypeTags.INT_TAG:
+                    sf.longRegs[regIndex] = ((BValueType) bRefTypeValue).intValue();
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    sf.intRegs[regIndex] = ((BValueType) bRefTypeValue).booleanValue() ? 1 : 0;
+                    break;
+            }
+        } catch (BallerinaException e) {
+            ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+            handleError(ctx);
         }
     }
 
@@ -2509,7 +2518,22 @@ public class CPU {
             case InstructionCodes.F2I:
                 i = operands[0];
                 j = operands[1];
-                sf.longRegs[j] = Math.round(sf.doubleRegs[i]);
+                double valueToConvert = sf.doubleRegs[i];
+                if (Double.isNaN(valueToConvert) || Double.isInfinite(valueToConvert)) {
+                    ctx.setError(BLangVMErrors.createError(ctx, "'float' value '" + valueToConvert + "' cannot be " +
+                            "converted to 'int'"));
+                    handleError(ctx);
+                    break;
+                }
+
+                if (!isFloatWithinIntRange(valueToConvert)) {
+                    ctx.setError(BLangVMErrors.createError(ctx, "out of range 'float' value '" + valueToConvert + "'" +
+                            " cannot be converted to 'int'"));
+                    handleError(ctx);
+                    break;
+                }
+
+                sf.longRegs[j] = Math.round(valueToConvert);
                 break;
             case InstructionCodes.F2S:
                 i = operands[0];
@@ -2589,6 +2613,12 @@ public class CPU {
             case InstructionCodes.D2I:
                 i = operands[0];
                 j = operands[1];
+                if (!isDecimalWithinIntRange(((BDecimal) sf.refRegs[i]).decimalValue())) {
+                    ctx.setError(BLangVMErrors.createError(ctx, "out of range 'decimal' value '" +
+                            sf.refRegs[i] + "' cannot be converted to 'int'"));
+                    handleError(ctx);
+                    break;
+                }
                 sf.longRegs[j] = Math.round(((BDecimal) sf.refRegs[i]).decimalValue().doubleValue());
                 break;
             case InstructionCodes.D2F:
@@ -2686,6 +2716,15 @@ public class CPU {
 
     public static boolean isByteLiteral(long longValue) {
         return (longValue >= BBYTE_MIN_VALUE && longValue <= BBYTE_MAX_VALUE);
+    }
+
+    public static boolean isFloatWithinIntRange(double doubleValue) {
+        return doubleValue < BINT_MAX_VALUE_DOUBLE_RANGE_MAX && doubleValue > BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
+    }
+
+    public static boolean isDecimalWithinIntRange(BigDecimal decimalValue) {
+        return decimalValue.compareTo(BINT_MAX_VALUE_BIG_DECIMAL_RANGE_MAX) == -1 &&
+                decimalValue.compareTo(BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN) == 1;
     }
 
     private static void execIteratorOperation(WorkerExecutionContext ctx, WorkerData sf, Instruction instruction) {

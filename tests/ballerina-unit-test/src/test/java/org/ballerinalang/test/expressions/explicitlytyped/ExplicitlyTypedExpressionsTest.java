@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -366,6 +367,35 @@ public class ExplicitlyTypedExpressionsTest {
                 "boolean");
     }
 
+    @Test(dataProvider = "naNFloatAsIntTests", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error: 'float' value 'NaN' cannot be converted to 'int'.*")
+    public void testNaNFloatAsInt(String functionName) {
+        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[0]);
+        Assert.assertEquals(returns.length, 2);
+    }
+
+    @Test(dataProvider = "infiniteFloatAsIntTests", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error: 'float' value 'Infinity' cannot be converted to 'int'.*")
+    public void testInfiniteFloatAsInt(String functionName) {
+        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[0]);
+        Assert.assertEquals(returns.length, 2);
+    }
+
+    @Test(dataProvider = "outOfRangeFloatAsIntTests", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error: out of range 'float' value '.*' cannot be converted to 'int'.*")
+    public void testOutOfRangeFloatAsInt(String functionName) {
+        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[0]);
+        Assert.assertEquals(returns.length, 2);
+    }
+
+    @Test(dataProvider = "outOfRangeDecimalAsIntTests", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error: out of range 'decimal' value '.*' cannot be converted to " +
+                    "'int'.*")
+    public void testOutOfRangeDecimalAsInt(String functionName) {
+        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[0]);
+        Assert.assertEquals(returns.length, 2);
+    }
+
     @Test
     public void testNegativeExprs() {
         Assert.assertEquals(resultNegative.getErrorCount(), 10);
@@ -543,5 +573,41 @@ public class ExplicitlyTypedExpressionsTest {
 
     private int[] intValues() {
         return new int[]{-123457, 0, 1, 53456032};
+    }
+
+    @DataProvider
+    public Object[][] naNFloatAsIntTests() {
+        return new Object[][]{
+                {"testNaNFloatAsInt"},
+                {"testNaNFloatInUnionAsInt"}
+        };
+    }
+
+    @DataProvider
+    public Object[][] infiniteFloatAsIntTests() {
+        return new Object[][]{
+                {"testInfiniteFloatAsInt"},
+                {"testInfiniteInUnionFloatAsInt"}
+        };
+    }
+
+    @DataProvider
+    public Object[][] outOfRangeFloatAsIntTests() {
+        return new Object[][]{
+                {"testOutOfIntRangePositiveFloatAsInt"},
+                {"testOutOfIntRangeNegativeFloatAsInt"},
+                {"testOutOfIntRangePositiveFloatInUnionAsInt"},
+                {"testOutOfIntRangeNegativeFloatInUnionAsInt"}
+        };
+    }
+
+    @DataProvider
+    public Object[][] outOfRangeDecimalAsIntTests() {
+        return new Object[][]{
+                {"testOutOfIntRangePositiveDecimalAsInt"},
+                {"testOutOfIntRangeNegativeDecimalAsInt"},
+                {"testOutOfIntRangePositiveDecimalInUnionAsInt"},
+                {"testOutOfIntRangeNegativeDecimalInUnionAsInt"}
+        };
     }
 }
