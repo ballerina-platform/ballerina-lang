@@ -14,14 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/config;
-import ballerina/crypto;
-import ballerina/internal;
-import ballerina/log;
-import ballerina/runtime;
-import ballerina/system;
-import ballerina/time;
-
 # Represents LDAP authentication provider that supports generating JWT for client interactions
 #
 # + ldapJwtAuthProviderConfig - JWT configurations
@@ -37,8 +29,8 @@ public type LdapJwtAuthProvider object {
     # + ldapAuthProvider - LDAP auth store provider
     public function __init(InferredJwtAuthProviderConfig ldapJwtAuthProviderConfig,
                            LdapAuthStoreProvider ldapAuthProvider) {
-        self.InferredJwtAuthProviderConfig = InferredJwtAuthProviderConfig;
-        self.LdapAuthStoreProvider = LdapAuthStoreProvider;
+        self.ldapJwtAuthProviderConfig = ldapJwtAuthProviderConfig;
+        self.ldapAuthProvider = ldapAuthProvider;
     }
 
     # Authenticate with username and password using LDAP user store

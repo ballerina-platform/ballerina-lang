@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/config;
-import ballerina/crypto;
 import ballerina/runtime;
 
 # Represents configurations that required for LDAP auth store.
