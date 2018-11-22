@@ -35,3 +35,23 @@ function NonListener.init (ServiceEndpointConfiguration c) {
         panic err;
     }
 }
+
+//public type MockServer object {
+//    private Connection conn = new;
+//    private ServiceEndpointConfiguration config = {};
+//
+//    public function init (ServiceEndpointConfiguration c);
+//    public extern function initEndpoint () returns (error?);
+//    public extern function register (typedesc serviceType);
+//    public extern function start ();
+//    public extern function getCallerActions() returns Connection;
+//    public extern function stop ();
+//};
+//
+//function MockServer.init (ServiceEndpointConfiguration c) {
+//    self.config = c;
+//    var err = self.initEndpoint();
+//    if (err is error) {
+//    panic err;
+//    }
+//}

@@ -24,6 +24,3 @@ public function testReadOnlyGlobalVarAccessInDifferentPackage() returns (int, in
 @readonly service<http:Service> FooService {
 
 }
-
-
-

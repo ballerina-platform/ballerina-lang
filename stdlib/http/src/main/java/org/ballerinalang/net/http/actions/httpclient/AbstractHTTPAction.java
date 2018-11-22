@@ -165,7 +165,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
     }
 
     private String getServiceUri(BMap<String, BValue> connector) {
-        return ((BMap) connector.get(CLIENT_ENDPOINT_CONFIG)).get(CLIENT_ENDPOINT_SERVICE_URI).stringValue();
+        return connector.get(CLIENT_ENDPOINT_SERVICE_URI).stringValue();
     }
 
     private void setOutboundReqHeaders(HttpCarbonMessage outboundRequest, int port, String host) {

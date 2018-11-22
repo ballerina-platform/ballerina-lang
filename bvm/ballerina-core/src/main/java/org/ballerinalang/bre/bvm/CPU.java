@@ -4293,7 +4293,7 @@ public class CPU {
             return false;
         }
 
-        return IntStream.range(0, source.getValues().length)
+        return IntStream.range(0, (int) source.size())
                 .allMatch(i -> checkIsLikeType(source.get(i), targetType.getTupleTypes().get(i)));
     }
 

@@ -556,9 +556,14 @@ public class SymbolEnter extends BLangNodeVisitor {
                 visitObjectAttachedFunction(funcNode);
                 return;
             }
-            SymbolEnv objectEnv = SymbolEnv.createTypeEnv(null, funcNode.receiver.type.
-                    tsymbol.scope, env);
-            BSymbol funcSymbol = symResolver.lookupSymbol(objectEnv, getFuncSymbolName(funcNode), SymTag.FUNCTION);
+            
+            BSymbol funcSymbol = symTable.notFoundSymbol;
+            if (funcNode.receiver.type.tag == TypeTags.OBJECT) {
+                SymbolEnv objectEnv = SymbolEnv.createObjectMethodsEnv(null, (BObjectTypeSymbol) funcNode.receiver.type.
+                        tsymbol, env);
+                funcSymbol = symResolver.lookupSymbol(objectEnv, getFuncSymbolName(funcNode), SymTag.FUNCTION);
+            }
+
             if (funcSymbol == symTable.notFoundSymbol) {
                 dlog.error(funcNode.pos, DiagnosticCode.CANNOT_FIND_MATCHING_FUNCTION, funcNode.name,
                         funcNode.receiver.type.tsymbol.name);
@@ -612,7 +617,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        env.enclPkg.objAttachedFunctions.add(funcNode.symbol);
+        if (!funcNode.objInitFunction) {
+            env.enclPkg.objAttachedFunctions.add(funcNode.symbol);
+        }
         funcNode.receiver.symbol = funcNode.symbol.receiverSymbol;
     }
 
@@ -812,12 +819,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
-        // this is a field variable defined for object init function
-        if (varNode.isField) {
-            defineInitFunctionParam(varNode);
-            return;
-        }
-
         // assign the type to var type node
         if (varNode.type == null) {
             varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
@@ -1096,13 +1097,14 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
             if (typeDef.symbol.kind == SymbolKind.OBJECT) {
                 BLangObjectTypeNode objTypeNode = (BLangObjectTypeNode) typeDef.typeNode;
-                SymbolEnv objEnv = SymbolEnv.createTypeEnv(objTypeNode, typeDef.symbol.scope, pkgEnv);
+                SymbolEnv objMethodsEnv =
+                        SymbolEnv.createObjectMethodsEnv(objTypeNode, (BObjectTypeSymbol) objTypeNode.symbol, pkgEnv);
 
                 // Define the functions defined within the object
-                defineObjectInitFunction(objTypeNode, objEnv);
+                defineObjectInitFunction(objTypeNode, objMethodsEnv);
                 objTypeNode.functions.forEach(f -> {
                     f.setReceiver(ASTBuilderUtil.createReceiver(typeDef.pos, typeDef.symbol.type));
-                    defineNode(f, objEnv);
+                    defineNode(f, objMethodsEnv);
                 });
 
                 // Add the attached functions of the referenced types to this object.
@@ -1116,7 +1118,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
                     List<BAttachedFunction> functions = ((BObjectTypeSymbol) typeRef.type.tsymbol).attachedFuncs;
                     for (BAttachedFunction function : functions) {
-                        defineReferencedFunction(typeDef, objEnv, typeRef, function);
+                        defineReferencedFunction(typeDef, objMethodsEnv, typeRef, function);
                     }
                 }
             } else if (typeDef.symbol.kind == SymbolKind.RECORD) {
@@ -1314,14 +1316,13 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         BAttachedFunction attachedFunc = new BAttachedFunction(
                 names.fromIdNode(funcNode.name), funcSymbol, funcType);
-        objectSymbol.attachedFuncs.add(attachedFunc);
 
         validateRemoteFunctionAttachedToObject(funcNode, objectSymbol);
         validateResourceFunctionAttachedToObject(funcNode, objectSymbol);
 
         // Check whether this attached function is a object initializer.
-        if (!Names.OBJECT_INIT_SUFFIX.value.equals(funcNode.name.value)) {
-            // Not a object initializer.
+        if (!funcNode.objInitFunction) {
+            objectSymbol.attachedFuncs.add(attachedFunc);
             return;
         }
 
