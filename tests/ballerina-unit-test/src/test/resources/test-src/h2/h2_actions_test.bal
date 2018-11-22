@@ -14,13 +14,13 @@ public type Result record {
 };
 
 function testSelect() returns (int[]) {
-    endpoint h2:Client testDB {
-        path: "./target/H2Client/",
-        name: "TestDBH2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/H2Client/",
+            name: "TestDBH2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     var val = testDB->select("select * from Customers where customerId=1 OR customerId=2", Customer);
 
@@ -42,13 +42,13 @@ function testSelect() returns (int[]) {
 }
 
 function testUpdate() returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/H2Client/",
-        name: "TestDBH2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/H2Client/",
+            name: "TestDBH2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     var insertCountRet = testDB->update("insert into Customers (customerId, name, creditLimit, country)
                                 values (15, 'Anne', 1000, 'UK')");
@@ -61,13 +61,13 @@ function testUpdate() returns (int) {
 }
 
 function testCall() returns (string) {
-    endpoint h2:Client testDB {
-        path: "./target/H2Client/",
-        name: "TestDBH2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/H2Client/",
+            name: "TestDBH2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     var ret = testDB->call("{call JAVAFUNC('select * from Customers where customerId=1')}", [Customer]);
 
@@ -92,13 +92,13 @@ function testCall() returns (string) {
 }
 
 function testGeneratedKeyOnInsert() returns (string) {
-    endpoint h2:Client testDB {
-        path: "./target/H2Client/",
-        name: "TestDBH2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/H2Client/",
+            name: "TestDBH2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     string returnVal = "";
 
@@ -119,13 +119,13 @@ function testGeneratedKeyOnInsert() returns (string) {
 }
 
 function testBatchUpdate() returns (int[]) {
-    endpoint h2:Client testDB {
-        path: "./target/H2Client/",
-        name: "TestDBH2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/H2Client/",
+            name: "TestDBH2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     int[] updateCount;
     string returnVal;
@@ -156,12 +156,13 @@ function testBatchUpdate() returns (int[]) {
 }
 
 function testUpdateInMemory() returns (int, string) {
-    endpoint h2:Client testDB {
-        name: "TestDB2H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/H2Client/",
+            name: "TestDBH2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     _ = testDB->update("CREATE TABLE Customers2(customerId INTEGER NOT NULL IDENTITY,name  VARCHAR(300),
     creditLimit DOUBLE, country  VARCHAR(300), PRIMARY KEY (customerId))");
@@ -188,18 +189,18 @@ function testUpdateInMemory() returns (int, string) {
 }
 
 function testInitWithNilDbOptions() returns (int[]) {
-    endpoint h2:Client testDB {
-        path: "./target/H2Client/",
-        name: "TestDBH2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/H2Client/",
+            name: "TestDBH2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
     return selectFunction(testDB);
 }
 
 function testInitWithDbOptions() returns (int[]) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/H2Client/",
         name: "TestDBH2",
         username: "SA",
@@ -207,62 +208,83 @@ function testInitWithDbOptions() returns (int[]) {
         poolOptions: { maximumPoolSize: 1 },
         dbOptions: { "IFEXISTS": true, "DB_CLOSE_ON_EXIT": false, "AUTO_RECONNECT": true, "ACCESS_MODE_DATA": "rw",
             "PAGE_SIZE": 512 }
-    };
+    });
     return selectFunction(testDB);
 }
 
 function testInitWithInvalidDbOptions() returns (int[]) {
-    endpoint h2:Client testDB {
-        path: "./target/H2Client/",
-        name: "TestDBH2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 },
-        dbOptions: { "IFEXISTS": true, "DB_CLOSE_ON_EXIT": false, "AUTO_RECONNECT": true, "ACCESS_MODE_DATA": "rw",
-            "PAGE_SIZE": 512, "INVALID_PARAM": -1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/H2Client/",
+            name: "TestDBH2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 },
+            dbOptions: { "IFEXISTS": true, "DB_CLOSE_ON_EXIT": false, "AUTO_RECONNECT": true, "ACCESS_MODE_DATA": "rw",
+                "PAGE_SIZE": 512, "INVALID_PARAM": -1 }
+        });
     return selectFunction(testDB);
 }
 
-function testReInitEndpoint() returns int {
-    endpoint h2:Client testDB {
-        path: "./target/H2Client/",
-        name: "TestDBH2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+//function testReInitEndpoint() returns int {
+//    h2:Client testDB = new({
+//            path: "./target/H2Client/",
+//            name: "TestDBH2",
+//            username: "SA",
+//            password: "",
+//            poolOptions: { maximumPoolSize: 1 }
+//        });
+//
+//    h2:ClientEndpointConfiguration config = {
+//        path: "./target/H2Client/",
+//        name: "TestDBH2",
+//        username: "SA",
+//        password: "",
+//        poolOptions: { maximumPoolSize: 1 }
+//    };
+//
+//    testDB.stop();
+//
+//    testDB.init(config);
+//
+//    var dt = testDB->select("select 1", Result);
+//    int count = -1;
+//    if (dt is table) {
+//        while (dt.hasNext()) {
+//            var rs = <Result>dt.getNext();
+//            if (rs is Result) {
+//                count = rs.val;
+//            }
+//        }
+//    }
+//    testDB.stop();
+//
+//    return count;
+//}
 
-    h2:ClientEndpointConfiguration config = {
-        path: "./target/H2Client/",
-        name: "TestDBH2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
-
-    testDB.stop();
-
-    testDB.init(config);
-
-    var dt = testDB->select("select 1", Result);
+function testCloseConnectionPool(string connectionCountQuery)
+             returns (int) {
+    h2:Client testDB = new({
+            path: "./target/H2Client/",
+            name: "TestDBH2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
+    var result = testDB->select(connectionCountQuery, Result);
     int count = -1;
-    if (dt is table) {
-        while (dt.hasNext()) {
-            var rs = <Result>dt.getNext();
+    if (result is table) {
+        while (result.hasNext()) {
+            var rs = <Result>result.getNext();
             if (rs is Result) {
                 count = rs.val;
             }
         }
     }
     testDB.stop();
-
     return count;
 }
 
-function selectFunction(h2:Client testDBClient) returns (int[]) {
-    endpoint h2:Client testDB = testDBClient;
-
+function selectFunction(h2:Client testDB) returns (int[]) {
     var val = testDB->select("select * from Customers where customerId=1 OR customerId=2", Customer);
 
     int[] customerIds = [];
@@ -283,12 +305,12 @@ function selectFunction(h2:Client testDBClient) returns (int[]) {
 }
 
 function testH2MemDBUpdate() returns (int, string) {
-    endpoint h2:Client testDB {
-        name: "TestMEMDB",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            name: "TestMEMDB",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     var insertCountRet = testDB->update("CREATE TABLE student(id INTEGER,  name VARCHAR(30))");
     insertCountRet = testDB->update("insert into student (id, name) values (15, 'Anne')");
