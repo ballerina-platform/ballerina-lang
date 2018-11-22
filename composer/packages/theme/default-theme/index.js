@@ -1,1 +1,1 @@
-require('../src/default-theme/semantic.less');
+require('../src/default-theme/composer.less');

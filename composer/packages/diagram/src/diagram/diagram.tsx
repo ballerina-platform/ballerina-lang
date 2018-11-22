@@ -58,7 +58,7 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
 
         return <DiagramContext.Provider value={this.createContext()}>
             <DiagramErrorBoundary>
-                <div>
+                <div className="diagram-controllers">
                     <div>{"Current Diagram Mode: " + DiagramMode[currentMode]}</div>
                     <div>{"Editing Enabled: " + this.context.editingEnabled}</div>
                     <EditToggleButton />

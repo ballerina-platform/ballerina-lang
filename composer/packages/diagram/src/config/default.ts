@@ -1,114 +1,59 @@
 
-export interface DimentionConfig {
-    width: number;
-    height: number;
-    padding: {
-        top: number;
-        right: number;
-        bottom: number;
-        left: number;
+export class DiagramConfig {
+    public statement = {
+        height: 20,
+        margin: {
+            bottom: 0,
+            left: 0,
+            right: 0,
+            top: 0,
+        },
+        maxWidth: 200,
+        minWdith: 100,
+        padding: {
+            bottom: 5,
+            left: 5,
+            right: 5,
+            top: 5,
+        },
+        width: 120,
     };
-    margin: {
-        top: number;
-        right: number;
-        bottom: number;
-        left: number;
+
+    public canvas = {
+        padding: {
+            bottom: 100,
+            top: 50,
+        },
+        // tslint:disable-next-line:object-literal-sort-keys
+        height: 500,
+        width: 500,
     };
-    maxWidth: number;
-    minWdith: number;
+
+    public panel = {
+        margin: {
+            bottom: 0,
+            left: 30,
+            right: 30,
+            top: 30,
+        },
+        padding: {
+            bottom: 40,
+            left: 40,
+            right: 40,
+            top: 40,
+        },
+    };
+
+    public panelHeading = {
+        height: 25,
+        padding: {
+            bottom: 0,
+            left: 10,
+            right: 10,
+            top: 0,
+        },
+
+    };
 }
 
-export interface DiagramConfig {
-    statement: DimentionConfig;
-    canvas: DimentionConfig;
-    panel: DimentionConfig;
-    panelHeading: DimentionConfig;
-}
-
-const defaultDimentionConfig: DimentionConfig = {
-    height: 0,
-    margin: {
-        bottom: 0,
-        left: 0,
-        right: 0,
-        top: 0,
-    },
-    maxWidth: 0,
-    minWdith: 0,
-    padding: {
-        bottom: 0,
-        left: 0,
-        right: 0,
-        top: 0,
-    },
-    width: 0,
-};
-
-export function initDiagramConfig(): DiagramConfig {
-    return {
-        canvas: {...defaultDimentionConfig},
-        panel: {...defaultDimentionConfig},
-        panelHeading: {...defaultDimentionConfig},
-        statement: {...defaultDimentionConfig}
-    };
-}
-
-// Here we declare the default config.
-export const DefaultConfig: DiagramConfig = initDiagramConfig();
-
-DefaultConfig.statement = {
-    height: 20,
-    margin: {
-        bottom: 0,
-        left: 0,
-        right: 0,
-        top: 0,
-    },
-    maxWidth: 200,
-    minWdith: 100,
-    padding: {
-        bottom: 5,
-        left: 5,
-        right: 5,
-        top: 5,
-    },
-    width: 120,
-};
-
-DefaultConfig.canvas.padding = {
-    bottom: 100,
-    left: 50,
-    right: 50,
-    top: 50
-};
-
-// default width and height for the diagram
-DefaultConfig.canvas.width = 500;
-DefaultConfig.canvas.height = 500;
-
-DefaultConfig.panel = {
-    ...DefaultConfig.panel,
-    margin: {
-        bottom: 30,
-        left: 30,
-        right: 30,
-        top: 30,
-    },
-    padding: {
-        bottom: 40,
-        left: 40,
-        right: 40,
-        top: 40,
-    },
-};
-
-DefaultConfig.panelHeading = {
-    ...DefaultConfig.panelHeading,
-    height: 25,
-    padding: {
-        bottom: 0,
-        left: 10,
-        right: 10,
-        top: 0,
-    },
-};
+export const DefaultConfig = new DiagramConfig();
