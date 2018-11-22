@@ -28,7 +28,12 @@ public type Appointment object {
     // appointment again unless it is cancelled
     private boolean isRunning;
 
-    public new(onTrigger, onError, scheduleCronExpression) {}
+    public function __init((function () returns error?) onTrigger, (function(error) returns ())? onError,
+                           string scheduleCronExpression) {
+        self.onTrigger = onTrigger;
+        self.onError = onError;
+        self.scheduleCronExpression = scheduleCronExpression;
+    }
 
     // Schedule the appointment
     public extern function schedule();
