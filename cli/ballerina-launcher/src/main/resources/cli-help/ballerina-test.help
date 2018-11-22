@@ -29,12 +29,12 @@ DESCRIPTION
 OPTIONS
 
      --nocoverage
-         As default, always on project target/coverage folder, there
-         will be coverage report created for the specified project / module.
-         This is to stop creating the coverage reports.
-         This will output lcov formatted data file and from this UI rich
-         report can be generated. To customize the location of the file and
-         file name use config file.
+         By default, there will be coverage report created for the
+         specified project / module in the project's target/coverage/
+         folder. nocoverage argument is to stop creating the coverage
+         reports. Unless specified report will be output in lcov format.
+         To customize the location of the file and file name,
+         use config file.
 
      -lg
      --list-groups
