@@ -82,6 +82,10 @@ DefaultConfig.canvas.padding = {
     top: 50
 };
 
+// default width and height for the diagram
+DefaultConfig.canvas.width = 500;
+DefaultConfig.canvas.height = 500;
+
 DefaultConfig.panel = {
     height: 20,
     margin: {
