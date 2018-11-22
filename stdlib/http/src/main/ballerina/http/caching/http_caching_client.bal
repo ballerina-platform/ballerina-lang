@@ -364,7 +364,7 @@ remote function HttpCachingClient.hasPromise(HttpFuture httpFuture) returns bool
     return self.httpClient->hasPromise(httpFuture);
 }
 
-remote function HttpCachingClient.getNextPromise(HttpFuture httpFuture) returns (PushPromise|error) {
+remote function HttpCachingClient.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
     return self.httpClient->getNextPromise(httpFuture);
 }
 
