@@ -92,7 +92,12 @@ public type HttpCachingClient client object {
     # + config - The configurations for the client endpoint associated with the caching client
     # + cacheConfig - The configurations for the HTTP cache to be used with the caching client
     public new(serviceUri, config, cacheConfig) {
-        self.httpClient = createHttpSecureClient(serviceUri, config);
+        var httpSecureClient = createHttpSecureClient(serviceUri, config);
+        if (httpSecureClient is Client) {
+            self.httpClient = httpSecureClient;
+        } else {
+            panic httpSecureClient;
+        }
         self.cache = createHttpCache("http-cache", cacheConfig);
     }
 
@@ -233,17 +238,12 @@ public type HttpCachingClient client object {
 # + cacheConfig - The configurations for the HTTP cache to be used with the caching client
 # + return - An `HttpCachingClient` instance which wraps the base `Client` with a caching layer
 public function createHttpCachingClient(string url, ClientEndpointConfig config, CacheConfig cacheConfig)
-                                                                                                returns Client {
+                                                                                                returns Client|error {
     HttpCachingClient httpCachingClient = new(url, config, cacheConfig);
     log:printDebug(function() returns string {
         return "Created HTTP caching client: " + io:sprintf("%s", httpCachingClient);
     });
-    var cachingClient = <Client>httpCachingClient;
-    if (cachingClient is Client) {
-        return cachingClient;
-    } else {
-        panic cachingClient;
-    }
+    return <Client>httpCachingClient;
 }
 
 remote function HttpCachingClient.post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()

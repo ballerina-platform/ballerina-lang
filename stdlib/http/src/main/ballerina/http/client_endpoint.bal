@@ -31,6 +31,7 @@ public type Client client object {
 
     public new(ClientEndpointConfig c) {
         self.config = c;
+        self.init(self.config);
     }
 
     # Gets invoked to initialize the endpoint. During initialization, configurations provided through the `config`
@@ -388,16 +389,15 @@ function Client.init(ClientEndpointConfig c) {
     //}
 }
 
-function createRedirectClient(string url, ClientEndpointConfig configuration) returns Client {
+function createRedirectClient(string url, ClientEndpointConfig configuration) returns Client|error {
     var redirectConfig = configuration.followRedirects;
     if (redirectConfig is FollowRedirects) {
         if (redirectConfig.enabled) {
-            var redirectClient = <Client>(new RedirectClient(url, configuration,
-                redirectConfig, createRetryClient(url, configuration)));
-            if (redirectClient is Client) {
-                return redirectClient;
+            var retryClient = createRetryClient(url, configuration);
+            if (retryClient is Client) {
+                return <Client>new RedirectClient(url, configuration, redirectConfig, retryClient);
             } else {
-                panic redirectClient;
+                return retryClient;
             }
         } else {
             return createRetryClient(url, configuration);
@@ -407,7 +407,7 @@ function createRedirectClient(string url, ClientEndpointConfig configuration) re
     }
 }
 
-function checkForRetry(string url, ClientEndpointConfig config) returns Client {
+function checkForRetry(string url, ClientEndpointConfig config) returns Client|error {
     var retryConfigVal = config.retryConfig;
     if (retryConfigVal is RetryConfig) {
         return createRetryClient(url, config);
@@ -420,7 +420,7 @@ function checkForRetry(string url, ClientEndpointConfig config) returns Client {
     }
 }
 
-function createCircuitBreakerClient(string uri, ClientEndpointConfig configuration) returns Client {
+function createCircuitBreakerClient(string uri, ClientEndpointConfig configuration) returns Client|error {
     Client cbHttpClient = new(configuration);
     var cbConfig = configuration.circuitBreaker;
     if (cbConfig is CircuitBreakerConfig) {
@@ -428,9 +428,19 @@ function createCircuitBreakerClient(string uri, ClientEndpointConfig configurati
         boolean [] statusCodes = populateErrorCodeIndex(cbConfig.statusCodes);
         var redirectConfig = configuration.followRedirects;
         if (redirectConfig is FollowRedirects) {
-            cbHttpClient = createRedirectClient(uri, configuration);
+            var redirectClient = createRedirectClient(uri, configuration);
+            if (redirectClient is Client) {
+                cbHttpClient = redirectClient;
+            } else {
+                return redirectClient;
+            }
         } else {
-            cbHttpClient = checkForRetry(uri, configuration);
+            var retryClient = checkForRetry(uri, configuration);
+            if (retryClient is Client) {
+                cbHttpClient = retryClient;
+            } else {
+                return retryClient;
+            }
         }
 
         time:Time circuitStartTime = time:currentTime();
@@ -456,13 +466,8 @@ function createCircuitBreakerClient(string uri, ClientEndpointConfig configurati
                                         lastForcedOpenTime:circuitStartTime,
                                         totalBuckets: bucketArray
                                       };
-        var circuitBreakerClient = <Client>(new CircuitBreakerClient(uri, configuration,
+        return <Client>(new CircuitBreakerClient(uri, configuration,
             circuitBreakerInferredConfig, cbHttpClient, circuitHealth));
-        if (circuitBreakerClient is Client) {
-            return circuitBreakerClient;
-        } else {
-            panic circuitBreakerClient;
-        }
     } else {
         //remove following once we can ignore
         if (configuration.cache.enabled) {
@@ -473,7 +478,7 @@ function createCircuitBreakerClient(string uri, ClientEndpointConfig configurati
     }
 }
 
-function createRetryClient(string url, ClientEndpointConfig configuration) returns Client {
+function createRetryClient(string url, ClientEndpointConfig configuration) returns Client|error {
     var retryConfig = configuration.retryConfig;
     if (retryConfig is RetryConfig) {
         boolean[] statusCodes = populateErrorCodeIndex(retryConfig.statusCodes);
@@ -485,20 +490,18 @@ function createRetryClient(string url, ClientEndpointConfig configuration) retur
             statusCodes: statusCodes
         };
         if (configuration.cache.enabled) {
-            var retryClient = <Client>(new RetryClient(url, configuration, retryInferredConfig,
-                createHttpCachingClient(url, configuration, configuration.cache)));
-            if (retryClient is Client) {
-                return retryClient;
+            var httpCachingClient = createHttpCachingClient(url, configuration, configuration.cache);
+            if (httpCachingClient is Client) {
+                return <Client>new RetryClient(url, configuration, retryInferredConfig, httpCachingClient);
             } else {
-                panic retryClient;
+                return httpCachingClient;
             }
-        } else {
-            var retryClient = <Client>(new RetryClient(url, configuration, retryInferredConfig,
-                createHttpSecureClient(url, configuration)));
-            if (retryClient is Client) {
-                return retryClient;
+        } else{
+            var httpSecureClient = createHttpSecureClient(url, configuration);
+            if (httpSecureClient is Client) {
+                return <Client>new RetryClient(url, configuration, retryInferredConfig, httpSecureClient);
             } else {
-                panic retryClient;
+                return httpSecureClient;
             }
         }
     } else {

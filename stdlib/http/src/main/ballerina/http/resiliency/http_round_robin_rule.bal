@@ -16,7 +16,7 @@
 
 # Implementation of round robin load balancing strategy.
 #
-# + index - Keep tracks the current point of the CallerActions[]
+# + index - Keep tracks the current point of the Client[]
 public type LoadBalancerRounRobinRule object {
 
     public int index = 0;
@@ -24,14 +24,14 @@ public type LoadBalancerRounRobinRule object {
     # Provides an HTTP client which is choosen according to the round robin algorithm.
     #
     # + loadBalanceCallerActionsArray - Array of HTTP clients which needs to be load balanced
-    # + return - Choosen `CallerActions` from the algorithm or an `error` for a failure in
+    # + return - Choosen `Client` from the algorithm or an `error` for a failure in
     #            the algorithm implementation
-    public function getNextCallerActions(CallerActions[] loadBalanceCallerActionsArray) returns CallerActions|error;
+    public function getNextClient(Client[] loadBalanceCallerActionsArray) returns Client|error;
 };
 
-function LoadBalancerRounRobinRule.getNextCallerActions(CallerActions[] loadBalanceCallerActionsArray)
-                                       returns CallerActions|error {
-    CallerActions httpClient = new;
+function LoadBalancerRounRobinRule.getNextClient(Client[] loadBalanceCallerActionsArray)
+                                       returns Client|error {
+    Client httpClient = loadBalanceCallerActionsArray[self.index];
     lock {
         if (self.index == ((loadBalanceCallerActionsArray.length()) - 1)) {
             httpClient = loadBalanceCallerActionsArray[self.index];

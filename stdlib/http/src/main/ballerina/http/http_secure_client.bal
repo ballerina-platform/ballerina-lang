@@ -292,16 +292,11 @@ public type HttpSecureClient client object {
 # + url - Base URL
 # + config - Client endpoint configurations
 # + return - Created secure HTTP client
-public function createHttpSecureClient(string url, ClientEndpointConfig config) returns Client {
+public function createHttpSecureClient(string url, ClientEndpointConfig config) returns Client|error {
     HttpSecureClient httpSecureClient;
     if (config.auth is AuthConfig) {
         httpSecureClient = new(url, config);
-        var secureClient = <Client>httpSecureClient;
-        if (secureClient is Client) {
-            return secureClient;
-        } else {
-            panic secureClient;
-        }
+        return <Client>httpSecureClient;
     } else {
         return createSimpleHttpClient(url, config);
     }
