@@ -22,6 +22,7 @@ import org.ballerinalang.bre.bvm.CPU.HandleErrorException;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.vm.StackFrame;
+import org.ballerinalang.bre.vm.Strand;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
@@ -427,7 +428,7 @@ public class BLangVMUtils {
         out.println(msg);
     }
     
-    public static void setServiceInfo(WorkerExecutionContext ctx, ServiceInfo serviceInfo) {
+    public static void setServiceInfo(Strand ctx, ServiceInfo serviceInfo) {
         ctx.globalProps.put(SERVICE_INFO_KEY, serviceInfo);
     }
     

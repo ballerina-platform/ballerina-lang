@@ -78,7 +78,7 @@ public class ResourceExecutor {
         }
         //required for tracking compensations
         context.globalProps.put(Constants.COMPENSATION_TABLE, CompensationTable.getInstance());
-        BLangVMUtils.setServiceInfo(context, resourceInfo.getServiceInfo());
+//        BLangVMUtils.setServiceInfo(context, resourceInfo.getServiceInfo());
         BLangFunctions.invokeServiceCallable(resourceInfo, context, observerContext, bValues, responseCallback);
     }
 }

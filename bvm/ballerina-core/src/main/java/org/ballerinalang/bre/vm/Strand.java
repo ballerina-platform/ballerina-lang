@@ -19,6 +19,7 @@ package org.ballerinalang.bre.vm;
 
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.debugger.DebugContext;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,6 +44,8 @@ public class Strand {
 
     public ProgramFile programFile;
 
+    private DebugContext debugContext;
+
     public BVMCallback respCallback;
 
     private Semaphore executionLock;
@@ -51,12 +54,16 @@ public class Strand {
 
     public Map<String, Object> globalProps;
 
-    public Strand(ProgramFile programFile, StrandCallback respCallback) {
+    public Strand(ProgramFile programFile, Map<String, Object> properties, StrandCallback respCallback) {
         this.programFile = programFile;
         this.respCallback = respCallback;
         this.callStack = new StackFrame[DEFAULT_CONTROL_STACK_SIZE];
         this.state = State.NEW;
-        this.globalProps = new HashMap<>();
+        if (properties == null) {
+            this.globalProps = new HashMap<>();
+        } else {
+            this.globalProps = properties;
+        }
     }
 
     public StackFrame pushFrame(StackFrame frame) {
@@ -124,7 +131,7 @@ public class Strand {
     public static enum State {
         NEW,
         RUNNABLE,
-        BLOCKED,
+        PAUSED,
         TERMINATED
     }
 }

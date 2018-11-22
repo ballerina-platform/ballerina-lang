@@ -19,6 +19,7 @@ package org.ballerinalang.bre.vm;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.bvm.WorkerState;
 import org.ballerinalang.bre.vm.Strand.State;
@@ -28,8 +29,13 @@ import org.ballerinalang.model.values.BError;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.program.BLangVMUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
 
 /**
@@ -39,21 +45,78 @@ import java.util.concurrent.atomic.LongAdder;
  */
 public class BVMScheduler {
 
+    private static AtomicInteger strandCount = new AtomicInteger(0);
+
+    //TODO these are static vars, we may need to find a way to make this instance vars
+    private static Semaphore strandsDoneSemaphore = new Semaphore(1);
+
     public static void schedule(Strand strand) {
-        if (strand.state == State.TERMINATED) {
-            return;
-        }
-        strand.state = State.RUNNABLE;
         ThreadPoolFactory.getInstance().getWorkerExecutor().submit(new CallableExecutor(strand));
     }
 
-    public static void scheduleNative(NativeCallableUnit nativeCallable, Context nativeCtx) {
-        if (nativeCtx.getStrand().state == State.TERMINATED) {
+    public static void execute(Strand strand) {
+        strandCountUp();
+        BVM.execute(strand);
+        strandCountDown();
+    }
+
+    public static void scheduleNative(NativeCallableUnit nativeCallable,
+                                      Context nativeCtx, CallableUnitCallback callback) {
+        ThreadPoolFactory.getInstance().getWorkerExecutor()
+                .submit(new NativeCallableExecutor(nativeCallable, nativeCtx, callback));
+    }
+
+    public static void executeNative(NativeCallableUnit nativeCallable,
+                                     Context nativeCtx, CallableUnitCallback callback) {
+        strandCountUp();
+        nativeCallable.execute(nativeCtx, callback);
+        strandCountDown();
+    }
+
+
+
+    public static void stateChange(Strand strand, List<State> expectedStates, State newState) {
+        if (expectedStates == null || expectedStates.contains(strand.state)) {
+            strand.state = newState;
             return;
         }
-        nativeCtx.getStrand().state = State.RUNNABLE;
-        ThreadPoolFactory.getInstance().getWorkerExecutor()
-                .submit(new NativeCallableExecutor(nativeCallable, nativeCtx));
+        throw new BLangRuntimeException("error: invalid strand state, expected "
+                + expectedStates.toString() + " found - " + strand.state.toString()); //TODO error message?
+    }
+
+    public static void stateChange(Strand strand, State expectedState, State newState) {
+        if (expectedState == strand.state) {
+            strand.state = newState;
+            return;
+        }
+        throw new BLangRuntimeException("error: invalid strand state, expected "
+                + expectedState + " found - " + strand.state.toString()); //TODO error message?
+    }
+
+
+    private static void strandCountUp() {
+        if (strandCount.incrementAndGet() == 1) {
+            try {
+                strandsDoneSemaphore.acquire();
+            } catch (InterruptedException e) {
+                /* ignore */
+            }
+        }
+    }
+
+    private static void strandCountDown() {
+        if (strandCount.decrementAndGet() == 0) {
+            strandsDoneSemaphore.release();
+        }
+    }
+
+    public static void waitForStrandCompletion() {
+        try {
+            strandsDoneSemaphore.acquire();
+            strandsDoneSemaphore.release();
+        } catch (InterruptedException e) {
+            /* ignore */
+        }
     }
 
     /**
@@ -69,7 +132,9 @@ public class BVMScheduler {
 
         @Override
         public void run() {
+            strandCountUp();
             BVM.execute(this.strand);
+            strandCountDown();
         }
 
     }
@@ -83,26 +148,30 @@ public class BVMScheduler {
 
         private Context nativeCtx;
 
-        public NativeCallableExecutor(NativeCallableUnit nativeCallable, Context nativeCtx) {
+        private CallableUnitCallback callback;
+
+        public NativeCallableExecutor(NativeCallableUnit nativeCallable,
+                                      Context nativeCtx, CallableUnitCallback callback) {
             this.nativeCallable = nativeCallable;
             this.nativeCtx = nativeCtx;
+            this.callback = callback;
         }
 
         @Override
         public void run() {
-            WorkerExecutionContext runInCaller = null;
+            strandCountUp();
             BError error;
             Strand strand = this.nativeCtx.getStrand();
             CallableUnitInfo cui = this.nativeCtx.getCallableUnitInfo();
             BType retType = cui.getRetParamTypes()[0];
             try {
-                this.nativeCallable.execute(this.nativeCtx, null);
+                this.nativeCallable.execute(this.nativeCtx, callback);
                 if (strand.fp > 0) {
                     strand.popFrame();
                     StackFrame retFrame = strand.currentFrame;
                     BLangVMUtils.populateWorkerDataWithValues(retFrame, this.nativeCtx.getDataFrame().retReg,
                             this.nativeCtx.getReturnValue(), retType);
-                    BVM.execute(strand);
+                    execute(strand);
                     return;
                 }
                 strand.respCallback.signal();
@@ -111,11 +180,13 @@ public class BVMScheduler {
                 error = BLangVMErrors.createNullRefException(this.nativeCtx.getStrand());
             } catch (Throwable e) {
                 error = BLangVMErrors.createError(this.nativeCtx.getStrand(), e.getMessage());
+            } finally {
+                strandCountDown();
             }
             strand.setError(error);
             strand.popFrame();
             BVM.handleError(strand);
-            BVM.execute(strand);
+            execute(strand);
         }
 
     }
