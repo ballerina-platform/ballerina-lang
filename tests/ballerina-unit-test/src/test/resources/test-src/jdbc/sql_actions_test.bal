@@ -1483,32 +1483,6 @@ function testCloseConnectionPool(string connectionCountQuery)
     return count;
 }
 
-function testReInitEndpoint(string validationQuery)
-             returns int {
-    h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTOR_H2",
-            username: "SA",
-            password: "",
-            poolOptions: { maximumPoolSize: 1 }
-        });
-
-    testDB.stop();
-
-    h2:ClientEndpointConfiguration config =  {
-        path: "./target/H2Client2/",
-        name: "TEST_SQL_CONNECTOR_H2_2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
-    testDB.init(config);
-    var dt = testDB->select(validationQuery, ResultCount);
-    int count = getTableCountValColumn(dt);
-    testDB.stop();
-    return count;
-}
-
 function getIntResult(int|error result) returns int {
     if (result is int) {
         return result;
