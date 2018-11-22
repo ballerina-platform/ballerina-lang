@@ -228,34 +228,6 @@ public class BallerinaStatementProcessor extends BallerinaScopeProcessorBase {
                     ballerinaTimeoutClause = PsiTreeUtil.getParentOfType(ballerinaTimeoutClause,
                             BallerinaTimeoutClause.class);
                 }
-
-            } else if (scopeElement instanceof BallerinaVariableDefinitionStatement) {
-                BallerinaVariableDefinitionStatement statement = (BallerinaVariableDefinitionStatement) scopeElement;
-                BallerinaServiceBody ballerinaServiceBody = PsiTreeUtil.getParentOfType(myElement,
-                        BallerinaServiceBody.class);
-                if (ballerinaServiceBody != null) {
-                    List<BallerinaVariableDefinitionStatement> definitionStatements =
-                            ballerinaServiceBody.getVariableDefinitionStatementList();
-                    for (BallerinaVariableDefinitionStatement definitionStatement : definitionStatements) {
-                        PsiElement identifier = null;
-                        if (definitionStatement.getVariableDefinitionStatementWithAssignment() != null) {
-                            identifier = definitionStatement.getVariableDefinitionStatementWithAssignment()
-                                    .getBindingPattern().getIdentifier();
-                        } else if (definitionStatement.getVariableDefinitionStatementWithoutAssignment() != null) {
-                            identifier = definitionStatement.getVariableDefinitionStatementWithoutAssignment()
-                                    .getIdentifier();
-                        }
-                        if (identifier != null) {
-                            int statementEndOffset = definitionStatement.getTextRange().getEndOffset();
-                            if (statementEndOffset >= statement.getTextRange().getEndOffset()) {
-                                continue;
-                            }
-                            if (myElement.getText().equals(identifier.getText())) {
-                                add(identifier);
-                            }
-                        }
-                    }
-                }
             }
         }
         return true;

@@ -26,7 +26,6 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
 import io.ballerina.plugins.idea.BallerinaLanguage;
-import io.ballerina.plugins.idea.psi.BallerinaEndpointDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaTypeDefinition;
 import org.jetbrains.annotations.NotNull;
 
@@ -55,9 +54,7 @@ public class BallerinaEnterBetweenBracesHandler extends EnterBetweenBracesHandle
         // Check whether the semicolon is needed.
         if (needToInsertSemicolon(element)) {
             PsiElement definition = PsiTreeUtil.getParentOfType(element, BallerinaTypeDefinition.class);
-            if (definition == null) {
-                definition = PsiTreeUtil.getParentOfType(element, BallerinaEndpointDefinition.class);
-            }
+
             if (definition == null) {
                 return Result.Continue;
             }
@@ -82,13 +79,7 @@ public class BallerinaEnterBetweenBracesHandler extends EnterBetweenBracesHandle
             // Check whether the type definition has a semicolon.
             return typeDefinition.getSemicolon() == null;
         }
-        // Check for endpoint definition.
-        BallerinaEndpointDefinition ballerinaEndpointDefinition = PsiTreeUtil.getParentOfType(element,
-                BallerinaEndpointDefinition.class);
-        if (ballerinaEndpointDefinition != null) {
-            // Check whether the endpoint definition has a semicolon.
-            return ballerinaEndpointDefinition.getSemicolon() == null;
-        }
+
         return false;
     }
 
