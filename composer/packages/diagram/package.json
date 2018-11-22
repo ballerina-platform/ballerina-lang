@@ -32,6 +32,7 @@
   },
   "devDependencies": {
     "@ballerina/composer-cli": "^0.983.1-SNAPSHOT",
+    "@types/lodash": "^4.14.118",
     "@types/lodash.debounce": "^4.0.4",
     "copyfiles": "^2.1.0"
   },
@@ -39,6 +40,7 @@
     "@ballerina/ast-model": "^0.983.1-SNAPSHOT",
     "@ballerina/lang-service": "^0.983.1-SNAPSHOT",
     "@ballerina/theme": "^0.983.1-SNAPSHOT",
+    "lodash": "^4.17.11",
     "lodash.debounce": "^4.0.8",
     "log4javascript": "^1.4.15"
   }
