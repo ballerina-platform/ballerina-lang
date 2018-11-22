@@ -1888,7 +1888,7 @@ public class PackageInfoReader {
             }
             switch (typeChar) {
                 case 'X':
-                    return packageInfoOfType.getServiceInfo(typeName).getType();
+                    return BTypes.typeAnyService;
                 default:
                     return packageInfoOfType.getTypeDefInfo(typeName).typeInfo.getType();
             }

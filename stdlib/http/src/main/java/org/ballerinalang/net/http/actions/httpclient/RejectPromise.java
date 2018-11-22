@@ -36,7 +36,7 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "rejectPromise",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.CALLER_ACTIONS,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.HTTP_CLIENT,
                 structPackage = "ballerina/http"),
         args = {
                 @Argument(name = "client", type = TypeKind.OBJECT),
@@ -56,7 +56,7 @@ public class RejectPromise extends AbstractHTTPAction {
         }
         BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
         HttpClientConnector clientConnector =
-                (HttpClientConnector) bConnector.getNativeData(HttpConstants.CALLER_ACTIONS);
+                (HttpClientConnector) bConnector.getNativeData(HttpConstants.HTTP_CLIENT);
         clientConnector.rejectPushResponse(http2PushPromise);
         callback.notifySuccess();
     }

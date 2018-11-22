@@ -1,4 +1,4 @@
-// Copyright (c) 2017 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,20 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-deprecated {}
-public annotation Description docData;
+public type AbstractListener abstract object {
 
-deprecated {}
-type docData record {
-    string value;
-    !...
+    public function __start() returns error?;
+
+    public function __stop() returns error?;
+
+    public function __attach(service s, map annotationData) returns error?;
 };
-
-deprecated {}
-public annotation<resource, function> Param docData;
-
-deprecated {}
-public annotation<function> Return docData;
-
-deprecated {}
-public annotation<annotation, type, object> Field docData;

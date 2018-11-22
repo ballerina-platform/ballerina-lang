@@ -52,7 +52,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
@@ -236,7 +235,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Stack;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.FIELD;
@@ -2780,9 +2778,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             this.genNode(lExpr, this.env);
             this.varAssignment = false;
         }
-    }
-
-    public void visit(BLangAction actionNode) {
     }
 
     public void visit(BLangForever foreverStatement) {
