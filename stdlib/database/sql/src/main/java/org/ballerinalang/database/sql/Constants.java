@@ -191,7 +191,7 @@ public final class Constants {
 
     public static final String SQL_PACKAGE_PATH = "ballerina" + ORG_NAME_SEPARATOR + "sql";
     public static final String SQL_PARAMETER = "Parameter";
-    public static final String CALLER_ACTIONS = "CallerActions";
+    public static final String SQL_CLIENT = "Client";
 
     public static final String SQL_SERVER_DB_POSTFIX = "_SERVER";
     public static final String SQL_FILE_DB_POSTFIX = "_FILE";

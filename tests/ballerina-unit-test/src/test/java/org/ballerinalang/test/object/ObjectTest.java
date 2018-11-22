@@ -597,4 +597,14 @@ public class ObjectTest {
         Assert.assertEquals(returns[0].stringValue(), "{age:20, name:\"John\"}");
         Assert.assertEquals(out.toString().trim(), "{age:20, name:\"John\"}");
     }
+
+    @Test
+    public void testObjectInit() {
+        CompileResult compileResult =
+                BCompileUtil.compile("test-src/object/object_constructor.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectInit");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+    }
 }

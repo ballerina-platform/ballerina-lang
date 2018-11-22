@@ -121,7 +121,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangChannelLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
@@ -156,7 +155,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -347,7 +345,6 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.stopFunction = ASTBuilderUtil.createInitFunction(pkgNode.pos, alias, Names.STOP_FUNCTION_SUFFIX);
         // Create invokable symbol for init function
         createInvokableSymbol(pkgNode.initFunction, env);
-        addInitReturnStatement(pkgNode.initFunction.body);
         // Create invokable symbol for start function
         createInvokableSymbol(pkgNode.startFunction, env);
         addInitReturnStatement(pkgNode.startFunction.body);
@@ -423,9 +420,6 @@ public class Desugar extends BLangNodeVisitor {
 
         pkgNode.globalVars.forEach(globalVar -> {
             BLangAssignment assignment = createAssignmentStmt(globalVar);
-            if (assignment.expr == null) {
-                assignment.expr = getInitExpr(globalVar);
-            }
             if (assignment.expr != null) {
                 pkgNode.initFunction.body.stmts.add(assignment);
             }
@@ -634,14 +628,7 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVariableDef varDefNode) {
         varDefNode.var = rewrite(varDefNode.var, env);
-        BLangSimpleVariable varNode = varDefNode.var;
-
-        // Generate default init expression, if rhs expr is null
-        if (varNode.expr == null) {
-            varNode.expr = getInitExpr(varNode);
-        }
         result = varDefNode;
-
     }
 
     @Override
@@ -3438,62 +3425,6 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangIsLikeExpr createIsLikeExpression(DiagnosticPos pos, BLangExpression expr, BType type) {
         return ASTBuilderUtil.createIsLikeExpr(pos, expr, ASTBuilderUtil.createTypeNode(type), symTable.booleanType);
-    }
-
-    private BLangExpression getInitExpr(BLangSimpleVariable varNode) {
-        return getInitExpr(varNode.type, varNode.name);
-    }
-
-    private BLangExpression getInitExpr(BType type, BLangIdentifier name) {
-        // Don't need to create an empty init expressions if the type allows null.
-        if (type.isNullable()) {
-            return getNullLiteral();
-        }
-
-        switch (type.tag) {
-            case TypeTags.INT:
-                return getIntLiteral(0);
-            case TypeTags.FLOAT:
-                return getFloatLiteral(0);
-            case TypeTags.DECIMAL:
-                return getDecimalLiteral("0.0");
-            case TypeTags.BOOLEAN:
-                return getBooleanLiteral(false);
-            case TypeTags.STRING:
-                return getStringLiteral("");
-            case TypeTags.XML:
-                return new BLangXMLSequenceLiteral(type);
-            case TypeTags.MAP:
-                return new BLangMapLiteral(new ArrayList<>(), type);
-            case TypeTags.STREAM:
-                return new BLangStreamLiteral(type, name);
-            case TypeTags.OBJECT:
-                return ASTBuilderUtil.createEmptyTypeInit(null, type);
-            case TypeTags.RECORD:
-                return new BLangStructLiteral(new ArrayList<>(), type);
-            case TypeTags.TABLE:
-                if (((BTableType) type).getConstraint().tag == TypeTags.RECORD) {
-                    BLangTableLiteral table = new BLangTableLiteral();
-                    table.type = type;
-                    return rewriteExpr(table);
-                }
-
-                break;
-            case TypeTags.ARRAY:
-                BLangArrayLiteral array = new BLangArrayLiteral();
-                array.exprs = new ArrayList<>();
-                array.type = type;
-                return rewriteExpr(array);
-            case TypeTags.TUPLE:
-                BLangBracedOrTupleExpr tuple = new BLangBracedOrTupleExpr();
-                tuple.type = type;
-                return rewriteExpr(tuple);
-            case TypeTags.CHANNEL:
-                return new BLangChannelLiteral(type, name);
-            default:
-                break;
-        }
-        return null;
     }
 
     private BLangAssignment createAssignmentStmt(BLangSimpleVariable variable) {
