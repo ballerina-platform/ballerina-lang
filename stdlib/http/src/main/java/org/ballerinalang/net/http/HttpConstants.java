@@ -396,6 +396,8 @@ public class HttpConstants {
     public static final String REQUEST_REUSE_STATUS_INDEX = "dirtyRequest";
     public static final boolean DIRTY_REQUEST = true;
 
+    public static final String MOCK_SERVER = "MockServer";
+
     private HttpConstants() {
     }
 }
