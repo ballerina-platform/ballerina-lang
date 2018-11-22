@@ -300,6 +300,6 @@ function checkAndAdd(int numberOfKeysToEvict, string[] cacheKeys, int[] timestam
 function createCacheCleanupTask() returns task:Timer {
     (function () returns error?) onTriggerFunction = runCacheExpiry;
     task:Timer timer = new(onTriggerFunction, (), CACHE_CLEANUP_INTERVAL, delay = CACHE_CLEANUP_START_DELAY);
-    //timer.start();
+    timer.start();
     return timer;
 }
