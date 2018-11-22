@@ -335,7 +335,7 @@ function invokeClientConnectorOnRedirection(@sensitive string hub, @sensitive st
 function subscribeWithRetries(string hubUrl, SubscriptionChangeRequest subscriptionRequest, http:AuthConfig? auth,
                               int remainingRedirects = 0) returns @tainted SubscriptionChangeResponse| error {
     http:ClientEndpointConfig config = { url:hubUrl, auth:auth };
-    http:Client clientEndpoint = new (config);
+    http:Client clientEndpoint = new http:Client(config);
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_SUBSCRIBE, subscriptionRequest);
     var response = clientEndpoint->post("", builtSubscriptionRequest);
     return processHubResponse(hubUrl, MODE_SUBSCRIBE, subscriptionRequest, response, clientEndpoint,
@@ -345,7 +345,7 @@ function subscribeWithRetries(string hubUrl, SubscriptionChangeRequest subscript
 function unsubscribeWithRetries(string hubUrl, SubscriptionChangeRequest unsubscriptionRequest, http:AuthConfig? auth,
                                 int remainingRedirects = 0) returns @tainted SubscriptionChangeResponse|error {
     http:ClientEndpointConfig config = { url:hubUrl, auth:auth };
-    http:Client clientEndpoint = new (config);
+    http:Client clientEndpoint = new http:Client(config);
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_UNSUBSCRIBE, unsubscriptionRequest);
     var response = clientEndpoint->post("", builtSubscriptionRequest);
     return processHubResponse(hubUrl, MODE_UNSUBSCRIBE, unsubscriptionRequest, response, clientEndpoint,

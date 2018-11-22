@@ -353,8 +353,8 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
 # + topic - The topic for which registration is changing
 function changeTopicRegistrationInDatabase(string mode, string topic) {
     h2:ClientEndpointConfig subscriptionDbEpConfig = { path: hubDatabaseDirectory, name: hubDatabaseName,
-                                                  username: hubDatabaseUsername, password: hubDatabasePassword,
-                                                  poolOptions: { maximumPoolSize:5 }};
+                                                       username: hubDatabaseUsername, password: hubDatabasePassword,
+                                                       poolOptions: { maximumPoolSize:5 }};
     h2:Client subscriptionDbEp = new h2:Client(subscriptionDbEpConfig);
 
     sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:topic};
