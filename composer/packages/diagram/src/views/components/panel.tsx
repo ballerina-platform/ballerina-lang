@@ -2,7 +2,7 @@
 import * as React from "react";
 import { FunctionViewState , SimpleBBox} from "../../view-model/index";
 
-export const Panel: React.StatelessComponent<{ model: FunctionViewState }> = ({  model , children}) => {
+export const Panel: React.StatelessComponent<{ model: FunctionViewState }> = ({ model , children}) => {
 
     const body: SimpleBBox = model.body;
 
