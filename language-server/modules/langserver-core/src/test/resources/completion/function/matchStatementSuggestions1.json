@@ -1,98 +1,163 @@
 {
   "position": {
-    "line": 7,
+    "line": 11,
     "character": 10
   },
   "source": "function/source/matchStatementSuggestions1.bal",
   "items": [
     {
-      "label":"testVar",
-      "kind":"Unit",
-      "detail":"Snippet",
-      "sortText":"110",
-      "insertText":"testVar {\n\tint \u003d\u003e {\n\t\t\n\t}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"testVar",
-      "kind":"Unit",
-      "detail":"int",
-      "sortText":"130",
-      "insertText":"testVar"
-    },
-    {
       "label":"bar(i)",
       "kind":"Function",
       "detail":"Snippet",
       "sortText":"120",
-      "insertText":"bar(i) {\n\tstring \u003d\u003e {\n\t\t\n\t}\n\tint \u003d\u003e {\n\t\t\n\t}\n\tboolean \u003d\u003e {\n\t\t\n\t}\n}",
+      "insertText":"bar(i) {\n${1:value} \u003d\u003e {${2}}\n}",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"queryTableWithJoinClause(sqlQuery,fromTable,joinTable,parameters,retType)",
       "kind":"Function",
       "detail":"Snippet",
+      "documentation":"Execute the given sql query to fetch the records and return as a new in memory table.\n",
       "sortText":"120",
-      "insertText":"queryTableWithJoinClause(sqlQuery,fromTable,joinTable,parameters,retType) {\n\ttable \u003d\u003e {\n\t\t\n\t}\n}",
+      "insertText":"queryTableWithJoinClause(sqlQuery,fromTable,joinTable,parameters,retType) {\n${1:value} \u003d\u003e {${2}}\n}",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"io",
+      "kind":"Module",
       "detail":"BType",
       "sortText":"150",
       "insertText":"io"
     },
     {
-      "label":"testVar2",
-      "kind":"Unit",
-      "detail":"Snippet",
-      "sortText":"110",
-      "insertText":"testVar2 {\n\tstring \u003d\u003e {\n\t\t\n\t}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"testVar2",
-      "kind":"Unit",
-      "detail":"string",
-      "sortText":"130",
-      "insertText":"testVar2"
-    },
-    {
       "label":"queryTableWithoutJoinClause(sqlQuery,fromTable,parameters,retType)",
       "kind":"Function",
       "detail":"Snippet",
+      "documentation":"Execute the given sql query to fetch the records and return as a new in memory table.\n",
       "sortText":"120",
-      "insertText":"queryTableWithoutJoinClause(sqlQuery,fromTable,parameters,retType) {\n\ttable \u003d\u003e {\n\t\t\n\t}\n}",
+      "insertText":"queryTableWithoutJoinClause(sqlQuery,fromTable,parameters,retType) {\n${1:value} \u003d\u003e {${2}}\n}",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"startForever(streamQuery,inStreamRefs,inTableRefs,outStreamRefs,outTableRefs,funcPointers)",
       "kind":"Function",
       "detail":"Snippet",
+      "documentation":"Creates the forever runtime.\n",
       "sortText":"120",
-      "insertText":"startForever(streamQuery,inStreamRefs,inTableRefs,outStreamRefs,outTableRefs,funcPointers) {\n\t() \u003d\u003e {\n\t\t\n\t}\n}",
+      "insertText":"startForever(streamQuery,inStreamRefs,inTableRefs,outStreamRefs,outTableRefs,funcPointers) {\n${1:value} \u003d\u003e {${2}}\n}",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"i",
-      "kind":"Unit",
+      "kind":"Variable",
       "detail":"Snippet",
       "sortText":"110",
-      "insertText":"i {\n\tstring \u003d\u003e {\n\t\t\n\t}\n\tint \u003d\u003e {\n\t\t\n\t}\n\tboolean \u003d\u003e {\n\t\t\n\t}\n}",
+      "insertText":"i {\n\t${1:value} \u003d\u003e {${2}}\n}",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"i",
-      "kind":"Unit",
+      "kind":"Variable",
       "detail":"string|int|boolean",
       "sortText":"130",
       "insertText":"i"
     },
     {
+      "label":"p",
+      "kind":"Variable",
+      "detail":"Snippet",
+      "sortText":"110",
+      "insertText":"p {\n\t${1:{name:\"\", age:0}} \u003d\u003e {${2}}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"p",
+      "kind":"Variable",
+      "detail":"Person",
+      "sortText":"130",
+      "insertText":"p"
+    },
+    {
       "label":"http",
+      "kind":"Module",
       "detail":"BType",
       "sortText":"150",
       "insertText":"http"
+    },
+    {
+      "label":"var5",
+      "kind":"Variable",
+      "detail":"Snippet",
+      "sortText":"110",
+      "insertText":"var5 {\n\t${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"var5",
+      "kind":"Variable",
+      "detail":"string",
+      "sortText":"130",
+      "insertText":"var5"
+    },
+    {
+      "label":"var4",
+      "kind":"Variable",
+      "detail":"Snippet",
+      "sortText":"110",
+      "insertText":"var4 {\n\t${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"var4",
+      "kind":"Variable",
+      "detail":"int",
+      "sortText":"130",
+      "insertText":"var4"
+    },
+    {
+      "label":"var3",
+      "kind":"Variable",
+      "detail":"Snippet",
+      "sortText":"110",
+      "insertText":"var3 {\n\t${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"var3",
+      "kind":"Variable",
+      "detail":"(string,int)|(float,(string,boolean))|(float,(string,(boolean,int)))|float",
+      "sortText":"130",
+      "insertText":"var3"
+    },
+    {
+      "label":"var2",
+      "kind":"Variable",
+      "detail":"Snippet",
+      "sortText":"110",
+      "insertText":"var2 {\n\t${1:(\"\", 0, false)} \u003d\u003e {${2}}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"var2",
+      "kind":"Variable",
+      "detail":"(string,int,boolean)",
+      "sortText":"130",
+      "insertText":"var2"
+    },
+    {
+      "label":"var1",
+      "kind":"Variable",
+      "detail":"Snippet",
+      "sortText":"110",
+      "insertText":"var1 {\n\t${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"var1",
+      "kind":"Variable",
+      "detail":"string|int|boolean",
+      "sortText":"130",
+      "insertText":"var1"
     }
   ]
 }
