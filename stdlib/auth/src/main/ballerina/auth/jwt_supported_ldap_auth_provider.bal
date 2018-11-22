@@ -35,7 +35,10 @@ public type LdapJwtAuthProvider object {
     #
     # + ldapJwtAuthProviderConfig - Configuration for JWT token propagation
     # + ldapAuthProvider - LDAP auth store provider
-    public new(ldapJwtAuthProviderConfig, ldapAuthProvider) {
+    public function __init(InferredJwtAuthProviderConfig ldapJwtAuthProviderConfig,
+                           LdapAuthStoreProvider ldapAuthProvider) {
+        self.ldapJwtAuthProviderConfig = ldapJwtAuthProviderConfig;
+        self.ldapAuthProvider = ldapAuthProvider;
     }
 
     # Authenticate with username and password using LDAP user store

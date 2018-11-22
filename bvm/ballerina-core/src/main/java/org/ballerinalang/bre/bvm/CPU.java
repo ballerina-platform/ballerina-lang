@@ -4289,7 +4289,7 @@ public class CPU {
         }
 
         BRefValueArray source = (BRefValueArray) sourceValue;
-        if (source.getValues().length != targetType.getTupleTypes().size()) {
+        if (source.size() != targetType.getTupleTypes().size()) {
             return false;
         }
 

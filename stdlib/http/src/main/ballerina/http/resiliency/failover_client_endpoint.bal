@@ -59,7 +59,11 @@ public type FailoverClient client object {
     #
     # + config - The configurations of the client endpoint associated with this `Failover` instance
     # + failoverInferredConfig - Configurations derived from `FailoverConfig`
-    public new (failoverClientConfig, failoverInferredConfig) {}
+    public function __init(FailoverClientEndpointConfiguration failoverClientConfig,
+                                                                FailoverInferredConfig failoverInferredConfig) {
+        self.failoverClientConfig = failoverClientConfig;
+        self.failoverInferredConfig = failoverInferredConfig;
+    }
 
     # Initializes the endpoint using the configurations provided.
     #

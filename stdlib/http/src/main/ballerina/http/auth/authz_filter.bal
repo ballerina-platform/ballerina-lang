@@ -26,7 +26,8 @@ public type AuthzFilter object {
 
     public HttpAuthzHandler authzHandler;
 
-    public new (authzHandler) {
+    public function __init(HttpAuthzHandler authzHandler) {
+        self.authzHandler = authzHandler;
     }
 
     # Filter function implementation which tries to authorize the request

@@ -10,7 +10,7 @@ type Person object {
     function checkAndModifyAge(int condition, int a);
 };
 
-function Person::
+function Person.
 
 function main(string... args) {
     Person p1 = new(5, "John", "Doe");
