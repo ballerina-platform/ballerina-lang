@@ -345,7 +345,6 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.stopFunction = ASTBuilderUtil.createInitFunction(pkgNode.pos, alias, Names.STOP_FUNCTION_SUFFIX);
         // Create invokable symbol for init function
         createInvokableSymbol(pkgNode.initFunction, env);
-        addInitReturnStatement(pkgNode.initFunction.body);
         // Create invokable symbol for start function
         createInvokableSymbol(pkgNode.startFunction, env);
         addInitReturnStatement(pkgNode.startFunction.body);
