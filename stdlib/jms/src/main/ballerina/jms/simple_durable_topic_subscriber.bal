@@ -148,9 +148,9 @@ public type SimpleDurableTopicSubscriberActions object {
     private Session session;
     private string identifier;
 
-    function __init(DurableTopicSubscriberActions subscriberActions, Session sess, string id) {
+    function __init(DurableTopicSubscriberActions subscriberActions, Session session, string id) {
         self.helper = subscriberActions;
-        self.session = sess;
+        self.session = session;
         self.identifier = id;
     }
 
