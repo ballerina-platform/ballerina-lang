@@ -45,7 +45,8 @@ import static org.ballerinalang.net.http.HttpConstants.MOCK_SERVER;
         functionName = "register",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = MOCK_SERVER,
                 structPackage = "ballerina.http"),
-        args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC)},
+        args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC),
+                @Argument(name = "annotationData", type = TypeKind.MAP)},
         isPublic = true
 )
 public class NonListeningRegister extends org.ballerinalang.net.http.serviceendpoint.Register {
