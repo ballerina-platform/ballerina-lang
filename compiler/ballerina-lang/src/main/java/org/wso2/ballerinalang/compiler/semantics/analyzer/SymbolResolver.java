@@ -353,7 +353,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     BSymbol createSymbolForCreateOperator(DiagnosticPos pos, Name name, List<BLangExpression> functionArgList,
                                           BLangExpression targetTypeExpression) {
-        // If there are more than one argument for from in-built function then fail.
+        // If there are more than one argument for create in-built function then fail.
         if (functionArgList.size() < 1) {
             dlog.error(pos, DiagnosticCode.NOT_ENOUGH_ARGS_FUNC_CALL, name);
             resultType = symTable.semanticError;
@@ -380,7 +380,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             return symTable.notFoundSymbol;
         }
         // Check whether the types are anydata, since conversion is supported only for any data types.
-        if (types.isAnydata(variableSourceType) && types.isAnydata(targetType)) {
+        if (!types.isAnydata(variableSourceType) || !types.isAnydata(targetType)) {
             dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION, variableSourceType, targetType);
             resultType = symTable.semanticError;
             return symTable.notFoundSymbol;
