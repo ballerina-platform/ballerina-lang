@@ -950,7 +950,7 @@ public class CommonUtil {
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         if (compilerContext != null) {
             TypeChecker typeChecker = TypeChecker.getInstance(compilerContext);
-            return typeChecker.isValidFreezeOrIsFrozenFunction(bType);
+            return typeChecker.isLikeAnydataOrNotNil(bType);
         }
         return false;
     }

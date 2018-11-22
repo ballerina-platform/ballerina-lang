@@ -227,7 +227,7 @@ public class MultipartDataSource implements BValue {
     }
 
     @Override
-    public BValue copy() {
+    public BValue copy(Map<BValue, BValue> refs) {
         return null;
     }
 }
