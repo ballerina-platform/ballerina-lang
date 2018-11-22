@@ -612,11 +612,11 @@ public class CompiledPackageSymbolEnter {
     }
 
     private void defineService(DataInputStream dataInStream) throws IOException {
-        // Read connector name cp index
-        getUTF8CPEntryValue(dataInStream);
         dataInStream.readInt();
-        // endpoint type is not required for service symbol.
-        getUTF8CPEntryValue(dataInStream);
+        dataInStream.readInt();
+        dataInStream.readInt();
+        dataInStream.readInt();
+        dataInStream.readInt();
     }
 
     private void defineResource(DataInputStream dataInStream) throws IOException {
@@ -629,18 +629,9 @@ public class CompiledPackageSymbolEnter {
                 dataInStream.readInt();
             }
 
-            // Read and ignore worker data
-            int noOfWorkerDataBytes = dataInStream.readInt();
-            byte[] workerData = new byte[noOfWorkerDataBytes];
-            int bytesRead = dataInStream.read(workerData);
-            if (bytesRead != noOfWorkerDataBytes) {
-                // TODO throw an error
-            }
-
             // Read attributes
             readAttributes(dataInStream);
         }
-        readAttributes(dataInStream);
     }
 
 

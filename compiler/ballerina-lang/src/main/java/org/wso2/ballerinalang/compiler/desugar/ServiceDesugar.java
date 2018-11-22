@@ -137,6 +137,7 @@ public class ServiceDesugar {
             ASTBuilderUtil.defineVariable(listenerVar, env.enclPkg.symbol, names);
             listenerVarRef = ASTBuilderUtil.createVariableRef(pos, listenerVar.symbol);
         }
+        service.listenerName = listenerVarRef.variableName.value;
 
         //      (globalVar)         ->      service x = service { ... };
         final BLangServiceConstructorExpr serviceConstructor = ASTBuilderUtil.createServiceConstructor(service);

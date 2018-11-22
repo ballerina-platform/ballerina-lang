@@ -399,7 +399,9 @@ public class PackageInfoWriter {
                                          ServiceInfo serviceInfo) throws IOException {
         dataOutStream.writeInt(serviceInfo.nameCPIndex);
         dataOutStream.writeInt(serviceInfo.flags);
-        dataOutStream.writeInt(serviceInfo.endpointNameCPIndex);
+        dataOutStream.writeInt(serviceInfo.serviceTypeCPIndex);
+        dataOutStream.writeInt(serviceInfo.listenerTypeCPIndex);
+        dataOutStream.writeInt(serviceInfo.listenerNameCPIndex);
     }
 
     private static void writeResourceInfo(DataOutputStream dataOutStream,
@@ -409,9 +411,6 @@ public class PackageInfoWriter {
         for (ResourceInfo resourceInfo : resourceInfoEntries) {
             writeResourceInfo(dataOutStream, resourceInfo);
         }
-
-        // Write attribute info entries
-        writeAttributeInfoEntries(dataOutStream, serviceInfo.getAttributeInfoEntries());
     }
 
     private static void writeResourceInfo(DataOutputStream dataOutStream,
@@ -424,8 +423,6 @@ public class PackageInfoWriter {
         for (int paramNameCPIndex : paramNameCPIndexes) {
             dataOutStream.writeInt(paramNameCPIndex);
         }
-
-        writeWorkerData(dataOutStream, resourceInfo);
 
         writeAttributeInfoEntries(dataOutStream, resourceInfo.getAttributeInfoEntries());
     }

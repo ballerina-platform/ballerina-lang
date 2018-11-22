@@ -18,6 +18,7 @@
 package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.model.types.BServiceType;
+import org.ballerinalang.model.types.BType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,29 +31,25 @@ import java.util.Objects;
  */
 public class ServiceInfo extends CustomTypeInfo {
 
-    private BServiceType serviceType;
-    private int endpointNameCPIndex;
-    private String endpointName;
+    public BServiceType serviceType;
+    public BType listenerType;
+    public String listenerName;
 
     private Map<String, ResourceInfo> resourceInfoMap = new HashMap<>();
 
     private FunctionInfo initFuncInfo;
 
-    public ServiceInfo(int pkgPathCPIndex, String packageName,
-                       int nameCPIndex, String serviceName, int flags,
-                       int endpointNameCPIndex, String endpointName) {
+    public ServiceInfo(int pkgPathCPIndex, String packageName, int nameCPIndex, String serviceName, int flags,
+            BServiceType serviceType, BType listenerType, String listenerName) {
 
         super(pkgPathCPIndex, packageName, nameCPIndex, serviceName, flags);
-        this.endpointNameCPIndex = endpointNameCPIndex;
-        this.endpointName = endpointName;
+        this.serviceType = serviceType;
+        this.listenerType = listenerType;
+        this.listenerName = listenerName;
     }
 
-    public int getEndpointNameCPIndex() {
-        return endpointNameCPIndex;
-    }
-
-    public String getEndpointName() {
-        return endpointName;
+    public String getListenerName() {
+        return listenerName;
     }
 
     public ResourceInfo[] getResourceInfoEntries() {
@@ -79,10 +76,6 @@ public class ServiceInfo extends CustomTypeInfo {
         return serviceType;
     }
 
-    public void setType(BServiceType serviceType) {
-        this.serviceType = serviceType;
-    }
-
     @Override
     public int hashCode() {
         return Objects.hash(pkgPathCPIndex, nameCPIndex);
@@ -93,11 +86,6 @@ public class ServiceInfo extends CustomTypeInfo {
         return obj instanceof ServiceInfo
                 && pkgPathCPIndex == (((ServiceInfo) obj).pkgPathCPIndex)
                 && nameCPIndex == (((ServiceInfo) obj).nameCPIndex);
-    }
-
-    @Deprecated
-    public AnnAttachmentInfo getAnnotationAttachmentInfo(String packageName, String annotationName) {
-        return null;
     }
 
 }
