@@ -31,7 +31,7 @@ public type Client client object {
 
     public function __init(ClientEndpointConfig c) {
         self.config = c;
-        self.init(self.config);
+        any a = self.init(self.config);
     }
 
     # Gets invoked to initialize the endpoint. During initialization, configurations provided through the `config`
@@ -39,7 +39,7 @@ public type Client client object {
     # security, circuit breaking).
     #
     # + c - The configurations to be used when initializing the endpoint
-    public function init(ClientEndpointConfig c);
+    public function init(ClientEndpointConfig c) returns error?;
 
     # The `post()` function can be used to send HTTP POST requests to HTTP endpoints.
     #
@@ -357,36 +357,51 @@ public type AuthConfig record {
     !...
 };
 
-function Client.init(ClientEndpointConfig c) {
-    self = createSimpleHttpClient(c.url, c);
-    //boolean httpClientRequired = false;
-    //string url = c.url;
-    //if (url.hasSuffix("/")) {
-    //    int lastIndex = url.length() - 1;
-    //    url = url.substring(0, lastIndex);
-    //}
-    //self.config = c;
-    //var cbConfig = c.circuitBreaker;
-    //if (cbConfig is CircuitBreakerConfig) {
-    //    if (url.hasSuffix("/")) {
-    //        int lastIndex = url.length() -1;
-    //        url = url.substring(0, lastIndex);
-    //    }
-    //    httpClientRequired = false;
-    //} else {
-    //    httpClientRequired = true;
-    //}
-    //
-    //if (httpClientRequired) {
-    //    var redirectConfigVal = c.followRedirects;
-    //    if (redirectConfigVal is FollowRedirects) {
-    //        self.httpClient = createRedirectClient(url, c);
-    //    } else {
-    //        self.httpClient = checkForRetry(url, c);
-    //    }
-    //} else {
-    //    self.httpClient = createCircuitBreakerClient(url, c);
-    //}
+function Client.init(ClientEndpointConfig c) returns error? {
+    //self = createSimpleHttpClient(c.url, c);
+    boolean httpClientRequired = false;
+    string url = c.url;
+    if (url.hasSuffix("/")) {
+        int lastIndex = url.length() - 1;
+        url = url.substring(0, lastIndex);
+    }
+    self.config = c;
+    var cbConfig = c.circuitBreaker;
+    if (cbConfig is CircuitBreakerConfig) {
+        if (url.hasSuffix("/")) {
+            int lastIndex = url.length() -1;
+            url = url.substring(0, lastIndex);
+        }
+        httpClientRequired = false;
+    } else {
+        httpClientRequired = true;
+    }
+    if (httpClientRequired) {
+        var redirectConfigVal = c.followRedirects;
+        if (redirectConfigVal is FollowRedirects) {
+            var redirectClient = createRedirectClient(url, c);
+            if (redirectClient is Client) {
+                any rd = redirectClient;
+            } else {
+                return redirectClient;
+            }
+        } else {
+            var retryClient = checkForRetry(url, c);
+            if (retryClient is Client) {
+                any rt  = retryClient;
+            } else {
+                return retryClient;
+            }
+        }
+    } else {
+        var cbClient = createCircuitBreakerClient(url, c);
+        if (cbClient is Client) {
+            any cb = cbClient;
+        } else {
+            return cbClient;
+        }
+    }
+    return;
 }
 
 function createRedirectClient(string url, ClientEndpointConfig configuration) returns Client|error {
