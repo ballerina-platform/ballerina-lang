@@ -57,7 +57,7 @@ public type HelloWorldBlockingClient client object {
 
     public grpc:Client grpcClient = new;
 
-    new (grpc:ClientEndpointConfig config) {
+    function __init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
         grpc:Client c = new;
         c.init(config);
@@ -83,7 +83,7 @@ public type HelloWorldClient client object {
     public grpc:Client grpcClient = new;
     public HelloWorldStub stub = new;
 
-    new (grpc:ClientEndpointConfig config) {
+    function __init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
         grpc:Client c = new;
         c.init(config);

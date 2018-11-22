@@ -34,7 +34,7 @@ function testEnum() returns (string) {
 public type testEnumServiceBlockingClient client object {
     public grpc:Client grpcClient = new;
 
-    new (grpc:ClientEndpointConfig config) {
+    function __init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
         grpc:Client c = new;
         c.init(config);
@@ -58,7 +58,7 @@ public type testEnumServiceBlockingClient client object {
 public type testEnumServiceClient client object {
     public grpc:Client grpcClient = new;
 
-    new (grpc:ClientEndpointConfig config) {
+    function __init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
         grpc:Client c = new;
         c.init(config);

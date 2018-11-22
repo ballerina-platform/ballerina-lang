@@ -43,7 +43,7 @@ function testUnarySecuredBlockingWithCerts(string path) returns (string) {
 public type grpcMutualSslServiceBlockingClient client object {
     public grpc:Client grpcClient = new;
 
-    new (grpc:ClientEndpointConfig config) {
+    function __init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
         grpc:Client c = new;
         c.init(config);
@@ -68,7 +68,7 @@ public type grpcMutualSslServiceBlockingClient client object {
 public type grpcMutualSslServiceClient client object {
     public grpc:Client grpcClient = new;
 
-    new (grpc:ClientEndpointConfig config) {
+    function __init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
         grpc:Client c = new;
         c.init(config);

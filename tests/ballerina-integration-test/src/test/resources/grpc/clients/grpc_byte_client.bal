@@ -37,7 +37,7 @@ function testByteArray() returns (string) {
 public type byteServiceBlockingClient client object {
     public grpc:Client grpcClient = new;
 
-    new (grpc:ClientEndpointConfig config) {
+    function __init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
         grpc:Client c = new;
         c.init(config);
@@ -61,7 +61,7 @@ public type byteServiceBlockingClient client object {
 public type byteServiceClient client object {
     public grpc:Client grpcClient = new;
 
-    new (grpc:ClientEndpointConfig config) {
+    function __init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
         grpc:Client c = new;
         c.init(config);

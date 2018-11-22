@@ -128,7 +128,7 @@ public type HelloWorldClient client object {
 
     public grpc:Client grpcClient = new;
 
-    public function init(grpc:ClientEndpointConfig con) {
+    function __init(grpc:ClientEndpointConfig con) {
         // initialize client endpoint.
         grpc:Client c = new;
         c.init(con);
