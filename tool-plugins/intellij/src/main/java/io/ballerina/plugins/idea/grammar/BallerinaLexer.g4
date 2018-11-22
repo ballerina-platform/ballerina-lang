@@ -34,6 +34,7 @@ VERSION     : 'version';
 DEPRECATED  : 'deprecated';
 CHANNEL     : 'channel';
 ABSTRACT    : 'abstract';
+CONST       : 'const';
 
 FROM        : 'from' { inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; } ;
 ON          : 'on' ;
@@ -85,6 +86,7 @@ DESCENDING  : 'descending' ;
 TYPE_INT        : 'int' ;
 TYPE_BYTE       : 'byte' ;
 TYPE_FLOAT      : 'float' ;
+TYPE_DECIMAL    : 'decimal' ;
 TYPE_BOOL       : 'boolean' ;
 TYPE_STRING     : 'string' ;
 TYPE_ERROR      : 'error' ;
@@ -140,13 +142,13 @@ DONE        : 'done' ;
 SCOPE       : 'scope';
 COMPENSATION: 'compensation';
 COMPENSATE  : 'compensate' ;
+PRIMARYKEY  : 'primarykey' ;
 IS          : 'is' ;
 
 // Separators
 
 SEMICOLON           : ';' ;
 COLON               : ':' ;
-DOUBLE_COLON        : '::' ;
 DOT                 : '.' ;
 COMMA               : ',' ;
 LEFT_BRACE          : '{' ;
@@ -271,7 +273,7 @@ DottedHexNumber
 fragment
 DottedDecimalNumber
     :   DecimalNumeral DOT Digits
-    |   DOT Digit+
+    |   DOT Digits
     ;
 
 fragment
