@@ -482,14 +482,6 @@ public class Desugar extends BLangNodeVisitor {
         objectTypeNode.fields.stream()
                 // skip if the field is already have an value set by the constructor.
                 .filter(field -> !initFunctionStmts.containsKey(field.symbol))
-                .map(field -> {
-                    // If the rhs value is not given in-line inside the struct
-                    // then get the default value literal for that particular struct.
-                    if (field.expr == null) {
-                        field.expr = getInitExpr(field);
-                    }
-                    return field;
-                })
                 .filter(field -> field.expr != null)
                 .forEachOrdered(field -> {
                     initFunctionStmts.put(field.symbol, createAssignmentStmt(field));
@@ -515,14 +507,6 @@ public class Desugar extends BLangNodeVisitor {
                 // required fields will have been caught in the type checking phase.
                 .filter(field -> !recordTypeNode.initFunction.initFunctionStmts.containsKey(field.symbol) &&
                             !Symbols.isFlagOn(field.symbol.flags, maskOptional))
-                .map(field -> {
-                    // If the rhs value is not given in-line inside the struct
-                    // then get the default value literal for that particular struct.
-                    if (field.expr == null) {
-                        field.expr = getInitExpr(field);
-                    }
-                    return field;
-                })
                 .filter(field -> field.expr != null)
                 .forEachOrdered(field -> {
                     recordTypeNode.initFunction.initFunctionStmts.put(field.symbol,
@@ -2759,9 +2743,19 @@ public class Desugar extends BLangNodeVisitor {
                                                                                 OperatorKind.OR, orSymbol);
                 result = rewriteExpr(binaryExprInf);
                 break;
+            case CLONE:
+                if (types.isValueType(iExpr.expr.type)) {
+                    result = iExpr.expr;
+                    break;
+                }
+                result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
+                break;
             case FREEZE:
             case IS_FROZEN:
                 visitFreezeBuiltInMethodInvocation(iExpr);
+                break;
+            case CALL:
+                visitCallBuiltInMethodInvocation(iExpr);
                 break;
             default:
                 result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
@@ -2780,6 +2774,21 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
         result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
+    }
+
+    private void visitCallBuiltInMethodInvocation(BLangInvocation iExpr) {
+        Name funcPointerName = ((BLangVariableReference) iExpr.expr).symbol.name;
+        if (iExpr.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            iExpr.expr = null;
+        } else {
+            iExpr.expr = ((BLangAccessExpression) iExpr.expr).expr;
+        }
+
+        iExpr.name = ASTBuilderUtil.createIdentifier(iExpr.pos, funcPointerName.value);
+        iExpr.builtinMethodInvocation = false;
+        iExpr.functionPointerInvocation = true;
+
+        visitFunctionPointerInvocation(iExpr);
     }
 
     private void visitIterableOperationInvocation(BLangInvocation iExpr) {

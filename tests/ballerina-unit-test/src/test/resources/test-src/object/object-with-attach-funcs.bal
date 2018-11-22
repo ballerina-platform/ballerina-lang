@@ -12,7 +12,9 @@ type Person object {
     int year = 50;
     string month = "february";
 
-    new (year, int count, name = "sample value1", string val1 = "default value") {
+    function __init (int year, int count, string name = "sample value1", string val1 = "default value") {
+        self.year = year;
+        self.name = name;
         self.age = self.age + count;
     }
 
@@ -22,5 +24,3 @@ type Person object {
         return (count, val2);
     }
 };
-
-

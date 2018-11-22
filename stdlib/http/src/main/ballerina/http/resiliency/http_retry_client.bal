@@ -235,40 +235,28 @@ remote function RetryClient.options(string path, Request|string|xml|json|byte[]|
 
 remote function RetryClient.submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|
                                                                     mime:Entity[]|() message) returns HttpFuture|error {
-    Client httpClient = self.httpClient;
     Request req = buildRequest(message);
-    var result = httpClient->submit(httpVerb, path, req);
-    return result;
+    return self.httpClient->submit(httpVerb, path, req);
 }
 
 remote function RetryClient.getResponse(HttpFuture httpFuture) returns Response|error {
-    Client httpClient = self.httpClient;
-    var result = httpClient->getResponse(httpFuture);
-    return result;
+    return self.httpClient->getResponse(httpFuture);
 }
 
 remote function RetryClient.hasPromise(HttpFuture httpFuture) returns boolean {
-    Client httpClient = self.httpClient;
-    var result = httpClient->hasPromise(httpFuture);
-    return result;
+    return self.httpClient->hasPromise(httpFuture);
 }
 
 remote function RetryClient.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
-    Client httpClient = self.httpClient;
-    var result = httpClient->getNextPromise(httpFuture);
-    return result;
+    return self.httpClient->getNextPromise(httpFuture);
 }
 
 remote function RetryClient.getPromisedResponse(PushPromise promise) returns Response|error {
-    Client httpClient = self.httpClient;
-    var result = httpClient->getPromisedResponse(promise);
-    return result;
+    return self.httpClient->getPromisedResponse(promise);
 }
 
 remote function RetryClient.rejectPromise(PushPromise promise) {
-    Client httpClient = self.httpClient;
-    var result = httpClient->rejectPromise(promise);
-    return result;
+    return self.httpClient->rejectPromise(promise);
 }
 
 // Performs execute action of the retry client. extract the corresponding http integer value representation

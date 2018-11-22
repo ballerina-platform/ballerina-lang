@@ -44,7 +44,7 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Map;
 
-import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_CLIENT;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 
 /**
@@ -117,9 +117,9 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
                 .createHttpClientConnector(properties, senderConfiguration);
         BMap<String, BValue> httpClientEndpoint = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(),
                                                                                       HTTP_PACKAGE_PATH,
-                                                                                      CLIENT_ENDPOINT, urlString,
+                HTTP_CLIENT, urlString,
                                                                                       clientEndpointConfig);
-        httpClientEndpoint.addNativeData(HttpConstants.CLIENT_ENDPOINT, httpClientConnector);
+        httpClientEndpoint.addNativeData(HttpConstants.HTTP_CLIENT, httpClientConnector);
         httpClientEndpoint.addNativeData(HttpConstants.CLIENT_ENDPOINT_CONFIG, clientEndpointConfig);
         context.setReturnValues(httpClientEndpoint);
     }

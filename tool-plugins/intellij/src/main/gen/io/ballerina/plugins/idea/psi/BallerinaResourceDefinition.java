@@ -30,6 +30,9 @@ public interface BallerinaResourceDefinition extends BallerinaCompositeElement {
   BallerinaCallableUnitBody getCallableUnitBody();
 
   @Nullable
+  BallerinaReturnParameter getReturnParameter();
+
+  @Nullable
   BallerinaDeprecatedAttachment getDeprecatedAttachment();
 
   @Nullable

@@ -15,7 +15,7 @@
 // under the License.
 
 # Provides the gRPC actions for interacting with gRPC server.
-public type GrpcClient object {
+public type StreamingClient object {
 
     # Sends request message to the server.
     #

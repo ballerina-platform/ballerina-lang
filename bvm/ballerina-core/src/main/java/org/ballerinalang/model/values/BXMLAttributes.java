@@ -20,6 +20,8 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
+import java.util.Map;
+
 /**
  * The {@code BString} represents a XML attributes map in ballerina, denoted by 'foo@', where foo is an xml variable.
  *
@@ -67,7 +69,11 @@ public final class BXMLAttributes implements BRefType {
     }
 
     @Override
-    public BValue copy() {
+    public BValue copy(Map<BValue, BValue> refs) {
+        if (isFrozen()) {
+            return this;
+        }
+
         return new BXMLAttributes(value);
     }
 }
