@@ -40,7 +40,7 @@ function arrayLengthAccessTestArrayInitializerCase (int x, int y) returns (int) 
     return tempArr[0];
 }
 
-function arrayLengthAccessTestMapInitializerCase (int x, int y) returns (int) {
+function arrayLengthAccessTestMapInitializerCase (int x, int y) returns (int|error) {
     int[] arr = [];
     arr[0] = x;
     arr[1] = y;
@@ -138,7 +138,7 @@ function lengthOfMap (int x, int y) returns (int) {
 }
 
 function lengthOfMapEmpty (int x, int y) returns (int) {
-    map namesMap;
+    map namesMap = {};
     int length = namesMap.length();
     return length;
 }
@@ -166,7 +166,7 @@ function lengthOfBlob() returns (int, int) {
 }
 
 function lengthOfNullString() returns (int) {
-    string foo;
+    string foo = "";
     return foo.length();
 }
 

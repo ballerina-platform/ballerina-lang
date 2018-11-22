@@ -44,7 +44,7 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Map;
 
-import static org.ballerinalang.net.http.HttpConstants.CALLER_ACTIONS;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_CLIENT;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 
 /**
@@ -115,11 +115,13 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
         }
         HttpClientConnector httpClientConnector = httpConnectorFactory
                 .createHttpClientConnector(properties, senderConfiguration);
-        BMap<String, BValue> httpClient = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(),
-                HTTP_PACKAGE_PATH, CALLER_ACTIONS, urlString, clientEndpointConfig);
-        httpClient.addNativeData(HttpConstants.CALLER_ACTIONS, httpClientConnector);
-        httpClient.addNativeData(HttpConstants.CLIENT_ENDPOINT_CONFIG, clientEndpointConfig);
-        context.setReturnValues(httpClient);
+        BMap<String, BValue> httpClientEndpoint = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(),
+                                                                                      HTTP_PACKAGE_PATH,
+                HTTP_CLIENT, urlString,
+                                                                                      clientEndpointConfig);
+        httpClientEndpoint.addNativeData(HttpConstants.HTTP_CLIENT, httpClientConnector);
+        httpClientEndpoint.addNativeData(HttpConstants.CLIENT_ENDPOINT_CONFIG, clientEndpointConfig);
+        context.setReturnValues(httpClientEndpoint);
     }
 
     private void populateSenderConfigurationOptions(SenderConfiguration senderConfiguration, Struct

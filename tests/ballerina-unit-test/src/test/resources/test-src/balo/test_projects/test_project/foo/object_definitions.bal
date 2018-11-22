@@ -13,8 +13,8 @@ public type Human object {
     public string month = "february";
 
     public new (year, int count, name = "sample value1", string val1 = "default value") {
-        age = age + count;
-        month = val1;
+        self.age += count;
+        self.month = val1;
     }
 };
 
@@ -25,8 +25,8 @@ public type Planet object {
     public string month = "february";
 
     public new (year = 50, int count, name = "sample value1", string val1 = "default value") {
-        age = age + count;
-        month = val1;
+        self.age += count;
+        self.month = val1;
     }
 };
 
@@ -37,12 +37,12 @@ public type Company object {
     public string month = "february";
 
     public new (year, int count, name = "sample value1", string val1 = "default value") {
-        age = age + count;
+        self.age += count;
     }
 
     public function attachFunc1(int add, string value1) returns (int, string) {
-        int count = age + add;
-        string val2 = value1 + month;
+        int count = self.age + add;
+        string val2 = value1 + self.month;
         return (count, val2);
     }
 };
@@ -55,7 +55,7 @@ public type Building object {
     private string month = "february";
 
     public function getName() returns string {
-        return name;
+        return self.name;
     }
 
     public function getNameWrapperInside1() returns string {
@@ -94,7 +94,7 @@ public type Boy object {
     private string month = "february";
 
     public function getName() returns string {
-        return name;
+        return self.name;
     }
 
     public function getNameWrapperInside1() returns string {
@@ -150,7 +150,7 @@ public type Bus object {
     public string name;
 
     public new (age = 6, string key = "abc") {
-        name = "sample value";
+        self.name = "sample value";
     }
 };
 
@@ -227,7 +227,7 @@ public type Apartment object {
     public int age;
 
     public new (age, int addVal) {
-        age = age + addVal;
+        self.age += addVal;
     }
 };
 

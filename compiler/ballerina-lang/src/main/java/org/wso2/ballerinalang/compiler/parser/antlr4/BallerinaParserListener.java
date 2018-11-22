@@ -78,16 +78,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitServiceDefinition(BallerinaParser.ServiceDefinitionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#serviceEndpointAttachments}.
-	 * @param ctx the parse tree
-	 */
-	void enterServiceEndpointAttachments(BallerinaParser.ServiceEndpointAttachmentsContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#serviceEndpointAttachments}.
-	 * @param ctx the parse tree
-	 */
-	void exitServiceEndpointAttachments(BallerinaParser.ServiceEndpointAttachmentsContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#serviceBody}.
 	 * @param ctx the parse tree
 	 */
@@ -98,25 +88,15 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitServiceBody(BallerinaParser.ServiceBodyContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#resourceDefinition}.
+	 * Enter a parse tree produced by {@link BallerinaParser#serviceBodyMember}.
 	 * @param ctx the parse tree
 	 */
-	void enterResourceDefinition(BallerinaParser.ResourceDefinitionContext ctx);
+	void enterServiceBodyMember(BallerinaParser.ServiceBodyMemberContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#resourceDefinition}.
+	 * Exit a parse tree produced by {@link BallerinaParser#serviceBodyMember}.
 	 * @param ctx the parse tree
 	 */
-	void exitResourceDefinition(BallerinaParser.ResourceDefinitionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#resourceParameterList}.
-	 * @param ctx the parse tree
-	 */
-	void enterResourceParameterList(BallerinaParser.ResourceParameterListContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#resourceParameterList}.
-	 * @param ctx the parse tree
-	 */
-	void exitResourceParameterList(BallerinaParser.ResourceParameterListContext ctx);
+	void exitServiceBodyMember(BallerinaParser.ServiceBodyMemberContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#callableUnitBody}.
 	 * @param ctx the parse tree
@@ -397,46 +377,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitWorkerDefinition(BallerinaParser.WorkerDefinitionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#globalEndpointDefinition}.
-	 * @param ctx the parse tree
-	 */
-	void enterGlobalEndpointDefinition(BallerinaParser.GlobalEndpointDefinitionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#globalEndpointDefinition}.
-	 * @param ctx the parse tree
-	 */
-	void exitGlobalEndpointDefinition(BallerinaParser.GlobalEndpointDefinitionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#endpointDeclaration}.
-	 * @param ctx the parse tree
-	 */
-	void enterEndpointDeclaration(BallerinaParser.EndpointDeclarationContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#endpointDeclaration}.
-	 * @param ctx the parse tree
-	 */
-	void exitEndpointDeclaration(BallerinaParser.EndpointDeclarationContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#endpointType}.
-	 * @param ctx the parse tree
-	 */
-	void enterEndpointType(BallerinaParser.EndpointTypeContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#endpointType}.
-	 * @param ctx the parse tree
-	 */
-	void exitEndpointType(BallerinaParser.EndpointTypeContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#endpointInitlization}.
-	 * @param ctx the parse tree
-	 */
-	void enterEndpointInitlization(BallerinaParser.EndpointInitlizationContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#endpointInitlization}.
-	 * @param ctx the parse tree
-	 */
-	void exitEndpointInitlization(BallerinaParser.EndpointInitlizationContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#finiteType}.
 	 * @param ctx the parse tree
@@ -1616,6 +1556,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitFlushWorkerExpression(BallerinaParser.FlushWorkerExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code serviceConstructorExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterServiceConstructorExpression(BallerinaParser.ServiceConstructorExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code serviceConstructorExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitServiceConstructorExpression(BallerinaParser.ServiceConstructorExpressionContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code simpleLiteralExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
@@ -2041,6 +1993,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitErrorConstructorExpr(BallerinaParser.ErrorConstructorExprContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#serviceConstructorExpr}.
+	 * @param ctx the parse tree
+	 */
+	void enterServiceConstructorExpr(BallerinaParser.ServiceConstructorExprContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#serviceConstructorExpr}.
+	 * @param ctx the parse tree
+	 */
+	void exitServiceConstructorExpr(BallerinaParser.ServiceConstructorExprContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#trapExpr}.
 	 * @param ctx the parse tree
