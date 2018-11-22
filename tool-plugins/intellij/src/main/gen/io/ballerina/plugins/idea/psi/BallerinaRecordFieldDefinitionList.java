@@ -29,4 +29,7 @@ public interface BallerinaRecordFieldDefinitionList extends BallerinaCompositeEl
   @Nullable
   BallerinaRecordRestFieldDefinition getRecordRestFieldDefinition();
 
+  @NotNull
+  List<BallerinaTypeReference> getTypeReferenceList();
+
 }

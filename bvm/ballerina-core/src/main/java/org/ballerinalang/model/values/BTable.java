@@ -25,12 +25,14 @@ import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BTableType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.util.TableIterator;
 import org.ballerinalang.util.TableProvider;
 import org.ballerinalang.util.TableUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
 import java.util.List;
+import java.util.Map;
 import java.util.StringJoiner;
 
 import static org.ballerinalang.model.util.FreezeUtils.handleInvalidUpdate;
@@ -319,8 +321,32 @@ public class BTable implements BRefType<Object>, BCollection {
     }
 
     @Override
-    public BValue copy() {
-        return null;
+    public BValue copy(Map<BValue, BValue> refs) {
+        if (tableClosed) {
+            throw new BallerinaException("Trying to invoke clone built-in method over a closed table");
+        }
+
+        if (isFrozen()) {
+            return this;
+        }
+
+        if (refs.containsKey(this)) {
+            return refs.get(this);
+        }
+
+        TableIterator cloneIterator = tableProvider.createIterator(this.tableName, this.constraintType);
+        BRefValueArray data = new BRefValueArray();
+        int cursor = 0;
+        try {
+            while (cloneIterator.next()) {
+                data.add(cursor++, cloneIterator.generateNext());
+            }
+            BTable table = new BTable(new BTableType(constraintType), this.indices, this.primaryKeys, data);
+            refs.put(this, table);
+            return table;
+        } finally {
+            cloneIterator.close();
+        }
     }
 
     @Override

@@ -267,6 +267,9 @@ public interface InstructionCodes {
     int SNEWARRAY = 203;
     int BNEWARRAY = 204;
     int RNEWARRAY = 205;
+
+    int CLONE = 206;
+
     int LENGTHOF = 208;
 
     int NEWSTRUCT = 210;

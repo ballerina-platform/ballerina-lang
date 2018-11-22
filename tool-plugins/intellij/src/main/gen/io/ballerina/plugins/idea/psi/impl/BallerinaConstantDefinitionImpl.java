@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaDocumentationTemplateAttributeDescriptionImpl extends BallerinaCompositeElementImpl implements BallerinaDocumentationTemplateAttributeDescription {
+public class BallerinaConstantDefinitionImpl extends BallerinaCompositeElementImpl implements BallerinaConstantDefinition {
 
-  public BallerinaDocumentationTemplateAttributeDescriptionImpl(@NotNull ASTNode node) {
+  public BallerinaConstantDefinitionImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitDocumentationTemplateAttributeDescription(this);
+    visitor.visitConstantDefinition(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,20 +43,38 @@ public class BallerinaDocumentationTemplateAttributeDescriptionImpl extends Ball
 
   @Override
   @Nullable
-  public BallerinaDocText getDocText() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaDocText.class);
+  public BallerinaExpression getExpression() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
   }
 
   @Override
   @Nullable
-  public PsiElement getDocumentationTemplateAttributeEnd() {
-    return findChildByType(DOCUMENTATION_TEMPLATE_ATTRIBUTE_END);
+  public BallerinaTypeName getTypeName() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getAssign() {
+    return findChildByType(ASSIGN);
   }
 
   @Override
   @NotNull
-  public PsiElement getDocumentationTemplateAttributeStart() {
-    return notNullChild(findChildByType(DOCUMENTATION_TEMPLATE_ATTRIBUTE_START));
+  public PsiElement getConst() {
+    return notNullChild(findChildByType(CONST));
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getPublic() {
+    return findChildByType(PUBLIC);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getSemicolon() {
+    return findChildByType(SEMICOLON);
   }
 
   @Override

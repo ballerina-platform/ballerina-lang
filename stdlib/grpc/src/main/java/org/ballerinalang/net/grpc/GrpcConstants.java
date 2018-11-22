@@ -53,7 +53,7 @@ public class GrpcConstants {
     
     //client side endpoint constants
     public static final String CLIENT_ENDPOINT_TYPE = "Client";
-    public static final String CALLER_ACTIONS = "CallerActions";
+    public static final String CLIENT_CONNECTOR = "ClientConnector";
     public static final String CLIENT_ENDPOINT_CONFIG = "config";
     public static final String MESSAGE_HEADERS = "MessageHeaders";
     public static final int SERVICE_ENDPOINT_INDEX = 0;
@@ -61,20 +61,19 @@ public class GrpcConstants {
 
     public static final String SERVICE_STUB = "Stub";
     public static final String METHOD_DESCRIPTORS = "MethodDescriptors";
-    public static final int SERVICE_STUB_REF_INDEX = 0;
-    public static final int CLIENT_ENDPOINT_REF_INDEX = 1;
-    public static final int DESCRIPTOR_MAP_REF_INDEX = 2;
+    public static final int CLIENT_ENDPOINT_REF_INDEX = 0;
+    public static final int DESCRIPTOR_MAP_REF_INDEX = 1;
     public static final int STUB_TYPE_STRING_INDEX = 0;
     public static final int DESCRIPTOR_KEY_STRING_INDEX = 1;
     public static final String BLOCKING_TYPE = "blocking";
     public static final String NON_BLOCKING_TYPE = "non-blocking";
     public static final String REQUEST_SENDER = "REQUEST_SENDER";
-    public static final String GRPC_CLIENT = "GrpcClient";
     public static final String REQUEST_MESSAGE_DEFINITION = "REQUEST_DEFINITION";
     public static final String REGEX_DOT_SEPERATOR = "\\.";
     public static final String DOT = ".";
 
     public static final String CLIENT = "Client";
+    public static final String STREAMING_CLIENT = "StreamingClient";
     public static final String ANN_RESOURCE_CONFIG = "ResourceConfig";
     public static final String ANN_ATTR_RESOURCE_SERVER_STREAM = "streaming";
     // InboundMessage Message Param index in service resource.
