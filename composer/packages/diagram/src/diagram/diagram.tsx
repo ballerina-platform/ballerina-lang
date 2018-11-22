@@ -1,5 +1,6 @@
 import { CompilationUnit, traversNode } from "@ballerina/ast-model";
 import React from "react";
+import { DefaultConfig } from "../config/default";
 import { CompilationUnitViewState } from "../view-model/index";
 import { SvgCanvas } from "../views";
 import { visitor as initVisitor } from "../visitors/init-visitor";
@@ -12,8 +13,8 @@ import { EditToggleButton } from "./edit-toggle-button";
 import { ModeToggleButton } from "./mode-toggle-button";
 
 export interface CommonDiagramProps {
-    height: number;
-    width: number;
+    height?: number;
+    width?: number;
     zoom: number;
     mode: DiagramMode;
 }
@@ -35,17 +36,16 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
     };
 
     public render() {
-        const { ast } = this.props;
+        const { ast, width, height } = this.props;
         const { currentMode } = this.state;
         const children: React.ReactNode[] = [];
         const cuViewState: CompilationUnitViewState = new CompilationUnitViewState();
-        cuViewState.container.w = this.props.width;
-        cuViewState.container.w = this.props.height;
+        cuViewState.container.w = width ? width : DefaultConfig.canvas.width;
+        cuViewState.container.h = height ? height : DefaultConfig.canvas.height;
 
         if (ast) {
             // Initialize AST node view state
             traversNode(ast, initVisitor);
-            ast.viewState = cuViewState;
             // Set width and height to toplevel node.
             ast.viewState = cuViewState;
             // Calculate dimention of AST Nodes.
