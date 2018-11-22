@@ -228,12 +228,9 @@ public type ExtensionConfig record {
 function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:SecureSocket? localSecureSocket,
                                 http:FollowRedirects? followRedirects) returns @tainted (string, string)|error {
 
-    endpoint http:Client resourceEP {
-        url:resourceUrl,
-        auth:auth,
-        secureSocket: localSecureSocket,
-        followRedirects:followRedirects
-    };
+    http:ClientEndpointConfig resourceEPConfig = {url:resourceUrl, auth:auth, secureSocket: localSecureSocket,
+                                                  followRedirects:followRedirects};
+    http:Client resourceEP = new (resourceEPConfig);
 
     http:Request request = new;
     var discoveryResponse = resourceEP->get("", message = request);
@@ -263,12 +260,9 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:
 # + subscriptionDetails - Map containing subscription details
 function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth, http:SecureSocket? localSecureSocket,
                                               http:FollowRedirects? followRedirects, map subscriptionDetails) {
-    endpoint Client websubHubClientEP {
-        url:hub,
-        clientSecureSocket: localSecureSocket,
-        auth:auth,
-        followRedirects:followRedirects
-    };
+    HubClientEndpointConfig websubHubClientEP =  {url:hub, clientSecureSocket: localSecureSocket, auth:auth,
+                                                  followRedirects:followRedirects};
+    Client websubHubClientEP = new ();
 
     string topic = <string>subscriptionDetails.topic;
     string callback = <string>subscriptionDetails.callback;

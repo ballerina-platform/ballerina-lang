@@ -32,10 +32,12 @@ public type Client client object {
     private http:Client httpClientEndpoint;
     private http:FollowRedirects? followRedirects;
 
-    new (string hubUrl, http:FollowRedirects? followRedirects, HubClientEndpointConfig config) {
-        self.hubUrl = hubUrl;
-        self.httpClientEndpoint = new (config.url, config.clientSecureSocket, config.auth, config.followRedirects);
-        self.followRedirects = followRedirects;
+    new (HubClientEndpointConfig config) {
+        self.hubUrl = config.url;
+        http:ClientEndpointConfig httpConfig = {url:config.url, auth:config.auth,
+                                                secureSocket: config.clientSecureSocket,
+                                                followRedirects:config.followRedirects};
+        self.httpClientEndpoint = new (httpConfig);
         self.config = config;
     }
 
@@ -332,7 +334,8 @@ function invokeClientConnectorOnRedirection(@sensitive string hub, @sensitive st
 
 function subscribeWithRetries(string hubUrl, SubscriptionChangeRequest subscriptionRequest, http:AuthConfig? auth,
                               int remainingRedirects = 0) returns @tainted SubscriptionChangeResponse| error {
-    http:Client clientEndpoint = new (url = hubUrl, auth = auth);
+    http:ClientEndpointConfig config = { url:hubUrl, auth:auth };
+    http:Client clientEndpoint = new (config);
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_SUBSCRIBE, subscriptionRequest);
     var response = clientEndpoint->post("", builtSubscriptionRequest);
     return processHubResponse(hubUrl, MODE_SUBSCRIBE, subscriptionRequest, response, clientEndpoint,
@@ -341,7 +344,8 @@ function subscribeWithRetries(string hubUrl, SubscriptionChangeRequest subscript
 
 function unsubscribeWithRetries(string hubUrl, SubscriptionChangeRequest unsubscriptionRequest, http:AuthConfig? auth,
                                 int remainingRedirects = 0) returns @tainted SubscriptionChangeResponse|error {
-    http:Client clientEndpoint = = new http:Client(url=hubUrl,auth=auth);
+    http:ClientEndpointConfig config = { url:hubUrl, auth:auth };
+    http:Client clientEndpoint = new (config);
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_UNSUBSCRIBE, unsubscriptionRequest);
     var response = clientEndpoint->post("", builtSubscriptionRequest);
     return processHubResponse(hubUrl, MODE_UNSUBSCRIBE, unsubscriptionRequest, response, clientEndpoint,
