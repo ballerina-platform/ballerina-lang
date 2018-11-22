@@ -29,7 +29,7 @@ public type Client client object {
 
     public ClientEndpointConfig config = {};
 
-    public new(ClientEndpointConfig c) {
+    public function __init(ClientEndpointConfig c) {
         self.config = c;
         self.init(self.config);
     }
