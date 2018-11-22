@@ -1,7 +1,7 @@
 import { Function, Visitor } from "@ballerina/ast-model";
 import * as _ from "lodash";
-// import { DiagramConfig } from "../config/default";
-// import { DiagramUtils } from "../diagram/diagram-utils";
+import { DiagramConfig } from "../config/default";
+import { DiagramUtils } from "../diagram/diagram-utils";
 import { FunctionViewState } from "../view-model";
 
 // Following element is created to calculate the width of a text rendered in an svg.
@@ -15,7 +15,7 @@ const textElement = document.createElementNS("http://www.w3.org/2000/svg", "text
 svg.appendChild(textElement);
 document.body.appendChild(svg);
 
-// const config: DiagramConfig = DiagramUtils.getConfig();
+const config: DiagramConfig = DiagramUtils.getConfig();
 
 /**
  * Get width of a given text and processed text
@@ -67,11 +67,11 @@ export const visitor: Visitor = {
         const body = viewState.body;
         const header = viewState.header;
 
-        body.w = 600;
-        body.h = 200;
+        body.w = config.panel.padding.left + config.panel.padding.right;
+        body.h = config.panel.padding.top + config.panel.padding.bottom;
 
-        header.w = 600;
-        header.h = 40;
+        header.w = config.panelHeading.padding.left + config.panelHeading.padding.right;
+        header.h = config.panelHeading.height;
 
         viewState.bBox.w = (body.w > header.w) ? body.w : header.w;
         viewState.bBox.h = body.h + header.h;
