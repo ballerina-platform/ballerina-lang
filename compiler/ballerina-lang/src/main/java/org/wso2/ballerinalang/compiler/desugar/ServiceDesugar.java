@@ -22,6 +22,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -104,10 +105,8 @@ public class ServiceDesugar {
         final Name functionName = names
                 .fromString(Symbols.getAttachedFuncSymbolName(variable.type.tsymbol.name.value, method));
         BInvokableSymbol methodInvocationSymbol = (BInvokableSymbol) symResolver
-                .lookupMemberSymbol(pos, variable.type.tsymbol.scope, env, functionName, SymTag.INVOKABLE);
-        if (methodInvocationSymbol == symTable.notFoundSymbol) {
-            throw new AssertionError();
-        }
+                .lookupMemberSymbol(pos, ((BObjectTypeSymbol) variable.type.tsymbol).methodScope, env, functionName,
+                        SymTag.INVOKABLE);
 
         // Create method invocation
         addMethodInvocation(pos, methodInvocationSymbol, Collections.emptyList(), lifeCycleFunction.body);
@@ -151,10 +150,8 @@ public class ServiceDesugar {
         final Name functionName = names.fromString(
                 Symbols.getAttachedFuncSymbolName(service.attachExpr.type.tsymbol.name.value, ATTACH_METHOD));
         BInvokableSymbol methodInvocationSymbol = (BInvokableSymbol) symResolver
-                .lookupMemberSymbol(pos, listenerVarRef.type.tsymbol.scope, env, functionName, SymTag.INVOKABLE);
-        if (methodInvocationSymbol == symTable.notFoundSymbol) {
-            throw new AssertionError();
-        }
+                .lookupMemberSymbol(pos, ((BObjectTypeSymbol) listenerVarRef.type.tsymbol).methodScope, env,
+                        functionName, SymTag.INVOKABLE);
 
         // Create method invocation
         List<BLangExpression> args = new ArrayList<>();
