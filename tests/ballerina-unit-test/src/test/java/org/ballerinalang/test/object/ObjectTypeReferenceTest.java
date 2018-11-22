@@ -72,8 +72,8 @@ public class ObjectTypeReferenceTest {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-2-negative.bal");
         Assert.assertEquals(negativeResult.getErrorCount(), 4);
         int i = 0;
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'map<string>' is not an abstract object", 18,
-                6);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'map<string>' is not an abstract object",
+                18, 6);
         BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'x'", 19, 6);
         BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'y'", 19, 6);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'int' is not an abstract object", 20, 6);
