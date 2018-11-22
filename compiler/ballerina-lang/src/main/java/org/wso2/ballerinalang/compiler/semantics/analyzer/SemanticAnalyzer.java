@@ -604,7 +604,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
             if (TypeTags.TUPLE != rhsType.tag) {
                 dlog.error(variable.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, rhsType);
-                defineTupleVariable(tupleVariable, blockEnv);
+                recursivelyDefineVariables(tupleVariable, blockEnv);
                 return;
             }
 
@@ -620,37 +620,24 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void defineSimpleVariable(BLangSimpleVariable variable, SymbolEnv blockEnv) {
-        Name name = names.fromIdNode(variable.name);
-        if (name == Names.IGNORE) {
-            return;
-        }
-        variable.type = symTable.semanticError;
-        symbolEnter.defineVarSymbol(variable.pos, variable.flagSet, variable.type, name, blockEnv);
-    }
-
-    private void defineTupleVariable(BLangTupleVariable tupleVariable, SymbolEnv blockEnv) {
-        for (BLangVariable memberVariable : tupleVariable.memberVariables) {
-            if (memberVariable.getKind() == NodeKind.VARIABLE) {
-                defineSimpleVariable((BLangSimpleVariable) memberVariable, blockEnv);
-            } else if (memberVariable.getKind() == NodeKind.TUPLE_VARIABLE) {
-                defineTupleVariable((BLangTupleVariable) memberVariable, blockEnv);
-            } else if (memberVariable.getKind() == NodeKind.RECORD_VARIABLE) {
-                defineRecordVariables((BLangRecordVariable) memberVariable, blockEnv);
-            }
-        }
-    }
-
-    private void defineRecordVariables(BLangRecordVariable recordVariable, SymbolEnv blockEnv) {
-        for (BLangRecordVariableKeyValue keyValue : recordVariable.variableList) {
-            BLangVariable valueBindingPattern = keyValue.valueBindingPattern;
-            if (valueBindingPattern.getKind() == NodeKind.VARIABLE) {
-                defineSimpleVariable((BLangSimpleVariable) valueBindingPattern, blockEnv);
-            } else if (valueBindingPattern.getKind() == NodeKind.TUPLE_VARIABLE) {
-                defineTupleVariable((BLangTupleVariable) valueBindingPattern, blockEnv);
-            } else if (valueBindingPattern.getKind() == NodeKind.RECORD_VARIABLE) {
-                defineRecordVariables((BLangRecordVariable) valueBindingPattern, blockEnv);
-            }
+    private void recursivelyDefineVariables(BLangVariable variable, SymbolEnv blockEnv) {
+        switch (variable.getKind()) {
+            case VARIABLE:
+                Name name = names.fromIdNode(((BLangSimpleVariable) variable).name);
+                if (name == Names.IGNORE) {
+                    return;
+                }
+                variable.type = symTable.semanticError;
+                symbolEnter.defineVarSymbol(variable.pos, variable.flagSet, variable.type, name, blockEnv);
+                break;
+            case TUPLE_VARIABLE:
+                ((BLangTupleVariable) variable).memberVariables.parallelStream()
+                        .forEach(memberVariable -> recursivelyDefineVariables(memberVariable, blockEnv));
+                break;
+            case RECORD_VARIABLE:
+                ((BLangRecordVariable) variable).variableList.parallelStream()
+                        .forEach(value ->recursivelyDefineVariables(value.valueBindingPattern, blockEnv));
+                break;
         }
     }
 
