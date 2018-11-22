@@ -26,7 +26,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperat
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -114,8 +113,7 @@ public class SymbolTable {
     public final BType recordType = new BRecordType(null);
     public final BType intArrayType = new BArrayType(intType);
     public final BType channelType = new BChannelType(TypeTags.CHANNEL, anyType, null);
-
-    public final BType anyServiceType;
+    public final BType anyServiceType = new BServiceType(anyType);
 
     public final BTypeSymbol errSymbol;
     public final BType semanticError;
@@ -165,12 +163,7 @@ public class SymbolTable {
         initializeType(anydataType, TypeKind.ANYDATA.typeName());
         initializeType(nilType, TypeKind.NIL.typeName());
         initializeType(channelType, TypeKind.CHANNEL.typeName());
-
-        BServiceSymbol serviceSymbol = new BServiceSymbol(Flags.PUBLIC, Names.SERVICE, rootPkgSymbol.pkgID, null,
-                rootPkgSymbol, null);
-        this.anyServiceType = new BServiceType(serviceSymbol);
-        serviceSymbol.type = this.anyServiceType;
-        defineType(anyServiceType, serviceSymbol);
+        initializeType(anyServiceType, TypeKind.SERVICE.typeName());
 
         // Initialize semantic error type;
         this.semanticError = new BSemanticErrorType(null);
@@ -528,6 +521,16 @@ public class SymbolTable {
         defineBuiltinMethod(BLangBuiltInMethod.IS_NAN, floatType, booleanType, InstructionCodes.NOP);
         defineBuiltinMethod(BLangBuiltInMethod.IS_FINITE, floatType, booleanType, InstructionCodes.NOP);
         defineBuiltinMethod(BLangBuiltInMethod.IS_INFINITE, floatType, booleanType, InstructionCodes.NOP);
+
+        //clone related methods
+        defineBuiltinMethod(BLangBuiltInMethod.CLONE, anydataType, anydataType, InstructionCodes.CLONE);
+        defineBuiltinMethod(BLangBuiltInMethod.CLONE, intType, intType, InstructionCodes.CLONE);
+        defineBuiltinMethod(BLangBuiltInMethod.CLONE, floatType, floatType, InstructionCodes.CLONE);
+        defineBuiltinMethod(BLangBuiltInMethod.CLONE, decimalType, decimalType, InstructionCodes.CLONE);
+        defineBuiltinMethod(BLangBuiltInMethod.CLONE, booleanType, booleanType, InstructionCodes.CLONE);
+        defineBuiltinMethod(BLangBuiltInMethod.CLONE, stringType, stringType, InstructionCodes.CLONE);
+        defineBuiltinMethod(BLangBuiltInMethod.CLONE, byteType, byteType, InstructionCodes.CLONE);
+        defineBuiltinMethod(BLangBuiltInMethod.CLONE, xmlType, xmlType, InstructionCodes.CLONE);
     }
 
     private void defineBuiltinMethod(BLangBuiltInMethod method, BType type, BType retType, int opcode) {

@@ -21,15 +21,27 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaDoubleBackTickDocInlineCode extends BallerinaCompositeElement {
+public interface BallerinaConstantDefinition extends BallerinaCompositeElement {
+
+  @Nullable
+  BallerinaExpression getExpression();
+
+  @Nullable
+  BallerinaTypeName getTypeName();
+
+  @Nullable
+  PsiElement getAssign();
 
   @NotNull
-  PsiElement getDbDocInlineCodeStart();
+  PsiElement getConst();
 
   @Nullable
-  PsiElement getDoubleBackTickInlineCode();
+  PsiElement getPublic();
 
   @Nullable
-  PsiElement getDoubleBackTickInlineCodeEnd();
+  PsiElement getSemicolon();
+
+  @Nullable
+  PsiElement getIdentifier();
 
 }

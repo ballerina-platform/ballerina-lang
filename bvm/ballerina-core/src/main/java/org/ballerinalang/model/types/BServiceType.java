@@ -26,8 +26,11 @@ import org.ballerinalang.model.values.BValue;
  */
 public class BServiceType extends BType {
 
-    public BServiceType(String typeName, String pkgPath) {
+    public BType objectType;
+
+    public BServiceType(String typeName, String pkgPath, BType objectType) {
         super(typeName, pkgPath, BService.class);
+        this.objectType = objectType;
     }
 
     @Override

@@ -29,11 +29,11 @@ public type AuthnFilter object {
 
     # Request filter method which attempts to authenticated the request.
     #
-    # + listener - The http endpoint
+    # + listenerObj - The http endpoint
     # + request - An inboud HTTP request message
     # + context - A filter context
     # + return - True if the filter succeeds
-    public function filterRequest(Listener listenerObj, Request request, FilterContext context) returns boolean {
+    public function filterRequest(Server listenerObj, Request request, FilterContext context) returns boolean {
         // get auth config for this resource
         boolean authenticated = false;
         var (isSecured, authProviders) = getResourceAuthConfig(context);
@@ -62,7 +62,7 @@ public type AuthnFilter object {
 # + listenerObj - The http endpoint
 # + authenticated - Authorization status for the request
 # + return - Authorization result to indicate if the filter can proceed(true) or not(false)
-function isAuthnSuccesfull(Listener listenerObj, boolean authenticated) returns boolean {
+function isAuthnSuccesfull(Server listenerObj, boolean authenticated) returns boolean {
     //TODO:Fix this properly
     //endpoint Listener callerObj = listenerObj;
     //Response response = new;

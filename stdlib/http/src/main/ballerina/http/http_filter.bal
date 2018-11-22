@@ -24,7 +24,7 @@ public type Filter abstract object {
     # + request - An inboud HTTP request message
     # + context - A filter context
     # + return - True if the filter succeeds
-    public function filterRequest(Listener listenerObj, Request request, FilterContext context) returns boolean;
+    public function filterRequest(Server listenerObj, Request request, FilterContext context) returns boolean;
 
     # Response filter function. If a false is returned a 500 Internal Server Error would be sent to the client.
     #

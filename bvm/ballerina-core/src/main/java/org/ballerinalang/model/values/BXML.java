@@ -26,6 +26,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 
@@ -211,7 +212,7 @@ public abstract class BXML<T> implements BRefType<T>, BCollection {
     /**
      * Returns a deep copy of the XML.
      */
-    public abstract BXML<?> copy();
+    public abstract BXML<?> copy(Map<BValue, BValue> refs);
 
     /**
      * Slice and return a subsequence of the given XML sequence.
