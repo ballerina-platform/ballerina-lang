@@ -47,5 +47,9 @@ public type FilterContext object {
     @readonly public string resourceName = "";
     @readonly public map attributes = {};
 
-    public new(serviceType, serviceName, resourceName) {}
+    public function __init(typedesc serviceType, string serviceName, string resourceName) {
+        self.serviceType = serviceType;
+        self.serviceName = serviceName;
+        self.resourceName = resourceName;
+    }
 };

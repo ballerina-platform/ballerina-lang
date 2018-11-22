@@ -436,7 +436,7 @@ public type WebSocketListener object {
     private ServiceEndpointConfiguration config = {};
     private Server httpEndpoint = new(config);
 
-    public new() {
+    public function __init() {
     }
 
     # Gets invoked during module initialization to initialize the endpoint.
@@ -508,7 +508,7 @@ public type Server object {
 
     private string instanceId;
 
-    public new(config) {
+    public function __init(ServiceEndpointConfiguration config) {
         self.instanceId = system:uuid();
         self.config = config;
         self.init(self.config);

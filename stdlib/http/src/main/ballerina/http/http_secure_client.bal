@@ -50,7 +50,7 @@ public type HttpSecureClient client object {
     public ClientEndpointConfig config = {};
     public Client httpClient;
 
-    public new(serviceUri, config) {
+    public function __init(string serviceUri, ClientEndpointConfig config) {
         self.httpClient = createSimpleHttpClient(serviceUri, config);
     }
 

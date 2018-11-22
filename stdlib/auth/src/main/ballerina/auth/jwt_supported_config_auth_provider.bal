@@ -23,10 +23,12 @@ import ballerina/internal;
 import ballerina/system;
 
 public type ConfigJwtAuthProvider object {
+
     public InferredJwtAuthProviderConfig configJwtAuthProviderConfig;
     public ConfigAuthStoreProvider configAuthProvider = new;
 
-    public new(configJwtAuthProviderConfig) {
+    public function __init(InferredJwtAuthProviderConfig configJwtAuthProviderConfig) {
+        self.InferredJwtAuthProviderConfig = InferredJwtAuthProviderConfig;
     }
 
     public function authenticate(string username, string password) returns boolean {
