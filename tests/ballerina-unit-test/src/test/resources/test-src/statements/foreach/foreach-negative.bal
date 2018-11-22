@@ -24,7 +24,7 @@ function test3(){
 }
 
 function test4(){
-    string vals = "values";
+    int vals = 1000;
     foreach var s in vals {
         string s1 = s + s;
         io:println(s1);

@@ -39,12 +39,12 @@ public class ForeachNegativeTests {
                 "'string' in type definition", 4, 17);
         BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
                 "'string' in type definition", 13, 17);
-        BAssertUtil.validateError(compile, index++, "redeclared symbol 'i'", 13, 18);
         BAssertUtil.validateError(compile, index++, "redeclared symbol 's'", 13, 21);
+        BAssertUtil.validateError(compile, index++, "redeclared symbol 'i'", 13, 18);
         BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
                 "'string' in type definition", 20, 17);
         BAssertUtil.validateError(compile, index++, "undefined symbol 'i'", 23, 16);
-        BAssertUtil.validateError(compile, index++, "incompatible types: 'string' is not an iterable collection", 28,
+        BAssertUtil.validateError(compile, index++, "incompatible types: 'int' is not an iterable collection", 28,
                 22);
         BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
                 "'string' in type definition", 41, 17);
