@@ -25,7 +25,9 @@ public type AuthnFilter object {
 
     public AuthnHandlerChain authnHandlerChain;
 
-    public new(authnHandlerChain) {}
+    public function __init(AuthnHandlerChain authnHandlerChain) {
+        self.authnHandlerChain = authnHandlerChain;
+    }
 
     # Request filter method which attempts to authenticated the request.
     #
