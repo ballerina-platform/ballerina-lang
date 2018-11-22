@@ -20,7 +20,7 @@ import ballerina/time;
 public type Path object {
     private string root;
 
-    public new (root){
+    public function __init(string root){
         self.init(root);
     }
 
