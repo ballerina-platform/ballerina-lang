@@ -1,10 +1,13 @@
 import { ASTNode } from "@ballerina/ast-model";
 import { ASTDidChangeParams, ASTDidChangeResponse, BallerinaASTNode, BallerinaEndpoint,
     BallerinaSourceFragment, GetASTParams, GetASTResponse  } from "@ballerina/lang-service";
+import debounce from "lodash.debounce";
 import React from "react";
 import { CommonDiagramProps, Diagram } from "./diagram";
 import { DiagramContext, IDiagramContext } from "./diagram-context";
 import { Loader } from "./loader";
+
+const resizeDelay = 200;
 
 export interface DiagramLangClient {
     getAST(params: GetASTParams): Thenable<GetASTResponse>;
@@ -71,6 +74,11 @@ export class EditableDiagram extends React.Component<EdiatableDiagramProps, Edit
 
     public componentDidMount(): void {
         this.updateAST();
+        if (window) {
+            window.onresize = debounce(() => {
+                this.forceUpdate();
+            }, resizeDelay);
+        }
     }
 
     public updateAST(uri: string = this.props.docUri) {
