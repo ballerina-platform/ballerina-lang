@@ -225,42 +225,6 @@ function testInitWithInvalidDbOptions() returns (int[]) {
     return selectFunction(testDB);
 }
 
-//function testReInitEndpoint() returns int {
-//    h2:Client testDB = new({
-//            path: "./target/H2Client/",
-//            name: "TestDBH2",
-//            username: "SA",
-//            password: "",
-//            poolOptions: { maximumPoolSize: 1 }
-//        });
-//
-//    h2:ClientEndpointConfiguration config = {
-//        path: "./target/H2Client/",
-//        name: "TestDBH2",
-//        username: "SA",
-//        password: "",
-//        poolOptions: { maximumPoolSize: 1 }
-//    };
-//
-//    testDB.stop();
-//
-//    testDB.init(config);
-//
-//    var dt = testDB->select("select 1", Result);
-//    int count = -1;
-//    if (dt is table) {
-//        while (dt.hasNext()) {
-//            var rs = <Result>dt.getNext();
-//            if (rs is Result) {
-//                count = rs.val;
-//            }
-//        }
-//    }
-//    testDB.stop();
-//
-//    return count;
-//}
-
 function testCloseConnectionPool(string connectionCountQuery)
              returns (int) {
     h2:Client testDB = new({
