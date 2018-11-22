@@ -26,11 +26,13 @@ import ballerina/log;
 # + serviceEndpoint - The underlying HTTP service endpoint
 public type Server object {
 
+    *AbstractListener;
+
     public SubscriberServiceEndpointConfiguration config = {};
 
     private http:Server serviceEndpoint;
 
-    public new (SubscriberServiceEndpointConfiguration config) {
+    public function __init(SubscriberServiceEndpointConfiguration config) {
         http:Listener httpEndpoint = new;
         self.serviceEndpoint = httpEndpoint;
         init(config);
@@ -40,12 +42,6 @@ public type Server object {
     #
     # + c - The Subscriber Service Endpoint Configuration of the endpoint
     function init(SubscriberServiceEndpointConfiguration c);
-
-    public function __start() returns error?;
-
-    public function __stop() returns error?;
-
-    public function __attach(service s, map<any> data) returns error?;
 
     extern function initWebSubSubscriberServiceEndpoint();
 

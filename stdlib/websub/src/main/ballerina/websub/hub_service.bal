@@ -25,10 +25,11 @@ import ballerina/time;
 
 map<PendingSubscriptionChangeRequest> pendingRequests = {};
 
+service hubService =
 @http:ServiceConfig {
     basePath:BASE_PATH
 }
-service hubService on http:Server(80) {
+service {
 
     @http:ResourceConfig {
         methods:["GET"],
@@ -238,7 +239,7 @@ service hubService on http:Server(80) {
             }
         }
     }
-}
+};
 
 # Function to validate a subscription/unsubscription request, by validating the mode, topic and callback specified.
 #
@@ -609,7 +610,11 @@ type PendingSubscriptionChangeRequest object {
     public string topic;
     public string callback;
 
-    new (mode, topic, callback) {}
+    public function __init(string mode, string topic, string callback) {
+         self.mode = mode;
+         self.topic = topic;
+         self.callback = callback;
+    }
 
     # Function to check if two pending subscription change requests are equal.
     #

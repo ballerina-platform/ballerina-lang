@@ -508,7 +508,7 @@ public type WebSubHub object {
     public string hubUrl;
     private http:Server hubServiceEndpoint;
 
-    new (string hubUrl, http:Server hubServiceEndpoint) {
+    public function __init(string hubUrl, http:Server hubServiceEndpoint) {
          self.hubUrl = hubUrl;
          self.hubServiceEndpoint = hubServiceEndpoint;
     }

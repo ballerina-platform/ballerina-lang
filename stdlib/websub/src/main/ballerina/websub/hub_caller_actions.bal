@@ -32,7 +32,7 @@ public type Client client object {
     private http:Client httpClientEndpoint;
     private http:FollowRedirects? followRedirects;
 
-    new (HubClientEndpointConfig config) {
+    public function __init(HubClientEndpointConfig config) {
         self.hubUrl = config.url;
         http:ClientEndpointConfig httpConfig = {url:config.url, auth:config.auth,
                                                 secureSocket: config.clientSecureSocket,
