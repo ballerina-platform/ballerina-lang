@@ -24,15 +24,14 @@ import ballerina/io;
 # provides includes functions for the standard HTTP methods, forwarding a received request and sending requests
 # using custom HTTP verbs.
 
-# + epName - The name of the client
 # + config - The configurations associated with the client
-# + httpClient - The provider which implements the HTTP methods
-public type ClientEndpoint client object {
+public type Client client object {
 
     public ClientEndpointConfig config = {};
 
     public new(ClientEndpointConfig c) {
         self.config = c;
+        self.init(self.config);
     }
 
     # Gets invoked to initialize the endpoint. During initialization, configurations provided through the `config`
@@ -238,9 +237,9 @@ public type ClientEndpointConfig record {
     !...
 };
 
-extern function createHttpClient(string uri, ClientEndpointConfig config) returns ClientEndpoint;
+extern function createHttpClient(string uri, ClientEndpointConfig config) returns Client;
 
-extern function createSimpleHttpClient(string uri, ClientEndpointConfig config) returns ClientEndpoint;
+extern function createSimpleHttpClient(string uri, ClientEndpointConfig config) returns Client;
 
 # Provides configurations for controlling the retry behaviour in failure scenarios.
 #
@@ -358,7 +357,7 @@ public type AuthConfig record {
     !...
 };
 
-function ClientEndpoint.init(ClientEndpointConfig c) {
+function Client.init(ClientEndpointConfig c) {
     self = createSimpleHttpClient(c.url, c);
     //boolean httpClientRequired = false;
     //string url = c.url;
@@ -390,11 +389,16 @@ function ClientEndpoint.init(ClientEndpointConfig c) {
     //}
 }
 
-function createRedirectClient(string url, ClientEndpointConfig configuration) returns ClientEndpoint {
+function createRedirectClient(string url, ClientEndpointConfig configuration) returns Client|error {
     var redirectConfig = configuration.followRedirects;
     if (redirectConfig is FollowRedirects) {
         if (redirectConfig.enabled) {
-            return new RedirectClient(url, configuration, redirectConfig, createRetryClient(url, configuration));
+            var retryClient = createRetryClient(url, configuration);
+            if (retryClient is Client) {
+                return <Client>new RedirectClient(url, configuration, redirectConfig, retryClient);
+            } else {
+                return retryClient;
+            }
         } else {
             return createRetryClient(url, configuration);
         }
@@ -403,7 +407,7 @@ function createRedirectClient(string url, ClientEndpointConfig configuration) re
     }
 }
 
-function checkForRetry(string url, ClientEndpointConfig config) returns ClientEndpoint {
+function checkForRetry(string url, ClientEndpointConfig config) returns Client|error {
     var retryConfigVal = config.retryConfig;
     if (retryConfigVal is RetryConfig) {
         return createRetryClient(url, config);
@@ -416,17 +420,27 @@ function checkForRetry(string url, ClientEndpointConfig config) returns ClientEn
     }
 }
 
-function createCircuitBreakerClient(string uri, ClientEndpointConfig configuration) returns ClientEndpoint {
+function createCircuitBreakerClient(string uri, ClientEndpointConfig configuration) returns Client|error {
+    Client cbHttpClient = new(configuration);
     var cbConfig = configuration.circuitBreaker;
     if (cbConfig is CircuitBreakerConfig) {
         validateCircuitBreakerConfiguration(cbConfig);
         boolean [] statusCodes = populateErrorCodeIndex(cbConfig.statusCodes);
-        ClientEndpoint cbHttpClient = new;
         var redirectConfig = configuration.followRedirects;
         if (redirectConfig is FollowRedirects) {
-            cbHttpClient = createRedirectClient(uri, configuration);
+            var redirectClient = createRedirectClient(uri, configuration);
+            if (redirectClient is Client) {
+                cbHttpClient = redirectClient;
+            } else {
+                return redirectClient;
+            }
         } else {
-            cbHttpClient = checkForRetry(uri, configuration);
+            var retryClient = checkForRetry(uri, configuration);
+            if (retryClient is Client) {
+                cbHttpClient = retryClient;
+            } else {
+                return retryClient;
+            }
         }
 
         time:Time circuitStartTime = time:currentTime();
@@ -452,7 +466,8 @@ function createCircuitBreakerClient(string uri, ClientEndpointConfig configurati
                                         lastForcedOpenTime:circuitStartTime,
                                         totalBuckets: bucketArray
                                       };
-        return new CircuitBreakerClient(uri, configuration, circuitBreakerInferredConfig, cbHttpClient, circuitHealth);
+        return <Client>(new CircuitBreakerClient(uri, configuration,
+            circuitBreakerInferredConfig, cbHttpClient, circuitHealth));
     } else {
         //remove following once we can ignore
         if (configuration.cache.enabled) {
@@ -463,7 +478,7 @@ function createCircuitBreakerClient(string uri, ClientEndpointConfig configurati
     }
 }
 
-function createRetryClient(string url, ClientEndpointConfig configuration) returns ClientEndpoint {
+function createRetryClient(string url, ClientEndpointConfig configuration) returns Client|error {
     var retryConfig = configuration.retryConfig;
     if (retryConfig is RetryConfig) {
         boolean[] statusCodes = populateErrorCodeIndex(retryConfig.statusCodes);
@@ -475,11 +490,19 @@ function createRetryClient(string url, ClientEndpointConfig configuration) retur
             statusCodes: statusCodes
         };
         if (configuration.cache.enabled) {
-            return new RetryClient(url, configuration, retryInferredConfig,
-                createHttpCachingClient(url, configuration, configuration.cache));
+            var httpCachingClient = createHttpCachingClient(url, configuration, configuration.cache);
+            if (httpCachingClient is Client) {
+                return <Client>new RetryClient(url, configuration, retryInferredConfig, httpCachingClient);
+            } else {
+                return httpCachingClient;
+            }
         } else{
-            return new RetryClient(url, configuration, retryInferredConfig,
-                createHttpSecureClient(url, configuration));
+            var httpSecureClient = createHttpSecureClient(url, configuration);
+            if (httpSecureClient is Client) {
+                return <Client>new RetryClient(url, configuration, retryInferredConfig, httpSecureClient);
+            } else {
+                return httpSecureClient;
+            }
         }
     } else {
         //remove following once we can ignore
@@ -492,22 +515,22 @@ function createRetryClient(string url, ClientEndpointConfig configuration) retur
 }
 
 //Since the struct equivalency doesn't work with private keyword, following functions are defined outside the object
-extern function nativePost(ClientEndpoint callerActions, @sensitive string path, Request req) returns Response|error;
+extern function nativePost(Client httpClient, @sensitive string path, Request req) returns Response|error;
 
-extern function nativeHead(ClientEndpoint callerActions, @sensitive string path, Request req) returns Response|error;
+extern function nativeHead(Client httpClient, @sensitive string path, Request req) returns Response|error;
 
-extern function nativePut(ClientEndpoint callerActions, @sensitive string path, Request req) returns Response|error;
+extern function nativePut(Client httpClient, @sensitive string path, Request req) returns Response|error;
 
-extern function nativeExecute(ClientEndpoint callerActions, @sensitive string httpVerb, @sensitive string path,
+extern function nativeExecute(Client httpClient, @sensitive string httpVerb, @sensitive string path,
                                                                         Request req) returns Response|error;
 
-extern function nativePatch(ClientEndpoint callerActions, @sensitive string path, Request req) returns Response|error;
+extern function nativePatch(Client httpClient, @sensitive string path, Request req) returns Response|error;
 
-extern function nativeDelete(ClientEndpoint callerActions, @sensitive string path, Request req) returns Response|error;
+extern function nativeDelete(Client httpClient, @sensitive string path, Request req) returns Response|error;
 
-extern function nativeGet(ClientEndpoint callerActions, @sensitive string path, Request req) returns Response|error;
+extern function nativeGet(Client httpClient, @sensitive string path, Request req) returns Response|error;
 
-extern function nativeOptions(ClientEndpoint callerActions, @sensitive string path, Request req) returns Response|error;
+extern function nativeOptions(Client httpClient, @sensitive string path, Request req) returns Response|error;
 
-extern function nativeSubmit(ClientEndpoint callerActions, @sensitive string httpVerb, string path, Request req)
+extern function nativeSubmit(Client httpClient, @sensitive string httpVerb, string path, Request req)
                                                                         returns HttpFuture|error;

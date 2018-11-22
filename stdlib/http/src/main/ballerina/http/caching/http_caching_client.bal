@@ -80,7 +80,7 @@ public type HttpCachingClient client object {
 
     public string serviceUri = "";
     public ClientEndpointConfig config = {};
-    public ClientEndpoint httpClient;
+    public Client httpClient;
     public HttpCache cache;
     public CacheConfig cacheConfig = {};
 
@@ -92,7 +92,12 @@ public type HttpCachingClient client object {
     # + config - The configurations for the client endpoint associated with the caching client
     # + cacheConfig - The configurations for the HTTP cache to be used with the caching client
     public new(serviceUri, config, cacheConfig) {
-        self.httpClient = createHttpSecureClient(serviceUri, config);
+        var httpSecureClient = createHttpSecureClient(serviceUri, config);
+        if (httpSecureClient is Client) {
+            self.httpClient = httpSecureClient;
+        } else {
+            panic httpSecureClient;
+        }
         self.cache = createHttpCache("http-cache", cacheConfig);
     }
 
@@ -231,23 +236,23 @@ public type HttpCachingClient client object {
 # + url - The URL of the HTTP endpoint to connect to
 # + config - The configurations for the client endpoint associated with the caching client
 # + cacheConfig - The configurations for the HTTP cache to be used with the caching client
-# + return - An `HttpCachingClient` instance which wraps the base `CallerActions` with a caching layer
+# + return - An `HttpCachingClient` instance which wraps the base `Client` with a caching layer
 public function createHttpCachingClient(string url, ClientEndpointConfig config, CacheConfig cacheConfig)
-                                                                                                returns CallerActions {
+                                                                                                returns Client|error {
     HttpCachingClient httpCachingClient = new(url, config, cacheConfig);
     log:printDebug(function() returns string {
         return "Created HTTP caching client: " + io:sprintf("%s", httpCachingClient);
     });
-    return httpCachingClient;
+    return <Client>httpCachingClient;
 }
 
 remote function HttpCachingClient.post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                        message) returns Response|error {
-    ClientEndpoint clientEndpoint = self.httpClient;
+    Client httpClient = self.httpClient;
     Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
 
-    var inboundResponse = clientEndpoint->post(path, req);
+    var inboundResponse = httpClient->post(path, req);
     if (inboundResponse is Response) {
         invalidateResponses(self.cache, inboundResponse, path);
     }
@@ -263,11 +268,11 @@ remote function HttpCachingClient.head(string path, Request|string|xml|json|byte
 
 remote function HttpCachingClient.put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                         message) returns Response|error {
-    ClientEndpoint clientEndpoint = self.httpClient;
+    Client httpClient = self.httpClient;
     Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
 
-    var inboundResponse = clientEndpoint->put(path, req);
+    var inboundResponse = httpClient->put(path, req);
     if (inboundResponse is Response) {
         invalidateResponses(self.cache, inboundResponse, path);
     }
@@ -277,7 +282,7 @@ remote function HttpCachingClient.put(string path, Request|string|xml|json|byte[
 remote function HttpCachingClient.execute(string httpMethod, string path,
                                     Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message)
                                 returns Response|error {
-    ClientEndpoint clientEndpoint = self.httpClient;
+    Client httpClient = self.httpClient;
     Request request = buildRequest(message);
     setRequestCacheControlHeader(request);
 
@@ -285,7 +290,7 @@ remote function HttpCachingClient.execute(string httpMethod, string path,
         return getCachedResponse(self.cache, self.httpClient, request, httpMethod, path, self.cacheConfig.isShared);
     }
 
-    var inboundResponse = clientEndpoint->execute(httpMethod, path, request);
+    var inboundResponse = httpClient->execute(httpMethod, path, request);
     if (inboundResponse is Response) {
         invalidateResponses(self.cache, inboundResponse, path);
     }
@@ -294,11 +299,11 @@ remote function HttpCachingClient.execute(string httpMethod, string path,
 
 remote function HttpCachingClient.patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                         message) returns Response|error {
-    ClientEndpoint clientEndpoint = self.httpClient;
+    Client httpClient = self.httpClient;
     Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
 
-    var inboundResponse = clientEndpoint->patch(path, req);
+    var inboundResponse = httpClient->patch(path, req);
     if (inboundResponse is Response) {
         invalidateResponses(self.cache, inboundResponse, path);
     }
@@ -307,11 +312,11 @@ remote function HttpCachingClient.patch(string path, Request|string|xml|json|byt
 
 remote function HttpCachingClient.delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                         message) returns Response|error {
-    ClientEndpoint clientEndpoint = self.httpClient;
+    Client httpClient = self.httpClient;
     Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
 
-    var inboundResponse = clientEndpoint->delete(path, req);
+    var inboundResponse = httpClient->delete(path, req);
     if (inboundResponse is Response) {
         invalidateResponses(self.cache, inboundResponse, path);
     }
@@ -327,11 +332,11 @@ remote function HttpCachingClient.get(string path, Request|string|xml|json|byte[
 
 remote function HttpCachingClient.options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message = ()) returns Response|error {
-    ClientEndpoint clientEndpoint = self.httpClient;
+    Client httpClient = self.httpClient;
     Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
 
-    var inboundResponse = clientEndpoint->options(path, message = req);
+    var inboundResponse = httpClient->options(path, message = req);
     if (inboundResponse is Response) {
         invalidateResponses(self.cache, inboundResponse, path);
     }
@@ -339,12 +344,12 @@ remote function HttpCachingClient.options(string path, Request|string|xml|json|b
 }
 
 remote function HttpCachingClient.forward(string path, Request request) returns Response|error {
-    ClientEndpoint clientEndpoint = self.httpClient;
+    Client httpClient = self.httpClient;
     if (request.method == GET || request.method == HEAD) {
         return getCachedResponse(self.cache, self.httpClient, request, request.method, path, self.cacheConfig.isShared);
     }
 
-    var inboundResponse = clientEndpoint->forward(path, request);
+    var inboundResponse = httpClient->forward(path, request);
     if (inboundResponse is Response) {
         invalidateResponses(self.cache, inboundResponse, path);
     }
@@ -354,37 +359,42 @@ remote function HttpCachingClient.forward(string path, Request request) returns 
 remote function HttpCachingClient.submit(string httpVerb, string path,
                                    Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message)
                                    returns HttpFuture|error {
-    ClientEndpoint clientEndpoint = self.httpClient;
+    Client httpClient = self.httpClient;
     Request req = buildRequest(message);
-    return clientEndpoint->submit(httpVerb, path, req);
+    var result = httpClient->submit(httpVerb, path, req);
+    return result;
 }
 
 remote function HttpCachingClient.getResponse(HttpFuture httpFuture) returns Response|error {
-    ClientEndpoint clientEndpoint = self.httpClient;
-    return clientEndpoint->getResponse(httpFuture);
+    Client httpClient = self.httpClient;
+    var result = httpClient->getResponse(httpFuture);
+    return result;
 }
 
 remote function HttpCachingClient.hasPromise(HttpFuture httpFuture) returns boolean {
-    ClientEndpoint clientEndpoint = self.httpClient;
-    return clientEndpoint->hasPromise(httpFuture);
+    Client httpClient = self.httpClient;
+    var result = httpClient->hasPromise(httpFuture);
+    return result;
 }
 
 remote function HttpCachingClient.getNextPromise(HttpFuture httpFuture) returns (PushPromise|error) {
-    ClientEndpoint clientEndpoint = self.httpClient;
-    return clientEndpoint->getNextPromise(httpFuture);
+    Client httpClient = self.httpClient;
+    var result = httpClient->getNextPromise(httpFuture);
+    return result;
 }
 
 remote function HttpCachingClient.getPromisedResponse(PushPromise promise) returns Response|error {
-    ClientEndpoint clientEndpoint = self.httpClient;
-    return clientEndpoint->getPromisedResponse(promise);
+    Client httpClient = self.httpClient;
+    var result = httpClient->getPromisedResponse(promise);
+    return result;
 }
 
 remote function HttpCachingClient.rejectPromise(PushPromise promise) {
-    ClientEndpoint clientEndpoint = self.httpClient;
-    clientEndpoint->rejectPromise(promise);
+    Client httpClient = self.httpClient;
+    httpClient->rejectPromise(promise);
 }
 
-function getCachedResponse(HttpCache cache, ClientEndpoint httpClient, Request req, string httpMethod, string path,
+function getCachedResponse(HttpCache cache, Client httpClient, Request req, string httpMethod, string path,
                            boolean isShared) returns Response|error {
     time:Time currentT = time:currentTime();
     req.parseCacheControlHeader();
@@ -456,7 +466,7 @@ function getCachedResponse(HttpCache cache, ClientEndpoint httpClient, Request r
     return response;
 }
 
-function getValidationResponse(ClientEndpoint httpClient, Request req, Response cachedResponse, HttpCache cache,
+function getValidationResponse(Client httpClient, Request req, Response cachedResponse, HttpCache cache,
                                time:Time currentT, string path, string httpMethod, boolean isFreshResponse)
                                                                                 returns Response|error {
     // If the no-cache directive is set, always validate the response before serving
@@ -643,7 +653,7 @@ function isStaleResponseAccepted(RequestCacheControl? requestCacheControl, Respo
 }
 
 // Based https://tools.ietf.org/html/rfc7234#section-4.3.1
-function sendValidationRequest(ClientEndpoint httpClient, string path, Response cachedResponse) returns Response|error {
+function sendValidationRequest(Client httpClient, string path, Response cachedResponse) returns Response|error {
     Request validationRequest = new;
 
     if (cachedResponse.hasHeader(ETAG)) {
@@ -656,15 +666,18 @@ function sendValidationRequest(ClientEndpoint httpClient, string path, Response 
 
     // TODO: handle cases where neither of the above 2 headers are present
 
-    return httpClient->get(path, message = validationRequest);
+    var result = httpClient->get(path, message = validationRequest);
+    return result;
 }
 
-function sendNewRequest(ClientEndpoint httpClient, Request request, string path, string httpMethod)
+function sendNewRequest(Client httpClient, Request request, string path, string httpMethod)
                                                                                 returns Response|error {
     if (httpMethod == GET) {
-        return httpClient->get(path, message = request);
+        var result = httpClient->get(path, message = request);
+        return result;
     } else if (httpMethod == HEAD) {
-        return httpClient->head(path, message = request);
+        var result = httpClient->head(path, message = request);
+        return result;
     } else {
         error err = error("HTTP method not supported in caching client: " + httpMethod);
         return err;

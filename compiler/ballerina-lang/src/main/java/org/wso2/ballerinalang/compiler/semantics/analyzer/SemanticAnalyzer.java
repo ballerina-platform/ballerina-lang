@@ -451,7 +451,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 dlog.error(varNode.pos, DiagnosticCode.SEALED_ARRAY_TYPE_NOT_INITIALIZED);
                 return;
             }
-            if (varNode.symbol.type.tag != TypeTags.CHANNEL && varNode.symbol.owner.tag == SymTag.PACKAGE) {
+            if ((varNode.symbol.type.tag != TypeTags.CHANNEL && varNode.symbol.owner.tag == SymTag.PACKAGE) || Symbols
+                    .isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {
                 dlog.error(varNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varNode.name);
             }
             return;
@@ -2490,7 +2491,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         // There must be an implementation at the outer level, if the function is an interface.
         if (!env.enclPkg.objAttachedFunctions.contains(func.symbol)) {
-            dlog.error(pos, DiagnosticCode.INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT, func.funcName, func.symbol.receiverSymbol.type);
+            dlog.error(pos, DiagnosticCode.INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT, func.funcName,
+                    func.symbol.receiverSymbol.type);
         }
     }
 

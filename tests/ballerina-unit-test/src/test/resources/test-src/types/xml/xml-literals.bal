@@ -117,12 +117,6 @@ function testFunctionCallInXMLTemplate() returns (xml) {
     return x1;
 }
 
-function testNullXMLinXMLLiteral() returns (xml) {
-  xml x1;
-  xml root = xml `<root>{{x1}}</root>`;
-  return root;
-}
-
 function testInvalidElementName_1() returns (xml) {
     string v1 = "11";
     xml x1 = xml `<{{v1}}>hello</{{v1}}>`;
