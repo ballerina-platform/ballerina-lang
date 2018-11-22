@@ -37,7 +37,7 @@ public type Time object {
     public int time;
     public Timezone zone;
 
-    public function __init (int time, Timezone zone) {
+    public function __init(int time, Timezone zone) {
         self.time = time;
         self.zone = zone;
     }
