@@ -25,7 +25,7 @@ public type TopicPublisher object {
     public TopicPublisherEndpointConfiguration config = {};
 
     # Topic publisher contructor
-    new() {
+    function __init() {
         self.producerActions = new;
     }
 

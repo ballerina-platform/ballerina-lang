@@ -148,7 +148,10 @@ public type SimpleDurableTopicSubscriberActions object {
     private Session session;
     private string identifier;
 
-    new(helper, session, identifier) {
+    function __init(DurableTopicSubscriberActions subscriberActions, Session sess, string id) {
+        self.helper = subscriberActions;
+        self.session = sess;
+        self.identifier = id;
     }
 
     # Acknowledges a received message
