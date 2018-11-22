@@ -32,6 +32,7 @@ import org.ballerinalang.model.values.BString;
  */
 public class CallbackReturnHandler {
 
+    // TODO: fix bug second strand may also return a value
     static Strand handleReturn(Strand strand, BType expType, int retReg, SafeStrandCallback... callbacks) {
         try {
             strand.acquireExecutionLock();

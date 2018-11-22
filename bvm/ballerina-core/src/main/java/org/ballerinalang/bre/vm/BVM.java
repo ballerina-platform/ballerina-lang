@@ -87,8 +87,6 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.BXMLSequence;
-import org.ballerinalang.persistence.states.State;
-import org.ballerinalang.persistence.store.PersistenceStore;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -102,11 +100,13 @@ import org.ballerinalang.util.codegen.Instruction.InstructionVCALL;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.ObjectTypeInfo;
+import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.codegen.TypeDefInfo;
 import org.ballerinalang.util.codegen.WorkerDataChannelInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
+import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.BlobCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ByteCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
@@ -145,7 +145,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
-import static org.ballerinalang.runtime.Constants.STATE_ID;
 import static org.ballerinalang.util.BLangConstants.BBYTE_MAX_VALUE;
 import static org.ballerinalang.util.BLangConstants.BBYTE_MIN_VALUE;
 import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
@@ -163,7 +162,7 @@ public class BVM {
      *
      * @param strand to be executed
      */
-    public static void execute(Strand strand) {
+    protected static void execute(Strand strand) {
         int i, j, k, l;
         int cpIndex;
         FunctionCallCPEntry funcCallCPEntry;
@@ -172,7 +171,7 @@ public class BVM {
         FunctionInfo functionInfo;
         InstructionCALL callIns;
 
-//        boolean debugEnabled = strand.programFile.getDebugger().isDebugEnabled();
+        boolean debugEnabled = strand.programFile.getDebugger().isDebugEnabled();
 
         int callersRetRegIndex;
 
@@ -180,14 +179,13 @@ public class BVM {
 
         while (sf.ip >= 0) {
             try {
-//            if (ctx.stop) {
-//                BLangScheduler.workerDone(ctx);
-//                return;
-//            }
-//            if (debugEnabled && debug(ctx)) {
-//                return;
-//            }
-                sf = strand.currentFrame;
+                if (strand.state == Strand.State.TERMINATED) {
+                    strand.currentFrame.ip = -1;
+                    return;
+                }
+//                if (debugEnabled && debug(strand)) {
+//                    return;
+//                }
 
                 Instruction instruction = sf.code[sf.ip];
                 int opcode = instruction.getOpcode();
@@ -389,10 +387,12 @@ public class BVM {
                         sf.refRegs[j] = new BTypeDescValue(typeEntry.getType());
                         break;
                     case InstructionCodes.HALT:
-//                    ctx = handleHalt(ctx);
-//                    if (ctx == null) {
-//                        return;
-//                    }
+                        if (strand.fp > 0) {
+                            strand.popFrame();
+                            break;
+                        }
+                        sf.ip = -1;
+                        strand.respCallback.signal();
                         break;
                     case InstructionCodes.IGT:
                     case InstructionCodes.FGT:
@@ -426,11 +426,17 @@ public class BVM {
                         callIns = (InstructionCALL) instruction;
                         strand = invokeCallable(strand, callIns.functionInfo,
                                 callIns.argRegs, callIns.retRegs[0], callIns.flags);
+                        if (strand == null) {
+                            return;
+                        }
                         break;
                     case InstructionCodes.VCALL:
                         InstructionVCALL vcallIns = (InstructionVCALL) instruction;
                         strand = invokeVirtualFunction(strand, sf, vcallIns.receiverRegIndex, vcallIns.functionInfo,
                                 vcallIns.argRegs, vcallIns.retRegs[0], vcallIns.flags);
+                        if (strand == null) {
+                            return;
+                        }
                         break;
                     case InstructionCodes.TR_BEGIN:
                         i = operands[0];
@@ -505,6 +511,9 @@ public class BVM {
                         functionInfo = ((BFunctionPointer) sf.refRegs[i]).value();
                         strand = invokeCallable(strand, (BFunctionPointer) sf.refRegs[i], funcCallCPEntry,
                                 functionInfo, sf, funcCallCPEntry.getFlags());
+                        if (strand == null) {
+                            return;
+                        }
                         break;
                     case InstructionCodes.FPLOAD:
                         i = operands[0];
@@ -672,8 +681,7 @@ public class BVM {
                         createNewIntRange(operands, sf);
                         break;
                     case InstructionCodes.IRET:
-//                    i = operands[0]; //TODO remove - we don't need this anymore
-                        j = operands[1];
+                        j = operands[0];
                         if (strand.fp > 0) {
                             StackFrame pf = strand.peekFrame(1);
                             callersRetRegIndex = sf.retReg;
@@ -683,7 +691,7 @@ public class BVM {
                         }
                         break;
                     case InstructionCodes.FRET:
-                        j = operands[1];
+                        j = operands[0];
                         if (strand.fp > 0) {
                             StackFrame pf = strand.peekFrame(1);
                             callersRetRegIndex = sf.retReg;
@@ -693,7 +701,7 @@ public class BVM {
                         }
                         break;
                     case InstructionCodes.SRET:
-                        j = operands[1];
+                        j = operands[0];
                         if (strand.fp > 0) {
                             StackFrame pf = strand.peekFrame(1);
                             callersRetRegIndex = sf.retReg;
@@ -703,7 +711,7 @@ public class BVM {
                         }
                         break;
                     case InstructionCodes.BRET:
-                        j = operands[1];
+                        j = operands[0];
                         if (strand.fp > 0) {
                             StackFrame pf = strand.peekFrame(1);
                             callersRetRegIndex = sf.retReg;
@@ -714,7 +722,7 @@ public class BVM {
                         break;
                     case InstructionCodes.DRET:
                     case InstructionCodes.RRET:
-                        j = operands[1];
+                        j = operands[0];
                         if (strand.fp > 0) {
                             StackFrame pf = strand.peekFrame(1);
                             callersRetRegIndex = sf.retReg;
@@ -728,6 +736,7 @@ public class BVM {
                             strand.popFrame();
                             break;
                         }
+                        sf.ip = -1;
                         strand.respCallback.signal();
                         return;
                     case InstructionCodes.XMLATTRSTORE:
@@ -808,6 +817,7 @@ public class BVM {
                     default:
                         throw new UnsupportedOperationException();
                 }
+                sf = strand.currentFrame;
             } catch (Throwable e) {
                 //Can we remove this?
                 strand.setError(BLangVMErrors.createError(strand, e.getMessage()));
@@ -849,13 +859,13 @@ public class BVM {
         }
 
         SafeStrandCallback strndCallback = new SafeStrandCallback(callableUnitInfo, callableUnitInfo.getRetParamTypes()[0]);
-        Strand calleeStrand = new Strand(strand.programFile, strndCallback);
+        Strand calleeStrand = new Strand(strand.programFile, strand.globalProps, strndCallback);
         calleeStrand.pushFrame(df);
         if (callableUnitInfo.isNative()) {
             Context nativeCtx = new NativeCallContext(calleeStrand, callableUnitInfo, df);
             NativeCallableUnit nativeCallable = callableUnitInfo.getNativeCallableUnit();
             if (nativeCallable.isBlocking()) {
-                BVMScheduler.scheduleNative(nativeCallable, nativeCtx);
+                BVMScheduler.scheduleNative(nativeCallable, nativeCtx, null);
             } else {
                 BLangCallableUnitCallback callableUnitCallback = new BLangCallableUnitCallback(nativeCtx,
                         calleeStrand, retReg, callableUnitInfo.getRetParamTypes()[0]);
@@ -3986,64 +3996,62 @@ public class BVM {
 
     private static BMap<String, BValue> convertMapToStruct(Strand ctx,
                                                            BMap<String, BValue> bMap, BStructureType structType) {
-        //                    TODO fix - rajith
-//        BMap<String, BValue> bStruct = new BMap<>(structType);
-//        StructureTypeInfo structInfo = (StructureTypeInfo) structType.getTypeInfo();
-//
-//        for (StructFieldInfo fieldInfo : structInfo.getFieldInfoEntries()) {
-//            String key = fieldInfo.getName();
-//            BType fieldType = fieldInfo.getFieldType();
-//
-//            boolean containsField = bMap.hasKey(key);
-//            if (!containsField) {
-//                DefaultValueAttributeInfo defaultValAttrInfo = (DefaultValueAttributeInfo)
-//                        getAttributeInfo(fieldInfo, AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE);
-//                if (defaultValAttrInfo != null) {
-//                    switch (fieldType.getTag()) {
-//                        case TypeTags.INT_TAG:
-//                            bStruct.put(key, new BInteger(defaultValAttrInfo.getDefaultValue().getIntValue()));
-//                            continue;
-//                        case TypeTags.BYTE_TAG:
-//                            bStruct.put(key, new BByte(defaultValAttrInfo.getDefaultValue().getByteValue()));
-//                            continue;
-//                        case TypeTags.FLOAT_TAG:
-//                            bStruct.put(key, new BFloat(defaultValAttrInfo.getDefaultValue().getFloatValue()));
-//                            continue;
-//                        case TypeTags.DECIMAL_TAG:
-//                            bStruct.put(key, new BDecimal(defaultValAttrInfo.getDefaultValue().getDecimalValue()));
-//                            continue;
-//                        case TypeTags.STRING_TAG:
-//                            bStruct.put(key, new BString(defaultValAttrInfo.getDefaultValue().getStringValue()));
-//                            continue;
-//                        case TypeTags.BOOLEAN_TAG:
-//                            bStruct.put(key, new BBoolean(defaultValAttrInfo.getDefaultValue().getBooleanValue()));
-//                            continue;
-//                    }
-//                }
-//                bStruct.put(key, fieldType.getZeroValue());
-//                continue;
-//            }
-//
-//            BValue mapVal = bMap.get(key);
-//            if (mapVal == null && BTypes.isValueType(fieldType)) {
-//                throw BLangExceptionHelper.getRuntimeException(
-//                        RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key, fieldType, null);
-//            }
-//
-//            if (mapVal != null && mapVal.getType().getTag() == TypeTags.MAP_TAG) {
-//                bStruct.put(key, convertMap(ctx, (BMap<String, BValue>) mapVal, fieldType, key));
-//                continue;
-//            }
-//
-//            if (!checkCast(mapVal, fieldType, new ArrayList<TypePair>())) {
-//                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING,
-//                                                               key, fieldType,
-//                                                               mapVal == null ? null : mapVal.getType());
-//            }
-//            bStruct.put(key, mapVal);
-//        }
-//        return bStruct;
-        return null;
+        BMap<String, BValue> bStruct = new BMap<>(structType);
+        StructureTypeInfo structInfo = (StructureTypeInfo) structType.getTypeInfo();
+
+        for (StructFieldInfo fieldInfo : structInfo.getFieldInfoEntries()) {
+            String key = fieldInfo.getName();
+            BType fieldType = fieldInfo.getFieldType();
+
+            boolean containsField = bMap.hasKey(key);
+            if (!containsField) {
+                DefaultValueAttributeInfo defaultValAttrInfo = (DefaultValueAttributeInfo)
+                        getAttributeInfo(fieldInfo, AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE);
+                if (defaultValAttrInfo != null) {
+                    switch (fieldType.getTag()) {
+                        case TypeTags.INT_TAG:
+                            bStruct.put(key, new BInteger(defaultValAttrInfo.getDefaultValue().getIntValue()));
+                            continue;
+                        case TypeTags.BYTE_TAG:
+                            bStruct.put(key, new BByte(defaultValAttrInfo.getDefaultValue().getByteValue()));
+                            continue;
+                        case TypeTags.FLOAT_TAG:
+                            bStruct.put(key, new BFloat(defaultValAttrInfo.getDefaultValue().getFloatValue()));
+                            continue;
+                        case TypeTags.DECIMAL_TAG:
+                            bStruct.put(key, new BDecimal(defaultValAttrInfo.getDefaultValue().getDecimalValue()));
+                            continue;
+                        case TypeTags.STRING_TAG:
+                            bStruct.put(key, new BString(defaultValAttrInfo.getDefaultValue().getStringValue()));
+                            continue;
+                        case TypeTags.BOOLEAN_TAG:
+                            bStruct.put(key, new BBoolean(defaultValAttrInfo.getDefaultValue().getBooleanValue()));
+                            continue;
+                    }
+                }
+                bStruct.put(key, fieldType.getZeroValue());
+                continue;
+            }
+
+            BValue mapVal = bMap.get(key);
+            if (mapVal == null && BTypes.isValueType(fieldType)) {
+                throw BLangExceptionHelper.getRuntimeException(
+                        RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key, fieldType, null);
+            }
+
+            if (mapVal != null && mapVal.getType().getTag() == TypeTags.MAP_TAG) {
+                bStruct.put(key, convertMap(ctx, (BMap<String, BValue>) mapVal, fieldType, key));
+                continue;
+            }
+
+            if (!checkCast(mapVal, fieldType, new ArrayList<TypePair>())) {
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING,
+                        key, fieldType,
+                        mapVal == null ? null : mapVal.getType());
+            }
+            bStruct.put(key, mapVal);
+        }
+        return bStruct;
     }
 
     private static BValue convertMap(Strand ctx, BMap<String, BValue> mapValue, BType targetType,

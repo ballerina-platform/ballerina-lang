@@ -161,9 +161,9 @@ public class DecompressFromByteArray extends BlockingNativeCallableUnit {
             } else {
                 try {
                     decompress(inputStream, destPath, context);
-                    if (context.getReturnValue() == null) {
-                        context.setReturnValues();
-                    }
+//                    if (context.getReturnValues() == null) {
+//                        context.setReturnValues();
+//                    }
                 } catch (IOException e) {
                     context.setReturnValues(CompressionUtils.createCompressionError(context,
                             "Error occurred when decompressing " + e.getMessage()));

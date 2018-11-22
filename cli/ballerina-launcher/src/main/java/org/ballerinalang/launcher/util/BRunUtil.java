@@ -18,7 +18,7 @@
 package org.ballerinalang.launcher.util;
 
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.bre.vm.Executor;
+import org.ballerinalang.bre.vm.BVMExecutor;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
@@ -104,7 +104,7 @@ public class BRunUtil {
                     providedArgNo + ".");
         }
 
-        BValue[] response = Executor.executeFunction(programFile, functionInfo, args);
+        BValue[] response = BVMExecutor.executeFunction(programFile, functionInfo, args);
 
         return spreadToBValueArray(response);
     }
@@ -138,7 +138,7 @@ public class BRunUtil {
         programFile.setDebugger(debugger);
         compileResult.setContext(context);
 
-        Executor.initProgramFile(programFile);
+        BVMExecutor.initProgramFile(programFile);
     }
 
     /**
@@ -164,7 +164,7 @@ public class BRunUtil {
             throw new RuntimeException("Function '" + functionName + "' is not defined");
         }
 
-        BValue[] response = Executor.executeEntryFunction(programFile, functionInfo, args);
+        BValue[] response = BVMExecutor.executeEntryFunction(programFile, functionInfo, args);
 
         return spreadToBValueArray(response);
     }
@@ -218,8 +218,7 @@ public class BRunUtil {
         }
 
 
-        BValue[] response = Executor.executeEntryFunction(programFile, functionInfo, args);
-        return response;
+        return BVMExecutor.executeEntryFunction(programFile, functionInfo, args);
     }
 
     /**
@@ -272,6 +271,6 @@ public class BRunUtil {
         Debugger debugger = new Debugger(compileResult.getProgFile());
         compileResult.getProgFile().setDebugger(debugger);
 
-        Executor.executeFunction(compileResult.getProgFile(), initFuncInfo);
+        BVMExecutor.executeFunction(compileResult.getProgFile(), initFuncInfo);
     }
 }

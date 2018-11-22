@@ -1185,12 +1185,6 @@ public class PackageInfoReader {
                 case InstructionCodes.NEWSTRUCT:
                 case InstructionCodes.ITR_NEW:
                 case InstructionCodes.ITR_HAS_NEXT:
-                case InstructionCodes.IRET:
-                case InstructionCodes.FRET:
-                case InstructionCodes.SRET:
-                case InstructionCodes.BRET:
-                case InstructionCodes.DRET:
-                case InstructionCodes.RRET:
                 case InstructionCodes.XML2XMLATTRS:
                 case InstructionCodes.NEWXMLCOMMENT:
                 case InstructionCodes.NEWXMLTEXT:
@@ -1251,6 +1245,15 @@ public class PackageInfoReader {
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
+                    break;
+                case InstructionCodes.IRET:
+                case InstructionCodes.FRET:
+                case InstructionCodes.SRET:
+                case InstructionCodes.BRET:
+                case InstructionCodes.DRET:
+                case InstructionCodes.RRET:
+                    j = codeStream.readInt();
+                    packageInfo.addInstruction(InstructionFactory.get(opcode, j));
                     break;
                 case InstructionCodes.IALOAD:
                 case InstructionCodes.BIALOAD:

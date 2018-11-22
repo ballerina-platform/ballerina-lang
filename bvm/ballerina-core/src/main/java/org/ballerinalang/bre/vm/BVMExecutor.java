@@ -19,6 +19,8 @@ package org.ballerinalang.bre.vm;
 
 import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.bre.vm.Strand.State;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
@@ -29,6 +31,7 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
+import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -36,7 +39,10 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.observability.ObserverContext;
+import org.ballerinalang.util.program.BLangVMUtils;
+import org.ballerinalang.util.program.CompensationTable;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -44,7 +50,7 @@ import java.util.Map;
  *
  * @since 0.985.0
  */
-public class Executor {
+public class BVMExecutor {
 
     public static void initProgramFile(ProgramFile programFile) {
         invokePackageInitFunctions(programFile);
@@ -66,9 +72,11 @@ public class Executor {
                     providedArgNo + ".");
         }
         initProgramFile(programFile);
-        //Add compensation table TODO fix - rajith
-//        parentCtx.globalProps.put(Constants.COMPENSATION_TABLE, CompensationTable.getInstance());
-        BValue[] result = new BValue[]{execute(programFile, functionInfo, args, true)};
+        //Add compensation table
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(Constants.COMPENSATION_TABLE, CompensationTable.getInstance());
+//        new BalxEmitter().emit(programFile);
+        BValue[] result = new BValue[]{execute(programFile, functionInfo, args, properties, true)};
         BLangScheduler.waitForWorkerCompletion();
         return result;
     }
@@ -80,15 +88,18 @@ public class Executor {
             throw new RuntimeException("Wrong number of arguments. Required: " + requiredArgNo + " , found: " +
                     providedArgNo + ".");
         }
-        //Add compensation table TODO fix - rajith
-//        parentCtx.globalProps.put(Constants.COMPENSATION_TABLE, CompensationTable.getInstance());
-        BValue[] result = new BValue[]{execute(programFile, functionInfo, args, true)};
+        //Add compensation table
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(Constants.COMPENSATION_TABLE, CompensationTable.getInstance());
+        BValue[] result = new BValue[]{execute(programFile, functionInfo, args, properties, true)};
         BLangScheduler.waitForWorkerCompletion();
         return result;
     }
 
-    public static void executeResource(ProgramFile programFile, ResourceInfo resourceInfo, Map<String,
-            Object> properties, ObserverContext observerContext, BValue... args) {
+    public static void executeResource(ProgramFile programFile, ResourceInfo resourceInfo,
+                                       CallableUnitCallback responseCallback, Map<String, Object> properties,
+                                       ObserverContext observerContext, BValue... args) {
+        Map<String, Object> globalProps = new HashMap<>();
         if (properties != null) {
             //TODO fix - rajith
 //            Object interruptible = properties.get(Constants.IS_INTERRUPTIBLE);
@@ -98,31 +109,43 @@ public class Executor {
 //                RuntimeStates.add(new State(context, stateId));
 //                context.interruptible = true;
 //            }
-//            context.globalProps.putAll(properties);
-//            if (properties.get(Constants.GLOBAL_TRANSACTION_ID) != null) {
+            globalProps.putAll(properties);
+            if (properties.get(Constants.GLOBAL_TRANSACTION_ID) != null) {
 //                context.setLocalTransactionInfo(new LocalTransactionInfo(
 //                        properties.get(Constants.GLOBAL_TRANSACTION_ID).toString(),
 //                        properties.get(Constants.TRANSACTION_URL).toString(), "2pc"));
-//            }
+            }
         }
         //required for tracking compensations
-//        context.globalProps.put(Constants.COMPENSATION_TABLE, CompensationTable.getInstance());
-//        BLangVMUtils.setServiceInfo(context, resourceInfo.getServiceInfo());
-        execute(programFile, resourceInfo, args, false);
-//        BLangFunctions.invokeServiceCallable(resourceInfo, context, observerContext, bValues, responseCallback);
+        globalProps.put(Constants.COMPENSATION_TABLE, CompensationTable.getInstance());
+
+        StrandResourceCallback strandCallback = new StrandResourceCallback(resourceInfo, null, responseCallback); //TODO change to have single return type - rajith
+        Strand strand = new Strand(programFile, properties, strandCallback);
+
+        BLangVMUtils.setServiceInfo(strand, resourceInfo.getServiceInfo());
+
+        StackFrame idf = new StackFrame(resourceInfo.getPackageInfo(), resourceInfo,
+                resourceInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1);
+        copyArgValues(args, idf, resourceInfo.getParamTypes());
+        strand.pushFrame(idf);
+
+        BVMScheduler.stateChange(strand, State.NEW, State.RUNNABLE);
+        BVMScheduler.schedule(strand);
     }
 
 
-    private static BValue execute(ProgramFile programFile, CallableUnitInfo functionInfo, BValue[] args, boolean waitForResponse) {
-        StrandWaitCallback strandCallback = new StrandWaitCallback(functionInfo, functionInfo.getRetParamTypes()[0]); //TODO change to have single return type - rajith
-        Strand strand = new Strand(programFile, strandCallback);
+    private static BValue execute(ProgramFile programFile, CallableUnitInfo callableInfo,
+                                  BValue[] args, Map<String, Object> properties, boolean waitForResponse) {
+        StrandWaitCallback strandCallback = new StrandWaitCallback(callableInfo, callableInfo.getRetParamTypes()[0]); //TODO change to have single return type - rajith
+        Strand strand = new Strand(programFile, properties, strandCallback);
 
-        StackFrame idf = new StackFrame(functionInfo.getPackageInfo(), functionInfo,
-                functionInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1);
-        copyArgValues(args, idf, functionInfo.getParamTypes());
+        StackFrame idf = new StackFrame(callableInfo.getPackageInfo(), callableInfo,
+                callableInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1);
+        copyArgValues(args, idf, callableInfo.getParamTypes());
         strand.pushFrame(idf);
 
-        BVM.execute(strand);
+        BVMScheduler.stateChange(strand, State.NEW, State.RUNNABLE);
+        BVMScheduler.execute(strand);
 
         if (waitForResponse) {
             strandCallback.waitForResponse();
@@ -131,8 +154,8 @@ public class Executor {
             }
         }
 
-        BValue result = populateReturnData(strandCallback, functionInfo);
-        BLangScheduler.waitForWorkerCompletion();
+        BValue result = populateReturnData(strandCallback, callableInfo);
+        BVMScheduler.waitForStrandCompletion();
         return result;
     }
 
@@ -206,7 +229,7 @@ public class Executor {
      */
     private static void invokePackageInitFunctions(ProgramFile programFile) {
         for (PackageInfo info : programFile.getPackageInfoEntries()) {
-            execute(programFile, info.getInitFunctionInfo(), new BValue[0], true);
+            execute(programFile, info.getInitFunctionInfo(), new BValue[0], null, true);
         }
     }
 
@@ -218,7 +241,7 @@ public class Executor {
      */
     private static void invokePackageStartFunctions(ProgramFile programFile) {
         for (PackageInfo info : programFile.getPackageInfoEntries()) {
-            execute(programFile, info.getStartFunctionInfo(), new BValue[0], true);
+            execute(programFile, info.getStartFunctionInfo(), new BValue[0], null, true);
         }
     }
 }
