@@ -614,7 +614,7 @@
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
 
-            <!-- ballerina-streamss -->
+            <!-- ballerina-streams -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-streams</artifactId>
@@ -1649,7 +1649,7 @@
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/mysql</module>
                 <module>stdlib/database/sql</module>
-                <!--<module>stdlib/streams</module>-->
+                <module>stdlib/streams</module>
                 <module>stdlib/privacy</module>
 
                 <module>misc/lib-creator</module>
@@ -1732,7 +1732,7 @@
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/mysql</module>
                 <module>stdlib/database/sql</module>
-                <!--<module>stdlib/streams</module>-->
+                <module>stdlib/streams</module>
                 <module>stdlib/privacy</module>
 
                 <module>misc/lib-creator</module>
@@ -1811,7 +1811,7 @@
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/mysql</module>
                 <module>stdlib/database/sql</module>
-                <!--<module>stdlib/streams</module>-->
+                <module>stdlib/streams</module>
                 <module>stdlib/privacy</module>
 
                 <module>misc/lib-creator</module>
