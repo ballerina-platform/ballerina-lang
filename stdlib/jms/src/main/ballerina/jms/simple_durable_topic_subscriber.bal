@@ -133,10 +133,10 @@ public type SimpleDurableTopicSubscriberEndpointConfiguration record {
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
-    string identifier;
-    map properties;
-    string messageSelector;
-    string topicPattern;
+    string identifier = "";
+    map properties = {};
+    string messageSelector = "";
+    string topicPattern = "";
     !...
 };
 

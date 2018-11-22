@@ -71,7 +71,7 @@ public class DefaultStreamObserver implements StreamObserver {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
         BMap<String, BValue> headerStruct = getHeaderStruct(resource);
-        BValue requestParam = getRequestParameter(resource, value, headerStruct != null);
+        BValue requestParam = value.getbMessage();
         if (requestParam != null) {
             signatureParams[0] = requestParam;
         }
@@ -119,23 +119,5 @@ public class DefaultStreamObserver implements StreamObserver {
         }
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(null);
         Executor.submit(onCompleted, callback, null, null, signatureParams);
-    }
-    
-    private BValue getRequestParameter(Resource resource, Message requestMessage, boolean isHeaderRequired) {
-        if (resource == null || resource.getParamDetails() == null || resource.getParamDetails().size() > 2) {
-            throw new ClientRuntimeException("Invalid resource input arguments. arguments must not be greater than " +
-                    "two");
-        }
-        List<ParamDetail> paramDetails = resource.getParamDetails();
-        if ((isHeaderRequired && paramDetails.size() == 2) || (!isHeaderRequired && paramDetails.size() == 1)) {
-            BType requestType = resource.getParamDetails().get(GrpcConstants.CALLBACK_MESSAGE_PARAM_INDEX)
-                    .getVarType();
-            String requestName = resource.getParamDetails().get(GrpcConstants.CALLBACK_MESSAGE_PARAM_INDEX)
-                    .getVarName();
-            return MessageUtils.generateRequestStruct(requestMessage, MessageUtils.getProgramFile(resource),
-                    requestName, requestType);
-        } else {
-            return null;
-        }
     }
 }

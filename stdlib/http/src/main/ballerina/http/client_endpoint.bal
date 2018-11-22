@@ -29,9 +29,9 @@ import ballerina/io;
 # + httpClient - The provider which implements the HTTP methods
 public type Client object {
 
-    public string epName;
-    public ClientEndpointConfig config;
-    public CallerActions httpClient;
+    public string epName = "";
+    public ClientEndpointConfig config = {};
+    public CallerActions httpClient = new;
 
     # Gets invoked to initialize the endpoint. During initialization, configurations provided through the `config`
     # record is used to determine which type of additional behaviours are added to the endpoint (e.g: caching,
@@ -53,8 +53,8 @@ public type Client object {
 # + url - URL of the target service
 # + secureSocket - Configurations for secure communication with the remote HTTP endpoint
 public type TargetService record {
-    string url;
-    SecureSocket? secureSocket;
+    string url = "";
+    SecureSocket? secureSocket = ();
     !...
 };
 
@@ -74,23 +74,23 @@ public type TargetService record {
 # + secureSocket - SSL/TLS related options
 # + cache - HTTP caching related configurations
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
-# + auth - HTTP authentication releated configurations
+# + auth - HTTP authentication related configurations
 public type ClientEndpointConfig record {
-    string url;
-    CircuitBreakerConfig? circuitBreaker;
+    string url = "";
+    CircuitBreakerConfig? circuitBreaker = ();
     int timeoutMillis = 60000;
     KeepAlive keepAlive = KEEPALIVE_AUTO;
     Chunking chunking = "AUTO";
     string httpVersion = "1.1";
     string forwarded = "disable";
-    FollowRedirects? followRedirects;
-    RetryConfig? retryConfig;
-    ProxyConfig? proxy;
-    ConnectionThrottling? connectionThrottling;
-    SecureSocket? secureSocket;
-    CacheConfig cache;
+    FollowRedirects? followRedirects = ();
+    RetryConfig? retryConfig = ();
+    ProxyConfig? proxy = ();
+    ConnectionThrottling? connectionThrottling = ();
+    SecureSocket? secureSocket = ();
+    CacheConfig cache = {};
     Compression compression = COMPRESSION_AUTO;
-    AuthConfig? auth;
+    AuthConfig? auth = ();
     !...
 };
 
@@ -106,11 +106,11 @@ extern function createSimpleHttpClient(string uri, ClientEndpointConfig config) 
 # + maxWaitInterval - Maximum time of the retry interval in milliseconds
 # + statusCodes - HTTP response status codes which are considered as failures
 public type RetryConfig record {
-    int count;
-    int interval;
-    float backOffFactor;
-    int maxWaitInterval;
-    int[] statusCodes;
+    int count = 0;
+    int interval = 0;
+    float backOffFactor = 0.0;
+    int maxWaitInterval = 0;
+    int[] statusCodes = [];
     !...
 };
 
@@ -130,18 +130,18 @@ public type RetryConfig record {
 # + shareSession - Enable/disable new SSL session creation
 # + ocspStapling - Enable/disable OCSP stapling
 public type SecureSocket record {
-    TrustStore? trustStore;
-    KeyStore? keyStore;
-    string certFile;
-    string keyFile;
-    string keyPassword;
-    string trustedCertFile;
-    Protocols? protocol;
-    ValidateCert? certValidation;
-    string[] ciphers;
+    TrustStore? trustStore = ();
+    KeyStore? keyStore = ();
+    string certFile = "";
+    string keyFile = "";
+    string keyPassword = "";
+    string trustedCertFile = "";
+    Protocols? protocol = ();
+    ValidateCert? certValidation = ();
+    string[] ciphers = [];
     boolean verifyHostname = true;
     boolean shareSession = true;
-    boolean ocspStapling;
+    boolean ocspStapling = false;
     !...
 };
 
@@ -162,10 +162,10 @@ public type FollowRedirects record {
 # + userName - Proxy server username
 # + password - proxy server password
 public type ProxyConfig record {
-    string host;
-    int port;
-    string userName;
-    string password;
+    string host = "";
+    int port = 0;
+    string userName = "";
+    string password = "";
     !...
 };
 
@@ -199,18 +199,18 @@ public type ConnectionThrottling record {
 # + scopes - Scope of the access request
 public type AuthConfig record {
     AuthScheme scheme;
-    string username;
-    string password;
-    string accessToken;
-    string refreshToken;
-    string refreshUrl;
-    string consumerKey;
-    string consumerSecret;
-    string tokenUrl;
-    string clientId;
-    string clientSecret;
+    string username = "";
+    string password = "";
+    string accessToken = "";
+    string refreshToken = "";
+    string refreshUrl = "";
+    string consumerKey = "";
+    string consumerSecret = "";
+    string tokenUrl = "";
+    string clientId = "";
+    string clientSecret = "";
     CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
-    string[] scopes;
+    string[] scopes = [];
     !...
 };
 

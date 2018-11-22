@@ -237,17 +237,20 @@ public class BallerinaStatementProcessor extends BallerinaScopeProcessorBase {
                     List<BallerinaVariableDefinitionStatement> definitionStatements =
                             ballerinaServiceBody.getVariableDefinitionStatementList();
                     for (BallerinaVariableDefinitionStatement definitionStatement : definitionStatements) {
-                        PsiElement identifier = definitionStatement.getIdentifier();
+                        PsiElement identifier = null;
+                        if (definitionStatement.getVariableDefinitionStatementWithAssignment() != null) {
+                            identifier = definitionStatement.getVariableDefinitionStatementWithAssignment()
+                                    .getBindingPattern().getIdentifier();
+                        } else if (definitionStatement.getVariableDefinitionStatementWithoutAssignment() != null) {
+                            identifier = definitionStatement.getVariableDefinitionStatementWithoutAssignment()
+                                    .getIdentifier();
+                        }
                         if (identifier != null) {
                             int statementEndOffset = definitionStatement.getTextRange().getEndOffset();
                             if (statementEndOffset >= statement.getTextRange().getEndOffset()) {
                                 continue;
                             }
-                            if (myResult != null) {
-                                myResult.addElement(BallerinaCompletionUtils.createVariableLookupElement(identifier,
-                                        BallerinaPsiImplUtil.formatBallerinaTypeName(definitionStatement.getTypeName
-                                                ())));
-                            } else if (myElement.getText().equals(identifier.getText())) {
+                            if (myElement.getText().equals(identifier.getText())) {
                                 add(identifier);
                             }
                         }

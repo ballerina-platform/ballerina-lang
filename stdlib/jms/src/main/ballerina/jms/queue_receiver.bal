@@ -23,7 +23,7 @@ import ballerina/log;
 public type QueueReceiver object {
 
     public QueueReceiverActions consumerActions = new;
-    public QueueReceiverEndpointConfiguration config;
+    public QueueReceiverEndpointConfiguration config = {};
 
     # Initializes the QueueReceiver endpoint
     #
@@ -83,10 +83,10 @@ public type QueueReceiver object {
 # + messageSelector - JMS selector statement
 # + identifier - unique identifier for the subscription
 public type QueueReceiverEndpointConfiguration record {
-    Session? session;
-    string? queueName;
-    string messageSelector;
-    string identifier;
+    Session? session = ();
+    string? queueName = ();
+    string messageSelector = "";
+    string identifier = "";
     !...
 };
 
@@ -95,7 +95,7 @@ public type QueueReceiverEndpointConfiguration record {
 # + queueReceiver - queue receiver endpoint
 public type QueueReceiverActions object {
 
-    public QueueReceiver? queueReceiver;
+    public QueueReceiver? queueReceiver = ();
 
     # Acknowledges a received message
     #

@@ -18,18 +18,18 @@ import ballerina/config;
 import ballerina/http;
 import ballerina/log;
 
-@final string BASE_PATH = "/websub";
-@final string HUB_PATH = "/hub";
+const string BASE_PATH = "/websub";
+const string HUB_PATH = "/hub";
 
-@final string DEFAULT_HOST = "0.0.0.0";
-@final int DEFAULT_LEASE_SECONDS_VALUE = 86400; //one day
-@final string DEFAULT_SIGNATURE_METHOD = "SHA256";
+const string DEFAULT_HOST = "0.0.0.0";
+const int DEFAULT_LEASE_SECONDS_VALUE = 86400; //one day
+const string DEFAULT_SIGNATURE_METHOD = "SHA256";
 
 //TODO: Fix persistence configs, H2?
-@final string DEFAULT_DB_DIRECTORY = "/tmp/websubdb";
-@final string DEFAULT_DB_NAME = "HUB_DB";
-@final string DEFAULT_DB_USERNAME = "sa";
-@final string DEFAULT_DB_PASSWORD = "";
+const string DEFAULT_DB_DIRECTORY = "/tmp/websubdb";
+const string DEFAULT_DB_NAME = "HUB_DB";
+const string DEFAULT_DB_USERNAME = "sa";
+const string DEFAULT_DB_PASSWORD = "";
 
 @readonly string hubHost = DEFAULT_HOST;
 @readonly int hubPort = 0;

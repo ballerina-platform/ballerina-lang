@@ -4,7 +4,7 @@ import ballerina/test;
 import ballerina/config;
 
 string uri = "http://0.0.0.0:9095/v1";
-boolean isServiceSkeletonStarted;
+boolean isServiceSkeletonStarted = false;
 
 function init() {
     isServiceSkeletonStarted = test:startServiceSkeleton("mypackage",

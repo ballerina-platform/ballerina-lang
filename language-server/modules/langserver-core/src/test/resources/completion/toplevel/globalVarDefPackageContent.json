@@ -33,7 +33,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"invokeEndpoint(string path, http:Request outRequest, http:HttpOperation requestAction, http:CallerActions httpClient)(ballerina/http:Response|error)",
+      "label":"invokeEndpoint(string path, http:Request outRequest, FORWARD|GET|POST|DELETE|OPTIONS|PUT|PATCH|HEAD|NONE requestAction, http:CallerActions httpClient)(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "documentation":"The HEAD action implementation of the Circuit Breaker. This wraps the `head()` function of the underlying\nHTTP actions provider.",

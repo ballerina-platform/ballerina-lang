@@ -82,8 +82,8 @@ public type QueueSender object {
 # + session - JMS session object used to create the consumer
 # + queueName - name of the target queue
 public type QueueSenderEndpointConfiguration record {
-    Session? session;
-    string? queueName;
+    Session? session = ();
+    string? queueName = ();
     !...
 };
 
@@ -92,7 +92,7 @@ public type QueueSenderEndpointConfiguration record {
 # + queueSender - Queue sender endpoint
 public type QueueSenderActions object {
 
-    public QueueSender? queueSender;
+    public QueueSender? queueSender = ();
 
     # Sends a message to the JMS provider
     #

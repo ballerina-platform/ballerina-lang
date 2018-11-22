@@ -1,4 +1,3 @@
-
 import variable;
 
 @final int constNegativeInt = -342;
@@ -31,3 +30,17 @@ function floatIntConversion() returns (float, float, float){
     return (a, f[5], 10.0);
 }
 
+function accessPublicConstantFromOtherPackage() returns string {
+    return variable:name;
+}
+
+function accessPublicConstantTypeFromOtherPackage() returns variable:AB {
+    return variable:A;
+}
+
+type AB "A";
+
+function testTypeAssignment() returns AB {
+    AB ab = variable:A; // This is valid because this is equivalant to `AB ab = "A";`.
+    return ab;
+}

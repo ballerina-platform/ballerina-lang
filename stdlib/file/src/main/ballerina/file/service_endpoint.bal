@@ -26,7 +26,10 @@ public type Listener object {
 
     public function init(ListenerEndpointConfiguration listenerConfig) {
         self.config = listenerConfig;
-        check self.initEndpoint();
+        var result = self.initEndpoint();
+        if (result is error) {
+            panic result;
+        }
     }
 
     extern function initEndpoint() returns error?;
@@ -41,7 +44,7 @@ public type Listener object {
 # + path - Directory path which need to listen
 # + recursive - Recursively monitor all sub folders or not in the given direcotry path
 public type ListenerEndpointConfiguration record {
-    string path;
+    string? path = ();
     boolean recursive = false;
     !...
 };

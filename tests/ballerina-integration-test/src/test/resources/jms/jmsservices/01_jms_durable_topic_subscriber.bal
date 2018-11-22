@@ -27,8 +27,12 @@ service<jms:Consumer> jmsListener bind topicSubscriber {
 
     // OnMessage resource get invoked when a message is received.
     onMessage(endpoint subscriber, jms:Message message) {
-        string messageText = check message.getTextMessageContent();
-        io:println("Message : " + messageText);
+        var messageContent = message.getTextMessageContent();
+        if (messageContent is string) {
+             io:println("Message : " + messageContent);
+        } else {
+             panic messageContent;
+        }
     }
 }
 

@@ -2,30 +2,27 @@
 import ballerina/io;
 {{/if}}{{#stubList}}
 public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Stub object {
-    public grpc:Client clientEndpoint;
-    public grpc:Stub stub;
+    public grpc:Client clientEndpoint = new;
+    public grpc:Stub stub = new;
 
     function initStub (grpc:Client ep) {
         grpc:Stub navStub = new;
-        navStub.initStub(ep, "{{stubType}}", DESCRIPTOR_KEY, descriptorMap);
-        self.stub = navStub;
+        error? result = navStub.initStub(ep, "{{stubType}}", DESCRIPTOR_KEY, descriptorMap);
+        if (result is error) {
+            panic result;
+        } else {
+            self.stub = navStub;
+        }
     }
     {{#blockingFunctions}}
     function {{methodName}} ({{#if inputType}}{{inputType}} req, {{/if}}grpc:Headers? headers = ()) returns ({{#if outputType}}({{outputType}}, grpc:Headers){{else}}grpc:Headers{{/if}}|error) {
         {{#unless inputType}}Empty req = {};{{/unless}}
-        var unionResp = self.stub.blockingExecute("{{methodId}}", req, headers = headers);
-        match unionResp {
-            error payloadError => {
-                return payloadError;
-            }
-            (any, grpc:Headers) payload => {
-                grpc:Headers resHeaders;
-                {{#if outputType}}any result;
-                (result, resHeaders) = payload;
-                return ({{#not_equal outputType "string"}}check {{/not_equal}}<{{outputType}}>result, resHeaders);{{else}}(_, resHeaders) = payload;
-                return resHeaders;{{/if}}
-            }
-        }
+        var payload = check self.stub.blockingExecute("{{methodId}}", req, headers = headers);
+        grpc:Headers resHeaders = new;
+        {{#if outputType}}any result = ();
+        (result, resHeaders) = payload;
+        return ({{#not_equal outputType "string"}}check {{/not_equal}}<{{outputType}}>result, resHeaders);{{else}}(_, resHeaders) = payload;
+        return resHeaders;{{/if}}
     }
     {{/blockingFunctions}}{{#nonBlockingFunctions}}
     function {{methodName}} ({{#if inputType}}{{inputType}} req, {{/if}}typedesc listener, grpc:Headers? headers = ()) returns (error?) {
@@ -34,22 +31,14 @@ public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Stu
     }
     {{/nonBlockingFunctions}}{{#streamingFunctions}}
     function {{methodName}} (typedesc listener, grpc:Headers? headers = ()) returns (grpc:Client| error)  {
-        var res = self.stub.streamingExecute("{{methodId}}", listener, headers = headers);
-        match res {
-            error err => {
-                return err;
-            }
-            grpc:Client con => {
-                return con;
-            }
-        }
+        return self.stub.streamingExecute("{{methodId}}", listener, headers = headers);
     }{{/streamingFunctions}}
 };
 {{/stubList}}
 {{#stubList}}
 public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Client object {
-    public grpc:Client client;
-    public {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Stub stub;
+    public grpc:Client client = new;
+    public {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Stub stub = new;
 
     public function init (grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
@@ -66,19 +55,28 @@ public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Cli
         return self.stub;
     }
 };
-{{/stubList}}
-{{#messageList}}
+{{/stubList}}{{#messageList}}
 type {{messageName}} record {
     {{#fieldList}}{{fieldType}}{{fieldLabel}} {{fieldName}}{{#if defaultValue}} = {{defaultValue}}{{/if}};
-    {{/fieldList}}
+    {{/fieldList}}{{#each oneofFieldMap as |value key|}}{{camelcase @key}} {{@key}};{{/each}}
 };
-{{/messageList}}
+{{#each oneofFieldMap}}
+public type {{camelcase @key}} {{#each this}}{{this.messageName}}{{#unless @last}}|{{/unless}}{{/each}};
+{{#each this}}
+type {{this.messageName}} record {
+    {{#this.fieldList}}{{fieldType}}{{fieldLabel}} {{fieldName}}{{#if defaultValue}} = {{defaultValue}}{{/if}};
+    {{/this.fieldList}}
+};
+{{/each}}{{/each}}
 {{#enumList}}public type {{messageName}} {{#fieldList}}"{{name}}"{{#unless @last}}|{{/unless}}{{/fieldList}};
-{{#fieldList}}
-@final public {{../messageName}} {{name}} = "{{name}}";
-{{/fieldList}}{{/enumList}}
-@final string DESCRIPTOR_KEY = "{{rootDescriptorKey}}";
+{{#fieldList}}@final public {{../messageName}} {{uppercase ../messageName}}_{{name}} = "{{name}}";
+{{/fieldList}}
+{{/enumList}}{{/messageList}}
+{{#enumList}}public type {{messageName}} {{#fieldList}}"{{name}}"{{#unless @last}}|{{/unless}}{{/fieldList}};
+{{#fieldList}}@final public {{../messageName}} {{uppercase ../messageName}}_{{name}} = "{{name}}";
+{{/fieldList}}{{/enumList}}{{#if rootDescriptorKey}}
+const string DESCRIPTOR_KEY = "{{rootDescriptorKey}}";
 map descriptorMap = {
 {{#each descriptors}}"{{descriptorKey}}":"{{descriptorData}}"{{#unless @last}},{{/unless}}
 {{/each}}
-};
+};{{/if}}

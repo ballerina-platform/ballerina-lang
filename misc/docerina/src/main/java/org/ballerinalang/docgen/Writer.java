@@ -29,6 +29,7 @@ import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.model.AnnotationDoc;
+import org.ballerinalang.docgen.model.ConstantDoc;
 import org.ballerinalang.docgen.model.Documentable;
 import org.ballerinalang.docgen.model.EndpointDoc;
 import org.ballerinalang.docgen.model.EnumDoc;
@@ -102,6 +103,9 @@ public class Writer {
                                     options.inverse(this);
                         case "globalvar":
                             return context.stream().anyMatch(c -> c instanceof GlobalVariableDoc) ? options.fn(this)
+                                    : options.inverse(this);
+                        case "constant":
+                            return context.stream().anyMatch(c -> c instanceof ConstantDoc) ? options.fn(this)
                                     : options.inverse(this);
                     }
                     return false;

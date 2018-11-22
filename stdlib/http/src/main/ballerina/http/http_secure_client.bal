@@ -19,23 +19,23 @@ import ballerina/io;
 import ballerina/mime;
 import ballerina/runtime;
 
-@final string EMPTY_STRING = "";
-@final string WHITE_SPACE = " ";
+const string EMPTY_STRING = "";
+const string WHITE_SPACE = " ";
 
-public type AuthScheme "Basic"|"OAuth2"|"JWT";
+public type AuthScheme BASIC_AUTH|OAUTH2|JWT_AUTH;
 
-@final public AuthScheme BASIC_AUTH = "Basic";
-@final public AuthScheme OAUTH2 = "OAuth2";
-@final public AuthScheme JWT_AUTH = "JWT";
+public const BASIC_AUTH = "Basic";
+public const OAUTH2 = "OAuth2";
+public const JWT_AUTH = "JWT";
 
 # Specifies how the authentication credentials should be sent when using the refresh token to refresh the access token
-public type CredentialBearer "AUTH_HEADER_BEARER"|"POST_BODY_BEARER";
+public type CredentialBearer AUTH_HEADER_BEARER|POST_BODY_BEARER;
 
 # Indicates that the authentication credentials should be sent via the Authentication Header
-@final public CredentialBearer AUTH_HEADER_BEARER = "AUTH_HEADER_BEARER";
+public const AUTH_HEADER_BEARER = "AUTH_HEADER_BEARER";
 
 # Indicates that the authentication credentials should be sent via the body of the POST request
-@final public CredentialBearer POST_BODY_BEARER = "POST_BODY_BEARER";
+public const POST_BODY_BEARER = "POST_BODY_BEARER";
 
 # Provides secure HTTP actions for interacting with HTTP endpoints. This will make use of the authentication schemes
 # configured in the HTTP client endpoint to secure the HTTP requests.
@@ -46,8 +46,8 @@ public type CredentialBearer "AUTH_HEADER_BEARER"|"POST_BODY_BEARER";
 public type HttpSecureClient object {
     //These properties are populated from the init call to the client connector as these were needed later stage
     //for retry and other few places.
-    public string serviceUri;
-    public ClientEndpointConfig config;
+    public string serviceUri = "";
+    public ClientEndpointConfig config = {};
     public CallerActions httpClient;
 
     public new(serviceUri, config) {
@@ -311,13 +311,13 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
     var scheme = config.auth.scheme;
     if (scheme is AuthScheme) {
         if (scheme == BASIC_AUTH) {
-            string username = config.auth.username but { () => EMPTY_STRING };
-            string password = config.auth.password but { () => EMPTY_STRING };
+            string username = config.auth.username ?: "";
+            string password = config.auth.password ?: "";
             string str = username + ":" + password;
             string token = check str.base64Encode();
             req.setHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + token);
         } else if (scheme == OAUTH2) {
-            string accessToken = config.auth.accessToken but { () => EMPTY_STRING };
+            string accessToken = config.auth.accessToken ?: "";
             if (accessToken == EMPTY_STRING) {
                 return updateRequestAndConfig(req, config);
             } else {
@@ -358,11 +358,11 @@ function updateRequestAndConfig(Request req, ClientEndpointConfig config) return
 # + config - Client endpoint configurations
 # + return - AccessToken received from the authorization server or `error` if error occured during HTTP client invocation
 function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (string|error) {
-    string refreshToken = config.auth.refreshToken but { () => EMPTY_STRING };
-    string clientId = config.auth.clientId but { () => EMPTY_STRING };
-    string clientSecret = config.auth.clientSecret but { () => EMPTY_STRING };
-    string refreshUrl = config.auth.refreshUrl but { () => EMPTY_STRING };
-    string[] scopes = config.auth.scopes but { () => [] };
+    string refreshToken = config.auth.refreshToken ?: "";
+    string clientId = config.auth.clientId ?: "";
+    string clientSecret = config.auth.clientSecret ?: "";
+    string refreshUrl = config.auth.refreshUrl ?: "";
+    string[] scopes = config.auth.scopes ?: [];
 
     if (refreshToken == EMPTY_STRING || clientId == EMPTY_STRING || clientSecret == EMPTY_STRING || refreshUrl == EMPTY_STRING) {
         error err = error("AccessTokenError", { message: "Failed to generate new access token since one or more of refresh token, client id, client secret,

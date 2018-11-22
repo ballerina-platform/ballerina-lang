@@ -101,12 +101,12 @@ function testTypeCheckInTernary() returns string {
 // ========================== Records ==========================
 
 type A1 record {
-    int x;
+    int x = 0;
 };
 
 type B1 record {
-    int x;
-    string y;
+    int x = 0;
+    string y = "";
 };
 
 function testSimpleRecordTypes_1() returns string {
@@ -128,11 +128,11 @@ function testSimpleRecordTypes_2() returns (boolean, boolean) {
 }
 
 type A2 record {
-    int x;
+    int x = 0;
 };
 
 type B2 record {
-    int x;
+    int x = 0;
 };
 
 function testSimpleRecordTypes_3() returns (boolean, boolean) {
@@ -143,13 +143,13 @@ function testSimpleRecordTypes_3() returns (boolean, boolean) {
 
 type Human record {
     string name;
-    (function (int, string) returns string) | () foo;
+    (function (int, string) returns string) | () foo = ();
 };
 
 type Man record {
     string name;
-    (function (int, string) returns string) | () foo;
-    int age;
+    (function (int, string) returns string) | () foo = ();
+    int age = 0;
 };
 
 function testRecordsWithFunctionType_1() returns (string, string) {
@@ -195,15 +195,15 @@ function testRecordsWithFunctionType_2() returns (string, string) {
 }
 
 type X record {
-    int p;
-    string q;
-    A1 r;
+    int p = 0;
+    string q = "";
+    A1 r = {};
 };
 
 type Y record {
-    int p;
-    string q;
-    B1 r;   // Assignable to A1. Hence Y is assignable to X.
+    int p = 0;
+    string q = "";
+    B1 r = {};   // Assignable to A1. Hence Y is assignable to X.
 };
 
 function testNestedRecordTypes() returns (boolean, boolean) {
@@ -213,11 +213,11 @@ function testNestedRecordTypes() returns (boolean, boolean) {
 }
 
 type A3 record {
-    int x;
+    int x = 0;
 };
 
 type B3 record {
-    int x;
+    int x = 0;
     !...
 };
 
@@ -232,40 +232,40 @@ function testSealedRecordTypes() returns (boolean, boolean) {
 public type Person object {
     public int age;
     public string name;
-    public string address;
+    public string address = "";
 
     public new (name, age) {}
 
     public function getName() returns (string) {
-        return name;
+        return self.name;
     }
 
     public function getAge() returns (int) {
-        return age;
+        return self.age;
     }
 
     public function getAddress() returns (string) {
-        return address;
+        return self.address;
     }
 };
 
 public type SameAsPerson object {
     public int age;
     public string name;
-    public string address;
+    public string address = "";
 
     public new (name, age) {}
 
     public function getName() returns (string) {
-        return name;
+        return self.name;
     }
 
     public function getAge() returns (int) {
-        return age;
+        return self.age;
     }
 
     public function getAddress() returns (string) {
-        return address;
+        return self.address;
     }
 };
 
@@ -303,33 +303,33 @@ function testObjectWithSameMembersButDifferentAlias() returns (string, string, s
 public type PersonInOrder object {
     public int age;
     public string name;
-    public string address;
+    public string address = "";
 
     public new (name, age) {}
 
     public function getName() returns (string) {
-        return name;
+        return self.name;
     }
 
     public function getAge() returns (int) {
-        return age;
+        return self.age;
     }
 
     public function getAddress() returns (string) {
-        return address;
+        return self.address;
     }
 };
 
 public type PersonNotInOrder object {
 
     public function getName() returns (string) {
-        return name;
+        return self.name;
     }
 
     public int age;
 
     public function getAge() returns (int) {
-        return age;
+        return self.age;
     }
 
     public new (name, age) {}
@@ -337,10 +337,10 @@ public type PersonNotInOrder object {
     public string name;
 
     public function getAddress() returns (string) {
-        return address;
+        return self.address;
     }
 
-    public string address;
+    public string address = "";
 };
 
 function testObjectWithUnorderedFields() returns (string, string, string, string) {
@@ -633,4 +633,28 @@ function testFiniteTypeInTuplePoisoning() returns (State, State) {
 
     x[1] = "surprise!";
     return (z[0], z[1]);
+}
+
+public const APPLE = "apple";
+public const ORRANGE = "orrange";
+public const GRAPE = "grape";
+
+type Fruit APPLE | ORRANGE | GRAPE;
+
+function testFiniteType_1() returns string {
+    any a = APPLE;
+    if (a is Fruit) {
+        return "a is a fruit";
+    }
+
+    return "a is not a fruit";
+}
+
+function testFiniteType_2() returns string {
+    any a = APPLE;
+    if (a is APPLE) {
+        return "a is an Apple";
+    }
+
+    return "a is not an Apple";
 }

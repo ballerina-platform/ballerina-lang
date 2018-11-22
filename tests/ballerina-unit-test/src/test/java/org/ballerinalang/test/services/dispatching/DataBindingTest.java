@@ -202,7 +202,7 @@ public class DataBindingTest {
     }
 
     @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = ".*data binding failed: Error in reading payload : Unexpected char.*")
+            expectedExceptionsMessageRegExp = ".*data binding failed: Error in reading payload.*")
     public void testDataBindingIncompatibleXMLPayload() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body4", "POST", "name':'WSO2', 'team':'ballerina");

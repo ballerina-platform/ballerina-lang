@@ -170,9 +170,9 @@ public type LoadBalancerActions object {
 # + statusCode - HTTP status code of the LoadBalanceActionError
 # + httpActionErr - Array of errors occurred at each endpoint
 public type LoadBalanceActionErrorData record {
-    string message;
-    int statusCode;
-    error[] httpActionErr;
+    string message = "";
+    int statusCode = 0;
+    error[] httpActionErr = [];
     !...
 };
 
@@ -275,6 +275,7 @@ function performLoadBalanceExecuteAction(LoadBalancerActions lb, string path, Re
 function performLoadBalanceAction(LoadBalancerActions lb, string path, Request request, HttpOperation requestAction)
              returns Response|error {
     int loadBalanceTermination = 0; // Tracks at which point failover within the load balancing should be terminated.
+    //TODO: workaround to initialize a type inside a function. Change this once fix is available.
     LoadBalanceActionErrorData loadBalanceActionErrorData = {statusCode: 500, message: "", httpActionErr:[]};
     int lbErrorIndex = 0;
     Request loadBlancerInRequest = request;
@@ -282,7 +283,7 @@ function performLoadBalanceAction(LoadBalancerActions lb, string path, Request r
 
     if (lb.failover) {
         if (isMultipartRequest(loadBlancerInRequest)) {
-            loadBlancerInRequest = populateMultipartRequest(loadBlancerInRequest);
+            loadBlancerInRequest = check populateMultipartRequest(loadBlancerInRequest);
         } else {
             // When performing passthrough scenarios using Load Balance connector,
             // message needs to be built before trying out the load balance endpoints to keep the request message
@@ -300,7 +301,7 @@ function performLoadBalanceAction(LoadBalancerActions lb, string path, Request r
                 return serviceResponse;
             } else if (serviceResponse is error) {
                 if (lb.failover) {
-                    loadBlancerInRequest = createFailoverRequest(loadBlancerInRequest, requestEntity);
+                    loadBlancerInRequest = check createFailoverRequest(loadBlancerInRequest, requestEntity);
                     loadBalanceActionErrorData.httpActionErr[lbErrorIndex] = serviceResponse;
                     lbErrorIndex += 1;
                     loadBalanceTermination = loadBalanceTermination + 1;

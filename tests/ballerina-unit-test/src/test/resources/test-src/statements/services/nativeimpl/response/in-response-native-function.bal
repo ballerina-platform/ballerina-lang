@@ -194,7 +194,7 @@ service<http:Service> hello bind mockEP {
         http:Response res = new;
         res.setHeader(untaint key, value);
         res.removeHeader(untaint key);
-        string header;
+        string header = "";
         if (!res.hasHeader(key)) {
             header = "value is null";
         }
@@ -210,7 +210,7 @@ service<http:Service> hello bind mockEP {
         res.setHeader("Expect", "100-continue");
         res.setHeader("Range", "bytes=500-999");
         res.removeAllHeaders();
-        string header;
+        string header = "";
         if(!res.hasHeader("Range")) {
             header = "value is null";
         }

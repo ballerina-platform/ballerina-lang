@@ -682,7 +682,7 @@ function testBlobData() returns (byte[]) {
 
 function retrieveBlobValues(h2:Client db) returns byte[] {
     endpoint h2:Client dbEp = db;
-    byte[] blobData;
+    byte[] blobData = [];
     var selectRet = dbEp->select("SELECT blob_type from ComplexTypes where row_id = 1", ResultBlob);
     if (selectRet is table) {
         while (selectRet.hasNext()) {
@@ -947,10 +947,10 @@ function testMultipleRowsWithoutLoop() returns (int, int, int, int,
     //Iterate the whole result
     var selectRet = testDB->select("SELECT int_type from DataTableRep order by int_type desc", ResultPrimitiveInt);
 
-    int i1;
-    int i2;
-    int i3;
-    int i4;
+    int i1 = 0;
+    int i2 = 0;
+    int i3 = 0;
+    int i4 = 0;
     string st1;
     string st2;
     if (selectRet is table) {
@@ -1096,10 +1096,10 @@ function testGetFloatTypes() returns (float, float, float, float) {
     var selectRet = testDB->select("SELECT float_type, double_type,
                   numeric_type, decimal_type from FloatTable WHERE row_id = 1", ResultSetFloat);
 
-    float f;
-    float d;
-    float num;
-    float dec;
+    float f = 0;
+    float d = 0;
+    float num = 0;
+    float dec = 0;
 
     if (selectRet is table) {
         while (selectRet.hasNext()) {

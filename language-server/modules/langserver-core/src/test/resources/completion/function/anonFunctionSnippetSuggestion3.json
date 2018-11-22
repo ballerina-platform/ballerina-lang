@@ -628,6 +628,14 @@
       "sortText": "190",
       "insertText": "function () returns (http:Response) {\n\treturn ();\n};",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "arrow function  () ",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "190",
+      "insertText": "()  \u003d\u003e ${1:()};",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

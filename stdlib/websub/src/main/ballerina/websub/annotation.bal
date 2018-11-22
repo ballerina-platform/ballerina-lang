@@ -36,18 +36,18 @@ import ballerina/http;
 # + followRedirects - The HTTP redirect related configuration specifying if subscription requests should be sent
 #                     to redirected hubs/topics
 public type SubscriberServiceConfiguration record {
-    Listener[] endpoints;
-    string path;
-    boolean subscribeOnStartUp;
-    string resourceUrl;
-    string hub;
-    string topic;
-    int leaseSeconds;
-    string secret;
-    string callback;
-    http:AuthConfig? auth;
-    http:SecureSocket? secureSocket;
-    http:FollowRedirects? followRedirects;
+    Listener[] endpoints = [];
+    string path = "";
+    boolean subscribeOnStartUp = false;
+    string resourceUrl = "";
+    string hub = "";
+    string topic = "";
+    int leaseSeconds = 0;
+    string secret = "";
+    string callback = "";
+    http:AuthConfig? auth = ();
+    http:SecureSocket? secureSocket = ();
+    http:FollowRedirects? followRedirects = ();
     !...
 };
 

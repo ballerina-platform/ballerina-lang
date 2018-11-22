@@ -21,7 +21,7 @@ import ballerina/log;
 # + config - Simple topic publisher enpoint configuration
 public type SimpleTopicPublisher object {
 
-    public SimpleTopicPublisherEndpointConfiguration config;
+    public SimpleTopicPublisherEndpointConfiguration config = {};
 
     private Connection? connection;
     private Session? session = ();
@@ -131,7 +131,7 @@ public type SimpleTopicPublisherEndpointConfiguration record {
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
-    map properties;
-    string topicPattern;
+    map properties = {};
+    string topicPattern = "";
     !...
 };

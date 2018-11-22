@@ -287,8 +287,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean markdownDocExists = ctx.documentationString() != null;
         boolean isDeprecated = ctx.deprecatedAttachment() != null;
         boolean hasParameters = ctx.resourceParameterList() != null;
+        boolean hasRetParameter = ctx.returnParameter() != null;
         this.pkgBuilder.endResourceDef(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), markdownDocExists,
-                isDeprecated, hasParameters);
+                isDeprecated, hasParameters, hasRetParameter);
     }
 
     @Override
@@ -688,6 +689,20 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
+    public void exitConstantDefinition(BallerinaParser.ConstantDefinitionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        boolean isPublic = ctx.PUBLIC() != null;
+        boolean isTypeAvailable = ctx.typeName() != null;
+        this.pkgBuilder.addConstant(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), isPublic,
+                isTypeAvailable);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void exitGlobalVariableDefinition(BallerinaParser.GlobalVariableDefinitionContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -816,7 +831,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startVarList();
+        this.pkgBuilder.startRecordType();
     }
 
     @Override
@@ -1018,7 +1033,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         if ((ctx.Identifier() != null) && ((ctx.parent instanceof BallerinaParser.TupleBindingPatternContext)
-                || (ctx.parent instanceof BallerinaParser.FieldBindingPatternContext))) {
+                || (ctx.parent instanceof BallerinaParser.FieldBindingPatternContext)
+                || (ctx.parent instanceof BallerinaParser.MatchPatternClauseContext))) {
             this.pkgBuilder.addBindingPatternMemberVariable(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
         }
     }
@@ -1460,7 +1476,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        if (ctx.simpleLiteral() != null && ctx.simpleLiteral().emptyTupleLiteral() == null) {
+        if (ctx.bindingPattern() != null) {
+            boolean isTypeGuardPresent = ctx.IF() != null;
+            this.pkgBuilder.addMatchStmtStructuredBindingPattern(getCurrentPos(ctx), getWS(ctx), isTypeGuardPresent);
+        } else if (ctx.expression() != null) {
             this.pkgBuilder.addMatchStmtStaticBindingPattern(getCurrentPos(ctx), getWS(ctx));
         } else {
             String identifier = ctx.Identifier() != null ? ctx.Identifier().getText() : null;
@@ -1844,6 +1863,18 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable, safeNavigate);
     }
 
+    @Override
+    public void exitTypeDescExprInvocationReference(BallerinaParser.TypeDescExprInvocationReferenceContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        boolean argsAvailable = ctx.invocation().invocationArgList() != null;
+        String invocation = ctx.invocation().anyIdentifierName().getText();
+        boolean safeNavigate = ctx.invocation().NOT() != null;
+        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable, safeNavigate);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -2115,11 +2146,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.createBinaryExpr(getCurrentPos(ctx), getWS(ctx), ctx.getChild(1).getText());
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitTypeAccessExpression(BallerinaParser.TypeAccessExpressionContext ctx) {
+    @Override public void exitTypeDescExpr(BallerinaParser.TypeDescExprContext ctx) {
         if (ctx.exception != null) {
             return;
         }
