@@ -28,12 +28,12 @@ import org.ballerinalang.testerina.coverage.LCovDA;
 import org.ballerinalang.testerina.coverage.LCovData;
 import org.ballerinalang.testerina.coverage.LCovSourceFile;
 import org.ballerinalang.testerina.util.Constants;
+import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.BLangUtils;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.debugger.ModuleLineNumberInfo;
 import org.ballerinalang.util.debugger.ProjectLineNumberInfoHolder;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.observability.ObservabilityUtils;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.BufferedWriter;
@@ -104,15 +104,16 @@ public class LCovCoverageDataFormatterImpl implements CoverageDataFormatter<LCov
             Map<String, Integer> fileLineCoverage = new HashMap<>();
             String[] pkgPathSlices = BLangUtils.getPkgPathSlices(entryPkgPath);
             entryPkgLineNumberInfo.getLineNumbers().keySet().forEach(key -> {
-                String fileName = key.split(":")[0];
+                String fileName = key.split(BLangConstants.COLON)[0];
 
                 // skiping module init function Ips which comes with modulename:lineNo
-                if (!fileName.endsWith(".bal")) {
+                if (!fileName.endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
                     return;
                 }
                 String fileNameWithModule = pkgPathSlices[1] + File.separator + fileName;
                 fileLineCoverage.put(fileNameWithModule,
-                        fileLineCoverage.get(fileNameWithModule) == null ? 1 : fileLineCoverage.get(fileNameWithModule) + 1);
+                        fileLineCoverage.get(
+                                fileNameWithModule) == null ? 1 : fileLineCoverage.get(fileNameWithModule) + 1);
             });
 
             for (ExecutedInstruction executedInstruction : executedInstructionOrderMap.get(entryPkgPath)) {
@@ -136,7 +137,7 @@ public class LCovCoverageDataFormatterImpl implements CoverageDataFormatter<LCov
                 // skiping module init function Ips which comes with modulename:lineNo
                 LineNumberInfo lineNumberInfo = entryPkgLineNumberInfo
                         .getLineNumberInfo(executedInstruction.getIp());
-                if (!lineNumberInfo.getFileName().endsWith(".bal")) {
+                if (!lineNumberInfo.getFileName().endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
                     continue;
                 }
 
@@ -327,7 +328,8 @@ public class LCovCoverageDataFormatterImpl implements CoverageDataFormatter<LCov
         try {
 
             File covReportFile = new File(covReportDir, covReportFileName);
-            Writer covReportFileWriter = new OutputStreamWriter(new FileOutputStream(covReportFile), "UTF-8");
+            Writer covReportFileWriter = new OutputStreamWriter(new FileOutputStream(covReportFile),
+                                                                                            BLangConstants.UTF8);
             covReportFileBufWriter = new BufferedWriter(covReportFileWriter);
 
             covReportFileBufWriter.write(lcovOutput);

@@ -20,7 +20,6 @@ package org.ballerinalang.util.debugger;
 
 import org.ballerinalang.util.codegen.LineNumberInfo;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 

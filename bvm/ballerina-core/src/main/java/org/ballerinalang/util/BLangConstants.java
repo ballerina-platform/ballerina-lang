@@ -79,4 +79,6 @@ public class BLangConstants {
     public static final Integer BBYTE_MAX_VALUE = 255;
 
     public static final String COLON = ":";
+
+    public static final String UTF8 = "UTF-8";
 }

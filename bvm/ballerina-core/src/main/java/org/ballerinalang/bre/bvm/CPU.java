@@ -195,7 +195,7 @@ public class CPU {
 
                 Instruction instruction = ctx.code[ctx.ip];
 
-                for(InstructionHandler instructionHandler : ctx.programFile.getInstructionHandlers()) {
+                for (InstructionHandler instructionHandler : ctx.programFile.getInstructionHandlers()) {
                     instructionHandler.handle(ctx);
                 }
 

@@ -18,10 +18,10 @@
 package org.ballerinalang.testerina.coverage.impl;
 
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.testerina.coverage.ExecutedInstruction;
 import org.ballerinalang.bre.InstructionHandler;
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.testerina.coverage.CoverageManager;
+import org.ballerinalang.testerina.coverage.ExecutedInstruction;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.debugger.ProjectLineNumberInfoHolder;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -67,7 +67,7 @@ public class CoverageInstructionHandlerImpl implements InstructionHandler {
 
         String pkgPath = ctx.callableUnitInfo.getPkgPath();
         // removing ballarina/* modules' Ips
-        if(!pkgPath.startsWith(Names.BUILTIN_ORG.getValue() + Names.ORG_NAME_SEPARATOR.getValue())) {
+        if (!pkgPath.startsWith(Names.BUILTIN_ORG.getValue() + Names.ORG_NAME_SEPARATOR.getValue())) {
 
             String entryPkgPath = ctx.programFile.getEntryPackage().pkgPath;
             ProjectLineNumberInfoHolder projectLineNumberInfoHolderForPkg =
