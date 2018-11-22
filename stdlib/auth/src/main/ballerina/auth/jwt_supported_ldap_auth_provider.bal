@@ -37,8 +37,8 @@ public type LdapJwtAuthProvider object {
     # + ldapAuthProvider - LDAP auth store provider
     public function __init(InferredJwtAuthProviderConfig ldapJwtAuthProviderConfig,
                            LdapAuthStoreProvider ldapAuthProvider) {
-        self.InferredJwtAuthProviderConfig = InferredJwtAuthProviderConfig;
-        self.LdapAuthStoreProvider = LdapAuthStoreProvider;
+        self.ldapJwtAuthProviderConfig = ldapJwtAuthProviderConfig;
+        self.ldapAuthProvider = ldapAuthProvider;
     }
 
     # Authenticate with username and password using LDAP user store

@@ -28,7 +28,7 @@ public type ConfigJwtAuthProvider object {
     public ConfigAuthStoreProvider configAuthProvider = new;
 
     public function __init(InferredJwtAuthProviderConfig configJwtAuthProviderConfig) {
-        self.InferredJwtAuthProviderConfig = InferredJwtAuthProviderConfig;
+        self.configJwtAuthProviderConfig = configJwtAuthProviderConfig;
     }
 
     public function authenticate(string username, string password) returns boolean {
