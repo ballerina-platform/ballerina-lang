@@ -62,7 +62,7 @@ public type JWTAuthProvider object {
     }
 
     function authenticateFromCache(string jwtToken) returns internal:JwtPayload|() {
-        var context = <CachedJWTAuthContext>self.authCache.get(jwtToken);
+        var context = trap <CachedJWTAuthContext>self.authCache.get(jwtToken);
         if (context is CachedJWTAuthContext) {
             // convert to current time and check the expiry time
             if (context.expiryTime > (time:currentTime().time / 1000)) {

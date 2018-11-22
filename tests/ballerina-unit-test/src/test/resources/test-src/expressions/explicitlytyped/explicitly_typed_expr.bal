@@ -488,7 +488,7 @@ function testBooleanAsString() returns (string, string, string, string) {
     boolean b1 = true;
     string s1 = <string> b1;
     anydata a = <string> getBoolean(b1);
-    string s2;
+    string s2 = "";
     if (a is string) {
         s2 = a;
     }
@@ -534,7 +534,7 @@ function testBooleanAsFloat() returns (float, float, float, float) {
     boolean b1 = true;
     float s1 = <float> b1;
     anydata a = <float> getBoolean(b1);
-    float s2;
+    float s2 = 0.0;
     if (a is float) {
         s2 = a;
     }
@@ -580,7 +580,7 @@ function testBooleanAsDecimal() returns (decimal, decimal, decimal, decimal) {
     boolean b1 = true;
     decimal s1 = <decimal> b1;
     anydata a = <decimal> getBoolean(b1);
-    decimal s2;
+    decimal s2 = 0.0;
     if (a is decimal) {
         s2 = a;
     }
@@ -626,7 +626,7 @@ function testBooleanAsInt() returns (int, int, int, int) {
     boolean b1 = true;
     int s1 = <int> b1;
     anydata a = <int> getBoolean(b1);
-    int s2;
+    int s2 = 0;
     if (a is int) {
         s2 = a;
     }
@@ -672,7 +672,7 @@ function testBooleanAsBoolean() returns (boolean, boolean, boolean, boolean) {
     boolean b1 = true;
     boolean s1 = <boolean> b1;
     anydata a = <boolean> getBoolean(b1);
-    boolean s2;
+    boolean s2 = false;
     if (a is boolean) {
         s2 = a;
     }

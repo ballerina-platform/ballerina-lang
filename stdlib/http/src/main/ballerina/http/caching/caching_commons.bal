@@ -275,7 +275,7 @@ function getExpirationDirectiveValue (string directive) returns int {
         return -1;
     }
 
-    var age =  int.from(directiveParts[1]);
+    var age =  int.create(directiveParts[1]);
     if (age is int) {
         return age;
     }

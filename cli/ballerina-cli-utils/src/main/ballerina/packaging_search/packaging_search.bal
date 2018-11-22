@@ -36,7 +36,7 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
     } else {
         var jsonResponse = httpResponse.getJsonPayload();
         if (jsonResponse is json) {
-            var artifacts = <json[]> jsonResponse.artifacts;
+            var artifacts = trap <json[]> jsonResponse.artifacts;
             if (artifacts is json[]) {
                 if (artifacts.length() > 0) {
                     int artifactsLength = artifacts.length();
@@ -44,7 +44,7 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
 
                     int rightMargin = 3;
                     int width;
-                    var intTerminalWidth = int.from(terminalWidth);
+                    var intTerminalWidth = int.create(terminalWidth);
                     if (intTerminalWidth is int) {
                         width = intTerminalWidth - rightMargin;
                     } else {
@@ -227,7 +227,7 @@ function printTitle(string title) {
 # + return - Date and time the module was created
 function getDateCreated(json jsonObj) returns string {
     string jsonTime = jsonObj.time.toString();
-    var timeInMillis = int.from(jsonTime);
+    var timeInMillis = int.create(jsonTime);
     if (timeInMillis is int) {
         time:Time timeStruct = new(timeInMillis, { zoneId: "UTC", zoneOffset: 0 });
         string customTimeString = timeStruct.format("yyyy-MM-dd-E");
@@ -245,7 +245,7 @@ public function main (string... args) {
     string host = args[2];
     string strPort = args[3];
     if (host != "" && strPort != "") {
-        var port = <int> strPort;
+        var port = int.create(strPort);
         if (port is int) {
             http:Client|error result = trap defineEndpointWithProxy(args[0], host, port, args[4], args[5]);
             match result {

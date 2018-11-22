@@ -143,7 +143,7 @@ function respondToBadRequest(http:Listener conn, string msg) {
     log:printError(msg);
     http:Response res = new;  res.statusCode = http:BAD_REQUEST_400;
     RequestError requestError = {errorMessage:msg};
-    var resPayload = json.from(requestError);
+    var resPayload = json.create(requestError);
     if (resPayload is json) {
         res.setJsonPayload(untaint resPayload);
         var resResult = ep->respond(res);
@@ -266,17 +266,11 @@ function removeInitiatedTransaction(string transactionId) {
 
 function getInitiatorClient(string registerAtURL) returns InitiatorClientEP {
     if (httpClientCache.hasKey(registerAtURL)) {
-        match (<InitiatorClientEP>httpClientCache.get(registerAtURL)) {
-            error err => panic err;
-            InitiatorClientEP initiatorEP => return initiatorEP;
-        }
+        return <InitiatorClientEP>httpClientCache.get(registerAtURL);
     } else {
         lock {
             if (httpClientCache.hasKey(registerAtURL)) {
-                match (<InitiatorClientEP>httpClientCache.get(registerAtURL)) {
-                    error err => panic err;
-                    InitiatorClientEP initiatorEP => return initiatorEP;
-                }
+                return <InitiatorClientEP>httpClientCache.get(registerAtURL);
             }
             InitiatorClientEP initiatorEP = new;
             InitiatorClientConfig config = { registerAtURL: registerAtURL,
@@ -291,17 +285,11 @@ function getInitiatorClient(string registerAtURL) returns InitiatorClientEP {
 
 function getParticipant2pcClient(string participantURL) returns Participant2pcClientEP {
     if (httpClientCache.hasKey(participantURL)) {
-        match (<Participant2pcClientEP>httpClientCache.get(participantURL)) {
-            error err => panic err;
-            Participant2pcClientEP participantEP => return participantEP;
-        }
+        return <Participant2pcClientEP>httpClientCache.get(participantURL);
     } else {
         lock {
             if (httpClientCache.hasKey(participantURL)) {
-                match (<Participant2pcClientEP>httpClientCache.get(participantURL)) {
-                    error err => panic err;
-                    Participant2pcClientEP participantEP => return participantEP;
-                }
+                return <Participant2pcClientEP>httpClientCache.get(participantURL);
             }
             Participant2pcClientEP participantEP = new;
             Participant2pcClientConfig config = { participantURL: participantURL,

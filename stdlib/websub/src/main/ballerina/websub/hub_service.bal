@@ -265,6 +265,89 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
     return err;
 }
 
+# Function to initiate intent verification for a valid subscription/unsubscription request received.
+#
+# + callback - The callback URL of the new subscription/unsubscription request
+# + topic - The topic specified in the new subscription/unsubscription request
+# + params - Parameters specified in the new subscription/unsubscription request
+function verifyIntentAndAddSubscription(string callback, string topic, map<string> params) {
+    endpoint http:Client callbackEp {
+        url:callback,
+        secureSocket: hubClientSecureSocket
+    };
+
+    string mode = params[HUB_MODE] ?: "";
+    string strLeaseSeconds = params[HUB_LEASE_SECONDS] ?: "";
+    int leaseSeconds = int.create(strLeaseSeconds) but { error => 0 };
+
+    //measured from the time the verification request was made from the hub to the subscriber from the recommendation
+    int createdAt = time:currentTime().time;
+
+    if (!(leaseSeconds > 0)) {
+        leaseSeconds = hubLeaseSeconds;
+    }
+    string challenge = system:uuid();
+
+    http:Request request = new;
+
+    string queryParams = HUB_MODE + "=" + mode
+        + "&" + HUB_TOPIC + "=" + topic
+        + "&" + HUB_CHALLENGE + "=" + challenge;
+
+    if (mode == MODE_SUBSCRIBE) {
+        queryParams = queryParams + "&" + HUB_LEASE_SECONDS + "=" + leaseSeconds;
+    }
+
+    var subscriberResponse = callbackEp->get(untaint ("?" + queryParams), message = request);
+
+    if (subscriberResponse is http:Response) {
+        var respStringPayload = subscriberResponse.getTextPayload();
+        if (respStringPayload is string) {
+            if (respStringPayload != challenge) {
+                log:printInfo("Intent verification failed for mode: [" + mode + "], for callback URL: ["
+                        + callback + "]: Challenge not echoed correctly.");
+            } else {
+                SubscriptionDetails subscriptionDetails = {topic:topic, callback:callback};
+                if (mode == MODE_SUBSCRIBE) {
+                    subscriptionDetails.leaseSeconds = leaseSeconds * 1000;
+                    subscriptionDetails.createdAt = createdAt;
+                    subscriptionDetails.secret = params[HUB_SECRET] but { () => "" };
+                    if (!isTopicRegistered(topic)) {
+                        var registerStatus = registerTopicAtHub(topic);
+                        if (registerStatus is error) {
+                            string errCause = <string> registerStatus.detail().message;
+                            log:printError("Error registering topic for subscription: " + errCause);
+                        }
+                    }
+                    addSubscription(subscriptionDetails);
+                } else {
+                    removeSubscription(topic, callback);
+                }
+
+                if (hubPersistenceEnabled) {
+                    changeSubscriptionInDatabase(mode, subscriptionDetails);
+                }
+                log:printInfo("Intent verification successful for mode: [" + mode + "], for callback URL: ["
+                        + callback + "]");
+            }
+        } else if (respStringPayload is error) {
+            string errCause = <string> respStringPayload.detail().message;
+            log:printInfo("Intent verification failed for mode: [" + mode + "], for callback URL: [" + callback
+                    + "]: Error retrieving response payload: " + errCause);
+        }
+    } else if (subscriberResponse is error) {
+        string errCause = <string> subscriberResponse.detail().message;
+        log:printInfo("Error sending intent verification request for callback URL: [" + callback + "]: " + errCause);
+    }
+    PendingSubscriptionChangeRequest pendingSubscriptionChangeRequest = new(mode, topic, callback);
+    string key = generateKey(topic, callback);
+    var retrievedRequest = pendingRequests[key];
+    if (retrievedRequest is PendingSubscriptionChangeRequest) {
+        if (pendingSubscriptionChangeRequest.equals(retrievedRequest)) {
+            _ = pendingRequests.remove(key);
+        }
+    }
+}
 
 # Function to add/remove the details of topics registered, in the database.
 #
@@ -574,88 +657,4 @@ function generateKey(string topic, string callback) returns (string) {
 function buildWebSubLinkHeader(string hub, string topic) returns (string) {
     string linkHeader = "<" + hub + ">; rel=\"hub\", <" + topic + ">; rel=\"self\"";
     return linkHeader;
-}
-
-# Function to initiate intent verification for a valid subscription/unsubscription request received.
-#
-# + callback - The callback URL of the new subscription/unsubscription request
-# + topic - The topic specified in the new subscription/unsubscription request
-# + params - Parameters specified in the new subscription/unsubscription request
-function verifyIntentAndAddSubscription(string callback, string topic, map<string> params) {
-    endpoint http:Client callbackEp {
-        url:callback,
-        secureSocket: hubClientSecureSocket
-    };
-
-    string mode = params[HUB_MODE] ?: "";
-    string strLeaseSeconds = params[HUB_LEASE_SECONDS] ?: "";
-    int leaseSeconds = int.from(strLeaseSeconds) but { error => 0 };
-
-    //measured from the time the verification request was made from the hub to the subscriber from the recommendation
-    int createdAt = time:currentTime().time;
-
-    if (!(leaseSeconds > 0)) {
-        leaseSeconds = hubLeaseSeconds;
-    }
-    string challenge = system:uuid();
-
-    http:Request request = new;
-
-    string queryParams = HUB_MODE + "=" + mode
-        + "&" + HUB_TOPIC + "=" + topic
-        + "&" + HUB_CHALLENGE + "=" + challenge;
-
-    if (mode == MODE_SUBSCRIBE) {
-        queryParams = queryParams + "&" + HUB_LEASE_SECONDS + "=" + leaseSeconds;
-    }
-
-    var subscriberResponse = callbackEp->get(untaint ("?" + queryParams), message = request);
-
-    if (subscriberResponse is http:Response) {
-        var respStringPayload = subscriberResponse.getTextPayload();
-        if (respStringPayload is string) {
-            if (respStringPayload != challenge) {
-                log:printInfo("Intent verification failed for mode: [" + mode + "], for callback URL: ["
-                        + callback + "]: Challenge not echoed correctly.");
-            } else {
-                SubscriptionDetails subscriptionDetails = {topic:topic, callback:callback};
-                if (mode == MODE_SUBSCRIBE) {
-                    subscriptionDetails.leaseSeconds = leaseSeconds * 1000;
-                    subscriptionDetails.createdAt = createdAt;
-                    subscriptionDetails.secret = params[HUB_SECRET] but { () => "" };
-                    if (!isTopicRegistered(topic)) {
-                        var registerStatus = registerTopicAtHub(topic);
-                        if (registerStatus is error) {
-                            string errCause = <string> registerStatus.detail().message;
-                            log:printError("Error registering topic for subscription: " + errCause);
-                        }
-                    }
-                    addSubscription(subscriptionDetails);
-                } else {
-                    removeSubscription(topic, callback);
-                }
-
-                if (hubPersistenceEnabled) {
-                    changeSubscriptionInDatabase(mode, subscriptionDetails);
-                }
-                log:printInfo("Intent verification successful for mode: [" + mode + "], for callback URL: ["
-                        + callback + "]");
-            }
-        } else if (respStringPayload is error) {
-            string errCause = <string> respStringPayload.detail().message;
-            log:printInfo("Intent verification failed for mode: [" + mode + "], for callback URL: [" + callback
-                    + "]: Error retrieving response payload: " + errCause);
-        }
-    } else if (subscriberResponse is error) {
-        string errCause = <string> subscriberResponse.detail().message;
-        log:printInfo("Error sending intent verification request for callback URL: [" + callback + "]: " + errCause);
-    }
-    PendingSubscriptionChangeRequest pendingSubscriptionChangeRequest = new(mode, topic, callback);
-    string key = generateKey(topic, callback);
-    var retrievedRequest = pendingRequests[key];
-    if (retrievedRequest is PendingSubscriptionChangeRequest) {
-        if (pendingSubscriptionChangeRequest.equals(retrievedRequest)) {
-            _ = pendingRequests.remove(key);
-        }
-    }
 }

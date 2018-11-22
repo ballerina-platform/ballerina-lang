@@ -72,7 +72,7 @@ service Participant2pcService bind coordinatorListener {
                 }
             }
         }
-        var jsonResponse = json.from(prepareRes);
+        var jsonResponse = json.create(prepareRes);
         if (jsonResponse is json) {
             res.setJsonPayload(jsonResponse);
             var resResult = conn->respond(res);
@@ -144,7 +144,7 @@ service Participant2pcService bind coordinatorListener {
                 removeParticipatedTransaction(participatedTxnId);
             }
         }
-        var jsonResponse = json.from(notifyRes);
+        var jsonResponse = json.create(notifyRes);
         if (jsonResponse is json) {
             res.setJsonPayload(jsonResponse);
             var resResult = conn->respond(res);

@@ -744,7 +744,7 @@ function getResponseAge(Response cachedResponse) returns int {
     }
 
     string ageHeaderString = cachedResponse.getHeader(AGE);
-    var ageValue = int.from(ageHeaderString);
+    var ageValue = int.create(ageHeaderString);
     if (ageValue is int) {
         return ageValue;
     }

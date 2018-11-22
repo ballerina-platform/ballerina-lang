@@ -101,7 +101,7 @@ function processSelectResult(string id, table<PiiData>|error queryResult) return
     match queryResult {
         table resultTable => {
             if (resultTable.hasNext()) {
-                PiiData piiData = check <PiiData> resultTable.getNext();
+                PiiData piiData = check trap <PiiData> resultTable.getNext();
                 resultTable.close();
                 return piiData.pii;
             } else {
