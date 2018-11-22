@@ -59,7 +59,7 @@ public type Connection client object {
     #
     # + headers - A `map` of custom headers for handshake
     # + return - WebSocket service endpoint
-    public remote extern function acceptWebSocketUpgrade(map<string> headers) returns WebSocketListener;
+    public remote extern function acceptWebSocketUpgrade(map<string> headers) returns WebSocketCaller;
 
     # Cancels the handshake.
     #

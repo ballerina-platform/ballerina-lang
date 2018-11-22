@@ -83,7 +83,6 @@ public type Versioning record {
 # + maxFrameSize - The maximum payload size of a WebSocket frame in bytes
 public type WSServiceConfig record {
     Server[] endpoints = [];
-    WebSocketListener[] webSocketEndpoints = [];
     string path = "";
     string[] subProtocols = [];
     int idleTimeoutInSeconds = 0;
