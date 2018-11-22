@@ -56,7 +56,7 @@ function waitTest4() returns map { // {f1: 7, f2: 22, f4: "hello foo"}
     return m;
 }
 
-function waitTest5() returns map { // {id: 66, name: "hello bar"}
+function waitTest5() returns map { // {id: 66, name: "hello foo"}
     future<string> f5 = start concat("foo");
     record { int id; string name; } anonRec = wait {id: fuInt(), name: f5};
 
@@ -73,7 +73,7 @@ function waitTest6() returns map { // {idField: 150, stringField: "hello foo"}
 
     map m = {};
     m["idField"] = anonRec.idField;
-    m["stringField"] = anonRec.idField;
+    m["stringField"] = anonRec.stringField;
     return m;
 }
 
@@ -108,7 +108,13 @@ function waitTest10() returns secondRec { // {f1: 30, f5: "hello xyz"}
 function waitTest11() returns thirdRec { // {f1: 30, f5: "hello bar"}
     future<int> f1 = start add_1(20, 10);
     future<string> f2 = start concat("bar");
-    thirdRec result = wait {f1: f1, f2};
+    thirdRec result = wait {f1: f1, field: f2};
+    return result;
+}
+
+function waitTest12() returns fourthRec { // {f1: 30, f5: "hello bar"}
+    future<int> f1 = start add_1(20, 66);
+    fourthRec result = wait {id: f1};
     return result;
 }
 
@@ -124,14 +130,22 @@ type secondRec record {
 
 type thirdRec record {
     int f1 = 0;
-    string f2 = "third-default";
+    string field = "third-default";
     int f4?;
+};
+
+type fourthRec record {
+    int|string id = 0;
 };
 
 // Util functions
 
 function add_1(int i, int j) returns int {
     int k = i + j;
+    int l = 0;
+    while (l < 9999999) {
+        l = l + 1;
+    }
     return k;
 }
 

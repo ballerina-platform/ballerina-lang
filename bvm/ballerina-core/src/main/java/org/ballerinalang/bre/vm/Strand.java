@@ -22,6 +22,7 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.DebugContext;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 
@@ -53,6 +54,10 @@ public class Strand {
     private BError error;
 
     public Map<String, Object> globalProps;
+
+    public List<Integer> callbacksToWaitFor;
+
+    public boolean completed;
 
     public Strand(ProgramFile programFile, Map<String, Object> properties, StrandCallback respCallback) {
         this.programFile = programFile;

@@ -20,6 +20,8 @@ package org.ballerinalang.bre.vm;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -39,7 +41,11 @@ public class SafeStrandCallback extends StrandCallback {
 
     private BType expType;
 
+    private int keyReg;
+
     private int retReg;
+
+    private boolean multipleWait;
 
     public SafeStrandCallback(CallableUnitInfo callableUnitInfo, BType retType) {
         super(callableUnitInfo, retType);
@@ -52,11 +58,21 @@ public class SafeStrandCallback extends StrandCallback {
         try {
             dataLock.lock();
             this.returnValueAvailable.set(true);
-            if (contStrand != null) {
-                Strand strand = CallbackReturnHandler.handleReturn(contStrand, expType, retReg, this);
-                if (strand != null) {
-                    BVMScheduler.schedule(strand);
-                }
+            if (contStrand == null) {
+                return;
+            }
+            Strand strand;
+            if (multipleWait) {
+                // Create the hashmap with the keyReg and callback
+                Map<Integer, SafeStrandCallback> callbackHashMap = new HashMap();
+                callbackHashMap.put(keyReg, this);
+
+                strand = CallbackReturnHandler.handleReturn(contStrand, retReg, callbackHashMap);
+            } else {
+                strand = CallbackReturnHandler.handleReturn(contStrand, expType, retReg, this);
+            }
+            if (strand != null) {
+                BVMScheduler.schedule(strand);
             }
         } finally {
             dataLock.unlock();
@@ -71,10 +87,12 @@ public class SafeStrandCallback extends StrandCallback {
         dataLock.unlock();
     }
 
-    public void setRetData(Strand contStrand, BType expType, int retReg) {
+    public void setRetData(Strand contStrand, BType expType, int retReg, boolean multipleWait, int keyReg) {
         this.contStrand = contStrand;
         this.expType = expType;
         this.retReg = retReg;
+        this.multipleWait = multipleWait;
+        this.keyReg = keyReg;
     }
 
     public boolean returnDataAvailable() {

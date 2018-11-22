@@ -870,13 +870,11 @@ public class CodeGenerator extends BLangNodeVisitor {
             BLangExpression expr = keyValue.valueExpr != null ? keyValue.valueExpr : keyValue.keyExpr;
             genNode(expr, this.env);
 
-            Operand exprTypeCPIndex = getTypeCPIndex(expr.type);
-            operands.add(exprTypeCPIndex);
             operands.add(waitKeyCPIndex);
             operands.add(expr.regIndex);
         }
         length.value = operands.size() - 3;
-        // length of operands, type of wait, regIndex of map, exprs: [type of expr, regIndex of key, regIndex of expr]
+        // length of operands, type of wait, regIndex of map, exprs: [regIndex of key, regIndex of expr]
         this.emit(InstructionCodes.WAITALL, operands.toArray(new Operand[operands.size()]));
     }
 

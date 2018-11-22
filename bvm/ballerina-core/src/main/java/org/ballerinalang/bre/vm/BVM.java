@@ -778,6 +778,12 @@ public class BVM {
                             return;
                         }
                         break;
+                    case InstructionCodes.WAITALL:
+                        strand = execWaitForAll(strand, operands);
+                        if (strand == null) {
+                            return;
+                        }
+                        break;
                     case InstructionCodes.SCOPE_END:
 //                    Instruction.InstructionScopeEnd scopeEnd = (Instruction.InstructionScopeEnd) instruction;
 //                    i = operands[0];
@@ -4203,6 +4209,27 @@ public class BVM {
         return CallbackReturnHandler.handleReturn(strand, expType, retValReg, callbacks);
     }
 
+    private static Strand execWaitForAll(Strand strand, int[] operands) {
+        int c = operands[0];
+        // TODO: 11/22/18  Remove this from the CodeGen
+        TypeRefCPEntry typeEntry = (TypeRefCPEntry) strand.currentFrame.constPool[operands[1]];
+        BType expType = typeEntry.getType();
+        int retValReg = operands[2];
+
+        HashMap<Integer, SafeStrandCallback> callbackHashMap = new HashMap<>();
+        for (int i = 0; i < c; i = i + 2) {
+            int index = i + 3;
+            // Get the key
+            int keyRegIndex = operands[index];
+            // Get the expression followed
+            int futureReg = operands[index + 1];
+            BFuture future = (BFuture) strand.currentFrame.refRegs[futureReg];
+            callbackHashMap.put(keyRegIndex, future.value());
+        }
+        strand.callbacksToWaitFor = new ArrayList(callbackHashMap.keySet());
+        strand.createLock();
+        return CallbackReturnHandler.handleReturn(strand, retValReg, callbackHashMap);
+    }
     /**
      * This is used to propagate the results of {@link BVM#handleError(Strand)} to the
      * main CPU instruction loop.

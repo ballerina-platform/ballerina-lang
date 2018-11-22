@@ -1395,6 +1395,17 @@ public class PackageInfoReader {
                     }
                     packageInfo.addInstruction(InstructionFactory.get(opcode, ops));
                     break;
+                case InstructionCodes.WAITALL:
+                    int d = codeStream.readInt();
+                    int[] oprds = new int[d + 3];
+                    oprds[0] = d;
+                    oprds[1] = codeStream.readInt();
+                    oprds[2] = codeStream.readInt();
+                    for (int p = 0; p < d; p++) {
+                        oprds[p + 3] = codeStream.readInt();
+                    }
+                    packageInfo.addInstruction(InstructionFactory.get(opcode, oprds));
+                    break;
                 case InstructionCodes.IGLOAD:
                 case InstructionCodes.FGLOAD:
                 case InstructionCodes.SGLOAD:
