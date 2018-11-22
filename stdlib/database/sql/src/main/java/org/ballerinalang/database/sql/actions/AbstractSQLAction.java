@@ -248,8 +248,8 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                             + "returned result set count: " + resultSets.size() + " from the stored procedure");
         }
         for (int i = 0; i < resultSets.size(); i++) {
-            bTables.add(i, constructTable(rm, context, resultSets.get(i), (BStructureType) structTypes.get(i).value(),
-                    databaseProductName));
+            bTables.add(i, constructTable(rm, context, resultSets.get(i),
+                    (BStructureType) structTypes.getRefValue(i).value(), databaseProductName));
         }
         return bTables;
     }
@@ -271,7 +271,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                     stmt.addBatch();
                 }
                 for (int index = 0; index < paramArrayCount; index++) {
-                    BValueArray params = (BValueArray) parameters.get(index);
+                    BValueArray params = (BValueArray) parameters.getRefValue(index);
                     BValueArray generatedParams = constructParameters(context, params);
                     createProcessedStatement(conn, stmt, generatedParams);
                     stmt.addBatch();
@@ -345,7 +345,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         BValueArray parametersNew = new BValueArray();
         int paramCount = (int) parameters.size();
         for (int i = 0; i < paramCount; ++i) {
-            BRefType typeValue = parameters.get(i);
+            BRefType typeValue = parameters.getRefValue(i);
             BMap<String, BValue> paramStruct;
             if (typeValue.getType().getTag() == TypeTags.OBJECT_TYPE_TAG
                     || typeValue.getType().getTag() == TypeTags.RECORD_TYPE_TAG) {
@@ -381,7 +381,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             int paramCount = (int) parameters.size();
             for (int i = 0; i < paramCount; i++) {
                 // types.bal Parameter
-                BMap<String, BValue> paramValue = (BMap<String, BValue>) parameters.get(i);
+                BMap<String, BValue> paramValue = (BMap<String, BValue>) parameters.getRefValue(i);
                 if (paramValue != null) {
                     String sqlType = getSQLType(paramValue);
                     BValue value = paramValue.get(PARAMETER_VALUE_FIELD);
@@ -543,7 +543,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         int paramCount = (int) params.size();
         int currentOrdinal = 0;
         for (int index = 0; index < paramCount; index++) {
-            BMap<String, BValue> paramStruct = (BMap<String, BValue>) params.get(index);
+            BMap<String, BValue> paramStruct = (BMap<String, BValue>) params.getRefValue(index);
             if (paramStruct != null) {
                 String sqlType = getSQLType(paramStruct);
                 BValue value = paramStruct.get(PARAMETER_VALUE_FIELD);
@@ -576,7 +576,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                         // supported is, this being an array of byte arrays (blob)
                         // eg: [blob1, blob2, blob3] == [byteArray1, byteArray2, byteArray3]
                         case TypeTags.ARRAY_TAG:
-                            BValue array = ((BValueArray) value).get(i);
+                            BValue array = ((BValueArray) value).getRefValue(i);
                             // array cannot be null because the type tag is not union
                             if (((BArrayType) array.getType()).getElementType().getTag() == TypeTags.BYTE_TAG) {
                                 paramValue = array;
@@ -722,7 +722,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         boolean refCursorOutParamPresent = false;
         int paramCount = (int) params.size();
         for (int index = 0; index < paramCount; index++) {
-            BMap<String, BValue> paramValue = (BMap<String, BValue>) params.get(index);
+            BMap<String, BValue> paramValue = (BMap<String, BValue>) params.getRefValue(index);
             if (paramValue != null) {
                 String sqlType = getSQLType(paramValue);
                 int direction = getParameterDirection(paramValue);
@@ -743,11 +743,11 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         }
         int paramCount = (int) params.size();
         for (int index = 0; index < paramCount; index++) {
-            if (params.get(index).getType().getTag() != TypeTags.OBJECT_TYPE_TAG
-                    && params.get(index).getType().getTag() != TypeTags.RECORD_TYPE_TAG) {
+            if (params.getRefValue(index).getType().getTag() != TypeTags.OBJECT_TYPE_TAG
+                    && params.getRefValue(index).getType().getTag() != TypeTags.RECORD_TYPE_TAG) {
                 continue;
             }
-            BMap<String, BValue> paramValue = (BMap<String, BValue>) params.get(index);
+            BMap<String, BValue> paramValue = (BMap<String, BValue>) params.getRefValue(index);
             if (paramValue != null) {
                 String sqlType = getSQLType(paramValue);
                 int direction = getParameterDirection(paramValue);
@@ -894,7 +894,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     private boolean hasOutParams(BValueArray params) {
         int paramCount = (int) params.size();
         for (int index = 0; index < paramCount; index++) {
-            BMap<String, BValue> paramValue = (BMap<String, BValue>) params.get(index);
+            BMap<String, BValue> paramValue = (BMap<String, BValue>) params.getRefValue(index);
             int direction = getParameterDirection(paramValue);
             if (direction == Constants.QueryParamDirection.OUT || direction == Constants.QueryParamDirection.INOUT) {
                 return true;

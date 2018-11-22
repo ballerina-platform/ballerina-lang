@@ -64,14 +64,14 @@ public class BStreamingJSON extends BValueArray {
     }
 
     @Override
-    public BRefType<?> get(long index) {
+    public BRefType<?> getRefValue(long index) {
         // If the the index is larger than the size, and datasource has more content,
         // then read data from data-source until the index, or until the end of the data-source.
         while (index >= size && datasource.hasNext()) {
             appendToCache(datasource.next());
         }
 
-        return super.get(index);
+        return super.getRefValue(index);
     }
 
     public void serialize(JsonGenerator gen) {

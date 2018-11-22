@@ -67,7 +67,7 @@ public class StartForever extends BlockingNativeCallableUnit {
         BValueArray inputStreamReferenceArray = (BValueArray) context.getRefArgument(0);
 
         for (int i = 0; i < inputStreamReferenceArray.size(); i++) {
-            BStream stream = (BStream) inputStreamReferenceArray.get(i);
+            BStream stream = (BStream) inputStreamReferenceArray.getRefValue(i);
             siddhiQuery = siddhiQuery.replaceFirst("\\[\\[streamName\\]\\]", stream.getStreamId());
 
             Map<String, BField> structFields = ((BStructureType) stream.getConstraintType()).getFields();
@@ -87,7 +87,7 @@ public class StartForever extends BlockingNativeCallableUnit {
 
         Set<String> alreadySubscribedStreams = new HashSet<>();
         for (int i = 0; i < inputStreamReferenceArray.size(); i++) {
-            BStream stream = (BStream) inputStreamReferenceArray.get(i);
+            BStream stream = (BStream) inputStreamReferenceArray.getRefValue(i);
             if (!alreadySubscribedStreams.contains(stream.getStreamId())) {
                 InputHandler inputHandler = streamSpecificInputHandlerMap.get(stream.getStreamId());
                 stream.subscribe(inputHandler);
@@ -97,7 +97,7 @@ public class StartForever extends BlockingNativeCallableUnit {
 
         BValueArray functionPointerArray = (BValueArray) context.getRefArgument(4);
         for (int i = 0; i < functionPointerArray.size(); i++) {
-            BFunctionPointer functionPointer = (BFunctionPointer) functionPointerArray.get(i);
+            BFunctionPointer functionPointer = (BFunctionPointer) functionPointerArray.getRefValue(i);
             String functionName = functionPointer.value().getName();
             String streamId = "stream" + functionName.replaceAll("\\$", "_");
             StreamingRuntimeManager.getInstance().addCallback(streamId, functionPointer, siddhiAppRuntime);

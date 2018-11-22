@@ -366,7 +366,7 @@ public class BTable implements BRefType<Object>, BCollection {
     private void insertInitialData(BValueArray data) {
         int count = (int) data.size();
         for (int i = 0; i < count; i++) {
-            addData((BMap<String, BValue>) data.get(i));
+            addData((BMap<String, BValue>) data.getRefValue(i));
         }
     }
 

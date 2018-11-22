@@ -90,7 +90,7 @@ public class ArrayInitializerExprTest {
         BValueArray arrayValue = (BValueArray) returns[0];
         Assert.assertEquals(arrayValue.size(), 2);
 
-        BValue element = arrayValue.get(0);
+        BValue element = arrayValue.getRefValue(0);
         Assert.assertTrue(element instanceof BValueArray);
         BValueArray elementArray = (BValueArray) element;
         Assert.assertEquals(elementArray.size(), 3);
@@ -98,7 +98,7 @@ public class ArrayInitializerExprTest {
         Assert.assertEquals(elementArray.getInt(1), 2);
         Assert.assertEquals(elementArray.getInt(2), 3);
         
-        element = arrayValue.get(1);
+        element = arrayValue.getRefValue(1);
         Assert.assertTrue(element instanceof BValueArray);
         elementArray = (BValueArray) element;
         Assert.assertEquals(elementArray.size(), 4);
@@ -119,19 +119,19 @@ public class ArrayInitializerExprTest {
         BValueArray arrayValue = (BValueArray) returns[0];
         Assert.assertEquals(arrayValue.size(), 3);
 
-        BValue adrs1 = arrayValue.get(0);
+        BValue adrs1 = arrayValue.getRefValue(0);
         Assert.assertTrue(adrs1 instanceof BMap<?, ?>);
         BValue address = ((BMap) adrs1).get("address");
         Assert.assertTrue(address instanceof BMap<?, ?>);
         Assert.assertEquals(((BMap) address).get("city").stringValue(), "Colombo");
 
-        BValue adrs2 = arrayValue.get(1);
+        BValue adrs2 = arrayValue.getRefValue(1);
         Assert.assertTrue(adrs2 instanceof BMap<?, ?>);
         address = ((BMap) adrs2).get("address");
         Assert.assertTrue(address instanceof BMap<?, ?>);
         Assert.assertEquals(((BMap) address).get("city").stringValue(), "Kandy");
 
-        BValue adrs3 = arrayValue.get(2);
+        BValue adrs3 = arrayValue.getRefValue(2);
         Assert.assertTrue(adrs3 instanceof BMap<?, ?>);
         address = ((BMap) adrs3).get("address");
         Assert.assertTrue(address instanceof BMap<?, ?>);

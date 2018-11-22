@@ -68,7 +68,7 @@ public class ArrayListBValueProvider implements SerializationBValueProvider<Arra
 
         int i = 0;
         for (; i < array.size(); i++) {
-            arrayList.add(bValueDeserializer.deserialize(array.get(i), null));
+            arrayList.add(bValueDeserializer.deserialize(array.getRefValue(i), null));
         }
         for (; i < length.intValue(); i++) {
             arrayList.add(i, null);

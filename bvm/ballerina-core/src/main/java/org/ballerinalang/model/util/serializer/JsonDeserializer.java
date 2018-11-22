@@ -166,7 +166,7 @@ class JsonDeserializer implements BValueDeserializer {
     private Object deserializeBRefValueArray(BValueArray valueArray, Object destinationArray) {
         Class<?> componentType = destinationArray.getClass().getComponentType();
         for (int i = 0; i < valueArray.size(); i++) {
-            Object obj = deserialize(valueArray.get(i), componentType);
+            Object obj = deserialize(valueArray.getRefValue(i), componentType);
             Array.set(destinationArray, i, obj);
         }
         return destinationArray;

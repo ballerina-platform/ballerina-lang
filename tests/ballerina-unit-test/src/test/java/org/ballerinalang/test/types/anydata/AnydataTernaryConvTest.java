@@ -150,13 +150,13 @@ public class AnydataTernaryConvTest {
         assertEquals(((BArrayType) returns[0].getType()).getElementType().getTag(), TypeTags.ANYDATA_TAG);
 
         BValueArray rets = (BValueArray) returns[0];
-        assertEquals(((BInteger) rets.get(0)).intValue(), 10);
-        assertEquals(((BFloat) rets.get(1)).floatValue(), 23.45);
-        assertTrue(((BBoolean) rets.get(2)).booleanValue());
-        assertEquals(rets.get(3).stringValue(), "hello world!");
-        assertEquals(rets.get(4).stringValue(), "{\"name\":\"apple\", \"color\":\"red\", \"price\":40}");
-        assertEquals(rets.get(5).stringValue(), "<book>The Lost World</book>");
-        assertEquals(rets.get(6).stringValue(), "{a:15}");
-        assertEquals(rets.get(7).stringValue(), "{ca:15}");
+        assertEquals(((BInteger) rets.getRefValue(0)).intValue(), 10);
+        assertEquals(((BFloat) rets.getRefValue(1)).floatValue(), 23.45);
+        assertTrue(((BBoolean) rets.getRefValue(2)).booleanValue());
+        assertEquals(rets.getRefValue(3).stringValue(), "hello world!");
+        assertEquals(rets.getRefValue(4).stringValue(), "{\"name\":\"apple\", \"color\":\"red\", \"price\":40}");
+        assertEquals(rets.getRefValue(5).stringValue(), "<book>The Lost World</book>");
+        assertEquals(rets.getRefValue(6).stringValue(), "{a:15}");
+        assertEquals(rets.getRefValue(7).stringValue(), "{ca:15}");
     }
 }

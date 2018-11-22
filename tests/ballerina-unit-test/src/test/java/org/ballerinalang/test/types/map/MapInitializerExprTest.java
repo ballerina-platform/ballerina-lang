@@ -102,19 +102,19 @@ public class MapInitializerExprTest {
         Assert.assertTrue(adrsArray instanceof BValueArray);
         BValueArray addressArray = (BValueArray) adrsArray;
 
-        BValue adrs1 = addressArray.get(0);
+        BValue adrs1 = addressArray.getRefValue(0);
         Assert.assertTrue(adrs1 instanceof BMap<?, ?>);
         BValue address = ((BMap) adrs1).get("address");
         Assert.assertTrue(address instanceof BMap<?, ?>);
         Assert.assertEquals(((BMap) address).get("city").stringValue(), "Colombo");
 
-        BValue adrs2 = addressArray.get(1);
+        BValue adrs2 = addressArray.getRefValue(1);
         Assert.assertTrue(adrs2 instanceof BMap<?, ?>);
         address = ((BMap) adrs2).get("address");
         Assert.assertTrue(address instanceof BMap<?, ?>);
         Assert.assertEquals(((BMap) address).get("city").stringValue(), "Kandy");
 
-        BValue adrs3 = addressArray.get(2);
+        BValue adrs3 = addressArray.getRefValue(2);
         Assert.assertTrue(adrs3 instanceof BMap<?, ?>);
         address = ((BMap) adrs3).get("address");
         Assert.assertTrue(address instanceof BMap<?, ?>);

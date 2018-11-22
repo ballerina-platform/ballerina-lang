@@ -439,7 +439,7 @@ public class Util {
                     HttpPostRequestEncoder nettyEncoder = new HttpPostRequestEncoder(dataFactory,
                             outboundRequest.getNettyHttpRequest(), true);
                     for (int i = 0; i < bodyParts.size(); i++) {
-                        BMap<String, BValue> bodyPart = (BMap<String, BValue>) bodyParts.get(i);
+                        BMap<String, BValue> bodyPart = (BMap<String, BValue>) bodyParts.getRefValue(i);
                         encodeBodyPart(nettyEncoder, outboundRequest.getNettyHttpRequest(),
                                 bodyPart);
                     }

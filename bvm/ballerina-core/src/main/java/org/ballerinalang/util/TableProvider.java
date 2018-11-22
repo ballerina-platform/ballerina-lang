@@ -246,7 +246,7 @@ public class TableProvider {
         try {
             stmt = conn.prepareStatement(queryStatement);
             for (int index = 1; index <= params.size(); index++) {
-                BRefType param = params.get(index - 1);
+                BRefType param = params.getRefValue(index - 1);
                 switch (param.getType().getTag()) {
                     case TypeTags.INT_TAG:
                         stmt.setLong(index, (Long) param.value());

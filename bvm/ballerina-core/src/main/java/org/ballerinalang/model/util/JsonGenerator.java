@@ -289,7 +289,7 @@ public class JsonGenerator {
                 this.writeStartArray();
                 BValueArray jsonArray = (BValueArray) json;
                 for (int i = 0; i < jsonArray.size(); i++) {
-                    this.serialize(jsonArray.get(i));
+                    this.serialize(jsonArray.getRefValue(i));
                 }
                 this.writeEndArray();
                 break;

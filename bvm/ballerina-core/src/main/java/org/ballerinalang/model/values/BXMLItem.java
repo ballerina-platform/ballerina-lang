@@ -508,7 +508,7 @@ public final class BXMLItem extends BXML<OMNode> {
         if (seq.getNodeType() == XMLNodeType.SEQUENCE) {
             BValueArray childSeq = ((BXMLSequence) seq).value();
             for (int i = 0; i < childSeq.size(); i++) {
-                currentNode.addChild((OMNode) childSeq.get(i).value());
+                currentNode.addChild((OMNode) childSeq.getRefValue(i).value());
             }
         } else {
             currentNode.addChild((OMNode) seq.value());
@@ -542,7 +542,7 @@ public final class BXMLItem extends BXML<OMNode> {
         if (seq.getNodeType() == XMLNodeType.SEQUENCE) {
             BValueArray childSeq = ((BXMLSequence) seq).value();
             for (int i = 0; i < childSeq.size(); i++) {
-                currentNode.addChild((OMNode) childSeq.get(i).value());
+                currentNode.addChild((OMNode) childSeq.getRefValue(i).value());
             }
         } else {
             currentNode.addChild((OMNode) seq.value());

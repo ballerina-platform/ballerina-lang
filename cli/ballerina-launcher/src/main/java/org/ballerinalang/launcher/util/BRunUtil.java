@@ -235,7 +235,7 @@ public class BRunUtil {
         int length = (int) refValueArray.size();
         BValue[] arr = new BValue[length];
         for (int i = 0; i < length; i++) {
-            arr[i] = refValueArray.get(i);
+            arr[i] = refValueArray.getRefValue(i);
         }
         return arr;
     }

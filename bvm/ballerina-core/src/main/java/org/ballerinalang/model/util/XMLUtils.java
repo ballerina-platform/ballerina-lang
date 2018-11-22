@@ -240,7 +240,7 @@ public class XMLUtils {
         if (firstSeq.getNodeType() == XMLNodeType.SEQUENCE) {
             BValueArray seq = ((BXMLSequence) firstSeq).value();
             for (int i = 0; i < seq.size(); i++) {
-                concatSeq.add(j++, seq.get(i));
+                concatSeq.add(j++, seq.getRefValue(i));
             }
         } else {
             concatSeq.add(j++, firstSeq);
@@ -250,7 +250,7 @@ public class XMLUtils {
         if (secondSeq.getNodeType() == XMLNodeType.SEQUENCE) {
             BValueArray seq = ((BXMLSequence) secondSeq).value();
             for (int i = 0; i < seq.size(); i++) {
-                concatSeq.add(j++, seq.get(i));
+                concatSeq.add(j++, seq.getRefValue(i));
             }
         } else {
             concatSeq.add(j++, secondSeq);
@@ -431,7 +431,8 @@ public class XMLUtils {
         }
 
         for (int i = 0; i < xmlSequenceOne.length(); i++) {
-            if (!isEqual((BXML<?>) xmlSequenceOne.value().get(i), (BXML<?>) xmlSequenceTwo.value().get(i))) {
+            if (!isEqual((BXML<?>) xmlSequenceOne.value().getRefValue(i), (BXML<?>) xmlSequenceTwo.value().
+                    getRefValue(i))) {
                 return false;
             }
         }
@@ -533,7 +534,7 @@ public class XMLUtils {
         ArrayList<OMElement> childArray = new ArrayList<>();
         ArrayList<OMText> textArray = new ArrayList<>();
         for (long i = 0; i < count; ++i) {
-            BXMLItem xmlItem = (BXMLItem) sequence.get(i);
+            BXMLItem xmlItem = (BXMLItem) sequence.getRefValue(i);
             OMNode omNode = xmlItem.value();
             if (OMNode.ELEMENT_NODE ==  omNode.getType()) {
                 childArray.add((OMElement) omNode);

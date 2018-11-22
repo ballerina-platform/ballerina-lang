@@ -116,7 +116,7 @@ public class DebugMsgUtil {
         List<BreakPointDTO> bPoints = new ArrayList<>();
         BValueArray jsonArray = (BValueArray) json;
         for (int i = 0; i < jsonArray.size(); i++) {
-            BMap<String, BRefType<?>> element = (BMap) jsonArray.get(i);
+            BMap<String, BRefType<?>> element = (BMap) jsonArray.getRefValue(i);
             BreakPointDTO bPoint = new BreakPointDTO();
             bPoint.setPackagePath(element.get(PACKAGE_PATH) == null ? null : element.get(PACKAGE_PATH).stringValue());
             bPoint.setFileName(element.get(FILE_NAME) == null ? null : element.get(FILE_NAME).stringValue());

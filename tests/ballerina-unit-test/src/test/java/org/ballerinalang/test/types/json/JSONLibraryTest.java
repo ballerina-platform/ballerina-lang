@@ -85,10 +85,10 @@ public class JSONLibraryTest {
         Assert.assertTrue(node.get("h") instanceof BValueArray);
         BValueArray arrayNode = (BValueArray) node.get("h");
         Assert.assertEquals(arrayNode.size(), 4);
-        Assert.assertEquals(arrayNode.get(0).stringValue(), "A");
-        Assert.assertEquals(((BInteger) arrayNode.get(1)).intValue(), 20);
-        Assert.assertEquals(((BInteger) arrayNode.get(2)).intValue(), 30);
-        Assert.assertEquals(arrayNode.get(3).stringValue(), "D");
+        Assert.assertEquals(arrayNode.getRefValue(0).stringValue(), "A");
+        Assert.assertEquals(((BInteger) arrayNode.getRefValue(1)).intValue(), 20);
+        Assert.assertEquals(((BInteger) arrayNode.getRefValue(2)).intValue(), 30);
+        Assert.assertEquals(arrayNode.getRefValue(3).stringValue(), "D");
     }
 
     @Test

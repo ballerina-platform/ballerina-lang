@@ -64,8 +64,8 @@ public class XMLIterationTest {
 
         for (int i = 0; i < returns.length; i++) {
             BValueArray tuple = (BValueArray) returns[i];
-            Assert.assertEquals(((BInteger) tuple.get(0)).intValue(), i);
-            Assert.assertEquals(tuple.get(1).stringValue(), titles[i]);
+            Assert.assertEquals(((BInteger) tuple.getRefValue(0)).intValue(), i);
+            Assert.assertEquals(tuple.getRefValue(1).stringValue(), titles[i]);
         }
     }
 
@@ -79,8 +79,8 @@ public class XMLIterationTest {
 
         for (int i = 0; i < returns.length; i++) {
             BValueArray tuple = (BValueArray) returns[i];
-            Assert.assertEquals(((BInteger) tuple.get(0)).intValue(), i);
-            Assert.assertEquals(tuple.get(1).stringValue(), titles[i]);
+            Assert.assertEquals(((BInteger) tuple.getRefValue(0)).intValue(), i);
+            Assert.assertEquals(tuple.getRefValue(1).stringValue(), titles[i]);
         }
     }
 
@@ -95,7 +95,7 @@ public class XMLIterationTest {
             long size = retAuthors.size();
 
             for (int j = 0; j < size; j++) {
-                Assert.assertEquals(((BXMLItem) retAuthors.get(j)).getTextValue().stringValue(), authors[i][j]);
+                Assert.assertEquals(((BXMLItem) retAuthors.getRefValue(j)).getTextValue().stringValue(), authors[i][j]);
             }
         }
     }
@@ -124,9 +124,9 @@ public class XMLIterationTest {
         Assert.assertNotNull(returns);
 
         BValueArray retAuthors = ((BXMLSequence) returns[0]).value();
-        Assert.assertEquals(((BXMLItem) retAuthors.get(0)).getTextValue().stringValue(), authors[0][0]);
+        Assert.assertEquals(((BXMLItem) retAuthors.getRefValue(0)).getTextValue().stringValue(), authors[0][0]);
 
         retAuthors = ((BXMLSequence) returns[1]).value();
-        Assert.assertEquals(((BXMLItem) retAuthors.get(0)).getTextValue().stringValue(), authors[1][0]);
+        Assert.assertEquals(((BXMLItem) retAuthors.getRefValue(0)).getTextValue().stringValue(), authors[1][0]);
     }
 }

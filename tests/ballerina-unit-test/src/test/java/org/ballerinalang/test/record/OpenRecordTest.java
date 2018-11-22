@@ -429,9 +429,9 @@ public class OpenRecordTest {
         BValueArray miscInfo = (BValueArray) person.get("misc");
         Assert.assertTrue(person.get("misc") instanceof BValueArray);
 
-        Assert.assertTrue(miscInfo.get(0) instanceof BFloat);
-        Assert.assertTrue(miscInfo.get(1) instanceof BString);
-        Assert.assertTrue(miscInfo.get(2) instanceof BMap);
+        Assert.assertTrue(miscInfo.getRefValue(0) instanceof BFloat);
+        Assert.assertTrue(miscInfo.getRefValue(1) instanceof BString);
+        Assert.assertTrue(miscInfo.getRefValue(2) instanceof BMap);
 
         Assert.assertEquals(person.stringValue(),
                 "{name:\"Foo\", age:25, misc:(5.9, \"Bar\", {kind:\"Cat\", name:\"Miaw\"})}");
@@ -449,9 +449,9 @@ public class OpenRecordTest {
         Assert.assertNotNull(returns[0]);
 
         BValueArray tup = (BValueArray) returns[0];
-        Assert.assertEquals(((BFloat) tup.get(0)).floatValue(), 4.5);
-        Assert.assertEquals(tup.get(1).stringValue(), "foo");
-        Assert.assertEquals(((BMap) tup.get(2)).getType().getName(), "Animal");
+        Assert.assertEquals(((BFloat) tup.getRefValue(0)).floatValue(), 4.5);
+        Assert.assertEquals(tup.getRefValue(1).stringValue(), "foo");
+        Assert.assertEquals(((BMap) tup.getRefValue(2)).getType().getName(), "Animal");
 
         Assert.assertNull(returns[1]);
     }

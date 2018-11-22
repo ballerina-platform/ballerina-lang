@@ -80,12 +80,12 @@ public class JsonSerializerTest {
         String serialize = new JsonSerializer().serialize(array);
         BValueArray deArray = new JsonSerializer().deserialize(serialize, BValueArray.class);
 
-        BString string1 = (BString) deArray.get(0);
+        BString string1 = (BString) deArray.getRefValue(0);
         Assert.assertEquals(string1.value(), STRING_1);
         // reference sharing test
-        Assert.assertSame(deArray.get(0), deArray.get(2));
+        Assert.assertSame(deArray.getRefValue(0), deArray.getRefValue(2));
 
-        Assert.assertEquals(4343, ((BInteger) deArray.get(3)).intValue());
+        Assert.assertEquals(4343, ((BInteger) deArray.getRefValue(3)).intValue());
     }
 
     @SuppressWarnings("unchecked")
@@ -109,11 +109,11 @@ public class JsonSerializerTest {
         String serialize = new JsonSerializer().serialize(array);
         BValueArray deArray = new JsonSerializer().deserialize(serialize, BValueArray.class);
 
-        BMap map = (BMap) deArray.get(0);
+        BMap map = (BMap) deArray.getRefValue(0);
         Assert.assertEquals(((BString) map.get("A")).value(), STRING_1);
         // reference sharing test
         //noinspection SimplifiedTestNGAssertion
-        Assert.assertTrue(deArray.get(2) == deArray.get(3));
+        Assert.assertTrue(deArray.getRefValue(2) == deArray.getRefValue(3));
     }
 
     @Test(description = "Test deserialization of StringFieldA[]")

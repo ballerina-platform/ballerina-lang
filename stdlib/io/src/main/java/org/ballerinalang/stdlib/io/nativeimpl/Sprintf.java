@@ -100,14 +100,14 @@ public class Sprintf extends BlockingNativeCallableUnit {
                         case 'B':
                         case 'd':
                         case 'f':
-                            result.append(String.format("%" + padding + formatSpecifier, args.get(k).value()));
+                            result.append(String.format("%" + padding + formatSpecifier, args.getRefValue(k).value()));
                             break;
                         case 'x':
                         case 'X':
                             formatHexString(args, result, k, padding, formatSpecifier);
                             break;
                         case 's':
-                            result.append(String.format("%" + padding + "s", args.get(k).stringValue()));
+                            result.append(String.format("%" + padding + "s", args.getRefValue(k).stringValue()));
                             break;
                         case '%':
                             result.append("%");
@@ -119,7 +119,8 @@ public class Sprintf extends BlockingNativeCallableUnit {
                     }
                 } catch (IllegalFormatConversionException e) {
                     throw BLangExceptionHelper.getRuntimeException(
-                            RuntimeErrors.ILLEGAL_FORMAT_CONVERSION, format.charAt(j) + " != " + args.get(k).getType());
+                            RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
+                            format.charAt(j) + " != " + args.getRefValue(k).getType());
                 }
                 if (format.charAt(j) == '%') {
                     // special case %%, don't count as a format specifier
@@ -137,7 +138,7 @@ public class Sprintf extends BlockingNativeCallableUnit {
     }
 
     private void formatHexString(BValueArray args, StringBuilder result, int k, StringBuilder padding, char x) {
-        BRefType ref = args.get(k);
+        BRefType ref = args.getRefValue(k);
         if (TypeTags.ARRAY_TAG == ref.getType().getTag() &&
                 TypeTags.BYTE_TAG == ((BArrayType) ref.getType()).getElementType().getTag()) {
             BValueArray byteArray = ((BValueArray) ref);
@@ -145,7 +146,7 @@ public class Sprintf extends BlockingNativeCallableUnit {
                 result.append(String.format("%" + padding + x, byteArray.getByte(i)));
             }
         } else {
-            result.append(String.format("%" + padding + x, args.get(k).value()));
+            result.append(String.format("%" + padding + x, args.getRefValue(k).value()));
         }
     }
 }

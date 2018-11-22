@@ -93,7 +93,7 @@ public class MultipartDataSource implements BValue {
             }
             boolean firstPart = true;
             for (int i = 0; i < childParts.size(); i++) {
-                BMap<String, BValue> childPart = (BMap<String, BValue>) childParts.get(i);
+                BMap<String, BValue> childPart = (BMap<String, BValue>) childParts.getRefValue(i);
                 // Write leading boundary string
                 if (firstPart) {
                     firstPart = false;

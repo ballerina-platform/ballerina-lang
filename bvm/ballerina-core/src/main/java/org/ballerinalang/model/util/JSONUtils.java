@@ -205,7 +205,7 @@ public class JSONUtils {
     public static BValueArray convertRefArrayToJSON(BValueArray refValueArray) {
         BValueArray json = new BValueArray(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < refValueArray.size(); i++) {
-            BRefType value = refValueArray.get(i);
+            BRefType value = refValueArray.getRefValue(i);
             if (value == null) {
                 json.append(null);
             }
@@ -535,8 +535,8 @@ public class JSONUtils {
                 case TypeTags.ARRAY_TAG:
                     BValueArray array = (BValueArray) json;
                     for (int i = 0; i < array.size(); i++) {
-                        currentRoot = traverseJsonNode(array.get(i), arrayEntryTag, currentRoot, omElementArrayList,
-                                attributePrefix, arrayEntryTag);
+                        currentRoot = traverseJsonNode(array.getRefValue(i), arrayEntryTag, currentRoot,
+                                omElementArrayList, attributePrefix, arrayEntryTag);
                         if (nodeName == null) { // Outermost array
                             omElementArrayList.add(new BXMLItem(currentRoot));
                             currentRoot = null;
@@ -846,13 +846,13 @@ public class JSONUtils {
             case TypeTags.ANY_TAG:
                 BValueArray array = new BValueArray(targetArrayType);
                 for (int i = 0; i < jsonArray.size(); i++) {
-                    array.add(i, jsonArray.get(i));
+                    array.add(i, jsonArray.getRefValue(i));
                 }
                 return array;
             default:
                 array = new BValueArray(targetArrayType);
                 for (int i = 0; i < jsonArray.size(); i++) {
-                    array.append(convertJSON(jsonArray.get(i), targetElementType));
+                    array.append(convertJSON(jsonArray.getRefValue(i), targetElementType));
                 }
                 return array;
         }
@@ -861,7 +861,7 @@ public class JSONUtils {
     private static BValueArray jsonArrayToBIntArray(BValueArray arrayNode) {
         BValueArray intArray = new BValueArray(BTypes.typeInt);
         for (int i = 0; i < arrayNode.size(); i++) {
-            BRefType<?> jsonValue = arrayNode.get(i);
+            BRefType<?> jsonValue = arrayNode.getRefValue(i);
             intArray.add(i, ((BInteger) convertJSON(jsonValue, BTypes.typeInt)).intValue());
         }
         return intArray;
@@ -870,7 +870,7 @@ public class JSONUtils {
     private static BValueArray jsonArrayToBFloatArray(BValueArray arrayNode) {
         BValueArray floatArray = new BValueArray(BTypes.typeFloat);
         for (int i = 0; i < arrayNode.size(); i++) {
-            BRefType<?> jsonValue = arrayNode.get(i);
+            BRefType<?> jsonValue = arrayNode.getRefValue(i);
             floatArray.add(i, ((BFloat) convertJSON(jsonValue, BTypes.typeFloat)).floatValue());
         }
         return floatArray;
@@ -879,7 +879,7 @@ public class JSONUtils {
     private static BDecimalArray jsonArrayToBDecimalArray(BValueArray arrayNode) {
         BDecimalArray decimalArray = new BDecimalArray();
         for (int i = 0; i < arrayNode.size(); i++) {
-            BRefType<?> jsonValue = arrayNode.get(i);
+            BRefType<?> jsonValue = arrayNode.getRefValue(i);
             decimalArray.add(i, ((BDecimal) convertJSON(jsonValue, BTypes.typeDecimal)).decimalValue());
         }
         return decimalArray;
@@ -888,7 +888,7 @@ public class JSONUtils {
     private static BValueArray jsonArrayToBStringArray(BValueArray arrayNode) {
         BValueArray stringArray = new BValueArray(BTypes.typeString);
         for (int i = 0; i < arrayNode.size(); i++) {
-            BRefType<?> jsonValue = arrayNode.get(i);
+            BRefType<?> jsonValue = arrayNode.getRefValue(i);
             String value = jsonValue.stringValue();
             stringArray.add(i, value);
         }
@@ -898,7 +898,7 @@ public class JSONUtils {
     private static BValueArray jsonArrayToBBooleanArray(BValueArray arrayNode) {
         BValueArray booleanArray = new BValueArray(BTypes.typeBoolean);
         for (int i = 0; i < arrayNode.size(); i++) {
-            BRefType<?> jsonValue = arrayNode.get(i);
+            BRefType<?> jsonValue = arrayNode.getRefValue(i);
             booleanArray.add(i, ((BBoolean) convertJSON(jsonValue, BTypes.typeBoolean)).booleanValue() ? 1 : 0);
         }
         return booleanArray;

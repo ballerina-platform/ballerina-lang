@@ -89,7 +89,7 @@ public class BXMLBValueProviders {
         public BPacket toBValue(BXMLSequence bxmlSequence, BValueSerializer serializer) {
             BRefType[] serializedItems = new BRefType[bxmlSequence.length()];
             for (int i = 0; i < bxmlSequence.length(); i++) {
-                BRefType value = (BRefType) serializer.toBValue(bxmlSequence.value().get(i), null);
+                BRefType value = (BRefType) serializer.toBValue(bxmlSequence.value().getRefValue(i), null);
                 serializedItems[i] = value;
             }
             BValueArray array = new BValueArray(serializedItems, new BArrayType(BTypes.typeAny));
@@ -101,7 +101,7 @@ public class BXMLBValueProviders {
             BValueArray srcArray = (BValueArray) packet.getValue();
             BRefType[] values = new BRefType[(int) srcArray.size()];
             for (int i = 0; i < srcArray.size(); i++) {
-                values[i] = (BXML<?>) bValueDeserializer.deserialize(srcArray.get(i), Object.class);
+                values[i] = (BXML<?>) bValueDeserializer.deserialize(srcArray.getRefValue(i), Object.class);
             }
             BValueArray xmlItemArray = new BValueArray(values, new BArrayType(BTypes.typeXML));
             return new BXMLSequence(xmlItemArray);

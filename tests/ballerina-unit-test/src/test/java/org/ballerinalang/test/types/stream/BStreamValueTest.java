@@ -162,8 +162,8 @@ public class BStreamValueTest {
         Assert.assertEquals(receivedEmployeeEvents.size(), publishedEmployeeEvents.size(), "Number of Employee "
                 + "Events received does not match the number published");
         for (int i = 0; i < publishedEmployeeEvents.size(); i++) {
-            BMap<String, BValue> publishedEmployeeEvent = (BMap<String, BValue>) publishedEmployeeEvents.get(i);
-            BMap<String, BValue> receivedEmployeeEvent = (BMap<String, BValue>) receivedEmployeeEvents.get(i);
+            BMap<String, BValue> publishedEmployeeEvent = (BMap<String, BValue>) publishedEmployeeEvents.getRefValue(i);
+            BMap<String, BValue> receivedEmployeeEvent = (BMap<String, BValue>) receivedEmployeeEvents.getRefValue(i);
             Assert.assertEquals(publishedEmployeeEvent.getType().getName(), receivedEmployeeEvent.getType().getName());
             Assert.assertEquals(((BInteger) receivedEmployeeEvent.get("id")).intValue(),
                     ((BInteger) publishedEmployeeEvent.get("id")).intValue(),
@@ -224,7 +224,7 @@ public class BStreamValueTest {
                 + "match the number published: Received" + receivedEvents.stringValue() + ", but Expected"
                 + publishedEvents.stringValue() + ", ");
         for (int i = 0; i < publishedEvents.size(); i++) {
-            Assert.assertEquals(receivedEvents.get(i), publishedEvents.get(i),
+            Assert.assertEquals(receivedEvents.getRefValue(i), publishedEvents.getRefValue(i),
                                 "Received event does not match the published event");
         }
     }
@@ -284,10 +284,10 @@ public class BStreamValueTest {
         Assert.assertEquals(receivedEvents.size(), publishedEvents.size(), "Number of Events received does not "
                 + "match the number published");
         for (int i = 0; i < publishedEvents.size() - 1; i++) {
-            Assert.assertEquals(receivedEvents.get(i), publishedEvents.get(i),
+            Assert.assertEquals(receivedEvents.getRefValue(i), publishedEvents.getRefValue(i),
                                 "Received event does not match the published event");
         }
-        Assert.assertEquals(receivedEvents.get(receivedEvents.size() - 1).value(), intVal.floatValue(),
+        Assert.assertEquals(receivedEvents.getRefValue(receivedEvents.size() - 1).value(), intVal.floatValue(),
                             "Received event does not match the expected casted value");
     }
 
@@ -297,7 +297,7 @@ public class BStreamValueTest {
         Assert.assertEquals(receivedEvents.size(), publishedEvents.size(), "Number of Events received does not "
                 + "match the number published");
         for (int i = 0; i < publishedEvents.size(); i++) {
-            Assert.assertEquals(receivedEvents.get(i), publishedEvents.get(i),
+            Assert.assertEquals(receivedEvents.getRefValue(i), publishedEvents.getRefValue(i),
                                 "Received event does not match the published event");
         }
     }

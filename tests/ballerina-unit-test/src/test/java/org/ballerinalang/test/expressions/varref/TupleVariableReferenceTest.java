@@ -214,21 +214,21 @@ public class TupleVariableReferenceTest {
         int i = -1;
         BValue val1 = returns[++i];
         BValueArray refValueArray1 = (BValueArray) val1;
-        BValueArray stringArray1 = (BValueArray) refValueArray1.get(0);
+        BValueArray stringArray1 = (BValueArray) refValueArray1.getRefValue(0);
         Assert.assertEquals(stringArray1.getString(0), "A");
         Assert.assertEquals(stringArray1.getString(1), "B");
 
-        BValueArray stringArray2 = (BValueArray) refValueArray1.get(1);
+        BValueArray stringArray2 = (BValueArray) refValueArray1.getRefValue(1);
         Assert.assertEquals(stringArray2.getString(0), "C");
         Assert.assertEquals(stringArray2.getString(1), "D");
 
         BValue val2 = returns[++i];
         BValueArray refValueArray2 = (BValueArray) val2;
-        BValueArray intArray1 = ((BValueArray) refValueArray2.get(0));
+        BValueArray intArray1 = ((BValueArray) refValueArray2.getRefValue(0));
         Assert.assertEquals(intArray1.getInt(0), 123);
         Assert.assertEquals(intArray1.getInt(1), 345);
 
-        BValueArray intArray2 = ((BValueArray) refValueArray2.get(1));
+        BValueArray intArray2 = ((BValueArray) refValueArray2.getRefValue(1));
         Assert.assertEquals(intArray2.getInt(0), 12);
         Assert.assertEquals(intArray2.getInt(1), 34);
         Assert.assertEquals(intArray2.getInt(2), 56);
@@ -282,15 +282,15 @@ public class TupleVariableReferenceTest {
 
         BValue value1 = returns[0];
         BValueArray refValueArray1 = (BValueArray) value1;
-        Assert.assertEquals(refValueArray1.get(0).stringValue(), "TestUpdated");
-        Assert.assertEquals(((BInteger) refValueArray1.get(1)).intValue(), 23);
+        Assert.assertEquals(refValueArray1.getRefValue(0).stringValue(), "TestUpdated");
+        Assert.assertEquals(((BInteger) refValueArray1.getRefValue(1)).intValue(), 23);
 
         Assert.assertEquals(((BFloat) returns[1]).floatValue(), 4.5);
 
         BValue value2 = returns[2];
         BValueArray refValueArray2 = (BValueArray) value2;
-        Assert.assertEquals(((BFloat) refValueArray2.get(0)).floatValue(), 5.7);
-        Assert.assertEquals(refValueArray2.get(1).stringValue(), "FooUpdated");
+        Assert.assertEquals(((BFloat) refValueArray2.getRefValue(0)).floatValue(), 5.7);
+        Assert.assertEquals(refValueArray2.getRefValue(1).stringValue(), "FooUpdated");
     }
 
     @Test(description = "Test tuple var ref with index and field based var refs")

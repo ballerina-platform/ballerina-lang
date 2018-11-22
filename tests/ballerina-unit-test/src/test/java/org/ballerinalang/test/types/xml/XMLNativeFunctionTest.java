@@ -518,9 +518,9 @@ public class XMLNativeFunctionTest {
         Assert.assertTrue(returns[3] instanceof BXML);
         BValueArray children = ((BXMLSequence) returns[3]).value();
         Assert.assertEquals(children.size(), 3);
-        Assert.assertEquals(children.get(0).stringValue(), "<newFname>supun-new</newFname>");
-        Assert.assertEquals(children.get(1).stringValue(), "<newMname>thilina-new</newMname>");
-        Assert.assertEquals(children.get(2).stringValue(), "<newLname>setunga-new</newLname>");
+        Assert.assertEquals(children.getRefValue(0).stringValue(), "<newFname>supun-new</newFname>");
+        Assert.assertEquals(children.getRefValue(1).stringValue(), "<newMname>thilina-new</newMname>");
+        Assert.assertEquals(children.getRefValue(2).stringValue(), "<newLname>setunga-new</newLname>");
     }
 
     @Test
@@ -544,9 +544,11 @@ public class XMLNativeFunctionTest {
         Assert.assertTrue(returns[3] instanceof BXML);
         BValueArray children = ((BXMLSequence) returns[3]).value();
         Assert.assertEquals(children.size(), 3);
-        Assert.assertEquals(children.get(0).stringValue(), "<fname xmlns=\"http://sample.com/test\">supun</fname>");
-        Assert.assertEquals(children.get(1).stringValue(), "<lname xmlns=\"http://sample.com/test\">setunga</lname>");
-        Assert.assertEquals(children.get(2).stringValue(),
+        Assert.assertEquals(children.getRefValue(0).stringValue(),
+                "<fname xmlns=\"http://sample.com/test\">supun</fname>");
+        Assert.assertEquals(children.getRefValue(1).stringValue(),
+                "<lname xmlns=\"http://sample.com/test\">setunga</lname>");
+        Assert.assertEquals(children.getRefValue(2).stringValue(),
                 "<residency xmlns=\"http://sample.com/test\" citizen=\"true\">true</residency>");
 
         // Check attribute value
@@ -575,9 +577,12 @@ public class XMLNativeFunctionTest {
         Assert.assertTrue(returns[3] instanceof BXML);
         BValueArray children = ((BXMLSequence) returns[3]).value();
         Assert.assertEquals(children.size(), 3);
-        Assert.assertEquals(children.get(0).stringValue(), "<fname xmlns=\"http://sample.com/test\">supun</fname>");
-        Assert.assertEquals(children.get(1).stringValue(), "<lname xmlns=\"http://sample.com/test\">setunga</lname>");
-        Assert.assertEquals(children.get(2).stringValue(), "<residency citizen=\"true\">true</residency>");
+        Assert.assertEquals(children.getRefValue(0).stringValue(),
+                "<fname xmlns=\"http://sample.com/test\">supun</fname>");
+        Assert.assertEquals(children.getRefValue(1).stringValue(),
+                "<lname xmlns=\"http://sample.com/test\">setunga</lname>");
+        Assert.assertEquals(children.getRefValue(2).stringValue(),
+                "<residency citizen=\"true\">true</residency>");
 
         // Check attribute value
         Assert.assertSame(returns[4].getClass(), BString.class);
@@ -760,9 +765,9 @@ public class XMLNativeFunctionTest {
         Assert.assertTrue(returns[3] instanceof BXML);
         BValueArray children = ((BXMLSequence) ((BXML) returns[0]).children()).value();
         Assert.assertEquals(children.size(), 3);
-        Assert.assertEquals(children.get(0).stringValue(), "<newFname>supun-new</newFname>");
-        Assert.assertEquals(children.get(1).stringValue(), "<newMname>thilina-new</newMname>");
-        Assert.assertEquals(children.get(2).stringValue(), "<newLname>setunga-new</newLname>");
+        Assert.assertEquals(children.getRefValue(0).stringValue(), "<newFname>supun-new</newFname>");
+        Assert.assertEquals(children.getRefValue(1).stringValue(), "<newMname>thilina-new</newMname>");
+        Assert.assertEquals(children.getRefValue(2).stringValue(), "<newLname>setunga-new</newLname>");
         
         // is children seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
@@ -776,9 +781,9 @@ public class XMLNativeFunctionTest {
         Assert.assertTrue(returns[3] instanceof BXML);
         BValueArray originalChildren = ((BXMLSequence) returns[3]).value();
         Assert.assertEquals(originalChildren.size(), 2);
-        Assert.assertEquals(originalChildren.get(0).stringValue(),
+        Assert.assertEquals(originalChildren.getRefValue(0).stringValue(),
                 "<fname xmlns:ns0=\"http://sample.com/test\">supun</fname>");
-        Assert.assertEquals(originalChildren.get(1).stringValue(),
+        Assert.assertEquals(originalChildren.getRefValue(1).stringValue(),
                 "<lname xmlns:ns0=\"http://sample.com/test\">setunga</lname>");
     }
     

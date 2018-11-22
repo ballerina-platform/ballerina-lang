@@ -61,7 +61,7 @@ public class BIntArrayBValueProvider implements SerializationBValueProvider<BVal
         BValueArray array = (BValueArray) packet.getValue();
         BValueArray target = new BValueArray(BTypes.typeInt, 5);
         for (int i = 0; i < array.size(); i++) {
-            target.add(i, (long) bValueDeserializer.deserialize(array.get(i), long.class));
+            target.add(i, (long) bValueDeserializer.deserialize(array.getRefValue(i), long.class));
         }
 
         return target;

@@ -67,7 +67,7 @@ public class HashSetBValueProvider implements SerializationBValueProvider<HashSe
         BValueArray array = (BValueArray) packet.getValue();
         HashSet set = new HashSet((int) length.intValue());
         for (int i = 0; i < array.size(); i++) {
-            set.add(bValueDeserializer.deserialize(array.get(i), null));
+            set.add(bValueDeserializer.deserialize(array.getRefValue(i), null));
         }
         return set;
     }

@@ -238,6 +238,6 @@ public class UnaryBlockingArrayValueTestCase extends GrpcBaseTest {
         Assert.assertTrue(response.get("values") instanceof BValueArray);
         final BValueArray structArray = (BValueArray) response.get("values");
         Assert.assertEquals(structArray.size(), 2);
-        Assert.assertEquals(((BMap<String, BValue>) structArray.get(0)).get("name").stringValue(), "Sam");
+        Assert.assertEquals(((BMap<String, BValue>) structArray.getRefValue(0)).get("name").stringValue(), "Sam");
     }
 }

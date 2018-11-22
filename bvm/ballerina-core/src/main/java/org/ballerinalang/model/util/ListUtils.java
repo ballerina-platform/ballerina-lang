@@ -43,7 +43,7 @@ public class ListUtils {
     public static BRefType<?> execListGetOperation(BNewArray array, long index) {
         if (array.getType().getTag() != TypeTags.ARRAY_TAG) {
             BValueArray bRefValueArray = (BValueArray) array;
-            return bRefValueArray.get(index);
+            return bRefValueArray.getRefValue(index);
         }
 
         switch (((BArrayType) array.getType()).getElementType().getTag()) {
@@ -59,7 +59,7 @@ public class ListUtils {
                 return new BFloat(bFloatArray.getFloat(index));
             case TypeTags.DECIMAL_TAG:
                 BValueArray bDecimalArray = (BValueArray) array;
-                return new BDecimal(new BigDecimal(bDecimalArray.get(index).stringValue()));
+                return new BDecimal(new BigDecimal(bDecimalArray.getRefValue(index).stringValue()));
             case TypeTags.INT_TAG:
                 BValueArray bIntArray = (BValueArray) array;
                 return new BInteger(bIntArray.getInt(index));
@@ -68,7 +68,7 @@ public class ListUtils {
                 return new BString(bStringArray.getString(index));
             default:
                 BValueArray bRefValueArray = (BValueArray) array;
-                return bRefValueArray.get(index);
+                return bRefValueArray.getRefValue(index);
         }
     }
 

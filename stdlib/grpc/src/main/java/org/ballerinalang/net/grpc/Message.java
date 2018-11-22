@@ -523,7 +523,7 @@ public class Message {
                         if (bValue.getType().getTag() == TypeTags.ARRAY_TAG) {
                             BValueArray valueArray = (BValueArray) bValue;
                             for (int i = 0; i < valueArray.size(); i++) {
-                                BValue value = valueArray.get(i);
+                                BValue value = valueArray.getRefValue(i);
                                 Message message = new Message(fieldDescriptor.getMessageType().getName(), value);
                                 output.writeTag(fieldDescriptor.getNumber(), WireFormat.WIRETYPE_LENGTH_DELIMITED);
                                 output.writeUInt32NoTag(message.getSerializedSize());
@@ -767,7 +767,7 @@ public class Message {
                         if (bValue.getType().getTag() == TypeTags.ARRAY_TAG) {
                             BValueArray valueArray = (BValueArray) bValue;
                             for (int i = 0; i < valueArray.size(); i++) {
-                                BValue value = valueArray.get(i);
+                                BValue value = valueArray.getRefValue(i);
                                 Message message = new Message(fieldDescriptor.getMessageType().getName(), value);
                                 size += computeMessageSize(fieldDescriptor, message);
                             }

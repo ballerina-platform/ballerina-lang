@@ -207,9 +207,9 @@ public class NativeConversionTest {
         Assert.assertTrue(child.get("marks") instanceof BValueArray);
         BValueArray marks = (BValueArray) child.get("marks");
         Assert.assertEquals(marks.size(), 3);
-        Assert.assertEquals(((BInteger) marks.get(0)).intValue(), 87);
-        Assert.assertEquals(((BInteger) marks.get(1)).intValue(), 94);
-        Assert.assertEquals(((BInteger) marks.get(2)).intValue(), 72);
+        Assert.assertEquals(((BInteger) marks.getRefValue(0)).intValue(), 87);
+        Assert.assertEquals(((BInteger) marks.getRefValue(1)).intValue(), 94);
+        Assert.assertEquals(((BInteger) marks.getRefValue(2)).intValue(), 72);
     }
     
     @Test
@@ -349,13 +349,13 @@ public class NativeConversionTest {
         BMap<String, BValue> anyArrayStruct = (BMap<String, BValue>) returns[0];
         BValueArray array = (BValueArray) anyArrayStruct.get("a");
 
-        Assert.assertEquals(((BInteger) array.get(0)).intValue(), 4);
-        Assert.assertEquals(array.get(1).stringValue(), "Supun");
-        Assert.assertEquals(((BFloat) array.get(2)).floatValue(), 5.36);
-        Assert.assertTrue(((BBoolean) array.get(3)).booleanValue());
-        Assert.assertEquals(array.get(4).stringValue(), "{\"lname\":\"Setunga\"}");
-        Assert.assertEquals(array.get(5).stringValue(), "[4, 3, 7]");
-        Assert.assertNull(array.get(6));
+        Assert.assertEquals(((BInteger) array.getRefValue(0)).intValue(), 4);
+        Assert.assertEquals(array.getRefValue(1).stringValue(), "Supun");
+        Assert.assertEquals(((BFloat) array.getRefValue(2)).floatValue(), 5.36);
+        Assert.assertTrue(((BBoolean) array.getRefValue(3)).booleanValue());
+        Assert.assertEquals(array.getRefValue(4).stringValue(), "{\"lname\":\"Setunga\"}");
+        Assert.assertEquals(array.getRefValue(5).stringValue(), "[4, 3, 7]");
+        Assert.assertNull(array.getRefValue(6));
     }
 
     @Test(description = "Test converting a JSON array to int array")
@@ -482,8 +482,9 @@ public class NativeConversionTest {
         BValue actors = map.get("actors");
         Assert.assertTrue(actors instanceof BValueArray);
         BValueArray actorsArray = (BValueArray) actors;
-        Assert.assertTrue(actorsArray.get(0) instanceof BMap);
-        Assert.assertEquals(actorsArray.get(0).stringValue(), "{fname:\"Leonardo\", lname:\"DiCaprio\", age:35}");
+        Assert.assertTrue(actorsArray.getRefValue(0) instanceof BMap);
+        Assert.assertEquals(actorsArray.getRefValue(0).stringValue(),
+                "{fname:\"Leonardo\", lname:\"DiCaprio\", age:35}");
     }
 
     @Test

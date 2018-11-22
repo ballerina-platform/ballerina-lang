@@ -49,7 +49,7 @@ public class SerializableBRefArray implements SerializableRefType {
             pkgPath = arrayType.getElementType().getPackagePath();
         }
         for (int i = 0; i < bRefValueArray.size(); i++) {
-            values.add(state.serialize(bRefValueArray.get(i)));
+            values.add(state.serialize(bRefValueArray.getRefValue(i)));
         }
     }
 

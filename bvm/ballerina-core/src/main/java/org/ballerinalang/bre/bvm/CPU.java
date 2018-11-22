@@ -3729,7 +3729,8 @@ public class CPU {
                     // get the element type of source and json, and recursively check for json casting.
                     BType sourceElementType = sourceType.getTag() == TypeTags.ARRAY_TAG
                             ? ((BArrayType) sourceType).getElementType() : sourceType;
-                    if (!checkJSONCast(array.get(i), sourceElementType, arrayType.getElementType(), unresolvedTypes)) {
+                    if (!checkJSONCast(array.getRefValue(i), sourceElementType, arrayType.getElementType(),
+                            unresolvedTypes)) {
                         return false;
                     }
                 }
@@ -4288,7 +4289,7 @@ public class CPU {
         }
 
         return IntStream.range(0, (int) source.size())
-                .allMatch(i -> checkIsLikeType(source.get(i), targetType.getTupleTypes().get(i)));
+                .allMatch(i -> checkIsLikeType(source.getRefValue(i), targetType.getTupleTypes().get(i)));
     }
 
     private static boolean checkIsLikeArrayType(BValue sourceValue, BArrayType targetType) {

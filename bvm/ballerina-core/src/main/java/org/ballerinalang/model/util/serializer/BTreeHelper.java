@@ -71,7 +71,7 @@ class BTreeHelper {
         if (jsonObj instanceof BValueArray) {
             BValueArray array = (BValueArray) jsonObj;
             for (int i = 0; i < array.size(); i++) {
-                trimTree(array.get(i), repeatedReferenceSet);
+                trimTree(array.getRefValue(i), repeatedReferenceSet);
             }
         }
     }

@@ -277,7 +277,7 @@ public class TableTest {
             Assert.assertTrue(bValue instanceof BValueArray);
             BValueArray bRefValueArray = (BValueArray) bValue;
             for (int i = 0; i < bRefValueArray.size(); i++) {
-                Assert.assertNull(bRefValueArray.get(i));
+                Assert.assertNull(bRefValueArray.getRefValue(i));
             }
         }
     }
@@ -1142,32 +1142,32 @@ public class TableTest {
 
         Assert.assertTrue(returns[0] instanceof BValueArray);
         BValueArray intArray = (BValueArray) returns[0];
-        Assert.assertEquals(intArray.get(0), null);
-        Assert.assertEquals(((BInteger) intArray.get(1)).intValue(), 2);
-        Assert.assertEquals(((BInteger) intArray.get(2)).intValue(), 3);
+        Assert.assertEquals(intArray.getRefValue(0), null);
+        Assert.assertEquals(((BInteger) intArray.getRefValue(1)).intValue(), 2);
+        Assert.assertEquals(((BInteger) intArray.getRefValue(2)).intValue(), 3);
 
         Assert.assertTrue(returns[1] instanceof BValueArray);
         BValueArray longArray = (BValueArray) returns[1];
-        Assert.assertEquals(((BInteger) longArray.get(0)).intValue(), 100000000);
-        Assert.assertEquals(longArray.get(1), null);
-        Assert.assertEquals(((BInteger) longArray.get(2)).intValue(), 300000000);
+        Assert.assertEquals(((BInteger) longArray.getRefValue(0)).intValue(), 100000000);
+        Assert.assertEquals(longArray.getRefValue(1), null);
+        Assert.assertEquals(((BInteger) longArray.getRefValue(2)).intValue(), 300000000);
 
         Assert.assertTrue(returns[2] instanceof BValueArray);
         BValueArray doubleArray = (BValueArray) returns[2];
-        Assert.assertEquals(doubleArray.get(0), null);
-        Assert.assertEquals(((BFloat) doubleArray.get(1)).floatValue(), 5559.49, DELTA);
-        Assert.assertEquals(doubleArray.get(2), null);
+        Assert.assertEquals(doubleArray.getRefValue(0), null);
+        Assert.assertEquals(((BFloat) doubleArray.getRefValue(1)).floatValue(), 5559.49, DELTA);
+        Assert.assertEquals(doubleArray.getRefValue(2), null);
 
         Assert.assertTrue(returns[3] instanceof BValueArray);
         BValueArray stringArray = (BValueArray) returns[3];
-        Assert.assertEquals(stringArray.get(0), null);
-        Assert.assertEquals(stringArray.get(1).stringValue(), "Ballerina");
+        Assert.assertEquals(stringArray.getRefValue(0), null);
+        Assert.assertEquals(stringArray.getRefValue(1).stringValue(), "Ballerina");
 
         Assert.assertTrue(returns[4] instanceof BValueArray);
         BValueArray booleanArray = (BValueArray) returns[4];
-        Assert.assertEquals(booleanArray.get(0), null);
-        Assert.assertEquals(booleanArray.get(1), null);
-        Assert.assertEquals(((BBoolean) booleanArray.get(2)).booleanValue(), true);
+        Assert.assertEquals(booleanArray.getRefValue(0), null);
+        Assert.assertEquals(booleanArray.getRefValue(1), null);
+        Assert.assertEquals(((BBoolean) booleanArray.getRefValue(2)).booleanValue(), true);
     }
 
     @Test(description = "Check table to JSON conversion and streaming back to client in a service.")

@@ -134,17 +134,17 @@ public class CloneOperationTest {
     private void testCloneOnXMLs(BXMLItem bxmlItem, String name, int id, int age) {
 
         BXMLSequence sequence = (BXMLSequence) bxmlItem.children("name");
-        BXMLItem firstItem = (BXMLItem) sequence.value().get(0);
+        BXMLItem firstItem = (BXMLItem) sequence.value().getRefValue(0);
         BString textValue = firstItem.getTextValue();
         Assert.assertEquals(textValue.stringValue(), name);
 
         sequence = (BXMLSequence) bxmlItem.children("id");
-        firstItem = (BXMLItem) sequence.value().get(0);
+        firstItem = (BXMLItem) sequence.value().getRefValue(0);
         textValue = firstItem.getTextValue();
         Assert.assertEquals(textValue.intValue(), id);
 
         sequence = (BXMLSequence) bxmlItem.children("age");
-        firstItem = (BXMLItem) sequence.value().get(0);
+        firstItem = (BXMLItem) sequence.value().getRefValue(0);
         textValue = firstItem.getTextValue();
         Assert.assertEquals(textValue.intValue(), age);
     }
@@ -215,7 +215,7 @@ public class CloneOperationTest {
 
     private void testDecimalArray(BigDecimal[] arr, BValueArray array) {
         for (int i = 0; i < arr.length; i++) {
-            Assert.assertEquals(array.get(i).value(), arr[i]);
+            Assert.assertEquals(array.getRefValue(i).value(), arr[i]);
         }
     }
 
@@ -396,9 +396,9 @@ public class CloneOperationTest {
     public void testReturnValues() {
         BValue[] results = BRunUtil.invoke(result, "cloneReturnValues");
         Assert.assertNotNull(results);
-        Assert.assertEquals(((BValueArray) results[0]).get(0), 100);
-        Assert.assertEquals(((BValueArray) results[1]).get(0), 20);
-        Assert.assertEquals(((BValueArray) results[2]).get(0), 1000);
+        Assert.assertEquals(((BValueArray) results[0]).getRefValue(0), 100);
+        Assert.assertEquals(((BValueArray) results[1]).getRefValue(0), 20);
+        Assert.assertEquals(((BValueArray) results[2]).getRefValue(0), 1000);
         Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 
@@ -406,9 +406,9 @@ public class CloneOperationTest {
     public void testCloneArrayOfArrays() {
         BValue[] results = BRunUtil.invoke(result, "cloneArrayOfArrays");
         Assert.assertNotNull(results);
-        Assert.assertEquals(((BValueArray) ((BValueArray) results[0]).get(0)).get(0), 400);
-        Assert.assertEquals(((BValueArray) ((BValueArray) results[1]).get(0)).get(0), 200);
-        Assert.assertEquals(((BValueArray) ((BValueArray) results[2]).get(0)).get(0), 500);
+        Assert.assertEquals(((BValueArray) ((BValueArray) results[0]).getRefValue(0)).getRefValue(0), 400);
+        Assert.assertEquals(((BValueArray) ((BValueArray) results[1]).getRefValue(0)).getRefValue(0), 200);
+        Assert.assertEquals(((BValueArray) ((BValueArray) results[2]).getRefValue(0)).getRefValue(0), 500);
         Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 
@@ -423,8 +423,8 @@ public class CloneOperationTest {
     }
 
     private void testTupleValues(BValueArray result, int mapValue, int arrValue) {
-        BMap bMap = (BMap) result.get(0);
-        BValueArray intArr = (BValueArray) result.get(1);
+        BMap bMap = (BMap) result.getRefValue(0);
+        BValueArray intArr = (BValueArray) result.getRefValue(1);
         Assert.assertEquals(((BInteger) bMap.get("one")).intValue(), mapValue);
         Assert.assertEquals(intArr.getInt(0), arrValue);
     }
@@ -459,8 +459,8 @@ public class CloneOperationTest {
     public void testCloneCyclicMapsArray() {
         BValue[] results = BRunUtil.invoke(result, "cloneCyclicMapsArray");
         Assert.assertNotNull(results);
-        Assert.assertNotSame(((BValueArray) results[0]).get(0), ((BValueArray) results[1]).get(0));
-        Assert.assertNotSame(((BValueArray) results[0]).get(1), ((BValueArray) results[1]).get(1));
+        Assert.assertNotSame(((BValueArray) results[0]).getRefValue(0), ((BValueArray) results[1]).getRefValue(0));
+        Assert.assertNotSame(((BValueArray) results[0]).getRefValue(1), ((BValueArray) results[1]).getRefValue(1));
     }
 
     @Test
@@ -550,12 +550,12 @@ public class CloneOperationTest {
         Assert.assertNotNull(results);
         Assert.assertNotSame(results[0], results[1]);
         BValueArray result1 = (BValueArray) results[0];
-        BMap person1 = (BMap) result1.get(0);
-        BValueArray arr1 = (BValueArray) result1.get(1);
+        BMap person1 = (BMap) result1.getRefValue(0);
+        BValueArray arr1 = (BValueArray) result1.getRefValue(1);
 
         BValueArray result2 = (BValueArray) results[1];
-        BMap person2 = (BMap) result2.get(0);
-        BValueArray arr2 = (BValueArray) result2.get(1);
+        BMap person2 = (BMap) result2.getRefValue(0);
+        BValueArray arr2 = (BValueArray) result2.getRefValue(1);
         Assert.assertEquals(person1.getMap().entrySet(), person2.getMap().entrySet());
         Assert.assertEquals(arr1.stringValue(), arr2.stringValue());
     }

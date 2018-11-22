@@ -83,12 +83,12 @@ public class CircuitBreakerTest {
             // With this check flow will direct to the else condition for Http Client Errors. The avoided response
             // indexes are consisted with the HttpClientError Responses.
             if (i != CB_CLIENT_FIRST_ERROR_INDEX && i != CB_CLIENT_SECOND_ERROR_INDEX) {
-                BMap<String, BValue> res = (BMap<String, BValue>) responses.get(i);
+                BMap<String, BValue> res = (BMap<String, BValue>) responses.getRefValue(i);
                 statusCode = ((BInteger) res.get(STATUS_CODE_FIELD)).intValue();
                 Assert.assertEquals(statusCode, expectedStatusCodes[i], "Status code does not match.");
             } else {
-                Assert.assertNotNull(errors.get(i)); // the request which resulted in an error
-                BError error = (BError) errors.get(i);
+                Assert.assertNotNull(errors.getRefValue(i)); // the request which resulted in an error
+                BError error = (BError) errors.getRefValue(i);
                 String errMsg = ((BMap) error.getDetails()).getMap().get("message").toString();
                 Assert.assertTrue(errMsg != null && errMsg.startsWith(CB_ERROR_MSG),
                         "Invalid error message from circuit breaker.");
@@ -120,13 +120,13 @@ public class CircuitBreakerTest {
             // With this check flow will direct to the else condition for Http Client Errors. The avoided response
             // indexes are consisted with the HttpClientError Responses.
             if (i < CB_CLIENT_TOP_MOST_SUCCESS_INDEX || i == CB_CLIENT_FAILURE_CASE_ERROR_INDEX) {
-                BMap<String, BValue> res = (BMap<String, BValue>) responses.get(i);
+                BMap<String, BValue> res = (BMap<String, BValue>) responses.getRefValue(i);
                 statusCode = ((BInteger) res.get(STATUS_CODE_FIELD)).intValue();
 
                 Assert.assertEquals(statusCode, expectedStatusCodes[i], "Status code does not match.");
             } else {
-                Assert.assertNotNull(errors.get(i)); // the request which resulted in an error
-                BError error = (BError) errors.get(i);
+                Assert.assertNotNull(errors.getRefValue(i)); // the request which resulted in an error
+                BError error = (BError) errors.getRefValue(i);
                 String msg = ((BMap) error.getDetails()).getMap().get("message").toString();
                 Assert.assertTrue(msg != null && msg.startsWith(CB_ERROR_MSG),
                         "Invalid error message from circuit breaker.");
@@ -192,7 +192,7 @@ public class CircuitBreakerTest {
 
         BValueArray responses = (BValueArray) returnVals[0];
         for (int i = 0; i < responses.size(); i++) {
-            BMap<String, BValue> res = (BMap<String, BValue>) responses.get(i);
+            BMap<String, BValue> res = (BMap<String, BValue>) responses.getRefValue(i);
             long statusCode = ((BInteger) res.get(STATUS_CODE_FIELD)).intValue();
             Assert.assertEquals(statusCode, expectedStatusCodes[i], "Status code does not match.");
         }
@@ -213,7 +213,7 @@ public class CircuitBreakerTest {
 
         BValueArray responses = (BValueArray) returnVals[0];
         for (int i = 0; i < responses.size(); i++) {
-            BMap<String, BValue> res = (BMap<String, BValue>) responses.get(i);
+            BMap<String, BValue> res = (BMap<String, BValue>) responses.getRefValue(i);
             long statusCode = ((BInteger) res.get(STATUS_CODE_FIELD)).intValue();
             Assert.assertEquals(statusCode, expectedStatusCodes[i], "Status code does not match.");
         }
@@ -234,7 +234,7 @@ public class CircuitBreakerTest {
 
         BValueArray responses = (BValueArray) returnVals[0];
         for (int i = 0; i < responses.size(); i++) {
-            BMap<String, BValue> res = (BMap<String, BValue>) responses.get(i);
+            BMap<String, BValue> res = (BMap<String, BValue>) responses.getRefValue(i);
             long statusCode = ((BInteger) res.get(STATUS_CODE_FIELD)).intValue();
             Assert.assertEquals(statusCode, expectedStatusCodes[i], "Status code does not match.");
         }
@@ -259,13 +259,13 @@ public class CircuitBreakerTest {
             // With this check flow will direct to the else condition for Http Client Errors. The avoided response
             // indexes are consisted with the HttpClientError Responses.
             if (i < CB_CLIENT_FORCE_OPEN_INDEX) {
-                BMap<String, BValue> res = (BMap<String, BValue>) responses.get(i);
+                BMap<String, BValue> res = (BMap<String, BValue>) responses.getRefValue(i);
                 statusCode = ((BInteger) res.get(STATUS_CODE_FIELD)).intValue();
 
                 Assert.assertEquals(statusCode, expectedStatusCodes[i], "Status code does not match.");
             } else {
-                Assert.assertNotNull(errors.get(i)); // the request which resulted in an error
-                BMap<String, BValue> err = (BMap<String, BValue>) errors.get(i);
+                Assert.assertNotNull(errors.getRefValue(i)); // the request which resulted in an error
+                BMap<String, BValue> err = (BMap<String, BValue>) errors.getRefValue(i);
                 String msg = err.get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
 
                 Assert.assertTrue(msg != null && msg.startsWith(CB_ERROR_MSG),

@@ -117,11 +117,11 @@ public class OpenRecordIterationTest {
         }
 
         BValueArray values = (BValueArray) returns[1];
-        Assert.assertEquals(values.get(0).stringValue(), "John Doe");
-        Assert.assertEquals(((BInteger) values.get(1)).intValue(), 25);
-        Assert.assertTrue(values.get(2) instanceof BMap);
+        Assert.assertEquals(values.getRefValue(0).stringValue(), "John Doe");
+        Assert.assertEquals(((BInteger) values.getRefValue(1)).intValue(), 25);
+        Assert.assertTrue(values.getRefValue(2) instanceof BMap);
 
-        BMap addressRecord = (BMap) values.get(2);
+        BMap addressRecord = (BMap) values.getRefValue(2);
         Assert.assertEquals(addressRecord.get("street").stringValue(), "Palm Grove");
         Assert.assertEquals(addressRecord.get("city").stringValue(), "Colombo 3");
     }
@@ -137,12 +137,12 @@ public class OpenRecordIterationTest {
         }
 
         BValueArray values = (BValueArray) returns[1];
-        Assert.assertEquals(values.get(0).stringValue(), "John Doe");
-        Assert.assertEquals(((BInteger) values.get(1)).intValue(), 25);
-        Assert.assertTrue(values.get(2) instanceof BMap);
-        Assert.assertEquals(((BFloat) values.get(3)).floatValue(), 5.9);
+        Assert.assertEquals(values.getRefValue(0).stringValue(), "John Doe");
+        Assert.assertEquals(((BInteger) values.getRefValue(1)).intValue(), 25);
+        Assert.assertTrue(values.getRefValue(2) instanceof BMap);
+        Assert.assertEquals(((BFloat) values.getRefValue(3)).floatValue(), 5.9);
 
-        BMap addressRecord = (BMap) values.get(2);
+        BMap addressRecord = (BMap) values.getRefValue(2);
         Assert.assertEquals(addressRecord.get("street").stringValue(), "Palm Grove");
         Assert.assertEquals(addressRecord.get("city").stringValue(), "Colombo 3");
     }

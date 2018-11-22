@@ -52,7 +52,7 @@ public class BRefValueArrayBValueProvider implements SerializationBValueProvider
     public BPacket toBValue(BValueArray array, BValueSerializer serializer) {
         BRefType[] newArray = new BRefType[(int) array.size()];
         for (int i = 0; i < array.size(); i++) {
-            newArray[i] = (BRefType) serializer.toBValue(array.get(i), Object.class);
+            newArray[i] = (BRefType) serializer.toBValue(array.getRefValue(i), Object.class);
         }
         return BPacket
                 .from(typeName(), new BValueArray(newArray, array.getType()))
@@ -64,7 +64,7 @@ public class BRefValueArrayBValueProvider implements SerializationBValueProvider
         BValueArray refValueArray = (BValueArray) packet.getValue();
         BRefType[] newArray = new BRefType[(int) refValueArray.size()];
         for (int i = 0; i < newArray.length; i++) {
-            newArray[i] = (BRefType) bValueDeserializer.deserialize(refValueArray.get(i), BRefType.class);
+            newArray[i] = (BRefType) bValueDeserializer.deserialize(refValueArray.getRefValue(i), BRefType.class);
         }
         BString arrayType = (BString) packet.get(ARRAY_TYPE);
         BType bType = BTypes.fromString(arrayType.stringValue());
