@@ -769,6 +769,24 @@ public class TreeVisitor extends LSNodeVisitor {
                 annotationAttachmentEnv, this.lsContext, this);
     }
 
+    @Override
+    public void visit(BLangMatch.BLangMatchStaticBindingPatternClause patternClause) {
+        if (!CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
+                .isCursorBeforeNode(patternClause.getPosition(), patternClause, this, this.lsContext)) {
+            blockOwnerStack.push(patternClause);
+            SymbolEnv blockEnv = SymbolEnv.createBlockEnv(patternClause.body, symbolEnv);
+            cursorPositionResolver = BlockStatementScopeResolver.class;
+            acceptNode(patternClause.body, blockEnv);
+            blockOwnerStack.pop();
+        }
+    }
+
+    @Override
+    public void visit(BLangMatch.BLangMatchStructuredBindingPatternClause
+                                  bLangMatchStmtStructuredBindingPatternClause) {
+        // No Implementation
+    }
+
     ///////////////////////////////////
     /////   Other Public Methods  /////
     ///////////////////////////////////

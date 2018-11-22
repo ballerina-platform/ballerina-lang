@@ -163,7 +163,6 @@ public class StampInbuiltFunctionNegativeTest {
         BAssertUtil.validateError(recordNegativeTestCompileResult, 16,
                 "stamp function on type 'TeacherWithAnyRestType' is not supported",
                 148, 23);
-
     }
 
     @Test
