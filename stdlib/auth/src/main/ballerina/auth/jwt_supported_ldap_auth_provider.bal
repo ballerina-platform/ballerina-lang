@@ -14,14 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/config;
-import ballerina/crypto;
-import ballerina/internal;
-import ballerina/log;
-import ballerina/runtime;
-import ballerina/system;
-import ballerina/time;
-
 # Represents LDAP authentication provider that supports generating JWT for client interactions
 #
 # + ldapJwtAuthProviderConfig - JWT configurations
