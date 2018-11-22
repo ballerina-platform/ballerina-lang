@@ -1,34 +1,34 @@
 type Department record {
-    string dptName;
-    Person[] employees;
+    string dptName = "";
+    Person[] employees = [];
 	!...
 };
 
 type Person record {
     string name = "default first name";
-    string lname;
-    map adrs;
+    string lname = "";
+    map adrs = {};
     int age = 999;
-    Family family;
-    Person? parent;
+    Family family = {};
+    Person? parent = ();
 	!...
 };
 
 type Family record {
-    string spouse;
-    int noOfChildren;
-    string[] children;
+    string spouse = "";
+    int noOfChildren = 0;
+    string[] children = [];
 	!...
 };
 
 type Employee record {
     string name = "default first name";
-    string lname;
-    map address;
+    string lname = "";
+    map address = {};
     int age = 999;
-    Family family;
-    Person? parent;
-    string designation;
+    Family family = {};
+    Person? parent = ();
+    string designation = "";
 	!...
 };
 
@@ -168,5 +168,5 @@ function testFuncPtrAsRecordField() returns string {
         return p.lname + ", " + p.fname;
     };
 
-    return p.fullName();
+    return p.fullName.call();
 }

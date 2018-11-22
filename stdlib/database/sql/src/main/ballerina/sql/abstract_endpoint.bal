@@ -14,56 +14,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/sql;
+# The abstract SQL Client object for SQL databases.
+public type AbstractSQLClient abstract client object {
 
-# The Client endpoint configuration for mysql databases.
-#
-# + host - The host name of the database to connect
-# + port - The port of the database to connect
-# + name - The name of the database to connect
-# + username - Username for the database connection
-# + password - Password for the database connection
-# + poolOptions - Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
-# + dbOptions - A map of DB specific properties
-public type ClientEndpointConfiguration record {
-    string host = "";
-    int port = 3306;
-    string name = "";
-    string username = "";
-    string password = "";
-    sql:PoolOptions poolOptions = {};
-    map dbOptions = {};
-    !...
-};
-
-# Represents an MySQL client endpoint.
-#
-# + config - The configurations associated with the SQL endpoint
-# + sqlClient - The base SQL Client
-public type Client client object {
-    *sql:AbstractSQLClient;
-    private ClientEndpointConfiguration config;
-    private sql:Client sqlClient;
-
-    # Gets called when the MySQL client is instantiated.
-    public function __init(ClientEndpointConfiguration c) {
-        self.config = c;
-        self.sqlClient = createClient(c);
-    }
-
-    # The call operation implementation for MySQL Client to invoke stored procedures/functions.
+    # The call operation implementation for SQL Client to invoke stored procedures/functions.
     #
     # + sqlQuery - The SQL stored procedure to execute
     # + recordType - Array of record types of the returned tables if there is any
     # + parameters - The parameters to be passed to the procedure/function call. The number of parameters is variable
     # + return - A `table[]` if there are tables returned by the call action and else nil,
     #            `error` will be returned if there is any error
-    public remote function call(@sensitive string sqlQuery, typedesc[]? recordType, sql:Param... parameters)
-                               returns @tainted table[]|()|error {
-        return self.sqlClient->call(sqlQuery, recordType, ...parameters);
-    }
+    public remote function call(@sensitive string sqlQuery, typedesc[]? recordType, Param... parameters)
+       returns @tainted table[]|()|error;
 
-    # The select operation implementation for MySQL Client to select data from tables.
+    # The select operation implementation for SQL Client to select data from tables.
     #
     # + sqlQuery - SQL query to execute
     # + recordType - Type of the returned table
@@ -71,21 +35,16 @@ public type Client client object {
     # + parameters - The parameters to be passed to the select query. The number of parameters is variable
     # + return - A `table` returned by the sql query statement else `error` will be returned if there is any error
     public remote function select(@sensitive string sqlQuery, typedesc? recordType, boolean loadToMemory = false,
-                                  sql:Param... parameters) returns @tainted table|error {
-    return self.sqlClient->select(sqlQuery, recordType, loadToMemory = loadToMemory, ...parameters);
-    }
+       Param... parameters) returns @tainted table|error;
 
-
-    # The update operation implementation for MySQL Client to update data and schema of the database.
+    # The update operation implementation for SQL Client to update data and schema of the database.
     #
     # + sqlQuery - SQL statement to execute
     # + parameters - The parameters to be passed to the update query. The number of parameters is variable
     # + return - `int` number of rows updated by the statement and else `error` will be returned if there is any error
-    public remote function update(@sensitive string sqlQuery, sql:Param... parameters) returns int|error {
-        return self.sqlClient->update(sqlQuery, ...parameters);
-    }
+    public remote function update(@sensitive string sqlQuery, Param... parameters) returns int|error;
 
-    # The batchUpdate operation implementation for MySQL Client to batch data insert.
+    # The batchUpdate operation implementation for SQL Client to batch data insert.
     #
     # + sqlQuery - SQL statement to execute
     # + parameters - Variable number of parameter arrays each representing the set of parameters of belonging to each
@@ -98,11 +57,9 @@ public type Client client object {
     #                            is unknown
     #            A value of -3 - Indicates that the command failed to execute successfully and occurs only if a driver
     #                            continues to process commands after a command fails
-    public remote function batchUpdate(@sensitive string sqlQuery, sql:Param[]... parameters) returns int[]|error {
-        return self.sqlClient->batchUpdate(sqlQuery, ...parameters);
-    }
+    public remote function batchUpdate(@sensitive string sqlQuery, Param[]... parameters) returns int[]|error;
 
-    # The updateWithGeneratedKeys operation implementation for MySQL Client which returns the auto
+    # The updateWithGeneratedKeys operation implementation for SQL Client which returns the auto
     # generated keys during the update action.
     #
     # + sqlQuery - SQL statement to execute
@@ -112,15 +69,5 @@ public type Client client object {
     #            aray of auto generated key values during the query execution, in order.
     #            Else `error` will be returned if there is any error.
     public remote function updateWithGeneratedKeys(@sensitive string sqlQuery, string[]? keyColumns,
-                                                   sql:Param... parameters) returns (int, string[])|error {
-        return self.sqlClient->updateWithGeneratedKeys(sqlQuery,keyColumns, ...parameters);
-    }
-
-    # Stops the JDBC client.
-    public function stop() {
-        sql:close(self.sqlClient);
-    }
+       Param... parameters) returns (int, string[])|error;
 };
-
-extern function createClient(ClientEndpointConfiguration config) returns sql:Client;
-
