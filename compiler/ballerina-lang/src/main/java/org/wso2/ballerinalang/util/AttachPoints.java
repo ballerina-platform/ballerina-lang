@@ -28,14 +28,16 @@ import java.util.Set;
  */
 public class AttachPoints {
     public static final int SERVICE = 1;
-    public static final int RESOURCE = 2;
-    public static final int FUNCTION = 4;
-    public static final int OBJECT = 8;
-    public static final int TYPE = 16;
-    public static final int ENDPOINT = 32;
-    public static final int PARAMETER = 64;
-    public static final int ANNOTATION = 128;
-    public static final int CHANNEL = 256;
+    public static final int RESOURCE = SERVICE << 1;
+    public static final int REMOTE = RESOURCE << 1;
+    public static final int FUNCTION = REMOTE << 1;
+    public static final int OBJECT = FUNCTION << 1;
+    public static final int CLIENT = OBJECT << 1;
+    public static final int TYPE = CLIENT << 1;
+    public static final int LISTENER = TYPE << 1;
+    public static final int PARAMETER = LISTENER << 1;
+    public static final int ANNOTATION = PARAMETER << 1;
+    public static final int CHANNEL = ANNOTATION << 1;
 
     public static int asMask(Set<AttachPoint> attachPoints) {
         int mask = 0;
@@ -46,18 +48,22 @@ public class AttachPoints {
                     break;
                 case RESOURCE:
                     mask |= RESOURCE;
+                case REMOTE:
+                    mask |= REMOTE;
                     break;
                 case FUNCTION:
                     mask |= FUNCTION;
                     break;
                 case OBJECT:
                     mask |= OBJECT;
+                case CLIENT:
+                    mask |= CLIENT;
                     break;
                 case TYPE:
                     mask |= TYPE;
                     break;
-                case ENDPOINT:
-                    mask |= ENDPOINT;
+                case LISTENER:
+                    mask |= LISTENER;
                     break;
                 case PARAMETER:
                     mask |= PARAMETER;

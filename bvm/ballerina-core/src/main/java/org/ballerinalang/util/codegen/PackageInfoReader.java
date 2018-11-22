@@ -548,16 +548,17 @@ public class PackageInfoReader {
             UTF8CPEntry serviceNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(serviceNameCPIndex);
             int flags = dataInStream.readInt();
 
-            // Read connector signature cp index;
-            int endpointNameCPIndex = dataInStream.readInt();
-            UTF8CPEntry endpointNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(endpointNameCPIndex);
+            // Read service and listener type cp index;
+            TypeRefCPEntry serviceType = (TypeRefCPEntry) packageInfo.getCPEntry(dataInStream.readInt());
+            TypeRefCPEntry listenerType = (TypeRefCPEntry) packageInfo.getCPEntry(dataInStream.readInt());
+            UTF8CPEntry listenerName = (UTF8CPEntry) packageInfo.getCPEntry(dataInStream.readInt());
 
             ServiceInfo serviceInfo = new ServiceInfo(packageInfo.getPkgNameCPIndex(), packageInfo.getPkgPath(),
                     serviceNameCPIndex, serviceNameUTF8Entry.getValue(), flags,
-                    endpointNameCPIndex, endpointNameUTF8Entry.getValue());
+                    new BServiceType(serviceNameUTF8Entry.getValue(), packageInfo.getPkgPath(), serviceType.getType()),
+                    listenerType.getType(), listenerName.getValue());
             serviceInfo.setPackageInfo(packageInfo);
             packageInfo.addServiceInfo(serviceInfo.getName(), serviceInfo);
-            serviceInfo.setType(new BServiceType(serviceInfo.getName(), packageInfo.getPkgPath()));
         }
     }
 
@@ -597,15 +598,9 @@ public class PackageInfoReader {
                 resourceInfo.setParamNameCPIndexes(paramNameCPIndexes);
                 resourceInfo.setParamNames(paramNames);
 
-                // Read worker info entries
-                readWorkerData(packageInfo, resourceInfo);
-
                 // Read attributes of the struct info
                 readAttributeInfoEntries(packageInfo, packageInfo, resourceInfo);
             }
-
-            // Read attributes of the struct info
-            readAttributeInfoEntries(packageInfo, packageInfo, serviceInfo);
         }
     }
 
