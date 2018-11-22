@@ -23,8 +23,8 @@ type Person object {
     string month = "february";
 
     new (year, int count, name = "sample value1", string val1 = "default value") {
-        age = age + count;
-        month = val1;
+        self.age = self.age + count;
+        self.month = val1;
     }
 };
 

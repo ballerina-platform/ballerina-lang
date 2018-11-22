@@ -38,6 +38,7 @@ import org.ballerinalang.net.grpc.builder.components.ServiceFile;
 import org.ballerinalang.net.grpc.builder.components.ServiceStub;
 import org.ballerinalang.net.grpc.builder.components.StubFile;
 import org.ballerinalang.net.grpc.builder.utils.BalGenConstants;
+import org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils;
 import org.ballerinalang.net.grpc.exception.BalGenerationException;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.proto.definition.EmptyMessage;
@@ -54,11 +55,14 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.DEFAULT_SAMPLE_DIR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.DEFAULT_SKELETON_DIR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.EMPTY_DATA_TYPE;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.FILE_SEPARATOR;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.GOOGLE_STANDARD_LIB;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.GRPC_CLIENT;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.GRPC_SERVICE;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.PACKAGE_SEPARATOR;
@@ -66,7 +70,6 @@ import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_FI
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_SERVICE_FILE_PREFIX;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_SERVICE_TEMPLATE_NAME;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_TEMPLATE_NAME;
-import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SERVICE_INDEX;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SKELETON_TEMPLATE_NAME;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.STUB_FILE_PREFIX;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.TEMPLATES_DIR_PATH_KEY;
@@ -79,64 +82,81 @@ import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.PROTO_FILE_
 public class BallerinaFileBuilder {
     public static final Logger LOG = LoggerFactory.getLogger(BallerinaFileBuilder.class);
     private byte[] rootDescriptor;
-    private List<byte[]> dependentDescriptors;
+    private Set<byte[]> dependentDescriptors;
     private String balOutPath;
     
-    public BallerinaFileBuilder(byte[] rootDescriptor, List<byte[]> dependentDescriptors) {
+    public BallerinaFileBuilder(byte[] rootDescriptor, Set<byte[]> dependentDescriptors) {
         setRootDescriptor(rootDescriptor);
         this.dependentDescriptors = dependentDescriptors;
     }
     
-    public BallerinaFileBuilder(byte[] rootDescriptor, List<byte[]> dependentDescriptors, String balOutPath) {
+    public BallerinaFileBuilder(byte[] rootDescriptor, Set<byte[]> dependentDescriptors, String balOutPath) {
         setRootDescriptor(rootDescriptor);
         this.dependentDescriptors = dependentDescriptors;
         this.balOutPath = balOutPath;
     }
     
     public void build(String mode) {
-        try (InputStream targetStream = new ByteArrayInputStream(rootDescriptor)) {
+        // compute root descriptor source code.
+        computeSourceContent(rootDescriptor, mode);
+        // compute dependent descriptor source code.
+        for (byte[] descriptorData : dependentDescriptors) {
+            computeSourceContent(descriptorData, null);
+        }
+    }
+
+    private void computeSourceContent(byte[] descriptor, String mode) {
+        try (InputStream targetStream = new ByteArrayInputStream(descriptor)) {
             DescriptorProtos.FileDescriptorProto fileDescriptorSet = DescriptorProtos.FileDescriptorProto
                     .parseFrom(targetStream);
+
+            if (fileDescriptorSet.getPackage().contains(GOOGLE_STANDARD_LIB)) {
+                return;
+            }
+
+            List<DescriptorProtos.ServiceDescriptorProto> serviceDescriptotList = fileDescriptorSet.getServiceList();
             List<DescriptorProtos.DescriptorProto> messageTypeList = fileDescriptorSet.getMessageTypeList();
             List<DescriptorProtos.EnumDescriptorProto> enumDescriptorProtos = fileDescriptorSet.getEnumTypeList();
             String filename = new File(fileDescriptorSet.getName()).getName().replace(PROTO_FILE_EXTENSION, "");
             String filePackage = fileDescriptorSet.getPackage();
             StubFile stubFileObject = new StubFile(filename);
-            ClientFile clientFileObject = null;
-            // Add root descriptor.
-            Descriptor rootDesc = Descriptor.newBuilder(rootDescriptor).build();
-            stubFileObject.setRootDescriptorKey(rootDesc.getKey());
-            stubFileObject.addDescriptor(rootDesc);
 
-            // Add dependent descriptors.
-            for (byte[] descriptorData : dependentDescriptors) {
-                Descriptor descriptor = Descriptor.newBuilder(descriptorData).build();
-                stubFileObject.addDescriptor(descriptor);
+            if (descriptor == rootDescriptor) {
+                // Add root descriptor.
+                Descriptor rootDesc = Descriptor.newBuilder(descriptor).build();
+                stubFileObject.setRootDescriptorKey(rootDesc.getKey());
+                stubFileObject.addDescriptor(rootDesc);
+
+                // Add dependent descriptors.
+                for (byte[] descriptorData : dependentDescriptors) {
+                    Descriptor dependentDescriptor = Descriptor.newBuilder(descriptorData).build();
+                    stubFileObject.addDescriptor(dependentDescriptor);
+                }
             }
-            if (fileDescriptorSet.getServiceCount() > 1) {
-                throw new BalGenerationException("Protobuf tool doesn't support more than one service " +
-                        "definition. but provided proto file contains " + fileDescriptorSet.getServiceCount() +
-                        "service definitions");
+
+            // write definition objects to ballerina files.
+            if (this.balOutPath == null) {
+                this.balOutPath = StringUtils.isNotBlank(fileDescriptorSet.getPackage()) ?
+                        fileDescriptorSet.getPackage().replace(PACKAGE_SEPARATOR, FILE_SEPARATOR) : BalGenConstants
+                        .DEFAULT_PACKAGE;
             }
-            ServiceFile.Builder sampleServiceBuilder = null;
-            if (fileDescriptorSet.getServiceCount() == 1) {
-                DescriptorProtos.ServiceDescriptorProto serviceDescriptor = fileDescriptorSet.getService(SERVICE_INDEX);
-                ServiceStub.Builder serviceBuilder = ServiceStub.newBuilder(serviceDescriptor.getName());
-                sampleServiceBuilder = ServiceFile.newBuilder(serviceDescriptor.getName());
+
+            for (DescriptorProtos.ServiceDescriptorProto serviceDescriptor : serviceDescriptotList) {
+                ServiceStub.Builder serviceStubBuilder = ServiceStub.newBuilder(serviceDescriptor.getName());
+                ServiceFile.Builder sampleServiceBuilder = ServiceFile.newBuilder(serviceDescriptor.getName());
                 List<DescriptorProtos.MethodDescriptorProto> methodList = serviceDescriptor.getMethodList();
                 boolean isUnaryContains = false;
 
                 for (DescriptorProtos.MethodDescriptorProto methodDescriptorProto : methodList) {
                     String methodID;
                     if (filePackage != null && !filePackage.isEmpty()) {
-                        methodID = filePackage + PACKAGE_SEPARATOR + fileDescriptorSet.getService(SERVICE_INDEX).getName
-                                () + "/" + methodDescriptorProto.getName();
+                        methodID = filePackage + PACKAGE_SEPARATOR + serviceDescriptor.getName() + "/" +
+                                methodDescriptorProto.getName();
                     } else {
-                        methodID = fileDescriptorSet.getService(SERVICE_INDEX).getName() + "/" + methodDescriptorProto
-                                .getName();
+                        methodID = serviceDescriptor.getName() + "/" + methodDescriptorProto.getName();
                     }
                     Method method = Method.newBuilder(methodID).setMethodDescriptor(methodDescriptorProto).build();
-                    serviceBuilder.addMethod(method);
+                    serviceStubBuilder.addMethod(method);
                     sampleServiceBuilder.addMethod(method);
                     if (MethodDescriptor.MethodType.UNARY.equals(method.getMethodType())) {
                         isUnaryContains = true;
@@ -148,13 +168,22 @@ public class BallerinaFileBuilder {
                     }
                 }
                 if (isUnaryContains) {
-                    serviceBuilder.setType(ServiceStub.StubType.BLOCKING);
-                    stubFileObject.addServiceStub(serviceBuilder.build());
+                    serviceStubBuilder.setType(ServiceStub.StubType.BLOCKING);
+                    stubFileObject.addServiceStub(serviceStubBuilder.build());
                 }
-                serviceBuilder.setType(ServiceStub.StubType.NONBLOCKING);
-                stubFileObject.addServiceStub(serviceBuilder.build());
-                if (mode.equals(GRPC_CLIENT)) {
-                    clientFileObject = new ClientFile(serviceDescriptor.getName(), isUnaryContains);
+                serviceStubBuilder.setType(ServiceStub.StubType.NONBLOCKING);
+                stubFileObject.addServiceStub(serviceStubBuilder.build());
+                if (GRPC_CLIENT.equals(mode)) {
+                    String clientFilePath = generateOutputFile(this.balOutPath, serviceDescriptor.getName() +
+                            SAMPLE_FILE_PREFIX);
+                    writeOutputFile(new ClientFile(serviceDescriptor.getName(), isUnaryContains), DEFAULT_SAMPLE_DIR,
+                            SAMPLE_TEMPLATE_NAME, clientFilePath);
+                }
+                if (GRPC_SERVICE.equals(mode)) {
+                    String servicePath = generateOutputFile(this.balOutPath, serviceDescriptor.getName() +
+                            SAMPLE_SERVICE_FILE_PREFIX);
+                    writeOutputFile(sampleServiceBuilder.build(), DEFAULT_SAMPLE_DIR, SAMPLE_SERVICE_TEMPLATE_NAME,
+                            servicePath);
                 }
             }
             // read message types.
@@ -167,27 +196,14 @@ public class BallerinaFileBuilder {
                 EnumMessage enumMessage = EnumMessage.newBuilder(descriptorProto).build();
                 stubFileObject.addEnumMessage(enumMessage);
             }
-            // write definition objects to ballerina files.
-            if (this.balOutPath == null) {
-                this.balOutPath = StringUtils.isNotBlank(fileDescriptorSet.getPackage()) ?
-                        fileDescriptorSet.getPackage() : BalGenConstants.DEFAULT_PACKAGE;
-            }
+
             String stubFilePath = generateOutputFile(this.balOutPath, filename + STUB_FILE_PREFIX);
             writeOutputFile(stubFileObject, DEFAULT_SKELETON_DIR, SKELETON_TEMPLATE_NAME, stubFilePath);
-            if (clientFileObject != null) {
-                String clientFilePath = generateOutputFile(this.balOutPath, filename + SAMPLE_FILE_PREFIX);
-                writeOutputFile(clientFileObject, DEFAULT_SAMPLE_DIR, SAMPLE_TEMPLATE_NAME, clientFilePath);
-            }
-            if (mode.equals(GRPC_SERVICE) && fileDescriptorSet.getServiceCount() != 0) {
-                String servicePath = generateOutputFile(this.balOutPath, filename + SAMPLE_SERVICE_FILE_PREFIX);
-                writeOutputFile(sampleServiceBuilder.build(), DEFAULT_SAMPLE_DIR, SAMPLE_SERVICE_TEMPLATE_NAME,
-                        servicePath);
-            }
         } catch (IOException | GrpcServerException e) {
             throw new BalGenerationException("Error while generating .bal file.", e);
         }
     }
-    
+
     private String generateOutputFile(String outputDir, String fileName) throws IOException {
         if (outputDir != null) {
             Files.createDirectories(Paths.get(outputDir));
@@ -249,6 +265,18 @@ public class BallerinaFileBuilder {
             }
 
             return result;
+        });
+        handlebars.registerHelper("camelcase", (object, options) -> {
+            if (object != null && object instanceof String) {
+                return BalGenerationUtils.toCamelCase((String) object);
+            }
+            return "";
+        });
+        handlebars.registerHelper("uppercase", (object, options) -> {
+            if (object != null && object instanceof String) {
+                return ((String) object).toUpperCase(Locale.ENGLISH);
+            }
+            return "";
         });
         handlebars.registerHelper("not_equal", (object, options) -> {
             CharSequence result;

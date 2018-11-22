@@ -18,13 +18,13 @@
 #
 # `queue`: Destination type queue
 # `topic`: Destination type topic
-public type DestinationType "queue" | "topic";
+public type DestinationType "queue"|"topic";
 
 # Constant for jms destination type queue
-@final public DestinationType QUEUE = "queue";
+public const QUEUE = "queue";
 
 # Constant for jms destination type topic
-@final public DestinationType TOPIC = "topic";
+public const TOPIC = "topic";
 
 # Destination object
 #

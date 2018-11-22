@@ -4,7 +4,7 @@ import ballerina/mime;
 import ballerina/file;
 
 function testContentType(http:Request req, string contentTypeValue) returns string {
-    req.setContentType(contentTypeValue);
+    _ = req.setContentType(contentTypeValue);
     return req.getContentType();
 }
 
@@ -167,14 +167,11 @@ service<http:Service> hello bind mockEP {
     GetJsonPayload(endpoint caller, http:Request req) {
         http:Response res = new;
         var returnResult = req.getJsonPayload();
-        match returnResult {
-            error err => {
-                res.setTextPayload("Error occurred");
-                res.statusCode = 500;
-            }
-            json payload => {
-                res.setJsonPayload(untaint payload.lang);
-            }
+        if (returnResult is error) {
+            res.setTextPayload("Error occurred");
+            res.statusCode = 500;
+        } else if (returnResult is json) {
+            res.setJsonPayload(untaint returnResult.lang);
         }
         _ = caller->respond(res);
     }
@@ -184,12 +181,12 @@ service<http:Service> hello bind mockEP {
     }
     GetTextPayload(endpoint caller, http:Request req) {
         http:Response res = new;
-        match req.getTextPayload() {
-            error err => {
-                res.setTextPayload("Error occurred");
-                res.statusCode = 500;
-            }
-            string payload => res.setTextPayload(untaint payload);
+        var returnResult = req.getTextPayload();
+        if (returnResult is error) {
+            res.setTextPayload("Error occurred");
+            res.statusCode = 500;
+        } else if (returnResult is string) {
+            res.setTextPayload(untaint returnResult);
         }
         _ = caller->respond(res);
     }
@@ -199,15 +196,13 @@ service<http:Service> hello bind mockEP {
     }
     GetXmlPayload(endpoint caller, http:Request req) {
         http:Response res = new;
-        match req.getXmlPayload() {
-            error err => {
-                res.setTextPayload("Error occurred");
-                res.statusCode = 500;
-            }
-            xml xmlPayload => {
-                var name = xmlPayload.getTextValue();
-                res.setTextPayload(untaint name);
-            }
+        var returnResult = req.getXmlPayload();
+        if (returnResult is error) {
+            res.setTextPayload("Error occurred");
+            res.statusCode = 500;
+        } else if (returnResult is xml) {
+            var name = returnResult.getTextValue();
+            res.setTextPayload(untaint name);
         }
         _ = caller->respond(res);
     }
@@ -217,15 +212,13 @@ service<http:Service> hello bind mockEP {
     }
     GetBinaryPayload(endpoint caller, http:Request req) {
         http:Response res = new;
-        match req.getBinaryPayload() {
-            error err => {
-                res.setTextPayload("Error occurred");
-                res.statusCode = 500;
-            }
-            byte[] blobPayload => {
-                string name = mime:byteArrayToString(blobPayload, "UTF-8");
-                res.setTextPayload(untaint name);
-            }
+        var returnResult = req.getBinaryPayload();
+        if (returnResult is error) {
+            res.setTextPayload("Error occurred");
+            res.statusCode = 500;
+        } else if (returnResult is byte[]) {
+            string name = mime:byteArrayToString(returnResult, "UTF-8");
+            res.setTextPayload(untaint name);
         }
         _ = caller->respond(res);
     }
@@ -235,14 +228,12 @@ service<http:Service> hello bind mockEP {
     }
     GetByteChannel(endpoint caller, http:Request req) {
         http:Response res = new;
-        match req.getByteChannel() {
-            error err => {
-                res.setTextPayload("Error occurred");
-                res.statusCode = 500;
-            }
-            io:ReadableByteChannel byteChannel => {
-                res.setByteChannel(byteChannel);
-            }
+        var returnResult = req.getByteChannel();
+        if (returnResult is error) {
+            res.setTextPayload("Error occurred");
+            res.statusCode = 500;
+        } else if (returnResult is io:ReadableByteChannel) {
+            res.setByteChannel(returnResult);
         }
         _ = caller->respond(res);
     }
@@ -254,7 +245,7 @@ service<http:Service> hello bind mockEP {
         http:Request req = new;
         req.setHeader("Content-Type", "application/x-www-form-urlencoded");
         req.removeHeader("Content-Type");
-        string header;
+        string header = "";
         if (!req.hasHeader("Content-Type")) {
             header = "value is null";
         }
@@ -272,7 +263,7 @@ service<http:Service> hello bind mockEP {
         req.setHeader("Expect", "100-continue");
         req.setHeader("Range", "bytes=500-999");
         req.removeAllHeaders();
-        string header;
+        string header = "";
         if (!req.hasHeader("Range")) {
             header = "value is null";
         }
@@ -304,14 +295,11 @@ service<http:Service> hello bind mockEP {
         req.setJsonPayload(untaint jsonStr);
         var returnResult = req.getJsonPayload();
         http:Response res = new;
-        match returnResult {
-            error err => {
-                res.setTextPayload("Error occurred");
-                res.statusCode = 500;
-            }
-            json payload => {
-                res.setJsonPayload(untaint payload);
-            }
+        if (returnResult is error) {
+            res.setTextPayload("Error occurred");
+            res.statusCode = 500;
+        } else if (returnResult is json) {
+            res.setJsonPayload(untaint returnResult);
         }
         _ = caller->respond(res);
     }
@@ -323,12 +311,12 @@ service<http:Service> hello bind mockEP {
         http:Request req = new;
         req.setTextPayload(untaint value);
         http:Response res = new;
-        match req.getTextPayload() {
-            error err => {
-                res.setTextPayload("Error occurred");
-                res.statusCode = 500;
-            }
-            string payload => res.setJsonPayload({ lang: untaint payload });
+        var returnResult = req.getTextPayload();
+        if (returnResult is error) {
+            res.setTextPayload("Error occurred");
+            res.statusCode = 500;
+        } else if (returnResult is string) {
+            res.setJsonPayload({ lang: untaint returnResult });
         }
         _ = caller->respond(res);
     }
@@ -341,15 +329,13 @@ service<http:Service> hello bind mockEP {
         xml xmlStr = xml `<name>Ballerina</name>`;
         req.setXmlPayload(xmlStr);
         http:Response res = new;
-        match req.getXmlPayload() {
-            error err => {
-                res.setTextPayload("Error occurred");
-                res.statusCode = 500;
-            }
-            xml xmlPayload => {
-                var name = untaint xmlPayload.getTextValue();
-                res.setJsonPayload({ lang: name });
-            }
+        var returnResult = req.getXmlPayload();
+        if (returnResult is error) {
+            res.setTextPayload("Error occurred");
+            res.statusCode = 500;
+        } else if (returnResult is xml) {
+            var name = untaint returnResult.getTextValue();
+            res.setJsonPayload({ lang: name });
         }
         _ = caller->respond(res);
     }
@@ -363,15 +349,13 @@ service<http:Service> hello bind mockEP {
         byte[] payload = text.toByteArray("UTF-8");
         req.setBinaryPayload(payload);
         http:Response res = new;
-        match req.getBinaryPayload() {
-            error err => {
-                res.setTextPayload("Error occurred");
-                res.statusCode = 500;
-            }
-            byte[] blobPayload => {
-                string name = untaint mime:byteArrayToString(blobPayload, "UTF-8");
-                res.setJsonPayload({ lang: name });
-            }
+        var returnResult = req.getBinaryPayload();
+        if (returnResult is error) {
+            res.setTextPayload("Error occurred");
+            res.statusCode = 500;
+        } else if (returnResult is byte[]) {
+            string name = untaint mime:byteArrayToString(returnResult, "UTF-8");
+            res.setJsonPayload({ lang: name });
         }
         _ = caller->respond(res);
     }

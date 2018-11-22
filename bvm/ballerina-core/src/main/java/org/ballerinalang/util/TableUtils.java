@@ -23,10 +23,12 @@ import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BStructureType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BByteArray;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
@@ -35,14 +37,13 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayInputStream;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.Collection;
 
 /**
  * Includes utility methods required for table related operations.
@@ -50,15 +51,14 @@ import java.sql.Types;
  * @since 0.970.0
  */
 public class TableUtils {
-    private static final String TABLE_OPERATION_ERROR = "error";
-    private static final String TABLE_PACKAGE_PATH = BLangConstants.BALLERINA_BUILTIN_PKG;
-    private static final String EXCEPTION_OCCURRED = "Exception occurred";
+    private static final String TABLE_OPERATION_ERROR = "TableError";
+    private static final String DEFAULT_ERROR_DETAIL_MESSAGE = "Error occurred during table manipulation";
 
     public static String generateInsertDataStatment(String tableName, BMap<?, ?> constrainedType) {
         StringBuilder sbSql = new StringBuilder();
         StringBuilder sbValues = new StringBuilder();
         sbSql.append(TableConstants.SQL_INSERT_INTO).append(tableName).append(" (");
-        BField[] structFields = ((BStructureType) constrainedType.getType()).getFields();
+        Collection<BField> structFields = ((BStructureType) constrainedType.getType()).getFields().values();
         String sep = "";
         for (BField sf : structFields) {
             String name = sf.getFieldName();
@@ -73,7 +73,7 @@ public class TableUtils {
     public static String generateDeleteDataStatment(String tableName, BMap<?, ?> constrainedType) {
         StringBuilder sbSql = new StringBuilder();
         sbSql.append(TableConstants.SQL_DELETE_FROM).append(tableName).append(TableConstants.SQL_WHERE);
-        BField[] structFields = ((BStructureType) constrainedType.getType()).getFields();
+        Collection<BField> structFields = ((BStructureType) constrainedType.getType()).getFields().values();
         String sep = "";
         for (BField sf : structFields) {
             String name = sf.getFieldName();
@@ -85,7 +85,7 @@ public class TableUtils {
 
     public static void prepareAndExecuteStatement(PreparedStatement stmt, BMap<String, BValue> constrainedType) {
         try {
-            BField[] structFields = ((BStructureType) constrainedType.getType()).getFields();
+            Collection<BField> structFields = ((BStructureType) constrainedType.getType()).getFields().values();
             int index = 1;
             for (BField sf : structFields) {
                 int type = sf.getFieldType().getTag();
@@ -175,21 +175,16 @@ public class TableUtils {
     }
 
     /**
-     * Creates an instance of {@code {@link BStruct}} of the type error.
+     * Creates an instance of {@code {@link BError}} representing an error.
      *
      * @param context The context
      * @param throwable The Throwable object to be used
      * @return error value
      */
-    public static BMap<?, ?> createTableOperationError(Context context, Throwable throwable) {
-        PackageInfo tableLibPackage = context.getProgramFile().getPackageInfo(TABLE_PACKAGE_PATH);
-        StructureTypeInfo errorStructInfo = tableLibPackage.getStructInfo(TABLE_OPERATION_ERROR);
-        BMap<String, BValue> tableOperationError = new BMap<>(errorStructInfo.getType());
-        if (throwable.getMessage() == null) {
-            tableOperationError.put(BLangVMErrors.ERROR_MESSAGE_FIELD, new BString(EXCEPTION_OCCURRED));
-        } else {
-            tableOperationError.put(BLangVMErrors.ERROR_MESSAGE_FIELD, new BString(throwable.getMessage()));
-        }
-        return tableOperationError;
+    public static BError createTableOperationError(Context context, Throwable throwable) {
+        String detail = throwable.getMessage() != null ? throwable.getMessage() : DEFAULT_ERROR_DETAIL_MESSAGE;
+        BMap<String, BValue> tableErrorDetail = new BMap<>();
+        tableErrorDetail.put("message", new BString(detail));
+        return BLangVMErrors.createError(context, true, BTypes.typeError, TABLE_OPERATION_ERROR, tableErrorDetail);
     }
 }

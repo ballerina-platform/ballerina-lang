@@ -59,7 +59,7 @@ public class Complete extends BlockingNativeCallableUnit {
         BMap<String, BValue> connectionStruct = (BMap<String, BValue>) context.getRefArgument(0);
         StreamObserver requestSender = (StreamObserver) connectionStruct.getNativeData(REQUEST_SENDER);
         if (requestSender == null) {
-            context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
+            context.setError(MessageUtils.getConnectorError(new StatusRuntimeException(Status
                     .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while completing the " +
                             "message. endpoint does not exist"))));
         } else {
@@ -67,7 +67,7 @@ public class Complete extends BlockingNativeCallableUnit {
                 requestSender.onCompleted();
             } catch (Exception e) {
                 LOG.error("Error while sending complete message to server.", e);
-                context.setError(MessageUtils.getConnectorError(context, e));
+                context.setError(MessageUtils.getConnectorError(e));
             }
         }
     }

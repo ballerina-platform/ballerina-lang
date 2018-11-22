@@ -81,14 +81,15 @@ public class Send extends BlockingNativeCallableUnit {
                 .RESPONSE_MESSAGE_DEFINITION);
         
         if (responseObserver == null) {
-            context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
+            context.setError(MessageUtils.getConnectorError(new StatusRuntimeException(Status
                     .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while initializing " +
                             "connector. Response sender does not exist"))));
         } else {
             try {
                 // If there is no response message like conn -> send(), system doesn't send the message.
                 if (!MessageUtils.isEmptyResponse(outputType)) {
-                    Message responseMessage = MessageUtils.generateProtoMessage(responseValue, outputType);
+                    //Message responseMessage = MessageUtils.generateProtoMessage(responseValue, outputType);
+                    Message responseMessage = new Message(outputType.getName(), responseValue);
                     // Update response headers when request headers exists in the context.
                     HttpHeaders headers = null;
                     if (headerValues != null && headerValues.getType().getTag() == TypeTags.OBJECT_TYPE_TAG) {
@@ -101,7 +102,7 @@ public class Send extends BlockingNativeCallableUnit {
                 }
             } catch (Exception e) {
                 LOG.error("Error while sending client response.", e);
-                context.setError(MessageUtils.getConnectorError(context, e));
+                context.setError(MessageUtils.getConnectorError(e));
             }
         }
     }

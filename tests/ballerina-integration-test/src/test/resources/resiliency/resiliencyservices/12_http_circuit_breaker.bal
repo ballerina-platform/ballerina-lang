@@ -48,19 +48,19 @@ service<http:Service> circuitbreaker05 bind circuitBreakerEP05 {
     }
     getState(endpoint caller, http:Request request) {
         var backendRes = backendClientEP05->forward("/statuscode", request);
-        match backendRes {
-            http:Response res => {
-                caller->respond(res) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        if (backendRes is http:Response) {
+            var responseToCaller = caller->respond(backendRes);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
             }
-            error responseError => {
-                http:Response response = new;
-                response.statusCode = http:INTERNAL_SERVER_ERROR_500;
-                response.setPayload(responseError.message);
-                caller->respond(response) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        } else if (backendRes is error) {
+            http:Response response = new;
+            response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+            string errCause = <string> backendRes.detail().message;
+            response.setPayload(errCause);
+            var responseToCaller = caller->respond(response);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
             }
         }
     }
@@ -76,8 +76,9 @@ service<http:Service> statuscodeservice bind { port: 8091 } {
         http:Response res = new;
         res.statusCode = http:SERVICE_UNAVAILABLE_503;
         res.setPayload("Service unavailable.");
-        caller->respond(res) but {
-            error e => log:printError("Error sending response from mock service", err = e)
-        };
+        var responseToCaller = caller->respond(res);
+        if (responseToCaller is error) {
+            log:printError("Error sending response from mock service", err = responseToCaller);
+        }
     }
 }

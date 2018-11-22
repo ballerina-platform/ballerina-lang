@@ -137,80 +137,79 @@ type ResultMapNillableTypeNonNillableElements record {
     string[]? STRING_ARRAY;
 };
 
-function testAssignNilToNonNillableInt() {
-    testAssignNilToNonNillableField("int_type", NonNillableInt);
+function testAssignNilToNonNillableInt() returns string {
+    return testAssignNilToNonNillableField("int_type", NonNillableInt);
 }
 
-function testAssignNilToNonNillableLong() {
-    testAssignNilToNonNillableField("long_type", NonNillableLong);
+function testAssignNilToNonNillableLong() returns string {
+    return testAssignNilToNonNillableField("long_type", NonNillableLong);
 }
 
-function testAssignNilToNonNillableFloat() {
-    testAssignNilToNonNillableField("float_type", NonNillableFloat);
+function testAssignNilToNonNillableFloat() returns string {
+    return testAssignNilToNonNillableField("float_type", NonNillableFloat);
 }
 
-function testAssignNilToNonNillableDouble() {
-    testAssignNilToNonNillableField("double_type", NonNillableDouble);
+function testAssignNilToNonNillableDouble() returns string {
+    return testAssignNilToNonNillableField("double_type", NonNillableDouble);
 }
 
-function testAssignNilToNonNillableBoolean() {
-    testAssignNilToNonNillableField("boolean_type", NonNillableBoolean);
+function testAssignNilToNonNillableBoolean() returns string {
+    return testAssignNilToNonNillableField("boolean_type", NonNillableBoolean);
 }
 
-function testAssignNilToNonNillableString() {
-    testAssignNilToNonNillableField("string_type", NonNillableString);
+function testAssignNilToNonNillableString() returns string {
+    return testAssignNilToNonNillableField("string_type", NonNillableString);
 }
 
-function testAssignNilToNonNillableNumeric() {
-    testAssignNilToNonNillableField("numeric_type", NonNillableNumeric);
+function testAssignNilToNonNillableNumeric() returns string {
+    return testAssignNilToNonNillableField("numeric_type", NonNillableNumeric);
 }
 
-function testAssignNilToNonNillableTinyInt() {
-    testAssignNilToNonNillableField("tinyint_type", NonNillableTinyInt);
+function testAssignNilToNonNillableTinyInt() returns string {
+    return testAssignNilToNonNillableField("tinyint_type", NonNillableTinyInt);
 }
 
-function testAssignNilToNonNillableSmallint() {
-    testAssignNilToNonNillableField("smallint_type", NonNillableSmallInt);
+function testAssignNilToNonNillableSmallint() returns string {
+    return testAssignNilToNonNillableField("smallint_type", NonNillableSmallInt);
 }
 
-function testAssignNilToNonNillableDecimal() {
-    testAssignNilToNonNillableField("decimal_type", NonNillableDecimal);
+function testAssignNilToNonNillableDecimal() returns string {
+    return testAssignNilToNonNillableField("decimal_type", NonNillableDecimal);
 }
 
-function testAssignNilToNonNillableReal() {
-    testAssignNilToNonNillableField("real_type", NonNillableReal);
+function testAssignNilToNonNillableReal() returns string {
+    return testAssignNilToNonNillableField("real_type", NonNillableReal);
 }
 
-function testAssignNilToNonNillableClob() {
-    testAssignNilToNonNillableField("clob_type", NonNillableClob);
+function testAssignNilToNonNillableClob() returns string {
+    return testAssignNilToNonNillableField("clob_type", NonNillableClob);
 }
 
-function testAssignNilToNonNillableBlob() {
-    testAssignNilToNonNillableField("blob_type", NonNillableBlob);
+function testAssignNilToNonNillableBlob() returns string {
+    return testAssignNilToNonNillableField("blob_type", NonNillableBlob);
 }
 
-function testAssignNilToNonNillableBinary() {
-    testAssignNilToNonNillableField("binary_type", NonNillableBinary);
+function testAssignNilToNonNillableBinary() returns string {
+    return testAssignNilToNonNillableField("binary_type", NonNillableBinary);
 }
 
-function testAssignNilToNonNillableDate() {
-    testAssignNilToNonNillableField("date_type", NonNillableDate);
+function testAssignNilToNonNillableDate() returns string {
+    return testAssignNilToNonNillableField("date_type", NonNillableDate);
 }
 
-function testAssignNilToNonNillableTime() {
-    testAssignNilToNonNillableField("time_type", NonNillableTime);
+function testAssignNilToNonNillableTime() returns string {
+    return testAssignNilToNonNillableField("time_type", NonNillableTime);
 }
 
-function testAssignNilToNonNillableDateTime() {
-    testAssignNilToNonNillableField("datetime_type", NonNillableDateTime);
+function testAssignNilToNonNillableDateTime() returns string {
+    return testAssignNilToNonNillableField("datetime_type", NonNillableDateTime);
 }
 
-function testAssignNilToNonNillableTimeStamp() {
-    testAssignNilToNonNillableField("timestamp_type", NonNillableTimeStamp);
+function testAssignNilToNonNillableTimeStamp() returns string {
+    return testAssignNilToNonNillableField("timestamp_type", NonNillableTimeStamp);
 }
 
-function testAssignNilToNonNillableField(string field, typedesc
-    recordType) {
+function testAssignNilToNonNillableField(string field, typedesc recordType) returns string {
     endpoint h2:Client testDB {
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -218,10 +217,8 @@ function testAssignNilToNonNillableField(string field, typedesc
         password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
-
     string dbTable;
     int rowId;
-
     if (field == "blob_type") {
         dbTable = "DataTypeTableNillableBlob";
         rowId = 4;
@@ -229,119 +226,121 @@ function testAssignNilToNonNillableField(string field, typedesc
         dbTable = "DataTypeTableNillable";
         rowId = 2;
     }
-
-    table dt = check testDB->select("SELECT " + field + " from " + dbTable + " where row_id=?", recordType, rowId);
-
-    try {
+    var dt = testDB->select("SELECT " + field + " from " + dbTable + " where row_id=?", recordType, rowId);
+    string errorMessage = "";
+    if (dt is table) {
         while (dt.hasNext()) {
-            var rs = dt.getNext();
+            var ret = trap dt.getNext();
+            if (ret is error) {
+                errorMessage = <string>ret.reason();
+            }
         }
-    } finally {
-        testDB.stop();
     }
+    testDB.stop();
+    return errorMessage;
 }
 
-function testAssignToInvalidUnionInt() {
-    testAssignToInvalidUnionField("int_type");
+function testAssignToInvalidUnionInt() returns string {
+    return testAssignToInvalidUnionField("int_type");
 }
 
-function testAssignToInvalidUnionLong() {
-    testAssignToInvalidUnionField("long_type");
+function testAssignToInvalidUnionLong() returns string {
+    return testAssignToInvalidUnionField("long_type");
 }
 
-function testAssignToInvalidUnionFloat() {
-    testAssignToInvalidUnionField("float_type");
+function testAssignToInvalidUnionFloat() returns string {
+    return testAssignToInvalidUnionField("float_type");
 }
 
-function testAssignToInvalidUnionDouble() {
-    testAssignToInvalidUnionField("double_type");
+function testAssignToInvalidUnionDouble() returns string {
+    return testAssignToInvalidUnionField("double_type");
 }
 
-function testAssignToInvalidUnionBoolean() {
-    testAssignToInvalidUnionField("boolean_type");
+function testAssignToInvalidUnionBoolean() returns string {
+    return testAssignToInvalidUnionField("boolean_type");
 }
 
-function testAssignToInvalidUnionString() {
-    testAssignToInvalidUnionField("string_type");
+function testAssignToInvalidUnionString() returns string {
+    return testAssignToInvalidUnionField("string_type");
 }
 
-function testAssignToInvalidUnionNumeric() {
-    testAssignToInvalidUnionField("numeric_type");
+function testAssignToInvalidUnionNumeric() returns string {
+    return testAssignToInvalidUnionField("numeric_type");
 }
 
-function testAssignToInvalidUnionTinyInt() {
-    testAssignToInvalidUnionField("tinyint_type");
+function testAssignToInvalidUnionTinyInt() returns string {
+    return testAssignToInvalidUnionField("tinyint_type");
 }
 
-function testAssignToInvalidUnionSmallint() {
-    testAssignToInvalidUnionField("smallint_type");
+function testAssignToInvalidUnionSmallint() returns string {
+    return testAssignToInvalidUnionField("smallint_type");
 }
 
-function testAssignToInvalidUnionDecimal() {
-    testAssignToInvalidUnionField("decimal_type");
+function testAssignToInvalidUnionDecimal() returns string {
+    return testAssignToInvalidUnionField("decimal_type");
 }
 
-function testAssignToInvalidUnionReal() {
-    testAssignToInvalidUnionField("real_type");
+function testAssignToInvalidUnionReal() returns string {
+    return testAssignToInvalidUnionField("real_type");
 }
 
-function testAssignToInvalidUnionClob() {
-    testAssignToInvalidUnionField("clob_type");
+function testAssignToInvalidUnionClob() returns string {
+    return testAssignToInvalidUnionField("clob_type");
 }
 
-function testAssignToInvalidUnionBlob() {
-    testAssignToInvalidUnionField("blob_type");
+function testAssignToInvalidUnionBlob() returns string {
+    return testAssignToInvalidUnionField("blob_type");
 }
 
-function testAssignToInvalidUnionBinary() {
-    testAssignToInvalidUnionField("binary_type");
+function testAssignToInvalidUnionBinary() returns string {
+    return testAssignToInvalidUnionField("binary_type");
 }
 
-function testAssignToInvalidUnionDate() {
-    testAssignToInvalidUnionField("date_type");
+function testAssignToInvalidUnionDate() returns string {
+    return testAssignToInvalidUnionField("date_type");
 }
 
-function testAssignToInvalidUnionTime() {
-    testAssignToInvalidUnionField("time_type");
+function testAssignToInvalidUnionTime() returns string {
+    return testAssignToInvalidUnionField("time_type");
 }
 
-function testAssignToInvalidUnionDateTime() {
-    testAssignToInvalidUnionField("datetime_type");
+function testAssignToInvalidUnionDateTime() returns string {
+    return testAssignToInvalidUnionField("datetime_type");
 }
 
-function testAssignToInvalidUnionTimeStamp() {
-    testAssignToInvalidUnionField("timestamp_type");
+function testAssignToInvalidUnionTimeStamp() returns string {
+    return testAssignToInvalidUnionField("timestamp_type");
 }
 
-function testAssignNullArrayToNonNillableWithNonNillableElements() {
-    testAssignArrayToInvalidField(ResultMap, 3);
+function testAssignNullArrayToNonNillableWithNonNillableElements() returns string {
+    return testAssignArrayToInvalidField(ResultMap, 3);
 }
 
-function testAssignNullArrayToNonNillableTypeWithNillableElements() {
-    testAssignArrayToInvalidField(ResultMapNonNillableTypeNillableElements, 3);
+function testAssignNullArrayToNonNillableTypeWithNillableElements() returns string {
+    return testAssignArrayToInvalidField(ResultMapNonNillableTypeNillableElements, 3);
 }
 
-function testAssignNullElementArrayToNonNillableTypeWithNonNillableElements() {
-    testAssignArrayToInvalidField(ResultMap, 2);
+function testAssignNullElementArrayToNonNillableTypeWithNonNillableElements() returns string {
+    return testAssignArrayToInvalidField(ResultMap, 2);
 }
 
-function testAssignNullElementArrayToNillableTypeWithNonNillableElements() {
-    testAssignArrayToInvalidField(ResultMapNillableTypeNonNillableElements, 2);
+function testAssignNullElementArrayToNillableTypeWithNonNillableElements() returns string {
+    return testAssignArrayToInvalidField(ResultMapNillableTypeNonNillableElements, 2);
 }
 
-function testAssignInvalidUnionArray() {
-    testInvalidUnionForArrays(InvalidUnionArray);
+function testAssignInvalidUnionArray() returns string {
+    return testInvalidUnionForArrays(InvalidUnionArray);
 }
 
-function testAssignInvalidUnionArrayElement() {
-    testInvalidUnionForArrays(InvalidUnionArrayElement);
+function testAssignInvalidUnionArrayElement() returns string {
+    return testInvalidUnionForArrays(InvalidUnionArrayElement);
 }
 
-function testAssignInvalidUnionArray2() {
-    testInvalidUnionForArrays(InvalidUnionArray2);
+function testAssignInvalidUnionArray2() returns string {
+    return testInvalidUnionForArrays(InvalidUnionArray2);
 }
 
-function testAssignToInvalidUnionField(string field) {
+function testAssignToInvalidUnionField(string field) returns string {
     endpoint h2:Client testDB {
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -361,18 +360,21 @@ function testAssignToInvalidUnionField(string field) {
         rowId = 1;
     }
 
-    table dt = check testDB->select("SELECT " + field + " from " + dbTable + " where row_id=?", InvalidUnion, rowId);
-
-    try {
+    var dt = testDB->select("SELECT " + field + " from " + dbTable + " where row_id=?", InvalidUnion, rowId);
+    string errorMessage = "";
+    if (dt is table) {
         while (dt.hasNext()) {
-            var rs = <InvalidUnion>dt.getNext();
+            var ret = trap <InvalidUnion>dt.getNext();
+            if (ret is error) {
+                errorMessage = ret.reason();
+            }
         }
-    } finally {
-        testDB.stop();
     }
+    testDB.stop();
+    return errorMessage;
 }
 
-function testAssignArrayToInvalidField(typedesc invalidType, int id) {
+function testAssignArrayToInvalidField(typedesc invalidType, int id) returns string {
     endpoint h2:Client testDB {
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -381,19 +383,22 @@ function testAssignArrayToInvalidField(typedesc invalidType, int id) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table dt = check testDB->select("SELECT int_array, long_array, float_array, boolean_array,
+    var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array,
               string_array from ArrayTypes where row_id = ?", invalidType, id);
-
-    try {
+    string errorMessage = "";
+    if (dt is table) {
         while (dt.hasNext()) {
-            var rs = dt.getNext();
+            var ret = trap dt.getNext();
+            if (ret is error) {
+                errorMessage = ret.reason();
+            }
         }
-    } finally {
-        testDB.stop();
     }
+    testDB.stop();
+    return errorMessage;
 }
 
-function testInvalidUnionForArrays(typedesc invalidUnion) {
+function testInvalidUnionForArrays(typedesc invalidUnion) returns string {
     endpoint h2:Client testDB {
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -401,14 +406,16 @@ function testInvalidUnionForArrays(typedesc invalidUnion) {
         password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
-
-    table dt = check testDB->select("SELECT int_array from ArrayTypes where row_id = 1", invalidUnion);
-
-    try {
+    var dt = testDB->select("SELECT int_array from ArrayTypes where row_id = 1", invalidUnion);
+    string message = "";
+    if (dt is table) {
         while (dt.hasNext()) {
-            var rs = dt.getNext();
+            var ret = trap dt.getNext();
+            if (ret is error) {
+                message = <string>ret.reason();
+            }
         }
-    } finally {
-        testDB.stop();
     }
+    testDB.stop();
+    return message;
 }

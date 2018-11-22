@@ -7,12 +7,14 @@
   "items": [
     {
       "label":"channel",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"channel"
     },
     {
       "label":"xml",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"xml"
@@ -27,12 +29,14 @@
     },
     {
       "label":"TableConfig",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"TableConfig"
     },
     {
       "label":"byte",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"byte"
@@ -55,36 +59,42 @@
     },
     {
       "label":"stream",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"stream"
     },
     {
       "label":"map",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"map"
     },
     {
       "label":"table",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"table"
     },
     {
       "label":"future",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"future"
     },
     {
       "label":"typedesc",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"typedesc"
     },
     {
       "label":"float",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"float"
@@ -98,6 +108,7 @@
     },
     {
       "label":"null",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"null"
@@ -111,36 +122,42 @@
     },
     {
       "label":"string",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"string"
     },
     {
       "label":"error",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"error"
     },
     {
       "label":"json",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"json"
     },
     {
       "label":"any",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"any"
     },
     {
       "label":"int",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"int"
     },
     {
       "label":"docData",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"docData"
@@ -154,116 +171,21 @@
     },
     {
       "label":"boolean",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"boolean"
     },
     {
-      "label":"xmlns",
-      "detail":"Snippet",
-      "sortText":"190",
-      "insertText":"xmlns \"${1}\" as ${2:ns};",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"var",
-      "detail":"Keyword",
-      "sortText":"210",
-      "insertText":"var ",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"foreach",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"foreach ${1:item} in ${2:itemList} {\n\t${3}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"fork",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"fork {\n\t${1}\n} join (${2:all}) (map ${3:results}) {\n\t${4}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"if",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"if (${1:true}) {\n\t${2}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"lock",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"lock {\n\t${1}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"match",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"match ",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"return",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"return;",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"throw",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"throw ",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"transaction",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"transaction with retries \u003d ${1:1}, oncommit \u003d ${2:onCommitFunction}, onabort \u003d ${3:onAbortFunction} {\n\t${4}\n} onretry {\n\t${5}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"try",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"try {\n\t${1}\n} catch (${2:error} ${3:err}) {\n\t${4}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"while",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"while (${1:true}) {\n\t${2}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"wrply   Worker Reply Statement",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"${1:var1} \u003c- ${2:w1};",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"wtrg   Worker Trigger Statement",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"${1:var1} -\u003e ${2:w1};",
-      "insertTextFormat":"Snippet"
-    },
-    {
       "label":"ballerina/http",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"http"
     },
     {
       "label":"ballerina/transactions",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"transactions",
@@ -285,6 +207,7 @@
     },
     {
       "label":"ballerina/websub",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"websub",
@@ -306,6 +229,7 @@
     },
     {
       "label":"ballerina/grpc",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"grpc",
@@ -327,6 +251,7 @@
     },
     {
       "label":"ballerina/reflect",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"reflect",
@@ -348,6 +273,7 @@
     },
     {
       "label":"ballerina/log",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"log",
@@ -369,6 +295,7 @@
     },
     {
       "label":"ballerina/time",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"time",
@@ -390,6 +317,7 @@
     },
     {
       "label":"ballerina/runtime",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"runtime",
@@ -411,6 +339,7 @@
     },
     {
       "label":"ballerina/swagger",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"swagger",
@@ -432,6 +361,7 @@
     },
     {
       "label":"ballerina/file",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"file",
@@ -453,6 +383,7 @@
     },
     {
       "label":"ballerina/sql",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"sql",
@@ -474,6 +405,7 @@
     },
     {
       "label":"ballerina/internal",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"internal",
@@ -495,6 +427,7 @@
     },
     {
       "label":"ballerina/mysql",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"mysql",
@@ -515,28 +448,8 @@
       ]
     },
     {
-      "label":"ballerina/mb",
-      "detail":"Package",
-      "sortText":"140",
-      "insertText":"mb",
-      "additionalTextEdits":[
-        {
-          "range":{
-            "start":{
-              "line":0,
-              "character":22
-            },
-            "end":{
-              "line":0,
-              "character":22
-            }
-          },
-          "newText":"\nimport ballerina/mb;\n"
-        }
-      ]
-    },
-    {
       "label":"ballerina/mime",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"mime",
@@ -558,6 +471,7 @@
     },
     {
       "label":"ballerina/task",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"task",
@@ -579,6 +493,7 @@
     },
     {
       "label":"ballerina/crypto",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"crypto",
@@ -600,6 +515,7 @@
     },
     {
       "label":"ballerina/io",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"io",
@@ -621,6 +537,7 @@
     },
     {
       "label":"ballerina/cache",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"cache",
@@ -642,6 +559,7 @@
     },
     {
       "label":"ballerina/auth",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"auth",
@@ -663,6 +581,7 @@
     },
     {
       "label":"ballerina/jms",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"jms",
@@ -684,6 +603,7 @@
     },
     {
       "label":"ballerina/system",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"system",
@@ -705,6 +625,7 @@
     },
     {
       "label":"ballerina/h2",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"h2",
@@ -726,12 +647,14 @@
     },
     {
       "label":"ballerina/builtin",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"builtin"
     },
     {
       "label":"ballerina/math",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"math",
@@ -753,6 +676,7 @@
     },
     {
       "label":"ballerina/config",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"config",
@@ -773,7 +697,120 @@
       ]
     },
     {
+      "label":"xmlns",
+      "kind":"Unit",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"xmlns \"${1}\" as ${2:ns};",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"var",
+      "kind":"Keyword",
+      "detail":"Keyword",
+      "sortText":"210",
+      "insertText":"var ",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"error",
+      "kind":"Snippet",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"error ${1:name} \u003d error(\"${2:errorCode}\", { message: \"${3}\" });",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"foreach",
+      "kind":"Unit",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"foreach ${1:item} in ${2:itemList} {\n\t${3}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"fork",
+      "kind":"Unit",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"fork {\n\t${1}\n} join (${2:all}) (map ${3:results}) {\n\t${4}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"if",
+      "kind":"Unit",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"if (${1:true}) {\n\t${2}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"lock",
+      "kind":"Unit",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"lock {\n\t${1}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"match",
+      "kind":"Unit",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"match ",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"panic",
+      "kind":"Unit",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"panic ",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"return",
+      "kind":"Unit",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"return;",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"transaction",
+      "kind":"Unit",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"transaction with retries \u003d ${1:1}, oncommit \u003d ${2:onCommitFunction}, onabort \u003d ${3:onAbortFunction} {\n\t${4}\n} onretry {\n\t${5}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"while",
+      "kind":"Unit",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"while (${1:true}) {\n\t${2}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"wrply   Worker Reply Statement",
+      "kind":"Unit",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"${1:var1} \u003c- ${2:w1};",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"wtrg   Worker Trigger Statement",
+      "kind":"Unit",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"${1:var1} -\u003e ${2:w1};",
+      "insertTextFormat":"Snippet"
+    },
+    {
       "label":"worker",
+      "kind":"Snippet",
       "detail":"Snippet",
       "sortText":"190",
       "insertText":"worker ${1:name} {\n\t${2}\n}",

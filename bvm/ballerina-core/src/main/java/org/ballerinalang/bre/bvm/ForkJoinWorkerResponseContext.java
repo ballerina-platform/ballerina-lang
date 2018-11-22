@@ -17,9 +17,9 @@
 */
 package org.ballerinalang.bre.bvm;
 
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.program.BLangVMUtils;
 
 import java.util.HashMap;
@@ -48,7 +48,7 @@ public class ForkJoinWorkerResponseContext extends SyncCallableWorkerResponseCon
     //Key - workerName, Value - data channel name;
     private Map<String, String> channelNames;
 
-    private final Map<String, BMap<String, BValue>> workerErrors;
+    private final Map<String, BError> workerErrors;
 
     private int haltCount;
 
@@ -96,7 +96,7 @@ public class ForkJoinWorkerResponseContext extends SyncCallableWorkerResponseCon
 
     @Override
     protected synchronized WorkerExecutionContext onError(WorkerSignal signal) {
-        BMap<String, BValue> error = signal.getSourceContext().getError();
+        BError error = signal.getSourceContext().getError();
         if (this.isFulfilled()) {
             printError(signal.getSourceContext().workerInfo.getWorkerName(), error);
             return null;
@@ -154,14 +154,13 @@ public class ForkJoinWorkerResponseContext extends SyncCallableWorkerResponseCon
         return result != null ? result.value : null;
     }
 
-    private void printError(String workerName, BMap<String, BValue> error) {
+    private void printError(String workerName, BError error) {
         BLangVMUtils.log("error in worker - " + workerName + System.lineSeparator()
                 + BLangVMErrors.getPrintableStackTrace(error));
     }
 
-    private BMap<String, BValue> createCallFailedError(WorkerExecutionContext context,
-                                                       Map<String, BMap<String, BValue>> errors) {
-        return BLangVMErrors.createCallFailedException(context, errors);
+    private BError createCallFailedError(WorkerExecutionContext context, Map<String, BError> errors) {
+        return BLangVMErrors.handleError(context, errors);
     }
 
 }

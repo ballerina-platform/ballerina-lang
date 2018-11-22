@@ -18,10 +18,11 @@ import ballerina/http;
 import ballerina/internal;
 import ballerina/io;
 
-@final int MAX_INT_VALUE = 2147483647;
-@final string VERSION_REGEX = "(\\d+\\.)(\\d+\\.)(\\d+)";
+const int MAX_INT_VALUE = 2147483647;
+const string VERSION_REGEX = "(\\d+\\.)(\\d+\\.)(\\d+)";
+
 DefaultLogFormatter logFormatter = new DefaultLogFormatter();
-boolean isBuild;
+boolean isBuild = false;
 
 # This object denotes the default log formatter used when pulling a module directly.
 #
@@ -48,9 +49,7 @@ type BuildLogFormatter object {
 # + errMessage - The error message.
 # + return - Newly created error record.
 function createError (string errMessage) returns error {
-    error endpointError = {
-        message: logFormatter.formatLog(errMessage)
-    };
+    error endpointError = error(logFormatter.formatLog(errMessage));
     return endpointError;
 }
 
@@ -64,7 +63,7 @@ public function invokePull (string... args) returns error? {
     string pkgPath = args[2];
     string fileSeparator = args[3];
     string host = args[4];
-    string port = args[5];
+    string strPort = args[5];
     string proxyUsername = args[6];
     string proxyPassword = args[7];
     string terminalWidth = args[8];
@@ -77,13 +76,23 @@ public function invokePull (string... args) returns error? {
 
     // resolve endpoint
     http:Client httpEndpoint;
-    if (host != "" && port != "") {
-        try {
-            httpEndpoint = defineEndpointWithProxy(url, host, port, proxyUsername, proxyPassword);
-        } catch (error err) {
-            return createError("failed to resolve host : " + host + " with port " + port);
+    if (host != "" && strPort != "") {
+        // validate port
+        var port = <int> strPort;
+        if (port is int) {
+            http:Client|error result = trap defineEndpointWithProxy(url, host, port, proxyUsername, proxyPassword);
+            match result {
+                http:Client ep => {
+                    httpEndpoint = ep;
+                }
+                error e => {
+                    return createError("failed to resolve host : " + host + " with port " + port);
+                }
+            }
+        } else {
+            return createError("invalid port : " + strPort);
         }
-    } else  if (host != "" || port != "") {
+    } else  if (host != "" || strPort != "") {
         return createError("both host and port should be provided to enable proxy");
     } else {
         httpEndpoint = defineEndpointWithoutProxy(url);
@@ -117,7 +126,7 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
     match result {
         http:Response response => httpResponse = response;
         error e => {
-            return createError("connection to the remote host failed : " + e.message);
+            return createError("connection to the remote host failed : " + e.reason());
         }
     }
 
@@ -159,7 +168,7 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
         }
 
         string [] uriParts = resolvedURI.split("/");
-        string pkgVersion = uriParts[lengthof uriParts - 2];
+        string pkgVersion = uriParts[uriParts.length() - 2];
         boolean valid = check pkgVersion.matches(VERSION_REGEX);
 
         if (valid) {
@@ -182,16 +191,16 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
             string toAndFrom = " [central.ballerina.io -> home repo]";
             int rightMargin = 3;
             int width = (check <int>terminalWidth) - rightMargin;
-            copy(pkgSize, sourceChannel, wch, fullPkgPath, toAndFrom, width);
+            check copy(pkgSize, sourceChannel, wch, fullPkgPath, toAndFrom, width);
 
             match wch.close() {
                 error destChannelCloseError => {
-                    return createError("error occured while closing the channel: " + destChannelCloseError.message);
+                    return createError("error occured while closing the channel: " + destChannelCloseError.reason());
                 }
                 () => {
                     match sourceChannel.close() {
                         error sourceChannelCloseError => {
-                            return createError("error occured while closing the channel: " + sourceChannelCloseError.message);
+                            return createError("error occured while closing the channel: " + sourceChannelCloseError.reason());
                         }
                         () => {
                             return ();
@@ -216,7 +225,7 @@ public function main() {}
 # + username - Username of the proxy
 # + password - Password of the proxy
 # + return - Endpoint defined
-function defineEndpointWithProxy (string url, string hostname, string port, string username, string password) returns http:Client {
+function defineEndpointWithProxy (string url, string hostname, int port, string username, string password) returns http:Client {
     endpoint http:Client httpEndpointWithProxy {
         url: url,
         secureSocket:{
@@ -257,8 +266,8 @@ function defineEndpointWithoutProxy (string url) returns http:Client{
 #
 # + byteChannel - Byte channel
 # + numberOfBytes - Number of bytes to be read
-# + return - Read content as byte[] along with the number of bytes read.
-function readBytes(io:ReadableByteChannel byteChannel, int numberOfBytes) returns (byte[], int) {
+# + return - Read content as byte[] along with the number of bytes read, or error if read failed
+function readBytes(io:ReadableByteChannel byteChannel, int numberOfBytes) returns (byte[], int)|error {
     byte[] bytes;
     int numberOfBytesRead;
     (bytes, numberOfBytesRead) = check (byteChannel.read(numberOfBytes));
@@ -271,7 +280,7 @@ function readBytes(io:ReadableByteChannel byteChannel, int numberOfBytes) return
 # + content - Content to be written as a byte[]
 # + startOffset - Offset
 # + return - number of bytes written.
-function writeBytes(io:WritableByteChannel byteChannel, byte[] content, int startOffset) returns int {
+function writeBytes(io:WritableByteChannel byteChannel, byte[] content, int startOffset) returns int|error {
     int numberOfBytesWritten = check (byteChannel.write(content, startOffset));
     return numberOfBytesWritten;
 }
@@ -284,11 +293,12 @@ function writeBytes(io:WritableByteChannel byteChannel, byte[] content, int star
 # + fullPkgPath - Full module path
 # + toAndFrom - Pulled module details
 # + width - Width of the terminal
+# + return - Nil if successful, error if read failed
 function copy(int pkgSize, io:ReadableByteChannel src, io:WritableByteChannel dest,
-              string fullPkgPath, string toAndFrom, int width) {
+              string fullPkgPath, string toAndFrom, int width) returns error? {
     int terminalWidth = width - logFormatter.offset;
     int bytesChunk = 8;
-    byte[] readContent;
+    byte[] readContent = [];
     int readCount = -1;
     float totalCount = 0.0;
     int numberOfBytesWritten = 0;
@@ -300,28 +310,25 @@ function copy(int pkgSize, io:ReadableByteChannel src, io:WritableByteChannel de
     int totalVal = 10;
     int startVal = 0;
     int rightpadLength = terminalWidth - equals.length() - tabspaces.length() - rightMargin;
-    try {
-        while (!completed) {
-            (readContent, readCount) = readBytes(src, bytesChunk);
-            if (readCount <= startVal) {
-                completed = true;
-            }
-            if (dest != null) {
-                numberOfBytesWritten = writeBytes(dest, readContent, startVal);
-            }
-            totalCount = totalCount + readCount;
-            float percentage = totalCount / pkgSize;
-            noOfBytesRead = totalCount + "/" + pkgSize;
-            string bar = equals.substring(startVal, <int> (percentage * totalVal));
-            string spaces = tabspaces.substring(startVal, totalVal - <int>(percentage * totalVal));
-            string size = "[" + bar + ">" + spaces + "] " + <int>totalCount + "/" + pkgSize;
-            string msg = truncateString(fullPkgPath + toAndFrom, terminalWidth - size.length());
-            io:print("\r" + logFormatter.formatLog(rightPad(msg, rightpadLength) + size));
+    while (!completed) {
+        (readContent, readCount) = check readBytes(src, bytesChunk);
+        if (readCount <= startVal) {
+            completed = true;
         }
-    } catch (error err) {
-        io:println("");
+        if (dest != null) {
+            numberOfBytesWritten = check writeBytes(dest, readContent, startVal);
+        }
+        totalCount = totalCount + readCount;
+        float percentage = totalCount / pkgSize;
+        noOfBytesRead = totalCount + "/" + pkgSize;
+        string bar = equals.substring(startVal, <int> (percentage * totalVal));
+        string spaces = tabspaces.substring(startVal, totalVal - <int>(percentage * totalVal));
+        string size = "[" + bar + ">" + spaces + "] " + <int>totalCount + "/" + pkgSize;
+        string msg = truncateString(fullPkgPath + toAndFrom, terminalWidth - size.length());
+        io:print("\r" + logFormatter.formatLog(rightPad(msg, rightpadLength) + size));
     }
     io:println("\r" + logFormatter.formatLog(rightPad(fullPkgPath + toAndFrom, terminalWidth)));
+    return;
 }
 
 # This function adds the right pad.
@@ -389,7 +396,7 @@ function closeChannel(io:ReadableByteChannel|io:WritableByteChannel byteChannel)
             match rc.close() {
                 error channelCloseError => {
                     io:println(logFormatter.formatLog("Error occured while closing the channel: " +
-                                channelCloseError.message));
+                                channelCloseError.reason()));
                 }
                 () => return;
             }
@@ -398,7 +405,7 @@ function closeChannel(io:ReadableByteChannel|io:WritableByteChannel byteChannel)
             match wc.close() {
                 error channelCloseError => {
                     io:println(logFormatter.formatLog("Error occured while closing the channel: " +
-                                channelCloseError.message));
+                                channelCloseError.reason()));
                 }
                 () => return;
             }
@@ -414,8 +421,7 @@ function closeChannel(io:ReadableByteChannel|io:WritableByteChannel byteChannel)
 # + username - Username of the proxy
 # + password - Password of the proxy
 # + return - Proxy configurations for the endpoint
-function getProxyConfigurations(string hostName, string port, string username, string password) returns http:ProxyConfig {
-    int portInt = check <int> port;
-    http:ProxyConfig proxy = { host : hostName, port : portInt , userName: username, password : password };
+function getProxyConfigurations(string hostName, int port, string username, string password) returns http:ProxyConfig {
+    http:ProxyConfig proxy = { host : hostName, port : port , userName: username, password : password };
     return proxy;
 }

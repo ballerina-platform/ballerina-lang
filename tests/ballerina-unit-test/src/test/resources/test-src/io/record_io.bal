@@ -1,7 +1,7 @@
 import ballerina/io;
 
-io:ReadableTextRecordChannel? rch;
-io:WritableTextRecordChannel? wch;
+io:ReadableTextRecordChannel? rch = ();
+io:WritableTextRecordChannel? wch = ();
 
 function initReadableChannel(string filePath, string encoding, string recordSeperator,
                                     string fieldSeperator) {
@@ -20,17 +20,13 @@ function initWritableChannel(string filePath, string encoding, string recordSepe
 
 function nextRecord() returns (string[]|error) {
     var result = rch.getNext();
-    match result {
-        string[] fields => {
-            return fields;
-        }
-        error err => {
-            return err;
-        }
-        () => {
-            error e = {message: "Record channel not initialized properly"};
-            return e;
-        }
+    if (result is string[]) {
+        return result;
+    } else if (result is error) {
+        return result;
+    } else {
+        error e = error("Record channel not initialized properly");
+        return e;
     }
 }
 

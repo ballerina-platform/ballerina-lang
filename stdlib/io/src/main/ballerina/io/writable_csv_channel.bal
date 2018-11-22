@@ -16,15 +16,15 @@
 
 
 # Represents record separator of the CSV file.
-@final string CSV_RECORD_SEPERATOR = "\n";
+public const string CSV_RECORD_SEPERATOR = "\n";
 
 
 # Represents colon separator which should be used to identify colon separated files.
-@final string FS_COLON = ":";
+public const string FS_COLON = ":";
 
 
 # Represents minimum number of headers which will be included in CSV.
-@final int MINIMUM_HEADER_COUNT = 0;
+public const int MINIMUM_HEADER_COUNT = 0;
 
 
 # Represents a WritableCSVChannel which could be used to write records from CSV file.
@@ -36,12 +36,12 @@ public type WritableCSVChannel object {
     # + channel - ChracterChannel which will represent the content in the CSV
     # + fs - Field separator which will separate between the records in the CSV
     public new(WritableCharacterChannel characterChannel, Separator fs = ",") {
-        if (fs == TAB){
-            dc = new WritableTextRecordChannel(characterChannel, fmt = "TDF");
-        } else if (fs == COLON){
-            dc = new WritableTextRecordChannel(characterChannel, fs = FS_COLON, rs = CSV_RECORD_SEPERATOR);
+        if (fs == TAB) {
+            self.dc = new WritableTextRecordChannel(characterChannel, fmt = "TDF");
+        } else if (fs == COLON) {
+            self.dc = new WritableTextRecordChannel(characterChannel, fs = FS_COLON, rs = CSV_RECORD_SEPERATOR);
         } else {
-            dc = new WritableTextRecordChannel(characterChannel, fmt = "CSV");
+            self.dc = new WritableTextRecordChannel(characterChannel, fmt = "CSV");
         }
     }
 
@@ -50,13 +50,13 @@ public type WritableCSVChannel object {
     # + csvRecord - A record to be written to the channel
     # + return - Returns an error if the record could not be written properly
     public function write(string[] csvRecord) returns error? {
-        return dc.write(csvRecord);
+        return self.dc.write(csvRecord);
     }
 
     # Closes a given CSVChannel.
 
     # + return - if an error is encountered
     public function close() returns error? {
-        return dc.close();
+        return self.dc.close();
     }
 };

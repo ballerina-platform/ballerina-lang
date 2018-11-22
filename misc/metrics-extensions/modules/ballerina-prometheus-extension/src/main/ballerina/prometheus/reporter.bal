@@ -18,17 +18,17 @@ import ballerina/http;
 import ballerina/observe;
 import ballerina/config;
 
-@final string METRIC_TYPE_GAUGE = "gauge";
-@final string METRIC_TYPE_SUMMARY = "summary";
-@final string EMPTY_STRING = "";
+const string METRIC_TYPE_GAUGE = "gauge";
+const string METRIC_TYPE_SUMMARY = "summary";
+const string EMPTY_STRING = "";
 
-@final string PROMETHEUS_PORT_CONFIG = "b7a.observability.metrics.prometheus.port";
-@final string PROMETHEUS_HOST_CONFIG = "b7a.observability.metrics.prometheus.host";
+const string PROMETHEUS_PORT_CONFIG = "b7a.observability.metrics.prometheus.port";
+const string PROMETHEUS_HOST_CONFIG = "b7a.observability.metrics.prometheus.host";
 @final int REPORTER_PORT = config:getAsInt(PROMETHEUS_PORT_CONFIG, default = 9797);
 @final string REPORTER_HOST = config:getAsString(PROMETHEUS_HOST_CONFIG, default = "0.0.0.0");
 
-@final string EXPIRY_TAG = "timeWindow";
-@final string PERCENTILE_TAG = "quantile";
+const string EXPIRY_TAG = "timeWindow";
+const string PERCENTILE_TAG = "quantile";
 
 endpoint http:Listener prometheusListener {
     host: REPORTER_HOST,
@@ -59,7 +59,7 @@ service<http:Service> PrometheusReporter bind prometheusListener {
             payload += generateMetricHelp(metricReportName, metric.desc);
             payload += generateMetricInfo(metricReportName, metric.metricType);
             payload += generateMetric(metricReportName, metric.tags, metric.value);
-            if (metric.metricType.equalsIgnoreCase(METRIC_TYPE_GAUGE) && metric.summary != null){
+            if (metric.metricType.equalsIgnoreCase(METRIC_TYPE_GAUGE) && metric.summary !== ()){
                 map<string> tags = metric.tags;
                 observe:Snapshot[]? summaries = metric.summary;
                 match summaries {

@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/log;
-
 # When a transaction block in Ballerina code begins, it will call this function to begin a transaction.
 # If this is a new transaction (transactionId == () ), then this instance will become the initiator and will
 # create a new transaction context.
@@ -37,8 +35,6 @@ function beginTransaction(string? transactionId, int transactionBlockId, string 
         string txnId => {
             if (initiatedTransactions.hasKey(txnId)) { // if participant & initiator are in the same process
                 // we don't need to do a network call and can simply do a local function call
-                log:printInfo("registerLocalParticipantWithInitiator:" + txnId);
-
                 return registerLocalParticipantWithInitiator(txnId, transactionBlockId, registerAtUrl);
             } else {
                 //TODO: set the proper protocol
@@ -46,7 +42,6 @@ function beginTransaction(string? transactionId, int transactionBlockId, string 
                 RemoteProtocol[] protocols = [{
                     name:protocolName, url:getParticipantProtocolAt(protocolName, transactionBlockId)
                 }];
-                log:printInfo("registerParticipantWithRemoteInitiator:" + txnId);
                 return registerParticipantWithRemoteInitiator(txnId, transactionBlockId, registerAtUrl, protocols);
             }
         }
@@ -62,17 +57,14 @@ function beginTransaction(string? transactionId, int transactionBlockId, string 
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - nil or error when transaction abortion is successful or not respectively.
 function abortTransaction(string transactionId, int transactionBlockId) returns error? {
-    log:printInfo("abortTransaction: " + transactionId);
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
     match (participatedTransactions[participatedTxnId]) {
         TwoPhaseCommitTransaction txn => {
-            log:printError("Participated tx mark for abotion: " + transactionId);
             return txn.markForAbortion();
         }
         () => { 
             match (initiatedTransactions[transactionId]) {
                 TwoPhaseCommitTransaction txn => {
-                    log:printError("Initiated tx mark for abotion: " + transactionId);
                     return txn.markForAbortion();
                 }
                 () => {
@@ -82,8 +74,8 @@ function abortTransaction(string transactionId, int transactionBlockId) returns 
 
                     var jsParticipated = check <json> participatedTransactions;
                     log:printError(jsParticipated.toString());
-                    error err = {message:"Unknown transaction"};
-                    throw err;
+                    error err = error("Unknown transaction");
+                    panic err;
                 }
             }
         }
@@ -99,11 +91,10 @@ function abortTransaction(string transactionId, int transactionBlockId) returns 
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - A string or an error representing the transaction end succcess status or failure respectively.
 function endTransaction(string transactionId, int transactionBlockId) returns string|error {
-    log:printInfo("endTransaction: " + transactionId);
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
     if (!initiatedTransactions.hasKey(transactionId) && !participatedTransactions.hasKey(participatedTxnId)) {
-        error err = {message:"Transaction: " + participatedTxnId + " not found"};
-        throw err;
+        error err = error("Transaction: " + participatedTxnId + " not found");
+        panic err;
     }
 
     // Only the initiator can end the transaction. Here we check whether the entity trying to end the transaction is
@@ -115,12 +106,9 @@ function endTransaction(string transactionId, int transactionBlockId) returns st
             }
             TwoPhaseCommitTransaction initiatedTxn => {
                 if (initiatedTxn.state == TXN_STATE_ABORTED) {
-                    log:printInfo("endTransaction: aborting:" + transactionId);
                     return initiatedTxn.abortInitiatorTransaction();
                 } else {
-                    log:printInfo("endTransaction: commiting:" + transactionId);
                     string|error ret = initiatedTxn.twoPhaseCommit();
-                    log:printInfo("endTransaction: remove committed or aborted:" + transactionId);
                     removeInitiatedTransaction(transactionId);
                     match (ret) {
                         string s => {
@@ -146,21 +134,12 @@ function endTransaction(string transactionId, int transactionBlockId) returns st
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - true or false representing whether this instance is an intiator or not.
 function isInitiator(string transactionId, int transactionBlockId) returns boolean {
-    log:printInfo("isInitiator:" + transactionId);
-    var itx = check <json> initiatedTransactions;
-    log:printError(itx.toString());
     if (initiatedTransactions.hasKey(transactionId)) {
-        log:printInfo("isInitiator: in initiated trx list" + transactionId);
-        var ptx = check <json> participatedTransactions;
-        log:printError(ptx.toString());
         string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
         if (!participatedTransactions.hasKey(participatedTxnId)) {
-            log:printInfo("isInitiator: true, not in participated list");
             return true;
         }
-        log:printInfo("isInitiator: false, in participated list");
     }
-    log:printInfo("isInitiator: false");
     return false;
 }
 

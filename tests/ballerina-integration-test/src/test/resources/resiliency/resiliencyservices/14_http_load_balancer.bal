@@ -70,23 +70,20 @@ service<http:Service> loadBalancerDemoService bind { port: 9313 } {
         path: "/roundRobin"
     }
     roundRobin(endpoint caller, http:Request req) {
-        http:Request outRequest = new;
         json requestPayload = { "name": "Ballerina" };
-        outRequest.setPayload(requestPayload);
-        var response = lbBackendEP->post("/", outRequest);
-        match response {
-            http:Response resp => {
-                caller->respond(resp) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        var response = lbBackendEP->post("/", requestPayload);
+        if (response is http:Response) {
+            var responseToCaller = caller->respond(response);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
             }
-            error responseError => {
-                http:Response outResponse = new;
-                outResponse.statusCode = 500;
-                outResponse.setPayload(responseError.message);
-                caller->respond(outResponse) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        } else if (response is error) {
+            http:Response outResponse = new;
+            outResponse.statusCode = 500;
+            outResponse.setPayload(<string> response.detail().message);
+            var responseToCaller = caller->respond(outResponse);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
             }
         }
     }
@@ -95,23 +92,20 @@ service<http:Service> loadBalancerDemoService bind { port: 9313 } {
         path: "/failover"
     }
     lbFailover(endpoint caller, http:Request req) {
-        http:Request outRequest = new;
         json requestPayload = { "name": "Ballerina" };
-        outRequest.setPayload(requestPayload);
-        var response = lbFailoverBackendEP->post("/", outRequest);
-        match response {
-            http:Response resp => {
-                caller->respond(resp) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        var response = lbFailoverBackendEP->post("/", requestPayload);
+        if (response is http:Response) {
+            var responseToCaller = caller->respond(response);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
             }
-            error responseError => {
-                http:Response outResponse = new;
-                outResponse.statusCode = 500;
-                outResponse.setPayload(responseError.message);
-                caller->respond(outResponse) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        } else if (response is error) {
+            http:Response outResponse = new;
+            outResponse.statusCode = 500;
+            outResponse.setPayload(<string> response.detail().message);
+            var responseToCaller = caller->respond(outResponse);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
             }
         }
     }
@@ -120,23 +114,20 @@ service<http:Service> loadBalancerDemoService bind { port: 9313 } {
         path: "/delay"
     }
     delayResource(endpoint caller, http:Request req) {
-        http:Request outRequest = new;
         json requestPayload = { "name": "Ballerina" };
-        outRequest.setPayload(requestPayload);
-        var response = delayedBackendEP->post("/", outRequest);
-        match response {
-            http:Response resp => {
-                caller->respond(resp) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        var response = delayedBackendEP->post("/", requestPayload);
+        if (response is http:Response) {
+            var responseToCaller = caller->respond(response);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
             }
-            error responseError => {
-                http:Response outResponse = new;
-                outResponse.statusCode = 500;
-                outResponse.setPayload(responseError.message);
-                caller->respond(outResponse) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        } else if (response is error) {
+            http:Response outResponse = new;
+            outResponse.statusCode = 500;
+            outResponse.setPayload(<string> response.detail().message);
+            var responseToCaller = caller->respond(outResponse);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
             }
         }
     }
@@ -145,23 +136,20 @@ service<http:Service> loadBalancerDemoService bind { port: 9313 } {
         path: "/custom"
     }
     customResource(endpoint caller, http:Request req) {
-        http:Request outRequest = new;
         json requestPayload = { "name": "Ballerina" };
-        outRequest.setPayload(requestPayload);
-        var response = customLbBackendEP->post("/", outRequest);
-        match response {
-            http:Response resp => {
-                caller->respond(resp) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        var response = customLbBackendEP->post("/", requestPayload);
+        if (response is http:Response) {
+            var responseToCaller = caller->respond(response);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
             }
-            error responseError => {
-                http:Response outResponse = new;
-                outResponse.statusCode = 500;
-                outResponse.setPayload(responseError.message);
-                caller->respond(outResponse) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        } else if (response is error) {
+            http:Response outResponse = new;
+            outResponse.statusCode = 500;
+            outResponse.setPayload(<string> response.detail().message);
+            var responseToCaller = caller->respond(outResponse);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
             }
         }
     }
@@ -173,8 +161,10 @@ service mock1 bind backendEP {
         path: "/"
     }
     mock1Resource(endpoint caller, http:Request req) {
-        caller->respond("Mock1 Resource is Invoked.") but {
-            error e => log:printError("Error sending response from mock service", err = e)};
+        var responseToCaller = caller->respond("Mock1 Resource is Invoked.");
+        if (responseToCaller is error) {
+            log:printError("Error sending response from mock service", err = responseToCaller);
+        }
     }
 }
 
@@ -184,8 +174,10 @@ service mock2 bind backendEP {
         path: "/"
     }
     mock2Resource(endpoint caller, http:Request req) {
-        caller->respond("Mock2 Resource is Invoked.") but {
-            error e => log:printError("Error sending response from mock service", err = e)};
+        var responseToCaller = caller->respond("Mock2 Resource is Invoked.");
+        if (responseToCaller is error) {
+            log:printError("Error sending response from mock service", err = responseToCaller);
+        }
     }
 }
 
@@ -195,8 +187,10 @@ service mock3 bind backendEP {
         path: "/"
     }
     mock3Resource(endpoint caller, http:Request req) {
-        caller->respond("Mock3 Resource is Invoked.") but {
-            error e => log:printError("Error sending response from mock service", err = e)};
+        var responseToCaller = caller->respond("Mock3 Resource is Invoked.");
+        if (responseToCaller is error) {
+            log:printError("Error sending response from mock service", err = responseToCaller);
+        }
     }
 }
 
@@ -207,8 +201,10 @@ service mock4 bind backendEP {
     }
     mock4Resource(endpoint caller, http:Request req) {
         runtime:sleep(5000);
-        caller->respond("Mock4 Resource is Invoked.") but {
-            error e => log:printError("Error sending response from mock service", err = e)};
+        var responseToCaller = caller->respond("Mock4 Resource is Invoked.");
+        if (responseToCaller is error) {
+            log:printError("Error sending response from mock service", err = responseToCaller);
+        }
     }
 }
 
@@ -217,10 +213,12 @@ service mock5 bind backendEP {
     @http:ResourceConfig {
         path: "/"
     }
-    mock4Resource(endpoint caller, http:Request req) {
+    mock5Resource(endpoint caller, http:Request req) {
         runtime:sleep(5000);
-        caller->respond("Mock5 Resource is Invoked.") but {
-            error e => log:printError("Error sending response from mock service", err = e)};
+        var responseToCaller = caller->respond("Mock5 Resource is Invoked.");
+        if (responseToCaller is error) {
+            log:printError("Error sending response from mock service", err = responseToCaller);
+        }
     }
 }
 
@@ -231,26 +229,25 @@ public type CustomLoadBalancerRule object {
 
     public int index;
 
-    # Provides an HTTP client which is choosen according to the custom algorithm.
-    #
-    # + loadBalanceCallerActionsArray - Array of HTTP clients which needs to be load balanced
-    # + return - Choosen `CallerActions` from the algorithm or an `error` for a failure in
-    #            the algorithm implementation
     public new (index) {}
 
+    # Provides an HTTP client which is choosen according to the custom algorithm.
+    #
+    # + loadBalanceClientsArray - Array of HTTP clients which needs to be load balanced
+    # + return - Choosen `CallerActions` from the algorithm or an `error` for a failure in
+    #            the algorithm implementation
     public function getNextCallerActions(http:CallerActions[] loadBalanceClientsArray) returns http:CallerActions|error;
-
 };
 
-function CustomLoadBalancerRule::getNextCallerActions(http:CallerActions[] loadBalanceClientsArray)
+function CustomLoadBalancerRule.getNextCallerActions(http:CallerActions[] loadBalanceClientsArray)
                                           returns http:CallerActions|error {
-    http:CallerActions httpClient;
-    if (self.index >= (lengthof (loadBalanceClientsArray))) {
-        error err = {message : "Provided index is doesn't match with the targets."};
+    http:CallerActions httpClient = new;
+    if (self.index >= loadBalanceClientsArray.length()) {
+        error err = error("Provided index is doesn't match with the targets.");
         return err;
     }
     lock {
-        if (self.index == ((lengthof (loadBalanceClientsArray)) - 1)) {
+        if (self.index == (loadBalanceClientsArray.length() - 1)) {
             httpClient = loadBalanceClientsArray[self.index];
             self.index = 0;
         } else {

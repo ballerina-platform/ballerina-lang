@@ -18,7 +18,7 @@ import ballerina/config;
 import ballerina/crypto;
 import ballerina/runtime;
 
-@final string CONFIG_USER_SECTION = "b7a.users";
+const string CONFIG_USER_SECTION = "b7a.users";
 
 # Represents Ballerina configuration file based auth store provider
 public type ConfigAuthStoreProvider object {
@@ -29,7 +29,7 @@ public type ConfigAuthStoreProvider object {
     # + password - password
     # + return - true if authentication is a success, else false
     public function authenticate(string user, string password) returns boolean {
-        boolean isAuthenticated = password == readPassword(user);
+        boolean isAuthenticated = password == self.readPassword(user);
             if(isAuthenticated){
                 runtime:UserPrincipal userPrincipal = runtime:getInvocationContext().userPrincipal;
                 userPrincipal.userId = user;
@@ -46,7 +46,7 @@ public type ConfigAuthStoreProvider object {
     public function getScopes(string username) returns string[] {
         // first read the user id from user->id mapping
         // reads the groups for the userid
-        return getArray(getConfigAuthValue(CONFIG_USER_SECTION + "." + username, "scopes"));
+        return self.getArray(self.getConfigAuthValue(CONFIG_USER_SECTION + "." + username, "scopes"));
     }
 
     # Reads the password hash for a user
@@ -56,7 +56,7 @@ public type ConfigAuthStoreProvider object {
     public function readPassword(string username) returns string {
         // first read the user id from user->id mapping
         // read the hashed password from the userstore file, using the user id
-        return getConfigAuthValue(CONFIG_USER_SECTION + "." + username, "password");
+        return self.getConfigAuthValue(CONFIG_USER_SECTION + "." + username, "password");
     }
 
     public function getConfigAuthValue(string instanceId, string property) returns string {
@@ -69,7 +69,7 @@ public type ConfigAuthStoreProvider object {
     # + return - array of groups, nil if the groups string is empty/nil
     public function getArray(string groupString) returns (string[]) {
         string[] groupsArr = [];
-        if (lengthof groupString == 0) {
+        if (groupString.length() == 0) {
             return groupsArr;
         }
         return groupString.split(",");

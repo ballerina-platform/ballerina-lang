@@ -6,271 +6,880 @@
   "source": "function/source/functionPointerAsParameter.bal",
   "items": [
     {
-      "label":"xmlns",
-      "detail":"Snippet",
-      "sortText":"190",
-      "insertText":"xmlns \"${1}\" as ${2:ns};",
-      "insertTextFormat":"Snippet"
+      "label": "xmlns",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "190",
+      "insertText": "xmlns \"${1}\" as ${2:ns};",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"var",
-      "detail":"Keyword",
-      "sortText":"210",
-      "insertText":"var ",
-      "insertTextFormat":"Snippet"
+      "label": "var",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "210",
+      "insertText": "var ",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"foreach",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"foreach ${1:item} in ${2:itemList} {\n\t${3}\n}",
-      "insertTextFormat":"Snippet"
+      "label": "error",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "190",
+      "insertText": "error ${1:name} \u003d error(\"${2:errorCode}\", { message: \"${3}\" });",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"fork",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"fork {\n\t${1}\n} join (${2:all}) (map ${3:results}) {\n\t${4}\n}",
-      "insertTextFormat":"Snippet"
+      "label": "foreach",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "200",
+      "insertText": "foreach ${1:item} in ${2:itemList} {\n\t${3}\n}",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"if",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"if (${1:true}) {\n\t${2}\n}",
-      "insertTextFormat":"Snippet"
+      "label": "fork",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "200",
+      "insertText": "fork {\n\t${1}\n} join (${2:all}) (map ${3:results}) {\n\t${4}\n}",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"lock",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"lock {\n\t${1}\n}",
-      "insertTextFormat":"Snippet"
+      "label": "if",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "200",
+      "insertText": "if (${1:true}) {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"match",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"match ",
-      "insertTextFormat":"Snippet"
+      "label": "lock",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "200",
+      "insertText": "lock {\n\t${1}\n}",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"return",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"return;",
-      "insertTextFormat":"Snippet"
+      "label": "match",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "200",
+      "insertText": "match ",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"throw",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"throw ",
-      "insertTextFormat":"Snippet"
+      "label": "panic",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "200",
+      "insertText": "panic ",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"transaction",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"transaction with retries \u003d ${1:1}, oncommit \u003d ${2:onCommitFunction}, onabort \u003d ${3:onAbortFunction} {\n\t${4}\n} onretry {\n\t${5}\n}",
-      "insertTextFormat":"Snippet"
+      "label": "return",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "200",
+      "insertText": "return;",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"try",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"try {\n\t${1}\n} catch (${2:error} ${3:err}) {\n\t${4}\n}",
-      "insertTextFormat":"Snippet"
+      "label": "transaction",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "200",
+      "insertText": "transaction with retries \u003d ${1:1}, oncommit \u003d ${2:onCommitFunction}, onabort \u003d ${3:onAbortFunction} {\n\t${4}\n} onretry {\n\t${5}\n}",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"while",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"while (${1:true}) {\n\t${2}\n}",
-      "insertTextFormat":"Snippet"
+      "label": "while",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "200",
+      "insertText": "while (${1:true}) {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"wrply   Worker Reply Statement",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"${1:var1} \u003c- ${2:w1};",
-      "insertTextFormat":"Snippet"
+      "label": "wrply   Worker Reply Statement",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "200",
+      "insertText": "${1:var1} \u003c- ${2:w1};",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"wtrg   Worker Trigger Statement",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"${1:var1} -\u003e ${2:w1};",
-      "insertTextFormat":"Snippet"
+      "label": "wtrg   Worker Trigger Statement",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "200",
+      "insertText": "${1:var1} -\u003e ${2:w1};",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"channel",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"channel"
+      "label": "channel",
+      "kind": "Keyword",
+      "detail": "BType",
+      "sortText": "170",
+      "insertText": "channel"
     },
     {
-      "label":"bar(int a, string b)(float)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"bar(${1:a}, ${2:b})",
-      "insertTextFormat":"Snippet"
+      "label": "bar()(float)",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "120",
+      "insertText": "bar()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"xml",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"xml"
+      "label": "xml",
+      "kind": "Keyword",
+      "detail": "BType",
+      "sortText": "170",
+      "insertText": "xml"
     },
     {
-      "label":"queryTableWithJoinClause(string sqlQuery, table fromTable, table joinTable, any parameters, any retType)(table)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"queryTableWithJoinClause(${1:sqlQuery}, ${2:fromTable}, ${3:joinTable}, ${4:parameters}, ${5:retType})",
-      "insertTextFormat":"Snippet"
+      "label": "queryTableWithJoinClause(string sqlQuery, table fromTable, table joinTable, any parameters, any retType)(table)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": "Execute the given sql query to fetch the records and return as a new in memory table.\n",
+      "sortText": "120",
+      "insertText": "queryTableWithJoinClause(${1:sqlQuery}, ${2:fromTable}, ${3:joinTable}, ${4:parameters}, ${5:retType})",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"TableConfig",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"TableConfig"
+      "label": "TableConfig",
+      "kind": "Class",
+      "detail": "BType",
+      "documentation": "TableConfig represents properties used during table initialization.\n",
+      "sortText": "170",
+      "insertText": "TableConfig"
     },
     {
-      "label":"byte",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"byte"
+      "label": "byte",
+      "kind": "Keyword",
+      "detail": "BType",
+      "sortText": "170",
+      "insertText": "byte"
     },
     {
-      "label":"queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters, any retType)(table)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"queryTableWithoutJoinClause(${1:sqlQuery}, ${2:fromTable}, ${3:parameters}, ${4:retType})",
-      "insertTextFormat":"Snippet"
+      "label": "queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters, any retType)(table)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": "Execute the given sql query to fetch the records and return as a new in memory table.\n",
+      "sortText": "120",
+      "insertText": "queryTableWithoutJoinClause(${1:sqlQuery}, ${2:fromTable}, ${3:parameters}, ${4:retType})",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"startForever(string streamQuery, any inStreamRefs, any inTableRefs, any outStreamRefs, any outTableRefs, any funcPointers)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"startForever(${1:streamQuery}, ${2:inStreamRefs}, ${3:inTableRefs}, ${4:outStreamRefs}, ${5:outTableRefs}, ${6:funcPointers})",
-      "insertTextFormat":"Snippet"
+      "label": "startForever(string streamQuery, any inStreamRefs, any inTableRefs, any outStreamRefs, any outTableRefs, any funcPointers)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": "Creates the forever runtime.\n",
+      "sortText": "120",
+      "insertText": "startForever(${1:streamQuery}, ${2:inStreamRefs}, ${3:inTableRefs}, ${4:outStreamRefs}, ${5:outTableRefs}, ${6:funcPointers})",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"stream",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"stream"
+      "label": "stream",
+      "kind": "Keyword",
+      "detail": "BType",
+      "sortText": "170",
+      "insertText": "stream"
     },
     {
-      "label":"map",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"map"
+      "label": "map",
+      "kind": "Keyword",
+      "detail": "BType",
+      "sortText": "170",
+      "insertText": "map"
     },
     {
-      "label":"table",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"table"
+      "label": "table",
+      "kind": "Keyword",
+      "detail": "BType",
+      "sortText": "170",
+      "insertText": "table"
     },
     {
-      "label":"future",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"future"
+      "label": "anydata",
+      "kind": "Keyword",
+      "detail": "BType",
+      "sortText": "170",
+      "insertText": "anydata"
     },
     {
-      "label":"x",
-      "kind":"Unit",
-      "detail":"int",
-      "sortText":"110",
-      "insertText":"x"
+      "label": "future",
+      "kind": "Keyword",
+      "detail": "BType",
+      "sortText": "170",
+      "insertText": "future"
     },
     {
-      "label":"typedesc",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"typedesc"
+      "label": "x",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "110",
+      "insertText": "x"
     },
     {
-      "label":"float",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"float"
+      "label": "typedesc",
+      "kind": "Keyword",
+      "detail": "BType",
+      "sortText": "170",
+      "insertText": "typedesc"
     },
     {
-      "label":"null",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"null"
+      "label": "float",
+      "kind": "Keyword",
+      "detail": "BType",
+      "sortText": "170",
+      "insertText": "float"
     },
     {
-      "label":"string",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"string"
+      "label": "null",
+      "kind": "Keyword",
+      "detail": "BType",
+      "sortText": "170",
+      "insertText": "null"
     },
     {
-      "label":"foo(int x, function (int,string) returns (float) bar)(float)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"foo(${1:x}, ${2:bar})",
-      "insertTextFormat":"Snippet"
+      "label": "decimal",
+      "kind": "Keyword",
+      "detail": "BType",
+      "sortText": "170",
+      "insertText": "decimal"
     },
     {
-      "label":"error",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"error"
+      "label": "string",
+      "kind": "Keyword",
+      "detail": "BType",
+      "sortText": "170",
+      "insertText": "string"
     },
     {
-      "label":"json",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"json"
+      "label": "foo(int x, function (int,string) returns (float) bar)(float)",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "120",
+      "insertText": "foo(${1:x}, ${2:bar})",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"any",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"any"
+      "label": "error",
+      "kind": "Keyword",
+      "detail": "BType",
+      "sortText": "170",
+      "insertText": "error"
     },
     {
-      "label":"int",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"int"
+      "label": "json",
+      "kind": "Keyword",
+      "detail": "BType",
+      "sortText": "170",
+      "insertText": "json"
     },
     {
-      "label":"docData",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"docData"
+      "label": "any",
+      "kind": "Keyword",
+      "detail": "BType",
+      "sortText": "170",
+      "insertText": "any"
     },
     {
-      "label":"boolean",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"boolean"
+      "label": "int",
+      "kind": "Keyword",
+      "detail": "BType",
+      "sortText": "170",
+      "insertText": "int"
     },
     {
-      "label":"endpoint",
-      "detail":"Snippet",
-      "sortText":"190",
-      "insertText":"endpoint ${1:http:Listener} ${2:listener} {\n\t${3}\n};",
-      "insertTextFormat":"Snippet"
+      "label": "docData",
+      "kind": "Class",
+      "detail": "BType",
+      "sortText": "170",
+      "insertText": "docData"
     },
     {
-      "label":"worker",
-      "detail":"Snippet",
-      "sortText":"190",
-      "insertText":"worker ${1:name} {\n\t${2}\n}",
-      "insertTextFormat":"Snippet"
+      "label": "boolean",
+      "kind": "Keyword",
+      "detail": "BType",
+      "sortText": "170",
+      "insertText": "boolean"
+    },
+    {
+      "label": "ballerina/transactions",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "transactions",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "\nimport ballerina/transactions;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/websub",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "websub",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "\nimport ballerina/websub;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/grpc",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "grpc",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "\nimport ballerina/grpc;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/reflect",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "reflect",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "\nimport ballerina/reflect;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/log",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "log",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "\nimport ballerina/log;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/time",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "time",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "\nimport ballerina/time;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/test",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "test",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "\nimport ballerina/test;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/runtime",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "runtime",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "\nimport ballerina/runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/swagger",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "swagger",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "\nimport ballerina/swagger;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/file",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "file",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "\nimport ballerina/file;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/sql",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "sql",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "\nimport ballerina/sql;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/internal",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "internal",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "\nimport ballerina/internal;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/http",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "http",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "\nimport ballerina/http;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/mysql",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "mysql",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "\nimport ballerina/mysql;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/mime",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "mime",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "\nimport ballerina/mime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/task",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "task",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "\nimport ballerina/task;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/crypto",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "crypto",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "\nimport ballerina/crypto;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/io",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "io",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "\nimport ballerina/io;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/cache",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "cache",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "\nimport ballerina/cache;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/auth",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "auth",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "\nimport ballerina/auth;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/jms",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "jms",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "\nimport ballerina/jms;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/system",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "system",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "\nimport ballerina/system;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/h2",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "h2",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "\nimport ballerina/h2;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/builtin",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "builtin"
+    },
+    {
+      "label": "ballerina/math",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "math",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "\nimport ballerina/math;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/config",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "config",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "\nimport ballerina/config;\n"
+        }
+      ]
+    },
+    {
+      "label": "endpoint",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "190",
+      "insertText": "endpoint ${1:http:Listener} ${2:listener} {\n\t${3}\n};",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "worker",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "190",
+      "insertText": "worker ${1:name} {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

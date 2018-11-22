@@ -4,7 +4,7 @@ function arrayLengthAccessTestAssignmentCase (int x, int y) returns (int) {
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
     int length;
-    length = lengthof arr;
+    length = arr.length();
     return length;
 }
 
@@ -14,7 +14,7 @@ function arrayLengthAccessTestFunctionInvocationCase(int x, int y) returns (int)
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
     int length;
-    length = arrayLength(lengthof arr);
+    length = arrayLength(arr.length());
     return length;
 }
 
@@ -28,7 +28,7 @@ function arrayLengthAccessTestVariableDefinitionCase(int x, int y) returns (int)
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
-    int length = arrayLength(lengthof arr);
+    int length = arrayLength(arr.length());
     return length;
 }
 
@@ -37,16 +37,16 @@ function arrayLengthAccessTestArrayInitializerCase(int x, int y) returns (int) {
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
-    int[] tempArr = [lengthof arr,(x+y)];
+    int[] tempArr = [arr.length(),(x+y)];
     return tempArr[0];
 }
 
-function arrayLengthAccessTestMapInitializerCase(int x, int y) returns (int) {
+function arrayLengthAccessTestMapInitializerCase(int x, int y) returns (int|error) {
     int[] arr = [];
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
-    map tempMap = {"length":lengthof arr};
+    map tempMap = {"length":arr.length()};
     int length;
     length =check <int> tempMap["length"];
     return length;
@@ -57,7 +57,7 @@ function arrayLengthAccessTestReturnStatementCase(int x, int y) returns (int) {
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
-    return lengthof arr;
+    return arr.length();
 }
 
 function arrayLengthAccessTestMultiReturnStatementCase(int x, int y) returns (int,int,int) {
@@ -70,7 +70,7 @@ function arrayLengthAccessTestMultiReturnStatementCase(int x, int y) returns (in
     int[] crr = [];
     crr[0] = 1;
     crr[1] = x + y;
-    return (lengthof arr, lengthof brr, lengthof crr);
+    return (arr.length(), brr.length(), crr.length());
 }
 
 function arrayLengthAccessTestTypeCastExpressionCase(int x, int y) returns (int) {
@@ -78,7 +78,7 @@ function arrayLengthAccessTestTypeCastExpressionCase(int x, int y) returns (int)
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
-    int length = lengthof arr;
+    int length = arr.length();
     return length;
 }
 
@@ -87,7 +87,7 @@ function arrayLengthAccessTestIfConditionCase(int x, int y) returns (int) {
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
-    if( lengthof arr == 3 ) {
+    if( arr.length() == 3 ) {
        return 3;
     } else{
        return 0;
@@ -99,7 +99,7 @@ function arrayLengthAccessTestBinaryExpressionCase(int x, int y) returns (int) {
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
-    if( lengthof arr == lengthof arr ) {
+    if( arr.length() == arr.length() ) {
        return 3;
     } else{
        return 0;
@@ -114,7 +114,7 @@ function arrayLengthAccessTestStructFieldAccessCase(int x, int y) returns (int) 
 
     Person jack = {name:"Jack", days:arr};
 
-    if ( lengthof jack.days == 3 ) {
+    if ( jack.days.length() == 3 ) {
         return 3;
     } else {
         return 0;
@@ -123,9 +123,9 @@ function arrayLengthAccessTestStructFieldAccessCase(int x, int y) returns (int) 
 
 function arrayLengthAccessNullArrayCase(int x, int y) returns (int) {
     int z = x + y;
-    int[] arr;
+    int[] arr = [];
     int length;
-    length = lengthof arr;
+    length = arr.length();
     return length;
 }
 

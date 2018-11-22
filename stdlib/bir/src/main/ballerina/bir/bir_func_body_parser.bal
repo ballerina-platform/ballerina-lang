@@ -7,91 +7,91 @@ public type FuncBodyParser object {
     }
 
     public function parseBB() returns BasicBlock {
-        var id = reader.readStringCpRef();
-        var numInstruction = reader.readInt32() - 1;
-        Instruction[] instructions;
-        int i;
+        var id = self.reader.readStringCpRef();
+        var numInstruction = self.reader.readInt32() - 1;
+        Instruction[] instructions = [];
+        int i = 0;
         while (i < numInstruction) {
-            instructions[i] = parseInstruction();
+            instructions[i] = self.parseInstruction();
             i += 1;
         }
         return { id: { value: id },
             instructions: instructions,
-            terminator: parseTerminator() };
+            terminator: self.parseTerminator() };
     }
 
     public function parseInstruction() returns Instruction {
-        var kindTag = reader.readInt8();
+        var kindTag = self.reader.readInt8();
         InstructionKind kind = "CONST_LOAD";
         // this is hacky to init to a fake val, but ballerina dosn't support un intialized vers
         if (kindTag == 6){
             //TODO: remove redundent
-            var bType = reader.readBType();
+            var bType = self.reader.readBType();
             kind = "CONST_LOAD";
             var constLoad = new ConstantLoad(kind,
-                parseVarRef(),
+                self.parseVarRef(),
                 bType,
-                reader.readIntCpRef());
+                self.reader.readIntCpRef());
             return constLoad;
         } else if (kindTag == 5){
             kind = "MOVE";
-            var rhsOp = parseVarRef();
-            var lhsOp = parseVarRef();
+            var rhsOp = self.parseVarRef();
+            var lhsOp = self.parseVarRef();
             return new Move(kind, lhsOp, rhsOp);
         } else {
-            return parseBinaryOpInstruction(kindTag);
+            return self.parseBinaryOpInstruction(kindTag);
         }
     }
 
 
 
     public function parseTerminator() returns Terminator {
-        var kindTag = reader.readInt8();
+        var kindTag = self.reader.readInt8();
         if (kindTag == 3){
             InstructionKind kind = "BRANCH";
-            var op = parseVarRef();
-            BasicBlock trueBB = parseBBRef();
-            BasicBlock falseBB = parseBBRef();
+            var op = self.parseVarRef();
+            BasicBlock trueBB = self.parseBBRef();
+            BasicBlock falseBB = self.parseBBRef();
             return new Branch(falseBB, kind, op, trueBB);
         } else if (kindTag == 1){
             InstructionKind kind = "GOTO";
-            return new GOTO(kind, parseBBRef());
+            return new GOTO(kind, self.parseBBRef());
         } else if (kindTag == 4){
             InstructionKind kind = "RETURN";
             return new Return(kind);
         } else if (kindTag == 2){
             InstructionKind kind = "CALL";
-            var pkgIdCp = reader.readInt32();
-            var name = reader.readStringCpRef();
-            var argsCount = reader.readInt32();
+            var pkgIdCp = self.reader.readInt32();
+            var name = self.reader.readStringCpRef();
+            var argsCount = self.reader.readInt32();
             Operand[] args = [];
             int i = 0;
             while (i < argsCount) {
-                args[i] = parseVarRef();
+                args[i] = self.parseVarRef();
                 i += 1;
             }
-            var hasLhs = reader.readBoolean();
+            var hasLhs = self.reader.readBoolean();
             VarRef? lhsOp = ();
             if (hasLhs){
-                lhsOp = parseVarRef();
+                lhsOp = self.parseVarRef();
             }
-            BasicBlock thenBB = parseBBRef();
+            BasicBlock thenBB = self.parseBBRef();
             return new Call(args, kind, lhsOp, { value: name }, thenBB);
 
         }
-        error err = { message: "term instrucion kind " + kindTag + " not impl." };
-        throw err;
+        error err = error("term instrucion kind " + kindTag + " not impl.");
+        panic err;
     }
 
 
     public function parseVarRef() returns VarRef {
-        var varName = reader.readStringCpRef();
-        var decl = getDecl(localVarMap, varName);
+        var varName = self.reader.readStringCpRef();
+        var decl = getDecl(self.localVarMap, varName);
         return new VarRef("VAR_REF", decl.typeValue, decl);
     }
 
     public function parseBBRef() returns BasicBlock {
-        return { id: { value: reader.readStringCpRef() } };
+        return { id: { value: self.reader.readStringCpRef() } };
     }
 
     public function parseBinaryOpInstruction(int kindTag) returns BinaryOp {
@@ -117,13 +117,13 @@ public type FuncBodyParser object {
         } else if (kindTag == 17){
             kind = "LESS_EQUAL";
         } else {
-            error err = { message: "instrucion kind " + kindTag + " not impl." };
-            throw err;
+            error err = error("instrucion kind " + kindTag + " not impl.");
+            panic err;
         }
 
-        var rhsOp1 = parseVarRef();
-        var rhsOp2 = parseVarRef();
-        var lhsOp = parseVarRef();
+        var rhsOp1 = self.parseVarRef();
+        var rhsOp2 = self.parseVarRef();
+        var lhsOp = self.parseVarRef();
         return new BinaryOp (kind, lhsOp, rhsOp1, rhsOp2,
             //TODO: remove type, not used
             "int");
@@ -136,8 +136,8 @@ function getDecl(map<VariableDcl> localVarMap, string varName) returns VariableD
     match posibalDcl {
         VariableDcl dcl => return dcl;
         () => {
-            error err = { message: "local var missing " + varName };
-            throw err;
+            error err = error("local var missing " + varName);
+            panic err;
         }
     }
 }

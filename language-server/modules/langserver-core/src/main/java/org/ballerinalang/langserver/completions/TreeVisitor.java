@@ -52,8 +52,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -75,11 +75,12 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -240,7 +241,7 @@ public class TreeVisitor extends LSNodeVisitor {
         // TODO: Since the position of the record type node is invalid, we pass the position of the type definition
         boolean cursorBeforeNode = cpr.isCursorBeforeNode(recordTypeNode.parent.getPosition(), recordTypeNode, this,
                 this.lsContext);
-        boolean cursorWithinBlock = recordTypeNode.fields.isEmpty() && 
+        boolean cursorWithinBlock = recordTypeNode.fields.isEmpty() &&
                 CompletionVisitorUtil.isCursorWithinBlock(recordTypeNode.parent.getPosition(),
                 recordEnv, this.lsContext, this);
 
@@ -280,7 +281,7 @@ public class TreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangVariable varNode) {
+    public void visit(BLangSimpleVariable varNode) {
         CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
         if (cpr.isCursorBeforeNode(varNode.getPosition(), varNode, this, this.lsContext) || varNode.expr == null) {
             return;
@@ -325,7 +326,7 @@ public class TreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangVariableDef varDefNode) {
+    public void visit(BLangSimpleVariableDef varDefNode) {
         CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
         if (cpr.isCursorBeforeNode(varDefNode.getPosition(), varDefNode, this, this.lsContext)) {
             return;
@@ -552,7 +553,7 @@ public class TreeVisitor extends LSNodeVisitor {
         forkJoin.workers.forEach(e -> this.acceptNode(e, folkJoinEnv));
 
         /* create code block and environment for join result section, i.e. (map results) */
-        BLangVariableDef variableDef = CompletionVisitorUtil.createVarDef(forkJoin.joinResultVar);
+        BLangSimpleVariableDef variableDef = CompletionVisitorUtil.createVarDef(forkJoin.joinResultVar);
         BLangBlockStmt joinResultsBlock = CompletionVisitorUtil.generateCodeBlock(variableDef);
         SymbolEnv joinResultsEnv = SymbolEnv.createBlockEnv(joinResultsBlock, this.symbolEnv);
         this.acceptNode(joinResultsBlock, joinResultsEnv);
@@ -628,6 +629,12 @@ public class TreeVisitor extends LSNodeVisitor {
     }
 
     @Override
+    public void visit(BLangPanic panicNode) {
+        CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
+                .isCursorBeforeNode(panicNode.getPosition(), panicNode, this, this.lsContext);
+    }
+
+    @Override
     public void visit(BLangLock lockNode) {
         CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
         if (cpr.isCursorBeforeNode(lockNode.getPosition(), lockNode, this, this.lsContext)) {
@@ -670,7 +677,7 @@ public class TreeVisitor extends LSNodeVisitor {
         if (!CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(matchNode.getPosition(), matchNode, this, this.lsContext)) {
             this.blockOwnerStack.push(matchNode);
-            matchNode.getPatternClauses().forEach(patternClause -> {
+            matchNode.patternClauses.forEach(patternClause -> {
                 cursorPositionResolver = MatchStatementScopeResolver.class;
                 acceptNode(patternClause, symbolEnv);
             });
@@ -679,7 +686,7 @@ public class TreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchStmtPatternClause patternClause) {
+    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClause) {
         if (!CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(patternClause.getPosition(), patternClause, this, this.lsContext)) {
             blockOwnerStack.push(patternClause);
@@ -762,6 +769,22 @@ public class TreeVisitor extends LSNodeVisitor {
                 annotationAttachmentEnv, this.lsContext, this);
     }
 
+    @Override
+    public void visit(BLangMatch.BLangMatchStaticBindingPatternClause patternClause) {
+        if (!CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
+                .isCursorBeforeNode(patternClause.getPosition(), patternClause, this, this.lsContext)) {
+            this.visitMatchPatternClause(patternClause, patternClause.body);
+        }
+    }
+
+    @Override
+    public void visit(BLangMatch.BLangMatchStructuredBindingPatternClause patternClause) {
+        if (!CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
+                .isCursorBeforeNode(patternClause.getPosition(), patternClause, this, this.lsContext)) {
+            this.visitMatchPatternClause(patternClause, patternClause.body);
+        }
+    }
+
     ///////////////////////////////////
     /////   Other Public Methods  /////
     ///////////////////////////////////
@@ -841,5 +864,16 @@ public class TreeVisitor extends LSNodeVisitor {
 
     private void populateSymbolEnvNode(BLangNode node) {
         lsContext.put(CompletionKeys.SYMBOL_ENV_NODE_KEY, node);
+    }
+    
+    private void visitMatchPatternClause(BLangNode patternNode, BLangBlockStmt body) {
+        if (!CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
+                .isCursorBeforeNode(patternNode.getPosition(), patternNode, this, this.lsContext)) {
+            blockOwnerStack.push(patternNode);
+            SymbolEnv blockEnv = SymbolEnv.createBlockEnv(body, symbolEnv);
+            cursorPositionResolver = BlockStatementScopeResolver.class;
+            acceptNode(body, blockEnv);
+            blockOwnerStack.pop();
+        }
     }
 }

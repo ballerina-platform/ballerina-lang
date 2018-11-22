@@ -2,16 +2,16 @@
 import org.foo;
 
 public type userA record {
-    int age;
-    string name;
+    int age = 0;
+    string name = "";
 };
 
 public type userB record {
-    int age;
-    string name;
-    string address;
+    int age = 0;
+    string name = "";
+    string address = "";
     private:
-        string zipcode;
+        string zipcode = "";
 };
 
 public function testRuntimeStructEqNegative() returns (string) {

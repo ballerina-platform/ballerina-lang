@@ -21,6 +21,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.InvocationNode;
+import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableContext;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -50,6 +51,9 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
     public IterableContext iContext;
     public boolean actionInvocation;
     public boolean async;
+    /* Cached values for Built-in function invocation */
+    public boolean builtinMethodInvocation;
+    public BLangBuiltInMethod builtInMethod;
 
     /*
      * Below expressions are used by typechecker, desugar and codegen phases.
@@ -75,7 +79,7 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
     }
 
     @Override
-    public BLangVariableReference getExpression() {
+    public BLangExpression getExpression() {
         return expr;
     }
 
@@ -195,6 +199,32 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
             this.symbol = symbol;
             this.type = type;
             this.async = async;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * @since 0.983.0
+     */
+    public static class BLangBuiltInMethodInvocation extends BLangInvocation {
+
+        public BLangBuiltInMethodInvocation(BLangInvocation iExpr, BLangBuiltInMethod builtInFunction) {
+            this.expr = iExpr.expr;
+            this.type = iExpr.type;
+            this.pkgAlias = iExpr.pkgAlias;
+            this.name = iExpr.name;
+            this.pos = iExpr.pos;
+            this.requiredArgs = iExpr.requiredArgs;
+            this.namedArgs = iExpr.namedArgs;
+            this.restArgs = iExpr.restArgs;
+            this.type = iExpr.type;
+            this.async = iExpr.async;
+            this.builtInMethod = builtInFunction;
+            this.impConversionExpr = iExpr.impConversionExpr;
         }
 
         @Override

@@ -8,6 +8,13 @@ endpoint http:NonListener testEP {
 type Person record {
     string name;
     int age;
+    !...
+};
+
+type Stock record {
+    int id;
+    float price;
+    !...
 };
 
 service<http:Service> echo bind testEP {
@@ -73,7 +80,7 @@ service<http:Service> echo bind testEP {
         methods: ["POST"],
         body: "person"
     }
-    body7(endpoint caller, http:Request req, error person) {
+    body7(endpoint caller, http:Request req, Stock person) {
         _ = caller->respond(());
     }
 
@@ -82,7 +89,11 @@ service<http:Service> echo bind testEP {
         body: "persons"
     }
     body8(endpoint caller, http:Request req, Person[] persons) {
-        json jsonPayload = check <json>persons;
-        _ = caller->respond(untaint jsonPayload);
+        var jsonPayload = <json>persons;
+        if (jsonPayload is json) {
+            _ = caller->respond(untaint jsonPayload);
+        } else {
+            panic jsonPayload;
+        }
     }
 }

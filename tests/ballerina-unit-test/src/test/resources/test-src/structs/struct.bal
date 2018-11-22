@@ -1,21 +1,21 @@
 type Department record {
-    string dptName;
-    Person[] employees;
+    string dptName = "";
+    Person[] employees = [];
 };
 
 type Person record {
     string name = "default first name";
-    string lname;
-    map adrs;
+    string lname = "";
+    map adrs = {};
     int age = 999;
-    Family family;
-    Person|() parent;
+    Family family = {};
+    Person? parent = ();
 };
 
 type Family record {
-    string spouse;
-    int noOfChildren;
-    string[] children;
+    string spouse = "";
+    int noOfChildren = 0;
+    string[] children = [];
 };
 
 function testCreateStruct () returns (string, map, int) {
@@ -32,8 +32,7 @@ function testStructOfStruct () returns (string) {
     Person[] emps = [emp1, emp2];
     Department dpt = {employees:emps};
 
-    string country;
-    country = <string> dpt.employees[0].adrs.country;
+    string country = <string> dpt.employees[0].adrs.country;
     return country;
 }
 
@@ -60,7 +59,6 @@ function testExpressionAsIndex () returns (string) {
 }
 
 function testStructExpressionAsIndex () returns (string) {
-    string country;
     Department dpt = {};
     Family fmly = {};
     fmly.children = [];

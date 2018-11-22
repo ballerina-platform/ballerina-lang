@@ -55,21 +55,19 @@ service<http:Service> failoverDemoService05 bind failoverEP05 {
         http:FailoverActions foClient = foBackendEP05.getCallerActions();
         string startIndex = <string>foClient.succeededEndpointIndex;
         var backendRes = foBackendEP05->forward("/", request);
-        match backendRes {
-            http:Response response => {
-                string responseMessage = "Failover start index is : " + startIndex;
-                caller->ok(responseMessage) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        if (backendRes is http:Response) {
+            string responseMessage = "Failover start index is : " + startIndex;
+            var responseToCaller = caller->respond(responseMessage);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
             }
-            error responseError => {
-                // Create a new HTTP response by looking at the error message.
-                http:Response response = new;
-                response.statusCode = 500;
-                response.setPayload(responseError.message);
-                caller->respond(response) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        } else if (backendRes is error) {
+            http:Response response = new;
+            response.statusCode = 500;
+            response.setPayload(<string> backendRes.detail().message);
+            var responseToCaller = caller->respond(response);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
             }
         }
     }
@@ -87,9 +85,10 @@ service echo05 bind backendEP05 {
     delayResource(endpoint caller, http:Request req) {
         // Delay the response for 30000 milliseconds to mimic network level delays.
         runtime:sleep(30000);
-        caller->ok("Delayed resource is invoked") but {
-            error e => log:printError("Error sending response from mock service", err = e)
-        };
+        var responseToCaller = caller->respond("Delayed resource is invoked");
+        if (responseToCaller is error) {
+            log:printError("Error sending response from mock service", err = responseToCaller);
+        }
     }
 }
 
@@ -103,8 +102,9 @@ service mock05 bind backendEP05 {
         path: "/"
     }
     mockResource(endpoint caller, http:Request req) {
-        caller->ok("Mock Resource is Invoked.") but {
-            error e => log:printError("Error sending response from mock service", err = e)
-        };
+        var responseToCaller = caller->respond("Mock Resource is Invoked.");
+        if (responseToCaller is error) {
+            log:printError("Error sending response from mock service", err = responseToCaller);
+        }
     }
 }

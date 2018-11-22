@@ -64,18 +64,18 @@ public class Send extends BlockingNativeCallableUnit {
         BValue responseValue = context.getRefArgument(1);
         StreamObserver requestSender = (StreamObserver) connectionStruct.getNativeData(REQUEST_SENDER);
         if (requestSender == null) {
-            context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
+            context.setError(MessageUtils.getConnectorError(new StatusRuntimeException(Status
                     .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while sending the " +
                             "message. endpoint does not exist"))));
         } else {
             Descriptors.Descriptor inputType = (Descriptors.Descriptor) connectionStruct.getNativeData(GrpcConstants
                     .REQUEST_MESSAGE_DEFINITION);
             try {
-                Message requestMessage = MessageUtils.generateProtoMessage(responseValue, inputType);
+                Message requestMessage = new Message(inputType.getName(), responseValue);
                 requestSender.onNext(requestMessage);
             } catch (Exception e) {
                 LOG.error("Error while sending request message to server.", e);
-                context.setError(MessageUtils.getConnectorError(context, e));
+                context.setError(MessageUtils.getConnectorError(e));
             }
         }
     }

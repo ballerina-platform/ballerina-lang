@@ -38,8 +38,8 @@ type Test record {
 # + accessMode - read or write mode
 # + accessMode - read or write mode
 # + successfuls - boolean `true` or `false`
-function File::open (string accessMode) returns (boolean) {
-    boolean successful;
+function File.open (string accessMode) returns (boolean) {
+    boolean successful = false;
     return successful;
 }
 
@@ -48,7 +48,7 @@ function File::open (string accessMode) returns (boolean) {
 # + path - file path. Example: ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``
 public type File object {
 
-    public string path;
+    public string path = "";
 
     public function open(string accessMode) returns boolean;
 };
@@ -89,7 +89,7 @@ service<http:Service> PizzaService {
 //  # + conn - HTTP connection. Commented due to https://github.com/ballerina-lang/ballerina/issues/5586 issue
 
     orderPizza(endpoint conn, http:Request req) {
-        http:Response res;
+        http:Response res = new;
         _ = conn -> respond(res);
     }
 }

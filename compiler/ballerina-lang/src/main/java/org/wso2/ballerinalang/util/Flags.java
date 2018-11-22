@@ -19,28 +19,30 @@ package org.wso2.ballerinalang.util;
 
 import org.ballerinalang.model.elements.Flag;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
  * @since 0.94
  */
 public class Flags {
+
     public static final int PUBLIC = 1;
-    public static final int NATIVE = 2;
-    public static final int FINAL = 4;
-    public static final int ATTACHED = 8;
-    public static final int DEPRECATED = 16;
-    public static final int READONLY = 32;
-    public static final int FUNCTION_FINAL = 64;
-    public static final int INTERFACE = 128;
-    public static final int DEFAULTABLE_CHECKED = 256;
-    public static final int DEFAULTABLE = 512;
-    public static final int RECORD = 1024;
-    public static final int PRIVATE = 2048;
-    public static final int COMPENSATE = 4096;
-    public static final int ABSTRACT = 8192;
-    public static final int OPTIONAL = 16384;
-    public static final int TESTABLE = 32768;
+    public static final int NATIVE = PUBLIC << 1;
+    public static final int FINAL = NATIVE << 1;
+    public static final int ATTACHED = FINAL << 1;
+    public static final int DEPRECATED = ATTACHED << 1;
+    public static final int READONLY = DEPRECATED << 1;
+    public static final int FUNCTION_FINAL = READONLY << 1;
+    public static final int INTERFACE = FUNCTION_FINAL << 1;
+    public static final int REQUIRED = INTERFACE << 1;
+    public static final int RECORD = REQUIRED << 1;
+    public static final int PRIVATE = RECORD << 1;
+    public static final int COMPENSATE = PRIVATE << 1;
+    public static final int ABSTRACT = COMPENSATE << 1;
+    public static final int OPTIONAL = ABSTRACT << 1;
+    public static final int TESTABLE = OPTIONAL << 1;
+    public static final int CONSTANT = TESTABLE << 1;
 
     public static int asMask(Set<Flag> flagSet) {
         int mask = 0;
@@ -73,11 +75,8 @@ public class Flags {
                 case INTERFACE:
                     mask |= INTERFACE;
                     break;
-                case DEFAULTABLE_CHECKED:
-                    mask |= DEFAULTABLE_CHECKED;
-                    break;
-                case DEFAULTABLE:
-                    mask |= DEFAULTABLE;
+                case REQUIRED:
+                    mask |= REQUIRED;
                     break;
                 case RECORD:
                     mask |= RECORD;
@@ -94,8 +93,75 @@ public class Flags {
                 case TESTABLE:
                     mask |= TESTABLE;
                     break;
+                case CONSTANT:
+                    mask |= CONSTANT;
+                    break;
             }
         }
         return mask;
+    }
+
+    public static Set<Flag> unMask(int mask) {
+        Set<Flag> flagSet = new HashSet<>();
+        int flagVal;
+        for (Flag flag : Flag.values()) {
+            switch (flag) {
+                case PUBLIC:
+                    flagVal = PUBLIC;
+                    break;
+                case PRIVATE:
+                    flagVal = PRIVATE;
+                    break;
+                case NATIVE:
+                    flagVal = NATIVE;
+                    break;
+                case FINAL:
+                    flagVal = FINAL;
+                    break;
+                case ATTACHED:
+                    flagVal = ATTACHED;
+                    break;
+                case DEPRECATED:
+                    flagVal = DEPRECATED;
+                    break;
+                case READONLY:
+                    flagVal = READONLY;
+                    break;
+                case FUNCTION_FINAL:
+                    flagVal = FUNCTION_FINAL;
+                    break;
+                case INTERFACE:
+                    flagVal = INTERFACE;
+                    break;
+                case REQUIRED:
+                    flagVal = REQUIRED;
+                    break;
+                case RECORD:
+                    flagVal = RECORD;
+                    break;
+                case COMPENSATE:
+                    flagVal = COMPENSATE;
+                    break;
+                case ABSTRACT:
+                    flagVal = ABSTRACT;
+                    break;
+                case OPTIONAL:
+                    flagVal = OPTIONAL;
+                    break;
+                case CONSTANT:
+                    flagVal = CONSTANT;
+                    break;
+                default:
+                    continue;
+            }
+            addIfFlagOn(flagSet, mask, flagVal, flag);
+        }
+        return flagSet;
+    }
+
+    private static void addIfFlagOn(Set<Flag> flagSet, int mask, int flagVal, Flag flag) {
+        if ((mask & flagVal) == flagVal) {
+            flagSet.add(flag);
+        }
     }
 }

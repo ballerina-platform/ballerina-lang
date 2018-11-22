@@ -41,11 +41,21 @@ service<http:Service> MyService bind testEP {
             poolOptions: { maximumPoolSize: 1 }
         };
 
-        table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
+        var selectRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
                   boolean_type, string_type from DataTable WHERE row_id = 1", ());
-        json result = check <json>dt;
+        json result = {};
+        if (selectRet is table) {
+            var ret = <json>selectRet;
+            if (ret is json) {
+                result = ret;
+            } else if (ret is error) {
+                result = { Error: ret.reason() };
+            }
+        } else if (selectRet is error) {
+            result = { Error: selectRet.reason() };
+        }
 
-        http:Response res;
+        http:Response res = new;
         res.setPayload(untaint result);
         caller->respond(res) but { error e => io:println("Error sending response") };
     }
@@ -63,12 +73,24 @@ service<http:Service> MyService bind testEP {
             poolOptions: { maximumPoolSize: 1 }
         };
 
-        table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
+        var selectRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
                   boolean_type, string_type from DataTable WHERE row_id = 1", ());
-        json result = check <json>dt;
-        json j = { status: "SUCCESS", resp: { value: result } };
+        json result = {};
+        string statusVal = "ERROR";
+        if (selectRet is table) {
+            var ret = <json>selectRet;
+            if (ret is json) {
+                result = ret;
+                statusVal = "SUCCESS";
+            } else if (ret is error) {
+                result = { Error: ret.reason() };
+            }
+        } else if (selectRet is error) {
+            result = { Error: selectRet.reason() };
+        }
+        json j = { status: statusVal, resp: { value: result } };
 
-        http:Response res;
+        http:Response res = new;
         res.setPayload(untaint j);
         caller->respond(res) but { error e => io:println("Error sending response") };
     }

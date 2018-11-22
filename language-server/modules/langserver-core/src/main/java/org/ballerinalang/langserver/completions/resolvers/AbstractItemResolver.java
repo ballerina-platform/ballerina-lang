@@ -21,6 +21,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
@@ -35,6 +36,7 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -57,15 +59,16 @@ public abstract class AbstractItemResolver {
     /**
      * Populate the completion item list by considering the.
      *
-     * @param symbolInfoList list of symbol information
+     * @param symbolInfoList    list of symbol information
+     * @param context           Language server operation context
      * @return {@link List}     list of completion items
      */
-    protected List<CompletionItem> getCompletionItemList(List<SymbolInfo> symbolInfoList) {
+    protected List<CompletionItem> getCompletionItemList(List<SymbolInfo> symbolInfoList, LSContext context) {
         List<CompletionItem> completionItems = new ArrayList<>();
         symbolInfoList.removeIf(CommonUtil.invalidSymbolsPredicate());
         symbolInfoList.forEach(symbolInfo -> {
-            BSymbol bSymbol = symbolInfo.isIterableOperation() ? null : symbolInfo.getScopeEntry().symbol;
-            if (CommonUtil.isValidInvokableSymbol(bSymbol) || symbolInfo.isIterableOperation()) {
+            BSymbol bSymbol = symbolInfo.isCustomOperation() ? null : symbolInfo.getScopeEntry().symbol;
+            if (CommonUtil.isValidInvokableSymbol(bSymbol) || symbolInfo.isCustomOperation()) {
                 completionItems.add(populateBallerinaFunctionCompletionItem(symbolInfo));
             } else if (!(bSymbol instanceof BInvokableSymbol) && bSymbol instanceof BVarSymbol) {
                 String typeName = symbolInfo.getScopeEntry().symbol.type.toString();
@@ -76,6 +79,8 @@ public abstract class AbstractItemResolver {
                 // Here skip all the package symbols since the package is added separately
                 completionItems.add(
                         BTypeCompletionItemBuilder.build((BTypeSymbol) bSymbol, symbolInfo.getSymbolName()));
+            } else if (bSymbol instanceof BConstantSymbol) {
+                completionItems.add(this.getBallerinaConstantCompletionItem(symbolInfo, context));
             }
         });
         return completionItems;
@@ -85,14 +90,16 @@ public abstract class AbstractItemResolver {
      * Populate the completion item list by either list.
      *
      * @param list              Either List of completion items or symbol info
+     * @param context           LS Operation Context
      * @return {@link List}     Completion Items List
      */
-    protected List<CompletionItem> getCompletionItemList(Either<List<CompletionItem>, List<SymbolInfo>> list) {
+    protected List<CompletionItem> getCompletionItemList(Either<List<CompletionItem>, List<SymbolInfo>> list,
+                                                         LSContext context) {
         List<CompletionItem> completionItems = new ArrayList<>();
         if (list.isLeft()) {
             completionItems.addAll(list.getLeft());
         } else {
-            completionItems.addAll(this.getCompletionItemList(list.getRight()));
+            completionItems.addAll(this.getCompletionItemList(list.getRight(), context));
         }
         
         return completionItems;
@@ -169,7 +176,7 @@ public abstract class AbstractItemResolver {
                     || (bSymbol instanceof BInvokableSymbol
                     && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED));
         });
-        completionItems.addAll(getCompletionItemList(filteredList));
+        completionItems.addAll(getCompletionItemList(filteredList, context));
         // Add the packages completion items.
         completionItems.addAll(getPackagesCompletionItems(context));
         // Add the check keyword
@@ -184,6 +191,10 @@ public abstract class AbstractItemResolver {
         CompletionItem lengthofKeyword = Snippet.KW_LENGTHOF.get().build(new CompletionItem(), snippetCapability);
         completionItems.add(lengthofKeyword);
 
+        // Add the trap expression keyword
+        CompletionItem trapExpression = Snippet.STMT_TRAP.get().build(new CompletionItem(), snippetCapability);
+        completionItems.add(trapExpression);
+
         return completionItems;
     }
 
@@ -192,13 +203,15 @@ public abstract class AbstractItemResolver {
      * 
      * Note: By Default we populate the completions with the getCompletionItemList. Resolvers can override when needed.
      * @param either            Either symbol info list or completion Item list
+     * @param context           LS Operation context
      * @return {@link List}     List of completion Items
      */
-    protected List<CompletionItem> getCompletionsFromEither(Either<List<CompletionItem>, List<SymbolInfo>> either) {
+    protected List<CompletionItem> getCompletionsFromEither(Either<List<CompletionItem>, List<SymbolInfo>> either,
+                                                            LSContext context) {
         if (either.isLeft()) {
             return either.getLeft();
         } else {
-            return this.getCompletionItemList(either.getRight());
+            return this.getCompletionItemList(either.getRight(), context);
         }
     }
 
@@ -256,9 +269,9 @@ public abstract class AbstractItemResolver {
      * @return completion item
      */
     private CompletionItem populateBallerinaFunctionCompletionItem(SymbolInfo symbolInfo) {
-        if (symbolInfo.isIterableOperation()) {
-            SymbolInfo.IterableOperationSignature signature =
-                    symbolInfo.getIterableOperationSignature();
+        if (symbolInfo.isCustomOperation()) {
+            SymbolInfo.CustomOperationSignature signature =
+                    symbolInfo.getCustomOperationSignature();
             return BFunctionCompletionItemBuilder.build(null, signature.getLabel(), signature.getInsertText());
         }
         BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
@@ -266,5 +279,28 @@ public abstract class AbstractItemResolver {
             return null;
         }
         return BFunctionCompletionItemBuilder.build((BInvokableSymbol) bSymbol);
+    }
+
+    /**
+     * Get the Ballerina Constant Completion Item.
+     *
+     * @param symbolInfo                symbol information
+     * @param context                   Language Server Operation Context
+     * @return {@link CompletionItem}   completion item
+     */
+    private CompletionItem getBallerinaConstantCompletionItem(SymbolInfo symbolInfo, LSContext context) {
+        BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
+        if (!(bSymbol instanceof BConstantSymbol)) {
+            return null;
+        }
+
+        CompletionItem completionItem = new CompletionItem();
+        completionItem.setLabel(bSymbol.getName().getValue());
+        completionItem.setInsertText(bSymbol.getName().getValue());
+        completionItem.setDetail(CommonUtil.getBTypeName(((BConstantSymbol) bSymbol).literalValueType, context));
+        completionItem.setDocumentation(ItemResolverConstants.CONSTANT_TYPE);
+        completionItem.setKind(CompletionItemKind.Variable);
+
+        return completionItem;
     }
 }

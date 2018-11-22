@@ -37,7 +37,7 @@ public class ChannelsNegativeTest {
     public void setup() {
 
         result = BCompileUtil.compile("test-src/channels/channel-negative-test.bal");
-        Assert.assertEquals(result.getErrorCount(), 6, "Channels negative test error count");
+        Assert.assertEquals(result.getErrorCount(), 8, "Channels negative test error count");
 
     }
 
@@ -64,25 +64,25 @@ public class ChannelsNegativeTest {
                 "channel constraint error");
         Assert.assertEquals(result.getDiagnostics()[2].getMessage(), "incompatible types: 'channel' cannot be " +
                 "constrained with 'map'", "Channel constraint type error message");
-        Assert.assertEquals(result.getDiagnostics()[3].getPosition().getStartColumn(), 1, "Incorrect column position " +
+        Assert.assertEquals(result.getDiagnostics()[2].getPosition().getStartColumn(), 1, "Incorrect column position " +
                 "for " +
                 "channel constraint error");
-        Assert.assertEquals(result.getDiagnostics()[3].getMessage(), "incompatible types: 'channel' cannot be " +
+        Assert.assertEquals(result.getDiagnostics()[4].getMessage(), "incompatible types: 'channel' cannot be " +
                 "constrained with '(json,json)'", "Channel constraint type error message");
     }
 
     @Test(description = "Test invalid annotations", groups = CHANNEL_TEST)
     public void checkInvalidAnnotations() {
 
-        Assert.assertEquals(result.getDiagnostics()[4].getPosition().getStartLine(), 29, "Wrong channel annotation " +
+        Assert.assertEquals(result.getDiagnostics()[6].getPosition().getStartLine(), 29, "Wrong channel annotation " +
                 "position line " +
                 "number");
-        Assert.assertEquals(result.getDiagnostics()[4].getMessage(), "annotation 'ballerina/builtin:final' is not " +
+        Assert.assertEquals(result.getDiagnostics()[6].getMessage(), "annotation 'ballerina/builtin:final' is not " +
                 "allowed in channel", "@final annotation for channels error message");
 
-        Assert.assertEquals(result.getDiagnostics()[5].getPosition().getStartColumn(), 1, "Wrong channel annotation " +
+        Assert.assertEquals(result.getDiagnostics()[7].getPosition().getStartColumn(), 1, "Wrong channel annotation " +
                 "position column number");
-        Assert.assertEquals(result.getDiagnostics()[5].getMessage(), "annotation 'ballerina/builtin:readonly' is not " +
+        Assert.assertEquals(result.getDiagnostics()[7].getMessage(), "annotation 'ballerina/builtin:readonly' is not " +
                 "allowed in channel", "@final annotation for channels error message");
 
     }

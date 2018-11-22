@@ -41,11 +41,13 @@ public type AuthnHandlerChain object {
     public function handleWithSpecificAuthnHandlers (string[] authProviderIds, Request req) returns (boolean);
 };
 
-function AuthnHandlerChain::handle (Request req) returns (boolean) {
+function AuthnHandlerChain.handle (Request req) returns (boolean) {
     foreach currentAuthProviderType, currentAuthHandler in self.authHandlerRegistry.getAll() {
         var authnHandler = <HttpAuthnHandler> currentAuthHandler;
         if (authnHandler.canHandle(req)) {
-            log:printDebug("Trying to authenticate with the auth provider: " + currentAuthProviderType);
+            log:printDebug(function() returns string {
+                return "Trying to authenticate with the auth provider: " + currentAuthProviderType;
+            });
             boolean authnSuccessful = authnHandler.handle(req);
             if (authnSuccessful) {
                 // If one of the authenticators from the chain could successfully authenticate the user, it is not
@@ -58,24 +60,21 @@ function AuthnHandlerChain::handle (Request req) returns (boolean) {
     return false;
 }
 
-function AuthnHandlerChain::handleWithSpecificAuthnHandlers (string[] authProviderIds, Request req)
-                                                                                                    returns (boolean) {
+function AuthnHandlerChain.handleWithSpecificAuthnHandlers (string[] authProviderIds, Request req) returns (boolean) {
     foreach authProviderId in authProviderIds {
-        match self.authHandlerRegistry.get(authProviderId) {
-            HttpAuthnHandler authnHandler => {
-                if (authnHandler.canHandle(req)) {
-                    log:printDebug("Trying to authenticate with the auth provider: " + authProviderId);
-                    boolean authnSuccessful = authnHandler.handle(req);
-                    if (authnSuccessful) {
-                        // If one of the authenticators from the chain could successfully authenticate the user, it is not
-                        // required to look through other providers. The authenticator chain is using "OR" combination of
-                        // provider results.
-                        return true;
-                    }
+        var authnHandler =  self.authHandlerRegistry.get(authProviderId);
+        if (authnHandler is HttpAuthnHandler) {
+            if (authnHandler.canHandle(req)) {
+                log:printDebug(function() returns string {
+                    return "Trying to authenticate with the auth provider: " + authProviderId;
+                });
+                boolean authnSuccessful = authnHandler.handle(req);
+                if (authnSuccessful) {
+                    // If one of the authenticators from the chain could successfully authenticate the user, it is not
+                    // required to look through other providers. The authenticator chain is using "OR" combination of
+                    // provider results.
+                    return true;
                 }
-            }
-            () => {
-                // nothing to do
             }
         }
     }

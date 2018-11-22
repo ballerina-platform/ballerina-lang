@@ -83,6 +83,12 @@ public class Symbols {
         return typeSymbol;
     }
 
+    public static BErrorTypeSymbol createErrorSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
+        BErrorTypeSymbol typeSymbol = new BErrorTypeSymbol(SymTag.ERROR, flags, name, pkgID, type, owner);
+        typeSymbol.kind = SymbolKind.ERROR;
+        return typeSymbol;
+    }
+
     public static BAnnotationSymbol createAnnotationSymbol(int flags, int attachPoints, Name name, PackageID pkgID,
                                                            BType type, BSymbol owner) {
         BAnnotationSymbol annotationSymbol = new BAnnotationSymbol(name, flags, attachPoints, pkgID, type, owner);
@@ -98,16 +104,6 @@ public class Symbols {
         BInvokableSymbol symbol = createInvokableSymbol(SymTag.WORKER, flags, name, pkgID, type, owner);
         symbol.kind = SymbolKind.WORKER;
         return symbol;
-    }
-
-    public static BConnectorSymbol createConnectorSymbol(int flags,
-                                                         Name name,
-                                                         PackageID pkgID,
-                                                         BType type,
-                                                         BSymbol owner) {
-        BConnectorSymbol connectorSymbol = new BConnectorSymbol(flags, name, pkgID, type, owner);
-        connectorSymbol.kind = SymbolKind.CONNECTOR;
-        return connectorSymbol;
     }
 
     public static BServiceSymbol createServiceSymbol(int flags,
@@ -221,6 +217,9 @@ public class Symbols {
             case TypeTags.STRING:
                 opcode = InstructionCodes.ANY2S;
                 break;
+            case TypeTags.DECIMAL:
+                opcode = InstructionCodes.ANY2D;
+                break;
             default:
                 opcode = InstructionCodes.ANY2B;
                 break;
@@ -247,7 +246,7 @@ public class Symbols {
     }
 
     public static boolean isPrivate(BSymbol sym) {
-        return (sym.flags & Flags.PUBLIC) != Flags.PUBLIC;
+        return (sym.flags & Flags.PRIVATE) == Flags.PRIVATE;
     }
 
     public static boolean isFlagOn(int mask, int flag) {
@@ -256,6 +255,10 @@ public class Symbols {
 
     public static boolean isAttachPointPresent(int mask, int attachPoint) {
         return (mask & attachPoint) == attachPoint;
+    }
+
+    public static boolean isOptional(BSymbol sym) {
+        return (sym.flags & Flags.OPTIONAL) == Flags.OPTIONAL;
     }
 
     public static BTypeSymbol createScopeSymbol(Name name, PackageID pkgID, BType type, BSymbol owner) {

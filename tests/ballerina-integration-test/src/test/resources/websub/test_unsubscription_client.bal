@@ -32,16 +32,13 @@ public function main(string... args) {
     };
 
     var response = websubHubClientEP->unsubscribe(unsubscriptionRequest);
-
-    match (response) {
-        websub:SubscriptionChangeResponse subscriptionChangeResponse => {
-            io:println("Unsubscription Request successful at Hub ["
-                    + subscriptionChangeResponse.hub
-                    + "] for Topic [" + subscriptionChangeResponse.topic + "]");
-        }
-        error e => {
-            io:println("Error occurred with Unsubscription Request: ", e);
-        }
+    if (response is websub:SubscriptionChangeResponse) {
+        io:println("Unsubscription Request successful at Hub [" + response.hub + "] for Topic [" +
+                        response.topic + "]");
+    }
+    else {
+        string errCause = <string> response.detail().message;
+        io:println("Error occurred with Unsubscription Request: ", errCause);
     }
 
     // Confirm unsubscription - no notifications should be received.

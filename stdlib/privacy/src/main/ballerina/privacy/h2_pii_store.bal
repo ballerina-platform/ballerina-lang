@@ -44,8 +44,8 @@ public type H2PiiStore object {
     # + pii - PII to be pseudonymized
     # + return - 36 characters long UUID if storage operation was successful, error if storage operation failed
     public function pseudonymize (string pii) returns string|error {
-        endpoint h2:Client client = clientEndpoint;
-        string dbQuery = buildInsertQuery(tableName, idColumn, piiColumn);
+        endpoint h2:Client client = self.clientEndpoint;
+        string dbQuery = buildInsertQuery(self.tableName, self.idColumn, self.piiColumn);
         string id = system:uuid();
         var queryResult = client->update(dbQuery, id, pii);
         return processInsertResult(id, queryResult);
@@ -56,8 +56,8 @@ public type H2PiiStore object {
     # + id - pseudonymized identifier to be depseudonymize
     # + return - PII if retrieval was successful, error if retrieval failed
     public function depseudonymize (string id) returns string|error {
-        endpoint h2:Client client = clientEndpoint;
-        string dbQuery = buildSelectQuery(tableName, idColumn, piiColumn);
+        endpoint h2:Client client = self.clientEndpoint;
+        string dbQuery = buildSelectQuery(self.tableName, self.idColumn, self.piiColumn);
         var queryResult = client->select(dbQuery, PiiData, id);
         return processSelectResult(id, queryResult);
     }
@@ -67,8 +67,8 @@ public type H2PiiStore object {
     # + id - pseudonymized identifier to be deleted
     # + return - nil if retrieval was successful, error if retrieval failed
     public function delete (string id) returns error? {
-        endpoint h2:Client client = clientEndpoint;
-        string dbQuery = buildDeleteQuery(tableName, idColumn);
+        endpoint h2:Client client = self.clientEndpoint;
+        string dbQuery = buildDeleteQuery(self.tableName, self.idColumn);
         var queryResult = client->update(dbQuery, id);
         return processDeleteResult(id, queryResult);
     }

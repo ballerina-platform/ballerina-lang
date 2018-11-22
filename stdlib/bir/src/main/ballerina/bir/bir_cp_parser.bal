@@ -1,55 +1,55 @@
 public type ConstPool record {
-    PackageId[] packages;
-    string[] strings;
-    int[] ints;
+    PackageId[] packages = [];
+    string[] strings = [];
+    int[] ints = [];
 };
 
 public type ConstPoolParser object {
     ChannelReader reader;
-    ConstPool cp;
+    ConstPool cp = {};
     int i;
 
     public new(reader) {
-        i = 0;
+        self.i = 0;
     }
 
     public function parse() returns ConstPool {
-        var cpCount = reader.readInt32();
-        while (i < cpCount) {
-            parseConstPoolEntry();
-            i += 1;
+        var cpCount = self.reader.readInt32();
+        while (self.i < cpCount) {
+            self.parseConstPoolEntry();
+            self.i += 1;
         }
-        return cp;
+        return self.cp;
     }
 
     public function parseConstPoolEntry() {
-        var cpType = reader.readInt8();
+        var cpType = self.reader.readInt8();
 
         if (cpType == 1){
-            parseInt();
+            self.parseInt();
         } else if (cpType == 4){
-            parseString();
+            self.parseString();
         } else if (cpType == 5){
-            parsePackageId();
+            self.parsePackageId();
         } else {
-            error err = { message: "cp type " + cpType + " not supported.:" };
-            throw err;
+            error err = error("cp type " + cpType + " not supported.:");
+            panic err;
         }
     }
 
     function parseInt() {
-        cp.ints[i] = reader.readInt64();
+        self.cp.ints[self.i] = self.reader.readInt64();
     }
 
     function parseString() {
-        cp.strings[i] = reader.readString();
+        self.cp.strings[self.i] = self.reader.readString();
     }
 
     function parsePackageId() {
-        PackageId id = { org: cp.strings[reader.readInt32()],
-            name: <string>cp.strings[reader.readInt32()],
-            varstionVallue: <string>cp.strings[reader.readInt32()] };
-        cp.packages[i] = id;
+        PackageId id = { org: self.cp.strings[self.reader.readInt32()],
+            name: <string> self.cp.strings[self.reader.readInt32()],
+            varstionVallue: <string> self.cp.strings[self.reader.readInt32()] };
+        self.cp.packages[self.i] = id;
     }
 
 };

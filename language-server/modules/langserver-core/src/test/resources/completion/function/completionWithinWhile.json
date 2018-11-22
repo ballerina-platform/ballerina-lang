@@ -26,7 +26,7 @@
       "kind":"Snippet",
       "detail":"Snippet",
       "sortText":"190",
-      "insertText":"error ${1:name} \u003d { description: \"${2}\" };",
+      "insertText":"error ${1:name} \u003d error(\"${2:errorCode}\", { message: \"${3}\" });",
       "insertTextFormat":"Snippet"
     },
     {
@@ -86,6 +86,14 @@
       "insertTextFormat":"Snippet"
     },
     {
+      "label":"panic",
+      "kind":"Unit",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"panic ",
+      "insertTextFormat":"Snippet"
+    },
+    {
       "label":"return",
       "kind":"Unit",
       "detail":"Statement",
@@ -94,27 +102,11 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"throw",
-      "kind":"Unit",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"throw ",
-      "insertTextFormat":"Snippet"
-    },
-    {
       "label":"transaction",
       "kind":"Unit",
       "detail":"Statement",
       "sortText":"200",
       "insertText":"transaction with retries \u003d ${1:1}, oncommit \u003d ${2:onCommitFunction}, onabort \u003d ${3:onAbortFunction} {\n\t${4}\n} onretry {\n\t${5}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"try",
-      "kind":"Unit",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"try {\n\t${1}\n} catch (${2:error} ${3:err}) {\n\t${4}\n}",
       "insertTextFormat":"Snippet"
     },
     {
@@ -648,28 +640,6 @@
             }
           },
           "newText":"\nimport ballerina/mysql;\n"
-        }
-      ]
-    },
-    {
-      "label":"ballerina/mb",
-      "kind":"Module",
-      "detail":"Package",
-      "sortText":"140",
-      "insertText":"mb",
-      "additionalTextEdits":[
-        {
-          "range":{
-            "start":{
-              "line":2,
-              "character":20
-            },
-            "end":{
-              "line":2,
-              "character":20
-            }
-          },
-          "newText":"\nimport ballerina/mb;\n"
         }
       ]
     },

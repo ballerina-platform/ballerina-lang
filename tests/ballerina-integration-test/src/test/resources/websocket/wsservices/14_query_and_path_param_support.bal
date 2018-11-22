@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
+import ballerina/log;
 import ballerina/http;
 
 @final string PATH1 = "PATH1";
@@ -50,9 +50,10 @@ service<http:WebSocketService> simpleProxy6 {
             string query2 = <string>wsEp.attributes[QUERY2];
 
             string msg = string `path-params: {{path1}}, {{path2}}; query-params: {{query1}}, {{query2}}`;
-            wsEp->pushText(msg) but {
-                error e => io:println("Error sending message. " + e.message)
-            };
+            var returnVal = wsEp->pushText(msg);
+            if(returnVal is error) {
+                panic returnVal;
+            }
         }
     }
 }

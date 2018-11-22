@@ -28,7 +28,7 @@ public type HttpJwtAuthnHandler object {
     public auth:JWTAuthProvider jwtAuthenticator;
 
     public new (jwtAuthenticator) {
-        name = "jwt";
+        self.name = "jwt";
     }
 
     # Checks if the request can be authenticated with JWT
@@ -44,19 +44,22 @@ public type HttpJwtAuthnHandler object {
     public function handle (Request req) returns (boolean);
 };
 
-function HttpJwtAuthnHandler::canHandle (Request req) returns (boolean) {
-    string authHeader;
-    try {
-        authHeader = req.getHeader(AUTH_HEADER);
-    } catch (error e) {
-        log:printDebug("Error in retrieving header " + AUTH_HEADER + ": " + e.message);
+function HttpJwtAuthnHandler.canHandle(Request req) returns (boolean) {
+    string authHeader = "";
+    var headerValue = trap req.getHeader(AUTH_HEADER);
+    if (headerValue is string) {
+        authHeader = headerValue;
+    } else if (headerValue is error) {
+        log:printDebug(function() returns string {
+            return "Error in retrieving header " + AUTH_HEADER + ": " + headerValue.reason();
+        });
         return false;
     }
-    if (authHeader != null && authHeader.hasPrefix(AUTH_SCHEME_BEARER)) {
+    if (authHeader.hasPrefix(AUTH_SCHEME_BEARER)) {
         string[] authHeaderComponents = authHeader.split(" ");
-        if (lengthof authHeaderComponents == 2) {
+        if (authHeaderComponents.length() == 2) {
             string[] jwtComponents = authHeaderComponents[1].split("\\.");
-            if (lengthof jwtComponents == 3) {
+            if (jwtComponents.length() == 3) {
                 return true;
             }
         }
@@ -64,18 +67,15 @@ function HttpJwtAuthnHandler::canHandle (Request req) returns (boolean) {
     return false;
 }
 
-function HttpJwtAuthnHandler::handle (Request req) returns (boolean) {
+function HttpJwtAuthnHandler.handle (Request req) returns (boolean) {
     string jwtToken = extractJWTToken(req);
-    var isAuthenticated = self.jwtAuthenticator.authenticate(jwtToken);
-    match isAuthenticated {
-        boolean authenticated => {
-            return authenticated;
-        }
-        error err => {
-            log:printError("Error while validating JWT token ", err = err);
-            return false;
-        }
+    var authenticated = self.jwtAuthenticator.authenticate(jwtToken);
+    if (authenticated is boolean) {
+        return authenticated;
+    } else if (authenticated is error) {
+        log:printError("Error while validating JWT token ", err = authenticated);
     }
+    return false;
 }
 
 # Extracts the JWT from the incoming request

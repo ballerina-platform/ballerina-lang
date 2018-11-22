@@ -51,26 +51,30 @@ service<http:Service> circuitbreaker01 bind circuitBreakerEP01 {
         path: "/forceopen"
     }
     invokeForceOpen(endpoint caller, http:Request request) {
-        http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>healthyClientEP.getCallerActions();
-        forceOpenStateCount += 1;
-        if (forceOpenStateCount == 2) {
-            cbClient.forceOpen();
-        }
-        var backendRes = healthyClientEP->forward("/healthy", request);
-        match backendRes {
-            http:Response res => {
-                caller->respond(res) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        var cbClient = <http:CircuitBreakerClient>healthyClientEP.getCallerActions();
+        if (cbClient is http:CircuitBreakerClient) {
+            forceOpenStateCount += 1;
+            if (forceOpenStateCount == 2) {
+                cbClient.forceOpen();
             }
-            error responseError => {
+            var backendRes = healthyClientEP->forward("/healthy", request);
+            if (backendRes is http:Response) {
+            var responseToCaller = caller->respond(backendRes);
+                if (responseToCaller is error) {
+                    log:printError("Error sending response", err = responseToCaller);
+                }
+            } else if (backendRes is error) {
                 http:Response response = new;
                 response.statusCode = http:INTERNAL_SERVER_ERROR_500;
-                response.setPayload(responseError.message);
-                caller->respond(response) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+                string errCause = <string> backendRes.detail().message;
+                response.setPayload(errCause);
+                var responseToCaller = caller->respond(response);
+                if (responseToCaller is error) {
+                    log:printError("Error sending response", err = responseToCaller);
+                }
             }
+        } else {
+            panic cbClient;
         }
     }
 }
@@ -82,10 +86,9 @@ service<http:Service> healthyService bind { port: 8087 } {
         path: "/"
     }
     sayHello(endpoint caller, http:Request req) {
-        http:Response res = new;
-        res.setPayload("Hello World!!!");
-        caller->respond(res) but {
-            error e => log:printError("Error sending response from mock service", err = e)
-        };
+        var responseToCaller = caller->respond("Hello World!!!");
+        if (responseToCaller is error) {
+            log:printError("Error sending response from mock service", err = responseToCaller);
+        }
     }
 }

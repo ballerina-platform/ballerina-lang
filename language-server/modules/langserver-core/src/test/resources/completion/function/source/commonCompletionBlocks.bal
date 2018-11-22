@@ -30,22 +30,6 @@ public function main(string... args) {
         io:println(a);
         a -= 1;
     }
-
-
-    try {
-        io:println("Start dividing numbers");
-
-        a = check divideNumbers(1, 0);
-
-    } catch (error err) {
-        
-        io:println("Error occurred: ", err.message);
-        
-        throw err;
-    } finally {
-
-        io:println("Finally block executed");
-    }
 }
 
 service<http:Service> sampleService bind { port: 9090 } {
@@ -66,7 +50,7 @@ service<http:Service> sampleService bind { port: 9090 } {
 
 function divideNumbers(int a, int b) returns int|error {
     if (b == 0) {
-        error err = { message: "Division by 0 is not defined" };
+        error err = error("Division by 0 is not defined");
         return err;
     }
     return a / b;

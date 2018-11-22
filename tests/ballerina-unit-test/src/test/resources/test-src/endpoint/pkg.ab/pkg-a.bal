@@ -10,7 +10,7 @@ public function getCallerActions () returns (DummyClient) {
 
 type DummyClient object {
     public function invoke1 (string a) returns error? {
-        error e = {message : "i1"};
+        error e = error("i1");
         return e;
     }
 };

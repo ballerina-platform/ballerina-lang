@@ -1,3 +1,20 @@
+/*
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+*  Unless required by applicable law or agreed to in writing,
+*  software distributed under the License is distributed on an
+*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+*  KIND, either express or implied.  See the License for the
+*  specific language governing permissions and limitations
+*  under the License.
+*/
 package org.ballerinalang.langserver.common.utils;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -12,7 +29,9 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -20,7 +39,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -39,15 +57,16 @@ public class FilterUtils {
     /**
      * Get the invocations and fields against an identifier (functions, actions and fields).
      *
-     * @param context               Text Document Service context (Completion Context)
-     * @param variableName          Variable name to evaluate against (Can be package alias or defined variable)
-     * @param delimiter             delimiter String either dot or action invocation symbol
-     * @param symbolInfos           List of visible symbol info
+     * @param context      Text Document Service context (Completion Context)
+     * @param variableName Variable name to evaluate against (Can be package alias or defined variable)
+     * @param delimiter    delimiter String either dot or action invocation symbol
+     * @param symbolInfos  List of visible symbol info
+     * @param addBuiltIn   Add built-in functions
      * @return {@link ArrayList}    List of filtered symbol info
      */
     public static List<SymbolInfo> getInvocationAndFieldSymbolsOnVar(LSServiceOperationContext context,
                                                                      String variableName, String delimiter,
-                                                                     List<SymbolInfo> symbolInfos) {
+                                                                     List<SymbolInfo> symbolInfos, boolean addBuiltIn) {
         ArrayList<SymbolInfo> resultList = new ArrayList<>();
         SymbolTable symbolTable = context.get(DocumentServiceKeys.SYMBOL_TABLE_KEY);
         ParserRuleContext parserRuleContext = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
@@ -99,9 +118,15 @@ public class FilterUtils {
             }
 
             entries.forEach((name, scopeEntry) -> {
-                if (scopeEntry.symbol instanceof BInvokableSymbol && scopeEntry.symbol.owner != null) {
+                /*
+                 Note: Here we specifically remove the object attached functions shown since when we try to get the
+                 visible symbols within the functions inside the objects, both the object reference as well as the
+                 attached function is shown. For a more generalized solution, object attached functions are retrieved
+                 from the object's scope entries
+                 */
+                if (scopeEntry.symbol instanceof BInvokableSymbol && scopeEntry.symbol.owner != null
+                        && !(scopeEntry.symbol.owner instanceof BObjectTypeSymbol)) {
                     String symbolBoundedName = scopeEntry.symbol.owner.toString();
-
                     if (modifiedBType != null && symbolBoundedName.equals(modifiedBType.toString())) {
                         // TODO: Need to handle the name in a proper manner
                         String[] nameComponents = name.toString().split("\\.");
@@ -114,17 +139,18 @@ public class FilterUtils {
                         || SymbolKind.RECORD.equals(scopeEntry.symbol.kind))
                         && modifiedBType != null
                         && scopeEntry.symbol.type.toString().equals(modifiedBType.toString())) {
-                    // Get the struct fields
-                    Map<Name, Scope.ScopeEntry> fields = scopeEntry.symbol.scope.entries;
-                    fields.forEach((fieldName, fieldScopeEntry) -> {
-                        if (!fieldScopeEntry.symbol.getName().getValue().endsWith(".new")) {
-                            resultList.add(new SymbolInfo(fieldName.getValue(), fieldScopeEntry));
+                    // Get the object/records' attached functions and the fields
+                    Map<Name, Scope.ScopeEntry> attachedEntries = scopeEntry.symbol.scope.entries;
+                    attachedEntries.forEach((entryName, attachedScopeEntry) -> {
+                        if (!CommonUtil.isInvalidSymbol(attachedScopeEntry.symbol)) {
+                            resultList.add(new SymbolInfo(entryName.getValue(), attachedScopeEntry));
                         }
                     });
                 }
             });
-
-            CommonUtil.populateIterableOperations(variable, resultList, context);
+            if (addBuiltIn) {
+                CommonUtil.populateIterableAndBuiltinFunctions(variable, resultList, context);
+            }
         } else if (delimiter.equals(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)) {
             SymbolInfo packageSymbol = symbolInfos.stream().filter(item -> {
                 Scope.ScopeEntry scopeEntry = item.getScopeEntry();
@@ -136,6 +162,21 @@ public class FilterUtils {
         }
 
         return resultList;
+    }
+
+    /**
+     * Get the invocations and fields against an identifier (functions, actions and fields).
+     *
+     * @param context               Text Document Service context (Completion Context)
+     * @param variableName          Variable name to evaluate against (Can be package alias or defined variable)
+     * @param delimiter             delimiter String either dot or action invocation symbol
+     * @param symbolInfos           List of visible symbol info
+     * @return {@link ArrayList}    List of filtered symbol info
+     */
+    public static List<SymbolInfo> getInvocationAndFieldSymbolsOnVar(LSServiceOperationContext context,
+                                                                     String variableName, String delimiter,
+                                                                     List<SymbolInfo> symbolInfos) {
+        return getInvocationAndFieldSymbolsOnVar(context, variableName, delimiter, symbolInfos, true);
     }
 
     /**
@@ -210,10 +251,8 @@ public class FilterUtils {
             return  ((BArrayType) bType).eType.tsymbol.pkgID;
         } else if (bType instanceof BUnionType) {
             List<BType> memberTypeList = new ArrayList<>(((BUnionType) bType).getMemberTypes());
-            memberTypeList.removeIf(type -> (type instanceof BRecordType
-                    && ((BRecordType) type).tsymbol.getName().getValue().equals("error"))
-                    || type instanceof BNilType);
-            
+            memberTypeList.removeIf(type -> type.tsymbol instanceof BErrorTypeSymbol || type instanceof BNilType);
+
             if (memberTypeList.size() == 1) {
                 return memberTypeList.get(0).tsymbol.pkgID;
             }
@@ -224,9 +263,7 @@ public class FilterUtils {
     
     private static BType getBTypeForUnionType(BUnionType bType) {
         List<BType> memberTypeList = new ArrayList<>(bType.getMemberTypes());
-        memberTypeList.removeIf(type -> (type instanceof BRecordType
-                && ((BRecordType) type).tsymbol.getName().getValue().equals("error"))
-                || type instanceof BNilType);
+        memberTypeList.removeIf(type -> type.tsymbol instanceof BErrorTypeSymbol || type instanceof BNilType);
 
         if (memberTypeList.size() == 1) {
             return memberTypeList.get(0);

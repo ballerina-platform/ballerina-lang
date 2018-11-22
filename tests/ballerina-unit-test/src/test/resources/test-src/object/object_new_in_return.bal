@@ -9,7 +9,7 @@ function testCreateObjectInReturnDifferentType () returns int {
 }
 
 type Person object {
-    public int age;
+    public int age = 0;
 
     new (age) {
 
@@ -17,10 +17,10 @@ type Person object {
 };
 
 type Employee object {
-    public int age;
+    public int age = 0;
 
     new (age, int addVal) {
-        age = age + addVal;
+        self.age = self.age + addVal;
     }
 };
 

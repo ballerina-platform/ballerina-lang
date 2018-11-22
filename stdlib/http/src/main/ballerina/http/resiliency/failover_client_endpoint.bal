@@ -21,10 +21,10 @@
 # + failoverClientConfig - The configurations for the failover client endpoint
 public type FailoverClient object {
 
-    public string epName;
-    public FailoverClientEndpointConfiguration failoverClientConfig;
+    public string epName = "";
+    public FailoverClientEndpointConfiguration failoverClientConfig = {};
 
-    private Client httpEP;
+    private Client httpEP = new;
 
     # Initializes the endpoint using the configurations provided.
     #
@@ -35,7 +35,10 @@ public type FailoverClient object {
     #
     # + return - The HTTP failover actions associated with the endpoint
     public function getCallerActions() returns FailoverActions {
-        return check <FailoverActions>httpEP.httpClient;
+        match (<FailoverActions> self.httpEP.httpClient) {
+            error err => panic err;
+            FailoverActions failoverActions => return failoverActions;
+        }
     }
 };
 
@@ -58,26 +61,26 @@ public type FailoverClient object {
 # + failoverCodes - Array of HTTP response status codes for which the failover behaviour should be triggered
 # + intervalMillis - Failover delay interval in milliseconds
 public type FailoverClientEndpointConfiguration record {
-    CircuitBreakerConfig? circuitBreaker;
+    CircuitBreakerConfig? circuitBreaker = ();
     int timeoutMillis = 60000;
     string httpVersion = "1.1";
     string forwarded = "disable";
     KeepAlive keepAlive = KEEPALIVE_AUTO;
     Chunking chunking = "AUTO";
-    FollowRedirects? followRedirects;
-    RetryConfig? retryConfig;
-    ProxyConfig? proxy;
-    ConnectionThrottling? connectionThrottling;
-    TargetService[] targets;
+    FollowRedirects? followRedirects = ();
+    RetryConfig? retryConfig = ();
+    ProxyConfig? proxy = ();
+    ConnectionThrottling? connectionThrottling = ();
+    TargetService[] targets = [];
     CacheConfig cache = {};
     Compression compression = COMPRESSION_AUTO;
-    AuthConfig? auth;
+    AuthConfig? auth = ();
     int[] failoverCodes = [501, 502, 503, 504];
-    int intervalMillis;
+    int intervalMillis = 0;
     !...
 };
 
-function FailoverClient::init(FailoverClientEndpointConfiguration foClientConfig) {
+function FailoverClient.init(FailoverClientEndpointConfiguration foClientConfig) {
     self.httpEP.httpClient = createFailOverClient(foClientConfig);
     self.httpEP.config.circuitBreaker = foClientConfig.circuitBreaker;
     self.httpEP.config.timeoutMillis = foClientConfig.timeoutMillis;
@@ -134,17 +137,14 @@ function createFailoverHttpClientArray(FailoverClientEndpointConfiguration failo
     boolean httpClientRequired = false;
     string uri = failoverClientConfig.targets[0].url;
     var cbConfig = failoverClientConfig.circuitBreaker;
-    match cbConfig {
-        CircuitBreakerConfig cb => {
-            if (uri.hasSuffix("/")) {
-                int lastIndex = uri.length() - 1;
-                uri = uri.substring(0, lastIndex);
-            }
-            httpClientRequired = false;
+    if (cbConfig is CircuitBreakerConfig) {
+        if (uri.hasSuffix("/")) {
+            int lastIndex = uri.length() - 1;
+            uri = uri.substring(0, lastIndex);
         }
-        () => {
-            httpClientRequired = true;
-        }
+        httpClientRequired = false;
+    } else {
+        httpClientRequired = true;
     }
 
     foreach target in failoverClientConfig.targets {
@@ -157,17 +157,14 @@ function createFailoverHttpClientArray(FailoverClientEndpointConfiguration failo
         if (!httpClientRequired) {
             httpClients[i] = createCircuitBreakerClient(uri, epConfig);
         } else {
-            var retryConfigVal = epConfig.retryConfig;
-            match retryConfigVal {
-                RetryConfig retryConfig => {
-                    httpClients[i] = createRetryClient(uri, epConfig);
-                }
-                () => {
-                    if (epConfig.cache.enabled) {
-                        httpClients[i] = createHttpCachingClient(uri, epConfig, epConfig.cache);
-                    } else {
-                        httpClients[i] = createHttpSecureClient(uri, epConfig);
-                    }
+            var retryConfig = epConfig.retryConfig;
+            if (retryConfig is RetryConfig) {
+                httpClients[i] = createRetryClient(uri, epConfig);
+            } else {
+                if (epConfig.cache.enabled) {
+                    httpClients[i] = createHttpCachingClient(uri, epConfig, epConfig.cache);
+                } else {
+                    httpClients[i] = createHttpSecureClient(uri, epConfig);
                 }
             }
         }

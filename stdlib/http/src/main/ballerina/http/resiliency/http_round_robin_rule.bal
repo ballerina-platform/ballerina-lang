@@ -29,17 +29,17 @@ public type LoadBalancerRounRobinRule object {
     public function getNextCallerActions(CallerActions[] loadBalanceCallerActionsArray) returns CallerActions|error;
 };
 
-function LoadBalancerRounRobinRule::getNextCallerActions(CallerActions[] loadBalanceCallerActionsArray)
+function LoadBalancerRounRobinRule.getNextCallerActions(CallerActions[] loadBalanceCallerActionsArray)
                                        returns CallerActions|error {
-    CallerActions httpClient;
+    CallerActions httpClient = new;
     lock {
-         if (self.index == ((lengthof (loadBalanceCallerActionsArray)) - 1)) {
-             httpClient = loadBalanceCallerActionsArray[self.index];
-             self.index = 0;
-         } else {
-             httpClient = loadBalanceCallerActionsArray[self.index];
-             self.index += 1;
-         }
+        if (self.index == ((loadBalanceCallerActionsArray.length()) - 1)) {
+            httpClient = loadBalanceCallerActionsArray[self.index];
+            self.index = 0;
+        } else {
+            httpClient = loadBalanceCallerActionsArray[self.index];
+            self.index += 1;
+        }
     }
     return httpClient;
 }

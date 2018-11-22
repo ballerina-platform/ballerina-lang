@@ -53,7 +53,7 @@ function startTimeBatchwindowTest1() returns (TeacherOutput[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof globalEmployeeArray) == 1 || count == 10) {
+        if((globalEmployeeArray.length()) == 1 || count == 10) {
             break;
         }
     }

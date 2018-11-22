@@ -6,7 +6,7 @@ function test () returns int {
 
 type Person object {
 
-    public int age;
+    public int age = 0;
 
 
     function test0(int a, string name) returns string; //param type mismatch
@@ -39,70 +39,70 @@ type Person object {
 
 };
 
-function Person::test0(string a, string name) returns string {
+function Person.test0(string a, string name) returns string {
     return "hello";
 }
 
-function Person::test1(int agea, string name) returns string {
+function Person.test1(int agea, string name) returns string {
     return "hello";
 }
 
-function Person::test2(int a, string namea = "hello") returns string {
+function Person.test2(int a, string namea = "hello") returns string {
     return "lll";
 }
 
-function Person::test3(int agea, int name = 5) returns string {
+function Person.test3(int agea, int name = 5) returns string {
     return "ppp";
 }
 
-//function Person::test4(int age, string name = "helloa") returns string {
+//function Person.test4(int age, string name = "helloa") returns string {
 //    return "kkk";
 //}
 
-function Person::test5(int a, string name) returns int {
+function Person.test5(int a, string name) returns int {
     return 7;
 }
 
-public function Person::test6(int a, string name) returns string {
+public function Person.test6(int a, string name) returns string {
     return "ddd";
 }
 
-function Person::test7(int a, string name) returns string{
+function Person.test7(int a, string name) returns string{
     return "ppp";
 }
 
-function Person::test8(int a, string name) returns (string | int) {
+function Person.test8(int a, string name) returns (string | int) {
     return 8;
 }
 
-function Person::test9(int a, string name) {
+function Person.test9(int a, string name) {
 
 }
 
-function Person::test10(int a, string name) returns (string, string) {
+function Person.test10(int a, string name) returns (string, string) {
     return ("a", "b");
 }
 
-function Person::test11(int a, string name) returns Bar {
+function Person.test11(int a, string name) returns Bar {
     return new Bar();
 }
 
-function Person::test12(int age, string name, string... vala) returns string {
+function Person.test12(int age, string name, string... vala) returns string {
     return "uuu";
 }
 
-function Person::test13(int a, string name, int... val) returns string {
+function Person.test13(int a, string name, int... val) returns string {
     return "ooo";
 }
 
 type Foo object {
 
-    public int age;
+    public int age = 0;
 
 };
 
 type Bar object {
 
-    public int age;
+    public int age = 0;
 
 };

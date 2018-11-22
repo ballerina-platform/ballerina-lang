@@ -18,12 +18,13 @@
 
 package org.ballerinalang.test.service.http.sample;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.Test;
 
-import java.io.File;
+import java.nio.file.Paths;
 
 /**
  * Test mutual ssl with certificates and keys.
@@ -34,18 +35,15 @@ public class MutualSSLWithCerts extends BaseTest {
     @Test(description = "Test mutual ssl")
     public void testMutualSSLWithCerts() throws Exception {
         String serverResponse = "Response received";
-        String privateKey = new File(
-                "src" + File.separator + "test" + File.separator + "resources" + File.separator + "certsAndKeys"
-                        + File.separator + "private.key").getAbsolutePath();
-        String publicCert = new File(
-                "src" + File.separator + "test" + File.separator + "resources" + File.separator + "certsAndKeys"
-                        + File.separator + "public.crt").getAbsolutePath();
+        String privateKey = StringEscapeUtils.escapeJava(Paths.get("src", "test", "resources", "certsAndKeys",
+                                                                   "private.key").toAbsolutePath().toString());
+        String publicCert = StringEscapeUtils.escapeJava(Paths.get("src", "test", "resources", "certsAndKeys",
+                                                                   "public.crt").toAbsolutePath().toString());
 
-        String balFile = new File(
-                "src" + File.separator + "test" + File.separator + "resources" + File.separator + "mutualSSL"
-                        + File.separator + "ssl_client.bal").getAbsolutePath();
+        String balFile = Paths.get("src", "test", "resources", "mutualSSL", "ssl_client.bal").toAbsolutePath()
+                .toString();
 
-        String[] flags = { "-e certificate.key=" + privateKey, "-e public.cert=" + publicCert};
+        String[] flags = { "-e", "certificate.key=" + privateKey, "-e", "public.cert=" + publicCert};
 
         BMainInstance ballerinaClient = new BMainInstance(balServer);
         LogLeecher clientLeecher = new LogLeecher(serverResponse);

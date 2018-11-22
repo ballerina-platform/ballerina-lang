@@ -34,7 +34,7 @@ public type Filter1 object {
     }
 };
 
-Filter1 filter1;
+Filter1 filter1 = new;
 
 // Filter2
 
@@ -44,7 +44,7 @@ public type Filter2 object {
         log:printInfo("Intercepting request for filter 2");
         boolean status = true;
         if (context.attributes.hasKey("attribute1")){
-            if (context.attributes["attribute1"] == "attribute1"){
+            if (<string>context.attributes["attribute1"] == "attribute1"){
                 status = status && true;
             } else {
                 status = status && false;
@@ -53,11 +53,15 @@ public type Filter2 object {
             status = status && false;
         }
         if (context.attributes.hasKey("attribute2")){
-            FilterDto returnedDto = check <FilterDto>context.attributes["attribute2"];
-            if (returnedDto.authenticated == dto.authenticated && returnedDto.username == dto.username){
-                status = status && true;
+            var returnedDto = <FilterDto>context.attributes["attribute2"];
+            if (returnedDto is FilterDto) {
+                if (returnedDto.authenticated == dto.authenticated && returnedDto.username == dto.username){
+                    status = status && true;
+                } else {
+                    status = status && false;
+                }
             } else {
-                status = status && false;
+                panic returnedDto;
             }
         } else {
             status = status && false;
@@ -65,7 +69,7 @@ public type Filter2 object {
         if (status){
             return true;
         } else {
-            http:Response response;
+            http:Response response = new;
             response.statusCode = 401;
             response.setTextPayload("attribute missing in context");
             _ = caller->respond(response);
@@ -78,7 +82,7 @@ public type Filter2 object {
     }
 };
 
-Filter2 filter2;
+Filter2 filter2 = new;
 
 endpoint http:Listener echoEP {
     port: 9090,

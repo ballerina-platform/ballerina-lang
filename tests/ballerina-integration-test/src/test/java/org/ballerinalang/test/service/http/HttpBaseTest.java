@@ -18,13 +18,14 @@
 
 package org.ballerinalang.test.service.http;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.testng.annotations.AfterGroups;
 import org.testng.annotations.BeforeGroups;
 
-import java.io.File;
+import java.nio.file.Paths;
 
 /**
  * Base test class for Http integration test cases which starts/stops the http services as ballerina package before
@@ -38,14 +39,11 @@ public class HttpBaseTest extends BaseTest {
         int[] requiredPorts = new int[]{9090, 9224, 9091, 9092, 9093, 9094, 9095, 9096, 9097, 9098, 9099, 9100, 9101,
                 9102, 9103, 9104, 9105, 9106, 9107, 9108, 9109, 9110, 9111, 9112, 9113, 9114, 9115, 9116, 9117, 9118,
                 9119, 9217, 9218, 9219, 9220, 9221, 9222, 9223, 9225, 9226, 9227};
-        String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
-                "http").getAbsolutePath();
-        String privateKey = new File(
-                "src" + File.separator + "test" + File.separator + "resources" + File.separator + "certsAndKeys"
-                        + File.separator + "private.key").getAbsolutePath();
-        String publicCert = new File(
-                "src" + File.separator + "test" + File.separator + "resources" + File.separator + "certsAndKeys"
-                        + File.separator + "public.crt").getAbsolutePath();
+        String balFile = Paths.get("src", "test", "resources", "http").toAbsolutePath().toString();
+        String privateKey = StringEscapeUtils.escapeJava(Paths.get("src", "test", "resources", "certsAndKeys",
+                                                                   "private.key").toAbsolutePath().toString());
+        String publicCert = StringEscapeUtils.escapeJava(Paths.get("src", "test", "resources", "certsAndKeys",
+                                                                   "public.crt").toAbsolutePath().toString());
         String[] args = new String[] { "-e", "certificate.key=" + privateKey, "-e", "public.cert=" + publicCert };
         serverInstance = new BServerInstance(balServer);
         serverInstance.startServer(balFile, "httpservices", args, requiredPorts);

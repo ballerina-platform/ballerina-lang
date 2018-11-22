@@ -33,7 +33,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"invokeEndpoint(string path, http:Request outRequest, http:HttpOperation requestAction, http:CallerActions httpClient)(ballerina/http:Response|error)",
+      "label":"invokeEndpoint(string path, http:Request outRequest, FORWARD|GET|POST|DELETE|OPTIONS|PUT|PATCH|HEAD|NONE requestAction, http:CallerActions httpClient)(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "documentation":"The HEAD action implementation of the Circuit Breaker. This wraps the `head()` function of the underlying\nHTTP actions provider.",
@@ -277,14 +277,6 @@
       "insertText":"FailoverConfig"
     },
     {
-      "label":"FailoverActionError",
-      "kind":"Class",
-      "detail":"BType",
-      "documentation":"Defines an error which occurred during an attempt to failover.\n",
-      "sortText":"170",
-      "insertText":"FailoverActionError"
-    },
-    {
       "label":"FailoverInferredConfig",
       "kind":"Class",
       "detail":"BType",
@@ -333,12 +325,12 @@
       "insertText":"CircuitBreakerInferredConfig"
     },
     {
-      "label":"LoadBalanceActionError",
+      "label":"LoadBalanceActionErrorData",
       "kind":"Class",
       "detail":"BType",
       "documentation":"Represents an error occurred in an action of the Load Balance connector.\n",
       "sortText":"170",
-      "insertText":"LoadBalanceActionError"
+      "insertText":"LoadBalanceActionErrorData"
     },
     {
       "label":"RetryInferredConfig",
@@ -504,7 +496,6 @@
       "label":"HttpCache",
       "kind":"Class",
       "detail":"BType",
-      "documentation":"Implements a cache for storing HTTP responses. This cache complies with the caching policy set when configuring\nHTTP caching in the HTTP client endpoint.\n",
       "sortText":"170",
       "insertText":"HttpCache"
     },
@@ -597,12 +588,28 @@
       "insertText":"CircuitBreakerClient"
     },
     {
+      "label":"LoadBalancerRule",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":"\nLoadBalancerRule provides a required interfaces to implement different algorithms.\n",
+      "sortText":"170",
+      "insertText":"LoadBalancerRule"
+    },
+    {
       "label":"RetryClient",
       "kind":"Class",
       "detail":"BType",
       "documentation":"Provides the HTTP actions for interacting with an HTTP endpoint. This is created by wrapping the HTTP client\nto provide retrying over HTTP requests.\n",
       "sortText":"170",
       "insertText":"RetryClient"
+    },
+    {
+      "label":"LoadBalancerRounRobinRule",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":"Implementation of round robin load balancing strategy.\n",
+      "sortText":"170",
+      "insertText":"LoadBalancerRounRobinRule"
     },
     {
       "label":"WebSocketClientService",

@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 // This is server implementation for client streaming scenario
-import ballerina/io;
 import ballerina/grpc;
+import ballerina/io;
 
 // Server endpoint configuration
 endpoint grpc:Listener ep7 {
@@ -25,6 +25,10 @@ endpoint grpc:Listener ep7 {
 
 @grpc:ServiceConfig {name:"lotsOfGreetings",
     clientStreaming:true}
+@grpc:ServiceDescriptor {
+    descriptor: <string>descriptorMap4[DESCRIPTOR_KEY_4],
+    descMap: descriptorMap4
+}
 service HelloWorld7 bind ep7 {
     onOpen(endpoint caller) {
         io:println("connected sucessfully.");
@@ -35,14 +39,26 @@ service HelloWorld7 bind ep7 {
     }
 
     onError(endpoint caller, error err) {
-        if (err != ()) {
-            io:println("Something unexpected happens at server : " + err.message);
-        }
+        io:println("Something unexpected happens at server : " + err.reason());
     }
 
     onComplete(endpoint caller) {
         io:println("Server Response");
         error? err = caller->send("Ack");
-        io:println(err.message but { () => ("Server send response : Ack") });
+        if (err is error) {
+            io:println("Error from Connector: " + err.reason());
+        } else {
+            io:println("Server send response : Ack");
+        }
     }
 }
+
+@final string DESCRIPTOR_KEY_4 = "HelloWorld7.proto";
+map descriptorMap4 =
+{
+    "HelloWorld7.proto":"0A1148656C6C6F576F726C64372E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F325E0A0B48656C6C6F576F726C6437124F0A0F6C6F74734F664772656574696E6773121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C75652801620670726F746F33",
+
+    "google/protobuf/wrappers.proto":
+    "0A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F120F676F6F676C652E70726F746F627566221C0A0B446F75626C6556616C7565120D0A0576616C7565180120012801221B0A0A466C6F617456616C7565120D0A0576616C7565180120012802221B0A0A496E74363456616C7565120D0A0576616C7565180120012803221C0A0B55496E74363456616C7565120D0A0576616C7565180120012804221B0A0A496E74333256616C7565120D0A0576616C7565180120012805221C0A0B55496E74333256616C7565120D0A0576616C756518012001280D221A0A09426F6F6C56616C7565120D0A0576616C7565180120012808221C0A0B537472696E6756616C7565120D0A0576616C7565180120012809221B0A0A427974657356616C7565120D0A0576616C756518012001280C427C0A13636F6D2E676F6F676C652E70726F746F627566420D577261707065727350726F746F50015A2A6769746875622E636F6D2F676F6C616E672F70726F746F6275662F7074797065732F7772617070657273F80101A20203475042AA021E476F6F676C652E50726F746F6275662E57656C6C4B6E6F776E5479706573620670726F746F33"
+
+};

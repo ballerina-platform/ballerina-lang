@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
+import ballerina/log;
 import ballerina/http;
 
 @final string CUSTOM_HEADER = "X-some-header";
@@ -37,10 +37,11 @@ service<http:Service> simple3 bind { port: 9093 } {
 service<http:WebSocketService> simpleProxy3 {
 
     onText(endpoint wsEp, string text) {
-        if (text == "custom-headers"){
-            wsEp->pushText(<string>wsEp.attributes[CUSTOM_HEADER]) but {
-                error e => io:println("Error sending message. " + e.message)
-            };
+        if (text == "custom-headers") {
+            var returnVal = wsEp->pushText(<string>wsEp.attributes[CUSTOM_HEADER]);
+            if (returnVal is error) {
+                 panic returnVal;
+            }
         }
     }
 }

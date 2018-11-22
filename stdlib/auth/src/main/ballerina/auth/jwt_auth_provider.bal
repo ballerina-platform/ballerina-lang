@@ -32,6 +32,7 @@ public type JWTAuthProvider object {
     #
     # + jwtAuthProviderConfig - JWT authentication provider configurations
     public new(jwtAuthProviderConfig) {
+        self.authCache = new;
     }
 
     # Authenticate with a jwt token
@@ -41,48 +42,46 @@ public type JWTAuthProvider object {
     #            If an error occur during authentication, the error will be returned.
     public function authenticate(string jwtToken) returns boolean|error {
         if (self.authCache.hasKey(jwtToken)) {
-            match self.authenticateFromCache(jwtToken) {
-                internal:JwtPayload payload => {
-                    setAuthContext(payload, jwtToken);
-                    return true;
-                }
-                () => {
-                    return false;
-                }
+            var payload = self.authenticateFromCache(jwtToken);
+            if (payload is internal:JwtPayload) {
+                self.setAuthContext(payload, jwtToken);
+                return true;
+            } else {
+                return false;
             }
         }
 
-        match internal:validate(jwtToken, self.jwtAuthProviderConfig) {
-            internal:JwtPayload payload => {
-                setAuthContext(payload, jwtToken);
-                self.addToAuthenticationCache(jwtToken, payload.exp, payload);
-                return true;
-            }
-            error err => return err;
+        var payload = internal:validate(jwtToken, self.jwtAuthProviderConfig);
+        if (payload is internal:JwtPayload) {
+            self.setAuthContext(payload, jwtToken);
+            self.addToAuthenticationCache(jwtToken, payload.exp, payload);
+            return true;
+        } else {
+            return payload;
         }
     }
 
     function authenticateFromCache(string jwtToken) returns internal:JwtPayload|() {
-        match <CachedJWTAuthContext>self.authCache.get(jwtToken) {
-            CachedJWTAuthContext context => {
-                // convert to current time and check the expiry time
-                if (context.expiryTime > (time:currentTime().time / 1000)) {
-                    internal:JwtPayload payload = context.jwtPayload;
-                    log:printDebug("Authenticate user :" + payload.sub + " from cache");
-                    return payload;
-                }
+        var context = <CachedJWTAuthContext>self.authCache.get(jwtToken);
+        if (context is CachedJWTAuthContext) {
+            // convert to current time and check the expiry time
+            if (context.expiryTime > (time:currentTime().time / 1000)) {
+                internal:JwtPayload payload = context.jwtPayload;
+                log:printDebug(function() returns string {
+                    return "Authenticate user :" + payload.sub + " from cache";
+                });
+                return payload;
             }
-            error => {}
         }
         return ();
     }
 
     function addToAuthenticationCache(string jwtToken, int exp, internal:JwtPayload payload) {
-        CachedJWTAuthContext cachedContext = {};
-        cachedContext.jwtPayload = payload;
-        cachedContext.expiryTime = exp;
+        CachedJWTAuthContext cachedContext = {jwtPayload : payload, expiryTime : exp};
         self.authCache.put(jwtToken, cachedContext);
-        log:printDebug("Add authenticated user :" + payload.sub + " to the cache");
+        log:printDebug(function() returns string {
+            return "Add authenticated user :" + payload.sub + " to the cache";
+        });
     }
 
     function setAuthContext(internal:JwtPayload jwtPayload, string jwtToken) {
@@ -92,19 +91,15 @@ public type JWTAuthProvider object {
         userPrincipal.username = jwtPayload.sub;
         userPrincipal.claims = jwtPayload.customClaims;
         if (jwtPayload.customClaims.hasKey(SCOPES)) {
-            match jwtPayload.customClaims[SCOPES] {
-                string scopeString => {
-                    userPrincipal.scopes = scopeString.split(" ");
-                }
-                any => {}
+            var scopeString = jwtPayload.customClaims[SCOPES];
+            if (scopeString is string) {
+                userPrincipal.scopes = scopeString.split(" ");
             }
         }
         if (jwtPayload.customClaims.hasKey(USERNAME)) {
-            match jwtPayload.customClaims[USERNAME] {
-                string name => {
-                    userPrincipal.username = name;
-                }
-                any => {}
+            var name = jwtPayload.customClaims[USERNAME];
+            if (name is string) {
+                userPrincipal.username = name;
             }
         }
         runtime:AuthContext authContext = runtime:getInvocationContext().authContext;
@@ -114,10 +109,10 @@ public type JWTAuthProvider object {
 
 };
 
-@final string SCOPES = "scope";
-@final string GROUPS = "groups";
-@final string USERNAME = "name";
-@final string AUTH_TYPE_JWT = "jwt";
+const string SCOPES = "scope";
+const string GROUPS = "groups";
+const string USERNAME = "name";
+const string AUTH_TYPE_JWT = "jwt";
 
 # Represents JWT validator configurations
 #
@@ -128,12 +123,12 @@ public type JWTAuthProvider object {
 # + trustStoreFilePath - Path to the trust store file
 # + trustStorePassword - Trust store password
 public type JWTAuthProviderConfig record {
-    string issuer;
-    string audience;
-    int clockSkew;
-    string certificateAlias;
-    string trustStoreFilePath;
-    string trustStorePassword;
+    string issuer = "";
+    string audience = "";
+    int clockSkew = 0;
+    string certificateAlias = "";
+    string trustStoreFilePath = "";
+    string trustStorePassword = "";
     !...
 };
 

@@ -41,36 +41,34 @@ service<http:Service> retryStatusService bind { port: 9225 } {
     invokeEndpoint(endpoint caller, http:Request request) {
         if (request.getHeader("x-retry") == "recover") {
             var backendResponse = internalErrorEP->get("/status/recover", message = untaint request);
-            match backendResponse {
-                http:Response response => {
-                    caller->respond(response) but {
-                        error e => log:printError("Error sending response", err = e)
-                    };
+            if (backendResponse is http:Response) {
+                var responseError = caller->respond(backendResponse);
+                if (responseError is error) {
+                    log:printError("Error sending response", err = responseError);
                 }
-                error responseError => {
-                    http:Response errorResponse = new;
-                    errorResponse.statusCode = 500;
-                    errorResponse.setPayload(responseError.message);
-                    caller->respond(errorResponse) but {
-                        error e => log:printError("Error sending response", err = e)
-                    };
+            } else if (backendResponse is error) {
+                http:Response errorResponse = new;
+                errorResponse.statusCode = 500;
+                errorResponse.setPayload(backendResponse.reason());
+                var responseError = caller->respond(errorResponse);
+                if (responseError is error) {
+                    log:printError("Error sending response", err = responseError);
                 }
             }
         } else if (request.getHeader("x-retry") == "internalError") {
             var backendResponse = internalErrorEP->get("/status/internalError", message = untaint request);
-            match backendResponse {
-                http:Response response => {
-                    caller->respond(response) but {
-                        error e => log:printError("Error sending response", err = e)
-                    };
+            if (backendResponse is http:Response) {
+                var responseError = caller->respond(backendResponse);
+                if (responseError is error) {
+                    log:printError("Error sending response", err = responseError);
                 }
-                error responseError => {
-                    http:Response errorResponse = new;
-                    errorResponse.statusCode = 500;
-                    errorResponse.setPayload(responseError.message);
-                    caller->respond(errorResponse) but {
-                        error e => log:printError("Error sending response", err = e)
-                    };
+            } else if (backendResponse is error) {
+                http:Response errorResponse = new;
+                errorResponse.statusCode = 500;
+                errorResponse.setPayload(backendResponse.reason());
+                var responseError = caller->respond(errorResponse);
+                if (responseError is error) {
+                    log:printError("Error sending response", err = responseError);
                 }
             }
         }
@@ -91,13 +89,15 @@ service<http:Service> mockStatusCodeService bind { port: 8080 } {
             http:Response res = new;
             res.statusCode = 502;
             res.setPayload("Gateway Timed out.");
-            caller->respond(res) but {
-                error e => log:printError("Error sending response from the service", err = e)
-            };
+            var responseError = caller->respond(res);
+            if (responseError is error) {
+                log:printError("Error sending response from the service", err = responseError);
+            }
         } else {
-            caller->respond("Hello World!!!") but {
-                error e => log:printError("Error sending response from the service", err = e)
-            };
+            var responseError = caller->respond("Hello World!!!");
+            if (responseError is error) {
+                log:printError("Error sending response from the service", err = responseError);
+            }
         }
     }
 
@@ -109,8 +109,9 @@ service<http:Service> mockStatusCodeService bind { port: 8080 } {
         http:Response res = new;
         res.statusCode = 502;
         res.setPayload("Gateway Timed out.");
-        caller->respond(res) but {
-            error e => log:printError("Error sending response from the service", err = e)
-        };
+        var responseError = caller->respond(res);
+        if (responseError is error) {
+            log:printError("Error sending response from the service", err = responseError);
+        }
     }
 }

@@ -25,6 +25,7 @@ import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByteArray;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -153,7 +154,6 @@ public class IOTest {
         Assert.assertEquals(readCharacters.stringValue(), expectedCharacters);
 
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "closeReadableChannel");
-
     }
 
     @Test(description = "Test 'readCharacters' function in ballerina/io package")
@@ -223,8 +223,8 @@ public class IOTest {
         Assert.assertEquals(records.size(), expectedRecordLength);
 
         returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "nextRecord");
-        BMap error = (BMap) returns[0];
-        Assert.assertTrue(IOConstants.IO_EOF.equals(error.getMap().get("message").toString()));
+        BError error = (BError) returns[0];
+        Assert.assertTrue(IOConstants.IO_EOF.equals(((BMap) error.getDetails()).getMap().get("message").toString()));
         returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
         Assert.assertFalse(hasNextRecord.booleanValue(), "Not expecting anymore records");

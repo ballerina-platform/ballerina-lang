@@ -35,8 +35,10 @@ import org.ballerinalang.mime.util.EntityWrapper;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeConstants;
 import org.ballerinalang.mime.util.MimeUtil;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BByteArray;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
@@ -114,7 +116,7 @@ public class Util {
     static BRefValueArray getArrayOfBodyParts(ArrayList<BMap<String, BValue>> bodyParts) {
         BStructureType typeOfBodyPart = (BStructureType) bodyParts.get(0).getType();
         BMap<String, BValue>[] result = bodyParts.toArray(new BMap[bodyParts.size()]);
-        return new BRefValueArray(result, typeOfBodyPart);
+        return new BRefValueArray(result, new BArrayType(typeOfBodyPart));
     }
 
     /**
@@ -657,5 +659,11 @@ public class Util {
         blobDataSource.serialize(outStream);
         Assert.assertEquals(new String(outStream.toByteArray(), StandardCharsets.UTF_8),
                 "Ballerina binary file part");
+    }
+
+    public static void verifyMimeError(BValue returnValue, String errMsg) {
+        Assert.assertEquals(((BError) returnValue).getReason(), MimeConstants.MIME_ERROR_CODE);
+        Assert.assertEquals(((BMap) ((BError) returnValue).getDetails()).get(MimeConstants.MIME_ERROR_MESSAGE)
+                .stringValue(), errMsg);
     }
 }

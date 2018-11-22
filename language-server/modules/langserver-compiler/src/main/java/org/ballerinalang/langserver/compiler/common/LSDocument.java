@@ -43,14 +43,10 @@ public class LSDocument {
         }
     }
 
-    public LSDocument(String uri, String sourceRoot) {
-        try {
-            this.uri = uri;
-            this.sourceRoot = sourceRoot;
-            this.path = Paths.get(new URL(uri).toURI());
-        } catch (URISyntaxException | MalformedURLException e) {
-            // Ignore
-        }
+    public LSDocument(Path path, String sourceRoot) {
+        this.uri = path.toUri().toString();
+        this.sourceRoot = sourceRoot;
+        this.path = path;
     }
 
     /**

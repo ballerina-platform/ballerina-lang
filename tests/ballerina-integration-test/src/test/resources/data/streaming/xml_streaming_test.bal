@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/http;
-import ballerina/io;
 import ballerina/h2;
+import ballerina/log;
 
 endpoint h2:Client testDB {
     path: "../../tempdb/",
@@ -29,20 +29,20 @@ endpoint h2:Client testDB {
 service<http:Service> dataService bind { port: 9090 } {
 
     getData(endpoint caller, http:Request req) {
-        http:Response res = new;
 
         var selectRet = testDB->select("SELECT * FROM Data", ());
-        table dt;
-        match selectRet {
-            table tableReturned => dt = tableReturned;
-            error e => io:println("Select data from Data table failed: " + e.message);
+        if (selectRet is table) {
+            var xmlConversionRet = <xml>selectRet;
+            if (xmlConversionRet is xml) {
+                var responseToCaller = caller->respond(untaint xmlConversionRet);
+                if (responseToCaller is error) {
+                    log:printError("Error sending response", err = responseToCaller);
+                }
+            } else {
+                panic xmlConversionRet;
+            }
+        } else if (selectRet is error) {
+            log:printError("Select data from Data table failed: " + selectRet.reason());
         }
-
-        xml xmlConversionRet = check <xml>dt;
-        res.setPayload(untaint xmlConversionRet);
-
-        caller->respond(res) but {
-            error e => io:println("Error sending response")
-        };
     }
 }

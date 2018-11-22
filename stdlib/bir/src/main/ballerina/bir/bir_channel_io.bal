@@ -8,22 +8,22 @@ public type BirChannelReader object {
     }
 
     public function readBType() returns BType {
-        string sginatureAlias = readStringCpRef();
+        string sginatureAlias = self.readStringCpRef();
         if (sginatureAlias == "I"){
             return "int";
         } else if (sginatureAlias == "B"){
             return "boolean";
         }
-        error err = { message: "type signature " + sginatureAlias + " not supported." };
-        throw err;
+        error err = error("type signature " + sginatureAlias + " not supported.");
+        panic err;
     }
 
     public function readStringCpRef() returns string {
-        return cp.strings[reader.readInt32()];
+        return self.cp.strings[self.reader.readInt32()];
     }
 
     public function readIntCpRef() returns int {
-        return cp.ints[reader.readInt32()];
+        return self.cp.ints[self.reader.readInt32()];
     }
 
 
@@ -32,27 +32,27 @@ public type BirChannelReader object {
     // following methods "proxied" since ballerina doesn't support obj inheritance yet
 
     public function readBoolean() returns boolean {
-        return reader.readBoolean();
+        return self.reader.readBoolean();
     }
 
     public function readInt8() returns int {
-        return reader.readInt8();
+        return self.reader.readInt8();
     }
 
     public function readInt32() returns int {
-        return reader.readInt32();
+        return self.reader.readInt32();
     }
 
     public function readInt64() returns int {
-        return reader.readInt64();
+        return self.reader.readInt64();
     }
 
 
     public function readString() returns string {
-        return reader.readString();
+        return self.reader.readString();
     }
 
     public function readByteArray(int len) returns byte[] {
-        return reader.readByteArray(len);
+        return self.reader.readByteArray(len);
     }
 };

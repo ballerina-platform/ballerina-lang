@@ -29,7 +29,11 @@ service UnsupportedMapType bind ep {
         io:println(msg);
         string message = "Testing Map types";
         error? err = caller->send(message);
-        io:println(err.message but { () => ("Server send response : " + message) });
+        if (err is error) {
+            io:println("Error from Connector: " + err.reason());
+        } else {
+            io:println("Server send response : " + message);
+        }
         _ = caller->complete();
     }
 
@@ -37,13 +41,17 @@ service UnsupportedMapType bind ep {
         io:println(msg);
         MapMessage message = {};
         error? err = caller->send(message);
-        io:println(err.message but { () => ("Server send response successfully") });
+        if (err is error) {
+            io:println("Error from Connector: " + err.reason());
+        } else {
+            io:println("Server send response successfully");
+        }
         _ = caller->complete();
     }
 }
 
 type MapMessage record {
-    map payload;
+    map payload = {};
 };
 
 

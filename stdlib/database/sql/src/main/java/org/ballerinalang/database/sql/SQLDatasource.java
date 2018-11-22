@@ -421,7 +421,12 @@ public class SQLDatasource implements BValue {
     }
 
     @Override
-    public BValue copy() {
+    public void stamp(BType type) {
+
+    }
+
+    @Override
+    public BValue copy(Map<BValue, BValue> refs) {
         return null;
     }
 

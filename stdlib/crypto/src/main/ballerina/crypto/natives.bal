@@ -15,24 +15,24 @@
 // under the License.
 
 # The hashing algorithms supported by this module.
-public type Algorithm "SHA1"|"SHA256"|"MD5";
+public type Algorithm SHA1|SHA256|MD5;
 
 # The `SHA1` hashing algorithm
-@final public Algorithm SHA1 = "SHA1";
+public const SHA1 = "SHA1";
 # The `SHA256` hashing algorithm
-@final public Algorithm SHA256 = "SHA256";
+public const SHA256 = "SHA256";
 # The `MD5` hashing algorithm
-@final public Algorithm MD5 = "MD5";
+public const MD5 = "MD5";
 
 # The encoding types supported for the HMAC key, by this module.
-public type Encoding "UTF-8"|"BASE64"|"HEX";
+public type Encoding UTF8|BASE64|HEX;
 
 # The `UTF-8` encoding
-@final public Encoding UTF8 = "UTF-8";
+public const UTF8 = "UTF-8";
 # The `BASE64` encoding
-@final public Encoding BASE64 = "BASE64";
+public const BASE64 = "BASE64";
 # The `HEX` encoding
-@final public Encoding HEX = "HEX";
+public const HEX = "HEX";
 
 
 # Returns the hash of the given string using the specified algorithm.

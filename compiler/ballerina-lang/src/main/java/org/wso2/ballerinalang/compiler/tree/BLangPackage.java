@@ -28,14 +28,15 @@ import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.TypeDefinition;
-import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnostic;
 
@@ -50,11 +51,13 @@ import java.util.Set;
  * @since 0.94
  */
 public class BLangPackage extends BLangNode implements PackageNode {
+
     public List<BLangCompilationUnit> compUnits;
     public List<BLangImportPackage> imports;
     public List<BLangXMLNS> xmlnsList;
     public List<BLangEndpoint> globalEndpoints;
-    public List<BLangVariable> globalVars;
+    public List<BLangConstant> constants;
+    public List<BLangSimpleVariable> globalVars;
     public List<BLangService> services;
     public List<BLangFunction> functions;
     public List<BLangTypeDefinition> typeDefinitions;
@@ -81,6 +84,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.imports = new ArrayList<>();
         this.xmlnsList = new ArrayList<>();
         this.globalEndpoints = new ArrayList<>();
+        this.constants = new ArrayList<>();
         this.globalVars = new ArrayList<>();
         this.services = new ArrayList<>();
         this.functions = new ArrayList<>();
@@ -121,7 +125,12 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
-    public List<BLangVariable> getGlobalVariables() {
+    public List<BLangConstant> getConstants() {
+        return constants;
+    }
+
+    @Override
+    public List<BLangSimpleVariable> getGlobalVariables() {
         return globalVars;
     }
 
@@ -162,8 +171,8 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
-    public void addGlobalVariable(VariableNode globalVar) {
-        this.globalVars.add((BLangVariable) globalVar);
+    public void addGlobalVariable(SimpleVariableNode globalVar) {
+        this.globalVars.add((BLangSimpleVariable) globalVar);
         this.topLevelNodes.add(globalVar);
     }
 

@@ -43,9 +43,9 @@ public type Filter abstract object {
 public type FilterContext object {
 
     @readonly public typedesc serviceType;
-    @readonly public string serviceName;
-    @readonly public string resourceName;
-    @readonly public map attributes;
+    @readonly public string serviceName = "";
+    @readonly public string resourceName = "";
+    @readonly public map attributes = {};
 
     public new(serviceType, serviceName, resourceName) {}
 };

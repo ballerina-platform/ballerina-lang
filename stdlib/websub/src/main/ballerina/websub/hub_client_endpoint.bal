@@ -25,9 +25,9 @@ import ballerina/http;
 # + config - The configuration for the endpoint
 public type Client object {
 
-    public HubClientEndpointConfig config;
+    public HubClientEndpointConfig config = {};
 
-    private http:Client httpClientEndpoint;
+    private http:Client httpClientEndpoint = new;
 
     # Called when the endpoint is being initialized during module initialization.
     #
@@ -49,7 +49,7 @@ public type Client object {
     # + return - `CallerActions` The caller actions available for clients
     public function getCallerActions() returns (CallerActions) {
         //TODO: create a single object - move to init
-        CallerActions webSubHubClientConn = new CallerActions(config.url, httpClientEndpoint, config.followRedirects);
+        CallerActions webSubHubClientConn = new CallerActions(self.config.url, self.httpClientEndpoint, self.config.followRedirects);
         return webSubHubClientConn;
     }
 
@@ -62,9 +62,9 @@ public type Client object {
 # + auth - Authentication mechanism for the underlying HTTP Client
 # + followRedirects - HTTP redirect related configuration
 public type HubClientEndpointConfig record {
-    string url;
-    http:SecureSocket? clientSecureSocket;
-    http:AuthConfig? auth;
-    http:FollowRedirects? followRedirects;
+    string url = "";
+    http:SecureSocket? clientSecureSocket = ();
+    http:AuthConfig? auth = ();
+    http:FollowRedirects? followRedirects = ();
     !...
 };

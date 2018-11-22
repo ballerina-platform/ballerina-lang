@@ -127,7 +127,7 @@ function funcWithNilDefaultParamExpr_1(string? s = null) returns string? {
 }
 
 type Student record {
-    int a;
+    int a = 0;
 };
 
 function funcWithNilDefaultParamExpr_2(Student? s = ()) returns Student? {
@@ -142,14 +142,14 @@ function testFuncWithNilDefaultParamExpr() returns (any, any) {
 
 public type Employee object {
 
-    public string name;
-    public int salary;
+    public string name = "";
+    public int salary = 0;
 
     new (name = "supun", salary = 100) {
     }
 
     public function getSalary (string n, int b = 0) returns int {
-        return salary + b;
+        return self.salary + b;
     }
 };
 
@@ -170,7 +170,7 @@ function testDefaultableParamOuterFunc () returns (int, string) {
 }
 
 type Person object {
-    public int age;
+    public int age = 0;
 
     function test1(int a = 77, string n = "inner default") returns (int, string);
 
@@ -181,7 +181,7 @@ type Person object {
     }
 };
 
-function Person::test1(int a = 77, string n = "hello") returns (int, string) {
+function Person.test1(int a = 77, string n = "hello") returns (int, string) {
     string val = n + " world";
     int intVal = a + 10;
     return (intVal, val);

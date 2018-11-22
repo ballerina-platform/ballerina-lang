@@ -20,7 +20,7 @@ package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.values.BValue;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -32,7 +32,7 @@ public class BFiniteType extends BType {
 
     public BFiniteType(String typeName, String pkgPath) {
         super(typeName, pkgPath, BValue.class);
-        this.valueSpace = new HashSet<>();
+        this.valueSpace = new LinkedHashSet<>();
     }
 
     @Override
@@ -43,12 +43,6 @@ public class BFiniteType extends BType {
     @Override
     public <V extends BValue> V getEmptyValue() {
         return null;
-    }
-
-    @Override
-    public TypeSignature getSig() {
-        String packagePath = (pkgPath == null) ? "." : pkgPath;
-        return new TypeSignature(TypeSignature.SIG_FINITE_TYPE, packagePath, typeName);
     }
 
     @Override

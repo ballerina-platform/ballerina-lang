@@ -36,24 +36,27 @@ service<http:WebSocketService> PingPongTestService1 bind { port: 9092 } {
         };
         wsEp.attributes[ASSOCIATED_CONNECTION2] = wsClientEp;
         wsClientEp.attributes[ASSOCIATED_CONNECTION2] = wsEp;
-        wsClientEp->ready() but {
-            error e => log:printError(e.message, err = e)
-        };
+        var returnVal = wsClientEp->ready();
+        if (returnVal is error) {
+             panic returnVal;
+        }
     }
 
     onText(endpoint wsEp, string text) {
         endpoint http:WebSocketClient clientEp;
         if (text == "custom-headers") {
             clientEp = getAssociatedClientEndpoint1(wsEp);
-            clientEp->pushText(text + ":X-some-header") but {
-                error e => log:printError("Error sending request headers", err = e)
-            };
+            var returnVal = clientEp->pushText(text + ":X-some-header");
+            if (returnVal is error) {
+                 panic returnVal;
+            }
         }
         if (text == "server-headers") {
             clientEp = getAssociatedClientEndpoint1(wsEp);
-            clientEp->pushText(clientEp.response.getHeader("X-server-header")) but {
-                error e => log:printError("Error sending response headers", err = e)
-            };
+            var returnVal = clientEp->pushText(clientEp.response.getHeader("X-server-header"));
+            if (returnVal is error) {
+                 panic returnVal;
+            }
         }
     }
 }
@@ -62,16 +65,27 @@ service<http:WebSocketClientService> clientCallbackService {
 
     onText(endpoint wsEp, string text) {
         endpoint http:WebSocketListener serverEp = getAssociatedListener1(wsEp);
-        serverEp->pushText(text) but {
-            error e => log:printError("Error sending text to client", err = e)
-        };
+        var returnVal = serverEp->pushText(text);
+        if (returnVal is error) {
+             panic returnVal;
+        }
     }
 }
 
 public function getAssociatedClientEndpoint1(http:WebSocketListener wsServiceEp) returns (http:WebSocketClient) {
-    return check <http:WebSocketClient>wsServiceEp.attributes[ASSOCIATED_CONNECTION2];
+    var returnVal = <http:WebSocketClient>wsServiceEp.attributes[ASSOCIATED_CONNECTION2];
+    if (returnVal is error) {
+         panic returnVal;
+    } else {
+         return returnVal;
+    }
 }
 
 public function getAssociatedListener1(http:WebSocketClient wsClientEp) returns (http:WebSocketListener) {
-    return check <http:WebSocketListener>wsClientEp.attributes[ASSOCIATED_CONNECTION2];
+    var returnVal = <http:WebSocketListener>wsClientEp.attributes[ASSOCIATED_CONNECTION2];
+    if (returnVal is error) {
+         panic returnVal;
+    } else {
+         return returnVal;
+    }
 }

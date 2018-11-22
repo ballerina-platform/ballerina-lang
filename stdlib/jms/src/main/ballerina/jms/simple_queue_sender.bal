@@ -23,11 +23,10 @@ import ballerina/log;
 # + config - configurations related to the SimpleQueueSender endpoint
 public type SimpleQueueSender object {
 
-    public SimpleQueueSenderEndpointConfiguration config;
-
+    public SimpleQueueSenderEndpointConfiguration config = {};
     private Connection? connection;
-    private Session? session;
-    private QueueSender? sender;
+    private Session? session = ();
+    private QueueSender? sender = ();
 
     # Initialize the SimpleQueueSender endpoint
     #
@@ -35,21 +34,21 @@ public type SimpleQueueSender object {
     public function init(SimpleQueueSenderEndpointConfiguration c) {
         self.config = c;
         Connection conn = new({
-                initialContextFactory:config.initialContextFactory,
-                providerUrl:config.providerUrl,
-                connectionFactoryName:config.connectionFactoryName,
-                properties:config.properties
+                initialContextFactory: self.config.initialContextFactory,
+                providerUrl: self.config.providerUrl,
+                connectionFactoryName: self.config.connectionFactoryName,
+                properties: self.config.properties
             });
         self.connection = conn;
 
         Session newSession = new(conn, {
-                acknowledgementMode:config.acknowledgementMode
+                acknowledgementMode: self.config.acknowledgementMode
             });
         self.session = newSession;
 
         QueueSender queueSender = new;
         QueueSenderEndpointConfiguration senderConfig = {
-            session:newSession,
+            session: newSession,
             queueName: c.queueName
         };
         queueSender.init(senderConfig);
@@ -73,12 +72,14 @@ public type SimpleQueueSender object {
     #
     # + return - Simple queue sender actions
     public function getCallerActions() returns QueueSenderActions {
-        match (sender) {
-            QueueSender s => return s.getCallerActions();
-            () => {
-                error e = {message:"Queue sender cannot be nil"};
-                throw e;
-            }
+        var sender = self.sender;
+        if (sender is QueueSender) {
+            return sender.getCallerActions();
+        } else {
+            string errorMessage = "Queue sender cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
 
@@ -91,12 +92,14 @@ public type SimpleQueueSender object {
     # + content - the text content used to initialize this message
     # + return - a message or nil if the session is nil
     public function createTextMessage(string content) returns Message|error {
-        match (session) {
-            Session s => return s.createTextMessage(content);
-            () => {
-                error e = {message:"Session cannot be nil"};
-                throw e;
-            }
+        var session = self.session;
+        if (session is Session) {
+            return session.createTextMessage(content);
+        } else {
+            string errorMessage = "Session cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
 };
@@ -115,7 +118,7 @@ public type SimpleQueueSenderEndpointConfiguration record {
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
-    map properties;
-    string queueName;
+    map properties = {};
+    string queueName = "";
     !...
 };

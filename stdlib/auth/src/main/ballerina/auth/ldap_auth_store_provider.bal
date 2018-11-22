@@ -63,7 +63,7 @@ public type LdapAuthProviderConfig record {
     int ldapConnectionTimeout = 5000;
     int readTimeout = 60000;
     int retryAttempts = 0;
-    SecureClientSocket? secureClientSocket;
+    SecureClientSocket? secureClientSocket = ();
     !...
 };
 
@@ -94,15 +94,13 @@ public type TrustStore record {
 public type LdapAuthStoreProvider object {
 
     public LdapAuthProviderConfig ldapAuthProviderConfig;
-    public string instanceId;
+    public string instanceId = "";
 
     # Create an LDAP auth store with the given configurations.
     #
     # + ldapAuthProviderConfig -  LDAP auth store configurations
     # + instanceId - Endpoint instance id
     public new (ldapAuthProviderConfig, instanceId) {
-        self.ldapAuthProviderConfig = ldapAuthProviderConfig;
-        self.instanceId = instanceId;
         initLdapConnectionContext(self, instanceId);
     }
 
@@ -115,7 +113,7 @@ public type LdapAuthStoreProvider object {
         boolean isAuthenticated = self.doAuthenticate(username, password);
         if (isAuthenticated) {
             runtime:UserPrincipal userPrincipal = runtime:getInvocationContext().userPrincipal;
-            userPrincipal.userId = ldapAuthProviderConfig.domainName + ":" + username;
+            userPrincipal.userId = self.ldapAuthProviderConfig.domainName + ":" + username;
             // By default set userId as username.
             userPrincipal.username = username;
         }
@@ -133,7 +131,7 @@ public type LdapAuthStoreProvider object {
 
     # Authenticate with username and password
     #
-    # + user - user name
+    # + username - user name
     # + password - password
     # + return - true if authentication is a success, else false
     public extern function doAuthenticate(string username, string password) returns boolean;

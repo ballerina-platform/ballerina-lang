@@ -1,7 +1,7 @@
 
 type Person object {
 
-    public int age;
+    public int age = 0;
 
 
     new (age) {
@@ -11,11 +11,11 @@ type Person object {
 
 type Employee object {
 
-    public int age;
+    public int age = 0;
 
 
     new (age, int addVal) {
-        age = age + addVal;
+        self.age = self.age + addVal;
     }
 };
 
@@ -30,7 +30,6 @@ function returnDifferentObectInit1() returns Person | () {
 function returnDifferentObectInit2() {
     Person | () person = new (5);
     var person1 = new (5);
-    error person2 = new (5);
 }
 
 

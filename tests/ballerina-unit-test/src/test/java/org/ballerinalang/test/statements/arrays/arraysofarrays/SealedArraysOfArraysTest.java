@@ -24,7 +24,6 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -100,9 +99,9 @@ public class SealedArraysOfArraysTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "twoDArrayStringAssignment", args);
         Assert.assertFalse(
                 returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BString) returnValues[0]).stringValue(), "val1", "Value didn't match");
-        Assert.assertEquals(((BString) returnValues[1]).stringValue(), "ballerina", "Value didn't match");
-        Assert.assertEquals(((BString) returnValues[2]).stringValue(), "val1", "Value didn't match");
+        Assert.assertEquals((returnValues[0]).stringValue(), "val1", "Value didn't match");
+        Assert.assertEquals((returnValues[1]).stringValue(), "ballerina", "Value didn't match");
+        Assert.assertEquals((returnValues[2]).stringValue(), "val1", "Value didn't match");
     }
 
     @Test

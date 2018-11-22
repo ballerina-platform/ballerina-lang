@@ -36,6 +36,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collection;
 
 /**
  * {@code TableProvider} creates In Memory database for tables.
@@ -152,7 +153,7 @@ public class TableProvider {
     private String generateCreateTableStatment(String tableName, BType constrainedType, BStringArray primaryKeys) {
         StringBuilder sb = new StringBuilder();
         sb.append(TableConstants.SQL_CREATE).append(tableName).append(" (");
-        BField[] structFields = ((BStructureType) constrainedType).getFields();
+        Collection<BField> structFields = ((BStructureType) constrainedType).getFields().values();
         String seperator = "";
         for (BField sf : structFields) {
             int type = sf.getFieldType().getTag();
@@ -313,6 +314,25 @@ public class TableProvider {
             }
         } catch (SQLException e) {
             throw new BallerinaException("error in releasing table connection resource : " + e.getMessage());
+        }
+    }
+
+    public int getRowCount(String tableName) {
+        Statement stmt = null;
+        Connection conn = this.getConnection();
+        try {
+            stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(TableConstants.SQL_COUNT + tableName);
+            int rowCount = 0;
+            if (rs.next()) {
+                rowCount = rs.getInt(1);
+            }
+            return rowCount;
+        } catch (SQLException e) {
+            throw new BallerinaException("error in executing statement to get the count : " + stmt + " error:"
+                                                 + e.getMessage());
+        } finally {
+            releaseResources(conn, stmt);
         }
     }
 }

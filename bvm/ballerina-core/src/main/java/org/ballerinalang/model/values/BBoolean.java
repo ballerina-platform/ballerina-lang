@@ -20,6 +20,9 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
+import java.math.BigDecimal;
+import java.util.Map;
+
 /**
  * The {@code BBoolean} represents a boolean value in Ballerina.
  *
@@ -41,6 +44,8 @@ public final class BBoolean extends BValueType implements BRefType<Boolean> {
 
     private boolean value;
 
+    private BType type = BTypes.typeBoolean;
+
     public BBoolean(boolean value) {
         this.value = value;
     }
@@ -61,6 +66,11 @@ public final class BBoolean extends BValueType implements BRefType<Boolean> {
     }
 
     @Override
+    public BigDecimal decimalValue() {
+        return BigDecimal.ZERO;
+    }
+
+    @Override
     public boolean booleanValue() {
         return this.value;
     }
@@ -72,7 +82,12 @@ public final class BBoolean extends BValueType implements BRefType<Boolean> {
 
     @Override
     public BType getType() {
-        return BTypes.typeBoolean;
+        return type;
+    }
+
+    @Override
+    public void setType(BType type) {
+        this.type = type;
     }
 
     @Override
@@ -100,7 +115,7 @@ public final class BBoolean extends BValueType implements BRefType<Boolean> {
         return value;
     }
 
-    public BValue copy() {
-        return new BBoolean(value);
+    public BValue copy(Map<BValue, BValue> refs) {
+        return this;
     }
 }

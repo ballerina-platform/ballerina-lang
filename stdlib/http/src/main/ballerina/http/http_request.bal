@@ -29,19 +29,19 @@ import ballerina/mime;
 #                  on utilizing HTTP caching.
 public type Request object {
 
-    public string rawPath;
-    public string method;
-    public string httpVersion;
-    public string userAgent;
-    public string extraPathInfo;
-    public RequestCacheControl? cacheControl;
+    public string rawPath = "";
+    public string method = "";
+    public string httpVersion = "";
+    public string userAgent = "";
+    public string extraPathInfo = "";
+    public RequestCacheControl? cacheControl = ();
 
     private mime:Entity entity;
     private boolean dirtyRequest;
 
     public new() {
         self.dirtyRequest = false;
-        self.entity = createNewEntity();
+        self.entity = self.createNewEntity();
     }
 
     # Create a new `Entity` and link it with the request.
@@ -128,7 +128,8 @@ public type Request object {
     # Sets the `content-type` header to the request.
     #
     # + contentType - Content type value to be set as the `content-type` header
-    public function setContentType(string contentType);
+    # + return - Nil if successful, error in case of invalid content-type
+    public function setContentType(string contentType) returns error?;
 
     # Gets the type of the payload of the request (i.e: the `content-type` header value).
     #
@@ -242,225 +243,170 @@ public type Request object {
 /// Ballerina Implementations ///
 /////////////////////////////////
 
-function Request::hasHeader(string headerName) returns boolean {
+function Request.hasHeader(string headerName) returns boolean {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.hasHeader(headerName);
 }
 
-function Request::getHeader(string headerName) returns string {
+function Request.getHeader(string headerName) returns string {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeader(headerName);
 }
 
-function Request::getHeaders(string headerName) returns string[] {
+function Request.getHeaders(string headerName) returns string[] {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeaders(headerName);
 }
 
-function Request::setHeader(string headerName, string headerValue) {
+function Request.setHeader(string headerName, string headerValue) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setHeader(headerName, headerValue);
 }
 
-function Request::addHeader(string headerName, string headerValue) {
+function Request.addHeader(string headerName, string headerValue) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.addHeader(headerName, headerValue);
 }
 
-function Request::removeHeader(string key) {
+function Request.removeHeader(string key) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.removeHeader(key);
 }
 
-function Request::removeAllHeaders() {
+function Request.removeAllHeaders() {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.removeAllHeaders();
 }
 
-function Request::getHeaderNames() returns string[] {
+function Request.getHeaderNames() returns string[] {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeaderNames();
 }
 
-function Request::expects100Continue() returns boolean {
+function Request.expects100Continue() returns boolean {
     return self.hasHeader(EXPECT) ? self.getHeader(EXPECT) == "100-continue" : false;
 }
 
-function Request::setContentType(string contentType) {
+function Request.setContentType(string contentType) returns error? {
     mime:Entity entity = self.getEntityWithoutBody();
-    entity.setContentType(contentType);
+    check entity.setContentType(contentType);
+    return;
 }
 
-function Request::getContentType() returns string {
+function Request.getContentType() returns string {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getContentType();
 }
 
-function Request::getJsonPayload() returns json|error {
-    match self.getEntity() {
-        error err => return err;
-        mime:Entity mimeEntity => {
-            match mimeEntity.getJson() {
-                error payloadErr => return payloadErr;
-                json jsonPayload => return jsonPayload;
-            }
-        }
-    }
+function Request.getJsonPayload() returns json|error {
+    return self.getEntity()!getJson();
 }
 
-function Request::getXmlPayload() returns xml|error {
-    match self.getEntity() {
-        error err => return err;
-        mime:Entity mimeEntity => {
-            match mimeEntity.getXml() {
-                error payloadErr => return payloadErr;
-                xml xmlPayload => return xmlPayload;
-            }
-        }
-    }
+function Request.getXmlPayload() returns xml|error {
+    return self.getEntity()!getXml();
 }
 
-function Request::getTextPayload() returns string|error {
-    match self.getEntity() {
-        error err => return err;
-        mime:Entity mimeEntity => {
-            match mimeEntity.getText() {
-                error payloadErr => return payloadErr;
-                string textPayload => return textPayload;
-            }
-        }
-    }
+function Request.getTextPayload() returns string|error {
+    return self.getEntity()!getText();
 }
 
-function Request::getPayloadAsString() returns string|error {
-    match self.getEntity() {
-        error err => return err;
-        mime:Entity mimeEntity => {
-            match mimeEntity.getBodyAsString() {
-                error payloadErr => return payloadErr;
-                string stringPayload => return stringPayload;
-            }
-        }
-    }
+function Request.getPayloadAsString() returns string|error {
+    return self.getEntity()!getBodyAsString();
 }
 
-function Request::getBinaryPayload() returns byte[]|error {
-    match self.getEntity() {
-        error err => return err;
-        mime:Entity mimeEntity => {
-            match mimeEntity.getByteArray() {
-                error payloadErr => return payloadErr;
-                byte[] binaryPayload => return binaryPayload;
-            }
-        }
-    }
+function Request.getBinaryPayload() returns byte[]|error {
+    return self.getEntity()!getByteArray();
 }
 
-function Request::getByteChannel() returns io:ReadableByteChannel|error {
-    match self.getEntity() {
-        error err => return err;
-        mime:Entity mimeEntity => {
-            match mimeEntity.getByteChannel() {
-                error payloadErr => return payloadErr;
-                io:ReadableByteChannel byteChannel => return byteChannel;
-            }
-        }
-    }
+function Request.getByteChannel() returns io:ReadableByteChannel|error {
+    return self.getEntity()!getByteChannel();
 }
 
-function Request::getFormParams() returns map<string>|error {
-    var mimeEntity = self.getEntity();
-    match mimeEntity {
-        error err => return err;
-        mime:Entity entity => {
+function Request.getBodyParts() returns mime:Entity[]|error {
+    return self.getEntity()!getBodyParts();
+}
 
-            map<string> parameters;
-            var entityText = entity.getText();
-            match entityText {
-                error txtErr => return txtErr; // TODO: Check if this is ok
-
-                string formData => {
-                    if (formData != null && formData != "") {
-                        string[] entries = formData.split("&");
-                        int entryIndex = 0;
-                        while (entryIndex < lengthof entries) {
-                            int index = entries[entryIndex].indexOf("=");
-                            if (index != -1) {
-                                string name = entries[entryIndex].substring(0, index).trim();
-                                int size = entries[entryIndex].length();
-                                string value = entries[entryIndex].substring(index + 1, size).trim();
-                                if (value != "") {
-                                    parameters[name] = value;
-                                }
-                            }
-                            entryIndex = entryIndex + 1;
-                        }
+function Request.getFormParams() returns map<string>|error {
+    var formData = self.getEntity()!getText();
+    map<string> parameters = {};
+    if (formData is string) {
+        if (formData != "") {
+            string[] entries = formData.split("&");
+            int entryIndex = 0;
+            while (entryIndex < entries.length()) {
+                int index = entries[entryIndex].indexOf("=");
+                if (index != -1) {
+                    string name = entries[entryIndex].substring(0, index).trim();
+                    int size = entries[entryIndex].length();
+                    string value = entries[entryIndex].substring(index + 1, size).trim();
+                    if (value != "") {
+                        parameters[name] = value;
                     }
                 }
+                entryIndex = entryIndex + 1;
             }
-            return parameters;
         }
+    } else if (formData is error) {
+        return formData;
     }
+    return parameters;
 }
 
-function Request::getBodyParts() returns mime:Entity[]|error {
-    var mimeEntity = self.getEntity();
-    match mimeEntity {
-        mime:Entity entity => return entity.getBodyParts();
-        error err => return err;
-    }
-}
-
-function Request::setJsonPayload(json payload, string contentType = "application/json") {
+function Request.setJsonPayload(json payload, string contentType = "application/json") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setJson(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-function Request::setXmlPayload(xml payload, string contentType = "application/xml") {
+function Request.setXmlPayload(xml payload, string contentType = "application/xml") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setXml(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-function Request::setTextPayload(string payload, string contentType = "text/plain") {
+function Request.setTextPayload(string payload, string contentType = "text/plain") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setText(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-function Request::setBinaryPayload(byte[] payload, string contentType = "application/octet-stream") {
+function Request.setBinaryPayload(byte[] payload, string contentType = "application/octet-stream") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setByteArray(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-function Request::setBodyParts(mime:Entity[] bodyParts, string contentType = "multipart/form-data") {
+function Request.setBodyParts(mime:Entity[] bodyParts, string contentType = "multipart/form-data") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setBodyParts(bodyParts, contentType = contentType);
     self.setEntity(entity);
 }
 
-function Request::setFileAsPayload(string filePath, @sensitive string contentType = "application/octet-stream") {
+function Request.setFileAsPayload(string filePath, @sensitive string contentType = "application/octet-stream") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setFileAsEntityBody(filePath, contentType = contentType);
     self.setEntity(entity);
 }
 
-function Request::setByteChannel(io:ReadableByteChannel payload, string contentType = "application/octet-stream") {
+function Request.setByteChannel(io:ReadableByteChannel payload, string contentType = "application/octet-stream") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setByteChannel(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-function Request::setPayload(string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[] payload) {
-    match payload {
-        string textContent => self.setTextPayload(textContent);
-        xml xmlContent => self.setXmlPayload(xmlContent);
-        json jsonContent => self.setJsonPayload(jsonContent);
-        byte[] blobContent => self.setBinaryPayload(blobContent);
-        io:ReadableByteChannel byteChannelContent => self.setByteChannel(byteChannelContent);
-        mime:Entity[] bodyParts => self.setBodyParts(bodyParts);
+function Request.setPayload(string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[] payload) {
+    if (payload is string) {
+        self.setTextPayload(payload);
+    } else if (payload is xml) {
+        self.setXmlPayload(payload);
+    } else if (payload is json) {
+        self.setJsonPayload(payload);
+    } else if (payload is byte[]) {
+        self.setBinaryPayload(payload);
+    } else if (payload is io:ReadableByteChannel) {
+        self.setByteChannel(payload);
+    } else if (payload is mime:Entity[]) {
+        self.setBodyParts(payload);
     }
 }
 

@@ -1,16 +1,5 @@
-function testCompareNullOfDifferentTypes () returns (int, xml?, json) {
-    xml? x;
-    json j = null;
-    int a = 0;
-    if (x == j) {
-        a = 11;
-    }
-
-    return (a, x, j);
-}
-
 function testInvalidFunctionCallWithNull() returns (any) {
-    string? s;
+    string? s = ();
     return foo(s);
 }
 
@@ -19,7 +8,7 @@ function foo(string? s) returns (string?){
 }
 
 function testLogicalOperationOnNull1() returns (boolean) {
-    xml x;
+    xml? x = ();
     return (() > x);
 }
 

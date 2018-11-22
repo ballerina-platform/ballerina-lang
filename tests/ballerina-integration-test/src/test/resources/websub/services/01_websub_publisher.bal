@@ -26,7 +26,7 @@ import ballerina/websub;
 @final string WEBSUB_TOPIC_FIVE = "http://one.redir.topic.com";
 @final string WEBSUB_TOPIC_SIX = "http://two.redir.topic.com";
 
-boolean remoteTopicRegistered;
+boolean remoteTopicRegistered = false;
 
 websub:WebSubHub webSubHub = startHubAndRegisterTopic();
 
@@ -43,13 +43,14 @@ service<http:Service> publisher bind publisherServiceEP {
         methods: ["GET", "HEAD"]
     }
     discover(endpoint caller, http:Request req) {
-        http:Response response;
+        http:Response response = new;
         // Add a link header indicating the hub and topic
         websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_TOPIC_ONE);
         response.statusCode = 202;
-        caller->respond(response) but {
-            error e => log:printError("Error responding on ordering", err = e)
-        };
+        var err = caller->respond(response);
+        if (err is error) {
+            log:printError("Error responding on ordering", err = err);
+        }
     }
 
     @http:ResourceConfig {
@@ -57,24 +58,33 @@ service<http:Service> publisher bind publisherServiceEP {
     }
     notify(endpoint caller, http:Request req) {
         remoteRegisterTopic();
-        json jsonPayload = check req.getJsonPayload();
-        string mode = jsonPayload.mode.toString();
-        string contentType = jsonPayload.content_type.toString();
+        string mode = "";
+        string contentType = "";
+        var jsonPayload = req.getJsonPayload();
+        if (jsonPayload is json) {
+            mode = jsonPayload.mode.toString();
+            contentType = jsonPayload.content_type.toString();
+        } else {
+            panic jsonPayload;
+        }
 
-        http:Response response;
+        http:Response response = new;
         response.statusCode = 202;
-        caller->respond(response) but {
-            error e => log:printError("Error responding on notify request", err = e)
-        };
+        var err = caller->respond(response);
+        if (err is error) {
+            log:printError("Error responding on notify request", err = err);
+        }
 
         if (mode == "internal") {
-            webSubHub.publishUpdate(WEBSUB_TOPIC_ONE, getPayloadContent(contentType, mode)) but {
-                error e => log:printError("Error publishing update directly", err = e)
-            };
+            err = webSubHub.publishUpdate(WEBSUB_TOPIC_ONE, getPayloadContent(contentType, mode));
+            if (err is error) {
+                log:printError("Error publishing update directly", err = err);
+            }
         } else {
-            websubHubClientEP->publishUpdate(WEBSUB_TOPIC_ONE, getPayloadContent(contentType, mode)) but {
-                error e => log:printError("Error publishing update remotely", err = e)
-            };
+            err = websubHubClientEP->publishUpdate(WEBSUB_TOPIC_ONE, getPayloadContent(contentType, mode));
+            if (err is error) {
+                log:printError("Error publishing update remotely", err = err);
+            }
         }
     }
 
@@ -82,22 +92,33 @@ service<http:Service> publisher bind publisherServiceEP {
         if (req.hasHeader("x-topic")) {
             string topicName = req.getHeader("x-topic");
             websub:SubscriberDetails[] details = webSubHub.getSubscribers(topicName);
-            json j = check <json> details[0];
-            caller->respond(j) but {
-                error e => log:printError("Error responding on topicInfo request", err = e)
-            };
+            var j = <json> details[0];
+            if (j is json) {
+                var err = caller->respond(j);
+                if (err is error) {
+                    log:printError("Error responding on topicInfo request", err = err);
+                }
+            } else {
+                panic j;
+            }
         } else {
-            map allTopics;
+            map allTopics = {};
             int index=1;
             string [] availableTopics = webSubHub.getAvailableTopics();
             foreach topic in availableTopics {
                 allTopics["Topic_" + index] = topic;
                 index += 1;
             }
-            json j = check <json> allTopics;
-            caller->respond(j) but {
-                error e => log:printError("Error responding on topicInfo request", err = e)
-            };
+            var j = <json> allTopics;
+            if (j is json) {
+                var err = caller->respond(j);
+                if (err is error) {
+                    log:printError("Error responding on topicInfo request", err = err);
+                }
+            } else {
+                panic j;
+            }
+
         }
     }
 }
@@ -107,64 +128,81 @@ service<http:Service> publisherTwo bind publisherServiceEP {
         methods: ["GET", "HEAD"]
     }
     discover(endpoint caller, http:Request req) {
-        http:Response response;
+        http:Response response = new;
         // Add a link header indicating the hub and topic
         websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_TOPIC_FOUR);
         response.statusCode = 202;
-        caller->respond(response) but {
-            error e => log:printError("Error responding on ordering", err = e)
-        };
+        var err = caller->respond(response);
+        if (err is error) {
+            log:printError("Error responding on ordering", err = err);
+        }
     }
 
     @http:ResourceConfig {
         methods: ["POST"]
     }
     notify(endpoint caller, http:Request req) {
-        http:Response response;
+        http:Response response = new;
         response.statusCode = 202;
-        caller->respond(response) but {
-            error e => log:printError("Error responding on notify request", err = e)
-        };
+        var err = caller->respond(response);
+        if (err is error) {
+            log:printError("Error responding on notify request", err = err);
+        }
 
-        webSubHub.publishUpdate(WEBSUB_TOPIC_THREE, {"action":"publish","mode":"internal-hub"}) but {
-            error e => log:printError("Error publishing update directly", err = e)
-        };
+        err = webSubHub.publishUpdate(WEBSUB_TOPIC_THREE, {"action":"publish","mode":"internal-hub"});
+        if (err is error) {
+            log:printError("Error publishing update directly", err = err);
+        }
 
-        webSubHub.publishUpdate(WEBSUB_TOPIC_FOUR, {"action":"publish","mode":"internal-hub-two"}) but {
-            error e => log:printError("Error publishing update directly", err = e)
-        };
+        err = webSubHub.publishUpdate(WEBSUB_TOPIC_FOUR, {"action":"publish","mode":"internal-hub-two"});
+        if (err is error) {
+            log:printError("Error publishing update directly", err = err);
+        }
     }
 }
 
 function startHubAndRegisterTopic() returns websub:WebSubHub {
-    websub:WebSubHub internalHub = websub:startHub(9191, remotePublishingEnabled = true) but {
-        websub:HubStartedUpError hubStartedUpErr => hubStartedUpErr.startedUpHub
-    };
-    internalHub.registerTopic(WEBSUB_TOPIC_ONE) but {
-        error e => log:printError("Error registering topic directly", err = e)
-    };
-    internalHub.registerTopic(WEBSUB_TOPIC_THREE) but {
-        error e => log:printError("Error registering topic directly", err = e)
-    };
-    internalHub.registerTopic(WEBSUB_TOPIC_FOUR) but {
-        error e => log:printError("Error registering topic directly", err = e)
-    };
-    internalHub.registerTopic(WEBSUB_TOPIC_FIVE) but {
-        error e => log:printError("Error registering topic directly", err = e)
-    };
-    internalHub.registerTopic(WEBSUB_TOPIC_SIX) but {
-        error e => log:printError("Error registering topic directly", err = e)
-    };
+    websub:WebSubHub internalHub = startWebSubHub();
+    var err = internalHub.registerTopic(WEBSUB_TOPIC_ONE);
+    if (err is error) {
+        log:printError("Error registering topic directly", err = err);
+    }
+    err = internalHub.registerTopic(WEBSUB_TOPIC_THREE);
+    if (err is error) {
+        log:printError("Error registering topic directly", err = err);
+    }
+    err = internalHub.registerTopic(WEBSUB_TOPIC_FOUR);
+    if (err is error) {
+        log:printError("Error registering topic directly", err = err);
+    }
+    err = internalHub.registerTopic(WEBSUB_TOPIC_FIVE);
+    if (err is error) {
+        log:printError("Error registering topic directly", err = err);
+    }
+    err = internalHub.registerTopic(WEBSUB_TOPIC_SIX);
+    if (err is error) {
+        log:printError("Error registering topic directly", err = err);
+    }
     return internalHub;
+}
+
+function startWebSubHub() returns websub:WebSubHub {
+    var result = websub:startHub(9191, remotePublishingEnabled = true);
+    if (result is websub:WebSubHub) {
+        return result;
+    } else {
+        return result.startedUpHub;
+    }
 }
 
 function remoteRegisterTopic()  {
     if (remoteTopicRegistered) {
         return;
     }
-    websubHubClientEP->registerTopic(WEBSUB_TOPIC_TWO) but {
-        error e => log:printError("Error registering topic remotely", err = e)
-    };
+    var err = websubHubClientEP->registerTopic(WEBSUB_TOPIC_TWO);
+    if (err is error) {
+        log:printError("Error registering topic remotely", err = err);
+    }
     remoteTopicRegistered = true;
 }
 
@@ -191,6 +229,6 @@ function getPayloadContent(string contentType, string mode) returns string|xml|j
     } else if (contentType == "byte[]" || contentType == "io:ReadableByteChannel") {
         errorMessage = "content type " + contentType + " not yet supported with WebSub tests";
     }
-    error e = { errorMessage: errorMessage };
-    throw e;
+    error e = error(websub:WEBSUB_ERROR_CODE, { message : errorMessage });
+    panic e;
 }

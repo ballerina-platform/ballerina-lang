@@ -58,16 +58,16 @@ function buildDeleteQuery (string tableName, string idColumn) returns string {
 # + piiColumn - column name used to store PII
 function validateFieldName (string tableName, string idColumn, string piiColumn) {
     if (tableName == "") {
-        error err = { message: "Table name is required" };
-        throw err;
+        error err = error("Table name is required");
+        panic err;
     }
     if (idColumn == "") {
-        error err = { message: "ID column name is required" };
-        throw err;
+        error err = error("ID column name is required");
+        panic err;
     }
     if (piiColumn == "") {
-        error err = { message: "PII column name is required" };
-        throw err;
+        error err = error("PII column name is required");
+        panic err;
     }
 }
 
@@ -82,7 +82,7 @@ function processInsertResult (string id, int|error queryResult) returns string|e
             if (rowCount > 0) {
                 return id;
             } else {
-                error err = { message: "Unable to insert PII with identifier " + id };
+                error err = error("Unable to insert PII with identifier " + id);
                 return err;
             }
         }
@@ -105,7 +105,7 @@ function processSelectResult(string id, table<PiiData>|error queryResult) return
                 resultTable.close();
                 return piiData.pii;
             } else {
-                error err = { message: "Identifier " + id + " is not found in PII store" };
+                error err = error("Identifier " + id + " is not found in PII store");
                 return err;
             }
         }
@@ -126,7 +126,7 @@ function processDeleteResult (string id, int|error queryResult) returns error? {
             if (rowCount > 0) {
                 return ();
             } else {
-                error err = { message: "Identifier " + id + " is not found in PII store" };
+                error err = error("Identifier " + id + " is not found in PII store");
                 return err;
             }
         }

@@ -33,6 +33,8 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BByteArray;
+import org.ballerinalang.model.values.BDecimal;
+import org.ballerinalang.model.values.BDecimalArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
@@ -54,6 +56,8 @@ import org.ballerinalang.util.codegen.attributes.TaintTableAttributeInfo;
 import org.ballerinalang.util.exceptions.BLangUsageException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -228,6 +232,8 @@ public class ArgumentParser {
                 return new BString(value.getStringValue());
             case TypeTags.FLOAT_TAG:
                 return new BFloat(value.getFloatValue());
+            case TypeTags.DECIMAL_TAG:
+                return new BDecimal(value.getDecimalValue());
             case TypeTags.BOOLEAN_TAG:
                 return new BBoolean(value.getBooleanValue());
             case TypeTags.BYTE_TAG:
@@ -246,6 +252,8 @@ public class ArgumentParser {
                 return new BInteger(getIntegerValue(value));
             case TypeTags.FLOAT_TAG:
                 return new BFloat(getFloatValue(value));
+            case TypeTags.DECIMAL_TAG:
+                return new BDecimal(getDecimalValue(value));
             case TypeTags.BOOLEAN_TAG:
                 return new BBoolean(getBooleanValue(value));
             case TypeTags.BYTE_TAG:
@@ -324,6 +332,14 @@ public class ArgumentParser {
         }
     }
 
+    private static BigDecimal getDecimalValue(String argument) {
+        try {
+            return new BigDecimal(argument, MathContext.DECIMAL128);
+        } catch (NumberFormatException e) {
+            throw new BLangUsageException("invalid argument '" + argument + "', expected decimal value");
+        }
+    }
+
     private static boolean getBooleanValue(String argument) {
         if (!TRUE.equalsIgnoreCase(argument) && !FALSE.equalsIgnoreCase(argument)) {
             throw new BLangUsageException("invalid argument '" + argument + "', expected boolean value 'true' or "
@@ -368,6 +384,12 @@ public class ArgumentParser {
                         floatArrayArgs.add(i - index, getFloatValue(args[i]));
                     }
                     return floatArrayArgs;
+                case TypeTags.DECIMAL_TAG:
+                    BDecimalArray decimalArrayArgs = new BDecimalArray();
+                    for (int i = index; i < args.length; i++) {
+                        decimalArrayArgs.add(i - index, getDecimalValue(args[i]));
+                    }
+                    return decimalArrayArgs;
                 case TypeTags.BOOLEAN_TAG:
                     BBooleanArray booleanArrayArgs = new BBooleanArray();
                     for (int i = index; i < args.length; i++) {

@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-@final public TimeFormat TIME_FORMAT_RFC_1123 = "RFC_1123";
+public const TIME_FORMAT_RFC_1123 = "RFC_1123";
 
 public type TimeFormat "RFC_1123";
 
@@ -24,7 +24,7 @@ public type TimeFormat "RFC_1123";
 # + zoneOffset - The offset in seconds
 public type Timezone record {
     string zoneId;
-    int zoneOffset;
+    int zoneOffset = 0;
     !...
 };
 

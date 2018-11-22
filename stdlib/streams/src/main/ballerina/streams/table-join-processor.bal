@@ -23,31 +23,31 @@ public type TableJoinProcessor object {
     public JoinType joinType;
 
     public new(nextProcessor, joinType, tableQuery) {
-        windowInstance = ();
-        streamName = "";
-        tableName = "";
+        self.windowInstance = ();
+        self.streamName = "";
+        self.tableName = "";
     }
 
     public function process(StreamEvent[] streamEvents) {
-        StreamEvent?[] joinedEvents;
+        StreamEvent?[] joinedEvents = [];
         int j = 0;
         foreach event in streamEvents {
-            (StreamEvent?, StreamEvent?)[] candidateEvents;
-            foreach i, m in tableQuery(event) {
-                StreamEvent resultEvent = new((tableName, m), "CURRENT", time:currentTime().time);
+            (StreamEvent?, StreamEvent?)[] candidateEvents = [];
+            foreach i, m in self.tableQuery(event) {
+                StreamEvent resultEvent = new((self.tableName, m), "CURRENT", time:currentTime().time);
                 candidateEvents[i] = (event, resultEvent);
             }
             // with right/left/full joins, we need to emit an event even there're no candidate events in table.
-            if (lengthof candidateEvents == 0 && (joinType != "JOIN")) {
+            if (candidateEvents.length() == 0 && (self.joinType != "JOIN")) {
                 candidateEvents[0] = (event, ());
             }
 
             foreach e in candidateEvents {
-                joinedEvents[j] = joinEvents(e[0], e[1]);
+                joinedEvents[j] = self.joinEvents(e[0], e[1]);
                 j += 1;
             }
         }
-        StreamEvent[] outputEvents;
+        StreamEvent[] outputEvents = [];
         int i = 0;
         foreach e in joinedEvents {
             match e {
@@ -59,7 +59,7 @@ public type TableJoinProcessor object {
                 }
             }
         }
-        nextProcessor(outputEvents);
+        self.nextProcessor(outputEvents);
     }
 
     public function setJoinProperties(string tn, string sn, Window wi) {
@@ -72,7 +72,7 @@ public type TableJoinProcessor object {
         StreamEvent? joined = ();
         match lhsEvent {
             StreamEvent lhs => {
-                joined = lhs.clone();
+                joined = lhs.copy();
                 match rhsEvent {
                     StreamEvent rhs => {
                         joined.addData(rhs.data);

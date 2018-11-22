@@ -36,6 +36,8 @@ import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BDecimal;
+import org.ballerinalang.model.values.BDecimalArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
@@ -59,6 +61,7 @@ import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -100,7 +103,7 @@ public class JSONUtils {
      * @param intArray {@link BIntArray} to be converted to JSON
      * @return JSON representation of the provided intArray
      */
-    public static BRefValueArray convertArrayToJSON(BIntArray intArray) {
+    private static BRefValueArray convertArrayToJSON(BIntArray intArray) {
         BRefValueArray json = new BRefValueArray(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < intArray.size(); i++) {
             long value = intArray.get(i);
@@ -115,11 +118,26 @@ public class JSONUtils {
      * @param floatArray {@link BFloatArray} to be converted to JSON
      * @return JSON representation of the provided floatArray
      */
-    public static BRefValueArray convertArrayToJSON(BFloatArray floatArray) {
+    private static BRefValueArray convertArrayToJSON(BFloatArray floatArray) {
         BRefValueArray json = new BRefValueArray(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < floatArray.size(); i++) {
             double value = floatArray.get(i);
             json.append(new BFloat(value));
+        }
+        return json;
+    }
+
+    /**
+     * Convert {@link BDecimalArray} to JSON.
+     *
+     * @param decimalArray {@link BDecimalArray} to be converted to JSON
+     * @return JSON representation of the provided decimalArray
+     */
+    private static BRefValueArray convertArrayToJSON(BDecimalArray decimalArray) {
+        BRefValueArray json = new BRefValueArray(new BArrayType(BTypes.typeJSON));
+        for (int i = 0; i < decimalArray.size(); i++) {
+            BigDecimal value = decimalArray.get(i);
+            json.append(new BDecimal(value));
         }
         return json;
     }
@@ -130,7 +148,7 @@ public class JSONUtils {
      * @param stringArray {@link BStringArray} to be converted to JSON
      * @return JSON representation of the provided stringArray
      */
-    public static BRefValueArray convertArrayToJSON(BStringArray stringArray) {
+    private static BRefValueArray convertArrayToJSON(BStringArray stringArray) {
         BRefValueArray json = new BRefValueArray(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < stringArray.size(); i++) {
             String value = stringArray.get(i);
@@ -145,7 +163,7 @@ public class JSONUtils {
      * @param booleanArray {@link BBooleanArray} to be converted to JSON
      * @return JSON representation of the provided booleanArray
      */
-    public static BRefValueArray convertArrayToJSON(BBooleanArray booleanArray) {
+    private static BRefValueArray convertArrayToJSON(BBooleanArray booleanArray) {
         BRefValueArray json = new BRefValueArray(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < booleanArray.size(); i++) {
             int value = booleanArray.get(i);
@@ -165,6 +183,8 @@ public class JSONUtils {
             return convertArrayToJSON((BIntArray) bArray);
         } else if (bArray instanceof BFloatArray) {
             return convertArrayToJSON((BFloatArray) bArray);
+        } else if (bArray instanceof BDecimalArray) {
+            return convertArrayToJSON((BDecimalArray) bArray);
         } else if (bArray instanceof BStringArray) {
             return convertArrayToJSON((BStringArray) bArray);
         } else if (bArray instanceof BBooleanArray) {
@@ -237,10 +257,11 @@ public class JSONUtils {
                         targetType, map.getType());
             }
 
-            for (BField field : ((BStructureType) targetType.getConstrainedType()).getFields()) {
-                String key = field.fieldName;
+            for (Entry<String, BField> fieldEntry :
+                    ((BStructureType) targetType.getConstrainedType()).getFields().entrySet()) {
+                String key = fieldEntry.getKey();
                 BValue value = map.get(key);
-                populateJSON(json, key, value, field.fieldType);
+                populateJSON(json, key, value, fieldEntry.getValue().fieldType);
             }
         }
         return json;
@@ -256,6 +277,7 @@ public class JSONUtils {
             switch (value.getType().getTag()) {
                 case TypeTags.INT_TAG:
                 case TypeTags.FLOAT_TAG:
+                case TypeTags.DECIMAL_TAG:
                 case TypeTags.STRING_TAG:
                 case TypeTags.BOOLEAN_TAG:
                 case TypeTags.JSON_TAG:
@@ -525,6 +547,7 @@ public class JSONUtils {
                     break;
                 case TypeTags.INT_TAG:
                 case TypeTags.FLOAT_TAG:
+                case TypeTags.DECIMAL_TAG:
                 case TypeTags.STRING_TAG:
                 case TypeTags.BOOLEAN_TAG:
                     if (currentRoot == null) {
@@ -580,6 +603,29 @@ public class JSONUtils {
         }
 
         return (BFloat) json;
+    }
+
+    /**
+     * Convert JSON to decimal.
+     *
+     * @param json JSON to be converted
+     * @return BDecimal value of the JSON, if it's a valid convertible JSON node. Error, otherwise.
+     */
+    private static BDecimal jsonNodeToDecimal(BValue json) {
+        if (json == null ||
+                (json.getType().getTag() != TypeTags.INT_TAG && json.getType().getTag() != TypeTags.FLOAT_TAG &&
+                        json.getType().getTag() != TypeTags.DECIMAL_TAG)) {
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
+                    BTypes.typeDecimal, getTypeName(json));
+        }
+
+        if (json.getType().getTag() == TypeTags.INT_TAG) {
+            return new BDecimal(((BInteger) json).decimalValue());
+        } else if (json.getType().getTag() == TypeTags.FLOAT_TAG) {
+            return new BDecimal(((BFloat) json).decimalValue());
+        }
+
+        return (BDecimal) json;
     }
 
     /**
@@ -672,6 +718,8 @@ public class JSONUtils {
                 return jsonNodeToInt(jsonValue);
             case TypeTags.FLOAT_TAG:
                 return jsonNodeToFloat(jsonValue);
+            case TypeTags.DECIMAL_TAG:
+                return jsonNodeToDecimal(jsonValue);
             case TypeTags.STRING_TAG:
                 return new BString(jsonValue.stringValue());
             case TypeTags.BOOLEAN_TAG:
@@ -738,6 +786,7 @@ public class JSONUtils {
         switch (source.getType().getTag()) {
             case TypeTags.INT_TAG:
             case TypeTags.FLOAT_TAG:
+            case TypeTags.DECIMAL_TAG:
             case TypeTags.STRING_TAG:
             case TypeTags.BOOLEAN_TAG:
                 return source;
@@ -790,6 +839,8 @@ public class JSONUtils {
                 return jsonArrayToBIntArray(jsonArray);
             case TypeTags.FLOAT_TAG:
                 return jsonArrayToBFloatArray(jsonArray);
+            case TypeTags.DECIMAL_TAG:
+                return jsonArrayToBDecimalArray(jsonArray);
             case TypeTags.STRING_TAG:
                 return jsonArrayToBStringArray(jsonArray);
             case TypeTags.BOOLEAN_TAG:
@@ -825,6 +876,15 @@ public class JSONUtils {
             floatArray.add(i, ((BFloat) convertJSON(jsonValue, BTypes.typeFloat)).floatValue());
         }
         return floatArray;
+    }
+
+    private static BDecimalArray jsonArrayToBDecimalArray(BRefValueArray arrayNode) {
+        BDecimalArray decimalArray = new BDecimalArray();
+        for (int i = 0; i < arrayNode.size(); i++) {
+            BRefType<?> jsonValue = arrayNode.get(i);
+            decimalArray.add(i, ((BDecimal) convertJSON(jsonValue, BTypes.typeDecimal)).decimalValue());
+        }
+        return decimalArray;
     }
 
     private static BStringArray jsonArrayToBStringArray(BRefValueArray arrayNode) {

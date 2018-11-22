@@ -16,9 +16,9 @@
 
 import ballerina/reflect;
 
-@final string assertFailureErrorCategory = "assert-failure";
-@final string arraysNotEqualMessage = "Arrays are not equal";
-@final string arrayLengthsMismatchMessage = " (Array lengths are not the same)";
+const string assertFailureErrorCategory = "assert-failure";
+const string arraysNotEqualMessage = "Arrays are not equal";
+const string arrayLengthsMismatchMessage = " (Array lengths are not the same)";
 
 # The error struct for assertion errors.
 #
@@ -26,9 +26,9 @@ import ballerina/reflect;
 # + cause - The error which caused the assertion error
 # + category - The assert error category
 type AssertError record {
-    string message;
-    error? cause;
-    string category;
+    string message = "";
+    error? cause = ();
+    string category = "";
 };
 
 # Creates an AssertError with custom message and category.
@@ -38,7 +38,7 @@ type AssertError record {
 #
 # + return - an AssertError with custom message and category
 public function createBallerinaError(string errorMessage, string category) returns error {
-    error e = { message : errorMessage };
+    error e = error(errorMessage);
     return e;
 }
 
@@ -48,7 +48,7 @@ public function createBallerinaError(string errorMessage, string category) retur
 # + msg - Assertion error message
 public function assertTrue(boolean condition, string msg = "Assertion Failed!") {
     if (!condition) {
-        throw createBallerinaError(msg, assertFailureErrorCategory);
+        panic createBallerinaError(msg, assertFailureErrorCategory);
     }
 }
 
@@ -58,7 +58,7 @@ public function assertTrue(boolean condition, string msg = "Assertion Failed!") 
 # + msg - Assertion error message
 public function assertFalse(boolean condition, string msg = "Assertion Failed!") {
     if (condition) {
-        throw createBallerinaError(msg, assertFailureErrorCategory);
+        panic createBallerinaError(msg, assertFailureErrorCategory);
     }
 }
 
@@ -72,7 +72,7 @@ public function assertEquals(any actual, any expected, string msg = "Assertion F
         string expectedStr = <string> expected;
         string actualStr = <string> actual;
         string errorMsg = string `{{msg}}: expected '{{expectedStr}}' but found '{{actualStr}}'`;
-        throw createBallerinaError(errorMsg, assertFailureErrorCategory);
+        panic createBallerinaError(errorMsg, assertFailureErrorCategory);
     }
 }
 
@@ -86,7 +86,7 @@ public function assertNotEquals(any actual, any expected, string msg = "Assertio
         string expectedStr = <string> expected;
         string actualStr = <string> actual;
         string errorMsg = string `{{msg}}: expected the actual value not to be '{{expectedStr}}'`;
-        throw createBallerinaError(errorMsg, assertFailureErrorCategory);
+        panic createBallerinaError(errorMsg, assertFailureErrorCategory);
     }
 }
 
@@ -94,5 +94,5 @@ public function assertNotEquals(any actual, any expected, string msg = "Assertio
 #
 # + msg - Assertion error message
 public function assertFail(string msg = "Test Failed!") {
-    throw createBallerinaError(msg, assertFailureErrorCategory);
+    panic createBallerinaError(msg, assertFailureErrorCategory);
 }

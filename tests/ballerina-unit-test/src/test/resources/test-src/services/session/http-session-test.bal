@@ -253,7 +253,7 @@ service<http:Service> sample2 bind sessionEP {
         session.setAttribute("Counter", "1");
         session.setAttribute("Name", "chamil");
         string[] arr = session.getAttributeNames();
-        int arrsize = lengthof arr;
+        int arrsize = arr.length();
 
         http:Response res = new;
         res.setTextPayload("arraysize:" + arrsize);
@@ -289,7 +289,7 @@ service<http:Service> sample2 bind sessionEP {
         session.setAttribute("Name", "chamil");
         session.removeAttribute("Name");
         string[] arr = session.getAttributeNames();
-        int arrsize = lengthof arr;
+        int arrsize = arr.length();
 
         http:Response res = new;
         res.setTextPayload(<string>(arrsize));
@@ -308,7 +308,7 @@ service<http:Service> sample2 bind sessionEP {
         session.removeAttribute("Name");
         session.invalidate();
         string[] arr = session.getAttributeNames();
-        int arrsize = lengthof arr;
+        int arrsize = arr.length();
 
         http:Response res = new;
         res.setTextPayload(<string>(arrsize));
@@ -323,7 +323,7 @@ service<http:Service> sample2 bind sessionEP {
 
         http:Session session = req.createSessionIfAbsent();
         string[] arr = session.getAttributeNames();
-        int arrsize = lengthof arr;
+        int arrsize = arr.length();
 
         http:Response res = new;
         res.setTextPayload(<string>(arrsize));
@@ -340,7 +340,7 @@ service<http:Service> sample2 bind sessionEP {
         session.setAttribute("location", "colombo");
         session.removeAttribute("Name");
         string[] arr = session.getAttributeNames();
-        int arrsize = lengthof arr;
+        int arrsize = arr.length();
 
         http:Response res = new;
         res.setTextPayload(<string>(arrsize));
@@ -382,7 +382,7 @@ service<http:Service> sample2 bind sessionEP {
         http:Session session = req.createSessionIfAbsent();
         map attributes = session.getAttributes();
         string v0 = "map not present";
-        if ((lengthof attributes) != 0) {
+        if ((attributes.length()) != 0) {
             string[] arr = attributes.keys();
             v0 = <string>attributes[arr[0]];
         }

@@ -24,12 +24,13 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TypeDefinition;
-import org.ballerinalang.model.tree.VariableNode;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -73,7 +74,7 @@ public class MarkdownDocumentationTest {
 
         PackageNode packageNode = compileResult.getAST();
 
-        VariableNode variableNode = packageNode.getGlobalVariables().get(0);
+        SimpleVariableNode variableNode = packageNode.getGlobalVariables().get(0);
         Assert.assertNotNull(variableNode);
         BLangMarkdownDocumentation documentationAttachment = variableNode.getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
@@ -89,6 +90,18 @@ public class MarkdownDocumentationTest {
         Assert.assertNotNull(variableNode);
         documentationAttachment = variableNode.getMarkdownDocumentationAttachment();
         Assert.assertNull(documentationAttachment);
+
+        BLangConstant constantNode = (BLangConstant) packageNode.getConstants().get(0);
+        Assert.assertNotNull(constantNode);
+        documentationAttachment = constantNode.getMarkdownDocumentationAttachment();
+        Assert.assertNotNull(documentationAttachment);
+        Assert.assertEquals(documentationAttachment.getDocumentation(), "Documentation for constant with type.");
+
+        constantNode = (BLangConstant) packageNode.getConstants().get(1);
+        Assert.assertNotNull(constantNode);
+        documentationAttachment = constantNode.getMarkdownDocumentationAttachment();
+        Assert.assertNotNull(documentationAttachment);
+        Assert.assertEquals(documentationAttachment.getDocumentation(), "Documentation for constant without type.");
     }
 
     @Test(description = "Test doc finite types")
@@ -105,9 +118,9 @@ public class MarkdownDocumentationTest {
 
         // Todo - need to come up with a proper way to document finite types
 
-        List<? extends VariableNode> globalVariables = packageNode.getGlobalVariables();
+        List<? extends SimpleVariableNode> globalVariables = packageNode.getGlobalVariables();
 
-        VariableNode variableNode = globalVariables.get(0);
+        SimpleVariableNode variableNode = globalVariables.get(0);
         Assert.assertNotNull(variableNode);
         documentationAttachment = variableNode.getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);

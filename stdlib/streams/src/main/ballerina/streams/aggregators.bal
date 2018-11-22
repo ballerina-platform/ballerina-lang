@@ -19,9 +19,10 @@ import ballerina/math;
 
 public type Aggregator abstract object {
 
-    public function clone() returns Aggregator;
+    public function copy() returns Aggregator;
 
-    public function process(any value, EventType eventType) returns any;
+    public function process(any value, EventType eventType) returns any|error;
+
 };
 
 public type Sum object {
@@ -33,36 +34,36 @@ public type Sum object {
 
     }
 
-    public function process(any value, EventType eventType) returns any {
+    public function process(any value, EventType eventType) returns any|error {
         match value {
             int i => {
                 if (eventType == "CURRENT") {
-                    iSum += i;
+                    self.iSum += i;
                 } else if (eventType == "EXPIRED"){
-                    iSum -= i;
+                    self.iSum -= i;
                 } else if (eventType == "RESET"){
-                    iSum = 0;
+                    self.iSum = 0;
                 }
-                return iSum;
+                return self.iSum;
             }
             float f => {
                 if (eventType == "CURRENT") {
-                    fSum += f;
+                    self.fSum += f;
                 } else if (eventType == "EXPIRED"){
-                    fSum -= f;
+                    self.fSum -= f;
                 } else if (eventType == "RESET"){
-                    fSum = 0.0;
+                    self.fSum = 0.0;
                 }
-                return fSum;
+                return self.fSum;
             }
             any a => {
-                error e = { message: "Unsupported attribute type found" };
+                error e = error("Unsupported attribute type found");
                 return e;
             }
         }
     }
 
-    public function clone() returns Aggregator {
+    public function copy() returns Aggregator {
         Sum sumAggregator = new();
         return sumAggregator;
     }
@@ -83,41 +84,41 @@ public type Average object {
 
     }
 
-    public function process(any value, EventType eventType) returns any {
+    public function process(any value, EventType eventType) returns any|error {
         match value {
             int i => {
                 if (eventType == "CURRENT") {
-                    sum += i;
-                    count += 1;
+                    self.sum += i;
+                    self.count += 1;
                 } else if (eventType == "EXPIRED"){
-                    sum -= i;
-                    count -= 1;
+                    self.sum -= i;
+                    self.count -= 1;
                 } else if (eventType == "RESET"){
-                    sum = 0.0;
-                    count = 0;
+                    self.sum = 0.0;
+                    self.count = 0;
                 }
             }
             float f => {
                 if (eventType == "CURRENT") {
-                    sum += f;
-                    count += 1;
+                    self.sum += f;
+                    self.count += 1;
                 } else if (eventType == "EXPIRED"){
-                    sum -= f;
-                    count -= 1;
+                    self.sum -= f;
+                    self.count -= 1;
                 } else if (eventType == "RESET"){
-                    sum = 0.0;
-                    count = 0;
+                    self.sum = 0.0;
+                    self.count = 0;
                 }
             }
             any a => {
-                error e = { message: "Unsupported attribute type found" };
+                error e = error("Unsupported attribute type found");
                 return e;
             }
         }
-        return (count > 0) ? (sum / count) : 0.0;
+        return (self.count > 0) ? (self.sum / self.count) : 0.0;
     }
 
-    public function clone() returns Aggregator {
+    public function copy() returns Aggregator {
         Average avgAggregator = new();
         return avgAggregator;
     }
@@ -137,18 +138,18 @@ public type Count object {
 
     }
 
-    public function process(any value, EventType eventType) returns any {
+    public function process(any value, EventType eventType) returns any|error {
         if (eventType == "CURRENT") {
-            count += 1;
+            self.count += 1;
         } else if (eventType == "EXPIRED"){
-            count -= 1;
+            self.count -= 1;
         } else if (eventType == "RESET"){
-            count = 0;
+            self.count = 0;
         }
-        return count;
+        return self.count;
     }
 
-    public function clone() returns Aggregator {
+    public function copy() returns Aggregator {
         Count countAggregator = new();
         return countAggregator;
     }
@@ -162,33 +163,33 @@ public function count() returns Aggregator {
 
 public type DistinctCount object {
 
-    public map<int> distinctValues;
+    public map<int> distinctValues = {};
 
     public new() {
 
     }
 
-    public function process(any value, EventType eventType) returns any {
+    public function process(any value, EventType eventType) returns any|error {
         string key = crypto:crc32(value);
         if (eventType == "CURRENT") {
-            int preVal = distinctValues[key] ?: 0;
+            int preVal = self.distinctValues[key] ?: 0;
             preVal += 1;
-            distinctValues[key] = preVal;
+            self.distinctValues[key] = preVal;
         } else if (eventType == "EXPIRED"){
-            int preVal = distinctValues[key] ?: 1;
+            int preVal = self.distinctValues[key] ?: 1;
             preVal -= 1;
             if (preVal <= 0) {
-                _ = distinctValues.remove(key);
+                _ = self.distinctValues.remove(key);
             } else {
-                distinctValues[key] = preVal;
+                self.distinctValues[key] = preVal;
             }
         } else if (eventType == "RESET"){
-            distinctValues.clear();
+            self.distinctValues.clear();
         }
-        return lengthof distinctValues;
+        return self.distinctValues.length();
     }
 
-    public function clone() returns Aggregator {
+    public function copy() returns Aggregator {
         DistinctCount distinctCountAggregator = new();
         return distinctCountAggregator;
     }
@@ -202,8 +203,8 @@ public function distinctCount() returns Aggregator {
 
 public type Max object {
 
-    public LinkedList iMaxQueue;
-    public LinkedList fMaxQueue;
+    public LinkedList iMaxQueue = new;
+    public LinkedList fMaxQueue = new;
     public int? iMax = ();
     public float? fMax = ();
 
@@ -211,92 +212,92 @@ public type Max object {
 
     }
 
-    public function process(any value, EventType eventType) returns any {
+    public function process(any value, EventType eventType) returns any|error {
         match value {
             int i => {
                 if (eventType == "CURRENT") {
-                    iMaxQueue.resetToRear();
-                    while (iMaxQueue.hasPrevious()) {
-                        int a = check <int>iMaxQueue.previous();
+                    self.iMaxQueue.resetToRear();
+                    while (self.iMaxQueue.hasPrevious()) {
+                        int a = check <int>self.iMaxQueue.previous();
                         if (a < i) {
-                            iMaxQueue.removeCurrent();
+                            self.iMaxQueue.removeCurrent();
                         } else {
                             break;
                         }
                     }
-                    iMaxQueue.addLast(i);
-                    match iMax {
+                    self.iMaxQueue.addLast(i);
+                    match self.iMax {
                         int tempMax => {
-                            iMax = (tempMax < i) ? i : tempMax;
+                            self.iMax = (tempMax < i) ? i : tempMax;
                         }
                         () => {
-                            iMax = i;
+                            self.iMax = i;
                         }
                     }
-                    return iMax;
+                    return self.iMax;
                 } else if (eventType == "EXPIRED"){
-                    iMaxQueue.resetToFront();
-                    while (iMaxQueue.hasNext()) {
-                        int a = check <int>iMaxQueue.next();
+                    self.iMaxQueue.resetToFront();
+                    while (self.iMaxQueue.hasNext()) {
+                        int a = check <int>self.iMaxQueue.next();
                         if (a == i) {
-                            iMaxQueue.removeCurrent();
+                            self.iMaxQueue.removeCurrent();
                             break;
                         }
                     }
-                    iMax = check <int>iMaxQueue.getFirst();
-                    return iMax;
+                    self.iMax = check <int>self.iMaxQueue.getFirst();
+                    return self.iMax;
                 } else if (eventType == "RESET"){
-                    iMaxQueue.clear();
-                    iMax = ();
+                    self.iMaxQueue.clear();
+                    self.iMax = ();
                 }
-                return iMax;
+                return self.iMax;
             }
             float f => {
                 if (eventType == "CURRENT") {
-                    fMaxQueue.resetToRear();
-                    while (fMaxQueue.hasPrevious()) {
-                        float a = check <float>fMaxQueue.previous();
+                    self.fMaxQueue.resetToRear();
+                    while (self.fMaxQueue.hasPrevious()) {
+                        float a = check <float>self.fMaxQueue.previous();
                         if (a < f) {
-                            fMaxQueue.removeCurrent();
+                            self.fMaxQueue.removeCurrent();
                         } else {
                             break;
                         }
                     }
-                    fMaxQueue.addLast(f);
-                    match fMax {
+                    self.fMaxQueue.addLast(f);
+                    match self.fMax {
                         float tempMax => {
-                            fMax = (tempMax < f) ? f : tempMax;
+                            self.fMax = (tempMax < f) ? f : tempMax;
                         }
                         () => {
-                            fMax = f;
+                            self.fMax = f;
                         }
                     }
-                    return fMax;
+                    return self.fMax;
                 } else if (eventType == "EXPIRED"){
-                    fMaxQueue.resetToFront();
-                    while (fMaxQueue.hasNext()) {
-                        float a = check <float>fMaxQueue.next();
+                    self.fMaxQueue.resetToFront();
+                    while (self.fMaxQueue.hasNext()) {
+                        float a = check <float>self.fMaxQueue.next();
                         if (a == f) {
-                            fMaxQueue.removeCurrent();
+                            self.fMaxQueue.removeCurrent();
                             break;
                         }
                     }
-                    fMax = check <float>fMaxQueue.getFirst();
-                    return fMax;
+                    self.fMax = check <float>self.fMaxQueue.getFirst();
+                    return self.fMax;
                 } else if (eventType == "RESET"){
-                    fMaxQueue.clear();
-                    fMax = ();
+                    self.fMaxQueue.clear();
+                    self.fMax = ();
                 }
-                return fMax;
+                return self.fMax;
             }
             any a => {
-                error e = { message: "Unsupported attribute type found" };
+                error e = error("Unsupported attribute type found");
                 return e;
             }
         }
     }
 
-    public function clone() returns Aggregator {
+    public function copy() returns Aggregator {
         Max maxAggregator = new();
         return maxAggregator;
     }
@@ -311,8 +312,8 @@ public function max() returns Aggregator {
 
 public type Min object {
 
-    public LinkedList iMinQueue;
-    public LinkedList fMinQueue;
+    public LinkedList iMinQueue = new;
+    public LinkedList fMinQueue = new;
     public int? iMin = ();
     public float? fMin = ();
 
@@ -320,92 +321,92 @@ public type Min object {
 
     }
 
-    public function process(any value, EventType eventType) returns any {
+    public function process(any value, EventType eventType) returns any|error {
         match value {
             int i => {
                 if (eventType == "CURRENT") {
-                    iMinQueue.resetToRear();
-                    while (iMinQueue.hasPrevious()) {
-                        int a = check <int>iMinQueue.previous();
+                    self.iMinQueue.resetToRear();
+                    while (self.iMinQueue.hasPrevious()) {
+                        int a = check <int>self.iMinQueue.previous();
                         if (a > i) {
-                            iMinQueue.removeCurrent();
+                            self.iMinQueue.removeCurrent();
                         } else {
                             break;
                         }
                     }
-                    iMinQueue.addLast(i);
-                    match iMin {
+                    self.iMinQueue.addLast(i);
+                    match self.iMin {
                         int tempMin => {
-                            iMin = (tempMin > i) ? i : tempMin;
+                            self.iMin = (tempMin > i) ? i : tempMin;
                         }
                         () => {
-                            iMin = i;
+                            self.iMin = i;
                         }
                     }
-                    return iMin;
+                    return self.iMin;
                 } else if (eventType == "EXPIRED"){
-                    iMinQueue.resetToFront();
-                    while (iMinQueue.hasNext()) {
-                        int a = check <int>iMinQueue.next();
+                    self.iMinQueue.resetToFront();
+                    while (self.iMinQueue.hasNext()) {
+                        int a = check <int>self.iMinQueue.next();
                         if (a == i) {
-                            iMinQueue.removeCurrent();
+                            self.iMinQueue.removeCurrent();
                             break;
                         }
                     }
-                    iMin = check <int>iMinQueue.getFirst();
-                    return iMin;
+                    self.iMin = check <int>self.iMinQueue.getFirst();
+                    return self.iMin;
                 } else if (eventType == "RESET"){
-                    iMinQueue.clear();
-                    iMin = ();
+                    self.iMinQueue.clear();
+                    self.iMin = ();
                 }
-                return iMin;
+                return self.iMin;
             }
             float f => {
                 if (eventType == "CURRENT") {
-                    fMinQueue.resetToRear();
-                    while (fMinQueue.hasPrevious()) {
-                        float a = check <float>fMinQueue.previous();
+                    self.fMinQueue.resetToRear();
+                    while (self.fMinQueue.hasPrevious()) {
+                        float a = check <float>self.fMinQueue.previous();
                         if (a > f) {
-                            fMinQueue.removeCurrent();
+                            self.fMinQueue.removeCurrent();
                         } else {
                             break;
                         }
                     }
-                    fMinQueue.addLast(f);
-                    match fMin {
+                    self.fMinQueue.addLast(f);
+                    match self.fMin {
                         float tempMin => {
-                            fMin = (tempMin > f) ? f : tempMin;
+                            self.fMin = (tempMin > f) ? f : tempMin;
                         }
                         () => {
-                            fMin = f;
+                            self.fMin = f;
                         }
                     }
-                    return fMin;
+                    return self.fMin;
                 } else if (eventType == "EXPIRED"){
-                    fMinQueue.resetToFront();
-                    while (fMinQueue.hasNext()) {
-                        float a = check <float>fMinQueue.next();
+                    self.fMinQueue.resetToFront();
+                    while (self.fMinQueue.hasNext()) {
+                        float a = check <float>self.fMinQueue.next();
                         if (a == f) {
-                            fMinQueue.removeCurrent();
+                            self.fMinQueue.removeCurrent();
                             break;
                         }
                     }
-                    fMin = check <float>fMinQueue.getFirst();
-                    return fMin;
+                    self.fMin = check <float>self.fMinQueue.getFirst();
+                    return self.fMin;
                 } else if (eventType == "RESET"){
-                    fMinQueue.clear();
-                    fMin = ();
+                    self.fMinQueue.clear();
+                    self.fMin = ();
                 }
-                return fMin;
+                return self.fMin;
             }
             any a => {
-                error e = { message: "Unsupported attribute type found" };
+                error e = error("Unsupported attribute type found");
                 return e;
             }
         }
     }
 
-    public function clone() returns Aggregator {
+    public function copy() returns Aggregator {
         Min minAggregator = new();
         return minAggregator;
     }
@@ -430,7 +431,7 @@ public type StdDev object {
 
     }
 
-    public function process(any value, EventType eventType) returns any {
+    public function process(any value, EventType eventType) returns any|error {
         float fVal;
         match value {
             int i => {
@@ -440,56 +441,56 @@ public type StdDev object {
                 fVal = f;
             }
             any a => {
-                error e = { message: "Unsupported attribute type found" };
+                error e = error("Unsupported attribute type found");
                 return e;
             }
         }
 
         if (eventType == "CURRENT") {
             // See here for the algorithm: http://www.johndcook.com/blog/standard_deviation/
-            count += 1;
-            if (count == 0) {
+            self.count += 1;
+            if (self.count == 0) {
                 return ();
-            } else if (count == 1) {
-                sumValue = fVal;
-                mean = fVal;
-                stdDeviation = 0.0;
+            } else if (self.count == 1) {
+                self.sumValue = fVal;
+                self.mean = fVal;
+                self.stdDeviation = 0.0;
                 return 0.0;
             } else {
-                float oldMean = mean;
-                sumValue += fVal;
-                mean = sumValue / count;
-                stdDeviation += (fVal - oldMean) * (fVal - mean);
-                return math:sqrt(stdDeviation / count);
+                float oldMean = self.mean;
+                self.sumValue += fVal;
+                self.mean = self.stdDeviation / self.count;
+                self.stdDeviation += (fVal - oldMean) * (fVal - self.mean);
+                return math:sqrt(self.stdDeviation / self.count);
             }
         } else if (eventType == "EXPIRED") {
-            count -= 1;
-            if (count == 0) {
-                sumValue = 0.0;
-                mean = 0.0;
-                stdDeviation = 0.0;
+            self.count -= 1;
+            if (self.count == 0) {
+                self.sumValue = 0.0;
+                self.mean = 0.0;
+                self.stdDeviation = 0.0;
                 return ();
-            } else if (count == 1) {
+            } else if (self.count == 1) {
                 return 0.0;
             } else {
-                float oldMean = mean;
-                sumValue -= fVal;
-                mean = sumValue / count;
-                stdDeviation -= (fVal - oldMean) * (fVal - mean);
-                return math:sqrt(stdDeviation / count);
+                float oldMean = self.mean;
+                self.sumValue -= fVal;
+                self.mean = self.stdDeviation / self.count;
+                self.stdDeviation -= (fVal - oldMean) * (fVal - self.mean);
+                return math:sqrt(self.stdDeviation / self.count);
             }
         } else if (eventType == "RESET") {
-            mean = 0.0;
-            stdDeviation = 0.0;
-            sumValue = 0.0;
-            count = 0;
+            self.mean = 0.0;
+            self.stdDeviation = 0.0;
+            self.sumValue = 0.0;
+            self.count = 0;
             return 0.0;
         } else {
             return ();
         }
     }
 
-    public function clone() returns Aggregator {
+    public function copy() returns Aggregator {
         StdDev stdDevAggregator = new();
         return stdDevAggregator;
     }
@@ -510,42 +511,42 @@ public type MaxForever object {
 
     }
 
-    public function process(any value, EventType eventType) returns any {
+    public function process(any value, EventType eventType) returns any|error {
         match value {
             int i => {
                 if (eventType == "CURRENT" || eventType == "EXPIRED") {
-                    match iMax {
+                    match self.iMax {
                         int tempMax => {
-                            iMax = (tempMax < i) ? i : tempMax;
+                            self.iMax = (tempMax < i) ? i : tempMax;
                         }
                         () => {
-                            iMax = i;
+                            self.iMax = i;
                         }
                     }
                 }
-                return iMax;
+                return self.iMax;
             }
             float f => {
                 if (eventType == "CURRENT" || eventType == "EXPIRED") {
-                    match fMax {
+                    match self.fMax {
                         float tempMax => {
-                            fMax = (tempMax < f) ? f : tempMax;
+                            self.fMax = (tempMax < f) ? f : tempMax;
                         }
                         () => {
-                            fMax = f;
+                            self.fMax = f;
                         }
                     }
                 }
-                return fMax;
+                return self.fMax;
             }
             any a => {
-                error e = { message: "Unsupported attribute type found" };
+                error e = error("Unsupported attribute type found");
                 return e;
             }
         }
     }
 
-    public function clone() returns Aggregator {
+    public function copy() returns Aggregator {
         MaxForever maxForeverAggregator = new();
         return maxForeverAggregator;
     }
@@ -566,42 +567,42 @@ public type MinForever object {
 
     }
 
-    public function process(any value, EventType eventType) returns any {
+    public function process(any value, EventType eventType) returns any|error {
         match value {
             int i => {
                 if (eventType == "CURRENT" || eventType == "EXPIRED") {
-                    match iMin {
+                    match self.iMin {
                         int tempMin => {
-                            iMin = (tempMin > i) ? i : tempMin;
+                            self.iMin = (tempMin > i) ? i : tempMin;
                         }
                         () => {
-                            iMin = i;
+                            self.iMin = i;
                         }
                     }
                 }
-                return iMin;
+                return self.iMin;
             }
             float f => {
                 if (eventType == "CURRENT" || eventType == "EXPIRED") {
-                    match fMin {
+                    match self.fMin {
                         float tempMin => {
-                            fMin = (tempMin > f) ? f : tempMin;
+                            self.fMin = (tempMin > f) ? f : tempMin;
                         }
                         () => {
-                            fMin = f;
+                            self.fMin = f;
                         }
                     }
                 }
-                return fMin;
+                return self.fMin;
             }
             any a => {
-                error e = { message: "Unsupported attribute type found" };
+                error e = error("Unsupported attribute type found");
                 return e;
             }
         }
     }
 
-    public function clone() returns Aggregator {
+    public function copy() returns Aggregator {
         MinForever minForeverAggregator = new();
         return minForeverAggregator;
     }

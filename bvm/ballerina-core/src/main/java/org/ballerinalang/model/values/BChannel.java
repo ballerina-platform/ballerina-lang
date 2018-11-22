@@ -19,6 +19,8 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
+import java.util.Map;
+
 /**
  * The {@code BChannel} represents a channel in Ballerina.
  *
@@ -40,7 +42,12 @@ public class BChannel implements BRefType<Object> {
     }
 
     @Override
-    public BValue copy() {
+    public void stamp(BType type) {
+
+    }
+
+    @Override
+    public BValue copy(Map<BValue, BValue> refs) {
         return null;
     }
 

@@ -17,53 +17,53 @@
 
 // Cache-control directives
 # Forces the cache to validate a cached response with the origin server before serving.
-@final public string NO_CACHE = "no-cache";
+public const string NO_CACHE = "no-cache";
 
 # Instructs the cache to not store a response in non-volatile storage.
-@final public string NO_STORE = "no-store";
+public const string NO_STORE = "no-store";
 
 # Instructs intermediaries not to transform the payload.
-@final public string NO_TRANSFORM = "no-transform";
+public const string NO_TRANSFORM = "no-transform";
 
 # When used in requests, `max-age` implies that clients are not willing to accept responses whose age is greater
 # than `max-age`. When used in responses, the response is to be considered stale after the specified
 # number of seconds.
-@final public string MAX_AGE = "max-age";
+public const string MAX_AGE = "max-age";
 
 
 // Request only cache-control directives
 # Indicates that the client is willing to accept responses which have exceeded their freshness lifetime by no more
 # than the specified number of seconds.
-@final public string MAX_STALE = "max-stale";
+public const string MAX_STALE = "max-stale";
 
 # Indicates that the client is only accepting responses whose freshness lifetime >= current age + min-fresh.
-@final public string MIN_FRESH = "min-fresh";
+public const string MIN_FRESH = "min-fresh";
 
 # Indicates that the client is only willing to accept a cached response. A cached response is served subject to
 # other constraints posed by the request.
-@final public string ONLY_IF_CACHED = "only-if-cached";
+public const string ONLY_IF_CACHED = "only-if-cached";
 
 
 // Response only cache-control directives
 # Indicates that once the response has become stale, it should not be reused for subsequent requests without
 # validating with the origin server.
-@final public string MUST_REVALIDATE = "must-revalidate";
+public const string MUST_REVALIDATE = "must-revalidate";
 
 # Indicates that any cache may store the response.
-@final public string PUBLIC = "public";
+public const string PUBLIC = "public";
 
 # Indicates that the response is intended for a single user and should not be stored by shared caches.
-@final public string PRIVATE = "private";
+public const string PRIVATE = "private";
 
 # Has the same semantics as `must-revalidate`, except that this does not apply to private caches.
-@final public string PROXY_REVALIDATE = "proxy-revalidate";
+public const string PROXY_REVALIDATE = "proxy-revalidate";
 
 # In shared caches, `s-maxage` overrides the `max-age` or `expires` header field.
-@final public string S_MAX_AGE = "s-maxage";
+public const string S_MAX_AGE = "s-maxage";
 
 // Other constants
 # Setting this as the `max-stale` directives indicates that the `max-stale` directive does not specify a limit.
-@final public int MAX_STALE_ANY_AGE = 9223372036854775807;
+public const int MAX_STALE_ANY_AGE = 9223372036854775807;
 
 # Configures cache control directives for a `Request`.
 #
@@ -91,41 +91,41 @@ public type RequestCacheControl object {
         string[] directives = [];
         int i = 0;
 
-        if (noCache) {
+        if (self.noCache) {
             directives[i] = NO_CACHE;
             i = i + 1;
         }
 
-        if (noStore) {
+        if (self.noStore) {
             directives[i] = NO_STORE;
             i = i + 1;
         }
 
-        if (noTransform) {
+        if (self.noTransform) {
             directives[i] = NO_TRANSFORM;
             i = i + 1;
         }
 
-        if (onlyIfCached) {
+        if (self.onlyIfCached) {
             directives[i] = ONLY_IF_CACHED;
             i = i + 1;
         }
 
-        if (maxAge >= 0) {
-            directives[i] = MAX_AGE + "=" + maxAge;
+        if (self.maxAge >= 0) {
+            directives[i] = MAX_AGE + "=" + self.maxAge;
             i = i + 1;
         }
 
-        if (maxStale == MAX_STALE_ANY_AGE) {
+        if (self.maxStale == MAX_STALE_ANY_AGE) {
             directives[i] = MAX_STALE;
             i = i + 1;
-        } else if (maxStale >= 0) {
-            directives[i] = MAX_STALE + "=" + maxStale;
+        } else if (self.maxStale >= 0) {
+            directives[i] = MAX_STALE + "=" + self.maxStale;
             i = i + 1;
         }
 
-        if (minFresh >= 0) {
-            directives[i] = MIN_FRESH + "=" + minFresh;
+        if (self.minFresh >= 0) {
+            directives[i] = MIN_FRESH + "=" + self.minFresh;
             i = i + 1;
         }
 
@@ -213,7 +213,7 @@ public type ResponseCacheControl object {
     }
 };
 
-function Request::parseCacheControlHeader () {
+function Request.parseCacheControlHeader () {
     // If the request doesn't contain a cache-control header, resort to default cache control settings
     if (!self.hasHeader(CACHE_CONTROL)) {
         return;
@@ -249,7 +249,7 @@ function Request::parseCacheControlHeader () {
 }
 
 function appendFields (string[] fields) returns string {
-    if (lengthof fields > 0) {
+    if (fields.length() > 0) {
         return "=\"" + buildCommaSeparatedString(fields) + "\"";
     }
     return "";
@@ -259,7 +259,7 @@ function buildCommaSeparatedString (string[] values) returns string {
     string delimitedValues = values[0];
 
     int i = 1;
-    while (i < lengthof values) {
+    while (i < values.length()) {
         delimitedValues = delimitedValues + ", " + values[i];
         i = i + 1;
     }
@@ -271,34 +271,31 @@ function getExpirationDirectiveValue (string directive) returns int {
     string[] directiveParts = directive.split("=");
 
     // Disregarding the directive if a value isn't provided
-    if (lengthof directiveParts != 2) {
+    if (directiveParts.length() != 2) {
         return -1;
     }
 
-    match <int>directiveParts[1] {
-        int age => return age;
-        error => return -1; // Disregarding the directive if the value cannot be parsed
+    var age =  <int>directiveParts[1];
+    if (age is int) {
+        return age;
     }
+    return -1; // Disregarding the directive if the value cannot be parsed
 }
 
 function setRequestCacheControlHeader(Request request) {
-    match request.cacheControl {
-        RequestCacheControl cacheControl => {
-            if (!request.hasHeader(CACHE_CONTROL)) {
-                request.setHeader(CACHE_CONTROL, cacheControl.buildCacheControlDirectives());
-            }
+    var requestCacheControl = request.cacheControl;
+    if (requestCacheControl is RequestCacheControl) {
+        if (!request.hasHeader(CACHE_CONTROL)) {
+            request.setHeader(CACHE_CONTROL, requestCacheControl.buildCacheControlDirectives());
         }
-        () => {}
     }
 }
 
 function setResponseCacheControlHeader(Response response) {
-    match response.cacheControl {
-        ResponseCacheControl cacheControl => {
-            if (!response.hasHeader(CACHE_CONTROL)) {
-                response.setHeader(CACHE_CONTROL, cacheControl.buildCacheControlDirectives());
-            }
+    var responseCacheControl = response.cacheControl;
+    if (responseCacheControl is ResponseCacheControl) {
+        if (!response.hasHeader(CACHE_CONTROL)) {
+            response.setHeader(CACHE_CONTROL, responseCacheControl.buildCacheControlDirectives());
         }
-        () => {}
     }
 }

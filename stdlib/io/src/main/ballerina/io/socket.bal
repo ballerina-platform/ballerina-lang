@@ -25,15 +25,15 @@
 # + localAddress - Local interface the connection should bound
 public type Socket object {
 
-    @readonly public ReadableByteChannel readableChannel;
-    @readonly public WritableByteChannel writableChannel;
-    @readonly public int remotePort;
-    @readonly public int localPort;
-    @readonly public string remoteAddress;
-    @readonly public string localAddress;
+    @readonly public ReadableByteChannel readableChannel = new;
+    @readonly public WritableByteChannel writableChannel = new;
+    @readonly public int remotePort = 0;
+    @readonly public int localPort = 0;
+    @readonly public string remoteAddress = "";
+    @readonly public string localAddress = "";
 
     public new() {
-        init();
+        self.init();
     }
 
     # Initializes a socket.
@@ -73,7 +73,7 @@ public type Socket object {
 public type ServerSocket object {
 
     public new() {
-        init();
+        self.init();
     }
 
     # Initializes a server socket.

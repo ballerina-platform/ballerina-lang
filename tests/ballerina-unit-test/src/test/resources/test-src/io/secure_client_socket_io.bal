@@ -1,16 +1,13 @@
 import ballerina/io;
 
-io:Socket socket;
+io:Socket socket = new;
 
 function openSocketConnection(string host, int port, io:SocketProperties prop) {
     var result = io:openSecureSocket(host, port, prop);
-    match result {
-        io:Socket s => {
-            socket = untaint s;
-        }
-        error err => {
-            throw err;
-        }
+    if (result is io:Socket) {
+        socket = untaint result;
+    } else {
+        panic result;
     }
 }
 
@@ -20,27 +17,10 @@ function closeSocket() {
 
 function write(byte[] content) returns int|error {
     io:WritableByteChannel byteChannel = socket.writableChannel;
-    var result = byteChannel.write(content, 0);
-    match result {
-        int numberOfBytesWritten => {
-            return numberOfBytesWritten;
-        }
-        error err => {
-            return err;
-        }
-    }
+    return byteChannel.write(content, 0);
 }
 
 function read(int size) returns (byte[], int)|error {
     io:ReadableByteChannel byteChannel = socket.readableChannel;
-    var result = byteChannel.read(size);
-    match result {
-        (byte[], int) content => {
-            var (bytes, numberOfBytes) = content;
-            return (bytes, numberOfBytes);
-        }
-        error err => {
-            return err;
-        }
-    }
+    return byteChannel.read(size);
 }

@@ -54,6 +54,7 @@ import org.eclipse.lsp4j.CodeLensParams;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
+import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
@@ -86,6 +87,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -95,8 +97,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.ZipError;
 
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TEST_DIR_NAME;
 
 /**
  * Text document service implementation for ballerina.
@@ -136,9 +140,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<Either<List<CompletionItem>, CompletionList>>
     completion(TextDocumentPositionParams position) {
+        final List<CompletionItem> completions = new ArrayList<>();
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = position.getTextDocument().getUri();
-            List<CompletionItem> completions;
             LSServiceOperationContext context = new LSServiceOperationContext();
             Path completionPath = new LSDocument(fileUri).getPath();
             Path compilationPath = getUntitledFilePath(completionPath.toString()).orElse(completionPath);
@@ -158,6 +162,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
                 CompletionUtil.resolveSymbols(context);
                 CompletionSubRuleParser.parse(context);
+                completions.addAll(CompletionUtil.getCompletionItems(context));
             } catch (Exception | AssertionError e) {
                 if (CommonUtil.LS_DEBUG_ENABLED) {
                     String msg = e.getMessage();
@@ -165,7 +170,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 }
             } finally {
                 lock.ifPresent(Lock::unlock);
-                completions = CompletionUtil.getCompletionItems(context);
             }
             return Either.forLeft(completions);
         });
@@ -232,7 +236,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 bLangPackage.accept(signatureTreeVisitor);
                 signatureHelp = SignatureHelpUtil.getFunctionSignatureHelp(signatureContext);
                 return signatureHelp;
-            } catch (Exception | AssertionError e) {
+            } catch (Exception | ZipError | AssertionError e) {
                 if (CommonUtil.LS_DEBUG_ENABLED) {
                     String msg = e.getMessage();
                     logger.error("Error while retrieving signature help" + ((msg != null) ? ": " + msg : ""), e);
@@ -392,18 +396,31 @@ class BallerinaTextDocumentService implements TextDocumentService {
             String fileUri = params.getTextDocument().getUri();
             try {
                 Position start = params.getRange().getStart();
-                String topLevelNodeType = CommonUtil
-                        .topLevelNodeTypeInLine(params.getTextDocument(), start, documentManager);
-                if (topLevelNodeType != null) {
-                    commands.addAll(CommandUtil.getCommandForNodeType(topLevelNodeType, fileUri, start.getLine()));
+                LSDocument document = new LSDocument(fileUri);
+                List<Diagnostic> diagnostics = params.getContext().getDiagnostics();
+
+                String topLevelNodeType = CommonUtil.topLevelNodeTypeInLine(params.getTextDocument(), start,
+                                                                            documentManager);
+                // Add create test commands
+                String innerDirName = LSCompilerUtil.getCurrentModulePath(document.getPath())
+                        .relativize(document.getPath())
+                        .toString().split(File.separator)[0];
+                if (diagnostics.isEmpty() && document.hasProjectRepo() && !TEST_DIR_NAME.equals(innerDirName)) {
+                    commands.addAll(CommandUtil.getTestGenerationCommand(topLevelNodeType, fileUri, params));
                 }
-                if (!params.getContext().getDiagnostics().isEmpty()) {
-                    params.getContext().getDiagnostics().forEach(diagnostic -> {
+
+                // Add commands base on node diagnostics
+                if (!diagnostics.isEmpty()) {
+                    diagnostics.forEach(diagnostic -> {
                         if (start.getLine() == diagnostic.getRange().getStart().getLine()) {
-                            commands.addAll(CommandUtil.getCommandsByDiagnostic(diagnostic, params, documentManager,
-                                                                                lsCompiler));
+                            commands.addAll(CommandUtil.getCommandsByDiagnostic(diagnostic, params));
                         }
                     });
+                }
+
+                // Add commands base on node type
+                if (topLevelNodeType != null) {
+                    commands.addAll(CommandUtil.getCommandForNodeType(topLevelNodeType, fileUri, start.getLine()));
                 }
                 return commands;
             } catch (Exception e) {

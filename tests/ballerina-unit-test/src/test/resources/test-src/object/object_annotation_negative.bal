@@ -7,9 +7,9 @@ import ballerina/http;
 # + b - annotation `field b` documentation
 # + c - annotation `field c` documentation
 type Tst object {
-    public string a;
-    public string b;
-    public string cd;
+    public string a = "";
+    public string b = "";
+    public string cd = "";
 };
 
 annotation Test Tst;
@@ -26,9 +26,9 @@ annotation Test Tst;
 # + b - struct `field b` documentation
 # + c - struct `field c` documentation
 type Test object {
-    public int a;
-    public int b;
-    public int cdd;
+    public int a = 0;
+    public int b = 0;
+    public int cdd = 0;
 };
 
 # Gets a access parameter value (`true` or `false`) for a given key. Please note that #foo will always be bigger than #bar.
@@ -38,33 +38,33 @@ type Test object {
 # + accessMode - read or write mode
 # + accessMode - read or write mode
 # + successfuls - boolean `true` or `false`
-function File::open (string accessMode) returns (boolean) {
-    boolean successful;
+function File.open (string accessMode) returns (boolean) {
+    boolean successful = false;
     return successful;
 }
 
 # Documentation for File object
 #
 # + path - file path. Example: ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``
-public type File object{
+public type File object {
 
-    public string path;
+    public string path = "";
 
     public function open(string accessMode) returns boolean;
 };
 
 type Person object {
-    public string firstName;
-    public string lastName;
-    public int age;
-    public string city;
+    public string firstName = "";
+    public string lastName = "";
+    public int age = 0;
+    public string city = "";
 };
 
 type Employee object {
-    public string name;
-    public int age;
-    public string address;
-    public any ageAny;
+    public string name = "";
+    public int age = 0;
+    public string address = "";
+    public any ageAny = 0;
 };
 
 # Test Connector
@@ -73,7 +73,7 @@ type Employee object {
 # + url - url for endpoint
 # + urls - urls for endpoint
 type TestConnector object {
-  public string url;
+  public string url = "";
 };
 
 # PizzaService HTTP Service
@@ -89,7 +89,7 @@ service<http:Service> PizzaService {
 //  # + conn - HTTP connection. Commented due to https://github.com/ballerina-lang/ballerina/issues/5586 issue
 
     orderPizza(endpoint conn, http:Request req) {
-        http:Response res;
+        http:Response res = new;
         _ = conn -> respond(res);
     }
 }

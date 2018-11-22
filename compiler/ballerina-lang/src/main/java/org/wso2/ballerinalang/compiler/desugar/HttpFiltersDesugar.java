@@ -35,7 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -127,7 +127,7 @@ public class HttpFiltersDesugar {
      * @param env          the symbol environment
      */
     void invokeFilters(BLangResource resourceNode, SymbolEnv env) {
-        BLangVariable endpoint;
+        BLangSimpleVariable endpoint;
         if (resourceNode.requiredParams.size() >= 2) {
             endpoint = resourceNode.requiredParams.get(0);
             if (ORG_NAME.equals(endpoint.type.tsymbol.pkgID.orgName.value) && PACKAGE_NAME.equals(
@@ -139,7 +139,7 @@ public class HttpFiltersDesugar {
     }
 
     private void addFilterStatements(BLangResource resourceNode, SymbolEnv env) {
-        BLangVariable filterContextVar = addFilterContextCreation(resourceNode, env);
+        BLangSimpleVariable filterContextVar = addFilterContextCreation(resourceNode, env);
         addAssignmentAndForEach(resourceNode, filterContextVar);
     }
 
@@ -149,7 +149,7 @@ public class HttpFiltersDesugar {
      * @param resourceNode The resource to add the FilterContext creation.
      * @param env          the symbol environment.
      */
-    private BLangVariable addFilterContextCreation(BLangResource resourceNode, SymbolEnv env) {
+    private BLangSimpleVariable addFilterContextCreation(BLangResource resourceNode, SymbolEnv env) {
         BLangIdentifier pkgAlias = ASTBuilderUtil.createIdentifier(resourceNode.pos, getPackageAlias(env));
         BLangUserDefinedType filterContextUserDefinedType = new BLangUserDefinedType(
                 pkgAlias, ASTBuilderUtil.createIdentifier(resourceNode.pos, "FilterContext"));
@@ -193,7 +193,7 @@ public class HttpFiltersDesugar {
         filterInitNode.argsExpr.add(resourceName);
 
 
-        BLangVariable filterContextVar = ASTBuilderUtil.createVariable(
+        BLangSimpleVariable filterContextVar = ASTBuilderUtil.createVariable(
                 resourceNode.pos, filterContextVarName, filterContextType, filterInitNode,
                 new BVarSymbol(0, names.fromString(filterContextVarName), resourceNode.symbol.pkgID, filterContextType,
                                resourceNode.symbol));
@@ -225,10 +225,10 @@ public class HttpFiltersDesugar {
      *  }
      * </pre></blockquote>
      */
-    private void addAssignmentAndForEach(BLangResource resourceNode, BLangVariable filterContextVar) {
+    private void addAssignmentAndForEach(BLangResource resourceNode, BLangSimpleVariable filterContextVar) {
         //Assignment statement START
         BLangSimpleVarRef callerRef = new BLangSimpleVarRef();
-        BLangVariable endpointVar = resourceNode.requiredParams.get(ENDPOINT_PARAM_NUM);
+        BLangSimpleVariable endpointVar = resourceNode.requiredParams.get(ENDPOINT_PARAM_NUM);
         callerRef.variableName = endpointVar.name;
         callerRef.type = endpointVar.type;
         callerRef.pos = resourceNode.pos;
@@ -295,7 +295,7 @@ public class HttpFiltersDesugar {
                                                                       createSingletonArrayList(doneNode));
 
         BLangSimpleVarRef requestRef = new BLangSimpleVarRef();
-        BLangVariable requestVar = resourceNode.requiredParams.get(REQUEST_PARAM_NUM);
+        BLangSimpleVariable requestVar = resourceNode.requiredParams.get(REQUEST_PARAM_NUM);
         requestRef.variableName = requestVar.name;
         requestRef.type = requestVar.type;
         requestRef.pos = requestVar.pos;

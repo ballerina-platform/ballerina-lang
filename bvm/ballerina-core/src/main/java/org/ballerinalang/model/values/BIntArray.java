@@ -17,12 +17,16 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.StringJoiner;
+
+import static org.ballerinalang.model.util.FreezeUtils.handleInvalidUpdate;
 
 /**
  * @since 0.87
@@ -36,7 +40,7 @@ public class BIntArray extends BNewArray {
         this.size = values.length;
         super.arrayType = new BArrayType(BTypes.typeInt);
     }
-    
+
     public BIntArray() {
         values = (long[]) newArrayInstance(Long.TYPE);
         super.arrayType = new BArrayType(BTypes.typeInt);
@@ -51,6 +55,12 @@ public class BIntArray extends BNewArray {
     }
 
     public void add(long index, long value) {
+        synchronized (this) {
+            if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
+                handleInvalidUpdate(freezeStatus.getState());
+            }
+        }
+
         prepareForAdd(index, values.length);
         values[(int) index] = value;
     }
@@ -66,17 +76,31 @@ public class BIntArray extends BNewArray {
     }
 
     @Override
+    public void stamp(BType type) {
+
+    }
+
+    @Override
     public void grow(int newLength) {
         values = Arrays.copyOf(values, newLength);
     }
 
     @Override
-    public BValue copy() {
+    public BValue copy(Map<BValue, BValue> refs) {
+        if (isFrozen()) {
+            return this;
+        }
+
+        if (refs.containsKey(this)) {
+            return refs.get(this);
+        }
+
         BIntArray intArray = new BIntArray(Arrays.copyOf(values, values.length));
         intArray.size = this.size;
+        refs.put(this, intArray);
         return intArray;
     }
-    
+
     @Override
     public String stringValue() {
         StringJoiner sj = new StringJoiner(", ", "[", "]");

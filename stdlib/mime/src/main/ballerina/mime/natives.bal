@@ -18,35 +18,42 @@ import ballerina/file;
 import ballerina/io;
 
 # Key name for `boundary` parameter in MediaType. This is needed for composite type media types.
-@final public string BOUNDARY = "boundary";
+public const string BOUNDARY = "boundary";
 
 # Key name for `start` parameter in MediaType. This determines which part in the multipart message contains the
 # payload.
-@final public string START = "start";
+public const string START = "start";
 
 # Key name for `type` parameter in MediaType. This indicates the MIME media type of the `root` body part.
-@final public string TYPE = "type";
+public const string TYPE = "type";
 
 # Key name for `charset` parameter in MediaType. This indicates the character set of the body text.
-@final public string CHARSET = "charset";
+public const string CHARSET = "charset";
 
 # Default charset to be used with MIME encoding and decoding.
-@final public string DEFAULT_CHARSET = "UTF-8";
+public const string DEFAULT_CHARSET = "UTF-8";
 
 # Permission to be used with opening a byte channel for overflow data.
-@final io:Mode READ_PERMISSION = "r";
+const READ_PERMISSION = "r";
 
 # Represents `content-id` header name.
-@final public string CONTENT_ID = "content-id";
+public const string CONTENT_ID = "content-id";
 
 # Represents `content-length` header name.
-@final public string CONTENT_LENGTH = "content-length";
+public const string CONTENT_LENGTH = "content-length";
 
 # Represents `content-type` header name.
-@final public string CONTENT_TYPE = "content-type";
+public const string CONTENT_TYPE = "content-type";
 
 # Represents `content-disposition` header name.
-@final public string CONTENT_DISPOSITION = "content-disposition";
+public const string CONTENT_DISPOSITION = "content-disposition";
+
+# Represents MIME error code.
+const string MIME_ERROR_CODE = "{ballerina/mime}MIMEError";
+
+type MIMEError record {
+    string message = "";
+};
 
 # Represents values in `Content-Disposition` header.
 #
@@ -57,10 +64,10 @@ import ballerina/io;
 # + parameters - A set of parameters, specified in attribute=value notation
 public type ContentDisposition object {
 
-    public string fileName;
-    public string disposition;
-    public string name;
-    public map<string> parameters;
+    public string fileName = "";
+    public string disposition = "";
+    public string name = "";
+    public map<string> parameters = {};
 
     # Converts the `ContentDisposition` type to a string suitable for use as the value of a corresponding MIME header.
     # + return - The `string` represnetation of the `ContentDisposition` object
@@ -75,10 +82,10 @@ public type ContentDisposition object {
 # + parameters - A set of parameters, specified in an attribute=value notation
 public type MediaType object {
 
-    public string primaryType;
-    public string subType;
-    public string suffix;
-    public map<string> parameters;
+    public string primaryType = "";
+    public string subType = "";
+    public string suffix = "";
+    public map<string> parameters = {};
 
     # Gets “primaryType/subtype+suffix” combination in string format.
     #
@@ -91,21 +98,21 @@ public type MediaType object {
     public function toString() returns (string);
 };
 
-function MediaType::getBaseType() returns (string) {
+function MediaType.getBaseType() returns (string) {
     return self.primaryType + "/" + self.subType;
 }
 
-function MediaType::toString() returns (string) {
+function MediaType.toString() returns (string) {
     string contentType = self.getBaseType();
     // map<string> parameters = self.parameters;
     string[] arrKeys = self.parameters.keys();
-    int size = lengthof arrKeys;
+    int size = arrKeys.length();
     if (size > 0) {
         contentType = contentType + "; ";
     }
     int index = 0;
     while (index < size) {
-        string value = self.parameters[arrKeys[index]] but { () => "" };
+        string value = self.parameters[arrKeys[index]] ?: "";
         if (index == size - 1) {
             contentType = contentType + arrKeys[index] + "=" + value;
             break;
@@ -134,16 +141,18 @@ public type Entity object {
     # Sets the content-type to entity.
     #
     # + mediaType - Content type that needs to be set to the entity
-    public function setContentType(@sensitive string mediaType) {
+    # + return - Nil if successful, error in case of invalid media-type
+    public function setContentType(@sensitive string mediaType) returns error? {
         self.cType = check getMediaType(mediaType);
         self.setHeader(CONTENT_TYPE, mediaType);
+        return;
     }
 
     # Gets the content type of entity.
     #
     # + return - Content type as a `string`
     public function getContentType() returns string {
-        string contentTypeHeaderValue;
+        string contentTypeHeaderValue = "";
         if (self.hasHeader(CONTENT_TYPE)) {
             contentTypeHeaderValue = self.getHeader(CONTENT_TYPE);
         }
@@ -162,7 +171,7 @@ public type Entity object {
     #
     # + return - Content ID as a `string`
     public function getContentId() returns string {
-        string contentId;
+        string contentId = "";
         if (self.hasHeader(CONTENT_ID)) {
             contentId = self.getHeader(CONTENT_ID);
         }
@@ -182,7 +191,7 @@ public type Entity object {
     #
     # + return - Content length as an `int`
     public function getContentLength() returns int|error {
-        string contentLength;
+        string contentLength = "";
         if (self.hasHeader(CONTENT_LENGTH)) {
             contentLength = self.getHeader(CONTENT_LENGTH);
         }
@@ -205,7 +214,7 @@ public type Entity object {
     #
     # + return - A `ContentDisposition` object
     public function getContentDisposition() returns ContentDisposition {
-        string contentDispositionVal;
+        string contentDispositionVal = "";
         if (self.hasHeader(CONTENT_DISPOSITION)) {
             contentDispositionVal = self.getHeader(CONTENT_DISPOSITION);
         }
@@ -376,20 +385,25 @@ public type Entity object {
     public extern function hasHeader(@sensitive string headerName) returns boolean;
 };
 
-function Entity::setFileAsEntityBody(@sensitive string filePath,
+function Entity.setFileAsEntityBody(@sensitive string filePath,
                                      @sensitive string contentType = "application/octet-stream") {
     io:ReadableByteChannel byteChannel = io:openReadableFile(filePath);
     self.setByteChannel(byteChannel, contentType = contentType);
 }
 
-function Entity::setBody(@sensitive (string|xml|json|byte[]|io:ReadableByteChannel|Entity[]) entityBody) {
-    match entityBody {
-        string textContent => self.setText(textContent);
-        xml xmlContent => self.setXml(xmlContent);
-        json jsonContent => self.setJson(jsonContent);
-        byte[] blobContent => self.setByteArray(blobContent);
-        io:ReadableByteChannel byteChannelContent => self.setByteChannel(byteChannelContent);
-        Entity[] bodyParts => self.setBodyParts(bodyParts);
+function Entity.setBody(@sensitive (string|xml|json|byte[]|io:ReadableByteChannel|Entity[]) entityBody) {
+    if (entityBody is string) {
+        self.setText(entityBody);
+    } else if (entityBody is xml) {
+        self.setXml(entityBody);
+    } else if (entityBody is json) {
+        self.setJson(entityBody);
+    } else if (entityBody is byte[]) {
+        self.setByteArray(entityBody);
+    } else if(entityBody is io:ReadableByteChannel) {
+        self.setByteChannel(entityBody);
+    } else if (entityBody is Entity[]) {
+        self.setBodyParts(entityBody);
     }
 }
 
@@ -420,12 +434,12 @@ extern function base64Decode((string|byte[]|io:ReadableByteChannel) contentToBeD
 # + valueToBeEncoded - Content that needs to be encoded
 # + return - An encoded byte[]. In case of errors, an `error` record is returned
 public function base64EncodeBlob(byte[] valueToBeEncoded) returns byte[]|error {
-    error customErr = {message:"Error occurred while encoding byte[]"};
-    match base64Encode(valueToBeEncoded) {
-        string returnString => return customErr;
-        byte[] returnBlob => return returnBlob;
-        io:ReadableByteChannel returnChannel => return customErr;
-        error encodeErr => return encodeErr;
+    var result = base64Encode(valueToBeEncoded);
+    if (result is byte[]|error) {
+        return result;
+    } else {
+        error encodeErr = error(MIME_ERROR_CODE, { message : "Error occurred while encoding byte[]"});
+        return encodeErr;
     }
 }
 
@@ -435,12 +449,12 @@ public function base64EncodeBlob(byte[] valueToBeEncoded) returns byte[]|error {
 # + charset - Charset to be used
 # + return - An encoded `string`. In case of errors, an `error` record is returned
 public function base64EncodeString(string valueToBeEncoded, string charset = "utf-8") returns string|error {
-    error customErr = {message:"Error occurred while encoding string"};
-    match base64Encode(valueToBeEncoded) {
-        string returnString => return returnString;
-        byte[] returnBlob => return customErr;
-        io:ReadableByteChannel returnChannel => return customErr;
-        error encodeErr => return encodeErr;
+    var result = base64Encode(valueToBeEncoded);
+    if (result is string|error) {
+        return result;
+    } else {
+        error encodeErr = error(MIME_ERROR_CODE, { message : "Error occurred while encoding string"});
+        return encodeErr;
     }
 }
 
@@ -449,12 +463,12 @@ public function base64EncodeString(string valueToBeEncoded, string charset = "ut
 # + valueToBeEncoded - Content that needs to be encoded
 # + return - An encoded `io:ReadableByteChannel`. In case of errors, an `error` record is returned
 public function base64EncodeByteChannel(io:ReadableByteChannel valueToBeEncoded) returns io:ReadableByteChannel|error {
-    error customErr = {message:"Error occurred while encoding ByteChannel content"};
-    match base64Encode(valueToBeEncoded) {
-        string returnString => return customErr;
-        byte[] returnBlob => return customErr;
-        io:ReadableByteChannel returnChannel => return returnChannel;
-        error encodeErr => return encodeErr;
+    var result = base64Encode(valueToBeEncoded);
+    if (result is io:ReadableByteChannel|error) {
+        return result;
+    } else {
+        error customErr = error(MIME_ERROR_CODE, { message : "Error occurred while encoding ReadableByteChannel content"});
+        return customErr;
     }
 }
 
@@ -463,12 +477,12 @@ public function base64EncodeByteChannel(io:ReadableByteChannel valueToBeEncoded)
 # + valueToBeDecoded - Content that needs to be decoded
 # + return - A decoded `byte[]`. In case of errors, an `error` record is returned
 public function base64DecodeBlob(byte[] valueToBeDecoded) returns byte[]|error {
-    error customErr = {message:"Error occurred while decoding byte[]"};
-    match base64Decode(valueToBeDecoded) {
-        string returnString => return customErr;
-        byte[] returnBlob => return returnBlob;
-        io:ReadableByteChannel returnChannel => return customErr;
-        error decodeErr => return decodeErr;
+    var result = base64Decode(valueToBeDecoded);
+    if (result is byte[]|error) {
+        return result;
+    } else {
+        error decodeErr = error(MIME_ERROR_CODE, { message : "Error occurred while decoding byte[]"});
+        return decodeErr;
     }
 }
 
@@ -478,12 +492,12 @@ public function base64DecodeBlob(byte[] valueToBeDecoded) returns byte[]|error {
 # + charset - Charset to be used
 # + return - A decoded `string`. In case of errors, an `error` record is returned
 public function base64DecodeString(string valueToBeDecoded, string charset = "utf-8") returns string|error {
-    error customErr = {message:"Error occurred while decoding string"};
-    match base64Decode(valueToBeDecoded) {
-        string returnString => return returnString;
-        byte[] returnBlob => return customErr;
-        io:ReadableByteChannel returnChannel => return customErr;
-        error decodeErr => return decodeErr;
+    var result = base64Decode(valueToBeDecoded);
+    if (result is string|error) {
+        return result;
+    } else {
+        error decodeErr = error(MIME_ERROR_CODE, { message : "Error occurred while decoding string"});
+        return decodeErr;
     }
 }
 
@@ -492,12 +506,12 @@ public function base64DecodeString(string valueToBeDecoded, string charset = "ut
 # + valueToBeDecoded - Content that needs to be decoded
 # + return - A decoded `io:ReadableByteChannel`. In case of errors, an `error` record is returned
 public function base64DecodeByteChannel(io:ReadableByteChannel valueToBeDecoded) returns io:ReadableByteChannel|error {
-    error customErr = {message:"Error occurred while decoding ByteChannel content"};
-    match base64Decode(valueToBeDecoded) {
-        string returnString => return customErr;
-        byte[] returnBlob => return customErr;
-        io:ReadableByteChannel returnChannel => return returnChannel;
-        error decodeErr => return decodeErr;
+    var result = base64Decode(valueToBeDecoded);
+    if (result is io:ReadableByteChannel|error) {
+        return result;
+    } else {
+        error decodeErr = error(MIME_ERROR_CODE, { message : "Error occurred while decoding ReadableByteChannel content"});
+        return decodeErr;
     }
 }
 
@@ -512,7 +526,7 @@ function getEncoding(MediaType contentType) returns (string) {
 # Given the Content-Type in string, gets the MediaType object populated with it.
 #
 # + contentType - Content-Type in string
-# + return - `MediaType` object or an error in case of error
+# + return - `MediaType` object or an error in case of invalid content-type
 public extern function getMediaType(string contentType) returns MediaType|error;
 
 # Given the Content-Disposition as a string, gets the ContentDisposition object with it.

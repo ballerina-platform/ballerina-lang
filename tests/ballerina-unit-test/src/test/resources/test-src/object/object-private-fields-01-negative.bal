@@ -2,19 +2,18 @@ import org.foo;
 
 public type userA object {
 
-    public int age;
-    public string name;
+    public int age = 0;
+    public string name = "";
 
 };
 
 public type userB object {
 
-    public int age;
-    public string name;
-    public string address;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
 
-
-    string zipcode;
+    string zipcode = "";
 
 };
 
@@ -27,7 +26,7 @@ public function testRuntimeObjEqNegative() returns (string) {
     // This is a unsafe cast
     var uB = <userB> uA;
     match uB {
-        error err => return err.message;
+        error err => return err.reason();
         userB usrB  => return usrB.zipcode;
     }
 }

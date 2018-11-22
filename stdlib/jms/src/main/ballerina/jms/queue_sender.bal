@@ -22,8 +22,8 @@ import ballerina/log;
 # + config - Used to store configurations related to a JMS Queue sender
 public type QueueSender object {
 
-    public QueueSenderActions producerActions;
-    public QueueSenderEndpointConfiguration config;
+    public QueueSenderActions producerActions = new;
+    public QueueSenderEndpointConfiguration config = {};
 
     # Default constructor of the endpoint
     public new() {
@@ -36,16 +36,16 @@ public type QueueSender object {
     public function init(QueueSenderEndpointConfiguration c) {
         self.config = c;
         self.producerActions.queueSender = self;
-        match (c.session) {
-            Session s => {
-                match (c.queueName) {
-                    string queueName => {
-                        self.initQueueSender(s);
-                    }
-                    () => {}
-                }
+        var session = c.session;
+        if (session is Session) {
+            var queueName = c.queueName;
+            if (queueName is string) {
+                self.initQueueSender(session);
+            } else {
+                log:printInfo("Message producer not properly initialized for queue");
             }
-            () => {log:printInfo("Message producer not properly initialised for queue");}
+        } else {
+            log:printInfo("Message producer not properly initialized for queue");
         }
     }
 
@@ -82,8 +82,8 @@ public type QueueSender object {
 # + session - JMS session object used to create the consumer
 # + queueName - name of the target queue
 public type QueueSenderEndpointConfiguration record {
-    Session? session;
-    string? queueName;
+    Session? session = ();
+    string? queueName = ();
     !...
 };
 
@@ -92,7 +92,7 @@ public type QueueSenderEndpointConfiguration record {
 # + queueSender - Queue sender endpoint
 public type QueueSenderActions object {
 
-    public QueueSender? queueSender;
+    public QueueSender? queueSender = ();
 
     # Sends a message to the JMS provider
     #
@@ -108,18 +108,18 @@ public type QueueSenderActions object {
     public function sendTo(Destination destination, Message message) returns error?;
 };
 
-function QueueSenderActions::sendTo(Destination destination, Message message) returns error? {
-    match (self.queueSender) {
-        QueueSender queueSender => {
-            match (queueSender.config.session) {
-                Session s => {
-                    validateQueue(destination);
-                    queueSender.initQueueSender(s, destination = destination);
-                }
-                () => {}
-            }
+function QueueSenderActions.sendTo(Destination destination, Message message) returns error? {
+    var queueSender = self.queueSender;
+    if (queueSender is QueueSender) {
+        var session = queueSender.config.session;
+        if (session is Session) {
+            validateQueue(destination);
+            queueSender.initQueueSender(session, destination = destination);
+        } else {
+            log:printInfo("Message producer not properly initialized for queue " + destination.destinationName);
         }
-        () => {log:printInfo("Message producer not properly initialised for queue " + destination.destinationName);}
+    } else {
+        log:printInfo("Message producer not properly initialized for queue " + destination.destinationName);
     }
     return self.send(message);
 }

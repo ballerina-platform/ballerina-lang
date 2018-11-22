@@ -23,6 +23,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -68,7 +69,7 @@ public class ReadInt16 implements NativeCallableUnit {
         Throwable error = eventContext.getError();
         CallableUnitCallback callback = eventContext.getCallback();
         if (null != error) {
-            BMap<String, BValue> errorStruct = IOUtils.createError(context, error.getMessage());
+            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, error.getMessage());
             context.setReturnValues(errorStruct);
         } else {
             Long readLong = result.getResponse();

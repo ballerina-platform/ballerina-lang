@@ -20,6 +20,8 @@ package org.ballerinalang.model.types;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.TypeInfo;
 
+import java.util.Map;
+
 /**
  * {@code BStructureType} represents a user defined structure type in Ballerina.
  *
@@ -27,7 +29,7 @@ import org.ballerinalang.util.codegen.TypeInfo;
  */
 public abstract class BStructureType extends BType {
 
-    private BField[] fields;
+    private Map<String, BField> fields;
     private int[] fieldTypeCount;
     private BAttachedFunction[] attachedFunctions;
     public BAttachedFunction initializer;
@@ -47,11 +49,11 @@ public abstract class BStructureType extends BType {
         this.flags = flags;
     }
 
-    public BField[] getFields() {
+    public Map<String, BField> getFields() {
         return fields;
     }
 
-    public void setFields(BField[] fields) {
+    public void setFields(Map<String, BField> fields) {
         this.fields = fields;
     }
 

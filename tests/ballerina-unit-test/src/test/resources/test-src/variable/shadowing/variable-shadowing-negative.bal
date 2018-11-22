@@ -2,7 +2,7 @@ import ballerina/http;
 
 xmlns "http://sample.com/wso2/a1" as ns;
 
-string name;
+string name = "";
 
 function printName(any name) {
 
@@ -28,24 +28,24 @@ function formatName(any a) returns any {
 
 type User object {
 
-    public string name;
+    public string name = "";
 
 
     function f(string name) {
         xmlns "http://sample.com/wso2/a4" as ns;
-        string name;
+        string name = "";
         xmlns "http://sample.com/wso2/a4" as ns;
     }
 };
 
 service<http:Service> ser {
 
-    string name;
+    string name = "";
     xmlns "http://sample.com/wso2/a5" as ns;
 
     res(string name) {
         xmlns "http://sample.com/wso2/a6" as ns;
-        string name;
+        string name = "";
         xmlns "http://sample.com/wso2/a7" as ns;
     }
 }

@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
+import com.google.common.collect.Lists;
+import org.antlr.v4.runtime.Token;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
@@ -35,13 +37,18 @@ import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.ballerinalang.langserver.completions.util.sorters.ActionAndFieldAccessContextItemSorter;
 import org.ballerinalang.langserver.completions.util.sorters.CompletionItemSorter;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
+import org.ballerinalang.model.util.Flags;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -59,40 +66,92 @@ import java.util.stream.IntStream;
 public class ParserRuleVariableDefinitionStatementContextResolver extends AbstractItemResolver {
     @Override
     @SuppressWarnings("unchecked")
-    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
+        List<String> poppedTokens = context.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY).stream()
+                .map(Token::getText)
+                .collect(Collectors.toList());
+
+        String checkOrTrapKW = this.getCheckOrTrapKeyword(poppedTokens);
 
         Class sorterKey;
-        if (isInvocationOrInteractionOrFieldAccess(completionContext)) {
+        if (isInvocationOrInteractionOrFieldAccess(context)) {
             sorterKey = ActionAndFieldAccessContextItemSorter.class;
             Either<List<CompletionItem>, List<SymbolInfo>> filteredList =
-                    SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(completionContext);
-            completionItems.addAll(this.getCompletionItemList(filteredList));
+                    SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(context);
+            completionItems.addAll(this.getCompletionItemList(filteredList, context));
+        } else if (checkOrTrapKW.equalsIgnoreCase(ItemResolverConstants.TRAP)) {
+            List<SymbolInfo> filteredList = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
+            // Remove the functions without a receiver symbol, bTypes not being packages and attached functions
+            filteredList.removeIf(symbolInfo -> {
+                BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
+                return (bSymbol instanceof BInvokableSymbol
+                        && ((BInvokableSymbol) bSymbol).receiverSymbol != null
+                        && CommonUtil.isValidInvokableSymbol(bSymbol))
+                        || ((bSymbol instanceof BTypeSymbol)
+                        && !(bSymbol instanceof BPackageSymbol))
+                        || (bSymbol instanceof BInvokableSymbol
+                        && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED));
+            });
+            completionItems.addAll(this.getCompletionItemList(filteredList, context));
+            sorterKey = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY).getClass();
         } else {
-            sorterKey = completionContext.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY).getClass();
-            completionItems.addAll(this.getVarDefCompletionItems(completionContext));
+            sorterKey = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY).getClass();
+            completionItems.addAll(this.getVarDefCompletionItems(context));
             try {
-                fillFunctionSnippet(completionContext, completionItems);
+                Optional<BLangFunctionTypeNode> functionTypeNode = this.getFunctionTypeNode(context);
+                if (functionTypeNode.isPresent()) {
+                    fillFunctionSnippet(functionTypeNode.get(), context, completionItems);
+                    fillArrowFunctionSnippet(functionTypeNode.get(), context, completionItems);
+                }
             } catch (LSCompletionException e) {
                 // Ignore adding the function snippet and add the remaining completion items only
             }
         }
 
         CompletionItemSorter itemSorter = ItemSorters.get(sorterKey);
-        itemSorter.sortItems(completionContext, completionItems);
+        itemSorter.sortItems(context, completionItems);
         
         return completionItems;
     }
     
-    private void fillFunctionSnippet(LSContext context, List<CompletionItem> completionItems)
-            throws LSCompletionException {
+    private String getParamsSnippet(List<BLangVariable> paramTypes, boolean withType) throws LSCompletionException {
+        String paramName = "param";
+        StringBuilder signature = new StringBuilder("(");
+        List<String> params = IntStream.range(0, paramTypes.size())
+                .mapToObj(index -> {
+                    try {
+                        int paramIndex = index + 1;
+                        String paramPlaceHolder = "${" + paramIndex + ":" + paramName + paramIndex + "}";
+                        if (withType) {
+                            paramPlaceHolder = this.getTypeName(paramTypes.get(index).getTypeNode()) + " "
+                                    + paramPlaceHolder;
+                        }
+                        return paramPlaceHolder;
+                    } catch (LSCompletionException e) {
+                        return "";
+                    }
+                })
+                .collect(Collectors.toList());
+
+        if (params.contains("")) {
+            throw new LSCompletionException("Contains invalid parameter type");
+        }
+
+        signature.append(String.join(", ", params))
+                .append(") ");
+        
+        return signature.toString();
+    }
+    
+    private Optional<BLangFunctionTypeNode> getFunctionTypeNode(LSContext context) throws LSCompletionException {
         List<String> consumedTokens = CommonUtil.getPoppedTokenStrings(context);
         String startToken = consumedTokens.get(0);
-        List<String> lastTwoTokens = consumedTokens.size() < 2 ? new ArrayList<>() : 
+        List<String> lastTwoTokens = consumedTokens.size() < 2 ? new ArrayList<>() :
                 consumedTokens.subList(consumedTokens.size() - 2, consumedTokens.size());
         if (!startToken.equals(UtilSymbolKeys.FUNCTION_KEYWORD_KEY)
                 || !lastTwoTokens.contains(UtilSymbolKeys.EQUAL_SYMBOL_KEY)) {
-            return;
+            return Optional.empty();
         }
         String combinedTokens = String.join(" ", consumedTokens) + "0;";
         String functionRule = "function testFunction () {" + CommonUtil.LINE_SEPARATOR + "\t" + combinedTokens +
@@ -108,17 +167,25 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
         }
 
         if (!bLangPackage.isPresent()) {
-            return;
+            return Optional.empty();
         }
 
         BLangStatement evalStatement = bLangPackage.get().getFunctions().get(0).getBody().stmts.get(0);
 
-        if (!(evalStatement instanceof BLangVariableDef)) {
-            return;
+        if (!(evalStatement instanceof BLangSimpleVariableDef)) {
+            return Optional.empty();
         }
 
-        BLangFunctionTypeNode functionTypeNode = (BLangFunctionTypeNode) ((BLangVariableDef) evalStatement)
+        BLangFunctionTypeNode functionTypeNode = (BLangFunctionTypeNode) ((BLangSimpleVariableDef) evalStatement)
                 .getVariable().getTypeNode();
+        
+        return Optional.of(functionTypeNode);
+    }
+    
+    private void fillFunctionSnippet(BLangFunctionTypeNode functionTypeNode, LSContext context,
+                                     List<CompletionItem> completionItems)
+            throws LSCompletionException {
+        
         List<BLangVariable> params = functionTypeNode.getParams();
         BLangType returnBLangType = functionTypeNode.getReturnTypeNode();
         boolean snippetSupport = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY)
@@ -127,43 +194,62 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
         String functionSignature = this.getFunctionSignature(params, returnBLangType);
         String body = this.getAnonFunctionSnippetBody(returnBLangType, params.size());
         String snippet = functionSignature + body;
-        
-        SnippetBlock snippetBlock = new SnippetBlock(functionSignature, snippet, ItemResolverConstants.SNIPPET_TYPE,
+        String label = this.convertToLabel(functionSignature);
+        SnippetBlock snippetBlock = new SnippetBlock(label, snippet, ItemResolverConstants.SNIPPET_TYPE,
                 SnippetBlock.SnippetType.SNIPPET);
-        
+
         // Populate the anonymous function signature completion item
         completionItems.add(snippetBlock.build(new CompletionItem(), snippetSupport));
     }
 
     private String getFunctionSignature(List<BLangVariable> paramTypes, BLangType returnType)
             throws LSCompletionException {
-        String paramName = "param";
-        StringBuilder signature = new StringBuilder("function (");
-        List<String> params = IntStream.range(0, paramTypes.size())
-                .mapToObj(index -> {
-                    try {
-                        int paramIndex = index + 1;
-                        String paramPlaceHolder = "${" + paramIndex + ":" + paramName + paramIndex + "}";
-                        return this.getTypeName(paramTypes.get(index).getTypeNode()) + " " + paramPlaceHolder;
-                    } catch (LSCompletionException e) {
-                        return "";
-                    }
-                })
-                .collect(Collectors.toList());
-        
-        if (params.contains("")) {
-            throw new LSCompletionException("Contains invalid parameter type");
-        }
-        signature.append(String.join(", ", params))
-                .append(") ");
-        
+        StringBuilder signature = new StringBuilder("function ");
+
+        signature.append(this.getParamsSnippet(paramTypes, true));
         if (!(returnType.type instanceof BNilType)) {
             signature.append("returns (")
                     .append(this.getTypeName(returnType))
                     .append(") ");
         }
-        
+
         return signature.toString();
+    }
+    
+    private String convertToLabel(String signature) {
+        return signature
+                .replaceAll("(\\$\\{\\d:)([a-zA-Z\\d]*:*[a-zA-Z\\d]*)(\\})", "$2")
+                .replaceAll("(\\$\\{\\d\\})", "");
+    }
+    
+    private void fillArrowFunctionSnippet(BLangFunctionTypeNode functionTypeNode, LSContext context,
+                                            List<CompletionItem> completionItems) throws LSCompletionException {
+        List<BLangVariable> params = functionTypeNode.getParams();
+        BLangType returnBLangType = functionTypeNode.getReturnTypeNode();
+        String paramSignature = this.getParamsSnippet(params, false);
+        boolean snippetSupport = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY)
+                .getCompletionItem()
+                .getSnippetSupport();
+        StringBuilder signature = new StringBuilder(paramSignature);
+        
+        signature.append(" => ")
+                .append("${");
+        if (!(returnBLangType.type instanceof BNilType)) {
+            signature.append(params.size() + 1)
+                    .append(":")
+                    .append(CommonUtil.getDefaultValueForType(returnBLangType.type));
+        } else {
+            signature.append(params.size() + 1);
+        }
+        signature.append("};");
+        
+        String label = "arrow function  " + this.convertToLabel(paramSignature);
+
+        SnippetBlock snippetBlock = new SnippetBlock(label, signature.toString(), ItemResolverConstants.SNIPPET_TYPE,
+                SnippetBlock.SnippetType.SNIPPET);
+
+        // Populate the anonymous function signature completion item
+        completionItems.add(snippetBlock.build(new CompletionItem(), snippetSupport));
     }
     
     private String getAnonFunctionSnippetBody(BLangType returnType, int numberOfParams) throws LSCompletionException {
@@ -186,10 +272,10 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
         }
 
         body.append("};");
-        
+
         return body.toString();
     }
-    
+
     private String getTypeName(BLangType bLangType) throws LSCompletionException {
         if (bLangType instanceof BLangValueType) {
             return bLangType.toString();
@@ -201,5 +287,22 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
         } else {
             throw new LSCompletionException("Error identifying the type of anonymous function parameter");
         }
+    }
+
+
+
+    private String getCheckOrTrapKeyword(List<String> poppedTokens) {
+        String retrievedToken = "";
+        for (String token : Lists.reverse(poppedTokens)) {
+            if (token.equals(UtilSymbolKeys.EQUAL_SYMBOL_KEY)) {
+                break;
+            } else if (token.equals(ItemResolverConstants.CHECK_KEYWORD)
+                    || token.equals(ItemResolverConstants.TRAP)) {
+                retrievedToken = token;
+                break;
+            }
+        }
+
+        return retrievedToken;
     }
 }

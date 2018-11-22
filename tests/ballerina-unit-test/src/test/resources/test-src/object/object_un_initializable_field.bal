@@ -6,7 +6,7 @@ function test () returns int {
 
 type Person object {
 
-    public int age;
+    public int age = 0;
     public Employee emp;
 
 
@@ -17,9 +17,9 @@ type Person object {
 
 type Employee object {
 
-    public int age;
-    public Foo foo;
-    public Bar bar;
+    public int age = 0;
+    public Foo foo = new(0);
+    public Bar bar = {};
 
     new (age) {
 
@@ -28,8 +28,7 @@ type Employee object {
 
 type Foo object {
 
-    public int calc;
-
+    public int calc = 0;
 
     new (calc) {
 
@@ -37,8 +36,8 @@ type Foo object {
 };
 
 type Bar record {
-    int barVal;
-    string name;
+    int barVal = 0;
+    string name = "";
 };
 
 

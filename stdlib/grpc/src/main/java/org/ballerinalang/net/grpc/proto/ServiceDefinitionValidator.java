@@ -23,7 +23,7 @@ import org.ballerinalang.net.grpc.config.ServiceConfiguration;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -83,8 +83,7 @@ public class ServiceDefinitionValidator {
             boolean isNameExists = false;
             boolean clientStreaming = false;
             for (BLangRecordLiteral.BLangRecordKeyValue keyValue : annVals) {
-                switch (((BLangSimpleVarRef) (keyValue.key).expr).variableName
-                        .getValue()) {
+                switch (((BLangSimpleVarRef) (keyValue.key).expr).variableName.getValue()) {
                     case "name":
                         isNameExists = true;
                         break;
@@ -181,7 +180,7 @@ public class ServiceDefinitionValidator {
         }
     }
 
-    private static boolean validateResourceSignature(List<BLangVariable> signatureParams, DiagnosticLog dlog,
+    private static boolean validateResourceSignature(List<BLangSimpleVariable> signatureParams, DiagnosticLog dlog,
                                                      DiagnosticPos pos) {
         final int nParams = signatureParams.size();
         if (nParams < COMPULSORY_PARAM_COUNT) {
@@ -195,7 +194,7 @@ public class ServiceDefinitionValidator {
         return true;
     }
 
-    private static boolean isValidResourceParam(BLangVariable param, String expectedType) {
+    private static boolean isValidResourceParam(BLangSimpleVariable param, String expectedType) {
         return expectedType.equals(param.type.toString());
     }
 }

@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/io;
 import ballerina/log;
 
 @final string REMOTE_BACKEND_URL3 = "ws://localhost:15200/websocket";
@@ -36,58 +35,66 @@ service<http:WebSocketService> PingPongTestService2 bind { port: 9095 } {
         };
         wsEp.attributes[ASSOCIATED_CONNECTION3] = wsClientEp;
         wsClientEp.attributes[ASSOCIATED_CONNECTION3] = wsEp;
-        wsClientEp->ready() but {
-            error e => io:println(e.message)
-        };
+        var returnVal = wsClientEp->ready();
+        if (returnVal is error) {
+             panic returnVal;
+        }
     }
 
     onText(endpoint wsEp, string text) {
         endpoint http:WebSocketClient clientEp;
 
         if (text == "ping-me") {
-            wsEp->ping(APPLICATION_DATA3) but {
-                error e => io:println("error sending server ping")
-            };
+             var returnVal = wsEp->ping(APPLICATION_DATA3);
+             if (returnVal is error) {
+                  panic returnVal;
+             }
         }
 
         if (text == "ping-remote-server") {
             clientEp = getAssociatedClientEndpoint2(wsEp);
-            clientEp->ping(APPLICATION_DATA3) but {
-                error e => io:println("error sending client ping")
-            };
+            var returnVal = clientEp->ping(APPLICATION_DATA3);
+            if (returnVal is error) {
+                 panic returnVal;
+            }
         }
 
         if (text == "tell-remote-server-to-ping") {
             clientEp = getAssociatedClientEndpoint2(wsEp);
-            io:println(clientEp.response.getHeader("upgrade"));
-            clientEp->pushText("ping") but {
-                error e => io:println("error sending client ping")
-            };
+            log:printInfo(clientEp.response.getHeader("upgrade"));
+            var returnVal = clientEp->pushText("ping");
+            if (returnVal is error) {
+                 panic returnVal;
+            }
         }
         if (text == "custom-headers") {
             clientEp = getAssociatedClientEndpoint2(wsEp);
-            clientEp->pushText(text + ":X-some-header") but {
-                error e => log:printError("Error sending request headers", err = e)
-            };
+            var returnVal = clientEp->pushText(text + ":X-some-header");
+            if (returnVal is error) {
+                 panic returnVal;
+            }
         }
         if (text == "server-headers") {
             clientEp = getAssociatedClientEndpoint2(wsEp);
-            clientEp->pushText(clientEp.response.getHeader("X-server-header")) but {
-                error e => log:printError("Error sending response headers", err = e)
-            };
+            var returnVal = clientEp->pushText(clientEp.response.getHeader("X-server-header"));
+            if (returnVal is error) {
+                 panic returnVal;
+            }
         }
     }
 
     onPing(endpoint wsEp, byte[] localData) {
-        wsEp->pong(localData) but {
-            error e => io:println("Error sending server pong")
-        };
+        var returnVal = wsEp->pong(localData);
+        if (returnVal is error) {
+             panic returnVal;
+        }
     }
 
     onPong(endpoint wsEp, byte[] localData) {
-        wsEp->pushText("pong-from-you") but {
-            error e => io:println("server text error")
-        };
+        var returnVal = wsEp->pushText("pong-from-you");
+        if (returnVal is error) {
+             panic returnVal;
+        }
     }
 
 }
@@ -96,30 +103,43 @@ service<http:WebSocketClientService> clientCallbackService2 {
 
     onText(endpoint wsEp, string text) {
         endpoint http:WebSocketListener serverEp = getAssociatedListener2(wsEp);
-        serverEp->pushText(text) but {
-            error e => io:println("error sending client text")
-        };
+        var returnVal = serverEp->pushText(text);
+        if (returnVal is error) {
+             panic returnVal;
+        }
     }
 
     onPing(endpoint wsEp, byte[] localData) {
         endpoint http:WebSocketListener serverEp = getAssociatedListener2(wsEp);
-        serverEp->pushText("ping-from-remote-server-received") but {
-            error e => io:println("error sending client text")
-        };
+        var returnVal = serverEp->pushText("ping-from-remote-server-received");
+        if (returnVal is error) {
+             panic returnVal;
+        }
     }
 
     onPong(endpoint wsEp, byte[] localData) {
         endpoint http:WebSocketListener serverEp = getAssociatedListener2(wsEp);
-        serverEp->pushText("pong-from-remote-server-received") but {
-            error e => io:println("error sending client text")
-        };
+        var returnVal = serverEp->pushText("pong-from-remote-server-received");
+        if (returnVal is error) {
+             panic returnVal;
+        }
     }
 }
 
 public function getAssociatedClientEndpoint2(http:WebSocketListener wsServiceEp) returns (http:WebSocketClient) {
-    return check <http:WebSocketClient>wsServiceEp.attributes[ASSOCIATED_CONNECTION3];
+    var returnVal = <http:WebSocketClient>wsServiceEp.attributes[ASSOCIATED_CONNECTION3];
+    if (returnVal is error) {
+         panic returnVal;
+    } else {
+         return returnVal;
+    }
 }
 
 public function getAssociatedListener2(http:WebSocketClient wsClientEp) returns (http:WebSocketListener) {
-    return check <http:WebSocketListener>wsClientEp.attributes[ASSOCIATED_CONNECTION3];
+    var returnVal = <http:WebSocketListener>wsClientEp.attributes[ASSOCIATED_CONNECTION3];
+    if (returnVal is error) {
+         panic returnVal;
+    } else {
+         return returnVal;
+    }
 }

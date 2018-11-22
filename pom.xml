@@ -518,22 +518,6 @@
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
 
-            <!-- ballerina-mb -->
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-mb</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-sources</classifier>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-mb</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-binary-repo</classifier>
-            </dependency>
-
             <!-- ballerina-mime -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -1006,6 +990,11 @@
                 <groupId>org.apache.ws.commons.axiom</groupId>
                 <artifactId>axiom-dom</artifactId>
                 <version>${orbit.version.axiom}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.ws.commons.axiom</groupId>
+                <artifactId>axiom-c14n</artifactId>
+                <version>${c14n.axiom.orbit.version}</version>
             </dependency>
             <dependency>
                 <groupId>jaxen</groupId>
@@ -1656,12 +1645,11 @@
                 <module>stdlib/time</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
-                <module>stdlib/mb</module>
                 <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/mysql</module>
                 <module>stdlib/database/sql</module>
-                <module>stdlib/streams</module>
+                <!--<module>stdlib/streams</module>-->
                 <module>stdlib/privacy</module>
 
                 <module>misc/lib-creator</module>
@@ -1740,12 +1728,11 @@
                 <module>stdlib/time</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
-                <module>stdlib/mb</module>
                 <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/mysql</module>
                 <module>stdlib/database/sql</module>
-                <module>stdlib/streams</module>
+                <!--<module>stdlib/streams</module>-->
                 <module>stdlib/privacy</module>
 
                 <module>misc/lib-creator</module>
@@ -1820,12 +1807,11 @@
                 <module>stdlib/time</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
-                <module>stdlib/mb</module>
                 <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/mysql</module>
                 <module>stdlib/database/sql</module>
-                <module>stdlib/streams</module>
+                <!--<module>stdlib/streams</module>-->
                 <module>stdlib/privacy</module>
 
                 <module>misc/lib-creator</module>
@@ -2232,6 +2218,7 @@
         <com.fasterxml.jackson.dataformat.yaml.version>2.9.1</com.fasterxml.jackson.dataformat.yaml.version>
         <tapestry.json.orbit.version>5.4.1.wso2v1</tapestry.json.orbit.version>
         <orbit.version.axiom>1.2.20</orbit.version.axiom>
+        <c14n.axiom.orbit.version>1.2.11-wso2v11</c14n.axiom.orbit.version>
         <saxon.wso2.version>9.7.0.wso2v1</saxon.wso2.version>
         <jaxen.version>1.1.6</jaxen.version>
         <geronimo.activation>1.1</geronimo.activation>

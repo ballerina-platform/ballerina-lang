@@ -21,10 +21,10 @@
 # + loadBalanceClientConfig - The configurations for the load balance client endpoint
 public type LoadBalanceClient object {
 
-    public string epName;
-    public LoadBalanceClientEndpointConfiguration loadBalanceClientConfig;
+    public string epName = "";
+    public LoadBalanceClientEndpointConfiguration loadBalanceClientConfig = {};
 
-    private Client httpEP;
+    private Client httpEP = new;
 
     # The initialization function for the load balance client endpoint.
     #
@@ -35,7 +35,12 @@ public type LoadBalanceClient object {
     #
     # + return - The HTTP LoadBalancer actions associated with the endpoint
     public function getCallerActions() returns LoadBalancerActions {
-        return check <LoadBalancerActions> httpEP.httpClient;
+        var loadBalancerActions = <LoadBalancerActions> self.httpEP.httpClient;
+        if (loadBalancerActions is error) {
+            panic loadBalancerActions;
+        } else {
+            return loadBalancerActions;
+        }
     }
 };
 
@@ -58,26 +63,26 @@ public type LoadBalanceClient object {
 # + lbRule - LoadBalancing rule
 # + failover - Configuration for load balancer whether to fail over in case of a failure
 public type LoadBalanceClientEndpointConfiguration record {
-    CircuitBreakerConfig? circuitBreaker;
+    CircuitBreakerConfig? circuitBreaker = ();
     int timeoutMillis = 60000;
     string httpVersion = "1.1";
     string forwarded = "disable";
     KeepAlive keepAlive = KEEPALIVE_AUTO;
     Chunking chunking = "AUTO";
-    FollowRedirects? followRedirects;
-    RetryConfig? retryConfig;
-    ProxyConfig? proxy;
-    ConnectionThrottling? connectionThrottling;
-    TargetService[] targets;
+    FollowRedirects? followRedirects = ();
+    RetryConfig? retryConfig = ();
+    ProxyConfig? proxy = ();
+    ConnectionThrottling? connectionThrottling = ();
+    TargetService[] targets = [];
     CacheConfig cache = {};
     Compression compression = COMPRESSION_AUTO;
-    AuthConfig? auth;
-    LoadBalancerRule? lbRule;
+    AuthConfig? auth = ();
+    LoadBalancerRule? lbRule = ();
     boolean failover = true;
     !...
 };
 
-function LoadBalanceClient::init(LoadBalanceClientEndpointConfiguration lbClientConfig) {
+function LoadBalanceClient.init(LoadBalanceClientEndpointConfiguration lbClientConfig) {
     self.httpEP.httpClient = createLoadBalancerClient(lbClientConfig);
     self.httpEP.config.circuitBreaker = lbClientConfig.circuitBreaker;
     self.httpEP.config.timeoutMillis = lbClientConfig.timeoutMillis;
@@ -114,21 +119,19 @@ function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointCo
 }
 
 function createLoadBalancerClient(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig)
-             returns CallerActions {
+                                                                                    returns CallerActions {
     ClientEndpointConfig config = createClientEPConfigFromLoalBalanceEPConfig(loadBalanceClientConfig,
-        loadBalanceClientConfig.targets[0]);
+                                                                            loadBalanceClientConfig.targets[0]);
     CallerActions[] lbClients = createLoadBalanceHttpClientArray(loadBalanceClientConfig);
+    var lbRule = loadBalanceClientConfig.lbRule;
 
-    match loadBalanceClientConfig.lbRule {
-        LoadBalancerRule lbRule => {
-            return new LoadBalancerActions(loadBalanceClientConfig.targets[0].url, config, lbClients, lbRule,
+    if (lbRule is LoadBalancerRule) {
+        return new LoadBalancerActions(loadBalanceClientConfig.targets[0].url, config, lbClients, lbRule,
                 loadBalanceClientConfig.failover);
-        }
-        () => {
-            LoadBalancerRounRobinRule loadBalancerRounRobinRule = new;
-            return new LoadBalancerActions(loadBalanceClientConfig.targets[0].url, config, lbClients,
+    } else {
+        LoadBalancerRounRobinRule loadBalancerRounRobinRule = new;
+        return new LoadBalancerActions(loadBalanceClientConfig.targets[0].url, config, lbClients,
                 loadBalancerRounRobinRule, loadBalanceClientConfig.failover);
-        }
     }
 }
 
@@ -139,17 +142,14 @@ function createLoadBalanceHttpClientArray(LoadBalanceClientEndpointConfiguration
     boolean httpClientRequired = false;
     string uri = loadBalanceClientConfig.targets[0].url;
     var cbConfig = loadBalanceClientConfig.circuitBreaker;
-    match cbConfig {
-        CircuitBreakerConfig cb => {
-            if (uri.hasSuffix("/")) {
-                int lastIndex = uri.length() - 1;
-                uri = uri.substring(0, lastIndex);
-            }
-            httpClientRequired = false;
+    if (cbConfig is CircuitBreakerConfig) {
+        if (uri.hasSuffix("/")) {
+            int lastIndex = uri.length() - 1;
+            uri = uri.substring(0, lastIndex);
         }
-        () => {
-            httpClientRequired = true;
-        }
+        httpClientRequired = false;
+    } else {
+        httpClientRequired = true;
     }
 
     foreach target in loadBalanceClientConfig.targets {
@@ -162,17 +162,14 @@ function createLoadBalanceHttpClientArray(LoadBalanceClientEndpointConfiguration
         if (!httpClientRequired) {
             httpClients[i] = createCircuitBreakerClient(uri, epConfig);
         } else {
-            var retryConfigVal = epConfig.retryConfig;
-            match retryConfigVal {
-                RetryConfig retryConfig => {
-                    httpClients[i] = createRetryClient(uri, epConfig);
-                }
-                () => {
-                    if (epConfig.cache.enabled) {
-                        httpClients[i] = createHttpCachingClient(uri, epConfig, epConfig.cache);
-                    } else {
-                        httpClients[i] = createHttpSecureClient(uri, epConfig);
-                    }
+            var retryConfig = epConfig.retryConfig;
+            if (retryConfig is RetryConfig) {
+                httpClients[i] = createRetryClient(uri, epConfig);
+            } else {
+                if (epConfig.cache.enabled) {
+                    httpClients[i] = createHttpCachingClient(uri, epConfig, epConfig.cache);
+                } else {
+                    httpClients[i] = createHttpSecureClient(uri, epConfig);
                 }
             }
         }

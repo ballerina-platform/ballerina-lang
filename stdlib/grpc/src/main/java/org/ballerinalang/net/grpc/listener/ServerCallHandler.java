@@ -24,8 +24,9 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.model.types.BStructureType;
+import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -163,30 +164,6 @@ public abstract class ServerCallHandler {
     }
 
     /**
-     * Returns BValue object corresponding to the protobuf request message.
-     *
-     * @param requestMessage protobuf request message.
-     * @return b7a message.
-     */
-    private BValue getRequestParameter(Resource resource, Message requestMessage, boolean isHeaderRequired) {
-        if (resource.getParamDetails().size() > 3) {
-            throw new ServerRuntimeException("Invalid resource input arguments. arguments must not be greater than " +
-                    "three");
-        }
-        List<ParamDetail> paramDetails = resource.getParamDetails();
-        if ((isHeaderRequired && paramDetails.size() == 3) || (!isHeaderRequired && paramDetails.size() == 2)) {
-            BType requestType = paramDetails.get(GrpcConstants.REQUEST_MESSAGE_PARAM_INDEX)
-                    .getVarType();
-            String requestName = paramDetails.get(GrpcConstants.REQUEST_MESSAGE_PARAM_INDEX)
-                    .getVarName();
-            return MessageUtils.generateRequestStruct(requestMessage, getProgramFile(resource), requestName,
-                    requestType);
-        } else {
-            return null;
-        }
-    }
-
-    /**
      * Checks whether service method has a response message.
      *
      * @return true if method response is empty, false otherwise
@@ -205,7 +182,7 @@ public abstract class ServerCallHandler {
         BValue[] signatureParams = new BValue[paramDetails.size()];
         signatureParams[0] = getConnectionParameter(resource, responseObserver);
         BType errorType = paramDetails.get(1).getVarType();
-        BMap<String, BValue> errorStruct = MessageUtils.getConnectorError((BStructureType) errorType, error.getError());
+        BError errorStruct = MessageUtils.getConnectorError((BErrorType) errorType, error.getError());
         signatureParams[1] = errorStruct;
         BMap<String, BValue> headerStruct = getHeaderStruct(resource);
         if (headerStruct != null) {
@@ -232,7 +209,7 @@ public abstract class ServerCallHandler {
         if (headerStruct != null) {
             headerStruct.addNativeData(MESSAGE_HEADERS, request.getHeaders());
         }
-        BValue requestParam = getRequestParameter(resource, request, (headerStruct != null));
+        BValue requestParam = request != null ? request.getbMessage() : null;
         if (requestParam != null) {
             signatureParams[1] = requestParam;
         }

@@ -18,9 +18,8 @@
 package org.ballerinalang.util.transactions;
 
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFunctionPointer;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 
 /**
  * Decorate {@link CallableUnitCallback} to allow notifying {@link TransactionResourceManager}
@@ -46,7 +45,7 @@ public class TransactableCallableUnitCallback implements CallableUnitCallback {
     }
 
     @Override
-    public void notifyFailure(BMap<String, BValue> error) {
+    public void notifyFailure(BError error) {
         TransactionResourceManager.getInstance().notifyFailure(transactionId);
         callback.notifyFailure(error);
     }

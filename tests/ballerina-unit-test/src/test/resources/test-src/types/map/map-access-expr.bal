@@ -1,7 +1,7 @@
-function mapAccessTest(int x, int y) returns (int) {
-    map testMap;
-    int xx;
-    int yy;
+function mapAccessTest(int x, int y) returns (int|error) {
+    map testMap = {};
+    int xx = 0;
+    int yy = 0;
     testMap["first"] = x;
     testMap["second"] = y;
     testMap["third"] = x + y;
@@ -13,7 +13,7 @@ function mapAccessTest(int x, int y) returns (int) {
 }
 
 function mapReturnTest(string firstName, string lastName) returns (map) {
-    map testMap;
+    map testMap = {};
     testMap["fname"] = firstName;
     testMap["lname"] = lastName;
     testMap[ firstName + lastName ] = firstName + lastName;
@@ -23,13 +23,14 @@ function mapReturnTest(string firstName, string lastName) returns (map) {
 function testArrayAccessAsIndexOfMapt() returns (string) {
     map namesMap = {fname:"Supun",lname:"Setunga"};
     string[] keys = ["fname","lname"];
-    string key;
-    key = namesMap[keys[0]] but { () => "", any a => <string> a};
+    string key = "";
+    var a = namesMap[keys[0]];
+    key =  a is string ? a : "";
     return key;
 }
 
 function testAccessThroughVar() returns (string) {
-    map m;
+    map m = {};
     m["x"] = "a";
     m["y"] = "b";
     m["z"] = "c";
@@ -38,12 +39,13 @@ function testAccessThroughVar() returns (string) {
 
 function constructString(map m) returns (string) {
     string [] keys = m.keys();
-    int len = lengthof keys;
+    int len = keys.length();
     int i = 0;
     string returnStr = "";
     while (i < len) {
         string key = keys[i];
-        string val =  m[key] but { () => "", any a => <string> a};
+        var a = m[key];
+        string val = a is string ? a : "";
         returnStr = returnStr + key + ":" + val + ", ";
         i = i + 1;
     }
@@ -53,7 +55,7 @@ function constructString(map m) returns (string) {
 function testMapClear() returns (int) {
     map namesMap = {fname:"Supun", lname:"Setunga", sname:"Kevin", tname:"Ratnasekera"};
     namesMap.clear();
-    return lengthof namesMap;
+    return namesMap.length();
 }
 
 function testHasKeyPositive() returns (boolean) {
@@ -66,7 +68,7 @@ function testHasKeyNegative() returns (boolean) {
     return namesMap.hasKey("fname2");
 }
 
-function testGetMapValues () returns (string, string) {
+function testGetMapValues () returns (string, string)|error {
     json j = {"city":"Colombo", "country":"SriLanka"};
     int[] arr = [7,8,9];
     map address = {city:"CA", "country":"USA"};
@@ -101,10 +103,10 @@ function testMapRemoveNegative() returns (boolean, boolean, boolean) {
 }
 
 function testMapConcurrentAccess() returns int {
-    map<int> intMap;
+    map<int> intMap = {};
     int n = 100000;
     processConcurrent(intMap, n);
-    return lengthof intMap;
+    return intMap.length();
 }
 
 function processConcurrent(map<int> intMap, int n) {
@@ -140,7 +142,7 @@ function processConcurrent(map<int> intMap, int n) {
 }
 
 function testConcurrentMapGetKeys() returns error? {
-    map<int> intMap;
+    map<int> intMap = {};
     int n = 100000;
     return processConcurrentKeys(intMap, n);
 }
@@ -176,15 +178,11 @@ function processConcurrentKeys(map<int> intMap, int n) returns error? {
         }
     }
     worker w3 {
-        try { 
-            int i = 0;
-            int length;
-            while (i < n) {
-                length = lengthof intMap.keys();
-                i += 1;
-            }
-        } catch (error e) {
-            return e;
+        int i = 0;
+        int length;
+        while (i < n) {
+            length = intMap.keys().length();
+            i += 1;
         }
         return ();
     }

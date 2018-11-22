@@ -19,23 +19,23 @@ import ballerina/io;
 import ballerina/mime;
 import ballerina/runtime;
 
-@final string EMPTY_STRING = "";
-@final string WHITE_SPACE = " ";
+const string EMPTY_STRING = "";
+const string WHITE_SPACE = " ";
 
-public type AuthScheme "Basic"|"OAuth2"|"JWT";
+public type AuthScheme BASIC_AUTH|OAUTH2|JWT_AUTH;
 
-@final public AuthScheme BASIC_AUTH = "Basic";
-@final public AuthScheme OAUTH2 = "OAuth2";
-@final public AuthScheme JWT_AUTH = "JWT";
+public const BASIC_AUTH = "Basic";
+public const OAUTH2 = "OAuth2";
+public const JWT_AUTH = "JWT";
 
 # Specifies how the authentication credentials should be sent when using the refresh token to refresh the access token
-public type CredentialBearer "AUTH_HEADER_BEARER"|"POST_BODY_BEARER";
+public type CredentialBearer AUTH_HEADER_BEARER|POST_BODY_BEARER;
 
 # Indicates that the authentication credentials should be sent via the Authentication Header
-@final public CredentialBearer AUTH_HEADER_BEARER = "AUTH_HEADER_BEARER";
+public const AUTH_HEADER_BEARER = "AUTH_HEADER_BEARER";
 
 # Indicates that the authentication credentials should be sent via the body of the POST request
-@final public CredentialBearer POST_BODY_BEARER = "POST_BODY_BEARER";
+public const POST_BODY_BEARER = "POST_BODY_BEARER";
 
 # Provides secure HTTP actions for interacting with HTTP endpoints. This will make use of the authentication schemes
 # configured in the HTTP client endpoint to secure the HTTP requests.
@@ -46,8 +46,8 @@ public type CredentialBearer "AUTH_HEADER_BEARER"|"POST_BODY_BEARER";
 public type HttpSecureClient object {
     //These properties are populated from the init call to the client connector as these were needed later stage
     //for retry and other few places.
-    public string serviceUri;
-    public ClientEndpointConfig config;
+    public string serviceUri = "";
+    public ClientEndpointConfig config = {};
     public CallerActions httpClient;
 
     public new(serviceUri, config) {
@@ -64,12 +64,12 @@ public type HttpSecureClient object {
     public function post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message) returns (Response|error) {
         Request req = buildRequest(message);
-        check generateSecureRequest(req, config);
-        Response response = check httpClient.post(path, req);
-        boolean isRetry = isRetryRequired(response, config);
+        check generateSecureRequest(req, self.config);
+        Response response = check self.httpClient.post(path, req);
+        boolean isRetry = isRetryRequired(response, self.config);
         if (isRetry) {
-            check updateRequestAndConfig(req, config);
-            return httpClient.post(path, req);
+            check updateRequestAndConfig(req, self.config);
+            return self.httpClient.post(path, req);
         }
         return response;
     }
@@ -84,12 +84,12 @@ public type HttpSecureClient object {
     public function head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message = ()) returns (Response|error) {
         Request req = buildRequest(message);
-        check generateSecureRequest(req, config);
-        Response response = check httpClient.head(path, message = req);
-        boolean isRetry = isRetryRequired(response, config);
+        check generateSecureRequest(req, self.config);
+        Response response = check self.httpClient.head(path, message = req);
+        boolean isRetry = isRetryRequired(response, self.config);
         if (isRetry) {
-            check updateRequestAndConfig(req, config);
-            return httpClient.head(path, message = req);
+            check updateRequestAndConfig(req, self.config);
+            return self.httpClient.head(path, message = req);
         }
         return response;
     }
@@ -104,12 +104,12 @@ public type HttpSecureClient object {
     public function put(string path,  Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message) returns (Response|error) {
         Request req = buildRequest(message);
-        check generateSecureRequest(req, config);
-        Response response = check httpClient.put(path, req);
-        boolean isRetry = isRetryRequired(response, config);
+        check generateSecureRequest(req, self.config);
+        Response response = check self.httpClient.put(path, req);
+        boolean isRetry = isRetryRequired(response, self.config);
         if (isRetry) {
-            check updateRequestAndConfig(req, config);
-            return httpClient.put(path, req);
+            check updateRequestAndConfig(req, self.config);
+            return self.httpClient.put(path, req);
         }
         return response;
     }
@@ -125,12 +125,12 @@ public type HttpSecureClient object {
     public function execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                              message) returns (Response|error) {
         Request req = buildRequest(message);
-        check generateSecureRequest(req, config);
-        Response response = check httpClient.execute(httpVerb, path, req);
-        boolean isRetry = isRetryRequired(response, config);
+        check generateSecureRequest(req, self.config);
+        Response response = check self.httpClient.execute(httpVerb, path, req);
+        boolean isRetry = isRetryRequired(response, self.config);
         if (isRetry) {
-            check updateRequestAndConfig(req, config);
-            return httpClient.execute(httpVerb, path, req);
+            check updateRequestAndConfig(req, self.config);
+            return self.httpClient.execute(httpVerb, path, req);
         }
         return response;
     }
@@ -145,12 +145,12 @@ public type HttpSecureClient object {
     public function patch(string path,  Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                             message) returns (Response|error) {
         Request req = buildRequest(message);
-        check generateSecureRequest(req, config);
-        Response response = check httpClient.patch(path, req);
-        boolean isRetry = isRetryRequired(response, config);
+        check generateSecureRequest(req, self.config);
+        Response response = check self.httpClient.patch(path, req);
+        boolean isRetry = isRetryRequired(response, self.config);
         if (isRetry) {
-            check updateRequestAndConfig(req, config);
-            return httpClient.patch(path, req);
+            check updateRequestAndConfig(req, self.config);
+            return self.httpClient.patch(path, req);
         }
         return response;
     }
@@ -165,12 +165,12 @@ public type HttpSecureClient object {
     public function delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                             message) returns (Response|error) {
         Request req = buildRequest(message);
-        check generateSecureRequest(req, config);
-        Response response = check httpClient.delete(path, req);
-        boolean isRetry = isRetryRequired(response, config);
+        check generateSecureRequest(req, self.config);
+        Response response = check self.httpClient.delete(path, req);
+        boolean isRetry = isRetryRequired(response, self.config);
         if (isRetry) {
-            check updateRequestAndConfig(req, config);
-            return httpClient.delete(path, req);
+            check updateRequestAndConfig(req, self.config);
+            return self.httpClient.delete(path, req);
         }
         return response;
     }
@@ -185,12 +185,12 @@ public type HttpSecureClient object {
     public function get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message = ()) returns (Response|error) {
         Request req = buildRequest(message);
-        check generateSecureRequest(req, config);
-        Response response = check httpClient.get(path, message = req);
-        boolean isRetry = isRetryRequired(response, config);
+        check generateSecureRequest(req, self.config);
+        Response response = check self.httpClient.get(path, message = req);
+        boolean isRetry = isRetryRequired(response, self.config);
         if (isRetry) {
-            check updateRequestAndConfig(req, config);
-            return httpClient.get(path, message = req);
+            check updateRequestAndConfig(req, self.config);
+            return self.httpClient.get(path, message = req);
         }
         return response;
     }
@@ -205,12 +205,12 @@ public type HttpSecureClient object {
     public function options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                             message = ()) returns (Response|error) {
         Request req = buildRequest(message);
-        check generateSecureRequest(req, config);
-        Response response = check httpClient.options(path, message = req);
-        boolean isRetry = isRetryRequired(response, config);
+        check generateSecureRequest(req, self.config);
+        Response response = check self.httpClient.options(path, message = req);
+        boolean isRetry = isRetryRequired(response, self.config);
         if (isRetry) {
-            check updateRequestAndConfig(req, config);
-            return httpClient.options(path, message = req);
+            check updateRequestAndConfig(req, self.config);
+            return self.httpClient.options(path, message = req);
         }
         return response;
     }
@@ -222,12 +222,12 @@ public type HttpSecureClient object {
     # + request - An HTTP inbound request message
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
     public function forward(string path, Request request) returns (Response|error) {
-        check generateSecureRequest(request, config);
-        Response response = check httpClient.forward(path, request);
-        boolean isRetry = isRetryRequired(response, config);
+        check generateSecureRequest(request, self.config);
+        Response response = check self.httpClient.forward(path, request);
+        boolean isRetry = isRetryRequired(response, self.config);
         if (isRetry) {
-            check updateRequestAndConfig(request, config);
-            return httpClient.forward(path, request);
+            check updateRequestAndConfig(request, self.config);
+            return self.httpClient.forward(path, request);
         }
         return response;
     }
@@ -243,8 +243,8 @@ public type HttpSecureClient object {
     public function submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message) returns (HttpFuture|error) {
         Request req = buildRequest(message);
-        check generateSecureRequest(req, config);
-        return httpClient.submit(httpVerb, path, req);
+        check generateSecureRequest(req, self.config);
+        return self.httpClient.submit(httpVerb, path, req);
     }
 
     # This just pass the request to actual network call.
@@ -252,7 +252,7 @@ public type HttpSecureClient object {
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - An HTTP response message, or an error if the invocation fails
     public function getResponse(HttpFuture httpFuture) returns (Response|error) {
-        return httpClient.getResponse(httpFuture);
+        return self.httpClient.getResponse(httpFuture);
     }
 
     # This just pass the request to actual network call.
@@ -260,7 +260,7 @@ public type HttpSecureClient object {
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - A `boolean` that represents whether a `PushPromise` exists
     public function hasPromise(HttpFuture httpFuture) returns boolean {
-        return httpClient.hasPromise(httpFuture);
+        return self.httpClient.hasPromise(httpFuture);
     }
 
     # This just pass the request to actual network call.
@@ -268,7 +268,7 @@ public type HttpSecureClient object {
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - An HTTP Push Promise message, or an error if the invocation fails
     public function getNextPromise(HttpFuture httpFuture) returns (PushPromise|error) {
-        return httpClient.getNextPromise(httpFuture);
+        return self.httpClient.getNextPromise(httpFuture);
     }
 
     # This just pass the request to actual network call.
@@ -276,14 +276,14 @@ public type HttpSecureClient object {
     # + promise - The related `PushPromise`
     # + return - A promised HTTP `Response` message, or an error if the invocation fails
     public function getPromisedResponse(PushPromise promise) returns (Response|error) {
-        return httpClient.getPromisedResponse(promise);
+        return self.httpClient.getPromisedResponse(promise);
     }
 
     # This just pass the request to actual network call.
     #
     # + promise - The Push Promise to be rejected
     public function rejectPromise(PushPromise promise) {
-        return httpClient.rejectPromise(promise);
+        return self.httpClient.rejectPromise(promise);
     }
 };
 
@@ -293,15 +293,12 @@ public type HttpSecureClient object {
 # + config - Client endpoint configurations
 # + return - Created secure HTTP client
 public function createHttpSecureClient(string url, ClientEndpointConfig config) returns CallerActions {
-    match config.auth {
-        AuthConfig => {
-            HttpSecureClient httpSecureClient = new(url, config);
-            return httpSecureClient;
-        }
-        () => {
-            CallerActions httpClient = createSimpleHttpClient(url, config);
-            return httpClient;
-        }
+    if (config.auth is AuthConfig) {
+        HttpSecureClient httpSecureClient = new(url, config);
+        return httpSecureClient;
+    } else {
+        CallerActions httpClient = createSimpleHttpClient(url, config);
+        return httpClient;
     }
 }
 
@@ -311,36 +308,32 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
 # + config - Client endpoint configurations
 # + return - The Error occured during HTTP client invocation
 function generateSecureRequest(Request req, ClientEndpointConfig config) returns (()|error) {
-    match config.auth.scheme {
-        AuthScheme scheme => {
-            if (scheme == BASIC_AUTH) {
-                string username = config.auth.username but { () => EMPTY_STRING };
-                string password = config.auth.password but { () => EMPTY_STRING };
-                string str = username + ":" + password;
-                string token = check str.base64Encode();
-                req.setHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + token);
-            } else if (scheme == OAUTH2) {
-                string accessToken = config.auth.accessToken but { () => EMPTY_STRING };
-                if (accessToken == EMPTY_STRING) {
-                    return updateRequestAndConfig(req, config);
-                } else {
-                    req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
-                }
-            } else if (scheme == JWT_AUTH) {
-                string authToken = runtime:getInvocationContext().authContext.authToken;
-                if (authToken == EMPTY_STRING) {
-                    error err;
-                    err.message = "Authentication token is not set at invocation context";
-                    return err;
-                }
-                req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
+    var scheme = config.auth.scheme;
+    if (scheme is AuthScheme) {
+        if (scheme == BASIC_AUTH) {
+            string username = config.auth.username ?: "";
+            string password = config.auth.password ?: "";
+            string str = username + ":" + password;
+            string token = check str.base64Encode();
+            req.setHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + token);
+        } else if (scheme == OAUTH2) {
+            string accessToken = config.auth.accessToken ?: "";
+            if (accessToken == EMPTY_STRING) {
+                return updateRequestAndConfig(req, config);
             } else {
-                error err;
-                err.message = "Invalid authentication scheme. It should be basic, oauth2 or jwt";
+                req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
+            }
+        } else if (scheme == JWT_AUTH) {
+            string authToken = runtime:getInvocationContext().authContext.authToken;
+            if (authToken == EMPTY_STRING) {
+                error err = error("Authentication token is not set at invocation context");
                 return err;
             }
+            req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
+        } else {
+            error err = error("Invalid authentication scheme. It should be basic, oauth2 or jwt");
+            return err;
         }
-        () => return ();
     }
     return ();
 }
@@ -354,9 +347,8 @@ function updateRequestAndConfig(Request req, ClientEndpointConfig config) return
     string accessToken = check getAccessTokenFromRefreshToken(config);
     req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
     AuthConfig? authConfig = config.auth;
-    match authConfig {
-        () => {}
-        AuthConfig ac => ac.accessToken = accessToken;
+    if (authConfig is AuthConfig) {
+        authConfig.accessToken = accessToken;
     }
     return ();
 }
@@ -366,16 +358,15 @@ function updateRequestAndConfig(Request req, ClientEndpointConfig config) return
 # + config - Client endpoint configurations
 # + return - AccessToken received from the authorization server or `error` if error occured during HTTP client invocation
 function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (string|error) {
-    string refreshToken = config.auth.refreshToken but { () => EMPTY_STRING };
-    string clientId = config.auth.clientId but { () => EMPTY_STRING };
-    string clientSecret = config.auth.clientSecret but { () => EMPTY_STRING };
-    string refreshUrl = config.auth.refreshUrl but { () => EMPTY_STRING };
-    string[] scopes = config.auth.scopes but { () => [] };
+    string refreshToken = config.auth.refreshToken ?: "";
+    string clientId = config.auth.clientId ?: "";
+    string clientSecret = config.auth.clientSecret ?: "";
+    string refreshUrl = config.auth.refreshUrl ?: "";
+    string[] scopes = config.auth.scopes ?: [];
 
     if (refreshToken == EMPTY_STRING || clientId == EMPTY_STRING || clientSecret == EMPTY_STRING || refreshUrl == EMPTY_STRING) {
-        error err;
-        err.message = "Failed to generate new access token since one or more of refresh token, client id, client secret,
-        refresh url are not provided";
+        error err = error("AccessTokenError", { message: "Failed to generate new access token since one or more of refresh token, client id, client secret,
+        refresh url are not provided" });
         return err;
     }
 
@@ -402,8 +393,8 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     if (refreshTokenResponse.statusCode == OK_200) {
         return generatedToken.access_token.toString();
     } else {
-        error err;
-        err.message = "Failed to generate new access token from the given refresh token";
+        error err = error("AccessTokenError", { message:
+            "Failed to generate new access token from the given refresh token" });
         return err;
     }
 }
@@ -416,13 +407,11 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
 # + config - Client endpoint configurations
 # + return - Whether the client should retry or not
 function isRetryRequired(Response response, ClientEndpointConfig config) returns boolean {
-    match config.auth.scheme {
-        AuthScheme scheme => {
-            if (scheme == OAUTH2 && response.statusCode == UNAUTHORIZED_401) {
-                return true;
-            }
+    var scheme = config.auth.scheme;
+    if (scheme is AuthScheme) {
+        if (scheme == OAUTH2 && response.statusCode == UNAUTHORIZED_401) {
+            return true;
         }
-        () => return false;
     }
     return false;
 }

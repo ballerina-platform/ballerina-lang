@@ -26,6 +26,8 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.TableUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.util.Map;
+
 /**
  * Represents a cursor based table which is returned from a database as result of a query.
  *
@@ -56,6 +58,10 @@ public class BCursorTable extends BTable {
                 new BallerinaException("data cannot be deleted from a table returned from a database")));
     }
 
+    public int length() {
+        throw new BallerinaException("The row count of a table returned from a database cannot be provided");
+    }
+
     protected boolean isIteratorGenerationConditionMet() {
         return false;
     }
@@ -63,5 +69,10 @@ public class BCursorTable extends BTable {
     @Override
     public boolean isInMemoryTable() {
         return false;
+    }
+
+    @Override
+    public BValue copy(Map<BValue, BValue> refs) {
+        throw new BallerinaException("A table returned from a database can not be cloned");
     }
 }

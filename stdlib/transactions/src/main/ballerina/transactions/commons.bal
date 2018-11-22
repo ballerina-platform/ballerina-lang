@@ -25,10 +25,10 @@ import ballerina/time;
 string localParticipantId = system:uuid();
 
 # This map is used for caching transaction that are initiated.
-map<TwoPhaseCommitTransaction> initiatedTransactions;
+map<TwoPhaseCommitTransaction> initiatedTransactions = {};
 
 # This map is used for caching transaction that are this Ballerina instance participates in.
-map<TwoPhaseCommitTransaction> participatedTransactions;
+map<TwoPhaseCommitTransaction> participatedTransactions = {};
 
 # This cache is used for caching HTTP connectors against the URL, since creating connectors is expensive.
 cache:Cache httpClientCache = new;
@@ -142,15 +142,19 @@ function respondToBadRequest(http:Listener conn, string msg) {
     endpoint http:Listener ep = conn;
     log:printError(msg);
     http:Response res = new;  res.statusCode = http:BAD_REQUEST_400;
-    RequestError err = {errorMessage:msg};
-    json resPayload = check <json>err;
-    res.setJsonPayload(untaint resPayload);
-    var resResult = ep->respond(res);
-    match resResult {
-        error respondErr => {
-            log:printError("Could not send Bad Request error response to caller", err = respondErr);
+    RequestError requestError = {errorMessage:msg};
+    var resPayload = <json>requestError;
+    if (resPayload is json) {
+        res.setJsonPayload(untaint resPayload);
+        var resResult = ep->respond(res);
+        match resResult {
+            error respondErr => {
+                log:printError("Could not send Bad Request error response to caller", err = respondErr);
+            }
+            () => return;
         }
-        () => return;
+    } else if (resPayload is error) {
+        panic resPayload;
     }
 }
 
@@ -177,7 +181,7 @@ function createTransactionContext(string coordinationType, int transactionBlockI
     if (!isValidCoordinationType(coordinationType)) {
         string msg = "Invalid-Coordination-Type:" + coordinationType;
         log:printError(msg);
-        error err = {message:msg};
+        error err = error(msg);
         return err;
     } else {
         TwoPhaseCommitTransaction txn = new(system:uuid(), transactionBlockId, coordinationType = coordinationType);
@@ -191,11 +195,7 @@ function createTransactionContext(string coordinationType, int transactionBlockI
             registerAtURL:"http://" + coordinatorHost + ":" + coordinatorPort + initiatorCoordinatorBasePath + "/" +
                 transactionBlockId + registrationPath
         };
-        log:printInfo("createTransactionContext$ Created transaction: " + txnId);
-        log:printInfo("initiatedTransacitons--------------");
-        var js = check <json> initiatedTransactions;
-        log:printError(js.toString());
-        log:printInfo("------------------------------------");
+        log:printInfo("Created transaction: " + txnId);
         return txnContext;
     }
 }
@@ -210,23 +210,22 @@ function createTransactionContext(string coordinationType, int transactionBlockI
 # + return - TransactionContext if the registration is successul or an error in case of a failure.
 function registerLocalParticipantWithInitiator(string transactionId, int transactionBlockId, string registerAtURL)
     returns TransactionContext|error {
-    log:printInfo("registerLocalParticipantWithInitiator");
+
     string participantId = getParticipantId(transactionBlockId);
     //TODO: Protocol name should be passed down from the transaction statement
     LocalProtocol participantProtocol = {name:PROTOCOL_DURABLE};
     match (initiatedTransactions[transactionId]) {
         () => {
-            error err = {message:"Transaction-Unknown. Invalid TID:" + transactionId};
+            error err = error("Transaction-Unknown. Invalid TID:" + transactionId);
             return err;
         }
         TwoPhaseCommitTransaction initiatedTxn => {
             if (isRegisteredParticipant(participantId, initiatedTxn.participants)) { // Already-Registered
-                error err = {message:"Already-Registered. TID:" + transactionId + ",participant ID:" + participantId};
-                log:printError("Already registed: ", err=err);
+                error err = error("Already-Registered. TID:" + transactionId + ",participant ID:" + participantId);
                 return err;
             } else if (!protocolCompatible(initiatedTxn.coordinationType, [participantProtocol])) { // Invalid-Protocol
-                error err = {message:"Invalid-Protocol in local participant. TID:" + transactionId + ",participant ID:" +
-                    participantId};
+                error err = error("Invalid-Protocol in local participant. TID:" + transactionId + ",participant ID:" +
+                    participantId);
                 return err;
             } else {
     
@@ -250,32 +249,34 @@ function registerLocalParticipantWithInitiator(string transactionId, int transac
 }
 
 function removeParticipatedTransaction(string participatedTxnId) {
-    log:printInfo("Remove (participated) trx: " + participatedTxnId);
     boolean removed = participatedTransactions.remove(participatedTxnId);
     if (!removed) {
-        error err = {message:"Removing participated transaction: " + participatedTxnId + " failed"};
-        throw err;
+        error err = error("Removing participated transaction: " + participatedTxnId + " failed");
+        panic err;
     }
 }
 
 function removeInitiatedTransaction(string transactionId) {
-    log:printInfo("Remove (initiated) trx: " + transactionId);
     boolean removed = initiatedTransactions.remove(transactionId);
     if (!removed) {
-        error err = {message:"Removing initiated transaction: " + transactionId + " failed"};
-        throw err;
+        error err = error("Removing initiated transaction: " + transactionId + " failed");
+        panic err;
     }
 }
 
 function getInitiatorClient(string registerAtURL) returns InitiatorClientEP {
     if (httpClientCache.hasKey(registerAtURL)) {
-        InitiatorClientEP initiatorEP = check <InitiatorClientEP>httpClientCache.get(registerAtURL);
-        return initiatorEP;
+        match (<InitiatorClientEP>httpClientCache.get(registerAtURL)) {
+            error err => panic err;
+            InitiatorClientEP initiatorEP => return initiatorEP;
+        }
     } else {
         lock {
             if (httpClientCache.hasKey(registerAtURL)) {
-                InitiatorClientEP initiatorEP = check <InitiatorClientEP>httpClientCache.get(registerAtURL);
-                return initiatorEP;
+                match (<InitiatorClientEP>httpClientCache.get(registerAtURL)) {
+                    error err => panic err;
+                    InitiatorClientEP initiatorEP => return initiatorEP;
+                }
             }
             InitiatorClientEP initiatorEP = new;
             InitiatorClientConfig config = { registerAtURL: registerAtURL,
@@ -290,14 +291,17 @@ function getInitiatorClient(string registerAtURL) returns InitiatorClientEP {
 
 function getParticipant2pcClient(string participantURL) returns Participant2pcClientEP {
     if (httpClientCache.hasKey(participantURL)) {
-        Participant2pcClientEP participantEP = check <Participant2pcClientEP>httpClientCache.get(participantURL);
-        return participantEP;
+        match (<Participant2pcClientEP>httpClientCache.get(participantURL)) {
+            error err => panic err;
+            Participant2pcClientEP participantEP => return participantEP;
+        }
     } else {
         lock {
             if (httpClientCache.hasKey(participantURL)) {
-                Participant2pcClientEP participantEP = check <
-                Participant2pcClientEP>httpClientCache.get(participantURL);
-                return participantEP;
+                match (<Participant2pcClientEP>httpClientCache.get(participantURL)) {
+                    error err => panic err;
+                    Participant2pcClientEP participantEP => return participantEP;
+                }
             }
             Participant2pcClientEP participantEP = new;
             Participant2pcClientConfig config = { participantURL: participantURL,
@@ -329,7 +333,7 @@ public function registerParticipantWithRemoteInitiator(string transactionId, int
     if (participatedTransactions.hasKey(participatedTxnId)) {
         string msg = "Already registered with initiator for transaction:" + participatedTxnId;
         log:printError(msg);
-        error err = {message:msg};
+        error err = error(msg);
         return err;
     }
     log:printInfo("Registering for transaction: " + participatedTxnId + " with coordinator: " + registerAtURL);
@@ -339,7 +343,9 @@ public function registerParticipantWithRemoteInitiator(string transactionId, int
         error e => {
             string msg = "Cannot register with coordinator for transaction: " + transactionId;
             log:printError(msg, err = e);
-            error err = {message:msg, cause:e};
+            // TODO : Fix me.
+            //map data = { cause: err };
+            error err = error(msg);
             return err;
         }
         RegistrationResponse regRes => {

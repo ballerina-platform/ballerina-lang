@@ -42,9 +42,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -128,11 +130,23 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         // Then visit each top-level element sorted using the compilation unit
         pkgNode.topLevelNodes.forEach(topLevelNode -> ((BLangNode) topLevelNode).accept(this));
 
-        pkgNode.completedPhases.add(CompilerPhase.COMPILER_PLUGIN);
         pkgNode.getTestablePkgs().forEach(testablePackage -> {
             this.defaultPos = testablePackage.pos;
-            visit((BLangPackage) testablePackage);
+            visit(testablePackage);
         });
+        pkgNode.completedPhases.add(CompilerPhase.COMPILER_PLUGIN);
+    }
+
+    public void visit(BLangTestablePackage testablePkgNode) {
+        if (testablePkgNode.completedPhases.contains(CompilerPhase.COMPILER_PLUGIN)) {
+            return;
+        }
+
+        pluginList.forEach(plugin -> plugin.process(testablePkgNode));
+
+        // Then visit each top-level element sorted using the compilation unit
+        testablePkgNode.topLevelNodes.forEach(topLevelNode -> ((BLangNode) topLevelNode).accept(this));
+        testablePkgNode.completedPhases.add(CompilerPhase.COMPILER_PLUGIN);
     }
 
     public void visit(BLangAnnotation annotationNode) {
@@ -170,7 +184,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         notifyProcessors(attachmentList, (processor, list) -> processor.process(typeDefNode, list));
     }
 
-    public void visit(BLangVariable varNode) {
+    public void visit(BLangSimpleVariable varNode) {
         List<BLangAnnotationAttachment> attachmentList = varNode.getAnnotationAttachments();
         notifyProcessors(attachmentList, (processor, list) -> processor.process(varNode, list));
     }
@@ -198,6 +212,10 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     }
 
     public void visit(BLangForever foreverStatement) {
+        /* ignore */
+    }
+
+    public void visit(BLangConstant constant) {
         /* ignore */
     }
 

@@ -24,23 +24,11 @@ function testSelectData() returns (string) {
         password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
-    string returnData;
-    try {
-        var x = testDB->select("SELECT Name from Customers where registrationID = 1", ());
-
-        match x {
-            table dt => {
-                json j = check <json>dt;
-                returnData = io:sprintf("%s", j);
-            }
-            error err1 => {
-                returnData = err1.message;
-            }
-        }
-
-    } finally {
-        testDB.stop();
-    }
+    string returnData = "";
+    var x = testDB->select("SELECT Name from Customers where registrationID = 1", ());
+    json j = getJsonConversionResult(x);
+    returnData = io:sprintf("%s", j);
+    testDB.stop();
     return returnData;
 }
 
@@ -53,26 +41,19 @@ function testGeneratedKeyOnInsert() returns (string) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    string id = "";
-    try {
-        string[] generatedID;
-        int insertCount;
-        var x = testDB->updateWithGeneratedKeys("insert into Customers (name,lastName,
+    string ret = "";
+    string[] generatedID = [];
+    int insertCount;
+    var x = testDB->updateWithGeneratedKeys("insert into Customers (name,lastName,
                              registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')", ());
-
-        match x {
-            (int, string[]) => {
-                id = generatedID[0];
-            }
-            error err1 => {
-                id = err1.message;
-            }
-        }
-
-    } finally {
-        testDB.stop();
+    if (x is (int, string[])) {
+        (_, generatedID) = x;
+        ret = generatedID[0];
+    } else if (x is error) {
+        ret = <string> x.detail().message;
     }
-    return id;
+    testDB.stop();
+    return ret;
 }
 
 function testCallProcedure() returns (string) {
@@ -83,22 +64,22 @@ function testCallProcedure() returns (string) {
         password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
-    string returnData;
-    try {
-        var x = testDB->call("{call InsertPersonDataInfo(100,'James')}", ());
-        match x {
-            table[] dt => {
-                json j = check <json>dt[0];
-                returnData = io:sprintf("%s", j);
-            }
-            () => returnData = "";
-            error err1 => {
-                returnData = err1.message;
-            }
+    string returnData = "";
+    var x = trap testDB->call("{call InsertPersonDataInfo(100,'James')}", ());
+
+    if (x is table[]) {
+        var j = <json>x[0];
+        if (j is json) {
+            returnData = io:sprintf("%s", j);
+        } else if (j is error) {
+            returnData = j.reason();
         }
-    } finally {
-        testDB.stop();
+    } else if (x is ()) {
+        returnData = "";
+    } else if (x is error) {
+        returnData = x.reason();
     }
+    testDB.stop();
     return returnData;
 }
 
@@ -111,45 +92,37 @@ function testBatchUpdate() returns (string) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    int[] updateCount;
-    string returnVal;
-    try {
-        //Batch 1
-        sql:Parameter para1 = { sqlType: sql:TYPE_VARCHAR, value: "Alex" };
-        sql:Parameter para2 = { sqlType: sql:TYPE_VARCHAR, value: "Smith" };
-        sql:Parameter para3 = { sqlType: sql:TYPE_INTEGER, value: 20 };
-        sql:Parameter para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
-        sql:Parameter para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
-        sql:Parameter[] parameters1 = [para1, para2, para3, para4, para5];
+    int[] updateCount = [];
+    string returnVal = "";
+    //Batch 1
+    sql:Parameter para1 = { sqlType: sql:TYPE_VARCHAR, value: "Alex" };
+    sql:Parameter para2 = { sqlType: sql:TYPE_VARCHAR, value: "Smith" };
+    sql:Parameter para3 = { sqlType: sql:TYPE_INTEGER, value: 20 };
+    sql:Parameter para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
+    sql:Parameter para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
+    sql:Parameter[] parameters1 = [para1, para2, para3, para4, para5];
 
-        //Batch 2
-        para1 = { sqlType: sql:TYPE_VARCHAR, value: "Alex" };
-        para2 = { sqlType: sql:TYPE_VARCHAR, value: "Smith" };
-        para3 = { sqlType: sql:TYPE_INTEGER, value: 20 };
-        para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
-        para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
-        sql:Parameter[] parameters2 = [para1, para2, para3, para4, para5];
+    //Batch 2
+    para1 = { sqlType: sql:TYPE_VARCHAR, value: "Alex" };
+    para2 = { sqlType: sql:TYPE_VARCHAR, value: "Smith" };
+    para3 = { sqlType: sql:TYPE_INTEGER, value: 20 };
+    para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
+    para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
+    sql:Parameter[] parameters2 = [para1, para2, para3, para4, para5];
 
-        var x = testDB->batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)
+    var x = trap testDB->batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", parameters1, parameters2);
-        match x {
-            int[] data => {
-                updateCount = data;
-                // In postgresql and mysql, when batch update fails, "-3" is returned for update count instead of an
-                // error
-                if (updateCount[0] == -3 && updateCount[1] == -3) {
-                    returnVal = "failure";
-                } else {
-                    returnVal = "success";
-                }
-            }
-            error err1 => {
-                returnVal = err1.message;
-            }
+    if (x is int[]) {
+        updateCount = x;
+        if (updateCount[0] == -3 && updateCount[1] == -3) {
+            returnVal = "failure";
+        } else {
+            returnVal = "success";
         }
-    } finally {
-        testDB.stop();
+    } else if (x is error) {
+        returnVal = <string> x.detail().message;
     }
+    testDB.stop();
     return returnVal;
 }
 
@@ -162,32 +135,29 @@ function testInvalidArrayofQueryParameters() returns (string) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    string returnData;
-    try {
-        xml x1 = xml `<book>The Lost World</book>`;
-        xml x2 = xml `<book>The Lost World2</book>`;
-        xml[] xmlDataArray = [x1, x2];
-        sql:Parameter para0 = { sqlType: sql:TYPE_INTEGER, value: xmlDataArray };
-        var x = testDB->select("SELECT FirstName from Customers where registrationID in (?)", (), para0);
+    string returnData = "";
+    xml x1 = xml `<book>The Lost World</book>`;
+    xml x2 = xml `<book>The Lost World2</book>`;
+    xml[] xmlDataArray = [x1, x2];
+    sql:Parameter para0 = { sqlType: sql:TYPE_INTEGER, value: xmlDataArray };
+    var x = trap testDB->select("SELECT FirstName from Customers where registrationID in (?)", (), para0);
 
-        match x {
-            table dt => {
-                json j = check <json>dt;
-                returnData = io:sprintf("%s", j);
-            }
-            error err1 => {
-                returnData = err1.message;
-            }
+    if (x is table) {
+        var j = <json>x;
+        if (j is json) {
+            returnData = io:sprintf("%s", j);
+        } else {
+            returnData = j.reason();
         }
-
-    } finally {
-        testDB.stop();
+    } else if (x is error) {
+        returnData = <string>x.detail().message;
     }
+    testDB.stop();
     return returnData;
 }
 
 function testCallProcedureWithMultipleResultSetsAndLowerConstraintCount(
-             ) returns ((string, string)|error) {
+             ) returns ((string, string)|error|()) {
     endpoint h2:Client testDB {
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_H2",
@@ -196,38 +166,35 @@ function testCallProcedureWithMultipleResultSetsAndLowerConstraintCount(
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    var dtsRet = testDB->call("{call SelectPersonDataMultiple()}", [ResultCustomers]);
-
-    match dtsRet {
-        table[] dts => {
-            string firstName1;
-            string firstName2;
-
-            while (dts[0].hasNext()) {
-                ResultCustomers rs = check <ResultCustomers>dts[0].getNext();
+    var ret = testDB->call("{call SelectPersonDataMultiple()}", [ResultCustomers]);
+    (string, string)|error|() retVal = ();
+    if (ret is table[]) {
+        string firstName1 = "";
+        string firstName2 = "";
+        while (ret[0].hasNext()) {
+            var rs = <ResultCustomers>ret[0].getNext();
+            if (rs is ResultCustomers) {
                 firstName1 = rs.FIRSTNAME;
             }
-
-            while (dts[1].hasNext()) {
-                ResultCustomers rs = check <ResultCustomers>dts[1].getNext();
+        }
+        while (ret[1].hasNext()) {
+            var rs = <ResultCustomers>ret[1].getNext();
+            if (rs is ResultCustomers) {
                 firstName2 = rs.FIRSTNAME;
             }
-            testDB.stop();
-            return (firstName1, firstName2);
         }
-        () => {
-            testDB.stop();
-            return ("", "");
-        }
-        error e => {
-            testDB.stop();
-            return e;
-        }
+        retVal = (firstName1, firstName2);
+    } else if (ret is ()) {
+        retVal = ("", "");
+    } else if (ret is error) {
+        retVal = ret;
     }
+    testDB.stop();
+    return retVal;
 }
 
 function testCallProcedureWithMultipleResultSetsAndHigherConstraintCount(string jdbcUrl, string userName, string
-    password) returns ((string, string)|error) {
+    password) returns ((string, string)|error|()) {
     endpoint h2:Client testDB {
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_H2",
@@ -236,39 +203,36 @@ function testCallProcedureWithMultipleResultSetsAndHigherConstraintCount(string 
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    var dtsRet = testDB->call("{call SelectPersonDataMultiple()}", [ResultCustomers, ResultCustomers2, Person]);
+    var ret = testDB->call("{call SelectPersonDataMultiple()}", [ResultCustomers, ResultCustomers2, Person]);
 
-    match dtsRet {
-        table[] dts => {
-            string firstName1;
-            string firstName2;
-
-            while (dts[0].hasNext()) {
-                ResultCustomers rs = check <ResultCustomers>dts[0].getNext();
+    (string, string)|error|() retVal = ();
+    if (ret is table[]) {
+        string firstName1 = "";
+        string firstName2 = "";
+        while (ret[0].hasNext()) {
+            var rs = <ResultCustomers>ret[0].getNext();
+            if (rs is ResultCustomers) {
                 firstName1 = rs.FIRSTNAME;
             }
-
-            while (dts[1].hasNext()) {
-                ResultCustomers rs = check <ResultCustomers>dts[1].getNext();
+        }
+        while (ret[1].hasNext()) {
+            var rs = <ResultCustomers>ret[1].getNext();
+            if (rs is ResultCustomers) {
                 firstName2 = rs.FIRSTNAME;
             }
-
-            testDB.stop();
-            return (firstName1, firstName2);
         }
-        () => {
-            testDB.stop();
-            return ("", "");
-        }
-        error e => {
-            testDB.stop();
-            return e;
-        }
+        retVal = (firstName1, firstName2);
+    } else if (ret is ()) {
+        retVal = ("", "");
+    } else if (ret is error) {
+        retVal = ret;
     }
+    testDB.stop();
+    return retVal;
 }
 
 function testCallProcedureWithMultipleResultSetsAndNilConstraintCount()
-             returns (string|(string, string)|error) {
+             returns (string|(string, string)|error|()) {
     endpoint h2:Client testDB {
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_H2",
@@ -277,32 +241,44 @@ function testCallProcedureWithMultipleResultSetsAndNilConstraintCount()
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    var dtsRet = testDB->call("{call SelectPersonDataMultiple()}", ());
-
-    match dtsRet {
-        table[] dts => {
-            string firstName1;
-            string firstName2;
-
-            while (dts[0].hasNext()) {
-                ResultCustomers rs = check <ResultCustomers>dts[0].getNext();
+    var ret = testDB->call("{call SelectPersonDataMultiple()}", ());
+    string|(string, string)|error|() retVal = ();
+    if (ret is table[]) {
+        string firstName1 = "";
+        string firstName2 = "";
+        while (ret[0].hasNext()) {
+            var rs = <ResultCustomers>ret[0].getNext();
+            if (rs is ResultCustomers) {
                 firstName1 = rs.FIRSTNAME;
             }
-
-            while (dts[1].hasNext()) {
-                ResultCustomers rs = check <ResultCustomers>dts[1].getNext();
+        }
+        while (ret[1].hasNext()) {
+            var rs = <ResultCustomers>ret[1].getNext();
+            if (rs is ResultCustomers) {
                 firstName2 = rs.FIRSTNAME;
             }
-            testDB.stop();
-            return (firstName1, firstName2);
         }
-        () => {
-            testDB.stop();
-            return "nil";
-        }
-        error e => {
-            testDB.stop();
-            return e;
-        }
+        retVal = (firstName1, firstName2);
+    } else if (ret is ()) {
+        retVal = "nil";
+    } else if (ret is error) {
+        retVal = ret;
     }
+    testDB.stop();
+    return retVal;
+}
+
+function getJsonConversionResult(table|error tableOrError) returns json {
+    json retVal = {};
+    if (tableOrError is table) {
+        var jsonConversionResult = <json>tableOrError;
+        if (jsonConversionResult is json) {
+            retVal = jsonConversionResult;
+        } else if (jsonConversionResult is error) {
+            retVal = {"Error" : <string>jsonConversionResult.detail().message};
+        }
+    } else if (tableOrError is error) {
+        retVal = {"Error" : <string>tableOrError.detail().message};
+    }
+    return retVal;
 }

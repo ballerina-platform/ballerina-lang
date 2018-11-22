@@ -38,7 +38,7 @@ function testNotNilPath () returns any {
 }
 
 function testErrorInMiddle () returns any {
-    error e = {message:"custom error"};
+    error e = error("custom error");
     Info inf = {address1 : e};
     Person prsn = {info1 : inf};
     Person|error p = prsn;
@@ -47,7 +47,7 @@ function testErrorInMiddle () returns any {
 }
 
 function testErrorInFirstVar () returns any {
-    error e = {message:"custom error"};
+    error e = error("custom error");
     Person|error p = e;
     string|error|() x = p!info1!address1!city;
     return x;
@@ -130,26 +130,27 @@ type Employee object {
 
 function testSafeNavigationOnObject_1() returns string {
   Employee? p;
-
   p = new Employee();
-  return p.getName() but { () => "null name"};
+    return p.getName() ?: "null name";
 }
 
 function testSafeNavigationOnObject_2() returns string {
   Employee? p;
-  return p.getName() but { () => "null name"};
+  return p.getName() ?: "null name";
 }
 
 function testSafeNavigationOnObject_3() returns string {
   Employee|error p;
   p = new Employee();
-  return p!getName() but { error => "error name"};
+  string|error name = p!getName();
+  return name is string ? name : "null name";
 }
 
 function testSafeNavigationOnObject_4() returns string {
-  error e = {};
+  error e = error("");
   Employee|error p = e;
-  return p!getName() but { error => "error name"};
+  string|error name = p!getName();
+  return name is string ? name : "error name";
 }
 
 function testSafeNavigateArray_1() returns Person? {
@@ -162,14 +163,9 @@ function testSafeNavigateArray_2() returns string? {
     return p[0].info2.address2.city;
 }
 
-function testNullLiftingOnError() returns string {
-    error e;
-    return e.message;
-}
-
 function testSafeNavigateOnErrorOrNull() returns string? {
     error|() e;
-    return e.message;
+    return e.reason();
 }
 
 function testSafeNavigateOnJSONArrayOfArray() returns json {

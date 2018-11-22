@@ -35,11 +35,11 @@ public type AuthnFilter object {
     # + return - True if the filter succeeds
     public function filterRequest(Listener listener, Request request, FilterContext context) returns boolean {
         // get auth config for this resource
-        boolean authenticated;
+        boolean authenticated = false;
         var (isSecured, authProviders) = getResourceAuthConfig(context);
         if (isSecured) {
             // if auth providers are there, use those to authenticate
-            if (lengthof authProviders > 0) {
+            if (authProviders.length() > 0) {
                 authenticated = self.authnHandlerChain.handleWithSpecificAuthnHandlers(authProviders, request);
             } else {
                 // if not, try to authenticate using any of available authn handlers
@@ -64,14 +64,13 @@ public type AuthnFilter object {
 # + return - Authorization result to indicate if the filter can proceed(true) or not(false)
 function isAuthnSuccesfull(Listener listener, boolean authenticated) returns boolean {
     endpoint Listener caller = listener;
-    Response response;
+    Response response = new;
     if (!authenticated) {
         response.statusCode = 401;
         response.setTextPayload("Authentication failure");
-        var value = caller->respond(response);
-        match value {
-            error err => throw err;
-            () => {}
+        var err = caller->respond(response);
+        if (err is error) {
+            panic err;
         }
         return false;
     }
@@ -97,20 +96,14 @@ function getResourceAuthConfig(FilterContext context) returns (boolean, string[]
         return (resourceSecured, authProviderIds);
     }
     // check if auth providers are given at resource level
-    match resourceLevelAuthAnn.authProviders {
-        string[] providers => {
-            authProviderIds = providers;
-        }
-        () => {
-            // no auth providers found in resource level, try in service level
-            match serviceLevelAuthAnn.authProviders {
-                string[] providers => {
-                    authProviderIds = providers;
-                }
-                () => {
-                    // no auth providers found
-                }
-            }
+    var resourceProviders = resourceLevelAuthAnn.authProviders;
+    if (resourceProviders is string[]) {
+        authProviderIds = resourceProviders;
+    } else {
+        // no auth providers found in resource level, try in service level
+        var serviceProviders = serviceLevelAuthAnn.authProviders;
+        if (serviceProviders is string[]) {
+            authProviderIds = serviceProviders;
         }
     }
     return (resourceSecured, authProviderIds);
@@ -119,22 +112,18 @@ function getResourceAuthConfig(FilterContext context) returns (boolean, string[]
 function isResourceSecured(ListenerAuthConfig? resourceLevelAuthAnn, ListenerAuthConfig? serviceLevelAuthAnn)
              returns boolean {
     boolean isSecured;
-    match resourceLevelAuthAnn.authentication {
-        Authentication authn => {
-            isSecured = authn.enabled;
-        }
-        () => {
-            // if not found at resource level, check in the service level
-            match serviceLevelAuthAnn.authentication {
-                Authentication authn => {
-                    isSecured = authn.enabled;
-                }
-                () => {
-                    // if still authentication annotation is nil, means the user has not specified that the service
-                    // should be secured. However since the authn filter has been engaged, need to authenticate.
-                    isSecured = true;
-                }
-            }
+    var resourceAuthn = resourceLevelAuthAnn.authentication;
+    if (resourceAuthn is Authentication) {
+        isSecured = resourceAuthn.enabled;
+    } else {
+        // if not found at resource level, check in the service level
+        var serviceAuthn = serviceLevelAuthAnn.authentication;
+        if (serviceAuthn is Authentication) {
+            isSecured = serviceAuthn.enabled;
+        } else {
+            // if still authentication annotation is nil, means the user has not specified that the service
+            // should be secured. However since the authn filter has been engaged, need to authenticate.
+            isSecured = true;
         }
     }
     return isSecured;
@@ -149,30 +138,32 @@ function isResourceSecured(ListenerAuthConfig? resourceLevelAuthAnn, ListenerAut
 # + return - ListenerAuthConfig instance if its defined, else nil
 function getAuthAnnotation(string annotationModule, string annotationName, reflect:annotationData[] annData) returns (
             ListenerAuthConfig?) {
-    if (lengthof annData == 0) {
+    if (annData.length() == 0) {
         return ();
     }
-    reflect:annotationData|() authAnn;
+    reflect:annotationData|() authAnn = ();
     foreach ann in annData {
         if (ann.name == annotationName && ann.moduleName == annotationModule) {
             authAnn = ann;
             break;
         }
     }
-    match authAnn {
-        reflect:annotationData annData1 => {
-            if (annotationName == RESOURCE_ANN_NAME) {
-                HttpResourceConfig resourceConfig = check <HttpResourceConfig>annData1.value;
+    if (authAnn is reflect:annotationData) {
+        if (annotationName == RESOURCE_ANN_NAME) {
+            var resourceConfig = <HttpResourceConfig>authAnn.value;
+            if (resourceConfig is HttpResourceConfig) {
                 return resourceConfig.authConfig;
-            } else if (annotationName == SERVICE_ANN_NAME) {
-                HttpServiceConfig serviceConfig = check <HttpServiceConfig>annData1.value;
+            } else if (resourceConfig is error) {
+                panic resourceConfig;
+            }
+        } else if (annotationName == SERVICE_ANN_NAME) {
+            var serviceConfig = <HttpServiceConfig>authAnn.value;
+            if (serviceConfig is HttpServiceConfig) {
                 return serviceConfig.authConfig;
-            } else {
-                return ();
+            } else if (serviceConfig is error) {
+                panic serviceConfig;
             }
         }
-        () => {
-            return ();
-        }
     }
+    return ();
 }

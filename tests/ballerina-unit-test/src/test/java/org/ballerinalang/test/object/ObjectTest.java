@@ -446,48 +446,22 @@ public class ObjectTest {
         Assert.assertEquals(result.getErrorCount(), 6);
         BAssertUtil.validateError(result, 0, "variable 'pp' is not initialized", 2, 1);
         BAssertUtil.validateError(result, 1, "variable 'ee' is not initialized", 3, 1);
-        BAssertUtil.validateError(result, 2, "variable 'p' is not initialized", 6, 5);
-        BAssertUtil.validateError(result, 3, "variable 'e' is not initialized", 7, 5);
-        BAssertUtil.validateError(result, 4, "undefined function 'attachInterface' in object 'Person'", 8, 13);
-        BAssertUtil.validateError(result, 5, "object un-initializable field 'Person p' is " +
-                "not present as a constructor parameter", 25, 1);
+        BAssertUtil.validateError(result, 2, "undefined function 'attachInterface' in object 'Person'", 8, 13);
+        BAssertUtil.validateError(result, 3, "variable 'p' is not initialized", 8, 13);
+        BAssertUtil.validateError(result, 4, "variable 'e' is not initialized", 8, 35);
+        BAssertUtil.validateError(result, 5, "uninitialized field 'p'", 28, 5);
     }
 
     @Test (description = "Negative test to test returning different type without type name")
     public void testObjectNegativeTestForReturnDifferentType() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_new_in_return_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 6);
+        Assert.assertEquals(result.getErrorCount(), 5);
         BAssertUtil.validateError(result, 0, "too many arguments in call to 'new()'", 23, 12);
         BAssertUtil.validateError(result, 1, "cannot infer type of the object from 'Person?'", 27, 12);
         BAssertUtil.validateError(result, 2, "cannot infer type of the object from 'Person?'", 31, 26);
         BAssertUtil.validateError(result, 3, "cannot infer type of the object from 'other'", 32, 19);
         BAssertUtil.validateError(result, 4, "invalid variable definition; can not infer the assignment type.",
                 32, 19);
-        BAssertUtil.validateError(result, 5, "invalid usage of 'new' with type 'error'", 33, 21);
-    }
-
-    @Test (description = "Negative test to test returning different type without type name")
-    public void testUnInitializableObjFieldAsParam() {
-        CompileResult result = BCompileUtil.compile("test-src/object/object_un_initializable_field.bal");
-        Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "object un-initializable field 'Foo foo' is not " +
-                "present as a constructor parameter", 18, 1);
-    }
-
-    @Test (description = "Negative test to test self reference types")
-    public void testSelfReferenceType() {
-        CompileResult result = BCompileUtil.compile("test-src/object/object_cyclic_self_reference.bal");
-        Assert.assertEquals(result.getErrorCount(), 5);
-        BAssertUtil.validateError(result, 0, "object un-initializable field " +
-                "'Employee emp' is not present as a constructor parameter", 7, 1);
-        BAssertUtil.validateError(result, 1, "object un-initializable field " +
-                "'Foo foo' is not present as a constructor parameter", 14, 1);
-        BAssertUtil.validateError(result, 2, "object un-initializable field " +
-                "'Bar bar' is not present as a constructor parameter", 14, 1);
-        BAssertUtil.validateError(result, 3, "object un-initializable field " +
-                "'Bar bar1' is not present as a constructor parameter", 22, 1);
-        BAssertUtil.validateError(result, 4, "cyclic type reference in " +
-                "'[Person, Employee, Foo, Bar]'", 32, 5);
     }
 
     @Test (description = "Negative test to test self reference types")
@@ -504,7 +478,7 @@ public class ObjectTest {
         BAssertUtil.validateError(result, index++, "cannot find matching interface " +
                 "function 'test3' in the object 'Person'", 54, 1);
         BAssertUtil.validateError(result, index++, "incompatible types: expected " +
-                "'string', found 'int'", 54, 45);
+                "'string', found 'int'", 54, 44);
         BAssertUtil.validateError(result, index++, "cannot find matching interface " +
                 "function 'test5' in the object 'Person'", 62, 1);
         BAssertUtil.validateError(result, index++, "visibility modifiers not allowed " +
@@ -513,7 +487,7 @@ public class ObjectTest {
                 "function 'test9' in the object 'Person'", 78, 1);
         BAssertUtil.validateError(result, index++, "cannot find matching interface " +
                 "function 'test12' in the object 'Person'", 90, 1);
-        BAssertUtil.validateError(result, index++, "cannot find matching interface " +
+        BAssertUtil.validateError(result, index, "cannot find matching interface " +
                 "function 'test13' in the object 'Person'", 94, 1);
     }
 
@@ -552,8 +526,8 @@ public class ObjectTest {
         BAssertUtil.validateError(result, 5, "cannot infer type of the object from 'Person?'", 10, 10);
         BAssertUtil.validateError(result, 6, "cannot infer type of the object from 'Person?'", 22, 25);
         BAssertUtil.validateError(result, 7, "cannot infer type of the object from 'Person?'", 23, 25);
-        BAssertUtil.validateError(result, 8, "cannot infer type of the object from 'Person?'", 28, 14);
-        BAssertUtil.validateError(result, 9, "cannot infer type of the object from 'Person?'", 29, 14);
+        BAssertUtil.validateError(result, 8, "cannot infer type of the object from 'Person?'", 28, 19);
+        BAssertUtil.validateError(result, 9, "cannot infer type of the object from 'Person?'", 29, 19);
     }
 
     @Test (description = "Negative test to test object visibility modifiers")

@@ -20,26 +20,23 @@ import ballerina/log;
 import ballerina/time;
 
 string TEST_CONTENT = "Hello";
+const string INTERNAL_ERROR_CODE = "{ballerina/internal}InternalError";
 
 function createSourceAndTargetDirs(string pathValue) returns boolean {
     internal:Path parentPath = new(pathValue);
     internal:Path sourcePath = parentPath.resolve("source");
-    match sourcePath.createDirectory() {
-        () => {
-            internal:Path targetPath = parentPath.resolve("target");
-            match targetPath.createDirectory() {
-                () => {
-                    return sourcePath.exists() && targetPath.exists();
-                }
-                error err => {
-                    log:printError("Error occurred while creating target directory.", err = err);
-                    return false;
-                }
-            }
-        }
-        error err => {
-            log:printError("Error occurred while creating source directory.", err = err);
+    var createDirResult = sourcePath.createDirectory();
+    if (createDirResult is error) {
+        log:printError("Error occurred while creating source directory.", err = createDirResult);
+        return false;
+    } else {
+        internal:Path targetPath = parentPath.resolve("target");
+        var targetCreDirResult = targetPath.createDirectory();
+        if (targetCreDirResult is error) {
+            log:printError("Error occurred while creating target directory.", err = targetCreDirResult);
             return false;
+        } else {
+            return sourcePath.exists() && targetPath.exists();
         }
     }
 }
@@ -47,36 +44,30 @@ function createSourceAndTargetDirs(string pathValue) returns boolean {
 function createFolderStructure(string sourcePathValue) returns boolean {
     internal:Path sourcePath = new(sourcePathValue);
     internal:Path parentPath = sourcePath.resolve("parent");
-    match parentPath.createDirectory() {
-        () => {
-            internal:Path childPath = parentPath.resolve("child");
-            match childPath.createDirectory() {
-                () => {
-                    internal:Path xmlFilePath = childPath.resolve("sample.xml");
-                    match xmlFilePath.createFile() {
-                        () => {
-                            return parentPath.exists() && childPath.exists() && xmlFilePath.exists();
-                        }
-                        error err => {
-                            log:printError("Error occurred while creating sample.xml file.", err = err);
-                            return false;
-                        }
-                    }
-                }
-                error err => {
-                    log:printError("Error occurred while creating child directory.", err = err);
-                    return false;
-                }
-            }
-        }
-        error err => {
-            log:printError("Error occurred while creating parent directory.", err = err);
+    var parentCreDirResult = parentPath.createDirectory();
+    if (parentCreDirResult is error) {
+        log:printError("Error occurred while creating parent directory.", err = parentCreDirResult);
+        return false;
+    } else {
+        internal:Path childPath = parentPath.resolve("child");
+        var childCreDirResult = childPath.createDirectory();
+        if (childCreDirResult is error) {
+            log:printError("Error occurred while creating child directory.", err = childCreDirResult);
             return false;
+        } else {
+            internal:Path xmlFilePath = childPath.resolve("sample.xml");
+            var createFileResult = xmlFilePath.createFile();
+            if (createFileResult is error) {
+                log:printError("Error occurred while creating sample.xml file.", err = createFileResult);
+                return false;
+            } else {
+                return parentPath.exists() && childPath.exists() && xmlFilePath.exists();
+            }
         }
     }
 }
 
-function testFolderContent(string rootPathValue) returns boolean {
+function testFolderContent(string rootPathValue) returns boolean|error {
     internal:Path rootPath = new(rootPathValue);
     internal:Path parentPath = rootPath.resolve("parent");
     internal:Path childPath = parentPath.resolve("child");
@@ -84,24 +75,33 @@ function testFolderContent(string rootPathValue) returns boolean {
 
     _ = testWriteFile(xmlFilePath.getPathValue());
 
-    internal:Path parentOfXmlFile = check xmlFilePath.getParentDirectory();
-    internal:Path[] paths = check parentOfXmlFile.list();
-
-    return parentPath.getExtension() == "" &&
-            parentPath.isDirectory() &&
-            parentPath.exists() &&
-            childPath.exists() &&
-            childPath.isDirectory() &&
-            !childPath.resolve("abc").exists() &&
-            xmlFilePath.exists() &&
-            xmlFilePath.getExtension() == "xml" &&
-            parentOfXmlFile.getPathValue() == childPath.getPathValue() &&
-            xmlFilePath.getName() == "sample.xml" &&
-            testReadFile(xmlFilePath.getPathValue()) &&
-            lengthof paths == 1;
+    var parentDirectory = xmlFilePath.getParentDirectory();
+    if (parentDirectory is internal:Path) {
+        var paths = parentDirectory.list();
+        if (paths is internal:Path[]) {
+            return parentPath.getExtension() == "" &&
+                parentPath.isDirectory() &&
+                parentPath.exists() &&
+                childPath.exists() &&
+                childPath.isDirectory() &&
+                !childPath.resolve("abc").exists() &&
+                xmlFilePath.exists() &&
+                xmlFilePath.getExtension() == "xml" &&
+                parentDirectory.getPathValue() == childPath.getPathValue() &&
+                xmlFilePath.getName() == "sample.xml" &&
+                testReadFile(xmlFilePath.getPathValue()) &&
+                paths.length() == 1;
+        } else {
+            error listNotFound = error(INTERNAL_ERROR_CODE, { message : "File list fetching error" });
+            return listNotFound;
+        }
+    } else {
+        error directoryNotFound = error(INTERNAL_ERROR_CODE, { message : "Directory not found" });
+        return directoryNotFound;
+    }
 }
 
-function testGetModifiedTime(string pathValue) returns (string) {
+function testGetModifiedTime(string pathValue) returns string|error {
     internal:Path path = new(pathValue);
     time:Time modifiedTime = check path.getModifiedTime();
     return modifiedTime.toString();
@@ -110,12 +110,16 @@ function testGetModifiedTime(string pathValue) returns (string) {
 function testCopyToFunction(string source, string target) returns boolean {
     internal:Path sourcePath = new(source);
     internal:Path targetPath = new(target);
-    match sourcePath.copyTo(targetPath) {
-        () => {
-            return testFolderContent(targetPath.getPathValue());
-        }
-        error err => {
-            log:printError("Error occurred while creating target directory.", err = err);
+    var result = sourcePath.copyTo(targetPath);
+    if (result is error) {
+        log:printError("Error occurred while creating target directory.", err = result);
+        return false;
+    } else {
+        var contentResult = testFolderContent(targetPath.getPathValue());
+        if (contentResult is boolean) {
+            return contentResult;
+        } else {
+            log:printError("Error occurred getting folder content.", err = contentResult);
             return false;
         }
     }
@@ -123,26 +127,28 @@ function testCopyToFunction(string source, string target) returns boolean {
 
 function testFolderDelete(string path) returns boolean {
     internal:Path pathToDelete = new(path);
-    match pathToDelete.delete() {
-        () => {
-            return !pathToDelete.exists();
-        }
-        error err => {
-            log:printError("Error occurred while deleting directory: " + path, err = err);
-            return false;
-        }
+    var deleteResult = pathToDelete.delete();
+    if (deleteResult is error) {
+        log:printError("Error occurred while deleting directory: " + path, err = deleteResult);
+        return false;
+    } else {
+        return !pathToDelete.exists();
     }
 }
 
 function testMoveToFunction(string source, string target) returns boolean {
     internal:Path sourcePath = new(source);
     internal:Path targetPath = new(target);
-    match sourcePath.moveTo(targetPath) {
-        () => {
-            return testFolderContent(targetPath.getPathValue());
-        }
-        error err => {
-            log:printError("Error occurred while creating target directory.", err = err);
+    var moveResult = sourcePath.moveTo(targetPath);
+    if (moveResult is error) {
+        log:printError("Error occurred while creating target directory.", err = moveResult);
+        return false;
+    } else {
+        var contentResult = testFolderContent(targetPath.getPathValue());
+        if (contentResult is boolean) {
+            return contentResult;
+        } else {
+            log:printError("Error occurred getting folder content.", err = contentResult);
             return false;
         }
     }
@@ -160,14 +166,11 @@ function testReadFile(string pathValue) returns boolean {
     io:ReadableByteChannel byteChannel = io:openReadableFile(pathValue);
     var readResult = byteChannel.read(100);
     _ = byteChannel.close();
-    match readResult {
-        (byte[], int) byteContent => {
-            var (bytes, numberOfBytes) = byteContent;
-            return lengthof bytes == lengthof TEST_CONTENT.toByteArray("UTF-8");
-        }
-        error err => {
-            log:printError("Error occurred while reading content: " + pathValue, err = err);
-            return false;
-        }
+    if (readResult is error) {
+        log:printError("Error occurred while reading content: " + pathValue, err = readResult);
+        return false;
+    } else {
+        var (bytes, numberOfBytes) = readResult;
+        return bytes.length() == TEST_CONTENT.toByteArray("UTF-8").length();
     }
 }

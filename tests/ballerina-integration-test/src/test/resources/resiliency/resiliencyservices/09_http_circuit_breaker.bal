@@ -51,28 +51,32 @@ service<http:Service> circuitbreaker02 bind circuitBreakerEP02 {
         path: "/forceclose"
     }
     invokeForceClose(endpoint caller, http:Request request) {
-        http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>unhealthyClientEP.getCallerActions();
-        forceCloseStateCount += 1;
-        runtime:sleep(1000);
-        if (forceCloseStateCount == 3) {
-            runtime:sleep(5000);
-            cbClient.forceClose();
-        }
-        var backendRes = unhealthyClientEP->forward("/unhealthy", request);
-        match backendRes {
-            http:Response res => {
-                caller->respond(res) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        var cbClient = <http:CircuitBreakerClient>unhealthyClientEP.getCallerActions();
+        if (cbClient is http:CircuitBreakerClient) {
+            forceCloseStateCount += 1;
+            runtime:sleep(1000);
+            if (forceCloseStateCount == 3) {
+                runtime:sleep(5000);
+                cbClient.forceClose();
             }
-            error responseError => {
+            var backendRes = unhealthyClientEP->forward("/unhealthy", request);
+            if (backendRes is http:Response) {
+                var responseToCaller = caller->respond(backendRes);
+                if (responseToCaller is error) {
+                    log:printError("Error sending response", err = responseToCaller);
+                }
+            } else if (backendRes is error) {
                 http:Response response = new;
                 response.statusCode = http:INTERNAL_SERVER_ERROR_500;
-                response.setPayload(responseError.message);
-                caller->respond(response) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+                string errCause = <string> backendRes.detail().message;
+                response.setPayload(errCause);
+                var responseToCaller = caller->respond(response);
+                if (responseToCaller is error) {
+                    log:printError("Error sending response", err = responseToCaller);
+                }
             }
+        } else {
+            panic cbClient;
         }
     }
 }
@@ -90,8 +94,9 @@ service<http:Service> unhealthyService bind { port: 8088 } {
         } else {
             res.setPayload("Hello World!!!");
         }
-        caller->respond(res) but {
-            error e => log:printError("Error sending response from mock service", err = e)
-        };
+        var responseToCaller = caller->respond(res);
+        if (responseToCaller is error) {
+            log:printError("Error sending response from mock service", err = responseToCaller);
+        }
     }
 }

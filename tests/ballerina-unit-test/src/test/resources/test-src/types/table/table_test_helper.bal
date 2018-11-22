@@ -31,17 +31,20 @@ function getTableCount(string tablePrefix) returns (int) {
 
     sql:Parameter p1 = { sqlType: sql:TYPE_VARCHAR, value: tablePrefix };
 
-    int count;
-    try {
-        table dt = check testDB->select("SELECT count(*) as count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME
+    int count = 0;
+    var dt = testDB->select("SELECT count(*) as count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME
             like ?", ResultCount, p1);
+    if (dt is table) {
         while (dt.hasNext()) {
-            ResultCount rs = check <ResultCount>dt.getNext();
-            count = rs.COUNTVAL;
+            var ret = <ResultCount>dt.getNext();
+            if (ret is ResultCount) {
+                count = ret.COUNTVAL;
+            } else if (ret is error) {
+                count = -1;
+            }
         }
-    } finally {
-        testDB.stop();
     }
+    testDB.stop();
     return count;
 }
 
@@ -53,16 +56,19 @@ function getSessionCount() returns (int) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    int count;
-    try {
-        table dt = check testDB->select("SELECT count(*) as count FROM information_schema.sessions", ResultCount);
+    int count = 0;
+    var dt = testDB->select("SELECT count(*) as count FROM information_schema.sessions", ResultCount);
+    if (dt is table) {
         while (dt.hasNext()) {
-            ResultCount rs = check <ResultCount>dt.getNext();
-            count = rs.COUNTVAL;
+            var ret = <ResultCount>dt.getNext();
+            if (ret is ResultCount) {
+                count = ret.COUNTVAL;
+            } else if (ret is error) {
+                count = -1;
+            }
         }
-    } finally {
-        testDB.stop();
     }
+    testDB.stop();
     return count;
 }
 

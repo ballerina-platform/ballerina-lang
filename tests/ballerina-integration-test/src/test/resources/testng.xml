@@ -179,7 +179,7 @@
         </classes>
     </test>
 
-    <test name="ballerina-streaming-tests" parallel="false">
+    <test name="ballerina-streaming-tests" parallel="false" enabled="false">
         <classes>
             <class name="org.ballerinalang.test.streaming.StreamsWithinServicesTestCase"/>
         </classes>

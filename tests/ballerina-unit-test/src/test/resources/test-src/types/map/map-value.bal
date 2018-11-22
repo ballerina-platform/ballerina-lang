@@ -13,7 +13,7 @@ function testMapWithMap() returns (string){
     return list2String;
 }
 
-function testMapWithAnyValue() returns (int){
+function testMapWithAnyValue() returns (int|error) {
     map list1 = {"item1": 1, "item2": 2, "item3": 3, "item4": 4};
     any value = 5;
     list1["item5"] = value;
@@ -28,7 +28,7 @@ function testMapWithAnyDifferentValue() returns (any){
     return list1["item5"];
 }
 
-function testMapWithBinaryExpression() returns (int){
+function testMapWithBinaryExpression() returns (int|error){
     map list1 = {"item1": 1, "item2": 2, "item3": 3, "item4": 4};
     int intItem1= check <int> list1.item1;
     int intItem2= check <int> list1.item2;
@@ -51,7 +51,7 @@ function testMapWithAnyFunctionInvocations() returns (string){
 
 function testMapOrder() returns (map)
 {
-  map m ;
+  map m = {};
   m["key1"] = "Element 1";
   m["key2"] = "Element 2";
   m["key3"] = "Element 3";
@@ -70,7 +70,7 @@ function testEchoAny(any value)returns (string){
 
 function testMapSynchronization() returns (int)
 {
-    map m;
+    map m = {};
 
     fork {
         worker w2 {
@@ -92,6 +92,6 @@ function testMapSynchronization() returns (int)
             }
         }
     } join (all) (map results) {
-        return lengthof m;
+        return m.length();
     }
 }

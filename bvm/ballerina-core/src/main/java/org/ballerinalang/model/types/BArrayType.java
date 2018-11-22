@@ -19,6 +19,7 @@ package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BByteArray;
+import org.ballerinalang.model.values.BDecimalArray;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BNewArray;
@@ -76,6 +77,8 @@ public class BArrayType extends BType implements BIndexedType {
                     return (V) new BIntArray(size);
                 case TypeTags.FLOAT_TAG:
                     return (V) new BFloatArray(size);
+                case TypeTags.DECIMAL_TAG:
+                    return (V) new BDecimalArray(size);
                 case TypeTags.BOOLEAN_TAG:
                     return (V) new BBooleanArray(size);
                 case TypeTags.STRING_TAG:
@@ -99,6 +102,8 @@ public class BArrayType extends BType implements BIndexedType {
                 return (V) new BIntArray();
             case TypeTags.FLOAT_TAG:
                 return (V) new BFloatArray();
+            case TypeTags.DECIMAL_TAG:
+                return (V) new BDecimalArray();
             case TypeTags.BOOLEAN_TAG:
                 return (V) new BBooleanArray();
             case TypeTags.STRING_TAG:
@@ -108,11 +113,6 @@ public class BArrayType extends BType implements BIndexedType {
             default:
                 return (V) new BRefValueArray();
         }
-    }
-
-    @Override
-    public TypeSignature getSig() {
-        return new TypeSignature(TypeSignature.SIG_ARRAY, elementType.getSig());
     }
 
     @Override

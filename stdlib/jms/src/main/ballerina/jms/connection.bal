@@ -19,11 +19,11 @@
 # + config - Used to store configurations related to a JMS connection
 public type Connection object {
 
-    public ConnectionConfiguration config;
+    public ConnectionConfiguration config = {};
 
     # JMS connection constructor
     public new(config) {
-        createConnection();
+        self.createConnection();
     }
 
     extern function createConnection();
@@ -49,8 +49,8 @@ public type ConnectionConfiguration record {
     string initialContextFactory = "wso2mbInitialContextFactory";
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";
-    string? username;
-    string? password;
-    map properties;
+    string? username = ();
+    string? password = ();
+    map properties = {};
     !...
 };

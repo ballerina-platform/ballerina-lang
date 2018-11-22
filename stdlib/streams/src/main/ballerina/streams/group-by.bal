@@ -17,37 +17,44 @@
 public type GroupBy object {
     public function (StreamEvent[]) nextProcessorPointer;
     public string[] groupByFields;
-    public map groupedStreamEvents;
+    public map groupedStreamEvents = {};
 
     new (nextProcessorPointer, groupByFields) {
-
     }
 
     public function process(StreamEvent[] streamEvents) {
-        if (lengthof groupByFields > 0) {
+        if (self.groupByFields.length() > 0) {
             foreach streamEvent in streamEvents {
-                string key = generateGroupByKey(streamEvent);
-                if (!groupedStreamEvents.hasKey(key)) {
+                string key = self.generateGroupByKey(streamEvent);
+                if (!self.groupedStreamEvents.hasKey(key)) {
                     StreamEvent[] events = [];
-                    groupedStreamEvents[key] = events;
+                    self.groupedStreamEvents[key] = events;
                 }
-                StreamEvent[] groupedEvents = check <StreamEvent[]>groupedStreamEvents[key];
-                groupedEvents[lengthof groupedEvents] = streamEvent;
+                var groupedEvents = <StreamEvent[]> self.groupedStreamEvents[key];
+                if (groupedEvents is StreamEvent[]) {
+                    groupedEvents[groupedEvents.length()] = streamEvent;
+                } else if (groupedEvents is error) {
+                    panic groupedEvents;
+                }
             }
 
-            foreach arr in groupedStreamEvents.values() {
-                StreamEvent[] eventArr = check <StreamEvent[]>arr;
-                nextProcessorPointer(eventArr);
+            foreach arr in self.groupedStreamEvents.values() {
+                var eventArr = <StreamEvent[]>arr;
+                if (eventArr is StreamEvent[]) {
+                    self.nextProcessorPointer(eventArr);
+                } else if (eventArr is error) {
+                    panic eventArr;
+                }
             }
         } else {
-            nextProcessorPointer(streamEvents);
+            self.nextProcessorPointer(streamEvents);
         }
     }
 
     function generateGroupByKey(StreamEvent event) returns string {
-        string key;
+        string key = "";
 
-        foreach field in groupByFields {
+        foreach field in self.groupByFields {
             key += ", ";
             string? fieldValue = <string> event.data[field];
             match fieldValue {

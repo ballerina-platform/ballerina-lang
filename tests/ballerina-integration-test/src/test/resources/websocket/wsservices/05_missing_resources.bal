@@ -21,12 +21,18 @@ import ballerina/http;
 }
 service<http:WebSocketService> onlyOnBinary bind { port: 9086 } {
     onBinary(endpoint caller, byte[] data){
-        _ = caller->pushBinary(data);
+        var returnVal = caller->pushBinary(data);
+        if (returnVal is error) {
+           panic returnVal;
+        }
     }
 }
 
 service<http:WebSocketService> onlyOnText bind { port: 9087 } {
     onText(endpoint caller, string data) {
-        _ = caller->pushText(data);
+        var returnVal = caller->pushText(data);
+        if (returnVal is error) {
+             panic returnVal;
+        }
     }
 }

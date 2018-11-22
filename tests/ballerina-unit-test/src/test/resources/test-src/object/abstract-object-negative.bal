@@ -10,17 +10,17 @@ public function testInitAbstractObjectWithNew () {
 }
 
 type Person1 abstract object {
-    public int age;
-    public string name;
+    public int age = 0;
+    public string name = "";
 
-    int year;
-    string month;
+    int year = 0;
+    string month = "";
 };
 
 // Abstract object with constructor method
 type Person2 abstract object {
-    public int age;
-    public string name;
+    public int age = 0;
+    public string name = "";
 
     int year = 50;
     string month = "february";
@@ -31,39 +31,39 @@ type Person2 abstract object {
 
 // Non-abstract object with a function that has no implementation
 type Person3 object {
-    public int age;
-    public string name;
+    public int age = 0;
+    public string name = "";
 
-    int year;
-    string month;
+    int year = 0;
+    string month = "";
 
     public function getName() returns string;
 };
 
 // Abstract object with method definition
 type Person4 abstract object {
-    public int age;
-    public string name;
+    public int age = 0;
+    public string name = "";
 
-    int year;
-    string month;
+    int year = 0;
+    string month = "";
 
     public function getName() returns string {
-        return name;
+        return self.name;
     }
 };
 
 // Attach function to an abstract object
 type Person5 abstract object {
-    public int age;
-    public string name;
+    public int age = 0;
+    public string name = "";
 
-    int year;
-    string month;
+    int year = 0;
+    string month = "";
 
     public function getName() returns string;
 };
 
-function Person5::getName() returns string {
+function Person5.getName() returns string {
     return "my name";
 }

@@ -23,81 +23,83 @@ import ballerina/reflect;
 
 # Intent verification request parameter `hub.challenge` representing the challenge that needs to be echoed by
 # susbscribers to verify intent.
-@final string HUB_CHALLENGE = "hub.challenge";
+const string HUB_CHALLENGE = "hub.challenge";
 
 # Parameter `hub.mode` representing the mode of the request from hub to subscriber or subscriber to hub.
-@final string HUB_MODE = "hub.mode";
+const string HUB_MODE = "hub.mode";
 
 # Subscription change or intent verification request parameter `hub.topic` representing the topic relevant to the for
 # which the request is initiated.
-@final string HUB_TOPIC = "hub.topic";
+const string HUB_TOPIC = "hub.topic";
 
 # Subscription change request parameter `hub.callback` representing the callback to which notification should happen.
-@final string HUB_CALLBACK = "hub.callback";
+const string HUB_CALLBACK = "hub.callback";
 
 # Subscription request parameter `hub.lease_seconds` representing the period for which the subscription is expected to
 # be active.
-@final string HUB_LEASE_SECONDS = "hub.lease_seconds";
+const string HUB_LEASE_SECONDS = "hub.lease_seconds";
 
 # Subscription parameter `hub.secret` representing the secret key to use for authenticated content distribution.
-@final string HUB_SECRET = "hub.secret";
+const string HUB_SECRET = "hub.secret";
 
 # `hub.mode` value indicating "subscription" mode, to subscribe to updates for a topic.
-@final string MODE_SUBSCRIBE = "subscribe";
+const string MODE_SUBSCRIBE = "subscribe";
 
 # `hub.mode` value indicating "unsubscription" mode, to unsubscribe to updates for a topic.
-@final string MODE_UNSUBSCRIBE = "unsubscribe";
+const string MODE_UNSUBSCRIBE = "unsubscribe";
 
-@final string X_HUB_SIGNATURE = "X-Hub-Signature";
+const string X_HUB_SIGNATURE = "X-Hub-Signature";
 
 ///////////////////////////////// Ballerina WebSub specific constants /////////////////////////////////
 # `hub.mode` value indicating "publish" mode, used by a publisher to notify an update to a topic.
-@final string MODE_PUBLISH = "publish";
+const string MODE_PUBLISH = "publish";
 
 # `hub.mode` value indicating "register" mode, used by a publisher to register a topic at a hub.
-@final string MODE_REGISTER = "register";
+const string MODE_REGISTER = "register";
 
 # `hub.mode` value indicating "unregister" mode, used by a publisher to unregister a topic at a hub.
-@final string MODE_UNREGISTER = "unregister";
+const string MODE_UNREGISTER = "unregister";
 
-@final string REMOTE_PUBLISHING_MODE_DIRECT = "direct";
-@final string REMOTE_PUBLISHING_MODE_FETCH = "fetch";
+const string REMOTE_PUBLISHING_MODE_DIRECT = "direct";
+const string REMOTE_PUBLISHING_MODE_FETCH = "fetch";
 
-@final string X_HUB_UUID = "X-Hub-Uuid";
-@final string X_HUB_TOPIC = "X-Hub-Topic";
+const string X_HUB_UUID = "X-Hub-Uuid";
+const string X_HUB_TOPIC = "X-Hub-Topic";
 
-@final string CONTENT_TYPE = "Content-Type";
-@final string SHA1 = "SHA1";
-@final string SHA256 = "SHA256";
+const string CONTENT_TYPE = "Content-Type";
+const string SHA1 = "SHA1";
+const string SHA256 = "SHA256";
 
-@final string ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "SubscriberServiceConfig";
-@final string WEBSUB_MODULE_NAME = "ballerina/websub";
+const string ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "SubscriberServiceConfig";
+const string WEBSUB_MODULE_NAME = "ballerina/websub";
 
+# The constant used to represent error code of WebSub module.
+public const string WEBSUB_ERROR_CODE = "{ballerina/websub}WebSubError";
 
 # The identifier to be used to identify the mode in which update content should be identified.
-public type RemotePublishMode "PUBLISH_MODE_DIRECT"|"PUBLISH_MODE_FETCH";
+public type RemotePublishMode PUBLISH_MODE_DIRECT|PUBLISH_MODE_FETCH;
 
 # `RemotePublishMode` indicating direct update content notification (fat-ping). The payload of the update
 # notification request from the publisher to the hub would include be the update content.
-@final public RemotePublishMode PUBLISH_MODE_DIRECT = "PUBLISH_MODE_DIRECT";
+public const PUBLISH_MODE_DIRECT = "PUBLISH_MODE_DIRECT";
 
 # `RemotePublishMode` indicating that once the publisher notifies the hub that an update is available, the hub
 # needs to fetch the topic URL to identify the update content.
-@final public RemotePublishMode PUBLISH_MODE_FETCH = "PUBLISH_MODE_FETCH";
+public const PUBLISH_MODE_FETCH = "PUBLISH_MODE_FETCH";
 
 ///////////////////////////////// Custom Webhook/Extension specific constants /////////////////////////////////
 # The identifier to be used to identify the topic for dispatching with custom subscriber services.
-public type TopicIdentifier "TOPIC_ID_HEADER"|"TOPIC_ID_PAYLOAD_KEY"|"TOPIC_ID_HEADER_AND_PAYLOAD";
+public type TopicIdentifier TOPIC_ID_HEADER|TOPIC_ID_PAYLOAD_KEY|TOPIC_ID_HEADER_AND_PAYLOAD;
 
 # `TopicIdentifier` indicating dispatching based solely on a header of the request.
-@final public TopicIdentifier TOPIC_ID_HEADER = "TOPIC_ID_HEADER";
+public const TOPIC_ID_HEADER = "TOPIC_ID_HEADER";
 
 # `TopicIdentifier` indicating dispatching based solely on a value for a key in the JSON payload of the request.
-@final public TopicIdentifier TOPIC_ID_PAYLOAD_KEY = "TOPIC_ID_PAYLOAD_KEY";
+public const TOPIC_ID_PAYLOAD_KEY = "TOPIC_ID_PAYLOAD_KEY";
 
 # `TopicIdentifier` indicating dispatching based on a combination of header and values specified for a key/key(s) in
 # the JSON payload of the request.
-@final public TopicIdentifier TOPIC_ID_HEADER_AND_PAYLOAD = "TOPIC_ID_HEADER_AND_PAYLOAD";
+public const TOPIC_ID_HEADER_AND_PAYLOAD = "TOPIC_ID_HEADER_AND_PAYLOAD";
 
 ///////////////////////////////////////////////////////////////////
 //////////////////// WebSub Subscriber Commons ////////////////////
@@ -112,11 +114,11 @@ public type TopicIdentifier "TOPIC_ID_HEADER"|"TOPIC_ID_PAYLOAD_KEY"|"TOPIC_ID_H
 # + request - The HTTP request received for intent verification
 public type IntentVerificationRequest object {
 
-    public string mode;
-    public string topic;
-    public string challenge;
-    public int leaseSeconds;
-    public http:Request request;
+    public string mode = "";
+    public string topic = "";
+    public string challenge = "";
+    public int leaseSeconds = 0;
+    public http:Request request = new;
 
     # Builds the response for the request, verifying intention to subscribe, if the topic matches that expected.
     #
@@ -132,13 +134,13 @@ public type IntentVerificationRequest object {
 
 };
 
-function IntentVerificationRequest::buildSubscriptionVerificationResponse(string expectedTopic)
+function IntentVerificationRequest.buildSubscriptionVerificationResponse(string expectedTopic)
     returns http:Response {
 
     return buildIntentVerificationResponse(self, MODE_SUBSCRIBE, expectedTopic);
 }
 
-function IntentVerificationRequest::buildUnsubscriptionVerificationResponse(string expectedTopic)
+function IntentVerificationRequest.buildUnsubscriptionVerificationResponse(string expectedTopic)
     returns http:Response {
 
     return buildIntentVerificationResponse(self, MODE_UNSUBSCRIBE, expectedTopic);
@@ -155,7 +157,8 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
     returns http:Response {
 
     http:Response response = new;
-    string reqTopic = http:decode(intentVerificationRequest.topic, "UTF-8") but { error => topic };
+    var decodedTopic = http:decode(intentVerificationRequest.topic, "UTF-8");
+    string reqTopic = decodedTopic is string ? decodedTopic : topic;
 
     string reqMode = intentVerificationRequest.mode;
     string challenge = intentVerificationRequest.challenge;
@@ -175,12 +178,13 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
 # + serviceType - The type of the service for which the request was rceived
 # + return - `error`, if an error occurred in extraction or signature validation failed
 function processWebSubNotification(http:Request request, typedesc serviceType) returns error? {
-    string secret = retrieveSubscriberServiceAnnotations(serviceType).secret but { () => "" };
+    string secret = retrieveSubscriberServiceAnnotations(serviceType).secret ?: "";
 
     if (!request.hasHeader(X_HUB_SIGNATURE)) {
         if (secret != "") {
-            error webSubError = {message: X_HUB_SIGNATURE + " header not present for subscription added" +
-                                            " specifying " + HUB_SECRET};
+            map errorDetail = { message : X_HUB_SIGNATURE + " header not present for subscription " +
+                                            "added specifying " + HUB_SECRET };
+            error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
         }
         return;
@@ -192,14 +196,16 @@ function processWebSubNotification(http:Request request, typedesc serviceType) r
         return;
     }
 
-    string stringPayload;
-    match (request.getPayloadAsString()) {
-        string payloadAsString => { stringPayload = payloadAsString; }
-        error entityError => {
-            error webSubError = {message:"Error extracting notification payload as string for signature validation: "
-                                            + entityError.message, cause: entityError};
-            return webSubError;
-        }
+    string stringPayload = "";
+    var payload = request.getPayloadAsString();
+    if (payload is string) {
+        stringPayload = payload;
+    } else if (payload is error) {
+        string errCause = <string> payload.detail().message;
+        map errorDetail = { message : "Error extracting notification payload as string " +
+                                        "for signature validation: " + errCause };
+        error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
+        return webSubError;
     }
 
     return validateSignature(xHubSignature, stringPayload, secret);
@@ -215,19 +221,21 @@ function validateSignature(string xHubSignature, string stringPayload, string se
     string[] splitSignature = xHubSignature.split("=");
     string method = splitSignature[0];
     string signature = xHubSignature.replace(method + "=", "");
-    string generatedSignature;
+    string generatedSignature = "";
 
-    if (SHA1.equalsIgnoreCase(method)) {
+    if (method.equalsIgnoreCase(SHA1)) {
         generatedSignature = crypto:hmac(stringPayload, secret, crypto:SHA1);
-    } else if (SHA256.equalsIgnoreCase(method)) {
+    } else if (method.equalsIgnoreCase(SHA256)) {
         generatedSignature = crypto:hmac(stringPayload, secret, crypto:SHA256);
     } else {
-        error webSubError = {message:"Unsupported signature method: " + method};
+        map errorDetail = { message : "Unsupported signature method: " + method };
+        error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
         return webSubError;
     }
 
     if (!signature.equalsIgnoreCase(generatedSignature)) {
-        error webSubError = {message:"Signature validation failed: Invalid Signature!"};
+        map errorDetail = { message : "Signature validation failed: Invalid Signature!" };
+        error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
         return webSubError;
     }
     return;
@@ -238,20 +246,20 @@ function validateSignature(string xHubSignature, string stringPayload, string se
 # + request - The HTTP POST request received as the notification
 public type Notification object {
 
-    private http:Request request;
+    private http:Request request = new;
 
     # Retrieves the query parameters of the content delivery request, as a map.
     #
     # + return - String constrained map of query params
     public function getQueryParams() returns map<string> {
-        return request.getQueryParams();
+        return self.request.getQueryParams();
     }
 
     # Retrieves the `Entity` associated with the content delivery request.
     #
     # + return - The `Entity` of the request. An `error` is returned, if entity construction fails
     public function getEntity() returns mime:Entity|error {
-        return request.getEntity();
+        return self.request.getEntity();
     }
 
     # Returns whether the requested header key exists in the header map of the content delivery request.
@@ -259,7 +267,7 @@ public type Notification object {
     # + headerName - The header name
     # + return - Returns true if the specified header key exists
     public function hasHeader(string headerName) returns boolean {
-        return request.hasHeader(headerName);
+        return self.request.hasHeader(headerName);
     }
 
     # Returns the value of the specified header. If the specified header key maps to multiple values, the first of
@@ -269,7 +277,7 @@ public type Notification object {
     # + return - The first header value for the specified header name. An exception is thrown if no header is found.
     #            Ideally `hasHeader()` needs to be used to check the existence of header initially.
     public function getHeader(string headerName) returns string {
-        return request.getHeader(headerName);
+        return self.request.getHeader(headerName);
     }
 
     # Retrieves all the header values to which the specified header key maps to.
@@ -278,35 +286,35 @@ public type Notification object {
     # + return - The header values the specified header key maps to. An exception is thrown if no header is found.
     #            Ideally `hasHeader()` needs to be used to check the existence of header initially.
     public function getHeaders(string headerName) returns string[] {
-        return request.getHeaders(headerName);
+        return self.request.getHeaders(headerName);
     }
 
     # Retrieves all the names of the headers present in the content delivery request.
     #
     # + return - An array of all the header names
     public function getHeaderNames() returns string[] {
-        return request.getHeaderNames();
+        return self.request.getHeaderNames();
     }
 
     # Retrieves the type of the payload of the content delivery request (i.e: the `content-type` header value).
     #
     # + return - Returns the `content-type` header value as a string
     public function getContentType() returns string {
-        return request.getContentType();
+        return self.request.getContentType();
     }
 
     # Extracts `json` payload from the content delivery request.
     #
     # + return - The `json` payload or `error` in case of errors. If the content type is not JSON, an `error` is returned.
     public function getJsonPayload() returns json|error {
-        return request.getJsonPayload();
+        return self.request.getJsonPayload();
     }
 
     # Extracts `xml` payload from the content delivery request.
     #
     # + return - The `xml` payload or `error` in case of errors. If the content type is not XML, an `error` is returned.
     public function getXmlPayload() returns xml|error {
-        return request.getXmlPayload();
+        return self.request.getXmlPayload();
     }
 
     # Extracts `text` payload from the content delivery request.
@@ -314,7 +322,7 @@ public type Notification object {
     # + return - The `text` payload or `error` in case of errors.
     #            If the content type is not of type text, an `error` is returned.
     public function getTextPayload() returns string|error {
-        return request.getTextPayload();
+        return self.request.getTextPayload();
     }
 
     # Retrieves the content delivery request payload as a `string`. Content type is not checked during payload
@@ -322,28 +330,28 @@ public type Notification object {
     #
     # + return - The string representation of the message payload or `error` in case of errors
     public function getPayloadAsString() returns string|error {
-        return request.getPayloadAsString();
+        return self.request.getPayloadAsString();
     }
 
     # Retrieves the request payload as a `ByteChannel` except in the case of multiparts.
     #
     # + return - A byte channel from which the message payload can be read or `error` in case of errors
     public function getByteChannel() returns io:ReadableByteChannel|error {
-        return request.getByteChannel();
+        return self.request.getByteChannel();
     }
 
     # Retrieves the request payload as a `byte[]`.
     #
     # + return - The byte[] representation of the message payload or `error` in case of errors
     public function getBinaryPayload() returns byte[]|error {
-        return request.getBinaryPayload();
+        return self.request.getBinaryPayload();
     }
 
     # Retrieves the form parameters from the content delivery request as a `map`.
     #
     # + return - The map of form params or `error` in case of errors
     public function getFormParams() returns map<string>|error {
-        return request.getFormParams();
+        return self.request.getFormParams();
     }
 };
 
@@ -352,21 +360,22 @@ public type Notification object {
 # + response - The `http:Response` received
 # + return - `(topic, hubs)` if parsing and extraction is successful, `error` if not
 public function extractTopicAndHubUrls(http:Response response) returns (string, string[])|error {
-    string[] linkHeaders;
+    string[] linkHeaders = [];
     if (response.hasHeader("Link")) {
         linkHeaders = response.getHeaders("Link");
     }
 
-    if (lengthof linkHeaders == 0) {
-        error websubError = { message: "Link header unavailable in discovery response" };
+    if (linkHeaders.length() == 0) {
+        map errorDetail = { message : "Link header unavailable in discovery response" };
+        error websubError = error(WEBSUB_ERROR_CODE, errorDetail);
         return websubError;
     }
 
     int hubIndex = 0;
-    string[] hubs;
-    string topic;
+    string[] hubs = [];
+    string topic = "";
     string[] linkHeaderConstituents = [];
-    if (lengthof linkHeaders == 1) {
+    if (linkHeaders.length() == 1) {
         linkHeaderConstituents = linkHeaders[0].split(",");
     } else {
         linkHeaderConstituents = linkHeaders;
@@ -383,7 +392,8 @@ public function extractTopicAndHubUrls(http:Response response) returns (string, 
                 hubIndex += 1;
             } else if (linkConstituents[1].contains("rel=\"self\"")) {
                 if (topic != "") {
-                    error websubError = { message: "Link Header contains > 1 self URLs" };
+                    map errorDetail = { message : "Link Header contains > 1 self URLs" };
+                    error websubError = error(WEBSUB_ERROR_CODE, errorDetail);
                     return websubError;
                 } else {
                     topic = url;
@@ -392,11 +402,12 @@ public function extractTopicAndHubUrls(http:Response response) returns (string, 
         }
     }
 
-    if (lengthof hubs > 0 && topic != "") {
+    if (hubs.length() > 0 && topic != "") {
         return (topic, hubs);
     }
 
-    error websubError = {message: "Hub and/or Topic URL(s) not identified in link header of discovery response"};
+    map errorDetail = { message : "Hub and/or Topic URL(s) not identified in link header of discovery response" };
+    error websubError = error(WEBSUB_ERROR_CODE, errorDetail);
     return websubError;
 }
 
@@ -407,10 +418,10 @@ public function extractTopicAndHubUrls(http:Response response) returns (string, 
 # + leaseSeconds - The lease period for which the subscription is expected to be active
 # + secret - The secret to be used for authenticated content distribution with this subscription
 public type SubscriptionChangeRequest record {
-    string topic;
-    string callback;
-    int leaseSeconds;
-    string secret;
+    string topic = "";
+    string callback = "";
+    int leaseSeconds = 0;
+    string secret = "";
     !...
 };
 
@@ -420,8 +431,8 @@ public type SubscriptionChangeRequest record {
 # + topic - The topic for which the subscription/unsubscription was successful
 # + response - The response from the hub to the subscription/unsubscription request
 public type SubscriptionChangeResponse record {
-    string hub;
-    string topic;
+    string hub = "";
+    string topic = "";
     http:Response response;
     !...
 };
@@ -455,36 +466,36 @@ public function startHub(string? host = (), int port, int? leaseSeconds = (), st
                          boolean? topicRegistrationRequired = (), string? publicUrl = (),
                          boolean? sslEnabled = (), http:ServiceSecureSocket? serviceSecureSocket = (),
                          http:SecureSocket? clientSecureSocket = ()) returns WebSubHub|HubStartedUpError {
-    hubHost = config:getAsString("b7a.websub.hub.host", default = host but { () => DEFAULT_HOST });
+    hubHost = config:getAsString("b7a.websub.hub.host", default = host ?: DEFAULT_HOST);
     hubPort = config:getAsInt("b7a.websub.hub.port", default = port);
     hubLeaseSeconds = config:getAsInt("b7a.websub.hub.leasetime",
-                                      default = leaseSeconds but { () => DEFAULT_LEASE_SECONDS_VALUE });
+                                      default = leaseSeconds ?: DEFAULT_LEASE_SECONDS_VALUE);
     hubSignatureMethod = config:getAsString("b7a.websub.hub.signaturemethod",
-                                            default = signatureMethod but { () => DEFAULT_SIGNATURE_METHOD });
+                                   default = signatureMethod ?: DEFAULT_SIGNATURE_METHOD);
     hubRemotePublishingEnabled = config:getAsBoolean("b7a.websub.hub.remotepublish",
-                                                     default = remotePublishingEnabled but { () => false });
+                                     default = remotePublishingEnabled ?: false);
 
     string remotePublishModeAsConfig =  config:getAsString("b7a.websub.hub.remotepublish.mode");
     if (remotePublishModeAsConfig == "") {
-        hubRemotePublishMode = remotePublishMode but { () => PUBLISH_MODE_DIRECT };
+        hubRemotePublishMode = remotePublishMode ?: PUBLISH_MODE_DIRECT;
     } else {
-        if (REMOTE_PUBLISHING_MODE_FETCH.equalsIgnoreCase(remotePublishModeAsConfig)) {
+        if (remotePublishModeAsConfig.equalsIgnoreCase(REMOTE_PUBLISHING_MODE_FETCH)) {
             hubRemotePublishMode = PUBLISH_MODE_FETCH;
-        } else if (!REMOTE_PUBLISHING_MODE_DIRECT.equalsIgnoreCase(remotePublishModeAsConfig)) {
+        } else if (!remotePublishModeAsConfig.equalsIgnoreCase(REMOTE_PUBLISHING_MODE_DIRECT)) {
             log:printWarn("unknown publish mode: [" + remotePublishModeAsConfig + "], defaulting to direct mode");
         }
     }
 
     hubTopicRegistrationRequired = config:getAsBoolean("b7a.websub.hub.topicregistration",
-                                                       default = topicRegistrationRequired but { () => true });
-    hubSslEnabled = config:getAsBoolean("b7a.websub.hub.enablessl", default = sslEnabled but { () => true });
+                                    default = topicRegistrationRequired ?: true);
+    hubSslEnabled = config:getAsBoolean("b7a.websub.hub.enablessl", default = sslEnabled ?: true);
     //set serviceSecureSocket after hubSslEnabled is set
     if (hubSslEnabled) {
         hubServiceSecureSocket = getServiceSecureSocketConfig(serviceSecureSocket);
     }
     hubClientSecureSocket = getSecureSocketConfig(clientSecureSocket);
     //reset the hubUrl once the other parameters are set
-    hubPublicUrl = config:getAsString("b7a.websub.hub.url", default = publicUrl but { () => getHubUrl() });
+    hubPublicUrl = config:getAsString("b7a.websub.hub.url", default = publicUrl ?: getHubUrl());
     return startUpHubService(hubTopicRegistrationRequired, hubPublicUrl);
 }
 
@@ -537,51 +548,57 @@ public type WebSubHub object {
     public extern function getSubscribers(string topic) returns SubscriberDetails[];
 };
 
-function WebSubHub::stop() returns boolean {
+function WebSubHub.stop() returns boolean {
     self.hubServiceEndpoint.stop();
     return stopHubService(self.hubUrl);
 }
 
-function WebSubHub::publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
+function WebSubHub.publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
                                   string? contentType = ()) returns error? {
     if (self.hubUrl == "") {
-        error webSubError = {message: "Internal Ballerina Hub not initialized or incorrectly referenced"};
+        map errorDetail = { message : "Internal Ballerina Hub not initialized or incorrectly referenced" };
+        error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
         return webSubError;
     }
 
     WebSubContent content = {};
 
-    match(payload) {
-        io:ReadableByteChannel byteChannel => content.payload = constructByteArray(byteChannel);
-        string|xml|json|byte[] => content.payload = payload;
+    if (payload is io:ReadableByteChannel) {
+        content.payload = constructByteArray(payload);
+    } else {
+        content.payload = payload;
     }
 
-    match(contentType) {
-        string stringContentType => content.contentType = stringContentType;
-        () => {
-            match(payload) {
-                string => content.contentType = mime:TEXT_PLAIN;
-                xml => content.contentType = mime:APPLICATION_XML;
-                json => content.contentType = mime:APPLICATION_JSON;
-                byte[]|io:ReadableByteChannel => content.contentType = mime:APPLICATION_OCTET_STREAM;
-            }
+    if (contentType is string) {
+        content.contentType = contentType;
+    } else {
+        if (payload is string) {
+            content.contentType = mime:TEXT_PLAIN;
+        } else if (payload is xml) {
+            content.contentType = mime:APPLICATION_XML;
+        } else if (payload is json) {
+            content.contentType = mime:APPLICATION_JSON;
+        } else if (payload is byte[]|io:ReadableByteChannel) {
+            content.contentType = mime:APPLICATION_OCTET_STREAM;
         }
     }
 
     return validateAndPublishToInternalHub(self.hubUrl, topic, content);
 }
 
-function WebSubHub::registerTopic(string topic) returns error? {
+function WebSubHub.registerTopic(string topic) returns error? {
     if (!hubTopicRegistrationRequired) {
-        error e = { message: "Remote topic registration not allowed/not required at the Hub" };
+        map errorDetail = { message : "Internal Ballerina Hub not initialized or incorrectly referenced" };
+        error e = error(WEBSUB_ERROR_CODE, errorDetail);
         return e;
     }
     return registerTopicAtHub(topic);
 }
 
-function WebSubHub::unregisterTopic(string topic) returns error? {
+function WebSubHub.unregisterTopic(string topic) returns error? {
     if (!hubTopicRegistrationRequired) {
-        error e = { message: "Remote topic unregistration not allowed/not required at the Hub" };
+        map errorDetail = { message : "Remote topic unregistration not allowed/not required at the Hub" };
+        error e = error(WEBSUB_ERROR_CODE, errorDetail);
         return e;
     }
     return unregisterTopicAtHub(topic);
@@ -596,7 +613,7 @@ function WebSubHub::unregisterTopic(string topic) returns error? {
 # + hubs - The hubs the publisher advertises as the hubs that it publishes updates to
 # + topic - The topic to which subscribers need to subscribe to, to receive updates for the resource
 public function addWebSubLinkHeader(http:Response response, string[] hubs, string topic) {
-    string hubLinkHeader;
+    string hubLinkHeader = "";
     foreach hub in hubs {
         hubLinkHeader = hubLinkHeader + "<" + hub + ">; rel=\"hub\", ";
     }
@@ -611,11 +628,11 @@ public function addWebSubLinkHeader(http:Response response, string[] hubs, strin
 # + leaseSeconds - The lease second period specified for the particular subscription
 # + createdAt - The time at which the subscription was created
 type SubscriptionDetails record {
-    string topic;
-    string callback;
-    string secret;
-    int leaseSeconds;
-    int createdAt;
+    string topic = "";
+    string callback = "";
+    string secret = "";
+    int leaseSeconds = 0;
+    int createdAt = 0;
     !...
 };
 
@@ -623,9 +640,12 @@ function retrieveSubscriberServiceAnnotations(typedesc serviceType) returns Subs
     reflect:annotationData[] annotationDataArray = reflect:getServiceAnnotations(serviceType);
     foreach annData in annotationDataArray {
         if (annData.name == ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG && annData.moduleName == WEBSUB_MODULE_NAME) {
-            SubscriberServiceConfiguration subscriberServiceAnnotation =
-                                                            check <SubscriberServiceConfiguration> (annData.value);
-            return subscriberServiceAnnotation;
+            var subscriberServiceAnnotation = <SubscriberServiceConfiguration> (annData.value);
+            if (subscriberServiceAnnotation is SubscriberServiceConfiguration) {
+                return subscriberServiceAnnotation;
+            } else if (subscriberServiceAnnotation is error) {
+                panic subscriberServiceAnnotation;
+            }
         }
     }
     return;
@@ -636,8 +656,8 @@ function retrieveSubscriberServiceAnnotations(typedesc serviceType) returns Subs
 # + payload - The payload to be sent
 # + contentType - The content-type of the payload
 type WebSubContent record {
-    string|xml|json|byte[]|io:ReadableByteChannel payload;
-    string contentType;
+    string|xml|json|byte[]|io:ReadableByteChannel payload = "";
+    string contentType = "";
     !...
 };
 
@@ -651,8 +671,8 @@ function isSuccessStatusCode(int statusCode) returns boolean {
 # + cause - The cause of the `HubStartedUpError`, if available
 # + startedUpHub - The `WebSubHub` object representing the started up Hub
 public type HubStartedUpError record {
-    string message;
-    error? cause;
+    string message = "";
+    error? cause = ();
     WebSubHub startedUpHub;
     !...
 };
@@ -663,8 +683,12 @@ public type HubStartedUpError record {
 # + leaseSeconds - The lease second period specified for the particular subscription
 # + createdAt - The time at which the subscription was created
 public type SubscriberDetails record {
-    string callback;
-    int leaseSeconds;
-    int createdAt;
+    string callback = "";
+    int leaseSeconds = 0;
+    int createdAt = 0;
     !...
+};
+
+type WebSubError record {
+    string message = "";
 };

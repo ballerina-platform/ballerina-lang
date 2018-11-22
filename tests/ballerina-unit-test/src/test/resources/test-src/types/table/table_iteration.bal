@@ -63,18 +63,20 @@ function testForEachInTableWithStmt() returns (int, int, float, string) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table<Person> dt = check testDB->select("SELECT * from Person where id = 1", Person);
+    var dt = testDB->select("SELECT * from Person where id = 1", Person);
 
-    int id;
-    int age;
-    float salary;
-    string name;
+    int id = -1;
+    int age = -1;
+    float salary = -1;
+    string name = "";
 
-    foreach x in dt {
-        id = x.id;
-        age = x.age;
-        salary = x.salary;
-        name = x.name;
+    if (dt is table<Person>) {
+        foreach x in dt {
+            id = x.id;
+            age = x.age;
+            salary = x.salary;
+            name = x.name;
+        }
     }
     testDB.stop();
     return (id, age, salary, name);
@@ -89,13 +91,15 @@ function testForEachInTableWithIndex() returns (string, string) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table<Person> dt = check testDB->select("SELECT * from Person where id < 10 order by id", Person);
+    var dt = testDB->select("SELECT * from Person where id < 10 order by id", Person);
 
-    string indexStr;
-    string idStr;
-    foreach i,x in dt {
-        indexStr = indexStr + "," + i;
-        idStr = idStr + "," + x.id;
+    string indexStr = "";
+    string idStr = "";
+    if (dt is table<Person>) {
+        foreach i, x in dt {
+            indexStr = indexStr + "," + i;
+            idStr = idStr + "," + x.id;
+        }
     }
     testDB.stop();
     return (idStr, indexStr);
@@ -110,15 +114,17 @@ function testForEachInTable() returns (int, int, float, string) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table<Person> dt = check testDB->select("SELECT * from Person where id = 1", Person);
+    var dt = testDB->select("SELECT * from Person where id = 1", Person);
 
-    dt.foreach(function (Person p) {
-            idValue = untaint p.id;
-            ageValue = untaint p.age;
-            salValue = untaint p.salary;
-            nameValue = untaint p.name;
-        }
-    );
+    if (dt is table<Person>) {
+        dt.foreach(function (Person p) {
+                idValue = untaint p.id;
+                ageValue = untaint p.age;
+                salValue = untaint p.salary;
+                nameValue = untaint p.name;
+            }
+        );
+    }
     int id = idValue;
     int age = ageValue;
     float salary = salValue;
@@ -136,8 +142,11 @@ function testCountInTable() returns (int) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table<Person> dt = check testDB->select("SELECT * from Person where id < 10", Person);
-    int count = dt.count();
+    var dt = testDB->select("SELECT * from Person where id < 10", Person);
+    int count = -1;
+    if (dt is table<Person>) {
+        count = dt.count();
+    }
     testDB.stop();
     return count;
 }
@@ -151,11 +160,17 @@ function testFilterTable() returns (int, int, int) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table<Person> dt = check testDB->select("SELECT * from Person", Person);
-    Person[] personBelow35 = dt.filter(isBelow35);
-    int count = lengthof personBelow35;
-    int id1 = personBelow35[0].id;
-    int id2 = personBelow35[1].id;
+    var dt = testDB->select("SELECT * from Person", Person);
+    Person[] personBelow35 = [];
+    int id1 = -1;
+    int id2 = -1;
+    int count = -1;
+    if (dt is table<Person>) {
+        personBelow35 = dt.filter(isBelow35);
+        count = personBelow35.length();
+        id1 = personBelow35[0].id;
+        id2 = personBelow35[1].id;
+    }
     testDB.stop();
     return (count, id1, id2);
 }
@@ -169,13 +184,19 @@ function testFilterWithAnonymousFuncOnTable() returns (int, int, int) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table<Person> dt = check testDB->select("SELECT * from Person", Person);
-    Person[] personBelow35 = dt.filter(function (Person p) returns (boolean) {
-            return p.age < 35;
-        });
-    int count = lengthof personBelow35;
-    int id1 = personBelow35[0].id;
-    int id2 = personBelow35[1].id;
+    var dt = testDB->select("SELECT * from Person", Person);
+    Person[] personBelow35;
+    int count = -1;
+    int id1 = -1;
+    int id2 = -1;
+    if (dt is table<Person>) {
+        personBelow35 = dt.filter(function (Person p) returns (boolean) {
+                return p.age < 35;
+            });
+        count = personBelow35.length();
+        id1 = personBelow35[0].id;
+        id2 = personBelow35[1].id;
+    }
     testDB.stop();
     return (count, id1, id2);
 }
@@ -189,8 +210,11 @@ function testFilterTableWithCount() returns (int) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table<Person> dt = check testDB->select("SELECT * from Person", Person);
-    int count = dt.filter(isBelow35).count();
+    var dt = testDB->select("SELECT * from Person", Person);
+    int count = -1;
+    if (dt is table<Person>) {
+        count = dt.filter(isBelow35).count();
+    }
     testDB.stop();
     return count;
 }
@@ -204,8 +228,11 @@ function testMapTable() returns (string[]) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table<Person> dt = check testDB->select("SELECT * from Person order by id", Person);
-    string[] names = dt.map(getName);
+    var dt = testDB->select("SELECT * from Person order by id", Person);
+    string[] names = [];
+    if (dt is table<Person>) {
+        names = dt.map(getName);
+    }
     testDB.stop();
     return names;
 }
@@ -219,8 +246,11 @@ function testMapWithFilterTable() returns (string[]) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table<Person> dt = check testDB->select("SELECT * from Person order by id", Person);
-    string[] names = dt.map(getName).filter(isGeraterThan4String);
+    var dt = testDB->select("SELECT * from Person order by id", Person);
+    string[] names = [];
+    if (dt is table<Person>) {
+        names = dt.map(getName).filter(isGeraterThan4String);
+    }
     testDB.stop();
     return names;
 }
@@ -234,8 +264,11 @@ function testFilterWithMapTable() returns (string[]) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table<Person> dt = check testDB->select("SELECT * from Person order by id", Person);
-    string[] names = dt.filter(isGeraterThan4).map(getName);
+    var dt = testDB->select("SELECT * from Person order by id", Person);
+    string[] names = [];
+    if (dt is table<Person>) {
+        names = dt.filter(isGeraterThan4).map(getName);
+    }
     testDB.stop();
     return names;
 }
@@ -249,8 +282,11 @@ function testFilterWithMapAndCountTable() returns (int) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table<Person> dt = check testDB->select("SELECT * from Person order by id", Person);
-    int count = dt.filter(isGeraterThan4).map(getName).count();
+    var dt = testDB->select("SELECT * from Person order by id", Person);
+    int count = -1;
+    if (dt is table<Person>) {
+        count = dt.filter(isGeraterThan4).map(getName).count();
+    }
     testDB.stop();
     return count;
 }
@@ -264,8 +300,11 @@ function testAverageWithTable() returns (float) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table<Person> dt = check testDB->select("SELECT * from Person order by id", Person);
-    float avgSal = dt.map(getSalary).average();
+    var dt = testDB->select("SELECT * from Person order by id", Person);
+    float avgSal = -1;
+    if (dt is table<Person>) {
+        avgSal = dt.map(getSalary).average();
+    }
     testDB.stop();
     return avgSal;
 }
@@ -279,8 +318,11 @@ function testMinWithTable() returns (float) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table<Person> dt = check testDB->select("SELECT * from Person order by id", Person);
-    float avgSal = dt.map(getSalary).min();
+    var dt = testDB->select("SELECT * from Person order by id", Person);
+    float avgSal = -1;
+    if (dt is table<Person>) {
+        avgSal = dt.map(getSalary).min();
+    }
     testDB.stop();
     return avgSal;
 }
@@ -294,8 +336,11 @@ function testMaxWithTable() returns (float) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table<Person> dt = check testDB->select("SELECT * from Person order by id", Person);
-    float avgSal = dt.map(getSalary).max();
+    var dt = testDB->select("SELECT * from Person order by id", Person);
+    float avgSal = -1;
+    if (dt is table<Person>) {
+        avgSal = dt.map(getSalary).max();
+    }
     testDB.stop();
     return avgSal;
 }
@@ -309,8 +354,11 @@ function testSumWithTable() returns (float) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table<Person> dt = check testDB->select("SELECT * from Person order by id", Person);
-    float avgSal = dt.map(getSalary).sum();
+    var dt = testDB->select("SELECT * from Person order by id", Person);
+    float avgSal = -1;
+    if (dt is table<Person>) {
+        avgSal = dt.map(getSalary).sum();
+    }
     testDB.stop();
     return avgSal;
 }
@@ -324,12 +372,16 @@ function testCloseConnectionPool() returns (int) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table<Person> dt = check testDB->select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SESSIONS",
+    var dt = testDB->select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SESSIONS",
         ResultCount);
-    int count;
-    while (dt.hasNext()) {
-        var rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
+    int count = -1;
+    if (dt is table) {
+        while (dt.hasNext()) {
+            var rs = <ResultCount>dt.getNext();
+            if (rs is ResultCount) {
+                count = rs.COUNTVAL;
+            }
+        }
     }
     testDB.stop();
     return count;
@@ -340,28 +392,56 @@ function testSelect() returns (json) {
     table<Employee> dt = createTable();
 
     table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalary);
-    return check <json>salaryTable;
+    var ret = <json>salaryTable;
+    json res = {};
+    if (ret is json) {
+        res = ret;
+    } else if (ret is error) {
+        res = { Error: ret.reason() };
+    }
+    return res;
 }
 
 function testSelectCompatibleLambdaInput() returns (json) {
     table<Employee> dt = createTable();
 
     table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalaryCompatibleInput);
-    return check <json>salaryTable;
+    var ret = <json>salaryTable;
+    json res = {};
+    if (ret is json) {
+        res = ret;
+    } else if (ret is error) {
+        res = { Error: ret.reason() };
+    }
+    return res;
 }
 
 function testSelectCompatibleLambdaOutput() returns (json) {
     table<Employee> dt = createTable();
 
     table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalaryCompatibleOutput);
-    return check <json>salaryTable;
+    var ret = <json>salaryTable;
+    json res = {};
+    if (ret is json) {
+        res = ret;
+    } else if (ret is error) {
+        res = { Error: ret.reason() };
+    }
+    return res;
 }
 
 function testSelectCompatibleLambdaInputOutput() returns (json) {
     table<Employee> dt = createTable();
 
     table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalaryCompatibleInputOutput);
-    return check <json>salaryTable;
+    var ret = <json>salaryTable;
+    json res = {};
+    if (ret is json) {
+        res = ret;
+    } else if (ret is error) {
+        res = { Error: ret.reason() };
+    }
+    return res;
 }
 
 function getEmployeeSalary(Employee e) returns (EmployeeSalary) {
@@ -411,9 +491,9 @@ function getSalary(Person p) returns (float) {
 }
 
 function isGeraterThan4(Person p) returns (boolean) {
-    return lengthof p.name > 4;
+    return p.name.length() > 4;
 }
 
 function isGeraterThan4String(string s) returns (boolean) {
-    return lengthof s > 4;
+    return s.length() > 4;
 }

@@ -66,15 +66,10 @@ function sendRequest(string url, http:Request req, http:Listener conn) {
     endpoint http:Client clientEP = defineEndpointWithProxy(url);
     endpoint http:Listener listenerEP = conn;
     var response = clientEP->forward("", req);
-    match response {
-        http:Response httpResponse => {
-            _ = listenerEP->respond(httpResponse);
-        }
-        http:error err => {
-            http:Response errorResponse = new;
-            errorResponse.setTextPayload(err.message);
-            _ = listenerEP->respond(errorResponse);
-        }
+    if (response is http:Response) {
+        _ = listenerEP->respond(response);
+    } else if (response is error) {
+        _ = listenerEP->respond(response.reason());
     }
 }
 

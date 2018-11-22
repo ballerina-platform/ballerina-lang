@@ -307,7 +307,7 @@ type Person object {
     function getAttachedFn() returns string {
         int b = 4;
         var foo = function (float w) returns (string) {
-           return name + w + "K" + b + self.age;
+           return self.name + w + "K" + b + self.age;
         };
         return foo(7.4);
     }
@@ -324,7 +324,7 @@ type Person object {
 
 };
 
-function Person::externalAttachedFP() returns (function (float) returns (string)) {
+function Person.externalAttachedFP() returns (function (float) returns (string)) {
      int b = 4;
      var foo = function (float w) returns (string) {
         string d = w + "T" + b + self.year + self.name + self.age;
@@ -523,21 +523,26 @@ function testByteAndBoolean() returns (function (int, byte) returns
     return function (int a, byte b) returns (function (byte, int, boolean) returns byte[][]) {
         boolean boo2 = false;
         return function (byte c, int f, boolean booF) returns (byte[][]) {
-            byte i = check <byte> f;
-            byte[][] bArr = [];
-            if !boo2 {
-                bArr[0] = [c, b, 4, i];
-            }
+            var value = <byte> f;
+            if (value is byte) {
+                byte i = value;
+                byte[][] bArr = [];
+                if !boo2 {
+                    bArr[0] = [c, b, 4, i];
+                }
 
-            if boo1 {
-                bArr[1] = [i, c, 5, b, 3];
-            }
+                if boo1 {
+                    bArr[1] = [i, c, 5, b, 3];
+                }
 
-            if !booF {
-                bArr[2] = [1, 2, 3, c, b];
-            }
+                if !booF {
+                    bArr[2] = [1, 2, 3, c, b];
+                }
 
-            return bArr;
+                return bArr;
+            } else {
+                panic value;
+            }
         };
     };
 }
@@ -600,7 +605,7 @@ function test28() returns (int, int) {
 
 function function1(any firstParameter) returns (function (any) returns boolean) {
     return function (any secondParameter) returns boolean {
-        return firstParameter == secondParameter;
+        return firstParameter === secondParameter;
     };
 }
 
@@ -613,7 +618,7 @@ function function2(string firstParameter) returns (function (string) returns boo
 function function3(any firstParameter) returns (function (any) returns boolean) {
     var otherInternal = firstParameter;
     return function  (any secondParameter) returns boolean {
-        return otherInternal == secondParameter;
+        return otherInternal === secondParameter;
     };
 }
 

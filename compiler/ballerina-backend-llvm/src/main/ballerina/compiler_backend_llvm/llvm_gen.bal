@@ -2,7 +2,7 @@ import ballerina/llvm;
 import ballerina/bir;
 
 // TODO: make non-globle
-llvm:LLVMValueRef printfRef;
+llvm:LLVMValueRef printfRef = {};
 
 function genPackage(bir:Package pkg, string targetObjectFilePath, boolean dumpLLVMIR) {
     var mod = createModule(pkg.org, pkg.name, pkg.versionValue);
@@ -35,21 +35,24 @@ function genFunctions(llvm:LLVMModuleRef mod, bir:Function[] funcs) {
 }
 
 function createObjectFile(string targetObjectFilePath, llvm:LLVMModuleRef mod) {
-    llvm:LLVMTargetMachineRef targetMachine;
-    try {
-        targetMachine = createTargetMachine();
-        var filenameBytes = createNullTermiatedString(targetObjectFilePath);
-        byte[] errorMsg;
-        int i = llvm:LLVMTargetMachineEmitToFile(targetMachine, mod, filenameBytes, 1, errorMsg);
-        // TODO error reporting
-    } finally {
-        llvm:LLVMDisposeTargetMachine(targetMachine);
+    var val = trap createTargetMachine();
+    // TODO : Verify this logic.
+    match val {
+        llvm:LLVMTargetMachineRef targetMachine => {
+            var filenameBytes = createNullTermiatedString(targetObjectFilePath);
+            byte[] errorMsg = [];
+            int i = llvm:LLVMTargetMachineEmitToFile(targetMachine, mod, filenameBytes, 1, errorMsg);
+        }
+        error => {
+            llvm:LLVMTargetMachineRef targetMachine = {};
+            llvm:LLVMDisposeTargetMachine(targetMachine);
+        }
     }
 }
 
 function createNullTermiatedString(string str) returns byte[] {
     byte[] filenameBytes = str.toByteArray("UTF-8");
-    filenameBytes[lengthof filenameBytes] = 0;
+    filenameBytes[filenameBytes.length()] = 0;
     return filenameBytes;
 }
 
@@ -59,8 +62,8 @@ function createTargetMachine() returns llvm:LLVMTargetMachineRef {
 
     llvm:BytePointer targetTripleBP = llvm:LLVMGetDefaultTargetTriple();
     llvm:LLVMTargetRef targetRef = llvm:LLVMGetFirstTarget();
-    llvm:BytePointer cpu;
-    llvm:BytePointer features;
+    llvm:BytePointer cpu = {};
+    llvm:BytePointer features = {};
 
     return llvm:LLVMCreateTargetMachine(targetRef, targetTripleBP, cpu, features, 0, 0, 0);
 }
@@ -75,7 +78,7 @@ function initAllTargets() {
 
 function mapFuncsToNameAndGenrator(llvm:LLVMModuleRef mod, llvm:LLVMBuilderRef builder, bir:Function[] funcs)
              returns map<FuncGenrator> {
-    map<FuncGenrator> genrators;
+    map<FuncGenrator> genrators = {};
     foreach func in funcs {
         FuncGenrator funcGen = new(mod, builder, func);
         genrators[func.name.value] = funcGen;
@@ -118,7 +121,7 @@ function genBType(bir:BType bType) returns llvm:LLVMTypeRef {
 }
 
 function appendAllTo(any[] toArr, any[] fromArr) {
-    int i = lengthof toArr;
+    int i = toArr.length();
     foreach bI in fromArr{
         toArr[i] = bI;
         i += 1;

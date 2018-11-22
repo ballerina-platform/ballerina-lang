@@ -42,23 +42,28 @@ service<http:Service> foo bind tokenlistener {
     }
     token(endpoint caller, http:Request req) {
         // Mock token refresh resource
-        string payload = check req.getTextPayload();
-        boolean clientIdInBody = payload.contains("client_id");
-        string authHeader;
-        try {
-            authHeader = req.getHeader("Authorization");
-        } catch (error e) {
-            authHeader = "";
+        var payload = req.getTextPayload();
+        if (payload is string) {
+            boolean clientIdInBody = payload.contains("client_id");
+            string authHeader;
+            var reqHeader = trap req.getHeader("Authorization");
+            if (reqHeader is error) {
+                authHeader = "";
+            } else {
+                authHeader = req.getHeader("Authorization");
+            }
+            boolean tokenScope = false;
+            if (payload.contains("&scope=token-scope1 token-scope2")) {
+                tokenScope = true;
+            }
+            json status = { clientIdInBody: clientIdInBody, hasAuthHeader: authHeader != "", tokenScope: tokenScope };
+            io:println(status);
+            json resp = { access_token: "acces-token" };
+            http:Response res = new;
+            res.setJsonPayload(resp);
+            _ = caller->respond(res);
+        } else {
+            panic payload;
         }
-        boolean tokenScope = false;
-        if (payload.contains("&scope=token-scope1 token-scope2")) {
-            tokenScope = true;
-        }
-        json status = { clientIdInBody: clientIdInBody, hasAuthHeader: authHeader != "", tokenScope: tokenScope };
-        io:println(status);
-        json resp = { access_token: "acces-token" };
-        http:Response res = new;
-        res.setJsonPayload(resp);
-        _ = caller->respond(res);
     }
 }

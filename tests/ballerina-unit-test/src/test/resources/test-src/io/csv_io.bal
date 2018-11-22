@@ -6,8 +6,10 @@ type Employee record {
     float salary;
 };
 
-io:ReadableCSVChannel? rch;
-io:WritableCSVChannel? wch;
+io:ReadableCSVChannel? rch = ();
+io:WritableCSVChannel? wch = ();
+
+const string IO_ERROR_CODE = "{ballerina/io}IOError";
 
 function initReadableCsvChannel(string filePath, string encoding, io:Separator fieldSeparator) {
     io:ReadableByteChannel byteChannel = untaint io:openReadableFile(filePath);
@@ -29,17 +31,13 @@ function initOpenCsvChannel(string filePath, string encoding, io:Separator field
 
 function nextRecord() returns (string[]|error) {
     var result = rch.getNext();
-    match result {
-        string[] fields => {
-            return fields;
-        }
-        error err => {
-            return err;
-        }
-        () => {
-            error e = {message:"Record channel not initialized properly"};
-            return e;
-        }
+    if (result is string[]) {
+        return result;
+    } else if (result is error) {
+        return result;
+    } else {
+        error e = error(IO_ERROR_CODE, { message : "Record channel not initialized properly" });
+        return e;
     }
 }
 
@@ -61,17 +59,17 @@ function getTable(string filePath, string encoding, io:Separator fieldSeperator)
     io:ReadableByteChannel byteChannel = io:openReadableFile(filePath);
     io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
     io:ReadableCSVChannel csv = new io:ReadableCSVChannel(charChannel, fs = fieldSeperator);
-    float total;
-    match csv.getTable(Employee) {
-        table<Employee> tb => {
-            foreach x in tb {
-                total = total + x.salary;
-            }
-            return total;
+    float total = 0.0;
+    var tableResult = csv.getTable(Employee);
+    if (tableResult is table<Employee>) {
+        foreach x in tableResult {
+            total = total + x.salary;
         }
-        error err => {
-            return err;
-        }
-
+        return total;
+    } else if (tableResult is error) {
+        return tableResult;
+    } else {
+        error e = error(IO_ERROR_CODE, { message : "Record channel not initialized properly" });
+        return e;
     }
 }

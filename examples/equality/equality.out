@@ -1,0 +1,11 @@
+$ ballerina run equality.bal
+1 == 1 is true
+1 == 2 is false
+(1, 1.0, false) == (1, 1.0, false) is true
+(1, 1.0, false) == (11, 1.0, true) is false
+{name:"Jane", id:1100} == {name:"Jane", id:1100} is true
+{name:"Jane", id:1100} == {name:"Anne", id:1100} is false
+e4 === e5 is true
+e4 === e5 is false
+f1 === f2 is true
+f1 === f2 is false

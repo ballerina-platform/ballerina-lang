@@ -17,8 +17,10 @@
  */
 package org.ballerinalang.model.tree.statements;
 
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 import java.util.List;
 
@@ -30,18 +32,50 @@ import java.util.List;
 public interface MatchNode {
 
     /**
-     * {@code MatchStatementPatternNode} represents a pattern inside a type switch statement.
+     * {@code MatchBindingPatternNode} is the base interface for any patterns inside a match statement.
      *
      * @since 0.966.0
      */
-    interface MatchStatementPatternNode {
-
-        VariableNode getVariableNode();
+    interface MatchBindingPatternNode {
 
         StatementNode getStatement();
     }
 
+    /**
+     * {@code MatchTypedBindingPatternNode} represents a pattern inside a type switch statement.
+     *
+     * @since 0.966.0
+     */
+    interface MatchTypedBindingPatternNode extends MatchBindingPatternNode {
+
+        SimpleVariableNode getVariableNode();
+    }
+
+    /**
+     * {@code MatchStaticBindingPatternNode} represents a static pattern inside a match statement.
+     *
+     * @since 0.985.0
+     */
+    interface MatchStaticBindingPatternNode extends MatchBindingPatternNode {
+
+        BLangExpression getLiteral();
+    }
+
+    /**
+     * {@code MatchStructuredBindingPatternNode} represents a structured pattern inside a match statement.
+     *
+     * @since 0.985.0
+     */
+    interface MatchStructuredBindingPatternNode extends MatchBindingPatternNode {
+
+        VariableNode getVariableNode();
+    }
+
     ExpressionNode getExpression();
 
-    List<? extends MatchStatementPatternNode> getPatternClauses();
+    List<? extends MatchTypedBindingPatternNode> getTypedPatternClauses();
+
+    List<? extends MatchStaticBindingPatternNode> getStaticPatternClauses();
+
+    List<? extends MatchStructuredBindingPatternNode> getStructuredPatternClauses();
 }

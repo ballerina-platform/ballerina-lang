@@ -22,20 +22,20 @@ import ballerina/log;
 # + config - Configurations related to the subscriber
 public type DurableTopicSubscriber object {
 
-    public DurableTopicSubscriberActions consumerActions;
-    public DurableTopicSubscriberEndpointConfiguration config;
+    public DurableTopicSubscriberActions consumerActions = new;
+    public DurableTopicSubscriberEndpointConfiguration config = {};
 
     # Initialize durable topic subscriber endpoint
     #
     # + c - Configurations for a durable topic subscriber
     public function init(DurableTopicSubscriberEndpointConfiguration c) {
         self.config = c;
-        match (c.session) {
-            Session s => {
-                self.createSubscriber(s, c.messageSelector);
-                log:printInfo("Durable subscriber created for topic " + c.topicPattern);
-            }
-            () => {}
+        var session = c.session;
+        if (session is Session) {
+            self.createSubscriber(session, c.messageSelector);
+            log:printInfo("Durable subscriber created for topic " + c.topicPattern);
+        } else {
+            log:printInfo("Session is (), Cannot create a subscriber without a session");
         }
     }
 
@@ -43,7 +43,7 @@ public type DurableTopicSubscriber object {
     #
     # + serviceType - Type descriptor of the service
     public function register(typedesc serviceType) {
-        self.registerListener(serviceType, consumerActions);
+        self.registerListener(serviceType, self.consumerActions);
     }
 
     extern function registerListener(typedesc serviceType, DurableTopicSubscriberActions actions);
@@ -58,12 +58,12 @@ public type DurableTopicSubscriber object {
     #
     # + return - durable topic subscriber actions
     public function getCallerActions() returns DurableTopicSubscriberActions {
-        return consumerActions;
+        return self.consumerActions;
     }
 
     # Ends consuming messages from the durable topic subscriber endpoint
     public function stop() {
-        self.closeSubscriber(consumerActions);
+        self.closeSubscriber(self.consumerActions);
     }
 
     extern function closeSubscriber(DurableTopicSubscriberActions actions);
@@ -76,10 +76,10 @@ public type DurableTopicSubscriber object {
 # + messageSelector - JMS selector statement
 # + identifier - unique identifier for the subscription
 public type DurableTopicSubscriberEndpointConfiguration record {
-    Session? session;
-    string topicPattern;
-    string messageSelector;
-    string identifier;
+    Session? session = ();
+    string topicPattern = "";
+    string messageSelector = "";
+    string identifier = "";
     !...
 };
 

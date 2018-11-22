@@ -18,19 +18,25 @@
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.DataIterator;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BTableType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.util.TableIterator;
 import org.ballerinalang.util.TableProvider;
 import org.ballerinalang.util.TableUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
 import java.util.List;
+import java.util.Map;
 import java.util.StringJoiner;
+
+import static org.ballerinalang.model.util.FreezeUtils.handleInvalidUpdate;
+import static org.ballerinalang.model.util.FreezeUtils.isOpenForFreeze;
 
 /**
  * The {@code BTable} represents a two dimensional data set in Ballerina.
@@ -48,6 +54,7 @@ public class BTable implements BRefType<Object>, BCollection {
     private BStringArray primaryKeys;
     private BStringArray indices;
     private boolean tableClosed;
+    private volatile CPU.FreezeStatus freezeStatus = new CPU.FreezeStatus(CPU.FreezeStatus.State.UNFROZEN);
 
     public BTable() {
         this.iterator = null;
@@ -82,10 +89,8 @@ public class BTable implements BRefType<Object>, BCollection {
         //Create table with given constraints.
         BType constrainedType = ((BTableType) type).getConstrainedType();
         this.tableProvider = TableProvider.getInstance();
-        if (constrainedType != null) {
-            this.tableName = tableProvider.createTable(constrainedType, keyColumns, indexColumns);
-            this.constraintType = (BStructureType) constrainedType;
-        }
+        this.tableName = tableProvider.createTable(constrainedType, keyColumns, indexColumns);
+        this.constraintType = (BStructureType) constrainedType;
         this.primaryKeys = keyColumns;
         this.indices = indexColumns;
         //Insert initial data
@@ -137,6 +142,10 @@ public class BTable implements BRefType<Object>, BCollection {
         return BTypes.typeTable;
     }
 
+    @Override
+    public void stamp(BType type) {
+
+    }
 
     public boolean hasNext() {
         if (tableClosed) {
@@ -145,12 +154,12 @@ public class BTable implements BRefType<Object>, BCollection {
         if (isIteratorGenerationConditionMet()) {
             generateIterator();
         }
-        if (!nextPrefetched && iterator != null) {
+        if (!nextPrefetched) {
             hasNextVal = iterator.next();
             nextPrefetched = true;
         }
         if (!hasNextVal) {
-           reset();
+            reset();
         }
         return hasNextVal;
     }
@@ -162,7 +171,7 @@ public class BTable implements BRefType<Object>, BCollection {
         if (isIteratorGenerationConditionMet()) {
             generateIterator();
         }
-        if (!nextPrefetched && iterator != null) {
+        if (!nextPrefetched) {
             iterator.next();
         } else {
             nextPrefetched = false;
@@ -188,19 +197,22 @@ public class BTable implements BRefType<Object>, BCollection {
         // Make next row the current row
         moveToNext();
         // Create BStruct from current row
-        if (iterator != null) {
-            return (BMap<String, BValue>) iterator.generateNext();
-        }
-        return new BMap<>(BTypes.typeAny);
+        return (BMap<String, BValue>) iterator.generateNext();
     }
 
     /**
      * Performs addition of a record to the database.
      *
-     * @param data The record to be inserted
+     * @param data    The record to be inserted
      * @param context The context which represents the runtime state of the program that called "table.add"
      */
     public void performAddOperation(BMap<String, BValue> data, Context context) {
+        synchronized (this) {
+            if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
+                handleInvalidUpdate(freezeStatus.getState());
+            }
+        }
+
         try {
             this.addData(data, context);
             context.setReturnValues();
@@ -210,10 +222,6 @@ public class BTable implements BRefType<Object>, BCollection {
     }
 
     public void addData(BMap<String, BValue> data, Context context) {
-        if (this.constraintType == null) {
-            throw new BallerinaException("incompatible types: record of type:" + data.getType().getName()
-                    + " cannot be added to a table with no type");
-        }
         if (data.getType() != this.constraintType) {
             throw new BallerinaException("incompatible types: record of type:" + data.getType().getName()
                     + " cannot be added to a table with type:" + this.constraintType.getName());
@@ -229,16 +237,18 @@ public class BTable implements BRefType<Object>, BCollection {
     /**
      * Performs Removal of records matching the condition defined by the provided lambda function.
      *
-     * @param context The context which represents the runtime state of the program that called "table.remove"
+     * @param context        The context which represents the runtime state of the program that called "table.remove"
      * @param lambdaFunction The function that decides the condition of data removal
      */
     public void performRemoveOperation(Context context, BFunctionPointer lambdaFunction) {
+        synchronized (this) {
+            if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
+                handleInvalidUpdate(freezeStatus.getState());
+            }
+        }
+
         try {
             BType functionInputType = lambdaFunction.value().getParamTypes()[0];
-            if (this.constraintType == null) {
-                throw new BallerinaException("incompatible types: function with record type:"
-                        + functionInputType.getName() + " cannot be used to remove records from a table with no type");
-            }
             if (functionInputType != this.constraintType) {
                 throw new BallerinaException("incompatible types: function with record type:"
                         + functionInputType.getName() + " cannot be used to remove records from a table with type:"
@@ -247,7 +257,7 @@ public class BTable implements BRefType<Object>, BCollection {
             int deletedCount = 0;
             while (this.hasNext()) {
                 BMap<String, BValue> data = this.getNext();
-                BValue[] args = { data };
+                BValue[] args = {data};
                 BValue[] returns = BLangFunctions.invokeCallable(lambdaFunction.value(), args);
                 if (((BBoolean) returns[0]).booleanValue()) {
                     ++deletedCount;
@@ -298,8 +308,32 @@ public class BTable implements BRefType<Object>, BCollection {
     }
 
     @Override
-    public BValue copy() {
-        return null;
+    public BValue copy(Map<BValue, BValue> refs) {
+        if (tableClosed) {
+            throw new BallerinaException("Trying to invoke clone built-in method over a closed table");
+        }
+
+        if (isFrozen()) {
+            return this;
+        }
+
+        if (refs.containsKey(this)) {
+            return refs.get(this);
+        }
+
+        TableIterator cloneIterator = tableProvider.createIterator(this.tableName, this.constraintType);
+        BRefValueArray data = new BRefValueArray();
+        int cursor = 0;
+        try {
+            while (cloneIterator.next()) {
+                data.add(cursor++, cloneIterator.generateNext());
+            }
+            BTable table = new BTable(new BTableType(constraintType), this.indices, this.primaryKeys, data);
+            refs.put(this, table);
+            return table;
+        } finally {
+            cloneIterator.close();
+        }
     }
 
     @Override
@@ -313,7 +347,7 @@ public class BTable implements BRefType<Object>, BCollection {
     }
 
     protected boolean isIteratorGenerationConditionMet() {
-        return this.iterator == null && this.constraintType != null;
+        return this.iterator == null;
     }
 
     protected void resetIterationHelperAttributes() {
@@ -348,6 +382,18 @@ public class BTable implements BRefType<Object>, BCollection {
     }
 
     /**
+     * Returns the length or the number of rows of the table.
+     *
+     * @return number of rows of the table
+     */
+    public int length() {
+        if (tableName == null) {
+            return 0;
+        }
+        return tableProvider.getRowCount(tableName);
+    }
+
+    /**
      * Provides iterator implementation for table values.
      *
      * @since 0.961.0
@@ -364,15 +410,38 @@ public class BTable implements BRefType<Object>, BCollection {
         @Override
         public BValue[] getNext(int arity) {
             if (arity == 1) {
-                return new BValue[] {table.getNext()};
+                return new BValue[]{table.getNext()};
             }
             int cursor = this.cursor++;
-            return new BValue[] {new BInteger(cursor), table.getNext()};
+            return new BValue[]{new BInteger(cursor), table.getNext()};
         }
 
         @Override
         public boolean hasNext() {
             return table.hasNext();
+        }
+
+        @Override
+        public void stamp(BType type) {
+
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized boolean isFrozen() {
+        return this.freezeStatus.isFrozen();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void attemptFreeze(CPU.FreezeStatus freezeStatus) {
+        if (isOpenForFreeze(this.freezeStatus, freezeStatus)) {
+            this.freezeStatus = freezeStatus;
         }
     }
 }

@@ -20,6 +20,7 @@ package org.ballerinalang.net.grpc.proto;
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportEndpointTypes;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.IdentifierNode;
@@ -42,9 +43,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -97,17 +100,24 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
     @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
         try {
-            Optional<BLangVariable> descriptorMapVar = ((ArrayList) ((BLangPackage) ((BLangService) serviceNode).parent)
-                    .globalVars).stream().filter(var -> ((BLangVariable) var).getName().getValue()
-                    .equals(DESCRIPTOR_MAP)).findFirst();
-            if (descriptorMapVar.isPresent()) {
-                String proto = ((BLangRecordLiteral) descriptorMapVar.get().getInitialExpression())
-                        .getKeyValuePairs().get(0).getValue().toString();
-                addDescriptorAnnotation(serviceNode, null, proto);
-            } else if (ServiceDefinitionValidator.validate(serviceNode, dlog)) {
-                File fileDefinition = ServiceProtoUtils.generateProtoDefinition(serviceNode);
-                addDescriptorAnnotation(serviceNode, fileDefinition, null);
-                FileDefinitionHolder.getInstance().addDefinition(serviceNode.getName().getValue(), fileDefinition);
+            if (ServiceDefinitionValidator.validate(serviceNode, dlog)) {
+                Optional<BLangVariable> descriptorMapVar = ((ArrayList) ((BLangPackage) ((BLangService) serviceNode)
+                        .parent).globalVars).stream().filter(var -> ((BLangSimpleVariable) var).getName().getValue()
+                        .equals(DESCRIPTOR_MAP)).findFirst();
+                Optional<BLangVariable> descriptorKey = ((ArrayList) ((BLangPackage) ((BLangService) serviceNode)
+                        .parent).globalVars).stream().filter(var -> ((BLangSimpleVariable) var).getName().getValue()
+                        .equals("DESCRIPTOR_KEY")).findFirst();
+
+                if (descriptorKey.isPresent() && descriptorMapVar.isPresent()) {
+                    String rootDescriptor = ((BLangRecordLiteral) descriptorMapVar.get().getInitialExpression())
+                            .getKeyValuePairs().get(0).getValue().toString();
+                    addDescriptorAnnotation(serviceNode, rootDescriptor);
+                } else {
+                    File fileDefinition = ServiceProtoUtils.generateProtoDefinition(serviceNode);
+                    addDescriptorAnnotation(serviceNode,
+                            bytesToHex(fileDefinition.getFileDescriptorProto().toByteArray()));
+                    FileDefinitionHolder.getInstance().addDefinition(serviceNode.getName().getValue(), fileDefinition);
+                }
             }
         } catch (GrpcServerException e) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(), e.getMessage());
@@ -141,7 +151,13 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
         }
     }
 
-    private void addDescriptorAnnotation(ServiceNode serviceNode, File fileDefinition, String protoValue) {
+    private void addDescriptorAnnotation(ServiceNode serviceNode, String rootDescriptor) {
+        for (AnnotationAttachmentNode annonNodes : serviceNode.getAnnotationAttachments()) {
+            if ("ServiceDescriptor".equals(annonNodes.getAnnotationName().getValue())) {
+                //serviceNode.getAnnotationAttachments().remove(annonNodes);
+                return;
+            }
+        }
         BLangService service = (BLangService) serviceNode;
         DiagnosticPos pos = service.pos;
         // Create Annotation Attachment.
@@ -161,6 +177,10 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
         annoAttachment.pos = pos;
         BLangRecordLiteral literalNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
         annoAttachment.expr = literalNode;
+        BLangIdentifier pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        pkgAlias.setValue("grpc");
+        annoAttachment.pkgAlias = pkgAlias;
+        annoAttachment.attachPoint = AttachPoint.SERVICE;
         literalNode.pos = pos;
         BStructureTypeSymbol bStructSymbol = null;
         BSymbol annTypeSymbol = symResolver.lookupSymbolInPackage(service.pos, pkgEnv,
@@ -169,9 +189,11 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
             bStructSymbol = (BStructureTypeSymbol) annTypeSymbol;
             literalNode.type = bStructSymbol.type;
         }
-        BLangRecordLiteral.BLangRecordKeyValue keyValue = (BLangRecordLiteral.BLangRecordKeyValue) TreeBuilder
-                .createRecordKeyValue();
-        literalNode.keyValuePairs.add(keyValue);
+
+        //Add Root Descriptor
+        BLangRecordLiteral.BLangRecordKeyValue descriptorKeyValue = (BLangRecordLiteral.BLangRecordKeyValue)
+                TreeBuilder.createRecordKeyValue();
+        literalNode.keyValuePairs.add(descriptorKeyValue);
 
         BLangLiteral keyLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         keyLiteral.value = "descriptor";
@@ -182,23 +204,49 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
         LiteralNode literalExpression = TreeBuilder.createLiteralExpression();
         if (literalExpression.getKind() == NodeKind.LITERAL) {
             valueLiteral = (BLangLiteral) literalExpression;
-            if (fileDefinition != null) {
-                valueLiteral.value = bytesToHex(fileDefinition.getFileDescriptorProto().toByteArray());
-            } else if (protoValue != null) {
-                valueLiteral.value = protoValue;
+            if (rootDescriptor != null) {
+                valueLiteral.value = rootDescriptor;
             }
             valueLiteral.typeTag = TypeTags.STRING;
             valueLiteral.type = symTable.stringType;
         }
 
-        keyValue.key = new BLangRecordLiteral.BLangRecordKey(keyLiteral);
+        descriptorKeyValue.key = new BLangRecordLiteral.BLangRecordKey(keyLiteral);
         BSymbol fieldSymbol = symResolver.resolveStructField(service.pos, pkgEnv,
                 names.fromString("descriptor"), bStructSymbol);
         if (fieldSymbol instanceof BVarSymbol) {
-            keyValue.key.fieldSymbol = (BVarSymbol) fieldSymbol;
+            descriptorKeyValue.key.fieldSymbol = (BVarSymbol) fieldSymbol;
         }
         if (valueLiteral != null) {
-            keyValue.valueExpr = valueLiteral;
+            descriptorKeyValue.valueExpr = valueLiteral;
         }
+
+        //Add Descriptor Map
+        BSymbol mapVarSymbol = symResolver.lookupSymbol(pkgEnv, names.fromString(DESCRIPTOR_MAP), SymTag.VARIABLE);
+        if (mapVarSymbol == null || mapVarSymbol.type.tag == TypeTags.NONE) {
+            return;
+        }
+        BLangSimpleVarRef mapVarRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+        //mapVarRef.varSymbol = (BVarSymbol) mapVarSymbol;
+        mapVarRef.symbol = mapVarSymbol;
+        mapVarRef.type = symTable.mapType;
+        BLangIdentifier descriptorMapNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        descriptorMapNode.setValue(DESCRIPTOR_MAP);
+        mapVarRef.variableName = descriptorMapNode;
+        mapVarRef.pkgSymbol = pkgEnv.scope.owner;
+
+        BLangRecordLiteral.BLangRecordKeyValue mapKeyValue = (BLangRecordLiteral.BLangRecordKeyValue) TreeBuilder
+                .createRecordKeyValue();
+        literalNode.keyValuePairs.add(mapKeyValue);
+
+        BLangLiteral mapKeyLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        mapKeyLiteral.value = "descMap";
+        mapKeyLiteral.typeTag = TypeTags.MAP;
+        mapKeyLiteral.type = symTable.mapType;
+        mapKeyLiteral.pos = pos;
+
+        mapKeyValue.key = new BLangRecordLiteral.BLangRecordKey(mapKeyLiteral);
+        mapKeyValue.valueExpr = mapVarRef;
+        mapKeyValue.pos = pos;
     }
 }

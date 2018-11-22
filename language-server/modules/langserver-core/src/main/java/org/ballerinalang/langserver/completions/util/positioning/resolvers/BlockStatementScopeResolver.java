@@ -22,8 +22,8 @@ import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -106,7 +106,7 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
             return (bLangBlockStmt.stmts.indexOf(node) == (bLangBlockStmt.stmts.size() - 1));
         } else if (blockOwner instanceof BLangTypeDefinition
                 && ((BLangTypeDefinition) blockOwner).typeNode instanceof BLangObjectTypeNode) {
-            List<BLangVariable> structFields = (List<BLangVariable>)
+            List<BLangSimpleVariable> structFields = (List<BLangSimpleVariable>)
                     ((BLangObjectTypeNode) ((BLangTypeDefinition) blockOwner).typeNode).getFields();
             return (structFields.indexOf(node) == structFields.size() - 1);
         } else {

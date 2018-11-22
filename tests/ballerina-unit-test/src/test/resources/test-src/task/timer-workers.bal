@@ -1,15 +1,15 @@
 import ballerina/task;
 import ballerina/io;
 
-int w1Count;
-int w2Count;
-error errorW1;
-error errorW2;
-string errorMsgW1;
-string errorMsgW2;
+int w1Count = 0;
+int w2Count = 0;
+error? errorW1 = ();
+error? errorW2 = ();
+string errorMsgW1 = "";
+string errorMsgW2 = "";
 
-task:Timer? timer1;
-task:Timer? timer2;
+task:Timer? timer1 = ();
+task:Timer? timer2 = ();
 
 function scheduleTimer(int w1Delay, int w1Interval, int w2Delay, int w2Interval, string errMsgW1, string errMsgW2) {
     worker default {
@@ -51,7 +51,7 @@ function onTriggerW1() returns error? {
     io:println("w1:onTriggerW1");
     if (errorMsgW1 != "") {
         io:println("w1:onTriggerW1 returning error");
-        error e = {message:errorMsgW1};
+        error e = error(errorMsgW1);
         return e;
     }
     return;
@@ -67,7 +67,7 @@ function onTriggerW2() returns error? {
     io:println("w2:onTriggerW2");
     if (errorMsgW2 != "") {
         io:println("w2:onTriggerW2 returning error");
-        error e = {message:errorMsgW2};
+        error e = error(errorMsgW2);
         return e;
     }
     return;
@@ -83,13 +83,13 @@ function getCounts() returns (int, int) {
 }
 
 function getErrors() returns (string, string) {
-    string w1ErrMsg;
-    string w2ErrMsg;
-    if (errorW1 != null) {
-        w1ErrMsg = errorW1.message;
+    string w1ErrMsg = "";
+    string w2ErrMsg = "";
+    if (errorW1 is error) {
+        w1ErrMsg = errorW1.reason();
     }
-    if (errorW2 != null) {
-        w2ErrMsg = errorW2.message;
+    if (errorW2 is error) {
+        w2ErrMsg = errorW2.reason();
     }
     return (w1ErrMsg, w2ErrMsg);
 }

@@ -5,26 +5,24 @@ import ballerina/log;
     basePath: "/xmlparser"
 }
 service<http:Service> xmlParserService bind { port: 9090 } {
+
     @http:ResourceConfig {
         path: "/"
     }
     parse(endpoint caller, http:Request request) {
         var payload = request.getXmlPayload();
-        http:Response res = new;
-        match (payload) {
-            xml xmlPayload => {
-                res.statusCode = 200;
-                res.setTextPayload(untaint xmlPayload.getTextValue());
-                caller->respond(res) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        if (payload is xml) {
+            var responseToCaller = caller->respond(untaint payload.getTextValue());
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
             }
-            error err => {
-                res.statusCode = 500;
-                res.setTextPayload(untaint err.message);
-                caller->respond(res) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        } else {
+            http:Response res = new;
+            res.statusCode = 500;
+            res.setTextPayload(untaint payload.reason());
+            var responseToCaller = caller->respond(res);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
             }
         }
     }

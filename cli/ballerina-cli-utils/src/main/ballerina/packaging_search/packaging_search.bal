@@ -18,103 +18,121 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
     match result {
         http:Response response => httpResponse = response;
         error e => {
-            io:println("Connection to the remote host failed : " + e.message);
+            io:println("Connection to the remote host failed : " + e.reason());
             return;
         }
     }
-    json jsonResponse = null;
     string statusCode = <string> httpResponse.statusCode;
     if (statusCode.hasPrefix("5")) {
         io:println("remote registry failed for url : " + url + "/" + querySearched);
     } else if (statusCode != "200") {
-        jsonResponse = check (httpResponse.getJsonPayload());
-        string message = jsonResponse.msg.toString();
-        io:println(message);
-    } else {
-        jsonResponse = check (httpResponse.getJsonPayload());
-        json[] artifacts = check <json[]> jsonResponse.artifacts;
-        if (artifacts == null || lengthof artifacts > 0) {
-            int artifactsLength = lengthof artifacts;
-            printTitle("Ballerina Central");
-            
-            int rightMargin = 3;
-            int width = (check <int> terminalWidth) - rightMargin;
-        
-            int dateColWidth = 15;
-            int versionColWidth = 8;
-            int authorsColWidth = 15;
-            float nameColFactor = 9.0;
-            float descColFactor = 16.0;
-            int additionalSpace = 7;
-            float remainingWidth = width - <float>(dateColWidth + versionColWidth + additionalSpace);
-            
-            int nameColWidth = math:round(remainingWidth * (nameColFactor / (nameColFactor + descColFactor)));
-            int descColWidth = math:round(remainingWidth * (descColFactor / (nameColFactor + descColFactor)));  
-            
-            printInCLI("|NAME", nameColWidth);
-            int minDescColWidth = 60;
-            if (descColWidth >= minDescColWidth) {
-                printInCLI("DESCRIPTION", descColWidth - authorsColWidth);
-                printInCLI("AUTHOR", authorsColWidth);
-            } else {
-                printInCLI("DESCRIPTION", descColWidth);
-            }
-            
-            printInCLI("DATE", dateColWidth);
-            printInCLI("VERSION", versionColWidth);
-
-            io:println("");
-
-            printCharacter("|-", nameColWidth, "-");
-            
-            if (descColWidth >= minDescColWidth) {
-                printCharacter("-", descColWidth - authorsColWidth, "-");
-                printCharacter("-", authorsColWidth, "-");
-            } else {
-                printCharacter("-", descColWidth, "-");
-            }
-
-            printCharacter("-", dateColWidth, "-");
-            printCharacter("-", versionColWidth, "-");
-
-            io:println("");
-
-            int i = 0;
-            while (i < artifactsLength) {
-                json jsonElement = artifacts[i];
-                string orgName = jsonElement.orgName.toString();
-                string packageName = jsonElement.packageName.toString();
-                printInCLI("|"+ orgName + "/" + packageName, nameColWidth);
-                
-                string summary = jsonElement.summary.toString();
-                                
-                if (descColWidth >= minDescColWidth) {
-                    printInCLI(summary, descColWidth - authorsColWidth);
-                    string authors = "";
-                    json authorsArr = jsonElement.authors;
-                    foreach authorIndex in 0 ..< lengthof authorsArr {
-                        if (authorIndex == lengthof authorsArr - 1) {
-                            authors = authors + authorsArr[authorIndex].toString();
-                        } else {
-                            authors = authors + " , " + authorsArr[authorIndex].toString();
-                        }
-                    }
-                    printInCLI(authors, authorsColWidth);
-                } else {
-                    printInCLI(summary, descColWidth);
-                }
-
-                json createTimeJson = <json> jsonElement.createdDate;
-                printInCLI(getDateCreated(createTimeJson), dateColWidth);
-                
-                string packageVersion = jsonElement.packageVersion.toString();
-                printInCLI(packageVersion, versionColWidth);
-                i = i + 1;
-                io:println("");
-            }
-            io:println("");
+        var resp = httpResponse.getJsonPayload();
+        if (resp is json) {
+            string message = resp.msg.toString();
+            io:println(message);
         } else {
-            io:println("no modules found");
+            io:println("invalid response json");
+        }
+    } else {
+        var jsonResponse = httpResponse.getJsonPayload();
+        if (jsonResponse is json) {
+            var artifacts = <json[]> jsonResponse.artifacts;
+            if (artifacts is json[]) {
+                if (artifacts.length() > 0) {
+                    int artifactsLength = artifacts.length();
+                    printTitle("Ballerina Central");
+                    
+                    int rightMargin = 3;
+                    int width;
+                    var intTerminalWidth = <int> terminalWidth;
+                    if (intTerminalWidth is int) {
+                        width = intTerminalWidth - rightMargin;
+                    } else {
+                        io:println("invalid terminal width : " + terminalWidth);
+                        return;
+                    }
+                    
+                    int dateColWidth = 15;
+                    int versionColWidth = 8;
+                    int authorsColWidth = 15;
+                    float nameColFactor = 9.0;
+                    float descColFactor = 16.0;
+                    int additionalSpace = 7;
+                    float remainingWidth = width - <float>(dateColWidth + versionColWidth + additionalSpace);
+                    
+                    int nameColWidth = math:round(remainingWidth * (nameColFactor / (nameColFactor + descColFactor)));
+                    int descColWidth = math:round(remainingWidth * (descColFactor / (nameColFactor + descColFactor)));  
+                    
+                    printInCLI("|NAME", nameColWidth);
+                    int minDescColWidth = 60;
+                    if (descColWidth >= minDescColWidth) {
+                        printInCLI("DESCRIPTION", descColWidth - authorsColWidth);
+                        printInCLI("AUTHOR", authorsColWidth);
+                    } else {
+                        printInCLI("DESCRIPTION", descColWidth);
+                    }
+                    
+                    printInCLI("DATE", dateColWidth);
+                    printInCLI("VERSION", versionColWidth);
+
+                    io:println("");
+
+                    printCharacter("|-", nameColWidth, "-");
+                    
+                    if (descColWidth >= minDescColWidth) {
+                        printCharacter("-", descColWidth - authorsColWidth, "-");
+                        printCharacter("-", authorsColWidth, "-");
+                    } else {
+                        printCharacter("-", descColWidth, "-");
+                    }
+
+                    printCharacter("-", dateColWidth, "-");
+                    printCharacter("-", versionColWidth, "-");
+
+                    io:println("");
+
+                    int i = 0;
+                    while (i < artifactsLength) {
+                        json jsonElement = artifacts[i];
+                        string orgName = jsonElement.orgName.toString();
+                        string packageName = jsonElement.packageName.toString();
+                        printInCLI("|"+ orgName + "/" + packageName, nameColWidth);
+                        
+                        string summary = jsonElement.summary.toString();
+                                        
+                        if (descColWidth >= minDescColWidth) {
+                            printInCLI(summary, descColWidth - authorsColWidth);
+                            string authors = "";
+                            json authorsArr = jsonElement.authors;
+                            foreach authorIndex in 0 ..< authorsArr.length() {
+                                if (authorIndex == authorsArr.length() - 1) {
+                                    authors = authors + authorsArr[authorIndex].toString();
+                                } else {
+                                    authors = authors + " , " + authorsArr[authorIndex].toString();
+                                }
+                            }
+                            printInCLI(authors, authorsColWidth);
+                        } else {
+                            printInCLI(summary, descColWidth);
+                        }
+
+                        json createTimeJson = <json> jsonElement.createdDate;
+                        printInCLI(getDateCreated(createTimeJson), dateColWidth);
+                        
+                        string packageVersion = jsonElement.packageVersion.toString();
+                        printInCLI(packageVersion, versionColWidth);
+                        i = i + 1;
+                        io:println("");
+                    }
+                    io:println("");
+                } else {
+                    io:println("no modules found");
+                }
+            } else {
+                io:println("invalid response json");
+            }
+        } else {
+            io:println("invalid response json");
         }
     }
 }
@@ -127,7 +145,7 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
 # + username - Username of the proxy
 # + password - Password of the proxy
 # + return - Endpoint defined
-function defineEndpointWithProxy (string url, string hostname, string port, string username, string password) returns http:Client{
+function defineEndpointWithProxy (string url, string hostname, int port, string username, string password) returns http:Client{
     endpoint http:Client httpEndpoint {
         url: url,
         secureSocket:{
@@ -209,26 +227,40 @@ function printTitle(string title) {
 # + return - Date and time the module was created
 function getDateCreated(json jsonObj) returns string {
     string jsonTime = jsonObj.time.toString();
-    int timeInMillis = check <int> jsonTime;
-    time:Time timeStruct = new(timeInMillis, { zoneId: "UTC", zoneOffset: 0 });
-    string customTimeString = timeStruct.format("yyyy-MM-dd-E");
-    return customTimeString;
+    var timeInMillis = <int> jsonTime;
+    if (timeInMillis is int) {
+        time:Time timeStruct = new(timeInMillis, { zoneId: "UTC", zoneOffset: 0 });
+        string customTimeString = timeStruct.format("yyyy-MM-dd-E");
+        return customTimeString;
+    } else if (timeInMillis is error) {
+        panic timeInMillis;
+    }
+    return "";
 }
 
 # This function invokes the method to search for modules.
 # + args - Arguments passed
 public function main (string... args) {
-    http:Client httpEndpoint;
+    http:Client httpEndpoint = new;
     string host = args[2];
-    string port = args[3];
-    if (host != "" && port != "") {
-        try {
-            httpEndpoint = defineEndpointWithProxy(args[0], host, port, args[4], args[5]);
-        } catch (error err) {
-            io:println("failed to resolve host : " + host + " with port " + port);
-            return;
+    string strPort = args[3];
+    if (host != "" && strPort != "") {
+        var port = <int> strPort;
+        if (port is int) {
+            http:Client|error result = trap defineEndpointWithProxy(args[0], host, port, args[4], args[5]);
+            match result {
+                http:Client ep => {
+                    httpEndpoint = ep;
+                }
+                error e => {
+                    io:println("failed to resolve host : " + host + " with port " + port);
+                    return;
+                }
+            }
+        } else {
+            io:println("invalid port : " + strPort);
         }
-    } else  if (host != "" || port != "") {
+    } else  if (host != "" || strPort != "") {
         io:println("both host and port should be provided to enable proxy");     
         return;   
     } else {
@@ -244,8 +276,7 @@ public function main (string... args) {
 # + username - Username of the proxy
 # + password - Password of the proxy
 # + return - Proxy configurations for the endpoint
-function getProxyConfigurations(string hostName, string port, string username, string password) returns http:ProxyConfig {
-    int portInt = check <int> port;
-    http:ProxyConfig proxy = { host : hostName, port : portInt , userName: username, password : password };
+function getProxyConfigurations(string hostName, int port, string username, string password) returns http:ProxyConfig {
+    http:ProxyConfig proxy = { host : hostName, port : port , userName: username, password : password };
     return proxy;
 }
