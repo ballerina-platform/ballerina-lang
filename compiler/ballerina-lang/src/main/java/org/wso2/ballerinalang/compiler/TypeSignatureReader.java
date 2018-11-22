@@ -67,6 +67,7 @@ public class TypeSignatureReader<T> {
                 typeStack.push(typeCreater.getBuiltinRefType(typeName));
                 return nameIndex + 1;
             case 'C':
+            case 'X':
             case 'J':
             case 'T':
             case 'D':

@@ -78,6 +78,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
@@ -191,10 +192,6 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangResource resourceNode) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangAction actionNode) {
         throw new AssertionError();
     }
 
@@ -603,6 +600,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
         throw new AssertionError();
     }
 

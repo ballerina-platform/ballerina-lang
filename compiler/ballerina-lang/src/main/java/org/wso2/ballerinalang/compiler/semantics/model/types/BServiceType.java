@@ -24,17 +24,15 @@ import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
- * {@code {@link BStructType}} represents the type of a service in Ballerina.
+ * {@code {@link BServiceType}} represents the type of a service in Ballerina.
  *
  * @since 0.965.0
  */
-public class BServiceType extends BType implements ServiceType {
-
-//    TODO : Fix me.
-//    public BType endpointType;
+public class BServiceType extends BObjectType implements ServiceType {
 
     public BServiceType(BTypeSymbol tsymbol) {
-        super(TypeTags.SERVICE, tsymbol);
+        super(tsymbol);
+        this.tag = TypeTags.SERVICE;
     }
 
     public String getDesc() {

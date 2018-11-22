@@ -967,12 +967,12 @@ public class CPU {
                 keyType, dataType);
         if (pendingCtx != null) {
             //inject the value to the ctx
-            copyArgValueForWorkerReceive(pendingCtx.context.workerLocal, pendingCtx.regIndex, dataType, dataVal);
-            if (pendingCtx.context.interruptible) {
-                String stateId = (String) pendingCtx.context.globalProps.get(STATE_ID);
-                PersistenceStore.persistState(new State(pendingCtx.context, stateId, pendingCtx.context.ip + 1));
-            }
-            BLangScheduler.resume(pendingCtx.context);
+//            copyArgValueForWorkerReceive(pendingCtx.context.workerLocal, pendingCtx.regIndex, dataType, dataVal);
+//            if (pendingCtx.context.interruptible) {
+//                String stateId = (String) pendingCtx.context.globalProps.get(STATE_ID);
+//                PersistenceStore.persistState(new State(pendingCtx.context, stateId, pendingCtx.context.ip + 1));
+//            }
+//            BLangScheduler.resume(pendingCtx.context);
         }
         if (ctx.interruptible) {
             String stateId = (String) ctx.globalProps.get(STATE_ID);
@@ -997,16 +997,16 @@ public class CPU {
         if (keyType != null) {
             keyVal = extractValue(ctx.workerLocal, keyType, keyIndex);
         }
-        BValue value = ChannelManager.channelReceiverAction(channelName, keyVal, keyType, ctx, receiverReg,
-                receiverType);
-        if (value != null) {
-            copyArgValueForWorkerReceive(ctx.workerLocal, receiverReg, receiverType, (BRefType) value);
-            if (ctx.interruptible) {
-                String stateId = (String) ctx.globalProps.get(STATE_ID);
-                PersistenceStore.persistState(new State(ctx, stateId, ctx.ip + 1));
-            }
-            return true;
-        }
+//        BValue value = ChannelManager.channelReceiverAction(channelName, keyVal, keyType, ctx, receiverReg,
+//                receiverType);
+//        if (value != null) {
+//            copyArgValueForWorkerReceive(ctx.workerLocal, receiverReg, receiverType, (BRefType) value);
+//            if (ctx.interruptible) {
+//                String stateId = (String) ctx.globalProps.get(STATE_ID);
+//                PersistenceStore.persistState(new State(ctx, stateId, ctx.ip + 1));
+//            }
+//            return true;
+//        }
 
         return false;
     }
@@ -4279,7 +4279,7 @@ public class CPU {
             return false;
         }
 
-        return IntStream.range(0, source.getValues().length)
+        return IntStream.range(0, (int) source.size())
                 .allMatch(i -> checkIsLikeType(source.get(i), targetType.getTupleTypes().get(i)));
     }
 

@@ -40,13 +40,11 @@ public class BallerinaStreamsV2AggregationGroupByTest {
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enable.siddhiRuntime", "false");
         result = BCompileUtil.compile("test-src/streaming/native/streamingv2-aggregation-with-groupby-test.bal");
     }
 
     @Test(description = "Test streaming query with aggregation and group by.")
     public void testFilterQuery() {
-        System.setProperty("enable.siddhiRuntime", "true");
         BValue[] outputEvents = BRunUtil.invoke(result, "startAggregationQuery");
         Assert.assertNotNull(outputEvents);
 
