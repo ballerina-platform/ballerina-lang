@@ -12,7 +12,6 @@ export interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArgum
     commandOptions: Array<string>;
     'ballerina.home': string; 
     debugTests: boolean;
-    networkLogs: Boolean;
 }
 
 export interface RunningInfo {

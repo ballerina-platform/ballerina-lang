@@ -17,7 +17,7 @@
  */
 
 import * as React from "react";
-import { Segment } from 'semantic-ui-react';
+import { Segment, Icon } from 'semantic-ui-react';
 import ReactJson from 'react-json-view';
 
 function isJson(text: string) {
@@ -35,7 +35,8 @@ function isJson(text: string) {
 }
 
 export interface DetailViewProps {
-    trace: any,
+    hideDetailView: Function,
+    meta: any,
 }
 
 export interface DetailViewState {
@@ -47,21 +48,14 @@ export default class DetailView extends React.Component<DetailViewProps, DetailV
         super(props);
     }
     render() {
-        const trace = this.props.trace;
-        const headers = trace.message.headers || '';
-        const payload = trace.message.payload;
+        const { meta, meta: { headers = '' } } = this.props;
+        const payload = meta.payload;
         const headersArray = headers.split('\n');
-        if (payload.trim() ===  "" && headers.trim() === "") {
-            return (
-                <code>
-                    <pre>{trace.rawMessage}</pre>
-                </code>
-            );
-        }
+
         return (
-            <Segment inverted padded compact>
-                {
-                    headersArray.length && <code>
+            <Segment className='detail-view' inverted>
+                <Icon name='close' className='close' onClick={this.props.hideDetailView} />
+                <code>
                     <pre>
                         {headersArray.map((header: string, index: number) => {
                             const endChar = headersArray.length - 1 === index ? '' : '\n';
@@ -80,9 +74,8 @@ export default class DetailView extends React.Component<DetailViewProps, DetailV
                         })}
                     </pre>
                 </code>
-                }
                 {
-                    trace.message.contentType === 'application/json' && isJson(payload) ?
+                    meta.contentType === 'application/json' && isJson(payload) ?
                         <ReactJson
                             src={JSON.parse(payload)}
                             theme='eighties'
@@ -91,7 +84,7 @@ export default class DetailView extends React.Component<DetailViewProps, DetailV
                             collapsed={1}
                             displayObjectSize={false}
                             style={{ marginTop: 10, background: 'inherit' }}
-                        /> : <code><pre>{trace.message.payload}</pre></code>
+                        /> : <code><pre>{meta.payload}</pre></code>
                 }
 
             </Segment>
