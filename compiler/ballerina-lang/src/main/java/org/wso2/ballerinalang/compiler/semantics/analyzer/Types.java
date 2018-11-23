@@ -252,7 +252,8 @@ public class Types {
                 return checkRecordEquivalencyForStamping((BRecordType) source, (BRecordType) target, unresolvedTypes);
             } else if (source.tag == TypeTags.MAP) {
                 int mapConstraintTypeTag = ((BMapType) source).constraint.tag;
-                if (mapConstraintTypeTag != TypeTags.ANY && ((BRecordType) target).sealed) {
+                if ((!(mapConstraintTypeTag == TypeTags.ANY || mapConstraintTypeTag == TypeTags.ANYDATA)) &&
+                        ((BRecordType) target).sealed) {
                     for (BField field : ((BStructureType) target).getFields()) {
                         if (field.getType().tag != mapConstraintTypeTag) {
                             return false;
@@ -746,9 +747,6 @@ public class Types {
             case TypeTags.TABLE:
                 BTableType tableType = (BTableType) collectionType;
                 if (variableSize == 1) {
-                    if (tableType.constraint.tag == TypeTags.NONE) {
-                        return Lists.of(symTable.anyType);
-                    }
                     return Lists.of(tableType.constraint);
                 } else if (variableSize == 2) {
                     return Lists.of(symTable.intType, tableType.constraint);
