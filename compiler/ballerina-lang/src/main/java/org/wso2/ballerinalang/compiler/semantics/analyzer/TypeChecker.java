@@ -2574,7 +2574,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         functionArgList, iExpr.expr);
             case CREATE:
                 functionArgList = iExpr.argExprs;
-                // Resolve the type of the variables passed as arguments to stamp in-built function.
+                // Resolve the type of the variables passed as arguments to create in-built function.
                 for (BLangExpression expression : functionArgList) {
                     checkExpr(expression, env, symTable.noType);
                 }
