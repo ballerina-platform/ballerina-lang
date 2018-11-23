@@ -47,8 +47,8 @@ public function erroredFunc() {
     S = S + " in-participantErroredFunc";
     int k = 5;
     if (k == 5) {
-        error err = { message: "TransactionError" };
-        throw err;
+        error err = error("TransactionError");
+        panic err;
     }
 }
 
@@ -59,18 +59,22 @@ function initiatorFunc(boolean error1, boolean error2) returns string {
     transaction with retries=2 {
         S = S + " in-trx-block";
         participantFoo();
-        try {
-            if (!thrown1 && error1) {
-                thrown1 = true;
-                erroredFunc();
+
+        if (thrown1 && !thrown2 && error2) {
+            thrown2 = true;
+            var er = trap erroredFunc();
+            if (er is error) {
+                S = S + " " + er.reason();
             }
-            if (thrown1 && !thrown2 && error2) {
-                thrown2 = true;
-                erroredFunc();
-            }
-        } catch (error err) {
-            S = S + " catched-error";
         }
+        if (!thrown1 && error1) {
+            thrown1 = true;
+            var er = trap erroredFunc();
+            if (er is error) {
+                S = S + " " + er.reason();
+            }
+        }
+
         S = S + " in-trx-lastline";
     } onretry {
         S = S + " onretry-block";
@@ -85,8 +89,8 @@ function initiatorFunc(boolean error1, boolean error2) returns string {
 
 function blowUp()  returns int {
     if (5 == 5) {
-        error err = { message: "TransactionError" };
-        throw err;
+        error err = error("TransactionError");
+        panic err;
     }
     return 5;
 }

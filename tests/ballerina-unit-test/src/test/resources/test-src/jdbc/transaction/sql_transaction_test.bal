@@ -574,19 +574,13 @@ function testLocalTransactionFailedHelper(string status, h2:Client db) returns s
                         values ('James', 'Clerk', 111, 5000.75, 'USA')");
         _ = testDB->update("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country)
                         values ('Anne', 'Clerk', 111, 5000.75, 'USA')");
-    } onretry {
-        a = a + " inFld";
-        } onretry {
-            a = a + " onRetry";
-        } committed {
-            a = a + " trxCommited";
-        } aborted {
-            a = a + " trxAborted";
-        }
-    } catch (error e) {
-        io:println(e);
-        a = a + " inCatch";
-
+    }
+    onretry {
+        a = a + " onRetry";
+    } committed {
+        a = a + " trxCommited";
+    } aborted {
+        a = a + " trxAborted";
     }
     return a;
 }
@@ -639,30 +633,12 @@ function testLocalTransactionSuccessWithFailedHelper(string status, h2:Client db
                                         values ('Anne', 'Clerk', 222, 5000.75, 'USA')");
         }
     } onretry {
-        a = a + " inFld";
+        a = a + " retry";
         i = i + 1;
-    try {
-        transaction with retries = 4 {
-            a = a + " inTrx";
-            _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                            values ('James', 'Clerk', 222, 5000.75, 'USA')");
-            if (i == 2) {
-                _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                            values ('Anne', 'Clerk', 222, 5000.75, 'USA')");
-            } else {
-                _ = testDB->update("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country)
-                            values ('Anne', 'Clerk', 222, 5000.75, 'USA')");
-            }
-        } onretry {
-            a = a + " retry";
-            i = i + 1;
-        } committed {
-            a = a + " committed";
-        } aborted {
-            a = a + " aborted";
-        }
-    } catch (error e) {
-        a = a + " inCatch";
+    } committed {
+        a = a + " committed";
+    } aborted {
+        a = a + " aborted";
     }
     return a;
 }

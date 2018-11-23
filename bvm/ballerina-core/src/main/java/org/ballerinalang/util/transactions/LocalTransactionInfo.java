@@ -123,10 +123,10 @@ public class LocalTransactionInfo {
         if (!isGlobalTransactionEnabled) {
             return true;
         }
-//        boolean isNotInitiator = !TransactionUtils.isInitiator(context, globalTransactionId, transactionId);
-//        if (currentRetryCount != 0 && isNotInitiator) {
-//            return false;
-//        }
+        //        boolean isNotInitiator = !TransactionUtils.isInitiator(context, globalTransactionId, transactionId);
+        //        if (currentRetryCount != 0 && isNotInitiator) {
+        //            return false;
+        //        }
         return true;
     }
 

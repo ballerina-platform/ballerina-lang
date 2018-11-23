@@ -23,38 +23,35 @@ public type TrxError record {
     !...
 };
 
+function testTransactionFailing() returns string|error {
+    return trap testTransactionStmtWithCommitedAndAbortedBlocks(2, false);
+}
+
 function testTransactionStmtWithCommitedAndAbortedBlocks(int failureCutOff, boolean requestAbort) returns (string) {
     string a = "";
-    a = (a + "start");
+    a = a + "start";
+    a = a + " fc-" + failureCutOff;
     int count = 0;
-    try {
-        transaction with retries=2 {
-            a = a + " inTrx";
-            count = count + 1;
-            int i = 0;
-            if (count <= failureCutOff) {
-                int bV = blowUp();
-                if (bV == 0) {
-                    a = a + " blown";
-                } else {
-                    a = a + " notBlown";
-                }
-            }
-
-            if (requestAbort) {
-                abort;
-            }
-
-            a = a + " endTrx";
-        } onretry {
-            a = a + " retry";
-        } committed {
-            a = a + " committed";
-        } aborted {
-            a = a + " aborted";
+    transaction with retries=2 {
+        a = a + " inTrx";
+        count = count + 1;
+        if (count <= failureCutOff) {
+            a = a + " blowUp";
+            int bV = blowUp();
         }
-    } catch (error err) {
-        a = a + " [" + err.message + "]";
+
+        if (requestAbort) {
+            a = a + " aborting";
+            abort;
+        }
+
+        a = a + " endTrx";
+    } onretry {
+        a = a + " retry";
+    } committed {
+        a = a + " committed";
+    } aborted {
+        a = a + " aborted";
     }
     a = (a + " end");
     return a;
@@ -62,8 +59,8 @@ function testTransactionStmtWithCommitedAndAbortedBlocks(int failureCutOff, bool
 
 function blowUp()  returns int {
     if (5 == 5) {
-        error err = { message: "TransactionError" };
-        throw err;
+        error err = error("TransactionError");
+        panic err;
     }
     return 5;
 }

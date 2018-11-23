@@ -469,7 +469,8 @@ public class CPU {
                         i = operands[0];
                         j = operands[1];
                         k = operands[2];
-                        endTransaction(ctx, i, j, k);
+                        h = operands[3];
+                        endTransaction(ctx, i, j, k, h);
                         break;
                     case InstructionCodes.WRKSEND:
                         InstructionWRKSendReceive wrkSendIns = (InstructionWRKSendReceive) instruction;
@@ -3094,20 +3095,21 @@ public class CPU {
         ctx.ip = trAbortEndIp;
     }
 
-    private static void endTransaction(WorkerExecutionContext ctx, int txBlockId, int status, int statusRegIndex) {
+    private static void endTransaction(WorkerExecutionContext ctx, int txBlockId, int status,
+                                       int statusRegIndex, int errorRegIndex) {
         LocalTransactionInfo localTxInfo = ctx.getLocalTransactionInfo();
         try {
             //In success case no need to do anything as with the transaction end phase it will be committed.
             switch (Transactions.TransactionStatus.getConst(status)) {
                 case BLOCK_END: // 0
                     // set statusReg
-                    transactionBlockEnd(ctx, txBlockId, statusRegIndex, localTxInfo);
+                    transactionBlockEnd(ctx, txBlockId, statusRegIndex, localTxInfo, errorRegIndex);
                     break;
                 case FAILED: // -1
                     transactionFailedEnd(ctx, txBlockId, localTxInfo, statusRegIndex);
                     break;
                 case ABORTED: // -2
-                    transactionAbortedEnd(ctx, txBlockId, localTxInfo, statusRegIndex);
+                    transactionAbortedEnd(ctx, txBlockId, localTxInfo, statusRegIndex, errorRegIndex);
                     break;
                 case END: // 1
                     transationEndEnd(ctx, txBlockId, localTxInfo);
@@ -3121,21 +3123,22 @@ public class CPU {
         }
     }
 
-    private static void transactionAbortedEnd(WorkerExecutionContext ctx, int txBlockId, LocalTransactionInfo localTxInfo,
-                                              int statusRegIndex) {
+    private static void transactionAbortedEnd(WorkerExecutionContext ctx, int txBlockId,
+                                              LocalTransactionInfo localTxInfo, int statusRegIndex, int errorRegIndex) {
         // notify only if, aborted by 'abort' statement.
         // otherwise it already knows.
         if (ctx.workerLocal.intRegs[statusRegIndex] == 0) {
             notifyTransactionAbort(ctx, txBlockId, localTxInfo);
         }
-        setErrorRethrowReg(ctx, statusRegIndex);
+        setErrorRethrowReg(ctx, statusRegIndex, errorRegIndex);
     }
 
-    private static void setErrorRethrowReg(WorkerExecutionContext ctx, int statusRegIndex) {
+    private static void setErrorRethrowReg(WorkerExecutionContext ctx, int statusRegIndex, int errorRegIndex) {
         if (ctx.getError() != null) {
-            BError cause = ctx.getError().cause;
+            BError cause = ctx.getError();
             if (cause != null) {
                 ctx.setError(cause);
+                ctx.workerLocal.refRegs[errorRegIndex] = cause; // panic on this error.
             }
             // Next 2 instructions re-throw this error.
             ctx.workerLocal.intRegs[statusRegIndex] = 1;
@@ -3155,10 +3158,22 @@ public class CPU {
     }
 
     private static void transactionBlockEnd(WorkerExecutionContext ctx, int transactionBlockId, int statusRegIndex,
-                                            LocalTransactionInfo localTransactionInfo) {
+                                            LocalTransactionInfo localTransactionInfo, int errorRegIndex) {
         // Tx reached end of block, it may or may not successfully finished.
         LocalTransactionInfo.TransactionFailure failure = localTransactionInfo.getFailure();
-        if (failure == null && ctx.getError() == null) {
+
+        BError error = null;
+        BRefType<?> errorVal = ctx.workerLocal.refRegs[errorRegIndex];
+        if (errorVal != null && errorVal.getType().getTag() == TypeTags.ERROR_TAG) {
+            error = (BError) errorVal;
+        }
+
+        if (error != null && ctx.getError() == null) {
+            ctx.setError(error);
+            ctx.workerLocal.refRegs[errorRegIndex] = null;
+        }
+
+        if (failure == null && error == null && ctx.getError() == null) {
             // Skip branching to retry block as there is no local failure.
             // Will set this reg if there is failure in global coordinated trx.
             ctx.workerLocal.intRegs[statusRegIndex] = 0;

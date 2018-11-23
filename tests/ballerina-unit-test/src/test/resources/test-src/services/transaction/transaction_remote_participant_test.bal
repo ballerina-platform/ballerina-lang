@@ -34,18 +34,18 @@ service<http:Service> hello bind { port: 10234 } {
     }
     sayHello(endpoint caller, http:Request req) {
         S1 = S1 + " in-remote";
-        string textValue = check req.getTextPayload();
-        log:printInfo("in remote: " + textValue);
-        if (textValue == "blowUp") {
-            int blowNum = blowUp();
+        var payload =  req.getTextPayload();
+            if (payload is string) {
+                log:printInfo("in remote: " + payload);
+                if (payload == "blowUp") {
+                    int blowNum = blowUp();
+            }
         }
 
         http:Response res = new;
-
         res.setPayload("payload-from-remote");
 
-        caller->respond(res) but { error e => log:printError(
-                                                  "Error sending response", err = e) };
+        caller->respond(res) but { error e => log:printError("Error sending response", err = e) };
     }
 }
 
@@ -90,11 +90,11 @@ function initiatorFunc(boolean throw1, boolean throw2, boolean remote1, boolean 
                                 log:printInfo(r);
                                 S1 = S1 + " <" + untaint r + ">";
                             }
-                            error err => log:printError(err.message);
+                            error err => log:printError(err.reason());
                         }
                     }
                 }
-                error err => log:printError(err.message);
+                error err => log:printError(err.reason());
             }
         }
         if (trx_ran_once && remoteExecuted2 == false && remote2) {
@@ -112,11 +112,11 @@ function initiatorFunc(boolean throw1, boolean throw2, boolean remote1, boolean 
                                 log:printInfo(r);
                                 S1 = S1 + " <" + untaint r + ">";
                             }
-                            error err => log:printError(err.message);
+                            error err => log:printError(err.reason());
                         }
                     }
                 }
-                error err => log:printError(err.message);
+                error err => log:printError(err.reason());
             }
         }
         if (throw1 && !thrown1) {
@@ -132,12 +132,18 @@ function initiatorFunc(boolean throw1, boolean throw2, boolean remote1, boolean 
             int blowNum = blowUp();
         }
         S1 = S1 + " in-trx-lastline";
+        log:printInfo("trx-last-line");
     } onretry {
+        log:printInfo("on retry block ran");
         S1 = S1 + " onretry-block";
         trx_ran_once = true;
     } committed {
+        log:printInfo("commited block ran");
+
         S1 = S1 + " committed-block";
     } aborted {
+        log:printInfo("aborted ran");
+
         S1 = S1 + " aborted-block";
     }
     S1 = S1 + " after-trx";
@@ -146,8 +152,8 @@ function initiatorFunc(boolean throw1, boolean throw2, boolean remote1, boolean 
 
 function blowUp()  returns int {
     if (5 == 5) {
-        error err = { message: "TransactionError" };
-        throw err;
+        error err = error("TransactionError");
+        panic err;
     }
     return 5;
 }

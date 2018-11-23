@@ -1,5 +1,5 @@
 function testCorrectTransactionBlock() returns (string) {
-    string a;
+    string a = "";
     transaction with retries=2 {
         } onretry {
             a = a + " retry";
@@ -12,7 +12,7 @@ function testCorrectTransactionBlock() returns (string) {
 }
 
 function testTwoAbortedBlocks() returns (string) {
-    string a;
+    string a = "";
     transaction with retries=2 {
     } onretry {
         a = a + " retry";
@@ -25,7 +25,7 @@ function testTwoAbortedBlocks() returns (string) {
 }
 
 function testTwoCommittedBlocks() returns (string) {
-    string a;
+    string a = "";
     transaction with retries=2 {
     } onretry {
         a = a + " retry";

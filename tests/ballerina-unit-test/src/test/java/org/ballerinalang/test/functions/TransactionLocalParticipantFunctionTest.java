@@ -55,7 +55,7 @@ public class TransactionLocalParticipantFunctionTest {
         BValue[] params = {new BBoolean(true), new BBoolean(false)};
         BValue[] ret = BRunUtil.invoke(result, "initiatorFunc", params);
         String s = ret[0].stringValue();
-        Assert.assertEquals(s, " in-trx-block in-participantFoo in-participantErroredFunc catched-error " +
+        Assert.assertEquals(s, " in-trx-block in-participantFoo in-participantErroredFunc TransactionError " +
                 "in-trx-lastline onretry-block " +
                 "in-trx-block in-participantFoo in-trx-lastline commitFun committed-block after-trx");
     }
@@ -65,9 +65,9 @@ public class TransactionLocalParticipantFunctionTest {
         BValue[] params = {new BBoolean(true), new BBoolean(true)};
         BValue[] ret = BRunUtil.invoke(result, "initiatorFunc", params);
         String s = ret[0].stringValue();
-        Assert.assertEquals(s, " in-trx-block in-participantFoo in-participantErroredFunc catched-error " +
+        Assert.assertEquals(s, " in-trx-block in-participantFoo in-participantErroredFunc TransactionError " +
                 "in-trx-lastline onretry-block " +
-                "in-trx-block in-participantFoo in-participantErroredFunc catched-error " +
+                "in-trx-block in-participantFoo in-participantErroredFunc TransactionError " +
                 "in-trx-lastline aborted-block after-trx");
     }
 }

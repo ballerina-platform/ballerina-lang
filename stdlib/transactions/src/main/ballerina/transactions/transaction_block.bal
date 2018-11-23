@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/log;
+
 # When a transaction block in Ballerina code begins, it will call this function to begin a transaction.
 # If this is a new transaction (transactionId == () ), then this instance will become the initiator and will
 # create a new transaction context.
@@ -116,8 +118,8 @@ function endTransaction(string transactionId, int transactionBlockId) returns st
                             return s;
                         }
                         error e => {
-                            log:printInfo("endTransaction status: " + e.message);
-                            return e.message;
+                            log:printError("error ending trx: ", err = e);
+                            return e;
                         }
                     }
                 }

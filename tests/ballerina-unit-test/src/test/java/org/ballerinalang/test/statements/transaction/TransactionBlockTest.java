@@ -22,11 +22,13 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
  * Test cases for committed aborted clauses in TransactionStatement.
@@ -50,31 +52,34 @@ public class TransactionBlockTest {
     @Test
     public void testTransactionStmtWithnoAbortNoFailure() {
         BValue[] returns = runFunctionWithTxConfig(0, false);
-        Assert.assertEquals(returns[0].stringValue(), "start inTrx endTrx committed end");
+        Assert.assertEquals(returns[0].stringValue(), "start fc-0 inTrx endTrx committed end");
     }
 
     @Test
     public void testTransactionStmtWithAbortNoFailure() {
         BValue[] returns = runFunctionWithTxConfig(0, true);
-        Assert.assertEquals(returns[0].stringValue(), "start inTrx aborted end");
+        Assert.assertEquals(returns[0].stringValue(), "start fc-0 inTrx aborting aborted end");
     }
 
     @Test
     public void testTransactionStmtWithNoAbortSingleFailure() {
         BValue[] returns = runFunctionWithTxConfig(1, false);
-        Assert.assertEquals(returns[0].stringValue(), "start inTrx retry inTrx endTrx committed end");
+        Assert.assertEquals(returns[0].stringValue(), "start fc-1 inTrx blowUp retry inTrx endTrx committed end");
     }
 
     @Test
     public void testTransactionStmtWithnoAbortFailureFailure() {
-        BValue[] returns = runFunctionWithTxConfig(2, false);
-        Assert.assertEquals(returns[0].stringValue(), "start inTrx retry inTrx aborted [TransactionError] end");
+        BValue[] params = {};
+        BValue[] result = BRunUtil.invoke(programFile, "testTransactionFailing", params);
+        Assert.assertEquals(result[0].getType().getTag(), TypeTags.ERROR);
+        BError error = (BError) result[0];
+        Assert.assertEquals(error.reason, "TransactionError");
     }
 
     @Test
     public void testTransactionStmtWithFailureAndAbort() {
         BValue[] returns = runFunctionWithTxConfig(1, true);
-        Assert.assertEquals(returns[0].stringValue(), "start inTrx retry inTrx aborted end");
+        Assert.assertEquals(returns[0].stringValue(), "start fc-1 inTrx blowUp retry inTrx aborting aborted end");
     }
 
     @Test

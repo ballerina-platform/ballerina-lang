@@ -37,21 +37,10 @@ public class RemoteParticipantTransactionTest {
 
     // todo: remove all the behavioral tests to integration test suite, as we need be able to free the port after each run.
     private CompileResult programFile;
-    private CompileResult negativeProgramFile;
 
     @BeforeClass
     public void setup() {
         programFile = BCompileUtil.compile("test-src/services/transaction/transaction_remote_participant_test.bal");
-        //todo: temp, activate after figuring out annotation processing ::::: negativeProgramFile = BCompileUtil.compile("test-src/services/transaction/transaction_remote_participant_negative.bal");
-    }
-
-    @Test
-    @Ignore // todo: remote this ignore (this was ignore to help reduce clutter when debugging code-gen.
-    public void participantServiceCannotInitiateTransaction() {
-        Assert.assertTrue(negativeProgramFile.getDiagnostics().length > 0, "'canInitiate: true' annotation is illegal"
-                + " for participant resource");
-        BAssertUtil.validateError(negativeProgramFile, 0,
-                "Participant resource cannot initiate a transaction", 10, 5);
     }
 
     @Test
