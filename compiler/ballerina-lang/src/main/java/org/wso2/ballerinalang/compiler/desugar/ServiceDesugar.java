@@ -129,6 +129,17 @@ public class ServiceDesugar {
         //      (init)                          ->      y.__attach(x, {});
         final DiagnosticPos pos = service.pos;
 
+        //      (globalVar)         ->      service x = service { ... };
+        final BLangServiceConstructorExpr serviceConstructor = ASTBuilderUtil.createServiceConstructor(service);
+        BLangSimpleVariable serviceVar = ASTBuilderUtil
+                .createVariable(pos, service.name.value, symTable.anyServiceType, serviceConstructor, null);
+        ASTBuilderUtil.defineVariable(serviceVar, env.enclPkg.symbol, names);
+        env.enclPkg.globalVars.add(serviceVar);
+
+        if (service.attachExpr == null) {
+            return;
+        }
+
         //      if y is anonymous   ->      y = y(expr)
         BLangSimpleVarRef listenerVarRef;
         if (service.attachExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
@@ -144,13 +155,6 @@ public class ServiceDesugar {
             listenerVarRef = ASTBuilderUtil.createVariableRef(pos, listenerVar.symbol);
         }
         service.listenerName = listenerVarRef.variableName.value;
-
-        //      (globalVar)         ->      service x = service { ... };
-        final BLangServiceConstructorExpr serviceConstructor = ASTBuilderUtil.createServiceConstructor(service);
-        BLangSimpleVariable serviceVar = ASTBuilderUtil
-                .createVariable(pos, service.name.value, symTable.anyServiceType, serviceConstructor, null);
-        ASTBuilderUtil.defineVariable(serviceVar, env.enclPkg.symbol, names);
-        env.enclPkg.globalVars.add(serviceVar);
 
         //      (.<init>)              ->      y.__attach(x, {});
         // Find correct symbol.

@@ -550,13 +550,21 @@ public class PackageInfoReader {
 
             // Read service and listener type cp index;
             TypeRefCPEntry serviceType = (TypeRefCPEntry) packageInfo.getCPEntry(dataInStream.readInt());
-            TypeRefCPEntry listenerType = (TypeRefCPEntry) packageInfo.getCPEntry(dataInStream.readInt());
-            UTF8CPEntry listenerName = (UTF8CPEntry) packageInfo.getCPEntry(dataInStream.readInt());
-
+            int cpIndex;
+            BType listenerType = null;
+            String listenerName = null;
+            if ((cpIndex = dataInStream.readInt()) != -1) {
+                TypeRefCPEntry listenerTypeCP = (TypeRefCPEntry) packageInfo.getCPEntry(cpIndex);
+                listenerType = listenerTypeCP.getType();
+            }
+            if ((cpIndex = dataInStream.readInt()) != -1) {
+                UTF8CPEntry listenerNameCP = (UTF8CPEntry) packageInfo.getCPEntry(cpIndex);
+                listenerName = listenerNameCP.getValue();
+            }
             ServiceInfo serviceInfo = new ServiceInfo(packageInfo.getPkgNameCPIndex(), packageInfo.getPkgPath(),
                     serviceNameCPIndex, serviceNameUTF8Entry.getValue(), flags,
                     new BServiceType(serviceNameUTF8Entry.getValue(), packageInfo.getPkgPath(), serviceType.getType()),
-                    listenerType.getType(), listenerName.getValue());
+                    listenerType, listenerName);
             serviceInfo.setPackageInfo(packageInfo);
             packageInfo.addServiceInfo(serviceInfo.getName(), serviceInfo);
         }
