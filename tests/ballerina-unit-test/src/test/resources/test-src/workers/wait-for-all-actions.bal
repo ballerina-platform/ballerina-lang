@@ -118,6 +118,34 @@ function waitTest12() returns fourthRec { // {f1: 30, f5: "hello bar"}
     return result;
 }
 
+function waitTest13() returns fourthRec { // error
+    future<int> f1 = start add_panic(20, 66);
+    fourthRec result = wait {id: f1};
+    return result;
+}
+
+
+function waitTest14() returns map { // {idField: 150, stringField: "hello foo"}
+    future<string> f4 = start concat("foo");
+    future<int> f3 = start add_panic(50, 100);
+    record { int i; string j;} anonRec = wait {i: f3, j: f4};
+
+    map m = {};
+    m["i"] = anonRec.i;
+    m["j"] = anonRec.j;
+    return m;
+}
+
+function waitTest15() returns map { // {f1: 7, f2: 22, f4: "hello foo", f6: true}
+    future<int> f1 = start add_1(5, 2);
+    future<string> f3 = start concat("foo");
+    future<boolean> f4 = start status();
+    future<int> f2 = start add_panic(10, 12);
+
+    map result = wait {f1, f2, f3, f4};
+    return result;
+}
+
 type firstRec record {
     int id = 1;
     string name = "first-default";
@@ -180,4 +208,16 @@ function getEmpMap() returns map {
 function getAddrMap() returns map {
     map addrMap = { line1: "No. 20", line2: "Palm Grove", city: "Colombo 03"};
     return addrMap;
+}
+function add_panic(int i, int j) returns int {
+    int k = i + j;
+    int l = 0;
+    while (l < 9999999) {
+        l = l + 1;
+    }
+    if (true) {
+        error err = error("err from panic" );
+        panic err;
+    }
+    return k;
 }

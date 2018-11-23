@@ -92,6 +92,57 @@ function waitTest10() returns int|string|float {
     return result;
 }
 
+function waitTest11() returns int|string|float {
+    future<int> f1 = start add_panic1(88, 88);
+    future<int> f3 = start add_panic2(50, 100);
+    future<string> f4 = start concat("foo");
+    string|int result = wait f1 | f3 | f4;
+    return result;
+}
+
+function waitTest12() returns int {
+    future<int> f1 = start add_panic1(88, 88);
+    future<int> f3 = start add_panic2(50, 100);
+    future<int> f4 = start add_panic3(4, 3);
+    int result = wait f1 | f3 | f4;
+    return result;
+}
+
+
+function add_panic1(int i, int j) returns int {
+    int k = i + j;
+    if (true) {
+        error err = error("err from panic" );
+        panic err;
+    }
+    return k;
+}
+
+function add_panic2(int i, int j) returns int {
+    int k = i + j;
+    int l = 0;
+    while (l < 9999999) {
+        l = l + 1;
+    }
+    if (true) {
+        error err = error("err from panic" );
+        panic err;
+    }
+    return k;
+}
+
+function add_panic3(int i, int j) returns int {
+    int k = i + j;
+    int l = 0;
+    while (l < 8888888) {
+        l = l + 1;
+    }
+    if (true) {
+        error err = error("err from panic" );
+        panic err;
+    }
+    return k;
+}
 //function waitTest11() returns any { // Needs to be tested out
 //    any result = 0;
 //    worker w1 {

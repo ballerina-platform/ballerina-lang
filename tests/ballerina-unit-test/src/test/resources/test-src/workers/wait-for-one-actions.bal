@@ -65,6 +65,12 @@ function waitTest7() returns int {
     return result;
 }
 
+function waitTest8() returns int {
+    future<int> f1 = start add_panic(5, 2);
+    int result = wait f1;
+    return result;
+}
+
 //function waitTest8() returns int { // Needs to be tested out
 //    int result = 0;
 //    worker w1 {
@@ -96,4 +102,17 @@ function fuInt() returns future<int> {
 function getEmpMap() returns map {
     map empMap = { fname: "foo", lname: "bar"};
     return empMap;
+}
+
+function add_panic(int i, int j) returns int {
+    int k = i + j;
+    int l = 0;
+    while (l < 8888888) {
+        l = l + 1;
+    }
+    if (true) {
+        error err = error("err from panic" );
+        panic err;
+    }
+    return k;
 }
