@@ -345,6 +345,8 @@ public enum DiagnosticCode {
     // Dataflow analysis related error codes
     PARTIALLY_INITIALIZED_VARIABLE("partially.initialized.variable"),
 
+    CANNOT_INFER_ERROR_TYPE("cannot.infer.error.type"),
+
     // Seal inbuilt function related codes
     INCOMPATIBLE_STAMP_TYPE("incompatible.stamp.type"),
     NOT_SUPPORTED_SOURCE_TYPE_FOR_STAMP("not.supported.source.for.stamp")

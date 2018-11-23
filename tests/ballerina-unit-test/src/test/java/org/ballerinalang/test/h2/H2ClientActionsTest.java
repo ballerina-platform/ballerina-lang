@@ -148,10 +148,13 @@ public class H2ClientActionsTest {
         Assert.assertEquals(returns[1].stringValue(), "[{\"ID\":15, \"NAME\":\"Anne\"}]");
     }
 
-    @Test(description = "Test re-init endpoint")
-    public void testReInitEndpoint() {
-        BValue[] returns = BRunUtil.invoke(result, "testReInitEndpoint");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+    @Test
+    public void testCloseConnectionPool() {
+        BValue connectionCountQuery = new BString("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SESSIONS");
+        BValue[] args = { connectionCountQuery };
+        BValue[] returns = BRunUtil.invoke(result, "testCloseConnectionPool", args);
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertEquals(retValue.intValue(), 1);
     }
 
     @AfterSuite

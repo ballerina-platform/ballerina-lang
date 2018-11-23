@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -169,7 +170,7 @@ public class ServiceDesugar {
 
         BLangExpression rhsExpr = methodInvocation;
         // Add optional check.
-        if (methodInvocationSymbol.retType.tag == TypeTags.UNION
+        if (((BInvokableType) methodInvocationSymbol.type).retType.tag == TypeTags.UNION
                 || ((BUnionType) methodInvocationSymbol.retType).memberTypes.stream()
                 .anyMatch(type -> type.tag == TypeTags.ERROR)) {
             final BLangCheckedExpr checkExpr = ASTBuilderUtil.createCheckExpr(pos, methodInvocation, symTable.anyType);
