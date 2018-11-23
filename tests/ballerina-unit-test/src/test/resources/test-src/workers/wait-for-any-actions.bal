@@ -108,6 +108,19 @@ function waitTest12() returns int {
     return result;
 }
 
+function waitTest13() returns int {
+    future<int> f1 = start add_panic1(88, 88);
+    future<int> f3 = start add_panic2(50, 100);
+    var result = trap wait f1 | f3;
+    if (result is int) {
+        return result;
+    } else if (result is error) {
+        return 0;
+    } else {
+        return 1;
+    }
+}
+
 
 function add_panic1(int i, int j) returns int {
     int k = i + j;

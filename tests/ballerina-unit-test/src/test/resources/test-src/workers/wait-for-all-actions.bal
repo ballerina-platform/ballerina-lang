@@ -146,6 +146,22 @@ function waitTest15() returns map { // {f1: 7, f2: 22, f4: "hello foo", f6: true
     return result;
 }
 
+function waitTest16() returns int {
+    future<int> f1 = start add_1(5, 2);
+    future<string> f3 = start concat("foo");
+    future<boolean> f4 = start status();
+    future<int> f2 = start add_panic(10, 12);
+
+    var result = trap wait {f1, f2, f3, f4};
+    if (result is map<future<any>>) {
+        return 9;
+    } else if (result is error) {
+        return 0;
+    } else {
+        return 1;
+    }
+}
+
 type firstRec record {
     int id = 1;
     string name = "first-default";

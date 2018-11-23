@@ -227,6 +227,12 @@ public class WaitForAllActionsTest {
         BRunUtil.invoke(result, "waitTest15");
     }
 
+    @Test
+    public void waitTest16() {
+        BValue[] returns = BRunUtil.invoke(result, "waitTest16");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "0");
+    }
 
     /**
      * Util method to compare 2 maps
