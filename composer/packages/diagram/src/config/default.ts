@@ -46,11 +46,15 @@ export class DiagramConfig {
         height: 25,
         padding: {
             bottom: 0,
-            left: 10,
-            right: 10,
+            left: 5,
+            right: 5,
             top: 0,
         },
-
+        title: {
+            margin: {
+                left: 25
+            }
+        }
     };
 }
 
