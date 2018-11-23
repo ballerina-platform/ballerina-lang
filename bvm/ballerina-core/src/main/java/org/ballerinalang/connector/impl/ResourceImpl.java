@@ -88,6 +88,10 @@ public class ResourceImpl extends AnnotatableNode implements Resource {
                 (AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
         List<ParamDetail> paramDetails = new ArrayList<>();
         for (LocalVariableInfo variableInfo : attributeInfo.getLocalVariableInfoEntries()) {
+            //TODO:Get this clarified
+            if (variableInfo.getVariableName().equals("self")) {
+                continue;
+            }
             paramDetails.add(new ParamDetail(variableInfo.getVariableType(), variableInfo.getVariableName()));
         }
         return paramDetails;

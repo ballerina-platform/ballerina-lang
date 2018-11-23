@@ -229,12 +229,14 @@ public type RedirectClient client object {
 //Invoke relevant HTTP client action and check the response for redirect eligibility.
 function performRedirectIfEligible(Client httpClient, RedirectClient redirectClient, string path, Request request,
                                    HttpOperation httpOperation) returns Response|error {
-    string originalUrl = redirectClient.serviceUri + path;
-    log:printDebug(function() returns string {
-        return "Checking redirect eligibility for original request " + originalUrl;
-    });
-    Response|error result = invokeEndpoint(path, request, httpOperation, redirectClient.httpClient);
-    return checkRedirectEligibility(httpClient, result, originalUrl, httpOperation, request, redirectClient);
+    //string originalUrl = redirectClient.serviceUri + path;
+    //log:printDebug(function() returns string {
+    //    return "Checking redirect eligibility for original request " + originalUrl;
+    //});
+    //Response|error result = invokeEndpoint(path, request, httpOperation, redirectClient.httpClient);
+    //return checkRedirectEligibility(httpClient, result, originalUrl, httpOperation, request, redirectClient);
+    Response res = new;
+    return res;
 }
 
 //Inspect the response for redirect eligibility.
@@ -308,17 +310,19 @@ function redirect(Client httpClient, Response response, HttpOperation httpVerb, 
 
 function performRedirection(Client httpClient, string location, RedirectClient redirectClient, HttpOperation redirectMethod,
                                        Request request, Response response) returns @untainted Response|error {
-    var retryClient = createRetryClient(httpClient, location, createNewEndpoint(location, redirectClient.config));
-    if (retryClient is Client) {
-        log:printDebug(function() returns string {
-                return "Redirect using new clientEP : " + location;
-            });
-        Response|error result = invokeEndpoint("", createRedirectRequest(response.statusCode, request),
-            redirectMethod, retryClient);
-        return checkRedirectEligibility(httpClient, result, location, redirectMethod, request, redirectClient);
-    } else {
-        return retryClient;
-    }
+    //var retryClient = createRetryClient(httpClient, location, createNewEndpoint(location, redirectClient.config));
+    //if (retryClient is Client) {
+    //    log:printDebug(function() returns string {
+    //            return "Redirect using new clientEP : " + location;
+    //        });
+    //    Response|error result = invokeEndpoint("", createRedirectRequest(response.statusCode, request),
+    //        redirectMethod, retryClient);
+    //    return checkRedirectEligibility(httpClient, result, location, redirectMethod, request, redirectClient);
+    //} else {
+    //    return retryClient;
+    //}
+    Response res = new;
+    return res;
 }
 
 //Create a new HTTP client endpoint configuration with a given location as the url.
