@@ -765,41 +765,39 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     recordVarType = (BRecordType) symTable.recordType;
                     List<BField> fields = new ArrayList<>();
 
-                    for (BLangRecordVariableKeyValue bLangRecordVariableKeyValue : recordVar.variableList) {
-                        String fieldName = bLangRecordVariableKeyValue.key.value;
-                        Set<BType> memberTypes = new HashSet<>();
-                        for (BType possibleType : possibleTypes) {
-                            if (possibleType.tag == TypeTags.RECORD) {
-                                BRecordType possibleRecordType = (BRecordType) possibleType;
-                                Map<String, BType> possibleTypeFields = possibleRecordType.fields
-                                        .stream()
-                                        .collect(Collectors.toMap(
-                                                field -> field.getName().getValue(),
-                                                BField::getType
-                                        ));
-                                memberTypes.add(possibleTypeFields.get(fieldName) == null ?
-                                        possibleRecordType.restFieldType : possibleTypeFields.get(fieldName));
-                            } else {
-                                BMapType possibleMapType = (BMapType) possibleType;
-                                memberTypes.add(possibleMapType.constraint);
-                            }
-                        }
-                        BType fieldType = memberTypes.size() > 1 ? new BUnionType(null, memberTypes, false) :
-                                memberTypes.iterator().next();
-                        fields.add(new BField(names.fromString(fieldName),
-                                new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
-                                        fieldType, recordSymbol)));
-                    }
+                    recordVar.variableList.stream()
+                            .map(bLangRecordVariableKeyValue -> bLangRecordVariableKeyValue.key.value)
+                            .forEach(fieldName -> {
+                                Set<BType> memberTypes = new HashSet<>();
+                                possibleTypes.forEach(possibleType -> {
+                                    if (possibleType.tag == TypeTags.RECORD) {
+                                        BRecordType possibleRecordType = (BRecordType) possibleType;
+                                        Map<String, BType> possibleTypeFields = possibleRecordType.fields
+                                                .stream()
+                                                .collect(Collectors.toMap(
+                                                        field -> field.getName().getValue(),
+                                                        BField::getType
+                                                ));
+                                        memberTypes.add(possibleTypeFields.get(fieldName) == null ?
+                                                possibleRecordType.restFieldType : possibleTypeFields.get(fieldName));
+                                    } else {
+                                        BMapType possibleMapType = (BMapType) possibleType;
+                                        memberTypes.add(possibleMapType.constraint);
+                                    }
+                                });
+                                BType fieldType = memberTypes.size() > 1 ? new BUnionType(null, memberTypes, false) :
+                                        memberTypes.iterator().next();
+                                fields.add(new BField(names.fromString(fieldName),
+                                        new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
+                                                fieldType, recordSymbol)));
+                            });
 
                     if (recordVar.restParam != null) {
-                        Set<BType> memberTypes = new HashSet<>();
-                        for (BType possibleType : possibleTypes) {
-                            if (possibleType.tag == TypeTags.RECORD) {
-                                memberTypes.add(((BRecordType) possibleType).restFieldType);
-                            } else {
-                                memberTypes.add(((BMapType) possibleType).constraint);
-                            }
-                        }
+                        Set<BType> memberTypes = possibleTypes.stream()
+                                .map(possibleType -> possibleType.tag == TypeTags.RECORD ?
+                                        ((BRecordType) possibleType).restFieldType :
+                                        ((BMapType) possibleType).constraint)
+                                .collect(Collectors.toSet());
 
                         recordVarType.restFieldType = memberTypes.size() > 1 ?
                                 new BUnionType(null, memberTypes, false) : memberTypes.iterator().next();
@@ -811,7 +809,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     if (possibleTypes.get(0).tag == TypeTags.RECORD) {
                         recordVarType = (BRecordType) possibleTypes.get(0);
                     } else {
-                        recordVarType = createSameTypedFieldsRecordType(recordVar, ((BMapType) possibleTypes.get(0)).constraint);
+                        recordVarType = createSameTypedFieldsRecordType(recordVar,
+                                ((BMapType) possibleTypes.get(0)).constraint);
                     }
                 }
                 break;

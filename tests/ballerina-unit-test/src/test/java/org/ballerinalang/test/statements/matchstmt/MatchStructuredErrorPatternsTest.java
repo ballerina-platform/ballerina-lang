@@ -35,7 +35,7 @@ import org.testng.annotations.Test;
  */
 public class MatchStructuredErrorPatternsTest {
 
-    private CompileResult result,resultNegative;
+    private CompileResult result, resultNegative;
 
     @BeforeClass
     public void setup() {
@@ -90,9 +90,22 @@ public class MatchStructuredErrorPatternsTest {
         int i = -1;
         String msg = "Matched with ";
         Assert.assertEquals(results.get(++i), msg + "a record : true");
-        Assert.assertEquals(results.get(++i), msg + "an error : Error Code 1" );
+        Assert.assertEquals(results.get(++i), msg + "an error : Error Code 1");
+        Assert.assertEquals(results.get(++i), msg + "an error : Error Code 1");
+        Assert.assertEquals(results.get(++i), msg + "an error : Error Code 1 {}");
+        Assert.assertEquals(results.get(++i), msg + "an error : Error Code 1 {\"message\":\"Something Wrong\"}");
     }
 
+    @Test(description = "Test basics of structured pattern match statement 1")
+    public void testBasicErrorMatch6() {
+        BValue[] returns = BRunUtil.invoke(result, "testBasicErrorMatch6", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        BStringArray results = (BStringArray) returns[0];
+        int i = -1;
+        String msg = "Matched with ";
+        Assert.assertEquals(results.get(++i), msg + "string");
+        Assert.assertEquals(results.get(++i), msg + "an error cannot find key 'invalid' {}");
+    }
 
     @Test(description = "Test pattern will not be matched 2")
     public void testUnreachablePatterns() {
