@@ -20,6 +20,7 @@ package org.ballerinalang.connector.impl;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.util.codegen.LocalVariableInfo;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
@@ -35,6 +36,8 @@ import java.util.List;
  */
 public class ResourceImpl extends AnnotatableNode implements Resource {
     private String name;
+
+    private ServiceImpl service;
 
     //reference to the original resourceInfo object.
     private ResourceInfo resourceInfo;
@@ -61,6 +64,15 @@ public class ResourceImpl extends AnnotatableNode implements Resource {
      */
     public ResourceInfo getResourceInfo() {
         return resourceInfo;
+    }
+
+    @Override
+    public Service getService() {
+        return service;
+    }
+
+    void setService(ServiceImpl service) {
+        this.service = service;
     }
 
     @Override

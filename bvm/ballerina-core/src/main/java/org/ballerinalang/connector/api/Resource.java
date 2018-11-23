@@ -60,4 +60,6 @@ public interface Resource {
     List<ParamDetail> getParamDetails();
 
     ResourceInfo getResourceInfo();
+
+    Service getService();
 }

@@ -52,7 +52,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -1165,7 +1164,12 @@ public class CompiledPackageSymbolEnter {
                 pkgSymbol = env.pkgSymbol;
             }
 
-            return lookupUserDefinedType(pkgSymbol, typeName);
+            switch (typeChar) {
+                case 'X':
+                    return symTable.anyServiceType;
+                default:
+                    return lookupUserDefinedType(pkgSymbol, typeName);
+            }
         }
 
         @Override
@@ -1190,13 +1194,9 @@ public class CompiledPackageSymbolEnter {
                     return new BStreamType(TypeTags.STREAM, constraint, symTable.streamType.tsymbol);
                 case 'Q':
                     return new BChannelType(TypeTags.CHANNEL, constraint, symTable.channelType.tsymbol);
-                case 'X':
-                    if (constraint == null || constraint == symTable.anyType) {
-                        return symTable.anyServiceType;
-                    }
-                    return new BServiceType(constraint);
                 case 'G':
                 case 'T':
+                case 'X':
                 default:
                     return constraint;
             }

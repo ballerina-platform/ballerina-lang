@@ -2355,7 +2355,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Add service name as an UTFCPEntry to the constant pool
         int serviceNameCPIndex = addUTF8CPEntry(currentPkgInfo, serviceNode.name.value);
         //Create service info
-        int serviceTypeCPIndex = getTypeCPIndex(serviceNode.serviceType).getValue();
+        int serviceTypeCPIndex = getTypeCPIndex(serviceNode.symbol.type).getValue();
         int listenerTypeIndex = serviceNode.attachExpr != null ? getTypeCPIndex(serviceNode.attachExpr.type).value : -1;
         int listenerNameCPIndex = addUTF8CPEntry(currentPkgInfo, serviceNode.listenerName);
         ServiceInfo serviceInfo = new ServiceInfo(currentPackageRefCPIndex, serviceNameCPIndex,
@@ -2363,7 +2363,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         currentPkgInfo.addServiceInfo(serviceNode.name.value, serviceInfo);
         // Create resource info entries for all resources
-        ((BObjectTypeSymbol) serviceNode.serviceType.tsymbol).attachedFuncs.stream()
+        ((BObjectTypeSymbol) serviceNode.symbol.type.tsymbol).attachedFuncs.stream()
                 .filter(func -> Symbols.isFlagOn(func.symbol.flags, Flags.RESOURCE)).forEach(
                 res -> this.env.enclPkg.functions.stream().filter(fuc -> fuc.originalFuncSymbol == res.symbol)
                         .findFirst().ifPresent(bLangFunction -> createResourceInfoEntry(bLangFunction, serviceInfo)));
