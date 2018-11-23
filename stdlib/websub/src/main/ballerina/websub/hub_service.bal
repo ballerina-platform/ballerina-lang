@@ -445,8 +445,8 @@ function addTopicRegistrationsOnStartup() {
         poolOptions: { maximumPoolSize:5 }
     };
     var dbResult = subscriptionDbEp->select("SELECT * FROM topics", TopicRegistration);
-    if (dbResult is table) {
-        table dt = dbResult;
+    if (dbResult is table<TopicRegistration>) {
+        table<TopicRegistration> dt = dbResult;
         while (dt.hasNext()) {
             var registrationDetails = <TopicRegistration>dt.getNext();
             if (registrationDetails is TopicRegistration) {
@@ -483,8 +483,8 @@ function addSubscriptionsOnStartup() {
 
     var dbResult = subscriptionDbEp->select("SELECT topic, callback, secret, lease_seconds, created_at"
             + " FROM subscriptions", SubscriptionDetails);
-    if (dbResult is table) {
-        table dt = dbResult;
+    if (dbResult is table<SubscriptionDetails>) {
+        table<SubscriptionDetails> dt = dbResult;
         while (dt.hasNext()) {
             var subscriptionDetails = <SubscriptionDetails>dt.getNext();
             if (subscriptionDetails is SubscriptionDetails) {
