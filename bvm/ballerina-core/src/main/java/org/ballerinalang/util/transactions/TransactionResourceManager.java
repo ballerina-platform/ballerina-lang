@@ -337,8 +337,10 @@ public class TransactionResourceManager {
         if (fp != null) {
             BLangFunctions.invokeCallable(fp.value(), args);
         }
-        List<BFunctionPointer> funcs = participantRegistry.getAbortedFuncs(transactionId);
-        invokeFunctions(args, funcs);
+        // todo: should be call abort functions as this might be just a rollback call.
+        // temporarily disabling invoking abort functions.
+//        List<BFunctionPointer> funcs = participantRegistry.getAbortedFuncs(transactionId);
+//        invokeFunctions(args, funcs);
         participantRegistry.purge(transactionId);
     }
 

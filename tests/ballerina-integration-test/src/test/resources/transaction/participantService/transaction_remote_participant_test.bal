@@ -54,10 +54,12 @@ service<http:Service> hello bind { port: 8889 } {
 string S1 = "";
 
 function baz(string id) {
+    log:printInfo("exe-baz-oncommittedFunc");
     S1 = S1 + " in-baz[oncommittedFunc]";
 }
 
 function bar(string id) {
+    log:printInfo("exe-bar-onabortFunc");
     S1 = S1 + " in-bar[onabortFunc]";
 }
 
@@ -73,6 +75,7 @@ function initiatorFunc(boolean throw1, boolean throw2,
     endpoint http:Client participantEP {
         url:"http://localhost:8889"
     };
+    S1 = "";
     transaction with retries=2 {
         log:printInfo("trx-first-line");
         S1 = S1 + " in-trx-block";
@@ -188,6 +191,44 @@ service<http:Service> initiatorService bind { port: 8888 } {
         string result = initiatorFunc(true, false,
                                       true, true,
                                       false, false);
+        http:Response res = new;
+        res.setPayload(result);
+        caller->respond(res) but { error e => log:printError("Error sending response: " + result, err = e) };
+    }
+
+    @http:ResourceConfig {
+        methods: ["POST"]
+    }
+    remoteParticipantTransactionExceptionInRemoteNoSecondRemoteCall(endpoint caller, http:Request req) {
+        string result = initiatorFunc(false, false,
+                                      true, false,
+                                      true, false);
+        http:Response res = new;
+        res.setPayload(result);
+        caller->respond(res) but { error e => log:printError("Error sending response: " + result, err = e) };
+    }
+
+
+    @http:ResourceConfig {
+        methods: ["POST"]
+    }
+    remoteParticipantTransactionExceptionInRemoteThenSuccessInRemote(endpoint caller, http:Request req) {
+        string result = initiatorFunc(false, false,
+                                      true, true,
+                                      true, false);
+        http:Response res = new;
+        res.setPayload(result);
+        caller->respond(res) but { error e => log:printError("Error sending response: " + result, err = e) };
+    }
+
+
+    @http:ResourceConfig {
+        methods: ["POST"]
+    }
+    remoteParticipantTransactionExceptionInRemoteThenExceptionInRemote(endpoint caller, http:Request req) {
+        string result = initiatorFunc(false, false,
+                                      true, true,
+                                      true, true);
         http:Response res = new;
         res.setPayload(result);
         caller->respond(res) but { error e => log:printError("Error sending response: " + result, err = e) };

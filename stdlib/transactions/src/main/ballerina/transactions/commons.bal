@@ -119,12 +119,19 @@ function isValidCoordinationType(string coordinationType) returns boolean {
     return false;
 }
 
-function protocolCompatible(string coordinationType, Protocol[] participantProtocols) returns boolean {
+function protoName(UProtocol p) returns string {
+    match p {
+        LocalProtocol l => return l.name;
+        RemoteProtocol r => return r.name;
+    }
+}
+
+function protocolCompatible(string coordinationType, UProtocol[] participantProtocols) returns boolean {
     boolean participantProtocolIsValid = false;
     string[] validProtocols = coordinationTypeToProtocolsMap[coordinationType] but { () => [] };
     foreach participantProtocol in participantProtocols {
         foreach validProtocol in validProtocols {
-            if (participantProtocol.name == validProtocol) {
+            if (protoName(participantProtocol) == validProtocol) {
                 participantProtocolIsValid = true;
                 break;
             } else {
