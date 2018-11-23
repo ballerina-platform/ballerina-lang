@@ -57,7 +57,7 @@ public class Strand {
 
     public List<Integer> callbacksToWaitFor;
 
-    public boolean completed;
+    public boolean waitCompleted;
 
     public Strand(ProgramFile programFile, Map<String, Object> properties, StrandCallback respCallback) {
         this.programFile = programFile;

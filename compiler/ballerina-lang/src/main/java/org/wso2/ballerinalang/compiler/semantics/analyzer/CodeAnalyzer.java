@@ -1431,35 +1431,38 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private boolean validateBinaryExpr(BLangNode bLangNode) {
-        if (bLangNode == null) {
-            return false;
+    private boolean validateBinaryExpr(BLangBinaryExpr binaryExpr) {
+        // 1) For usual binary expressions the lhs or rhs can never be future types, so return true if both of
+        // them are not future types
+        if (binaryExpr.lhsExpr.type.tag != TypeTags.FUTURE && binaryExpr.rhsExpr.type.tag != TypeTags.FUTURE) {
+            return true;
         }
-        BLangNode parent = bLangNode.parent;
-        if (parent != null && bLangNode.getKind() == NodeKind.BINARY_EXPR) {
-            // 1) For usual binary expressions the lhs or rhs can never be future types, so return true if both of
-            // them are not future types
-            BLangBinaryExpr binaryExpr = (BLangBinaryExpr) bLangNode;
-            if (binaryExpr.lhsExpr.type.tag != TypeTags.FUTURE && binaryExpr.rhsExpr.type.tag != TypeTags.FUTURE) {
-                return true;
-            }
 
-            // 2) For binary expressions followed with wait lhs and rhs are always future types and this is allowed so
-            // return true : wait f1 | f2
-            if (parent.getKind() == NodeKind.WAIT_EXPR) {
-                return true;
-            }
-
-            // 3) For binary expressions of future type which are not followed by the wait expression are not allowed.
-            // So check if immediate parent is a binary expression and if the current binary expression operator kind
-            // is bitwise OR
-            if (parent.getKind() != NodeKind.BINARY_EXPR && binaryExpr.opKind == OperatorKind.BITWISE_OR) {
-                dlog.error(binaryExpr.pos, DiagnosticCode.OPERATOR_NOT_SUPPORTED, OperatorKind.BITWISE_OR,
-                           symTable.futureType);
+        // 2) For binary expressions followed with wait lhs and rhs are always future types and this is allowed so
+        // return true : wait f1 | f2
+        BLangNode parentNode = binaryExpr.parent;
+        if (binaryExpr.lhsExpr.type.tag == TypeTags.FUTURE || binaryExpr.rhsExpr.type.tag == TypeTags.FUTURE) {
+            if (parentNode == null) {
                 return false;
             }
+            if (parentNode.getKind() == NodeKind.WAIT_EXPR) {
+                return true;
+            }
         }
-        return validateBinaryExpr(parent);
+
+        // 3) For binary expressions of future type which are not followed by the wait expression are not allowed.
+        // So check if immediate parent is a binary expression and if the current binary expression operator kind
+        // is bitwise OR
+        if (parentNode.getKind() != NodeKind.BINARY_EXPR && binaryExpr.opKind == OperatorKind.BITWISE_OR) {
+            dlog.error(binaryExpr.pos, DiagnosticCode.OPERATOR_NOT_SUPPORTED, OperatorKind.BITWISE_OR,
+                       symTable.futureType);
+                return false;
+        }
+
+        if (parentNode.getKind() == NodeKind.BINARY_EXPR) {
+            return validateBinaryExpr((BLangBinaryExpr) parentNode);
+        }
+        return true;
     }
 
     public void visit(BLangElvisExpr elvisExpr) {
