@@ -17,7 +17,6 @@
 import ballerina/auth;
 import ballerina/log;
 import ballerina/system;
-import ballerina/io;
 
 /////////////////////////////
 /// HTTP Service Endpoint ///
@@ -461,7 +460,6 @@ public type Server object {
     *AbstractListener;
 
     public function __start() returns error? {
-        io:println("start");
         return self.start();
     }
 
@@ -470,7 +468,6 @@ public type Server object {
     }
 
     public function __attach(service s, map annotationData) returns error? {
-        io:println("Attach", s);
         return self.register(s, annotationData);
     }
 
