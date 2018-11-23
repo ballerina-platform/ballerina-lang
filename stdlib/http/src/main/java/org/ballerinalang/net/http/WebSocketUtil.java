@@ -80,7 +80,7 @@ public class WebSocketUtil {
             public void onSuccess(WebSocketConnection webSocketConnection) {
                 BMap<String, BValue> webSocketEndpoint = BLangConnectorSPIUtil.createObject(
                         wsService.getServiceInfo().getPackageInfo().getProgramFile(), PROTOCOL_PACKAGE_HTTP,
-                        WebSocketConstants.WEBSOCKET_ENDPOINT);
+                        WebSocketConstants.WEBSOCKET_CALLER);
                 BMap<String, BValue> webSocketConnector = BLangConnectorSPIUtil.createObject(
                         wsService.getServiceInfo().getPackageInfo().getProgramFile(), PROTOCOL_PACKAGE_HTTP,
                         WebSocketConstants.WEBSOCKET_CONNECTOR);
