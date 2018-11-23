@@ -113,7 +113,7 @@ public class SymbolTable {
     public final BType recordType = new BRecordType(null);
     public final BType intArrayType = new BArrayType(intType);
     public final BType channelType = new BChannelType(TypeTags.CHANNEL, anyType, null);
-    public final BType anyServiceType = new BServiceType(anyType);
+    public final BType anyServiceType = new BServiceType(null);
 
     public final BTypeSymbol errSymbol;
     public final BType semanticError;

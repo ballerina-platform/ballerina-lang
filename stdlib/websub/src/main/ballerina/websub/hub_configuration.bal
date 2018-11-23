@@ -57,9 +57,10 @@ final string hubDatabasePassword = config:getAsString("b7a.websub.hub.db.passwor
 function startHubService() returns http:Server {
     http:ServiceEndpointConfiguration httpEpConfig = {host: hubHost, port: hubPort,
                                                       secureSocket: hubServiceSecureSocket};
-    http:Server hubServiceEP = new http:Server(httpEpConfig);
-    hubServiceEP.__attach(hubService, {});
-    hubServiceEP.__start();
+    http:Server hubServiceEP = new http:Server(hubPort, config = httpEpConfig);
+    // TODO : handle errors
+    _ = hubServiceEP.__attach(hubService, {});
+    _ = hubServiceEP.__start();
     return hubServiceEP;
 }
 

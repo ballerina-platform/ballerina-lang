@@ -123,8 +123,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
 
     String getCompressionConfigFromEndpointConfig(BMap<String, BValue> httpClientStruct) {
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(httpClientStruct);
-        Struct epConfig = (Struct) clientEndpointConfig.getNativeData(CLIENT_ENDPOINT_CONFIG);
-        return epConfig.getRefField(ANN_CONFIG_ATTR_COMPRESSION).getStringValue();
+        return clientEndpointConfig.getRefField(ANN_CONFIG_ATTR_COMPRESSION).getStringValue();
     }
 
     void handleAcceptEncodingHeader(HttpCarbonMessage outboundRequest, String compressionConfigValue) {

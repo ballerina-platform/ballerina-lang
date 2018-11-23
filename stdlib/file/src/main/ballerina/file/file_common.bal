@@ -23,3 +23,8 @@ public type FileEvent record {
     string operation;
     !...
 };
+
+type FileError record {
+    string message = "";
+    !...
+};

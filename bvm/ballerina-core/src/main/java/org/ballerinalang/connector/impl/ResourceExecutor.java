@@ -25,13 +25,16 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.states.RuntimeStates;
 import org.ballerinalang.persistence.states.State;
 import org.ballerinalang.runtime.Constants;
-import org.ballerinalang.util.codegen.ResourceInfo;
+import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.ballerinalang.util.program.BLangVMUtils;
 import org.ballerinalang.util.program.CompensationTable;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -60,7 +63,10 @@ public class ResourceExecutor {
         if (resource == null || responseCallback == null) {
             throw new BallerinaConnectorException("invalid arguments provided");
         }
-        ResourceInfo resourceInfo = resource.getResourceInfo();
+        List<BValue> args = new ArrayList<>();
+        args.add(resource.getService().getBValue());
+        args.addAll(Arrays.asList(bValues));
+        FunctionInfo resourceInfo = resource.getResourceInfo();
         if (properties != null) {
             Object interruptible = properties.get(Constants.IS_INTERRUPTIBLE);
             if (interruptible != null && (boolean) interruptible) {
@@ -78,7 +84,8 @@ public class ResourceExecutor {
         }
         //required for tracking compensations
         context.globalProps.put(Constants.COMPENSATION_TABLE, CompensationTable.getInstance());
-        BLangVMUtils.setServiceInfo(context, resourceInfo.getServiceInfo());
-        BLangFunctions.invokeServiceCallable(resourceInfo, context, observerContext, bValues, responseCallback);
+        BLangVMUtils.setServiceInfo(context, resource.getService().getServiceInfo());
+        BLangFunctions.invokeServiceCallable(resourceInfo, context, observerContext, args.toArray(new BValue[0]),
+                responseCallback);
     }
 }
