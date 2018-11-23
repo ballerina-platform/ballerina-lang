@@ -33,13 +33,23 @@ function onBeforeInit(langClient: ExtendedLangClient) {
     class TraceLogsFeature implements StaticFeature {
         fillClientCapabilities(capabilities: ClientCapabilities): void {
             capabilities.experimental = capabilities.experimental || {};
-            capabilities.experimental = { introspection: true };
+            capabilities.experimental.introspection = true;
+        }
+        initialize(capabilities: ServerCapabilities, documentSelector: DocumentSelector | undefined): void {
+        }
+    }
+
+    class ShowFileFeature implements StaticFeature {
+        fillClientCapabilities(capabilities: ClientCapabilities): void {
+            capabilities.experimental = capabilities.experimental || {};
+            capabilities.experimental.showTextDocument = true;
         }
         initialize(capabilities: ServerCapabilities, documentSelector: DocumentSelector | undefined): void {
         }
     }
 
     langClient.registerFeature(new TraceLogsFeature());
+    langClient.registerFeature(new ShowFileFeature());
 }
 
 export function activate(context: ExtensionContext): void {
