@@ -89,7 +89,7 @@ function createStreamingConstruct() {
     streams:Sum sumAggregator = new();
 
     streams:SimpleSelect simpleSelect = streams:createSimpleSelect(outputProcess.process,
-        function (streams:StreamEvent e) returns map {
+        function (streams:StreamEvent e) returns map<any> {
             // got rid of type casting
             return {
                 "name": e.data["inputStream.name"],
@@ -99,7 +99,7 @@ function createStreamingConstruct() {
         }
     );
 
-    streams:Filter filter = streams:createFilter(simpleSelect.process, function (map m) returns boolean {
+    streams:Filter filter = streams:createFilter(simpleSelect.process, function (map<any> m) returns boolean {
             // simplify filter
             return check <int>m["inputStream.age"] > 25;
         }
@@ -107,7 +107,7 @@ function createStreamingConstruct() {
 
     inputStream.subscribe(function (Teacher t) {
             // make it type unaware and proceed
-            map keyVal = <map>t;
+            map<any> keyVal = <map>t;
             streams:StreamEvent[] eventArr = streams:buildStreamEvent(keyVal, "inputStream");
             filter.process(eventArr);
         }

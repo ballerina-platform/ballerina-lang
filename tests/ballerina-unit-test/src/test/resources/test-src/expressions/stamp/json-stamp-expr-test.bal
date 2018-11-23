@@ -129,7 +129,7 @@ function stampConstraintJSONToConstraintJSON() returns json<Person>|error {
     return jsonValue;
 }
 
-function stampConstraintJSONToConstraintMapV2() returns map|error {
+function stampConstraintJSONToConstraintMapV2() returns map<any>|error {
     json<Student> student = { name: "Jon" };
     student.status = "Single";
     student.batch = "LK2014";

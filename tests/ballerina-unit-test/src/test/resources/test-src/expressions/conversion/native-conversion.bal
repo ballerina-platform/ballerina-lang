@@ -3,7 +3,7 @@ type Person record {
     int age = 0;
     Person? parent = ();
     json info = ();
-    map? address = ();
+    map<any>? address = ();
     int[]? marks = ();
     any a = ();
     float score = 0.0;
@@ -31,7 +31,7 @@ type Student record {
     !...
 };
 
-function testStructToMap () returns (map) {
+function testStructToMap () returns (map<any>) {
     Person p = {name:"Child",
                    age:25,
                    parent:{name:"Parent", age:50},
@@ -39,7 +39,7 @@ function testStructToMap () returns (map) {
                    info:{status:"single"},
                    marks:[67, 38, 91]
                };
-    map m = <map>p;
+    map<any> m = <map>p;
     return m;
 }
 
@@ -59,8 +59,8 @@ function testMapToStruct () returns Person|error {
                     };
 
     json info = {status:"single"};
-    map addr = {"city":"Colombo", "country":"SriLanka"};
-    map m = {name:"Child",
+    map<any> addr = {"city":"Colombo", "country":"SriLanka"};
+    map<any> m = {name:"Child",
                 age:25,
                 parent:parent,
                 address:addr,
@@ -76,7 +76,7 @@ function testMapToStruct () returns Person|error {
 
 function testNestedMapToNestedStruct() returns Person|error {
     int[] marks = [87, 94, 72];
-    map parent = {
+    map<any> parent = {
         name:"Parent",
         age:50,
         parent:null,
@@ -89,8 +89,8 @@ function testNestedMapToNestedStruct() returns Person|error {
     };
 
     json info = {status:"single"};
-    map addr = {"city":"Colombo", "country":"SriLanka"};
-    map m = {name:"Child",
+    map<any> addr = {"city":"Colombo", "country":"SriLanka"};
+    map<any> m = {name:"Child",
         age:25,
         parent:parent,
         address:addr,
@@ -180,9 +180,9 @@ function testJsonToStruct () returns (Person | error) {
 
 function testMapToStructWithMapValueForJsonField() returns Person|error {
     int[] marks = [87, 94, 72];
-    map addr = {"city":"Colombo", "country":"SriLanka"};
-    map info = {status:"single"};
-    map m = {name:"Child",
+    map<any> addr = {"city":"Colombo", "country":"SriLanka"};
+    map<any> info = {status:"single"};
+    map<any> m = {name:"Child",
                 age:25,
                 address:addr,
                 info:info,
@@ -194,8 +194,8 @@ function testMapToStructWithMapValueForJsonField() returns Person|error {
 
 function testMapWithMissingFieldsToStruct () returns Person|error {
     int[] marks = [87, 94, 72];
-    map addr = {"city":"Colombo", "country":"SriLanka"};
-    map m = {name:"Child",
+    map<any> addr = {"city":"Colombo", "country":"SriLanka"};
+    map<any> m = {name:"Child",
                 age:25,
                 address:addr,
                 marks:marks
@@ -218,8 +218,8 @@ function testMapWithIncompatibleArrayToStruct () returns Person {
                         alive:false
                     };
     json info = {status:"single"};
-    map addr = {"city":"Colombo", "country":"SriLanka"};
-    map m = {name:"Child",
+    map<any> addr = {"city":"Colombo", "country":"SriLanka"};
+    map<any> m = {name:"Child",
                 age:25,
                 parent:parent,
                 address:addr,
@@ -243,7 +243,7 @@ type Employee record {
     int age;
     Person partner;
     json info;
-    map address;
+    map<any> address;
     int[] marks;
     !...
 };
@@ -254,9 +254,9 @@ function testMapWithIncompatibleStructToStruct () returns Employee {
                     age:25
                 };
 
-    map addr = {"city":"Colombo", "country":"SriLanka"};
-    map info = {status:"single"};
-    map m = {name:"Child",
+    map<any> addr = {"city":"Colombo", "country":"SriLanka"};
+    map<any> info = {status:"single"};
+    map<any> m = {name:"Child",
                 age:25,
                 partner:s,
                 address:addr,
@@ -388,13 +388,13 @@ function testJsonArrayToStruct () returns Person {
 }
 
 type Info record {
-    map foo;
+    map<any> foo;
     !...
 };
 
 function testStructWithIncompatibleTypeMapToJson () returns json {
     byte[] b = [];
-    map m = {bar:b};
+    map<any> m = {bar:b};
     Info info = {foo:m};
 
     var j = <json>info;
@@ -611,7 +611,7 @@ type movie record {
     !...
 };
 
-function testStructToMapWithRefTypeArray () returns (map, int)|error {
+function testStructToMapWithRefTypeArray () returns (map<any>, int)|error {
     movie theRevenant = {title:"The Revenant",
                             year:2015,
                             released:"08 Jan 2016",
@@ -620,7 +620,7 @@ function testStructToMapWithRefTypeArray () returns (map, int)|error {
                             actors:[{fname:"Leonardo", lname:"DiCaprio", age:35},
                                     {fname:"Tom", lname:"Hardy", age:34}]};
 
-    map m = <map>theRevenant;
+    map<any> m = <map>theRevenant;
 
     any a = m["writers"];
     var writers = check <person[]> a;
@@ -663,14 +663,14 @@ function testEmptyJSONtoStructWithoutDefaults () returns (StructWithoutDefaults 
 }
 
 function testEmptyMaptoStructWithDefaults () returns StructWithDefaults|error {
-    map m = {};
+    map<any> m = {};
     var testStruct = check <StructWithDefaults>m;
 
     return testStruct;
 }
 
 function testEmptyMaptoStructWithoutDefaults () returns StructWithoutDefaults|error {
-    map m = {};
+    map<any> m = {};
     var testStruct = check <StructWithoutDefaults>m;
 
     return testStruct;
@@ -703,10 +703,10 @@ function structWithComplexMapToJson() returns (json | error) {
     float b = 2.5;
     boolean c = true;
     string d = "apple";
-    map e = {"foo":"bar"};
+    map<any> e = {"foo":"bar"};
     PersonA f = {};
     int [] g = [1, 8, 7];
-    map m = {"a":a, "b":b, "c":c, "d":d, "e":e, "f":f, "g":g, "h":null};
+    map<any> m = {"a":a, "b":b, "c":c, "d":d, "e":e, "f":f, "g":g, "h":null};
     
     Info info = {foo : m};
     var js = check <json> info;
@@ -726,8 +726,8 @@ type ComplexArrayStruct record {
 
 function structWithComplexArraysToJson() returns (json | error) {
     json g = {"foo":"bar"};
-    map m1 = {};
-    map m2 = {};
+    map<any> m1 = {};
+    map<any> m2 = {};
     PersonA p1 = {name:""};
     PersonA p2 = {name:""};
     ComplexArrayStruct t = {a:[4, 6, 9], b:[4.6, 7.5], c:[true, true, false], d:["apple", "orange"], e:[m1, m2], f:[p1, p2], g:[g]};
@@ -736,7 +736,7 @@ function structWithComplexArraysToJson() returns (json | error) {
 }
 
 function testComplexMapToJson () returns json|error {
-    map m = {name:"Supun",
+    map<any> m = {name:"Supun",
                 age:25,
                 gpa:2.81,
                 status:true
@@ -745,7 +745,7 @@ function testComplexMapToJson () returns json|error {
     return j2;
 }
 
-function testJsonToMapUnconstrained() returns map|error {
+function testJsonToMapUnconstrained() returns map<any>|error {
     json jx = {};
     jx.x = 5;
     jx.y = 10;
@@ -754,11 +754,11 @@ function testJsonToMapUnconstrained() returns map|error {
     jx.o.a = "A";
     jx.o.b = "B";
     jx.o.c = true;
-    map m = check <map> jx;
+    map<any> m = check <map> jx;
     return m;
 }
 
-function testJsonToMapConstrained1() returns map|error {
+function testJsonToMapConstrained1() returns map<any>|error {
     json j = {};
     j.x = "A";
     j.y = "B";
@@ -772,7 +772,7 @@ type T1 record {
     !...
 };
 
-function testJsonToMapConstrained2() returns map|error {
+function testJsonToMapConstrained2() returns map<any>|error {
     json j1 = {};
     j1.x = 5;
     j1.y = 10;
@@ -783,7 +783,7 @@ function testJsonToMapConstrained2() returns map|error {
     return m;
 }
 
-function testJsonToMapConstrainedFail() returns map {
+function testJsonToMapConstrainedFail() returns map<any> {
     json j1 = {};
     j1.x = 5;
     j1.y = 10.5;

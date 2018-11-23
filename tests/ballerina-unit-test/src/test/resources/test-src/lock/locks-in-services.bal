@@ -39,7 +39,7 @@ service<http:Service> sample1 bind echoEP {
 
     float[] floatArr = [1.0, 2.0];
 
-    map mapVal = {name:""};
+    map<any> mapVal = {name:""};
 
     echo(endpoint conn, http:Request req) {
         lock {
@@ -123,7 +123,7 @@ service<http:Service> sample2 bind echoEP {
 
     float price = 0.0;
 
-    map mapVal = {name:""};
+    map<any> mapVal = {name:""};
 
     echo(endpoint conn, http:Request req) {
         io:println("************************* echo");

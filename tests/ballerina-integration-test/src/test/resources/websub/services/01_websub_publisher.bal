@@ -102,7 +102,7 @@ service<http:Service> publisher bind publisherServiceEP {
                 panic j;
             }
         } else {
-            map allTopics = {};
+            map<any> allTopics = {};
             int index=1;
             string [] availableTopics = webSubHub.getAvailableTopics();
             foreach topic in availableTopics {

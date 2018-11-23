@@ -58,9 +58,9 @@ function stampObjectsToXML() returns xml {
     return xmlValue;
 }
 
-function stampObjectsToMap() returns map {
+function stampObjectsToMap() returns map<any> {
     PersonObj p = new PersonObj();
-    map mapValue = map.stamp(p);
+    map<any> mapValue = map.stamp(p);
 
     return mapValue;
 }

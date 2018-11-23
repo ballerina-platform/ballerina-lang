@@ -5,7 +5,7 @@ type Person record {
     int age;
     Person | () parent;
     json info;
-    map address;
+    map<any> address;
     int[] marks;
 };
 

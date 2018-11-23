@@ -1,5 +1,5 @@
 function testMapElementIncrement()  returns (int){
-    map namesMap = {fname:1};
+    map<any> namesMap = {fname:1};
     namesMap.fname += 1;
     int x;
     x = check <int>namesMap.fname;
@@ -7,7 +7,7 @@ function testMapElementIncrement()  returns (int){
 }
 
 function testMapElementDecrement() returns (int){
-    map namesMap = {fname:1};
+    map<any> namesMap = {fname:1};
     namesMap.fname -= 1;
     int x;
     x = check <int>namesMap.fname;

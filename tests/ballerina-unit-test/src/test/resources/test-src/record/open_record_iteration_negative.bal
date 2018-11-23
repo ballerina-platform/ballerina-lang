@@ -46,7 +46,7 @@ function testInvalidForeachOpWithOpenRecords() {
 }
 
 function testInvalidMapOpWithOpenRecords() {
-    map newp = p.map(function (any entry) returns (string, any) {
+    map<any> newp = p.map(function (any entry) returns (string, any) {
         return ("", "");
     });
 
@@ -68,7 +68,7 @@ function testInvalidMapOpWithOpenRecords() {
 }
 
 function testInvalidFilterOpWithOpenRecords() {
-    map newp = p.filter(function ((string,any) entry) returns boolean {
+    map<any> newp = p.filter(function ((string,any) entry) returns boolean {
         return true;
     });
 
