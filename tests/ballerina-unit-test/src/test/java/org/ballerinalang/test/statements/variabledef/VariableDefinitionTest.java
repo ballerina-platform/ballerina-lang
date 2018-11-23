@@ -35,9 +35,10 @@ import org.testng.annotations.Test;
  * Test Cases for defining variable.
  */
 public class VariableDefinitionTest {
+
     private static final double DELTA = 0.01;
-    CompileResult result;
-    CompileResult resultNegative;
+    private CompileResult result;
+    private CompileResult resultNegative;
 
     @BeforeClass
     public void setup() {
@@ -163,7 +164,7 @@ public class VariableDefinitionTest {
         resultNegative = BCompileUtil
                 .compile("test-src/statements/variabledef/variable-def-duplicate-constant-negative.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
-        BAssertUtil.validateError(resultNegative, 0, "redeclared symbol 'b'", 2, 8);
+        BAssertUtil.validateError(resultNegative, 0, "redeclared symbol 'b'", 2, 1);
     }
 
     @Test(description = "Test variable definition negative test cases with errors")
@@ -187,6 +188,6 @@ public class VariableDefinitionTest {
         resultNegative = BCompileUtil
                 .compile("test-src/statements/variabledef/variable-def-array-constants-negative.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
-        BAssertUtil.validateError(resultNegative, 0, "incompatible types: expected 'int[]', found 'int'", 1, 18);
+        BAssertUtil.validateError(resultNegative, 0, "incompatible types: expected 'int[]', found 'int'", 1, 17);
     }
 }

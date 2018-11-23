@@ -20,11 +20,13 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
@@ -862,6 +864,43 @@ public class Types {
             return checkStructFieldToJSONCompatibility(type, ((BRecordType) type).restFieldType, unresolvedTypes);
         }
 
+        return true;
+    }
+
+    public boolean checkListenerCompatibility(SymbolEnv env, BType type) {
+        if (type.tag != TypeTags.OBJECT) {
+            return false;
+        }
+        final BSymbol bSymbol = symResolver.lookupSymbol(env, Names.ABSTRACT_LISTENER, SymTag.TYPE);
+        if (bSymbol == symTable.notFoundSymbol || bSymbol.type.tag != TypeTags.OBJECT) {
+            throw new AssertionError("AbstractListener object not defined.");
+        }
+        BObjectType rhsType = (BObjectType) type;
+        BObjectType lhsType = (BObjectType) bSymbol.type;
+
+        BStructureTypeSymbol lhsStructSymbol = (BStructureTypeSymbol) lhsType.tsymbol;
+        List<BAttachedFunction> lhsFuncs = lhsStructSymbol.attachedFuncs;
+        List<BAttachedFunction> rhsFuncs = ((BStructureTypeSymbol) rhsType.tsymbol).attachedFuncs;
+
+        int lhsAttachedFuncCount = lhsStructSymbol.initializerFunc != null ? lhsFuncs.size() - 1 : lhsFuncs.size();
+        if (lhsAttachedFuncCount > rhsFuncs.size()) {
+            return false;
+        }
+
+        for (BAttachedFunction lhsFunc : lhsFuncs) {
+            if (lhsFunc == lhsStructSymbol.initializerFunc || lhsFunc == lhsStructSymbol.defaultsValuesInitFunc) {
+                continue;
+            }
+
+            if (!Symbols.isPublic(lhsFunc.symbol)) {
+                return false;
+            }
+
+            BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, new ArrayList<>());
+            if (rhsFunc == null || !Symbols.isPublic(rhsFunc.symbol)) {
+                return false;
+            }
+        }
         return true;
     }
 

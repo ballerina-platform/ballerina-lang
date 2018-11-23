@@ -29,7 +29,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableKind;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -50,9 +49,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -143,6 +142,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
@@ -791,12 +791,12 @@ public class TypeChecker extends BLangNodeVisitor {
 
         switch (varRefType.tag) {
             case TypeTags.OBJECT:
-            case TypeTags.RECORD:
-                // Invoking a function bound to a struct
+                // Invoking a function bound to an object
                 // First check whether there exist a function with this name
                 // Then perform arg and param matching
-                checkFunctionInvocationExpr(iExpr, (BStructureType) varRefType);
+                checkObjectFunctionInvocationExpr(iExpr, (BObjectType) varRefType);
                 break;
+            case TypeTags.RECORD:
             case TypeTags.BOOLEAN:
             case TypeTags.STRING:
             case TypeTags.INT:
@@ -1509,33 +1509,19 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
-        final boolean isExpectedErrorType = expType.tag == TypeTags.ERROR;
-        final BErrorType expectedResultType = isExpectedErrorType ? (BErrorType) expType : symTable.errorType;
-
-        // No matter what message expression has to be exist and it's type should be string type.
-        Optional.ofNullable(errorConstructorExpr.reasonExpr).map(expr -> checkExpr(expr, env, symTable.stringType))
-                .orElseThrow(AssertionError::new);
-
-        Optional.ofNullable(errorConstructorExpr.detailsExpr).ifPresent(expr -> {
-            if (isExpectedErrorType) {
-                checkExpr(expr, env, expectedResultType.detailType);
-            } else {
-                // Give correct error message.
-                BType givenType = checkExpr(expr, env, symTable.noType);
-                if (givenType.tag != TypeTags.MAP && givenType.tag != TypeTags.RECORD) {
-                    dlog.error(expr.pos, DiagnosticCode.REQUIRE_ERROR_MAPPING_VALUE);
-                } else {
-                    // TODO : improve this for union types.
-                    dlog.error(errorConstructorExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.errorType,
-                            expType);
-                }
-            }
-        });
-
-        if (!isExpectedErrorType) {
+        if (expType.tag != TypeTags.ERROR) {
+            dlog.error(errorConstructorExpr.pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, expType);
             resultType = symTable.semanticError;
             return;
         }
+
+        // No matter what, message expression has to exist and it's type should be string type.
+        Optional.ofNullable(errorConstructorExpr.reasonExpr)
+                .map(expr -> checkExpr(expr, env, symTable.stringType))
+                .orElseThrow(AssertionError::new);
+
+        Optional.ofNullable(errorConstructorExpr.detailsExpr)
+                .ifPresent(expr -> checkExpr(expr, env, ((BErrorType) expType).detailType));
         resultType = expType;
     }
 
@@ -1621,12 +1607,12 @@ public class TypeChecker extends BLangNodeVisitor {
     private void checkFunctionInvocationExpr(BLangInvocation iExpr) {
         Name funcName = names.fromIdNode(iExpr.name);
         Name pkgAlias = names.fromIdNode(iExpr.pkgAlias);
-
         BSymbol funcSymbol = symTable.notFoundSymbol;
+        // TODO: we may not need this section now, with the mandatory 'self'
         // if no package alias, check for same object attached function
         if (pkgAlias == Names.EMPTY && env.enclType != null) {
             Name objFuncName = names.fromString(Symbols.getAttachedFuncSymbolName(
-                    env.enclType.type.tsymbol.name.value, iExpr.name.value));
+                    env.enclType.type.tsymbol.name.value, funcName.value));
             funcSymbol = symResolver.resolveStructField(iExpr.pos, env, objFuncName,
                     env.enclType.type.tsymbol);
             if (funcSymbol != symTable.notFoundSymbol) {
@@ -1639,15 +1625,11 @@ public class TypeChecker extends BLangNodeVisitor {
             funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
         }
 
-        if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
+        if (funcSymbol == symTable.notFoundSymbol || (funcSymbol.tag & SymTag.FUNCTION) != SymTag.FUNCTION) {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
             iExpr.argExprs.forEach(arg -> checkExpr(arg, env));
             resultType = symTable.semanticError;
             return;
-        }
-        if (funcSymbol.tag == SymTag.VARIABLE) {
-            // Check for function pointer.
-            iExpr.functionPointerInvocation = true;
         }
         if (Symbols.isFlagOn(funcSymbol.flags, Flags.REMOTE)) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION_SYNTAX);
@@ -1661,50 +1643,16 @@ public class TypeChecker extends BLangNodeVisitor {
         checkInvocationParamAndReturnType(iExpr);
     }
 
-    private void checkFunctionInvocationExpr(BLangInvocation iExpr, BStructureType structType) {
-        // check for same object attached function
-        Name objFuncName = names.fromString(Symbols.getAttachedFuncSymbolName(structType
-                .tsymbol.name.value, iExpr.name.value));
-        BSymbol funcSymbol = symResolver.resolveStructField(iExpr.pos, env, objFuncName, structType.tsymbol);
-
-        if (funcSymbol == symTable.notFoundSymbol) {
-            // Check, any function pointer in struct field with given name.
-            funcSymbol = symResolver.resolveStructField(iExpr.pos, env, names.fromIdNode(iExpr.name),
-                    structType.tsymbol);
-            if (structType.tag == TypeTags.OBJECT &&
-                    (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE)) {
-                dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_OBJECT, iExpr.name.value, structType);
-                resultType = symTable.semanticError;
-                return;
-            }
-
-            if (structType.tag == TypeTags.RECORD) {
-                if (funcSymbol == symTable.notFoundSymbol) {
-                    dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, iExpr.name.value,
-                            structType.getKind().typeName(), structType.tsymbol);
-                    resultType = symTable.semanticError;
-                    return;
-                }
-                if (funcSymbol.type.tag != TypeTags.INVOKABLE) {
-                    dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_POINTER_INVOCATION, iExpr.name.value,
-                            structType);
-                    resultType = symTable.semanticError;
-                    return;
-                }
-            }
-
-            if ((funcSymbol.flags & Flags.ATTACHED) != Flags.ATTACHED) {
-                iExpr.functionPointerInvocation = true;
-            }
-        } else {
-            // Attached function found
-            // Check for the explicit initializer function invocation
-            if (structType.tag == TypeTags.RECORD) {
-                BAttachedFunction initializerFunc = ((BRecordTypeSymbol) structType.tsymbol).initializerFunc;
-                if (initializerFunc != null && initializerFunc.funcName.value.equals(iExpr.name.value)) {
-                    dlog.error(iExpr.pos, DiagnosticCode.RECORD_INITIALIZER_INVOKED, structType.tsymbol.toString());
-                }
-            }
+    private void checkObjectFunctionInvocationExpr(BLangInvocation iExpr, BObjectType objectType) {
+        // check for object attached function
+        Name funcName =
+                names.fromString(Symbols.getAttachedFuncSymbolName(objectType.tsymbol.name.value, iExpr.name.value));
+        BSymbol funcSymbol =
+                symResolver.resolveObjectMethod(iExpr.pos, env, funcName, (BObjectTypeSymbol) objectType.tsymbol);
+        if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
+            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_OBJECT, iExpr.name.value, objectType);
+            resultType = symTable.semanticError;
+            return;
         }
         if (Symbols.isFlagOn(funcSymbol.flags, Flags.REMOTE)) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION_SYNTAX);
@@ -1911,7 +1859,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 .fromString(Symbols.getAttachedFuncSymbolName(epType.tsymbol.name.value, iExpr.name.value));
         Name actionName = names.fromIdNode(iExpr.name);
         BSymbol remoteFuncSymbol = symResolver
-                .lookupMemberSymbol(iExpr.pos, epSymbol.type.tsymbol.scope, env, remoteFuncQName, SymTag.FUNCTION);
+                .lookupMemberSymbol(iExpr.pos, ((BObjectTypeSymbol) epSymbol.type.tsymbol).methodScope, env,
+                        remoteFuncQName, SymTag.FUNCTION);
         if (remoteFuncSymbol == symTable.notFoundSymbol || !Symbols.isFlagOn(remoteFuncSymbol.flags, Flags.REMOTE)) {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_ACTION, actionName, epSymbol.type.tsymbol.name);
             resultType = actualType;
@@ -2565,12 +2514,28 @@ public class TypeChecker extends BLangNodeVisitor {
                 for (BLangExpression expression : functionArgList) {
                     checkExpr(expression, env, symTable.noType);
                 }
-                return symResolver
-                        .createSymbolForStampOperator(iExpr.pos, new Name(function.getName()), functionArgList,
-                                iExpr.expr);
+                return symResolver.createSymbolForStampOperator(iExpr.pos, new Name(function.getName()),
+                        functionArgList, iExpr.expr);
+            case CALL:
+                return getFunctionPointerCallSymbol(iExpr);
             default:
                 return symTable.notFoundSymbol;
         }
+    }
+
+    private BSymbol getFunctionPointerCallSymbol(BLangInvocation iExpr) {
+        if (iExpr.expr == null) {
+            // shouldn't reach here
+            return symTable.notFoundSymbol;
+        }
+
+        BSymbol funcSymbol = ((BLangVariableReference) iExpr.expr).symbol;
+        if (funcSymbol == null || funcSymbol.type.tag != TypeTags.INVOKABLE) {
+            return symTable.notFoundSymbol;
+        }
+
+        iExpr.symbol = funcSymbol;
+        return funcSymbol;
     }
 
     private BSymbol getSymbolForAnydataReturningBuiltinMethods(BLangInvocation iExpr) {

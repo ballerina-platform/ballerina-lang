@@ -204,3 +204,24 @@ function testTypeGuardInElse_4() returns string {
 
     return val;
 }
+
+function testTypeGuardInElse_5() returns string {
+    int|string|float|boolean x = 5;
+    if (x is int|string) {
+        if (x is string) {
+            return "x is string: " + x;
+        } else if (x is int) {
+            int i = x;
+            return "x is int: " + <string> i;
+        } else {
+            return "x is int|string";
+        }
+    } else if (x is string) {
+        return "string: " + x;
+    } else if (x is float) {
+        float f = x;
+        return "float: " + <string> f;
+    } else {
+        return "x is boolean: " + <string> x;
+    }
+}

@@ -17,7 +17,7 @@
 # Represents the WebSocket client service.
 public type WebSocketClientService object {
     public function getEndpoint() returns WebSocketClient {
-        WebSocketClient ep = new;
+        WebSocketClient ep = new("ws://localhost:9090", {});
         return ep;
     }
 };

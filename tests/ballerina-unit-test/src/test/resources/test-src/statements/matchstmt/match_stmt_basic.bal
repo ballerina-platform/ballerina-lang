@@ -26,7 +26,7 @@ function testMatchStatementBasics3() returns (string) {
 
 function openFile(function (string) returns(File | error) fp) returns (string) {
 
-    File | error k = fp("/tmp/foo.txt");
+    File | error k = fp.call("/tmp/foo.txt");
 
     match k {
         File f =>  {
@@ -49,13 +49,13 @@ function openFileSuccess(string path) returns (File | error) {
 }
 
 type File record {
-    string path;
+    string path = "";
 };
 
 
 type MyFile record {
-    string path;
-    int bytes;
+    string path = "";
+    int bytes = 0;
 };
 
 function testMatchStatementBasics4() returns (string) {
@@ -179,8 +179,8 @@ function testMatchStatementBasics16() returns (string | int | boolean) {
 type Woman record {
     string fname;
     (function (int, string) returns string) | Human foo;
-    int age;
-    string color;
+    int age = 0;
+    string color = "";
 };
 
 function fp_xyz (int a, string k) returns string {
@@ -190,7 +190,7 @@ function fp_xyz (int a, string k) returns string {
 function testMatchStatementBasics17() returns (string | int | boolean) {
 
     Human h = {name:"sirisena"};
-     Woman m = {fname:"Piyal", foo:fp_xyz};
+    Woman m = {fname:"Piyal", foo:fp_xyz};
 
     match m.foo {
         function (int, string) returns string fp => return "function pointer matched";

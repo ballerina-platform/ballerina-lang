@@ -16,9 +16,9 @@
 import ballerina/grpc;
 import ballerina/io;
 
-endpoint HelloWorldBlockingClient helloWorldBlockingEp {
+HelloWorldBlockingClient helloWorldBlockingEp = new ({
     url:"http://localhost:9110"
-};
+});
 
 function testUnaryBlockingClient(string name) returns (string) {
     (string, grpc:Headers)|error unionResp = helloWorldBlockingEp->hello(name);
@@ -34,24 +34,24 @@ function testUnaryBlockingClient(string name) returns (string) {
     }
 }
 
-public type HelloWorldBlockingStub object {
+public type HelloWorldBlockingClient client object {
 
-    public grpc:Client clientEndpoint = new;
-    public grpc:Stub stub = new;
+    private grpc:Client grpcClient = new;
 
-
-    function initStub(grpc:Client ep) {
-        grpc:Stub navStub = new;
-        error? result = navStub.initStub(ep, "blocking", DESCRIPTOR_KEY, descriptorMap);
+    function __init(grpc:ClientEndpointConfig config) {
+        // initialize client endpoint.
+        grpc:Client c = new;
+        c.init(config);
+        error? result = c.initStub("blocking", DESCRIPTOR_KEY, descriptorMap);
         if (result is error) {
             panic result;
         } else {
-            self.stub = navStub;
+            self.grpcClient = c;
         }
     }
 
-    function hello(string req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
-        var unionResp = check self.stub.blockingExecute("HelloWorld/hello", req, headers = headers);
+    remote function hello(string req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
+        var unionResp = check self.grpcClient->blockingExecute("HelloWorld/hello", req, headers = headers);
         any result;
         grpc:Headers resHeaders;
         (result, resHeaders) = unionResp;
@@ -59,65 +59,24 @@ public type HelloWorldBlockingStub object {
     }
 };
 
-public type HelloWorldStub object {
+public type helloWorldClient client object {
 
-    public grpc:Client clientEndpoint = new;
-    public grpc:Stub stub = new;
+    private grpc:Client grpcClient = new;
 
-    function initStub(grpc:Client ep) {
-        grpc:Stub navStub = new;
-        error? result = navStub.initStub(ep, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
+    function __init(grpc:ClientEndpointConfig config) {
+        // initialize client endpoint.
+        grpc:Client c = new;
+        c.init(config);
+        error? result = c.initStub("non-blocking", DESCRIPTOR_KEY, descriptorMap);
         if (result is error) {
             panic result;
         } else {
-            self.stub = navStub;
+            self.grpcClient = c;
         }
     }
 
-    function hello(string req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
-        return self.stub.nonBlockingExecute("HelloWorld/hello", req, listener, headers = headers);
-    }
-};
-
-public type HelloWorldBlockingClient object {
-
-    public grpc:Client client = new;
-    public HelloWorldBlockingStub stub = new;
-
-    public function init(grpc:ClientEndpointConfig config) {
-        // initialize client endpoint.
-        grpc:Client c = new;
-        c.init(config);
-        self.client = c;
-        // initialize service stub.
-        HelloWorldBlockingStub s = new;
-        s.initStub(c);
-        self.stub = s;
-    }
-
-    public function getCallerActions() returns (HelloWorldBlockingStub) {
-        return self.stub;
-    }
-};
-
-public type helloWorldClient object {
-
-    public grpc:Client client = new;
-    public HelloWorldStub stub = new;
-
-    public function init(grpc:ClientEndpointConfig config) {
-        // initialize client endpoint.
-        grpc:Client c = new;
-        c.init(config);
-        self.client = c;
-        // initialize service stub.
-        HelloWorldStub s = new;
-        s.initStub(c);
-        self.stub = s;
-    }
-
-    public function getCallerActions() returns (HelloWorldStub) {
-        return self.stub;
+    remote function hello(string req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
+        return self.grpcClient->nonBlockingExecute("HelloWorld/hello", req, listener, headers = headers);
     }
 };
 

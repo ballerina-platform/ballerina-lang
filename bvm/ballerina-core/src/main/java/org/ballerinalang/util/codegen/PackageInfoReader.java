@@ -548,16 +548,25 @@ public class PackageInfoReader {
             UTF8CPEntry serviceNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(serviceNameCPIndex);
             int flags = dataInStream.readInt();
 
-            // Read connector signature cp index;
-            int endpointNameCPIndex = dataInStream.readInt();
-            UTF8CPEntry endpointNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(endpointNameCPIndex);
-
+            // Read service and listener type cp index;
+            TypeRefCPEntry serviceType = (TypeRefCPEntry) packageInfo.getCPEntry(dataInStream.readInt());
+            int cpIndex;
+            BType listenerType = null;
+            String listenerName = null;
+            if ((cpIndex = dataInStream.readInt()) != -1) {
+                TypeRefCPEntry listenerTypeCP = (TypeRefCPEntry) packageInfo.getCPEntry(cpIndex);
+                listenerType = listenerTypeCP.getType();
+            }
+            if ((cpIndex = dataInStream.readInt()) != -1) {
+                UTF8CPEntry listenerNameCP = (UTF8CPEntry) packageInfo.getCPEntry(cpIndex);
+                listenerName = listenerNameCP.getValue();
+            }
             ServiceInfo serviceInfo = new ServiceInfo(packageInfo.getPkgNameCPIndex(), packageInfo.getPkgPath(),
                     serviceNameCPIndex, serviceNameUTF8Entry.getValue(), flags,
-                    endpointNameCPIndex, endpointNameUTF8Entry.getValue());
+                    new BServiceType(serviceNameUTF8Entry.getValue(), packageInfo.getPkgPath(), serviceType.getType()),
+                    listenerType, listenerName);
             serviceInfo.setPackageInfo(packageInfo);
             packageInfo.addServiceInfo(serviceInfo.getName(), serviceInfo);
-            serviceInfo.setType(new BServiceType(serviceInfo.getName(), packageInfo.getPkgPath()));
         }
     }
 
@@ -597,15 +606,9 @@ public class PackageInfoReader {
                 resourceInfo.setParamNameCPIndexes(paramNameCPIndexes);
                 resourceInfo.setParamNames(paramNames);
 
-                // Read worker info entries
-                readWorkerData(packageInfo, resourceInfo);
-
                 // Read attributes of the struct info
                 readAttributeInfoEntries(packageInfo, packageInfo, resourceInfo);
             }
-
-            // Read attributes of the struct info
-            readAttributeInfoEntries(packageInfo, packageInfo, serviceInfo);
         }
     }
 

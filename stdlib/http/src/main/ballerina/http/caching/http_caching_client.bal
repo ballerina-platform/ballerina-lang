@@ -20,10 +20,10 @@ import ballerina/runtime;
 import ballerina/time;
 import ballerina/io;
 
-@final string WARNING_AGENT = getWarningAgent();
+final string WARNING_AGENT = getWarningAgent();
 
-@final string WARNING_110_RESPONSE_IS_STALE = "110 " + WARNING_AGENT + " \"Response is Stale\"";
-@final string WARNING_111_REVALIDATION_FAILED = "111 " + WARNING_AGENT + " \"Revalidation Failed\"";
+final string WARNING_110_RESPONSE_IS_STALE = "110 " + WARNING_AGENT + " \"Response is Stale\"";
+final string WARNING_111_REVALIDATION_FAILED = "111 " + WARNING_AGENT + " \"Revalidation Failed\"";
 
 const string WEAK_VALIDATOR_TAG = "W/";
 const int STALE = 0;
@@ -91,7 +91,7 @@ public type HttpCachingClient client object {
     # + serviceUri - The URL of the HTTP endpoint to connect to
     # + config - The configurations for the client endpoint associated with the caching client
     # + cacheConfig - The configurations for the HTTP cache to be used with the caching client
-    public new(serviceUri, config, cacheConfig) {
+    public function __init(string serviceUri, ClientEndpointConfig config, CacheConfig cacheConfig) {
         var httpSecureClient = createHttpSecureClient(serviceUri, config);
         if (httpSecureClient is Client) {
             self.httpClient = httpSecureClient;

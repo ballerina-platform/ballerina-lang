@@ -614,7 +614,7 @@
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
 
-            <!-- ballerina-streamss -->
+            <!-- ballerina-streams -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-streams</artifactId>

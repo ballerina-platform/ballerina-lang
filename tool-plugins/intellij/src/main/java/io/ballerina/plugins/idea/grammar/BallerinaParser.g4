@@ -37,6 +37,7 @@ definition
     |   annotationDefinition
     |   globalVariableDefinition
     |   globalEndpointDefinition
+    |   constantDefinition
     ;
 
 serviceDefinition
@@ -53,7 +54,7 @@ serviceBody
     ;
 
 resourceDefinition
-    :   documentationString? annotationAttachment* deprecatedAttachment? Identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS callableUnitBody
+    :   documentationString? annotationAttachment* deprecatedAttachment? Identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS returnParameter? callableUnitBody
     ;
 
 resourceParameterList
@@ -67,7 +68,7 @@ callableUnitBody
 
 
 functionDefinition
-    :   (PUBLIC)? (EXTERN)? FUNCTION ((Identifier | typeName) DOUBLE_COLON)? callableUnitSignature (callableUnitBody | SEMICOLON)
+    :   (PUBLIC)? (EXTERN)? FUNCTION ((Identifier | typeName) DOT)? callableUnitSignature (callableUnitBody | SEMICOLON)
     ;
 
 lambdaFunction
@@ -152,6 +153,10 @@ annotationDefinition
     :   (PUBLIC)? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier userDefineTypeName? SEMICOLON
     ;
 
+constantDefinition
+    :   PUBLIC? CONST typeName? Identifier ASSIGN expression SEMICOLON
+    ;
+
 globalVariableDefinition
     :   (PUBLIC)? typeName Identifier (ASSIGN expression )? SEMICOLON
     |   channelType Identifier SEMICOLON
@@ -218,7 +223,7 @@ typeName
     ;
 
 recordFieldDefinitionList
-    :   fieldDefinition* recordRestFieldDefinition?
+    :   (fieldDefinition | typeReference)* recordRestFieldDefinition?
     ;
 
 // Temporary production rule name
@@ -245,6 +250,7 @@ valueTypeName
     |   TYPE_INT
     |   TYPE_BYTE
     |   TYPE_FLOAT
+    |   TYPE_DECIMAL
     |   TYPE_STRING
     ;
 

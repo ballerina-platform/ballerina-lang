@@ -39,7 +39,7 @@ import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_SERVICE;
  * @since 0.965.0
  */
 @SupportEndpointTypes(value = {@SupportEndpointTypes.EndpointType(orgName = "ballerina", packageName = "http",
-                                                                  name = WebSocketConstants.WEBSOCKET_ENDPOINT),
+                                                                  name = WebSocketConstants.WEBSOCKET_CALLER),
         @SupportEndpointTypes.EndpointType(orgName = "ballerina", packageName = "http",
                                            name = WebSocketConstants.WEBSOCKET_CLIENT_ENDPOINT)}
 )

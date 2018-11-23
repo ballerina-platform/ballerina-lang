@@ -50,7 +50,7 @@ public class Names {
     public static final Name START_FUNCTION_SUFFIX = new Name(".<start>");
     public static final Name STOP_FUNCTION_SUFFIX = new Name(".<stop>");
     public static final Name SELF = new Name("self");
-    public static final Name OBJECT_INIT_SUFFIX = new Name("new");
+    public static final Name OBJECT_INIT_SUFFIX = new Name("__init");
     // TODO remove when current project name is read from manifest
     public static final Name ANON_ORG = new Name("$anon");
     public static final Name NIL_VALUE = new Name("()");
@@ -69,7 +69,6 @@ public class Names {
     public static final Name EP_SPI_START = new Name("start");
     public static final Name EP_SPI_STOP = new Name("stop");
     // Todo - Remove
-    public static final Name ANNOTATION_FINAL = new Name("final");
     public static final Name ANNOTATION_READONLY = new Name("readonly");
 
     public CompilerContext context;

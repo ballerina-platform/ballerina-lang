@@ -37,7 +37,10 @@ public type Time object {
     public int time;
     public Timezone zone;
 
-    public new (time, zone) {}
+    public function __init(int time, Timezone zone) {
+        self.time = time;
+        self.zone = zone;
+    }
 
     # Returns ISO 8601 string representation of the given time.
     #

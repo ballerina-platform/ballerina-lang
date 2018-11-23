@@ -986,6 +986,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             case IS_INFINITE:
             case IS_FINITE:
             case LENGTH:
+            case IS_FROZEN:
                 this.taintedStatus = TaintedStatus.UNTAINTED;
                 break;
             case FREEZE:
@@ -993,6 +994,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 invocationExpr.expr.accept(this);
                 break;
             case STAMP:
+            case CALL:
                 invocationExpr.argExprs.forEach(expression -> expression.accept(this));
                 break;
             case REASON:

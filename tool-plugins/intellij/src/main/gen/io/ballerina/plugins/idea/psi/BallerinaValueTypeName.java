@@ -30,6 +30,9 @@ public interface BallerinaValueTypeName extends BallerinaCompositeElement {
   PsiElement getByte();
 
   @Nullable
+  PsiElement getDecimal();
+
+  @Nullable
   PsiElement getFloat();
 
   @Nullable
