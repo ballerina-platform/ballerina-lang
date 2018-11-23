@@ -127,7 +127,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         List<TextEdit> edits = new ArrayList<>();
         if (parent != null && packageNode != null) {
             PackageID currentPkgId = packageNode.packageID;
-            BiConsumer<String, String> importsConsumer = (orgName, alias) -> {
+            BiConsumer<String, String> importsAcceptor = (orgName, alias) -> {
                 boolean notFound = packageNode.getImports().stream().noneMatch(
                         pkg -> (pkg.orgName.value.equals(orgName) && pkg.alias.value.equals(alias))
                 );
@@ -136,10 +136,10 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
                     edits.add(addPackage(pkgName, packageNode, context));
                 }
             };
-            returnType = CommonUtil.FunctionGenerator.generateTypeDefinition(importsConsumer, currentPkgId, parent);
-            returnValue = CommonUtil.FunctionGenerator.generateReturnValue(importsConsumer, currentPkgId, parent,
+            returnType = CommonUtil.FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, parent);
+            returnValue = CommonUtil.FunctionGenerator.generateReturnValue(importsAcceptor, currentPkgId, parent,
                                                                            "    return {%1};");
-            List<String> arguments = CommonUtil.FunctionGenerator.getFuncArguments(importsConsumer, currentPkgId,
+            List<String> arguments = CommonUtil.FunctionGenerator.getFuncArguments(importsAcceptor, currentPkgId,
                                                                                    functionNode);
             if (arguments != null) {
                 funcArgs = String.join(", ", arguments);

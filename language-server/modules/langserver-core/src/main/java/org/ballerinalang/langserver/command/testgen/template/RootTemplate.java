@@ -141,7 +141,7 @@ public class RootTemplate extends AbstractTestTemplate {
      * @throws TestGeneratorException when template population process fails
      */
     public void render(RendererOutput rendererOutput) throws TestGeneratorException {
-        BiConsumer<String, String> importsConsumer = (orgName, alias) -> {
+        BiConsumer<String, String> importsAcceptor = (orgName, alias) -> {
             if (isNonExistImport(orgName, alias)) {
                 rendererOutput.append(PlaceHolder.IMPORTS, "import " + orgName + "/" + alias + ";" + LINE_FEED);
                 imports.add(new ImmutablePair<>(orgName, alias));
@@ -150,15 +150,15 @@ public class RootTemplate extends AbstractTestTemplate {
         };
 
         // Add imports
-        importsConsumer.accept("ballerina", "test");
-        importsConsumer.accept("ballerina", "log");
+        importsAcceptor.accept("ballerina", "test");
+        importsAcceptor.accept("ballerina", "log");
         if (httpServices.size() > 0 || httpWSServices.size() > 0 || httpWSClientServices.size() > 0) {
-            importsConsumer.accept("ballerina", "http");
+            importsAcceptor.accept("ballerina", "http");
         }
 
         // Render test functions
         for (BLangFunction func : functions) {
-            TestFunctionGenerator generator = new TestFunctionGenerator(importsConsumer, builtTestFile.packageID, func);
+            TestFunctionGenerator generator = new TestFunctionGenerator(importsAcceptor, builtTestFile.packageID, func);
             new FunctionTemplate(builtTestFile, func, focusLineAcceptor, generator).render(rendererOutput);
         }
 
