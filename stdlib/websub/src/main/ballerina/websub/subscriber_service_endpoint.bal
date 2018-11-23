@@ -89,11 +89,11 @@ function Server.__start() returns error? {
 //    return self.serviceEndpoint.getCallerActions();
 //}
 
-function Listener.__stop() returns error? {
+function Server.__stop() returns error? {
     self.serviceEndpoint.stop();
 }
 
-function Listener.sendSubscriptionRequests() {
+function Server.sendSubscriptionRequests() {
     map[] subscriptionDetailsArray = self.retrieveSubscriptionParameters();
 
     foreach subscriptionDetails in subscriptionDetailsArray {
