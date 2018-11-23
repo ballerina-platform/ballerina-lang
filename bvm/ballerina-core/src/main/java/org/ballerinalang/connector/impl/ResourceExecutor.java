@@ -32,6 +32,8 @@ import org.ballerinalang.util.program.BLangVMUtils;
 import org.ballerinalang.util.program.CompensationTable;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -60,6 +62,8 @@ public class ResourceExecutor {
         if (resource == null || responseCallback == null) {
             throw new BallerinaConnectorException("invalid arguments provided");
         }
+        List<BValue> args = Arrays.asList(bValues);
+        args.add(0, resource.getService().getBValue());
         ResourceInfo resourceInfo = resource.getResourceInfo();
         if (properties != null) {
             Object interruptible = properties.get(Constants.IS_INTERRUPTIBLE);
@@ -79,6 +83,7 @@ public class ResourceExecutor {
         //required for tracking compensations
         context.globalProps.put(Constants.COMPENSATION_TABLE, CompensationTable.getInstance());
         BLangVMUtils.setServiceInfo(context, resourceInfo.getServiceInfo());
-        BLangFunctions.invokeServiceCallable(resourceInfo, context, observerContext, bValues, responseCallback);
+        BLangFunctions.invokeServiceCallable(resourceInfo, context, observerContext, args.toArray(new BValue[0]),
+                responseCallback);
     }
 }
