@@ -419,12 +419,6 @@ function getInferredJwtAuthProviderConfig(AuthProvider authProvider) returns aut
 /// WebSocket Service Endpoint ///
 //////////////////////////////////
 # Represents a WebSocket service endpoint.
-#
-# + id - The connection ID
-# + negotiatedSubProtocol - The subprotocols negotiated with the client
-# + isSecure - `true` if the connection is secure
-# + isOpen - `true` if the connection is open
-# + attributes - A `map` to store connection related attributes
 public type WebSocketServer object {
 
     *AbstractListener;
@@ -439,26 +433,20 @@ public type WebSocketServer object {
 
     public function __attach(service s, map annotationData) returns error? {
     //return register(typedesc serviceType);
-    return self.register(s, annotationData);
+        return self.httpEndpoint.register(s, annotationData);
     }
 
     private ServiceEndpointConfiguration config = {};
-    //TODO:Change the port
-    private Server httpEndpoint = new(9090, config = config);
+
+    private Server httpEndpoint;
 
     # Gets invoked during module initialization to initialize the endpoint.
     #
     # + c - The `ServiceEndpointConfiguration` of the endpoint
-    public function __init(ServiceEndpointConfiguration c) {
-        self.config = c;
-        self.httpEndpoint = new(c.port, config = c);
-    }
-
-    # Gets invoked when binding a service to the endpoint.
-    #
-    # + serviceType - The service type
-    public function register(service serviceType, map annotationData) returns error? {
-        return self.httpEndpoint.register(serviceType, annotationData);
+    public function __init(int port, ServiceEndpointConfiguration? config = ()) {
+        self.config = config ?: {};
+        self.config.port = port;
+        self.httpEndpoint = new(port, config = config);
     }
 
 };

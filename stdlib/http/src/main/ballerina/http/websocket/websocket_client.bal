@@ -37,8 +37,9 @@ public type WebSocketClient client object {
     # Gets called when the endpoint is being initialize during module init time.
     #
     # + c - The `WebSocketClientEndpointConfig` of the endpoint
-    public function __init(WebSocketClientEndpointConfig c) {
-        self.config = c;
+    public function __init(string url, WebSocketClientEndpointConfig? config) {
+        self.config = config ?: {};
+        self.config.url = url;
         self.initEndpoint();
     }
 
