@@ -424,27 +424,32 @@ function getInferredJwtAuthProviderConfig(AuthProvider authProvider) returns aut
 # + isSecure - `true` if the connection is secure
 # + isOpen - `true` if the connection is open
 # + attributes - A `map` to store connection related attributes
-public type WebSocketListener object {
+public type WebSocketServer object {
 
-    @readonly public string id = "";
-    @readonly public string negotiatedSubProtocol = "";
-    @readonly public boolean isSecure = false;
-    @readonly public boolean isOpen = false;
-    @readonly public map attributes = {};
+    *AbstractListener;
 
-    private WebSocketConnector conn = new;
+    public function __start() returns error? {
+        return self.httpEndpoint.start();
+    }
+
+    public function __stop() returns error? {
+        return self.httpEndpoint.stop();
+    }
+
+    public function __attach(service s, map annotationData) returns error? {
+    //return register(typedesc serviceType);
+    return self.register(s, annotationData);
+    }
+
     private ServiceEndpointConfiguration config = {};
     private Server httpEndpoint = new(config);
-
-    public function __init() {
-    }
 
     # Gets invoked during module initialization to initialize the endpoint.
     #
     # + c - The `ServiceEndpointConfiguration` of the endpoint
-    public function init(ServiceEndpointConfiguration c) {
+    public function __init(ServiceEndpointConfiguration c) {
         self.config = c;
-        self.httpEndpoint.init(c);
+        self.httpEndpoint = new(c);
     }
 
     # Gets invoked when binding a service to the endpoint.
@@ -454,27 +459,6 @@ public type WebSocketListener object {
         self.httpEndpoint.register(serviceType, annotationData);
     }
 
-    # Starts the registered service.
-    public function start() {
-        self.httpEndpoint.start();
-    }
-
-    # Returns a WebSocket actions provider which can be used to communicate with the remote host.
-    #
-    # + return - The connector that listener endpoint uses
-    public function getCallerActions() returns (WebSocketConnector) {
-        return self.conn;
-    }
-
-    # Stops the registered service.
-    public function stop() {
-        WebSocketConnector webSocketConnector = self.getCallerActions();
-        var closeResult = webSocketConnector.close(statusCode = 1001, reason = "going away", timeoutInSecs = 0);
-        if (closeResult is error) {
-            panic closeResult;
-        }
-        self.httpEndpoint.stop();
-    }
 };
 
 //New Implementation~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -503,7 +487,7 @@ public type Server object {
     @readonly public Local local = {};
     @readonly public string protocol = "";
 
-    private Connection conn = new;
+    private Caller caller = new;
     private ServiceEndpointConfiguration config = {};
 
     private string instanceId;
@@ -532,7 +516,7 @@ public type Server object {
     # Returns the connector that client code uses.
     #
     # + return - The connector that client code uses
-    public extern function getCallerActions() returns (Connection);
+    public extern function getCallerActions() returns (Caller);
 
     # Stops the registered service.
     extern function stop();

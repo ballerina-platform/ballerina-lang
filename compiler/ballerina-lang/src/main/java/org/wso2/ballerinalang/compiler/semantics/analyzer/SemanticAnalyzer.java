@@ -476,14 +476,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, varNode.symbol);
 
         typeChecker.checkExpr(rhsExpr, varInitEnv, lhsType);
-        if (Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {
-            final BSymbol bSymbol = symResolver.lookupSymbol(env, Names.ABSTRACT_LISTENER, SymTag.TYPE);
-            if (bSymbol == symTable.notFoundSymbol) {
-                throw new AssertionError("Abstract Listener not defined.");
-            }
-            if (!types.isAssignable(varNode.symbol.type, bSymbol.type)) {
-                dlog.error(varNode.pos, DiagnosticCode.INVALID_LISTENER_VARIABLE, varNode.name);
-            }
+        if (Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER) && !types
+                .checkListenerCompatibility(env, varNode.symbol.type)) {
+            dlog.error(varNode.pos, DiagnosticCode.INVALID_LISTENER_VARIABLE, varNode.name);
         }
     }
 
@@ -1298,11 +1293,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (serviceNode.isAnonymousServiceValue) {
             return;
         }
-        final BSymbol bSymbol = symResolver.lookupSymbol(env, Names.ABSTRACT_LISTENER, SymTag.TYPE);
-        if (bSymbol == symTable.notFoundSymbol) {
-            throw new AssertionError("Abstract Listener not defined.");
+        final BType exprType = typeChecker.checkExpr(serviceNode.attachExpr, env);
+        if (!types.checkListenerCompatibility(env, exprType)) {
+            dlog.error(serviceNode.attachExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, Names.ABSTRACT_LISTENER,
+                    exprType);
         }
-        typeChecker.checkExpr(serviceNode.attachExpr, env, bSymbol.type);
 
         // TODO : Fix this.
         if (serviceNode.attachExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
@@ -1320,10 +1315,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if (field.flagSet.contains(Flag.OPTIONAL) && field.expr != null) {
                 dlog.error(field.pos, DiagnosticCode.DEFAULT_VALUES_NOT_ALLOWED_FOR_OPTIONAL_FIELDS, field.name.value);
             }
-            if (field.expr != null) {
-                continue;
-            }
-            break;
         }
     }
 

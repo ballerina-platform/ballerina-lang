@@ -22,28 +22,15 @@
 # + isOpen - `true` if the connection is open
 # + response - Represents the HTTP response
 # + attributes - A map to store connection related attributes
-public type WebSocketClient client object {
+public type WebSocketCaller client object {
 
     @readonly public string id = "";
     @readonly public string negotiatedSubProtocol = "";
     @readonly public boolean isSecure = false;
     @readonly public boolean isOpen = false;
-    @readonly public Response response = new;
     @readonly public map attributes = {};
 
     private WebSocketConnector conn = new;
-    private WebSocketClientEndpointConfig config = {};
-
-    # Gets called when the endpoint is being initialize during module init time.
-    #
-    # + c - The `WebSocketClientEndpointConfig` of the endpoint
-    public function __init(WebSocketClientEndpointConfig c) {
-        self.config = c;
-        self.initEndpoint();
-    }
-
-    # Initializes the endpoint.
-    public extern function initEndpoint();
 
     # Push text to the connection.
     #
@@ -92,33 +79,4 @@ public type WebSocketClient client object {
     public remote function close(int? statusCode = 1000, string? reason = (), int timeoutInSecs = 60) returns error? {
         return self.conn.close(statusCode = statusCode, reason = reason, timeoutInSecs = timeoutInSecs);
     }
-
-    # Called when the endpoint is ready to receive messages. Can be called only once per endpoint. For the
-    # WebSocketListener can be called only in upgrade or onOpen resources.
-    #
-    # + return - `error` if an error occurs when sending
-    public remote function ready() returns error? {
-        return self.conn.ready();
-    }
-};
-
-# Configuration struct for WebSocket client endpoint.
-#
-# + url - The url of the server to connect to
-# + callbackService - The callback service for the client. Resources in this service gets called on receipt of messages from the server.
-# + subProtocols - Negotiable sub protocols for the client
-# + customHeaders - Custom headers which should be sent to the server
-# + idleTimeoutInSeconds - Idle timeout of the client. Upon timeout, onIdleTimeout resource in the client service will be triggered (if there is one defined)
-# + readyOnConnect - true if the client is ready to recieve messages as soon as the connection is established. This is true by default. If changed to false the function ready() of the
-#                    `WebSocketClient`needs to be called once to start receiving messages.
-# + secureSocket - SSL/TLS related options
-public type WebSocketClientEndpointConfig record {
-    string url = "";
-    typedesc? callbackService = ();
-    string[] subProtocols = [];
-    map<string> customHeaders = {};
-    int idleTimeoutInSeconds = -1;
-    boolean readyOnConnect = true;
-    SecureSocket? secureSocket = ();
-    !...
 };
