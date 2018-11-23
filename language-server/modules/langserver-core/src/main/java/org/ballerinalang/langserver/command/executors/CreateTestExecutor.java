@@ -32,13 +32,13 @@ import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
+import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
-import org.eclipse.lsp4j.services.LanguageClient;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
@@ -157,7 +157,9 @@ public class CreateTestExecutor implements LSCommandExecutor {
         BLangPackage builtSourceFile = lsCompiler.getBLangPackage(context, docManager, false, null, false).getRight();
 
         // Generate test file and notify Client
-        LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
+        BallerinaLanguageServer ballerinaLanguageServer = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY);
+        ExtendedLanguageClient client = ballerinaLanguageServer.getClient();
+        BallerinaWorkspaceService workspace = (BallerinaWorkspaceService) ballerinaLanguageServer.getWorkspaceService();
         try {
             if (builtSourceFile == null || builtSourceFile.diagCollector.hasErrors()) {
                 String message = "Test generation failed due to compilation errors!";
@@ -203,6 +205,10 @@ public class CreateTestExecutor implements LSCommandExecutor {
                 client.applyEdit(editParams);
                 String message = "Tests generated into the file:" + testFile.toString();
                 client.showMessage(new MessageParams(MessageType.Info, message));
+                if (workspace.getExperimentalClientCapabilities().get("showTextDocument")) {
+                    Location location = new Location(identifier.getUri(), focus);
+                    client.showTextDocument(location);
+                }
             }
             return editParams;
         } catch (TestGeneratorException e) {
