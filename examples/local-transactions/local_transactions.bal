@@ -1,9 +1,10 @@
 import ballerina/io;
-import ballerinax/jdbc;
+import ballerina/h2;
 
 // Create an endpoint for H2 database. Change the DB details before running the sample.
-endpoint jdbc:Client testDB {
-    url: "jdbc:h2:file:./local-transactions/Testdb",
+endpoint h2:Client testDB {
+    path: "./local-transactions/",
+    name: "Testdb",
     username: "test",
     password: "test",
     poolOptions: { maximumPoolSize: 5 }

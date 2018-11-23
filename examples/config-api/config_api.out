@@ -37,7 +37,7 @@ ballerina: started HTTPS/WSS endpoint 0.0.0.0:8085
 
 # The same configurations given via a configuration file can also be given via CLI parameters. <br>
 # e.g., hello.http.port
-$ ballerina run config_api.bal -e hello.http.port=8085 -e hello.keystore.password=@encrypted:{jFMAXsuMSiOCaxuDLuQjVXzMzZxQrten0652/j93Amw=}
+$ ballerina run -e hello.http.port=8085 -e hello.keystore.password=@encrypted:{jFMAXsuMSiOCaxuDLuQjVXzMzZxQrten0652/j93Amw=} config_api.bal
 ballerina: enter secret for config value decryption:
 
 Initiating service(s) in `config_api.bal`
