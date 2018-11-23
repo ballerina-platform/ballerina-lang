@@ -448,33 +448,6 @@
         ]
     },
  	{
-        "title": "Database",
-        "column": 3,
-        "category": "Language concepts",
-        "samples": [
-            {
-                "name": "H2 Client",
-                "url": "h2-client"
-            },
-            {
-                "name": "MySQL Client",
-                "url": "mysql-client"
-            },
-            {
-                "name": "JDBC Client CRUD Operations",
-                "url": "jdbc-client-crud-operations"
-            },
-            {
-                "name": "JDBC Client Batch Update",
-                "url": "jdbc-client-batch-update"
-            },
-            {
-                "name": "JDBC Client Call Procedures",
-                "url": "jdbc-client-call-procedures"
-            }
-        ]
-    },
- 	{
         "title": "Transactions",
         "column": 3,
         "category": "Language concepts",

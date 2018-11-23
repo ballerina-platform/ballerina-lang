@@ -1,6 +1,0 @@
-// This example demonstrates how to execute data definition statements, insert/update/delete data
-// and select data using JDBC Client. For MYSQL and H2 you could use corresponding MYSQL and
-// H2 clients implemented specifically for each of them.
-// This sample uses MySQL DB. Before running the sample, copy the
-// MySQL JDBC driver to the `BALLERINA_HOME/bre/lib` folder and change the DB connection
-// properties as required.
