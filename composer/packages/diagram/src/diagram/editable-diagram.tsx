@@ -34,7 +34,7 @@ export class EditableDiagram extends React.Component<EdiatableDiagramProps, Edit
 
     public state = {
         ast: undefined,
-        editingEnabled: true,
+        editingEnabled: false,
     };
 
     private wrapperRef = React.createRef<HTMLDivElement>();

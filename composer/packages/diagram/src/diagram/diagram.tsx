@@ -39,9 +39,14 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
     public render() {
         const { ast, width, height } = this.props;
         const children: React.ReactNode[] = [];
+
+        // use default width/height if not provided
+        const diagramWidth = width ? width : DefaultConfig.canvas.width;
+        const diagramHeight = height ? height : DefaultConfig.canvas.height;
+
         const cuViewState: CompilationUnitViewState = new CompilationUnitViewState();
-        cuViewState.container.w = width ? width : DefaultConfig.canvas.width;
-        cuViewState.container.h = height ? height : DefaultConfig.canvas.height;
+        cuViewState.container.w = diagramWidth;
+        cuViewState.container.h = diagramHeight;
 
         if (ast) {
             // Initialize AST node view state
@@ -59,7 +64,7 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
         return <DiagramContext.Provider value={this.createContext()}>
             <DiagramErrorBoundary>
                 <div className="diagram-container" ref={this.containerRef}>
-                    <ControllerPanel stickTo={this.containerRef} />
+                    <ControllerPanel stickTo={this.containerRef} width={diagramWidth} />
                     <SvgCanvas model={cuViewState}>
                         {children}
                     </SvgCanvas>
@@ -80,6 +85,15 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
                 });
             },
             mode: currentMode,
+            zoomFit: () => {
+                // do nothing
+            },
+            zoomIn: () => {
+                // do nothing
+            },
+            zoomOut: () => {
+                // do nothing
+            }
         };
 
         // merge with parent (if any) or with default context
