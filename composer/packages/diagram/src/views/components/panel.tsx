@@ -1,31 +1,60 @@
 
+import { getCodePoint } from "@ballerina/font";
 import * as React from "react";
+import { DiagramConfig } from "../../config/default";
+import { DiagramUtils } from "../../diagram/diagram-utils";
 import { FunctionViewState, SimpleBBox } from "../../view-model/index";
 
-export const Panel: React.StatelessComponent<{ model: FunctionViewState }> = ({ model, children }) => {
+const config: DiagramConfig = DiagramUtils.getConfig();
 
-    const body: SimpleBBox = model.body;
-    const header: SimpleBBox = model.header;
+export const Panel: React.StatelessComponent<{
+        model: FunctionViewState,
+        title: string,
+        icon: string
+    }> = ({
+        model,
+        title,
+        children,
+        icon
+    }) => {
+        const body: SimpleBBox = model.body;
+        const header: SimpleBBox = model.header;
 
-    return (
-        <g className="panel">
-            <g className="panel-header">
-                <rect
-                    x={header.x}
-                    y={header.y}
-                    width={header.w}
-                    height={header.h}
-                />
-            </g>
-            <g className="panel-body">
-                <rect
-                    x={body.x}
-                    y={body.y}
-                    width={body.w}
-                    height={body.h}
-                />
-                {children}
-            </g>
+        const headerCenter = header.y + (model.header.h / 2);
 
-        </g>);
-};
+        return (
+            <g className="panel">
+                <g className="panel-header">
+                    <rect
+                        x={header.x}
+                        y={header.y}
+                        width={header.w}
+                        height={header.h}
+                    />
+                    <text
+                        x={header.x + config.panelHeading.padding.left}
+                        y={headerCenter}
+                        className="panel-icon"
+                    >
+                        {getCodePoint(icon)}
+                    </text>
+                    <text
+                        x={header.x + config.panelHeading.title.margin.left}
+                        y={headerCenter}
+                        className="panel-title"
+                    >
+                        {title}
+                    </text>
+                </g>
+                <g className="panel-body">
+                    <rect
+                        x={body.x}
+                        y={body.y}
+                        width={body.w}
+                        height={body.h}
+                    />
+                    {children}
+                </g>
+
+            </g>);
+    };
