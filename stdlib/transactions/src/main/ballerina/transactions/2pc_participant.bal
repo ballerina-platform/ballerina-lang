@@ -95,8 +95,7 @@ type RemoteParticipant object {
     }
 
     function prepareMe(string protocolUrl) returns PrepareResult|error {
-        endpoint Participant2pcClientEP participantEP;
-        participantEP = getParticipant2pcClient(protocolUrl);
+        Participant2pcClientEP participantEP  = getParticipant2pcClient(protocolUrl);
 
         // Let's set this to true and change it to false only if a participant aborted or an error occurred while trying
         // to prepare a participant
@@ -130,7 +129,7 @@ type RemoteParticipant object {
     }
 
     function notifyMe(string protocolUrl, string action) returns NotifyResult|error {
-        endpoint Participant2pcClientEP participantEP;
+        Participant2pcClientEP participantEP;
 
         log:printInfo("Notify(" + action + ") remote participant: " + protocolUrl);
         participantEP = getParticipant2pcClient(protocolUrl);

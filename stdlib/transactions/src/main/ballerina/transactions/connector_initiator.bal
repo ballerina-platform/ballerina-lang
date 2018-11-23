@@ -25,38 +25,23 @@ type InitiatorClientConfig record {
     } retryConfig = {};
 };
 
-type InitiatorClientEP object {
-    http:Client httpClient = new;
+type InitiatorClientEP client object {
+    http:Client httpClient;
 
-    function init(InitiatorClientConfig conf) {
-        endpoint http:Client httpEP {
+    function __init(InitiatorClientConfig conf) {
+        http:Client httpEP = new({
             url:conf.registerAtURL,
             timeoutMillis:conf.timeoutMillis,
             retryConfig:{
                 count:conf.retryConfig.count, interval:conf.retryConfig.interval
             }
-        };
+        });
         self.httpClient = httpEP;
     }
 
-    function getCallerActions() returns InitiatorClient {
-        InitiatorClient client = new;
-        client.clientEP = self;
-        return client;
-    }
-};
-
-type InitiatorClient object {
-    InitiatorClientEP clientEP = new;
-
-    function __init() {
-
-    }
-
-    function register(string transactionId, int transactionBlockId, RemoteProtocol[] participantProtocols)
-        returns RegistrationResponse|error {
-
-        endpoint http:Client httpClient = self.clientEP.httpClient;
+    remote function register(string transactionId, int transactionBlockId, RemoteProtocol[] participantProtocols)
+                 returns RegistrationResponse|error {
+        http:Client httpClient = self.httpClient;
         string participantId = getParticipantId(transactionBlockId);
         RegistrationRequest regReq = {
             transactionId:transactionId, participantId:participantId, participantProtocols:participantProtocols

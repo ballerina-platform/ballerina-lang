@@ -32,7 +32,7 @@ type TwoPhaseCommitTransaction object {
 
     function __init(string transactionId, int transactionBlockId, string coordinationType = "2pc") {
         self.transactionId = transactionId;
-        self.transactionBlockId = transactionBlockId
+        self.transactionBlockId = transactionBlockId;
         self.coordinationType = coordinationType;
     }
 

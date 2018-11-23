@@ -137,8 +137,7 @@ function protocolCompatible(string coordinationType, Protocol[] participantProto
     return participantProtocolIsValid;
 }
 
-function respondToBadRequest(http:Listener conn, string msg) {
-    endpoint http:Listener ep = conn;
+function respondToBadRequest(http:Caller ep, string msg) {
     log:printError(msg);
     http:Response res = new;  res.statusCode = http:BAD_REQUEST_400;
     RequestError requestError = {errorMessage:msg};
@@ -265,6 +264,7 @@ function removeInitiatedTransaction(string transactionId) {
 }
 
 function getInitiatorClient(string registerAtURL) returns InitiatorClientEP {
+    InitiatorClientEP initiatorEP;
     if (httpClientCache.hasKey(registerAtURL)) {
         var cacheRes = <InitiatorClientEP>httpClientCache.get(registerAtURL);
         if (cacheRes is error) {
@@ -287,11 +287,9 @@ function getInitiatorClient(string registerAtURL) returns InitiatorClientEP {
                     return cacheRes;
                 }
             }
-            InitiatorClientEP initiatorEP = new;
-            InitiatorClientConfig config = { registerAtURL: registerAtURL,
-                timeoutMillis: 15000, retryConfig: { count: 2, interval: 5000 }
-            };
-            initiatorEP.init(config);
+            initiatorEP = new({ registerAtURL: registerAtURL, timeoutMillis: 15000,
+                retryConfig: { count: 2, interval: 5000 }
+            });
             httpClientCache.put(registerAtURL, initiatorEP);
             return initiatorEP;
         }
@@ -299,6 +297,7 @@ function getInitiatorClient(string registerAtURL) returns InitiatorClientEP {
 }
 
 function getParticipant2pcClient(string participantURL) returns Participant2pcClientEP {
+    Participant2pcClientEP participantEP;
     if (httpClientCache.hasKey(participantURL)) {
         var cacheRes = <Participant2pcClientEP>httpClientCache.get(participantURL);
         if (cacheRes is error) {
@@ -321,11 +320,9 @@ function getParticipant2pcClient(string participantURL) returns Participant2pcCl
                     return cacheRes;
                 }
             }
-            Participant2pcClientEP participantEP = new;
-            Participant2pcClientConfig config = { participantURL: participantURL,
+            participantEP = new({ participantURL: participantURL,
                 timeoutMillis: 15000, retryConfig: { count: 2, interval: 5000 }
-            };
-            participantEP.init(config);
+            });
             httpClientCache.put(participantURL, participantEP);
             return participantEP;
         }
@@ -343,8 +340,7 @@ public function registerParticipantWithRemoteInitiator(string transactionId, int
                                                        string registerAtURL, RemoteProtocol[] participantProtocols)
     returns TransactionContext|error {
 
-    endpoint InitiatorClientEP initiatorEP;
-    initiatorEP = getInitiatorClient(registerAtURL);
+    InitiatorClientEP initiatorEP = getInitiatorClient(registerAtURL);
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
 
     // Register with the coordinator only if the participant has not already done so
