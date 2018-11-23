@@ -472,7 +472,6 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
      * @return VarLock for the given field
      */
     public VarLock getFieldLock(String fieldName) {
-
         lockMap.putIfAbsent(fieldName, new VarLock());
         return lockMap.get(fieldName);
     }

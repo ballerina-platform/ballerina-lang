@@ -3035,7 +3035,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             operands[i++] = getOperand(pkgRefCPIndex);
             operands[i++] = varSymbol.varIndex;
         }
-
         return operands;
     }
 

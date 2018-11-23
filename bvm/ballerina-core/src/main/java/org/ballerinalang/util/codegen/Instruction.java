@@ -329,7 +329,7 @@ public class Instruction {
     /**
      * {@code {@link InstructionUnLock}} represents the UNLOCK instruction in Ballerina bytecode.
      *
-     * @since 0.961.0
+     * @since 0.985.0
      */
     public static class InstructionUnLock extends Instruction {
 

@@ -2792,7 +2792,6 @@ public class CPU {
                 }
             }
         }
-
         return lockAcquired;
     }
 
@@ -2810,7 +2809,6 @@ public class CPU {
             BType paramType = types[i];
             int pkgIndex = pkgRegs[i];
             int regIndex = varRegs[i];
-
             switch (paramType.getTag()) {
                 case TypeTags.INT_TAG:
                     ctx.programFile.globalMemArea.unlockIntField(pkgIndex, regIndex);
