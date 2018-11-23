@@ -945,7 +945,9 @@ public class CPU {
         }
 
         try {
-            valueToBeStamped.stamp(targetType);
+            if (valueToBeStamped != null) {
+                valueToBeStamped.stamp(targetType);
+            }
             sf.refRegs[k] = valueToBeStamped;
         } catch (BallerinaException e) {
             BError error = BLangVMErrors.createError(ctx,

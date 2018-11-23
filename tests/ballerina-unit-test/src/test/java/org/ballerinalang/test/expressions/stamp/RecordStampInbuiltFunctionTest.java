@@ -390,6 +390,21 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(employee0.get("school").stringValue(), "Hindu College");
     }
 
+    @Test
+    public void testStampRecordWithNilValues() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampRecordWithNilValues");
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+
+        Assert.assertEquals(employee0.get("batch").getType().getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get("batch").stringValue(), "LK2014");
+
+        Assert.assertEquals(employee0.get("school"), null);
+    }
+
+
     //---------------------------------- Negative Test cases ----------------------------------------------
 
     @Test

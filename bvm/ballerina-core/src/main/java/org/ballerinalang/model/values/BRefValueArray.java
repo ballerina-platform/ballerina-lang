@@ -109,13 +109,17 @@ public class BRefValueArray extends BNewArray implements Serializable {
         if (type.getTag() == TypeTags.TUPLE_TAG) {
             BRefType<?>[] arrayValues = this.getValues();
             for (int i = 0; i < this.size(); i++) {
-                arrayValues[i].stamp(((BTupleType) type).getTupleTypes().get(i));
+                if (arrayValues[i] != null) {
+                    arrayValues[i].stamp(((BTupleType) type).getTupleTypes().get(i));
+                }
             }
 
         } else if (type.getTag() == TypeTags.JSON_TAG) {
             BRefType<?>[] arrayValues = this.getValues();
             for (int i = 0; i < this.size(); i++) {
-                arrayValues[i].stamp(type);
+                if (arrayValues[i] != null) {
+                    arrayValues[i].stamp(type);
+                }
             }
         } else if (type.getTag() == TypeTags.UNION_TAG) {
             return;
@@ -123,7 +127,9 @@ public class BRefValueArray extends BNewArray implements Serializable {
             BType arrayElementType = ((BArrayType) type).getElementType();
             BRefType<?>[] arrayValues = this.getValues();
             for (int i = 0; i < this.size(); i++) {
-                arrayValues[i].stamp(arrayElementType);
+                if (arrayValues[i] != null) {
+                    arrayValues[i].stamp(arrayElementType);
+                }
             }
         }
 

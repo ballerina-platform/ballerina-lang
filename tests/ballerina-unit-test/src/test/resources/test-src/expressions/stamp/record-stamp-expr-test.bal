@@ -251,6 +251,26 @@ function stampNilTypeToOpenRecord() returns Employee|error {
     return e;
 }
 
+type EmployeeWithNil record {
+    string name;
+    string status;
+    string batch;
+};
+
+type TeacherWithNil record {
+    string name;
+    string status;
+    string batch;
+    string? school;
+};
+
+function stampRecordWithNilValues() returns EmployeeWithNil {
+    TeacherWithNil t1 = { name: "Raja", status: "single", batch: "LK2014", school: () };
+
+    EmployeeWithNil e = EmployeeWithNil.stamp(t1);
+    return e;
+}
+
 //-------------------------------- Negative Test cases ------------------------------------------------------------
 
 function stampOpenRecordToMap() returns map<string>|error  {
