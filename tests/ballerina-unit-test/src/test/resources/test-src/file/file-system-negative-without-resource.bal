@@ -21,5 +21,5 @@ listener file:Listener localFolder = new ({
     recursive: false
 });
 
-service fileSystem bind localFolder {
+service fileSystem on localFolder {
 }
