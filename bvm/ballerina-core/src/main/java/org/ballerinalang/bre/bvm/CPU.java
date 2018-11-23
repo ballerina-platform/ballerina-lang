@@ -4222,7 +4222,7 @@ public class CPU {
         compensationTable.index++;
     }
 
-    private static boolean checkIsLikeType(BValue sourceValue, BType targetType) {
+    public static boolean checkIsLikeType(BValue sourceValue, BType targetType) {
         BType sourceType = sourceValue == null ? BTypes.typeNull : sourceValue.getType();
         if (checkIsType(sourceType, targetType, new ArrayList<>())) {
             return true;
@@ -4245,7 +4245,7 @@ public class CPU {
                 return checkFiniteTypeAssignable(sourceValue, targetType);
             case TypeTags.UNION_TAG:
                 return ((BUnionType) targetType).getMemberTypes().stream()
-                        .anyMatch(type -> checkIsType(sourceValue, type));
+                        .anyMatch(type -> checkIsLikeType(sourceValue, type));
             default:
                 return false;
         }

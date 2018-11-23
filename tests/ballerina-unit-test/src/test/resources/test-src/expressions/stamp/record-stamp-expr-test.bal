@@ -244,6 +244,37 @@ function stampExtendedRecordToOpenRecordV6() returns ExtendedEmployeeWithUnionRe
     return outputValue;
 }
 
+function stampExtendedRecordToRecordWithUnionV7() returns ExtendedEmployeeWithRecord|error  {
+    map<anydata> addressValue = {no: 23, streetName: "Palm Grove", city:"Colombo"};
+    ExtendedEmployeeWithMap extendedWithMap = { name: "Raja", status: "single", batch: "LK2014", address:addressValue};
+
+    ExtendedEmployeeWithRecord|error employee = ExtendedEmployeeWithRecord.stamp(extendedWithMap);
+
+    return employee;
+}
+
+type ExtendedEmployeeWithNilMap record {
+    string name;
+    string status;
+    string batch;
+    map<anydata>? address;
+};
+
+type ExtendedEmployeeWithNilRecord record {
+    string name;
+    string status;
+    string batch;
+    Address? address;
+};
+
+function stampRecordToRecordWithNilValues() returns ExtendedEmployeeWithNilRecord|error  {
+    ExtendedEmployeeWithNilMap extendedWithMap = { name: "Raja", status: "single", batch: "LK2014", address:()};
+
+    ExtendedEmployeeWithNilRecord|error employee = ExtendedEmployeeWithNilRecord.stamp(extendedWithMap);
+
+    return employee;
+}
+
 function stampNilTypeToOpenRecord() returns Employee|error {
     Teacher t1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
 
@@ -255,6 +286,7 @@ type EmployeeWithNil record {
     string name;
     string status;
     string batch;
+    string? school;
 };
 
 type TeacherWithNil record {
@@ -264,7 +296,14 @@ type TeacherWithNil record {
     string? school;
 };
 
-function stampRecordWithNilValues() returns EmployeeWithNil {
+function stampRecordWithNilValues() returns Employee {
+    TeacherWithNil t1 = { name: "Raja", status: "single", batch: "LK2014", school: () };
+
+    Employee e = Employee.stamp(t1);
+    return e;
+}
+
+function stampRecordWithNilValuesV2() returns Employee {
     TeacherWithNil t1 = { name: "Raja", status: "single", batch: "LK2014", school: () };
 
     EmployeeWithNil e = EmployeeWithNil.stamp(t1);

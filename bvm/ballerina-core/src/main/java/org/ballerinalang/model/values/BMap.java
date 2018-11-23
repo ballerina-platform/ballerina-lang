@@ -25,6 +25,7 @@ import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.Flags;
 import org.ballerinalang.model.util.JsonGenerator;
@@ -371,7 +372,13 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
                 }
             }
         } else if (type.getTag() == TypeTags.UNION_TAG) {
-            return;
+            for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+                if (CPU.checkIsLikeType(this, memberType)) {
+                    this.stamp(memberType);
+                    type = memberType;
+                    break;
+                }
+            }
         }
 
         this.type = type;
