@@ -41,7 +41,6 @@ import io.swagger.models.properties.StringProperty;
 import org.ballerinalang.ballerina.swagger.convertor.ConverterUtils;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ResourceNode;
-import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -55,9 +54,9 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import javax.ws.rs.core.MediaType;
 
 import static org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
@@ -66,9 +65,6 @@ import static org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLitera
  * This class will do resource mapping from ballerina to swagger.
  */
 public class SwaggerResourceMapper {
-
-    private static final String X_MULTI_OPERATIONS = "x-MULTI";
-    private static final String X_HTTP_METHODS = "x-METHODS";
     private final String httpAlias;
     private final String swaggerAlias;
     private final Swagger swaggerDefinition;
@@ -95,8 +91,8 @@ public class SwaggerResourceMapper {
     protected Map<String, Path> convertResourceToPath(List<? extends ResourceNode> resources) {
         Map<String, Path> pathMap = new HashMap<>();
         for (ResourceNode resource : resources) {
-            if (this.getHttpMethods(resource, false).size() == 0 ||
-                    this.getHttpMethods(resource, false).size() > 1) {
+            if (this.getHttpMethods(resource, false).size() == 0
+                    || this.getHttpMethods(resource, false).size() > 1) {
                 useMultiResourceMapper(pathMap, resource);
             } else {
                 useDefaultResourceMapper(pathMap, resource);
@@ -112,16 +108,17 @@ public class SwaggerResourceMapper {
      * @param resource The ballerina resource.
      */
     private void useMultiResourceMapper(Map<String, Path> pathMap, ResourceNode resource) {
-        List<String> httpMethods = this.getHttpMethods(resource, true);
+        List<String> httpMethods = this.getHttpMethods(resource, false);
         String path = this.getPath(resource);
         Path pathObject = new Path();
         Operation operation = null;
-        //Iterate through http methods and fill path map.
-        operation = this.convertResourceToOperation(resource, null).getOperation();
-        if (operation != null) {
-            operation.setVendorExtension(X_HTTP_METHODS, httpMethods);
+        if (httpMethods.size() > 1) {
+            for (String httpMethod : httpMethods) {
+                //Iterate through http methods and fill path map.
+                operation = this.convertResourceToOperation(resource, httpMethod).getOperation();
+                pathObject.set(httpMethod.toLowerCase(), operation);
+            }
         }
-        pathObject.setVendorExtension(X_MULTI_OPERATIONS, operation);
         pathMap.put(path, pathObject);
     }
 
@@ -132,9 +129,9 @@ public class SwaggerResourceMapper {
      * @param resource The ballerina resource.
      */
     private void useDefaultResourceMapper(Map<String, Path> pathMap, ResourceNode resource) {
-        OperationAdaptor operationAdaptor = this.convertResourceToOperation(resource, null);
-        String httpOperation = getHttpMethods(resource , true).get(0);
-        operationAdaptor.setHttpOperation(httpOperation);
+        String httpMethod = getHttpMethods(resource, true).get(0);
+        OperationAdaptor operationAdaptor = this.convertResourceToOperation(resource, httpMethod);
+        operationAdaptor.setHttpOperation(httpMethod);
         Path path = pathMap.get(operationAdaptor.getPath());
         if (path == null) {
             path = new Path();
@@ -142,7 +139,8 @@ public class SwaggerResourceMapper {
         }
         //String httpOperation = operationAdaptor.getHttpOperation();
         Operation operation = operationAdaptor.getOperation();
-        switch (httpOperation) {
+        operation.setOperationId(operation.getOperationId() + httpMethod);
+        switch (httpMethod) {
             case HttpConstants.ANNOTATION_METHOD_GET:
                 path.get(operation);
                 break;
@@ -178,8 +176,7 @@ public class SwaggerResourceMapper {
     private OperationAdaptor convertResourceToOperation(ResourceNode resource, String httpMethod) {
         OperationAdaptor op = new OperationAdaptor();
         if (resource != null) {
-            // Setting default values.
-            op.setHttpOperation(HttpConstants.HTTP_METHOD_GET);
+            op.setHttpOperation(httpMethod);
             op.setPath('/' + resource.getName().getValue());
             Response response = new Response()
                     .description("Successful")
@@ -189,21 +186,27 @@ public class SwaggerResourceMapper {
             // Replacing all '_' with ' ' to keep the consistency with what we are doing in swagger -> bal
             // @see BallerinaOperation#buildContext
             String resName = resource.getName().getValue().replaceAll("_", " ");
-            op.getOperation().setOperationId(resName);
+            op.getOperation().setOperationId(getUUID(resName));
             op.getOperation().setParameters(null);
+
             // Parsing annotations.
             this.parseResourceConfigAnnotationAttachment(resource, op);
-            if (null != httpMethod) {
-                op.setHttpOperation(httpMethod);
-            }
-
-            this.parseResourceInfoAnnotationAttachment(resource, op.getOperation());
+            this.parseResourceInfo(resource, op.getOperation(), httpMethod);
             this.addResourceParameters(resource, op);
             this.parseResponsesAnnotationAttachment(resource, op.getOperation());
-            
         }
-
         return op;
+    }
+
+    /**
+     * get UUID generated with the given post fix.
+     *
+     * @param postFix string post fix to attach to ID
+     * @return {@link String} generated UUID
+     */
+    private String getUUID(String postFix) {
+        String uuid = UUID.randomUUID().toString();
+        return uuid + "-" + postFix;
     }
 
     /**
@@ -294,7 +297,7 @@ public class SwaggerResourceMapper {
         //Set Path
         AnnotationAttachmentNode annotation = ConverterUtils
                 .getAnnotationFromList(HttpConstants.ANN_NAME_RESOURCE_CONFIG, httpAlias,
-                resource.getAnnotationAttachments());
+                        resource.getAnnotationAttachments());
 
         if (annotation != null) {
             BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) annotation)
@@ -312,7 +315,7 @@ public class SwaggerResourceMapper {
         }
 
         if (!"get".equalsIgnoreCase(operationAdaptor.getHttpOperation())) {
-        
+
             // Creating request body - required.
             ModelImpl messageModel = new ModelImpl();
             messageModel.setType("object");
@@ -321,7 +324,7 @@ public class SwaggerResourceMapper {
                 definitions.put(ConverterConstants.ATTR_REQUEST, messageModel);
                 this.swaggerDefinition.setDefinitions(definitions);
             }
-        
+
             // Creating "Request rq" parameter
             BodyParameter messageParameter = new BodyParameter();
             messageParameter.setName(resource.getParameters().get(0).getName().getValue());
@@ -333,49 +336,14 @@ public class SwaggerResourceMapper {
                 operationAdaptor.getOperation().addParameter(messageParameter);
             }
         }
-    
-        for (int i = 2; i < resource.getParameters().size(); i++) {
-            SimpleVariableNode parameterDef = resource.getParameters().get(i);
-            String typeName = parameterDef.getTypeNode().toString().toLowerCase(Locale.getDefault());
-            PathParameter pathParameter = new PathParameter();
-            // Set in value
-            pathParameter.setIn("path");
-            // Set parameter name
-            String parameterName = parameterDef.getName().getValue();
-            pathParameter.setName(parameterName);
-            // Note: 'description' to be added using annotations, hence skipped here.
-            // Note: 'allowEmptyValue' to be added using annotations, hence skipped here.
-            // Set type
-            if (typeName.contains("[]")) {
-                pathParameter.setType("array");
-                switch (typeName.replace("[]", "").trim()) {
-                    case "string":
-                        pathParameter.items(new StringProperty());
-                        break;
-                    case "int":
-                        pathParameter.items(new IntegerProperty());
-                        break;
-                    case "boolean":
-                        pathParameter.items(new BooleanProperty());
-                        break;
-                    default:
-                        break;
-                }
-            } else if ("int".equals(typeName)) {
-                pathParameter.setType("integer");
-            } else {
-                pathParameter.setType(typeName);
-            }
-            // Note: 'format' to be added using annotations, hence skipped here.
-            operationAdaptor.getOperation().addParameter(pathParameter);
-        }
+
     }
 
     /**
      * Create {@code Parameters} model for swagger operation.
      *
-     * @param annotationExpression  The annotation attribute value for resource parameters
-     * @param operation The swagger operation.
+     * @param annotationExpression The annotation attribute value for resource parameters
+     * @param operation            The swagger operation.
      */
     private void createParametersModel(BLangExpression annotationExpression, Operation operation) {
         if (annotationExpression != null) {
@@ -394,26 +362,26 @@ public class SwaggerResourceMapper {
                     in = "path";
                 }
 
-                Parameter pram = buildParameter(in);
+                Parameter param = buildParameter(in, paramAttributes);
                 if (paramAttributes.containsKey(ConverterConstants.ATTR_NAME)) {
-                    pram.setName(
+                    param.setName(
                             ConverterUtils.getStringLiteralValue(paramAttributes.get(ConverterConstants.ATTR_NAME)));
                 }
                 if (paramAttributes.containsKey(ConverterConstants.ATTR_DESCRIPTION)) {
-                    pram.setDescription(ConverterUtils
+                    param.setDescription(ConverterUtils
                             .getStringLiteralValue(paramAttributes.get(ConverterConstants.ATTR_DESCRIPTION)));
                 }
                 if (paramAttributes.containsKey(ConverterConstants.ATTR_REQUIRED)) {
-                    pram.setRequired(Boolean.parseBoolean(ConverterUtils
+                    param.setRequired(Boolean.parseBoolean(ConverterUtils
                             .getStringLiteralValue(paramAttributes.get(ConverterConstants.ATTR_REQUIRED))));
                 }
                 if (paramAttributes.containsKey(ConverterConstants.ATTR_ALLOW_EMPTY)) {
-                    pram.setAllowEmptyValue(Boolean.parseBoolean(ConverterUtils
+                    param.setAllowEmptyValue(Boolean.parseBoolean(ConverterUtils
                             .getStringLiteralValue(paramAttributes.get(ConverterConstants.ATTR_ALLOW_EMPTY))));
                 }
                 // TODO: 5/2/18 Set Param Schema Details
 
-                parameters.add(pram);
+                parameters.add(param);
             }
 
             operation.setParameters(parameters);
@@ -426,39 +394,72 @@ public class SwaggerResourceMapper {
      * @param resource  The resource definition.
      * @param operation The swagger operation.
      */
-    private void parseResourceInfoAnnotationAttachment(ResourceNode resource, Operation operation) {
-        AnnotationAttachmentNode annotation = ConverterUtils
-                .getAnnotationFromList(ConverterConstants.ANNON_RES_INFO, swaggerAlias,
+    private void parseResourceInfo(ResourceNode resource, Operation operation, String httpMethod) {
+        AnnotationAttachmentNode multiResourceInfoAnnotation = ConverterUtils
+                .getAnnotationFromList(ConverterConstants.ANNON_MULTI_RES_INFO, swaggerAlias,
                         resource.getAnnotationAttachments());
+        if (multiResourceInfoAnnotation != null) {
+            parseMultiResourceInfoAnnotationAttachment(multiResourceInfoAnnotation, operation, httpMethod);
+        } else {
+            AnnotationAttachmentNode annotation = ConverterUtils
+                    .getAnnotationFromList(ConverterConstants.ANNON_RES_INFO, swaggerAlias,
+                            resource.getAnnotationAttachments());
 
-        if (annotation != null) {
-            BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) annotation)
-                    .getExpression());
-            List<BLangRecordLiteral.BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
-            Map<String, BLangExpression> attributes = ConverterUtils.listToMap(list);
-            this.createTagModel(attributes.get(ConverterConstants.ATTR_TAGS), operation);
-
-            if (attributes.containsKey(ConverterConstants.ATTR_SUMMARY)) {
-                operation.setSummary(
-                        ConverterUtils.getStringLiteralValue(attributes.get(ConverterConstants.ATTR_SUMMARY)));
+            if (annotation != null) {
+                BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) annotation)
+                        .getExpression());
+                addResourceInfoToOperation(bLiteral, operation);
             }
-            if (attributes.containsKey(ConverterConstants.ATTR_DESCRIPTION)) {
-                operation.setDescription(
-                        ConverterUtils.getStringLiteralValue(attributes.get(ConverterConstants.ATTR_DESCRIPTION)));
-            }
-            if (attributes.containsKey(ConverterConstants.ATTR_PARAM)) {
-                this.createParametersModel(attributes.get(ConverterConstants.ATTR_PARAM), operation);
-            }
-
-            this.createExternalDocsModel(attributes.get(ConverterConstants.ATTR_EXT_DOC), operation);
         }
+    }
+
+    private void parseMultiResourceInfoAnnotationAttachment(AnnotationAttachmentNode multiResourceInfoAnnotation,
+                                                            Operation operation, String httpMethod) {
+        // Get multi resource information
+        if (multiResourceInfoAnnotation != null) {
+            BLangRecordLiteral bLiteral = (BLangRecordLiteral) ((BLangAnnotationAttachment) multiResourceInfoAnnotation)
+                    .getExpression();
+            // In multi resource information there is only one key exist that is `resource information`.
+            BLangRecordKeyValue resourceInformationAttr = bLiteral.keyValuePairs.size() == 1
+                    ? bLiteral.keyValuePairs.get(0)
+                    : null;
+            if (resourceInformationAttr != null) {
+                List<BLangRecordLiteral.BLangRecordKeyValue> resourceInformations =
+                        ((BLangRecordLiteral) resourceInformationAttr.valueExpr).getKeyValuePairs();
+                for (BLangRecordKeyValue resourceInfo : resourceInformations) {
+                    if (((BLangLiteral) resourceInfo.key.expr).value.equals(httpMethod)) {
+                        addResourceInfoToOperation(((BLangRecordLiteral) resourceInfo.valueExpr), operation);
+                    }
+                }
+            }
+        }
+    }
+
+    private void addResourceInfoToOperation(BLangRecordLiteral bLiteral, Operation operation) {
+        List<BLangRecordLiteral.BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
+        Map<String, BLangExpression> attributes = ConverterUtils.listToMap(list);
+        this.createTagModel(attributes.get(ConverterConstants.ATTR_TAGS), operation);
+
+        if (attributes.containsKey(ConverterConstants.ATTR_SUMMARY)) {
+            operation.setSummary(
+                    ConverterUtils.getStringLiteralValue(attributes.get(ConverterConstants.ATTR_SUMMARY)));
+        }
+        if (attributes.containsKey(ConverterConstants.ATTR_DESCRIPTION)) {
+            operation.setDescription(
+                    ConverterUtils.getStringLiteralValue(attributes.get(ConverterConstants.ATTR_DESCRIPTION)));
+        }
+        if (attributes.containsKey(ConverterConstants.ATTR_PARAM)) {
+            this.createParametersModel(attributes.get(ConverterConstants.ATTR_PARAM), operation);
+        }
+
+        this.createExternalDocsModel(attributes.get(ConverterConstants.ATTR_EXT_DOC), operation);
     }
 
     /**
      * Creates external docs swagger definitions.
      *
      * @param annotationExpression The annotation attribute value for external docs.
-     * @param operation                The swagger operation.
+     * @param operation            The swagger operation.
      */
     private void createExternalDocsModel(BLangExpression annotationExpression, Operation operation) {
         if (null != annotationExpression) {
@@ -501,7 +502,7 @@ public class SwaggerResourceMapper {
             operation.setTags(tags);
         }
     }
-    
+
     /**
      * Parse 'ResourceConfig' annotation attachment and build a resource operation.
      *
@@ -518,25 +519,6 @@ public class SwaggerResourceMapper {
                     .getExpression());
             List<BLangRecordLiteral.BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
             Map<String, BLangExpression> attributes = ConverterUtils.listToMap(list);
-
-            if (attributes.containsKey(HttpConstants.ANN_RESOURCE_ATTR_METHODS)) {
-                // Setting default value is safe since empty 'methods' is handled separately by X-METHODS extension
-                String method = HttpConstants.HTTP_METHOD_GET;
-                BLangArrayLiteral methodsArray = (BLangArrayLiteral) attributes
-                        .get(HttpConstants.ANN_RESOURCE_ATTR_METHODS);
-
-                if (methodsArray.getExpressions().size() > 0) {
-                    // Only one method is expected in this execution path
-                    ExpressionNode expr = methodsArray.getExpressions().get(0);
-                    BLangLiteral methodLit = (BLangLiteral) expr;
-
-                    if (ConverterUtils.getStringLiteralValue(methodLit) != null) {
-                        method = ConverterUtils.getStringLiteralValue(methodLit);
-                    }
-                }
-
-                operation.setHttpOperation(method);
-            }
 
             if (attributes.containsKey(HttpConstants.ANN_RESOURCE_ATTR_PATH)) {
                 operation.setPath(
@@ -577,6 +559,8 @@ public class SwaggerResourceMapper {
             // TODO: Implement security definitions.
             //this.createSecurityDefinitions(resourceConfigAnnotation.get().getAttributeNameValuePairs()
             // .get("authorizations"), operation);
+        } else {
+            operation.setPath(resource.getName().getValue());
         }
     }
 
@@ -649,18 +633,41 @@ public class SwaggerResourceMapper {
     /**
      * Builds a Swagger {@link Parameter} for provided parameter location.
      *
-     * @param in location of the parameter in the request definition
+     * @param in              location of the parameter in the request definition
+     * @param paramAttributes
      * @return Swagger {@link Parameter} for parameter location {@code in}
      */
-    private Parameter buildParameter(String in) {
+    private Parameter buildParameter(String in, Map<String, BLangExpression> paramAttributes) {
         Parameter param;
 
         switch (in) {
             case "body":
-                param = new BodyParameter();
+                // TODO : support for inline and other types of schemas
+                BodyParameter bParam = new BodyParameter();
+                RefModel m = new RefModel();
+                m.set$ref(ConverterUtils
+                        .getStringLiteralValue(paramAttributes.get(ConverterConstants.ATTR_TYPE)));
+                bParam.setSchema(m);
+                param = bParam;
                 break;
             case "query":
-                param = new QueryParameter();
+                QueryParameter qParam = new QueryParameter();
+                String attrType = ConverterUtils
+                        .getStringLiteralValue(paramAttributes.get(ConverterConstants.ATTR_TYPE)).trim();
+                String type;
+                switch (attrType) {
+                    case "int":
+                        type = "integer";
+                        break;
+                    case "float":
+                        type = "number";
+                        break;
+                    default:
+                        type = attrType;
+                        break;
+                }
+                qParam.setType(type);
+                param = qParam;
                 break;
             case "header":
                 param = new HeaderParameter();
@@ -673,7 +680,10 @@ public class SwaggerResourceMapper {
                 break;
             case "path":
             default:
-                param = new PathParameter();
+                PathParameter pParam = new PathParameter();
+                pParam.setType(ConverterUtils
+                        .getStringLiteralValue(paramAttributes.get(ConverterConstants.ATTR_TYPE)));
+                param = pParam;
         }
 
         return param;

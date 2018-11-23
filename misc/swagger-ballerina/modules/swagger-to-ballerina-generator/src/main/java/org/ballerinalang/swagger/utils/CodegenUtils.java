@@ -89,7 +89,7 @@ public class CodegenUtils {
             }
         }
     }
-    
+
     /**
      * Removes underscores and hyphens for identifiers.
      * @param identifier Path
@@ -99,7 +99,13 @@ public class CodegenUtils {
         if (identifier == null) {
             return null;
         }
-    
-        return identifier.replaceAll(" ", "_").replaceAll("-", "");
+
+        String resourceName = identifier;
+        if (identifier.split("-").length > 0) {
+            String[] spllitedIdentifier = identifier.split("-");
+            resourceName = spllitedIdentifier[spllitedIdentifier.length - 1];
+        }
+
+        return resourceName.replaceAll(" ", "_").replaceAll("-", "");
     }
 }

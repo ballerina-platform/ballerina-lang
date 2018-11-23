@@ -440,40 +440,117 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                     JsonObject sourceRecord = sourceNodeAttachment.getAsJsonObject("expression");
                     JsonObject matchedTargetRecord = matchedTargetNode.getAsJsonObject("expression");
 
-                    for (JsonElement keyValueItem : sourceRecord.getAsJsonArray("keyValuePairs")) {
-                        JsonObject sourceKeyValue = keyValueItem.getAsJsonObject();
-                        int matchedKeyValuePairIndex = 0;
-                        JsonObject matchedObj = null;
+                    if (sourceNodeAttachment.getAsJsonObject("annotationName").get("value").getAsString()
+                            .equals("MultiResourceInfo")) {
+                        JsonArray sourceResourceInformations = sourceRecord.getAsJsonArray("keyValuePairs")
+                                .get(0).getAsJsonObject().getAsJsonObject("value").getAsJsonArray("keyValuePairs");
+                        JsonArray targetResourceInformations = matchedTargetRecord.getAsJsonArray("keyValuePairs")
+                                .get(0).getAsJsonObject().getAsJsonObject("value").getAsJsonArray("keyValuePairs");
 
-                        for (JsonElement matchedKeyValueItem :
-                                matchedTargetRecord.getAsJsonArray("keyValuePairs")) {
-                            JsonObject matchedKeyValue = matchedKeyValueItem.getAsJsonObject();
-                            if ((matchedKeyValue.has("key") &&
-                                    matchedKeyValue.getAsJsonObject("key").get("kind").getAsString()
-                                            .equals("SimpleVariableRef"))) {
-                                JsonObject matchedKey = matchedKeyValue.getAsJsonObject("key");
-                                JsonObject sourceKey = sourceKeyValue.getAsJsonObject("key");
-                                if (matchedKey.getAsJsonObject("variableName").get("value").getAsString()
-                                        .equals(sourceKey.getAsJsonObject("variableName").get("value").getAsString())) {
-                                    matchedObj = matchedKeyValue;
-                                    break;
+                        // Get map values of the resourceInformation map in MultiResourceInfo annotation.
+                        for (JsonElement sourceResourceInfoItem : sourceResourceInformations) {
+                            JsonObject sourceResourceInfo = sourceResourceInfoItem.getAsJsonObject();
+                            JsonObject matchedTargetResourceInfo = null;
+                            for (JsonElement targetResourceInfoItem : targetResourceInformations) {
+                                JsonObject targetResourceInfo = targetResourceInfoItem.getAsJsonObject();
+                                if (targetResourceInfo.has("key")
+                                        && targetResourceInfo.getAsJsonObject("key").get("kind").getAsString()
+                                        .equals("Literal")) {
+                                    JsonObject targetResourceInfoKey = targetResourceInfo.getAsJsonObject("key");
+                                    JsonObject sourceResourceInfoKey = sourceResourceInfo.getAsJsonObject("key");
+
+                                    if (sourceResourceInfoKey.get("value").getAsString()
+                                            .equals(targetResourceInfoKey.get("value").getAsString())) {
+                                        matchedTargetResourceInfo = targetResourceInfo;
+                                    }
                                 }
                             }
-                            matchedKeyValuePairIndex++;
+
+                            if (matchedTargetResourceInfo != null) {
+                                JsonArray sourceResourceInfoOperation = sourceResourceInfo.getAsJsonObject("value")
+                                        .getAsJsonArray("keyValuePairs");
+                                JsonArray targetResourceInfoOperation = matchedTargetResourceInfo
+                                        .getAsJsonObject("value").getAsJsonArray("keyValuePairs");
+
+                                for (JsonElement keyValueItem : sourceResourceInfoOperation) {
+                                    JsonObject sourceKeyValue = keyValueItem.getAsJsonObject();
+                                    int matchedKeyValuePairIndex = 0;
+                                    JsonObject matchedObj = null;
+                                    for (JsonElement matchedKeyValueItem : targetResourceInfoOperation) {
+                                        JsonObject matchedKeyValue = matchedKeyValueItem.getAsJsonObject();
+                                        if ((matchedKeyValue.has("key") &&
+                                                matchedKeyValue.getAsJsonObject("key").get("kind").getAsString()
+                                                        .equals("SimpleVariableRef"))) {
+                                            JsonObject matchedKey = matchedKeyValue.getAsJsonObject("key");
+                                            JsonObject sourceKey = sourceKeyValue.getAsJsonObject("key");
+                                            if (matchedKey.getAsJsonObject("variableName").get("value").getAsString()
+                                                    .equals(sourceKey.getAsJsonObject("variableName").get("value")
+                                                            .getAsString())) {
+                                                matchedObj = matchedKeyValue;
+                                                break;
+                                            }
+                                        }
+                                        matchedKeyValuePairIndex++;
+                                    }
+
+                                    if (matchedObj != null) {
+                                        List<JsonObject> matchedObjWS = FormattingSourceGen.extractWS(matchedObj);
+                                        int firstTokenIndex = matchedObjWS.get(0).get("i").getAsInt();
+                                        targetResourceInfoOperation
+                                                .remove(matchedKeyValuePairIndex);
+                                        FormattingSourceGen.reconcileWS(sourceKeyValue, targetResourceInfoOperation,
+                                                tree, firstTokenIndex);
+                                        targetResourceInfoOperation.add(sourceKeyValue);
+                                    } else {
+                                        FormattingSourceGen.reconcileWS(sourceKeyValue, targetResourceInfoOperation,
+                                                tree, -1);
+                                        targetResourceInfoOperation.add(sourceKeyValue);
+                                    }
+                                }
+
+                            } else {
+                                FormattingSourceGen.reconcileWS(sourceResourceInfo, targetResourceInformations,
+                                        tree, -1);
+                                targetResourceInformations.add(sourceResourceInfo);
+                            }
                         }
 
-                        if (matchedObj != null) {
-                            List<JsonObject> matchedObjWS = FormattingSourceGen.extractWS(matchedObj);
-                            int firstTokenIndex = matchedObjWS.get(0).get("i").getAsInt();
-                            matchedTargetRecord.getAsJsonArray("keyValuePairs")
-                                    .remove(matchedKeyValuePairIndex);
-                            FormattingSourceGen.reconcileWS(sourceKeyValue, matchedTargetRecord
-                                    .getAsJsonArray("keyValuePairs"), tree, firstTokenIndex);
-                            matchedTargetRecord.getAsJsonArray("keyValuePairs").add(sourceKeyValue);
-                        } else {
-                            FormattingSourceGen.reconcileWS(sourceKeyValue, matchedTargetRecord
-                                    .getAsJsonArray("keyValuePairs"), tree, -1);
-                            matchedTargetRecord.getAsJsonArray("keyValuePairs").add(sourceKeyValue);
+                    } else {
+                        for (JsonElement keyValueItem : sourceRecord.getAsJsonArray("keyValuePairs")) {
+                            JsonObject sourceKeyValue = keyValueItem.getAsJsonObject();
+                            int matchedKeyValuePairIndex = 0;
+                            JsonObject matchedObj = null;
+
+                            for (JsonElement matchedKeyValueItem :
+                                    matchedTargetRecord.getAsJsonArray("keyValuePairs")) {
+                                JsonObject matchedKeyValue = matchedKeyValueItem.getAsJsonObject();
+                                if ((matchedKeyValue.has("key") &&
+                                        matchedKeyValue.getAsJsonObject("key").get("kind").getAsString()
+                                                .equals("SimpleVariableRef"))) {
+                                    JsonObject matchedKey = matchedKeyValue.getAsJsonObject("key");
+                                    JsonObject sourceKey = sourceKeyValue.getAsJsonObject("key");
+                                    if (matchedKey.getAsJsonObject("variableName").get("value").getAsString()
+                                            .equals(sourceKey.getAsJsonObject("variableName").get("value").getAsString())) {
+                                        matchedObj = matchedKeyValue;
+                                        break;
+                                    }
+                                }
+                                matchedKeyValuePairIndex++;
+                            }
+
+                            if (matchedObj != null) {
+                                List<JsonObject> matchedObjWS = FormattingSourceGen.extractWS(matchedObj);
+                                int firstTokenIndex = matchedObjWS.get(0).get("i").getAsInt();
+                                matchedTargetRecord.getAsJsonArray("keyValuePairs")
+                                        .remove(matchedKeyValuePairIndex);
+                                FormattingSourceGen.reconcileWS(sourceKeyValue, matchedTargetRecord
+                                        .getAsJsonArray("keyValuePairs"), tree, firstTokenIndex);
+                                matchedTargetRecord.getAsJsonArray("keyValuePairs").add(sourceKeyValue);
+                            } else {
+                                FormattingSourceGen.reconcileWS(sourceKeyValue, matchedTargetRecord
+                                        .getAsJsonArray("keyValuePairs"), tree, -1);
+                                matchedTargetRecord.getAsJsonArray("keyValuePairs").add(sourceKeyValue);
+                            }
                         }
                     }
                 }

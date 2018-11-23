@@ -17,10 +17,13 @@
 package org.ballerinalang.swagger.model;
 
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import org.ballerinalang.swagger.exception.BallerinaOpenApiException;
+import org.ballerinalang.swagger.utils.CodegenUtils;
 
 import java.util.AbstractMap;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -34,11 +37,14 @@ import java.util.Set;
 public class BallerinaPath implements BallerinaSwaggerObject<BallerinaPath, PathItem> {
     private String ref;
     private String summary;
+    private boolean sameResourceOperationExists;
     private String description;
     private Set<Map.Entry<String, BallerinaOperation>> operations;
+    private Set<Map.Entry<String, OperationCategory>> sameResourceOperations;
 
     public BallerinaPath() {
         this.operations = new LinkedHashSet<>();
+        this.sameResourceOperations = new LinkedHashSet<>();
     }
 
     @Override
@@ -46,59 +52,54 @@ public class BallerinaPath implements BallerinaSwaggerObject<BallerinaPath, Path
         this.ref = item.get$ref();
         this.summary = item.getSummary();
         this.description = item.getDescription();
+
+        Map<String, OperationCategory> categorizedOperations = new HashMap<>();
         Map.Entry<String, BallerinaOperation> entry;
         BallerinaOperation operation;
 
         if (item.getExtensions() != null && item.getExtensions().size() > 0) {
-            for (Map.Entry<String, Object> xEntry: item.getExtensions().entrySet()) {
+            for (Map.Entry<String, Object> xEntry : item.getExtensions().entrySet()) {
                 resolveExtension(xEntry);
             }
             return this;
         }
 
-        // Swagger PathItem object doesn't provide a iterable structure for operations
-        // Therefore we have to manually check if each http verb exists
-        if (item.getGet() != null) {
-            operation = new BallerinaOperation().buildContext(item.getGet(), openAPI);
-            entry = new AbstractMap.SimpleEntry<>("get", operation);
-            operations.add(entry);
-        }
-        if (item.getPut() != null) {
-            operation = new BallerinaOperation().buildContext(item.getPut(), openAPI);
-            entry = new AbstractMap.SimpleEntry<>("put", operation);
-            operations.add(entry);
-        }
-        if (item.getPost() != null) {
-            operation = new BallerinaOperation().buildContext(item.getPost(), openAPI);
-            entry = new AbstractMap.SimpleEntry<>("post", operation);
-            operations.add(entry);
-        }
-        if (item.getDelete() != null) {
-            operation = new BallerinaOperation().buildContext(item.getDelete(), openAPI);
-            entry = new AbstractMap.SimpleEntry<>("delete", operation);
-            operations.add(entry);
-        }
-        if (item.getOptions() != null) {
-            operation = new BallerinaOperation().buildContext(item.getOptions(), openAPI);
-            entry = new AbstractMap.SimpleEntry<>("options", operation);
-            operations.add(entry);
-        }
-        if (item.getHead() != null) {
-            operation = new BallerinaOperation().buildContext(item.getHead(), openAPI);
-            entry = new AbstractMap.SimpleEntry<>("head", operation);
-            operations.add(entry);
-        }
-        if (item.getPatch() != null) {
-            operation = new BallerinaOperation().buildContext(item.getPatch(), openAPI);
-            entry = new AbstractMap.SimpleEntry<>("patch", operation);
-            operations.add(entry);
-        }
-        if (item.getTrace() != null) {
-            operation = new BallerinaOperation().buildContext(item.getTrace(), openAPI);
-            entry = new AbstractMap.SimpleEntry<>("trace", operation);
-            operations.add(entry);
-        }
+        // Iterate through the operation map and add operations belong to same ballerina resource.
+        Map<PathItem.HttpMethod, Operation> operationMap = item.readOperationsMap();
+        for (Map.Entry<PathItem.HttpMethod, Operation> operationI : operationMap.entrySet()) {
+            String operationIId = operationI.getValue().getOperationId();
+            boolean idMatched = false;
+            for (Map.Entry<PathItem.HttpMethod, Operation> operationJ : operationMap.entrySet()) {
+                String operationJId = operationJ.getValue().getOperationId();
+                if (!operationIId.equals(operationJId) && CodegenUtils.normalizeForBIdentifier(operationIId)
+                        .equals(CodegenUtils.normalizeForBIdentifier(operationJId))) {
+                    idMatched = true;
+                }
+            }
 
+            operation = new BallerinaOperation().buildContext(item.getGet(), openAPI);
+            if (idMatched) {
+                entry = new AbstractMap.SimpleEntry<>(operationI.getKey().name(), operation);
+                if (categorizedOperations.get(CodegenUtils.normalizeForBIdentifier(operationIId)) != null) {
+                    categorizedOperations.get(CodegenUtils.normalizeForBIdentifier(operationIId)).addOperation(entry);
+                    categorizedOperations.get(CodegenUtils.normalizeForBIdentifier(operationIId))
+                            .addMethod(operationI.getKey().name());
+                } else {
+                    categorizedOperations.put(CodegenUtils.normalizeForBIdentifier(operationIId),
+                            new OperationCategory(CodegenUtils.normalizeForBIdentifier(operationIId)));
+                    categorizedOperations.get(CodegenUtils.normalizeForBIdentifier(operationIId)).addOperation(entry);
+                    categorizedOperations.get(CodegenUtils.normalizeForBIdentifier(operationIId))
+                            .addMethod(operationI.getKey().name());
+                }
+            } else {
+                // TODO: remove temporary setting the operation ID to be contain operation name.
+                operation.setOperationId(operation.getOperationId() + operationI.getKey().name());
+                entry = new AbstractMap.SimpleEntry<>(operationI.getKey().name(), operation);
+                operations.add(entry);
+            }
+        }
+        sameResourceOperations = categorizedOperations.entrySet();
+        sameResourceOperationExists = !sameResourceOperations.isEmpty();
         return this;
     }
 
