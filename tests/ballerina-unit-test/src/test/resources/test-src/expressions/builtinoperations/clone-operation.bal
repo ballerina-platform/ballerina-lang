@@ -369,3 +369,15 @@ public function cloneLikeAnydata() returns (any, any) {
     any y = x.clone();
     return (x, y);
 }
+
+public function cloneNullJson() returns (any, any) {
+    json c = ();
+    json x = c.clone();
+    return (c, x);
+}
+
+public function cloneNilAnydata() returns (any, any) {
+    anydata x = ();
+    anydata y = x.clone();
+    return (x, y);
+}

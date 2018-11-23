@@ -16,9 +16,9 @@
 import ballerina/grpc;
 
 function testEnum() returns (string) {
-    endpoint testEnumServiceBlockingClient blockingEp {
+    endpoint testEnumServiceBlockingClient blockingEp = new ({
         url:"http://localhost:8555"
-    };
+    });
 
     orderInfo orderReq = { id:"100500", mode:r };
     var addResponse = blockingEp->testEnum(orderReq);
@@ -31,89 +31,47 @@ function testEnum() returns (string) {
     }
 }
 
-public type testEnumServiceBlockingStub object {
-    public grpc:Client clientEndpoint = new;
-    public grpc:Stub stub = new;
+public type testEnumServiceBlockingClient client object {
+    public grpc:Client grpcClient = new;
 
-    function initStub (grpc:Client ep) {
-        grpc:Stub navStub = new;
-        error? result = navStub.initStub(ep, "blocking", DESCRIPTOR_KEY, descriptorMap);
+    function __init(grpc:ClientEndpointConfig config) {
+        // initialize client endpoint.
+        grpc:Client c = new;
+        c.init(config);
+        error? result = c.initStub("blocking", DESCRIPTOR_KEY, descriptorMap);
         if (result is error) {
             panic result;
         } else {
-            self.stub = navStub;
+            self.grpcClient = c;
         }
     }
 
-    function testEnum (orderInfo req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
-        var unionResp = check self.stub.blockingExecute("grpcservices.testEnumService/testEnum", req, headers = headers);
+    remote function testEnum (orderInfo req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
+        var unionResp = check self.grpcClient->blockingExecute("grpcservices.testEnumService/testEnum", req, headers = headers);
         grpc:Headers resHeaders = new;
         any result = ();
         (result, resHeaders) = unionResp;
         return (<string>result, resHeaders);
     }
-
 };
 
-public type testEnumServiceStub object {
-    public grpc:Client clientEndpoint = new;
-    public grpc:Stub stub = new;
+public type testEnumServiceClient client object {
+    public grpc:Client grpcClient = new;
 
-    function initStub (grpc:Client ep) {
-        grpc:Stub navStub = new;
-        error? result = navStub.initStub(ep, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
+    function __init(grpc:ClientEndpointConfig config) {
+        // initialize client endpoint.
+        grpc:Client c = new;
+        c.init(config);
+        error? result = c.initStub("non-blocking", DESCRIPTOR_KEY, descriptorMap);
         if (result is error) {
             panic result;
         } else {
-            self.stub = navStub;
+            self.grpcClient = c;
         }
     }
 
-    function testEnum (orderInfo req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
-
-        return self.stub.nonBlockingExecute("grpcservices.testEnumService/testEnum", req, listener, headers = headers);
-    }
-
-};
-
-
-public type testEnumServiceBlockingClient object {
-    public grpc:Client client = new;
-    public testEnumServiceBlockingStub stub = new;
-
-    public function init (grpc:ClientEndpointConfig config) {
-        // initialize client endpoint.
-        grpc:Client c = new;
-        c.init(config);
-        self.client = c;
-        // initialize service stub.
-        testEnumServiceBlockingStub s = new;
-        s.initStub(c);
-        self.stub = s;
-    }
-
-    public function getCallerActions () returns testEnumServiceBlockingStub {
-        return self.stub;
-    }
-};
-
-public type testEnumServiceClient object {
-    public grpc:Client client = new;
-    public testEnumServiceStub stub = new;
-
-    public function init (grpc:ClientEndpointConfig config) {
-        // initialize client endpoint.
-        grpc:Client c = new;
-        c.init(config);
-        self.client = c;
-        // initialize service stub.
-        testEnumServiceStub s = new;
-        s.initStub(c);
-        self.stub = s;
-    }
-
-    public function getCallerActions () returns testEnumServiceStub {
-        return self.stub;
+    remote function testEnum (orderInfo req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
+        return self.grpcClient->nonBlockingExecute("grpcservices.testEnumService/testEnum", req, listener, headers = headers);
     }
 };
 

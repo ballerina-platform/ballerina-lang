@@ -26,7 +26,7 @@ import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_ENDPOINT_TYPE;
+import static org.ballerinalang.net.grpc.GrpcConstants.SERVER;
 
 /**
  * Extern function to stop gRPC server instance.
@@ -37,7 +37,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_ENDPOINT_TYPE;
         orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "stop",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = SERVICE_ENDPOINT_TYPE,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = SERVER,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         isPublic = true
 )

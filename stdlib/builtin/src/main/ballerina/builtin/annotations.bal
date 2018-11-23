@@ -17,9 +17,6 @@
 # Representation of readonly annotation.
 public annotation<type> readonly;
 
-# Representation of final annotation.
-public annotation<type> final;
-
 # Denote that the parameter is security sensitive hence tainted data should not be accepted.
 public annotation<type, parameter> sensitive;
 

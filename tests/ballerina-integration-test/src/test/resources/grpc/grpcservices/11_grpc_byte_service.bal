@@ -17,17 +17,17 @@
 import ballerina/grpc;
 import ballerina/io;
 
-endpoint grpc:Listener listener {
+listener grpc:Server server11 = new ({
     host:"localhost",
     port:8557
-};
+});
 
 @grpc:ServiceDescriptor {
     descriptor: <string>descriptorMap11[DESCRIPTOR_KEY_11],
     descMap: descriptorMap11
 }
-service byteService bind listener {
-    checkBytes(endpoint caller, byte[] value) {
+service byteService on server10 {
+    resource function checkBytes(grpc:Caller caller, byte[] value) {
         _ = caller->send(value);
         _ = caller->complete();
     }

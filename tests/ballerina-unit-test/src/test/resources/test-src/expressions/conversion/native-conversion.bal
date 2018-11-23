@@ -806,14 +806,14 @@ type T2 record {
     !...
 };
 
-function testStructArrayConversion1() returns T1 {
+function testStructArrayConversion1() returns T1|error {
     T1[] a = [];
     T2[] b = [];
     b[0] = {};
     b[0].x = 5;
     b[0].y = 1;
     b[0].z = 2;
-    a = <T1[]> b;
+    a = check <T1[]> b;
     return a[0];
 }
 
@@ -824,7 +824,7 @@ function testStructArrayConversion2() returns T2|error {
     b[0].x = 5;
     b[0].y = 1;
     b[0].z = 2;
-    a = <T1[]> b;
+    a = check <T1[]> b;
     b = check <T2[]> a;
     return b[0];
 }

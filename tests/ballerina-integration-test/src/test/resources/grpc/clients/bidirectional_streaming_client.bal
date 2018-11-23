@@ -22,11 +22,11 @@ import ballerina/runtime;
 int total = 0;
 public function main(string... args) {
 
-    endpoint ChatClient chatEp {
+    ChatClient chatEp = new ({
         url:"http://localhost:9094"
-    };
+    });
 
-    endpoint grpc:Client ep;
+    grpc:StreamingClient ep;
     // Executing unary non-blocking call registering server message listener.
     var res = chatEp->chat(ChatMessageListener);
     if (res is error) {
@@ -34,7 +34,7 @@ public function main(string... args) {
     } else {
         ep = con;
     }
-    ChatMessage mes = new;
+    ChatMessage mes = {};
     mes.name = "Sam";
     mes.message = "Hi ";
     error? connErr = ep->send(mes);
@@ -60,46 +60,26 @@ service<grpc:Service> ChatMessageListener {
     }
 }
 
-// Non-blocking client
-public type ChatStub object {
 
-    public grpc:Client clientEndpoint44 = new;
-    public grpc:Stub stub = new;
+// Non-blocking client endpoint
+public type ChatClient client object {
 
-    function initStub(grpc:Client ep) {
-        grpc:Stub navStub = new;
-        error? result = navStub.initStub(ep, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
+    public grpc:Client grpcClient = new;
+
+    function __init(grpc:ClientEndpointConfig config) {
+        // initialize client endpoint.
+        grpc:Client c = new;
+        c.init(config);
+        error? result = c.initStub("non-blocking", DESCRIPTOR_KEY, descriptorMap);
         if (result is error) {
             panic result;
         } else {
-            self.stub = navStub;
+            self.grpcClient = c;
         }
     }
 
-    function chat(typedesc listener, grpc:Headers? headers = ()) returns (grpc:Client|error) {
-        return stub.stub.streamingExecute("Chat/chat", listener, headers = headers);
-    }
-};
-
-
-// Non-blocking client endpoint
-public type ChatClient object {
-
-    public grpc:Client client = new;
-    public ChatStub stub = new;
-
-    public function init(grpc:ClientEndpointConfig config) {
-        // initialize client endpoint.
-        grpc:Client client = new;
-        client.init(config);
-        self.client = client;
-        // initialize service stub.
-        ChatStub stub = new;
-        stub.initStub(client);
-        self.stub = stub;
-    }
-    public function getCallerActions() returns (ChatStub) {
-        return self.stub;
+    remote function chat(typedesc listener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|error) {
+        return self.grpcClient->streamingExecute("Chat/chat", listener, headers = headers);
     }
 };
 

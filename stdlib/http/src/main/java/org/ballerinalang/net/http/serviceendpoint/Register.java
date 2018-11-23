@@ -49,7 +49,7 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
         functionName = "register",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Server",
                 structPackage = "ballerina/http"),
-        args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC),
+        args = {@Argument(name = "serviceType", type = TypeKind.SERVICE),
                 @Argument(name = "annotationData", type = TypeKind.MAP)},
         isPublic = true
 )

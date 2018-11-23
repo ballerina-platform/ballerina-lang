@@ -79,7 +79,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
-import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -551,13 +550,6 @@ public class Desugar extends BLangNodeVisitor {
 
     private boolean isFunctionArgument(BVarSymbol symbol, List<BVarSymbol> params) {
         return params.stream().anyMatch(param -> (param.name.equals(symbol.name) && param.type.tag == symbol.type.tag));
-    }
-
-    @Override
-    public void visit(BLangService serviceNode) {
-        final BLangPackage enclPkg = env.enclPkg;
-
-
     }
 
     public void visit(BLangForever foreverStatement) {
@@ -2518,7 +2510,7 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
         result = ASTBuilderUtil
-                .createEmptyTypeInit(serviceConstructorExpr.pos, serviceConstructorExpr.serviceNode.serviceType);
+                .createEmptyTypeInit(serviceConstructorExpr.pos, serviceConstructorExpr.serviceNode.symbol.type);
     }
 
     @Override

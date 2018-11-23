@@ -43,14 +43,14 @@ function testNullableTypeBasics1() returns (int|json|string|float|map<any>|boole
 
 function testNullableTypeBasics2() returns (int|boolean|()) {
 
-    int|float|() x;
+    int|float|() x = ();
 
     match x {
         float|int s => io:println("int");
         int|() s => io:println("null");
     }
 
-    int|boolean|() i;
+    int|boolean|() i = ();
 
     match i {
         int => io:println("int");
@@ -84,7 +84,7 @@ function testUnionTypeArrayWithValueTypeArrayAssignment() returns int {
 }
 
 public type Person object {
-    string name;
+    string name = "";
 };
 
 public type RecPerson record {
@@ -106,19 +106,19 @@ function testRecordLiteralAssignment() returns string {
 
 type Foo record {
     string s;
-    int i;
+    int i = 0;
     !...
 };
 
 type Bar record {
     string x;
-    int y;
+    int y = 0;
     !...
 };
 
 function testUnionTypeWithMultipleRecordTypes() returns string[] {
 
-    string[] returnValues;
+    string[] returnValues = [];
 
     Foo|Bar var1 = {s : "dummy string"};
     Foo|Bar var2 = {x : "dummy string"};

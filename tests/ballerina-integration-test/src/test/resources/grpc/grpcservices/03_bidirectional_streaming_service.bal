@@ -18,10 +18,10 @@ import ballerina/grpc;
 import ballerina/io;
 
 // Server endpoint configuration
-endpoint grpc:Listener ep5 {
+listener grpc:Server server3 = new ({
     host:"localhost",
     port:9095
-};
+});
 
 @grpc:ServiceConfig {name:"chat",
     clientStreaming:true,
@@ -30,13 +30,13 @@ endpoint grpc:Listener ep5 {
     descriptor: <string>descriptorMap3[DESCRIPTOR_KEY_3],
     descMap: descriptorMap3
 }
-service Chat bind ep5 {
+service Chat on server3 {
     map<any> consMap = {};
-    onOpen(endpoint client) {
+    resource function onOpen(grpc:Caller client) {
         consMap[<string>client.id] = client;
     }
 
-    onMessage(endpoint client, ChatMessage chatMsg) {
+    resource function onMessage(grpc:Caller client, ChatMessage chatMsg) {
         endpoint grpc:Listener con;
         string msg = string `{{chatMsg.name}}: {{chatMsg.message}}`;
         io:println(msg);
@@ -56,11 +56,11 @@ service Chat bind ep5 {
         }
     }
 
-    onError(endpoint client, error err) {
+    resource function onError(grpc:Caller client, error err) {
         io:println("Something unexpected happens at server : " + err.reason());
     }
 
-    onComplete(endpoint client) {
+    resource function onComplete(grpc:Caller client) {
         endpoint grpc:Listener con;
         string msg = string `{{client.id}} left the chat`;
         io:println(msg);
@@ -87,7 +87,7 @@ type ChatMessage record {
     string message = "";
 };
 
-@final string DESCRIPTOR_KEY_3 = "Chat.proto";
+const string DESCRIPTOR_KEY_3 = "Chat.proto";
 map<any> descriptorMap3 =
 {
     "Chat.proto":
