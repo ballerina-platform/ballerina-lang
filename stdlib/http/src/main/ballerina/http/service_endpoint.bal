@@ -17,6 +17,7 @@
 import ballerina/auth;
 import ballerina/log;
 import ballerina/system;
+import ballerina/io;
 
 /////////////////////////////
 /// HTTP Service Endpoint ///
@@ -455,8 +456,8 @@ public type WebSocketServer object {
     # Gets invoked when binding a service to the endpoint.
     #
     # + serviceType - The service type
-    public function register(service serviceType, map annotationData) {
-        self.httpEndpoint.register(serviceType, annotationData);
+    public function register(service serviceType, map annotationData) returns error? {
+        return self.httpEndpoint.register(serviceType, annotationData);
     }
 
 };
@@ -471,6 +472,7 @@ public type Server object {
     *AbstractListener;
 
     public function __start() returns error? {
+    io:println("start");
         return self.start();
     }
 
@@ -480,6 +482,7 @@ public type Server object {
 
     public function __attach(service s, map annotationData) returns error? {
         //return register(typedesc serviceType);
+        io:println("Attach", s);
         return self.register(s, annotationData);
     }
 
@@ -487,7 +490,7 @@ public type Server object {
     @readonly public Local local = {};
     @readonly public string protocol = "";
 
-    private Connection conn = new;
+    private Caller caller = new;
     private ServiceEndpointConfiguration config = {};
 
     private string instanceId;
@@ -508,7 +511,7 @@ public type Server object {
     # Gets invoked when binding a service to the endpoint.
     #
     # + serviceType - The type of the service to be registered
-    extern function register(service serviceType, map annotationData);
+    extern function register(service serviceType, map annotationData) returns error?;
 
     # Starts the registered service.
     extern function start();
@@ -516,7 +519,7 @@ public type Server object {
     # Returns the connector that client code uses.
     #
     # + return - The connector that client code uses
-    public extern function getCallerActions() returns (Connection);
+    public extern function getCallerActions() returns (Caller);
 
     # Stops the registered service.
     extern function stop();

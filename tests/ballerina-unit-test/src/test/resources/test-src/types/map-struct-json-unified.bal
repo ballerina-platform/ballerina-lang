@@ -1,12 +1,12 @@
 import ballerina/io;
 
 type Person record {
-    string name;
-    int age;
-    Person | () parent;
-    json info;
-    map address;
-    int[] marks;
+    string name = "";
+    int age = 0;
+    Person | () parent = ();
+    json info = null;
+    map address = {};
+    int[] marks = [];
 };
 
 function testMultiValuedStructInlineInit () returns (Person) {
@@ -18,7 +18,7 @@ function testMultiValuedStructInlineInit () returns (Person) {
     return p1;
 }
 
-function testAccessJsonInStruct () returns (string, string, string) {
+function testAccessJsonInStruct () returns (string, string, string) | error {
     Person p1 = {name:"aaa",
                     age:25,
                     parent:{name:"bbb",
@@ -29,9 +29,9 @@ function testAccessJsonInStruct () returns (string, string, string) {
                     info:{status:"single"}
                 };
     string statusKey = "status";
-    string status1;
-    string status2;
-    string status3;
+    string status1 = "";
+    string status2 = "";
+    string status3 = "";
 
     match p1.parent {
      Person p2  => status1 = check <string>p2.info.status;
@@ -59,7 +59,7 @@ function testAccessMapInStruct () returns (any, any, any, string) {
                     info:{status:"single"}
                 };
     string cityKey = "city";
-    string city;
+    string city = "";
 
     match p1["parent"] {
         Person p2 =>{

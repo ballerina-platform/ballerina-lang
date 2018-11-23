@@ -83,12 +83,7 @@ typeDefinition
     ;
 
 objectBody
-    :   objectMember* objectMember*
-    ;
-objectMember
-    :   objectFieldDefinition
-    |   objectFunctionDefinition
-    |   typeReference
+    :   (objectFieldDefinition | objectFunctionDefinition | typeReference)*
     ;
 
 typeReference

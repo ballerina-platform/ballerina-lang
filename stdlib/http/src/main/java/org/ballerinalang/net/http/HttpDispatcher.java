@@ -47,7 +47,7 @@ import java.util.Map;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
-import static org.ballerinalang.net.http.HttpConstants.CONNECTION;
+import static org.ballerinalang.net.http.HttpConstants.CALLER;
 import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
@@ -157,7 +157,7 @@ public class HttpDispatcher {
         BMap<String, BValue> serviceEndpoint =
                 BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, SERVICE_ENDPOINT);
         BMap<String, BValue> connection =
-                BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, CONNECTION);
+                BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, CALLER);
         BMap<String, BValue> inRequest =
                 BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, REQUEST);
         BMap<String, BValue> inRequestEntity =
