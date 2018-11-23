@@ -136,12 +136,13 @@ public class ObservabilityUtils {
         ctx.setConnectorName(connectorName);
         ctx.setActionName(actionName);
         if (parentCtx != null) {
-            ServiceInfo serviceInfo = BLangVMUtils.getServiceInfo(parentCtx);
-            if (serviceInfo != null) {
-                ctx.setServiceName(getFullServiceName(serviceInfo));
-            } else {
-                ctx.setServiceName(UNKNOWN_SERVICE);
-            }
+            //TODO fix - rajith
+//            ServiceInfo serviceInfo = BLangVMUtils.getServiceInfo(parentCtx);
+//            if (serviceInfo != null) {
+//                ctx.setServiceName(getFullServiceName(serviceInfo));
+//            } else {
+//                ctx.setServiceName(UNKNOWN_SERVICE);
+//            }
             continueClientObservation(ctx, parentCtx);
         }
         return Optional.of(ctx);
