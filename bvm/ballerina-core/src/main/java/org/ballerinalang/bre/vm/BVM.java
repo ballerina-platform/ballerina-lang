@@ -824,8 +824,6 @@ public class BVM {
         if (!FunctionFlags.isAsync(flags)) {
             strand.pushFrame(df);
             if (callableUnitInfo.isNative()) {
-                //                    TODO fix - rajith
-//                checkAndHandleInterruptibleCallable(callableUnitInfo, parentCtx);
                 // This is to return the current thread in case of non blocking call
                 df.ip = -1;
                 return invokeNativeCallable(callableUnitInfo, strand, df, retReg, flags);
@@ -874,7 +872,6 @@ public class BVM {
                 }
                 //                    TODO fix - rajith
 //                checkAndStopCallableObservation(observerContext, flags);
-//                BLangScheduler.handleInterruptibleAfterCallback(parentCtx);
                 /* we want the parent to continue, since we got the response of the native call already */
                 strand.respCallback.signal();
                 return strand;
@@ -1066,18 +1063,8 @@ public class BVM {
         if (pendingCtx != null) {
             //inject the value to the ctx
             copyArgValueForWorkerReceive(ctx.currentFrame, pendingCtx.regIndex, dataType, dataVal);
-            // TODO fix - rajith
-//            if (pendingCtx.context.interruptible) {
-//                String stateId = (String) pendingCtx.context.globalProps.get(STATE_ID);
-//                PersistenceStore.persistState(new State(pendingCtx.context, stateId, pendingCtx.context.fp + 1));
-//            }
             BVMScheduler.schedule(ctx);
         }
-           // TODO fix - rajith
-//        if (ctx.interruptible) {
-//            String stateId = (String) ctx.globalProps.get(STATE_ID);
-//            PersistenceStore.persistState(new State(ctx, stateId, ctx.fp + 1));
-//        }
     }
 
     /**
@@ -1102,11 +1089,6 @@ public class BVM {
                 receiverType);
         if (value != null) {
             copyArgValueForWorkerReceive(ctx.currentFrame, receiverReg, receiverType, (BRefType) value);
-                // TODO fix - rajith
-//            if (ctx.interruptible) {
-//                String stateId = (String) ctx.globalProps.get(STATE_ID);
-//                PersistenceStore.persistState(new State(ctx, stateId, ctx.fp + 1));
-//            }
             return true;
         }
 
