@@ -27,12 +27,9 @@ function testLocalTransaction() returns (int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 200", ResultCount
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 200", ResultCount
     );
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
     return (returnVal, count);
 }
@@ -59,13 +56,9 @@ function testTransactionRollback() returns (int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 210", ResultCount
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 210", ResultCount
     );
-
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
     return (returnVal, count);
 }
@@ -90,12 +83,9 @@ function testLocalTransactionUpdateWithGeneratedKeys() returns (int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 615", ResultCount
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 615", ResultCount
     );
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
     return (returnVal, count);
 }
@@ -121,13 +111,10 @@ function testTransactionRollbackUpdateWithGeneratedKeys() returns (int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 618", ResultCount
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 618", ResultCount
     );
 
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
     return (returnVal, count);
 }
@@ -151,12 +138,9 @@ function testLocalTransactionStoredProcedure() returns (int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 628", ResultCount
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 628", ResultCount
     );
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
     return (returnVal, count);
 }
@@ -182,25 +166,16 @@ function testLocalTransactionRollbackStoredProcedure() returns (int, int, int, i
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt1 = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 629",
+    var dt1 = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 629",
         ResultCount);
-    table dt2 = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 631",
+    var dt2 = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 631",
         ResultCount);
-    table dt3 = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 632",
+    var dt3 = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 632",
         ResultCount);
 
-    while (dt1.hasNext()) {
-        ResultCount rs = check <ResultCount>dt1.getNext();
-        count1 = rs.COUNTVAL;
-    }
-    while (dt2.hasNext()) {
-        ResultCount rs = check <ResultCount>dt2.getNext();
-        count2 = rs.COUNTVAL;
-    }
-    while (dt3.hasNext()) {
-        ResultCount rs = check <ResultCount>dt3.getNext();
-        count3 = rs.COUNTVAL;
-    }
+    count1 = getTableCountValColumn(dt1);
+    count2 = getTableCountValColumn(dt2);
+    count3 = getTableCountValColumn(dt3);
     testDB.stop();
     return (returnVal, count1, count2, count3);
 }
@@ -234,20 +209,17 @@ function testLocalTransactionBatchUpdate() returns (int, int) {
     sql:Parameter[] parameters2 = [para1, para2, para3, para4, para5];
 
     transaction {
-        int[] updateCount1 = check testDB->batchUpdate("Insert into Customers
+        _= testDB->batchUpdate("Insert into Customers
         (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
-        int[] updateCount2 = check testDB->batchUpdate("Insert into Customers
+        _ = testDB->batchUpdate("Insert into Customers
         (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
     } onretry {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 611", ResultCount
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 611", ResultCount
     );
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
     return (returnVal, count);
 }
@@ -281,20 +253,17 @@ function testLocalTransactionRollbackBatchUpdate() returns (int, int) {
     sql:Parameter[] parameters2 = [para1, para2, para3, para4, para5];
 
     transaction {
-        int[] updateCount1 = check testDB->batchUpdate("Insert into Customers
+        _ = testDB->batchUpdate("Insert into Customers
         (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
-        int[] updateCount2 = check testDB->batchUpdate("Insert into Customers2
+        _ = testDB->batchUpdate("Insert into Customers2
         (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
     } onretry {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 612", ResultCount
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 612", ResultCount
     );
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
     return (returnVal, count);
 }
@@ -325,12 +294,9 @@ function testTransactionAbort() returns (int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 220", ResultCount
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 220", ResultCount
     );
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
     return (returnVal, count);
 }
@@ -354,12 +320,9 @@ function testTransactionErrorPanic() returns (int, int, int) {
         catchValue = -1;
     }
     //check whether update action is performed
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 260", ResultCount
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 260", ResultCount
     );
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
     return (returnVal, catchValue, count);
 }
@@ -403,12 +366,9 @@ function testTransactionErrorPanicAndTrap() returns (int, int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 250", ResultCount
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 250", ResultCount
     );
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
     return (returnVal, catchValue, count);
 }
@@ -440,12 +400,9 @@ function testTransactionCommitted() returns (int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 300", ResultCount
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 300", ResultCount
     );
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
     return (returnVal, count);
 }
@@ -480,12 +437,9 @@ function testTwoTransactions() returns (int, int, int) {
         returnVal2 = 0;
     }
     //check whether update action is performed
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 400", ResultCount
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 400", ResultCount
     );
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
     return (returnVal1, returnVal2, count);
 }
@@ -508,12 +462,9 @@ function testTransactionWithoutHandlers() returns (int) {
 
     int count;
     //check whether update action is performed
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 350", ResultCount
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 350", ResultCount
     );
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
     return count;
 }
@@ -538,14 +489,7 @@ function testLocalTransactionFailed() returns (string, int) {
     }
     a = a + " afterTrx";
     var dtRet = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 111", ResultCount);
-    if (dtRet is table) {
-        while (dtRet.hasNext()) {
-            var rs = <ResultCount>dtRet.getNext();
-            if (rs is ResultCount) {
-                count = rs.COUNTVAL;
-            }
-        }
-    }
+    count = getTableCountValColumn(dtRet);
     testDB.stop();
     return (a, count);
 }
@@ -574,7 +518,6 @@ function testLocalTransactionSuccessWithFailed() returns (string, int) {
     });
 
     string a = "beforetx";
-    int count = -1;
     string|error ret = trap testLocalTransactionSuccessWithFailedHelper(a, testDB);
     if (ret is string) {
         a = ret;
@@ -584,14 +527,7 @@ function testLocalTransactionSuccessWithFailed() returns (string, int) {
     a = a + " afterTrx";
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 222", ResultCount
     );
-    if (dt is table) {
-        while (dt.hasNext()) {
-            var rs = <ResultCount>dt.getNext();
-            if (rs is ResultCount) {
-                count = rs.COUNTVAL;
-            }
-        }
-    }
+    int count = getTableCountValColumn(dt);
     testDB.stop();
     return (a, count);
 }
@@ -618,7 +554,9 @@ function testLocalTransactionSuccessWithFailedHelper(string status, h2:Client te
 }
 
 function testLocalTransactionFailedWithNextupdate() returns (int) {
-    h2:Client testDB1 = new({
+    h2:Client testDB1;
+    h2:Client testDB2;
+    testDB1 = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
@@ -626,7 +564,7 @@ function testLocalTransactionFailedWithNextupdate() returns (int) {
         poolOptions: { maximumPoolSize: 1 }
     });
 
-    h2:Client testDB2 = new({
+    testDB2 = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
@@ -643,12 +581,9 @@ function testLocalTransactionFailedWithNextupdate() returns (int) {
                             values ('James', 'Clerk', 12343, 5000.75, 'USA')");
     testDB1.stop();
 
-    table dt = check testDB2->select("Select COUNT(*) as countval from Customers where registrationID = 12343",
+    var dt = testDB2->select("Select COUNT(*) as countval from Customers where registrationID = 12343",
         ResultCount);
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        i = rs.COUNTVAL;
-    }
+    i = getTableCountValColumn(dt);
     testDB2.stop();
     return i;
 }
@@ -682,12 +617,9 @@ function testNestedTwoLevelTransactionSuccess() returns (int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 333", ResultCount
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 333", ResultCount
     );
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
     return (returnVal, count);
 }
@@ -718,12 +650,9 @@ function testNestedThreeLevelTransactionSuccess() returns (int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 444", ResultCount
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 444", ResultCount
     );
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
     return (returnVal, count);
 }
@@ -746,14 +675,7 @@ function testNestedThreeLevelTransactionFailed() returns (int, int) {
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 555", ResultCount
     );
-    if (dt is table) {
-        while (dt.hasNext()) {
-            var rs = <ResultCount>dt.getNext();
-            if (rs is ResultCount) {
-                count = rs.COUNTVAL;
-            }
-        }
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
     return (returnVal, count);
 }
@@ -796,14 +718,7 @@ function testNestedThreeLevelTransactionFailedWithRetrySuccess() returns (int, i
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 666", ResultCount
     );
-    if (dt is table) {
-        while (dt.hasNext()) {
-            var rs = <ResultCount>dt.getNext();
-            if (rs is ResultCount) {
-                count = rs.COUNTVAL;
-            }
-        }
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
     return (returnVal, count, a);
 }
@@ -858,18 +773,21 @@ function testLocalTransactionWithSelectAndForeachIteration() returns (int, int) 
                                 values ('James', 'Clerk', 900, 5000.75, 'USA')");
 
     int returnVal = 0;
-    int count;
+    int count = -1;
     transaction {
-        table<ResultCount> dt1 = check testDB->select("Select COUNT(*) as countval from Customers where
+        var dt1 = testDB->select("Select COUNT(*) as countval from Customers where
             registrationID = 900", ResultCount);
-        foreach row in dt1 {
-            count = row.COUNTVAL;
+        if (dt1 is table<ResultCount>) {
+            foreach row in dt1 {
+                count = row.COUNTVAL;
+            }
         }
-
-        table<ResultCount> dt2 = check testDB->select("Select COUNT(*) as countval from Customers where
+        var dt2 = testDB->select("Select COUNT(*) as countval from Customers where
             registrationID = 900", ResultCount);
-        foreach row in dt2 {
-            count = row.COUNTVAL;
+        if (dt2 is table<ResultCount>) {
+            foreach row in dt2 {
+                count = row.COUNTVAL;
+            }
         }
     } onretry {
         returnVal = -1;
@@ -893,21 +811,14 @@ function testLocalTransactionWithSelectAndHasNextIteration() returns (int, int) 
                                 values ('James', 'Clerk', 901, 5000.75, 'USA')");
 
     int returnVal = 0;
-    int count;
+    int count = -1;
     transaction {
-        table<ResultCount> dt1 = check testDB->select("Select COUNT(*) as countval from Customers where
+        var dt1 = testDB->select("Select COUNT(*) as countval from Customers where
             registrationID = 901", ResultCount);
-        while (dt1.hasNext()) {
-            ResultCount rs = check <ResultCount>dt1.getNext();
-            count = rs.COUNTVAL;
-        }
-
-        table<ResultCount> dt2 = check testDB->select("Select COUNT(*) as countval from Customers where
+        count = getTableCountValColumn(dt1);
+        var dt2 = testDB->select("Select COUNT(*) as countval from Customers where
             registrationID = 901", ResultCount);
-        while (dt2.hasNext()) {
-            ResultCount rs = check <ResultCount>dt2.getNext();
-            count = rs.COUNTVAL;
-        }
+        count = getTableCountValColumn(dt2);
     } onretry {
         returnVal = -1;
     }
@@ -925,11 +836,22 @@ function testCloseConnectionPool() returns (int) {
     });
 
     int count;
-    table dt = check testDB->select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SESSIONS", ResultCount);
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
+    var dt = testDB->select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SESSIONS", ResultCount);
+    count = getTableCountValColumn(dt);
     testDB.stop();
     return count;
+}
+
+function getTableCountValColumn(table|error result) returns int {
+    int count = -1;
+    if (result is table) {
+        while (result.hasNext()) {
+            var rs = <ResultCount>result.getNext();
+            if (rs is ResultCount) {
+                count = rs.COUNTVAL;
+            }
+        }
+        return count;
+    }
+    return -1;
 }
