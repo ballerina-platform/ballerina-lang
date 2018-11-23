@@ -234,7 +234,7 @@ public class Symbols {
     }
 
     public static boolean isAttachPointPresent(int mask, int attachPoint) {
-        return (mask & attachPoint) == attachPoint;
+        return (mask & attachPoint) != 0;
     }
 
     public static boolean isOptional(BSymbol sym) {

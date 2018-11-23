@@ -49,7 +49,7 @@ public type WebSocketClient client object {
     # Push text to the connection.
     #
     # + data - Data to be sent, if byte[] it is converted to a UTF-8 string for sending
-    # + final - True if this is a final frame of a (long) message
+    # + finalFrame - True if this is a final frame of a (long) message
     # + return  - `error` if an error occurs when sending
     public remote function pushText(string|json|xml|boolean|int|float|byte|byte[] data, boolean finalFrame = true) returns error? {
         return self.conn.pushText(data, finalFrame);
@@ -58,7 +58,7 @@ public type WebSocketClient client object {
     # Push binary data to the connection.
     #
     # + data - Binary data to be sent
-    # + final - True if this is a final frame of a (long) message
+    # + finalFrame - True if this is a final frame of a (long) message
     # + return - `error` if an error occurs when sending
     public remote function pushBinary(byte[] data, boolean finalFrame = true) returns error? {
         return self.conn.pushBinary(data, finalFrame);
