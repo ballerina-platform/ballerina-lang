@@ -28,7 +28,6 @@ import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.types.BRecordType;
-import org.ballerinalang.model.types.BServiceType;
 import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BTableType;
@@ -551,20 +550,17 @@ public class PackageInfoReader {
             // Read service and listener type cp index;
             TypeRefCPEntry serviceType = (TypeRefCPEntry) packageInfo.getCPEntry(dataInStream.readInt());
             int cpIndex;
-            BType listenerType = null;
-            String listenerName = null;
+            TypeRefCPEntry listenerTypeCP = null;
+            UTF8CPEntry listenerNameCP = null;
             if ((cpIndex = dataInStream.readInt()) != -1) {
-                TypeRefCPEntry listenerTypeCP = (TypeRefCPEntry) packageInfo.getCPEntry(cpIndex);
-                listenerType = listenerTypeCP.getType();
+                listenerTypeCP = (TypeRefCPEntry) packageInfo.getCPEntry(cpIndex);
             }
             if ((cpIndex = dataInStream.readInt()) != -1) {
-                UTF8CPEntry listenerNameCP = (UTF8CPEntry) packageInfo.getCPEntry(cpIndex);
-                listenerName = listenerNameCP.getValue();
+                listenerNameCP = (UTF8CPEntry) packageInfo.getCPEntry(cpIndex);
             }
             ServiceInfo serviceInfo = new ServiceInfo(packageInfo.getPkgNameCPIndex(), packageInfo.getPkgPath(),
-                    serviceNameCPIndex, serviceNameUTF8Entry.getValue(), flags,
-                    new BServiceType(serviceNameUTF8Entry.getValue(), packageInfo.getPkgPath(), serviceType.getType()),
-                    listenerType, listenerName);
+                    serviceNameCPIndex, serviceNameUTF8Entry.getValue(), flags, serviceType, listenerTypeCP,
+                    listenerNameCP);
             serviceInfo.setPackageInfo(packageInfo);
             packageInfo.addServiceInfo(serviceInfo.getName(), serviceInfo);
         }
@@ -688,14 +684,6 @@ public class PackageInfoReader {
                 TEST_START_FUNCTION_SUFFIX));
         packageInfo.setTestStopFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() +
                 TEST_STOP_FUNCTION_SUFFIX));
-
-        // TODO Improve this. We should be able to this in a single pass.
-        ServiceInfo[] serviceInfoEntries = packageInfo.getServiceInfoEntries();
-        for (ServiceInfo serviceInfo : serviceInfoEntries) {
-            FunctionInfo serviceIniFuncInfo = packageInfo.getFunctionInfo(
-                    serviceInfo.getName() + INIT_FUNCTION_SUFFIX);
-            serviceInfo.setInitFunctionInfo(serviceIniFuncInfo);
-        }
     }
 
     private void readFunctionInfo(PackageInfo packageInfo) throws IOException {
@@ -1919,6 +1907,7 @@ public class PackageInfoReader {
                     return new BStreamType(constraint);
                 case 'G':
                 case 'T':
+                case 'X':
                 case 'Q':
                 default:
                     return constraint;
