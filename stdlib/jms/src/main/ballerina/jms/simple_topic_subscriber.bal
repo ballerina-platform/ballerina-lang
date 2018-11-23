@@ -63,7 +63,7 @@ public type SimpleTopicSubscriber object {
             subscriber.register(serviceType);
         } else {
             string errorMessage = "Topic Subscriber cannot be nil";
-            map errorDetail = { message: errorMessage };
+            map<any> errorDetail = { message: errorMessage };
             error e = error(JMS_ERROR_CODE, errorDetail);
             panic e;
         }
@@ -83,7 +83,7 @@ public type SimpleTopicSubscriber object {
             return subscriber.getCallerActions();
         } else {
             string errorMessage = "Topic Subscriber cannot be nil";
-            map errorDetail = { message: errorMessage };
+            map<any> errorDetail = { message: errorMessage };
             error e = error(JMS_ERROR_CODE, errorDetail);
             panic e;
         }
@@ -104,7 +104,7 @@ public type SimpleTopicSubscriber object {
             return session.createTextMessage(message);
         } else {
             string errorMessage = "Session cannot be nil";
-            map errorDetail = { message: errorMessage };
+            map<any> errorDetail = { message: errorMessage };
             error e = error(JMS_ERROR_CODE, errorDetail);
             panic e;
         }
@@ -114,13 +114,13 @@ public type SimpleTopicSubscriber object {
     #
     # + message - A message body to create a map message
     # + return - a message or nil if the session is nil.
-    public function createMapMessage(map message) returns Message|error {
+    public function createMapMessage(map<any> message) returns Message|error {
         var session = self.session;
         if (session is Session) {
             return session.createMapMessage(message);
         } else {
             string errorMessage = "Session cannot be nil";
-            map errorDetail = { message: errorMessage };
+            map<any> errorDetail = { message: errorMessage };
             error e = error(JMS_ERROR_CODE, errorDetail);
             panic e;
         }
@@ -142,7 +142,7 @@ public type SimpleTopicSubscriberEndpointConfiguration record {
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
     string messageSelector = "";
-    map properties = {};
+    map<any> properties = {};
     string topicPattern = "";
     !...
 };

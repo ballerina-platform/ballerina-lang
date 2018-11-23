@@ -77,7 +77,7 @@ public type SimpleQueueSender object {
             return sender.getCallerActions();
         } else {
             string errorMessage = "Queue sender cannot be nil";
-            map errorDetail = { message: errorMessage };
+            map<any> errorDetail = { message: errorMessage };
             error e = error(JMS_ERROR_CODE, errorDetail);
             panic e;
         }
@@ -97,7 +97,7 @@ public type SimpleQueueSender object {
             return session.createTextMessage(content);
         } else {
             string errorMessage = "Session cannot be nil";
-            map errorDetail = { message: errorMessage };
+            map<any> errorDetail = { message: errorMessage };
             error e = error(JMS_ERROR_CODE, errorDetail);
             panic e;
         }
@@ -118,7 +118,7 @@ public type SimpleQueueSenderEndpointConfiguration record {
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
-    map properties = {};
+    map<any> properties = {};
     string queueName = "";
     !...
 };

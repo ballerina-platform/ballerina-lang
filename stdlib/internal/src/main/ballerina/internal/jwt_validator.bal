@@ -131,7 +131,7 @@ function getDecodedJWTComponents(string[] encodedJWTComponents) returns ((json, 
 
 function parseHeader(json jwtHeaderJson) returns (JwtHeader) {
     JwtHeader jwtHeader = {};
-    map customClaims = {};
+    map<any> customClaims = {};
 
     string[] keys = jwtHeaderJson.getKeys();
 
@@ -159,7 +159,7 @@ function parseHeader(json jwtHeaderJson) returns (JwtHeader) {
 function parsePayload(json jwtPayloadJson) returns (JwtPayload) {
     string[] aud = [];
     JwtPayload jwtPayload = { iss: "", sub: "", aud: aud, exp: 0 };
-    map customClaims = {};
+    map<any> customClaims = {};
     string[] keys = jwtPayloadJson.getKeys();
     foreach key in keys {
         if (key == ISS) {

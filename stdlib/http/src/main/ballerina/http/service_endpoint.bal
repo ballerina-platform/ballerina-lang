@@ -436,7 +436,7 @@ public type WebSocketServer object {
         return self.httpEndpoint.stop();
     }
 
-    public function __attach(service s, map annotationData) returns error? {
+    public function __attach(service s, map<any> annotationData) returns error? {
     //return register(typedesc serviceType);
     return self.register(s, annotationData);
     }
@@ -455,7 +455,7 @@ public type WebSocketServer object {
     # Gets invoked when binding a service to the endpoint.
     #
     # + serviceType - The service type
-    public function register(service serviceType, map annotationData) {
+    public function register(service serviceType, map<any> annotationData) {
         self.httpEndpoint.register(serviceType, annotationData);
     }
 
@@ -478,7 +478,7 @@ public type Server object {
         return self.stop();
     }
 
-    public function __attach(service s, map annotationData) returns error? {
+    public function __attach(service s, map<any> annotationData) returns error? {
         //return register(typedesc serviceType);
         return self.register(s, annotationData);
     }
@@ -508,7 +508,7 @@ public type Server object {
     # Gets invoked when binding a service to the endpoint.
     #
     # + serviceType - The type of the service to be registered
-    extern function register(service serviceType, map annotationData);
+    extern function register(service serviceType, map<any> annotationData);
 
     # Starts the registered service.
     extern function start();

@@ -66,7 +66,7 @@ public type SimpleQueueReceiver object {
             queueReceiver.register(serviceType);
         } else {
             string errorMessage = "Queue receiver cannot be nil";
-            map errorDetail = { message: errorMessage };
+            map<any> errorDetail = { message: errorMessage };
             error e = error(JMS_ERROR_CODE, errorDetail);
             panic e;
         }
@@ -86,7 +86,7 @@ public type SimpleQueueReceiver object {
             return queueReceiver.getCallerActions();
         } else {
             string errorMessage = "Queue receiver cannot be nil";
-            map errorDetail = { message: errorMessage };
+            map<any> errorDetail = { message: errorMessage };
             error e = error(JMS_ERROR_CODE, errorDetail);
             panic e;
         }
@@ -107,7 +107,7 @@ public type SimpleQueueReceiver object {
             return session.createTextMessage(content);
         } else {
             string errorMessage = "Session cannot be nil";
-            map errorDetail = { message: errorMessage };
+            map<any> errorDetail = { message: errorMessage };
             error e = error(JMS_ERROR_CODE, errorDetail);
             panic e;
         }
@@ -130,7 +130,7 @@ public type SimpleQueueReceiverEndpointConfiguration record {
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
     string messageSelector = "";
-    map properties = {};
+    map<any> properties = {};
     string queueName = "";
     !...
 };

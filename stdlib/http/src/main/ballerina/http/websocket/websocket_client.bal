@@ -29,7 +29,7 @@ public type WebSocketClient client object {
     @readonly public boolean isSecure = false;
     @readonly public boolean isOpen = false;
     @readonly public Response response = new;
-    @readonly public map attributes = {};
+    @readonly public map<any> attributes = {};
 
     private WebSocketConnector conn = new;
     private WebSocketClientEndpointConfig config = {};

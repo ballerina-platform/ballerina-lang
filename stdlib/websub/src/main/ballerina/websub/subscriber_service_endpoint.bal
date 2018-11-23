@@ -259,7 +259,7 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:
         }
     } else if (discoveryResponse is error) {
         string errCause = <string> discoveryResponse.detail().message;
-        map errorDetail = { message : "Error occurred with WebSub discovery for Resource URL [" +
+        map<any> errorDetail = { message : "Error occurred with WebSub discovery for Resource URL [" +
                                 resourceUrl + "]: " + errCause };
         websubError = error(WEBSUB_ERROR_CODE, errorDetail);
     }
@@ -271,7 +271,7 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:
 # + hub - The hub to which the subscription request is to be sent
 # + subscriptionDetails - Map containing subscription details
 function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth, http:SecureSocket? localSecureSocket,
-                                              http:FollowRedirects? followRedirects, map subscriptionDetails) {
+                                              http:FollowRedirects? followRedirects, map<any> subscriptionDetails) {
     endpoint Client websubHubClientEP {
         url:hub,
         clientSecureSocket: localSecureSocket,

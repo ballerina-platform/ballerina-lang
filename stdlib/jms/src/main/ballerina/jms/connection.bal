@@ -52,6 +52,6 @@ public type ConnectionConfiguration record {
     string connectionFactoryName = "ConnectionFactory";
     string? username = ();
     string? password = ();
-    map properties = {};
+    map<any> properties = {};
     !...
 };
