@@ -52,7 +52,7 @@ function testOrderBy() {
 function startOrderBy() returns (Employee[]) {
 
     int index = 0;
-    Teacher[] teachers;
+    Teacher[] teachers = [];
     testOrderBy();
 
     teachers[0] = {name:"Raja", age:71, status:"single", batch:"LK2014", school:"Hindu College"};
@@ -81,7 +81,7 @@ function startOrderBy() returns (Employee[]) {
 }
 
 function printEmployeeNumber(Employee e) {
-   addToGlobalEmployeeArray(e);
+    addToGlobalEmployeeArray(e);
 }
 
 function addToGlobalEmployeeArray(Employee e) {
@@ -112,7 +112,7 @@ function testOrderBy2() {
 function startOrderBy2() returns (Employee[]) {
 
     int index = 0;
-    Teacher[] teachers;
+    Teacher[] teachers = [];
     testOrderBy2();
 
     teachers[0] = {name:"Raja", age:71, status:"single", batch:"LK2014", school:"Hindu College"};
@@ -171,7 +171,7 @@ function testOrderBy3() {
 function startOrderBy3() returns (Employee[]) {
 
     int index = 0;
-    Teacher[] teachers;
+    Teacher[] teachers = [];
     testOrderBy3();
 
     teachers[0] = {name:"Raja", age:71, status:"single", batch:"LK2014", school:"Hindu College"};
@@ -230,7 +230,7 @@ function testOrderBy4() {
 function startOrderBy4() returns (Employee[]) {
 
     int index = 0;
-    Teacher[] teachers;
+    Teacher[] teachers = [];
     testOrderBy4();
 
     teachers[0] = {name:"Raja", age:71, status:"single", batch:"LK2014", school:"Hindu College"};
@@ -289,7 +289,7 @@ function testOrderBy5() {
 function startOrderBy5() returns (Employee[]) {
 
     int index = 0;
-    Teacher[] teachers;
+    Teacher[] teachers = [];
     testOrderBy5();
 
     teachers[0] = {name:"Raja", age:71, status:"single", batch:"LK2014", school:"Hindu College"};
