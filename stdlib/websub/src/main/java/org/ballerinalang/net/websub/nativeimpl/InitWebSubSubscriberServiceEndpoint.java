@@ -64,7 +64,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERV
 @BallerinaFunction(
         orgName = "ballerina", packageName = "websub",
         functionName = "initWebSubSubscriberServiceEndpoint",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = WEBSUB_PACKAGE)
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Server", structPackage = WEBSUB_PACKAGE)
 )
 public class InitWebSubSubscriberServiceEndpoint extends BlockingNativeCallableUnit {
 

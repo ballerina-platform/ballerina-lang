@@ -14,15 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-//# The object representing the WebSub Subscriber Service.
-//public type Service object {
-//
-//    # Returns the WebSub Listener endpoint to which this service binds.
-//    #
-//    # + return - WebSub `Listener` endpoint
-//    public function getEndpoint() returns Listener {
-//        Listener ep = new;
-//        return ep;
-//    }
-//
-//};
+# Record representing the configuration parameters for the WebSub Hub Client Endpoint.
+#
+# + url - The URL of the target Hub
+# + clientSecureSocket - SSL/TLS related options for the underlying HTTP Client
+# + auth - Authentication mechanism for the underlying HTTP Client
+# + followRedirects - HTTP redirect related configuration
+public type HubClientEndpointConfig record {
+    string url = "";
+    http:SecureSocket? clientSecureSocket = ();
+    http:AuthConfig? auth = ();
+    http:FollowRedirects? followRedirects = ();
+    !...
+};
