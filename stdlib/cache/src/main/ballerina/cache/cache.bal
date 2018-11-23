@@ -28,7 +28,7 @@ const int CACHE_CLEANUP_INTERVAL = 5000;
 map<Cache> cacheMap = {};
 
 # Cleanup task which cleans the cache periodically.
-//task:Timer cacheCleanupTimer = createCacheCleanupTask();
+task:Timer cacheCleanupTimer = createCacheCleanupTask();
 
 # Represents a cache entry.
 #

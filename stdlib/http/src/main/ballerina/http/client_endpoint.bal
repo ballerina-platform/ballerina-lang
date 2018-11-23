@@ -28,22 +28,17 @@ import ballerina/io;
 public type Client client object {
 
     public ClientEndpointConfig config = {};
+    public Client httpClient;
 
     public function __init(ClientEndpointConfig c) {
         self.config = c;
-        var err = self.init(self.config);
-        if (err is error) {
-            panic err;
+        var result = initialize(self);
+        if (result is error) {
+            panic result;
+        } else {
+            self.httpClient = result;
         }
     }
-
-    # Gets invoked to initialize the endpoint. During initialization, configurations provided through the `config`
-    # record is used to determine which type of additional behaviours are added to the endpoint (e.g: caching,
-    # security, circuit breaking).
-    #
-    # + c - The configurations to be used when initializing the endpoint
-    # + return - An `error` if failed to init the client or ()
-    public function init(ClientEndpointConfig c) returns error?;
 
     # The `post()` function can be used to send HTTP POST requests to HTTP endpoints.
     #
@@ -361,44 +356,32 @@ public type AuthConfig record {
     !...
 };
 
-function Client.init(ClientEndpointConfig c) returns error? {
+function initialize(Client httpClient) returns Client|error {
     boolean httpClientRequired = false;
-    string url = c.url;
+    string url = httpClient.config.url;
     if (url.hasSuffix("/")) {
         int lastIndex = url.length() - 1;
         url = url.substring(0, lastIndex);
     }
-    self.config = c;
-    var cbConfig = c.circuitBreaker;
+    var cbConfig = httpClient.config.circuitBreaker;
     if (cbConfig is CircuitBreakerConfig) {
         if (url.hasSuffix("/")) {
             int lastIndex = url.length() -1;
             url = url.substring(0, lastIndex);
         }
-        httpClientRequired = false;
     } else {
         httpClientRequired = true;
     }
     if (httpClientRequired) {
-        var redirectConfigVal = c.followRedirects;
+        var redirectConfigVal = httpClient.config.followRedirects;
         if (redirectConfigVal is FollowRedirects) {
-            var redirectClientErr = createRedirectClient(self, url, c);
-            if (redirectClientErr is error) {
-                return redirectClientErr;
-            }
+            return createRedirectClient(httpClient, url, httpClient.config);
         } else {
-            var retryClientErr = checkForRetry(self, url, c);
-            if (retryClientErr is error) {
-                return retryClientErr;
-            }
+            return checkForRetry(httpClient, url, httpClient.config);
         }
     } else {
-        var cbClientError = createCircuitBreakerClient(self, url, c);
-        if (cbClientError is error) {
-            return cbClientError;
-        }
+        return createCircuitBreakerClient(httpClient, url, httpClient.config);
     }
-    return;
 }
 
 function createRedirectClient(Client httpClient, string url, ClientEndpointConfig configuration) returns Client|error {
@@ -407,7 +390,7 @@ function createRedirectClient(Client httpClient, string url, ClientEndpointConfi
         if (redirectConfig.enabled) {
             var retryClient = createRetryClient(httpClient, url, configuration);
             if (retryClient is Client) {
-                return <Client>new RedirectClient(url, configuration, redirectConfig, retryClient);
+                return <Client>new RedirectClient(httpClient, url, configuration, redirectConfig, retryClient);
             } else {
                 return retryClient;
             }

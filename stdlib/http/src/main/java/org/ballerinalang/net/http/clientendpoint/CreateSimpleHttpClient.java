@@ -66,8 +66,7 @@ public class CreateSimpleHttpClient extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BMap<String, BValue> configBStruct =
-                (BMap<String, BValue>) context.getRefArgument(HttpConstants.CLIENT_ENDPOINT_CONFIG_INDEX);
+        BMap<String, BValue> configBStruct = (BMap<String, BValue>) context.getRefArgument(1);
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(configBStruct);
         String urlString = context.getStringArgument(HttpConstants.CLIENT_ENDPOINT_URL_INDEX);
         HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();
@@ -116,10 +115,14 @@ public class CreateSimpleHttpClient extends BlockingNativeCallableUnit {
         }
         HttpClientConnector httpClientConnector = httpConnectorFactory
                 .createHttpClientConnector(properties, senderConfiguration);
-        BMap<String, BValue> httpClient = (BMap<String, BValue>)BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+        BMap<String, BValue> httpClient = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(),
+                                                                                      HTTP_PACKAGE_PATH,
+                                                                                      HTTP_CLIENT, urlString,
+                                                                                      clientEndpointConfig);
         httpClient.addNativeData(HttpConstants.HTTP_CLIENT, httpClientConnector);
         httpClient.addNativeData(HttpConstants.CLIENT_ENDPOINT_CONFIG, clientEndpointConfig);
-        context.setReturnValues(httpClient);
+        configBStruct.addNativeData(HttpConstants.HTTP_CLIENT, httpClientConnector);
+        context.setReturnValues((httpClient));
     }
 
     private void populateSenderConfigurationOptions(SenderConfiguration senderConfiguration, Struct
