@@ -19,8 +19,8 @@ public type {{cut info.title " "}}ClientEp object {
 
     public function init({{cut info.title " "}}ClientConfig config) {
         endpoint http:Client httpEp {
-            url: config.serviceUrl;
-            auth: config.clientConfig.auth;
+            url: config.serviceUrl,
+            auth: config.clientConfig.auth,
             cache: config.clientConfig.cache
         };
 
