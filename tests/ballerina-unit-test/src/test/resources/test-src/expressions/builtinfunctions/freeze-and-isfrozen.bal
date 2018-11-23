@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-@final string FREEZE_ERROR_OCCURRED = "error occurred on freeze: ";
-@final string FREEZE_SUCCESSFUL = "freeze successful";
+final string FREEZE_ERROR_OCCURRED = "error occurred on freeze: ";
+final string FREEZE_SUCCESSFUL = "freeze successful";
 
 function testBooleanFreeze(boolean a) returns (boolean, boolean) {
     boolean b = a.freeze();

@@ -27,7 +27,7 @@ endpoint http:WebSocketListener wsCaller {
 }
 service<http:WebSocketService> wsService bind wsCaller {
 
-    onPing(endpoint caller, boolean final) {
+    onPing(endpoint caller, boolean isFinal) {
 
     }
     onPong(endpoint caller) {
