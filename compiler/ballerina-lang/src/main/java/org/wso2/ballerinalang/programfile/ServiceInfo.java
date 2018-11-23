@@ -32,7 +32,7 @@ public class ServiceInfo extends StructureTypeInfo {
     public int listenerTypeCPIndex;
     public int listenerNameCPIndex;
 
-    public Map<String, ResourceInfo> resourceInfoMap = new HashMap<>();
+    public Map<String, FunctionInfo> resourceInfoMap = new HashMap<>();
 
     public ServiceInfo(int pkgPathCPIndex, int nameCPIndex, int flags, int serviceTypeCPIndex, int listenerTypeCPIndex,
             int listenerNameCPIndex) {

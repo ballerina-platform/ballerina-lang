@@ -188,7 +188,6 @@ import org.wso2.ballerinalang.programfile.PackageInfo;
 import org.wso2.ballerinalang.programfile.PackageInfoWriter;
 import org.wso2.ballerinalang.programfile.PackageVarInfo;
 import org.wso2.ballerinalang.programfile.RecordTypeInfo;
-import org.wso2.ballerinalang.programfile.ResourceInfo;
 import org.wso2.ballerinalang.programfile.ServiceInfo;
 import org.wso2.ballerinalang.programfile.StructFieldInfo;
 import org.wso2.ballerinalang.programfile.TypeDefInfo;
@@ -2366,53 +2365,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Create resource info entries for all resources
         ((BObjectTypeSymbol) serviceNode.symbol.type.tsymbol).attachedFuncs.stream()
                 .filter(func -> Symbols.isFlagOn(func.symbol.flags, Flags.RESOURCE)).forEach(
-                res -> this.env.enclPkg.functions.stream().filter(fuc -> fuc.originalFuncSymbol == res.symbol)
-                        .findFirst().ifPresent(bLangFunction -> createResourceInfoEntry(bLangFunction, serviceInfo)));
+                fuc -> serviceInfo.resourceInfoMap.put(fuc.symbol.getName().value,
+                        currentPkgInfo.functionInfoMap.get(fuc.symbol.getName().value)));
         // Add documentation attributes
+
         addDocAttachmentAttrInfo(serviceNode.symbol.markdownDocumentation, serviceInfo);
-    }
-
-    private void createResourceInfoEntry(BLangFunction resourceNode, ServiceInfo serviceInfo) {
-        BInvokableType resourceType = (BInvokableType) resourceNode.symbol.type;
-        // Add resource name as an UTFCPEntry to the constant pool
-        int serviceNameCPIndex = addUTF8CPEntry(currentPkgInfo, resourceNode.name.value);
-        ResourceInfo resourceInfo = new ResourceInfo(currentPackageRefCPIndex, serviceNameCPIndex);
-        resourceInfo.paramTypes = resourceType.paramTypes.toArray(new BType[0]);
-        setParameterNames(resourceNode, resourceInfo);
-        resourceInfo.retParamTypes = new BType[1];
-        resourceInfo.retParamTypes[0] = resourceNode.symbol.retType;
-        resourceInfo.signatureCPIndex = addUTF8CPEntry(currentPkgInfo,
-                generateFunctionSig(resourceInfo.paramTypes, resourceNode.symbol.retType));
-        // Add resource info to the service info
-        serviceInfo.resourceInfoMap.put(resourceNode.name.getValue(), resourceInfo);
-
-        // Add documentation attributes
-        addDocAttachmentAttrInfo(resourceNode.symbol.markdownDocumentation, resourceInfo);
-    }
-
-    private void setParameterNames(BLangFunction resourceNode, ResourceInfo resourceInfo) {
-        int paramCount = resourceNode.requiredParams.size();
-        resourceInfo.paramNameCPIndexes = new int[paramCount];
-        for (int i = 0; i < paramCount; i++) {
-            BLangSimpleVariable paramVar = resourceNode.requiredParams.get(i);
-            String paramName = null;
-            boolean isAnnotated = false;
-            for (BLangAnnotationAttachment annotationAttachment : paramVar.annAttachments) {
-                String attachmentName = annotationAttachment.getAnnotationName().getValue();
-                if ("PathParam".equalsIgnoreCase(attachmentName) || "QueryParam".equalsIgnoreCase(attachmentName)) {
-                    //TODO:
-                    //paramName = annotationAttachment.getAttributeNameValuePairs().get("value")
-                    // .getLiteralValue().stringValue();
-                    isAnnotated = true;
-                    break;
-                }
-            }
-            if (!isAnnotated) {
-                paramName = paramVar.name.getValue();
-            }
-            int paramNameCPIndex = addUTF8CPEntry(currentPkgInfo, paramName);
-            resourceInfo.paramNameCPIndexes[i] = paramNameCPIndex;
-        }
     }
 
     private ErrorTableAttributeInfo getErrorTable(PackageInfo packageInfo) {

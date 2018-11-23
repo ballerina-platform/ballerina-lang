@@ -575,35 +575,7 @@ public class PackageInfoReader {
                 int resNameCPIndex = dataInStream.readInt();
                 UTF8CPEntry resNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(resNameCPIndex);
                 String resName = resNameUTF8Entry.getValue();
-
-                ResourceInfo resourceInfo = new ResourceInfo(packageInfo.getPkgNameCPIndex(), packageInfo.getPkgPath(),
-                        resNameCPIndex, resName);
-                resourceInfo.setServiceInfo(serviceInfo);
-                resourceInfo.setPackageInfo(packageInfo);
-                serviceInfo.addResourceInfo(resName, resourceInfo);
-
-                // Read action signature
-                int resSigCPIndex = dataInStream.readInt();
-                UTF8CPEntry resSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(resSigCPIndex);
-                String resSig = resSigUTF8Entry.getValue();
-                setCallableUnitSignature(packageInfo, resourceInfo, resSig);
-
-                // Read parameter names
-                // TODO Find a better alternative. Storing just param names is like a hack.
-                int paramNameCPIndexesCount = dataInStream.readShort();
-                int[] paramNameCPIndexes = new int[paramNameCPIndexesCount];
-                String[] paramNames = new String[paramNameCPIndexesCount];
-                for (int k = 0; k < paramNameCPIndexesCount; k++) {
-                    int paramNameCPIndex = dataInStream.readInt();
-                    paramNameCPIndexes[k] = paramNameCPIndex;
-                    UTF8CPEntry paramNameCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(paramNameCPIndex);
-                    paramNames[k] = paramNameCPEntry.getValue();
-                }
-                resourceInfo.setParamNameCPIndexes(paramNameCPIndexes);
-                resourceInfo.setParamNames(paramNames);
-
-                // Read attributes of the struct info
-                readAttributeInfoEntries(packageInfo, packageInfo, resourceInfo);
+                serviceInfo.addResourceInfo(resName, packageInfo.getFunctionInfo(resName));
             }
         }
     }
