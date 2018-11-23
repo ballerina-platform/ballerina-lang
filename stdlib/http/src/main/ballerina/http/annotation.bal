@@ -91,7 +91,7 @@ public type WSServiceConfig record {
 };
 
 // TODO: Enable this when Ballerina supports service life time
-//public type HttpServiceLifeTime "REQUEST"|"Caller"|"SESSION"|"SINGLETON";
+//public type HttpServiceLifeTime "REQUEST"|"CONNECTION"|"SESSION"|"SINGLETON";
 
 # The annotation which is used to configure an HTTP service.
 public annotation <service> ServiceConfig HttpServiceConfig;

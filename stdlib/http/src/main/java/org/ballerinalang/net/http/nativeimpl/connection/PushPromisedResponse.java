@@ -47,7 +47,7 @@ import static org.ballerinalang.net.http.HttpUtil.extractEntity;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "pushPromisedResponse",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Caller",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "CALLER",
                 structPackage = "ballerina/http"),
         args = {@Argument(name = "promise", type = TypeKind.OBJECT, structType = "PushPromise",
                 structPackage = "ballerina/http"),
