@@ -142,7 +142,7 @@ public class MessageUtils {
     }
     
     public static ProgramFile getProgramFile(Resource resource) {
-        return resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
+        return resource.getResourceInfo().getPackageInfo().getProgramFile();
     }
     
     /**
