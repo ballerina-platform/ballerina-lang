@@ -28,7 +28,7 @@ type Person object {
 
     new (name){}
     public function getName() returns string {
-        return name;
+        return self.name;
     }
 };
 
@@ -67,7 +67,7 @@ function testTuplesWithExpressions() returns typedesc {
     return desc;
 }
 
-function testAnyToTypedesc() returns typedesc {
+function testAnyToTypedesc() returns typedesc|error {
     any a = int;
     typedesc desc = check <typedesc>a;
     return desc;

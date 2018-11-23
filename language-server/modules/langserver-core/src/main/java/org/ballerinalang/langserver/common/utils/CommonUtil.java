@@ -53,6 +53,8 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextEdit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeChecker;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
@@ -89,6 +91,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -768,6 +771,29 @@ public class CommonUtil {
             symbolInfoList.add(lengthSymbolInfo);
         }
 
+        if (builtinFreezeFunctionAllowed(context, bType)) {
+            // For the any data value type, add the freeze, isFrozen builtin function
+            SymbolInfo freeze = getIterableOpSymbolInfo(Snippet.BUILTIN_FREEZE.get(), bType,
+                                                        ItemResolverConstants.BUILTIN_FREEZE_LABEL, context);
+            SymbolInfo isFrozen = getIterableOpSymbolInfo(Snippet.BUILTIN_IS_FROZEN.get(), bType,
+                                                          ItemResolverConstants.BUILTIN_IS_FROZEN_LABEL, context);
+            symbolInfoList.addAll(Arrays.asList(freeze, isFrozen));
+        }
+
+        if (builtinStampFunctionAllowed(context, bType)) {
+            // For the any data value type, add the stamp builtin function
+            SymbolInfo stamp = getIterableOpSymbolInfo(Snippet.BUILTIN_STAMP.get(), bType,
+                                                       ItemResolverConstants.BUILTIN_STAMP_LABEL, context);
+            symbolInfoList.add(stamp);
+        }
+
+        if (builtinCloneFunctionAllowed(context, bType)) {
+            // For the any data, add the clone builtin function
+            SymbolInfo freeze = getIterableOpSymbolInfo(Snippet.BUILTIN_CLONE.get(), bType,
+                                                        ItemResolverConstants.BUILTIN_CLONE_LABEL, context);
+            symbolInfoList.add(freeze);
+        }
+
         // Populate the Builtin Functions
         if (bType.tag == TypeTags.FLOAT) {
             SymbolInfo isNaN = getIterableOpSymbolInfo(Snippet.BUILTIN_IS_NAN.get(), bType,
@@ -845,47 +871,37 @@ public class CommonUtil {
     private static SymbolInfo getIterableOpSymbolInfo(SnippetBlock operation, @Nullable BType bType, String label,
                                                       LSContext context) {
         boolean isSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
-        String lambdaSignature = "";
-        SymbolInfo.IterableOperationSignature signature;
+        String signature = "";
+        SymbolInfo.CustomOperationSignature customOpSignature;
         SymbolInfo iterableOperation = new SymbolInfo();
         switch (operation.getLabel()) {
             case ItemResolverConstants.ITR_FOREACH_LABEL: {
                 String params = getIterableOpLambdaParam(bType, context);
-                lambdaSignature = operation.getString(isSnippet)
+                signature = operation.getString(isSnippet)
                         .replace(UtilSymbolKeys.ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
                 break;
             }
             case ItemResolverConstants.ITR_MAP_LABEL: {
                 String params = getIterableOpLambdaParam(bType, context);
-                lambdaSignature = operation
-                        .getString(isSnippet)
+                signature = operation.getString(isSnippet)
                         .replace(UtilSymbolKeys.ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
                 break;
             }
             case ItemResolverConstants.ITR_FILTER_LABEL: {
                 String params = getIterableOpLambdaParam(bType, context);
-                lambdaSignature = operation
-                        .getString(isSnippet)
+                signature = operation.getString(isSnippet)
                         .replace(UtilSymbolKeys.ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
                 break;
             }
-            case ItemResolverConstants.ITR_COUNT_LABEL:
-            case ItemResolverConstants.ITR_MIN_LABEL:
-            case ItemResolverConstants.ITR_MAX_LABEL:
-            case ItemResolverConstants.ITR_AVERAGE_LABEL:
-            case ItemResolverConstants.ITR_SUM_LABEL:
-                lambdaSignature = operation.getString(isSnippet);
-                break;
             default: {
-                // Do Nothing
+                signature = operation.getString(isSnippet);
                 break;
             }
-
         }
 
-        signature = new SymbolInfo.IterableOperationSignature(label, lambdaSignature);
-        iterableOperation.setIterableOperation(true);
-        iterableOperation.setIterableOperationSignature(signature);
+        customOpSignature = new SymbolInfo.CustomOperationSignature(label, signature);
+        iterableOperation.setCustomOperation(true);
+        iterableOperation.setCustomOperationSignature(customOpSignature);
         return iterableOperation;
     }
 
@@ -945,6 +961,33 @@ public class CommonUtil {
         return false;
     }
 
+    private static boolean builtinFreezeFunctionAllowed(LSContext context, BType bType) {
+        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+        if (compilerContext != null) {
+            TypeChecker typeChecker = TypeChecker.getInstance(compilerContext);
+            return typeChecker.isLikeAnydataOrNotNil(bType);
+        }
+        return false;
+    }
+
+    private static boolean builtinStampFunctionAllowed(LSContext context, BType bType) {
+        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+        if (compilerContext != null) {
+            Types types = Types.getInstance(compilerContext);
+            return types.isAnydata(bType);
+        }
+        return false;
+    }
+
+    private static boolean builtinCloneFunctionAllowed(LSContext context, BType bType) {
+        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+        if (compilerContext != null) {
+            Types types = Types.getInstance(compilerContext);
+            return types.isAnydata(bType);
+        }
+        return false;
+    }
+
     ///////////////////////////////
     /////      Predicates     /////
     ///////////////////////////////
@@ -955,7 +998,7 @@ public class CommonUtil {
      * @return {@link Predicate}    Predicate for the check
      */
     public static Predicate<SymbolInfo> invalidSymbolsPredicate() {
-        return symbolInfo -> !symbolInfo.isIterableOperation()
+        return symbolInfo -> !symbolInfo.isCustomOperation()
                 && symbolInfo.getScopeEntry() != null
                 && isInvalidSymbol(symbolInfo.getScopeEntry().symbol);
     }

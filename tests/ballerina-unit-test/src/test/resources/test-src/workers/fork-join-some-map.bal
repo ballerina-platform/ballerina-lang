@@ -8,18 +8,18 @@ function testForkJoinReturnAnyTypeVM()(int, string) {
     string r;
     float t;
     fork {
-    worker W1 {
-    println("Worker W1 started");
-    int x = 23;
-    string a = "aaaaa";
-    x, a -> fork;
-    }
-    worker W2 {
-    println("Worker W2 started");
-    string s = "test";
-    float u = 10.23;
-    s, u -> fork;
-    }
+        worker W1 {
+            println("Worker W1 started");
+            int x = 23;
+            string a = "aaaaa";
+            x, a -> fork;
+        }
+        worker W2 {
+            println("Worker W2 started");
+            string s = "test";
+            float u = 10.23;
+            s, u -> fork;
+        }
     } join (some 1) (map results) {
         println("Within join block");
         //any[] t1;
@@ -36,8 +36,8 @@ function testForkJoinReturnAnyTypeVM()(int, string) {
         //println(t);
     }
 
-println("After the fork-join statement");
-p = 111;
-q = "eeee";
-return p, q;
+    println("After the fork-join statement");
+    p = 111;
+    q = "eeee";
+    return p, q;
 }

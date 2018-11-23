@@ -130,8 +130,8 @@ public type RetryConfig record {
 # + shareSession - Enable/disable new SSL session creation
 # + ocspStapling - Enable/disable OCSP stapling
 public type SecureSocket record {
-    TrustStore? trustStore = {};
-    KeyStore? keyStore = {};
+    TrustStore? trustStore = ();
+    KeyStore? keyStore = ();
     string certFile = "";
     string keyFile = "";
     string keyPassword = "";

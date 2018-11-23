@@ -41,7 +41,7 @@ function testPrintInWorkers() {
     }
 
     worker w2 {
-        string hello;
+        string hello = "";
         hello <- w1;
         io:println(hello);
         io:println(sampleFunction1());

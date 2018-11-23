@@ -37,7 +37,6 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -281,11 +280,11 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
         try {
             switch (type.getTag()) {
                 case TypeTags.OBJECT_TYPE_TAG:
-                    for (BField field : ((BStructureType) this.type).getFields()) {
-                        if (!Flags.isFlagOn(field.flags, Flags.PUBLIC)) {
+                    for (Map.Entry<String, BField> field : ((BStructureType) this.type).getFields().entrySet()) {
+                        if (!Flags.isFlagOn(field.getValue().flags, Flags.PUBLIC)) {
                             continue;
                         }
-                        String fieldName = field.getFieldName();
+                        String fieldName = field.getKey();
                         V fieldVal = get((K) fieldName);
                         sj.add(fieldName + ":" + getStringValue(fieldVal));
                     }
@@ -321,11 +320,10 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
         try {
             switch (type.getTag()) {
                 case TypeTags.OBJECT_TYPE_TAG:
-                    Arrays.stream(((BStructureType) this.type).getFields()).map(BField::getFieldName).
-                            forEach(fieldName -> {
-                                V fieldVal = get((K) fieldName);
-                                sj.add(fieldName + ":" + getStringValue(fieldVal));
-                            });
+                    ((BStructureType) this.type).getFields().forEach((fieldName, field) -> {
+                        V fieldVal = get((K) fieldName);
+                        sj.add((fieldName + ":" + getStringValue(fieldVal)));
+                    });
                     break;
                 case TypeTags.JSON_TAG:
                     return getJSONString();
@@ -360,7 +358,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
             Map<String, BType> targetTypeField = new HashMap<>();
             BType restFieldType = ((BRecordType) type).restFieldType;
 
-            for (BField field : ((BStructureType) type).getFields()) {
+            for (BField field : ((BStructureType) type).getFields().values()) {
                 targetTypeField.put(field.getFieldName(), field.fieldType);
             }
 
@@ -376,13 +374,22 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
     }
 
     @Override
-    public BValue copy() {
+    public BValue copy(Map<BValue, BValue> refs) {
         readLock.lock();
         try {
+            if (isFrozen()) {
+                return this;
+            }
+
+            if (refs.containsKey(this)) {
+                return refs.get(this);
+            }
+
             BMap<K, BValue> newMap = new BMap<>(type);
+            refs.put(this, newMap);
             for (Map.Entry<K, V> entry: map.entrySet()) {
                 BValue value = entry.getValue();
-                newMap.put(entry.getKey(), value == null ? null : value.copy());
+                newMap.put(entry.getKey(), value == null ? null : value.copy(refs));
             }
             return newMap;
         } finally {

@@ -140,9 +140,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<Either<List<CompletionItem>, CompletionList>>
     completion(TextDocumentPositionParams position) {
+        final List<CompletionItem> completions = new ArrayList<>();
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = position.getTextDocument().getUri();
-            List<CompletionItem> completions;
             LSServiceOperationContext context = new LSServiceOperationContext();
             Path completionPath = new LSDocument(fileUri).getPath();
             Path compilationPath = getUntitledFilePath(completionPath.toString()).orElse(completionPath);
@@ -162,6 +162,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
                 CompletionUtil.resolveSymbols(context);
                 CompletionSubRuleParser.parse(context);
+                completions.addAll(CompletionUtil.getCompletionItems(context));
             } catch (Exception | AssertionError e) {
                 if (CommonUtil.LS_DEBUG_ENABLED) {
                     String msg = e.getMessage();
@@ -169,7 +170,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 }
             } finally {
                 lock.ifPresent(Lock::unlock);
-                completions = CompletionUtil.getCompletionItems(context);
             }
             return Either.forLeft(completions);
         });

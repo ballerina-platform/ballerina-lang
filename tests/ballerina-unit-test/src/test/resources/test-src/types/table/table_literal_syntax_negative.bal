@@ -99,8 +99,16 @@ function testTableRemoveInvalidFunctionPointer() returns (int, json) {
     _ = dt.add(p2);
     _ = dt.add(p3);
 
-    int count = check dt.remove(isBelow35Invalid);
-    json j = check <json>dt;
+    var res = dt.remove(isBelow35Invalid);
+    int count = -1;
+    if (res is int) {
+        count = res;
+    }
+    var res2 = <json>dt;
+    json j = {};
+    if (res2 is json) {
+        j =  res;
+    }
 
     return (count, j);
 }
