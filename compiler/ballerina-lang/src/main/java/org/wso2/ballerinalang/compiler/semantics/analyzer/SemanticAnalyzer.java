@@ -454,13 +454,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             });
         }
 
-        // If the variable is not declared with var, we can get the variable type from the type node. Then we need to
-        // update both varNode's type and symbol's type here.
-        if (varNode.symbol.type == symTable.noType && varNode.isDeclaredWithVar) {
-            varNode.symbol.type = varNode.type = typeChecker.checkExpr(varNode.expr, env);
-        }
-
         BType lhsType = varNode.symbol.type;
+        varNode.type = lhsType;
 
         // Analyze the init expression
         BLangExpression rhsExpr = varNode.expr;
