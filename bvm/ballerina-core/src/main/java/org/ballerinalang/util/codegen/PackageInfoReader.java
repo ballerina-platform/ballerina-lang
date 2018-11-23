@@ -1406,6 +1406,12 @@ public class PackageInfoReader {
                     }
                     packageInfo.addInstruction(InstructionFactory.get(opcode, oprds));
                     break;
+                case InstructionCodes.FLUSH:
+                    // TODO fix - rajith
+                    break;
+                case InstructionCodes.WORKERSYNCSEND:
+                    // TODO fix - rajith
+                    break;
                 case InstructionCodes.IGLOAD:
                 case InstructionCodes.FGLOAD:
                 case InstructionCodes.SGLOAD:

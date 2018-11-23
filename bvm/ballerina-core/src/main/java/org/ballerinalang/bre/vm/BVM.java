@@ -473,6 +473,12 @@ public class BVM {
                     handleCHNSend(strand, chnSendIns.channelName, chnSendIns.dataType, chnSendIns.dataReg,
                                   chnSendIns.keyType, chnSendIns.keyReg);
                         break;
+                    case InstructionCodes.FLUSH:
+                        // TODO fix - rajith
+                        break;
+                    case InstructionCodes.WORKERSYNCSEND:
+                        // TODO fix - rajith
+                        break;
                     case InstructionCodes.PANIC:
                         i = operands[0];
                         if (i >= 0) {
@@ -4206,6 +4212,7 @@ public class BVM {
             callbacks[i] = future.value();
         }
         strand.createLock();
+        strand.waitCompleted = false;
         return CallbackReturnHandler.handleReturn(strand, expType, retValReg, callbacks);
     }
 

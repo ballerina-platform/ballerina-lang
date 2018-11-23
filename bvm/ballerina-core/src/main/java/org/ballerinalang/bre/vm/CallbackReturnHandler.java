@@ -38,15 +38,14 @@ public class CallbackReturnHandler {
     static Strand handleReturn(Strand strand, BType expType, int retReg, SafeStrandCallback... callbacks) {
         try {
             strand.acquireExecutionLock();
+            if (strand.waitCompleted) {
+                    return null;
+            }
             for (SafeStrandCallback callback : callbacks) {
                 callback.acquireDataLock();
-                // TODO: 11/22/18 this fails if there are mutltiple waits in a single strand
-//                if (strand.completed) {
-//                    return null;
-//                }
                 if (callback.returnDataAvailable()) {
                     handleReturn(strand.currentFrame, callback, expType, retReg);
-                    strand.completed = true;
+                    strand.waitCompleted = true;
                     callback.releaseDataLock();
                     return strand;
                 }
