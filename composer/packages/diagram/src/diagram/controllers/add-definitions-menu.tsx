@@ -20,7 +20,6 @@ export const AddDefinitionsMenu: StatelessComponent<{}> = (
         <DiagramContext.Consumer>
             {(diagContext) => {
                 return (diagContext.editingEnabled &&
-                    // <Menu.Item>
                         <Dropdown
                             button
                             className="icon primary add-definitions"
@@ -51,7 +50,6 @@ export const AddDefinitionsMenu: StatelessComponent<{}> = (
                                 { children }
                             </Dropdown.Menu>
                         </Dropdown>
-                    // </Menu.Item>
                 );
             }}
         </DiagramContext.Consumer>

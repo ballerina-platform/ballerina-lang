@@ -11,6 +11,8 @@ import { DiagramContext, DiagramMode, IDiagramContext } from "./diagram-context"
 import { DiagramErrorBoundary } from "./diagram-error-boundary";
 import { DiagramUtils } from "./diagram-utils";
 
+const zoomFactor = 0.1;
+
 export interface CommonDiagramProps {
     height?: number;
     width?: number;
@@ -23,6 +25,7 @@ export interface DiagramProps extends CommonDiagramProps {
 
 export interface DiagramState {
     currentMode: DiagramMode;
+    currentZoom: number;
 }
 
 export class Diagram extends React.Component<DiagramProps, DiagramState> {
@@ -32,6 +35,7 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
 
     public state = {
         currentMode: DiagramMode.ACTION,
+        currentZoom: this.props.zoom
     };
 
     private containerRef = React.createRef<HTMLDivElement>();
@@ -65,7 +69,7 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
             <DiagramErrorBoundary>
                 <div className="diagram-container" ref={this.containerRef}>
                     <ControllerPanel stickTo={this.containerRef} width={diagramWidth} />
-                    <SvgCanvas model={cuViewState}>
+                    <SvgCanvas model={cuViewState} zoom={this.state.currentZoom}>
                         {children}
                     </SvgCanvas>
                 </div>
@@ -86,14 +90,22 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
             },
             mode: currentMode,
             zoomFit: () => {
-                // do nothing
+                this.setState({
+                    currentZoom: 1
+                });
             },
             zoomIn: () => {
-                // do nothing
+               this.setState({
+                   currentZoom: this.state.currentZoom + zoomFactor
+               });
             },
             zoomOut: () => {
-                // do nothing
-            }
+                if ((this.state.currentZoom - zoomFactor) >= 1) {
+                    this.setState({
+                        currentZoom: this.state.currentZoom - zoomFactor
+                    });
+                }
+            },
         };
 
         // merge with parent (if any) or with default context
