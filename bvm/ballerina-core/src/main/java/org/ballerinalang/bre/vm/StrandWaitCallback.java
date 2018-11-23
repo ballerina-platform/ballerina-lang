@@ -18,7 +18,6 @@
 package org.ballerinalang.bre.vm;
 
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.util.codegen.CallableUnitInfo;
 
 import java.util.concurrent.Semaphore;
 
@@ -31,8 +30,8 @@ public class StrandWaitCallback extends StrandCallback {
 
     private Semaphore check;
 
-    public StrandWaitCallback(CallableUnitInfo callableUnitInfo, BType retType) {
-        super(callableUnitInfo, retType);
+    StrandWaitCallback(BType retType) {
+        super(retType);
         this.check = new Semaphore(0);
     }
 
@@ -41,7 +40,7 @@ public class StrandWaitCallback extends StrandCallback {
         this.check.release();
     }
 
-    public void waitForResponse() {
+    void waitForResponse() {
         try {
             this.check.acquire();
         } catch (InterruptedException ignore) { /* ignore */ }

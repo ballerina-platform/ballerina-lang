@@ -32,7 +32,6 @@ import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.program.BLangVMUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -50,22 +49,46 @@ public class BVMScheduler {
     //TODO these are static vars, we may need to find a way to make this instance vars
     private static Semaphore strandsDoneSemaphore = new Semaphore(1);
 
+    /**
+     * Method to schedule a strand for execution.
+     *
+     * @param strand to be executed
+     */
     public static void schedule(Strand strand) {
         ThreadPoolFactory.getInstance().getWorkerExecutor().submit(new CallableExecutor(strand));
     }
 
+    /**
+     * Method to execute the strand in the current thread.
+     *
+     * @param strand to be executed
+     */
     public static void execute(Strand strand) {
         strandCountUp();
         BVM.execute(strand);
         strandCountDown();
     }
 
+    /**
+     * Method to schedule native call execution.
+     *
+     * @param nativeCallable    to be invoked
+     * @param nativeCtx         to be used
+     * @param callback          for notifications
+     */
     public static void scheduleNative(NativeCallableUnit nativeCallable,
                                       Context nativeCtx, CallableUnitCallback callback) {
         ThreadPoolFactory.getInstance().getWorkerExecutor()
                 .submit(new NativeCallableExecutor(nativeCallable, nativeCtx, callback));
     }
 
+    /**
+     * Method to execute native call in the current thread.
+     *
+     * @param nativeCallable    to be executed
+     * @param nativeCtx         to be used
+     * @param callback          for notifications
+     */
     public static void executeNative(NativeCallableUnit nativeCallable,
                                      Context nativeCtx, CallableUnitCallback callback) {
         strandCountUp();
@@ -74,7 +97,13 @@ public class BVMScheduler {
     }
 
 
-
+    /**
+     * Method to change states of the strands.
+     *
+     * @param strand            to be changed
+     * @param expectedStates    current states
+     * @param newState          new state
+     */
     public static void stateChange(Strand strand, List<State> expectedStates, State newState) {
         if (expectedStates == null || expectedStates.contains(strand.state)) {
             strand.state = newState;
@@ -84,6 +113,13 @@ public class BVMScheduler {
                 + expectedStates.toString() + " found - " + strand.state.toString()); //TODO error message?
     }
 
+    /**
+     * Method to change states of the strands.
+     *
+     * @param strand            to be changed
+     * @param expectedState    current states
+     * @param newState          new state
+     */
     public static void stateChange(Strand strand, State expectedState, State newState) {
         if (expectedState == strand.state) {
             strand.state = newState;
@@ -110,6 +146,9 @@ public class BVMScheduler {
         }
     }
 
+    /**
+     * Method to be used for all strand's execution completion.
+     */
     public static void waitForStrandCompletion() {
         try {
             strandsDoneSemaphore.acquire();

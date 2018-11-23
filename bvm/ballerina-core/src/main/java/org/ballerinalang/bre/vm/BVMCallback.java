@@ -27,33 +27,106 @@ import org.ballerinalang.model.values.BRefType;
  */
 public interface BVMCallback {
 
+    /**
+     * Method to signal the callback once done.
+     */
     void signal();
 
+    /**
+     * Method to set int return value.
+     *
+     * @param value to be returned
+     */
     void setIntReturn(long value);
 
+    /**
+     * Method to set float return value.
+     *
+     * @param value to be returned
+     */
     void setFloatReturn(double value);
 
+    /**
+     * Method to set string return value.
+     *
+     * @param value to be returned
+     */
     void setStringReturn(String value);
 
+    /**
+     * Method to set boolean return value.
+     *
+     * @param value to be returned
+     */
     void setBooleanReturn(int value);
 
+    /**
+     * Method to set byte return value.
+     *
+     * @param value to be returned
+     */
     void setByteReturn(int value);
 
+    /**
+     * Method to set ref return value.
+     *
+     * @param value to be returned
+     */
     void setRefReturn(BRefType<?> value);
 
+    /**
+     * Method to set error return value.
+     *
+     * @param error to be returned
+     */
     void setError(BError error);
 
+    /**
+     * Method to get int return value.
+     *
+     * @return value
+     */
     long getIntRetVal();
 
+    /**
+     * Method to get float return value.
+     *
+     * @return value
+     */
     double getFloatRetVal();
 
+    /**
+     * Method to get string return value.
+     *
+     * @return value
+     */
     String getStringRetVal();
 
+    /**
+     * Method to get boolean return value.
+     *
+     * @return value
+     */
     int getBooleanRetVal();
 
+    /**
+     * Method to get byte return value.
+     *
+     * @return value
+     */
     int getByteRetVal();
 
+    /**
+     * Method to get ref return value.
+     *
+     * @return value
+     */
     BRefType<?> getRefRetVal();
 
+    /**
+     * Method to get error return value.
+     *
+     * @return value
+     */
     BError getErrorVal();
 }

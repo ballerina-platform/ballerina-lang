@@ -30,7 +30,7 @@ import java.util.concurrent.Semaphore;
  * This represents a Ballerina execution strand in the new VM.
  */
 public class Strand {
-    public static final int DEFAULT_CONTROL_STACK_SIZE = 2000;
+    private static final int DEFAULT_CONTROL_STACK_SIZE = 2000;
 
     public String name;
 
@@ -133,6 +133,9 @@ public class Strand {
         executionLock.release();
     }
 
+    /**
+     * Strand execution states.
+     */
     public static enum State {
         NEW,
         RUNNABLE,

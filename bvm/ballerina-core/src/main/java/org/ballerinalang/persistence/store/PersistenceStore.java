@@ -26,7 +26,6 @@ import org.ballerinalang.persistence.store.impl.FileStorageProvider;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ResourceInfo;
-import org.ballerinalang.util.program.BLangVMUtils;
 
 import java.util.Collections;
 import java.util.LinkedList;

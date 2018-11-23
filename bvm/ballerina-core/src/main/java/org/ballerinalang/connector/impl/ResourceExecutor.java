@@ -28,7 +28,6 @@ import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.program.BLangFunctions;
-import org.ballerinalang.util.program.BLangVMUtils;
 import org.ballerinalang.util.program.CompensationTable;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 

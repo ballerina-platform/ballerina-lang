@@ -19,7 +19,6 @@ package org.ballerinalang.bre.vm;
 
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.util.codegen.CallableUnitInfo;
 
 /**
  * VM callback implementation which can be used for resource execution.
@@ -30,9 +29,8 @@ public class StrandResourceCallback extends StrandCallback {
 
     private CallableUnitCallback resourceCallback;
 
-    public StrandResourceCallback(CallableUnitInfo callableUnitInfo,
-                                  BType retType, CallableUnitCallback resourceCallback) {
-        super(callableUnitInfo, retType);
+    StrandResourceCallback(BType retType, CallableUnitCallback resourceCallback) {
+        super(retType);
         this.resourceCallback = resourceCallback;
     }
 

@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.bre.bvm.WorkerResponseContext;
 import org.ballerinalang.bre.vm.SafeStrandCallback;
 import org.ballerinalang.model.types.BType;
 
