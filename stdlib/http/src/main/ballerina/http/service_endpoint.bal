@@ -487,7 +487,7 @@ public type Server object {
     @readonly public Local local = {};
     @readonly public string protocol = "";
 
-    private Connection conn = new;
+    private Caller caller = new;
     private ServiceEndpointConfiguration config = {};
 
     private string instanceId;
@@ -516,7 +516,7 @@ public type Server object {
     # Returns the connector that client code uses.
     #
     # + return - The connector that client code uses
-    public extern function getCallerActions() returns (Connection);
+    public extern function getCallerActions() returns (Caller);
 
     # Stops the registered service.
     extern function stop();
