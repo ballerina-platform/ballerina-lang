@@ -233,7 +233,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
 
         BMap<String, BValue> connection = BLangConnectorSPIUtil.createBStruct(
                 httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.CONNECTION);
+                HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.Caller);
 
         HttpUtil.enrichServiceEndpointInfo(serviceEndpoint, httpCarbonMessage, httpResource, endpointConfig);
         HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage, endpointConfig);
