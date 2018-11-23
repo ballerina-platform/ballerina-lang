@@ -443,14 +443,15 @@ public type WebSocketServer object {
     }
 
     private ServiceEndpointConfiguration config = {};
-    private Server httpEndpoint = new(config);
+    //TODO:Change the port
+    private Server httpEndpoint = new(9090, config = config);
 
     # Gets invoked during module initialization to initialize the endpoint.
     #
     # + c - The `ServiceEndpointConfiguration` of the endpoint
     public function __init(ServiceEndpointConfiguration c) {
         self.config = c;
-        self.httpEndpoint = new(c);
+        self.httpEndpoint = new(c.port, config = c);
     }
 
     # Gets invoked when binding a service to the endpoint.
@@ -463,7 +464,7 @@ public type WebSocketServer object {
 };
 
 //New Implementation~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//listener ep = new http:Server(80);
+// listener http:Server ex = new(9090);
 //ep.__init();
 //ep.__attach();
 //ep.__start();
@@ -472,7 +473,7 @@ public type Server object {
     *AbstractListener;
 
     public function __start() returns error? {
-    io:println("start");
+        io:println("start");
         return self.start();
     }
 
@@ -481,7 +482,6 @@ public type Server object {
     }
 
     public function __attach(service s, map annotationData) returns error? {
-        //return register(typedesc serviceType);
         io:println("Attach", s);
         return self.register(s, annotationData);
     }
@@ -495,9 +495,10 @@ public type Server object {
 
     private string instanceId;
 
-    public function __init(ServiceEndpointConfiguration config) {
+    public function __init(int port, ServiceEndpointConfiguration? config = ()) {
         self.instanceId = system:uuid();
-        self.config = config;
+        self.config = config ?: {};
+        self.config.port = port;
         self.init(self.config);
     }
 
