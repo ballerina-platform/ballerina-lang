@@ -80,7 +80,7 @@ function Server.__attach(service s, map<any> data) returns error? {
     self.registerWebSubSubscriberServiceEndpoint(s, data);
 }
 
-function Server.__start() {
+function Server.__start() returns error? {
     self.startWebSubSubscriberServiceEndpoint();
     self.sendSubscriptionRequests();
 }
@@ -89,7 +89,7 @@ function Server.__start() {
 //    return self.serviceEndpoint.getCallerActions();
 //}
 
-function Listener.__stop() {
+function Listener.__stop() returns error? {
     self.serviceEndpoint.stop();
 }
 
