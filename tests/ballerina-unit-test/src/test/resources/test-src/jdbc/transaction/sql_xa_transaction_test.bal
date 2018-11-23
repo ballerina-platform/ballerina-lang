@@ -30,17 +30,12 @@ function testXATransactonSuccess() returns (int, int) {
     int count1;
     int count2;
     //check whether update action is performed
-    table dt = check testDB1->select("Select COUNT(*) as countval from Customers where customerId = 1 ", ResultCount);
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count1 = rs.COUNTVAL;
-    }
+    var dt1 = testDB1->select("Select COUNT(*) as countval from Customers where customerId = 1 ", ResultCount);
+    count1 = getTableCountValColumn(dt1);
 
-    dt = check testDB2->select("Select COUNT(*) as countval from Salary where id = 1", ResultCount);
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count2 = rs.COUNTVAL;
-    }
+    var dt2 = testDB2->select("Select COUNT(*) as countval from Salary where id = 1", ResultCount);
+    count2 = getTableCountValColumn(dt2);
+
     testDB1.stop();
     testDB2.stop();
     return (count1, count2);
@@ -72,17 +67,11 @@ function testXATransactonSuccessWithDataSource() returns (int, int) {
     int count1;
     int count2;
     //check whether update action is performed
-    table dt = check testDB1->select("Select COUNT(*) as countval from Customers where customerId = 10 ", ResultCount);
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count1 = rs.COUNTVAL;
-    }
+    var dt1 = testDB1->select("Select COUNT(*) as countval from Customers where customerId = 10 ", ResultCount);
+    count1 = getTableCountValColumn(dt1);
 
-    dt = check testDB2->select("Select COUNT(*) as countval from Salary where id = 10", ResultCount);
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count2 = rs.COUNTVAL;
-    }
+    var dt2 = testDB2->select("Select COUNT(*) as countval from Salary where id = 10", ResultCount);
+    count2 = getTableCountValColumn(dt2);
     testDB1.stop();
     testDB2.stop();
     return (count1, count2);
@@ -114,17 +103,11 @@ function testXATransactonSuccessWithH2Client() returns (int, int) {
     int count1;
     int count2;
     //check whether update action is performed
-    table dt = check testDB1->select("Select COUNT(*) as countval from Customers where customerId = 11", ResultCount);
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count1 = rs.COUNTVAL;
-    }
+    var dt1 = testDB1->select("Select COUNT(*) as countval from Customers where customerId = 11", ResultCount);
+    count1 = getTableCountValColumn(dt1);
 
-    dt = check testDB2->select("Select COUNT(*) as countval from Salary where id = 11", ResultCount);
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count2 = rs.COUNTVAL;
-    }
+    var dt2 = testDB2->select("Select COUNT(*) as countval from Salary where id = 11", ResultCount);
+    count2 = getTableCountValColumn(dt2);
     testDB1.stop();
     testDB2.stop();
     return (count1, count2);
@@ -153,17 +136,12 @@ function testXATransactonFailed1() returns (int, int) {
     int count1;
     int count2;
     //check whether update action is performed
-    table dt = check testDB1->select("Select COUNT(*) as countval from Customers where customerId = 2", ResultCount);
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count1 = rs.COUNTVAL;
-    }
+    var dt1 = testDB1->select("Select COUNT(*) as countval from Customers where customerId = 2", ResultCount);
+    count1 = getTableCountValColumn(dt1);
 
-    dt = check testDB2->select("Select COUNT(*) as countval from Salary where id = 2 ", ResultCount);
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count2 = rs.COUNTVAL;
-    }
+    var dt2 = testDB2->select("Select COUNT(*) as countval from Salary where id = 2 ", ResultCount);
+    count2 = getTableCountValColumn(dt2);
+
     testDB1.stop();
     testDB2.stop();
     return (count1, count2);
@@ -196,19 +174,12 @@ function testXATransactonFailed2() returns (int, int) {
     });
     _ = trap testXATransactonFailed2Helper(testDB1, testDB2);
     //check whether update action is performed
-    table dt = check testDB1->select("Select COUNT(*) as countval from Customers where customerId = 2", ResultCount);
-    int count1;
-    int count2;
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count1 = rs.COUNTVAL;
-    }
+    var dt1 = testDB1->select("Select COUNT(*) as countval from Customers where customerId = 2", ResultCount);
+    int count1 = getTableCountValColumn(dt1);
 
-    dt = check testDB2->select("Select COUNT(*) as countval from Salary where id = 2 ", ResultCount);
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count2 = rs.COUNTVAL;
-    }
+    var dt2 = testDB2->select("Select COUNT(*) as countval from Salary where id = 2 ", ResultCount);
+    int count2 = getTableCountValColumn(dt2);
+
     testDB1.stop();
     testDB2.stop();
     return (count1, count2);
@@ -242,21 +213,13 @@ function testXATransactonRetry() returns (int, int) {
 
     _ = trap testXATransactonRetryHelper(testDB1, testDB2);
     //check whether update action is performed
-    table dt = check testDB1->select("Select COUNT(*) as countval from Customers where customerId = 4",
+    var dt1 = testDB1->select("Select COUNT(*) as countval from Customers where customerId = 4",
         ResultCount);
-    int count1;
-    int count2;
+    int count1 = getTableCountValColumn(dt1);
 
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count1 = rs.COUNTVAL;
-    }
+    var dt2 = testDB2->select("Select COUNT(*) as countval from Salary where id = 4", ResultCount);
+    int count2 = getTableCountValColumn(dt2);
 
-    dt = check testDB2->select("Select COUNT(*) as countval from Salary where id = 4", ResultCount);
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count2 = rs.COUNTVAL;
-    }
     testDB1.stop();
     testDB2.stop();
     return (count1, count2);
@@ -276,4 +239,18 @@ function testXATransactonRetryHelper(h2:Client testDB1, h2:Client testDB2) {
     } onretry {
         i = i + 1;
     }
+}
+
+function getTableCountValColumn(table|error result) returns int {
+    int count = -1;
+    if (result is table) {
+        while (result.hasNext()) {
+            var rs = <ResultCount>result.getNext();
+            if (rs is ResultCount) {
+                count = rs.COUNTVAL;
+            }
+        }
+        return count;
+    }
+    return -1;
 }
