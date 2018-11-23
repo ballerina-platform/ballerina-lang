@@ -136,7 +136,7 @@ public const REDIRECT_PERMANENT_REDIRECT_308 = 308;
 remote function Connection.continue() returns error? {
     Response res = new;
     res.statusCode = CONTINUE_100;
-    return self.respond(res);
+    return self->respond(res);
 }
 
 remote function Connection.redirect(Response response, RedirectCode code, string[] locations) returns error? {
@@ -164,13 +164,13 @@ remote function Connection.redirect(Response response, RedirectCode code, string
     locationsStr = locationsStr.substring(0, (locationsStr.length()) - 1);
 
     response.setHeader(LOCATION, locationsStr);
-    return self.respond(response);
+    return self->respond(response);
 }
 
 remote function Connection.ok(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns error? {
     Response response = buildResponse(message);
     response.statusCode = OK_200;
-    return self.respond(response);
+    return self->respond(response);
 }
 
 remote function Connection.created(string uri, Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
@@ -180,12 +180,12 @@ remote function Connection.created(string uri, Response|string|xml|json|byte[]|i
     if (uri.length() > 0) {
         response.setHeader(LOCATION, uri);
     }
-    return self.respond(response);
+    return self->respond(response);
 }
 
 remote function Connection.accepted(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
                                                                                             returns error? {
     Response response = buildResponse(message);
     response.statusCode = ACCEPTED_202;
-    return self.respond(response);
+    return self->respond(response);
 }
