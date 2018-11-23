@@ -73,6 +73,6 @@ type InitiatorClient object {
             return err;
         }
         json resPayload = check res.getJsonPayload();
-        return check RegistrationResponse.create(resPayload);
+        return RegistrationResponse.create(resPayload);
     }
 };
