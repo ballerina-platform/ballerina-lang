@@ -135,11 +135,12 @@ public type FuncBodyParser object {
 
 function getDecl(map<VariableDcl> localVarMap, string varName) returns VariableDcl {
     var posibalDcl = localVarMap[varName];
-    if (posibalDcl is VariableDcl) {
-        return posibalDcl;
-    } else {
-        error err = error("local var missing " + varName);
-        panic err;
+    match posibalDcl {
+        VariableDcl dcl => return dcl;
+        () => {
+            error err = error("local var missing " + varName);
+            panic err;
+        }
     }
 }
 

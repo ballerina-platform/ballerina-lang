@@ -144,21 +144,24 @@ public type Cache object {
         // Get the requested cache entry from the map.
         CacheEntry? cacheEntry = self.entries[key];
 
-        if (cacheEntry is CacheEntry) {
-            // Check whether the cache entry is already expired. Since the cache cleaning task runs in predefined intervals,
-            // sometimes the cache entry might not have been removed at this point even though it is expired. So this check
-            // gurentees that the expired cache entries will not be returened.
-            int currentSystemTime = time:currentTime().time;
-            if (currentSystemTime >= entry.lastAccessedTime + self.expiryTimeMillis) {
-                // If it is expired, remove the cache and return nil.
-                self.remove(key);
+        match cacheEntry {
+            CacheEntry entry => {
+                // Check whether the cache entry is already expired. Since the cache cleaning task runs in predefined intervals,
+                // sometimes the cache entry might not have been removed at this point even though it is expired. So this check
+                // gurentees that the expired cache entries will not be returened.
+                int currentSystemTime = time:currentTime().time;
+                if (currentSystemTime >= entry.lastAccessedTime + self.expiryTimeMillis) {
+                    // If it is expired, remove the cache and return nil.
+                    self.remove(key);
+                    return ();
+                }
+                // Modify the last accessed time and return the cache if it is not expired.
+                entry.lastAccessedTime = time:currentTime().time;
+                return entry.value;
+            }
+            () => {
                 return ();
             }
-            // Modify the last accessed time and return the cache if it is not expired.
-            entry.lastAccessedTime = time:currentTime().time;
-            return entry.value;
-        } else {
-            return ();
         }
     }
 
@@ -189,12 +192,15 @@ public type Cache object {
         // Iterate through the keys.
         foreach key in keys {
             CacheEntry? cacheEntry = self.entries[key];
-            if (cacheEntry is CacheEntry) {
-                // Check and add the key to the cacheKeysToBeRemoved if it matches the conditions.
-                checkAndAdd(numberOfKeysToEvict, cacheKeysToBeRemoved, timestamps, key, cacheEntry.lastAccessedTime);
-            } else {
-                // If the key is not found in the map, that means that the corresponding cache is already removed
-                // (possibly by a another worker).
+            match cacheEntry {
+                CacheEntry entry => {
+                    // Check and add the key to the cacheKeysToBeRemoved if it matches the conditions.
+                    checkAndAdd(numberOfKeysToEvict, cacheKeysToBeRemoved, timestamps, key, entry.lastAccessedTime);
+                }
+                () => {
+                    // If the key is not found in the map, that means that the corresponding cache is already removed
+                    // (possibly by a another worker).
+                }
             }
         }
         // Return the array.
