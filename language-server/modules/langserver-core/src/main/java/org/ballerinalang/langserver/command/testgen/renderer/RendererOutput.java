@@ -66,10 +66,10 @@ public interface RendererOutput {
     String getRenderedContent();
 
     /**
-     * Sets focus function name and consumer.
+     * Sets focus function name and acceptor.
      *
      * @param functionName focus function name
-     * @param consumer focus position consumer
+     * @param focusAcceptor focus position acceptor
      */
-    void setFocusLineAcceptor(String functionName, BiConsumer<Integer, Integer> consumer);
+    void setFocusLineAcceptor(String functionName, BiConsumer<Integer, Integer> focusAcceptor);
 }

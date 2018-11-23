@@ -55,7 +55,7 @@ public class BLangPkgBasedRendererOutput implements RendererOutput {
      * Returns a new FileTemplate.
      *
      * @param bLangPackage      content of the test file
-     * @param focusLineAcceptor focus line consumer
+     * @param focusLineAcceptor focus line acceptor
      */
     public BLangPkgBasedRendererOutput(BLangPackage bLangPackage, BiConsumer<Integer, Integer> focusLineAcceptor) {
         this.bLangPackageOfTestFile = bLangPackage;

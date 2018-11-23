@@ -178,17 +178,17 @@ public class TestGenerator {
         private String functionName;
         private String returnType;
 
-        public TestFunctionGenerator(BiConsumer<String, String> importsConsumer, PackageID currentPkgId,
+        public TestFunctionGenerator(BiConsumer<String, String> importsAcceptor, PackageID currentPkgId,
                                      BLangFunction function) {
             List<BLangSimpleVariable> params = function.requiredParams;
             List<BLangType> paramTypes = params.stream().map(variable -> variable.typeNode).collect(
                     Collectors.toList());
             List<String> paramNames = new ArrayList<>();
             params.forEach(variable -> paramNames.add(variable.name.value));
-            init(importsConsumer, currentPkgId, function.name.value, paramNames, paramTypes, function.returnTypeNode);
+            init(importsAcceptor, currentPkgId, function.name.value, paramNames, paramTypes, function.returnTypeNode);
         }
 
-        public TestFunctionGenerator(BiConsumer<String, String> importsConsumer, PackageID currentPkgId,
+        public TestFunctionGenerator(BiConsumer<String, String> importsAcceptor, PackageID currentPkgId,
                                      BLangFunctionTypeNode type) {
             List<BLangVariable> params = type.params;
             List<BLangType> paramTypes = params.stream().map(variable -> variable.typeNode).collect(
@@ -201,10 +201,10 @@ public class TestGenerator {
                     paramNames.add(null);
                 }
             });
-            init(importsConsumer, currentPkgId, "", paramNames, paramTypes, type.returnTypeNode);
+            init(importsAcceptor, currentPkgId, "", paramNames, paramTypes, type.returnTypeNode);
         }
 
-        public TestFunctionGenerator(BiConsumer<String, String> importsConsumer, PackageID currentPkgId,
+        public TestFunctionGenerator(BiConsumer<String, String> importsAcceptor, PackageID currentPkgId,
                                      BInvokableType invokableType) {
             this.functionName = "";
             List<BType> params = invokableType.paramTypes;
@@ -216,7 +216,7 @@ public class TestGenerator {
             // Populate target function's parameters
             Set<String> lookupSet = new HashSet<>();
             for (int i = 0; i < params.size(); i++) {
-                String paramType = generateTypeDefinition(importsConsumer, currentPkgId,
+                String paramType = generateTypeDefinition(importsAcceptor, currentPkgId,
                                                           params.get(i));
                 String paramName = CommonUtil.generateName(1, lookupSet);
                 lookupSet.add(paramName);
@@ -224,7 +224,7 @@ public class TestGenerator {
                 this.typeSpace[i] = paramType;
                 this.namesSpace[i] = paramName;
 
-                String[] pValueSpace = getValueSpaceByType(importsConsumer, currentPkgId, params.get(i),
+                String[] pValueSpace = getValueSpaceByType(importsAcceptor, currentPkgId, params.get(i),
                                                            createTemplateArray(VALUE_SPACE_LENGTH));
 
                 for (int j = 0; j < pValueSpace.length; j++) {
@@ -235,8 +235,8 @@ public class TestGenerator {
             }
 
             // Populate target function's return type
-            this.returnType = generateTypeDefinition(importsConsumer, currentPkgId, returnBType);
-            String[] rtValSpace = getValueSpaceByType(importsConsumer, currentPkgId, returnBType,
+            this.returnType = generateTypeDefinition(importsAcceptor, currentPkgId, returnBType);
+            String[] rtValSpace = getValueSpaceByType(importsAcceptor, currentPkgId, returnBType,
                                                       createTemplateArray(VALUE_SPACE_LENGTH));
 
             this.typeSpace[params.size()] = returnType;
@@ -247,7 +247,7 @@ public class TestGenerator {
             });
         }
 
-        private void init(BiConsumer<String, String> importsConsumer, PackageID currentPkgId,
+        private void init(BiConsumer<String, String> importsAcceptor, PackageID currentPkgId,
                           String functionName,
                           List<String> paramNames, List<BLangType> paramTypes, BLangType returnTypeNode) {
             this.functionName = functionName;
@@ -258,7 +258,7 @@ public class TestGenerator {
             // Populate target function's parameters
             Set<String> lookupSet = new HashSet<>();
             for (int i = 0; i < paramNames.size(); i++) {
-                String paramType = generateTypeDefinition(importsConsumer, currentPkgId,
+                String paramType = generateTypeDefinition(importsAcceptor, currentPkgId,
                                                           paramTypes.get(i));
                 String paramName = paramNames.get(i);
                 if (paramName == null) {
@@ -268,7 +268,7 @@ public class TestGenerator {
                 this.typeSpace[i] = paramType;
                 this.namesSpace[i] = paramName;
 
-                String[] pValueSpace = getValueSpaceByNode(importsConsumer, currentPkgId, paramTypes.get(i),
+                String[] pValueSpace = getValueSpaceByNode(importsAcceptor, currentPkgId, paramTypes.get(i),
                                                            createTemplateArray(VALUE_SPACE_LENGTH));
                 for (int j = 0; j < pValueSpace.length; j++) {
                     // Need to apply transpose of `pValueSpace`
@@ -279,9 +279,9 @@ public class TestGenerator {
             }
 
             // Populate target function's return type
-            this.returnType = generateTypeDefinition(importsConsumer, currentPkgId,
+            this.returnType = generateTypeDefinition(importsAcceptor, currentPkgId,
                                                      returnTypeNode);
-            String[] rtValSpace = getValueSpaceByNode(importsConsumer, currentPkgId, returnTypeNode,
+            String[] rtValSpace = getValueSpaceByNode(importsAcceptor, currentPkgId, returnTypeNode,
                                                       createTemplateArray(VALUE_SPACE_LENGTH));
 
             this.typeSpace[paramNames.size()] = returnType;
