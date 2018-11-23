@@ -20,6 +20,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -110,5 +111,25 @@ public class WaitForAnyActionsTest {
         BValue[] vals = BRunUtil.invoke(result, "waitTest10", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         Assert.assertTrue(Arrays.asList("77", "hello foo", "hello bar", "hello xyz").contains(vals[0].stringValue()));
+    }
+
+    @Test
+    public void waitTest11() {
+        BValue[] vals = BRunUtil.invoke(result, "waitTest11", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        Assert.assertEquals(vals[0].stringValue(), "hello foo");
+    }
+
+    @Test (expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = "error: err from panic \\{\\}.*")
+    public void waitTest12() {
+        BRunUtil.invoke(result, "waitTest12", new BValue[0]);
+    }
+
+    @Test
+    public void waitTest13() {
+        BValue[] vals = BRunUtil.invoke(result, "waitTest13", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        Assert.assertEquals("0", vals[0].stringValue());
     }
 }

@@ -46,10 +46,10 @@ function waitTest4() returns any {
     return result;
 }
 
-function waitTest5() returns map {
-    future<map> f9 = start getAddrMap();
-    future<map> f10 = start getEmpMap();
-    map m = wait f9 | f10;
+function waitTest5() returns map<string> {
+    future<map<string>> f9 = start getAddrMap();
+    future<map<string>> f10 = start getEmpMap();
+    map<string> m = wait f9 | f10;
     return m;
 }
 
@@ -92,6 +92,70 @@ function waitTest10() returns int|string|float {
     return result;
 }
 
+function waitTest11() returns int|string|float {
+    future<int> f1 = start add_panic1(88, 88);
+    future<int> f3 = start add_panic2(50, 100);
+    future<string> f4 = start concat("foo");
+    string|int result = wait f1 | f3 | f4;
+    return result;
+}
+
+function waitTest12() returns int {
+    future<int> f1 = start add_panic1(88, 88);
+    future<int> f3 = start add_panic2(50, 100);
+    future<int> f4 = start add_panic3(4, 3);
+    int result = wait f1 | f3 | f4;
+    return result;
+}
+
+function waitTest13() returns int {
+    future<int> f1 = start add_panic1(88, 88);
+    future<int> f3 = start add_panic2(50, 100);
+    var result = trap wait f1 | f3;
+    if (result is int) {
+        return result;
+    } else if (result is error) {
+        return 0;
+    } else {
+        return 1;
+    }
+}
+
+
+function add_panic1(int i, int j) returns int {
+    int k = i + j;
+    if (true) {
+        error err = error("err from panic" );
+        panic err;
+    }
+    return k;
+}
+
+function add_panic2(int i, int j) returns int {
+    int k = i + j;
+    int l = 0;
+    while (l < 9999999) {
+        l = l + 1;
+    }
+    if (true) {
+        error err = error("err from panic" );
+        panic err;
+    }
+    return k;
+}
+
+function add_panic3(int i, int j) returns int {
+    int k = i + j;
+    int l = 0;
+    while (l < 8888888) {
+        l = l + 1;
+    }
+    if (true) {
+        error err = error("err from panic" );
+        panic err;
+    }
+    return k;
+}
 //function waitTest11() returns any { // Needs to be tested out
 //    any result = 0;
 //    worker w1 {
@@ -137,13 +201,13 @@ function fuInt() returns future<int> {
     return i;
 }
 
-function getEmpMap() returns map {
-    map empMap = { fname: "foo", lname: "bar"};
+function getEmpMap() returns map<string> {
+    map<string> empMap = { fname: "foo", lname: "bar"};
     runtime:sleep(2000);
     return empMap;
 }
 
-function getAddrMap() returns map {
-    map addrMap = { line1: "No. 20", line2: "Palm Grove", city: "Colombo 03"};
+function getAddrMap() returns map<string> {
+    map<string> addrMap = { line1: "No. 20", line2: "Palm Grove", city: "Colombo 03"};
     return addrMap;
 }
