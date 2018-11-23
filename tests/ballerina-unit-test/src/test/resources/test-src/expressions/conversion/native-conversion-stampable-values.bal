@@ -40,7 +40,7 @@ function testConvertStampRecordToRecord() returns (Person, Employee) {
     return (p, e);
 }
 
-function testConvertStampRecordToJSON() returns (Employee, json) {
+function testConvertStampRecordToJSON() returns (Employee, json)|error {
     Employee e = { name: "Waruna", status: "married", batch: "Batch9", school: "DEF College" };
     json j = check json.create(e);
     e.name = "John";
@@ -48,9 +48,9 @@ function testConvertStampRecordToJSON() returns (Employee, json) {
     return (e, j);
 }
 
-function testConvertStampRecordToMap() returns (Employee, map) {
+function testConvertStampRecordToMap() returns (Employee, map)|error {
     Employee e = { name: "John", status: "single", batch: "Batch9", school: "ABC College" };
-    map<anydata> m = map<anydata>.create(e);
+    map<anydata> m = check map<anydata>.create(e);
     m["name"] = "Waruna";
     e.name = "Mike";
     return (e, m);
