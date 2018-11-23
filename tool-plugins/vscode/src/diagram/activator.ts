@@ -16,7 +16,7 @@
  * under the License.
  *
  */
-import { workspace, commands, window, Uri, ViewColumn, ExtensionContext, TextEditor, WebviewPanel, TextDocumentChangeEvent, Position, Range, Selection } from 'vscode';
+import { workspace, commands, window, Uri, ViewColumn, ExtensionContext, TextEditor, WebviewPanel, TextDocumentChangeEvent, Position, Range, Selection, Location } from 'vscode';
 import * as _ from 'lodash';
 import { render } from './renderer';
 import { BallerinaAST, ExtendedLangClient } from '../core/extended-language-client';
@@ -183,6 +183,17 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 			}
 		});
 	});
+
+    ballerinaExtInstance.onReady().then(() => {
+        langClient.onNotification('window/showTextDocument', (location: Location) => {
+            if (location.uri !== undefined) {
+                window.showTextDocument(Uri.parse(location.uri.toString()), {selection: location.range});
+            }
+        });
+    	})
+        .catch((e) => {
+            window.showErrorMessage('Could not start openFile capability listener', e.message);
+        });
 
 	context.subscriptions.push(diagramRenderDisposable);
 }

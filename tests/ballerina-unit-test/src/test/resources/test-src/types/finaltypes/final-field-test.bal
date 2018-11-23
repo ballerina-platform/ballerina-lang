@@ -1,7 +1,7 @@
 import org.bar;
 
-@final public int globalFinalInt = 10;
-@final public string globalFinalString = "hello";
+public final var globalFinalInt = 10;
+public final string globalFinalString = "hello";
 
 
 public function testFinalAccess() returns (int, int, int, int) {
@@ -33,7 +33,32 @@ function foo(int a) returns (int) {
     return i;
 }
 
-function bar(@final int a) returns (int) {
+function bar(int a) returns (int) {
     int i = a;
     return a;
+}
+
+
+function testLocalFinalValueWithType() returns string {
+    final string name = "Ballerina";
+    return name;
+}
+
+function testLocalFinalValueWithoutType() returns string {
+    final var name = "Ballerina";
+    return name;
+}
+
+function testLocalFinalValueWithTypeInitializedFromFunction() returns string {
+    final string name = getName();
+    return name;
+}
+
+function testLocalFinalValueWithoutTypeInitializedFromFunction() returns string {
+    final var name = getName();
+    return name;
+}
+
+function getName() returns string {
+    return "Ballerina";
 }

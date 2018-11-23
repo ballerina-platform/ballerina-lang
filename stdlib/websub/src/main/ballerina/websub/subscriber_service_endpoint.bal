@@ -30,12 +30,16 @@ public type Server object {
 
     public SubscriberServiceEndpointConfiguration config = {};
 
-    private http:Server serviceEndpoint;
+    private http:Server? serviceEndpoint = ();
 
     public function __init(SubscriberServiceEndpointConfiguration config) {
-        http:Listener httpEndpoint = new;
-        self.serviceEndpoint = httpEndpoint;
-        init(config);
+        self.init(config);
+    }
+
+    public function __attach(service s, map<any> data) returns error? {
+        // TODO: handle data and return error on error
+        self.registerWebSubSubscriberServiceEndpoint(s);
+        return;
     }
 
     # Gets called when the endpoint is being initialized during module initialization.
@@ -69,20 +73,24 @@ public type Server object {
 
 function Server.init(SubscriberServiceEndpointConfiguration c) {
     self.config = c;
-    http:ServiceEndpointConfiguration serviceConfig = {host: c.host, port: c.port,
-                                                       secureSocket: c.httpServiceSecureSocket};
+    http:ServiceEndpointConfiguration serviceConfig = {
+        host: c.host,
+        port: c.port,
+        secureSocket:
+        c.httpServiceSecureSocket
+    };
+    http:Server httpEndpoint = new(c.port, config = serviceConfig);
+    //httpEndpoint.init(serviceConfig);
+    self.serviceEndpoint = httpEndpoint;
 
-    self.serviceEndpoint.init(serviceConfig);
     self.initWebSubSubscriberServiceEndpoint();
 }
 
-function Server.__attach(service s, map<any> data) returns error? {
-    self.registerWebSubSubscriberServiceEndpoint(s, data);
-}
-
 function Server.__start() returns error? {
+    // TODO: handle data and return error on error
     self.startWebSubSubscriberServiceEndpoint();
     self.sendSubscriptionRequests();
+    return;
 }
 
 //function Listener.getCallerActions() returns http:Connection {
@@ -90,7 +98,7 @@ function Server.__start() returns error? {
 //}
 
 function Server.__stop() returns error? {
-    self.serviceEndpoint.stop();
+    return self.serviceEndpoint.__stop();
 }
 
 function Server.sendSubscriptionRequests() {
@@ -222,11 +230,12 @@ public type ExtensionConfig record {
 # + return - `(string, string)` (hub, topic) URLs if successful, `error` if not
 function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:SecureSocket? localSecureSocket,
                                 http:FollowRedirects? followRedirects) returns @tainted (string, string)|error {
-
-    http:ClientEndpointConfig resourceEPConfig = {url:resourceUrl, auth:auth, secureSocket: localSecureSocket,
-                                                  followRedirects:followRedirects};
-    http:Client resourceEP = new http:Client(resourceEPConfig);
-
+    http:Client resourceEP = new http:Client({
+        url: resourceUrl,
+        auth: auth,
+        secureSocket: localSecureSocket,
+        followRedirects:followRedirects
+    });
     http:Request request = new;
     var discoveryResponse = resourceEP->get("", message = request);
     error websubError = error("Dummy");
@@ -255,9 +264,12 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:
 # + subscriptionDetails - Map containing subscription details
 function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth, http:SecureSocket? localSecureSocket,
                                               http:FollowRedirects? followRedirects, map subscriptionDetails) {
-    HubClientEndpointConfig websubHubClientEPConfig =  {url:hub, clientSecureSocket: localSecureSocket, auth:auth,
-                                                        followRedirects:followRedirects};
-    Client websubHubClientEP = new Client(websubHubClientEPConfig);
+    Client websubHubClientEP = new Client({
+        url:hub,
+        clientSecureSocket: localSecureSocket,
+        auth:auth,
+        followRedirects:followRedirects
+    });
 
     string topic = <string>subscriptionDetails.topic;
     string callback = <string>subscriptionDetails.callback;

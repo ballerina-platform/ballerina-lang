@@ -811,7 +811,11 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangSimpleVariable varNode) {
         // assign the type to var type node
         if (varNode.type == null) {
-            varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
+            if (varNode.typeNode != null) {
+                varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
+            } else {
+                varNode.type = symTable.noType;
+            }
         }
 
         Name varName = names.fromIdNode(varNode.name);
@@ -821,18 +825,15 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
+        // Todo - Remove.
         //Check annotations attached to the variable
         if (varNode.annAttachments.size() > 0) {
-            if (hasAnnotation(varNode.annAttachments, Names.ANNOTATION_FINAL.getValue())) {
-                varNode.flagSet.add(Flag.FINAL);
-            }
             if (hasAnnotation(varNode.annAttachments, Names.ANNOTATION_READONLY.getValue())) {
                 varNode.flagSet.add(Flag.READONLY);
             }
         }
 
-        BVarSymbol varSymbol = defineVarSymbol(varNode.pos, varNode.flagSet,
-                varNode.type, varName, env);
+        BVarSymbol varSymbol = defineVarSymbol(varNode.pos, varNode.flagSet, varNode.type, varName, env);
         varSymbol.markdownDocumentation = getMarkdownDocAttachment(varNode.markdownDocumentationAttachment);
         varNode.symbol = varSymbol;
         if (varNode.symbol.type.tsymbol != null && Symbols.isFlagOn(varNode.symbol.type.tsymbol.flags, Flags.CLIENT)) {

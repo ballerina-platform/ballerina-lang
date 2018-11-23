@@ -289,6 +289,22 @@ public class JSONStampInbuiltFunctionTest {
         Assert.assertEquals(results[0].getType().getClass(), BAnydataType.class);
     }
 
+    @Test
+    public void testStampJSONArrayWithNullToAnydataArray() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampJSONArrayWithNullToAnydataArray");
+        Assert.assertEquals(results.length, 5);
+        Assert.assertEquals(results[0].stringValue(), "1");
+        Assert.assertEquals(results[0].getType().getClass(), BAnydataType.class);
+        Assert.assertEquals(results[1].stringValue(), "false");
+        Assert.assertEquals(results[1].getType().getClass(), BAnydataType.class);
+        Assert.assertEquals(results[2].stringValue(), "foo");
+        Assert.assertEquals(results[2].getType().getClass(), BAnydataType.class);
+        Assert.assertEquals(results[3], null);
+        Assert.assertEquals(((LinkedHashMap) ((BMap) results[4]).getMap()).size(), 2);
+        Assert.assertEquals(results[4].getType().getClass(), BAnydataType.class);
+    }
+
     //----------------------------------- Negative Test cases ----------------------------------------------------
 
     @Test
