@@ -53,14 +53,14 @@ public class WaitActionsNegativeTest {
         BAssertUtil.validateError(result, index, "incompatible types: expected 'future<int|boolean>', found 'future<string>'",
                                   48, 36);
         index++;
-        BAssertUtil.validateError(result, index, "incompatible types: expected 'future<map>', found 'future<int>'",
-                                  49, 24);
+        BAssertUtil.validateError(result, index, "incompatible types: expected 'future<map<int|boolean>>', found 'future<int>'",
+                                  49, 37);
         index++;
-        BAssertUtil.validateError(result, index, "incompatible types: expected 'future<map>', found 'future<string>'",
-                                  49, 28);
+        BAssertUtil.validateError(result, index, "incompatible types: expected 'future<map<int|boolean>>', found 'future<string>'",
+                                  49, 41);
         index++;
-        BAssertUtil.validateError(result, index, "incompatible types: expected 'future<map>', found 'future<boolean>'",
-                                  49, 31);
+        BAssertUtil.validateError(result, index, "incompatible types: expected 'future<map<int|boolean>>', found 'future<boolean>'",
+                                  49, 44);
         index++;
         BAssertUtil.validateError(result, index, "operator '|' cannot be applied to type 'future'",
                                   50, 29);
