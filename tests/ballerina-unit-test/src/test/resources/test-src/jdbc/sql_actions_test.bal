@@ -72,13 +72,13 @@ type Employee record {
 };
 
 function testInsertTableData() returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
     var result = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                          values ('James', 'Clerk', 3, 5000.75, 'USA')");
     int insertCount = getIntResult(result);
@@ -87,13 +87,13 @@ function testInsertTableData() returns (int) {
 }
 
 function testCreateTable() returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
     var result = testDB->update("CREATE TABLE IF NOT EXISTS Students(studentID int, LastName varchar(255))");
     int returnValue = getIntResult(result);
     testDB.stop();
@@ -101,13 +101,13 @@ function testCreateTable() returns (int) {
 }
 
 function testUpdateTableData() returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     var result = testDB->update("Update Customers set country = 'UK' where registrationID = 1");
     int updateCount = getIntResult(result);
@@ -116,13 +116,13 @@ function testUpdateTableData() returns (int) {
 }
 
 function testGeneratedKeyOnInsert() returns (string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     string returnVal = "";
 
@@ -142,13 +142,13 @@ function testGeneratedKeyOnInsert() returns (string) {
 }
 
 function testGeneratedKeyOnInsertEmptyResults() returns (int|string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     int|string returnVal = "";
 
@@ -169,13 +169,13 @@ function testGeneratedKeyOnInsertEmptyResults() returns (int|string) {
 
 
 function testGeneratedKeyWithColumn() returns (string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     int insertCount;
     string[] generatedID;
@@ -201,13 +201,13 @@ function testGeneratedKeyWithColumn() returns (string) {
 }
 
 function testSelectData() returns (string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ResultCustomers);
     string firstName = getTableFirstNameColumn(dt);
     testDB.stop();
@@ -215,13 +215,13 @@ function testSelectData() returns (string) {
 }
 
 function testSelectIntFloatData() returns (int, int, float, float) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     var dt = testDB->select("SELECT  int_type, long_type, float_type, double_type from DataTypeTable
         where row_id = 1", ResultDataType);
@@ -245,13 +245,13 @@ function testSelectIntFloatData() returns (int, int, float, float) {
 }
 
 function testCallProcedure() returns (string, string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 2 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 2 }
+        });
 
     string returnValue = "";
     var ret = testDB->call("{call InsertPersonData(100,'James')}", ());
@@ -270,13 +270,13 @@ function testCallProcedure() returns (string, string) {
 }
 
 function testCallProcedureWithResultSet() returns (string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     string firstName = "";
     var ret = testDB->call("{call SelectPersonData()}", [ResultCustomers]);
@@ -291,13 +291,13 @@ function testCallProcedureWithResultSet() returns (string) {
 }
 
 function testCallFunctionWithReturningRefcursor() returns (string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     sql:Parameter para1 = { sqlType: sql:TYPE_REFCURSOR, direction: sql:DIRECTION_OUT, recordType: ResultCustomers };
 
@@ -311,13 +311,13 @@ function testCallFunctionWithReturningRefcursor() returns (string) {
 }
 
 function testQueryParameters() returns (string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = ?", ResultCustomers, 1);
     string firstName = getTableFirstNameColumn(dt);
     testDB.stop();
@@ -325,13 +325,13 @@ function testQueryParameters() returns (string) {
 }
 
 function testQueryParameters2() returns (string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     sql:Parameter p1 = { sqlType: sql:TYPE_INTEGER, value: 1 };
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = ?", ResultCustomers, p1);
@@ -341,13 +341,13 @@ function testQueryParameters2() returns (string) {
 }
 
 function testInsertTableDataWithParameters() returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     string s1 = "Anne";
     sql:Parameter para1 = { sqlType: sql:TYPE_VARCHAR, value: s1, direction: sql:DIRECTION_IN };
@@ -364,13 +364,13 @@ function testInsertTableDataWithParameters() returns (int) {
 }
 
 function testInsertTableDataWithParameters2() returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     var result = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", "Anne", "James", 3, 5000.75, "UK");
@@ -380,13 +380,13 @@ function testInsertTableDataWithParameters2() returns (int) {
 }
 
 function testInsertTableDataWithParameters3() returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     string s1 = "Anne";
     var result = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
@@ -397,13 +397,13 @@ function testInsertTableDataWithParameters3() returns (int) {
 }
 
 function testArrayofQueryParameters() returns (string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     int[] intDataArray = [1, 4343];
     string[] stringDataArray = ["A", "B"];
@@ -422,13 +422,13 @@ function testArrayofQueryParameters() returns (string) {
 }
 
 function testBoolArrayofQueryParameters() returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     boolean accepted1 = false;
     boolean accepted2 = false;
@@ -456,13 +456,13 @@ function testBoolArrayofQueryParameters() returns (int) {
 }
 
 function testBlobArrayQueryParameter() returns int {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     var dt1 = testDB->select("SELECT blob_type from BlobTable where row_id = 7", ResultBlob);
     byte[] blobData = [];
@@ -494,13 +494,13 @@ function testBlobArrayQueryParameter() returns int {
 
 function testArrayInParameters() returns (int, int[], int[], float[],
             string[], boolean[], float[]) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     int[] intArray = [1];
     int[] longArray = [1503383034226, 1503383034224, 1503383034225];
@@ -548,13 +548,13 @@ function testArrayInParameters() returns (int, int[], int[], float[],
 
 function testOutParameters() returns (any, any, any, any, any, any, any,
             any, any, any, any, any, any) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     sql:Parameter paraID = { sqlType: sql:TYPE_INTEGER, value: "1" };
     sql:Parameter paraInt = { sqlType: sql:TYPE_INTEGER, direction: sql:DIRECTION_OUT };
@@ -583,13 +583,13 @@ function testOutParameters() returns (any, any, any, any, any, any, any,
 }
 
 function testBlobOutInOutParameters() returns (any, any) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     // OUT param
     sql:Parameter paraID1 = { sqlType: sql:TYPE_INTEGER, value: "1" };
@@ -608,13 +608,13 @@ function testBlobOutInOutParameters() returns (any, any) {
 
 function testNullOutParameters() returns (any, any, any, any, any, any,
             any, any, any, any, any, any, any) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     sql:Parameter paraID = { sqlType: sql:TYPE_INTEGER, value: "2" };
     sql:Parameter paraInt = { sqlType: sql:TYPE_INTEGER, direction: sql:DIRECTION_OUT };
@@ -641,13 +641,13 @@ function testNullOutParameters() returns (any, any, any, any, any, any,
 }
 
 function testNullOutInOutBlobParameters() returns (any, any) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     // OUT params
     sql:Parameter paraID1 = { sqlType: sql:TYPE_INTEGER, value: "2" };
@@ -663,13 +663,13 @@ function testNullOutInOutBlobParameters() returns (any, any) {
 }
 
 function testINParameters() returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     sql:Parameter paraID = { sqlType: sql:TYPE_INTEGER, value: 3 };
     sql:Parameter paraInt = { sqlType: sql:TYPE_INTEGER, value: 1 };
@@ -697,13 +697,13 @@ function testINParameters() returns (int) {
 }
 
 function testBlobInParameter() returns (int, byte[]) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     sql:Parameter paraID = { sqlType: sql:TYPE_INTEGER, value: 3 };
     sql:Parameter paraBlob = { sqlType: sql:TYPE_BLOB, value: "YmxvYiBkYXRh" };
@@ -728,13 +728,13 @@ function testBlobInParameter() returns (int, byte[]) {
 
 function testINParametersWithDirectValues() returns (int, int, float,
         float, boolean, string, float, float, float) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     var result = testDB->update("INSERT INTO DataTypeTable (row_id, int_type, long_type, float_type,
         double_type, boolean_type, string_type, numeric_type, decimal_type, real_type) VALUES (?,?,?,?,?,?,?,?,?,?)",
@@ -773,13 +773,13 @@ function testINParametersWithDirectValues() returns (int, int, float,
 
 function testINParametersWithDirectVariables() returns (int, int, float,
         float, boolean, string, float, float, float) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     int rowid = 26;
     int intType = 1;
@@ -830,13 +830,13 @@ function testINParametersWithDirectVariables() returns (int, int, float,
 }
 
 function testNullINParameterValues() returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     sql:Parameter paraID = { sqlType: sql:TYPE_INTEGER, value: 4 };
     sql:Parameter paraInt = { sqlType: sql:TYPE_INTEGER, value: () };
@@ -864,13 +864,13 @@ function testNullINParameterValues() returns (int) {
 }
 
 function testNullINParameterBlobValue() returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     sql:Parameter paraID = { sqlType: sql:TYPE_INTEGER, value: 4 };
     sql:Parameter paraBlob = { sqlType: sql:TYPE_BLOB, value: () };
@@ -884,13 +884,13 @@ function testNullINParameterBlobValue() returns (int) {
 
 function testINOutParameters() returns (any, any, any, any, any, any,
             any, any, any, any, any, any, any) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     sql:Parameter paraID = { sqlType: sql:TYPE_INTEGER, value: 5 };
     sql:Parameter paraInt = { sqlType: sql:TYPE_INTEGER, value: 10, direction: sql:DIRECTION_INOUT };
@@ -920,13 +920,13 @@ function testINOutParameters() returns (any, any, any, any, any, any,
 
 function testNullINOutParameters() returns (any, any, any, any, any, any
             , any, any, any, any, any, any, any) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     sql:Parameter paraID = { sqlType: sql:TYPE_INTEGER, value: "6" };
     sql:Parameter paraInt = { sqlType: sql:TYPE_INTEGER, direction: sql:DIRECTION_INOUT };
@@ -953,13 +953,13 @@ function testNullINOutParameters() returns (any, any, any, any, any, any
 }
 
 function testEmptySQLType() returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
     var result = testDB->update("Insert into Customers (firstName) values (?)", "Anne");
     int insertCount = getIntResult(result);
     testDB.stop();
@@ -968,13 +968,13 @@ function testEmptySQLType() returns (int) {
 
 function testArrayOutParameters() returns (any, any, any, any, any, any)
 {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     string firstName;
     sql:Parameter para1 = { sqlType: sql:TYPE_ARRAY, direction: sql:DIRECTION_OUT };
@@ -990,13 +990,13 @@ function testArrayOutParameters() returns (any, any, any, any, any, any)
 
 function testArrayInOutParameters() returns (any, any, any, any, any,
             any, any) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     int[] intArray1 = [10,20,30];
     int[] intArray2 = [10000000, 20000000, 30000000];
@@ -1025,13 +1025,13 @@ function testArrayInOutParameters() returns (any, any, any, any, any,
 }
 
 function testBatchUpdate() returns (int[]) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     //Batch 1
     sql:Parameter para1 = { sqlType: sql:TYPE_VARCHAR, value: "Alex" };
@@ -1059,13 +1059,13 @@ function testBatchUpdate() returns (int[]) {
 type myBatchType string|int|float;
 
 function testBatchUpdateWithValues() returns int[] {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     //Batch 1
     myBatchType[] parameters1 = ["Alex", "Smith", 20, 3400.5, "Colombo"];
@@ -1081,13 +1081,13 @@ function testBatchUpdateWithValues() returns int[] {
 }
 
 function testBatchUpdateWithVariables() returns int[] {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     //Batch 1
     string firstName1 = "Alex";
@@ -1109,13 +1109,13 @@ function testBatchUpdateWithVariables() returns int[] {
 }
 
 function testBatchUpdateWithFailure() returns (int[], int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     //Batch 1
     sql:Parameter para0 = { sqlType: sql:TYPE_INTEGER, value: 111 };
@@ -1164,13 +1164,13 @@ function testBatchUpdateWithFailure() returns (int[], int) {
 }
 
 function testBatchUpdateWithNullParam() returns (int[]) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     var ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                      values ('Alex','Smith',20,3400.5,'Colombo')");
@@ -1180,13 +1180,13 @@ function testBatchUpdateWithNullParam() returns (int[]) {
 }
 
 function testDateTimeInParameters() returns (int[]) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     string stmt =
     "Insert into DateTimeTypes(row_id,date_type,time_type,datetime_type,timestamp_type) values (?,?,?,?,?)";
@@ -1229,13 +1229,13 @@ function testDateTimeInParameters() returns (int[]) {
 }
 
 function testDateTimeNullInValues() returns (string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     sql:Parameter para0 = { sqlType: sql:TYPE_INTEGER, value: 33 };
     sql:Parameter para1 = { sqlType: sql:TYPE_DATE, value: () };
@@ -1256,13 +1256,13 @@ function testDateTimeNullInValues() returns (string) {
 }
 
 function testDateTimeNullOutValues() returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     sql:Parameter para1 = { sqlType: sql:TYPE_INTEGER, value: 123 };
     sql:Parameter para2 = { sqlType: sql:TYPE_DATE, value: () };
@@ -1285,13 +1285,13 @@ function testDateTimeNullOutValues() returns (int) {
 }
 
 function testDateTimeNullInOutValues() returns (any, any, any, any) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     sql:Parameter para1 = { sqlType: sql:TYPE_INTEGER, value: 124 };
     sql:Parameter para2 = { sqlType: sql:TYPE_DATE, value: null, direction: sql:DIRECTION_INOUT };
@@ -1306,13 +1306,13 @@ function testDateTimeNullInOutValues() returns (any, any, any, any) {
 
 function testDateTimeOutParams(int time, int date, int timestamp)
              returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     sql:Parameter para1 = { sqlType: sql:TYPE_INTEGER, value: 10 };
     sql:Parameter para2 = { sqlType: sql:TYPE_DATE, value: date };
@@ -1337,13 +1337,13 @@ function testDateTimeOutParams(int time, int date, int timestamp)
 }
 
 function testStructOutParameters() returns (any) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     sql:Parameter para1 = { sqlType: sql:TYPE_STRUCT, direction: sql:DIRECTION_OUT };
     _ = testDB->call("{call TestStructOut(?)}", (), para1);
@@ -1353,13 +1353,13 @@ function testStructOutParameters() returns (any) {
 
 function testComplexTypeRetrieval() returns (string, string, string,
             string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     string s1;
     string s2;
@@ -1388,13 +1388,13 @@ function testComplexTypeRetrieval() returns (string, string, string,
 
 function testSelectLoadToMemory() returns (CustomerFullName[],
             CustomerFullName[], CustomerFullName[]) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     var dt = testDB->select(
         "SELECT firstName, lastName from Customers where registrationID < 3", CustomerFullName , loadToMemory = true);
@@ -1426,13 +1426,13 @@ function testSelectLoadToMemory() returns (CustomerFullName[],
 
 function testLoadToMemorySelectAfterTableClose() returns (
             CustomerFullName[], CustomerFullName[], error?) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     var dt = testDB->select(
         "SELECT firstName, lastName from Customers where registrationID < 3", CustomerFullName, loadToMemory = true);
@@ -1470,40 +1470,14 @@ function iterateTableAndReturnResultArray(table<CustomerFullName> dt) returns Cu
 
 function testCloseConnectionPool(string connectionCountQuery)
              returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
     var dt = testDB->select(connectionCountQuery, ResultCount);
-    int count = getTableCountValColumn(dt);
-    testDB.stop();
-    return count;
-}
-
-function testReInitEndpoint(string validationQuery)
-             returns int {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
-
-    testDB.stop();
-
-    h2:ClientEndpointConfiguration config =  {
-        path: "./target/H2Client2/",
-        name: "TEST_SQL_CONNECTOR_H2_2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
-    testDB.init(config);
-    var dt = testDB->select(validationQuery, ResultCount);
     int count = getTableCountValColumn(dt);
     testDB.stop();
     return count;

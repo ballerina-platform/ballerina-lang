@@ -16,8 +16,8 @@
 
 # Represents the WebSocket client service.
 public type WebSocketService object {
-    public function getEndpoint() returns WebSocketListener {
-        WebSocketListener ep = new;
+    public function getEndpoint() returns WebSocketCaller {
+        WebSocketCaller ep = new;
         return ep;
     }
 };

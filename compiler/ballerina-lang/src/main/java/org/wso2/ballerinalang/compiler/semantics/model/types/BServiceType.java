@@ -18,27 +18,25 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.ServiceType;
 import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
- * {@code {@link BStructType}} represents the type of a service in Ballerina.
+ * {@code {@link BServiceType}} represents the type of a service in Ballerina.
  *
  * @since 0.965.0
  */
-public class BServiceType extends BType implements ServiceType {
+public class BServiceType extends BBuiltInRefType implements ServiceType {
 
-//    TODO : Fix me.
-//    public BType endpointType;
+    public BType constraint;
 
-    public BServiceType(BTypeSymbol tsymbol) {
-        super(TypeTags.SERVICE, tsymbol);
+    public BServiceType(BType objectType) {
+        super(TypeTags.SERVICE, null);
+        this.constraint = objectType;
     }
 
     public String getDesc() {
-        return TypeDescriptor.SIG_SERVICE + getQualifiedTypeName() + ";";
+        return TypeDescriptor.SIG_SERVICE + constraint.getDesc();
     }
 
     @Override
@@ -53,6 +51,6 @@ public class BServiceType extends BType implements ServiceType {
 
     @Override
     public String toString() {
-        return Names.DEFAULT_PACKAGE.equals(tsymbol.pkgID.name) ? tsymbol.name.value : getQualifiedTypeName();
+        return TypeKind.SERVICE.typeName();
     }
 }

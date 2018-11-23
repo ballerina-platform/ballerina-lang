@@ -64,7 +64,7 @@ type Employee object {
     public string name = "";
     public int age = 0;
     public string address = "";
-    public any ageAny = 0;
+    public any ageAny = ();
 };
 
 # Test Connector

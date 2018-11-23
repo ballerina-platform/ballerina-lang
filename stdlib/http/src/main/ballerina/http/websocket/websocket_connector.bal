@@ -16,7 +16,7 @@
 
 import ballerina/internal;
 
-# Represents a WebSocket connector in ballerina. This include all connector oriented operations.
+# Represents a WebSocket connector in ballerina. This include all connection oriented operations.
 public type WebSocketConnector object {
     private boolean isReady = false;
 

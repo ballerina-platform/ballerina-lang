@@ -6,7 +6,7 @@ function testIncompatibleTypeAssign () {
 function testAssignCountMismatch1 () returns (int, string, int) {
     int a;
     string name;
-    int b;
+    int b = 0;
 
     (a, name) = testMultiReturnValid();
     return (a, name, b);

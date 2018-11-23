@@ -3,7 +3,7 @@ final float ^"const IL" = 88.90;
 
 string ^"global var" = "this is a IL with global var";
 
-json ^"global json";
+json ^"global json" = {};
 
 function getGlobalVarWithIL() returns (string) {
     return ^"global var";

@@ -142,4 +142,12 @@ public class TypeGuardTest {
         Assert.assertEquals(returns[0].stringValue(), "1st round: x is boolean and y is boolean: false | " +
                 "2nd round: x is boolean and y is boolean: false");
     }
+
+    @Test
+    public void testTypeGuardInElse_5() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeGuardInElse_5");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "x is int: 5");
+    }
 }

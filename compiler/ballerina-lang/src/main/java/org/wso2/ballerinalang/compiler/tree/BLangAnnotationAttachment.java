@@ -25,6 +25,9 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * @since 0.94
  */
@@ -32,11 +35,12 @@ public class BLangAnnotationAttachment extends BLangNode implements AnnotationAt
 
     public BLangExpression expr;
     public BLangIdentifier annotationName;
-    public AttachPoint attachPoint;
+    public Set<AttachPoint> attachPoints;
     public BLangIdentifier pkgAlias;
     public BAnnotationSymbol annotationSymbol;
 
     public BLangAnnotationAttachment() {
+        attachPoints = new HashSet<>();
     }
 
     @Override

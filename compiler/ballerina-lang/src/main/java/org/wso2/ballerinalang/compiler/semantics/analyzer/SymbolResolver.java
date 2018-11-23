@@ -30,7 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -217,7 +217,6 @@ public class SymbolResolver extends BLangNodeVisitor {
                 || foundSym.getKind() != SymbolKind.XMLNS
                 // Check for redeclared variables in function, object-function, resource parameters.
                 || foundSym.owner.tag == SymTag.FUNCTION
-                || (foundSym.owner.tag == SymTag.SERVICE && foundSym.getKind() != SymbolKind.XMLNS)
                 || foundSym.owner.tag == SymTag.OBJECT) {
             // Found symbol is a global definition but not a xmlns, or it is a variable symbol, it is an redeclared
             // symbol.
@@ -419,7 +418,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (lhsType.tag == TypeTags.NIL &&
                 (rhsType.tag == TypeTags.OBJECT ||
                         rhsType.tag == TypeTags.RECORD ||
-                        rhsType.tag == TypeTags.ENDPOINT ||
                         rhsType.tag == TypeTags.INVOKABLE)) {
             BInvokableType opType = new BInvokableType(Lists.of(lhsType, rhsType), symTable.booleanType, null);
             return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
@@ -427,7 +425,6 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         if ((lhsType.tag == TypeTags.OBJECT ||
                 lhsType.tag == TypeTags.RECORD ||
-                lhsType.tag == TypeTags.ENDPOINT ||
                 lhsType.tag == TypeTags.INVOKABLE)
                 && rhsType.tag == TypeTags.NIL) {
             BInvokableType opType = new BInvokableType(Lists.of(lhsType, rhsType), symTable.booleanType, null);
@@ -507,6 +504,11 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     public BSymbol resolveObjectField(DiagnosticPos pos, SymbolEnv env, Name fieldName, BTypeSymbol objectSymbol) {
         return lookupMemberSymbol(pos, objectSymbol.scope, env, fieldName, SymTag.VARIABLE);
+    }
+
+    public BSymbol resolveObjectMethod(DiagnosticPos pos, SymbolEnv env, Name fieldName,
+                                       BObjectTypeSymbol objectSymbol) {
+        return lookupMemberSymbol(pos, objectSymbol.methodScope, env, fieldName, SymTag.VARIABLE);
     }
 
     public BType resolveTypeNode(BLangType typeNode, SymbolEnv env) {
@@ -675,29 +677,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         return symTable.notFoundSymbol;
-    }
-
-    /**
-     * Method to get all the action symbols of a connector.
-     *
-     * @param scope connector scope to search.
-     * @return action list.
-     */
-    public List<BInvokableSymbol> getConnectorActionSymbols(Scope scope) {
-        List<BInvokableSymbol> actions = new ArrayList<>();
-        scope.entries.values().forEach(entry -> {
-            while (entry != NOT_FOUND_ENTRY) {
-                if ((entry.symbol.tag & SymTag.ACTION) != SymTag.ACTION) {
-                    entry = entry.next;
-                    continue;
-                }
-
-                actions.add((BInvokableSymbol) entry.symbol);
-                break;
-            }
-        });
-
-        return actions;
     }
 
     /**
@@ -915,9 +894,6 @@ public class SymbolResolver extends BLangNodeVisitor {
             return;
         }
 
-        if (symbol.kind == SymbolKind.CONNECTOR) {
-            userDefinedTypeNode.flagSet = EnumSet.of(Flag.CONNECTOR);
-        }
         resultType = symbol.type;
     }
 

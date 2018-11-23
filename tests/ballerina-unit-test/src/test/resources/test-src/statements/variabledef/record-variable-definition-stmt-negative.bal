@@ -20,7 +20,7 @@ type Age record {
 };
 
 type Person record {
-    string name;
+    string name = "";
     boolean married;
 };
 
@@ -103,7 +103,7 @@ function testVariableAssignment2() {
 type UnionOne record {
     boolean var1;
     int var2;
-    float var3;
+    float var3 = 0;
 };
 
 type UnionTwo record {

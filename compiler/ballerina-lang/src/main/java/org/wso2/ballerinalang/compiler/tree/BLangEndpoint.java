@@ -36,6 +36,7 @@ import java.util.Set;
  *
  * @since 0.965.0
  */
+@Deprecated
 public class BLangEndpoint extends BLangNode implements EndpointNode {
 
     public BLangIdentifier name;

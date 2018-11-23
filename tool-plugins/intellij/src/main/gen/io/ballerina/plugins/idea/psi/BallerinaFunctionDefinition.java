@@ -39,7 +39,7 @@ public interface BallerinaFunctionDefinition extends BallerinaNamedElement, Ball
   BallerinaTypeName getTypeName();
 
   @Nullable
-  PsiElement getDoubleColon();
+  PsiElement getDot();
 
   @Nullable
   PsiElement getSemicolon();

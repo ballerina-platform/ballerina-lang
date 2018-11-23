@@ -23,6 +23,7 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -47,9 +48,10 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "register",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Server",
                 structPackage = "ballerina/http"),
-        args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC)},
+        args = {@Argument(name = "serviceType", type = TypeKind.SERVICE),
+                @Argument(name = "annotationData", type = TypeKind.MAP)},
         isPublic = true
 )
 public class Register extends AbstractHttpNativeFunction {

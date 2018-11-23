@@ -19,30 +19,26 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.Names;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * {@link BServiceSymbol} represents a service symbol in a scope.
  *
- * @since 0.965.0
+ * @since 0.985.0
  */
-public class BServiceSymbol extends BTypeSymbol {
+public class BServiceSymbol extends BVarSymbol {
 
-    public List<BEndpointVarSymbol> boundEndpoints = new ArrayList<>();
+    public BObjectTypeSymbol objectType;
 
-    public BServiceSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
-        super(SymTag.SERVICE, flags, name, pkgID, type, owner);
+    public BServiceSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner, BObjectTypeSymbol obtype) {
+        super(flags, name, pkgID, type, owner);
+        this.tag = SymTag.SERVICE;
+        this.objectType = obtype;
     }
 
+    // Todo - This is a temporary fix for URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD checkstyle issue. Need to remove this
+    // ones the issue is fixed.
     @Override
-    public BServiceSymbol createLabelSymbol() {
-        BServiceSymbol copy = Symbols
-                .createServiceSymbol(flags, Names.EMPTY, pkgID, type, owner);
-        copy.boundEndpoints = boundEndpoints;
-        copy.isLabel = true;
-        return copy;
+    public String toString() {
+        return super.toString() + objectType.toString();
     }
 }

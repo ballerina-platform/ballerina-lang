@@ -234,7 +234,10 @@ public type Person object {
     public string name;
     public string address = "";
 
-    public new (name, age) {}
+    public function __init(string name, int age) {
+        self.age = age;
+        self.name = name;
+    }
 
     public function getName() returns (string) {
         return self.name;
@@ -254,7 +257,10 @@ public type SameAsPerson object {
     public string name;
     public string address = "";
 
-    public new (name, age) {}
+    public function __init(string name, int age) {
+        self.age = age;
+        self.name = name;
+    }
 
     public function getName() returns (string) {
         return self.name;
@@ -305,7 +311,10 @@ public type PersonInOrder object {
     public string name;
     public string address = "";
 
-    public new (name, age) {}
+    public function __init(string name, int age) {
+        self.age = age;
+        self.name = name;
+    }
 
     public function getName() returns (string) {
         return self.name;
@@ -332,7 +341,10 @@ public type PersonNotInOrder object {
         return self.age;
     }
 
-    public new (name, age) {}
+    public function __init(string name, int age) {
+        self.age = age;
+        self.name = name;
+    }
 
     public string name;
 
@@ -388,7 +400,12 @@ public type C4 object {
     *B4;
     public boolean s;
     
-    public new (p, q, r, s) {}
+    public function __init(int p, string q, float r, boolean s) {
+        self.p = p;
+        self.q = q;
+        self.r = r;
+        self.s = s;
+    }
 };
 
 function testPublicObjectEquivalency() returns (string, string, string) {
@@ -426,7 +443,12 @@ type C5 object {
     *B5;
     boolean s;
     
-    new (p, q, r, s) {}
+    public function __init(int p, string q, float r, boolean s) {
+        self.p = p;
+        self.q = q;
+        self.r = r;
+        self.s = s;
+    }
 };
 
 function testPrivateObjectEquivalency() returns (string, string, string) {

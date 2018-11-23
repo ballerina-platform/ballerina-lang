@@ -47,7 +47,7 @@ function anyMethodParameter() returns (any) {
   return anyParam(i);
 }
 
-function anyParam(any val) returns (int) {
+function anyParam(any val) returns int|error {
   int m;
   m = check <int>val;
   return m;
@@ -66,7 +66,7 @@ type Sample record {
 };
 
 
-function successfulIntCasting() returns (int) {
+function successfulIntCasting() returns int|error {
   any abc = floatReturn();
   float floatVal;
   floatVal = check <float>abc;

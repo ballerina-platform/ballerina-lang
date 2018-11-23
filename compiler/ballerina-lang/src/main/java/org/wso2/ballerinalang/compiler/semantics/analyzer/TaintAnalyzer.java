@@ -35,7 +35,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -96,6 +95,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
@@ -355,11 +355,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangService serviceNode) {
-        BSymbol serviceSymbol = serviceNode.symbol;
-        SymbolEnv serviceEnv = SymbolEnv.createPkgLevelSymbolEnv(serviceNode, serviceSymbol.scope, env);
-        serviceNode.vars.forEach(var -> analyzeNode(var, serviceEnv));
-        analyzeNode(serviceNode.initFunction, serviceEnv);
-        serviceNode.resources.forEach(resource -> analyzeNode(resource, serviceEnv));
     }
 
     @Override
@@ -368,13 +363,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceSymbol.scope, env);
         visitEntryPoint(resourceNode, resourceEnv);
         resourceNode.symbol.taintTable = new HashMap<>();
-    }
-
-    @Override
-    public void visit(BLangAction actionNode) {
-        BSymbol actionSymbol = actionNode.symbol;
-        SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, env);
-        visitInvokable(actionNode, actionEnv);
     }
 
     @Override
@@ -1005,6 +993,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 invocationExpr.expr.accept(this);
                 break;
             case STAMP:
+            case CALL:
                 invocationExpr.argExprs.forEach(expression -> expression.accept(this));
                 break;
             case REASON:
@@ -1304,6 +1293,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
         // TODO: Fix me.
+    }
+
+    @Override
+    public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
     }
 
     @Override
@@ -1782,7 +1775,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     private void analyzeReturnTaintedStatus(BLangInvokableNode invokableNode, SymbolEnv symbolEnv) {
         ignoredInvokableSymbol = null;
-        invokableNode.endpoints.forEach(endpoint -> endpoint.accept(this));
         if (invokableNode.workers.isEmpty()) {
             analyzeNode(invokableNode.body, symbolEnv);
         } else {
@@ -1800,7 +1792,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         boolean recurse = false;
         for (BLangWorker worker : workers) {
             blockedOnWorkerInteraction = false;
-            worker.endpoints.forEach(endpoint -> endpoint.accept(this));
             worker.accept(this);
             if (this.blockedNode != null || taintErrorSet.size() > 0) {
                 return;

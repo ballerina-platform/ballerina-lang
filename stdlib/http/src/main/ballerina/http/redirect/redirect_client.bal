@@ -28,12 +28,12 @@ import ballerina/config;
 # + redirectConfig - Configurations associated with redirect
 # + httpClient - HTTP client for outbound HTTP requests
 # + currentRedirectCount - Current redirect count of the HTTP client
-public type RedirectClient object {
+public type RedirectClient client object {
 
     public string serviceUri;
     public ClientEndpointConfig config;
     public FollowRedirects redirectConfig;
-    public CallerActions httpClient;
+    public Client httpClient;
     public int currentRedirectCount = 0;
 
     # Create a redirect client with the given configurations.
@@ -42,11 +42,9 @@ public type RedirectClient object {
     # + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
     # + redirectConfig - Configurations associated with redirect
     # + httpClient - HTTP client for outbound HTTP requests
-    public new(serviceUri, config, redirectConfig, httpClient) {
-        self.serviceUri = serviceUri;
-        self.config = config;
-        self.redirectConfig = redirectConfig;
-        self.httpClient = httpClient;
+    public function __init(string serviceUri, ClientEndpointConfig config,
+                           FollowRedirects redirectConfig, Client httpClient) {
+        self.httpClient = createSimpleHttpClient(serviceUri, config);
     }
 
     # If the received response for the `get()` action is redirect eligible, redirect will be performed automatically
@@ -106,8 +104,8 @@ public type RedirectClient object {
     # + path - Resource path
     # + request - An HTTP inbound request message
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public function forward(string path, Request request) returns Response|error {
-        return self.httpClient.forward(path, request);
+    public remote function forward(string path, Request request) returns Response|error {
+        return self.httpClient->forward(path, request);
     }
 
     # The `execute()` sends an HTTP request to a service with the specified HTTP verb. Redirect will be performed
@@ -117,12 +115,12 @@ public type RedirectClient object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public function execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+    public remote function execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message) returns Response|error {
         Request request = buildRequest(message);
         //Redirection is performed only for HTTP methods
         if (HTTP_NONE == extractHttpOperation(httpVerb)) {
-            return self.httpClient.execute(httpVerb, path, request);
+            return self.httpClient->execute(httpVerb, path, request);
         } else {
             return performRedirectIfEligible(self, path, request, extractHttpOperation(httpVerb));
         }
@@ -176,10 +174,10 @@ public type RedirectClient object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
-    public function submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+    public remote function submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                 message) returns HttpFuture|error {
         Request request = buildRequest(message);
-        return self.httpClient.submit(httpVerb, path, request);
+        return self.httpClient->submit(httpVerb, path, request);
     }
 
     # Retrieves the `Response` for a previously submitted request.
@@ -187,7 +185,7 @@ public type RedirectClient object {
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - An HTTP response message, or an error if the invocation fails
     public function getResponse(HttpFuture httpFuture) returns Response|error {
-        return self.httpClient.getResponse(httpFuture);
+        return self.httpClient->getResponse(httpFuture);
     }
 
     # Checks whether a `PushPromise` exists for a previously submitted request.
@@ -195,7 +193,7 @@ public type RedirectClient object {
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - A `boolean` that represents whether a `PushPromise` exists
     public function hasPromise(HttpFuture httpFuture) returns (boolean) {
-        return self.httpClient.hasPromise(httpFuture);
+        return self.httpClient->hasPromise(httpFuture);
     }
 
     # Retrieves the next available `PushPromise` for a previously submitted request.
@@ -203,7 +201,7 @@ public type RedirectClient object {
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - An HTTP Push Promise message, or an error if the invocation fails
     public function getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
-        return self.httpClient.getNextPromise(httpFuture);
+        return self.httpClient->getNextPromise(httpFuture);
     }
 
     # Retrieves the promised server push `Response` message.
@@ -211,7 +209,7 @@ public type RedirectClient object {
     # + promise - The related `PushPromise`
     # + return - A promised HTTP `Response` message, or an error if the invocation fails
     public function getPromisedResponse(PushPromise promise) returns Response|error {
-        return self.httpClient.getPromisedResponse(promise);
+        return self.httpClient->getPromisedResponse(promise);
     }
 
     # Rejects a `PushPromise`.
@@ -219,7 +217,7 @@ public type RedirectClient object {
     #
     # + promise - The Push Promise to be rejected
     public function rejectPromise(PushPromise promise) {
-        self.httpClient.rejectPromise(promise);
+        self.httpClient->rejectPromise(promise);
     }
 };
 
@@ -305,14 +303,17 @@ function redirect(Response response, HttpOperation httpVerb, Request request, Re
 
 function performRedirection(string location, RedirectClient redirectClient, HttpOperation redirectMethod,
                                        Request request, Response response) returns @untainted Response|error {
-    log:printDebug(function() returns string {
-        return "Redirect using new clientEP : " + location;
-    });
-    CallerActions newCallerAction = createRetryClient(location,
-        createNewEndpoint(location, redirectClient.config));
-    Response|error result = invokeEndpoint("", createRedirectRequest(response.statusCode, request),
-        redirectMethod, newCallerAction);
-    return checkRedirectEligibility(result, location, redirectMethod, request, redirectClient);
+    var retryClient = createRetryClient(location, createNewEndpoint(location, redirectClient.config));
+    if (retryClient is Client) {
+        log:printDebug(function() returns string {
+                return "Redirect using new clientEP : " + location;
+            });
+        Response|error result = invokeEndpoint("", createRedirectRequest(response.statusCode, request),
+            redirectMethod, retryClient);
+        return checkRedirectEligibility(result, location, redirectMethod, request, redirectClient);
+    } else {
+        return retryClient;
+    }
 }
 
 //Create a new HTTP client endpoint configuration with a given location as the url.

@@ -21,5 +21,5 @@ package org.ballerinalang.model.types;
  *
  * @since 0.965.0
  */
-public interface ServiceType extends ReferenceType {
+public interface ServiceType extends ObjectType {
 }

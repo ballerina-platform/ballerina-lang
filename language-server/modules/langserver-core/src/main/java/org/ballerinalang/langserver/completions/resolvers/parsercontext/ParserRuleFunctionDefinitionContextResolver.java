@@ -72,7 +72,7 @@ public class ParserRuleFunctionDefinitionContextResolver extends AbstractItemRes
                 .map(Token::getText)
                 .collect(Collectors.toList());
         if (!consumedTokens.get(0).equals(UtilSymbolKeys.FUNCTION_KEYWORD_KEY)
-                && !CommonUtil.getLastItem(consumedTokens).equals("::")) {
+                || !CommonUtil.getLastItem(consumedTokens).equals(".")) {
             return completionItems;
         }
 

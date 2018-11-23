@@ -53,16 +53,13 @@ final string hubDatabasePassword = config:getAsString("b7a.websub.hub.db.passwor
 
 # Function to bind and start the Ballerina WebSub Hub service.
 #
-# + return - The `http:Listener` to which the service is bound
-function startHubService() returns http:Listener {
-    http:Listener hubServiceEP = new;
-    hubServiceEP.init({
-            host: hubHost,
-            port: hubPort,
-            secureSocket: hubServiceSecureSocket
-    });
-    hubServiceEP.register(hubService);
-    hubServiceEP.start();
+# + return - The `http:Server` to which the service is bound
+function startHubService() returns http:Server {
+    http:ServiceEndpointConfiguration httpEpConfig = {host: hubHost, port: hubPort,
+                                                      secureSocket: hubServiceSecureSocket};
+    http:Server hubServiceEP = new http:Server(httpEpConfig);
+    hubServiceEP.__attach(hubService, {});
+    hubServiceEP.__start();
     return hubServiceEP;
 }
 
