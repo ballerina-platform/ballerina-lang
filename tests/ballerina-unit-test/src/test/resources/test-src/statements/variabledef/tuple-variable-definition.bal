@@ -60,26 +60,33 @@ function testTupleBindingWithRecordsAndObjects2() returns (string, string, int, 
 
 
 type Foo record {
-    string name;
-    int age;
+    string name = "";
+    int age = 0;
 };
 
 type Bar record {
-    int id;
-    boolean flag;
+    int id = 0;
+    boolean flag = false;
 };
 
 type FooObj object {
-    public string s;
-    public float f;
-    public byte b;
-    public new(s, f, b){}
+    public string s = "";
+    public float f = 0.0;
+    public byte b = 0;
+    public function __init(string s, float f, byte b) {
+        self.s = s;
+        self.f = f;
+        self.b = b;
+    }
 };
 
 type BarObj object {
-    public boolean b;
-    public int i;
-    public new(b, i){}
+    public boolean b = false;
+    public int i = 0;
+    public function __init(boolean b, int i) {
+        self.b = b;
+        self.i = i;
+    }
 };
 
 function testRecordInsideTuple() returns (string, int, boolean) {
