@@ -112,7 +112,7 @@ function MediaType.toString() returns (string) {
     }
     int index = 0;
     while (index < size) {
-        string value = self.parameters[arrKeys[index]] but { () => "" };
+        string value = self.parameters[arrKeys[index]] ?: "";
         if (index == size - 1) {
             contentType = contentType + arrKeys[index] + "=" + value;
             break;

@@ -1249,6 +1249,7 @@ public class PackageInfoReader {
                 case InstructionCodes.DETAIL:
                 case InstructionCodes.FREEZE:
                 case InstructionCodes.IS_FROZEN:
+                case InstructionCodes.CLONE:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
