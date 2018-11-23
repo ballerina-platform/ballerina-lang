@@ -575,7 +575,7 @@ public class PackageInfoReader {
                 int resNameCPIndex = dataInStream.readInt();
                 UTF8CPEntry resNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(resNameCPIndex);
                 String resName = resNameUTF8Entry.getValue();
-                serviceInfo.addResourceInfo(resName, packageInfo.getFunctionInfo(resName));
+                serviceInfo.addResourceInfo(resName);
             }
         }
     }
