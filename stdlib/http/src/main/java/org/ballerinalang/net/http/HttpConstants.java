@@ -155,6 +155,7 @@ public class HttpConstants {
     public static final String PACKAGE_BALLERINA_BUILTIN = BALLERINA_BUILTIN_PKG;
 
     public static final String HTTP_CLIENT = "Client";
+    public static final String HTTP_CALLER = "HttpCaller";
 
     public static final String REQUEST_URL = "REQUEST_URL";
     public static final String SRC_HANDLER = "SRC_HANDLER";
