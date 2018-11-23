@@ -24,9 +24,11 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import io.ballerina.plugins.idea.BallerinaLanguage;
 import io.ballerina.plugins.idea.psi.BallerinaTypeDefinition;
+import io.ballerina.plugins.idea.psi.BallerinaTypes;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -68,6 +70,10 @@ public class BallerinaEnterBetweenBracesHandler extends EnterBetweenBracesHandle
             EditorModificationUtil.insertStringAtCaret(editor, ";", false, -(caretShift + 1));
             // Commit the document.
             PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
+        } else if (isInDocMode(element)) {
+            EditorModificationUtil.insertStringAtCaret(editor, "# ", false);
+            // Commit the document.
+            PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
         }
         return Result.Continue;
     }
@@ -75,12 +81,16 @@ public class BallerinaEnterBetweenBracesHandler extends EnterBetweenBracesHandle
     private boolean needToInsertSemicolon(PsiElement element) {
         // Check for type definition.
         BallerinaTypeDefinition typeDefinition = PsiTreeUtil.getParentOfType(element, BallerinaTypeDefinition.class);
-        if (typeDefinition != null) {
-            // Check whether the type definition has a semicolon.
-            return typeDefinition.getSemicolon() == null;
-        }
+        // Check whether the type definition has a semicolon.
+        return typeDefinition != null && typeDefinition.getSemicolon() == null;
 
-        return false;
+    }
+
+    private boolean isInDocMode(PsiElement element) {
+        // Check for markdown documentation. Need to check for previous element since caret is at whitespace.
+        IElementType prevElementType = element.getPrevSibling().getNode().getElementType();
+        return prevElementType == BallerinaTypes.DOCUMENTATION_STRING
+                || prevElementType == BallerinaTypes.MARKDOWN_DOCUMENTATION_LINE_START;
     }
 
     @Override
