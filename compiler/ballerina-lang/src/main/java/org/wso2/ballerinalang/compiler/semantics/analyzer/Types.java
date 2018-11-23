@@ -251,7 +251,8 @@ public class Types {
                 return checkRecordEquivalencyForStamping((BRecordType) source, (BRecordType) target, unresolvedTypes);
             } else if (source.tag == TypeTags.MAP) {
                 int mapConstraintTypeTag = ((BMapType) source).constraint.tag;
-                if (mapConstraintTypeTag != TypeTags.ANY && ((BRecordType) target).sealed) {
+                if ((!(mapConstraintTypeTag == TypeTags.ANY || mapConstraintTypeTag == TypeTags.ANYDATA)) &&
+                        ((BRecordType) target).sealed) {
                     for (BField field : ((BStructureType) target).getFields()) {
                         if (field.getType().tag != mapConstraintTypeTag) {
                             return false;
