@@ -552,8 +552,9 @@ public type WebSubHub object {
 };
 
 function WebSubHub.stop() returns boolean {
-    self.hubServiceEndpoint.__stop();
-    return stopHubService(self.hubUrl);
+    // TODO: return error
+    var stopResult = self.hubServiceEndpoint.__stop();
+    return stopHubService(self.hubUrl) && !(stopResult is error);
 }
 
 function WebSubHub.publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
