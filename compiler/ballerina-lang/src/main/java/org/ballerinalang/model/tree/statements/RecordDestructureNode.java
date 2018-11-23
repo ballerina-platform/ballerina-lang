@@ -23,7 +23,7 @@ import org.ballerinalang.model.tree.expressions.RecordVariableReferenceNode;
 import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 
 /**
- * var {a: c, b} = {a: "Sam", b: 1}.
+ * {a: c, b} = {a: "Sam", b: 1}.
  *
  * @since 0.985.0
  */
@@ -36,9 +36,4 @@ public interface RecordDestructureNode extends StatementNode {
     ExpressionNode getExpression();
 
     void setExpression(ExpressionNode expression);
-
-    boolean isDeclaredWithVar();
-
-    void setDeclaredWithVar(boolean isDeclaredWithVar);
-
 }

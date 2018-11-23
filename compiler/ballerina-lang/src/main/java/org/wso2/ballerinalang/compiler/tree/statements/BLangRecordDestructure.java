@@ -61,16 +61,6 @@ public class BLangRecordDestructure extends BLangStatement implements RecordDest
     }
 
     @Override
-    public boolean isDeclaredWithVar() {
-        return this.declaredWithVar;
-    }
-
-    @Override
-    public void setDeclaredWithVar(boolean isDeclaredWithVar) {
-        this.declaredWithVar = isDeclaredWithVar;
-    }
-
-    @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }

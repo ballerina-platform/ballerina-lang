@@ -1013,8 +1013,16 @@ public class Desugar extends BLangNodeVisitor {
         } else {
             detailInvocation.expr = ASTBuilderUtil.
                     createVariableRef(parentErrorVariable.detail.pos, errorVarySymbol);
-            detailInvocation.symbol = symResolver.resolveBuiltinOperator(
+            BSymbol bSymbol = symResolver.resolveBuiltinOperator(
                     names.fromString(ERROR_DETAIL_FUNCTION_NAME), errorVarySymbol.type);
+
+            if (bSymbol == symTable.notFoundSymbol) {
+                bSymbol = symResolver.createSymbolForDetailBuiltInMethod(
+                        ASTBuilderUtil.createIdentifier(parentBlockStmt.pos, ERROR_DETAIL_FUNCTION_NAME),
+                        errorVarySymbol.type);
+            }
+            detailInvocation.symbol = bSymbol;
+
         }
 
         if (parentErrorVariable.detail.getKind() == NodeKind.VARIABLE) {
@@ -3298,6 +3306,9 @@ public class Desugar extends BLangNodeVisitor {
             } else if (NodeKind.RECORD_VARIABLE == structuredPattern.bindingPatternVariable.getKind()) {
                 varDefStmt = ASTBuilderUtil.createRecordVariableDef(pattern.pos,
                         (BLangRecordVariable) structuredPattern.bindingPatternVariable);
+            } else if (NodeKind.ERROR_VARIABLE == structuredPattern.bindingPatternVariable.getKind()) {
+                varDefStmt = ASTBuilderUtil.createErrorVariableDef(pattern.pos,
+                        (BLangErrorVariable) structuredPattern.bindingPatternVariable);
             } else {
                 varDefStmt = ASTBuilderUtil.createVariableDef(pattern.pos,
                         (BLangSimpleVariable) structuredPattern.bindingPatternVariable);
@@ -3374,6 +3385,9 @@ public class Desugar extends BLangNodeVisitor {
             } else if (NodeKind.RECORD_VARIABLE == structuredPattern.bindingPatternVariable.getKind()) {
                 varDefStmt = ASTBuilderUtil.createRecordVariableDef(pattern.pos,
                         (BLangRecordVariable) structuredPattern.bindingPatternVariable);
+            } else if (NodeKind.ERROR_VARIABLE == structuredPattern.bindingPatternVariable.getKind()) {
+                varDefStmt = ASTBuilderUtil.createErrorVariableDef(pattern.pos,
+                        (BLangErrorVariable) structuredPattern.bindingPatternVariable);
             } else {
                 varDefStmt = ASTBuilderUtil.createVariableDef(pattern.pos,
                         (BLangSimpleVariable) structuredPattern.bindingPatternVariable);

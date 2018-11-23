@@ -2276,24 +2276,21 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(assignmentNode);
     }
 
-    void addTupleDestructuringStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean varDeclaration) {
+    void addTupleDestructuringStatement(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangTupleDestructure stmt = (BLangTupleDestructure) TreeBuilder.createTupleDestructureStatementNode();
         stmt.pos = pos;
         stmt.addWS(ws);
-        stmt.setDeclaredWithVar(varDeclaration);
         stmt.expr = (BLangExpression) exprNodeStack.pop();
         stmt.varRef = (BLangTupleVarRef) exprNodeStack.pop();
         stmt.addWS(ws);
         addStmtToCurrentBlock(stmt);
     }
 
-    public void addRecordDestructuringStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean declaredWithVar) {
+    public void addRecordDestructuringStatement(DiagnosticPos pos, Set<Whitespace> ws) {
 
         BLangRecordDestructure stmt = (BLangRecordDestructure) TreeBuilder.createRecordDestructureStatementNode();
         stmt.pos = pos;
         stmt.addWS(ws);
-        stmt.setDeclaredWithVar(declaredWithVar);
-
         stmt.expr = (BLangExpression) exprNodeStack.pop();
         stmt.varRef = (BLangRecordVarRef) exprNodeStack.pop();
         addStmtToCurrentBlock(stmt);

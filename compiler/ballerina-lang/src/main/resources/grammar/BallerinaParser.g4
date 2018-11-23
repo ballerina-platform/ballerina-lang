@@ -375,7 +375,7 @@ tupleDestructuringStatement
     ;
 
 recordDestructuringStatement
-    :   VAR? recordRefBindingPattern ASSIGN expression SEMICOLON
+    :   recordRefBindingPattern ASSIGN expression SEMICOLON
     ;
 
 compoundAssignmentStatement

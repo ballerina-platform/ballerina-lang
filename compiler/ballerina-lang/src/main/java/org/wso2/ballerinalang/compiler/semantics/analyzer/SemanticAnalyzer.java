@@ -674,6 +674,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         memberTupleTypes.add(new BUnionType(null, memberTypes, false));
                     }
                     tupleTypeNode = new BTupleType(memberTupleTypes);
+                } else if (possibleTypes.size() == 0) {
+                    dlog.error(varNode.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, varNode.type);
+                    return false;
                 } else {
                     tupleTypeNode = possibleTypes.get(0);
                 }
@@ -740,9 +743,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         switch (recordVar.type.tag) {
             case TypeTags.UNION:
                 BUnionType unionType = (BUnionType) recordVar.type;
-                List<BRecordType> possibleTypes = unionType.memberTypes.stream()
-                        .filter(type -> TypeTags.RECORD == type.tag)
-                        .map(BRecordType.class::cast)
+                List<BType> possibleTypes = unionType.memberTypes.stream()
+                        .filter(type -> TypeTags.RECORD == type.tag || TypeTags.MAP == type.tag)
+                        .map(obj -> {
+                            if (TypeTags.RECORD == obj.tag) {
+                                return BRecordType.class.cast(obj);
+                            }
+                            return BMapType.class.cast(obj);
+                        })
                         .filter(rec -> doesRecordContainKeys(rec, recordVar.variableList, recordVar.restParam != null))
                         .collect(Collectors.toList());
                 if (possibleTypes.isEmpty()) {
@@ -756,38 +764,54 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     recordVarType = (BRecordType) symTable.recordType;
                     List<BField> fields = new ArrayList<>();
 
-                    recordVar.variableList.stream()
-                            .map(bLangRecordVariableKeyValue -> bLangRecordVariableKeyValue.key.value)
-                            .forEach(fieldName -> {
-                                Set<BType> memberTypes = new HashSet<>();
-                                possibleTypes.forEach(possibleType -> {
-                                    Map<String, BType> possibleTypeFields = possibleType.fields
-                                            .stream()
-                                            .collect(Collectors.toMap(
-                                                    field -> field.getName().getValue(),
-                                                    BField::getType
-                                            ));
-                                    memberTypes.add(possibleTypeFields.get(fieldName) == null ?
-                                            possibleType.restFieldType : possibleTypeFields.get(fieldName));
-                                });
-                                BType fieldType = memberTypes.size() > 1 ? new BUnionType(null, memberTypes, false) :
-                                        memberTypes.iterator().next();
-                                fields.add(new BField(names.fromString(fieldName),
-                                        new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
-                                                fieldType, recordSymbol)));
-                            });
+                    for (BLangRecordVariableKeyValue bLangRecordVariableKeyValue : recordVar.variableList) {
+                        String fieldName = bLangRecordVariableKeyValue.key.value;
+                        Set<BType> memberTypes = new HashSet<>();
+                        for (BType possibleType : possibleTypes) {
+                            if (possibleType.tag == TypeTags.RECORD) {
+                                BRecordType possibleRecordType = (BRecordType) possibleType;
+                                Map<String, BType> possibleTypeFields = possibleRecordType.fields
+                                        .stream()
+                                        .collect(Collectors.toMap(
+                                                field -> field.getName().getValue(),
+                                                BField::getType
+                                        ));
+                                memberTypes.add(possibleTypeFields.get(fieldName) == null ?
+                                        possibleRecordType.restFieldType : possibleTypeFields.get(fieldName));
+                            } else {
+                                BMapType possibleMapType = (BMapType) possibleType;
+                                memberTypes.add(possibleMapType.constraint);
+                            }
+                        }
+                        BType fieldType = memberTypes.size() > 1 ? new BUnionType(null, memberTypes, false) :
+                                memberTypes.iterator().next();
+                        fields.add(new BField(names.fromString(fieldName),
+                                new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
+                                        fieldType, recordSymbol)));
+                    }
+
                     if (recordVar.restParam != null) {
-                        Set<BType> memberTypes = possibleTypes.stream()
-                                .map(possibleType -> possibleType.restFieldType)
-                                .collect(Collectors.toSet());
+                        Set<BType> memberTypes = new HashSet<>();
+                        for (BType possibleType : possibleTypes) {
+                            if (possibleType.tag == TypeTags.RECORD) {
+                                memberTypes.add(((BRecordType) possibleType).restFieldType);
+                            } else {
+                                memberTypes.add(((BMapType) possibleType).constraint);
+                            }
+                        }
 
                         recordVarType.restFieldType = memberTypes.size() > 1 ?
                                 new BUnionType(null, memberTypes, false) : memberTypes.iterator().next();
                     }
+
                     recordVarType.fields = fields;
                     recordSymbol.type = recordVarType;
                 } else {
-                    recordVarType = possibleTypes.get(0);
+                    if (possibleTypes.get(0).tag == TypeTags.RECORD) {
+                        recordVarType = (BRecordType) possibleTypes.get(0);
+                    } else {
+                        recordVarType = createSameTypedFieldsRecordType(recordVar, ((BMapType) possibleTypes.get(0)).constraint);
+                    }
                 }
                 break;
             case TypeTags.RECORD:
@@ -874,6 +898,31 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private boolean validateErrorVariable(BLangErrorVariable errorVariable) {
         BErrorType errorType;
         switch (errorVariable.type.tag) {
+            case TypeTags.UNION:
+                BUnionType unionType = ((BUnionType) errorVariable.type);
+
+                List<BErrorType> possibleTypes = unionType.memberTypes.stream()
+                        .filter(type -> TypeTags.ERROR == type.tag)
+                        .map(BErrorType.class::cast)
+                        .collect(Collectors.toList());
+
+                if (possibleTypes.isEmpty()) {
+                    dlog.error(errorVariable.pos, DiagnosticCode.INVALID_ERROR_BINDING_PATTERN, errorVariable.type);
+                    return false;
+                }
+
+                if (possibleTypes.size() > 1) {
+                    Set<BType> detailType = new HashSet<>();
+                    for (BErrorType possibleErrType : possibleTypes) {
+                        detailType.add(possibleErrType.detailType);
+                    }
+                    errorType = new BErrorType(null, symTable.stringType,
+                            detailType.size() > 1 ? new BUnionType(null, detailType, false) :
+                                    detailType.iterator().next());
+                } else {
+                    errorType = possibleTypes.get(0);
+                }
+                break;
             case TypeTags.ERROR:
                 errorType = (BErrorType) errorVariable.type;
                 break;
@@ -932,25 +981,30 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return recordVarType;
     }
 
-    private boolean doesRecordContainKeys(BRecordType recordVarType, List<BLangRecordVariableKeyValue> variableList,
+    private boolean doesRecordContainKeys(BType varType, List<BLangRecordVariableKeyValue> variableList,
                                           boolean hasRestParam) {
-        Map<String, BField> recordVarTypeFields = recordVarType.fields
-                .stream()
-                .collect(Collectors.toMap(
-                        field -> field.getName().getValue(),
-                        field -> field
-                ));
-        for (BLangRecordVariableKeyValue var : variableList) {
-            if (!recordVarTypeFields.containsKey(var.key.value) && recordVarType.sealed) {
-                return false;
+        if (varType.tag == TypeTags.RECORD) {
+            BRecordType recordVarType = (BRecordType) varType;
+            Map<String, BField> recordVarTypeFields = recordVarType.fields
+                    .stream()
+                    .collect(Collectors.toMap(
+                            field -> field.getName().getValue(),
+                            field -> field
+                    ));
+            for (BLangRecordVariableKeyValue var : variableList) {
+                if (!recordVarTypeFields.containsKey(var.key.value) && recordVarType.sealed) {
+                    return false;
+                }
             }
-        }
 
-        if (!hasRestParam) {
+            if (!hasRestParam) {
+                return true;
+            }
+
+            return !recordVarType.sealed;
+        } else { // else it is a map type and all keys are present
             return true;
         }
-
-        return !recordVarType.sealed;
     }
 
     // Statements

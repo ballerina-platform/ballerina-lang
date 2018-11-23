@@ -22,7 +22,7 @@ type CMA error <string, map<any>>;
 const ERROR1 = "Some Error One";
 const ERROR2 = "Some Error Two";
 
-function testBasicErrorVariableWithMapDetails() returns (string, string, string, string, map, string?, string?, string?, map, any, any, any) {
+function testBasicErrorVariableWithMapDetails() returns (string, string, string, string, map<string>, string?, string?, string?, map, any, any, any) {
     SMS err1 = error ("Error One", {message: "Msg One", detail: "Detail Msg"});
     SMA err2 = error ("Error Two", {message: "Msg Two", fatal: true});
 

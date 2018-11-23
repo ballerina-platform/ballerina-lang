@@ -1319,10 +1319,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        // todo : do we need this flag anymore
-        boolean isVarDeclaration = false;
-
-        this.pkgBuilder.addTupleDestructuringStatement(getCurrentPos(ctx), getWS(ctx), isVarDeclaration);
+        this.pkgBuilder.addTupleDestructuringStatement(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override
@@ -1331,12 +1328,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean declaredWithVar = false;
-        if (ctx.VAR() != null) {
-            declaredWithVar = true;
-        }
-
-        this.pkgBuilder.addRecordDestructuringStatement(getCurrentPos(ctx), getWS(ctx), declaredWithVar);
+        this.pkgBuilder.addRecordDestructuringStatement(getCurrentPos(ctx), getWS(ctx));
     }
 
     /**
