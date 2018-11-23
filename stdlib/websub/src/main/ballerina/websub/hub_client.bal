@@ -216,6 +216,20 @@ remote function Client.notifyUpdate(string topic, map<string>? headers = ()) ret
     return;
 }
 
+# Record representing the configuration parameters for the WebSub Hub Client Endpoint.
+#
+# + url - The URL of the target Hub
+# + clientSecureSocket - SSL/TLS related options for the underlying HTTP Client
+# + auth - Authentication mechanism for the underlying HTTP Client
+# + followRedirects - HTTP redirect related configuration
+public type HubClientEndpointConfig record {
+    string url = "";
+    http:SecureSocket? clientSecureSocket = ();
+    http:AuthConfig? auth = ();
+    http:FollowRedirects? followRedirects = ();
+    !...
+};
+
 # Builds the topic registration change request to register or unregister a topic at the hub.
 #
 # + mode - Whether the request is for registration or unregistration
