@@ -22,12 +22,14 @@ import ballerina/log;
 # + config - configurations related to the endpoint
 public type SimpleDurableTopicSubscriber object {
 
+    *AbstractListener;
+
     public SimpleDurableTopicSubscriberEndpointConfiguration config = {};
 
     private Connection? connection = ();
     private Session? session = ();
-    private DurableTopicSubscriber? subscriber = ();
-    private SimpleDurableTopicSubscriberActions? consumerActions = ();
+    private DurableTopicConsumer? subscriber = ();
+    //private SimpleDurableTopicSubscriberActions? consumerActions = ();
 
     # Initializes the simple durable topic subscriber endpoint
     #
@@ -63,10 +65,10 @@ public type SimpleDurableTopicSubscriber object {
     # Binds the endpoint to a service
     #
     # + serviceType - type descriptor of the service to bind to
-    public function register(typedesc serviceType) {
+    public function __attach(service s, map<any> data) returns error?  {
         var subscriber = self.subscriber;
         if (subscriber is DurableTopicSubscriber) {
-            subscriber.register(serviceType);
+            subscriber.__attach(s, data);
         } else {
             string errorMessage = "Topic Subscriber cannot be nil";
             map errorDetail = { message: errorMessage };
@@ -76,27 +78,27 @@ public type SimpleDurableTopicSubscriber object {
     }
 
     # Starts the endpoint. Function is ignored by the subscriber endpoint
-    public function start() {
+    public function __start() returns error? {
         // Ignore
     }
 
-    # Retrieves the durable topic subscriber consumer actions
-    #
-    # + return - Durable topic subscriber actions
-    public function getCallerActions() returns SimpleDurableTopicSubscriberActions {
-        var consumerActions = self.consumerActions;
-        if (consumerActions is SimpleDurableTopicSubscriberActions) {
-            return consumerActions;
-        } else {
-            string errorMessage = "Consumer actions cannot be nil";
-            map errorDetail = { message: errorMessage };
-            error e = error(JMS_ERROR_CODE, errorDetail);
-            panic e;
-        }
-    }
+    //# Retrieves the durable topic subscriber consumer actions
+    //#
+    //# + return - Durable topic subscriber actions
+    //public function getCallerActions() returns SimpleDurableTopicSubscriberActions {
+    //    var consumerActions = self.consumerActions;
+    //    if (consumerActions is SimpleDurableTopicSubscriberActions) {
+    //        return consumerActions;
+    //    } else {
+    //        string errorMessage = "Consumer actions cannot be nil";
+    //        map errorDetail = { message: errorMessage };
+    //        error e = error(JMS_ERROR_CODE, errorDetail);
+    //        panic e;
+    //    }
+    //}
 
     # Stops the endpoint. Function is ignored by the subscriber endpoint
-    public function stop() {
+    public function __stop() returns error? {
         // Ignore
     }
 
@@ -142,13 +144,13 @@ public type SimpleDurableTopicSubscriberEndpointConfiguration record {
 
 
 # Caller actions related to durable topic subscriber endpoint
-public type SimpleDurableTopicSubscriberActions object {
+public type SimpleDurableTopicConsumer object {
 
-    private DurableTopicSubscriberActions helper;
+    private DurableTopicConsumer helper;
     private Session session;
     private string identifier;
 
-    public function __init(DurableTopicSubscriberActions subscriberActions, Session session, string id) {
+    public function __init(DurableTopicConsumer subscriberActions, Session session, string id) {
         self.helper = subscriberActions;
         self.session = session;
         self.identifier = id;
@@ -158,7 +160,7 @@ public type SimpleDurableTopicSubscriberActions object {
     #
     # + message - JMS message to be acknowledged
     # + return - error upon failure to acknowledge the received message
-    public function acknowledge(Message message) returns error? {
+    public remote function acknowledge(Message message) returns error? {
         return self.helper.acknowledge(message);
     }
 
@@ -166,14 +168,14 @@ public type SimpleDurableTopicSubscriberActions object {
     #
     # + timeoutInMilliSeconds - time to wait until a message is received
     # + return - Returns a message or nill if the timeout exceededs. Returns an error on jms provider internal error.
-    public function receive(int timeoutInMilliSeconds = 0) returns (Message|error)? {
+    public remote function receive(int timeoutInMilliSeconds = 0) returns (Message|error)? {
         return self.helper.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
     }
 
     # Unsubscribes the durable subscriber from topic
     #
     # + return - Returns an error on JMS provider internal error
-    public function unsubscribe() returns error? {
+    public remote function unsubscribe() returns error? {
         return self.session.unsubscribe(self.identifier);
     }
 };

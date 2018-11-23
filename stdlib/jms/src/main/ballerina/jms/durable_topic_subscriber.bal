@@ -20,7 +20,7 @@ import ballerina/log;
 #
 # + consumerActions - Object that handles network operations related to the subscriber
 # + config - Configurations related to the subscriber
-public type DurableTopicSubscriber object {
+public type DurableTopicConsumer object {
 
     *AbstractListener;
 
@@ -59,15 +59,15 @@ public type DurableTopicSubscriber object {
     extern function createSubscriber(Session session, string messageSelector);
 
     # Starts the endpoint. Function is ignored by the subscriber endpoint
-    public function __start() returns error?{
+    public function __start() returns error? {
     }
 
-    # Return the subscrber caller actions
-    #
-    # + return - durable topic subscriber actions
-    public function getCallerActions() returns DurableTopicSubscriberActions {
-        return self.consumerActions;
-    }
+    //# Return the subscrber caller actions
+    //#
+    //# + return - durable topic subscriber actions
+    //public function getCallerActions() returns DurableTopicSubscriberActions {
+    //    return self.consumerActions;
+    //}
 
     # Ends consuming messages from the durable topic subscriber endpoint
     public function __stop() returns error? {
@@ -92,17 +92,17 @@ public type DurableTopicSubscriberEndpointConfiguration record {
 };
 
 # Caller actions related to durable topic subscriber endpoint
-public type DurableTopicSubscriber client object {
+public type DurableTopicCaller client object {
 
     # Acknowledges a received message
     #
     # + message - JMS message to be acknowledged
     # + return - error upon failure to acknowledge the received message
-    public client extern function acknowledge(Message message) returns error?;
+    public remote extern function acknowledge(Message message) returns error?;
 
     # Synchronously receive a message from the JMS provider
     #
     # + timeoutInMilliSeconds - time to wait until a message is received
     # + return - Returns a message or nill if the timeout exceededs. Returns an error on jms provider internal error.
-    public client extern function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
+    public remote extern function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
 };
