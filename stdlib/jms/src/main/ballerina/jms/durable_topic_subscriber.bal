@@ -22,13 +22,20 @@ import ballerina/log;
 # + config - Configurations related to the subscriber
 public type DurableTopicSubscriber object {
 
-    public DurableTopicSubscriberActions consumerActions = new;
+    *AbstractListener;
+
+    //public DurableTopicSubscriberActions consumerActions = new;
     public DurableTopicSubscriberEndpointConfiguration config = {};
+
+    public function __init(DurableTopicSubscriberEndpointConfiguration config) {
+         self.config = config;
+         init(config);
+    }
 
     # Initialize durable topic subscriber endpoint
     #
     # + c - Configurations for a durable topic subscriber
-    public function init(DurableTopicSubscriberEndpointConfiguration c) {
+    function init(DurableTopicSubscriberEndpointConfiguration c) {
         self.config = c;
         var session = c.session;
         if (session is Session) {
@@ -41,17 +48,18 @@ public type DurableTopicSubscriber object {
 
     # Binds the durable topic subscriber endpoint to a service
     #
-    # + serviceType - Type descriptor of the service
-    public function register(typedesc serviceType) {
-        self.registerListener(serviceType, self.consumerActions);
+    # + s - service data which should be attached to listner
+    # + data - annotation data which is defined in the service
+    public function __attach(service s, map<any> data) returns error? {
+        self.registerListener(s, data);
     }
 
-    extern function registerListener(typedesc serviceType, DurableTopicSubscriberActions actions);
+    extern function registerListener(service serviceType, map<any> data);
 
     extern function createSubscriber(Session session, string messageSelector);
 
     # Starts the endpoint. Function is ignored by the subscriber endpoint
-    public function start() {
+    public function __start() returns error?{
     }
 
     # Return the subscrber caller actions
@@ -62,7 +70,7 @@ public type DurableTopicSubscriber object {
     }
 
     # Ends consuming messages from the durable topic subscriber endpoint
-    public function stop() {
+    public function __stop() returns error? {
         self.closeSubscriber(self.consumerActions);
     }
 
@@ -84,17 +92,17 @@ public type DurableTopicSubscriberEndpointConfiguration record {
 };
 
 # Caller actions related to durable topic subscriber endpoint
-public type DurableTopicSubscriberActions object {
+public type DurableTopicSubscriber client object {
 
     # Acknowledges a received message
     #
     # + message - JMS message to be acknowledged
     # + return - error upon failure to acknowledge the received message
-    public extern function acknowledge(Message message) returns error?;
+    public client extern function acknowledge(Message message) returns error?;
 
     # Synchronously receive a message from the JMS provider
     #
     # + timeoutInMilliSeconds - time to wait until a message is received
     # + return - Returns a message or nill if the timeout exceededs. Returns an error on jms provider internal error.
-    public extern function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
+    public client extern function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
 };
