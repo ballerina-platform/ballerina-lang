@@ -121,6 +121,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangChannelLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
@@ -420,6 +421,9 @@ public class Desugar extends BLangNodeVisitor {
 
         pkgNode.globalVars.forEach(globalVar -> {
             BLangAssignment assignment = createAssignmentStmt(globalVar);
+            if (assignment.expr == null) {
+                assignment.expr = getInitExpr(globalVar);
+            }
             if (assignment.expr != null) {
                 pkgNode.initFunction.body.stmts.add(assignment);
             }
@@ -629,6 +633,13 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVariableDef varDefNode) {
         varDefNode.var = rewrite(varDefNode.var, env);
+
+        BLangSimpleVariable varNode = varDefNode.var;
+        // Generate default init expression, if rhs expr is null
+        if (varNode.expr == null) {
+            varNode.expr = getInitExpr(varNode);
+        }
+
         result = varDefNode;
     }
 
@@ -4082,6 +4093,17 @@ public class Desugar extends BLangNodeVisitor {
                     .createVariable(pos, guardedSymbol.name.value, guardedSymbol.type, conversionExpr, guardedSymbol);
             BLangSimpleVariableDef varDef = ASTBuilderUtil.createVariableDef(pos, var);
             target.stmts.add(0, varDef);
+        }
+    }
+
+    private BLangExpression getInitExpr(BLangSimpleVariable varNode) {
+        switch (varNode.type.tag) {
+            case TypeTags.STREAM:
+                return new BLangStreamLiteral(varNode.type, varNode.name);
+            case TypeTags.CHANNEL:
+                return new BLangChannelLiteral(varNode.type, varNode.name);
+            default:
+                return null;
         }
     }
 }
