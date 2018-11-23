@@ -44,7 +44,10 @@ public type RedirectClient client object {
     # + httpClient - HTTP client for outbound HTTP requests
     public function __init(string serviceUri, ClientEndpointConfig config,
                            FollowRedirects redirectConfig, Client httpClient) {
-        self.httpClient = createSimpleHttpClient(serviceUri, config);
+        self.serviceUri = serviceUri;
+        self.config = config;
+        self.redirectConfig = redirectConfig;
+        self.httpClient = httpClient;
     }
 
     # If the received response for the `get()` action is redirect eligible, redirect will be performed automatically

@@ -91,8 +91,8 @@ public type HttpCachingClient client object {
     # + serviceUri - The URL of the HTTP endpoint to connect to
     # + config - The configurations for the client endpoint associated with the caching client
     # + cacheConfig - The configurations for the HTTP cache to be used with the caching client
-    public function __init(string serviceUri, ClientEndpointConfig config, CacheConfig cacheConfig) {
-        var httpSecureClient = createHttpSecureClient(serviceUri, config);
+    public function __init(Client httpClient, string serviceUri, ClientEndpointConfig config, CacheConfig cacheConfig) {
+        var httpSecureClient = createHttpSecureClient(httpClient, serviceUri, config);
         if (httpSecureClient is Client) {
             self.httpClient = httpSecureClient;
         } else {
@@ -237,9 +237,9 @@ public type HttpCachingClient client object {
 # + config - The configurations for the client endpoint associated with the caching client
 # + cacheConfig - The configurations for the HTTP cache to be used with the caching client
 # + return - An `HttpCachingClient` instance which wraps the base `Client` with a caching layer
-public function createHttpCachingClient(string url, ClientEndpointConfig config, CacheConfig cacheConfig)
+public function createHttpCachingClient(Client httpClient, string url, ClientEndpointConfig config, CacheConfig cacheConfig)
                                                                                                 returns Client|error {
-    HttpCachingClient httpCachingClient = new(url, config, cacheConfig);
+    HttpCachingClient httpCachingClient = new(httpClient, url, config, cacheConfig);
     log:printDebug(function() returns string {
         return "Created HTTP caching client: " + io:sprintf("%s", httpCachingClient);
     });
