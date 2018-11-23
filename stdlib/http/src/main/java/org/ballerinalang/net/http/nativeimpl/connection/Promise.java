@@ -39,7 +39,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "promise",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Connection",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "CALLER",
                 structPackage = "ballerina/http"),
         args = {@Argument(name = "promise", type = TypeKind.OBJECT, structType = "PushPromise",
                 structPackage = "ballerina/http")},
