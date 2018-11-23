@@ -22,6 +22,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 /**
  * The {@code BDecimal} represents a decimal value in Ballerina.
@@ -82,8 +83,8 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
     }
 
     @Override
-    public BValue copy() {
-        return new BDecimal(value);
+    public BValue copy(Map<BValue, BValue> refs) {
+        return this;
     }
 
     @Override

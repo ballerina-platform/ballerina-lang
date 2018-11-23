@@ -22,6 +22,7 @@ import org.ballerinalang.model.types.BTypes;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.Map;
 
 /**
  * The {@code BFloat} represents a float value in Ballerina.
@@ -104,7 +105,7 @@ public final class BFloat extends BValueType implements BRefType<Double> {
     }
 
     @Override
-    public BValue copy() {
-        return new BFloat(value);
+    public BValue copy(Map<BValue, BValue> refs) {
+        return this;
     }
 }

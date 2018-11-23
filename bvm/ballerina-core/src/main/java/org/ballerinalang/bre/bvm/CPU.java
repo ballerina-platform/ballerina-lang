@@ -179,6 +179,7 @@ public class CPU {
                 ctx = e.ctx;
             }
         }
+
     }
 
     private static void tryExec(WorkerExecutionContext ctx) {
@@ -574,6 +575,10 @@ public class CPU {
                         findAndAddAdditionalVarRegIndexes(ctx, operands, fPointer);
                         break;
 
+                    case InstructionCodes.CLONE:
+                        createClone(ctx, operands, sf);
+                        break;
+
                     case InstructionCodes.I2ANY:
                     case InstructionCodes.BI2ANY:
                     case InstructionCodes.F2ANY:
@@ -836,6 +841,24 @@ public class CPU {
         }
     }
 
+    private static void createClone(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
+        int i = operands[0];
+        int j = operands[1];
+
+        BRefType<?> refRegVal = sf.refRegs[i];
+
+        if (refRegVal == null) {
+            return;
+        }
+
+        if (!checkIsLikeType(refRegVal, BTypes.typeAnydata)) {
+            sf.refRegs[j] = BLangVMErrors.createError(ctx, BLangExceptionHelper
+                    .getErrorMessage(RuntimeErrors.UNSUPPORTED_CLONE_OPERATION, refRegVal, refRegVal.getType()));
+            return;
+        }
+        sf.refRegs[j] = (BRefType<?>) refRegVal.copy(new HashMap<>());
+    }
+
     private static void createNewError(int[] operands, WorkerExecutionContext ctx, WorkerData sf) {
         int i = operands[0];
         int j = operands[1];
@@ -931,7 +954,9 @@ public class CPU {
         }
 
         try {
-            valueToBeStamped.stamp(targetType);
+            if (valueToBeStamped != null) {
+                valueToBeStamped.stamp(targetType);
+            }
             sf.refRegs[k] = valueToBeStamped;
         } catch (BallerinaException e) {
             BError error = BLangVMErrors.createError(ctx,
@@ -3782,7 +3807,7 @@ public class CPU {
         // TODO: do validation for type?
         BMap newMap = new BMap(BTypes.typeMap);
         ((BMap) sf.refRegs[i]).getMap().forEach((key, value)
-                -> newMap.put(key, value == null ? null : ((BValue) value).copy()));
+                -> newMap.put(key, value == null ? null : ((BValue) value).copy(new HashMap<>())));
         sf.refRegs[j] = newMap;
     }
 
@@ -4237,7 +4262,7 @@ public class CPU {
         compensationTable.index++;
     }
 
-    private static boolean checkIsLikeType(BValue sourceValue, BType targetType) {
+    public static boolean checkIsLikeType(BValue sourceValue, BType targetType) {
         BType sourceType = sourceValue == null ? BTypes.typeNull : sourceValue.getType();
         if (checkIsType(sourceType, targetType, new ArrayList<>())) {
             return true;
@@ -4255,12 +4280,46 @@ public class CPU {
             case TypeTags.TUPLE_TAG:
                 return checkIsLikeTupleType(sourceValue, (BTupleType) targetType);
             case TypeTags.ANYDATA_TAG:
-                return isAssignable(sourceValue.getType(), targetType, new ArrayList<>());
+                return checkIsLikeAnydataType(sourceValue, targetType);
             case TypeTags.FINITE_TYPE_TAG:
                 return checkFiniteTypeAssignable(sourceValue, targetType);
             case TypeTags.UNION_TAG:
                 return ((BUnionType) targetType).getMemberTypes().stream()
-                        .anyMatch(type -> checkIsType(sourceValue, type));
+                        .anyMatch(type -> checkIsLikeType(sourceValue, type));
+            default:
+                return false;
+        }
+    }
+
+    private static boolean checkIsLikeAnydataType(BValue sourceValue, BType targetType) {
+        switch (sourceValue.getType().getTag()) {
+            case TypeTags.RECORD_TYPE_TAG:
+            case TypeTags.JSON_TAG:
+            case TypeTags.MAP_TAG:
+                return ((BMap) sourceValue).getMap().entrySet().stream()
+                        .allMatch(value -> checkIsLikeType((BValue) value, targetType));
+            case TypeTags.ARRAY_TAG:
+                BNewArray arr = (BNewArray) sourceValue;
+                switch (arr.getType().getTag()) {
+                    case TypeTags.INT_TAG:
+                    case TypeTags.FLOAT_TAG:
+                    case TypeTags.DECIMAL_TAG:
+                    case TypeTags.STRING_TAG:
+                    case TypeTags.BOOLEAN_TAG:
+                    case TypeTags.BYTE_TAG:
+                        return true;
+                    default:
+                        return Arrays.stream(((BRefValueArray) sourceValue).getValues())
+                                .allMatch(value -> checkIsLikeType(value, targetType));
+                }
+            case TypeTags.TUPLE_TAG:
+                return Arrays.stream(((BRefValueArray) sourceValue).getValues())
+                        .allMatch(value -> checkIsLikeType(value, targetType));
+            case TypeTags.ANYDATA_TAG:
+                return true;
+            case TypeTags.FINITE_TYPE_TAG:
+            case TypeTags.UNION_TAG:
+                return checkIsLikeType(sourceValue, targetType);
             default:
                 return false;
         }
@@ -4272,11 +4331,11 @@ public class CPU {
         }
 
         BRefValueArray source = (BRefValueArray) sourceValue;
-        if (source.getValues().length != targetType.getTupleTypes().size()) {
+        if (source.size() != targetType.getTupleTypes().size()) {
             return false;
         }
 
-        return IntStream.range(0, source.getValues().length)
+        return IntStream.range(0, (int) source.size())
                 .allMatch(i -> checkIsLikeType(source.get(i), targetType.getTupleTypes().get(i)));
     }
 
