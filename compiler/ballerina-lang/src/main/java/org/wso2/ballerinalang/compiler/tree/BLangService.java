@@ -74,6 +74,9 @@ public class BLangService extends BLangNode implements ServiceNode {
     public BLangExpression attachExpr;
     public boolean isAnonymousServiceValue;
 
+    // Cached values.
+    public String listenerName;
+
     public BLangService() {
         this.vars = new ArrayList<>();
         this.resources = new ArrayList<>();

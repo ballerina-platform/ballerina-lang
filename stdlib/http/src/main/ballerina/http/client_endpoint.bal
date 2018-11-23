@@ -29,9 +29,12 @@ public type Client client object {
 
     public ClientEndpointConfig config = {};
 
-    public new(ClientEndpointConfig c) {
+    public function __init(ClientEndpointConfig c) {
         self.config = c;
-        self.init(self.config);
+        var err = self.init(self.config);
+        if (err is error) {
+            panic err;
+        }
     }
 
     # Gets invoked to initialize the endpoint. During initialization, configurations provided through the `config`
@@ -39,7 +42,8 @@ public type Client client object {
     # security, circuit breaking).
     #
     # + c - The configurations to be used when initializing the endpoint
-    public function init(ClientEndpointConfig c);
+    # + return - An `error` if failed to init the client or ()
+    public function init(ClientEndpointConfig c) returns error?;
 
     # The `post()` function can be used to send HTTP POST requests to HTTP endpoints.
     #
@@ -50,7 +54,7 @@ public type Client client object {
     public remote function post(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message) returns Response|error {
         Request req = buildRequest(message);
-        return nativePost(self, path, req);
+        return nativePost(self.config, path, req);
     }
 
     # The `head()` function can be used to send HTTP HEAD requests to HTTP endpoints.
@@ -62,7 +66,7 @@ public type Client client object {
     public remote function head(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message = ()) returns Response|error {
         Request req = buildRequest(message);
-        return nativeHead(self, path, req);
+        return nativeHead(self.config, path, req);
     }
 
     # The `put()` function can be used to send HTTP PUT requests to HTTP endpoints.
@@ -74,7 +78,7 @@ public type Client client object {
     public remote function put(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message) returns Response|error {
         Request req = buildRequest(message);
-        return nativePut(self, path, req);
+        return nativePut(self.config, path, req);
     }
 
     # Invokes an HTTP call with the specified HTTP verb.
@@ -87,7 +91,7 @@ public type Client client object {
     public remote function execute(@sensitive string httpVerb, @sensitive string path, Request|string|xml|json|byte[]
                                                             |io:ReadableByteChannel|mime:Entity[]|() message) returns Response|error {
         Request req = buildRequest(message);
-        return nativeExecute(self, httpVerb, path, req);
+        return nativeExecute(self.config, httpVerb, path, req);
     }
 
     # The `patch()` function can be used to send HTTP PATCH requests to HTTP endpoints.
@@ -99,7 +103,7 @@ public type Client client object {
     public remote function patch(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message) returns Response|error {
         Request req = buildRequest(message);
-        return nativePatch(self, path, req);
+        return nativePatch(self.config, path, req);
     }
 
     # The `delete()` function can be used to send HTTP DELETE requests to HTTP endpoints.
@@ -111,7 +115,7 @@ public type Client client object {
     public remote function delete(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message) returns Response|error {
         Request req = buildRequest(message);
-        return nativeDelete(self, path, req);
+        return nativeDelete(self.config, path, req);
     }
 
     # The `get()` function can be used to send HTTP GET requests to HTTP endpoints.
@@ -123,7 +127,7 @@ public type Client client object {
     public remote function get(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message = ()) returns Response|error {
         Request req = buildRequest(message);
-        return nativeGet(self, path, req);
+        return nativeGet(self.config, path, req);
     }
 
     # The `options()` function can be used to send HTTP OPTIONS requests to HTTP endpoints.
@@ -135,7 +139,7 @@ public type Client client object {
     public remote function options(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message = ()) returns Response|error {
         Request req = buildRequest(message);
-        return nativeOptions(self, path, req);
+        return nativeOptions(self.config, path, req);
     }
 
     # The `forward()` function can be used to invoke an HTTP call with inbound request's HTTP verb
@@ -157,7 +161,7 @@ public type Client client object {
     public remote function submit(@sensitive string httpVerb, string path, Request|string|xml|json|byte[]|
                                             io:ReadableByteChannel|mime:Entity[]|() message) returns HttpFuture|error {
         Request req = buildRequest(message);
-        return nativeSubmit(self, httpVerb, path, req);
+        return nativeSubmit(self.config, httpVerb, path, req);
     }
 
     # Retrieves the `Response` for a previously submitted request.
@@ -357,36 +361,44 @@ public type AuthConfig record {
     !...
 };
 
-function Client.init(ClientEndpointConfig c) {
-    self = createSimpleHttpClient(c.url, c);
-    //boolean httpClientRequired = false;
-    //string url = c.url;
-    //if (url.hasSuffix("/")) {
-    //    int lastIndex = url.length() - 1;
-    //    url = url.substring(0, lastIndex);
-    //}
-    //self.config = c;
-    //var cbConfig = c.circuitBreaker;
-    //if (cbConfig is CircuitBreakerConfig) {
-    //    if (url.hasSuffix("/")) {
-    //        int lastIndex = url.length() -1;
-    //        url = url.substring(0, lastIndex);
-    //    }
-    //    httpClientRequired = false;
-    //} else {
-    //    httpClientRequired = true;
-    //}
-    //
-    //if (httpClientRequired) {
-    //    var redirectConfigVal = c.followRedirects;
-    //    if (redirectConfigVal is FollowRedirects) {
-    //        self.httpClient = createRedirectClient(url, c);
-    //    } else {
-    //        self.httpClient = checkForRetry(url, c);
-    //    }
-    //} else {
-    //    self.httpClient = createCircuitBreakerClient(url, c);
-    //}
+function Client.init(ClientEndpointConfig c) returns error? {
+    boolean httpClientRequired = false;
+    string url = c.url;
+    if (url.hasSuffix("/")) {
+        int lastIndex = url.length() - 1;
+        url = url.substring(0, lastIndex);
+    }
+    self.config = c;
+    var cbConfig = c.circuitBreaker;
+    if (cbConfig is CircuitBreakerConfig) {
+        if (url.hasSuffix("/")) {
+            int lastIndex = url.length() -1;
+            url = url.substring(0, lastIndex);
+        }
+        httpClientRequired = false;
+    } else {
+        httpClientRequired = true;
+    }
+    if (httpClientRequired) {
+        var redirectConfigVal = c.followRedirects;
+        if (redirectConfigVal is FollowRedirects) {
+            var redirectClientErr = createRedirectClient(url, c);
+            if (redirectClientErr is error) {
+                return redirectClientErr;
+            }
+        } else {
+            var retryClientErr = checkForRetry(url, c);
+            if (retryClientErr is error) {
+                return retryClientErr;
+            }
+        }
+    } else {
+        var cbClientError = createCircuitBreakerClient(url, c);
+        if (cbClientError is error) {
+            return cbClientError;
+        }
+    }
+    return;
 }
 
 function createRedirectClient(string url, ClientEndpointConfig configuration) returns Client|error {
@@ -515,22 +527,22 @@ function createRetryClient(string url, ClientEndpointConfig configuration) retur
 }
 
 //Since the struct equivalency doesn't work with private keyword, following functions are defined outside the object
-extern function nativePost(Client httpClient, @sensitive string path, Request req) returns Response|error;
+extern function nativePost(ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error;
 
-extern function nativeHead(Client httpClient, @sensitive string path, Request req) returns Response|error;
+extern function nativeHead(ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error;
 
-extern function nativePut(Client httpClient, @sensitive string path, Request req) returns Response|error;
+extern function nativePut(ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error;
 
-extern function nativeExecute(Client httpClient, @sensitive string httpVerb, @sensitive string path,
+extern function nativeExecute(ClientEndpointConfig config, @sensitive string httpVerb, @sensitive string path,
                                                                         Request req) returns Response|error;
 
-extern function nativePatch(Client httpClient, @sensitive string path, Request req) returns Response|error;
+extern function nativePatch(ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error;
 
-extern function nativeDelete(Client httpClient, @sensitive string path, Request req) returns Response|error;
+extern function nativeDelete(ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error;
 
-extern function nativeGet(Client httpClient, @sensitive string path, Request req) returns Response|error;
+extern function nativeGet(ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error;
 
-extern function nativeOptions(Client httpClient, @sensitive string path, Request req) returns Response|error;
+extern function nativeOptions(ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error;
 
-extern function nativeSubmit(Client httpClient, @sensitive string httpVerb, string path, Request req)
+extern function nativeSubmit(ClientEndpointConfig config, @sensitive string httpVerb, string path, Request req)
                                                                         returns HttpFuture|error;

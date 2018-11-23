@@ -4,7 +4,9 @@ public type BirChannelReader object {
     ChannelReader reader;
     ConstPool cp;
 
-    public new(reader, cp){
+    public function __init(ChannelReader reader, ConstPool cp) {
+        self.reader = reader;
+        self.cp = cp;
     }
 
     public function readBType() returns BType {

@@ -1,9 +1,7 @@
-
 public function testObjectWithInterface () returns (int, string) {
     Person p = new Person();
     return (p.attachInterface(7), p.month);
 }
-
 
 type Person object {
     public int age = 10;

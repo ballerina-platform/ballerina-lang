@@ -49,22 +49,30 @@ public type FailoverInferredConfig record {
 # + succeededEndpointIndex - Index of the `CallerActions[]` array which given a successful response
 public type FailoverClient client object {
 
-    public FailoverClientEndpointConfiguration failoverClientConfig = {};
+    public FailoverClientEndpointConfiguration failoverClientConfig;
     public FailoverInferredConfig failoverInferredConfig;
-    public int succeededEndpointIndex = 0;
-    private Client httpEP = new (createClientEPConfigFromFailoverEPConfig(failoverClientConfig,
-                                                                            failoverClientConfig.targets[0]));
+    public int succeededEndpointIndex;
 
     # Failover caller actions which provides failover capabilities to an HTTP client endpoint.
     #
     # + config - The configurations of the client endpoint associated with this `Failover` instance
-    # + failoverInferredConfig - Configurations derived from `FailoverConfig`
-    public new (failoverClientConfig, failoverInferredConfig) {}
-
-    # Initializes the endpoint using the configurations provided.
-    #
-    # + foClientConfig - The configurations to be used when initializing the endpoint
-    public function init(FailoverClientEndpointConfiguration foClientConfig);
+    public function __init(FailoverClientEndpointConfiguration failoverClientConfig) {
+        self.failoverClientConfig = failoverClientConfig;
+        self.succeededEndpointIndex = 0;
+        var failoverHttpClientArray = createFailoverHttpClientArray(failoverClientConfig);
+        if (failoverHttpClientArray is error) {
+            panic failoverHttpClientArray;
+        } else {
+            Client[] clients = failoverHttpClientArray;
+            boolean[] failoverCodes = populateErrorCodeIndex(failoverClientConfig.failoverCodes);
+            FailoverInferredConfig failoverInferredConfig = {
+                failoverClientsArray:clients,
+                failoverCodesIndex:failoverCodes,
+                failoverInterval:failoverClientConfig.intervalMillis
+            };
+            self.failoverInferredConfig = failoverInferredConfig;
+        }
+    }
 
     # The POST action implementation of the Failover Connector.
     #
@@ -470,19 +478,6 @@ public type FailoverClientEndpointConfiguration record {
     !...
 };
 
-function FailoverClient.init(FailoverClientEndpointConfiguration foClientConfig) {
-    self.httpEP.config.circuitBreaker = foClientConfig.circuitBreaker;
-    self.httpEP.config.timeoutMillis = foClientConfig.timeoutMillis;
-    self.httpEP.config.httpVersion = foClientConfig.httpVersion;
-    self.httpEP.config.forwarded = foClientConfig.forwarded;
-    self.httpEP.config.keepAlive = foClientConfig.keepAlive;
-    self.httpEP.config.chunking = foClientConfig.chunking;
-    self.httpEP.config.followRedirects = foClientConfig.followRedirects;
-    self.httpEP.config.retryConfig = foClientConfig.retryConfig;
-    self.httpEP.config.proxy = foClientConfig.proxy;
-    self.httpEP.config.connectionThrottling = foClientConfig.connectionThrottling;
-}
-
 function createClientEPConfigFromFailoverEPConfig(FailoverClientEndpointConfiguration foConfig,
                                                   TargetService target) returns ClientEndpointConfig {
     ClientEndpointConfig clientEPConfig = {
@@ -505,84 +500,14 @@ function createClientEPConfigFromFailoverEPConfig(FailoverClientEndpointConfigur
     return clientEPConfig;
 }
 
-
-function createFailOverClient(FailoverClientEndpointConfiguration failoverClientConfig) returns Client|error {
-    ClientEndpointConfig config = createClientEPConfigFromFailoverEPConfig(
-                                      failoverClientConfig, failoverClientConfig.targets[0]);
-    var failoverHttpClientArray = createFailoverHttpClientArray(failoverClientConfig);
-    if (failoverHttpClientArray is error) {
-        return failoverHttpClientArray;
-    } else {
-        Client[] clients = failoverHttpClientArray;
-        boolean[] failoverCodes = populateErrorCodeIndex(failoverClientConfig.failoverCodes);
-        FailoverInferredConfig failoverInferredConfig = {
-            failoverClientsArray:clients,
-            failoverCodesIndex:failoverCodes,
-            failoverInterval:failoverClientConfig.intervalMillis
-        };
-        return <Client>new FailoverClient(failoverClientConfig, failoverInferredConfig);
-    }
-}
-
 function createFailoverHttpClientArray(FailoverClientEndpointConfiguration failoverClientConfig) returns Client[]|error {
     Client[] httpClients = [];
     int i = 0;
-    boolean httpClientRequired = false;
-    string uri = failoverClientConfig.targets[0].url;
-    var cbConfig = failoverClientConfig.circuitBreaker;
-    if (cbConfig is CircuitBreakerConfig) {
-        if (uri.hasSuffix("/")) {
-            int lastIndex = uri.length() - 1;
-            uri = uri.substring(0, lastIndex);
-        }
-        httpClientRequired = false;
-    } else {
-        httpClientRequired = true;
-    }
 
     foreach target in failoverClientConfig.targets {
         ClientEndpointConfig epConfig = createClientEPConfigFromFailoverEPConfig(failoverClientConfig, target);
-        uri = target.url;
-        if (uri.hasSuffix("/")) {
-            int lastIndex = uri.length() - 1;
-            uri = uri.substring(0, lastIndex);
-        }
-        if (!httpClientRequired) {
-            var circuitBreakerClient = createCircuitBreakerClient(uri, epConfig);
-            if (circuitBreakerClient is Client) {
-                httpClients[i] = circuitBreakerClient;
-            } else {
-                return circuitBreakerClient;
-            }
-        } else {
-            var retryConfig = epConfig.retryConfig;
-            if (retryConfig is RetryConfig) {
-                var retryClient = createRetryClient(uri, epConfig);
-                if (retryClient is Client) {
-                    httpClients[i] = retryClient;
-                } else {
-                    return retryClient;
-                }
-            } else {
-                if (epConfig.cache.enabled) {
-                    var httpCachingClient = createHttpCachingClient(uri, epConfig, epConfig.cache);
-                    if (httpCachingClient is Client) {
-                        httpClients[i] = httpCachingClient;
-                    } else {
-                        return httpCachingClient;
-                    }
-                } else {
-                    var httpSecureClient = createHttpSecureClient(uri, epConfig);
-                    if (httpSecureClient is Client) {
-                        httpClients[i] = httpSecureClient;
-                    } else {
-                        return httpSecureClient;
-                    }
-                }
-            }
-        }
-        httpClients[i].config = epConfig;
-        i = i + 1;
+        httpClients[i] = new(epConfig);
+        i += 1;
     }
     return httpClients;
 }

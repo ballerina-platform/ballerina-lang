@@ -207,7 +207,7 @@ public class HttpConstants {
     // ServeConnector struct indices
     public static final String HTTP_CONNECTOR_CONFIG_FIELD = "config";
     public static final String SERVICE_ENDPOINT_CONFIG_FIELD = "config";
-    public static final String SERVICE_ENDPOINT_CONNECTION_FIELD = "conn";
+    public static final String SERVICE_ENDPOINT_CONNECTION_FIELD = "caller";
 
     //Connection struct indexes
     public static final int CONNECTION_HOST_INDEX = 0;
@@ -395,6 +395,8 @@ public class HttpConstants {
     public static final int REQUEST_STRUCT_INDEX = 1;
     public static final String REQUEST_REUSE_STATUS_INDEX = "dirtyRequest";
     public static final boolean DIRTY_REQUEST = true;
+
+    public static final String MOCK_SERVER = "MockServer";
 
     private HttpConstants() {
     }

@@ -798,8 +798,8 @@ public class XMLNativeFunctionTest {
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertTrue(returns[1] instanceof BXML);
         
-        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 4);
-        Assert.assertEquals(returns[0].stringValue(), "<!-- comment about the book-->     <bookId>001</bookId>" +
+        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 5);
+        Assert.assertEquals(returns[0].stringValue(), "<!-- comment about the book-->     <bookId>001</bookId> " +
                 "<?word document=\"book.doc\" ?>");
         
         Assert.assertEquals(((BXMLSequence) returns[1]).value().size(), 3);
@@ -822,8 +822,8 @@ public class XMLNativeFunctionTest {
         BValue[] returns = BRunUtil.invoke(result, "testStripEmptySingleton");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertTrue(returns[1] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "");
-        Assert.assertEquals(returns[1].stringValue(), "");
+        Assert.assertEquals(returns[0].stringValue(), " ");
+        Assert.assertEquals(returns[1].stringValue(), " ");
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
     }
     
@@ -913,8 +913,8 @@ public class XMLNativeFunctionTest {
     public void testToJsonForEmptyValue() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testToJsonForEmptyValue");
 
-        Assert.assertTrue(returns[0] instanceof BRefValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "[]");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), " ");
     }
 
     @Test

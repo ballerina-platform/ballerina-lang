@@ -42,11 +42,9 @@ public type RedirectClient client object {
     # + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
     # + redirectConfig - Configurations associated with redirect
     # + httpClient - HTTP client for outbound HTTP requests
-    public new(serviceUri, config, redirectConfig, httpClient) {
-        self.serviceUri = serviceUri;
-        self.config = config;
-        self.redirectConfig = redirectConfig;
-        self.httpClient = httpClient;
+    public function __init(string serviceUri, ClientEndpointConfig config,
+                           FollowRedirects redirectConfig, Client httpClient) {
+        self.httpClient = createSimpleHttpClient(serviceUri, config);
     }
 
     # If the received response for the `get()` action is redirect eligible, redirect will be performed automatically

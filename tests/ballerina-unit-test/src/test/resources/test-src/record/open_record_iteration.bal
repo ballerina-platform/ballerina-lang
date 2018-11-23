@@ -1,50 +1,50 @@
 // OPEN RECORDS
 
 type Person record {
-    string name;
-    int age;
-    Address address;
+    string name = "";
+    int age = 0;
+    Address address = {};
 };
 
 type Address record {
-    string street;
-    string city;
+    string street = "";
+    string city = "";
 };
 
 type Foo record {
-    string a;
-    string b;
-    string c;
-    string d;
-    string e;
+    string a = "";
+    string b = "";
+    string c = "";
+    string d = "";
+    string e = "";
 };
 
 type RestrictedFoo record {
-    string a;
-    string b;
-    string c;
-    string d;
-    string e;
+    string a = "";
+    string b = "";
+    string c = "";
+    string d = "";
+    string e = "";
     string...
 };
 
 type Grades record {
-    int maths;
-    int physics;
-    int chemistry;
+    int maths = 0;
+    int physics = 0;
+    int chemistry = 0;
 };
 
 type RestrictedGrades record {
-    int maths;
-    int physics;
-    int chemistry;
+    int maths = 0;
+    int physics = 0;
+    int chemistry = 0;
     int...
 };
 
 type RestrictedBar record {
-    float x;
-    float y;
-    float z;
+    float x = 0.0;
+    float y = 0.0;
+    float z = 0.0;
     float...
 };
 
@@ -93,7 +93,7 @@ function testForeachWithOpenRecords3() returns any[] {
 
 function testForeachOpWithOpenRecords() returns map {
     Person p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }, height: 5.9 };
-    map rec;
+    map rec = {};
 
     p.foreach(function ((string, any) entry) {
             var (field, value) = entry;
@@ -123,7 +123,7 @@ function testFilterOpWithOpenRecords() returns map {
 
     map newf = f.filter(function ((string, any) entry) returns boolean {
         var (field, value) = entry;
-        if (value != "A" && value != "E") {
+        if (value !== "A" && value !== "E") {
             return true;
         }
         return false;
@@ -150,7 +150,7 @@ function testChainedOpsWithOpenRecords() returns map {
                 })
                 .filter(function ((string, any) entry) returns boolean {
                     var (field, value) = entry;
-                    if (value != "aa" && value != "ee") {
+                    if (value !== "aa" && value !== "ee") {
                         return true;
                     }
                     return false;

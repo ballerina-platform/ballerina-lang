@@ -33,8 +33,6 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
-
 /**
  * Test class for SQL Connector actions test.
  *
@@ -331,23 +329,6 @@ public class SQLActionsTest {
                 + "[{FIRSTNAME:\"Peter\", LASTNAME:\"Stuart\"}, {FIRSTNAME:\"John\", LASTNAME:\"Watson\"}], "
                 + "[{FIRSTNAME:\"Peter\", LASTNAME:\"Stuart\"}, {FIRSTNAME:\"John\", LASTNAME:\"Watson\"}], "
                 + "Trying to perform hasNext operation over a closed table {})");
-    }
-
-    @Test(groups = CONNECTOR_TEST, description = "Test re-init endpoint")
-    public void testReInitEndpoint() {
-        TestDatabase testDatabase2;
-        String validationQuery;
-
-        testDatabase2 = new FileBasedTestDatabase(DBType.H2,
-                "." + File.separator + "target" + File.separator + "H2Client2" + File.separator,
-                "TEST_SQL_CONNECTOR_H2_2");
-        validationQuery = "SELECT 1";
-
-        BValue[] args = { new BString(validationQuery) };
-
-        BValue[] returns = BRunUtil.invoke(result, "testReInitEndpoint", args);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
-        testDatabase2.stop();
     }
 
     @AfterSuite

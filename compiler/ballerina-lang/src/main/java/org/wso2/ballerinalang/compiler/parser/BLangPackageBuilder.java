@@ -614,7 +614,7 @@ public class BLangPackageBuilder {
 
         if (retParamsAvail) {
             functionTypeNode.addWS(this.varStack.peek().getWS());
-            functionTypeNode.returnTypeNode = (BLangType) this.varStack.pop().getTypeNode();
+            functionTypeNode.returnTypeNode = this.varStack.pop().getTypeNode();
         } else {
             BLangValueType nilTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
             nilTypeNode.pos = pos;
@@ -1794,64 +1794,6 @@ public class BLangPackageBuilder {
         this.compUnit.addTopLevelNode(typeDefinition);
     }
 
-    void endObjectInitParamList(Set<Whitespace> ws, boolean paramsAvail, boolean restParamAvail) {
-        InvokableNode invNode = this.invokableNodeStack.peek();
-        invNode.addWS(ws);
-
-        if (paramsAvail) {
-            this.varListStack.pop().forEach(variableNode -> {
-                invNode.addParameter((SimpleVariableNode) variableNode);
-            });
-
-            this.defaultableParamsList.forEach(variableDef -> {
-                BLangSimpleVariableDef varDef = (BLangSimpleVariableDef) variableDef;
-                invNode.addDefaultableParameter(varDef);
-            });
-            this.defaultableParamsList = new ArrayList<>();
-
-            if (restParamAvail) {
-                invNode.setRestParameter(this.restParamStack.pop());
-            }
-        }
-    }
-
-    void endObjectInitFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean publicFunc,
-                                  boolean bodyExists, boolean markdownDocPresent, boolean deprecatedDocPresent,
-                                  int annCount) {
-        BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
-        function.setName(this.createIdentifier(identifier));
-        function.pos = pos;
-        function.addWS(ws);
-
-        if (publicFunc) {
-            function.flagSet.add(Flag.PUBLIC);
-        }
-
-        if (!bodyExists) {
-            function.body = null;
-        }
-
-        attachAnnotations(function, annCount);
-        if (markdownDocPresent) {
-            attachMarkdownDocumentations(function);
-        }
-        if (deprecatedDocPresent) {
-            attachDeprecatedNode(function);
-        }
-
-        if (!function.deprecatedAttachments.isEmpty()) {
-            function.flagSet.add(Flag.DEPRECATED);
-        }
-
-        BLangValueType nillTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
-        nillTypeNode.pos = pos;
-        nillTypeNode.typeKind = TypeKind.NIL;
-        function.returnTypeNode = nillTypeNode;
-
-        function.objInitFunction = true;
-        ((BLangObjectTypeNode) this.typeNodeStack.peek()).initFunction = function;
-    }
-
     void endObjectAttachedFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean privateFunc,
             boolean remoteFunc, boolean resourceFunc, boolean nativeFunc, boolean bodyExists,
             boolean markdownDocPresent, boolean deprecatedDocPresent, int annCount) {
@@ -1900,7 +1842,14 @@ public class BLangPackageBuilder {
             function.flagSet.add(Flag.DEPRECATED);
         }
 
-        ((BLangObjectTypeNode) this.typeNodeStack.peek()).addFunction(function);
+        BLangObjectTypeNode objectNode = (BLangObjectTypeNode) this.typeNodeStack.peek();
+        if (Names.OBJECT_INIT_SUFFIX.value.equals(function.name.value)) {
+            function.objInitFunction = true;
+            objectNode.initFunction = function;
+            return;
+        }
+
+        objectNode.addFunction(function);
     }
 
     void endObjectOuterFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean remoteFunc,
@@ -1949,33 +1898,6 @@ public class BLangPackageBuilder {
         }
 
         this.compUnit.addTopLevelNode(function);
-    }
-
-    void addObjectParameter(DiagnosticPos pos, Set<Whitespace> ws, boolean isField,
-                            String identifier, int annotCount) {
-        BLangSimpleVariable var = (BLangSimpleVariable) this.generateObjectVarNode(pos, ws, isField, identifier);
-        attachAnnotations(var, annotCount);
-        var.pos = pos;
-        if (this.varListStack.empty()) {
-            this.varStack.push(var);
-        } else {
-            this.varListStack.peek().add(var);
-        }
-
-    }
-
-    private SimpleVariableNode generateObjectVarNode(DiagnosticPos pos, Set<Whitespace> ws,
-                                                     boolean isField, String identifier) {
-        BLangSimpleVariable var = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
-        var.pos = pos;
-        IdentifierNode name = this.createIdentifier(identifier);
-        var.setName(name);
-        var.addWS(ws);
-        var.isField = isField;
-        if (!isField) {
-            var.setTypeNode(this.typeNodeStack.pop());
-        }
-        return var;
     }
 
     void startAnnotationDef(DiagnosticPos pos) {

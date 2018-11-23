@@ -43,7 +43,7 @@ public type SampleWindow object {
 
 function testObjectFunctionPointer() returns int {
     Window win = new LengthWindow();
-    function () returns int pointer = win.process;
+    (function () returns int) pointer = (func => win.process());
     win = new SampleWindow();
     return pointer();
 }
