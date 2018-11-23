@@ -56,19 +56,19 @@ function testNegative6() {
 }
 
 type Foo record {
-    string name = "";
-    int age = 0;
+    string name;
+    int age;
 };
 
 type Bar record {
-    int id = 0;
-    boolean flag = false;
+    int id;
+    boolean flag;
 };
 
 type FooObj object {
-    public string s = "";
-    public float f = 0.0;
-    public byte b = 0;
+    public string s;
+    public float f;
+    public byte b;
     public function __init(string s, float f, byte b) {
         self.s = s;
         self.f = f;
@@ -77,8 +77,8 @@ type FooObj object {
 };
 
 type BarObj object {
-    public boolean b = false;
-    public int i = 0;
+    public boolean b;
+    public int i;
     public function __init(boolean b, int i) {
         self.b = b;
         self.i = i;

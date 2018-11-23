@@ -368,7 +368,6 @@ public class TupleVariableDefinitionTest {
 
     @Test
     public void testNegativeTupleVariables() {
-        System.out.println(resultNegative);
         Assert.assertEquals(resultNegative.getErrorCount(), 23);
         int i = -1;
         String errorMsg1 = "invalid tuple binding pattern; member variable count mismatch with member type count";

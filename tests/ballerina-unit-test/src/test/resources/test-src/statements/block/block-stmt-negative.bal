@@ -95,9 +95,9 @@ function testUnreachableBreak() returns (string){
 }
 
 public type testError record {
-    string message = "";
-    error cause = error("", {});
-    string? code = ();
+    string message;
+    error cause;
+    string code?;
     !...
 };
 
