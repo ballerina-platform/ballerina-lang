@@ -842,6 +842,11 @@ public class CPU {
         int j = operands[1];
 
         BRefType<?> refRegVal = sf.refRegs[i];
+
+        if (refRegVal == null) {
+            return;
+        }
+
         if (!checkIsLikeType(refRegVal, BTypes.typeAnydata)) {
             sf.refRegs[j] = BLangVMErrors.createError(ctx, BLangExceptionHelper
                     .getErrorMessage(RuntimeErrors.UNSUPPORTED_CLONE_OPERATION, refRegVal, refRegVal.getType()));
@@ -945,7 +950,9 @@ public class CPU {
         }
 
         try {
-            valueToBeStamped.stamp(targetType);
+            if (valueToBeStamped != null) {
+                valueToBeStamped.stamp(targetType);
+            }
             sf.refRegs[k] = valueToBeStamped;
         } catch (BallerinaException e) {
             BError error = BLangVMErrors.createError(ctx,
@@ -4220,7 +4227,7 @@ public class CPU {
         compensationTable.index++;
     }
 
-    private static boolean checkIsLikeType(BValue sourceValue, BType targetType) {
+    public static boolean checkIsLikeType(BValue sourceValue, BType targetType) {
         BType sourceType = sourceValue == null ? BTypes.typeNull : sourceValue.getType();
         if (checkIsType(sourceType, targetType, new ArrayList<>())) {
             return true;
@@ -4243,7 +4250,7 @@ public class CPU {
                 return checkFiniteTypeAssignable(sourceValue, targetType);
             case TypeTags.UNION_TAG:
                 return ((BUnionType) targetType).getMemberTypes().stream()
-                        .anyMatch(type -> checkIsType(sourceValue, type));
+                        .anyMatch(type -> checkIsLikeType(sourceValue, type));
             default:
                 return false;
         }
