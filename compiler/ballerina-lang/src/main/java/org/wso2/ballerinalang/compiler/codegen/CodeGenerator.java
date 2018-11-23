@@ -894,11 +894,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangPackageVarRef packageVarRef) {
         BPackageSymbol pkgSymbol;
         BSymbol ownerSymbol = packageVarRef.symbol.owner;
-        if (ownerSymbol.tag == SymTag.SERVICE) {
-            pkgSymbol = (BPackageSymbol) ownerSymbol.owner;
-        } else {
-            pkgSymbol = (BPackageSymbol) ownerSymbol;
-        }
+        pkgSymbol = (BPackageSymbol) ownerSymbol;
 
         Operand gvIndex = packageVarRef.varSymbol.varIndex;
         int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.pkgID);
@@ -2906,11 +2902,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         for (BVarSymbol varSymbol : lockNode.lockVariables) {
             BPackageSymbol pkgSymbol;
             BSymbol ownerSymbol = varSymbol.owner;
-            if (ownerSymbol.tag == SymTag.SERVICE) {
-                pkgSymbol = (BPackageSymbol) ownerSymbol.owner;
-            } else {
-                pkgSymbol = (BPackageSymbol) ownerSymbol;
-            }
+            pkgSymbol = (BPackageSymbol) ownerSymbol;
             int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.pkgID);
 
             int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, varSymbol.getType().getDesc());
@@ -3605,8 +3597,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // If the namespace is defined within a callable unit or service, get the URI index in the 
         // local var registry. Otherwise get the URI index in the global var registry.
-        if ((namespaceSymbol.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE ||
-                (namespaceSymbol.owner.tag & SymTag.SERVICE) == SymTag.SERVICE) {
+        if ((namespaceSymbol.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
             return (RegIndex) namespaceSymbol.nsURIIndex;
         }
 
