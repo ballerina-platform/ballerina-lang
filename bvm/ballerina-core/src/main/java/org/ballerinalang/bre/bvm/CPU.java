@@ -696,9 +696,6 @@ public class CPU {
                         BStream stream = new BStream(typeRefCPEntry.getType(), name.getValue());
                         sf.refRegs[i] = stream;
                         break;
-                    case InstructionCodes.NEW_INT_RANGE:
-                        createNewIntRange(operands, sf);
-                        break;
                     case InstructionCodes.IRET:
                         i = operands[0];
                         j = operands[1];
@@ -2879,12 +2876,6 @@ public class CPU {
                                                   int errorRegIndex, String errorMessage) {
         BError errorVal = BLangVMErrors.createTypeConversionError(ctx, errorMessage);
         sf.refRegs[errorRegIndex] = errorVal;
-    }
-
-    private static void createNewIntRange(int[] operands, WorkerData sf) {
-        long startValue = sf.longRegs[operands[0]];
-        long endValue = sf.longRegs[operands[1]];
-        sf.refRegs[operands[2]] = new BIntArray(LongStream.rangeClosed(startValue, endValue).toArray());
     }
 
     private static void createNewStruct(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {

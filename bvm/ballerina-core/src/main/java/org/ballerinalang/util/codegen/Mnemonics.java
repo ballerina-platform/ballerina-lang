@@ -255,7 +255,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.NEWSTREAM] = "newstream";
         mnemonics[InstructionCodes.ERROR] = "error";
 
-        mnemonics[InstructionCodes.NEW_INT_RANGE] = "new_int_range";
         mnemonics[InstructionCodes.INT_RANGE] = "int_range";
 
         mnemonics[InstructionCodes.IRET] = "iret";

@@ -277,7 +277,6 @@ public interface InstructionCodes {
     int NEWTABLE = 215;
     int NEWSTREAM = 217;
 
-    int NEW_INT_RANGE = 218;
     int INT_RANGE = 222;
 
     int I2BI = 223;

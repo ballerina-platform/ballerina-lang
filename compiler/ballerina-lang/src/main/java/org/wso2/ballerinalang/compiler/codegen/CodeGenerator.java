@@ -138,7 +138,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -1129,17 +1128,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             genNode(binaryExpr.rhsExpr, this.env);
             RegIndex regIndex = calcAndGetExprRegIndex(binaryExpr);
             int opCode = binaryExpr.opSymbol.opcode;
-            if (opCode == InstructionCodes.INT_RANGE) {
-                if (binaryExpr.parent instanceof BLangForeach) {
-                    // Avoid creating an array if the range is only used in a foreach statement
-                    emit(InstructionCodes.NEW_INT_RANGE, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex,
-                            regIndex);
-                } else {
-                    emit(opCode, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex, regIndex);
-                }
-            } else {
-                emit(opCode, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex, regIndex);
-            }
+            emit(opCode, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex, regIndex);
         }
     }
 
@@ -3345,7 +3334,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(endExpr, env);
         rangeExpr.regIndex = calcAndGetExprRegIndex(rangeExpr);
 
-        emit(InstructionCodes.NEW_INT_RANGE, startExpr.regIndex, endExpr.regIndex, rangeExpr.regIndex);
+        emit(InstructionCodes.INT_RANGE, startExpr.regIndex, endExpr.regIndex, rangeExpr.regIndex);
     }
 
     @Override

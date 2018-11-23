@@ -245,7 +245,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.NEWTABLE] = "newtable";
         mnemonics[InstructionCodes.NEWSTREAM] = "newstream";
 
-        mnemonics[InstructionCodes.NEW_INT_RANGE] = "new_int_range";
         mnemonics[InstructionCodes.INT_RANGE] = "int_range";
 
         mnemonics[InstructionCodes.IRET] = "iret";
