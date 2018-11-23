@@ -14,17 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function waitTest1() returns map { // {f1: 7, f2: 22, f4: "hello foo", f6: true}
+function waitTest1() returns map<anydata> { // {f1: 7, f2: 22, f4: "hello foo", f6: true}
     future<int> f1 = start add_1(5, 2);
     future<int> f2 = start add_2(10, 12);
     future<string> f3 = start concat("foo");
     future<boolean> f4 = start status();
 
-    map result = wait {f1, f2, f3, f4};
+    map<anydata> result = wait {f1, f2, f3, f4};
     return result;
 }
 
-function waitTest2() returns map { // {f1: 7, str1: "hello foo", f3: 150, str2: "hello xyz"}
+function waitTest2() returns map<int|string> { // {f1: 7, str1: "hello foo", f3: 150, str2: "hello xyz"}
     future<int> f1 = start add_1(5, 2);
     future<string> f4 = start concat("foo");
     future<int> f3 = start add_3(50, 100);
@@ -43,35 +43,35 @@ function waitTest3() returns any { // {f1: 7, f3: 150, f5: "hello bar"}
     return result;
 }
 
-function waitTest4() returns map { // {f1: 7, f2: 22, f4: "hello foo"}
+function waitTest4() returns map<anydata> { // {f1: 7, f2: 22, f4: "hello foo"}
     future<int> f1 = start add_1(5, 2);
     future<string> f4 = start concat("foo");
     future<int> f2 = start add_2(10, 12);
     record { int f1 = 0; int f2 = 0; string f4 = "";} anonRec = wait {f1, f4, f2};
 
-    map m = {};
+    map<anydata> m = {};
     m["f1"] = anonRec.f1;
     m["f2"] = anonRec.f2;
     m["f4"] = anonRec.f4;
     return m;
 }
 
-function waitTest5() returns map { // {id: 66, name: "hello foo"}
+function waitTest5() returns map<anydata> { // {id: 66, name: "hello foo"}
     future<string> f5 = start concat("foo");
     record { int id; string name; } anonRec = wait {id: fuInt(), name: f5};
 
-    map m = {};
+    map<anydata> m = {};
     m["id"] = anonRec.id;
     m["name"] = anonRec.name;
     return m;
 }
 
-function waitTest6() returns map { // {idField: 150, stringField: "hello foo"}
+function waitTest6() returns map<anydata> { // {idField: 150, stringField: "hello foo"}
     future<int> f3 = start add_3(50, 100);
     future<string> f4 = start concat("foo");
     record { int idField; string stringField;} anonRec = wait {idField: f3, stringField: f4};
 
-    map m = {};
+    map<anydata> m = {};
     m["idField"] = anonRec.idField;
     m["stringField"] = anonRec.stringField;
     return m;
@@ -116,6 +116,50 @@ function waitTest12() returns fourthRec { // {f1: 30, f5: "hello bar"}
     future<int> f1 = start add_1(20, 66);
     fourthRec result = wait {id: f1};
     return result;
+}
+
+function waitTest13() returns fourthRec { // error
+    future<int> f1 = start add_panic(20, 66);
+    fourthRec result = wait {id: f1};
+    return result;
+}
+
+
+function waitTest14() returns map<anydata> { // {idField: 150, stringField: "hello foo"}
+    future<string> f4 = start concat("foo");
+    future<int> f3 = start add_panic(50, 100);
+    record { int i; string j;} anonRec = wait {i: f3, j: f4};
+
+    map<anydata> m = {};
+    m["i"] = anonRec.i;
+    m["j"] = anonRec.j;
+    return m;
+}
+
+function waitTest15() returns map<anydata> { // {f1: 7, f2: 22, f4: "hello foo", f6: true}
+    future<int> f1 = start add_1(5, 2);
+    future<string> f3 = start concat("foo");
+    future<boolean> f4 = start status();
+    future<int> f2 = start add_panic(10, 12);
+
+    map<anydata> result = wait {f1, f2, f3, f4};
+    return result;
+}
+
+function waitTest16() returns int {
+    future<int> f1 = start add_1(5, 2);
+    future<string> f3 = start concat("foo");
+    future<boolean> f4 = start status();
+    future<int> f2 = start add_panic(10, 12);
+
+    var result = trap wait {f1, f2, f3, f4};
+    if (result is map<int|string|boolean>) {
+        return 9;
+    } else if (result is error) {
+        return 0;
+    } else {
+        return 1;
+    }
 }
 
 type firstRec record {
@@ -172,12 +216,24 @@ function fuInt() returns future<int> {
     return i;
 }
 
-function getEmpMap() returns map {
-    map empMap = { fname: "foo", lname: "bar"};
+function getEmpMap() returns map<string> {
+    map<string> empMap = { fname: "foo", lname: "bar"};
     return empMap;
 }
 
-function getAddrMap() returns map {
-    map addrMap = { line1: "No. 20", line2: "Palm Grove", city: "Colombo 03"};
+function getAddrMap() returns map<string> {
+    map<string> addrMap = { line1: "No. 20", line2: "Palm Grove", city: "Colombo 03"};
     return addrMap;
+}
+function add_panic(int i, int j) returns int {
+    int k = i + j;
+    int l = 0;
+    while (l < 9999999) {
+        l = l + 1;
+    }
+    if (true) {
+        error err = error("err from panic" );
+        panic err;
+    }
+    return k;
 }

@@ -432,7 +432,7 @@ public class BLangVMUtils {
         ctx.globalProps.put(SERVICE_INFO_KEY, serviceInfo);
     }
     
-    public static ServiceInfo getServiceInfo(WorkerExecutionContext ctx) {
+    public static ServiceInfo getServiceInfo(Strand ctx) {
         return (ServiceInfo) ctx.globalProps.get(SERVICE_INFO_KEY);
     }
 

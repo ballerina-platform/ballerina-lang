@@ -1022,13 +1022,16 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             case TypeTags.MAP:
                 checkTypesForMap(waitForAllExpr.keyValuePairs, ((BMapType) expType).constraint);
-                resultType = expType;
+                HashSet<BType> memberTypesForMap = collectWaitExprTypes(waitForAllExpr.keyValuePairs);
+                BUnionType constraintTypeForMap = new BUnionType(null, memberTypesForMap, false);
+                resultType = new BMapType(TypeTags.MAP, constraintTypeForMap, symTable.mapType.tsymbol);
                 break;
             case TypeTags.NONE:
             case TypeTags.ANY:
                 checkTypesForMap(waitForAllExpr.keyValuePairs, expType);
-                BFutureType futureType = new BFutureType(TypeTags.FUTURE, symTable.anyType, null);
-                resultType = new BMapType(TypeTags.MAP, futureType, symTable.mapType.tsymbol);
+                HashSet<BType> memberTypes = collectWaitExprTypes(waitForAllExpr.keyValuePairs);
+                BUnionType constraintType = new BUnionType(null, memberTypes, false);
+                resultType = new BMapType(TypeTags.MAP, constraintType, symTable.mapType.tsymbol);
                 break;
             default:
                 dlog.error(waitForAllExpr.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expType);
@@ -1040,6 +1043,21 @@ public class TypeChecker extends BLangNodeVisitor {
         if (resultType != null && resultType != symTable.semanticError) {
             types.setImplicitCastExpr(waitForAllExpr, waitForAllExpr.type, expType);
         }
+    }
+
+    private HashSet<BType> collectWaitExprTypes(List<BLangWaitForAllExpr.BLangWaitKeyValue> keyVals) {
+        HashSet<BType> memberTypes = new HashSet<>();
+        for (BLangWaitForAllExpr.BLangWaitKeyValue keyVal : keyVals) {
+            BType bType = keyVal.keyExpr != null ? keyVal.keyExpr.type : keyVal.valueExpr.type;
+            if (bType.tag == TypeTags.UNION) {
+                memberTypes = collectMemberTypes((BUnionType) bType, memberTypes);
+            } else if (bType.tag == TypeTags.FUTURE) {
+                memberTypes.add(((BFutureType) bType).constraint);
+            } else {
+                memberTypes.add(bType);
+            }
+        }
+        return memberTypes;
     }
 
     private void checkTypesForMap(List<BLangWaitForAllExpr.BLangWaitKeyValue> keyValuePairs, BType expType) {

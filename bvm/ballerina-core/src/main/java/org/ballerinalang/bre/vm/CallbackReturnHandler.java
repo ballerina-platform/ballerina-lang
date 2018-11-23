@@ -43,9 +43,18 @@ public class CallbackReturnHandler {
             }
             for (SafeStrandCallback callback : callbacks) {
                 callback.acquireDataLock();
+                if (callback.getErrorVal() != null) {
+                    strand.callBacksRemaining--;
+                    if (strand.callBacksRemaining == 0) {
+                        return setErrorToStrand(strand, callback);
+                    }
+                    callback.releaseDataLock();
+                    continue;
+                }
                 if (callback.returnDataAvailable()) {
                     handleReturn(strand.currentFrame, callback, expType, retReg);
                     strand.waitCompleted = true;
+                    strand.callBacksRemaining--;
                     callback.releaseDataLock();
                     return strand;
                 }
@@ -63,10 +72,17 @@ public class CallbackReturnHandler {
     static Strand handleReturn(Strand strand, int retReg, Map<Integer, SafeStrandCallback> callbacks) {
         try {
             strand.acquireExecutionLock();
+            if (strand.waitCompleted) {
+                return null;
+            }
             for (Map.Entry<Integer, SafeStrandCallback> entry : callbacks.entrySet()) {
                 Integer keyReg = entry.getKey();
                 SafeStrandCallback strandCallback = entry.getValue();
                 strandCallback.acquireDataLock();
+
+                if (strandCallback.getErrorVal() != null) {
+                    return setErrorToStrand(strand, strandCallback);
+                }
 
                 if (strandCallback.returnDataAvailable()) {
                     handleWaitAllReturn(strand.currentFrame, strandCallback, retReg, keyReg);
@@ -87,6 +103,14 @@ public class CallbackReturnHandler {
             strand.releaseExecutionLock();
         }
         return null;
+    }
+
+    private static Strand setErrorToStrand(Strand strand, SafeStrandCallback callback) {
+        strand.setError(callback.getErrorVal());
+        callback.releaseDataLock();
+        BVM.handleError(strand);
+        strand.waitCompleted = true;
+        return strand;
     }
 
     private static void handleWaitAllReturn(StackFrame sf, SafeStrandCallback strandCallback, int retReg, int keyReg) {

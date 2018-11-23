@@ -818,7 +818,7 @@ public class BVM {
                                        int[] argRegs, int retReg, int flags) {
         //TODO refactor when worker info is removed from compiler
         StackFrame df = new StackFrame(callableUnitInfo.getPackageInfo(), callableUnitInfo,
-                callableUnitInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), retReg); //TODO change retRegs to be single int
+                callableUnitInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), retReg);
         copyArgValues(strand.currentFrame, df, argRegs, callableUnitInfo.getParamTypes());
 
         if (!FunctionFlags.isAsync(flags)) {
@@ -833,7 +833,7 @@ public class BVM {
             return strand;
         }
 
-        SafeStrandCallback strndCallback = new SafeStrandCallback(callableUnitInfo, callableUnitInfo.getRetParamTypes()[0]);
+        SafeStrandCallback strndCallback = new SafeStrandCallback(callableUnitInfo.getRetParamTypes()[0]);
         Strand calleeStrand = new Strand(strand.programFile, strand.globalProps, strndCallback);
         calleeStrand.pushFrame(df);
         if (callableUnitInfo.isNative()) {
@@ -2056,7 +2056,7 @@ public class BVM {
                 k = operands[2];
                 if (sf.refRegs[i] == null || sf.refRegs[j] == null) {
                     handleNullRefError(ctx);
-                    break;//TODO is this correct?
+                    break; //TODO is this correct?
                 }
                 sf.intRegs[k] = sf.refRegs[i].equals(sf.refRegs[j]) ? 1 : 0;
                 break;
@@ -2115,7 +2115,7 @@ public class BVM {
                 k = operands[2];
                 if (sf.refRegs[i] == null || sf.refRegs[j] == null) {
                     handleNullRefError(ctx);
-                    break;//TODO is this correct?
+                    break; //TODO is this correct?
                 }
                 sf.intRegs[k] = (!sf.refRegs[i].equals(sf.refRegs[j])) ? 1 : 0;
                 break;
@@ -3086,7 +3086,7 @@ public class BVM {
 //                                transactionBlockId);
 //                    } else {
 //                        TransactionResourceManager.getInstance()
-//                                .notifyAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId, false);
+//                              .notifyAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId, false);
 //                    }
 //                }
 //            } else if (status == TransactionStatus.ABORTED.value()) {
@@ -4121,6 +4121,7 @@ public class BVM {
         }
         strand.createLock();
         strand.waitCompleted = false;
+        strand.callBacksRemaining = callbacks.length;
         return CallbackReturnHandler.handleReturn(strand, expType, retValReg, callbacks);
     }
 
@@ -4141,8 +4142,9 @@ public class BVM {
             BFuture future = (BFuture) strand.currentFrame.refRegs[futureReg];
             callbackHashMap.put(keyRegIndex, future.value());
         }
-        strand.callbacksToWaitFor = new ArrayList(callbackHashMap.keySet());
         strand.createLock();
+        strand.waitCompleted = false;
+        strand.callbacksToWaitFor = new ArrayList(callbackHashMap.keySet());
         return CallbackReturnHandler.handleReturn(strand, retValReg, callbackHashMap);
     }
     /**

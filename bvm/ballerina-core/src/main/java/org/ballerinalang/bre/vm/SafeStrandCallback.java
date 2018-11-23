@@ -18,7 +18,6 @@
 package org.ballerinalang.bre.vm;
 
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.util.codegen.CallableUnitInfo;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,8 +46,8 @@ public class SafeStrandCallback extends StrandCallback {
 
     private boolean multipleWait;
 
-    public SafeStrandCallback(CallableUnitInfo callableUnitInfo, BType retType) {
-        super(callableUnitInfo, retType);
+    SafeStrandCallback(BType retType) {
+        super(retType);
         this.dataLock = new ReentrantLock();
         this.returnValueAvailable = new AtomicBoolean(false);
     }
@@ -79,15 +78,15 @@ public class SafeStrandCallback extends StrandCallback {
         }
     }
 
-    public void acquireDataLock() {
+    void acquireDataLock() {
         dataLock.lock();
     }
 
-    public void releaseDataLock() {
+    void releaseDataLock() {
         dataLock.unlock();
     }
 
-    public void setRetData(Strand contStrand, BType expType, int retReg, boolean multipleWait, int keyReg) {
+    void setRetData(Strand contStrand, BType expType, int retReg, boolean multipleWait, int keyReg) {
         this.contStrand = contStrand;
         this.expType = expType;
         this.retReg = retReg;
@@ -95,7 +94,7 @@ public class SafeStrandCallback extends StrandCallback {
         this.keyReg = keyReg;
     }
 
-    public boolean returnDataAvailable() {
+    boolean returnDataAvailable() {
         return this.returnValueAvailable.get();
     }
 }

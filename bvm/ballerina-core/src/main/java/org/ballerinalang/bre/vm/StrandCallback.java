@@ -20,7 +20,6 @@ package org.ballerinalang.bre.vm;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.util.codegen.CallableUnitInfo;
 
 /**
  * Default VM callback implementation.
@@ -39,8 +38,7 @@ public class StrandCallback implements BVMCallback {
 
     protected BType retType; //TODO may be this is wrong, we should take the type in wait expression -check this
 
-
-    public StrandCallback(CallableUnitInfo callableUnitInfo, BType retType) {
+    StrandCallback(BType retType) {
         this.retType = retType;
     }
 
@@ -118,6 +116,5 @@ public class StrandCallback implements BVMCallback {
     public BError getErrorVal() {
         return error;
     }
-
 
 }

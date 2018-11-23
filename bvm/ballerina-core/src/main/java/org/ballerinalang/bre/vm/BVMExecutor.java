@@ -51,6 +51,11 @@ import java.util.Map;
  */
 public class BVMExecutor {
 
+    /**
+     * Execution API to execute package init and package start functions for the whole program file.
+     *
+     * @param programFile to be initialized
+     */
     public static void initProgramFile(ProgramFile programFile) {
         invokePackageInitFunctions(programFile);
         invokePackageStartFunctions(programFile);
@@ -58,10 +63,12 @@ public class BVMExecutor {
 
     /**
      * Execution API to execute program file starting from the given callable unit.
+     * this will call package init and start functions as well.
      *
      * @param programFile  to be executed
      * @param functionInfo to be executed
      * @param args         to be passed to the invokable unit
+     * @return results
      */
     public static BValue[] executeEntryFunction(ProgramFile programFile, FunctionInfo functionInfo, BValue... args) {
         int requiredArgNo = functionInfo.getParamTypes().length;
@@ -77,6 +84,14 @@ public class BVMExecutor {
         return result;
     }
 
+    /**
+     * Execution API to execute just a function.
+     *
+     * @param programFile   to be executed
+     * @param functionInfo  to be executed
+     * @param args          to be passed to invokable unit
+     * @return results
+     */
     public static BValue[] executeFunction(ProgramFile programFile, FunctionInfo functionInfo, BValue... args) {
         int requiredArgNo = functionInfo.getParamTypes().length;
         int providedArgNo = args.length;
@@ -89,6 +104,16 @@ public class BVMExecutor {
         return result;
     }
 
+    /**
+     * Execution API to execute a resource.
+     *
+     * @param programFile       to be executed
+     * @param resourceInfo      to be executed
+     * @param responseCallback  to be used for notifications
+     * @param properties        to be passed in the context
+     * @param observerContext   to be used
+     * @param args              to be passed to the resource
+     */
     public static void executeResource(ProgramFile programFile, ResourceInfo resourceInfo,
                                        CallableUnitCallback responseCallback, Map<String, Object> properties,
                                        ObserverContext observerContext, BValue... args) {
@@ -110,7 +135,7 @@ public class BVMExecutor {
             }
         }
 
-        StrandResourceCallback strandCallback = new StrandResourceCallback(resourceInfo, null, responseCallback); //TODO change to have single return type - rajith
+        StrandResourceCallback strandCallback = new StrandResourceCallback(null, responseCallback);
         Strand strand = new Strand(programFile, properties, strandCallback);
 
         BLangVMUtils.setServiceInfo(strand, resourceInfo.getServiceInfo());
@@ -127,7 +152,7 @@ public class BVMExecutor {
 
     private static BValue execute(ProgramFile programFile, CallableUnitInfo callableInfo,
                                   BValue[] args, Map<String, Object> properties, boolean waitForResponse) {
-        StrandWaitCallback strandCallback = new StrandWaitCallback(callableInfo, callableInfo.getRetParamTypes()[0]); //TODO change to have single return type - rajith
+        StrandWaitCallback strandCallback = new StrandWaitCallback(callableInfo.getRetParamTypes()[0]);
         Strand strand = new Strand(programFile, properties, strandCallback);
 
         StackFrame idf = new StackFrame(callableInfo.getPackageInfo(), callableInfo,

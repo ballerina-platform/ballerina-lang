@@ -21,16 +21,18 @@ import org.ballerinalang.model.values.BError;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.DebugContext;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import java.util.concurrent.Semaphore;
 
 /**
  * This represents a Ballerina execution strand in the new VM.
  */
 public class Strand {
-    public static final int DEFAULT_CONTROL_STACK_SIZE = 2000;
+    private static final int DEFAULT_CONTROL_STACK_SIZE = 2000;
 
     public String name;
 
@@ -59,6 +61,8 @@ public class Strand {
 
     public boolean waitCompleted;
 
+    public int callBacksRemaining;
+
     public Strand(ProgramFile programFile, Map<String, Object> properties, StrandCallback respCallback) {
         this.programFile = programFile;
         this.respCallback = respCallback;
@@ -69,6 +73,7 @@ public class Strand {
         } else {
             this.globalProps = properties;
         }
+        this.callBacksRemaining = 0;
     }
 
     public StackFrame pushFrame(StackFrame frame) {
@@ -133,6 +138,9 @@ public class Strand {
         executionLock.release();
     }
 
+    /**
+     * Strand execution states.
+     */
     public static enum State {
         NEW,
         RUNNABLE,

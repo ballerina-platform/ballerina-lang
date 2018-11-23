@@ -50,6 +50,11 @@ public class BalxEmitter {
         printStream = System.out;
     }
 
+    /**
+     * Method to emit balx program file.
+     *
+     * @param programFile to be emitted
+     */
     public void emit(ProgramFile programFile) {
         println("################################# Begin Final balx program #################################");
 //        println("org - " + programFile.org);

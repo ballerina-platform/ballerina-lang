@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -88,5 +89,11 @@ public class WaitForOneActionsTest {
         BValue[] vals = BRunUtil.invoke(result, "waitTest7", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         Assert.assertEquals(vals[0].stringValue(), "66");
+    }
+
+    @Test (expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = "error: err from panic \\{\\}.*")
+    public void waitTest8() {
+        BRunUtil.invoke(result, "waitTest8");
     }
 }

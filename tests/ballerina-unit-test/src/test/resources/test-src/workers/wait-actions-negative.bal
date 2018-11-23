@@ -46,7 +46,7 @@ function waitForAnyTest() {
     // Invalid scenarios
     int result1 = wait f1|f4 |f2;
     int|boolean result2 = wait f1 |f2|f3;
-    map result3 = wait f1 |f2|f3;
+    map<int|boolean> result3 = wait f1 |f2|f3;
     future< int > result4 = f1|f4;
     int|string result5 = wait ((f1|f2) ? f2 : f1) |f4|f2;// f1 and f2 cannot be future types
     future< int|string> result6 = wait f1|f2;
@@ -54,13 +54,13 @@ function waitForAnyTest() {
 }
 
 function waitForAllTest() {
-    future< int > f1 = start getId();
-    future< string > f2 = start getName();
-    future< boolean > f3 = start getStatus();
-    future< int > f4 = start getId();
+    future<int> f1 = start getId();
+    future<string> f2 = start getName();
+    future<boolean> f3 = start getStatus();
+    future<int> f4 = start getId();
 
     // Valid
-    map m1 = wait {f1, f2};
+    map<int|string> m1 = wait {f1, f2};
     map<int|string> m2 = wait {f1, name: f2};
     var v = wait {f1, f2, f3};
     record { int f1; string f2;} rec1 = wait {f1, f2};
