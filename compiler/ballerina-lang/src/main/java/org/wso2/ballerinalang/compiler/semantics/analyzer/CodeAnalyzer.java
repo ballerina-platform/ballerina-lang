@@ -1745,7 +1745,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
      * This method checks for private symbols being accessed or used outside of package and|or private symbols being
      * used in public fields of objects/records and will fail those occurrences.
      *
-     * @param node expression node to analyse
+     * @param node expression node to analyze
      */
     private <E extends BLangExpression> void checkAccess(E node) {
         if (node.type != null) {
@@ -1753,7 +1753,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         //check for object new invocation
-        if (node instanceof BLangInvocation) {
+        if (node.getKind() == NodeKind.INVOCATION) {
             BLangInvocation bLangInvocation = (BLangInvocation) node;
             checkAccessSymbol(bLangInvocation.symbol, bLangInvocation.pos);
         }

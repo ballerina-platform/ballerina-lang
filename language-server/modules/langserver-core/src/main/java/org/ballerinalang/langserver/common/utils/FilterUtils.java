@@ -1,3 +1,20 @@
+/*
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+*  Unless required by applicable law or agreed to in writing,
+*  software distributed under the License is distributed on an
+*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+*  KIND, either express or implied.  See the License for the
+*  specific language governing permissions and limitations
+*  under the License.
+*/
 package org.ballerinalang.langserver.common.utils;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -13,6 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -98,9 +116,15 @@ public class FilterUtils {
             }
 
             entries.forEach((name, scopeEntry) -> {
-                if (scopeEntry.symbol instanceof BInvokableSymbol && scopeEntry.symbol.owner != null) {
+                /*
+                 Note: Here we specifically remove the object attached functions shown since when we try to get the
+                 visible symbols within the functions inside the objects, both the object reference as well as the
+                 attached function is shown. For a more generalized solution, object attached functions are retrieved
+                 from the object's scope entries
+                 */
+                if (scopeEntry.symbol instanceof BInvokableSymbol && scopeEntry.symbol.owner != null
+                        && !(scopeEntry.symbol.owner instanceof BObjectTypeSymbol)) {
                     String symbolBoundedName = scopeEntry.symbol.owner.toString();
-
                     if (modifiedBType != null && symbolBoundedName.equals(modifiedBType.toString())) {
                         // TODO: Need to handle the name in a proper manner
                         String[] nameComponents = name.toString().split("\\.");
@@ -113,11 +137,11 @@ public class FilterUtils {
                         || SymbolKind.RECORD.equals(scopeEntry.symbol.kind))
                         && modifiedBType != null
                         && scopeEntry.symbol.type.toString().equals(modifiedBType.toString())) {
-                    // Get the struct fields
-                    Map<Name, Scope.ScopeEntry> fields = scopeEntry.symbol.scope.entries;
-                    fields.forEach((fieldName, fieldScopeEntry) -> {
-                        if (!fieldScopeEntry.symbol.getName().getValue().endsWith(".new")) {
-                            resultList.add(new SymbolInfo(fieldName.getValue(), fieldScopeEntry));
+                    // Get the object/records' attached functions and the fields
+                    Map<Name, Scope.ScopeEntry> attachedEntries = scopeEntry.symbol.scope.entries;
+                    attachedEntries.forEach((entryName, attachedScopeEntry) -> {
+                        if (!CommonUtil.isInvalidSymbol(attachedScopeEntry.symbol)) {
+                            resultList.add(new SymbolInfo(entryName.getValue(), attachedScopeEntry));
                         }
                     });
                 }

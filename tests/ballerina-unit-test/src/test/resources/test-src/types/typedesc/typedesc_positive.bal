@@ -26,7 +26,10 @@ function testObjectTypes() returns (typedesc, typedesc) {
 type Person object {
     public string name;
 
-    new (name){}
+    function __init(string name) {
+        self.name = name;
+    }
+
     public function getName() returns string {
         return self.name;
     }

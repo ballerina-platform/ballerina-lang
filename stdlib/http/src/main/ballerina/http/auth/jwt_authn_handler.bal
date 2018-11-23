@@ -24,11 +24,11 @@ import ballerina/auth;
 # + jwtAuthenticator - `JWTAuthenticator` instance
 public type HttpJwtAuthnHandler object {
 
-    public string name;
+    public string name = "jwt";
     public auth:JWTAuthProvider jwtAuthenticator;
 
-    public new (jwtAuthenticator) {
-        self.name = "jwt";
+    public function __init(auth:JWTAuthProvider jwtAuthenticator) {
+        self.jwtAuthenticator = jwtAuthenticator;
     }
 
     # Checks if the request can be authenticated with JWT

@@ -34,5 +34,8 @@ public type Destination object {
     public string destinationName;
     public string destinationType;
 
-    public new(destinationName, destinationType) {}
+    public function __init(string destName, string destType) {
+        self.destinationName = destName;
+        self.destinationType = destType;
+    }
 };

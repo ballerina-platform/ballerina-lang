@@ -23,26 +23,31 @@
 # + failover - Whether to fail over in case of a failure
 public type LoadBalanceClient client object {
 
-    public LoadBalanceClientEndpointConfiguration loadBalanceClientConfig = {};
+    public LoadBalanceClientEndpointConfiguration loadBalanceClientConfig;
     public Client[] loadBalanceClientsArray;
     public LoadBalancerRule lbRule;
     public boolean failover;
-    private Client httpEP = new (createClientEPConfigFromLoalBalanceEPConfig(loadBalanceClientConfig,
-                                                                                loadBalanceClientConfig.targets[0]));
 
     # Load Balancer adds an additional layer to the HTTP client to make network interactions more resilient.
     #
-    # + serviceUri - The URL of the remote HTTP endpoint
-    # + config - The configurations of the client endpoint associated with this `LoadBalancer` instance
-    # + loadBalanceClientsArray - Array of HTTP clients for load balancing
-    # + lbRule - Load balancing rule
-    # + failover - Whether to fail over in case of a failure
-    public new(loadBalanceClientConfig, loadBalanceClientsArray, lbRule, failover) {}
-
-    # The initialization function for the load balance client endpoint.
-    #
-    # + lbClientConfig - The user provided configurations for the load balance client endpoint
-    public function init(LoadBalanceClientEndpointConfiguration lbClientConfig);
+    # + loadBalanceClientConfig - The configurations for the load balance client endpoint
+    public function __init(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig) {
+        self.loadBalanceClientConfig = loadBalanceClientConfig;
+        self.failover = loadBalanceClientConfig.failover;
+        var lbClients = createLoadBalanceHttpClientArray(loadBalanceClientConfig);
+        if (lbClients is error) {
+            panic lbClients;
+        } else {
+            self.loadBalanceClientsArray = lbClients;
+            var lbRule = loadBalanceClientConfig.lbRule;
+            if (lbRule is LoadBalancerRule) {
+                self.lbRule = lbRule;
+            } else {
+                LoadBalancerRounRobinRule loadBalancerRounRobinRule = new;
+                self.lbRule = loadBalancerRounRobinRule;
+            }
+        }
+    }
 
     # The POST action implementation of the LoadBalancer Connector.
     #
@@ -367,19 +372,6 @@ public type LoadBalanceClientEndpointConfiguration record {
     !...
 };
 
-function LoadBalanceClient.init(LoadBalanceClientEndpointConfiguration lbClientConfig) {
-    self.httpEP.config.circuitBreaker = lbClientConfig.circuitBreaker;
-    self.httpEP.config.timeoutMillis = lbClientConfig.timeoutMillis;
-    self.httpEP.config.httpVersion = lbClientConfig.httpVersion;
-    self.httpEP.config.forwarded = lbClientConfig.forwarded;
-    self.httpEP.config.keepAlive = lbClientConfig.keepAlive;
-    self.httpEP.config.chunking = lbClientConfig.chunking;
-    self.httpEP.config.followRedirects = lbClientConfig.followRedirects;
-    self.httpEP.config.retryConfig = lbClientConfig.retryConfig;
-    self.httpEP.config.proxy = lbClientConfig.proxy;
-    self.httpEP.config.connectionThrottling = lbClientConfig.connectionThrottling;
-}
-
 function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointConfiguration lbConfig,
                                                      TargetService target) returns ClientEndpointConfig {
     ClientEndpointConfig clientEPConfig = {
@@ -402,87 +394,15 @@ function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointCo
     return clientEPConfig;
 }
 
-function createLoadBalancerClient(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig)
-                                                                                    returns Client|error {
-    ClientEndpointConfig config = createClientEPConfigFromLoalBalanceEPConfig(loadBalanceClientConfig,
-                                                                            loadBalanceClientConfig.targets[0]);
-    var lbClients = createLoadBalanceHttpClientArray(loadBalanceClientConfig);
-    if (lbClients is error) {
-        return lbClients;
-    } else {
-        var lbRule = loadBalanceClientConfig.lbRule;
-
-        if (lbRule is LoadBalancerRule) {
-            return <Client> (new LoadBalanceClient(loadBalanceClientConfig, lbClients, lbRule,
-                    loadBalanceClientConfig.failover));
-        } else {
-            LoadBalancerRounRobinRule loadBalancerRounRobinRule = new;
-            return <Client> (new LoadBalanceClient(loadBalanceClientConfig, lbClients,
-                    loadBalancerRounRobinRule, loadBalanceClientConfig.failover));
-        }
-    }
-}
-
 function createLoadBalanceHttpClientArray(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig)
                                                                                     returns Client[]|error {
     Client[] httpClients = [];
     int i = 0;
-    boolean httpClientRequired = false;
-    string uri = loadBalanceClientConfig.targets[0].url;
-    var cbConfig = loadBalanceClientConfig.circuitBreaker;
-    if (cbConfig is CircuitBreakerConfig) {
-        if (uri.hasSuffix("/")) {
-            int lastIndex = uri.length() - 1;
-            uri = uri.substring(0, lastIndex);
-        }
-        httpClientRequired = false;
-    } else {
-        httpClientRequired = true;
-    }
 
     foreach target in loadBalanceClientConfig.targets {
         ClientEndpointConfig epConfig = createClientEPConfigFromLoalBalanceEPConfig(loadBalanceClientConfig, target);
-        uri = target.url;
-        if (uri.hasSuffix("/")) {
-            int lastIndex = uri.length() - 1;
-            uri = uri.substring(0, lastIndex);
-        }
-        if (!httpClientRequired) {
-            var circuitBreakerClient = createCircuitBreakerClient(uri, epConfig);
-            if (circuitBreakerClient is Client) {
-                httpClients[i] = circuitBreakerClient;
-            } else {
-                return circuitBreakerClient;
-            }
-        } else {
-            var retryConfig = epConfig.retryConfig;
-            if (retryConfig is RetryConfig) {
-                var retryClient = createRetryClient(uri, epConfig);
-                if (retryClient is Client) {
-                    httpClients[i] = retryClient;
-                } else {
-                    return retryClient;
-                }
-            } else {
-                if (epConfig.cache.enabled) {
-                    var httpCachingClient = createHttpCachingClient(uri, epConfig, epConfig.cache);
-                    if (httpCachingClient is Client) {
-                        httpClients[i] = httpCachingClient;
-                    } else {
-                        return httpCachingClient;
-                    }
-                } else {
-                    var httpSecureClient = createHttpSecureClient(uri, epConfig);
-                    if (httpSecureClient is Client) {
-                        httpClients[i] = httpSecureClient;
-                    } else {
-                        return httpSecureClient;
-                    }
-                }
-            }
-        }
-        httpClients[i].config = epConfig;
-        i = i + 1;
+        httpClients[i] = new(epConfig);
+        i += 1;
     }
     return httpClients;
 }

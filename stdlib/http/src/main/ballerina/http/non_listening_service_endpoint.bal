@@ -16,19 +16,57 @@
 
 
 # Mock service endpoint which does not open a listening port.
-public type NonListener object {
-    private Connection conn = new;
+//public type NonListener object {
+//    private Connection conn = new;
+//    private ServiceEndpointConfiguration config = {};
+//
+//    public function init (ServiceEndpointConfiguration c);
+//    public extern function initEndpoint () returns (error?);
+//    public extern function register (typedesc serviceType);
+//    public extern function start ();
+//    public extern function getCallerActions() returns Connection;
+//    public extern function stop ();
+//};
+//
+//function NonListener.init (ServiceEndpointConfiguration c) {
+//    self.config = c;
+//    var err = self.initEndpoint();
+//    if (err is error) {
+//        panic err;
+//    }
+//}
+
+public type MockServer object {
+
+    *AbstractListener;
+    private Caller caller = new;
     private ServiceEndpointConfiguration config = {};
+
+    public function __start() returns error? {
+        return self.start();
+    }
+
+    public function __stop() returns error? {
+        return self.stop();
+    }
+
+    public function __attach(service s, map annotationData) returns error? {
+        return self.register(s, annotationData);
+    }
+
+    public function __init(ServiceEndpointConfiguration c) {
+        self.init(c);
+    }
 
     public function init (ServiceEndpointConfiguration c);
     public extern function initEndpoint () returns (error?);
-    public extern function register (typedesc serviceType);
+    public extern function register (service s, map annotationData);
     public extern function start ();
-    public extern function getCallerActions() returns Connection;
+    public extern function getCallerActions() returns Caller;
     public extern function stop ();
 };
 
-function NonListener.init (ServiceEndpointConfiguration c) {
+function MockServer.init (ServiceEndpointConfiguration c) {
     self.config = c;
     var err = self.initEndpoint();
     if (err is error) {

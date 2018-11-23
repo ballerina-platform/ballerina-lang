@@ -144,8 +144,13 @@ public type CircuitBreakerClient object {
     # + circuitBreakerInferredConfig - Configurations derived from `CircuitBreakerConfig`
     # + httpClient - The underlying `HttpActions` instance which will be making the actual network calls
     # + circuitHealth - The circuit health monitor
-    public new (serviceUri, config, circuitBreakerInferredConfig, httpClient, circuitHealth) {
-
+    public function __init(string serviceUri, ClientEndpointConfig config, CircuitBreakerInferredConfig
+                                        circuitBreakerInferredConfig, Client httpClient, CircuitHealth circuitHealth) {
+        self.serviceUri = serviceUri;
+        self.config = config;
+        self.circuitBreakerInferredConfig = circuitBreakerInferredConfig;
+        self.httpClient = httpClient;
+        self.circuitHealth = circuitHealth;
     }
 
     # The POST action implementation of the Circuit Breaker. This wraps the `post()` function of the underlying
