@@ -39,7 +39,6 @@ import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 
 import static org.ballerinalang.net.http.HttpConstants.COLON;
-import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
 
 /**
  * Get the ID of the connection.
