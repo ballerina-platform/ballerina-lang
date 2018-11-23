@@ -8,13 +8,13 @@ type ResultCount record {
 };
 
 function testLocalTransaction() returns (int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int returnVal = 0;
     int count;
@@ -38,13 +38,13 @@ function testLocalTransaction() returns (int, int) {
 }
 
 function testTransactionRollback() returns (int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int returnVal = 0;
     int count;
@@ -71,13 +71,13 @@ function testTransactionRollback() returns (int, int) {
 }
 
 function testLocalTransactionUpdateWithGeneratedKeys() returns (int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int returnVal = 0;
     int count;
@@ -101,13 +101,13 @@ function testLocalTransactionUpdateWithGeneratedKeys() returns (int, int) {
 }
 
 function testTransactionRollbackUpdateWithGeneratedKeys() returns (int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int returnVal = 0;
     int count;
@@ -133,13 +133,13 @@ function testTransactionRollbackUpdateWithGeneratedKeys() returns (int, int) {
 }
 
 function testLocalTransactionStoredProcedure() returns (int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int returnVal = 0;
     int count;
@@ -162,13 +162,13 @@ function testLocalTransactionStoredProcedure() returns (int, int) {
 }
 
 function testLocalTransactionRollbackStoredProcedure() returns (int, int, int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 3 }
-    };
+    });
 
     int returnVal = 0;
     int count1;
@@ -206,13 +206,13 @@ function testLocalTransactionRollbackStoredProcedure() returns (int, int, int, i
 }
 
 function testLocalTransactionBatchUpdate() returns (int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int returnVal = 0;
     int count;
@@ -253,13 +253,13 @@ function testLocalTransactionBatchUpdate() returns (int, int) {
 }
 
 function testLocalTransactionRollbackBatchUpdate() returns (int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int returnVal = 0;
     int count;
@@ -300,13 +300,13 @@ function testLocalTransactionRollbackBatchUpdate() returns (int, int) {
 }
 
 function testTransactionAbort() returns (int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int returnVal = -1;
     int count;
@@ -336,13 +336,13 @@ function testTransactionAbort() returns (int, int) {
 }
 
 function testTransactionErrorPanic() returns (int, int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int returnVal = 0;
     int catchValue = 0;
@@ -364,8 +364,7 @@ function testTransactionErrorPanic() returns (int, int, int) {
     return (returnVal, catchValue, count);
 }
 
-function testTransactionErrorPanicHelper(h2:Client db) returns int {
-    endpoint h2:Client testDB = db;
+function testTransactionErrorPanicHelper(h2:Client testDB) returns int {
     int returnVal = 0;
     transaction {
         _ = testDB->update("Insert into Customers (firstName,lastName,
@@ -382,13 +381,13 @@ function testTransactionErrorPanicHelper(h2:Client db) returns int {
 }
 
 function testTransactionErrorPanicAndTrap() returns (int, int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int returnVal = 0;
     int catchValue = 0;
@@ -422,13 +421,13 @@ function testTransactionErrorPanicAndTrapHelper(int i) {
 }
 
 function testTransactionCommitted() returns (int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int returnVal = 1;
     int count;
@@ -452,13 +451,13 @@ function testTransactionCommitted() returns (int, int) {
 }
 
 function testTwoTransactions() returns (int, int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int returnVal1 = 1;
     int returnVal2 = 1;
@@ -492,13 +491,13 @@ function testTwoTransactions() returns (int, int, int) {
 }
 
 function testTransactionWithoutHandlers() returns (int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     transaction {
         _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) values
@@ -520,13 +519,13 @@ function testTransactionWithoutHandlers() returns (int) {
 }
 
 function testLocalTransactionFailed() returns (string, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     string a = "beforetx";
     int count = -1;
@@ -551,8 +550,7 @@ function testLocalTransactionFailed() returns (string, int) {
     return (a, count);
 }
 
-function testLocalTransactionFailedHelper(string status, h2:Client db) returns string {
-    endpoint h2:Client testDB = db;
+function testLocalTransactionFailedHelper(string status, h2:Client testDB) returns string {
     string a = status;
     transaction with retries = 4 {
         a = a + " inTrx";
@@ -567,13 +565,13 @@ function testLocalTransactionFailedHelper(string status, h2:Client db) returns s
 }
 
 function testLocalTransactionSuccessWithFailed() returns (string, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     string a = "beforetx";
     int count = -1;
@@ -598,8 +596,7 @@ function testLocalTransactionSuccessWithFailed() returns (string, int) {
     return (a, count);
 }
 
-function testLocalTransactionSuccessWithFailedHelper(string status, h2:Client db) returns string {
-    endpoint h2:Client testDB = db;
+function testLocalTransactionSuccessWithFailedHelper(string status, h2:Client testDB) returns string {
     int i = 0;
     string a = status;
     transaction with retries = 4 {
@@ -621,21 +618,21 @@ function testLocalTransactionSuccessWithFailedHelper(string status, h2:Client db
 }
 
 function testLocalTransactionFailedWithNextupdate() returns (int) {
-    endpoint h2:Client testDB1 {
+    h2:Client testDB1 = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
-    endpoint h2:Client testDB2 {
+    h2:Client testDB2 = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int i = 0;
     var ret = trap testLocalTransactionFailedWithNextupdateHelper(testDB1);
@@ -656,8 +653,7 @@ function testLocalTransactionFailedWithNextupdate() returns (int) {
     return i;
 }
 
-function testLocalTransactionFailedWithNextupdateHelper(h2:Client db) {
-    endpoint h2:Client testDB = db;
+function testLocalTransactionFailedWithNextupdateHelper(h2:Client testDB) {
     transaction {
         _ = testDB->update("Insert into Customers (firstNamess,lastName,registrationID,creditLimit,country)
                                     values ('James', 'Clerk', 1234, 5000.75, 'USA')");
@@ -665,13 +661,13 @@ function testLocalTransactionFailedWithNextupdateHelper(h2:Client db) {
 }
 
 function testNestedTwoLevelTransactionSuccess() returns (int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int returnVal = 0;
     int count;
@@ -697,13 +693,13 @@ function testNestedTwoLevelTransactionSuccess() returns (int, int) {
 }
 
 function testNestedThreeLevelTransactionSuccess() returns (int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int returnVal = 0;
     int count;
@@ -733,13 +729,13 @@ function testNestedThreeLevelTransactionSuccess() returns (int, int) {
 }
 
 function testNestedThreeLevelTransactionFailed() returns (int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int returnVal = 0;
     int count;
@@ -762,8 +758,7 @@ function testNestedThreeLevelTransactionFailed() returns (int, int) {
     return (returnVal, count);
 }
 
-function testNestedThreeLevelTransactionFailedHelper(h2:Client db) returns int {
-    endpoint h2:Client testDB = db;
+function testNestedThreeLevelTransactionFailedHelper(h2:Client testDB) returns int {
     int returnVal = 0;
     transaction {
         _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
@@ -783,13 +778,13 @@ function testNestedThreeLevelTransactionFailedHelper(h2:Client db) returns int {
 }
 
 function testNestedThreeLevelTransactionFailedWithRetrySuccess() returns (int, int, string) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int returnVal = 0;
     string a = "start";
@@ -813,8 +808,7 @@ function testNestedThreeLevelTransactionFailedWithRetrySuccess() returns (int, i
     return (returnVal, count, a);
 }
 
-function testNestedThreeLevelTransactionFailedWithRetrySuccessHelper(string status, h2:Client db) returns (string, int) {
-    endpoint h2:Client testDB = db;
+function testNestedThreeLevelTransactionFailedWithRetrySuccessHelper(string status, h2:Client testDB) returns (string, int) {
     int returnVal = 0;
     int index = 0;
     string a = status;
@@ -850,13 +844,13 @@ function testNestedThreeLevelTransactionFailedWithRetrySuccessHelper(string stat
 }
 
 function testLocalTransactionWithSelectAndForeachIteration() returns (int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 5 }
-    };
+    });
 
     _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 900, 5000.75, 'USA')");
@@ -885,13 +879,13 @@ function testLocalTransactionWithSelectAndForeachIteration() returns (int, int) 
 }
 
 function testLocalTransactionWithSelectAndHasNextIteration() returns (int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 5 }
-    };
+    });
 
     _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 901, 5000.75, 'USA')");
@@ -922,13 +916,13 @@ function testLocalTransactionWithSelectAndHasNextIteration() returns (int, int) 
 }
 
 function testCloseConnectionPool() returns (int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int count;
     table dt = check testDB->select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SESSIONS", ResultCount);
