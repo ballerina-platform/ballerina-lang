@@ -30,6 +30,7 @@ import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.program.BLangVMUtils;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
 import java.util.Map;
@@ -92,30 +93,27 @@ public class NativeCallContext implements Context {
 
     @Override
     public Object getProperty(String key) {
-//        return this.parentCtx.globalProps.get(key);
-        return null; //TODO fix - rajith
+        return this.strand.globalProps.get(key);
     }
 
     @Override
     public Map<String, Object> getProperties() {
-//        return this.parentCtx.globalProps;
-        return null; //TODO fix - rajith
+        return this.strand.globalProps;
     }
 
     @Override
     public void setProperty(String key, Object value) {
-//        this.parentCtx.globalProps.put(key, value);
+        this.strand.globalProps.put(key, value);
     }
 
     @Override
     public ServiceInfo getServiceInfo() {
-//        return BLangVMUtils.getServiceInfo(this.parentCtx);
-        return null;//TODO fix - rajith
+        return BLangVMUtils.getServiceInfo(this.strand);
     }
 
     @Override
     public void setServiceInfo(ServiceInfo serviceInfo) {
-//        BLangVMUtils.setServiceInfo(this.parentCtx, serviceInfo);
+        BLangVMUtils.setServiceInfo(this.strand, serviceInfo);
     }
 
     @Override
@@ -126,19 +124,17 @@ public class NativeCallContext implements Context {
 
     @Override
     public BError getError() {
-//        return this.parentCtx.getError();//TODO fix - rajith
-        return null;
+        return this.strand.getError();
     }
 
     @Override
     public void setError(BError error) {
-//        this.parentCtx.setError(error);
+        this.strand.setError(error);
     }
 
     @Override
     public ProgramFile getProgramFile() {
-//        return this.parentCtx.programFile;//TODO fix - rajith
-        return null;
+        return this.strand.programFile;
     }
 
     @Override

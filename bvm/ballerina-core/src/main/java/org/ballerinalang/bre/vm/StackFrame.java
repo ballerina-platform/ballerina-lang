@@ -45,7 +45,7 @@ public class StackFrame {
     public CallableUnitInfo callableUnitInfo;
 
     // Cached value
-    public ConstantPoolEntry[] constPool;
+    ConstantPoolEntry[] constPool;
 
     // Cached value
     public Instruction[] code;
@@ -54,7 +54,7 @@ public class StackFrame {
     public int ip;
 
     // Return registry index
-    public int retReg;
+    int retReg;
 
     public StackFrame() {}
 
