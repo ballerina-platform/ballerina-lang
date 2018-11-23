@@ -242,7 +242,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean isFieldAnalyseRequired = (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext
                 || ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext)
                 || ctx.parent.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
-        this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, true, false, false, true);
+        this.pkgBuilder
+                .addObjectType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, false, false, false, true);
     }
 
     /**

@@ -151,8 +151,7 @@ public class HttpDispatcher {
     public static BValue[] getSignatureParameters(HttpResource httpResource, HttpCarbonMessage httpCarbonMessage,
                                                   Struct endpointConfig) {
         //TODO Think of keeping struct type globally rather than creating for each request
-        ProgramFile programFile =
-                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
+        ProgramFile programFile = httpResource.getBalResource().getResourceInfo().getPackageInfo().getProgramFile();
 
         BMap<String, BValue> serviceEndpoint =
                 BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, SERVICE_ENDPOINT);
