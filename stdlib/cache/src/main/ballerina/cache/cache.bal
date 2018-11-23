@@ -192,10 +192,9 @@ public type Cache object {
             if (cacheEntry is CacheEntry) {
                 // Check and add the key to the cacheKeysToBeRemoved if it matches the conditions.
                 checkAndAdd(numberOfKeysToEvict, cacheKeysToBeRemoved, timestamps, key, cacheEntry.lastAccessedTime);
-            } else {
-                // If the key is not found in the map, that means that the corresponding cache is already removed
-                // (possibly by a another worker).
             }
+            // If the key is not found in the map, that means that the corresponding cache is already removed
+            // (possibly by a another worker).
         }
         // Return the array.
         return cacheKeysToBeRemoved;
