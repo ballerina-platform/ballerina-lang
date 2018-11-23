@@ -48,9 +48,9 @@ function waitTest4() returns any[] {
     return arr;
 }
 
-function waitTest5() returns map {
-    future<map> f9 = start getEmpMap();
-    map m = wait f9;
+function waitTest5() returns map<string> {
+    future<map<string>> f9 = start getEmpMap();
+    map<string> m = wait f9;
     return m;
 }
 
@@ -99,8 +99,8 @@ function fuInt() returns future<int> {
     return i;
 }
 
-function getEmpMap() returns map {
-    map empMap = { fname: "foo", lname: "bar"};
+function getEmpMap() returns map<string> {
+    map<string> empMap = { fname: "foo", lname: "bar"};
     return empMap;
 }
 

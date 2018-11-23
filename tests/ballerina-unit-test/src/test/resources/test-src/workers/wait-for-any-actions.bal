@@ -46,10 +46,10 @@ function waitTest4() returns any {
     return result;
 }
 
-function waitTest5() returns map {
-    future<map> f9 = start getAddrMap();
-    future<map> f10 = start getEmpMap();
-    map m = wait f9 | f10;
+function waitTest5() returns map<string> {
+    future<map<string>> f9 = start getAddrMap();
+    future<map<string>> f10 = start getEmpMap();
+    map<string> m = wait f9 | f10;
     return m;
 }
 
@@ -201,13 +201,13 @@ function fuInt() returns future<int> {
     return i;
 }
 
-function getEmpMap() returns map {
-    map empMap = { fname: "foo", lname: "bar"};
+function getEmpMap() returns map<string> {
+    map<string> empMap = { fname: "foo", lname: "bar"};
     runtime:sleep(2000);
     return empMap;
 }
 
-function getAddrMap() returns map {
-    map addrMap = { line1: "No. 20", line2: "Palm Grove", city: "Colombo 03"};
+function getAddrMap() returns map<string> {
+    map<string> addrMap = { line1: "No. 20", line2: "Palm Grove", city: "Colombo 03"};
     return addrMap;
 }
