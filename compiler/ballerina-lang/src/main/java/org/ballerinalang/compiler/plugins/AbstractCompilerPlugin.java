@@ -18,7 +18,6 @@
 package org.ballerinalang.compiler.plugins;
 
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.EndpointNode;
@@ -58,10 +57,6 @@ public abstract class AbstractCompilerPlugin implements CompilerPlugin {
 
     @Override
     public void process(ResourceNode resourceNode, List<AnnotationAttachmentNode> annotations) {
-    }
-
-    @Override
-    public void process(ActionNode actionNode, List<AnnotationAttachmentNode> annotations) {
     }
 
     @Override

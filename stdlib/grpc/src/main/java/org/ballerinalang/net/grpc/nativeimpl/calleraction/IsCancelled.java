@@ -23,12 +23,11 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.listener.ServerCallHandler;
 
-import static org.ballerinalang.net.grpc.GrpcConstants.CALLER_ACTION;
+import static org.ballerinalang.net.grpc.GrpcConstants.CALLER;
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_RESPONDER_REF_INDEX;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
@@ -43,11 +42,8 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
         orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "isCancelled",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = CALLER_ACTION,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = CALLER,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
-        returnType = {
-                @ReturnType(type = TypeKind.BOOLEAN)
-        },
         isPublic = true
 )
 public class IsCancelled extends BlockingNativeCallableUnit {

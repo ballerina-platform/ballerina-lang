@@ -143,6 +143,6 @@ function testIndexBasedAccessOfRecords () returns (string, boolean, string, stri
 }
 
 function testDefaultValuesInTuples () returns (string, int, boolean, float) {
-    (boolean, int, string, float) x;
+    (boolean, int, string, float) x = (false, 0, "", 0.0);
     return (x[2], x[1], x[0], x[3]);
 }

@@ -55,6 +55,12 @@ public class BallerinaValueTypeNameImpl extends BallerinaCompositeElementImpl im
 
   @Override
   @Nullable
+  public PsiElement getDecimal() {
+    return findChildByType(DECIMAL);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getFloat() {
     return findChildByType(FLOAT);
   }

@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
 # Represents JWT issuer configurations.
 # + keyAlias - Key alias used for signing
 # + keyPassword - Key password used for signing

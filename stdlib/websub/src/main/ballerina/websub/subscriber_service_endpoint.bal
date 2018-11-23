@@ -24,41 +24,32 @@ import ballerina/log;
 #
 # + config - The configuration for the endpoint
 # + serviceEndpoint - The underlying HTTP service endpoint
-public type Listener object {
+public type Server object {
+
+    *AbstractListener;
 
     public SubscriberServiceEndpointConfiguration config = {};
 
-    private http:Listener serviceEndpoint;
+    private http:Server? serviceEndpoint = ();
 
-    public new () {
-        http:Listener httpEndpoint = new;
-        self.serviceEndpoint = httpEndpoint;
+    public function __init(SubscriberServiceEndpointConfiguration config) {
+        self.init(config);
+    }
+
+    public function __attach(service s, map<any> data) returns error? {
+        // TODO: handle data and return error on error
+        self.registerWebSubSubscriberServiceEndpoint(s);
+        return;
     }
 
     # Gets called when the endpoint is being initialized during module initialization.
     #
     # + c - The Subscriber Service Endpoint Configuration of the endpoint
-    public function init(SubscriberServiceEndpointConfiguration c);
-
-    # Gets called whenever a service attaches itself to this endpoint and during module initialization.
-    #
-    # + serviceType - The service attached
-    public function register(typedesc serviceType);
-
-    # Starts the registered service.
-    public function start();
-
-    # Returns the caller actions the client code uses.
-    #
-    # + return - `http:Connection` The connector that client code uses
-    public function getCallerActions() returns http:Connection;
-
-    # Stops the registered service.
-    public function stop();
+    function init(SubscriberServiceEndpointConfiguration c);
 
     extern function initWebSubSubscriberServiceEndpoint();
 
-    extern function registerWebSubSubscriberServiceEndpoint(typedesc serviceType);
+    extern function registerWebSubSubscriberServiceEndpoint(service serviceType);
 
     # Sends subscription requests to the specified/discovered hubs if specified to subscribe on startup.
     function sendSubscriptionRequests();
@@ -80,34 +71,37 @@ public type Listener object {
 
 };
 
-function Listener.init(SubscriberServiceEndpointConfiguration c) {
+function Server.init(SubscriberServiceEndpointConfiguration c) {
     self.config = c;
     http:ServiceEndpointConfiguration serviceConfig = {
-        host: c.host, port: c.port, secureSocket: c.httpServiceSecureSocket
+        host: c.host,
+        port: c.port,
+        secureSocket:
+        c.httpServiceSecureSocket
     };
+    http:Server httpEndpoint = new(c.port, config = serviceConfig);
+    //httpEndpoint.init(serviceConfig);
+    self.serviceEndpoint = httpEndpoint;
 
-    self.serviceEndpoint.init(serviceConfig);
     self.initWebSubSubscriberServiceEndpoint();
 }
 
-function Listener.register(typedesc serviceType) {
-    self.registerWebSubSubscriberServiceEndpoint(serviceType);
-}
-
-function Listener.start() {
+function Server.__start() returns error? {
+    // TODO: handle data and return error on error
     self.startWebSubSubscriberServiceEndpoint();
     self.sendSubscriptionRequests();
+    return;
 }
 
-function Listener.getCallerActions() returns http:Connection {
-    return self.serviceEndpoint.getCallerActions();
+//function Listener.getCallerActions() returns http:Connection {
+//    return self.serviceEndpoint.getCallerActions();
+//}
+
+function Server.__stop() returns error? {
+    return self.serviceEndpoint.__stop();
 }
 
-function Listener.stop() {
-    self.serviceEndpoint.stop();
-}
-
-function Listener.sendSubscriptionRequests() {
+function Server.sendSubscriptionRequests() {
     map[] subscriptionDetailsArray = self.retrieveSubscriptionParameters();
 
     foreach subscriptionDetails in subscriptionDetailsArray {
@@ -236,14 +230,12 @@ public type ExtensionConfig record {
 # + return - `(string, string)` (hub, topic) URLs if successful, `error` if not
 function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:SecureSocket? localSecureSocket,
                                 http:FollowRedirects? followRedirects) returns @tainted (string, string)|error {
-
-    endpoint http:Client resourceEP {
-        url:resourceUrl,
-        auth:auth,
+    http:Client resourceEP = new http:Client({
+        url: resourceUrl,
+        auth: auth,
         secureSocket: localSecureSocket,
         followRedirects:followRedirects
-    };
-
+    });
     http:Request request = new;
     var discoveryResponse = resourceEP->get("", message = request);
     error websubError = error("Dummy");
@@ -272,12 +264,12 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:
 # + subscriptionDetails - Map containing subscription details
 function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth, http:SecureSocket? localSecureSocket,
                                               http:FollowRedirects? followRedirects, map subscriptionDetails) {
-    endpoint Client websubHubClientEP {
+    Client websubHubClientEP = new Client({
         url:hub,
         clientSecureSocket: localSecureSocket,
         auth:auth,
         followRedirects:followRedirects
-    };
+    });
 
     string topic = <string>subscriptionDetails.topic;
     string callback = <string>subscriptionDetails.callback;

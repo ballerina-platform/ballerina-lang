@@ -20,11 +20,13 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
@@ -40,6 +42,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BSemanticErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -431,6 +434,10 @@ public class Types {
         }
 
         if (target.tag == TypeTags.ANYDATA && isAnydata(source)) {
+            return true;
+        }
+
+        if (target.tag == TypeTags.SERVICE && source.tag == TypeTags.SERVICE) {
             return true;
         }
 
@@ -860,6 +867,43 @@ public class Types {
         return true;
     }
 
+    public boolean checkListenerCompatibility(SymbolEnv env, BType type) {
+        if (type.tag != TypeTags.OBJECT) {
+            return false;
+        }
+        final BSymbol bSymbol = symResolver.lookupSymbol(env, Names.ABSTRACT_LISTENER, SymTag.TYPE);
+        if (bSymbol == symTable.notFoundSymbol || bSymbol.type.tag != TypeTags.OBJECT) {
+            throw new AssertionError("AbstractListener object not defined.");
+        }
+        BObjectType rhsType = (BObjectType) type;
+        BObjectType lhsType = (BObjectType) bSymbol.type;
+
+        BStructureTypeSymbol lhsStructSymbol = (BStructureTypeSymbol) lhsType.tsymbol;
+        List<BAttachedFunction> lhsFuncs = lhsStructSymbol.attachedFuncs;
+        List<BAttachedFunction> rhsFuncs = ((BStructureTypeSymbol) rhsType.tsymbol).attachedFuncs;
+
+        int lhsAttachedFuncCount = lhsStructSymbol.initializerFunc != null ? lhsFuncs.size() - 1 : lhsFuncs.size();
+        if (lhsAttachedFuncCount > rhsFuncs.size()) {
+            return false;
+        }
+
+        for (BAttachedFunction lhsFunc : lhsFuncs) {
+            if (lhsFunc == lhsStructSymbol.initializerFunc || lhsFunc == lhsStructSymbol.defaultsValuesInitFunc) {
+                continue;
+            }
+
+            if (!Symbols.isPublic(lhsFunc.symbol)) {
+                return false;
+            }
+
+            BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, new ArrayList<>());
+            if (rhsFunc == null || !Symbols.isPublic(rhsFunc.symbol)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 
     // private methods
 
@@ -1263,6 +1307,11 @@ public class Types {
 
             return symTable.notFoundSymbol;
         }
+
+        @Override
+        public BSymbol visit(BServiceType t, BType s) {
+            return symTable.notFoundSymbol;
+        }
     };
 
     private BTypeVisitor<BType, Boolean> sameTypeVisitor = new BTypeVisitor<BType, Boolean>() {
@@ -1412,6 +1461,11 @@ public class Types {
             }
             BErrorType source = (BErrorType) s;
             return isSameType(source.reasonType, t.reasonType) && isSameType(source.detailType, t.detailType);
+        }
+
+        @Override
+        public Boolean visit(BServiceType t, BType s) {
+            return t == s;
         }
 
         @Override

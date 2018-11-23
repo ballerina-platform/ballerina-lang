@@ -23,13 +23,12 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -87,18 +86,13 @@ public class AnnotationDesugar {
         // Handle service annotations
         for (BLangService service : pkgNode.services) {
             generateAnnotations(service, service.name.value, initFunction, annotationMap);
-            for (BLangResource resource : service.resources) {
-                String key = service.name.value + DOT + resource.name.value;
-                generateAnnotations(resource, key, initFunction, annotationMap);
-            }
         }
 
         // Handle Function Annotations.
         handleFunctionAnnotations(pkgNode, initFunction, annotationMap);
 
-        // Handle Global Endpoint Annotations.
-        for (BLangEndpoint globalEndpoint : pkgNode.globalEndpoints) {
-            generateAnnotations(globalEndpoint, globalEndpoint.name.value, initFunction, annotationMap);
+        for (BLangVariable variable : pkgNode.globalVars) {
+            generateAnnotations(variable, variable.symbol.name.value, initFunction, annotationMap);
         }
 
         BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(pkgNode.pos, symTable.nilType);
@@ -146,7 +140,7 @@ public class AnnotationDesugar {
 
     private BLangSimpleVariable createGlobalAnnotationMapVar(BLangPackage pkgNode) {
         BLangSimpleVariable annotationMap = ASTBuilderUtil.createVariable(pkgNode.pos, ANNOTATION_DATA,
-                symTable.mapType);
+                symTable.mapType, ASTBuilderUtil.createEmptyRecordLiteral(pkgNode.pos, symTable.mapType), null);
         ASTBuilderUtil.defineVariable(annotationMap, pkgNode.symbol, names);
         pkgNode.addGlobalVariable(annotationMap);
         return annotationMap;

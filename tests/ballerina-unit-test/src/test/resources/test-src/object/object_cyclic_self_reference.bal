@@ -5,25 +5,19 @@ function test () returns int {
 }
 
 type Person object {
-
     public int age = 0;
     public Employee emp = new;
-
 };
 
 type Employee object {
-
     public int age = 0;
     public Foo foo = new;
     public Bar bar = {};
-
 };
 
 type Foo object {
-
     public int calc = 0;
     public Bar bar1 = {};
-
 };
 
 type Bar record {
@@ -31,7 +25,3 @@ type Bar record {
     string name = "";
     Person person = new;
 };
-
-
-
-

@@ -8,10 +8,10 @@ public function passValueForDefaultableObjectField () returns (int, string) {
 }
 
 type Person object {
-    public int age = 10;
-    public string name = "";
+    public int age;
+    public string name;
 
-    new (age = 10, name = "sample result") {
+    function __init (int age = 10, string name = "sample result") {
         resValue = age;
         stringResVal = name;
     }

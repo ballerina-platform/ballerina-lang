@@ -17,11 +17,11 @@
 import ballerina/http;
 import ballerina/websub;
 
-@final string HUB_ONE = "https://hub.ballerina.com";
-@final string HUB_TWO = "https://two.hub.ballerina.com";
-@final string HUB_THREE = "https://three.hub.ballerina.com";
+final string HUB_ONE = "https://hub.ballerina.com";
+final string HUB_TWO = "https://two.hub.ballerina.com";
+final string HUB_THREE = "https://three.hub.ballerina.com";
 
-@final string TOPIC_ONE = "https://topic.ballerina.com";
+final string TOPIC_ONE = "https://topic.ballerina.com";
 
 function testTopicAndSingleHubAsSingleLinkHeader() returns (string, string[])|error {
     http:Response response = new;

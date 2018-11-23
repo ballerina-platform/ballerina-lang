@@ -3,7 +3,9 @@ import ballerina/internal;
 public type FuncBodyParser object {
     BirChannelReader reader;
     map<VariableDcl> localVarMap;
-    public new(reader, localVarMap) {
+    public function __init(BirChannelReader reader, map<VariableDcl> localVarMap) {
+        self.reader = reader;
+        self.localVarMap = localVarMap;
     }
 
     public function parseBB() returns BasicBlock {

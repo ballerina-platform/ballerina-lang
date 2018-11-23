@@ -72,7 +72,7 @@ public type Employee object {
     }
 
     public function getSalary (string n, int b = 0) returns int {
-        return salary + b;
+        return self.salary + b;
     }
 };
 

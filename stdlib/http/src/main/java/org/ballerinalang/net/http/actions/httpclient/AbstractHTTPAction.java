@@ -123,8 +123,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
 
     String getCompressionConfigFromEndpointConfig(BMap<String, BValue> httpClientStruct) {
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(httpClientStruct);
-        Struct epConfig = (Struct) clientEndpointConfig.getNativeData(CLIENT_ENDPOINT_CONFIG);
-        return epConfig.getRefField(ANN_CONFIG_ATTR_COMPRESSION).getStringValue();
+        return clientEndpointConfig.getRefField(ANN_CONFIG_ATTR_COMPRESSION).getStringValue();
     }
 
     void handleAcceptEncodingHeader(HttpCarbonMessage outboundRequest, String compressionConfigValue) {
@@ -148,7 +147,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
             outboundRequest.setHeader(HttpConstants.HEADER_X_REGISTER_AT_URL, localTransactionInfo.getURL());
         }
         try {
-            String uri = connector.get(CLIENT_ENDPOINT_SERVICE_URI).stringValue() + path;
+            String uri = getServiceUri(connector) + path;
             URL url = new URL(uri);
 
             int port = getOutboundReqPort(url);
@@ -162,6 +161,10 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         } catch (Exception e) {
             throw new BallerinaException("Failed to prepare request. " + e.getMessage());
         }
+    }
+
+    private String getServiceUri(BMap<String, BValue> connector) {
+        return connector.get(CLIENT_ENDPOINT_SERVICE_URI).stringValue();
     }
 
     private void setOutboundReqHeaders(HttpCarbonMessage outboundRequest, int port, String host) {
@@ -229,7 +232,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
     }
 
     private void validateParams(BMap<String, BValue> connector) {
-        if (connector == null || connector.get(CLIENT_ENDPOINT_SERVICE_URI) == null) {
+        if (connector == null || getServiceUri(connector) == null) {
             throw new BallerinaException("Connector parameters not defined correctly.");
         }
     }
@@ -319,9 +322,9 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
      */
     private void send(DataContext dataContext, HttpCarbonMessage outboundRequestMsg, boolean async) {
         BMap<String, BValue> bConnector = (BMap<String, BValue>) dataContext.context.getRefArgument(0);
-        Struct httpClient = BLangConnectorSPIUtil.toStruct(bConnector);
+        Struct clientEndpoint = BLangConnectorSPIUtil.toStruct(bConnector);
         HttpClientConnector clientConnector = (HttpClientConnector)
-                httpClient.getNativeData(HttpConstants.CALLER_ACTIONS);
+                clientEndpoint.getNativeData(HttpConstants.HTTP_CLIENT);
         String contentType = HttpUtil.getContentTypeFromTransportMessage(outboundRequestMsg);
         String boundaryString = null;
 
