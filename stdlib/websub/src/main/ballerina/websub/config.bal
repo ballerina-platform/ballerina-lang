@@ -25,5 +25,5 @@ public type HubClientEndpointConfig record {
     http:SecureSocket? clientSecureSocket = ();
     http:AuthConfig? auth = ();
     http:FollowRedirects? followRedirects = ();
-!...
+    !...
 };
