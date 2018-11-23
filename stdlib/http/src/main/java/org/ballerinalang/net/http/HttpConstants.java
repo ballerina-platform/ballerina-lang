@@ -399,6 +399,8 @@ public class HttpConstants {
     public static final String MOCK_SERVER = "MockServer";
     public static final String HTTP_SERVER = "Server";
 
+    public static final String COLON = ":";
+
     private HttpConstants() {
     }
 }
