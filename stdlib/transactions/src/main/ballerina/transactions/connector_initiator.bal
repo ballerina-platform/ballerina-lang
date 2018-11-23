@@ -49,7 +49,7 @@ type InitiatorClientEP object {
 type InitiatorClient object {
     InitiatorClientEP clientEP = new;
 
-    new() {
+    function __init() {
 
     }
 

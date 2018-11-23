@@ -55,7 +55,11 @@ type RemoteParticipant object {
     private string transactionId;
     private RemoteProtocol[] participantProtocols;
 
-    new(participantId, transactionId, participantProtocols) {}
+    function __init(string participantId, string transactionId, RemoteProtocol[] participantProtocols) {
+        self.participantId = participantId;
+        self.transactionId = transactionId;
+        self.participantProtocols = participantProtocols;
+    }
 
     function prepare(string protocol) returns ((PrepareResult|error)?, Participant) {
         foreach remoteProto in self.participantProtocols {
@@ -154,7 +158,12 @@ type LocalParticipant object {
     private TwoPhaseCommitTransaction participatedTxn;
     private LocalProtocol[] participantProtocols;
 
-    new(participantId, participatedTxn, participantProtocols) {}
+    function __init(string participantId, TwoPhaseCommitTransaction participatedTxn, LocalProtocol[]
+        participantProtocols) {
+        self.participantId = participantId;
+        self.participatedTxn = participatedTxn;
+        self.participantProtocols = participantProtocols;
+    }
 
     function prepare(string protocol) returns ((PrepareResult|error)?, Participant) {
         foreach localProto in self.participantProtocols {
