@@ -75,7 +75,6 @@ public type Versioning record {
 # Configurations for a WebSocket service.
 #
 # + endpoints - An array of endpoints the service would be attached to
-# + webSocketEndpoints - An array of endpoints the service would be attached to
 # + path - Path of the WebSocket service
 # + subProtocols - Negotiable sub protocol by the service
 # + idleTimeoutInSeconds - Idle timeout for the client connection. This can be triggered by putting

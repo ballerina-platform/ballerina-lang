@@ -419,12 +419,6 @@ function getInferredJwtAuthProviderConfig(AuthProvider authProvider) returns aut
 /// WebSocket Service Endpoint ///
 //////////////////////////////////
 # Represents a WebSocket service endpoint.
-#
-# + id - The connection ID
-# + negotiatedSubProtocol - The subprotocols negotiated with the client
-# + isSecure - `true` if the connection is secure
-# + isOpen - `true` if the connection is open
-# + attributes - A `map` to store connection related attributes
 public type WebSocketServer object {
 
     *AbstractListener;
@@ -439,31 +433,26 @@ public type WebSocketServer object {
 
     public function __attach(service s, map annotationData) returns error? {
     //return register(typedesc serviceType);
-    return self.register(s, annotationData);
+        return self.httpEndpoint.register(s, annotationData);
     }
 
     private ServiceEndpointConfiguration config = {};
-    private Server httpEndpoint = new(config);
+
+    private Server httpEndpoint;
 
     # Gets invoked during module initialization to initialize the endpoint.
     #
     # + c - The `ServiceEndpointConfiguration` of the endpoint
-    public function __init(ServiceEndpointConfiguration c) {
-        self.config = c;
-        self.httpEndpoint = new(c);
-    }
-
-    # Gets invoked when binding a service to the endpoint.
-    #
-    # + serviceType - The service type
-    public function register(service serviceType, map annotationData) returns error? {
-        return self.httpEndpoint.register(serviceType, annotationData);
+    public function __init(int port, ServiceEndpointConfiguration? config = ()) {
+        self.config = config ?: {};
+        self.config.port = port;
+        self.httpEndpoint = new(port, config = config);
     }
 
 };
 
 //New Implementation~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//listener ep = new http:Server(80);
+// listener http:Server ex = new(9090);
 //ep.__init();
 //ep.__attach();
 //ep.__start();
@@ -472,7 +461,7 @@ public type Server object {
     *AbstractListener;
 
     public function __start() returns error? {
-    io:println("start");
+        io:println("start");
         return self.start();
     }
 
@@ -481,7 +470,6 @@ public type Server object {
     }
 
     public function __attach(service s, map annotationData) returns error? {
-        //return register(typedesc serviceType);
         io:println("Attach", s);
         return self.register(s, annotationData);
     }
@@ -495,9 +483,10 @@ public type Server object {
 
     private string instanceId;
 
-    public function __init(ServiceEndpointConfiguration config) {
+    public function __init(int port, ServiceEndpointConfiguration? config = ()) {
         self.instanceId = system:uuid();
-        self.config = config;
+        self.config = config ?: {};
+        self.config.port = port;
         self.init(self.config);
     }
 

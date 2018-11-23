@@ -2,7 +2,7 @@
 import ballerina/io;
 {{/if}}{{#stubList}}
 public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Client client object {
-    public grpc:Client grpcClient = new;
+    private grpc:Client grpcClient = new;
 
     new (grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
@@ -19,8 +19,7 @@ public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Cli
 {{#blockingFunctions}}
     remote function {{methodName}} ({{#if inputType}}{{inputType}} req, {{/if}}grpc:Headers? headers = ()) returns ({{#if outputType}}({{outputType}}, grpc:Headers){{else}}grpc:Headers{{/if}}|error) {
         {{#unless inputType}}Empty req = {};{{/unless}}
-        grpc:Client ep = self.grpcClient;
-        var payload = check ep->blockingExecute("{{methodId}}", req, headers = headers);
+        var payload = check self.grpcClient->blockingExecute("{{methodId}}", req, headers = headers);
         grpc:Headers resHeaders = new;
         {{#if outputType}}any result = ();
         (result, resHeaders) = payload;
@@ -30,15 +29,11 @@ public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Cli
 {{/blockingFunctions}}{{#nonBlockingFunctions}}
     remote function {{methodName}} ({{#if inputType}}{{inputType}} req, {{/if}}typedesc listener, grpc:Headers? headers = ()) returns (error?) {
         {{#unless inputType}}Empty req = {};{{/unless}}
-        grpc:Client ep = self.grpcClient;
-        error? res =  ep->nonBlockingExecute("{{methodId}}", req, listener, headers = headers);
-        return res;
+        return self.grpcClient->nonBlockingExecute("{{methodId}}", req, listener, headers = headers);;
     }
 {{/nonBlockingFunctions}}{{#streamingFunctions}}
     remote function {{methodName}} (typedesc listener, grpc:Headers? headers = ()) returns (grpc:Client| error)  {
-        grpc:Client ep = self.grpcClient;
-        error? res =  ep->streamingExecute("{{methodId}}", listener, headers = headers);
-        return res;
+        return self.grpcClient->streamingExecute("{{methodId}}", listener, headers = headers);
     }{{/streamingFunctions}}
 };
 {{/stubList}}{{#messageList}}
@@ -59,7 +54,7 @@ type {{this.messageName}} record {
 {{/fieldList}}
 {{/enumList}}{{/messageList}}
 {{#enumList}}public type {{messageName}} {{#fieldList}}"{{name}}"{{#unless @last}}|{{/unless}}{{/fieldList}};
-{{#fieldList}}@final public {{../messageName}} {{uppercase ../messageName}}_{{name}} = "{{name}}";
+{{#fieldList}}public final {{../messageName}} {{uppercase ../messageName}}_{{name}} = "{{name}}";
 {{/fieldList}}{{/enumList}}{{#if rootDescriptorKey}}
 const string DESCRIPTOR_KEY = "{{rootDescriptorKey}}";
 map descriptorMap = {

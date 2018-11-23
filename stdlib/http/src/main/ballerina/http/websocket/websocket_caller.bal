@@ -14,13 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents a WebSocket client endpoint.
+# Represents a WebSocket caller.
 #
 # + id - The connection id
 # + negotiatedSubProtocol - The subprotocols negoriated with the server
 # + isSecure - `true` if the connection is secure
 # + isOpen - `true` if the connection is open
-# + response - Represents the HTTP response
 # + attributes - A map to store connection related attributes
 public type WebSocketCaller client object {
 

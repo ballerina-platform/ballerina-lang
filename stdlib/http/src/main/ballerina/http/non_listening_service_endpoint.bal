@@ -54,8 +54,10 @@ public type MockServer object {
         return self.register(s, annotationData);
     }
 
-    public function __init(ServiceEndpointConfiguration c) {
-        self.init(c);
+    public function __init(int port, ServiceEndpointConfiguration? config = ()) {
+        self.config = config ?: {};
+        self.config.port = port;
+        self.init(self.config);
     }
 
     public function init (ServiceEndpointConfiguration c);
@@ -67,7 +69,6 @@ public type MockServer object {
 };
 
 function MockServer.init (ServiceEndpointConfiguration c) {
-    self.config = c;
     var err = self.initEndpoint();
     if (err is error) {
         panic err;
