@@ -416,7 +416,7 @@ public class Desugar extends BLangNodeVisitor {
 
         pkgNode.constants.forEach(constant -> pkgNode.typeDefinitions.add(constant.associatedTypeDefinition));
 
-        serviceDesugar.rewriteServices(pkgNode.services, env);
+        BLangBlockStmt serviceAttachments = serviceDesugar.rewriteServices(pkgNode.services, env);
 
         pkgNode.globalVars.forEach(globalVar -> {
             BLangAssignment assignment = createAssignmentStmt(globalVar);
@@ -434,6 +434,7 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.functions = rewrite(pkgNode.functions, env);
 
         serviceDesugar.rewriteListeners(pkgNode.globalVars, env);
+        serviceDesugar.rewriteAttachments(serviceAttachments, env);
 
         pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
         pkgNode.startFunction = rewrite(pkgNode.startFunction, env);
