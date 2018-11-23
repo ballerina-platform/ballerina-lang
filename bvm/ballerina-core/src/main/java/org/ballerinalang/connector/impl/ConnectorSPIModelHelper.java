@@ -41,7 +41,7 @@ public class ConnectorSPIModelHelper {
         ServiceImpl service = new ServiceImpl(serviceInfo, serviceValue);
         processAnnotations(serviceInfo.getPackagePath(), programFile, service);
         Arrays.stream(serviceInfo.getResourceInfoEntries()).forEach(resourceInfo -> {
-            ResourceImpl resource = new ResourceImpl(resourceInfo.getName(), resourceInfo);
+            ResourceImpl resource = new ResourceImpl(resourceInfo.getName(), service, resourceInfo);
             resource.setService(service);
             processAnnotations(resourceInfo.getPkgPath(), programFile, resource);
             service.addResource(resource.getName(), resource);

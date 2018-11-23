@@ -627,14 +627,6 @@ public class CompiledPackageSymbolEnter {
         int resourceCount = dataInStream.readShort();
         for (int j = 0; j < resourceCount; j++) {
             dataInStream.readInt();
-            dataInStream.readInt();
-            int paramNameCPIndexesCount = dataInStream.readShort();
-            for (int k = 0; k < paramNameCPIndexesCount; k++) {
-                dataInStream.readInt();
-            }
-
-            // Read attributes
-            readAttributes(dataInStream);
         }
     }
 
