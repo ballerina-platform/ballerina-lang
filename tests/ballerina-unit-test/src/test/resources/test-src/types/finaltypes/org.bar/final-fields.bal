@@ -1,4 +1,4 @@
 
-@final public int globalBarInt = 100;
+public final int globalBarInt = 100;
 
-@final public string globalBarString = "world";
+public final string globalBarString = "world";

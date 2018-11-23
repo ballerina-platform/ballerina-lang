@@ -127,12 +127,8 @@ public class BlockingStub extends AbstractStub {
             }
             if (inboundResponse != null) {
                 dataContext.context.setReturnValues(inboundResponse);
-            } else if (httpConnectorError != null) {
-                dataContext.context.setReturnValues(httpConnectorError);
             } else {
-                BMap<String, BValue> err = BLangConnectorSPIUtil.createBStruct(dataContext.context,
-                        PACKAGE_BALLERINA_BUILTIN, STRUCT_GENERIC_ERROR, "HttpClient failed");
-                dataContext.context.setReturnValues(err);
+                dataContext.context.setReturnValues(httpConnectorError);
             }
             dataContext.callback.notifySuccess();
         }

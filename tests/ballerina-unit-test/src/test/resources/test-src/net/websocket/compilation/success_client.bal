@@ -26,7 +26,7 @@ service<http:WebSocketClientService> wsClientService {
     onText(endpoint caller, string text) {
     }
 
-    onBinary(endpoint caller, byte[] text, boolean final) {
+    onBinary(endpoint caller, byte[] text, boolean isFinal) {
 
     }
 

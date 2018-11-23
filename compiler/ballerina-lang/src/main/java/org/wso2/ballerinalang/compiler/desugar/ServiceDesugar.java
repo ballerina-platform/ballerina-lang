@@ -110,8 +110,10 @@ public class ServiceDesugar {
                 .lookupMemberSymbol(pos, ((BObjectTypeSymbol) variable.type.tsymbol).methodScope, env, functionName,
                         SymTag.INVOKABLE);
 
+        BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, variable.symbol);
+
         // Create method invocation
-        addMethodInvocation(pos, methodInvocationSymbol, Collections.emptyList(), lifeCycleFunction.body);
+        addMethodInvocation(pos, varRef, methodInvocationSymbol, Collections.emptyList(), lifeCycleFunction.body);
     }
 
     BLangBlockStmt rewriteServices(List<BLangService> services, SymbolEnv env) {
@@ -129,6 +131,17 @@ public class ServiceDesugar {
         //      (init)                          ->      y.__attach(x, {});
         final DiagnosticPos pos = service.pos;
 
+        //      (globalVar)         ->      service x = service { ... };
+        final BLangServiceConstructorExpr serviceConstructor = ASTBuilderUtil.createServiceConstructor(service);
+        BLangSimpleVariable serviceVar = ASTBuilderUtil
+                .createVariable(pos, service.name.value, symTable.anyServiceType, serviceConstructor, null);
+        ASTBuilderUtil.defineVariable(serviceVar, env.enclPkg.symbol, names);
+        env.enclPkg.globalVars.add(serviceVar);
+
+        if (service.attachExpr == null) {
+            return;
+        }
+
         //      if y is anonymous   ->      y = y(expr)
         BLangSimpleVarRef listenerVarRef;
         if (service.attachExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
@@ -145,13 +158,6 @@ public class ServiceDesugar {
         }
         service.listenerName = listenerVarRef.variableName.value;
 
-        //      (globalVar)         ->      service x = service { ... };
-        final BLangServiceConstructorExpr serviceConstructor = ASTBuilderUtil.createServiceConstructor(service);
-        BLangSimpleVariable serviceVar = ASTBuilderUtil
-                .createVariable(pos, service.name.value, symTable.anyServiceType, serviceConstructor, null);
-        ASTBuilderUtil.defineVariable(serviceVar, env.enclPkg.symbol, names);
-        env.enclPkg.globalVars.add(serviceVar);
-
         //      (.<init>)              ->      y.__attach(x, {});
         // Find correct symbol.
         final Name functionName = names.fromString(
@@ -165,14 +171,15 @@ public class ServiceDesugar {
         args.add(ASTBuilderUtil.createVariableRef(pos, serviceVar.symbol));
         args.add(ASTBuilderUtil.createEmptyRecordLiteral(pos, symTable.mapType));
 
-        addMethodInvocation(pos, methodInvocationSymbol, args, attachments);
+        addMethodInvocation(pos, listenerVarRef, methodInvocationSymbol, args, attachments);
     }
 
-    void addMethodInvocation(DiagnosticPos pos, BInvokableSymbol methodInvocationSymbol, List<BLangExpression> args,
-            BLangBlockStmt body) {
+    void addMethodInvocation(DiagnosticPos pos, BLangSimpleVarRef varRef, BInvokableSymbol methodInvocationSymbol,
+            List<BLangExpression> args, BLangBlockStmt body) {
         // Create method invocation
         final BLangInvocation methodInvocation = ASTBuilderUtil
                 .createInvocationExprForMethod(pos, methodInvocationSymbol, args, symResolver);
+        methodInvocation.expr = varRef;
 
         BLangExpression rhsExpr = methodInvocation;
         // Add optional check.
