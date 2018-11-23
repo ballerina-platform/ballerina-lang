@@ -1975,6 +1975,47 @@ public class Types {
         return false;
     }
 
+    public BType getRemainingType(BType originalType, Set<BType> set) {
+        if (originalType.tag != TypeTags.UNION) {
+            return originalType;
+        }
+
+        List<BType> memberTypes = new ArrayList<>(((BUnionType) originalType).getMemberTypes());
+
+        for (BType removeType : set) {
+            if (removeType.tag != TypeTags.UNION) {
+                memberTypes.remove(removeType);
+            } else {
+                ((BUnionType) removeType).getMemberTypes().forEach(type -> memberTypes.remove(type));
+            }
+
+            if (memberTypes.size() == 1) {
+                return memberTypes.get(0);
+            }
+        }
+
+        return new BUnionType(null, new HashSet<>(memberTypes), memberTypes.contains(symTable.nilType));
+    }
+
+    public BType getRemainingType(BType originalType, BType removeType) {
+        if (originalType.tag != TypeTags.UNION) {
+            return originalType;
+        }
+
+        List<BType> memberTypes = new ArrayList<>(((BUnionType) originalType).getMemberTypes());
+        if (removeType.tag != TypeTags.UNION) {
+            memberTypes.remove(removeType);
+        } else {
+            ((BUnionType) removeType).getMemberTypes().forEach(type -> memberTypes.remove(type));
+        }
+
+        if (memberTypes.size() == 1) {
+            return memberTypes.get(0);
+        }
+
+        return new BUnionType(null, new HashSet<>(memberTypes), memberTypes.contains(symTable.nilType));
+    }
+
     /**
      * Type vector of size two, to hold the source and the target types.
      * 
