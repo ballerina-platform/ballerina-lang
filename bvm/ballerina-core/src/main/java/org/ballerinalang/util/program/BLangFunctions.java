@@ -28,14 +28,10 @@ import org.ballerinalang.bre.bvm.SyncCallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.bvm.WorkerResponseContext;
-import org.ballerinalang.model.InterruptibleNativeCallableUnit;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.persistence.states.State;
-import org.ballerinalang.persistence.store.PersistenceStore;
-import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo.WorkerSet;
@@ -278,7 +274,6 @@ public class BLangFunctions {
                 invokeNativeCallableAsync(callableUnitInfo, parentCtx, argRegs, retRegs, flags);
                 resultCtx = parentCtx;
             } else {
-                checkAndHandleInterruptibleCallable(callableUnitInfo, parentCtx);
                 resultCtx = invokeNativeCallable(callableUnitInfo, parentCtx, argRegs, retRegs, flags);
             }
         } else {
@@ -411,7 +406,6 @@ public class BLangFunctions {
 //                nativeCallable.execute(ctx, null);
 //                BLangVMUtils.populateWorkerDataWithValues(parentLocalData, retRegs, ctx.getReturnValues(), retTypes);
 //                checkAndStopCallableObservation(observerContext, flags);
-//                BLangScheduler.handleInterruptibleAfterCallback(parentCtx);
 //                /* we want the parent to continue, since we got the response of the native call already */
 //                return parentCtx;
 //            } else {
@@ -574,22 +568,6 @@ public class BLangFunctions {
         Optional<ObserverContext> observerContext = ObservabilityUtils.startClientObservation(
                 callableUnitInfo.attachedToType.toString(), callableUnitInfo.getName(), parentCtx);
         return observerContext.orElse(null);
-    }
-
-    private static void checkAndHandleInterruptibleCallable(CallableUnitInfo callableUnitInfo,
-                                                            WorkerExecutionContext parentCtx) {
-        NativeCallableUnit nativeCallable = callableUnitInfo.getNativeCallableUnit();
-        if (parentCtx.interruptible && nativeCallable instanceof InterruptibleNativeCallableUnit) {
-            InterruptibleNativeCallableUnit interruptibleNativeCallableUnit
-                    = (InterruptibleNativeCallableUnit) nativeCallable;
-            String stateId = (String) parentCtx.globalProps.get(Constants.STATE_ID);
-            if (interruptibleNativeCallableUnit.persistBeforeOperation()) {
-                PersistenceStore.persistState(new State(parentCtx, stateId));
-            }
-            if (interruptibleNativeCallableUnit.persistAfterOperation()) {
-                parentCtx.markAsCheckPointed = true;
-            }
-        }
     }
 
     /**
