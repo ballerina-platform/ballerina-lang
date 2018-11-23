@@ -31,11 +31,11 @@ service fileSystem on localFolder {
         createInvoke = true;
     }
 
-resource function onModify(file:FileEvent m) {
+    resource function onModify(file:FileEvent m) {
         modifyInvoke = true;
     }
 
-resource function onDelete(file:FileEvent m) {
+    resource function onDelete(file:FileEvent m) {
         deleteInvoke = true;
     }
 }
