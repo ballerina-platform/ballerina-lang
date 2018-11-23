@@ -77,7 +77,7 @@ public class Register extends AbstractHttpNativeFunction {
         if (!isConnectorStarted(serviceEndpoint)) {
             startServerConnector(serviceEndpoint, httpServicesRegistry, webSocketServicesRegistry);
         }
-        context.setReturnValues((BValue) null);
+        context.setReturnValues();
     }
 
     private void startServerConnector(Struct serviceEndpoint, HTTPServicesRegistry httpServicesRegistry,
