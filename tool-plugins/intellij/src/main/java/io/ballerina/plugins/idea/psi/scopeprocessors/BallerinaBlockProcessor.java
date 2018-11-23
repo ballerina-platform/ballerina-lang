@@ -30,8 +30,6 @@ import io.ballerina.plugins.idea.psi.BallerinaFormalParameterList;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaLambdaFunction;
 import io.ballerina.plugins.idea.psi.BallerinaNameReference;
-import io.ballerina.plugins.idea.psi.BallerinaNamespaceDeclaration;
-import io.ballerina.plugins.idea.psi.BallerinaNamespaceDeclarationStatement;
 import io.ballerina.plugins.idea.psi.BallerinaObjectBody;
 import io.ballerina.plugins.idea.psi.BallerinaObjectDefaultableParameter;
 import io.ballerina.plugins.idea.psi.BallerinaObjectFieldDefinition;
@@ -41,14 +39,11 @@ import io.ballerina.plugins.idea.psi.BallerinaObjectMember;
 import io.ballerina.plugins.idea.psi.BallerinaObjectParameter;
 import io.ballerina.plugins.idea.psi.BallerinaObjectParameterList;
 import io.ballerina.plugins.idea.psi.BallerinaParameter;
-import io.ballerina.plugins.idea.psi.BallerinaParameterList;
 import io.ballerina.plugins.idea.psi.BallerinaParameterWithType;
 import io.ballerina.plugins.idea.psi.BallerinaRestParameter;
-import io.ballerina.plugins.idea.psi.BallerinaServiceBody;
 import io.ballerina.plugins.idea.psi.BallerinaSimpleVariableReference;
 import io.ballerina.plugins.idea.psi.BallerinaStatement;
 import io.ballerina.plugins.idea.psi.BallerinaTypeDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaVariableDefinitionStatement;
 import io.ballerina.plugins.idea.psi.BallerinaVariableReference;
 import io.ballerina.plugins.idea.psi.BallerinaVariableReferenceList;
 import io.ballerina.plugins.idea.psi.BallerinaWorkerDefinition;
@@ -467,7 +462,7 @@ public class BallerinaBlockProcessor extends BallerinaScopeProcessorBase {
             }
         }
     }
-    
+
     @Override
     public boolean isCompletion() {
         return myIsCompletion;
