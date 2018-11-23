@@ -50,13 +50,11 @@ public type TableJoinProcessor object {
         StreamEvent[] outputEvents = [];
         int i = 0;
         foreach e in joinedEvents {
-            match e {
-                StreamEvent s => {
-                    outputEvents[i] = s;
-                    i += 1;
-                }
-                () => {
-                }
+            if (e is StreamEvent) {
+                outputEvents[i] = e;
+                i += 1;
+            } else {
+                // Nothing
             }
         }
         self.nextProcessor(outputEvents);
@@ -70,21 +68,16 @@ public type TableJoinProcessor object {
 
     function joinEvents(StreamEvent? lhsEvent, StreamEvent? rhsEvent) returns StreamEvent? {
         StreamEvent? joined = ();
-        match lhsEvent {
-            StreamEvent lhs => {
-                joined = lhs.copy();
-                match rhsEvent {
-                    StreamEvent rhs => {
-                        joined.addData(rhs.data);
-                    }
-                    () => {
-                        // nothing to do.
-                    }
-                }
+
+        if (lhsEvent is StreamEvent) {
+            joined = lhs.copy();
+            if (rhsEvent is StreamEvent) {
+                joined.addData(rhsEvent.data);
+            } else {
+                // Nothing
             }
-            () => {
-                // nothing to do.
-            }
+        } else {
+            // Nothing
         }
         return joined;
     }

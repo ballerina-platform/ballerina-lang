@@ -22,7 +22,6 @@ public type Select object {
     private function(StreamEvent o, Aggregator []  aggregatorArr1) returns map selectFunc;
     private map<Aggregator[]> aggregatorsCloneMap;
 
-
     new(nextProcessorPointer, aggregatorArr, groupbyFuncArray, selectFunc) {
         self.aggregatorsCloneMap = {};
     }
@@ -38,36 +37,30 @@ public type Select object {
                 }
 
                 string groupbyKey;
-                match self.groupbyFuncArray {
-                    (function(StreamEvent o) returns string) [] groupbyFunctionArray => {
-                        groupbyKey = self.getGroupByKey(groupbyFunctionArray, event);
-                    }
+                if (self.groupbyFuncArray is ((function(StreamEvent o) returns string) [])) {
+                    groupbyKey = self.getGroupByKey(self.groupbyFuncArray, event);
                 }
 
                 Aggregator[] aggregatorsClone = [];
-                match (self.aggregatorsCloneMap[groupbyKey]) {
-                    Aggregator[] aggregators => {
-                        aggregatorsClone = aggregators;
+                if (self.aggregatorsCloneMap[groupbyKey] is Aggregator[]) {
+                    aggregatorsClone = self.aggregatorsCloneMap[groupbyKey];
+                } else {
+                    int i = 0;
+                    foreach aggregator in self.aggregatorArr {
+                        aggregatorsClone[i] = aggregator.copy();
+                        i += 1;
                     }
-                    () => {
-                        int i = 0;
-                        foreach aggregator in self.aggregatorArr {
-                            aggregatorsClone[i] = aggregator.copy();
-                            i += 1;
-                        }
-                        self.aggregatorsCloneMap[groupbyKey] = aggregatorsClone;
-                    }
+                    self.aggregatorsCloneMap[groupbyKey] = aggregatorsClone;
                 }
                 StreamEvent e = new ((OUTPUT, self.selectFunc(event, aggregatorsClone)), event.eventType, event
                     .timestamp);
                 groupedEvents[groupbyKey] = e;
             }
             foreach key in groupedEvents.keys() {
-                match groupedEvents[key] {
-                    StreamEvent e => {
-                        outputStreamEvents[outputStreamEvents.length()] = e;
-                    }
-                    () => {}
+                if (groupedEvents[key] is StreamEvent) {
+                    outputStreamEvents[outputStreamEvents.length()] = groupedEvents[key];
+                } else {
+                    // Nothing
                 }
             }
         } else {

@@ -20,15 +20,12 @@ public type StreamEvent object {
     public map<anydata> data = {};
 
     public new((string, map) | map eventData, eventType, timestamp) {
-        match eventData {
-            (string, map<anydata>) t => {
-                foreach k, v in t[1] {
-                    self.data[t[0] + DELIMITER + k] = v;
-                }
+        if (eventData is (string, map<anydata>)) {
+            foreach k, v in evenData[1] {
+                self.data[evenData[0] + DELIMITER + k] = v;
             }
-            map<anydata> m => {
-                self.data = m;
-            }
+        } else {
+            self.data = eventData;
         }
     }
 
