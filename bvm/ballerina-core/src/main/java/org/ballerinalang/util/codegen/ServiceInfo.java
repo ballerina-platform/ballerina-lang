@@ -47,7 +47,7 @@ public class ServiceInfo implements AttributeInfoPool {
     public TypeRefCPEntry listenerType;
     public UTF8CPEntry listenerName;
 
-    private Map<String, ResourceInfo> resourceInfoMap = new HashMap<>();
+    private Map<String, FunctionInfo> resourceInfoMap = new HashMap<>();
 
     private PackageInfo packageInfo;
 
@@ -73,15 +73,15 @@ public class ServiceInfo implements AttributeInfoPool {
         return listenerName.getValue();
     }
 
-    public ResourceInfo[] getResourceInfoEntries() {
-        return resourceInfoMap.values().toArray(new ResourceInfo[0]);
+    public FunctionInfo[] getResourceInfoEntries() {
+        return resourceInfoMap.values().toArray(new FunctionInfo[0]);
     }
 
-    public void addResourceInfo(String resourceName, ResourceInfo resourceInfo) {
+    public void addResourceInfo(String resourceName, FunctionInfo resourceInfo) {
         resourceInfoMap.put(resourceName, resourceInfo);
     }
 
-    public ResourceInfo getResourceInfo(String resourceName) {
+    public FunctionInfo getResourceInfo(String resourceName) {
         return resourceInfoMap.get(resourceName);
     }
 

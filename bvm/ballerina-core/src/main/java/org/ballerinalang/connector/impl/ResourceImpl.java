@@ -21,8 +21,8 @@ import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.LocalVariableInfo;
-import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 
@@ -40,10 +40,11 @@ public class ResourceImpl extends AnnotatableNode implements Resource {
     private ServiceImpl service;
 
     //reference to the original resourceInfo object.
-    private ResourceInfo resourceInfo;
+    private FunctionInfo resourceInfo;
 
-    public ResourceImpl(String name, ResourceInfo resourceInfo) {
+    public ResourceImpl(String name, ServiceImpl service, FunctionInfo resourceInfo) {
         this.name = name;
+        this.service = service;
         this.resourceInfo = resourceInfo;
     }
 
@@ -54,7 +55,7 @@ public class ResourceImpl extends AnnotatableNode implements Resource {
 
     @Override
     public String getServiceName() {
-        return resourceInfo.getServiceInfo().getName();
+        return service.getName();
     }
 
     /**
@@ -62,7 +63,7 @@ public class ResourceImpl extends AnnotatableNode implements Resource {
      *
      * @return resourceInfo object.
      */
-    public ResourceInfo getResourceInfo() {
+    public FunctionInfo getResourceInfo() {
         return resourceInfo;
     }
 
