@@ -222,31 +222,32 @@ function lengthOfEmptyRecord() returns (int) {
 }
 
 function accessLengthOfNullArray() returns (int) {
-    int[] arr;
+    int[] arr = [];
     int length = arr.length();
     return length;
 }
 
 function accessLengthOfNullMap() returns (int) {
-    map m;
+    map m = {};
     int length = m.length();
     return length;
 }
 
 function accessLengthOfNullJson() returns (int) {
-    json j;
+    json j = null;
     int length = j.length();
     return length;
 }
 
 function accessLengthOfNullTuple() returns (int) {
-    (int, int )a;
+    (int, int )a = (0, 0);
     int length = a.length();
     return length;
 }
 
 function accessLengthOfNullXML() returns (int) {
-    xml x;
+    xml t =  xml `a`;
+    xml x = t.*;
     int length = x.length();
     return length;
 }

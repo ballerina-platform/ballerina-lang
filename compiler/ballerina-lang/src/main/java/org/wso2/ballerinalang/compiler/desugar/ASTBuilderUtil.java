@@ -128,7 +128,7 @@ public class ASTBuilderUtil {
 
     static void appendStatement(BLangStatement stmt, BLangBlockStmt target) {
         int index = 0;
-        if (target.stmts.get(target.stmts.size() - 1).getKind() == NodeKind.RETURN) {
+        if (target.stmts.size() > 0 && target.stmts.get(target.stmts.size() - 1).getKind() == NodeKind.RETURN) {
             index = target.stmts.size() - 1;
         }
         target.stmts.add(index, stmt);

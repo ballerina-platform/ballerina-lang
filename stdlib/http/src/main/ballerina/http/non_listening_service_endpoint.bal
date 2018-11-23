@@ -39,7 +39,7 @@
 public type MockServer object {
 
     *AbstractListener;
-    private Connection conn = new;
+    private Caller caller = new;
     private ServiceEndpointConfiguration config = {};
 
     public function __start() returns error? {
@@ -51,7 +51,6 @@ public type MockServer object {
     }
 
     public function __attach(service s, map annotationData) returns error? {
-    //return register(typedesc serviceType);
         return self.register(s, annotationData);
     }
 
@@ -63,7 +62,7 @@ public type MockServer object {
     public extern function initEndpoint () returns (error?);
     public extern function register (service s, map annotationData);
     public extern function start ();
-    public extern function getCallerActions() returns Connection;
+    public extern function getCallerActions() returns Caller;
     public extern function stop ();
 };
 
