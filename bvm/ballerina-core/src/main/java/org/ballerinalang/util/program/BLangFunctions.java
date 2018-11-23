@@ -98,8 +98,7 @@ public class BLangFunctions {
         }
         invokePackageInitFunctions(programFile, parentCtx);
         invokePackageStartFunctions(programFile, parentCtx);
-        //Add compensation table
-        parentCtx.globalProps.put(Constants.COMPENSATION_TABLE, CompensationTable.getInstance());
+
         BValue[] result = invokeCallable(functionInfo, parentCtx, args);
         BLangScheduler.waitForWorkerCompletion();
         return result;

@@ -126,7 +126,6 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.program.BLangVMUtils;
-import org.ballerinalang.util.program.CompensationTable;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 
 import java.math.BigDecimal;
@@ -4283,23 +4282,6 @@ public class BVM {
         }
 
         return true;
-    }
-
-    /**
-     * Add the corresponding compensation function pointer of the given scope, to the compensations table. A copy of
-     * current worker data of the args also added to the table.
-     * @param scopeEnd current scope instruction
-     * @param ctx current WorkerExecutionContext
-     */
-    private static void addToCompensationTable(Instruction.InstructionScopeEnd scopeEnd, WorkerExecutionContext ctx,
-            BFunctionPointer fp) {
-        CompensationTable compensationTable = (CompensationTable) ctx.globalProps.get(Constants.COMPENSATION_TABLE);
-        CompensationTable.CompensationEntry entry = compensationTable.getNewEntry();
-        entry.functionInfo = scopeEnd.function;
-        entry.scope = scopeEnd.scopeName;
-        entry.fPointer = fp;
-        compensationTable.compensations.add(entry);
-        compensationTable.index++;
     }
 
     private static boolean checkIsLikeType(BValue sourceValue, BType targetType) {
