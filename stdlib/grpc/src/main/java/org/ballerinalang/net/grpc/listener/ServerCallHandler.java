@@ -151,13 +151,13 @@ public abstract class ServerCallHandler {
         ProgramFile programFile = getProgramFile(resource);
         // generate client responder struct on request message with response observer and response msg type.
         BMap<String, BValue> clientEndpoint = BLangConnectorSPIUtil.createBStruct(programFile,
-                GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC, GrpcConstants.CALLER_ACTION);
+                GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC, GrpcConstants.CALLER);
         clientEndpoint.addNativeData(GrpcConstants.RESPONSE_OBSERVER, responseObserver);
         clientEndpoint.addNativeData(GrpcConstants.RESPONSE_MESSAGE_DEFINITION, methodDescriptor.getOutputType());
 
         // create endpoint type instance on request.
         BMap<String, BValue> endpoint = BLangConnectorSPIUtil.createBStruct(programFile,
-                GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC, GrpcConstants.SERVICE_ENDPOINT_TYPE);
+                GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC, GrpcConstants.SERVER);
         endpoint.put(LISTENER_CONNECTION_FIELD, clientEndpoint);
         endpoint.put(LISTENER_ID_FIELD, new BInteger(responseObserver.hashCode()));
         return endpoint;

@@ -64,7 +64,7 @@ import java.util.Optional;
 import static org.ballerinalang.net.grpc.GrpcConstants.DESCRIPTOR_MAP;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_ENDPOINT_TYPE;
+import static org.ballerinalang.net.grpc.GrpcConstants.SERVER;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.bytesToHex;
 
 /**
@@ -74,7 +74,7 @@ import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.bytesT
  */
 @SupportEndpointTypes(
         value = {@SupportEndpointTypes.EndpointType(orgName = ORG_NAME, packageName = PROTOCOL_PACKAGE_GRPC, name =
-                SERVICE_ENDPOINT_TYPE)}
+                SERVER)}
 )
 public class ServiceProtoBuilder extends AbstractCompilerPlugin {
 
