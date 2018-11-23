@@ -135,7 +135,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -148,7 +147,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -1481,67 +1479,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(bLangStatementExpression.expr, this.env);
         emit(getOpcode(bLangStatementExpression.expr.type.tag, InstructionCodes.IMOVE),
                 bLangStatementExpression.expr.regIndex, bLangStatementExpression.regIndex);
-    }
-
-    public void visit(BLangScope scopeNode) {
-        // add the child nodes to the map
-        childScopesMap.put(scopeNode.name.getValue(), scopeNode.childScopes);
-        visit(scopeNode.scopeBody);
-
-        // generating scope end instruction
-        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, currentPkgID);
-        int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, Names.GEN_VAR_PREFIX + scopeNode.name.getValue());
-        FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, funcNameCPIndex);
-        int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
-        int i = 0;
-        //functionRefCP, scopenameUTF8CP, nChild, children
-        Operand[] operands = new Operand[3 + scopeNode.childScopes.size()];
-        operands[i++] = getOperand(funcRefCPIndex);
-        int scopeNameCPIndex = addUTF8CPEntry(currentPkgInfo, scopeNode.getScopeName().getValue());
-        operands[i++] = getOperand(scopeNameCPIndex);
-
-        operands[i++] = getOperand(scopeNode.childScopes.size());
-
-        for (String child : scopeNode.childScopes) {
-            int childScopeNameIndex = addUTF8CPEntry(currentPkgInfo, child);
-            operands[i++] = getOperand(childScopeNameIndex);
-        }
-
-        Operand typeCPIndex = getTypeCPIndex(scopeNode.compensationFunction.function.symbol.type);
-        RegIndex nextIndex = calcAndGetExprRegIndex(scopeNode.compensationFunction);
-        Operand[] closureOperands = calcClosureOperands(scopeNode.compensationFunction.function, funcRefCPIndex,
-                nextIndex, typeCPIndex);
-
-        Operand[] finalOperands = new Operand[operands.length + closureOperands.length];
-        System.arraycopy(operands, 0, finalOperands, 0, operands.length);
-        System.arraycopy(closureOperands, 0, finalOperands, operands.length, closureOperands.length);
-
-        emit(InstructionCodes.SCOPE_END, finalOperands);
-    }
-
-    public void visit(BLangCompensate compensate) {
-        Operand jumpAddr = getOperand(nextIP());
-        //Add child function refs
-        Stack<String> children = childScopesMap.get(compensate.scopeName.getValue());
-
-        int i = 0;
-        // Operands: scopeName, child count, children, NIL return.
-        Operand[] operands = new Operand[3 + children.size()];
-
-        int scopeNameCPIndex = addUTF8CPEntry(currentPkgInfo, compensate.invocation.name.value);
-        operands[i++] = getOperand(scopeNameCPIndex);
-
-        operands[i++] = getOperand(children.size());
-        while (children != null && !children.isEmpty()) {
-            String childName = children.pop();
-            int childNameCP = currentPkgInfo.addCPEntry(new UTF8CPEntry(childName));
-            operands[i++] = getOperand(childNameCP);
-        }
-        // Compensation block is modeled as an anonymous function, which require a return reg.
-        operands[i++] = getRegIndex(TypeTags.NIL);
-
-        emit(InstructionCodes.COMPENSATE, operands);
-        emit(InstructionCodes.LOOP_COMPENSATE, jumpAddr);
     }
 
     // private methods

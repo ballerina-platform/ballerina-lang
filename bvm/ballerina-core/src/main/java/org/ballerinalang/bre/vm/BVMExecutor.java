@@ -40,7 +40,6 @@ import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.program.BLangVMUtils;
-import org.ballerinalang.util.program.CompensationTable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -72,11 +71,8 @@ public class BVMExecutor {
                     providedArgNo + ".");
         }
         initProgramFile(programFile);
-        //Add compensation table
-        Map<String, Object> properties = new HashMap<>();
-        properties.put(Constants.COMPENSATION_TABLE, CompensationTable.getInstance());
 //        new BalxEmitter().emit(programFile);
-        BValue[] result = new BValue[]{execute(programFile, functionInfo, args, properties, true)};
+        BValue[] result = new BValue[]{execute(programFile, functionInfo, args, null, true)};
         BLangScheduler.waitForWorkerCompletion();
         return result;
     }
@@ -88,10 +84,7 @@ public class BVMExecutor {
             throw new RuntimeException("Wrong number of arguments. Required: " + requiredArgNo + " , found: " +
                     providedArgNo + ".");
         }
-        //Add compensation table
-        Map<String, Object> properties = new HashMap<>();
-        properties.put(Constants.COMPENSATION_TABLE, CompensationTable.getInstance());
-        BValue[] result = new BValue[]{execute(programFile, functionInfo, args, properties, true)};
+        BValue[] result = new BValue[]{execute(programFile, functionInfo, args, null, true)};
         BLangScheduler.waitForWorkerCompletion();
         return result;
     }
@@ -116,8 +109,6 @@ public class BVMExecutor {
 //                        properties.get(Constants.TRANSACTION_URL).toString(), "2pc"));
             }
         }
-        //required for tracking compensations
-        globalProps.put(Constants.COMPENSATION_TABLE, CompensationTable.getInstance());
 
         StrandResourceCallback strandCallback = new StrandResourceCallback(resourceInfo, null, responseCallback); //TODO change to have single return type - rajith
         Strand strand = new Strand(programFile, properties, strandCallback);

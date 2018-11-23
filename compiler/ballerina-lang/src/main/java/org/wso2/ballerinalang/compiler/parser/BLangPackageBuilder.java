@@ -70,7 +70,6 @@ import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.ForeverNode;
 import org.ballerinalang.model.tree.statements.ForkJoinNode;
 import org.ballerinalang.model.tree.statements.IfNode;
-import org.ballerinalang.model.tree.statements.ScopeNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.statements.TransactionNode;
@@ -172,7 +171,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
@@ -191,7 +189,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -361,8 +358,6 @@ public class BLangPackageBuilder {
     private Stack<Set<Whitespace>> operatorWs = new Stack<>();
 
     private Stack<Set<Whitespace>> objectFieldBlockWs = new Stack<>();
-
-    private Stack<ScopeNode> scopeNodeStack = new Stack<>();
 
     private Stack<Set<Whitespace>> finiteTypeWsStack = new Stack<>();
 
@@ -3440,50 +3435,6 @@ public class BLangPackageBuilder {
         BLangLambdaFunction lambda = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         lambda.function = function;
         return lambda;
-    }
-
-    void startScopeStmt() {
-        scopeNodeStack.push(TreeBuilder.createScopeNode());
-        startBlock();
-    }
-
-    void addCompensateStatement(DiagnosticPos pos, Set<Whitespace> ws, String name) {
-        BLangCompensate compensateNode = (BLangCompensate) TreeBuilder.createCompensateNode();
-        compensateNode.pos = pos;
-        compensateNode.addWS(ws);
-        compensateNode.scopeName = createIdentifier(name);
-        compensateNode.invocation.name = (BLangIdentifier) createIdentifier(name);
-        compensateNode.invocation.pkgAlias = (BLangIdentifier) createIdentifier(null);
-
-        addStmtToCurrentBlock(compensateNode);
-    }
-
-    void endScopeStmt(DiagnosticPos pos, Set<Whitespace> ws, BLangIdentifier scopeName,
-                      BLangLambdaFunction compensationFunction) {
-        BLangScope scope = (BLangScope) scopeNodeStack.pop();
-        scope.pos = pos;
-        scope.addWS(ws);
-        scope.setScopeName(scopeName);
-        addStmtToCurrentBlock(scope);
-        if (!scopeNodeStack.isEmpty()) {
-            for (String child : scope.childScopes) {
-                scopeNodeStack.peek().addChildScope(child);
-            }
-            scopeNodeStack.peek().addChildScope(scopeName.getValue());
-        }
-
-        scope.setCompensationFunction(compensationFunction);
-    }
-
-    void addScopeBlock(DiagnosticPos currentPos) {
-        ScopeNode scopeNode = scopeNodeStack.peek();
-        BLangBlockStmt scopeBlock = (BLangBlockStmt) this.blockNodeStack.pop();
-        scopeBlock.pos = currentPos;
-        scopeNode.setScopeBody(scopeBlock);
-    }
-
-    void startOnCompensationBlock() {
-        startFunctionDef();
     }
 
     public void addTypeReference(DiagnosticPos currentPos, Set<Whitespace> ws) {

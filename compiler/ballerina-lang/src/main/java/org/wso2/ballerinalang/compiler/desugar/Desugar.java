@@ -165,7 +165,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
@@ -185,7 +184,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement.BLangStatementLink;
@@ -1548,21 +1546,6 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangForkJoin forkJoin) {
          result = forkJoin;
-    }
-
-    @Override
-    public void visit(BLangCompensate compensateNode) {
-        result = compensateNode;
-    }
-
-    @Override
-    public void visit(BLangScope scopeNode) {
-        scopeNode.scopeBody = rewrite(scopeNode.scopeBody, env);
-        scopeNode.compensationFunction = rewrite(scopeNode.getCompensationFunction(), env);
-        visit(scopeNode.compensationFunction.function);
-        env.enclPkg.functions.add(scopeNode.getCompensationFunction().function);
-        env.enclPkg.topLevelNodes.add(scopeNode.compensationFunction.function);
-        result = scopeNode;
     }
 
     // Expressions
