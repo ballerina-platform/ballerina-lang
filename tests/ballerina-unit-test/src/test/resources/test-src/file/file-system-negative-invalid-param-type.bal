@@ -17,12 +17,12 @@
 import ballerina/file;
 import ballerina/http;
 
-endpoint file:Listener localFolder {
+listener file:Listener localFolder = new ({
     path: "target/fs",
     recursive: false
-};
+});
 
 service fileSystem bind localFolder {
-    onCreate(http:Request req) {
+    resource function onCreate(http:Request req) {
     }
 }
