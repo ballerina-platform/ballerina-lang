@@ -20,9 +20,11 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.ServicesBuilderUtils;
 import org.ballerinalang.net.grpc.ServicesRegistry;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
@@ -55,14 +57,17 @@ public class Register extends AbstractGrpcNativeFunction {
         ServicesRegistry.Builder servicesRegistryBuilder = getServiceRegistryBuilder(serviceEndpoint);
         try {
             if (servicesRegistryBuilder == null) {
-                throw  new BallerinaConnectorException("Error when initializing service register builder.");
+                context.setError(MessageUtils.getConnectorError(new BallerinaConnectorException("Error when " +
+                        "initializing service register builder.")));
+                //throw  new BallerinaConnectorException("Error when initializing service register builder.");
+            } else {
+                servicesRegistryBuilder.addService(ServicesBuilderUtils.getServiceDefinition(service, context));
+                context.setReturnValues();
             }
-
-            servicesRegistryBuilder.addService(ServicesBuilderUtils.getServiceDefinition(service, context));
-
-            context.setReturnValues();
         } catch (GrpcServerException e) {
-            throw new BallerinaConnectorException("Error occurred while registering the service. " + e.getMessage(), e);
+            //throw new BallerinaConnectorException("Error occurred while registering the service. " + e.getMessage(),
+            //        e);
+            context.setError(MessageUtils.getConnectorError(e));
         }
     }
 }

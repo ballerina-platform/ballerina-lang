@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/system;
+import ballerina/io;
 
 # TODO: check
 # Represents service endpoint where one or more services can be registered. so that ballerina program can offer
@@ -25,14 +26,17 @@ public type Server object {
     *AbstractListener;
 
     public function __start() returns error? {
+        io:println("Calling start.....");
         return self.start();
     }
 
     public function __stop() returns error? {
+        io:println("Calling stop.....");
         return self.stop();
     }
 
     public function __attach(service s, map annotationData) returns error? {
+        io:println("Calling attach.....");
         return self.register(s, annotationData);
     }
 
@@ -43,6 +47,7 @@ public type Server object {
     //private string instanceId;
 
     public function __init(ServiceEndpointConfiguration config) {
+        io:println("Calling init.....");
         //self.instanceId = system:uuid();
         //self.config = config;
         self.init(config);
@@ -59,18 +64,18 @@ public type Server object {
     #
     # + serviceType - The type of the service to be registered.
     # + annotationData - Annotations attached to the service.
-    public extern function register(service serviceType, map annotationData);
+    public extern function register(service serviceType, map annotationData) returns error?;
 
     # Starts the registered service.
-    public extern function start();
+    public extern function start() returns error?;
 
     # Returns the connector that client code uses.
     #
     # + return - The connector that client code uses
-    public extern function getCallerActions() returns (Caller);
+    public extern function getCallerActions() returns Caller;
 
     # Stops the registered service.
-    public extern function stop();
+    public extern function stop() returns error?;
 };
 
 # Presents a read-only view of the remote address.
