@@ -19,5 +19,8 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "watch": "^1.0.2"
+  },
+  "dependencies": {
+    "@ballerina/font": "^0.983.1-SNAPSHOT"
   }
 }

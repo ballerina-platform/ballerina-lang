@@ -1,11 +1,32 @@
 import React, { StatelessComponent } from "react";
-import { IDiagramContext } from "../diagram-context";
+import { Menu } from "semantic-ui-react";
+import { DiagramContext } from "../diagram-context";
 
 export const EditToggleButton: StatelessComponent<{}> = (
-            { children },
-            diagContext: IDiagramContext
+            { children }
         ) => {
     return  (
-        <button onClick={diagContext.toggleEditing}>{children}</button>
+        <DiagramContext.Consumer>
+            {(diagContext) => {
+                const className = diagContext.editingEnabled
+                    ? "secondary"
+                    : "primary";
+                const icon = diagContext.editingEnabled
+                    ? "fw-uneditable"
+                    : "fw-edit";
+                const text = diagContext.editingEnabled
+                    ? "Close Edit"
+                    : "Edit";
+                return (
+                    <Menu.Item onClick={diagContext.toggleEditing}
+                        className={`menu-button ui button ${className}`}
+                    >
+                        <i className={`fw ${icon} menu-icon-right`} />
+                        <span className="text">{text}</span>
+                        {children}
+                    </Menu.Item>
+                );
+            }}
+        </DiagramContext.Consumer>
     );
 };

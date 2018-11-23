@@ -13,8 +13,27 @@
     }
 
     .diagram-controllers {
-        .panel {
-            background-color: beige;
+        .top-menu {
+            padding: 8px 35px 8px 30px;
+            .left.menu {
+                .item {
+                    margin-right: 8px;
+                    .text {
+                        margin-left: 8px;
+                    }
+                    &.primary {
+                        background-color: #24aaa2;
+                        color: #FFFFFF;
+                    }
+                    &.secondary {
+                        background-color: #626262 ;
+                        color: #FFFFFF;
+                    }
+                }
+                .zoom-controllers, .add-definitions {
+                    margin-left: 8px;
+                }
+            }
         }
     } 
 }

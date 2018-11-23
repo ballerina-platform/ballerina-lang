@@ -9,6 +9,9 @@ export interface IDiagramContext {
     editingEnabled: boolean;
     mode: DiagramMode;
     toggleEditing: () => void;
+    zoomIn: () => void;
+    zoomOut: () => void;
+    zoomFit: () => void;
 }
 
 const defaultDiagramContext: IDiagramContext = {
@@ -21,6 +24,15 @@ const defaultDiagramContext: IDiagramContext = {
     toggleEditing: () => {
         // do nothing
     },
+    zoomFit: () => {
+        // do nothing
+    },
+    zoomIn: () => {
+        // do nothing
+    },
+    zoomOut: () => {
+        // do nothing
+    }
 };
 
 export const DiagramContext = React.createContext(defaultDiagramContext);
