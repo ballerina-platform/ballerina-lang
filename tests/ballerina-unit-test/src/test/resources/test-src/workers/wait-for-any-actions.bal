@@ -121,6 +121,34 @@ function waitTest13() returns int {
     }
 }
 
+function waitTest14() returns int|error {
+    future<int|error> f1 = start addOrError(5, 2);
+    future<int|error> f2 = start addOrError(10, 12);
+    int|error result = wait f1 | f2;
+    return result;
+}
+
+function waitTest15() returns int|string|error {
+    future<int|error> f1 = start addOrError(10, 12);
+    future<string> f2 = start concat("moo");
+    int|string|error result = wait f1 | f2;
+    return result;
+}
+
+function waitTest16() returns int|error {
+    future<int|error> f1 = start addOrError(10, 12);
+    future<int> f2 = start add_panic1(55, 88);
+    int|error result = wait f1 | f2;
+    return result;
+}
+
+function waitTest17() returns int|string|error {
+    future<string> f3 = start concat("foo");
+    future<int|error> f1 = start addOrError(10, 12);
+    future<int> f2 = start add_panic1(55, 88);
+    int|string|error result = wait f3 | f2 | f1;
+    return result;
+}
 
 function add_panic1(int i, int j) returns int {
     int k = i + j;
@@ -210,4 +238,13 @@ function getEmpMap() returns map<string> {
 function getAddrMap() returns map<string> {
     map<string> addrMap = { line1: "No. 20", line2: "Palm Grove", city: "Colombo 03"};
     return addrMap;
+}
+
+function addOrError(int i, int j) returns int|error {
+    int k = i + j;
+    if (true) {
+        error err = error("err returned" );
+        return err;
+    }
+    return k;
 }

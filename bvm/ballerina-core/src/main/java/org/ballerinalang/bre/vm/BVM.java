@@ -4452,7 +4452,7 @@ public class BVM {
         return true;
     }
 
-    private static boolean checkIsType(BValue sourceVal, BType targetType) {
+    static boolean checkIsType(BValue sourceVal, BType targetType) {
         if (isMutable(sourceVal)) {
             BType sourceType = sourceVal == null ? BTypes.typeNull : sourceVal.getType();
             return checkIsType(sourceType, targetType, new ArrayList<>());

@@ -18,14 +18,17 @@
 package org.ballerinalang.bre.vm;
 
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
+
 import java.util.Map;
 
 /**
@@ -52,11 +55,16 @@ public class CallbackReturnHandler {
                     continue;
                 }
                 if (callback.returnDataAvailable()) {
-                    handleReturn(strand.currentFrame, callback, expType, retReg);
-                    strand.waitCompleted = true;
                     strand.callBacksRemaining--;
-                    callback.releaseDataLock();
-                    return strand;
+                    if (handleReturn(strand, callback, expType, retReg)) {
+                        strand.waitCompleted = true;
+                        callback.releaseDataLock();
+                        return strand;
+                    } else {
+                        // If one callback is of error type, we wait for the others
+                        callback.releaseDataLock();
+                        continue;
+                    }
                 }
 
                 callback.setRetData(strand, expType, retReg, false, 0);
@@ -137,7 +145,8 @@ public class CallbackReturnHandler {
         }
     }
 
-    private static void handleReturn(StackFrame sf, SafeStrandCallback strandCallback, BType expType, int retReg) {
+    private static boolean handleReturn(Strand strand, SafeStrandCallback strandCallback, BType expType, int retReg) {
+        StackFrame sf = strand.currentFrame;
         if (expType.getTag() == TypeTags.UNION_TAG) {
             switch (strandCallback.retType.getTag()) {
                 case TypeTags.INT_TAG:
@@ -156,10 +165,14 @@ public class CallbackReturnHandler {
                     sf.refRegs[retReg] = new BBoolean(strandCallback.getBooleanRetVal() == 1);
                     break;
                 default:
+                    BRefType<?> refRetVal = strandCallback.getRefRetVal();
+                    if (BVM.checkIsType(refRetVal, BTypes.typeError) && strand.callBacksRemaining != 0) {
+                        return false;
+                    }
                     sf.refRegs[retReg] = strandCallback.getRefRetVal();
                     break;
             }
-            return;
+            return true;
         }
         switch (strandCallback.retType.getTag()) {
             case TypeTags.INT_TAG:
@@ -181,5 +194,6 @@ public class CallbackReturnHandler {
                 sf.refRegs[retReg] = strandCallback.getRefRetVal();
                 break;
         }
+        return true;
     }
 }

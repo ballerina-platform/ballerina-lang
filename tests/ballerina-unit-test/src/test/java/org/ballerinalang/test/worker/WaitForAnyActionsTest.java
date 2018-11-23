@@ -29,6 +29,8 @@ import java.util.Arrays;
 
 /**
  * Wait for any action related tests.
+ *
+ * @since 0.985.0
  */
 public class WaitForAnyActionsTest {
 
@@ -120,7 +122,7 @@ public class WaitForAnyActionsTest {
         Assert.assertEquals(vals[0].stringValue(), "hello foo");
     }
 
-    @Test (expectedExceptions = {BLangRuntimeException.class},
+    @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: err from panic \\{\\}.*")
     public void waitTest12() {
         BRunUtil.invoke(result, "waitTest12", new BValue[0]);
@@ -131,5 +133,32 @@ public class WaitForAnyActionsTest {
         BValue[] vals = BRunUtil.invoke(result, "waitTest13", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         Assert.assertEquals("0", vals[0].stringValue());
+    }
+
+    @Test
+    public void waitTest14() {
+        BValue[] vals = BRunUtil.invoke(result, "waitTest14", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        Assert.assertEquals("err returned {}", vals[0].stringValue());
+    }
+
+    @Test
+    public void waitTest15() {
+        BValue[] vals = BRunUtil.invoke(result, "waitTest15", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        Assert.assertEquals("hello moo", vals[0].stringValue());
+    }
+
+    @Test(expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = "error: err from panic \\{\\}.*")
+    public void waitTest16() {
+        BRunUtil.invoke(result, "waitTest16", new BValue[0]);
+    }
+
+    @Test
+    public void waitTest17() {
+        BValue[] vals = BRunUtil.invoke(result, "waitTest17", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        Assert.assertEquals("hello foo", vals[0].stringValue());
     }
 }
