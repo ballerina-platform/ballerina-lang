@@ -69,24 +69,28 @@ public class TestGenerator {
     /**
      * Creates a test file for a given BLangPackage in source file path.
      *
-     * @param documentManager document manager
-     * @param bLangNodePair   A pair of {@link BLangNode} and fallback node
-     * @param builtSourceFile built {@link BLangPackage} source file
-     * @param pkgRelativePath package relative path
-     * @param testFile        test file
+     * @param documentManager       document manager
+     * @param bLangNodePair         A pair of {@link BLangNode} and fallback node
+     * @param focusLineAcceptor focus position acceptor
+     * @param builtSourceFile       built {@link BLangPackage} source file
+     * @param pkgRelativePath       package relative path
+     * @param testFile              test file
      * @return generated test file path
      * @throws TestGeneratorException when test case generation fails
      */
     public static List<TextEdit> generate(WorkspaceDocumentManager documentManager,
-                                          Pair<BLangNode, Object> bLangNodePair, BLangPackage builtSourceFile,
-                                          String pkgRelativePath, File testFile) throws TestGeneratorException {
-        RootTemplate rootTemplate = getRootTemplateForBLangNode(pkgRelativePath, bLangNodePair, builtSourceFile);
-        RendererOutput rendererOutput = getRendererOutput(documentManager, testFile);
-        rootTemplate.render(rendererOutput);
+                                          Pair<BLangNode, Object> bLangNodePair,
+                                          BiConsumer<Integer, Integer> focusLineAcceptor,
+                                          BLangPackage builtSourceFile, String pkgRelativePath,
+                                          File testFile) throws TestGeneratorException {
+        RootTemplate template = getRootTemplate(pkgRelativePath, bLangNodePair, builtSourceFile, focusLineAcceptor);
+        RendererOutput rendererOutput = getRendererOutput(documentManager, testFile, focusLineAcceptor);
+        template.render(rendererOutput);
         return rendererOutput.getRenderedTextEdits();
     }
 
-    private static RendererOutput getRendererOutput(WorkspaceDocumentManager documentManager, File testFile)
+    private static RendererOutput getRendererOutput(WorkspaceDocumentManager documentManager, File testFile,
+                                                    BiConsumer<Integer, Integer> focusLineAcceptor)
             throws TestGeneratorException {
         // If exists, read the test file content
         String testContent = "";
@@ -99,11 +103,13 @@ public class TestGenerator {
             }
         }
 
-        // Create file template
+        // Create tests
         RendererOutput fileTemplate;
         if (testContent.isEmpty()) {
+            // Create tests from file template
             fileTemplate = new TemplateBasedRendererOutput("rootTest.bal");
         } else {
+            // Create tests from blang package
             BallerinaFile ballerinaFile;
             try {
                 ballerinaFile = LSCompiler.compileContent(testContent, CompilerPhase.COMPILER_PLUGIN);
@@ -112,7 +118,7 @@ public class TestGenerator {
             }
             Optional<BLangPackage> optBLangPackage = ballerinaFile.getBLangPackage();
             if (optBLangPackage.isPresent()) {
-                fileTemplate = new BLangPkgBasedRendererOutput(optBLangPackage.get());
+                fileTemplate = new BLangPkgBasedRendererOutput(optBLangPackage.get(), focusLineAcceptor);
             } else {
                 String msg = "Appending failed! unknown error occurred while appending to:" + testFile.toString();
                 throw new TestGeneratorException(msg);
@@ -121,15 +127,17 @@ public class TestGenerator {
         return fileTemplate;
     }
 
-    private static RootTemplate getRootTemplateForBLangNode(String fileName, Pair<BLangNode, Object> result,
-                                                            BLangPackage builtTestFile) throws TestGeneratorException {
+    private static RootTemplate getRootTemplate(String fileName, Pair<BLangNode, Object> result,
+                                                BLangPackage builtTestFile,
+                                                BiConsumer<Integer, Integer> focusLineAcceptor)
+            throws TestGeneratorException {
         BLangNode bLangNode = result.getLeft();
         Object fallBackNode = result.getRight();
         boolean fallback = false;
 
         if (bLangNode instanceof BLangFunction) {
             // A function
-            return RootTemplate.fromFunction((BLangFunction) bLangNode, builtTestFile);
+            return RootTemplate.fromFunction((BLangFunction) bLangNode, builtTestFile, focusLineAcceptor);
 
         } else if (bLangNode instanceof BLangService || (fallback = fallBackNode instanceof BLangService)) {
             // A Service
@@ -140,13 +148,13 @@ public class TestGenerator {
             if ("http".equals(owner)) {
                 switch (service.serviceTypeStruct.typeName.value) {
                     case "Service": {
-                        return RootTemplate.fromHttpService(service, builtTestFile);
+                        return RootTemplate.fromHttpService(service, builtTestFile, focusLineAcceptor);
                     }
                     case "WebSocketService": {
-                        return RootTemplate.fromHttpWSService(service, builtTestFile);
+                        return RootTemplate.fromHttpWSService(service, builtTestFile, focusLineAcceptor);
                     }
                     case "WebSocketClientService":
-                        return RootTemplate.fromHttpClientWSService(service, builtTestFile);
+                        return RootTemplate.fromHttpClientWSService(service, builtTestFile, focusLineAcceptor);
                     default:
                         break;
                 }
@@ -156,7 +164,7 @@ public class TestGenerator {
             throw new TestGeneratorException(service.serviceTypeStruct.toString() + " is not supported!");
         }
         // Whole file
-        return new RootTemplate(fileName, builtTestFile);
+        return new RootTemplate(fileName, builtTestFile, focusLineAcceptor);
     }
 
     /**
