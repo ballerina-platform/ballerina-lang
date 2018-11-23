@@ -1148,7 +1148,6 @@ public class PackageInfoReader {
                 case InstructionCodes.GOTO:
                 case InstructionCodes.PANIC:
                 case InstructionCodes.NEWXMLSEQ:
-                case InstructionCodes.LOOP_COMPENSATE:
                     i = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i));
                     break;
@@ -1450,16 +1449,6 @@ public class PackageInfoReader {
 
                     packageInfo.addInstruction(InstructionFactory.get(opcode, funcRefCPIndex, funcCallCPIndex));
                     break;
-                case InstructionCodes.SCOPE_END:
-                    FunctionRefCPEntry funcCP = ((FunctionRefCPEntry) packageInfo.getCPEntry(codeStream.readInt()));
-                    FunctionInfo scopeFunction = funcCP.getFunctionInfo();
-                    String scopeName = ((UTF8CPEntry) packageInfo.getCPEntry(codeStream.readInt())).getValue();
-                    Instruction scopeInstruction = new InstructionScopeEnd(opcode, scopeFunction,
-                            getChildScopesList(codeStream, packageInfo), scopeName, funcCP);
-                    int[] pointerOperands = getFunctionPointerLoadOperands(codeStream);
-                    scopeInstruction.operands = pointerOperands;
-                    packageInfo.addInstruction(scopeInstruction);
-                    break;
                 case InstructionCodes.WRKSEND:
                 case InstructionCodes.WRKRECEIVE:
                     int channelRefCPIndex = codeStream.readInt();
@@ -1529,17 +1518,6 @@ public class PackageInfoReader {
                         varRegs[m] = codeStream.readInt();
                     }
                     packageInfo.addInstruction(new InstructionLock(opcode, varTypes, pkgRefs, varRegs));
-                    break;
-                case COMPENSATE:
-                    int nameIndex = codeStream.readInt();
-                    String name = ((UTF8CPEntry) packageInfo.getCPEntry(nameIndex)).getValue();
-                    int childCount = codeStream.readInt();
-                    ArrayList<String> childScopeMap = new ArrayList<>();
-                    for (int count = 0; count < childCount; count++) {
-                        childScopeMap.add(((UTF8CPEntry) packageInfo.getCPEntry(codeStream.readInt())).getValue());
-                    }
-                    int retRegIndex = codeStream.readInt();
-                    packageInfo.addInstruction(new InstructionCompensate(opcode, name, childScopeMap, retRegIndex));
                     break;
                 default:
                     throw new ProgramFileFormatException("unknown opcode " + opcode +
@@ -1968,16 +1946,5 @@ public class PackageInfoReader {
             }
             return new BErrorType(reasonType, detailsType);
         }
-    }
-
-    private ArrayList<String> getChildScopesList(DataInputStream codeStream, PackageInfo packageInfo)
-            throws IOException {
-        int childCount = codeStream.readInt();
-        ArrayList<String> children = new ArrayList<>(childCount);
-        for (int i = 0; i < childCount; i++) {
-            children.add(((UTF8CPEntry) packageInfo.getCPEntry(codeStream.readInt())).getValue());
-        }
-
-        return children;
     }
 }

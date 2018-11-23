@@ -84,7 +84,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
@@ -903,15 +902,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             env.scope.define(xmlnsSymbol.name, xmlnsSymbol);
             bLangXMLAttribute.symbol = xmlnsSymbol;
         }
-    }
-
-    @Override
-    public void visit(BLangScope scopeNode) {
-        BTypeSymbol symbol = Symbols
-                .createScopeSymbol(names.fromString(scopeNode.name.getValue()), env.enclPkg.symbol.pkgID,
-                        scopeNode.type, env.scope.owner);
-        scopeNode.type = symbol.type;
-        env.scope.define(names.fromString(scopeNode.name.getValue()), symbol);
     }
 
 
