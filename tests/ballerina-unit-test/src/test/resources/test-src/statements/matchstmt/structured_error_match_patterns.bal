@@ -64,13 +64,30 @@ function foo(ER1|ER2 t1) returns string {
     match t1 {
         var error (reason, {fatal, message}) => {
             if fatal is boolean {
-                return "Matched with Foo : " + fatal;
+                return "Matched with boolean : " + fatal;
             } else if message is string {
-                return "Matched with message : " + message;
+                return "Matched with string : " + message;
             } else {
                 return "Matched with fatal as Nil";
             }
         }
     }
+    return "Default";
+}
+
+function testBasicErrorMatch5() returns string[] {
+    Foo f = {fatal: true};
+    error fe2 = error ("Error Code 1");
+    Foo|error fe = fe2;
+    string [] results = [foo2(f), foo2(fe)];
+    return results;
+}
+
+function foo2(any f) returns string {
+    match f {
+        var {fatal} => return "Matched with a record : " + io:sprintf("%s", fatal);
+        var error (reason) => return "Matched with an error : " + reason;
+    }
+
     return "Default";
 }

@@ -754,11 +754,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (precedingVar.getKind() == NodeKind.ERROR_VARIABLE && var.getKind() == NodeKind.ERROR_VARIABLE) {
             BLangErrorVariable precedingErrVar = (BLangErrorVariable) precedingVar;
             BLangErrorVariable errVar = (BLangErrorVariable) var;
-            if (precedingErrVar.reason.name != errVar.reason.name) {
-                return false;
+
+            if (precedingErrVar.detail != null && errVar.detail != null) {
+                return checkStructuredPatternSimilarity(precedingErrVar.detail, errVar.detail);
             }
 
-            return checkStructuredPatternSimilarity(precedingErrVar.detail, errVar.detail);
+            return true;
         }
 
         if (precedingVar.getKind() == NodeKind.VARIABLE &&

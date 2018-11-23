@@ -775,12 +775,9 @@ public class Desugar extends BLangNodeVisitor {
         //create error destruct block stmt
         final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varDefNode.pos);
 
-        //create a array of any-type based on the dimension
-        BType runTimeType = errorVariable.type;
-
         //create a simple var for the error 'error x = ($error$)'
-        final BLangSimpleVariable error = ASTBuilderUtil.createVariable(varDefNode.pos, "", runTimeType, null,
-                new BVarSymbol(0, names.fromString("$error$"), this.env.scope.owner.pkgID, runTimeType,
+        final BLangSimpleVariable error = ASTBuilderUtil.createVariable(varDefNode.pos, "", symTable.errorType, null,
+                new BVarSymbol(0, names.fromString("$error$"), this.env.scope.owner.pkgID, symTable.errorType,
                         this.env.scope.owner));
         error.expr = errorVariable.expr;
         final BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(varDefNode.pos, blockStmt);

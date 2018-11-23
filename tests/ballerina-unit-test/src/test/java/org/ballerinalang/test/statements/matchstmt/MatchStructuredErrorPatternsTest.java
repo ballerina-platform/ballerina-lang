@@ -18,10 +18,10 @@
  */
 package org.ballerinalang.test.statements.matchstmt;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -35,11 +35,13 @@ import org.testng.annotations.Test;
  */
 public class MatchStructuredErrorPatternsTest {
 
-    private CompileResult result;
+    private CompileResult result,resultNegative;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/statements/matchstmt/structured_error_match_patterns.bal");
+        resultNegative = BCompileUtil.compile(
+                "test-src/statements/matchstmt/structured_error_match_patterns_negative.bal");
     }
 
     @Test(description = "Test basics of structured pattern match statement 1")
@@ -76,7 +78,33 @@ public class MatchStructuredErrorPatternsTest {
         BStringArray results = (BStringArray) returns[0];
         int i = -1;
         String msg = "Matched with ";
-        Assert.assertEquals(results.get(++i), msg + "Foo : true");
-        Assert.assertEquals(results.get(++i), msg + "message : It's fatal");
+        Assert.assertEquals(results.get(++i), msg + "boolean : true");
+        Assert.assertEquals(results.get(++i), msg + "string : It's fatal");
+    }
+
+    @Test(description = "Test basics of structured pattern match statement 1")
+    public void testBasicErrorMatch5() {
+        BValue[] returns = BRunUtil.invoke(result, "testBasicErrorMatch5", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        BStringArray results = (BStringArray) returns[0];
+        int i = -1;
+        String msg = "Matched with ";
+        Assert.assertEquals(results.get(++i), msg + "a record : true");
+        Assert.assertEquals(results.get(++i), msg + "an error : Error Code 1" );
+    }
+
+
+    @Test(description = "Test pattern will not be matched 2")
+    public void testUnreachablePatterns() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 5);
+        int i = -1;
+        String unreachablePattern = "unreachable pattern: " +
+                "preceding patterns are too general or the pattern ordering is not correct";
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 28, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 33, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 44, 13);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "invalid record binding pattern; unknown field 'detail' in record type 'ClosedFoo'", 49, 29);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 50, 13);
     }
 }
