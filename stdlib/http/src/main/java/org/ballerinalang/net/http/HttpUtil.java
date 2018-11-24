@@ -631,9 +631,9 @@ public class HttpUtil {
     /**
      * Populates the HTTP caller with native data.
      *
-     * @param caller Represents the HTTP caller
+     * @param caller     Represents the HTTP caller
      * @param inboundMsg Represents carbon message
-     * @param config Represents service endpoint configuration
+     * @param config     Represents service endpoint configuration
      */
     public static void enrichHttpCallerWithNativeData(BMap<String, BValue> caller, HttpCarbonMessage inboundMsg,
                                                       Struct config) {
@@ -642,15 +642,15 @@ public class HttpUtil {
     }
 
     /**
-     * Populates the HTTP Caller with protocol details.
+     * Populates the HTTP caller with connection information.
      *
-     * @param httpCaller Represents the HTTP caller
-     * @param inboundMsg Represents the carbon message
+     * @param httpCaller   Represents the HTTP caller
+     * @param inboundMsg   Represents the carbon message
      * @param httpResource Represents the Http Resource
-     * @param config Represents the service endpoint configuration
+     * @param config       Represents the service endpoint configuration
      */
-    public static void enrichHttpCaller(BMap<String, BValue> httpCaller, HttpCarbonMessage inboundMsg,
-                                        HttpResource httpResource, Struct config) {
+    public static void enrichHttpCallerWithConnectionInfo(BMap<String, BValue> httpCaller, HttpCarbonMessage inboundMsg,
+                                                          HttpResource httpResource, Struct config) {
         BMap<String, BValue> remote = BLangConnectorSPIUtil.createBStruct(
                 httpResource.getBalResource().getResourceInfo().getPackageInfo().getProgramFile(),
                 PROTOCOL_PACKAGE_HTTP, HttpConstants.REMOTE);

@@ -164,7 +164,7 @@ public class HttpDispatcher {
         BMap<String, BValue> mediaType =
                 BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
 
-        HttpUtil.enrichHttpCaller(httpCaller, httpCarbonMessage, httpResource, endpointConfig);
+        HttpUtil.enrichHttpCallerWithConnectionInfo(httpCaller, httpCarbonMessage, httpResource, endpointConfig);
         HttpUtil.enrichHttpCallerWithNativeData(httpCaller, httpCarbonMessage, endpointConfig);
         serviceEndpoint.put(SERVICE_ENDPOINT_CONNECTION_FIELD, httpCaller);
 
