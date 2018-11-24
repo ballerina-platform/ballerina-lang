@@ -1466,6 +1466,8 @@ public class BLangPackageBuilder {
 
     void startWorker(PackageID pkgID) {
         this.startLambdaFunctionDef(pkgID);
+        BLangFunction lambdaFunction = (BLangFunction) this.invokableNodeStack.peek();
+        lambdaFunction.addFlag(Flag.WORKER);
         this.startBlock();
     }
 

@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -168,6 +169,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.wso2.ballerinalang.compiler.util.Constants.MAIN_FUNCTION_NAME;
+import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
 
 /**
  * This represents the code analyzing pass of semantic analysis.
@@ -293,56 +295,48 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
+        boolean isLambda = funcNode.flagSet.contains(Flag.LAMBDA);
+        if (isLambda) {
+            return;
+        }
+
+        this.validateMainFunction(funcNode);
+        try {
+            this.initNewWorkerActionSystem();
+            this.visitFunction(funcNode);
+        } finally {
+            this.finalizeCurrentWorkerActionSystem();
+        }
+    }
+
+    private void visitFunction(BLangFunction funcNode) {
+        SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         if (funcNode.symbol.isTransactionHandler) {
             transactionWithinHandlerCheckStack.push(true);
         }
         this.returnWithintransactionCheckStack.push(true);
         this.doneWithintransactionCheckStack.push(true);
-        this.validateMainFunction(funcNode);
-        SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
-        this.visitInvocable(funcNode, funcEnv);
+        this.resetFunction();
+        if (Symbols.isNative(funcNode.symbol)) {
+            return;
+        }
+        boolean invokableReturns = funcNode.returnTypeNode.type != symTable.nilType;
+        if (isPublicInvokableNode(funcNode)) {
+            analyzeNode(funcNode.returnTypeNode, invokableEnv);
+        }
+        /* the body can be null in the case of Object type function declarations */
+        if (funcNode.body != null) {
+            analyzeNode(funcNode.body, invokableEnv);
+            /* the function returns, but none of the statements surely returns */
+            if (invokableReturns && !this.statementReturns) {
+                this.dlog.error(funcNode.pos, DiagnosticCode.INVOKABLE_MUST_RETURN,
+                                funcNode.getKind().toString().toLowerCase());
+            }
+        }
         this.returnWithintransactionCheckStack.pop();
         this.doneWithintransactionCheckStack.pop();
         if (funcNode.symbol.isTransactionHandler) {
             transactionWithinHandlerCheckStack.pop();
-        }
-    }
-
-    private void visitInvocable(BLangInvokableNode invNode, SymbolEnv invokableEnv) {
-        this.resetFunction();
-        try {
-            this.initNewWorkerActionSystem();
-            if (Symbols.isNative(invNode.symbol)) {
-                return;
-            }
-            boolean invokableReturns = invNode.returnTypeNode.type != symTable.nilType;
-            if (invNode.workers.isEmpty()) {
-                if (isPublicInvokableNode(invNode)) {
-                    analyzeNode(invNode.returnTypeNode, invokableEnv);
-                }
-                /* the body can be null in the case of Object type function declarations */
-                if (invNode.body != null) {
-                    analyzeNode(invNode.body, invokableEnv);
-                    /* the function returns, but none of the statements surely returns */
-                    if (invokableReturns && !this.statementReturns) {
-                        this.dlog.error(invNode.pos, DiagnosticCode.INVOKABLE_MUST_RETURN,
-                                invNode.getKind().toString().toLowerCase());
-                    }
-                }
-            } else {
-                boolean workerReturns = false;
-                for (BLangWorker worker : invNode.workers) {
-                    analyzeNode(worker, invokableEnv);
-                    workerReturns = workerReturns || this.statementReturns;
-                    this.resetStatementReturns();
-                }
-                if (invokableReturns && !workerReturns) {
-                    this.dlog.error(invNode.pos, DiagnosticCode.ATLEAST_ONE_WORKER_MUST_RETURN,
-                            invNode.getKind().toString().toLowerCase());
-                }
-            }
-        } finally {
-            this.finalizeCurrentWorkerActionSystem();
         }
     }
 
@@ -362,11 +356,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorker worker) {
-        this.workerCount++;
-        this.workerActionSystemStack.peek().startWorkerActionStateMachine(worker.name.value, worker.pos);
-        analyzeNode(worker.body, env);
-        this.workerActionSystemStack.peek().endWorkerActionStateMachine();
-        this.workerCount--;
+        /* ignore, remove later */
     }
 
     @Override
@@ -960,9 +950,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangResource resourceNode) {
-        SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode,
-                resourceNode.symbol.scope, env);
-        this.visitInvocable(resourceNode, resourceEnv);
+        throw new RuntimeException("Deprecated lang feature");
     }
 
     public void visit(BLangForever foreverStatement) {
@@ -1523,7 +1511,24 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        /* ignore */
+        boolean isWorker = false;
+        if (bLangLambdaFunction.parent instanceof BLangSimpleVariable) {
+            String workerVarName = ((BLangSimpleVariable) bLangLambdaFunction.parent).name.value;
+            if (workerVarName.startsWith(WORKER_LAMBDA_VAR_PREFIX)) {
+                String workerName = workerVarName.substring(1);
+                isWorker = true;
+                this.workerCount++;
+                this.workerActionSystemStack.peek().startWorkerActionStateMachine(workerName,
+                                                                                  bLangLambdaFunction.function.pos);
+            }
+        }
+
+        this.visitFunction(bLangLambdaFunction.function);
+
+        if (isWorker) {
+            this.workerActionSystemStack.peek().endWorkerActionStateMachine();
+            this.workerCount--;
+        }
     }
 
     public void visit(BLangArrowFunction bLangArrowFunction) {
@@ -1803,7 +1808,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 currentAction = currentSM.currentAction();
                 if (isWorkerSend(currentAction) || isWorkerSyncSend(currentAction)) {
                     WorkerActionStateMachine otherSM = workerActionSystem.get(this.extractWorkerId(currentAction));
-                    if (otherSM.currentIsReceive(currentWorkerId)) {
+                    if (otherSM != null && otherSM.currentIsReceive(currentWorkerId)) {
                         if (isWorkerSyncSend(currentAction)) {
                             this.validateWorkerActionParameters((BLangWorkerSyncSendExpr) currentAction,
                                                                 (BLangWorkerReceive) otherSM.currentAction());

@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -1416,12 +1417,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isInTopLevelWorkerEnv() {
-        return this.env.enclEnv.node.getKind() == NodeKind.WORKER;
+        SymbolEnv env = this.env;
+        return env.enclInvokable.flagSet.contains(Flag.WORKER) && env.enclInvokable.body == env.node;
     }
 
     private boolean workerExists(SymbolEnv env, String workerName) {
-        BSymbol symbol = this.symResolver.lookupSymbol(env, new Name(workerName), SymTag.WORKER);
-        return (symbol != this.symTable.notFoundSymbol);
+        BSymbol symbol = this.symResolver.lookupSymbol(env, new Name(workerName), SymTag.VARIABLE);
+        return symbol != this.symTable.notFoundSymbol &&
+               symbol.type.tag == TypeTags.FUTURE &&
+               ((BFutureType) symbol.type).workerDerivative;
     }
 
     @Override
