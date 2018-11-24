@@ -79,10 +79,10 @@ if (responseFromServer is (string, grpc:Headers)) {
     string result;
     grpc:Headers resHeaders;
     (result, resHeaders) = responseFromServer;
-    io:println("Response received : " + result);
+    io:println("Response received : " + responseFromServer[0]);
 } else {
     // If an error is returned, print the error message.
-    io:println("Error while connecting grpc end-point : " + err.message);
+    io:println("Error while connecting grpc end-point : " + responseFromServer.message);
 }
 ```
 ### Server Streaming
@@ -128,7 +128,7 @@ public function main (string... args) {
     error? result = serverStreamingEp->receiveMessage("test", ServerStreamingMessageListener);
     if (result is error) {
         // If the service returns an error, print the error.
-        io:println("Error occured while sending event " + payloadError.message);
+        io:println("Error occured while sending event " + result.message);
     } else {
         io:println("Connected successfully to service");
     }
