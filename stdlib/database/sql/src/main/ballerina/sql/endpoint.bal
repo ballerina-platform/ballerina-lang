@@ -26,7 +26,7 @@ public type Client client object {
     # + return - A `table[]` if there are tables returned by the call action and else nil,
     #            `error` will be returned if there is any error
     public remote function call(@sensitive string sqlQuery, typedesc[]? recordType, Param... parameters)
-        returns @tainted table<^"any">[]|()|error {
+        returns @tainted table<record {}>[]|()|error {
         return nativeCall(self, sqlQuery, recordType, ...parameters);
     }
 
@@ -38,7 +38,7 @@ public type Client client object {
     # + parameters - The parameters to be passed to the select query. The number of parameters is variable
     # + return - A `table` returned by the sql query statement else `error` will be returned if there is any error
     public remote function select(@sensitive string sqlQuery, typedesc? recordType, boolean loadToMemory = false,
-    Param... parameters) returns @tainted table<^"any">|error {
+    Param... parameters) returns @tainted table<record {}>|error {
         return nativeSelect(self, sqlQuery, recordType, loadToMemory = loadToMemory, ...parameters);
     }
 
@@ -84,10 +84,10 @@ public type Client client object {
 };
 
 extern function nativeSelect(Client sqlClient, @sensitive string sqlQuery, typedesc? recordType,
-   boolean loadToMemory = false, Param... parameters) returns @tainted table<^"any">|error;
+   boolean loadToMemory = false, Param... parameters) returns @tainted table<record {}>|error;
 
 extern function nativeCall(Client sqlClient, @sensitive string sqlQuery, typedesc[]? recordType, Param... parameters)
-   returns @tainted table<^"any">[]|()|error;
+   returns @tainted table<record {}>[]|()|error;
 
 extern function nativeUpdate(Client sqlClient, @sensitive string sqlQuery, Param... parameters) returns int|error;
 

@@ -3884,7 +3884,7 @@ public class BallerinaParser extends Parser {
 				setState(942);
 				match(LT);
 				setState(943);
-				nameReference();
+				typeName(0);
 				setState(944);
 				match(GT);
 				}
@@ -18347,12 +18347,12 @@ public class BallerinaParser extends Parser {
 		"\2\2\2\u03a6\u03a7\3\2\2\2\u03a7\u03bd\3\2\2\2\u03a8\u03ad\7R\2\2\u03a9"+
 		"\u03aa\7\u009c\2\2\u03aa\u03ab\5\u011c\u008f\2\u03ab\u03ac\7\u009b\2\2"+
 		"\u03ac\u03ae\3\2\2\2\u03ad\u03a9\3\2\2\2\u03ad\u03ae\3\2\2\2\u03ae\u03bd"+
-		"\3\2\2\2\u03af\u03b0\7T\2\2\u03b0\u03b1\7\u009c\2\2\u03b1\u03b2\5\u011c"+
-		"\u008f\2\u03b2\u03b3\7\u009b\2\2\u03b3\u03bd\3\2\2\2\u03b4\u03b5\7U\2"+
-		"\2\u03b5\u03b6\7\u009c\2\2\u03b6\u03b7\5D#\2\u03b7\u03b8\7\u009b\2\2\u03b8"+
-		"\u03bd\3\2\2\2\u03b9\u03bd\7\t\2\2\u03ba\u03bd\5T+\2\u03bb\u03bd\5R*\2"+
-		"\u03bc\u0391\3\2\2\2\u03bc\u0396\3\2\2\2\u03bc\u039b\3\2\2\2\u03bc\u03a8"+
-		"\3\2\2\2\u03bc\u03af\3\2\2\2\u03bc\u03b4\3\2\2\2\u03bc\u03b9\3\2\2\2\u03bc"+
+		"\3\2\2\2\u03af\u03b0\7T\2\2\u03b0\u03b1\7\u009c\2\2\u03b1\u03b2\5D#\2"+
+		"\u03b2\u03b3\7\u009b\2\2\u03b3\u03bd\3\2\2\2\u03b4\u03b5\7U\2\2\u03b5"+
+		"\u03b6\7\u009c\2\2\u03b6\u03b7\5D#\2\u03b7\u03b8\7\u009b\2\2\u03b8\u03bd"+
+		"\3\2\2\2\u03b9\u03bd\7\t\2\2\u03ba\u03bd\5T+\2\u03bb\u03bd\5R*\2\u03bc"+
+		"\u0391\3\2\2\2\u03bc\u0396\3\2\2\2\u03bc\u039b\3\2\2\2\u03bc\u03a8\3\2"+
+		"\2\2\u03bc\u03af\3\2\2\2\u03bc\u03b4\3\2\2\2\u03bc\u03b9\3\2\2\2\u03bc"+
 		"\u03ba\3\2\2\2\u03bc\u03bb\3\2\2\2\u03bdQ\3\2\2\2\u03be\u03bf\7\13\2\2"+
 		"\u03bf\u03c2\7\u008d\2\2\u03c0\u03c3\5\u0128\u0095\2\u03c1\u03c3\5\u0124"+
 		"\u0093\2\u03c2\u03c0\3\2\2\2\u03c2\u03c1\3\2\2\2\u03c2\u03c3\3\2\2\2\u03c3"+
