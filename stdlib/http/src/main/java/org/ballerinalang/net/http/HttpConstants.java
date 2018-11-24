@@ -382,12 +382,12 @@ public class HttpConstants {
     public static final String SERVICE_ENDPOINT_PROTOCOL_FIELD = "protocol";
 
     //Remote struct field names
-    public static final String REMOTE_STRUCT_FIELD = "remoteDetails";
+    public static final String REMOTE_STRUCT_FIELD = "remoteAddress";
     public static final String REMOTE_HOST_FIELD = "host";
     public static final String REMOTE_PORT_FIELD = "port";
 
     //Local struct field names
-    public static final String LOCAL_STRUCT_INDEX = "local";
+    public static final String LOCAL_STRUCT_INDEX = "localAddress";
     public static final String LOCAL_HOST_FIELD = "host";
     public static final String LOCAL_PORT_FIELD = "port";
 
