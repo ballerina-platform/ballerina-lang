@@ -15,9 +15,6 @@
  */
 package org.ballerinalang.langserver;
 
-import com.google.gson.internal.LinkedTreeMap;
-import org.ballerinalang.langserver.client.ExtendedLanguageClient;
-import org.ballerinalang.langserver.client.ExtendedLanguageClientAware;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvider;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
@@ -44,6 +41,8 @@ import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.SignatureHelpOptions;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
+import org.eclipse.lsp4j.services.LanguageClient;
+import org.eclipse.lsp4j.services.LanguageClientAware;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
 
@@ -51,15 +50,14 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
  * Language server implementation for Ballerina.
  */
-public class BallerinaLanguageServer implements ExtendedLanguageServer, ExtendedLanguageClientAware {
+public class BallerinaLanguageServer implements ExtendedLanguageServer, LanguageClientAware {
     private LSIndexImpl lsIndex = null;
-    private ExtendedLanguageClient client = null;
+    private LanguageClient client = null;
     private TextDocumentService textService;
     private WorkspaceService workspaceService;
     private BallerinaDocumentService ballerinaDocumentService;
@@ -95,7 +93,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         LSAnnotationCache.initiate();
     }
 
-    public ExtendedLanguageClient getClient() {
+    public LanguageClient getClient() {
         return this.client;
     }
 
@@ -123,15 +121,12 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         TextDocumentClientCapabilities textDocCapabilities = params.getCapabilities().getTextDocument();
         ((BallerinaTextDocumentService) this.textService).setClientCapabilities(textDocCapabilities);
 
-        Map<String, Boolean> experimentalClientCapabilities =
-                (LinkedTreeMap<String, Boolean>) params.getCapabilities().getExperimental();
+        HashMap<String, Boolean> experimentalCapabilities =
+                (HashMap<String, Boolean>) params.getCapabilities().getExperimental();
 
-        if (experimentalClientCapabilities != null && experimentalClientCapabilities.get("introspection")) {
+        if (experimentalCapabilities != null && experimentalCapabilities.get("introspection")) {
             ballerinaTraceListener.startListener();
         }
-
-        BallerinaWorkspaceService workspaceService = (BallerinaWorkspaceService) this.workspaceService;
-        workspaceService.setExperimentalClientCapabilities(experimentalClientCapabilities);
 
         // Set AST provider and examples provider capabilities
         HashMap<String, Boolean> experimentalServerCapabilities = new HashMap<String, Boolean>();
@@ -175,7 +170,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
     }
 
     @Override
-    public void connect(ExtendedLanguageClient languageClient) {
+    public void connect(LanguageClient languageClient) {
         this.client = languageClient;
     }
 

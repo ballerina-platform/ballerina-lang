@@ -2534,7 +2534,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BSymbol getSymbolForAnydataReturningBuiltinMethods(BLangInvocation iExpr) {
         BType type = iExpr.expr.type;
-        if (!isLikeAnydataOrNotNil(type)) {
+        if (!types.isLikeAnydataOrNotNil(type)) {
             return symTable.notFoundSymbol;
         }
 
@@ -2560,53 +2560,11 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BSymbol getSymbolForIsFrozenBuiltinMethod(BLangInvocation iExpr) {
         BType type = iExpr.expr.type;
-        if (!isLikeAnydataOrNotNil(type)) {
+        if (!types.isLikeAnydataOrNotNil(type)) {
             return symTable.notFoundSymbol;
         }
         return symResolver.createBuiltinMethodSymbol(BLangBuiltInMethod.IS_FROZEN, type, symTable.booleanType,
                 InstructionCodes.IS_FROZEN);
-    }
-
-    public boolean isLikeAnydataOrNotNil(BType type) {
-        if (type.tag == TypeTags.NIL || (!types.isAnydata(type) && !isLikeAnydata(type))) {
-            return false;
-        }
-        return true;
-    }
-
-    private boolean isLikeAnydata(BType type) {
-        int typeTag = type.tag;
-        if (typeTag == TypeTags.ANY) {
-            return true;
-        }
-
-        // check for anydata element/member types as part of recursive calls with structured/union types
-        if (types.isAnydata(type)) {
-            return true;
-        }
-
-        if (type.tag == TypeTags.MAP && isLikeAnydata(((BMapType) type).constraint)) {
-            return true;
-        }
-
-        if (type.tag == TypeTags.RECORD) {
-            BRecordType recordType = (BRecordType) type;
-            return recordType.fields.stream()
-                    .noneMatch(field -> !Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
-                            !(isLikeAnydata(field.type)));
-        }
-
-        if (type.tag == TypeTags.UNION) {
-            BUnionType unionType = (BUnionType) type;
-            return unionType.memberTypes.stream().anyMatch(this::isLikeAnydata);
-        }
-
-        if (type.tag == TypeTags.TUPLE) {
-            BTupleType tupleType = (BTupleType) type;
-            return tupleType.getTupleTypes().stream().allMatch(this::isLikeAnydata);
-        }
-
-        return type.tag == TypeTags.ARRAY && isLikeAnydata(((BArrayType) type).eType);
     }
 
     private void defineThenTypeGuards(BLangTernaryExpr ternaryExpr, SymbolEnv thenEnv,

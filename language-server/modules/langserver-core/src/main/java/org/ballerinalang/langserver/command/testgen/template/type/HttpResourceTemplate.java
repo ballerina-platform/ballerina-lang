@@ -43,7 +43,7 @@ public class HttpResourceTemplate extends AbstractTestTemplate {
     private final String serviceUriStrName;
 
     public HttpResourceTemplate(String serviceUriStrName, String basePath, BLangResource resource) {
-        super(null, null);
+        super(null);
         this.serviceUriStrName = serviceUriStrName;
         this.resourceMethods = new ArrayList<>();
         String resourceName = resource.name.value;
