@@ -32,7 +32,6 @@ import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketService;
 import org.ballerinalang.net.http.WebSocketServicesRegistry;
 
-import static org.ballerinalang.net.http.HttpConstants.COLON;
 import static org.ballerinalang.net.http.HttpConstants.MOCK_SERVER;
 
 /**
@@ -60,10 +59,9 @@ public class NonListeningRegister extends org.ballerinalang.net.http.serviceendp
         HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
         WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
 
-        // TODO: Check if this is valid.
-        // TODO: In HTTP to WebSocket upgrade register WebSocket service in WebSocketServiceRegistry
-        String listenerType = serviceEndpoint.getPackage() + COLON + serviceEndpoint.getName();
-        if (HttpConstants.HTTP_SERVICE_ENDPOINT_NAME.equals(listenerType)) {
+        //TODO:This needs to be fixed properly once there's a way to identify the listener type
+        String listenerType = service.getServiceInfo().listenerType.getTypeSig();
+        if (HttpConstants.HTTP_MOCK_SERVER_ENDPOINT_NAME.equals(listenerType)) {
             httpServicesRegistry.registerService(service);
         }
         if (WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(listenerType)) {
