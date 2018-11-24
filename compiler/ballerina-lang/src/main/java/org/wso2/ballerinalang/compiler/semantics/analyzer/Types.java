@@ -214,7 +214,7 @@ public class Types {
         return types.stream().allMatch(this::isAnydata);
     }
 
-    boolean isLikeAnydataOrNotNil(BType type) {
+    public boolean isLikeAnydataOrNotNil(BType type) {
         if (type.tag == TypeTags.NIL || (!isAnydata(type) && !isLikeAnydata(type))) {
             return false;
         }
