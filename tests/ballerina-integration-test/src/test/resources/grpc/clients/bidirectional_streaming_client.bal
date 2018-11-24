@@ -78,8 +78,8 @@ public type ChatClient client object {
         }
     }
 
-    remote function chat(typedesc listener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|error) {
-        return self.grpcClient->streamingExecute("Chat/chat", listener, headers = headers);
+    remote function chat(typedesc msgListener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|error) {
+        return self.grpcClient->streamingExecute("Chat/chat", msgListener, headers = headers);
     }
 };
 
@@ -88,7 +88,7 @@ type ChatMessage record {
     string message = "";
 };
 
-@final string DESCRIPTOR_KEY4 = "Chat.proto";
+const string DESCRIPTOR_KEY4 = "Chat.proto";
 map descriptorMap4 =
 {
     "Chat.proto":

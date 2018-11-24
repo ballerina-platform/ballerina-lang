@@ -235,8 +235,8 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
                 httpResource.getBalResource().getResourceInfo().getPackageInfo().getProgramFile(),
                 HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.CALLER);
 
-        HttpUtil.enrichServiceEndpointInfo(serviceEndpoint, httpCarbonMessage, httpResource, endpointConfig);
-        HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage, endpointConfig);
+        HttpUtil.enrichHttpCallerWithConnectionInfo(serviceEndpoint, httpCarbonMessage, httpResource, endpointConfig);
+        HttpUtil.enrichHttpCallerWithNativeData(connection, httpCarbonMessage, endpointConfig);
         serviceEndpoint.put(HttpConstants.SERVICE_ENDPOINT_CONNECTION_FIELD, connection);
 
         subscriberServiceEndpoint.put(LISTENER_SERVICE_ENDPOINT, serviceEndpoint);
