@@ -417,7 +417,7 @@ function checkForRetry(string url, ClientEndpointConfig config) returns Client|e
 }
 
 function createCircuitBreakerClient(string uri, ClientEndpointConfig configuration) returns Client|error {
-    Client cbHttpClient = new(configuration);
+    Client cbHttpClient;
     var cbConfig = configuration.circuitBreaker;
     if (cbConfig is CircuitBreakerConfig) {
         validateCircuitBreakerConfiguration(cbConfig);
