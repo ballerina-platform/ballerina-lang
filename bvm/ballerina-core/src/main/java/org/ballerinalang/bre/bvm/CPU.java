@@ -4776,8 +4776,7 @@ public class CPU {
                 return false;
             }
 
-            List otherValuePairValueList = ((ValuePair) otherPair).valueList;
-            return valueList.stream().allMatch(otherValuePairValueList::contains);
+            return ((ValuePair) otherPair).valueList.containsAll(valueList);
         }
     }
 }
