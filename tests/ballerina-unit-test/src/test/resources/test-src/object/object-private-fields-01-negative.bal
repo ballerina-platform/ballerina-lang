@@ -1,20 +1,16 @@
 import org.foo;
 
 public type userA object {
-
     public int age = 0;
     public string name = "";
-
 };
 
 public type userB object {
-
     public int age = 0;
     public string name = "";
     public string address = "";
 
     string zipcode = "";
-
 };
 
 public function testRuntimeObjEqNegative() returns (string) {

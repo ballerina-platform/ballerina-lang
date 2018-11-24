@@ -14,10 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents the WebSocket client service.
-public type WebSocketService object {
-    public function getEndpoint() returns WebSocketListener {
-        WebSocketListener ep = new;
-        return ep;
-    }
+# Represents an event which will trigger when there is a changes to listining direcotry.
+#
+# + name - Absolute file URI for triggerd event
+# + operation - Triggered event action. This can be create, delete or modify
+public type FileEvent record {
+    string name;
+    string operation;
+    !...
+};
+
+type FileError record {
+    string message = "";
+    !...
 };

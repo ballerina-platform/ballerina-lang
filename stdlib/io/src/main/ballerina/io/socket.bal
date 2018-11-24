@@ -32,7 +32,7 @@ public type Socket object {
     @readonly public string remoteAddress = "";
     @readonly public string localAddress = "";
 
-    public new() {
+    public function __init() {
         self.init();
     }
 
@@ -72,7 +72,7 @@ public type Socket object {
 # Represents a TCP server socket.
 public type ServerSocket object {
 
-    public new() {
+    public function __init() {
         self.init();
     }
 

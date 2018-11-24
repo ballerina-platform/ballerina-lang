@@ -842,6 +842,11 @@ public class CPU {
         int j = operands[1];
 
         BRefType<?> refRegVal = sf.refRegs[i];
+
+        if (refRegVal == null) {
+            return;
+        }
+
         if (!checkIsLikeType(refRegVal, BTypes.typeAnydata)) {
             sf.refRegs[j] = BLangVMErrors.createError(ctx, BLangExceptionHelper
                     .getErrorMessage(RuntimeErrors.UNSUPPORTED_CLONE_OPERATION, refRegVal, refRegVal.getType()));
@@ -945,7 +950,9 @@ public class CPU {
         }
 
         try {
-            valueToBeStamped.stamp(targetType);
+            if (valueToBeStamped != null) {
+                valueToBeStamped.stamp(targetType);
+            }
             sf.refRegs[k] = valueToBeStamped;
         } catch (BallerinaException e) {
             BError error = BLangVMErrors.createError(ctx,
@@ -1921,12 +1928,6 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                if (sf.doubleRegs[j] == 0) {
-                    ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
-                    handleError(ctx);
-                    break;
-                }
-
                 sf.doubleRegs[k] = sf.doubleRegs[i] % sf.doubleRegs[j];
                 break;
             case InstructionCodes.DMOD:
@@ -4220,7 +4221,7 @@ public class CPU {
         compensationTable.index++;
     }
 
-    private static boolean checkIsLikeType(BValue sourceValue, BType targetType) {
+    public static boolean checkIsLikeType(BValue sourceValue, BType targetType) {
         BType sourceType = sourceValue == null ? BTypes.typeNull : sourceValue.getType();
         if (checkIsType(sourceType, targetType, new ArrayList<>())) {
             return true;
@@ -4243,7 +4244,7 @@ public class CPU {
                 return checkFiniteTypeAssignable(sourceValue, targetType);
             case TypeTags.UNION_TAG:
                 return ((BUnionType) targetType).getMemberTypes().stream()
-                        .anyMatch(type -> checkIsType(sourceValue, type));
+                        .anyMatch(type -> checkIsLikeType(sourceValue, type));
             default:
                 return false;
         }
@@ -4289,11 +4290,11 @@ public class CPU {
         }
 
         BRefValueArray source = (BRefValueArray) sourceValue;
-        if (source.getValues().length != targetType.getTupleTypes().size()) {
+        if (source.size() != targetType.getTupleTypes().size()) {
             return false;
         }
 
-        return IntStream.range(0, source.getValues().length)
+        return IntStream.range(0, (int) source.size())
                 .allMatch(i -> checkIsLikeType(source.get(i), targetType.getTupleTypes().get(i)));
     }
 

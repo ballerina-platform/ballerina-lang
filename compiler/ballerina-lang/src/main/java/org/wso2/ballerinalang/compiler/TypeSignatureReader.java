@@ -67,9 +67,9 @@ public class TypeSignatureReader<T> {
                 typeStack.push(typeCreater.getBuiltinRefType(typeName));
                 return nameIndex + 1;
             case 'C':
-            case 'X':
             case 'J':
             case 'T':
+            case 'X':
             case 'D':
             case 'G':
             case 'Z':
@@ -151,9 +151,9 @@ public class TypeSignatureReader<T> {
                 T constraintType = getBTypeFromDescriptor(typeCreater, desc.substring(1));
                 return typeCreater.getConstrainedType(ch, constraintType);
             case 'C':
-            case 'X':
             case 'J':
             case 'T':
+            case 'X':
             case 'Z':
             case 'G':
             case 'D':

@@ -1,4 +1,4 @@
-error ex;
+error ex = error("", {});
 
 function test1 () {
     Foo|error k = <Foo> bar;

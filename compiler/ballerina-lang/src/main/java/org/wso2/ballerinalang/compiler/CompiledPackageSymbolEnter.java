@@ -34,7 +34,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -53,7 +52,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -226,7 +224,6 @@ public class CompiledPackageSymbolEnter {
         // Define services.
         defineSymbols(dataInStream, rethrow(this::defineService));
 
-
         // Resolve unresolved types.
         resolveTypes();
 
@@ -364,7 +361,11 @@ public class CompiledPackageSymbolEnter {
             invokableSymbol.name =
                     names.fromString(Symbols.getAttachedFuncSymbolName(attachedType.tsymbol.name.value, funcName));
             if (attachedType.tag == TypeTags.OBJECT || attachedType.tag == TypeTags.RECORD) {
-                scopeToDefine = attachedType.tsymbol.scope;
+                if (attachedType.tag == TypeTags.OBJECT) {
+                    scopeToDefine = ((BObjectTypeSymbol) attachedType.tsymbol).methodScope;
+                } else {
+                    scopeToDefine = attachedType.tsymbol.scope;
+                }
                 BAttachedFunction attachedFunc =
                         new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType);
                 BStructureTypeSymbol structureTypeSymbol = (BStructureTypeSymbol) attachedType.tsymbol;
@@ -462,6 +463,7 @@ public class CompiledPackageSymbolEnter {
         BObjectTypeSymbol symbol = (BObjectTypeSymbol) Symbols.createObjectSymbol(flags, names.fromString(name),
                 this.env.pkgSymbol.pkgID, null, this.env.pkgSymbol);
         symbol.scope = new Scope(symbol);
+        symbol.methodScope = new Scope(symbol);
         BObjectType type = new BObjectType(symbol);
         symbol.type = type;
 
@@ -614,41 +616,20 @@ public class CompiledPackageSymbolEnter {
     }
 
     private void defineService(DataInputStream dataInStream) throws IOException {
-        // Read connector name cp index
-        String serviceName = getUTF8CPEntryValue(dataInStream);
-        int flags = dataInStream.readInt();
-        // endpoint type is not required for service symbol.
-        getUTF8CPEntryValue(dataInStream);
-
-        BServiceSymbol serviceSymbol = Symbols.createServiceSymbol(flags,
-                names.fromString(serviceName), this.env.pkgSymbol.pkgID, null, env.pkgSymbol);
-        serviceSymbol.type = new BServiceType(serviceSymbol);
-        this.env.pkgSymbol.scope.define(serviceSymbol.name, serviceSymbol);
+        dataInStream.readInt();
+        dataInStream.readInt();
+        dataInStream.readInt();
+        dataInStream.readInt();
+        dataInStream.readInt();
     }
 
     private void defineResource(DataInputStream dataInStream) throws IOException {
         int resourceCount = dataInStream.readShort();
         for (int j = 0; j < resourceCount; j++) {
             dataInStream.readInt();
-            dataInStream.readInt();
-            int paramNameCPIndexesCount = dataInStream.readShort();
-            for (int k = 0; k < paramNameCPIndexesCount; k++) {
-                dataInStream.readInt();
-            }
-
-            // Read and ignore worker data
-            int noOfWorkerDataBytes = dataInStream.readInt();
-            byte[] workerData = new byte[noOfWorkerDataBytes];
-            int bytesRead = dataInStream.read(workerData);
-            if (bytesRead != noOfWorkerDataBytes) {
-                // TODO throw an error
-            }
-
-            // Read attributes
-            readAttributes(dataInStream);
         }
-        readAttributes(dataInStream);
     }
+
 
     private void defineConstants(DataInputStream dataInStream) throws IOException {
         String constantName = getUTF8CPEntryValue(dataInStream);
@@ -1175,7 +1156,12 @@ public class CompiledPackageSymbolEnter {
                 pkgSymbol = env.pkgSymbol;
             }
 
-            return lookupUserDefinedType(pkgSymbol, typeName);
+            switch (typeChar) {
+                case 'X':
+                    return symTable.anyServiceType;
+                default:
+                    return lookupUserDefinedType(pkgSymbol, typeName);
+            }
         }
 
         @Override
@@ -1202,6 +1188,7 @@ public class CompiledPackageSymbolEnter {
                     return new BChannelType(TypeTags.CHANNEL, constraint, symTable.channelType.tsymbol);
                 case 'G':
                 case 'T':
+                case 'X':
                 default:
                     return constraint;
             }

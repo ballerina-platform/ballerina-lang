@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-@final StatisticConfig[] DEFAULT_GAUGE_STATS_CONFIG = [{ timeWindow: 600000, buckets: 5,
+final StatisticConfig[] DEFAULT_GAUGE_STATS_CONFIG = [{ timeWindow: 600000, buckets: 5,
     percentiles: [0.33, 0.5, 0.66, 0.99] }];
 
-@final map<string> DEFAULT_TAGS = {};
+final map<string> DEFAULT_TAGS = {};
 
 
 # Start a span with no parent span.

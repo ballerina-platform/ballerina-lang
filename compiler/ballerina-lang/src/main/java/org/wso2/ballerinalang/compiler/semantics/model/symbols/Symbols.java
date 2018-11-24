@@ -111,7 +111,7 @@ public class Symbols {
                                                      PackageID pkgID,
                                                      BType type,
                                                      BSymbol owner) {
-        BServiceSymbol serviceSymbol = new BServiceSymbol(flags, name, pkgID, type, owner, null);
+        BServiceSymbol serviceSymbol = new BServiceSymbol(flags, name, pkgID, type, owner);
         serviceSymbol.kind = SymbolKind.SERVICE;
         return serviceSymbol;
     }
@@ -125,16 +125,6 @@ public class Symbols {
         BInvokableSymbol symbol = createInvokableSymbol(SymTag.FUNCTION, flags, name, pkgID, type, owner);
         symbol.bodyExist = bodyExist;
         symbol.kind = SymbolKind.FUNCTION;
-        return symbol;
-    }
-
-    public static BInvokableSymbol createResourceSymbol(int flags,
-                                                        Name name,
-                                                        PackageID pkgID,
-                                                        BType type,
-                                                        BSymbol owner) {
-        BInvokableSymbol symbol = createInvokableSymbol(SymTag.RESOURCE, flags, name, pkgID, type, owner);
-        symbol.kind = SymbolKind.RESOURCE;
         return symbol;
     }
 
@@ -244,7 +234,7 @@ public class Symbols {
     }
 
     public static boolean isAttachPointPresent(int mask, int attachPoint) {
-        return (mask & attachPoint) == attachPoint;
+        return (mask & attachPoint) != 0;
     }
 
     public static boolean isOptional(BSymbol sym) {

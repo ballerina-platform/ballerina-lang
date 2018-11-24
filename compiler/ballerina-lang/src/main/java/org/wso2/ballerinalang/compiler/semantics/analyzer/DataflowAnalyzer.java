@@ -813,6 +813,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangObjectTypeNode objectTypeNode) {
         SymbolEnv objectEnv = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, env);
         objectTypeNode.fields.forEach(field -> analyzeNode(field, objectEnv));
+        objectTypeNode.referencedFields.forEach(field -> analyzeNode(field, objectEnv));
 
         // Visit the constructor with the same scope as the object
         if (objectTypeNode.initFunction != null) {
@@ -832,13 +833,15 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             objectTypeNode.initFunction.body.stmts.forEach(statement -> analyzeNode(statement, objectEnv));
         }
 
-        if (!anonymousModelHelper.isAnonymousType(objectTypeNode.symbol) && !Symbols
-                .isFlagOn(objectTypeNode.symbol.flags, Flags.ABSTRACT)) {
-            objectTypeNode.fields.stream().filter(field -> !Symbols.isPrivate(field.symbol)).forEach(field -> {
-                if (this.uninitializedVars.containsKey(field.symbol)) {
-                    this.dlog.error(field.pos, DiagnosticCode.OBJECT_UNINITIALIZED_FIELD, field.name);
-                }
-            });
+        if (!anonymousModelHelper.isAnonymousType(objectTypeNode.symbol) &&
+                !Symbols.isFlagOn(objectTypeNode.symbol.flags, Flags.ABSTRACT)) {
+            Stream.concat(objectTypeNode.fields.stream(), objectTypeNode.referencedFields.stream())
+                .filter(field -> !Symbols.isPrivate(field.symbol))
+                .forEach(field -> {
+                    if (this.uninitializedVars.containsKey(field.symbol)) {
+                        this.dlog.error(field.pos, DiagnosticCode.OBJECT_UNINITIALIZED_FIELD, field.name);
+                    }
+                });
         }
 
         objectTypeNode.functions.forEach(function -> analyzeNode(function, env));

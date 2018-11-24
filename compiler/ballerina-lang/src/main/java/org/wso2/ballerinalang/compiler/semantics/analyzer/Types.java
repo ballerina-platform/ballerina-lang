@@ -20,11 +20,13 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
@@ -252,7 +254,8 @@ public class Types {
                 return checkRecordEquivalencyForStamping((BRecordType) source, (BRecordType) target, unresolvedTypes);
             } else if (source.tag == TypeTags.MAP) {
                 int mapConstraintTypeTag = ((BMapType) source).constraint.tag;
-                if (mapConstraintTypeTag != TypeTags.ANY && ((BRecordType) target).sealed) {
+                if ((!(mapConstraintTypeTag == TypeTags.ANY || mapConstraintTypeTag == TypeTags.ANYDATA)) &&
+                        ((BRecordType) target).sealed) {
                     for (BField field : ((BStructureType) target).getFields()) {
                         if (field.getType().tag != mapConstraintTypeTag) {
                             return false;
@@ -746,9 +749,6 @@ public class Types {
             case TypeTags.TABLE:
                 BTableType tableType = (BTableType) collectionType;
                 if (variableSize == 1) {
-                    if (tableType.constraint.tag == TypeTags.NONE) {
-                        return Lists.of(symTable.anyType);
-                    }
                     return Lists.of(tableType.constraint);
                 } else if (variableSize == 2) {
                     return Lists.of(symTable.intType, tableType.constraint);
@@ -864,6 +864,43 @@ public class Types {
             return checkStructFieldToJSONCompatibility(type, ((BRecordType) type).restFieldType, unresolvedTypes);
         }
 
+        return true;
+    }
+
+    public boolean checkListenerCompatibility(SymbolEnv env, BType type) {
+        if (type.tag != TypeTags.OBJECT) {
+            return false;
+        }
+        final BSymbol bSymbol = symResolver.lookupSymbol(env, Names.ABSTRACT_LISTENER, SymTag.TYPE);
+        if (bSymbol == symTable.notFoundSymbol || bSymbol.type.tag != TypeTags.OBJECT) {
+            throw new AssertionError("AbstractListener object not defined.");
+        }
+        BObjectType rhsType = (BObjectType) type;
+        BObjectType lhsType = (BObjectType) bSymbol.type;
+
+        BStructureTypeSymbol lhsStructSymbol = (BStructureTypeSymbol) lhsType.tsymbol;
+        List<BAttachedFunction> lhsFuncs = lhsStructSymbol.attachedFuncs;
+        List<BAttachedFunction> rhsFuncs = ((BStructureTypeSymbol) rhsType.tsymbol).attachedFuncs;
+
+        int lhsAttachedFuncCount = lhsStructSymbol.initializerFunc != null ? lhsFuncs.size() - 1 : lhsFuncs.size();
+        if (lhsAttachedFuncCount > rhsFuncs.size()) {
+            return false;
+        }
+
+        for (BAttachedFunction lhsFunc : lhsFuncs) {
+            if (lhsFunc == lhsStructSymbol.initializerFunc || lhsFunc == lhsStructSymbol.defaultsValuesInitFunc) {
+                continue;
+            }
+
+            if (!Symbols.isPublic(lhsFunc.symbol)) {
+                return false;
+            }
+
+            BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, new ArrayList<>());
+            if (rhsFunc == null || !Symbols.isPublic(rhsFunc.symbol)) {
+                return false;
+            }
+        }
         return true;
     }
 
@@ -1937,6 +1974,47 @@ public class Types {
             return true;
         }
         return false;
+    }
+
+    public BType getRemainingType(BType originalType, Set<BType> set) {
+        if (originalType.tag != TypeTags.UNION) {
+            return originalType;
+        }
+
+        List<BType> memberTypes = new ArrayList<>(((BUnionType) originalType).getMemberTypes());
+
+        for (BType removeType : set) {
+            if (removeType.tag != TypeTags.UNION) {
+                memberTypes.remove(removeType);
+            } else {
+                ((BUnionType) removeType).getMemberTypes().forEach(type -> memberTypes.remove(type));
+            }
+
+            if (memberTypes.size() == 1) {
+                return memberTypes.get(0);
+            }
+        }
+
+        return new BUnionType(null, new HashSet<>(memberTypes), memberTypes.contains(symTable.nilType));
+    }
+
+    public BType getRemainingType(BType originalType, BType removeType) {
+        if (originalType.tag != TypeTags.UNION) {
+            return originalType;
+        }
+
+        List<BType> memberTypes = new ArrayList<>(((BUnionType) originalType).getMemberTypes());
+        if (removeType.tag != TypeTags.UNION) {
+            memberTypes.remove(removeType);
+        } else {
+            ((BUnionType) removeType).getMemberTypes().forEach(type -> memberTypes.remove(type));
+        }
+
+        if (memberTypes.size() == 1) {
+            return memberTypes.get(0);
+        }
+
+        return new BUnionType(null, new HashSet<>(memberTypes), memberTypes.contains(symTable.nilType));
     }
 
     /**

@@ -750,6 +750,22 @@ public class TreeVisitor extends LSNodeVisitor {
                 annotationAttachmentEnv, this.lsContext, this);
     }
 
+    @Override
+    public void visit(BLangMatch.BLangMatchStaticBindingPatternClause patternClause) {
+        if (!CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
+                .isCursorBeforeNode(patternClause.getPosition(), patternClause, this, this.lsContext)) {
+            this.visitMatchPatternClause(patternClause, patternClause.body);
+        }
+    }
+
+    @Override
+    public void visit(BLangMatch.BLangMatchStructuredBindingPatternClause patternClause) {
+        if (!CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
+                .isCursorBeforeNode(patternClause.getPosition(), patternClause, this, this.lsContext)) {
+            this.visitMatchPatternClause(patternClause, patternClause.body);
+        }
+    }
+
     ///////////////////////////////////
     /////   Other Public Methods  /////
     ///////////////////////////////////
@@ -829,5 +845,16 @@ public class TreeVisitor extends LSNodeVisitor {
 
     private void populateSymbolEnvNode(BLangNode node) {
         lsContext.put(CompletionKeys.SYMBOL_ENV_NODE_KEY, node);
+    }
+    
+    private void visitMatchPatternClause(BLangNode patternNode, BLangBlockStmt body) {
+        if (!CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
+                .isCursorBeforeNode(patternNode.getPosition(), patternNode, this, this.lsContext)) {
+            blockOwnerStack.push(patternNode);
+            SymbolEnv blockEnv = SymbolEnv.createBlockEnv(body, symbolEnv);
+            cursorPositionResolver = BlockStatementScopeResolver.class;
+            acceptNode(body, blockEnv);
+            blockOwnerStack.pop();
+        }
     }
 }

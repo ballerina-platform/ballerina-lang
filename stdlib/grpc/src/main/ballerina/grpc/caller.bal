@@ -15,24 +15,24 @@
 // under the License.
 
 # Provides the gRPC actions for interacting with caller.
-public type CallerAction object {
+public type Caller client object {
 
     # Sends outbound response to the caller.
     #
     # + res - - The outbound response message.
     # + headers - - Optional headers parameter. Passes header value if needed. Default sets to nil.
     # + return - - Returns an error if encounters an error while sending the response, returns nil otherwise.
-    public extern function send(any res, Headers? headers = ()) returns error?;
+    public remote extern function send(any res, Headers? headers = ()) returns error?;
 
     # Informs the caller, server finished sending messages.
     #
     # + return - Returns an error if encounters an error while sending the response, returns nil otherwise.
-    public extern function complete() returns error?;
+    public remote extern function complete() returns error?;
 
     # Checks whether the connection is closed by the caller.
     #
     # + return - Returns true, if caller already closed the connection. false otherwise.
-    public extern function isCancelled() returns boolean;
+    public remote extern function isCancelled() returns boolean;
 
     # Sends server error to the caller.
     #
@@ -40,5 +40,5 @@ public type CallerAction object {
     # + message - Error message.
     # + headers - Optional headers parameter. Passes header value if needed. Default sets to nil.
     # + return - Returns an error if encounters an error while sending the response, returns nil otherwise.
-    public extern function sendError(int statusCode, string message, Headers? headers = ()) returns error?;
+    public remote extern function sendError(int statusCode, string message, Headers? headers = ()) returns error?;
 };

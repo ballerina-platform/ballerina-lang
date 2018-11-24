@@ -1,24 +1,24 @@
 type StringRest record {
-    string name;
-    int id;
+    string name = "";
+    int id = 0;
     string...
 };
 
 type IntRest record {
-    string name;
-    int id;
+    string name = "";
+    int id = 0;
     int...
 };
 
 type FloatRest record {
-    string name;
-    int id;
+    string name = "";
+    int id = 0;
     float...
 };
 
 type BooleanRest record {
-    string name;
-    int id;
+    string name = "";
+    int id = 0;
     float...
 };
 
@@ -71,19 +71,19 @@ function testEquivOfBooleanAndFloatRestDescriptors() {
 }
 
 type StringRest2 record {
-    string name;
-    int id;
-    float scale;
+    string name = "";
+    int id = 0;
+    float scale = 0.0;
     string...
 };
 
 type RecordRest1 record {
-    string id;
+    string id = "";
     StringRest...
 };
 
 type RecordRest2 record {
-    string id;
+    string id = "";
     StringRest2...
 };
 

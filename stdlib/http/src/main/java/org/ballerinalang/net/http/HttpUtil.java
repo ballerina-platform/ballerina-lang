@@ -652,10 +652,10 @@ public class HttpUtil {
     public static void enrichServiceEndpointInfo(BMap<String, BValue> serviceEndpoint, HttpCarbonMessage inboundMsg,
                                                  HttpResource httpResource, Struct config) {
         BMap<String, BValue> remote = BLangConnectorSPIUtil.createBStruct(
-                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                httpResource.getBalResource().getResourceInfo().getPackageInfo().getProgramFile(),
                 PROTOCOL_PACKAGE_HTTP, HttpConstants.REMOTE);
         BMap<String, BValue> local = BLangConnectorSPIUtil.createBStruct(
-                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                httpResource.getBalResource().getResourceInfo().getPackageInfo().getProgramFile(),
                 PROTOCOL_PACKAGE_HTTP, HttpConstants.LOCAL);
 
         Object remoteSocketAddress = inboundMsg.getProperty(HttpConstants.REMOTE_ADDRESS);
@@ -849,7 +849,7 @@ public class HttpUtil {
     private static void setCompressionHeaders(Context context, HttpCarbonMessage requestMsg, HttpCarbonMessage
             outboundResponseMsg) {
         Service serviceInstance = BLangConnectorSPIUtil.getService(context.getProgramFile(),
-                context.getServiceInfo().getType());
+                context.getServiceInfo().serviceValue);
         Annotation configAnnot = getServiceConfigAnnotation(serviceInstance, PROTOCOL_PACKAGE_HTTP);
         if (configAnnot == null) {
             return;
@@ -1139,7 +1139,7 @@ public class HttpUtil {
     private static void setChunkingHeader(Context context, HttpCarbonMessage
             outboundResponseMsg) {
         Service serviceInstance = BLangConnectorSPIUtil.getService(context.getProgramFile(),
-                context.getServiceInfo().getType());
+                context.getServiceInfo().serviceValue);
         Annotation configAnnot = getServiceConfigAnnotation(serviceInstance, PROTOCOL_PACKAGE_HTTP);
         if (configAnnot == null) {
             return;

@@ -23,6 +23,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
+import static org.ballerinalang.net.http.HttpConstants.MOCK_SERVER;
+
 /**
  * Get the ID of the connection.
  *
@@ -32,7 +34,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "start",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "NonListener",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = MOCK_SERVER,
                 structPackage = "ballerina.http"),
         isPublic = true
 )

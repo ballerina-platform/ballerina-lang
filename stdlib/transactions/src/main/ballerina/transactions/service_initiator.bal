@@ -37,7 +37,7 @@ function getCoordinationTypeToProtocolsMap() returns map<string[]> {
 }
 //# Service on the initiator which is independent from the coordination type and handles registration of remote
 //# participants.
-service InitiatorService bind coordinatorListener {
+service InitiatorService on coordinatorListener {
 
     # register(in: Micro-Transaction-Registration,
     # out: Micro-Transaction-Coordination?,
@@ -72,7 +72,7 @@ service InitiatorService bind coordinatorListener {
         body:"regReq",
         consumes:["application/json"]
     }
-    register(endpoint conn, http:Request req, int transactionBlockId, RegistrationRequest regReq) {
+    resource function register(http:Caller conn, http:Request req, int transactionBlockId, RegistrationRequest regReq) {
         string participantId = regReq.participantId;
         string txnId = regReq.transactionId;
         var initiatedTxn = initiatedTransactions[txnId];

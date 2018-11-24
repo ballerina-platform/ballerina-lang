@@ -569,6 +569,15 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get clone Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinIsCloneSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_CLONE_LABEL, "clone();", "", SnippetType.SNIPPET);
+    }
+
+    /**
      * Get Freeze Builtin Function Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -584,6 +593,15 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getBuiltinIsFrozenSnippet() {
         return new SnippetBlock(ItemResolverConstants.BUILTIN_IS_FROZEN_LABEL, "isFrozen();", "", SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get stamp Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinStampSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_STAMP_LABEL, "stamp(${1});", "", SnippetType.SNIPPET);
     }
 
     /**

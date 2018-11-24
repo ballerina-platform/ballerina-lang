@@ -35,6 +35,7 @@ public type RedirectClient client object {
     public FollowRedirects redirectConfig;
     public Client httpClient;
     public int currentRedirectCount = 0;
+    public HttpCaller httpCaller;
 
     # Create a redirect client with the given configurations.
     #
@@ -42,7 +43,9 @@ public type RedirectClient client object {
     # + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
     # + redirectConfig - Configurations associated with redirect
     # + httpClient - HTTP client for outbound HTTP requests
-    public new(serviceUri, config, redirectConfig, httpClient) {
+    public function __init(string serviceUri, ClientEndpointConfig config,
+                           FollowRedirects redirectConfig, Client httpClient) {
+        self.httpCaller = new(serviceUri, config);
         self.serviceUri = serviceUri;
         self.config = config;
         self.redirectConfig = redirectConfig;
@@ -107,7 +110,7 @@ public type RedirectClient client object {
     # + request - An HTTP inbound request message
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public remote function forward(string path, Request request) returns Response|error {
-        return self.httpClient->forward(path, request);
+        return self.httpCaller->forward(path, request);
     }
 
     # The `execute()` sends an HTTP request to a service with the specified HTTP verb. Redirect will be performed
@@ -122,7 +125,7 @@ public type RedirectClient client object {
         Request request = buildRequest(message);
         //Redirection is performed only for HTTP methods
         if (HTTP_NONE == extractHttpOperation(httpVerb)) {
-            return self.httpClient->execute(httpVerb, path, request);
+            return self.httpCaller->execute(httpVerb, path, request);
         } else {
             return performRedirectIfEligible(self, path, request, extractHttpOperation(httpVerb));
         }
@@ -179,7 +182,7 @@ public type RedirectClient client object {
     public remote function submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                 message) returns HttpFuture|error {
         Request request = buildRequest(message);
-        return self.httpClient->submit(httpVerb, path, request);
+        return self.httpCaller->submit(httpVerb, path, request);
     }
 
     # Retrieves the `Response` for a previously submitted request.
@@ -187,7 +190,7 @@ public type RedirectClient client object {
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - An HTTP response message, or an error if the invocation fails
     public function getResponse(HttpFuture httpFuture) returns Response|error {
-        return self.httpClient->getResponse(httpFuture);
+        return self.httpCaller->getResponse(httpFuture);
     }
 
     # Checks whether a `PushPromise` exists for a previously submitted request.
@@ -195,7 +198,7 @@ public type RedirectClient client object {
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - A `boolean` that represents whether a `PushPromise` exists
     public function hasPromise(HttpFuture httpFuture) returns (boolean) {
-        return self.httpClient->hasPromise(httpFuture);
+        return self.httpCaller->hasPromise(httpFuture);
     }
 
     # Retrieves the next available `PushPromise` for a previously submitted request.
@@ -203,7 +206,7 @@ public type RedirectClient client object {
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - An HTTP Push Promise message, or an error if the invocation fails
     public function getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
-        return self.httpClient->getNextPromise(httpFuture);
+        return self.httpCaller->getNextPromise(httpFuture);
     }
 
     # Retrieves the promised server push `Response` message.
@@ -211,7 +214,7 @@ public type RedirectClient client object {
     # + promise - The related `PushPromise`
     # + return - A promised HTTP `Response` message, or an error if the invocation fails
     public function getPromisedResponse(PushPromise promise) returns Response|error {
-        return self.httpClient->getPromisedResponse(promise);
+        return self.httpCaller->getPromisedResponse(promise);
     }
 
     # Rejects a `PushPromise`.
@@ -219,7 +222,7 @@ public type RedirectClient client object {
     #
     # + promise - The Push Promise to be rejected
     public function rejectPromise(PushPromise promise) {
-        self.httpClient->rejectPromise(promise);
+        self.httpCaller->rejectPromise(promise);
     }
 };
 
@@ -230,13 +233,14 @@ function performRedirectIfEligible(RedirectClient redirectClient, string path, R
     log:printDebug(function() returns string {
         return "Checking redirect eligibility for original request " + originalUrl;
     });
-    Response|error result = invokeEndpoint(path, request, httpOperation, redirectClient.httpClient);
+    Response|error result = invokeEndpoint(path, request, httpOperation, redirectClient.httpCaller);
     return checkRedirectEligibility(result, originalUrl, httpOperation, request, redirectClient);
 }
 
 //Inspect the response for redirect eligibility.
-function checkRedirectEligibility(Response|error response, string resolvedRequestedURI, HttpOperation httpVerb, Request
-    request, RedirectClient redirectClient) returns @untainted Response|error {
+function checkRedirectEligibility(Response|error response, string resolvedRequestedURI,
+                                  HttpOperation httpVerb, Request request, RedirectClient redirectClient)
+                                    returns @untainted Response|error {
     if (response is Response) {
         if (isRedirectResponse(response.statusCode)) {
             return redirect(response, httpVerb, request, redirectClient, resolvedRequestedURI);
@@ -260,8 +264,8 @@ function isRedirectResponse(int statusCode) returns boolean {
 }
 
 //If max redirect count is not reached, perform redirection.
-function redirect(Response response, HttpOperation httpVerb, Request request, RedirectClient redirectClient,
-                  string resolvedRequestedURI) returns @untainted Response|error {
+function redirect(Response response, HttpOperation httpVerb, Request request,
+                  RedirectClient redirectClient, string resolvedRequestedURI) returns @untainted Response|error {
     int currentCount = redirectClient.currentRedirectCount;
     int maxCount = redirectClient.redirectConfig.maxCount;
     if (currentCount >= maxCount) {
@@ -283,7 +287,8 @@ function redirect(Response response, HttpOperation httpVerb, Request request, Re
                 if (!isAbsolute(location)) {
                     var resolvedURI = resolve(resolvedRequestedURI, location);
                     if (resolvedURI is string) {
-                        return performRedirection(resolvedURI, redirectClient, redirectMethod, request, response);
+                        return performRedirection(resolvedURI, redirectClient, redirectMethod, request,
+                            response);
                     } else if (resolvedURI is error) {
                         redirectClient.currentRedirectCount = 0;
                         return resolvedURI;
@@ -304,14 +309,16 @@ function redirect(Response response, HttpOperation httpVerb, Request request, Re
 }
 
 function performRedirection(string location, RedirectClient redirectClient, HttpOperation redirectMethod,
-                                       Request request, Response response) returns @untainted Response|error {
+                            Request request, Response response) returns @untainted Response|error {
+    RetryClient httpRteryClient;
     var retryClient = createRetryClient(location, createNewEndpoint(location, redirectClient.config));
     if (retryClient is Client) {
+        httpRteryClient = check <RetryClient>retryClient;
         log:printDebug(function() returns string {
                 return "Redirect using new clientEP : " + location;
             });
         Response|error result = invokeEndpoint("", createRedirectRequest(response.statusCode, request),
-            redirectMethod, retryClient);
+            redirectMethod, httpRteryClient.httpCaller);
         return checkRedirectEligibility(result, location, redirectMethod, request, redirectClient);
     } else {
         return retryClient;

@@ -28,18 +28,17 @@ import ballerina/io;
 public type Client client object {
 
     public ClientEndpointConfig config = {};
+    public Client httpClient;
 
-    public new(ClientEndpointConfig c) {
+    public function __init(ClientEndpointConfig c) {
         self.config = c;
-        self.init(self.config);
+        var result = initialize(self.config);
+        if (result is error) {
+            panic result;
+        } else {
+            self.httpClient = result;
+        }
     }
-
-    # Gets invoked to initialize the endpoint. During initialization, configurations provided through the `config`
-    # record is used to determine which type of additional behaviours are added to the endpoint (e.g: caching,
-    # security, circuit breaking).
-    #
-    # + c - The configurations to be used when initializing the endpoint
-    public function init(ClientEndpointConfig c);
 
     # The `post()` function can be used to send HTTP POST requests to HTTP endpoints.
     #
@@ -49,8 +48,7 @@ public type Client client object {
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public remote function post(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message) returns Response|error {
-        Request req = buildRequest(message);
-        return nativePost(self, path, req);
+        return self.httpClient->post(path, message);
     }
 
     # The `head()` function can be used to send HTTP HEAD requests to HTTP endpoints.
@@ -61,8 +59,7 @@ public type Client client object {
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public remote function head(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message = ()) returns Response|error {
-        Request req = buildRequest(message);
-        return nativeHead(self, path, req);
+        return self.httpClient->head(path, message = message);
     }
 
     # The `put()` function can be used to send HTTP PUT requests to HTTP endpoints.
@@ -73,8 +70,7 @@ public type Client client object {
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public remote function put(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message) returns Response|error {
-        Request req = buildRequest(message);
-        return nativePut(self, path, req);
+        return self.httpClient->put(path, message);
     }
 
     # Invokes an HTTP call with the specified HTTP verb.
@@ -86,8 +82,7 @@ public type Client client object {
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public remote function execute(@sensitive string httpVerb, @sensitive string path, Request|string|xml|json|byte[]
                                                             |io:ReadableByteChannel|mime:Entity[]|() message) returns Response|error {
-        Request req = buildRequest(message);
-        return nativeExecute(self, httpVerb, path, req);
+        return self.httpClient->execute(httpVerb, path, message);
     }
 
     # The `patch()` function can be used to send HTTP PATCH requests to HTTP endpoints.
@@ -98,8 +93,7 @@ public type Client client object {
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public remote function patch(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message) returns Response|error {
-        Request req = buildRequest(message);
-        return nativePatch(self, path, req);
+        return self.httpClient->patch(path, message);
     }
 
     # The `delete()` function can be used to send HTTP DELETE requests to HTTP endpoints.
@@ -110,8 +104,7 @@ public type Client client object {
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public remote function delete(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message) returns Response|error {
-        Request req = buildRequest(message);
-        return nativeDelete(self, path, req);
+        return self.httpClient->delete(path, message);
     }
 
     # The `get()` function can be used to send HTTP GET requests to HTTP endpoints.
@@ -122,8 +115,7 @@ public type Client client object {
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public remote function get(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message = ()) returns Response|error {
-        Request req = buildRequest(message);
-        return nativeGet(self, path, req);
+        return self.httpClient->get(path, message = message);
     }
 
     # The `options()` function can be used to send HTTP OPTIONS requests to HTTP endpoints.
@@ -134,8 +126,7 @@ public type Client client object {
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public remote function options(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message = ()) returns Response|error {
-        Request req = buildRequest(message);
-        return nativeOptions(self, path, req);
+        return self.httpClient->options(path, message = message);
     }
 
     # The `forward()` function can be used to invoke an HTTP call with inbound request's HTTP verb
@@ -143,7 +134,9 @@ public type Client client object {
     # + path - Request path
     # + request - An HTTP inbound request message
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote extern function forward(@sensitive string path, Request request) returns Response|error;
+    public remote function forward(@sensitive string path, Request request) returns Response|error {
+        return self.httpClient->forward(path, request);
+    }
 
     # Submits an HTTP request to a service with the specified HTTP verb.
     # The `submit()` function does not give out a `Response` as the result,
@@ -156,39 +149,48 @@ public type Client client object {
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
     public remote function submit(@sensitive string httpVerb, string path, Request|string|xml|json|byte[]|
                                             io:ReadableByteChannel|mime:Entity[]|() message) returns HttpFuture|error {
-        Request req = buildRequest(message);
-        return nativeSubmit(self, httpVerb, path, req);
+        return self.httpClient->submit(httpVerb, path, message);
+
     }
 
-    # Retrieves the `Response` for a previously submitted request.
+    # This just pass the request to actual network call.
     #
-    # + httpFuture - The `HttpFuture` related to a previous asynchronous invocation
-    # + return - An HTTP response message, or an `error` if the invocation fails
-    public remote extern function getResponse(HttpFuture httpFuture) returns Response|error;
+    # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
+    # + return - An HTTP response message, or an error if the invocation fails
+    public remote function getResponse(HttpFuture httpFuture) returns Response|error {
+        return self.httpClient->getResponse(httpFuture);
+    }
 
-    # Checks whether a `PushPromise` exists for a previously submitted request.
+    # This just pass the request to actual network call.
     #
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - A `boolean` that represents whether a `PushPromise` exists
-    public remote extern function hasPromise(HttpFuture httpFuture) returns (boolean);
+    public remote function hasPromise(HttpFuture httpFuture) returns boolean {
+        return self.httpClient->hasPromise(httpFuture);
+    }
 
-    # Retrieves the next available `PushPromise` for a previously submitted request.
+    # This just pass the request to actual network call.
     #
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
-    # + return - An HTTP Push Promise message, or an `error` if the invocation fails
-    public remote extern function getNextPromise(HttpFuture httpFuture) returns PushPromise|error;
+    # + return - An HTTP Push Promise message, or an error if the invocation fails
+    public remote function getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+        return self.httpClient->getNextPromise(httpFuture);
+    }
 
-    # Retrieves the promised server push `Response` message.
+    # This just pass the request to actual network call.
     #
     # + promise - The related `PushPromise`
-    # + return - A promised HTTP `Response` message, or an `error` if the invocation fails
-    public remote extern function getPromisedResponse(PushPromise promise) returns Response|error;
+    # + return - A promised HTTP `Response` message, or an error if the invocation fails
+    public remote function getPromisedResponse(PushPromise promise) returns Response|error {
+        return self.httpClient->getPromisedResponse(promise);
+    }
 
-    # Rejects a `PushPromise`. When a `PushPromise` is rejected, there is no chance of fetching a promised
-    # response using the rejected promise.
+    # This just pass the request to actual network call.
     #
     # + promise - The Push Promise to be rejected
-    public remote extern function rejectPromise(PushPromise promise);
+    public remote function rejectPromise(PushPromise promise) {
+        return self.httpClient->rejectPromise(promise);
+    }
 };
 
 # Represents a single service and its related configurations.
@@ -236,8 +238,6 @@ public type ClientEndpointConfig record {
     AuthConfig? auth = ();
     !...
 };
-
-extern function createHttpClient(string uri, ClientEndpointConfig config) returns Client;
 
 extern function createSimpleHttpClient(string uri, ClientEndpointConfig config) returns Client;
 
@@ -357,36 +357,32 @@ public type AuthConfig record {
     !...
 };
 
-function Client.init(ClientEndpointConfig c) {
-    self = createSimpleHttpClient(c.url, c);
-    //boolean httpClientRequired = false;
-    //string url = c.url;
-    //if (url.hasSuffix("/")) {
-    //    int lastIndex = url.length() - 1;
-    //    url = url.substring(0, lastIndex);
-    //}
-    //self.config = c;
-    //var cbConfig = c.circuitBreaker;
-    //if (cbConfig is CircuitBreakerConfig) {
-    //    if (url.hasSuffix("/")) {
-    //        int lastIndex = url.length() -1;
-    //        url = url.substring(0, lastIndex);
-    //    }
-    //    httpClientRequired = false;
-    //} else {
-    //    httpClientRequired = true;
-    //}
-    //
-    //if (httpClientRequired) {
-    //    var redirectConfigVal = c.followRedirects;
-    //    if (redirectConfigVal is FollowRedirects) {
-    //        self.httpClient = createRedirectClient(url, c);
-    //    } else {
-    //        self.httpClient = checkForRetry(url, c);
-    //    }
-    //} else {
-    //    self.httpClient = createCircuitBreakerClient(url, c);
-    //}
+function initialize(ClientEndpointConfig config) returns Client|error {
+    boolean httpClientRequired = false;
+    string url = config.url;
+    if (url.hasSuffix("/")) {
+        int lastIndex = url.length() - 1;
+        url = url.substring(0, lastIndex);
+    }
+    var cbConfig = config.circuitBreaker;
+    if (cbConfig is CircuitBreakerConfig) {
+        if (url.hasSuffix("/")) {
+            int lastIndex = url.length() -1;
+            url = url.substring(0, lastIndex);
+        }
+    } else {
+        httpClientRequired = true;
+    }
+    if (httpClientRequired) {
+        var redirectConfigVal = config.followRedirects;
+        if (redirectConfigVal is FollowRedirects) {
+            return createRedirectClient(url, config);
+        } else {
+            return checkForRetry(url, config);
+        }
+    } else {
+        return createCircuitBreakerClient(url, config);
+    }
 }
 
 function createRedirectClient(string url, ClientEndpointConfig configuration) returns Client|error {
@@ -421,7 +417,7 @@ function checkForRetry(string url, ClientEndpointConfig config) returns Client|e
 }
 
 function createCircuitBreakerClient(string uri, ClientEndpointConfig configuration) returns Client|error {
-    Client cbHttpClient = new(configuration);
+    Client cbHttpClient;
     var cbConfig = configuration.circuitBreaker;
     if (cbConfig is CircuitBreakerConfig) {
         validateCircuitBreakerConfiguration(cbConfig);
@@ -513,24 +509,3 @@ function createRetryClient(string url, ClientEndpointConfig configuration) retur
         }
     }
 }
-
-//Since the struct equivalency doesn't work with private keyword, following functions are defined outside the object
-extern function nativePost(Client httpClient, @sensitive string path, Request req) returns Response|error;
-
-extern function nativeHead(Client httpClient, @sensitive string path, Request req) returns Response|error;
-
-extern function nativePut(Client httpClient, @sensitive string path, Request req) returns Response|error;
-
-extern function nativeExecute(Client httpClient, @sensitive string httpVerb, @sensitive string path,
-                                                                        Request req) returns Response|error;
-
-extern function nativePatch(Client httpClient, @sensitive string path, Request req) returns Response|error;
-
-extern function nativeDelete(Client httpClient, @sensitive string path, Request req) returns Response|error;
-
-extern function nativeGet(Client httpClient, @sensitive string path, Request req) returns Response|error;
-
-extern function nativeOptions(Client httpClient, @sensitive string path, Request req) returns Response|error;
-
-extern function nativeSubmit(Client httpClient, @sensitive string httpVerb, string path, Request req)
-                                                                        returns HttpFuture|error;
