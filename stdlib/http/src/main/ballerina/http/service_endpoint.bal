@@ -84,7 +84,7 @@ public type Server object {
     extern function stop();
 };
 
-function Server.init (ServiceEndpointConfiguration c) {
+function Server.init(ServiceEndpointConfiguration c) {
     self.config = c;
     var providers = self.config.authProviders;
     if (providers is AuthProvider[]) {
@@ -96,8 +96,8 @@ function Server.init (ServiceEndpointConfiguration c) {
             panic err;
         }
     }
-        var err = self.initEndpoint();
-        if (err is error) {
+    var err = self.initEndpoint();
+    if (err is error) {
         panic err;
     }
 }
