@@ -287,7 +287,7 @@ public type HelloWorldBlockingClient client object {
     }
 };
 
-public type HelloWorldClient object {
+public type HelloWorldClient client object {
 
     private grpc:Client grpcClient = new;
 
@@ -295,7 +295,7 @@ public type HelloWorldClient object {
         // initialize client endpoint.
         grpc:Client c = new;
         c.init(config);
-        error? result = c.initStub(ep, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
+        error? result = c.initStub("non-blocking", DESCRIPTOR_KEY, descriptorMap);
         if (result is error) {
             panic result;
         } else {
@@ -303,49 +303,49 @@ public type HelloWorldClient object {
         }
     }
 
-    remote function testIntArrayInput(TestInt req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
-        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testIntArrayInput", req, listener, headers = headers);
+    remote function testIntArrayInput(TestInt req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testIntArrayInput", req, msgListener, headers = headers);
     }
 
-    remote function testStringArrayInput(TestString req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
-        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testStringArrayInput", req, listener, headers = headers);
+    remote function testStringArrayInput(TestString req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testStringArrayInput", req, msgListener, headers = headers);
     }
 
-    remote function testFloatArrayInput(TestFloat req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
-        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testFloatArrayInput", req, listener, headers = headers);
+    remote function testFloatArrayInput(TestFloat req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testFloatArrayInput", req, msgListener, headers = headers);
     }
 
-    remote function testBooleanArrayInput(TestBoolean req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
-        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testBooleanArrayInput", req, listener, headers = headers);
+    remote function testBooleanArrayInput(TestBoolean req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testBooleanArrayInput", req, msgListener, headers = headers);
     }
 
-    remote function testStructArrayInput(TestStruct req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
-        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testStructArrayInput", req, listener, headers = headers);
+    remote function testStructArrayInput(TestStruct req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testStructArrayInput", req, msgListener, headers = headers);
     }
 
-    remote function testIntArrayOutput(typedesc listener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testIntArrayOutput(typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
         Empty req = {};
-        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testIntArrayOutput", req, listener, headers = headers);
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testIntArrayOutput", req, msgListener, headers = headers);
     }
 
-    remote function testStringArrayOutput(typedesc listener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testStringArrayOutput(typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
         Empty req = {};
-        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testStringArrayOutput", req, listener, headers = headers);
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testStringArrayOutput", req, msgListener, headers = headers);
     }
 
-    remote function testFloatArrayOutput(typedesc listener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testFloatArrayOutput(typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
         Empty req = {};
-        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testFloatArrayOutput", req, listener, headers = headers);
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testFloatArrayOutput", req, msgListener, headers = headers);
     }
 
-    remote function testBooleanArrayOutput(typedesc listener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testBooleanArrayOutput(typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
         Empty req = {};
-        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testBooleanArrayOutput", req, listener, headers = headers);
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testBooleanArrayOutput", req, msgListener, headers = headers);
     }
 
-    remote function testStructArrayOutput(typedesc listener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testStructArrayOutput(typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
         Empty req = {};
-        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testStructArrayOutput", req, listener, headers = headers);
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testStructArrayOutput", req, msgListener, headers = headers);
     }
 };
 
@@ -385,7 +385,7 @@ type Empty record {
 };
 
 
-@final string DESCRIPTOR_KEY = "HelloWorld3.proto";
+const string DESCRIPTOR_KEY = "HelloWorld3.proto";
 map descriptorMap =
 {
     "HelloWorld3.proto":"0A1148656C6C6F576F726C64332E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F1A1B676F6F676C652F70726F746F6275662F656D7074792E70726F746F22210A0754657374496E7412160A0676616C756573180120032803520676616C75657322240A0A54657374537472696E6712160A0676616C756573180120032809520676616C75657322230A0954657374466C6F617412160A0676616C756573180120032802520676616C75657322250A0B54657374426F6F6C65616E12160A0676616C756573180120032808520676616C75657322350A0A5465737453747275637412270A0676616C75657318012003280B320F2E6772706373657276696365732E41520676616C75657322170A014112120A046E616D6518012001280952046E616D653284060A0B48656C6C6F576F726C643312470A1174657374496E744172726179496E70757412152E6772706373657276696365732E54657374496E741A1B2E676F6F676C652E70726F746F6275662E496E74363456616C7565124E0A1474657374537472696E674172726179496E70757412182E6772706373657276696365732E54657374537472696E671A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C7565124B0A1374657374466C6F61744172726179496E70757412172E6772706373657276696365732E54657374466C6F61741A1B2E676F6F676C652E70726F746F6275662E466C6F617456616C7565124E0A1574657374426F6F6C65616E4172726179496E70757412192E6772706373657276696365732E54657374426F6F6C65616E1A1A2E676F6F676C652E70726F746F6275662E426F6F6C56616C7565124E0A14746573745374727563744172726179496E70757412182E6772706373657276696365732E546573745374727563741A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C756512430A1274657374496E7441727261794F757470757412162E676F6F676C652E70726F746F6275662E456D7074791A152E6772706373657276696365732E54657374496E7412490A1574657374537472696E6741727261794F757470757412162E676F6F676C652E70726F746F6275662E456D7074791A182E6772706373657276696365732E54657374537472696E6712470A1474657374466C6F617441727261794F757470757412162E676F6F676C652E70726F746F6275662E456D7074791A172E6772706373657276696365732E54657374466C6F6174124B0A1674657374426F6F6C65616E41727261794F757470757412162E676F6F676C652E70726F746F6275662E456D7074791A192E6772706373657276696365732E54657374426F6F6C65616E12490A157465737453747275637441727261794F757470757412162E676F6F676C652E70726F746F6275662E456D7074791A182E6772706373657276696365732E54657374537472756374620670726F746F33",

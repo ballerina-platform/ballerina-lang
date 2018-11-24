@@ -107,12 +107,12 @@ public type HelloWorldClient client object {
         }
     }
 
-    remote function hello(string req, typedesc listener, grpc:Headers? headers = ()) returns (error|()) {
-        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld101/hello", req, listener, headers = headers);
+    remote function hello(string req, typedesc msgListener, grpc:Headers? headers = ()) returns (error|()) {
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld101/hello", req, msgListener, headers = headers);
     }
 };
 
-@final string DESCRIPTOR_KEY = "HelloWorld101.proto";
+const string DESCRIPTOR_KEY = "HelloWorld101.proto";
 map descriptorMap =
 {
     "HelloWorld101.proto":"0A1348656C6C6F576F726C643130312E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F32540A0D48656C6C6F576F726C6431303112430A0568656C6C6F121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C7565620670726F746F33",

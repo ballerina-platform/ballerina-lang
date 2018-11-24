@@ -39,8 +39,6 @@ import java.util.Arrays;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.http.HttpConstants.PACKAGE_BALLERINA_BUILTIN;
-import static org.ballerinalang.net.http.HttpConstants.STRUCT_GENERIC_ERROR;
 
 /**
  * This class handles Blocking client connection.
