@@ -42,6 +42,7 @@ public type RetryInferredConfig record {
 # + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
 # + retryInferredConfig - Derived set of configurations associated with retry
 # + httpClient - HTTP client for outbound HTTP requests
+# + httpCaller - HTTP client for outbound HTTP requests
 public type RetryClient client object {
 
     public string serviceUri;
@@ -59,7 +60,7 @@ public type RetryClient client object {
     # + httpClient - HTTP client for outbound HTTP requests
     public function __init(string serviceUri, ClientEndpointConfig config, RetryInferredConfig retryInferredConfig,
                                         Client httpClient) {
-        self.httpCaller = new(httpClient, serviceUri, config);
+        self.httpCaller = new(serviceUri, config);
         self.serviceUri = serviceUri;
         self.config = config;
         self.retryInferredConfig = retryInferredConfig;
@@ -70,7 +71,8 @@ public type RetryClient client object {
     # retrying functionality for a given endpoint to recover from network level failures.
     #
     # + path - Resource path
-    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public remote function post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message) returns Response|error;
@@ -79,7 +81,8 @@ public type RetryClient client object {
     # retrying functionality for a given endpoint to recover from network level failures.
     #
     # + path - Resource path
-    # + message - An optional HTTP outbound request message or or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public remote function head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message = ()) returns Response|error;
@@ -88,7 +91,8 @@ public type RetryClient client object {
     # retrying functionality for a given endpoint to recover from network level failures.
     #
     # + path - Resource path
-    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public remote function put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message) returns Response|error;
@@ -106,7 +110,8 @@ public type RetryClient client object {
     # from network level failures.
     #
     # + path - Resource path
-    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public remote function execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message) returns Response|error;
@@ -115,7 +120,8 @@ public type RetryClient client object {
     # retrying functionality for a given endpoint to recover from network level failures.
     #
     # + path - Resource path
-    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public remote function patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message) returns Response|error;
@@ -124,7 +130,8 @@ public type RetryClient client object {
     # retrying functionality for a given endpoint to recover from network level failures.
     #
     # + path - Resource path
-    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public remote function delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                             message) returns Response|error;
@@ -133,7 +140,8 @@ public type RetryClient client object {
     # retrying functionality for a given endpoint to recover from network level failures.
     #
     # + path - Resource path
-    # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public remote function get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message = ()) returns Response|error;
@@ -142,7 +150,8 @@ public type RetryClient client object {
     # retrying functionality for a given endpoint to recover from network level failures.
     #
     # + path - Resource path
-    # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public remote function options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                             message = ()) returns Response|error;
@@ -153,10 +162,11 @@ public type RetryClient client object {
     #
     # + httpVerb - The HTTP verb value
     # + path - The resource path
-    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
-    public remote function submit(string httpVerb, string path,  Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                            message) returns HttpFuture|error;
+    public remote function submit(string httpVerb, string path,
+                Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns HttpFuture|error;
 
     # Retrieves the `Response` for a previously submitted request.
     #
