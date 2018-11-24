@@ -13,6 +13,7 @@ CREATE TABLE bLangFunction (
   objectId int(11) NOT NULL DEFAULT '-1',
   name varchar(256) NOT NULL,
   private BIT NOT NULL DEFAULT 1,
+  action BIT NOT NULL DEFAULT 0,
   attached BIT NOT NULL DEFAULT 0,
   completionItem varchar(MAX) NOT NULL
 );
@@ -23,7 +24,6 @@ CREATE TABLE bLangObject (
   name varchar(256) NOT NULL,
   fields varchar(256),
   type int(2) NOT NULL DEFAULT '3',
-  actionHolderId int(11) DEFAULT '-1',
   private BIT NOT NULL DEFAULT 1,
   completionItem varchar(MAX) DEFAULT NULL
 );
