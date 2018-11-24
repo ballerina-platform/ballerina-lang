@@ -300,7 +300,7 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
         httpSecureClient = new(url, config);
         return <Client>httpSecureClient;
     } else {
-        return createSimpleHttpClient(url, config);
+        return createClient(url, config);
     }
 }
 
