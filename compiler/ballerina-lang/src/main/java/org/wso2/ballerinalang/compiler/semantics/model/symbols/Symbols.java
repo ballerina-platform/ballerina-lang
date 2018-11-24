@@ -111,7 +111,7 @@ public class Symbols {
                                                      PackageID pkgID,
                                                      BType type,
                                                      BSymbol owner) {
-        BServiceSymbol serviceSymbol = new BServiceSymbol(flags, name, pkgID, type, owner, null);
+        BServiceSymbol serviceSymbol = new BServiceSymbol(flags, name, pkgID, type, owner);
         serviceSymbol.kind = SymbolKind.SERVICE;
         return serviceSymbol;
     }
@@ -234,7 +234,7 @@ public class Symbols {
     }
 
     public static boolean isAttachPointPresent(int mask, int attachPoint) {
-        return (mask & attachPoint) == attachPoint;
+        return (mask & attachPoint) != 0;
     }
 
     public static boolean isOptional(BSymbol sym) {

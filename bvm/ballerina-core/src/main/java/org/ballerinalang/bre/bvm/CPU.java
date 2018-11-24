@@ -132,6 +132,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -1928,12 +1929,6 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                if (sf.doubleRegs[j] == 0) {
-                    ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
-                    handleError(ctx);
-                    break;
-                }
-
                 sf.doubleRegs[k] = sf.doubleRegs[i] % sf.doubleRegs[j];
                 break;
             case InstructionCodes.DMOD:
@@ -3391,37 +3386,46 @@ public class CPU {
     }
 
     private static boolean isAnydata(BType type) {
+        return isAnydata(type, new HashSet<>());
+    }
+
+    private static boolean isAnydata(BType type, Set<BType> unresolvedTypes) {
         if (type.getTag() <= TypeTags.ANYDATA_TAG) {
             return true;
         }
 
         switch (type.getTag()) {
             case TypeTags.MAP_TAG:
-                return isAnydata(((BMapType) type).getConstrainedType());
+                return isAnydata(((BMapType) type).getConstrainedType(), unresolvedTypes);
             case TypeTags.RECORD_TYPE_TAG:
+                if (unresolvedTypes.contains(type)) {
+                    return true;
+                }
+                unresolvedTypes.add(type);
                 BRecordType recordType = (BRecordType) type;
                 List<BType> fieldTypes = recordType.getFields().values().stream()
-                        .map(BField::getFieldType)
-                        .collect(Collectors.toList());
-                return isAnydata(fieldTypes) && (recordType.sealed || isAnydata(recordType.restFieldType));
+                                                   .map(BField::getFieldType)
+                                                   .collect(Collectors.toList());
+                return isAnydata(fieldTypes, unresolvedTypes) && (recordType.sealed ||
+                        isAnydata(recordType.restFieldType, unresolvedTypes));
             case TypeTags.UNION_TAG:
-                return isAnydata(((BUnionType) type).getMemberTypes());
+                return isAnydata(((BUnionType) type).getMemberTypes(), unresolvedTypes);
             case TypeTags.TUPLE_TAG:
-                return isAnydata(((BTupleType) type).getTupleTypes());
+                return isAnydata(((BTupleType) type).getTupleTypes(), unresolvedTypes);
             case TypeTags.ARRAY_TAG:
-                return isAnydata(((BArrayType) type).getElementType());
+                return isAnydata(((BArrayType) type).getElementType(), unresolvedTypes);
             case TypeTags.FINITE_TYPE_TAG:
                 Set<BType> valSpaceTypes = ((BFiniteType) type).valueSpace.stream()
-                                                                        .map(BValue::getType)
-                                                                        .collect(Collectors.toSet());
-                return isAnydata(valSpaceTypes);
+                                                                          .map(BValue::getType)
+                                                                          .collect(Collectors.toSet());
+                return isAnydata(valSpaceTypes, unresolvedTypes);
             default:
                 return false;
         }
     }
 
-    private static boolean isAnydata(Collection<BType> types) {
-        return types.stream().allMatch(CPU::isAnydata);
+    private static boolean isAnydata(Collection<BType> types, Set<BType> unresolvedTypes) {
+        return types.stream().allMatch(bType -> isAnydata(bType, unresolvedTypes));
     }
 
     private static BType getElementType(BType type) {

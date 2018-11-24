@@ -51,7 +51,14 @@ public type HttpSecureClient client object {
     public Client httpClient;
 
     public function __init(string serviceUri, ClientEndpointConfig config) {
-        self.httpClient = createSimpleHttpClient(serviceUri, config);
+        self.serviceUri = serviceUri;
+        self.config = config;
+        var simpleClient = createClient(serviceUri, self.config);
+        if (simpleClient is Client) {
+            self.httpClient = simpleClient;
+        } else {
+            panic simpleClient;
+        }
     }
 
     # This wraps the `post()` function of the underlying HTTP actions provider. Add relevant authentication headers
@@ -298,7 +305,7 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
         httpSecureClient = new(url, config);
         return <Client>httpSecureClient;
     } else {
-        return createSimpleHttpClient(url, config);
+        return createClient(url, config);
     }
 }
 
@@ -387,7 +394,7 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns str
     } else {
         textPayload = textPayload + "&client_id=" + clientId + "&client_secret=" + clientSecret;
     }
-    refreshTokenRequest.setTextPayload(textPayload, contentType = mime:APPLICATION_FORM_URLENCODED);
+    refreshTokenRequest.setTextPayload(untaint textPayload, contentType = mime:APPLICATION_FORM_URLENCODED);
     Response refreshTokenResponse = check refreshTokenClient->post(EMPTY_STRING, refreshTokenRequest);
 
     json generatedToken = check refreshTokenResponse.getJsonPayload();

@@ -44,7 +44,10 @@ public type RedirectClient client object {
     # + httpClient - HTTP client for outbound HTTP requests
     public function __init(string serviceUri, ClientEndpointConfig config,
                            FollowRedirects redirectConfig, Client httpClient) {
-        self.httpClient = createSimpleHttpClient(serviceUri, config);
+        self.serviceUri = serviceUri;
+        self.config = config;
+        self.redirectConfig = redirectConfig;
+        self.httpClient = httpClient;
     }
 
     # If the received response for the `get()` action is redirect eligible, redirect will be performed automatically
@@ -233,8 +236,9 @@ function performRedirectIfEligible(RedirectClient redirectClient, string path, R
 }
 
 //Inspect the response for redirect eligibility.
-function checkRedirectEligibility(Response|error response, string resolvedRequestedURI, HttpOperation httpVerb, Request
-    request, RedirectClient redirectClient) returns @untainted Response|error {
+function checkRedirectEligibility(Response|error response, string resolvedRequestedURI,
+                                  HttpOperation httpVerb, Request request, RedirectClient redirectClient)
+                                    returns @untainted Response|error {
     if (response is Response) {
         if (isRedirectResponse(response.statusCode)) {
             return redirect(response, httpVerb, request, redirectClient, resolvedRequestedURI);
@@ -258,8 +262,8 @@ function isRedirectResponse(int statusCode) returns boolean {
 }
 
 //If max redirect count is not reached, perform redirection.
-function redirect(Response response, HttpOperation httpVerb, Request request, RedirectClient redirectClient,
-                  string resolvedRequestedURI) returns @untainted Response|error {
+function redirect(Response response, HttpOperation httpVerb, Request request,
+                  RedirectClient redirectClient, string resolvedRequestedURI) returns @untainted Response|error {
     int currentCount = redirectClient.currentRedirectCount;
     int maxCount = redirectClient.redirectConfig.maxCount;
     if (currentCount >= maxCount) {
@@ -281,7 +285,8 @@ function redirect(Response response, HttpOperation httpVerb, Request request, Re
                 if (!isAbsolute(location)) {
                     var resolvedURI = resolve(resolvedRequestedURI, location);
                     if (resolvedURI is string) {
-                        return performRedirection(resolvedURI, redirectClient, redirectMethod, request, response);
+                        return performRedirection(resolvedURI, redirectClient, redirectMethod, request,
+                            response);
                     } else if (resolvedURI is error) {
                         redirectClient.currentRedirectCount = 0;
                         return resolvedURI;
@@ -302,14 +307,16 @@ function redirect(Response response, HttpOperation httpVerb, Request request, Re
 }
 
 function performRedirection(string location, RedirectClient redirectClient, HttpOperation redirectMethod,
-                                       Request request, Response response) returns @untainted Response|error {
+                            Request request, Response response) returns @untainted Response|error {
+    RetryClient httpRetryClient;
     var retryClient = createRetryClient(location, createNewEndpoint(location, redirectClient.config));
     if (retryClient is Client) {
+        httpRetryClient = check <RetryClient>retryClient;
         log:printDebug(function() returns string {
                 return "Redirect using new clientEP : " + location;
             });
         Response|error result = invokeEndpoint("", createRedirectRequest(response.statusCode, request),
-            redirectMethod, retryClient);
+            redirectMethod, httpRetryClient.httpClient);
         return checkRedirectEligibility(result, location, redirectMethod, request, redirectClient);
     } else {
         return retryClient;
