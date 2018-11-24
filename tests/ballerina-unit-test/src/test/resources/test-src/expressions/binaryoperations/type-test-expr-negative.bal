@@ -78,12 +78,12 @@ function unionTypeAgainstUnionTypeWhichAlwaysFalse() returns string {
 }
 
 type A record {
-    int x;
-    string y;
+    int x = 0;
+    string y = "";
 };
 
 type B record {
-    int x;
+    int x = 0;
 };
 
 function testSimpleRecordTypes() returns string {
@@ -102,15 +102,15 @@ function testSimpleRecordTypes() returns string {
 }
 
 type X record {
-    int p;
-    string q;
-    A r;
+    int p = 0;
+    string q = "";
+    A r = {};
 };
 
 type Y record {
-    int p;
-    string q;
-    B r;
+    int p = 0;
+    string q = "";
+    B r = {};
 };
 
 function testNestedRecordTypes() returns string {
@@ -163,11 +163,11 @@ function testSimpleConstrainedMap() returns (boolean, boolean, boolean, boolean,
 }
 
 type A3 record {
-    int x;
+    int x = 0;
 };
 
 type B3 record {
-    int x;
+    int x = 0;
     !...
 };
 
@@ -210,13 +210,18 @@ public type Z1 object {
     *Y1;
     public boolean s;
     
-    public new (p, q, r, s) {}
+    public function __init(int p, string q, float r, boolean s) {
+        self.p = p;
+        self.q = q;
+        self.r = r;
+        self.s = s;
+    }
 };
 
 function testObjectEquivalency() returns (string, string) {
     Z1 z = new Z1(5, "foo", 6.7, true);
-    string s1;
-    string s2;
+    string s1 = "";
+    string s2 = "";
 
     if(z is X1) {
         s1 = "values: " + z.p + ", " + z.q;

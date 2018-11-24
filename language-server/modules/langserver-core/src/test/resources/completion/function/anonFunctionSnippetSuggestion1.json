@@ -349,28 +349,6 @@
       ]
     },
     {
-      "label": "ballerina/mb",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "mb",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "\nimport ballerina/mb;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/mime",
       "kind": "Module",
       "detail": "Package",
@@ -644,11 +622,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "function (string ${1:param1}, http:Response ${2:param2}, TestAnonRecord ${3:param3}, TestAnonObject ${4:param4}) returns (http:Response) ",
+      "label": "function (string param1, http:Response param2, TestAnonRecord param3, TestAnonObject param4) returns (http:Response) ",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "190",
       "insertText": "function (string ${1:param1}, http:Response ${2:param2}, TestAnonRecord ${3:param3}, TestAnonObject ${4:param4}) returns (http:Response) {\n\treturn ();\n};",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "arrow function  (param1, param2, param3, param4) ",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "190",
+      "insertText": "(${1:param1}, ${2:param2}, ${3:param3}, ${4:param4})  \u003d\u003e ${5:()};",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -21,7 +21,8 @@
 public type AuthHandlerRegistry object {
     private map<HttpAuthnHandler> httpAuthHandlers;
 
-    public new () {
+    public function __init() {
+        self.httpAuthHandlers = {};
     }
 
     # Add an HttpAuthnHandler to HttpAuthHandlerRegistry

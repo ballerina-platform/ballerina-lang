@@ -24,11 +24,11 @@
 # + dependsOn - A list of function names the test function depends on, and will be run before the test
 public type TestConfig record {
     boolean enable = true;
-    string[] groups;
-    string dataProvider;
-    string before;
-    string after;
-    string[] dependsOn;
+    string[] groups = [];
+    string dataProvider = "";
+    string before = "";
+    string after = "";
+    string[] dependsOn = [];
 };
 
 # Configuration of the function to be mocked.
@@ -37,7 +37,7 @@ public type TestConfig record {
 # + functionName - Name of the function to be mocked
 public type MockConfig record {
     string moduleName = ".";
-    string functionName;
+    string functionName = "";
 };
 
 public annotation<function> Config TestConfig;

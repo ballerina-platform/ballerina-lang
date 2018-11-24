@@ -64,14 +64,14 @@ public type SimpleDurableTopicSubscriber object {
     #
     # + serviceType - type descriptor of the service to bind to
     public function register(typedesc serviceType) {
-        match (self.subscriber) {
-            DurableTopicSubscriber c => {
-                c.register(serviceType);
-            }
-            () => {
-                error e = error("{ballerina/jms}JMSError", { message: "Topic Subscriber cannot be nil" });
-                panic e;
-            }
+        var subscriber = self.subscriber;
+        if (subscriber is DurableTopicSubscriber) {
+            subscriber.register(serviceType);
+        } else {
+            string errorMessage = "Topic Subscriber cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
 
@@ -84,14 +84,14 @@ public type SimpleDurableTopicSubscriber object {
     #
     # + return - Durable topic subscriber actions
     public function getCallerActions() returns SimpleDurableTopicSubscriberActions {
-        match (self.consumerActions) {
-            SimpleDurableTopicSubscriberActions c => return c;
-            () => {
-                string errorMessage = "Consumer actions cannot be nil";
-                map errorDetail = { message: errorMessage };
-                error e = error(JMS_ERROR_CODE, errorDetail);
-                panic e;
-            }
+        var consumerActions = self.consumerActions;
+        if (consumerActions is SimpleDurableTopicSubscriberActions) {
+            return consumerActions;
+        } else {
+            string errorMessage = "Consumer actions cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
 
@@ -105,14 +105,14 @@ public type SimpleDurableTopicSubscriber object {
     # + message - text content of the message
     # + return - the created message, or nil if the session is nil
     public function createTextMessage(string message) returns Message|error {
-        match (self.session) {
-            Session s => return s.createTextMessage(message);
-            () => {
-                string errorMessage = "Session cannot be nil";
-                map errorDetail = { message: errorMessage };
-                error e = error(JMS_ERROR_CODE, errorDetail);
-                panic e;
-            }
+        var session = self.session;
+        if (session is Session) {
+            return session.createTextMessage(message);
+        } else {
+            string errorMessage = "Session cannot be nil";
+            map errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
 };
@@ -133,10 +133,10 @@ public type SimpleDurableTopicSubscriberEndpointConfiguration record {
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
-    string identifier;
-    map properties;
-    string messageSelector;
-    string topicPattern;
+    string identifier = "";
+    map properties = {};
+    string messageSelector = "";
+    string topicPattern = "";
     !...
 };
 
@@ -148,7 +148,10 @@ public type SimpleDurableTopicSubscriberActions object {
     private Session session;
     private string identifier;
 
-    new(helper, session, identifier) {
+    public function __init(DurableTopicSubscriberActions subscriberActions, Session session, string id) {
+        self.helper = subscriberActions;
+        self.session = session;
+        self.identifier = id;
     }
 
     # Acknowledges a received message

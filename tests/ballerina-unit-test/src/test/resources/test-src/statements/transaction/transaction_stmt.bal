@@ -1,117 +1,198 @@
-public type TrxError record {
-    string message;
-    error? cause;
-    string data;
-    !...
-};
-
-@final int RETRYCOUNT = 4;
-@final int RETRYCOUNT_2 = -4;
+final int RETRYCOUNT = 4;
+final int RETRYCOUNT_2 = -4;
 
 string workerTest = "";
 
-function testTransactionStmt(int i) returns (string) {
+function testTransactionStmt() returns (string) {
     string a = "start";
-    try {
-        transaction {
-            a = a + " inTrx";
-            try {
-                if (i == -1) {
-                    error err = error(" err" );
-                    panic err;
-                } else if (i == 0) {
-                    a = a + " abort";
-                    abort;
-                } else if (i < -1) {
-                    Trxerror err = error(" trxErr", { data: "test" });
-                    panic err;
-                }
-            } catch (TrxError err) {
-                a = a + err.message;
-            }
-            a = a + " endTrx";
-        } onretry {
-            a = a + " inFailed";
-        }
-    } catch (error err) {
-        a = a + err.message;
+    transaction {
+        a = a + " inTrx";
+        a = a + " endTrx";
+    } onretry {
+        a = a + " inFailed";
     }
+
     a = a + " end";
     return a;
 }
 
-function testAbortStatement() returns (string) {
-    string str = "BeforeTR ";
-    int i = 0;
+function testTransactionStmtAbort(int i) returns (string) {
+    string a = "start";
     transaction {
-        str = str + "WithinTR ";
+        a = a + " inTrx";
         if (i == 0) {
-            str = str + "BeforAbort ";
+            a = a + " abort";
             abort;
         }
-        str = str + "AfterIf ";
-    }
-    str = str + "AfterTR ";
-    return str;
-}
-
-
-function testOptionalFailed(int i) returns (string) {
-    string a = "start";
-    try {
-        transaction {
-            a = a + " inTrx";
-            try {
-                if (i == -1) {
-                    error err = error(" err" );
-                    panic err;
-                } else if (i == 0) {
-                    a = a + " abort";
-                    abort;
-                } else if (i < -1) {
-                    Trxerror err = error(" trxErr", { data: "test" });
-                    panic err;
-                }
-            } catch (TrxError err) {
-                a = a + err.message;
-            }
-            a = a + " endTrx";
-        }
-    } catch (error err) {
-        a = a + err.message;
+        a = a + " endTrx";
+    } onretry {
+        a = a + " inFailed";
     }
     a = a + " end";
     return a;
 }
 
-function testNestedTransaction(int i) returns (string) {
+function testTransactionStmtFailed(int i) returns (string) {
     string a = "start";
-    try {
-        transaction {
-            a = a + " inOuterTrx";
-            transaction {
-                a = a + " inInnerTrx";
-                try {
-                    if (i == -1) {
-                        error err = error(" err" );
-                        panic err;
-                    } else if (i == 0) {
-                        a = a + " abort";
-                        abort;
-                    } else if (i < -1) {
-                        Trxerror err = error(" trxErr", { data: "test" });
-                        panic err;
-                    }
-                } catch (TrxError err) {
-                    a = a + err.message;
-                }
-                a = a + " endInnerTrx";
-            }
-            a = a + " endOuterTrx";
+    transaction {
+        a = a + " inTrx";
+        if (i == -1) {
+            error err = error(" err" );
+            panic err;
         }
-        a = a + " ";
-    } catch (error err) {
-        a = a + err.message;
+        a = a + " endTrx";
+    } onretry {
+        a = a + " inFailed";
+    }
+    a = a + " end";
+    return a;
+}
+
+function testTransactionStmtTrap(int i) returns (string) {
+    string a = "start";
+    transaction {
+        a = a + " inTrx";
+        int|error ret = trap mockError(i);
+        if (ret is int) {
+            a = a + " int";
+        } else {
+            a = a + " trxErr";
+        }
+        a = a + " endTrx";
+    } onretry {
+        a = a + " inFailed";
+    }
+    a = a + " end";
+    return a;
+}
+
+function mockError(int i) returns int {
+    if (i == 0) {
+        error err = error(" err" );
+        panic err;
+    }
+    return 0;
+}
+
+function testOptionalOnretry() returns (string) {
+    string a = "start";
+    transaction {
+        a = a + " inTrx";
+        a = a + " endTrx";
+    }
+    a = a + " end";
+    return a;
+}
+
+function testOptionalOnretryWithAbort(int i) returns (string) {
+    string a = "start";
+    transaction {
+        a = a + " inTrx";
+        if (i == 0) {
+            a = a + " abort";
+            abort;
+        }
+        a = a + " endTrx";
+    }
+    a = a + " end";
+    return a;
+}
+
+function testOptionalOnretryWithFail(int i) returns (string) {
+    string a = "start";
+    transaction {
+        a = a + " inTrx";
+        if (i == 0) {
+            error err = error(" err" );
+            panic err;
+        }
+        a = a + " endTrx";
+    }
+    a = a + " end";
+    return a;
+}
+
+function testOptionalOnretryWithTrap(int i) returns (string) {
+    string a = "start";
+    transaction {
+        a = a + " inTrx";
+        int|error ret = trap mockError(i);
+        if (ret is int) {
+            a = a + " int";
+        } else {
+            a = a + " trxErr";
+        }
+        a = a + " endTrx";
+    }
+    a = a + " end";
+    return a;
+}
+
+function testNestedTransaction() returns (string) {
+    string a = "start";
+    transaction {
+        a = a + " inOuterTrx";
+        transaction {
+            a = a + " inInnerTrx";
+            a = a + " endInnerTrx";
+        }
+        a = a + " endOuterTrx";
+    }
+    a = a + " end";
+    return a;
+}
+
+function testNestedTransactionInnerAbort(int i) returns (string) {
+    string a = "start";
+    transaction {
+        a = a + " inOuterTrx";
+        transaction {
+            a = a + " inInnerTrx";
+            if (i == 0) {
+                a = a + " abort";
+                abort;
+            }
+            a = a + " endInnerTrx";
+        }
+        a = a + " endOuterTrx";
+    }
+    a = a + " end";
+    return a;
+}
+
+function testNestedTransactionInnerTrap(int i) returns (string) {
+    string a = "start";
+    transaction {
+        a = a + " inOuterTrx";
+        transaction {
+            a = a + " inInnerTrx";
+            int|error ret = trap mockError(i);
+            if (ret is int) {
+                a = a + " int";
+            } else {
+                a = a + " trxErr";
+            }
+            a = a + " endInnerTrx";
+        }
+        a = a + " endOuterTrx";
+    }
+    a = a + " end";
+    return a;
+}
+
+function testNestedTransactionInnerPanic(int i) returns (string) {
+    string a = "start";
+    transaction {
+        a = a + " inOuterTrx";
+        transaction {
+            a = a + " inInnerTrx";
+            if (i == 0) {
+                error err = error(" err" );
+                panic err;
+            }
+            a = a + " endInnerTrx";
+        }
+        a = a + " endOuterTrx";
     }
     a = a + " end";
     return a;
@@ -119,36 +200,39 @@ function testNestedTransaction(int i) returns (string) {
 
 function testNestedTransactionWithFailed(int i) returns (string) {
     string a = "start";
-    try {
-        transaction with retries = 3 {
-            a = a + " inOuterTrx";
-            transaction with retries = 2 {
-                a = a + " inInnerTrx";
-                try {
-                    if (i == -1) {
-                        error err = error(" err" );
-                        panic err;
-                    } else if (i == 0) {
-                        a = a + " abort";
-                        abort;
-                    } else if (i < -1) {
-                        Trxerror err = error(" trxErr", { data: "test" });
-                        panic err;
-                    }
-                } catch (TrxError err) {
-                    a = a + err.message;
-                }
-                a = a + " endInnerTrx";
-            } onretry {
-                a = a + " innerFailed";
+    transaction with retries = 3 {
+        a = a + " inOuterTrx";
+        transaction with retries = 2 {
+            a = a + " inInnerTrx";
+            int|error ret = trap mockError(i);
+            if (ret is int) {
+                a = a + " int";
+            } else {
+                a = a + " trxErr";
             }
-            a = a + " endOuterTrx";
+            a = a + " endInnerTrx";
         } onretry {
-            a = a + " outerFailed";
+            a = a + " innerFailed";
         }
-        a = a + " ";
-    } catch (error err) {
-        a = a + err.message;
+        a = a + " endOuterTrx";
+    } onretry {
+        a = a + " outerFailed";
+    }
+    a = a + " end";
+    return a;
+}
+
+function testTransactionStmtAbortAndNonDefaultRetries(int i) returns (string) {
+    string a = "start";
+    transaction with retries = 4 {
+        a = a + " inTrx";
+        if (i == 0) {
+            a = a + " abort";
+            abort;
+        }
+        a = a + " endTrx";
+    } onretry {
+        a = a + " inFailed";
     }
     a = a + " end";
     return a;
@@ -156,31 +240,45 @@ function testNestedTransactionWithFailed(int i) returns (string) {
 
 function testTransactionStmtWithFailedAndNonDefaultRetries(int i) returns (string) {
     string a = "start";
-    try {
-        transaction with retries = 4 {
-            a = a + " inTrx";
-            try {
-                if (i == -1) {
-                    error err = error(" err" );
-                    panic err;
-                } else if (i == 0) {
-                    a = a + " abort";
-                    abort;
-                } else if (i < -1) {
-                    Trxerror err = error(" trxErr", { data: "test" });
-                    panic err;
-                } else {
-                    a = a + " success";
-                }
-            } catch (TrxError err) {
-                a = a + err.message;
-            }
-            a = a + " endTrx";
-        } onretry {
-            a = a + " inFailed";
+    transaction with retries = 4 {
+        a = a + " inTrx";
+        if (i == 0) {
+            error err = error(" err" );
+            panic err;
         }
-    } catch (error err) {
-        a = a + err.message;
+        a = a + " endTrx";
+    } onretry {
+        a = a + " inFailed";
+    }
+    a = a + " end";
+    return a;
+}
+
+function testTransactionStmtWithTrapAndNonDefaultRetries(int i) returns (string) {
+    string a = "start";
+    transaction with retries = 4 {
+        a = a + " inTrx";
+        int|error ret = trap mockError(i);
+        if (ret is int) {
+            a = a + " int";
+        } else {
+            a = a + " trxErr";
+        }
+        a = a + " endTrx";
+    } onretry {
+        a = a + " inFailed";
+    }
+    a = a + " end";
+    return a;
+}
+
+function testTransactionStmtSuccessAndNonDefaultRetries(int i) returns (string) {
+    string a = "start";
+    transaction with retries = 4 {
+        a = a + " inTrx";
+        a = a + " endTrx";
+    } onretry {
+        a = a + " inFailed";
     }
     a = a + " end";
     return a;
@@ -188,23 +286,15 @@ function testTransactionStmtWithFailedAndNonDefaultRetries(int i) returns (strin
 
 function testTransactionStmtWithRetryOff(int i) returns (string) {
     string a = "start";
-    try {
-        transaction with retries = 0 {
-            a = a + " inTrx";
-            try {
-                if (i == -1) {
-                    error err = error(" err" );
-                    panic err;
-                }
-            } catch (TrxError err) {
-                a = a + err.message;
-            }
-            a = a + " endTrx";
-        } onretry {
-            a = a + " inFailed";
+    transaction with retries = 0 {
+        a = a + " inTrx";
+        if (i == 0) {
+            error err = error(" err" );
+            panic err;
         }
-    } catch (error err) {
-        a = a + err.message;
+        a = a + " endTrx";
+    } onretry {
+        a = a + " inFailed";
     }
     a = a + " end";
     return a;
@@ -213,18 +303,14 @@ function testTransactionStmtWithRetryOff(int i) returns (string) {
 function testTransactionStmtWithConstRetryFailed() returns (string) {
     string a = "start";
     int i = 0;
-    try {
-        transaction with retries = RETRYCOUNT {
-            a = a + " inTrx";
-            if (i == 0) {
-                error err = error(" err" );
-                panic err;
-            }
-        } onretry {
-            a = a + " inFailed";
+    transaction with retries = RETRYCOUNT {
+        a = a + " inTrx";
+        if (i == 0) {
+            error err = error(" err" );
+            panic err;
         }
-    } catch (error err) {
-        a = a + err.message;
+    } onretry {
+        a = a + " inFailed";
     }
     a = a + " end";
     return a;
@@ -233,18 +319,14 @@ function testTransactionStmtWithConstRetryFailed() returns (string) {
 function testTransactionStmtWithConstRetryFailed2() returns (string) {
     string a = "start ";
     int i = 0;
-    try {
-        transaction with retries = RETRYCOUNT_2 {
-            a = a + " inTrx";
-            if (i == 0) {
-                error err = error(" err" );
-                panic err;
-            }
-        } onretry {
-            a = a + " inFailed";
+    transaction with retries = RETRYCOUNT_2 {
+        a = a + " inTrx";
+        if (i == 0) {
+            error err = error(" err" );
+            panic err;
         }
-    } catch (error err) {
-        a = a + err.message;
+    } onretry {
+        a = a + " inFailed";
     }
     a = a + " end";
     return a;
@@ -252,14 +334,10 @@ function testTransactionStmtWithConstRetryFailed2() returns (string) {
 
 function testTransactionStmtWithConstRetrySuccess() returns (string) {
     string a = "start";
-    try {
-        transaction with retries = RETRYCOUNT {
-            a = a + " inTrx";
-        } onretry {
-            a = a + " inFailed";
-        }
-    } catch (error err) {
-        a = a + err.message;
+    transaction with retries = RETRYCOUNT {
+        a = a + " inTrx";
+    } onretry {
+        a = a + " inFailed";
     }
     a = a + " end";
     return a;
@@ -267,22 +345,18 @@ function testTransactionStmtWithConstRetrySuccess() returns (string) {
 
 function testMultipleTransactionStmtSuccess() returns (string) {
     string a = "start";
-    try {
-        transaction {
-            a = a + " inFirstTrxBlock";
-        } onretry {
-            a = a + " inFirstTrxFailed";
-        }
-        a = a + " inFirstTrxEnd";
-        transaction {
-            a = a + " inSecTrxBlock";
-        } onretry {
-            a = a + " inSecTrxFailed";
-        }
-        a = a + " inFSecTrxEnd";
-    } catch (error err) {
-        a = a + err.message;
+    transaction {
+        a = a + " inFirstTrxBlock";
+    } onretry {
+        a = a + " inFirstTrxFailed";
     }
+    a = a + " inFirstTrxEnd";
+    transaction {
+        a = a + " inSecTrxBlock";
+    } onretry {
+        a = a + " inSecTrxFailed";
+    }
+    a = a + " inFSecTrxEnd";
     a = a + " end";
     return a;
 }
@@ -290,24 +364,20 @@ function testMultipleTransactionStmtSuccess() returns (string) {
 function testMultipleTransactionStmtFailed1() returns (string) {
     string a = "start";
     int i = 0;
-    try {
-        transaction with retries = 2 {
-            a = a + " inFirstTrxBlock";
-            if (i == 0) {
-                error err = error(" err" );
-                panic err;
-            }
-        } onretry {
-            a = a + " inFirstTrxFld";
+    transaction with retries = 2 {
+        a = a + " inFirstTrxBlock";
+        if (i == 0) {
+            error err = error(" err" );
+            panic err;
         }
-        a = a + " inFirstTrxEnd";
-        transaction {
-            a = a + " inSecTrxBlock";
-        }
-        a = a + " inFSecTrxEnd";
-    } catch (error err) {
-        a = a + err.message;
+    } onretry {
+        a = a + " inFirstTrxFld";
     }
+    a = a + " inFirstTrxEnd";
+    transaction {
+        a = a + " inSecTrxBlock";
+    }
+    a = a + " inSecTrxEnd";
     a = a + " end";
     return a;
 }
@@ -315,25 +385,21 @@ function testMultipleTransactionStmtFailed1() returns (string) {
 function testMultipleTransactionStmtFailed2() returns (string) {
     string a = "start";
     int i = 0;
-    try {
-        transaction with retries = 2 {
-            a = a + " inFirstTrxBlock";
-            if (i == 0) {
-                error err = error(" err" );
-                panic err;
-            }
-        } onretry {
-            a = a + " inFirstTrxFld";
+    transaction with retries = 2 {
+        a = a + " inFirstTrxBlock";
+        if (i == 0) {
+            error err = error(" err" );
+            panic err;
         }
-        a = a + " inFirstTrxEnd";
-    } catch (error err) {
-        a = a + err.message;
+    } onretry {
+        a = a + " inFirstTrxFld";
     }
+    a = a + " inFirstTrxEnd";
 
     transaction {
         a = a + " inSecTrxBlock";
     }
-    a = a + " inFSecTrxEnd";
+    a = a + " inSecTrxEnd";
     a = a + " end";
     return a;
 }
@@ -415,14 +481,11 @@ function testSimpleNestedTransactionAbort() returns (string) {
 
 function testValidReturn() returns (string) {
     string a = "start ";
-    int i = 0;
     transaction with retries = 4 {
         a = a + " inOuterTxstart ";
         transaction {
             a = a + " inInnerTxstart ";
-            if (i == 0) {
-                a = a + testReturn();
-            }
+            a = a + testReturn();
             a = a + " endInnerTx";
         }
         a = a + testReturn();
@@ -437,7 +500,6 @@ function testReturn() returns (string) {
 
 function testValidDoneWithinTransaction() returns (string) {
     workerTest = "start ";
-    int i = 0;
     transaction {
         workerTest = workerTest + " withinTx";
         testDone();

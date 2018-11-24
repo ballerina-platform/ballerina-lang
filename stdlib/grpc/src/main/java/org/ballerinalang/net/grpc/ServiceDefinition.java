@@ -17,23 +17,26 @@
  */
 package org.ballerinalang.net.grpc;
 
+import com.google.protobuf.ByteString;
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.InvalidProtocolBufferException;
+import org.ballerinalang.bre.Context;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.exception.ClientRuntimeException;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.net.grpc.MessageUtils.setNestedMessages;
 import static org.ballerinalang.net.grpc.MethodDescriptor.generateFullMethodName;
+import static org.ballerinalang.net.grpc.ServicesBuilderUtils.getBallerinaValueType;
+import static org.ballerinalang.net.grpc.ServicesBuilderUtils.hexStringToByteArray;
 
 /**
  * This class contains proto descriptors of the service.
@@ -42,14 +45,13 @@ import static org.ballerinalang.net.grpc.MethodDescriptor.generateFullMethodName
  */
 public final class ServiceDefinition {
     
-    private byte[] rootDescriptorData;
-    private List<byte[]> dependentDescriptorData;
+    private String rootDescriptor;
+    private BMap<String, BValue> descriptorMap;
     private Descriptors.FileDescriptor fileDescriptor;
     
-    public ServiceDefinition(byte[] rootDescriptorData, List<byte[]> depDescriptorData) {
-        this.rootDescriptorData = new byte[rootDescriptorData.length];
-        this.rootDescriptorData = Arrays.copyOf(rootDescriptorData, rootDescriptorData.length);
-        dependentDescriptorData = depDescriptorData;
+    public ServiceDefinition(String rootDescriptor, BMap<String, BValue> descriptorMap) {
+        this.rootDescriptor = rootDescriptor;
+        this.descriptorMap = descriptorMap;
     }
     
     /**
@@ -61,28 +63,40 @@ public final class ServiceDefinition {
         if (fileDescriptor != null) {
             return fileDescriptor;
         }
-        Descriptors.FileDescriptor[] depSet = new Descriptors.FileDescriptor[dependentDescriptorData.size()];
-        int i = 0;
-        for (byte[] dis : dependentDescriptorData) {
-            try {
-                DescriptorProtos.FileDescriptorProto fileDescriptorSet = DescriptorProtos.FileDescriptorProto
-                        .parseFrom(dis);
-                depSet[i] = Descriptors.FileDescriptor.buildFrom(fileDescriptorSet, new Descriptors
-                        .FileDescriptor[] {});
-                i++;
-            } catch (InvalidProtocolBufferException | Descriptors.DescriptorValidationException e) {
-                throw new ClientRuntimeException("Error while gen extracting depend descriptors. ", e);
-            }
-        }
-        
-        try (InputStream targetStream = new ByteArrayInputStream(rootDescriptorData)) {
-            DescriptorProtos.FileDescriptorProto descriptorProto = DescriptorProtos.FileDescriptorProto.parseFrom
-                    (targetStream);
-            fileDescriptor = Descriptors.FileDescriptor.buildFrom(descriptorProto, depSet);
-            return fileDescriptor;
+        try {
+            return fileDescriptor = getFileDescriptor(rootDescriptor, descriptorMap);
         } catch (IOException | Descriptors.DescriptorValidationException e) {
             throw new ClientRuntimeException("Error while generating service descriptor : ", e);
         }
+    }
+
+    private Descriptors.FileDescriptor getFileDescriptor(String rootDescriptor, BMap<String, BValue>
+            descriptorMap) throws InvalidProtocolBufferException, Descriptors.DescriptorValidationException {
+        byte[] descriptor = hexStringToByteArray(rootDescriptor);
+        if (descriptor.length == 0) {
+            throw new ClientRuntimeException("Error while reading the service proto descriptor. input descriptor " +
+                    "string is null.");
+        }
+        DescriptorProtos.FileDescriptorProto descriptorProto = DescriptorProtos.FileDescriptorProto.parseFrom
+                (descriptor);
+        if (descriptorProto == null) {
+            throw new ClientRuntimeException("Error while reading the service proto descriptor. File proto descriptor" +
+                    " is null.");
+        }
+        Descriptors.FileDescriptor[] fileDescriptors = new Descriptors.FileDescriptor[descriptorProto
+                .getDependencyList().size()];
+        int i = 0;
+        for (ByteString dependency : descriptorProto.getDependencyList().asByteStringList()) {
+            if (descriptorMap.hasKey(dependency.toStringUtf8())) {
+                fileDescriptors[i++] = getFileDescriptor(descriptorMap.get(dependency.toString(Charset.forName
+                        ("UTF8"))).stringValue(), descriptorMap);
+            }
+        }
+        if (fileDescriptors.length > 0 && i == 0) {
+            throw new ClientRuntimeException("Error while reading the service proto descriptor. Couldn't find any " +
+                    "dependent descriptors.");
+        }
+        return Descriptors.FileDescriptor.buildFrom(descriptorProto, fileDescriptors);
     }
 
     private Descriptors.ServiceDescriptor getServiceDescriptor() throws GrpcClientException {
@@ -98,7 +112,7 @@ public final class ServiceDefinition {
         return descriptor.getFile().getServices().get(0);
     }
 
-    public Map<String, MethodDescriptor> getMethodDescriptors() throws GrpcClientException {
+    public Map<String, MethodDescriptor> getMethodDescriptors(Context context) throws GrpcClientException {
         Map<String, MethodDescriptor> descriptorMap = new HashMap<>();
         Descriptors.ServiceDescriptor serviceDescriptor = getServiceDescriptor();
 
@@ -106,16 +120,6 @@ public final class ServiceDefinition {
             String methodName = methodDescriptor.getName();
             Descriptors.Descriptor reqMessage = methodDescriptor.getInputType();
             Descriptors.Descriptor resMessage = methodDescriptor.getOutputType();
-            String fullMethodName = generateFullMethodName(serviceDescriptor.getFullName(), methodName);
-            MethodDescriptor descriptor =
-                    MethodDescriptor.<Message, Message>newBuilder()
-                            .setType(MessageUtils.getMethodType(methodDescriptor.toProto()))
-                            .setFullMethodName(fullMethodName)
-                            .setRequestMarshaller(ProtoUtils.marshaller(new Message(reqMessage.getName())))
-                            .setResponseMarshaller(ProtoUtils.marshaller(new Message(resMessage.getName())))
-                            .setSchemaDescriptor(methodDescriptor)
-                            .build();
-            descriptorMap.put(fullMethodName, descriptor);
             MessageRegistry messageRegistry = MessageRegistry.getInstance();
             // update request message descriptors.
             messageRegistry.addMessageDescriptor(reqMessage.getName(), reqMessage);
@@ -123,6 +127,20 @@ public final class ServiceDefinition {
             // update response message descriptors
             messageRegistry.addMessageDescriptor(resMessage.getName(), resMessage);
             setNestedMessages(resMessage, messageRegistry);
+            String fullMethodName = generateFullMethodName(serviceDescriptor.getFullName(), methodName);
+            MethodDescriptor descriptor =
+                    MethodDescriptor.<Message, Message>newBuilder()
+                            .setType(MessageUtils.getMethodType(methodDescriptor.toProto()))
+                            .setFullMethodName(fullMethodName)
+                            .setRequestMarshaller(ProtoUtils.marshaller(new MessageParser(reqMessage.getName(), context
+                                    .getProgramFile(), getBallerinaValueType(reqMessage.getName(), context
+                                    .getProgramFile()))))
+                            .setResponseMarshaller(ProtoUtils.marshaller(new MessageParser(resMessage.getName(), context
+                                    .getProgramFile(), getBallerinaValueType(resMessage.getName(), context
+                                    .getProgramFile()))))
+                            .setSchemaDescriptor(methodDescriptor)
+                            .build();
+            descriptorMap.put(fullMethodName, descriptor);
         }
         return Collections.unmodifiableMap(descriptorMap);
     }

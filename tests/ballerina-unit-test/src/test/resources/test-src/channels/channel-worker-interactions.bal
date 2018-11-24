@@ -4,7 +4,7 @@ channel<json> chn;
 function workerWithChannels() returns json {
     worker w1 {
         json key = {"id":50, name:"john"};
-        json result;
+        json result = {};
         result <- chn, key;
         return result;
     }
@@ -25,7 +25,7 @@ function sendBeforeReceive() returns json {
 
     worker w1 {
         json key = {"id":50, name:"john"};
-        json result;
+        json result = {};
         result <- chn, key;
         return result;
     }
@@ -38,7 +38,7 @@ function nullKeyChannels() returns json {
     }
 
     worker w1 {
-        json result;
+        json result = {};
         result <- chn;
         return result;
     }
@@ -57,7 +57,7 @@ function multipleInteractions() returns json {
     }
 
     worker w1 {
-        json result;
+        json result = {};
         json key = {"id":50, name:"john"};
         json key2 = {"id":60, name:"john"};
         result <- chn, key2;
@@ -81,7 +81,7 @@ function multipleChannels() returns json {
     }
 
     worker w1 {
-        json result;
+        json result = {};
         json key = {"id":50, name:"john"};
         result <- chn,key;
         result <- chn2, key;
@@ -103,7 +103,7 @@ function xmlChannels() returns xml {
         }
 
         worker w1 {
-            xml result;
+            xml result = xml `key`;
             xml key = xml `<key><id>50</id><name>john</name></key>`;
             xml key2 = xml `<key><id>60</id><name>john</name></key>`;
             result <- xmlChn, key2;
@@ -129,11 +129,11 @@ function primitiveTypeChannels() returns boolean {
     "message" -> strChan, key;
     b -> byteChan, key;
 
-    int intResult;
-    float floatResult;
-    byte byteResult;
-    string strResult;
-    boolean boolResult;
+    int intResult = 0;
+    float floatResult = 0;
+    byte byteResult = 0;
+    string strResult = "";
+    boolean boolResult = false;
     intResult <- intChan, key;
 
     if (intResult == 10) {

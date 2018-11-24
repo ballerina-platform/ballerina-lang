@@ -77,7 +77,7 @@ public class BlockStmtTest {
         BAssertUtil.validateError(resultNegative, 3, "unreachable code", 46, 13);
         //testCommentAfterReturnStmt
         BAssertUtil.validateError(resultNegative, 4, "unreachable code", 62, 5);
-        //testUnreachableTryCatch
+        //testUnreachableTrapExpression
         BAssertUtil.validateError(resultNegative, 5, "unreachable code", 73, 5);
         //testUnreachableNext
         BAssertUtil.validateError(resultNegative, 6, "unreachable code", 84, 9);

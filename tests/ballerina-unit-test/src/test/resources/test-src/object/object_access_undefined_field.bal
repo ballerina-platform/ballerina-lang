@@ -1,16 +1,8 @@
 type Person object {
 
-    public int age;
+    public int age = 0;
 
-
-    new (agea) {
+    function __init (int agea) {
         abc = "pp";
     }
 };
-
-
-
-
-
-
-

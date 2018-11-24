@@ -74,6 +74,7 @@ import java.util.Base64;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -804,11 +805,12 @@ public class SQLDatasourceUtils {
             return new Object[] { null, null };
         }
         String structuredSQLType = value.getType().getName().toUpperCase(Locale.getDefault());
-        BField[] structFields = ((BStructureType) value.getType()).getFields();
-        int fieldCount = structFields.length;
+        Map<String, BField> structFields = ((BStructureType) value.getType()).getFields();
+        int fieldCount = structFields.size();
         Object[] structData = new Object[fieldCount];
+        Iterator<BField> fieldIterator = structFields.values().iterator();
         for (int i = 0; i < fieldCount; ++i) {
-            BField field = structFields[i];
+            BField field = fieldIterator.next();
             BValue bValue = ((BMap<String, BValue>) value).get(field.fieldName);
             int typeTag = field.getFieldType().getTag();
             switch (typeTag) {
@@ -1237,8 +1239,8 @@ public class SQLDatasourceUtils {
         SQLDatasource datasource = new SQLDatasource();
         datasource.init(sqlDatasourceParams);
         BMap<String, BValue> sqlClient = BLangConnectorSPIUtil
-                .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.CALLER_ACTIONS);
-        sqlClient.addNativeData(Constants.CALLER_ACTIONS, datasource);
+                .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.SQL_CLIENT);
+        sqlClient.addNativeData(Constants.SQL_CLIENT, datasource);
         return sqlClient;
     }
 

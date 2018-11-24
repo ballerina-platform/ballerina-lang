@@ -1,7 +1,7 @@
 public type ConstPool record {
-    PackageId[] packages;
-    string[] strings;
-    int[] ints;
+    PackageId[] packages = [];
+    string[] strings = [];
+    int[] ints = [];
 };
 
 public type ConstPoolParser object {
@@ -9,7 +9,8 @@ public type ConstPoolParser object {
     ConstPool cp = {};
     int i;
 
-    public new(reader) {
+    public function __init(ChannelReader reader) {
+        self.reader = reader;
         self.i = 0;
     }
 

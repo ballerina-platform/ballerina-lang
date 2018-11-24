@@ -1,41 +1,41 @@
 
 public type FooDepartment record {
-    string dptName;
-    FooPerson[] employees;
+    string dptName = "";
+    FooPerson[] employees = [];
 };
 
 public type FooPerson record {
     string name = "default first name";
-    string lname;
-    map adrs;
+    string lname = "";
+    map adrs = {};
     int age = 999;
-    FooFamily family;
-    FooPerson? parent;
+    FooFamily family = {};
+    FooPerson? parent = ();
 };
 
 type FooFamily record {
-    string spouse;
-    int noOfChildren;
-    string[] children;
+    string spouse = "";
+    int noOfChildren = 0;
+    string[] children = [];
 };
 
 public type FooEmployee record {
-    string fname;
-    string lname;
-    int age;
+    string fname = "";
+    string lname = "";
+    int age = 0;
     record {
-        string city;
-        string state;
-        string zipcode;
-    } address;
+        string city = "";
+        string state = "";
+        string zipcode = "";
+    } address = {};
     object {
-        public string desc;
-        public string title;
-    } job;
+        public string desc = "";
+        public string title = "";
+    } job = new;
 };
 
 public function createRecord() returns FooPerson {
-    map address1;
+    map address1 = {};
     map address = {"country":"USA", "state":"CA"};
     FooPerson emp = {name:"Jack", adrs:address, age:25};
     return emp;

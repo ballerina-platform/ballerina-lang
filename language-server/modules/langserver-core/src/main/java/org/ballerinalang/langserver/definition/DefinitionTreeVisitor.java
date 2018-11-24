@@ -18,13 +18,13 @@ package org.ballerinalang.langserver.definition;
 
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
-import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -92,7 +92,7 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
     public void visit(BLangFunction funcNode) {
         // Check for native functions
         BSymbol funcSymbol = funcNode.symbol;
-        if (Symbols.isNative(funcSymbol)) {
+        if (Symbols.isNative(funcSymbol) || !CommonUtil.isValidInvokableSymbol(funcSymbol)) {
             return;
         }
 
@@ -169,24 +169,6 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
 
             if (resourceNode.body != null) {
                 this.acceptNode(resourceNode.body);
-            }
-        }
-    }
-
-    @Override
-    public void visit(BLangAction actionNode) {
-        if (actionNode.name.getValue()
-                .equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY))) {
-            if (actionNode.requiredParams != null) {
-                actionNode.requiredParams.forEach(this::acceptNode);
-            }
-
-            if (actionNode.body != null) {
-                acceptNode(actionNode.body);
-            }
-
-            if (actionNode.workers != null) {
-                actionNode.workers.forEach(this::acceptNode);
             }
         }
     }
@@ -415,7 +397,7 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchStmtTypedBindingPatternClause patternClauseNode) {
+    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClauseNode) {
         if (patternClauseNode.getVariableNode() != null &&
                 patternClauseNode.getVariableNode().getName() != null &&
                 patternClauseNode.getVariableNode().getName().getValue()
@@ -434,7 +416,7 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchStmtStaticBindingPatternClause patternClauseNode) {
+    public void visit(BLangMatch.BLangMatchStaticBindingPatternClause patternClauseNode) {
         /*ignore*/
     }
 

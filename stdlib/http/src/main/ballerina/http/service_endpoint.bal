@@ -19,27 +19,45 @@ import ballerina/log;
 import ballerina/system;
 
 /////////////////////////////
-/// HTTP Service Endpoint ///
+/// HTTP Server Endpoint ///
 /////////////////////////////
-# This is used for creating HTTP service endpoints. An HTTP service endpoint is capable of responding to
-# remote callers. The `Listener` is responsible for initializing the endpoint using the provided configurations and
+# This is used for creating HTTP server endpoints. An HTTP server endpoint is capable of responding to
+# remote callers. The `Server` is responsible for initializing the endpoint using the provided configurations and
 # providing the actions for communicating with the caller.
 #
-# + remote - The remote address
+# + remoteDetails - The remote address
 # + local - The local address
 # + protocol - The protocol associated with the service endpoint
-public type Listener object {
+public type Server object {
 
-    @readonly public Remote remote;
-    @readonly public Local local;
-    @readonly public string protocol;
+    *AbstractListener;
 
-    private Connection conn;
-    private ServiceEndpointConfiguration config;
+    @readonly public Remote remoteDetails = {};
+    @readonly public Local local = {};
+    @readonly public string protocol = "";
+
+    private Caller caller = new;
+    private ServiceEndpointConfiguration config = {};
+
+    public function __start() returns error? {
+        return self.start();
+    }
+
+    public function __stop() returns error? {
+        return self.stop();
+    }
+
+    public function __attach(service s, map annotationData) returns error? {
+        return self.register(s, annotationData);
+    }
+
     private string instanceId;
 
-    public new() {
+    public function __init(int port, ServiceEndpointConfiguration? config = ()) {
         self.instanceId = system:uuid();
+        self.config = config ?: {};
+        self.config.port = port;
+        self.init(self.config);
     }
 
     # Gets invoked during module initialization to initialize the endpoint.
@@ -49,30 +67,48 @@ public type Listener object {
 
     public extern function initEndpoint() returns error?;
 
-    # Gets invoked when binding a service to the endpoint.
+    # Gets invoked when attaching a service to the endpoint.
     #
-    # + serviceType - The type of the service to be registered
-    public extern function register(typedesc serviceType);
+    # + s - The service that needs to be attached
+    extern function register(service s, map annotationData) returns error?;
 
     # Starts the registered service.
-    public extern function start();
+    extern function start();
 
     # Returns the connector that client code uses.
     #
     # + return - The connector that client code uses
-    public extern function getCallerActions() returns (Connection);
+    public extern function getCallerActions() returns (Caller);
 
     # Stops the registered service.
-    public extern function stop();
+    extern function stop();
 };
+
+function Server.init (ServiceEndpointConfiguration c) {
+    self.config = c;
+    var providers = self.config.authProviders;
+    if (providers is AuthProvider[]) {
+        var secureSocket = self.config.secureSocket;
+        if (secureSocket is ServiceSecureSocket) {
+            addAuthFiltersForSecureListener(self.config, self.instanceId);
+        } else {
+            error err = error("Secure sockets have not been cofigured in order to enable auth providers.");
+            panic err;
+        }
+    }
+        var err = self.initEndpoint();
+        if (err is error) {
+        panic err;
+    }
+}
 
 # Presents a read-only view of the remote address.
 #
 # + host - The remote host name/IP
 # + port - The remote port
 public type Remote record {
-    @readonly string host;
-    @readonly int port;
+    @readonly string host = "";
+    @readonly int port = 0;
     !...
 };
 
@@ -81,8 +117,8 @@ public type Remote record {
 # + host - The local host name/IP
 # + port - The local port
 public type Local record {
-    @readonly string host;
-    @readonly int port;
+    @readonly string host = "";
+    @readonly int port = 0;
     !...
 };
 
@@ -122,19 +158,18 @@ public type RequestLimits record {
 # + positiveAuthzCache - Caching configurations for positive authorizations
 # + negativeAuthzCache - Caching configurations for negative authorizations
 public type ServiceEndpointConfiguration record {
-    string host;
-    int port;
+    string host = "0.0.0.0";
+    int port = 0; //User must provide a port number. If not an error will be thrown as "listener port is not defined!"
     KeepAlive keepAlive = KEEPALIVE_AUTO;
-    ServiceSecureSocket? secureSocket;
+    ServiceSecureSocket? secureSocket = ();
     string httpVersion = "1.1";
-    RequestLimits? requestLimits;
-    Filter[] filters;
+    RequestLimits? requestLimits = ();
+    Filter[] filters = [];
     int timeoutMillis = DEFAULT_LISTENER_TIMEOUT;
     int maxPipelinedRequests = MAX_PIPELINED_REQUESTS;
-    AuthProvider[]? authProviders;
-    AuthCacheConfig positiveAuthzCache;
-    AuthCacheConfig negativeAuthzCache;
-    !...
+    AuthProvider[]? authProviders = ();
+    AuthCacheConfig positiveAuthzCache = {};
+    AuthCacheConfig negativeAuthzCache = {};
 };
 
 # Configures the SSL/TLS options to be used for HTTP service.
@@ -153,22 +188,22 @@ public type ServiceEndpointConfiguration record {
 # + shareSession - Enable/disable new SSL session creation
 # + ocspStapling - Enable/disable OCSP stapling
 public type ServiceSecureSocket record {
-    TrustStore? trustStore;
-    KeyStore? keyStore;
-    string certFile;
-    string keyFile;
-    string keyPassword;
-    string trustedCertFile;
-    Protocols? protocol;
-    ValidateCert? certValidation;
+    TrustStore? trustStore = ();
+    KeyStore? keyStore = ();
+    string certFile = "";
+    string keyFile = "";
+    string keyPassword = "";
+    string trustedCertFile = "";
+    Protocols? protocol = ();
+    ValidateCert? certValidation = ();
     string[] ciphers = ["TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
-    "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256", "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
-    "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
-    "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256", "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
-    "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256"];
-    string sslVerifyClient;
+                        "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256", "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+                        "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+                        "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256", "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+                        "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256"];
+    string sslVerifyClient = "";
     boolean shareSession = true;
-    ServiceOcspStapling? ocspStapling;
+    ServiceOcspStapling? ocspStapling = ();
     !...
 };
 
@@ -205,51 +240,33 @@ public type AuthCacheConfig record {
 # + signingAlg - The signing algorithm which is used to sign the JWT token
 # + propagateJwt - `true` if propagating authentication info as JWT
 public type AuthProvider record {
-    string scheme;
-    string id;
-    string authStoreProvider;
-    auth:LdapAuthProviderConfig? authStoreProviderConfig;
-    string issuer;
-    string audience;
-    TrustStore? trustStore;
-    string certificateAlias;
-    int clockSkew;
-    KeyStore? keyStore;
-    string keyAlias;
-    string keyPassword;
-    int expTime;
-    string signingAlg;
-    boolean propagateJwt;
+    string scheme = "";
+    string id = "";
+    string authStoreProvider = "";
+    auth:LdapAuthProviderConfig? authStoreProviderConfig = ();
+    string issuer = "";
+    string audience = "";
+    TrustStore? trustStore = ();
+    string certificateAlias = "";
+    int clockSkew = 0;
+    KeyStore? keyStore = ();
+    string keyAlias = "";
+    string keyPassword = "";
+    int expTime = 0;
+    string signingAlg = "";
+    boolean propagateJwt = false;
     !...
 };
 
 # Defines the possible values for the keep-alive configuration in service and client endpoints.
-public type KeepAlive "AUTO"|"ALWAYS"|"NEVER";
+public type KeepAlive KEEPALIVE_AUTO|KEEPALIVE_ALWAYS|KEEPALIVE_NEVER;
 
 # Decides to keep the connection alive or not based on the `connection` header of the client request }
-@final public KeepAlive KEEPALIVE_AUTO = "AUTO";
+public const KEEPALIVE_AUTO = "AUTO";
 # Keeps the connection alive irrespective of the `connection` header value }
-@final public KeepAlive KEEPALIVE_ALWAYS = "ALWAYS";
+public const KEEPALIVE_ALWAYS = "ALWAYS";
 # Closes the connection irrespective of the `connection` header value }
-@final public KeepAlive KEEPALIVE_NEVER = "NEVER";
-
-function Listener.init (ServiceEndpointConfiguration c) {
-    self.config = c;
-    var providers = self.config.authProviders;
-    if (providers is AuthProvider[]) {
-        var secureSocket = self.config.secureSocket;
-        if (secureSocket is ServiceSecureSocket) {
-            addAuthFiltersForSecureListener(self.config, self.instanceId);
-        } else {
-            error err = error("Secure sockets have not been cofigured in order to enable auth providers.");
-            panic err;
-        }
-    }
-    var err = self.initEndpoint();
-    if (err is error) {
-        panic err;
-    }
-}
+public const KEEPALIVE_NEVER = "NEVER";
 
 # Add authn and authz filters
 #
@@ -266,8 +283,8 @@ function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config, st
         // add existing filters next
         int i = 0;
         while (i < config.filters.length()) {
-            newFilters[i + (newFilters.length())] = config.filters[i];
-            i = i + 1;
+        newFilters[i + (newFilters.length())] = config.filters[i];
+        i = i + 1;
         }
         config.filters = newFilters;
     }
@@ -280,8 +297,8 @@ function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config, st
 # + return - Array of Filters comprising of authn and authz Filters
 function createAuthFiltersForSecureListener(ServiceEndpointConfiguration config, string instanceId) returns (Filter[]) {
     // parse and create authentication handlers
-    AuthHandlerRegistry registry;
-    AuthProvider[] authProviderList;
+    AuthHandlerRegistry registry = new;
+    AuthProvider[] authProviderList = [];
     Filter[] authFilters = [];
 
     var providers = config.authProviders;
@@ -303,12 +320,12 @@ function createAuthFiltersForSecureListener(ServiceEndpointConfiguration config,
     AuthnHandlerChain authnHandlerChain = new(registry);
     AuthnFilter authnFilter = new(authnHandlerChain);
     cache:Cache positiveAuthzCache = new(expiryTimeMillis = config.positiveAuthzCache.expiryTimeMillis,
-        capacity = config.positiveAuthzCache.capacity,
-        evictionFactor = config.positiveAuthzCache.evictionFactor);
+    capacity = config.positiveAuthzCache.capacity,
+    evictionFactor = config.positiveAuthzCache.evictionFactor);
     cache:Cache negativeAuthzCache = new(expiryTimeMillis = config.negativeAuthzCache.expiryTimeMillis,
-        capacity = config.negativeAuthzCache.capacity,
-        evictionFactor = config.negativeAuthzCache.evictionFactor);
-    auth:AuthStoreProvider authStoreProvider;
+    capacity = config.negativeAuthzCache.capacity,
+    evictionFactor = config.negativeAuthzCache.evictionFactor);
+    auth:AuthStoreProvider authStoreProvider = new;
 
     foreach provider in authProviderList {
         if (provider.scheme == AUTHN_SCHEME_BASIC) {
@@ -331,7 +348,7 @@ function createAuthFiltersForSecureListener(ServiceEndpointConfiguration config,
         }
     }
 
-    HttpAuthzHandler authzHandler = new(authStoreProvider, positiveAuthzCache, negativeAuthzCache);
+HttpAuthzHandler authzHandler = new(authStoreProvider, positiveAuthzCache, negativeAuthzCache);
     AuthzFilter authzFilter = new(authzHandler);
     authFilters[0] = authnFilter;
     authFilters[1] = authzFilter;
@@ -347,7 +364,7 @@ function createBasicAuthHandler() returns HttpAuthnHandler {
 
 function createAuthHandler(AuthProvider authProvider, string instanceId) returns HttpAuthnHandler {
     if (authProvider.scheme == AUTHN_SCHEME_BASIC) {
-        auth:AuthStoreProvider authStoreProvider;
+        auth:AuthStoreProvider authStoreProvider = new;
         if (authProvider.authStoreProvider == AUTH_PROVIDER_CONFIG) {
             if (authProvider.propagateJwt) {
                 auth:ConfigJwtAuthProvider configAuthProvider = new(getInferredJwtAuthProviderConfig(authProvider));
@@ -384,8 +401,8 @@ function createAuthHandler(AuthProvider authProvider, string instanceId) returns
         jwtConfig.audience = authProvider.audience;
         jwtConfig.certificateAlias = authProvider.certificateAlias;
         jwtConfig.clockSkew = authProvider.clockSkew;
-        jwtConfig.trustStoreFilePath = authProvider.trustStore.path but { () => "" };
-        jwtConfig.trustStorePassword = authProvider.trustStore.password but { () => "" };
+        jwtConfig.trustStoreFilePath = authProvider.trustStore.path ?: "";
+        jwtConfig.trustStorePassword = authProvider.trustStore.password ?: "";
         auth:JWTAuthProvider jwtAuthProvider = new(jwtConfig);
         HttpJwtAuthnHandler jwtAuthnHandler = new(jwtAuthProvider);
         return <HttpAuthnHandler>jwtAuthnHandler;
@@ -409,8 +426,8 @@ function getInferredJwtAuthProviderConfig(AuthProvider authProvider) returns aut
     jwtAuthConfig.audience = authProvider.audience == "" ? defaultAudience : authProvider.audience;
     jwtAuthConfig.keyAlias = authProvider.keyAlias;
     jwtAuthConfig.keyPassword = authProvider.keyPassword;
-    jwtAuthConfig.keyStoreFilePath = authProvider.keyStore.path but { () => "" };
-    jwtAuthConfig.keyStorePassword = authProvider.keyStore.password but { () => "" };
+    jwtAuthConfig.keyStoreFilePath = authProvider.keyStore.path ?: "";
+    jwtAuthConfig.keyStorePassword = authProvider.keyStore.password ?: "";
     return jwtAuthConfig;
 }
 
@@ -418,58 +435,33 @@ function getInferredJwtAuthProviderConfig(AuthProvider authProvider) returns aut
 /// WebSocket Service Endpoint ///
 //////////////////////////////////
 # Represents a WebSocket service endpoint.
-#
-# + id - The connection ID
-# + negotiatedSubProtocol - The subprotocols negotiated with the client
-# + isSecure - `true` if the connection is secure
-# + isOpen - `true` if the connection is open
-# + attributes - A `map` to store connection related attributes
-public type WebSocketListener object {
+public type WebSocketServer object {
 
-    @readonly public string id = "";
-    @readonly public string negotiatedSubProtocol = "";
-    @readonly public boolean isSecure = false;
-    @readonly public boolean isOpen = false;
-    @readonly public map attributes = {};
+    *AbstractListener;
 
-    private WebSocketConnector conn = new;
-    private ServiceEndpointConfiguration config;
-    private Listener httpEndpoint = new;
-
-    public new() {
+    public function __start() returns error? {
+        return self.httpEndpoint.start();
     }
+
+    public function __stop() returns error? {
+        return self.httpEndpoint.stop();
+    }
+
+    public function __attach(service s, map annotationData) returns error? {
+        return self.httpEndpoint.register(s, annotationData);
+    }
+
+    private ServiceEndpointConfiguration config = {};
+
+    private Server httpEndpoint;
 
     # Gets invoked during module initialization to initialize the endpoint.
     #
     # + c - The `ServiceEndpointConfiguration` of the endpoint
-    public function init(ServiceEndpointConfiguration c) {
-        self.config = c;
-        self.httpEndpoint.init(c);
+    public function __init(int port, ServiceEndpointConfiguration? config = ()) {
+        self.config = config ?: {};
+        self.config.port = port;
+        self.httpEndpoint = new(port, config = config);
     }
 
-    # Gets invoked when binding a service to the endpoint.
-    #
-    # + serviceType - The service type
-    public function register(typedesc serviceType) {
-        self.httpEndpoint.register(serviceType);
-    }
-
-    # Starts the registered service.
-    public function start() {
-        self.httpEndpoint.start();
-    }
-
-    # Returns a WebSocket actions provider which can be used to communicate with the remote host.
-    #
-    # + return - The connector that listener endpoint uses
-    public function getCallerActions() returns (WebSocketConnector) {
-        return self.conn;
-    }
-
-    # Stops the registered service.
-    public function stop() {
-        WebSocketConnector webSocketConnector = self.getCallerActions();
-        check webSocketConnector.close(statusCode = 1001, reason = "going away", timeoutInSecs = 0);
-        self.httpEndpoint.stop();
-    }
 };

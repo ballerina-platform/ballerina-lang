@@ -34,15 +34,15 @@ function fooFunc(string a, // foo function
 
 type Person record { // Person type
     // name field
-    string name;
+    string name = "";
 
     // only one field
 };
 
 type Day "MONDAY" | "TUESDAY"; // enum Day
 
-@final Day MONDAY = "MONDAY"; // enumerator Monday
-@final Day TUESDAY = "TUESDAY"; // enumerator Tuesday
+final Day MONDAY = "MONDAY"; // enumerator Monday
+final Day TUESDAY = "TUESDAY"; // enumerator Tuesday
 
 
 @Description {value:"/FooService"} // http config annotation

@@ -37,6 +37,7 @@ definition
     |   annotationDefinition
     |   globalVariableDefinition
     |   globalEndpointDefinition
+    |   constantDefinition
     ;
 
 serviceDefinition
@@ -53,7 +54,7 @@ serviceBody
     ;
 
 resourceDefinition
-    :   documentationString? annotationAttachment* deprecatedAttachment? Identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS callableUnitBody
+    :   documentationString? annotationAttachment* deprecatedAttachment? Identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS returnParameter? callableUnitBody
     ;
 
 resourceParameterList
@@ -67,7 +68,7 @@ callableUnitBody
 
 
 functionDefinition
-    :   (PUBLIC)? (EXTERN)? FUNCTION ((Identifier | typeName) DOUBLE_COLON)? callableUnitSignature (callableUnitBody | SEMICOLON)
+    :   (PUBLIC)? (EXTERN)? FUNCTION ((Identifier | typeName) DOT)? callableUnitSignature (callableUnitBody | SEMICOLON)
     ;
 
 lambdaFunction
@@ -152,6 +153,10 @@ annotationDefinition
     :   (PUBLIC)? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier userDefineTypeName? SEMICOLON
     ;
 
+constantDefinition
+    :   PUBLIC? CONST typeName? Identifier ASSIGN expression SEMICOLON
+    ;
+
 globalVariableDefinition
     :   (PUBLIC)? typeName Identifier (ASSIGN expression )? SEMICOLON
     |   channelType Identifier SEMICOLON
@@ -218,12 +223,13 @@ typeName
     ;
 
 recordFieldDefinitionList
-    :   fieldDefinition* recordRestFieldDefinition?
+    :   (fieldDefinition | typeReference)* recordRestFieldDefinition?
     ;
 
 // Temporary production rule name
 simpleTypeName
     :   TYPE_ANY
+    |   TYPE_ANYDATA
     |   TYPE_DESC
     |   valueTypeName
     |   referenceTypeName
@@ -244,6 +250,7 @@ valueTypeName
     |   TYPE_INT
     |   TYPE_BYTE
     |   TYPE_FLOAT
+    |   TYPE_DECIMAL
     |   TYPE_STRING
     ;
 
@@ -254,11 +261,16 @@ builtInReferenceTypeName
     |   TYPE_JSON (LT nameReference GT)?
     |   TYPE_TABLE (LT nameReference GT)?
     |   TYPE_STREAM (LT typeName GT)?
+    |   errorTypeName
     |   functionTypeName
     ;
 
 functionTypeName
     :   FUNCTION LEFT_PARENTHESIS (parameterList | parameterTypeNameList)? RIGHT_PARENTHESIS returnParameter?
+    ;
+
+errorTypeName
+    :   TYPE_ERROR (LT typeName (COMMA typeName)? GT)?
     ;
 
 xmlNamespaceName
@@ -280,6 +292,7 @@ statement
     :   variableDefinitionStatement
     |   assignmentStatement
     |   tupleDestructuringStatement
+    |   recordDestructuringStatement
     |   compoundAssignmentStatement
     |   ifElseStatement
     |   matchStatement
@@ -290,6 +303,7 @@ statement
     |   forkJoinStatement
     |   tryCatchStatement
     |   throwStatement
+    |   panicStatement
     |   returnStatement
     |   workerInteractionStatement
     |   expressionStmt
@@ -306,7 +320,8 @@ statement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier (ASSIGN expression)? SEMICOLON
+    :   typeName Identifier SEMICOLON
+    |   (typeName | VAR) bindingPattern ASSIGN expression SEMICOLON
     ;
 
 recordLiteral
@@ -351,18 +366,16 @@ arrayLiteral
     :   LEFT_BRACKET expressionList? RIGHT_BRACKET
     ;
 
-typeInitExpr
-    :   NEW (LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS)?
-    |   NEW userDefineTypeName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
-    ;
-
 assignmentStatement
-    :   (VAR)? variableReference ASSIGN expression SEMICOLON
+    :   variableReference ASSIGN expression SEMICOLON
     ;
 
 tupleDestructuringStatement
-    :   VAR? LEFT_PARENTHESIS variableReferenceList RIGHT_PARENTHESIS ASSIGN expression SEMICOLON
-    |   LEFT_PARENTHESIS parameterList RIGHT_PARENTHESIS ASSIGN expression SEMICOLON
+    :   tupleRefBindingPattern ASSIGN expression SEMICOLON
+    ;
+
+recordDestructuringStatement
+    :   VAR? recordRefBindingPattern ASSIGN expression SEMICOLON
     ;
 
 compoundAssignmentStatement
@@ -409,6 +422,72 @@ matchStatement
 matchPatternClause
     :   typeName EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
     |   typeName Identifier EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
+    |   simpleLiteral EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
+    |   VAR bindingPattern EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
+    ;
+
+bindingPattern
+    :   Identifier
+    |   structuredBindingPattern
+    ;
+
+structuredBindingPattern
+    :   tupleBindingPattern
+    |   recordBindingPattern
+    ;
+
+tupleBindingPattern
+    :   LEFT_PARENTHESIS bindingPattern (COMMA bindingPattern)+ RIGHT_PARENTHESIS
+    ;
+
+recordBindingPattern
+    :   LEFT_BRACE entryBindingPattern RIGHT_BRACE
+    ;
+
+entryBindingPattern
+    :   fieldBindingPattern (COMMA fieldBindingPattern)* (COMMA restBindingPattern)?
+    |   restBindingPattern
+    ;
+
+fieldBindingPattern
+    :   Identifier (COLON bindingPattern)?
+    ;
+
+restBindingPattern
+    :   ELLIPSIS Identifier
+    |   sealedLiteral
+    ;
+
+bindingRefPattern
+    :   variableReference
+    |   structuredRefBindingPattern
+    ;
+
+structuredRefBindingPattern
+    :   tupleRefBindingPattern
+    |   recordRefBindingPattern
+    ;
+
+tupleRefBindingPattern
+    :   LEFT_PARENTHESIS bindingRefPattern (COMMA bindingRefPattern)+ RIGHT_PARENTHESIS
+    ;
+
+recordRefBindingPattern
+    :   LEFT_BRACE entryRefBindingPattern RIGHT_BRACE
+    ;
+
+entryRefBindingPattern
+    :   fieldRefBindingPattern (COMMA fieldRefBindingPattern)* (COMMA restRefBindingPattern)?
+    |   restRefBindingPattern
+    ;
+
+fieldRefBindingPattern
+    :   Identifier (COLON bindingRefPattern)?
+    ;
+
+restRefBindingPattern
+    :   ELLIPSIS variableReference
+    |   sealedLiteral
     ;
 
 foreachStatement
@@ -467,25 +546,34 @@ timeoutClause
     :   TIMEOUT LEFT_PARENTHESIS expression RIGHT_PARENTHESIS LEFT_PARENTHESIS typeName Identifier RIGHT_PARENTHESIS  LEFT_BRACE statement* RIGHT_BRACE
     ;
 
+// Depricated since 0.983.0, use trap expressoin. TODO : Remove this.
 tryCatchStatement
     :   TRY LEFT_BRACE statement* RIGHT_BRACE catchClauses
     ;
 
+// TODO : Remove this.
 catchClauses
     :   catchClause+ finallyClause?
     |   finallyClause
     ;
 
+// TODO : Remove this.
 catchClause
     :   CATCH LEFT_PARENTHESIS typeName Identifier RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
     ;
 
+// TODO : Remove this.
 finallyClause
     :   FINALLY LEFT_BRACE statement* RIGHT_BRACE
     ;
 
+// Depricated since 0.983.0, use panic instead. TODO : Remove this.
 throwStatement
     :   THROW expression SEMICOLON
+    ;
+
+panicStatement
+    :   PANIC expression SEMICOLON
     ;
 
 returnStatement
@@ -624,25 +712,42 @@ expression
     |   lambdaFunction                                                      # lambdaFunctionExpression
     |   arrowFunction                                                       # arrowFunctionExpression
     |   typeInitExpr                                                        # typeInitExpression
+    |   errorConstructorExpr                                                # errorConstructorExpression
     |   tableQuery                                                          # tableQueryExpression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
     |   (ADD | SUB | BIT_COMPLEMENT | NOT | LENGTHOF | UNTAINT) expression  # unaryExpression
     |   LEFT_PARENTHESIS expression (COMMA expression)* RIGHT_PARENTHESIS   # bracedOrTupleExpression
     |	CHECK expression										            # checkedExpression
+    |   expression IS typeName                                              # typeTestExpression
     |   expression (DIV | MUL | MOD) expression                             # binaryDivMulModExpression
     |   expression (ADD | SUB) expression                                   # binaryAddSubExpression
     |   expression (shiftExpression) expression                             # bitwiseShiftExpression
     |   expression (LT_EQUAL | GT_EQUAL | GT | LT) expression               # binaryCompareExpression
     |   expression (EQUAL | NOT_EQUAL) expression                           # binaryEqualExpression
+    |   expression (REF_EQUAL | REF_NOT_EQUAL) expression                   # binaryRefEqualExpression
     |   expression (BIT_AND | BIT_XOR | PIPE) expression                    # bitwiseExpression
     |   expression AND expression                                           # binaryAndExpression
     |   expression OR expression                                            # binaryOrExpression
     |   expression (ELLIPSIS | HALF_OPEN_RANGE) expression                  # integerRangeExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
     |   awaitExpression                                                     # awaitExprExpression
+    |   trapExpr                                                            # trapExpression
     |	expression matchExpression										    # matchExprExpression
     |   expression ELVIS expression                                         # elvisExpression
     |   typeName                                                            # typeAccessExpression
+    ;
+
+typeInitExpr
+    :   NEW (LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS)?
+    |   NEW userDefineTypeName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
+    ;
+
+errorConstructorExpr
+    :   TYPE_ERROR LEFT_PARENTHESIS expression (COMMA expression)? RIGHT_PARENTHESIS
+    ;
+
+trapExpr
+    :   TRAP expression
     ;
 
 awaitExpression

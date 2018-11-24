@@ -20,7 +20,7 @@ type Age record {
 };
 
 type Person record {
-    string name;
+    string name = "";
     boolean married;
 };
 
@@ -42,10 +42,10 @@ function redeclaredSymbol() {
 
 function bindingPatternError() {
     Person p1 = {name: "John", married: true, age: 12};
-    Person {name1: fName1, married: maritalStatus1} = p1; // unknown field 'name1' in record type 'Person'
+    Person {name1: fName1, married: maritalStatus1} = p1;
 
     Person p2 = {name1: "John", married: true, age: 12};
-    Person {name1: fName2, married: maritalStatus2} = p2; // unknown field 'name1' in record type 'Person'
+    Person {name1: fName2, married: maritalStatus2} = p2;
 
     Person p3 = {name1: "John", married: true, age: 12};
     Person {name: fName3, married: maritalStatus3} = p3;
@@ -103,7 +103,7 @@ function testVariableAssignment2() {
 type UnionOne record {
     boolean var1;
     int var2;
-    float var3;
+    float var3 = 0;
 };
 
 type UnionTwo record {

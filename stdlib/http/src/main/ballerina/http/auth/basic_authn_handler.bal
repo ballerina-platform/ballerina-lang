@@ -20,18 +20,18 @@ import ballerina/log;
 import ballerina/runtime;
 
 # Authentication cache name.
-@final string AUTH_CACHE = "basic_auth_cache";
+const string AUTH_CACHE = "basic_auth_cache";
 
 # Defines Basic Auth handler for HTTP traffic.
 #
 # + name - Authentication handler name
 # + authStoreProvider - AuthStoreProvider instance
 public type HttpBasicAuthnHandler object {
-    public string name;
+    public string name = "basic";
     public auth:AuthStoreProvider authStoreProvider = new;
 
-    public new(authStoreProvider) {
-        self.name = "basic";
+    public function __init(auth:AuthStoreProvider authStoreProvider) {
+        self.authStoreProvider = authStoreProvider;
     }
 
     # Checks if the provided request can be authenticated with basic auth.

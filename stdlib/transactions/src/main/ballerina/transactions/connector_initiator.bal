@@ -17,46 +17,31 @@
 import ballerina/http;
 
 type InitiatorClientConfig record {
-    string registerAtURL;
-    int timeoutMillis;
+    string registerAtURL = "";
+    int timeoutMillis = 0;
     record {
-        int count;
-        int interval;
-    } retryConfig;
+        int count = 0;
+        int interval = 0;
+    } retryConfig = {};
 };
 
-type InitiatorClientEP object {
+type InitiatorClientEP client object {
     http:Client httpClient;
 
-    function init(InitiatorClientConfig conf) {
-        endpoint http:Client httpEP {
+    function __init(InitiatorClientConfig conf) {
+        http:Client httpEP = new({
             url:conf.registerAtURL,
             timeoutMillis:conf.timeoutMillis,
             retryConfig:{
                 count:conf.retryConfig.count, interval:conf.retryConfig.interval
             }
-        };
+        });
         self.httpClient = httpEP;
     }
 
-    function getCallerActions() returns InitiatorClient {
-        InitiatorClient client = new;
-        client.clientEP = self;
-        return client;
-    }
-};
-
-type InitiatorClient object {
-    InitiatorClientEP clientEP = new;
-
-    new() {
-
-    }
-
-    function register(string transactionId, int transactionBlockId, RemoteProtocol[] participantProtocols)
-        returns RegistrationResponse|error {
-
-        endpoint http:Client httpClient = self.clientEP.httpClient;
+    remote function register(string transactionId, int transactionBlockId, RemoteProtocol[] participantProtocols)
+                 returns RegistrationResponse|error {
+        http:Client httpClient = self.httpClient;
         string participantId = getParticipantId(transactionBlockId);
         RegistrationRequest regReq = {
             transactionId:transactionId, participantId:participantId, participantProtocols:participantProtocols

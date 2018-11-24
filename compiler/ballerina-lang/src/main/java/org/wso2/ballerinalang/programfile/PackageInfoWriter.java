@@ -193,6 +193,9 @@ public class PackageInfoWriter {
             writeResourceInfo(dataOutStream, serviceInfo);
         }
 
+        // Emit constant info entries
+        writeConstantInfoEntries(dataOutStream, packageInfo.getConstantInfoEntries());
+
         // Emit global variable info entries
         writeGlobalVarInfoEntries(dataOutStream, packageInfo.getPackageInfoEntries());
 
@@ -222,6 +225,18 @@ public class PackageInfoWriter {
 
 
     // Private methods
+
+    private static void writeConstantInfoEntries(DataOutputStream dataOutStream,
+                                                 ConstantInfo[] constantInfos) throws IOException {
+        dataOutStream.writeShort(constantInfos.length);
+        for (ConstantInfo constantInfo : constantInfos) {
+            dataOutStream.writeInt(constantInfo.nameCPIndex);
+            dataOutStream.writeInt(constantInfo.finiteTypeCPIndex);
+            dataOutStream.writeInt(constantInfo.valueTypeCPIndex);
+            dataOutStream.writeInt(constantInfo.flags);
+            writeAttributeInfoEntries(dataOutStream, constantInfo.getAttributeInfoEntries());
+        }
+    }
 
     private static void writeGlobalVarInfoEntries(DataOutputStream dataOutStream,
                                                   PackageVarInfo[] packageVarInfoEntry) throws IOException {
@@ -384,35 +399,17 @@ public class PackageInfoWriter {
                                          ServiceInfo serviceInfo) throws IOException {
         dataOutStream.writeInt(serviceInfo.nameCPIndex);
         dataOutStream.writeInt(serviceInfo.flags);
-        dataOutStream.writeInt(serviceInfo.endpointNameCPIndex);
+        dataOutStream.writeInt(serviceInfo.serviceTypeCPIndex);
+        dataOutStream.writeInt(serviceInfo.listenerTypeCPIndex);
+        dataOutStream.writeInt(serviceInfo.listenerNameCPIndex);
     }
 
     private static void writeResourceInfo(DataOutputStream dataOutStream,
                                           ServiceInfo serviceInfo) throws IOException {
-        ResourceInfo[] resourceInfoEntries = serviceInfo.resourceInfoMap.values().toArray(new ResourceInfo[0]);
-        dataOutStream.writeShort(resourceInfoEntries.length);
-        for (ResourceInfo resourceInfo : resourceInfoEntries) {
-            writeResourceInfo(dataOutStream, resourceInfo);
+        dataOutStream.writeShort(serviceInfo.resourcesCPIndex.size());
+        for (Integer resourceNameCPIndex : serviceInfo.resourcesCPIndex) {
+            dataOutStream.writeInt(resourceNameCPIndex);
         }
-
-        // Write attribute info entries
-        writeAttributeInfoEntries(dataOutStream, serviceInfo.getAttributeInfoEntries());
-    }
-
-    private static void writeResourceInfo(DataOutputStream dataOutStream,
-                                          ResourceInfo resourceInfo) throws IOException {
-        dataOutStream.writeInt(resourceInfo.nameCPIndex);
-        dataOutStream.writeInt(resourceInfo.signatureCPIndex);
-
-        int[] paramNameCPIndexes = resourceInfo.paramNameCPIndexes;
-        dataOutStream.writeShort(paramNameCPIndexes.length);
-        for (int paramNameCPIndex : paramNameCPIndexes) {
-            dataOutStream.writeInt(paramNameCPIndex);
-        }
-
-        writeWorkerData(dataOutStream, resourceInfo);
-
-        writeAttributeInfoEntries(dataOutStream, resourceInfo.getAttributeInfoEntries());
     }
 
     private static void writeWorkerInfo(DataOutputStream dataOutStream,

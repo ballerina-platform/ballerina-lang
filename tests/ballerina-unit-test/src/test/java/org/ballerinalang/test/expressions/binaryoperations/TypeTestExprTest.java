@@ -109,9 +109,9 @@ public class TypeTestExprTest {
         BAssertUtil.validateError(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 188, 23);
         BAssertUtil.validateError(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 221, 8);
+                "unnecessary condition: expression will always evaluate to 'true'", 226, 8);
         BAssertUtil.validateError(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 225, 9);
+                "unnecessary condition: expression will always evaluate to 'true'", 230, 9);
     }
 
     @Test
@@ -480,5 +480,21 @@ public class TypeTestExprTest {
         Assert.assertSame(returns[1].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "on");
         Assert.assertEquals(returns[1].stringValue(), "on");
+    }
+
+    @Test
+    public void testFiniteType_1() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteType_1");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "a is a fruit");
+    }
+
+    @Test
+    public void testFiniteType_2() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteType_2");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "a is an Apple");
     }
 }

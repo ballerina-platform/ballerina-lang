@@ -18,18 +18,18 @@ import ballerina/config;
 import ballerina/http;
 import ballerina/log;
 
-@final string BASE_PATH = "/websub";
-@final string HUB_PATH = "/hub";
+const string BASE_PATH = "/websub";
+const string HUB_PATH = "/hub";
 
-@final string DEFAULT_HOST = "0.0.0.0";
-@final int DEFAULT_LEASE_SECONDS_VALUE = 86400; //one day
-@final string DEFAULT_SIGNATURE_METHOD = "SHA256";
+const string DEFAULT_HOST = "0.0.0.0";
+const int DEFAULT_LEASE_SECONDS_VALUE = 86400; //one day
+const string DEFAULT_SIGNATURE_METHOD = "SHA256";
 
 //TODO: Fix persistence configs, H2?
-@final string DEFAULT_DB_DIRECTORY = "/tmp/websubdb";
-@final string DEFAULT_DB_NAME = "HUB_DB";
-@final string DEFAULT_DB_USERNAME = "sa";
-@final string DEFAULT_DB_PASSWORD = "";
+const string DEFAULT_DB_DIRECTORY = "/tmp/websubdb";
+const string DEFAULT_DB_NAME = "HUB_DB";
+const string DEFAULT_DB_USERNAME = "sa";
+const string DEFAULT_DB_PASSWORD = "";
 
 @readonly string hubHost = DEFAULT_HOST;
 @readonly int hubPort = 0;
@@ -40,11 +40,11 @@ import ballerina/log;
 @readonly boolean hubTopicRegistrationRequired = false;
 @readonly string hubPublicUrl = "";
 
-@final boolean hubPersistenceEnabled = config:getAsBoolean("b7a.websub.hub.enablepersistence");
-@final string hubDatabaseDirectory = config:getAsString("b7a.websub.hub.db.directory", default = DEFAULT_DB_DIRECTORY);
-@final string hubDatabaseName = config:getAsString("b7a.websub.hub.db.name", default = DEFAULT_DB_NAME);
-@final string hubDatabaseUsername = config:getAsString("b7a.websub.hub.db.username", default = DEFAULT_DB_USERNAME);
-@final string hubDatabasePassword = config:getAsString("b7a.websub.hub.db.password", default = DEFAULT_DB_PASSWORD);
+final boolean hubPersistenceEnabled = config:getAsBoolean("b7a.websub.hub.enablepersistence");
+final string hubDatabaseDirectory = config:getAsString("b7a.websub.hub.db.directory", default = DEFAULT_DB_DIRECTORY);
+final string hubDatabaseName = config:getAsString("b7a.websub.hub.db.name", default = DEFAULT_DB_NAME);
+final string hubDatabaseUsername = config:getAsString("b7a.websub.hub.db.username", default = DEFAULT_DB_USERNAME);
+final string hubDatabasePassword = config:getAsString("b7a.websub.hub.db.password", default = DEFAULT_DB_PASSWORD);
 //TODO:add pool options
 
 @readonly boolean hubSslEnabled = false;
@@ -53,16 +53,14 @@ import ballerina/log;
 
 # Function to bind and start the Ballerina WebSub Hub service.
 #
-# + return - The `http:Listener` to which the service is bound
-function startHubService() returns http:Listener {
-    http:Listener hubServiceEP = new;
-    hubServiceEP.init({
-            host: hubHost,
-            port: hubPort,
-            secureSocket: hubServiceSecureSocket
-    });
-    hubServiceEP.register(hubService);
-    hubServiceEP.start();
+# + return - The `http:Server` to which the service is bound
+function startHubService() returns http:Server {
+    http:ServiceEndpointConfiguration httpEpConfig = {host: hubHost, port: hubPort,
+                                                      secureSocket: hubServiceSecureSocket};
+    http:Server hubServiceEP = new http:Server(hubPort, config = httpEpConfig);
+    // TODO : handle errors
+    _ = hubServiceEP.__attach(hubService, {});
+    _ = hubServiceEP.__start();
     return hubServiceEP;
 }
 

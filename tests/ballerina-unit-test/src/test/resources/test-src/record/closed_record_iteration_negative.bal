@@ -1,20 +1,20 @@
 type ClosedPerson record {
-    string name;
-    int age;
-    ClosedAddress address;
+    string name = "";
+    int age = 0;
+    ClosedAddress address = {};
     !...
 };
 
 type ClosedAddress record {
-    string street;
-    string city;
+    string street = "";
+    string city = "";
     !...
 };
 
 type ClosedGrades record {
-    int maths;
-    int physics;
-    int chemistry;
+    int maths = 0;
+    int physics = 0;
+    int chemistry = 0;
     !...
 };
 

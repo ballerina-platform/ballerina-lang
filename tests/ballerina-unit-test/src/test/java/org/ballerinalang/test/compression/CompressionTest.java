@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BByteArray;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -68,6 +69,7 @@ public class CompressionTest {
         Assert.assertEquals(file.exists() && !file.isDirectory(), true);
     }
 
+    @SuppressWarnings("unchecked")
     @Test(description = "test unzipping/decompressing a compressed file without src directory path")
     public void testDecompressFileWithoutSrcDirectory() throws IOException, URISyntaxException {
         String destDirPath = getAbsoluteFilePath("datafiles/compression/");
@@ -76,12 +78,13 @@ public class CompressionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "decompressFile", inputArg);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
+        Assert.assertFalse(returns.length == 0 || returns[0] == null,
                            "Invalid Return Values.");
-        Assert.assertTrue(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue()
+        Assert.assertTrue(((BMap) ((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue()
                 .contains("Path of the folder to be decompressed is not available"));
     }
 
+    @SuppressWarnings("unchecked")
     @Test(description = "test unzipping/decompressing a compressed file without destination directory path")
     public void testDecompressFileWithoutDestDirectory() throws IOException, URISyntaxException {
         String resourceToRead = getAbsoluteFilePath("datafiles/compression/hello.zip");
@@ -90,12 +93,13 @@ public class CompressionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "decompressFile", inputArg);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
+        Assert.assertFalse(returns.length == 0 || returns[0] == null,
                            "Invalid Return Values.");
-        Assert.assertTrue(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue()
+        Assert.assertTrue(((BMap) ((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue()
                 .contains("Path to place the decompressed file is not available"));
     }
 
+    @SuppressWarnings("unchecked")
     @Test(description = "test unzipping/decompressing a compressed file with incorrect src directory path")
     public void testDecompressFileWithIncorrectSrcDirectory() throws IOException, URISyntaxException {
         String resourceToRead = getAbsoluteFilePath("datafiles/compression/sample.zip");
@@ -106,12 +110,13 @@ public class CompressionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "decompressFile", inputArg);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
+        Assert.assertFalse(returns.length == 0 || returns[0] == null,
                            "Invalid Return Values.");
-        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue()
+        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue()
                 .startsWith("Path of the folder to be decompressed is not available"), true);
     }
 
+    @SuppressWarnings("unchecked")
     @Test(description = "test unzipping/decompressing a compressed file with incorrect src directory path")
     public void testDecompressFileWithIncorrectDestDirectory() throws IOException, URISyntaxException {
         String resourceToRead = getAbsoluteFilePath("datafiles/compression/hello.zip");
@@ -122,9 +127,9 @@ public class CompressionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "decompressFile", inputArg);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
+        Assert.assertFalse(returns.length == 0 || returns[0] == null,
                            "Invalid Return Values.");
-        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue()
+        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue()
                 .startsWith("Path to place the decompressed file is not available"), true);
     }
 
@@ -166,6 +171,7 @@ public class CompressionTest {
 
     }
 
+    @SuppressWarnings("unchecked")
     @Test(description = "test zipping/compressing a file without providing a name for the zipped file")
     public void testCompressFileWithoutInvalidName() throws IOException, URISyntaxException {
         String resourceToRead = getAbsoluteFilePath("datafiles/compression/my.app");
@@ -175,11 +181,12 @@ public class CompressionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "compressFile", inputArg);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue()
+        Assert.assertFalse(returns.length == 0 || returns[0] == null, "Invalid Return Values.");
+        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue()
                 .startsWith("Error occurred when compressing"), true);
     }
 
+    @SuppressWarnings("unchecked")
     @Test(description = "test zipping/compressing a file without src directory path")
     public void testCompressFileWithoutSrcDirectory() throws IOException, URISyntaxException {
         String destDirPath = getAbsoluteFilePath("datafiles/compression/");
@@ -188,11 +195,12 @@ public class CompressionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "compressFile", inputArg);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null, "Invalid Return Values.");
-        Assert.assertTrue(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue()
+        Assert.assertFalse(returns.length == 0 || returns[0] == null, "Invalid Return Values.");
+        Assert.assertTrue(((BMap) ((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue()
                 .contains("Path of the folder to be compressed is not available"));
     }
 
+    @SuppressWarnings("unchecked")
     @Test(description = "test zipping/compressing a file without destination directory path")
     public void testCompressFileWithoutDestinationDirectory() throws IOException, URISyntaxException {
         String resourceToRead = getAbsoluteFilePath("datafiles/compression/my.app");
@@ -201,11 +209,12 @@ public class CompressionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "compressFile", inputArg);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue()
+        Assert.assertFalse(returns.length == 0 || returns[0] == null, "Invalid Return Values.");
+        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue()
                 .startsWith("Error occurred when compressing"), true);
     }
 
+    @SuppressWarnings("unchecked")
     @Test(description = "test zipping/compressing a file without destination directory path")
     public void testCompressFileWithIncorrectSrcDirectory() throws IOException, URISyntaxException {
         String resourceToRead = getAbsoluteFilePath("datafiles/compression/sample.zip");
@@ -214,8 +223,8 @@ public class CompressionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "compressFile", inputArg);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null, "Invalid Return Values.");
-        Assert.assertTrue(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue()
+        Assert.assertFalse(returns.length == 0 || returns[0] == null, "Invalid Return Values.");
+        Assert.assertTrue(((BMap) ((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue()
                 .contains("Path of the folder to be compressed is not available"));
     }
 
@@ -240,6 +249,7 @@ public class CompressionTest {
         Assert.assertEquals(f3.exists() && f3.isDirectory(), true);
     }
 
+    @SuppressWarnings("unchecked")
     @Test(description = "test unzipping/decompressing a byte array without the content as a blob/byte array")
     public void testDecompressBlobWithoutBytes() throws IOException, URISyntaxException {
         String dirPath = getAbsoluteFilePath("datafiles/compression/");
@@ -249,11 +259,12 @@ public class CompressionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "decompressBlob", inputArg);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue(),
+        Assert.assertFalse(returns.length == 0 || returns[0] == null, "Invalid Return Values.");
+        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue(),
                 "Length of the byte array is empty");
     }
 
+    @SuppressWarnings("unchecked")
     @Test(description = "test unzipping/decompressing a byte array without the destination directory path")
     public void testDecompressBlobWithoutDestDirectory() throws IOException, URISyntaxException {
         String dirPath = getAbsoluteFilePath("datafiles/compression/");
@@ -264,11 +275,12 @@ public class CompressionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "decompressBlob", inputArg);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue(),
+        Assert.assertFalse(returns.length == 0 || returns[0] == null, "Invalid Return Values.");
+        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue(),
                 "Path to place the decompressed file is not available");
     }
 
+    @SuppressWarnings("unchecked")
     @Test(description = "test unzipping/decompressing a byte array with an incorrect destination directory path")
     public void testDecompressBlobWithIncorrectDestDir() throws IOException, URISyntaxException {
         String dirPath = getAbsoluteFilePath("datafiles/compression/");
@@ -280,8 +292,8 @@ public class CompressionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "decompressBlob", inputArg);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue(),
+        Assert.assertFalse(returns.length == 0 || returns[0] == null, "Invalid Return Values.");
+        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue(),
                 "Path to place the decompressed file is not available");
     }
 
@@ -304,17 +316,19 @@ public class CompressionTest {
 
     }
 
+    @SuppressWarnings("unchecked")
     @Test(description = "test zipping/compressing a file to a byte array when the src directory is not given")
     public void testCompressToBlobWithoutSrcDir() throws IOException, URISyntaxException {
         BValue[] inputArg = {new BString("")};
         BValue[] returns = BRunUtil.invoke(compileResult, "compressDirToBlob", inputArg);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null, "Invalid Return Values.");
-        Assert.assertTrue(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue()
+        Assert.assertFalse(returns.length == 0 || returns[0] == null, "Invalid Return Values.");
+        Assert.assertTrue(((BMap) ((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue()
                 .contains("Path of the folder to be compressed is not available"));
     }
 
+    @SuppressWarnings("unchecked")
     @Test(description = "test zipping/compressing a file to a byte array when an incorrect src directory is given")
     public void testCompressToBlobWithIncorrectSrcDir() throws IOException, URISyntaxException {
         String dirPath = getAbsoluteFilePath("datafiles/compression/");
@@ -323,12 +337,13 @@ public class CompressionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "compressDirToBlob", inputArg);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null, "Invalid Return Values.");
-        Assert.assertTrue(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue()
+        Assert.assertFalse(returns.length == 0 || returns[0] == null, "Invalid Return Values.");
+        Assert.assertTrue(((BMap) ((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue()
                 .contains("Path of the folder to be compressed is not available"));
 
     }
 
+    @SuppressWarnings("unchecked")
     @Test(description = "test unzipping/decompressing a file with Zip Slip attack pattern")
     public void testDecompressBlobWithZipSlipAttackPattern() throws IOException, URISyntaxException {
         String dirPath = getAbsoluteFilePath("datafiles/compression/");
@@ -340,9 +355,8 @@ public class CompressionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "decompressBlob", inputArg);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
-                "Invalid Return Values.");
-        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue(),
+        Assert.assertFalse(returns.length == 0 || returns[0] == null, "Invalid Return Values.");
+        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get(ERROR_MESSAGE_FIELD).stringValue(),
                 "Arbitrary File Write attack attempted via an " +
                 "archive file. File name: ../../../../../../../../../../../../../../../../../../../../../../../../.." +
                 "/../../../../../../../../../../../../../../../tmp/evil.txt");

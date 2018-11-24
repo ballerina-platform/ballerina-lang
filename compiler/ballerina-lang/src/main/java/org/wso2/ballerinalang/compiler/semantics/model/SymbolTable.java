@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
@@ -42,6 +43,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BSemanticErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -58,6 +60,7 @@ import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -73,8 +76,8 @@ public class SymbolTable {
             new CompilerContext.Key<>();
 
     public static final PackageID BUILTIN = new PackageID(Names.BUILTIN_ORG,
-                                                          Names.BUILTIN_PACKAGE,
-                                                          Names.EMPTY);
+            Names.BUILTIN_PACKAGE,
+            Names.EMPTY);
     public static final PackageID RUNTIME = new PackageID(Names.BUILTIN_ORG,
             Names.RUNTIME_PACKAGE,
             Names.EMPTY);
@@ -105,12 +108,12 @@ public class SymbolTable {
     public final BType mapType = new BMapType(TypeTags.MAP, anyType, null);
     public final BType futureType = new BFutureType(TypeTags.FUTURE, nilType, null);
     public final BType xmlAttributesType = new BXMLAttributesType(TypeTags.XML_ATTRIBUTES);
-    public final BType endpointType = new BType(TypeTags.ENDPOINT, null);
     public final BType arrayType = new BArrayType(noType);
     public final BType tupleType = new BTupleType(Lists.of(noType));
     public final BType recordType = new BRecordType(null);
     public final BType intArrayType = new BArrayType(intType);
     public final BType channelType = new BChannelType(TypeTags.CHANNEL, anyType, null);
+    public final BType anyServiceType = new BServiceType(null);
 
     public final BTypeSymbol errSymbol;
     public final BType semanticError;
@@ -160,6 +163,7 @@ public class SymbolTable {
         initializeType(anydataType, TypeKind.ANYDATA.typeName());
         initializeType(nilType, TypeKind.NIL.typeName());
         initializeType(channelType, TypeKind.CHANNEL.typeName());
+        initializeType(anyServiceType, TypeKind.SERVICE.typeName());
 
         // Initialize semantic error type;
         this.semanticError = new BSemanticErrorType(null);
@@ -517,6 +521,16 @@ public class SymbolTable {
         defineBuiltinMethod(BLangBuiltInMethod.IS_NAN, floatType, booleanType, InstructionCodes.NOP);
         defineBuiltinMethod(BLangBuiltInMethod.IS_FINITE, floatType, booleanType, InstructionCodes.NOP);
         defineBuiltinMethod(BLangBuiltInMethod.IS_INFINITE, floatType, booleanType, InstructionCodes.NOP);
+
+        //clone related methods
+        defineBuiltinMethod(BLangBuiltInMethod.CLONE, anydataType, anydataType, InstructionCodes.CLONE);
+        defineBuiltinMethod(BLangBuiltInMethod.CLONE, intType, intType, InstructionCodes.CLONE);
+        defineBuiltinMethod(BLangBuiltInMethod.CLONE, floatType, floatType, InstructionCodes.CLONE);
+        defineBuiltinMethod(BLangBuiltInMethod.CLONE, decimalType, decimalType, InstructionCodes.CLONE);
+        defineBuiltinMethod(BLangBuiltInMethod.CLONE, booleanType, booleanType, InstructionCodes.CLONE);
+        defineBuiltinMethod(BLangBuiltInMethod.CLONE, stringType, stringType, InstructionCodes.CLONE);
+        defineBuiltinMethod(BLangBuiltInMethod.CLONE, byteType, byteType, InstructionCodes.CLONE);
+        defineBuiltinMethod(BLangBuiltInMethod.CLONE, xmlType, xmlType, InstructionCodes.CLONE);
     }
 
     private void defineBuiltinMethod(BLangBuiltInMethod method, BType type, BType retType, int opcode) {
@@ -524,7 +538,7 @@ public class SymbolTable {
     }
 
     private void defineBuiltinMethod(BLangBuiltInMethod method, BType type, List<BType> args, BType retType,
-            int opcode) {
+                                     int opcode) {
         List<BType> paramTypes = Lists.of(type);
         paramTypes.addAll(args);
         defineOperator(names.fromString(method.getName()), paramTypes, retType, opcode);
@@ -598,5 +612,26 @@ public class SymbolTable {
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
         BOperatorSymbol symbol = new BOperatorSymbol(name, rootPkgSymbol.pkgID, opType, rootPkgSymbol, opcode);
         rootScope.define(name, symbol);
+    }
+
+    public BOperatorSymbol createOperator(Name name,
+                                          List<BType> paramTypes,
+                                          BType retType,
+                                          int opcode) {
+        BInvokableType opType = new BInvokableType(paramTypes, retType, null);
+        BOperatorSymbol symbol = new BOperatorSymbol(name, rootPkgSymbol.pkgID, opType, rootPkgSymbol, opcode);
+
+        List<BVarSymbol> symbolList = new ArrayList<>();
+        for (BType type : paramTypes) {
+            BVarSymbol targetVarSymbol = new BVarSymbol(0, new Name("_"), rootPkgSymbol.pkgID,
+                    type, rootPkgSymbol);
+
+            symbolList.add(targetVarSymbol);
+        }
+
+        symbol.params = symbolList;
+        symbol.retType = retType;
+        rootScope.define(name, symbol);
+        return symbol;
     }
 }

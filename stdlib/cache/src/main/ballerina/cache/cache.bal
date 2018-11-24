@@ -19,10 +19,10 @@ import ballerina/task;
 import ballerina/time;
 
 # Cache cleanup task starting delay in ms.
-@final int CACHE_CLEANUP_START_DELAY = 0;
+const int CACHE_CLEANUP_START_DELAY = 0;
 
 # Cache cleanup task invoking interval in ms.
-@final int CACHE_CLEANUP_INTERVAL = 5000;
+const int CACHE_CLEANUP_INTERVAL = 5000;
 
 # Map which stores all of the caches.
 map<Cache> cacheMap = {};
@@ -49,7 +49,8 @@ public type Cache object {
     private float evictionFactor;
     private string uuid;
 
-    public new(expiryTimeMillis = 900000, capacity = 100, evictionFactor = 0.25) {
+    public function __init(int expiryTimeMillis = 900000, int capacity = 100, float evictionFactor = 0.25) {
+
         // Cache expiry time must be a positive value.
         if (expiryTimeMillis <= 0) {
             error e = error("Expiry time must be greater than 0.");
@@ -70,6 +71,9 @@ public type Cache object {
         // track of the UUID.
         self.uuid = system:uuid();
         cacheMap[self.uuid] = self;
+        self.expiryTimeMillis = expiryTimeMillis;
+        self.capacity = capacity;
+        self.evictionFactor = evictionFactor;
     }
 
     # Checks whether the given key has an accociated cache value.

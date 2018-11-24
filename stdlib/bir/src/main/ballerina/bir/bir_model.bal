@@ -1,35 +1,35 @@
 public type PackageId record {
-    string name;
-    string versionValue;
-    string org;
+    string name = "";
+    string versionValue = "";
+    string org = "";
 };
 
 public type Package record {
-    Function[] functions;
-    Name name;
-    Name org;
-    BType[] types;
-    Name versionValue;
+    Function[] functions = [];
+    Name name = {};
+    Name org = {};
+    BType[] types = [];
+    Name versionValue = {};
 };
 
 public type Function record {
-    int argsCount;
-    BasicBlock[] basicBlocks;
-    boolean isDeclaration;
-    VariableDcl[] localVars;
-    Name name;
-    BInvokableType typeValue;
-    Visibility visibility;
+    int argsCount = 0;
+    BasicBlock[] basicBlocks = [];
+    boolean isDeclaration = false;
+    VariableDcl[] localVars = [];
+    Name name = {};
+    BInvokableType typeValue = {};
+    Visibility visibility = "PACKAGE_PRIVATE";
 };
 
 public type BasicBlock record {
-    Name id;
-    Instruction[] instructions;
-    Terminator terminator;
+    Name id = {};
+    Instruction[] instructions = [];
+    Terminator terminator = new Return("RETURN");
 };
 
 public type Name record {
-    string value;
+    string value = "";
 };
 
 public type Instruction Move|BinaryOp|ConstantLoad;
@@ -58,9 +58,9 @@ public type ArgVarKind "ARG";
 public type VarKind "LOCAL" | "TEMP" | "RETURN" | ArgVarKind;
 
 public type VariableDcl record {
-    VarKind kind;
-    Name name;
-    BType typeValue;
+    VarKind kind = "LOCAL";
+    Name name = {};
+    BType typeValue = "()";
 };
 
 public type BTypeNil "()";
@@ -73,29 +73,29 @@ public type BType BTypeInt | BTypeBoolean | BTypeNil;
 
 
 public type BTypeSymbol record {
-    boolean closure;
-    DocAttachment documentationValue;
-    int flags;
-    boolean isLabel;
-    SymbolKind kind;
-    Name name;
+    boolean closure = false;
+    DocAttachment documentationValue = {};
+    int flags = 0;
+    boolean isLabel = false;
+    SymbolKind kind = "OTHER";
+    Name name = {};
 //BSymbol owner;
-    PackageID pkgID;
-    Scope scopeValue;
-    int tag;
-    boolean tainted;
-    BType typeValue;
+    PackageID pkgID = {};
+    Scope scopeValue = {};
+    int tag = 0;
+    boolean tainted = false;
+    BType typeValue = "()";
 };
 //
 public type DocAttachment record {
-    DocAttribute[] attributes;
-    string description;
+    DocAttribute[] attributes = [];
+    string description = "";
 };
 
 public type DocAttribute record {
-    string description;
+    string description = "";
     DocTag docTag;
-    string name;
+    string name = "";
 };
 
 public type DocTag "RETURN"|"PARAM"|"RECEIVER"|"FIELD"|"VARIABLE"|"ENDPOINT";
@@ -105,29 +105,29 @@ public type SymbolKind "PACKAGE"|"STRUCT"|"OBJECT"|"RECORD"|"ENUM"|"CONNECTOR"|"
 "LOCAL_VARIABLE"|"SERVICE_VARIABLE"|"CONNECTOR_VARIABLE"|"CAST_OPERATOR"|"CONVERSION_OPERATOR"|"XMLNS"|"SCOPE"|"OTHER";
 
 public type BSymbol record {
-    boolean closure;
-    DocAttachment documentationValue;
-    int flags;
-    SymbolKind kind;
-    Name name;
+    boolean closure = false;
+    DocAttachment documentationValue = {};
+    int flags = 0;
+    SymbolKind kind = "OTHER";
+    Name name = {};
 //BSymbol owner;
-    PackageID pkgID;
+    PackageID pkgID = {};
 //Scope scopeValue;
-    int tag;
-    boolean tainted;
-    BType typeValue;
+    int tag = 0;
+    boolean tainted = false;
+    BType typeValue = "()";
 };
 
 public type PackageID record {
-    Name orgName;
-    Name sourceFileName;
-    Name versionValue;
+    Name orgName = {};
+    Name sourceFileName = {};
+    Name versionValue = {};
 };
 
 public type Scope record {
 //ScopeEntry NOT_FOUND_ENTRY;
 //Map entries;
-    BSymbol owner;
+    BSymbol owner = {};
 };
 //
 //type ScopeEntry record {
@@ -136,8 +136,8 @@ public type Scope record {
 //};
 
 public type BInvokableType record {
-    BType[] paramTypes;
-    BType retType;
+    BType[] paramTypes = [];
+    BType retType = "()";
 };
 
 public type Visibility "PACKAGE_PRIVATE"|"PRIVATE"|"PUBLIC";
@@ -148,14 +148,23 @@ public type ConstantLoad object {
     public VarRef lhsOp;
     public BType typeValue;
     public int value;
-    public new(kind, lhsOp, typeValue, value) {}
+    public function __init(InstructionKind kind, VarRef lhsOp, BType typeValue, int value) {
+        self.kind = kind;
+        self.lhsOp = lhsOp;
+        self.typeValue = typeValue;
+        self.value = value;
+    }
 };
 
 public type VarRef object {
     public Kind kind;
     public BType typeValue;
     public VariableDcl variableDcl;
-    public new(kind, typeValue, variableDcl) {}
+    public function __init(Kind kind, BType typeValue, VariableDcl variableDcl) {
+        self.kind = kind;
+        self.typeValue = typeValue;
+        self.variableDcl = variableDcl;
+    }
 };
 
 public type Kind "VAR_REF"|"CONST";
@@ -164,7 +173,11 @@ public type Move object {
     public InstructionKind kind;
     public VarRef lhsOp;
     public Operand rhsOp;
-    public new(kind, lhsOp, rhsOp) {}
+    public function __init(InstructionKind kind, VarRef lhsOp, Operand rhsOp) {
+        self.kind = kind;
+        self.lhsOp = lhsOp;
+        self.rhsOp = rhsOp;
+    }
 };
 
 public type Operand VarRef;
@@ -175,7 +188,13 @@ public type BinaryOp object {
     public Operand rhsOp1;
     public Operand rhsOp2;
     public BType typeValue;
-    public new(kind, lhsOp, rhsOp1, rhsOp2, typeValue) {}
+    public function __init(BinaryOpInstructionKind kind, VarRef lhsOp, Operand rhsOp1, Operand rhsOp2, BType typeValue) {
+        self.kind = kind;
+        self.lhsOp = lhsOp;
+        self.rhsOp1 = rhsOp1;
+        self.rhsOp2 = rhsOp2;
+        self.typeValue= typeValue;
+    }
 };
 
 public type Call object {
@@ -184,7 +203,13 @@ public type Call object {
     public VarRef? lhsOp;
     public Name name;
     public BasicBlock thenBB;
-    public new (args, kind, lhsOp, name, thenBB){}
+    public function __init(Operand[] args, InstructionKind kind, VarRef? lhsOp, Name name, BasicBlock thenBB) {
+        self.args = args;
+        self.kind = kind;
+        self.lhsOp = lhsOp;
+        self.name = name;
+        self.thenBB = thenBB;
+    }
 };
 
 public type Branch object {
@@ -192,16 +217,26 @@ public type Branch object {
     public InstructionKind kind;
     public Operand op;
     public BasicBlock trueBB;
-    public new(falseBB, kind, op, trueBB) {}
+    public function __init(BasicBlock falseBB, InstructionKind kind, Operand op, BasicBlock trueBB) {
+        self.falseBB = falseBB;
+        self.kind = kind;
+        self.op = op;
+        self.trueBB = trueBB;
+    }
 };
 //
 public type GOTO object {
     public InstructionKind kind;
     public BasicBlock targetBB;
-    public new(kind, targetBB) {}
+    public function __init(InstructionKind kind, BasicBlock targetBB) {
+        self.kind = kind;
+        self.targetBB = targetBB;
+    }
 };
 //
 public type Return object {
     public InstructionKind kind;
-    public new(kind) {}
+    public function __init(InstructionKind kind) {
+        self.kind = kind;
+    }
 };

@@ -35,7 +35,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -119,7 +118,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     public void visit(BLangFunction funcNode) {
         // Check for native functions
         BSymbol funcSymbol = funcNode.symbol;
-        if (Symbols.isNative(funcSymbol)) {
+        if (Symbols.isNative(funcSymbol) || !CommonUtil.isValidInvokableSymbol(funcSymbol)) {
             return;
         }
 
@@ -205,27 +204,6 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
         if (resourceNode.body != null) {
             this.acceptNode(resourceNode.body);
-        }
-    }
-
-    @Override
-    public void visit(BLangAction actionNode) {
-        if (isReferenced(actionNode.name.getValue(), actionNode.symbol.owner, actionNode.symbol.pkgID,
-                         actionNode.symbol.owner.pkgID)) {
-            addLocation(actionNode, actionNode.symbol.pkgID.name.getValue(),
-                        actionNode.symbol.pkgID.name.getValue());
-        }
-
-        if (actionNode.requiredParams != null) {
-            actionNode.requiredParams.forEach(this::acceptNode);
-        }
-
-        if (actionNode.body != null) {
-            acceptNode(actionNode.body);
-        }
-
-        if (actionNode.workers != null) {
-            actionNode.workers.forEach(this::acceptNode);
         }
     }
 
@@ -584,7 +562,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchStmtTypedBindingPatternClause patternClauseNode) {
+    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClauseNode) {
         if (patternClauseNode.variable != null) {
             this.acceptNode(patternClauseNode.variable);
         }
@@ -595,7 +573,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchStmtStaticBindingPatternClause patternClauseNode) {
+    public void visit(BLangMatch.BLangMatchStaticBindingPatternClause patternClauseNode) {
         /*ignore*/
     }
 

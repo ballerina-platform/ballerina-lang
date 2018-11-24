@@ -151,40 +151,16 @@ public abstract class ServerCallHandler {
         ProgramFile programFile = getProgramFile(resource);
         // generate client responder struct on request message with response observer and response msg type.
         BMap<String, BValue> clientEndpoint = BLangConnectorSPIUtil.createBStruct(programFile,
-                GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC, GrpcConstants.CALLER_ACTION);
+                GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC, GrpcConstants.CALLER);
         clientEndpoint.addNativeData(GrpcConstants.RESPONSE_OBSERVER, responseObserver);
         clientEndpoint.addNativeData(GrpcConstants.RESPONSE_MESSAGE_DEFINITION, methodDescriptor.getOutputType());
 
         // create endpoint type instance on request.
         BMap<String, BValue> endpoint = BLangConnectorSPIUtil.createBStruct(programFile,
-                GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC, GrpcConstants.SERVICE_ENDPOINT_TYPE);
+                GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC, GrpcConstants.SERVER);
         endpoint.put(LISTENER_CONNECTION_FIELD, clientEndpoint);
         endpoint.put(LISTENER_ID_FIELD, new BInteger(responseObserver.hashCode()));
         return endpoint;
-    }
-
-    /**
-     * Returns BValue object corresponding to the protobuf request message.
-     *
-     * @param requestMessage protobuf request message.
-     * @return b7a message.
-     */
-    private BValue getRequestParameter(Resource resource, Message requestMessage, boolean isHeaderRequired) {
-        if (resource.getParamDetails().size() > 3) {
-            throw new ServerRuntimeException("Invalid resource input arguments. arguments must not be greater than " +
-                    "three");
-        }
-        List<ParamDetail> paramDetails = resource.getParamDetails();
-        if ((isHeaderRequired && paramDetails.size() == 3) || (!isHeaderRequired && paramDetails.size() == 2)) {
-            BType requestType = paramDetails.get(GrpcConstants.REQUEST_MESSAGE_PARAM_INDEX)
-                    .getVarType();
-            String requestName = paramDetails.get(GrpcConstants.REQUEST_MESSAGE_PARAM_INDEX)
-                    .getVarName();
-            return MessageUtils.generateRequestStruct(requestMessage, getProgramFile(resource), requestName,
-                    requestType);
-        } else {
-            return null;
-        }
     }
 
     /**
@@ -233,7 +209,7 @@ public abstract class ServerCallHandler {
         if (headerStruct != null) {
             headerStruct.addNativeData(MESSAGE_HEADERS, request.getHeaders());
         }
-        BValue requestParam = getRequestParameter(resource, request, (headerStruct != null));
+        BValue requestParam = request != null ? request.getbMessage() : null;
         if (requestParam != null) {
             signatureParams[1] = requestParam;
         }

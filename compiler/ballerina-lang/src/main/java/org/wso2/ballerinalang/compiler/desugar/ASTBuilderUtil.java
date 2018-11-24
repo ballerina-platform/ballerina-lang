@@ -39,17 +39,23 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
@@ -65,9 +71,11 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -116,6 +124,14 @@ public class ASTBuilderUtil {
         for (BLangStatement stmt : generatedCode.stmts) {
             target.stmts.add(index++, stmt);
         }
+    }
+
+    static void appendStatement(BLangStatement stmt, BLangBlockStmt target) {
+        int index = 0;
+        if (target.stmts.size() > 0 && target.stmts.get(target.stmts.size() - 1).getKind() == NodeKind.RETURN) {
+            index = target.stmts.size() - 1;
+        }
+        target.stmts.add(index, stmt);
     }
 
     static void defineVariable(BLangSimpleVariable variable, BSymbol targetSymbol, Names names) {
@@ -301,11 +317,11 @@ public class ASTBuilderUtil {
         return blockNode;
     }
 
-    static BLangMatch.BLangMatchStmtTypedBindingPatternClause createMatchStatementPattern(DiagnosticPos pos,
-                                                                                          BLangSimpleVariable variable,
-                                                                                          BLangBlockStmt body) {
-        BLangMatch.BLangMatchStmtTypedBindingPatternClause patternClause =
-                (BLangMatch.BLangMatchStmtTypedBindingPatternClause)
+    static BLangMatch.BLangMatchTypedBindingPatternClause createMatchStatementPattern(DiagnosticPos pos,
+                                                                                      BLangSimpleVariable variable,
+                                                                                      BLangBlockStmt body) {
+        BLangMatch.BLangMatchTypedBindingPatternClause patternClause =
+                (BLangMatch.BLangMatchTypedBindingPatternClause)
                         TreeBuilder.createMatchStatementSimpleBindingPattern();
         patternClause.pos = pos;
         patternClause.variable = variable;
@@ -316,7 +332,7 @@ public class ASTBuilderUtil {
 
     static BLangMatch createMatchStatement(DiagnosticPos pos,
                                            BLangExpression expr,
-                                           List<BLangMatch.BLangMatchStmtTypedBindingPatternClause> patternClauses) {
+                                           List<BLangMatch.BLangMatchTypedBindingPatternClause> patternClauses) {
         BLangMatch matchStmt = (BLangMatch) TreeBuilder.createMatchStatement();
         matchStmt.pos = pos;
         matchStmt.expr = expr;
@@ -453,6 +469,16 @@ public class ASTBuilderUtil {
         return varRef;
     }
 
+    static BLangSimpleVarRef createIgnoreVariableRef(DiagnosticPos pos, SymbolTable symTable) {
+        final BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+        varRef.pos = pos;
+        varRef.variableName = createIdentifier(pos, Names.IGNORE.value);
+        varRef.symbol = new BVarSymbol(0, Names.IGNORE, symTable.rootPkgSymbol.scope.owner.pkgID, symTable.noType,
+                symTable.rootPkgSymbol.scope.owner);
+        varRef.type = symTable.noType;
+        return varRef;
+    }
+
     static BLangSimpleVariable createVariable(DiagnosticPos pos,
                                               String name,
                                               BType type,
@@ -477,6 +503,31 @@ public class ASTBuilderUtil {
         variableDef.pos = pos;
         variableDef.var = variable;
         return variableDef;
+    }
+
+    static BLangTupleVariableDef createTupleVariableDef(DiagnosticPos pos, BLangTupleVariable variable) {
+        final BLangTupleVariableDef variableDef =
+                (BLangTupleVariableDef) TreeBuilder.createTupleVariableDefinitionNode();
+        variableDef.pos = pos;
+        variableDef.var = variable;
+        return variableDef;
+    }
+
+    static BLangRecordVariableDef createRecordVariableDef(DiagnosticPos pos, BLangRecordVariable variable) {
+        final BLangRecordVariableDef variableDef =
+                (BLangRecordVariableDef) TreeBuilder.createRecordVariableDefinitionNode();
+        variableDef.pos = pos;
+        variableDef.var = variable;
+        return variableDef;
+    }
+
+    static BLangCheckedExpr createCheckExpr(DiagnosticPos pos, BLangExpression expr, BType returnType) {
+        final BLangCheckedExpr checkExpr = (BLangCheckedExpr) TreeBuilder.createCheckExpressionNode();
+        checkExpr.pos = pos;
+        checkExpr.expr = expr;
+        checkExpr.type = returnType;
+        checkExpr.equivalentErrorTypeList = new ArrayList<>();
+        return checkExpr;
     }
 
     static BLangBinaryExpr createBinaryExpr(DiagnosticPos pos,
@@ -510,6 +561,16 @@ public class ASTBuilderUtil {
         return assignableExpr;
     }
 
+    static BLangIsLikeExpr createIsLikeExpr(DiagnosticPos pos, BLangExpression expr, BLangType typeNode,
+                                            BType retType) {
+        BLangIsLikeExpr isLikeExpr = (BLangIsLikeExpr) TreeBuilder.createIsLikeExpressionNode();
+        isLikeExpr.pos = pos;
+        isLikeExpr.expr = expr;
+        isLikeExpr.typeNode = typeNode;
+        isLikeExpr.type = retType;
+        return isLikeExpr;
+    }
+
     static BLangLiteral createLiteral(DiagnosticPos pos, BType type, Object value) {
         final BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
         literal.pos = pos;
@@ -524,14 +585,6 @@ public class ASTBuilderUtil {
         recordLiteralNode.pos = pos;
         recordLiteralNode.type = type;
         return recordLiteralNode;
-    }
-
-    static BLangRecordLiteral.BLangMapLiteral createEmptyMapLiteral(DiagnosticPos pos, BType type) {
-        final BLangRecordLiteral.BLangMapLiteral mapLiteralNode = (BLangRecordLiteral.BLangMapLiteral) TreeBuilder
-                .createTableLiteralNode();
-        mapLiteralNode.pos = pos;
-        mapLiteralNode.type = type;
-        return mapLiteralNode;
     }
 
     static BLangTypeInit createEmptyTypeInit(DiagnosticPos pos, BType type) {
@@ -622,6 +675,15 @@ public class ASTBuilderUtil {
         body.pos = pos;
         initFunction.setBody(body);
         return initFunction;
+    }
+
+    static BLangServiceConstructorExpr createServiceConstructor(BLangService service) {
+        BLangServiceConstructorExpr constExpr = (BLangServiceConstructorExpr) TreeBuilder
+                .createServiceConstructorNode();
+        constExpr.pos = service.pos;
+        constExpr.serviceNode = service;
+        constExpr.type = service.symbol.type;
+        return constExpr;
     }
 
     public static BLangSimpleVariable createReceiver(DiagnosticPos pos, BType type) {

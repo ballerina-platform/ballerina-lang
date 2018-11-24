@@ -18,13 +18,17 @@
 
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.StringJoiner;
+
+import static org.ballerinalang.model.util.FreezeUtils.handleInvalidUpdate;
 
 /**
  * The {@code BDecimalArray} represents a decimal array in Ballerina.
@@ -55,6 +59,12 @@ public class BDecimalArray extends BNewArray {
     }
 
     public void add(long index, BigDecimal value) {
+        synchronized (this) {
+            if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
+                handleInvalidUpdate(freezeStatus.getState());
+            }
+        }
+
         prepareForAdd(index, values.length);
         values[(int) index] = value;
     }
@@ -75,9 +85,18 @@ public class BDecimalArray extends BNewArray {
     }
 
     @Override
-    public BValue copy() {
+    public BValue copy(Map<BValue, BValue> refs) {
+        if (isFrozen()) {
+            return this;
+        }
+
+        if (refs.containsKey(this)) {
+            return refs.get(this);
+        }
+
         BDecimalArray decimalArray = new BDecimalArray(Arrays.copyOf(values, values.length));
         decimalArray.size = size;
+        refs.put(this, decimalArray);
         return decimalArray;
     }
 

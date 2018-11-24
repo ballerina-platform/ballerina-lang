@@ -23,19 +23,19 @@ import ballerina/log;
 public type DurableTopicSubscriber object {
 
     public DurableTopicSubscriberActions consumerActions = new;
-    public DurableTopicSubscriberEndpointConfiguration config;
+    public DurableTopicSubscriberEndpointConfiguration config = {};
 
     # Initialize durable topic subscriber endpoint
     #
     # + c - Configurations for a durable topic subscriber
     public function init(DurableTopicSubscriberEndpointConfiguration c) {
         self.config = c;
-        match (c.session) {
-            Session s => {
-                self.createSubscriber(s, c.messageSelector);
-                log:printInfo("Durable subscriber created for topic " + c.topicPattern);
-            }
-            () => {}
+        var session = c.session;
+        if (session is Session) {
+            self.createSubscriber(session, c.messageSelector);
+            log:printInfo("Durable subscriber created for topic " + c.topicPattern);
+        } else {
+            log:printInfo("Session is (), Cannot create a subscriber without a session");
         }
     }
 
@@ -76,10 +76,10 @@ public type DurableTopicSubscriber object {
 # + messageSelector - JMS selector statement
 # + identifier - unique identifier for the subscription
 public type DurableTopicSubscriberEndpointConfiguration record {
-    Session? session;
-    string topicPattern;
-    string messageSelector;
-    string identifier;
+    Session? session = ();
+    string topicPattern = "";
+    string messageSelector = "";
+    string identifier = "";
     !...
 };
 

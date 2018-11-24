@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/config;
-import ballerina/crypto;
 import ballerina/runtime;
 
 # Represents configurations that required for LDAP auth store.
@@ -63,7 +61,7 @@ public type LdapAuthProviderConfig record {
     int ldapConnectionTimeout = 5000;
     int readTimeout = 60000;
     int retryAttempts = 0;
-    SecureClientSocket? secureClientSocket;
+    SecureClientSocket? secureClientSocket = ();
     !...
 };
 
@@ -94,13 +92,15 @@ public type TrustStore record {
 public type LdapAuthStoreProvider object {
 
     public LdapAuthProviderConfig ldapAuthProviderConfig;
-    public string instanceId = "";
+    public string instanceId;
 
     # Create an LDAP auth store with the given configurations.
     #
     # + ldapAuthProviderConfig -  LDAP auth store configurations
     # + instanceId - Endpoint instance id
-    public new (ldapAuthProviderConfig, instanceId) {
+    public function __init(LdapAuthProviderConfig ldapAuthProviderConfig, string instanceId) {
+        self.ldapAuthProviderConfig = ldapAuthProviderConfig;
+        self.instanceId = instanceId;
         initLdapConnectionContext(self, instanceId);
     }
 

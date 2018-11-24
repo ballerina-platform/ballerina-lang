@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
@@ -102,6 +103,12 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangEndpoint endpointNode) {
 
+    }
+
+    @Override
+    public void visit(BLangConstant constant) {
+        validateNoParameters(constant);
+        validateReturnParameter(constant, null, false);
     }
 
     @Override

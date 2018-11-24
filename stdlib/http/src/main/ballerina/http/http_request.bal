@@ -39,7 +39,7 @@ public type Request object {
     private mime:Entity entity;
     private boolean dirtyRequest;
 
-    public new() {
+    public function __init() {
         self.dirtyRequest = false;
         self.entity = self.createNewEntity();
     }
@@ -128,7 +128,8 @@ public type Request object {
     # Sets the `content-type` header to the request.
     #
     # + contentType - Content type value to be set as the `content-type` header
-    public function setContentType(string contentType);
+    # + return - Nil if successful, error in case of invalid content-type
+    public function setContentType(string contentType) returns error?;
 
     # Gets the type of the payload of the request (i.e: the `content-type` header value).
     #
@@ -286,9 +287,10 @@ function Request.expects100Continue() returns boolean {
     return self.hasHeader(EXPECT) ? self.getHeader(EXPECT) == "100-continue" : false;
 }
 
-function Request.setContentType(string contentType) {
+function Request.setContentType(string contentType) returns error? {
     mime:Entity entity = self.getEntityWithoutBody();
-    entity.setContentType(contentType);
+    check entity.setContentType(contentType);
+    return;
 }
 
 function Request.getContentType() returns string {

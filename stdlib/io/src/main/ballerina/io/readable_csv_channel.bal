@@ -23,10 +23,10 @@ public type ReadableCSVChannel object {
     # + byteChannel - ChracterChannel which will represent the content in the CSV
     # + fs - Field separator which will separate between the records in the CSV
     # + nHeaders - Number of headers which should be skipped prior to reading records
-    public new(ReadableCharacterChannel byteChannel, Separator fs = ",", int nHeaders = 0) {
-        if (fs == TAB){
+    public function __init(ReadableCharacterChannel byteChannel, Separator fs = ",", int nHeaders = 0) {
+        if (fs == TAB) {
             self.dc = new ReadableTextRecordChannel(byteChannel, fmt = "TDF");
-        } else if (fs == COLON){
+        } else if (fs == COLON) {
             self.dc = new ReadableTextRecordChannel(byteChannel, fs = FS_COLON, rs = CSV_RECORD_SEPERATOR);
         } else {
             self.dc = new ReadableTextRecordChannel(byteChannel, fmt = "CSV");
@@ -39,7 +39,7 @@ public type ReadableCSVChannel object {
     # + nHeaders - Number of headers which should be skipped
     function skipHeaders(int nHeaders) {
         int count = MINIMUM_HEADER_COUNT;
-        while (count < nHeaders){
+        while (count < nHeaders) {
             var result = self.getNext();
             count = count + 1;
         }
@@ -49,14 +49,12 @@ public type ReadableCSVChannel object {
     #
     # + return - True if there's a record
     public function hasNext() returns boolean {
-        match self.dc {
-            ReadableTextRecordChannel delimitedChannel=>{
-                return delimitedChannel.hasNext();
-            }
-            () =>{
-                error e = error("Channel not initialized");
-                panic e;
-            }
+        var recordChannel = self.dc;
+        if (recordChannel is ReadableTextRecordChannel) {
+            return recordChannel.hasNext();
+        } else {
+            error e = error("Channel not initialized");
+            panic e;
         }
     }
 

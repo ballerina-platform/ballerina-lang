@@ -22,20 +22,22 @@ import org.ballerinalang.bre.bvm.WorkerResponseContext;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
+import java.util.Map;
+
 /**
  * Ballerina value for the callable "future" type.
  */
 public class BCallableFuture implements BFuture {
 
     private String callableName;
-    
+
     private AsyncInvocableWorkerResponseContext respCtx;
     
     public BCallableFuture(String callableName, AsyncInvocableWorkerResponseContext respCtx) {
         this.callableName = callableName;
         this.respCtx = respCtx;
     }
-    
+
     @Override
     public String stringValue() {
         return "callable future: " + this.callableName;
@@ -47,7 +49,12 @@ public class BCallableFuture implements BFuture {
     }
 
     @Override
-    public BValue copy() {
+    public void stamp(BType type) {
+
+    }
+
+    @Override
+    public BValue copy(Map<BValue, BValue> refs) {
         return new BCallableFuture(this.callableName, this.respCtx);
     }
 

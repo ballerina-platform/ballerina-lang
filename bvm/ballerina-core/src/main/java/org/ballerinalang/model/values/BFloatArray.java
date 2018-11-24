@@ -17,12 +17,16 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.StringJoiner;
+
+import static org.ballerinalang.model.util.FreezeUtils.handleInvalidUpdate;
 
 /**
  * @since 0.87
@@ -51,6 +55,12 @@ public class BFloatArray extends BNewArray {
     }
 
     public void add(long index, double value) {
+        synchronized (this) {
+            if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
+                handleInvalidUpdate(freezeStatus.getState());
+            }
+        }
+
         prepareForAdd(index, values.length);
         values[(int) index] = value;
     }
@@ -66,14 +76,28 @@ public class BFloatArray extends BNewArray {
     }
 
     @Override
+    public void stamp(BType type) {
+
+    }
+
+    @Override
     public void grow(int newLength) {
         values = Arrays.copyOf(values, newLength);
     }
 
     @Override
-    public BValue copy() {
+    public BValue copy(Map<BValue, BValue> refs) {
+        if (isFrozen()) {
+            return this;
+        }
+
+        if (refs.containsKey(this)) {
+            return refs.get(this);
+        }
+
         BFloatArray floatArray = new BFloatArray(Arrays.copyOf(values, values.length));
         floatArray.size = size;
+        refs.put(this, floatArray);
         return floatArray;
     }
     

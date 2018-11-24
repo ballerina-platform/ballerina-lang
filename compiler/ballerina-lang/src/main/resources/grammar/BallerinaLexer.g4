@@ -17,6 +17,7 @@ AS          : 'as' ;
 PUBLIC      : 'public' ;
 PRIVATE     : 'private' ;
 EXTERN      : 'extern' ;
+FINAL       : 'final' ;
 SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
 FUNCTION    : 'function' ;
@@ -26,14 +27,16 @@ ANNOTATION  : 'annotation' ;
 PARAMETER   : 'parameter' ;
 TRANSFORMER : 'transformer' ;
 WORKER      : 'worker' ;
-ENDPOINT    : 'endpoint' ;
-BIND        : 'bind' ;
+LISTENER    : 'listener' ;
+REMOTE      : 'remote' ;
 XMLNS       : 'xmlns' ;
 RETURNS     : 'returns';
 VERSION     : 'version';
 DEPRECATED  : 'deprecated';
 CHANNEL     : 'channel';
 ABSTRACT    : 'abstract';
+CLIENT      : 'client';
+CONST       : 'const';
 
 FROM        : 'from' { inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; } ;
 ON          : 'on' ;
@@ -102,6 +105,7 @@ TYPE_ANYDATA    : 'anydata' ;
 
 VAR         : 'var' ;
 NEW         : 'new' ;
+OBJECT_INIT : '__init' ;
 IF          : 'if' ;
 MATCH       : 'match' ;
 ELSE        : 'else' ;
@@ -535,7 +539,7 @@ VARIABLE    : 'variable';
 MODULE      : 'module';
 
 ReferenceType
-    :   TYPE|ENDPOINT|SERVICE|VARIABLE|VAR|ANNOTATION|MODULE|FUNCTION|PARAMETER
+    :   TYPE|SERVICE|VARIABLE|VAR|ANNOTATION|MODULE|FUNCTION|PARAMETER
     ;
 
 DocumentationText

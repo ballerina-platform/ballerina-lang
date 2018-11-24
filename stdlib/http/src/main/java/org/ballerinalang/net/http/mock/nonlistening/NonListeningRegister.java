@@ -32,6 +32,9 @@ import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketService;
 import org.ballerinalang.net.http.WebSocketServicesRegistry;
 
+import static org.ballerinalang.net.http.HttpConstants.COLON;
+import static org.ballerinalang.net.http.HttpConstants.MOCK_SERVER;
+
 /**
  * Get the ID of the connection.
  *
@@ -41,9 +44,10 @@ import org.ballerinalang.net.http.WebSocketServicesRegistry;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "register",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "NonListener",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = MOCK_SERVER,
                 structPackage = "ballerina.http"),
-        args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC)},
+        args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC),
+                @Argument(name = "annotationData", type = TypeKind.MAP)},
         isPublic = true
 )
 public class NonListeningRegister extends org.ballerinalang.net.http.serviceendpoint.Register {
@@ -58,10 +62,11 @@ public class NonListeningRegister extends org.ballerinalang.net.http.serviceendp
 
         // TODO: Check if this is valid.
         // TODO: In HTTP to WebSocket upgrade register WebSocket service in WebSocketServiceRegistry
-        if (HttpConstants.HTTP_SERVICE_ENDPOINT_NAME.equals(service.getEndpointName())) {
+        String listenerType = serviceEndpoint.getPackage() + COLON + serviceEndpoint.getName();
+        if (HttpConstants.HTTP_SERVICE_ENDPOINT_NAME.equals(listenerType)) {
             httpServicesRegistry.registerService(service);
         }
-        if (WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(service.getEndpointName())) {
+        if (WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(listenerType)) {
             WebSocketService webSocketService = new WebSocketService(service);
             webSocketServicesRegistry.registerService(webSocketService);
         }

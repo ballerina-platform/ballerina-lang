@@ -22,7 +22,6 @@ package org.ballerinalang.model.tree;
  */
 public enum NodeKind {
 
-    ACTION,
     ANNOTATION,
     ANNOTATION_ATTACHMENT,
     ANNOTATION_ATTRIBUTE,
@@ -64,6 +63,7 @@ public enum NodeKind {
     LAMBDA,
     ARROW_EXPR,
     LITERAL,
+    CONSTANT,
     RECORD_LITERAL_EXPR,
     SIMPLE_VARIABLE_REF,
     TUPLE_VARIABLE_REF,
@@ -93,8 +93,10 @@ public enum NodeKind {
     CHECK_EXPR,
     ERROR_CONSTRUCTOR,
     TYPE_TEST_EXPR,
+    IS_LIKE,
     DOCUMENTATION_DESCRIPTION,
     DOCUMENTATION_PARAMETER,
+    SERVICE_CONSTRUCTOR,
 
     /* streams/tables expressions */
     SELECT_EXPRESSION,
@@ -117,6 +119,7 @@ public enum NodeKind {
     MATCH,
     MATCH_TYPED_PATTERN_CLAUSE,
     MATCH_STATIC_PATTERN_CLAUSE,
+    MATCH_STRUCTURED_PATTERN_CLAUSE,
     REPLY,
     RETURN,
     THROW,

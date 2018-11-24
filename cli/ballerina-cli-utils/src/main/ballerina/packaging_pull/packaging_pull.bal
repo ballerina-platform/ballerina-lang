@@ -18,10 +18,11 @@ import ballerina/http;
 import ballerina/internal;
 import ballerina/io;
 
-@final int MAX_INT_VALUE = 2147483647;
-@final string VERSION_REGEX = "(\\d+\\.)(\\d+\\.)(\\d+)";
+const int MAX_INT_VALUE = 2147483647;
+const string VERSION_REGEX = "(\\d+\\.)(\\d+\\.)(\\d+)";
+
 DefaultLogFormatter logFormatter = new DefaultLogFormatter();
-boolean isBuild;
+boolean isBuild = false;
 
 # This object denotes the default log formatter used when pulling a module directly.
 #
@@ -57,12 +58,13 @@ function createError (string errMessage) returns error {
 # + args - Arguments for pulling a module
 # + return - nil if no error occurred, else error.
 public function invokePull (string... args) returns error? {
+    http:Client httpEndpoint = new ({});
     string url = args[0];
     string dirPath = args[1];
     string pkgPath = args[2];
     string fileSeparator = args[3];
     string host = args[4];
-    string port = args[5];
+    string strPort = args[5];
     string proxyUsername = args[6];
     string proxyPassword = args[7];
     string terminalWidth = args[8];
@@ -73,19 +75,20 @@ public function invokePull (string... args) returns error? {
         logFormatter = new BuildLogFormatter();
     }
 
-    // resolve endpoint
-    http:Client httpEndpoint;
-    if (host != "" && port != "") {
-        http:Client|error result = trap defineEndpointWithProxy(url, host, port, proxyUsername, proxyPassword);
-        match result {
-            http:Client ep => {
-                httpEndpoint = ep;
-            }
-            error e => {
+    if (host != "" && strPort != "") {
+        // validate port
+        var port = <int> strPort;
+        if (port is int) {
+            http:Client|error result = trap defineEndpointWithProxy(url, host, port, proxyUsername, proxyPassword);
+            if (result is http:Client) {
+                httpEndpoint = result;
+            } else if (result is error) {
                 return createError("failed to resolve host : " + host + " with port " + port);
             }
+        } else {
+            return createError("invalid port : " + strPort);
         }
-    } else  if (host != "" || port != "") {
+    } else  if (host != "" || strPort != "") {
         return createError("both host and port should be provided to enable proxy");
     } else {
         httpEndpoint = defineEndpointWithoutProxy(url);
@@ -106,7 +109,7 @@ public function invokePull (string... args) returns error? {
 # + return - Error if occurred, else nil
 function pullPackage(http:Client httpEndpoint, string url, string pkgPath, string dirPath, string versionRange,
                      string fileSeparator, string terminalWidth) returns error? {
-    endpoint http:Client centralEndpoint = httpEndpoint;
+    http:Client centralEndpoint = httpEndpoint;
 
     string fullPkgPath = pkgPath;
     string destDirPath = dirPath;
@@ -115,12 +118,10 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
 
     http:Response httpResponse = new;
     var result = centralEndpoint -> get(untaint versionRange, message=req);
-
-    match result {
-        http:Response response => httpResponse = response;
-        error e => {
-            return createError("connection to the remote host failed : " + e.reason());
-        }
+    if (result is http:Response) {
+        httpResponse = result;
+    } else if (result is error) {
+        return createError("connection to the remote host failed : " + result.reason());
     }
 
     http:Response res = new;
@@ -129,18 +130,15 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
         return createError("remote registry failed for url :" + url);
     } else if (statusCode != "200") {
         var jsonResponse = httpResponse.getJsonPayload();
-        match jsonResponse {
-            json resp => {
-                if (!(statusCode == "404" && isBuild)) {
-                    return createError(resp.message.toString());
-                } else {
-                    // To ignore printing the error
-                    return createError("");
-                }
+        if (jsonResponse is json) {
+            if (!(statusCode == "404" && isBuild)) {
+                return createError(jsonResponse.message.toString());
+            } else {
+                // To ignore printing the error
+                return createError("");
             }
-            error err => {
-                return createError("error occurred when pulling the module");
-            }
+        } else {
+            return createError("error occurred when pulling the module");
         }
     } else {
         string contentLengthHeader;
@@ -184,21 +182,17 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
             string toAndFrom = " [central.ballerina.io -> home repo]";
             int rightMargin = 3;
             int width = (check <int>terminalWidth) - rightMargin;
-            copy(pkgSize, sourceChannel, wch, fullPkgPath, toAndFrom, width);
+            check copy(pkgSize, sourceChannel, wch, fullPkgPath, toAndFrom, width);
 
-            match wch.close() {
-                error destChannelCloseError => {
-                    return createError("error occured while closing the channel: " + destChannelCloseError.reason());
-                }
-                () => {
-                    match sourceChannel.close() {
-                        error sourceChannelCloseError => {
-                            return createError("error occured while closing the channel: " + sourceChannelCloseError.reason());
-                        }
-                        () => {
-                            return ();
-                        }
-                    }
+            var destChannelClose = wch.close();
+            if (destChannelClose is error) {
+                return createError("error occured while closing the channel: " + destChannelClose.reason());
+            } else {
+                var srcChannelClose = sourceChannel.close();
+                if (srcChannelClose is error) {
+                    return createError("error occured while closing the channel: " + srcChannelClose.reason());
+                } else {
+                    return ();
                 }
             }
         } else {
@@ -218,8 +212,8 @@ public function main() {}
 # + username - Username of the proxy
 # + password - Password of the proxy
 # + return - Endpoint defined
-function defineEndpointWithProxy (string url, string hostname, string port, string username, string password) returns http:Client {
-    endpoint http:Client httpEndpointWithProxy {
+function defineEndpointWithProxy (string url, string hostname, int port, string username, string password) returns http:Client {
+    http:Client httpEndpointWithProxy = new ({
         url: url,
         secureSocket:{
             trustStore:{
@@ -231,7 +225,7 @@ function defineEndpointWithProxy (string url, string hostname, string port, stri
         },
         followRedirects: { enabled: true, maxCount: 5 },
         proxy : getProxyConfigurations(hostname, port, username, password)
-    };
+    });
     return httpEndpointWithProxy;
 }
 
@@ -240,7 +234,7 @@ function defineEndpointWithProxy (string url, string hostname, string port, stri
 # + url - URL to be invoked
 # + return - Endpoint defined
 function defineEndpointWithoutProxy (string url) returns http:Client{
-    endpoint http:Client httpEndpointWithoutProxy {
+    http:Client httpEndpointWithoutProxy = new ({
         url: url,
         secureSocket:{
             trustStore:{
@@ -251,7 +245,7 @@ function defineEndpointWithoutProxy (string url) returns http:Client{
             shareSession: true
         },
         followRedirects: { enabled: true, maxCount: 5 }
-    };
+    });
     return httpEndpointWithoutProxy;
 }
 
@@ -259,8 +253,8 @@ function defineEndpointWithoutProxy (string url) returns http:Client{
 #
 # + byteChannel - Byte channel
 # + numberOfBytes - Number of bytes to be read
-# + return - Read content as byte[] along with the number of bytes read.
-function readBytes(io:ReadableByteChannel byteChannel, int numberOfBytes) returns (byte[], int) {
+# + return - Read content as byte[] along with the number of bytes read, or error if read failed
+function readBytes(io:ReadableByteChannel byteChannel, int numberOfBytes) returns (byte[], int)|error {
     byte[] bytes;
     int numberOfBytesRead;
     (bytes, numberOfBytesRead) = check (byteChannel.read(numberOfBytes));
@@ -273,7 +267,7 @@ function readBytes(io:ReadableByteChannel byteChannel, int numberOfBytes) return
 # + content - Content to be written as a byte[]
 # + startOffset - Offset
 # + return - number of bytes written.
-function writeBytes(io:WritableByteChannel byteChannel, byte[] content, int startOffset) returns int {
+function writeBytes(io:WritableByteChannel byteChannel, byte[] content, int startOffset) returns int|error {
     int numberOfBytesWritten = check (byteChannel.write(content, startOffset));
     return numberOfBytesWritten;
 }
@@ -286,11 +280,12 @@ function writeBytes(io:WritableByteChannel byteChannel, byte[] content, int star
 # + fullPkgPath - Full module path
 # + toAndFrom - Pulled module details
 # + width - Width of the terminal
+# + return - Nil if successful, error if read failed
 function copy(int pkgSize, io:ReadableByteChannel src, io:WritableByteChannel dest,
-              string fullPkgPath, string toAndFrom, int width) {
+              string fullPkgPath, string toAndFrom, int width) returns error? {
     int terminalWidth = width - logFormatter.offset;
     int bytesChunk = 8;
-    byte[] readContent;
+    byte[] readContent = [];
     int readCount = -1;
     float totalCount = 0.0;
     int numberOfBytesWritten = 0;
@@ -303,12 +298,12 @@ function copy(int pkgSize, io:ReadableByteChannel src, io:WritableByteChannel de
     int startVal = 0;
     int rightpadLength = terminalWidth - equals.length() - tabspaces.length() - rightMargin;
     while (!completed) {
-        (readContent, readCount) = readBytes(src, bytesChunk);
+        (readContent, readCount) = check readBytes(src, bytesChunk);
         if (readCount <= startVal) {
             completed = true;
         }
         if (dest != null) {
-            numberOfBytesWritten = writeBytes(dest, readContent, startVal);
+            numberOfBytesWritten = check writeBytes(dest, readContent, startVal);
         }
         totalCount = totalCount + readCount;
         float percentage = totalCount / pkgSize;
@@ -320,6 +315,7 @@ function copy(int pkgSize, io:ReadableByteChannel src, io:WritableByteChannel de
         io:print("\r" + logFormatter.formatLog(rightPad(msg, rightpadLength) + size));
     }
     io:println("\r" + logFormatter.formatLog(rightPad(fullPkgPath + toAndFrom, terminalWidth)));
+    return;
 }
 
 # This function adds the right pad.
@@ -365,13 +361,11 @@ function truncateString (string text, int maxSize) returns (string) {
 function createDirectories(string directoryPath) returns (boolean) {
     internal:Path dirPath = new(directoryPath);
     if (!dirPath.exists()){
-        match dirPath.createDirectory() {
-            () => {
-                return true;
-            }
-            error => {
-                return false;
-            }
+        var result = dirPath.createDirectory();
+        if (result is error) {
+            return false;
+        } else {
+            return true;
         }
     } else {
         return false;
@@ -382,27 +376,21 @@ function createDirectories(string directoryPath) returns (boolean) {
 #
 # + byteChannel - Byte channel to be closed
 function closeChannel(io:ReadableByteChannel|io:WritableByteChannel byteChannel) {
-    match byteChannel {
-        io:ReadableByteChannel rc => {
-            match rc.close() {
-                error channelCloseError => {
-                    io:println(logFormatter.formatLog("Error occured while closing the channel: " +
-                                channelCloseError.reason()));
-                }
-                () => return;
-            }
+    if (byteChannel is io:ReadableByteChannel) {
+        var channelCloseError = byteChannel.close();
+        if (channelCloseError is error) {
+            io:println(logFormatter.formatLog("Error occured while closing the channel: " + channelCloseError.reason()));
+        } else {
+            return;
         }
-        io:WritableByteChannel wc => {
-            match wc.close() {
-                error channelCloseError => {
-                    io:println(logFormatter.formatLog("Error occured while closing the channel: " +
-                                channelCloseError.reason()));
-                }
-                () => return;
-            }
+    } else if (byteChannel is io:WritableByteChannel) {
+        var channelCloseError = byteChannel.close();
+        if (channelCloseError is error) {
+            io:println(logFormatter.formatLog("Error occured while closing the channel: " + channelCloseError.reason()));
+        } else {
+            return;
         }
     }
-
 }
 
 # This function sets the proxy configurations for the endpoint.
@@ -412,8 +400,7 @@ function closeChannel(io:ReadableByteChannel|io:WritableByteChannel byteChannel)
 # + username - Username of the proxy
 # + password - Password of the proxy
 # + return - Proxy configurations for the endpoint
-function getProxyConfigurations(string hostName, string port, string username, string password) returns http:ProxyConfig {
-    int portInt = check <int> port;
-    http:ProxyConfig proxy = { host : hostName, port : portInt , userName: username, password : password };
+function getProxyConfigurations(string hostName, int port, string username, string password) returns http:ProxyConfig {
+    http:ProxyConfig proxy = { host : hostName, port : port , userName: username, password : password };
     return proxy;
 }

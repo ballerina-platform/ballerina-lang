@@ -21,10 +21,10 @@
 public type DestinationType "queue"|"topic";
 
 # Constant for jms destination type queue
-@final public DestinationType QUEUE = "queue";
+public const QUEUE = "queue";
 
 # Constant for jms destination type topic
-@final public DestinationType TOPIC = "topic";
+public const TOPIC = "topic";
 
 # Destination object
 #
@@ -34,5 +34,8 @@ public type Destination object {
     public string destinationName;
     public string destinationType;
 
-    public new(destinationName, destinationType) {}
+    public function __init(string destName, string destType) {
+        self.destinationName = destName;
+        self.destinationType = destType;
+    }
 };

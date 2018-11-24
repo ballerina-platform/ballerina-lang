@@ -128,26 +128,6 @@ public class Symbols {
         return symbol;
     }
 
-    public static BInvokableSymbol createActionSymbol(int flags,
-                                                      Name name,
-                                                      PackageID pkgID,
-                                                      BType type,
-                                                      BSymbol owner) {
-        BInvokableSymbol symbol = createInvokableSymbol(SymTag.ACTION, flags, name, pkgID, type, owner);
-        symbol.kind = SymbolKind.ACTION;
-        return symbol;
-    }
-
-    public static BInvokableSymbol createResourceSymbol(int flags,
-                                                        Name name,
-                                                        PackageID pkgID,
-                                                        BType type,
-                                                        BSymbol owner) {
-        BInvokableSymbol symbol = createInvokableSymbol(SymTag.RESOURCE, flags, name, pkgID, type, owner);
-        symbol.kind = SymbolKind.RESOURCE;
-        return symbol;
-    }
-
     public static BTypeSymbol createTypeSymbol(int symTag,
                                                int flags,
                                                Name name,
@@ -254,7 +234,11 @@ public class Symbols {
     }
 
     public static boolean isAttachPointPresent(int mask, int attachPoint) {
-        return (mask & attachPoint) == attachPoint;
+        return (mask & attachPoint) != 0;
+    }
+
+    public static boolean isOptional(BSymbol sym) {
+        return (sym.flags & Flags.OPTIONAL) == Flags.OPTIONAL;
     }
 
     public static BTypeSymbol createScopeSymbol(Name name, PackageID pkgID, BType type, BSymbol owner) {

@@ -24,6 +24,8 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.serviceendpoint.GetCallerActions;
 
+import static org.ballerinalang.net.http.HttpConstants.MOCK_SERVER;
+
 /**
  * Get the ID of the connection.
  *
@@ -33,7 +35,7 @@ import org.ballerinalang.net.http.serviceendpoint.GetCallerActions;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "getCallerActions",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "NonListener",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = MOCK_SERVER,
                 structPackage = "ballerina.http"),
         returnType = {@ReturnType(type = TypeKind.RECORD)},
         isPublic = true

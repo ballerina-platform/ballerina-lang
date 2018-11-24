@@ -1,5 +1,5 @@
 function testInvalidFunctionCallWithNull() returns (any) {
-    string? s;
+    string? s = ();
     return foo(s);
 }
 
@@ -8,7 +8,7 @@ function foo(string? s) returns (string?){
 }
 
 function testLogicalOperationOnNull1() returns (boolean) {
-    xml x;
+    xml? x = ();
     return (() > x);
 }
 

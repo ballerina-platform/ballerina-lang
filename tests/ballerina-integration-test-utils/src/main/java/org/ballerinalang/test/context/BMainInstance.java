@@ -161,7 +161,7 @@ public class BMainInstance implements BMain {
             envProperties = new HashMap<>();
         }
 
-        String[] newArgs = new String[]{packagePath, "--sourceroot", sourceRoot};
+        String[] newArgs = ArrayUtils.addAll(flags, "--sourceroot", sourceRoot, packagePath);
         newArgs = ArrayUtils.addAll(newArgs, args);
 
         addJavaAgents(envProperties);

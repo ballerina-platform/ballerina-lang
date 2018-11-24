@@ -1,4 +1,4 @@
-function testForkJoinAll() returns int[] {
+function testForkJoinAll() returns int[]|error {
 
     int[] results = [];
     int x = 100;
@@ -27,7 +27,7 @@ function testForkJoinAll() returns int[] {
 
 function testForkJoinWithEmptyTimeoutBlock() returns int[] {
     forkJoinWithEmptyTimeoutBlock();
-    int[] p;
+    int[] p = [];
     p[0] = 234;
     p[1] = 500;
     return p;

@@ -6,8 +6,7 @@ function test () returns int {
 
 type Person object {
 
-    public int age;
-
+    public int age = 0;
 
     function test0(int a, string name) returns string; //param type mismatch
 
@@ -96,13 +95,9 @@ function Person.test13(int a, string name, int... val) returns string {
 }
 
 type Foo object {
-
-    public int age;
-
+    public int age = 0;
 };
 
 type Bar object {
-
-    public int age;
-
+    public int age = 0;
 };

@@ -23,6 +23,7 @@ import org.ballerinalang.model.types.BTypes;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.Map;
 
 /**
  * The {@code BByte} represents a byte value in Ballerina.
@@ -36,6 +37,8 @@ public final class BByte extends BValueType implements BRefType<Byte> {
     public BByte(byte value) {
         this.value = value;
     }
+
+    private BType type = BTypes.typeByte;
 
     @Override
     public byte byteValue() {
@@ -69,7 +72,12 @@ public final class BByte extends BValueType implements BRefType<Byte> {
 
     @Override
     public BType getType() {
-        return BTypes.typeByte;
+        return type;
+    }
+
+    @Override
+    public void setType(BType type) {
+        this.type = type;
     }
 
     @Override
@@ -92,8 +100,8 @@ public final class BByte extends BValueType implements BRefType<Byte> {
     }
 
     @Override
-    public BValue copy() {
-        return new BByte(value);
+    public BValue copy(Map<BValue, BValue> refs) {
+        return this;
     }
 
     @Override

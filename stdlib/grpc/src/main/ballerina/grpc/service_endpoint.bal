@@ -13,36 +13,89 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/system;
+import ballerina/io;
 
+# TODO: check
 # Represents service endpoint where one or more services can be registered. so that ballerina program can offer
 # service through this endpoint.
 #
 # + id - Caller endpoint id.
-public type Listener object {
-    public int id;
+public type Server object {
 
-    private CallerAction conn;
+    *AbstractListener;
+
+    public function __start() returns error? {
+        io:println("Calling start.....");
+        return self.start();
+    }
+
+    public function __stop() returns error? {
+        io:println("Calling stop.....");
+        return self.stop();
+    }
+
+    public function __attach(service s, map annotationData) returns error? {
+        io:println("Calling attach.....");
+        return self.register(s, annotationData);
+    }
+
+    //@readonly public Remote remoteDetails = {};
+    //@readonly public Local local = {};
+    //@readonly public string protocol = "";
+
+    //private string instanceId;
+
+    public function __init(ServiceEndpointConfiguration config) {
+        io:println("Calling init.....");
+        //self.instanceId = system:uuid();
+        //self.config = config;
+        self.init(config);
+    }
 
     # Gets called when the endpoint is being initialize during module init time.
     #
     # + config - The ServiceEndpointConfiguration of the endpoint.
     public extern function init(ServiceEndpointConfiguration config);
 
+    //public extern function initEndpoint() returns error?;
+
     # Gets called every time a service attaches itself to this endpoint - also happens at module init time.
     #
     # + serviceType - The type of the service to be registered.
-    public extern function register(typedesc serviceType);
+    # + annotationData - Annotations attached to the service.
+    public extern function register(service serviceType, map annotationData) returns error?;
 
     # Starts the registered service.
-    public extern function start();
+    public extern function start() returns error?;
+
+    # Returns the connector that client code uses.
+    #
+    # + return - The connector that client code uses
+    public extern function getCallerActions() returns Caller;
 
     # Stops the registered service.
-    public extern function stop();
+    public extern function stop() returns error?;
+};
 
-    # Returns the client connection that servicestub code uses.
-    #
-    # + return - Client connection.
-    public extern function getCallerActions() returns CallerAction;
+# Presents a read-only view of the remote address.
+#
+# + host - The remote host name/IP
+# + port - The remote port
+public type Remote record {
+    @readonly string host = "";
+    @readonly int port = 0;
+    !...
+};
+
+# Presents a read-only view of the local address.
+#
+# + host - The local host name/IP
+# + port - The local port
+public type Local record {
+    @readonly string host = "";
+    @readonly int port = 0;
+    !...
 };
 
 # Represents the gRPC server endpoint configuration.
@@ -51,9 +104,9 @@ public type Listener object {
 # + port - The server port.
 # + secureSocket - The SSL configurations for the client endpoint.
 public type ServiceEndpointConfiguration record {
-    string host;
-    int port;
-    ServiceSecureSocket? secureSocket;
+    string host = "0.0.0.0";
+    int port = 0;
+    ServiceSecureSocket? secureSocket = ();
     !...
 };
 
@@ -73,23 +126,17 @@ public type ServiceEndpointConfiguration record {
 # + shareSession - Enable/disable new ssl session creation.
 # + ocspStapling - Enable/disable ocsp stapling.
 public type ServiceSecureSocket record {
-    TrustStore? trustStore;
-    KeyStore? keyStore;
-    string certFile;
-    string keyFile;
-    string keyPassword;
-    string trustedCertFile;
-    Protocols? protocol;
-    ValidateCert? certValidation;
-    string[] ciphers;
-    string sslVerifyClient;
+    TrustStore? trustStore = ();
+    KeyStore? keyStore = ();
+    string certFile = "";
+    string keyFile = "";
+    string keyPassword = "";
+    string trustedCertFile = "";
+    Protocols? protocol = ();
+    ValidateCert? certValidation = ();
+    string[] ciphers = [];
+    string sslVerifyClient = "";
     boolean shareSession = true;
-    ServiceOcspStapling? ocspStapling;
+    ServiceOcspStapling? ocspStapling = ();
     !...
-};
-
-public type Service object {
-    function getEndpoint() returns Listener {
-        return new;
-    }
 };
