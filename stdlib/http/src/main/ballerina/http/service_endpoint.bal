@@ -448,7 +448,6 @@ public type WebSocketServer object {
     }
 
     public function __attach(service s, map annotationData) returns error? {
-    //return register(typedesc serviceType);
         return self.httpEndpoint.register(s, annotationData);
     }
 
