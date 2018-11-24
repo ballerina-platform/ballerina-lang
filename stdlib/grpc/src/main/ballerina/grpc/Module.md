@@ -79,7 +79,7 @@ if (responseFromServer is (string, grpc:Headers)) {
     string result;
     grpc:Headers resHeaders;
     (result, resHeaders) = responseFromServer;
-    io:println("Response received : " + result);
+    io:println("Response received : " + responseFromServer[0]);
 } else {
     // If an error is returned, print the error message.
     io:println("Error while connecting grpc end-point : " + err.message);
