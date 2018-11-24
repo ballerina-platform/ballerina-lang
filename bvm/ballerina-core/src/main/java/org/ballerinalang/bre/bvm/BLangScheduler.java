@@ -22,10 +22,6 @@ import org.ballerinalang.bre.bvm.CPU.HandleErrorException;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.values.BError;
-import org.ballerinalang.persistence.states.RuntimeStates;
-import org.ballerinalang.persistence.states.State;
-import org.ballerinalang.persistence.store.PersistenceStore;
-import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -34,7 +30,6 @@ import org.ballerinalang.util.observability.ObservabilityUtils;
 import org.ballerinalang.util.observability.ObserverContext;
 
 import java.io.PrintStream;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
@@ -97,27 +92,6 @@ public class BLangScheduler {
             workersDoneSemaphore.release();
         }
     }
-
-    private static void handleInterruptibleAfterExecution(WorkerExecutionContext ctx) {
-        if (ctx.interruptible && ctx.parent != null && ctx.parent.isRootContext()) {
-            /* If the context is interruptible and its parent is the root context, means given context is the last
-            worker which is completed. So persisted state will be cleared in memory and storage. */
-            String stateId = (String) ctx.globalProps.get(Constants.STATE_ID);
-            List<State> stateList = RuntimeStates.get(stateId);
-            if (stateList != null && !stateList.isEmpty()) {
-                RuntimeStates.remove(stateId);
-                PersistenceStore.removeStates(stateId);
-            }
-        }
-    }
-
-    public static void handleInterruptibleAfterCallback(WorkerExecutionContext ctx) {
-        if (ctx != null && ctx.markAsCheckPointed) {
-            String stateId = (String) ctx.globalProps.get(Constants.STATE_ID);
-            PersistenceStore.persistState(new State(ctx, stateId, ctx.ip + 1));
-            ctx.markAsCheckPointed = false;
-        }
-    }
     
     public static WorkerExecutionContext schedule(WorkerExecutionContext ctx, boolean runInCaller) {
         workerReady(ctx);
@@ -174,7 +148,6 @@ public class BLangScheduler {
     public static void workerDone(WorkerExecutionContext ctx) {
         schedulerStats.stateTransition(ctx, WorkerState.DONE);
         ctx.state = WorkerState.DONE;
-        handleInterruptibleAfterExecution(ctx);
         workerCountDown();
     }
     
@@ -206,7 +179,6 @@ public class BLangScheduler {
     public static void workerExcepted(WorkerExecutionContext ctx) {
         schedulerStats.stateTransition(ctx, WorkerState.EXCEPTED);
         ctx.state = WorkerState.EXCEPTED;
-        handleInterruptibleAfterExecution(ctx);
         workerCountDown();
     }
     

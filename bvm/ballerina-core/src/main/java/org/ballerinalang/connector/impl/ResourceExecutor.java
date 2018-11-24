@@ -22,8 +22,6 @@ import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.persistence.states.RuntimeStates;
-import org.ballerinalang.persistence.states.State;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.observability.ObserverContext;
@@ -31,7 +29,6 @@ import org.ballerinalang.util.program.BLangFunctions;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * {@code ResourceExecutor} This provides the implementation to execute resources within Ballerina.
@@ -60,13 +57,6 @@ public class ResourceExecutor {
         }
         ResourceInfo resourceInfo = resource.getResourceInfo();
         if (properties != null) {
-            Object interruptible = properties.get(Constants.IS_INTERRUPTIBLE);
-            if (interruptible != null && (boolean) interruptible) {
-                String stateId = UUID.randomUUID().toString();
-                properties.put(Constants.STATE_ID, stateId);
-                RuntimeStates.add(new State(context, stateId));
-                context.interruptible = true;
-            }
             context.globalProps.putAll(properties);
             if (properties.get(Constants.GLOBAL_TRANSACTION_ID) != null) {
                 context.setLocalTransactionInfo(new LocalTransactionInfo(
