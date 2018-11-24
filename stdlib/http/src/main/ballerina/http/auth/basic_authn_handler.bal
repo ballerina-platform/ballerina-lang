@@ -27,11 +27,11 @@ const string AUTH_CACHE = "basic_auth_cache";
 # + name - Authentication handler name
 # + authStoreProvider - AuthStoreProvider instance
 public type HttpBasicAuthnHandler object {
-    public string name;
+    public string name = "basic";
     public auth:AuthStoreProvider authStoreProvider = new;
 
-    public new(authStoreProvider) {
-        self.name = "basic";
+    public function __init(auth:AuthStoreProvider authStoreProvider) {
+        self.authStoreProvider = authStoreProvider;
     }
 
     # Checks if the provided request can be authenticated with basic auth.

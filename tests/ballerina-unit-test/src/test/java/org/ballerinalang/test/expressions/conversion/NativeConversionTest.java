@@ -41,7 +41,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 /**
  * Test Cases for type conversion.
  */
-@Test
+@Test(groups = "broken")
 public class NativeConversionTest {
 
     private CompileResult compileResult;

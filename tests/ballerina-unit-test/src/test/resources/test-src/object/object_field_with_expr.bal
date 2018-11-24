@@ -15,7 +15,8 @@ type Employee object {
     public int pp = 0;
     public string name = "";
 
-    new (pp, name) {
-
+    function __init (int pp, string name) {
+        self.pp = pp;
+        self.name = name;
     }
 };

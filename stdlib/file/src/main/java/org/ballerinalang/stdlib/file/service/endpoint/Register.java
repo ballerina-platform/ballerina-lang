@@ -27,7 +27,6 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.file.service.DirectoryListenerConstants;
@@ -44,7 +43,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.ballerinalang.stdlib.file.service.DirectoryListenerConstants.FILE_SYSTEM_EVENT;
-import static org.ballerinalang.stdlib.file.utils.Constants.FILE_PACKAGE;
+import static org.ballerinalang.stdlib.file.utils.FileConstants.FILE_PACKAGE;
 
 /**
  * Register file listener service.
@@ -55,7 +54,6 @@ import static org.ballerinalang.stdlib.file.utils.Constants.FILE_PACKAGE;
         packageName = "file",
         functionName = "register",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = "ballerina/file"),
-        args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC)},
         isPublic = true
 )
 public class Register extends BlockingNativeCallableUnit {

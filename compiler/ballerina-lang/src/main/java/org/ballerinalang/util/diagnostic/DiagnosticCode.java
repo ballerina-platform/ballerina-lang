@@ -122,9 +122,18 @@ public enum DiagnosticCode {
     ENDPOINT_INVALID_TYPE_NO_FUNCTION("endpoint.invalid.type.no.function"),
     ENDPOINT_SPI_INVALID_FUNCTION("endpoint.spi.invalid.function"),
 
-    ENDPOINT_NOT_SUPPORT_INTERACTIONS("endpoint.not.support.interactions"),
+    CLIENT_HAS_NO_REMOTE_FUNCTION("client.has.no.remote.function"),
+    REMOTE_FUNCTION_IN_NON_CLIENT_OBJECT("remote.function.in.non.client.object"),
+    RESOURCE_FUNCTION_IN_NON_SERVICE_OBJECT("resource.function.in.non.service.object"),
+    REMOTE_IN_NON_OBJECT_FUNCTION("remote.in.non.object.function"),
+    REMOTE_ON_NON_REMOTE_FUNCTION("remote.on.non.remote.function"),
+    REMOTE_REQUIRED_ON_REMOTE_FUNCTION("remote.required.on.remote.function"),
+    INVALID_ENDPOINT_DECLARATION("invalid.endpoint.declaration"),
+    INVALID_LISTENER_VARIABLE("invalid.listener.var"),
+
     ENDPOINT_NOT_SUPPORT_REGISTRATION("endpoint.not.support.registration"),
     INVALID_ACTION_INVOCATION_SYNTAX("invalid.action.invocation.syntax"),
+    INVALID_RESOURCE_FUNCTION_INVOCATION("invalid.resource.function.invocation"),
     INVALID_ACTION_INVOCATION("invalid.action.invocation"),
     UNDEFINED_ACTION("undefined.action"),
 
@@ -335,6 +344,8 @@ public enum DiagnosticCode {
 
     // Dataflow analysis related error codes
     PARTIALLY_INITIALIZED_VARIABLE("partially.initialized.variable"),
+
+    CANNOT_INFER_ERROR_TYPE("cannot.infer.error.type"),
 
     // Seal inbuilt function related codes
     INCOMPATIBLE_STAMP_TYPE("incompatible.stamp.type"),

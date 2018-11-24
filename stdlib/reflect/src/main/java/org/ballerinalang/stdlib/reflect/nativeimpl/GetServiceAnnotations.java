@@ -18,9 +18,7 @@
 package org.ballerinalang.stdlib.reflect.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.BServiceType;
-import org.ballerinalang.model.values.BTypeDescValue;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
@@ -36,11 +34,7 @@ public class GetServiceAnnotations extends AbstractAnnotationReader {
 
     @Override
     public void execute(Context context) {
-        BTypeDescValue bTypeValue = (BTypeDescValue) context.getRefArgument(0);
-        if (!(bTypeValue.value() instanceof BServiceType)) {
-            context.setReturnValues((BValue) null);
-        }
-        BServiceType serviceType = (BServiceType) bTypeValue.value();
+        BType serviceType = context.getRefArgument(0).getType();
         context.setReturnValues(getAnnotationValue(context, serviceType.getPackagePath(), serviceType.getName()));
     }
 }

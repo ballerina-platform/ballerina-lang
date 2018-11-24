@@ -31,7 +31,7 @@ import org.ballerinalang.net.http.DataContext;
         orgName = "ballerina", packageName = "http",
         functionName = "nativeSubmit",
         args = {
-                @Argument(name = "callerActions", type = TypeKind.OBJECT),
+                @Argument(name = "client", type = TypeKind.OBJECT),
                 @Argument(name = "httpVerb", type = TypeKind.STRING),
                 @Argument(name = "path", type = TypeKind.STRING),
                 @Argument(name = "req", type = TypeKind.OBJECT, structType = "OutRequest",

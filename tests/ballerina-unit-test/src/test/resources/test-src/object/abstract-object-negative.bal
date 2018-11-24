@@ -25,7 +25,7 @@ type Person2 abstract object {
     int year = 50;
     string month = "february";
     
-    new () {
+    function __init () {
     }
 };
 

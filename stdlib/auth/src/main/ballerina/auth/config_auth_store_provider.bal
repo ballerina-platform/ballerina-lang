@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/config;
-import ballerina/crypto;
 import ballerina/runtime;
 
 const string CONFIG_USER_SECTION = "b7a.users";
