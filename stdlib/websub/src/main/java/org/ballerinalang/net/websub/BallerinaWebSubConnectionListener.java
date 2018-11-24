@@ -139,7 +139,6 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
     @SuppressWarnings("unchecked")
     protected void extractPropertiesAndStartResourceExecution(HttpCarbonMessage httpCarbonMessage,
                                                               HttpResource httpResource) {
-        BValue subscriberServiceEndpoint = getSubscriberServiceEndpoint(httpResource, httpCarbonMessage);
         BMap<String, BValue>  httpRequest;
         if (httpCarbonMessage.getProperty(ENTITY_ACCESSED_REQUEST) != null) {
             httpRequest = (BMap<String, BValue>) httpCarbonMessage.getProperty(ENTITY_ACCESSED_REQUEST);
@@ -153,7 +152,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
         BValue[] signatureParams = new BValue[paramDetails.size()];
         String resourceName = httpResource.getName();
         if (RESOURCE_NAME_ON_INTENT_VERIFICATION.equals(resourceName)) {
-            signatureParams[0] = subscriberServiceEndpoint;
+            signatureParams[0] = getCaller(httpResource, httpCarbonMessage);
             BMap<String, BValue> intentVerificationRequestStruct = createIntentVerificationRequestStruct(balResource);
             if (httpCarbonMessage.getProperty(HttpConstants.QUERY_STR) != null) {
                 String queryString = (String) httpCarbonMessage.getProperty(HttpConstants.QUERY_STR);
@@ -223,13 +222,12 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
      * @param httpCarbonMessage the HTTP message representing the request received
      * @return the struct representing the subscriber service endpoint
      */
-    private BMap<String, BValue> getSubscriberServiceEndpoint(HttpResource httpResource,
-                                                              HttpCarbonMessage httpCarbonMessage) {
+    private BMap<String, BValue> getCaller(HttpResource httpResource, HttpCarbonMessage httpCarbonMessage) {
         BMap<String, BValue> subscriberServiceEndpoint =
                 createSubscriberServiceEndpointStruct(httpResource.getBalResource());
         BMap<String, BValue> serviceEndpoint = BLangConnectorSPIUtil.createBStruct(
                 httpResource.getBalResource().getResourceInfo().getPackageInfo().getProgramFile(),
-                HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.SERVICE_ENDPOINT);
+                HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.HTTP_SERVER);
 
         BMap<String, BValue> connection = BLangConnectorSPIUtil.createBStruct(
                 httpResource.getBalResource().getResourceInfo().getPackageInfo().getProgramFile(),
@@ -237,10 +235,10 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
 
         HttpUtil.enrichServiceEndpointInfo(serviceEndpoint, httpCarbonMessage, httpResource, endpointConfig);
         HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage, endpointConfig);
-        serviceEndpoint.put(HttpConstants.SERVICE_ENDPOINT_CONNECTION_FIELD, connection);
 
+        serviceEndpoint.put(HttpConstants.SERVICE_ENDPOINT_CONNECTION_FIELD, connection);
         subscriberServiceEndpoint.put(LISTENER_SERVICE_ENDPOINT, serviceEndpoint);
-        return subscriberServiceEndpoint;
+        return connection;
     }
 
     /**
