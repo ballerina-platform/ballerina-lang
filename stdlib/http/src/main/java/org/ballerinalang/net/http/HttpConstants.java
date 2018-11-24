@@ -401,6 +401,7 @@ public class HttpConstants {
     public static final String HTTP_SERVER = "Server";
 
     public static final String COLON = ":";
+    public static final String DOLLAR = "$";
 
     private HttpConstants() {
     }
