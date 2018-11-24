@@ -155,7 +155,7 @@ public class HttpDispatcher {
 
         BMap<String, BValue> serviceEndpoint =
                 BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, HTTP_SERVER);
-        BMap<String, BValue> connection =
+        BMap<String, BValue> httpCaller =
                 BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, CALLER);
         BMap<String, BValue> inRequest =
                 BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, REQUEST);
@@ -164,16 +164,15 @@ public class HttpDispatcher {
         BMap<String, BValue> mediaType =
                 BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
 
-        HttpUtil.enrichServiceEndpointInfo(serviceEndpoint, httpCarbonMessage, httpResource, endpointConfig);
-        HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage, endpointConfig);
-        serviceEndpoint.put(SERVICE_ENDPOINT_CONNECTION_FIELD, connection);
+        HttpUtil.enrichHttpCaller(httpCaller, httpCarbonMessage, httpResource, endpointConfig);
+        HttpUtil.enrichHttpCallerWithNativeData(httpCaller, httpCarbonMessage, endpointConfig);
+        serviceEndpoint.put(SERVICE_ENDPOINT_CONNECTION_FIELD, httpCaller);
 
-        HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage, endpointConfig);
         HttpUtil.populateInboundRequest(inRequest, inRequestEntity, mediaType, httpCarbonMessage, programFile);
 
         SignatureParams signatureParams = httpResource.getSignatureParams();
         BValue[] bValues = new BValue[signatureParams.getParamCount()];
-        bValues[0] = connection;
+        bValues[0] = httpCaller;
         bValues[1] = inRequest;
         if (signatureParams.getParamCount() == 2) {
             return bValues;

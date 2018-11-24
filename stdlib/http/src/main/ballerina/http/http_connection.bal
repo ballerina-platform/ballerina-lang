@@ -14,12 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 # The caller actions for responding to client requests.
 public type Caller client object {
 
     private ServiceEndpointConfiguration config = {};
     private FilterContext? filterContext = ();
+
+    //TODO:Make these readonly
+    public Remote remoteDetails = {};
+    public Local local = {};
+    public string protocol = "";
 
     # Sends the outbound response to the caller.
     #

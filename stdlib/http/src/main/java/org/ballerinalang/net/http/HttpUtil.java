@@ -629,28 +629,28 @@ public class HttpUtil {
     }
 
     /**
-     * Populate connection information.
+     * Populates the HTTP caller with native data.
      *
-     * @param connection Represent the connection struct
-     * @param inboundMsg Represent carbon message.
-     * @param config Service endpoint configuration.
+     * @param caller Represents the HTTP caller
+     * @param inboundMsg Represents carbon message
+     * @param config Represents service endpoint configuration
      */
-    public static void enrichConnectionInfo(BMap<String, BValue> connection, HttpCarbonMessage inboundMsg,
-                                            Struct config) {
-        connection.addNativeData(HttpConstants.TRANSPORT_MESSAGE, inboundMsg);
-        connection.put(HttpConstants.HTTP_CONNECTOR_CONFIG_FIELD, (BMap<String, BValue>) config.getVMValue());
+    public static void enrichHttpCallerWithNativeData(BMap<String, BValue> caller, HttpCarbonMessage inboundMsg,
+                                                      Struct config) {
+        caller.addNativeData(HttpConstants.TRANSPORT_MESSAGE, inboundMsg);
+        caller.put(HttpConstants.HTTP_CONNECTOR_CONFIG_FIELD, (BMap<String, BValue>) config.getVMValue());
     }
 
     /**
-     * Populate serviceEndpoint information.
+     * Populates the HTTP Caller with protocol details.
      *
-     * @param serviceEndpoint Represent the serviceEndpoint struct
-     * @param inboundMsg Represent carbon message.
-     * @param httpResource Represent Http Resource.
-     * @param config Service endpoint configuration.
+     * @param httpCaller Represents the HTTP caller
+     * @param inboundMsg Represents the carbon message
+     * @param httpResource Represents the Http Resource
+     * @param config Represents the service endpoint configuration
      */
-    public static void enrichServiceEndpointInfo(BMap<String, BValue> serviceEndpoint, HttpCarbonMessage inboundMsg,
-                                                 HttpResource httpResource, Struct config) {
+    public static void enrichHttpCaller(BMap<String, BValue> httpCaller, HttpCarbonMessage inboundMsg,
+                                        HttpResource httpResource, Struct config) {
         BMap<String, BValue> remote = BLangConnectorSPIUtil.createBStruct(
                 httpResource.getBalResource().getResourceInfo().getPackageInfo().getProgramFile(),
                 PROTOCOL_PACKAGE_HTTP, HttpConstants.REMOTE);
@@ -666,7 +666,7 @@ public class HttpUtil {
             remote.put(HttpConstants.REMOTE_HOST_FIELD, new BString(remoteHost));
             remote.put(HttpConstants.REMOTE_PORT_FIELD, new BInteger(remotePort));
         }
-        serviceEndpoint.put(HttpConstants.REMOTE_STRUCT_FIELD, remote);
+        httpCaller.put(HttpConstants.REMOTE_STRUCT_FIELD, remote);
 
         Object localSocketAddress = inboundMsg.getProperty(HttpConstants.LOCAL_ADDRESS);
         if (localSocketAddress instanceof InetSocketAddress) {
@@ -676,10 +676,10 @@ public class HttpUtil {
             local.put(HttpConstants.LOCAL_HOST_FIELD, new BString(localHost));
             local.put(HttpConstants.LOCAL_PORT_FIELD, new BInteger(localPort));
         }
-        serviceEndpoint.put(HttpConstants.LOCAL_STRUCT_INDEX, local);
-        serviceEndpoint.put(HttpConstants.SERVICE_ENDPOINT_PROTOCOL_FIELD,
+        httpCaller.put(HttpConstants.LOCAL_STRUCT_INDEX, local);
+        httpCaller.put(HttpConstants.SERVICE_ENDPOINT_PROTOCOL_FIELD,
                 new BString((String) inboundMsg.getProperty(HttpConstants.PROTOCOL)));
-        serviceEndpoint.put(HttpConstants.SERVICE_ENDPOINT_CONFIG_FIELD, (BMap<String, BValue>) config.getVMValue());
+        httpCaller.put(HttpConstants.SERVICE_ENDPOINT_CONFIG_FIELD, (BMap<String, BValue>) config.getVMValue());
     }
 
     /**

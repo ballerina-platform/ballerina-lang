@@ -32,10 +32,6 @@ public type Server object {
 
     *AbstractListener;
 
-    @readonly public Remote remoteDetails = {};
-    @readonly public Local local = {};
-    @readonly public string protocol = "";
-
     private Caller caller = new;
     private ServiceEndpointConfiguration config = {};
 
