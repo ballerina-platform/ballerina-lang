@@ -14,12 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents an event which will trigger when there is a changes to listining direcotry.
+# Record representing the configuration parameters for the WebSub Hub Client Endpoint.
 #
-# + name - Absolute file URI for triggerd event
-# + operation - Triggered event action. This can be create, delete or modify
-public type FileEvent record {
-    string name;
-    string operation;
+# + url - The URL of the target Hub
+# + clientSecureSocket - SSL/TLS related options for the underlying HTTP Client
+# + auth - Authentication mechanism for the underlying HTTP Client
+# + followRedirects - HTTP redirect related configuration
+public type HubClientEndpointConfig record {
+    string url = "";
+    http:SecureSocket? clientSecureSocket = ();
+    http:AuthConfig? auth = ();
+    http:FollowRedirects? followRedirects = ();
     !...
 };

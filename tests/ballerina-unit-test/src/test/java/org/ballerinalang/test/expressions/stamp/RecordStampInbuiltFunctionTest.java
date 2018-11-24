@@ -390,6 +390,71 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(employee0.get("school").stringValue(), "Hindu College");
     }
 
+    @Test
+    public void testStampRecordWithNilValues() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampRecordWithNilValues");
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+
+        Assert.assertEquals(employee0.get("batch").getType().getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get("batch").stringValue(), "LK2014");
+
+        Assert.assertEquals(employee0.get("school"), null);
+    }
+
+    @Test
+    public void testStampRecordWithNilValuesV2() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampRecordWithNilValuesV2");
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+
+        Assert.assertEquals(employee0.get("batch").getType().getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get("batch").stringValue(), "LK2014");
+
+        Assert.assertEquals(employee0.get("school"), null);
+    }
+
+    @Test
+    public void testStampExtendedRecordToRecordWithUnionV7() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampExtendedRecordToRecordWithUnionV7");
+        BMap<String, BValue> mapValue = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+        Assert.assertEquals(mapValue.size(), 4);
+
+        Assert.assertEquals(mapValue.getType().getClass(), BRecordType.class);
+        Assert.assertEquals(mapValue.getType().getName(), "ExtendedEmployeeWithRecord");
+
+        Assert.assertEquals(mapValue.get("batch").getType().getClass(), BStringType.class);
+        Assert.assertEquals(mapValue.get("batch").stringValue(), "LK2014");
+
+        Assert.assertEquals(mapValue.get("address").getType().getClass(), BRecordType.class);
+        Assert.assertEquals(mapValue.get("address").getType().getName(), "Address");
+    }
+
+    @Test
+    public void testStampRecordToRecordWithNilValues() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampRecordToRecordWithNilValues");
+        BMap<String, BValue> mapValue = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+        Assert.assertEquals(mapValue.size(), 4);
+
+        Assert.assertEquals(mapValue.getType().getClass(), BRecordType.class);
+        Assert.assertEquals(mapValue.getType().getName(), "ExtendedEmployeeWithNilRecord");
+
+        Assert.assertEquals(mapValue.get("batch").getType().getClass(), BStringType.class);
+        Assert.assertEquals(mapValue.get("batch").stringValue(), "LK2014");
+
+        Assert.assertEquals(mapValue.get("address"), null);
+    }
+
     //---------------------------------- Negative Test cases ----------------------------------------------
 
     @Test

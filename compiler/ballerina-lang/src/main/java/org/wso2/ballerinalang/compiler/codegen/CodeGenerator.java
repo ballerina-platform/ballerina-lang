@@ -188,7 +188,6 @@ import org.wso2.ballerinalang.programfile.PackageInfo;
 import org.wso2.ballerinalang.programfile.PackageInfoWriter;
 import org.wso2.ballerinalang.programfile.PackageVarInfo;
 import org.wso2.ballerinalang.programfile.RecordTypeInfo;
-import org.wso2.ballerinalang.programfile.ResourceInfo;
 import org.wso2.ballerinalang.programfile.ServiceInfo;
 import org.wso2.ballerinalang.programfile.StructFieldInfo;
 import org.wso2.ballerinalang.programfile.TypeDefInfo;
@@ -894,11 +893,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangPackageVarRef packageVarRef) {
         BPackageSymbol pkgSymbol;
         BSymbol ownerSymbol = packageVarRef.symbol.owner;
-        if (ownerSymbol.tag == SymTag.SERVICE) {
-            pkgSymbol = (BPackageSymbol) ownerSymbol.owner;
-        } else {
-            pkgSymbol = (BPackageSymbol) ownerSymbol;
-        }
+        pkgSymbol = (BPackageSymbol) ownerSymbol;
 
         Operand gvIndex = packageVarRef.varSymbol.varIndex;
         int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.pkgID);
@@ -1418,7 +1413,8 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        visitFunctionPointerLoad(bLangLambdaFunction, ((BLangFunction) bLangLambdaFunction.getFunctionNode()).symbol);
+        visitFunctionPointerLoad(bLangLambdaFunction,
+                ((BLangFunction) bLangLambdaFunction.getFunctionNode()).originalFuncSymbol);
     }
 
     public void visit(BLangStatementExpression bLangStatementExpression) {
@@ -2359,7 +2355,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Add service name as an UTFCPEntry to the constant pool
         int serviceNameCPIndex = addUTF8CPEntry(currentPkgInfo, serviceNode.name.value);
         //Create service info
-        int serviceTypeCPIndex = getTypeCPIndex(serviceNode.serviceType).getValue();
+        int serviceTypeCPIndex = getTypeCPIndex(serviceNode.symbol.type).getValue();
         int listenerTypeIndex = serviceNode.attachExpr != null ? getTypeCPIndex(serviceNode.attachExpr.type).value : -1;
         int listenerNameCPIndex = addUTF8CPEntry(currentPkgInfo, serviceNode.listenerName);
         ServiceInfo serviceInfo = new ServiceInfo(currentPackageRefCPIndex, serviceNameCPIndex,
@@ -2367,55 +2363,12 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         currentPkgInfo.addServiceInfo(serviceNode.name.value, serviceInfo);
         // Create resource info entries for all resources
-        ((BObjectTypeSymbol) serviceNode.serviceType.tsymbol).attachedFuncs.stream()
+        ((BObjectTypeSymbol) serviceNode.symbol.type.tsymbol).attachedFuncs.stream()
                 .filter(func -> Symbols.isFlagOn(func.symbol.flags, Flags.RESOURCE)).forEach(
-                res -> this.env.enclPkg.functions.stream().filter(fuc -> fuc.originalFuncSymbol == res.symbol)
-                        .findFirst().ifPresent(bLangFunction -> createResourceInfoEntry(bLangFunction, serviceInfo)));
+                fuc -> serviceInfo.resourcesCPIndex.add(addUTF8CPEntry(currentPkgInfo, fuc.symbol.getName().value)));
         // Add documentation attributes
+
         addDocAttachmentAttrInfo(serviceNode.symbol.markdownDocumentation, serviceInfo);
-    }
-
-    private void createResourceInfoEntry(BLangFunction resourceNode, ServiceInfo serviceInfo) {
-        BInvokableType resourceType = (BInvokableType) resourceNode.symbol.type;
-        // Add resource name as an UTFCPEntry to the constant pool
-        int serviceNameCPIndex = addUTF8CPEntry(currentPkgInfo, resourceNode.name.value);
-        ResourceInfo resourceInfo = new ResourceInfo(currentPackageRefCPIndex, serviceNameCPIndex);
-        resourceInfo.paramTypes = resourceType.paramTypes.toArray(new BType[0]);
-        setParameterNames(resourceNode, resourceInfo);
-        resourceInfo.retParamTypes = new BType[1];
-        resourceInfo.retParamTypes[0] = resourceNode.symbol.retType;
-        resourceInfo.signatureCPIndex = addUTF8CPEntry(currentPkgInfo,
-                generateFunctionSig(resourceInfo.paramTypes, resourceNode.symbol.retType));
-        // Add resource info to the service info
-        serviceInfo.resourceInfoMap.put(resourceNode.name.getValue(), resourceInfo);
-
-        // Add documentation attributes
-        addDocAttachmentAttrInfo(resourceNode.symbol.markdownDocumentation, resourceInfo);
-    }
-
-    private void setParameterNames(BLangFunction resourceNode, ResourceInfo resourceInfo) {
-        int paramCount = resourceNode.requiredParams.size();
-        resourceInfo.paramNameCPIndexes = new int[paramCount];
-        for (int i = 0; i < paramCount; i++) {
-            BLangSimpleVariable paramVar = resourceNode.requiredParams.get(i);
-            String paramName = null;
-            boolean isAnnotated = false;
-            for (BLangAnnotationAttachment annotationAttachment : paramVar.annAttachments) {
-                String attachmentName = annotationAttachment.getAnnotationName().getValue();
-                if ("PathParam".equalsIgnoreCase(attachmentName) || "QueryParam".equalsIgnoreCase(attachmentName)) {
-                    //TODO:
-                    //paramName = annotationAttachment.getAttributeNameValuePairs().get("value")
-                    // .getLiteralValue().stringValue();
-                    isAnnotated = true;
-                    break;
-                }
-            }
-            if (!isAnnotated) {
-                paramName = paramVar.name.getValue();
-            }
-            int paramNameCPIndex = addUTF8CPEntry(currentPkgInfo, paramName);
-            resourceInfo.paramNameCPIndexes[i] = paramNameCPIndex;
-        }
     }
 
     private ErrorTableAttributeInfo getErrorTable(PackageInfo packageInfo) {
@@ -2906,11 +2859,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         for (BVarSymbol varSymbol : lockNode.lockVariables) {
             BPackageSymbol pkgSymbol;
             BSymbol ownerSymbol = varSymbol.owner;
-            if (ownerSymbol.tag == SymTag.SERVICE) {
-                pkgSymbol = (BPackageSymbol) ownerSymbol.owner;
-            } else {
-                pkgSymbol = (BPackageSymbol) ownerSymbol;
-            }
+            pkgSymbol = (BPackageSymbol) ownerSymbol;
             int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.pkgID);
 
             int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, varSymbol.getType().getDesc());
@@ -3605,8 +3554,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // If the namespace is defined within a callable unit or service, get the URI index in the 
         // local var registry. Otherwise get the URI index in the global var registry.
-        if ((namespaceSymbol.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE ||
-                (namespaceSymbol.owner.tag & SymTag.SERVICE) == SymTag.SERVICE) {
+        if ((namespaceSymbol.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
             return (RegIndex) namespaceSymbol.nsURIIndex;
         }
 

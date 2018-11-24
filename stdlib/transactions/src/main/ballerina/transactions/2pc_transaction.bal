@@ -30,8 +30,10 @@ type TwoPhaseCommitTransaction object {
     TransactionState state = TXN_STATE_ACTIVE;
     private boolean possibleMixedOutcome = false;
 
-    new(transactionId, transactionBlockId, coordinationType = "2pc") {
-
+    function __init(string transactionId, int transactionBlockId, string coordinationType = "2pc") {
+        self.transactionId = transactionId;
+        self.transactionBlockId = transactionBlockId;
+        self.coordinationType = coordinationType;
     }
 
     // This function will be called by the initiator

@@ -89,8 +89,8 @@ function testCompoundAssignmentDivisionArrayElement() returns (int){
 }
 
 type Company record {
-   int count;
-   int count2;
+   int count = 0;
+   int count2 = 0;
 };
 
 function testCompoundAssignmentAdditionStructElement() returns (int){

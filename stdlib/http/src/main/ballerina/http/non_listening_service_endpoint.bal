@@ -15,31 +15,11 @@
 // under the License.
 
 
-# Mock service endpoint which does not open a listening port.
-//public type NonListener object {
-//    private Connection conn = new;
-//    private ServiceEndpointConfiguration config = {};
-//
-//    public function init (ServiceEndpointConfiguration c);
-//    public extern function initEndpoint () returns (error?);
-//    public extern function register (typedesc serviceType);
-//    public extern function start ();
-//    public extern function getCallerActions() returns Connection;
-//    public extern function stop ();
-//};
-//
-//function NonListener.init (ServiceEndpointConfiguration c) {
-//    self.config = c;
-//    var err = self.initEndpoint();
-//    if (err is error) {
-//        panic err;
-//    }
-//}
-
+# Mock server endpoint which does not open a listening port.
 public type MockServer object {
 
     *AbstractListener;
-    private Connection conn = new;
+    private Caller caller = new;
     private ServiceEndpointConfiguration config = {};
 
     public function __start() returns error? {
@@ -51,24 +31,24 @@ public type MockServer object {
     }
 
     public function __attach(service s, map annotationData) returns error? {
-    //return register(typedesc serviceType);
         return self.register(s, annotationData);
     }
 
-    public function __init(ServiceEndpointConfiguration c) {
-        self.init(c);
+    public function __init(int port, ServiceEndpointConfiguration? config = ()) {
+        self.config = config ?: {};
+        self.config.port = port;
+        self.init(self.config);
     }
 
     public function init (ServiceEndpointConfiguration c);
     public extern function initEndpoint () returns (error?);
     public extern function register (service s, map annotationData);
     public extern function start ();
-    public extern function getCallerActions() returns Connection;
+    public extern function getCallerActions() returns Caller;
     public extern function stop ();
 };
 
 function MockServer.init (ServiceEndpointConfiguration c) {
-    self.config = c;
     var err = self.initEndpoint();
     if (err is error) {
         panic err;

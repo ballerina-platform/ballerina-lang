@@ -918,23 +918,24 @@ public class BLangPackageBuilder {
         }
     }
 
-    void addSimpleVariableDefStatement(DiagnosticPos pos,
-                                       Set<Whitespace> ws,
-                                       String identifier,
-                                       boolean exprAvailable,
-                                       boolean isDeclaredWithVar) {
+    void addSimpleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean isFinal,
+                                       boolean isDeclaredWithVar, boolean isExpressionAvailable) {
         BLangSimpleVariable var = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         BLangSimpleVariableDef varDefNode = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
         var.pos = pos;
         var.addWS(ws);
         var.setName(this.createIdentifier(identifier));
-        if (exprAvailable) {
-            var.setInitialExpression(this.exprNodeStack.pop());
-        }
 
-        var.isDeclaredWithVar = isDeclaredWithVar;
-        if (!isDeclaredWithVar) {
+        if (isFinal) {
+            markVariableAsFinal(var);
+        }
+        if (isDeclaredWithVar) {
+            var.isDeclaredWithVar = true;
+        } else {
             var.setTypeNode(this.typeNodeStack.pop());
+        }
+        if (isExpressionAvailable) {
+            var.setInitialExpression(this.exprNodeStack.pop());
         }
 
         varDefNode.pos = pos;
@@ -943,8 +944,12 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(varDefNode);
     }
 
-    void addTupleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean isDeclaredWithVar) {
+    void addTupleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean isFinal,
+                                      boolean isDeclaredWithVar) {
         BLangTupleVariable var = (BLangTupleVariable) this.varStack.pop();
+        if (isFinal) {
+            markVariableAsFinal(var);
+        }
         BLangTupleVariableDef varDefNode = (BLangTupleVariableDef) TreeBuilder.createTupleVariableDefinitionNode();
         Set<Whitespace> wsOfSemiColon = removeNthFromLast(ws, 0);
         var.setInitialExpression(this.exprNodeStack.pop());
@@ -959,9 +964,13 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(varDefNode);
     }
 
-    void addRecordVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean isDeclaredWithVar) {
+    void addRecordVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean isFinal,
+                                       boolean isDeclaredWithVar) {
         BLangRecordVariableDef varDefNode = (BLangRecordVariableDef) TreeBuilder.createRecordVariableDefinitionNode();
         BLangRecordVariable var = (BLangRecordVariable) this.varStack.pop();
+        if (isFinal) {
+            markVariableAsFinal(var);
+        }
         var.setInitialExpression(this.exprNodeStack.pop());
         varDefNode.pos = pos;
         varDefNode.setVariable(var);
@@ -1008,6 +1017,25 @@ public class BLangPackageBuilder {
 
         objectInitNode.objectInitInvocation = invocationNode;
         this.addExpressionNode(objectInitNode);
+    }
+
+    private void markVariableAsFinal(BLangVariable variable) {
+        // Set the final flag to the variable.
+        variable.flagSet.add(Flag.FINAL);
+        switch (variable.getKind()) {
+            case TUPLE_VARIABLE:
+                // If the variable is a tuple variable, we need to set the final flag to the all member variables.
+                ((BLangTupleVariable) variable).memberVariables.parallelStream()
+                        .forEach(this::markVariableAsFinal);
+                break;
+            case RECORD_VARIABLE:
+                // If the variable is a record variable, we need to set the final flag to the all the variables in
+                // the record.
+                ((BLangRecordVariable) variable).variableList.parallelStream()
+                        .map(BLangRecordVariableKeyValue::getValue)
+                        .forEach(this::markVariableAsFinal);
+                break;
+        }
     }
 
     void addErrorConstructor(DiagnosticPos pos, Set<Whitespace> ws, boolean detailsExprAvailable) {
@@ -1585,17 +1613,14 @@ public class BLangPackageBuilder {
         }
     }
 
-    private SimpleVariableNode generateBasicVarNode(DiagnosticPos pos,
-                                                    Set<Whitespace> ws,
-                                                    String identifier,
-                                                    boolean exprAvailable) {
+    private VariableNode generateBasicVarNodeWithoutType(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
+                                                         boolean isExpressionAvailable) {
         BLangSimpleVariable var = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         var.pos = pos;
         IdentifierNode name = this.createIdentifier(identifier);
         var.setName(name);
         var.addWS(ws);
-        var.setTypeNode(this.typeNodeStack.pop());
-        if (exprAvailable) {
+        if (isExpressionAvailable) {
             var.setInitialExpression(this.exprNodeStack.pop());
         }
         return var;
@@ -1616,16 +1641,24 @@ public class BLangPackageBuilder {
         return constantNode;
     }
 
-    private VariableNode generateBasicVarNodeWithoutType(DiagnosticPos pos,
-                                                         Set<Whitespace> ws,
-                                                         String identifier,
-                                                         boolean exprAvailable) {
+    private VariableNode generateBasicVarNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
+                                              boolean isExpressionAvailable) {
+        return generateBasicVarNode(pos, ws, identifier, false, isExpressionAvailable);
+    }
+
+    private VariableNode generateBasicVarNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
+                                              boolean isDeclaredWithVar, boolean isExpressionAvailable) {
         BLangSimpleVariable var = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         var.pos = pos;
         IdentifierNode name = this.createIdentifier(identifier);
         var.setName(name);
         var.addWS(ws);
-        if (exprAvailable) {
+        if (isDeclaredWithVar) {
+            var.isDeclaredWithVar = true;
+        } else {
+            var.setTypeNode(this.typeNodeStack.pop());
+        }
+        if (isExpressionAvailable) {
             var.setInitialExpression(this.exprNodeStack.pop());
         }
         return var;
@@ -1674,19 +1707,25 @@ public class BLangPackageBuilder {
         }
     }
 
-    void addGlobalVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean exprAvailable,
-            boolean publicVar, boolean listenerVar) {
-        BLangSimpleVariable var = (BLangSimpleVariable) this.generateBasicVarNode(pos, ws, identifier, exprAvailable);
-        attachAnnotations(var);
-        if (publicVar) {
+    void addGlobalVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean isPublic, boolean isFinal,
+                           boolean isDeclaredWithVar, boolean isExpressionAvailable, boolean isListenerVar) {
+        BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, isDeclaredWithVar,
+                isExpressionAvailable);
+
+        if (isPublic) {
             var.flagSet.add(Flag.PUBLIC);
         }
-
-        if (listenerVar) {
+        if (isFinal) {
+            var.flagSet.add(Flag.FINAL);
+        }
+        if (isListenerVar) {
             var.flagSet.add(Flag.LISTENER);
         }
+
+        attachAnnotations(var);
         attachMarkdownDocumentations(var);
         attachDeprecatedNode(var);
+
         this.compUnit.addTopLevelNode(var);
     }
 
@@ -2493,22 +2532,32 @@ public class BLangPackageBuilder {
     void endServiceDef(DiagnosticPos pos, Set<Whitespace> ws, String serviceName, DiagnosticPos identifierPos,
             boolean isAnonServiceValue) {
         BLangService serviceNode = (BLangService) serviceNodeStack.pop();
+        serviceNode.pos = pos;
+        serviceNode.addWS(ws);
         serviceNode.isAnonymousServiceValue = isAnonServiceValue;
         if (serviceName == null) {
             serviceName = this.anonymousModelHelper.getNextAnonymousTypeKey(pos.src.pkgID);
+            identifierPos = pos;
         }
         BLangIdentifier identifier = (BLangIdentifier) createIdentifier(serviceName);
         identifier.pos = identifierPos;
         serviceNode.setName(identifier);
-        serviceNode.serviceUDT = (BLangUserDefinedType) this.typeNodeStack.pop();
-        if (!isAnonServiceValue) {
-            serviceNode.attachExpr = (BLangExpression) this.exprNodeStack.pop();
-        }
-        serviceNode.pos = pos;
-        serviceNode.addWS(ws);
+
+        // Define type nodeDefinition.
+        BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
+        typeDef.setName(identifier);
+        typeDef.flagSet.add(Flag.SERVICE);
+
+        typeDef.typeNode = (BLangType) this.typeNodeStack.pop();
+        typeDef.pos = pos;
+        this.compUnit.addTopLevelNode(typeDef);
+        serviceNode.serviceUDT = createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(),
+                typeDef.name);
+
         this.compUnit.addTopLevelNode(serviceNode);
 
         if (!isAnonServiceValue) {
+            serviceNode.attachExpr = (BLangExpression) this.exprNodeStack.pop();
             return;
         }
         final BLangServiceConstructorExpr serviceConstNode = (BLangServiceConstructorExpr) TreeBuilder

@@ -463,7 +463,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 dlog.error(varNode.pos, DiagnosticCode.SEALED_ARRAY_TYPE_NOT_INITIALIZED);
                 return;
             }
-            if ((varNode.symbol.type.tag != TypeTags.CHANNEL && varNode.symbol.owner.tag == SymTag.PACKAGE) || Symbols
+            if ((varNode.symbol.type.tag != TypeTags.CHANNEL && varNode.symbol.type.tag != TypeTags.STREAM &&
+                    varNode.symbol.owner.tag == SymTag.PACKAGE) || Symbols
                     .isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {
                 dlog.error(varNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varNode.name);
             }
@@ -476,14 +477,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, varNode.symbol);
 
         typeChecker.checkExpr(rhsExpr, varInitEnv, lhsType);
-        if (Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {
-            final BSymbol bSymbol = symResolver.lookupSymbol(env, Names.ABSTRACT_LISTENER, SymTag.TYPE);
-            if (bSymbol == symTable.notFoundSymbol) {
-                throw new AssertionError("Abstract Listener not defined.");
-            }
-            if (!types.isAssignable(varNode.symbol.type, bSymbol.type)) {
-                dlog.error(varNode.pos, DiagnosticCode.INVALID_LISTENER_VARIABLE, varNode.name);
-            }
+        if (Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER) && !types
+                .checkListenerCompatibility(env, varNode.symbol.type)) {
+            dlog.error(varNode.pos, DiagnosticCode.INVALID_LISTENER_VARIABLE, varNode.name);
         }
     }
 
@@ -568,6 +564,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     symbolEnter.defineNode(simpleVariable, env);
                 }
             }
+
+            // Set the type to the symbol. If the variable is a global variable, a symbol is already created in the
+            // symbol enter. If the variable is a local variable, the symbol will be created above.
+            simpleVariable.symbol.type = rhsType;
         } else if (NodeKind.TUPLE_VARIABLE == variable.getKind()) {
             if (TypeTags.TUPLE != rhsType.tag) {
                 dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, rhsType);
@@ -582,7 +582,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
 
             symbolEnter.defineNode(tupleVariable, env);
-
         } else if (NodeKind.RECORD_VARIABLE == variable.getKind()) {
             BLangRecordVariable recordVariable = (BLangRecordVariable) variable;
             recordVariable.type = rhsType;
@@ -1298,11 +1297,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (serviceNode.isAnonymousServiceValue) {
             return;
         }
-        final BSymbol bSymbol = symResolver.lookupSymbol(env, Names.ABSTRACT_LISTENER, SymTag.TYPE);
-        if (bSymbol == symTable.notFoundSymbol) {
-            throw new AssertionError("Abstract Listener not defined.");
+        final BType exprType = typeChecker.checkExpr(serviceNode.attachExpr, env);
+        if (!types.checkListenerCompatibility(env, exprType)) {
+            dlog.error(serviceNode.attachExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, Names.ABSTRACT_LISTENER,
+                    exprType);
         }
-        typeChecker.checkExpr(serviceNode.attachExpr, env, bSymbol.type);
 
         // TODO : Fix this.
         if (serviceNode.attachExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
@@ -2499,7 +2498,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv elseEnv = SymbolEnv.createBlockEnv((BLangBlockStmt) ifNode.elseStmt, env);
         for (Entry<BVarSymbol, Set<BType>> entry : this.typeGuards.entrySet()) {
             BVarSymbol originalVarSymbol = entry.getKey();
-            BType remainingType = getRemainingType(originalVarSymbol.type, entry.getValue());
+            BType remainingType = types.getRemainingType(originalVarSymbol.type, entry.getValue());
             BVarSymbol varSymbol = new BVarSymbol(0, originalVarSymbol.name, elseEnv.scope.owner.pkgID, remainingType,
                     this.env.scope.owner);
             symbolEnter.defineShadowedSymbol(ifNode.expr.pos, varSymbol, elseEnv);
@@ -2534,27 +2533,5 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private void resetTypeGards() {
         this.typeGuards = null;
-    }
-
-    private BType getRemainingType(BType originalType, Set<BType> set) {
-        if (originalType.tag != TypeTags.UNION) {
-            return originalType;
-        }
-
-        List<BType> memberTypes = new ArrayList<>(((BUnionType) originalType).getMemberTypes());
-
-        for (BType removeType : set) {
-            if (removeType.tag != TypeTags.UNION) {
-                memberTypes.remove(removeType);
-            } else {
-                ((BUnionType) removeType).getMemberTypes().forEach(type -> memberTypes.remove(type));
-            }
-
-            if (memberTypes.size() == 1) {
-                return memberTypes.get(0);
-            }
-        }
-
-        return new BUnionType(null, new HashSet<>(memberTypes), memberTypes.contains(symTable.nilType));
     }
 }

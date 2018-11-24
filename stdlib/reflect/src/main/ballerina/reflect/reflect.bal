@@ -31,9 +31,9 @@ public type annotationData record {
     anyStruct value;
 };
 
-public extern function getServiceAnnotations(typedesc serviceType) returns (annotationData[]);
+public extern function getServiceAnnotations(service serviceType) returns (annotationData[]);
 
-public extern function getResourceAnnotations(typedesc serviceType, string resourceName) returns (annotationData[]);
+public extern function getResourceAnnotations(service serviceType, string resourceName) returns (annotationData[]);
 
 public extern function getStructAnnotations(typedesc structType) returns (annotationData[]);
 

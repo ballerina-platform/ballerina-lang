@@ -16,7 +16,7 @@
 
 
 # The caller actions for responding to client requests.
-public type Connection client object {
+public type Caller client object {
 
     private ServiceEndpointConfiguration config = {};
     private FilterContext? filterContext = ();
@@ -59,7 +59,7 @@ public type Connection client object {
     #
     # + headers - A `map` of custom headers for handshake
     # + return - WebSocket service endpoint
-    public remote extern function acceptWebSocketUpgrade(map<string> headers) returns WebSocketListener;
+    public remote extern function acceptWebSocketUpgrade(map<string> headers) returns WebSocketCaller;
 
     # Cancels the handshake.
     #
@@ -107,7 +107,7 @@ public type Connection client object {
                                                                                             returns error?;
 };
 
-extern function nativeRespond(Connection connection, Response response) returns error?;
+extern function nativeRespond(Caller caller, Response response) returns error?;
 
 /////////////////////////////////
 /// Ballerina Implementations ///
@@ -133,13 +133,13 @@ public const REDIRECT_TEMPORARY_REDIRECT_307 = 307;
 # Represents the HTTP redirect status code `308 - Permanent Redirect`.
 public const REDIRECT_PERMANENT_REDIRECT_308 = 308;
 
-remote function Connection.continue() returns error? {
+remote function Caller.continue() returns error? {
     Response res = new;
     res.statusCode = CONTINUE_100;
     return self->respond(res);
 }
 
-remote function Connection.redirect(Response response, RedirectCode code, string[] locations) returns error? {
+remote function Caller.redirect(Response response, RedirectCode code, string[] locations) returns error? {
     if (code == REDIRECT_MULTIPLE_CHOICES_300) {
         response.statusCode = MULTIPLE_CHOICES_300;
     } else if (code == REDIRECT_MOVED_PERMANENTLY_301) {
@@ -167,13 +167,13 @@ remote function Connection.redirect(Response response, RedirectCode code, string
     return self->respond(response);
 }
 
-remote function Connection.ok(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns error? {
+remote function Caller.ok(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns error? {
     Response response = buildResponse(message);
     response.statusCode = OK_200;
     return self->respond(response);
 }
 
-remote function Connection.created(string uri, Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
+remote function Caller.created(string uri, Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
                                                                                             returns error? {
     Response response = buildResponse(message);
     response.statusCode = CREATED_201;
@@ -183,7 +183,7 @@ remote function Connection.created(string uri, Response|string|xml|json|byte[]|i
     return self->respond(response);
 }
 
-remote function Connection.accepted(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
+remote function Caller.accepted(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
                                                                                             returns error? {
     Response response = buildResponse(message);
     response.statusCode = ACCEPTED_202;
