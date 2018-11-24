@@ -13,22 +13,18 @@ jms:Session jmsSession = new(conn, {
     acknowledgementMode:"AUTO_ACKNOWLEDGE"
 });
 
-// This initializes a durable topic subscriber using the created session.
-endpoint jms:DurableTopicSubscriber subscriber {
-    session:jmsSession,
-    topicPattern:"BallerinaTopic",
-    identifier:"sub1"
-};
+jms:DurableTopicConsumerEndpointConfiguration config = {session:jmsSession, topicPattern:"BallerinaTopic",
+                                                        identifier:"sub1"};
 
 // This binds the created subscriber to the listener service.
-service<jms:Consumer> jmsListener bind subscriber {
+service jmsListener on new jms:DurableTopicConsumer(config) {
     // This resource is invoked when a message is received.
-    onMessage(endpoint consumer, jms:Message message) {
-        // This retrieves the text message.
-        match (message.getTextMessageContent()) {
-            string messageText => log:printInfo("Message : " + messageText);
-            error e =>
-                log:printError("Error occurred while reading message", err=e);
+    resource function onMessage(jms:DurableTopicCaller consumer, jms:Message message) {
+        var result = message.getTextMessageContent();
+        if (result is string) {
+            log:printInfo("Message : " + result);
+        } else if (result is error) {
+            log:printError("Error occurred while reading message", err=result);
         }
     }
 }

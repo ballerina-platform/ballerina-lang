@@ -25,9 +25,9 @@ public type DurableTopicConsumer object {
     *AbstractListener;
 
     public DurableTopicCaller consumerActions = new;
-    public DurableTopicSubscriberEndpointConfiguration config = {};
+    public DurableTopicConsumerEndpointConfiguration config = {};
 
-    public function __init(DurableTopicSubscriberEndpointConfiguration config) {
+    public function __init(DurableTopicConsumerEndpointConfiguration config) {
          self.config = config;
          self.init(config);
     }
@@ -35,7 +35,7 @@ public type DurableTopicConsumer object {
     # Initialize durable topic subscriber endpoint
     #
     # + c - Configurations for a durable topic subscriber
-    function init(DurableTopicSubscriberEndpointConfiguration c) {
+    function init(DurableTopicConsumerEndpointConfiguration c) {
         self.config = c;
         var session = c.session;
         if (session is Session) {
@@ -84,7 +84,7 @@ public type DurableTopicConsumer object {
 # + topicPattern - Name or the pattern of the topic subscription
 # + messageSelector - JMS selector statement
 # + identifier - unique identifier for the subscription
-public type DurableTopicSubscriberEndpointConfiguration record {
+public type DurableTopicConsumerEndpointConfiguration record {
     Session? session = ();
     string topicPattern = "";
     string messageSelector = "";

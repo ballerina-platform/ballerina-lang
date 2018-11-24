@@ -36,12 +36,12 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.CloseConsumerHandler
         packageName = "jms",
         functionName = "closeSubscriber",
         receiver = @Receiver(type = TypeKind.OBJECT,
-                             structType = "DurableTopicSubscriber",
+                             structType = "DurableTopicConsumer",
                              structPackage = "ballerina/jms"),
         args = {
                 @Argument(name = "consumerActions",
                           type = TypeKind.OBJECT,
-                          structType = "DurableTopicSubscriberActions")
+                          structType = "DurableTopicCaller")
         },
         isPublic = true
 )

@@ -20,21 +20,21 @@ import ballerina/log;
 # Simplified endpoint to consume from a topic without the explicit creation for JMS connection and session
 #
 # + config - configurations related to the endpoint
-public type SimpleDurableTopicSubscriber object {
+public type SimpleDurableTopicConsumer object {
 
     *AbstractListener;
 
-    public SimpleDurableTopicSubscriberEndpointConfiguration config = {};
+    public SimpleDurableTopicConsumerEndpointConfiguration config = {};
 
     private Connection? connection = ();
     private Session? session = ();
     private DurableTopicConsumer? subscriber = ();
-    private SimpleDurableTopicConsumer? consumerActions = ();
+    private SimpleDurableTopicCaller? consumerActions = ();
 
     # Initializes the simple durable topic subscriber endpoint
     #
     # + c - Configurations related to the endpoint
-    public function init(SimpleDurableTopicSubscriberEndpointConfiguration c) {
+    public function __init(SimpleDurableTopicConsumerEndpointConfiguration c) {
         self.config = c;
         Connection conn = new({
                 initialContextFactory: self.config.initialContextFactory,
@@ -49,14 +49,13 @@ public type SimpleDurableTopicSubscriber object {
             });
         self.session = newSession;
 
-        DurableTopicSubscriberEndpointConfiguration consumerConfig = {  session: newSession,
-                                                                        topicPattern: c.topicPattern,
-                                                                        messageSelector: c.messageSelector,
-                                                                        identifier: c.identifier
-                                                                      };
+        DurableTopicConsumerEndpointConfiguration consumerConfig = {session: newSession,
+                                                                          topicPattern: c.topicPattern,
+                                                                          messageSelector: c.messageSelector,
+                                                                          identifier: c.identifier};
         DurableTopicConsumer topicSubscriber = new (consumerConfig);
         self.subscriber = topicSubscriber;
-        self.consumerActions = new SimpleDurableTopicConsumer(topicSubscriber.getCallerActions(),
+        self.consumerActions = new SimpleDurableTopicCaller(topicSubscriber.getCallerActions(),
                                    newSession, c.identifier);
     }
 
@@ -133,7 +132,7 @@ public type SimpleDurableTopicSubscriber object {
 # + properties - Custom properties related to JMS provider
 # + messageSelector - JMS selector statement
 # + topicPattern - Name or the pattern of the topic subscription
-public type SimpleDurableTopicSubscriberEndpointConfiguration record {
+public type SimpleDurableTopicConsumerEndpointConfiguration record {
     string initialContextFactory = "bmbInitialContextFactory";
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";
@@ -147,7 +146,7 @@ public type SimpleDurableTopicSubscriberEndpointConfiguration record {
 
 
 # Caller actions related to durable topic subscriber endpoint
-public type SimpleDurableTopicConsumer client object {
+public type SimpleDurableTopicCaller client object {
 
     private DurableTopicCaller helper;
     private Session session;
