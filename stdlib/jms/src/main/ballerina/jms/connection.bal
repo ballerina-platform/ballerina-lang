@@ -22,7 +22,8 @@ public type Connection object {
     public ConnectionConfiguration config = {};
 
     # JMS connection constructor
-    public new(config) {
+    public function __init(ConnectionConfiguration c) {
+        self.config = c;
         self.createConnection();
     }
 

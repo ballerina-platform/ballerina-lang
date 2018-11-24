@@ -42,7 +42,11 @@ public enum BLangBuiltInMethod {
 
     IS_FROZEN("isFrozen"),
 
+    CLONE("clone"),
+
     STAMP("stamp"),
+
+    CALL("call"),
 
     UNDEFINED("$undefined");
 

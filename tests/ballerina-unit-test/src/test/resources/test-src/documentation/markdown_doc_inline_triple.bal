@@ -2,4 +2,4 @@
 #   ```string s = string `hello {{name}}`;```
 # Example for an xml literal:
 #   ```xml x = xml `<{{tagName}}>hello</{{tagName}}>`;```
-@final string testConst = "TestConstantDocumentation";
+final string testConst = "TestConstantDocumentation";

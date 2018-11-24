@@ -29,17 +29,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableKind;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -52,9 +49,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -97,6 +94,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
@@ -144,6 +142,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
@@ -613,8 +612,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 continue;
             }
             fields.add(new BField(names.fromIdNode(recordRefField.variableName),
-                    new BVarSymbol(0, names.fromIdNode(recordRefField.variableName),
-                            env.enclPkg.symbol.pkgID, bVarSymbol.type, recordSymbol)));
+                    new BVarSymbol(0, names.fromIdNode(recordRefField.variableName), env.enclPkg.symbol.pkgID,
+                            bVarSymbol.type, recordSymbol)));
         }
 
         if (varRefExpr.restParam != null) {
@@ -792,12 +791,12 @@ public class TypeChecker extends BLangNodeVisitor {
 
         switch (varRefType.tag) {
             case TypeTags.OBJECT:
-            case TypeTags.RECORD:
-                // Invoking a function bound to a struct
+                // Invoking a function bound to an object
                 // First check whether there exist a function with this name
                 // Then perform arg and param matching
-                checkFunctionInvocationExpr(iExpr, (BStructureType) varRefType);
+                checkObjectFunctionInvocationExpr(iExpr, (BObjectType) varRefType);
                 break;
+            case TypeTags.RECORD:
             case TypeTags.BOOLEAN:
             case TypeTags.STRING:
             case TypeTags.INT:
@@ -897,23 +896,17 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangTernaryExpr ternaryExpr) {
         BType condExprType = checkExpr(ternaryExpr.expr, env, this.symTable.booleanType);
 
-        SymbolEnv thenEnv = env;
-        Map<BVarSymbol, BType> typeGuards = getTypeGuards(ternaryExpr.expr);
-        if (!typeGuards.isEmpty()) {
-            thenEnv = SymbolEnv.createExpressionEnv(ternaryExpr, env);
-            for (Entry<BVarSymbol, BType> entry : typeGuards.entrySet()) {
-                BVarSymbol originalVarSymbol = entry.getKey();
-                BVarSymbol varSymbol = new BVarSymbol(0, originalVarSymbol.name, thenEnv.scope.owner.pkgID,
-                        entry.getValue(), this.env.scope.owner);
-                symbolEnter.defineShadowedSymbol(ternaryExpr.pos, varSymbol, thenEnv);
-
-                // Cache the type guards, to be reused at the desugar.
-                ternaryExpr.typeGuards.put(originalVarSymbol, varSymbol);
-            }
+        SymbolEnv thenEnv = SymbolEnv.createExpressionEnv(ternaryExpr.thenExpr, env);
+        SymbolEnv elseEnv = SymbolEnv.createExpressionEnv(ternaryExpr.elseExpr, env);
+        Map<BVarSymbol, BType> thenTypeGuards = getTypeGuards(ternaryExpr.expr);
+        if (!thenTypeGuards.isEmpty()) {
+            defineThenTypeGuards(ternaryExpr, thenEnv, thenTypeGuards);
+            defineElseTypeGuards(thenTypeGuards, ternaryExpr, elseEnv);
         }
 
         BType thenType = checkExpr(ternaryExpr.thenExpr, thenEnv, expType);
-        BType elseType = checkExpr(ternaryExpr.elseExpr, env, expType);
+        BType elseType = checkExpr(ternaryExpr.elseExpr, elseEnv, expType);
+
         if (condExprType == symTable.semanticError || thenType == symTable.semanticError
                 || elseType == symTable.semanticError) {
             resultType = symTable.semanticError;
@@ -1510,34 +1503,25 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
-        final boolean isExpectedErrorType = expType.tag == TypeTags.ERROR;
-        final BErrorType expectedResultType = isExpectedErrorType ? (BErrorType) expType : symTable.errorType;
-
-        // No matter what message expression has to be exist and it's type should be string type.
-        Optional.ofNullable(errorConstructorExpr.reasonExpr).map(expr -> checkExpr(expr, env, symTable.stringType))
-                .orElseThrow(AssertionError::new);
-
-        Optional.ofNullable(errorConstructorExpr.detailsExpr).ifPresent(expr -> {
-            if (isExpectedErrorType) {
-                checkExpr(expr, env, expectedResultType.detailType);
-            } else {
-                // Give correct error message.
-                BType givenType = checkExpr(expr, env, symTable.noType);
-                if (givenType.tag != TypeTags.MAP && givenType.tag != TypeTags.RECORD) {
-                    dlog.error(expr.pos, DiagnosticCode.REQUIRE_ERROR_MAPPING_VALUE);
-                } else {
-                    // TODO : improve this for union types.
-                    dlog.error(errorConstructorExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.errorType,
-                            expType);
-                }
-            }
-        });
-
-        if (!isExpectedErrorType) {
+        if (expType.tag != TypeTags.ERROR) {
+            dlog.error(errorConstructorExpr.pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, expType);
             resultType = symTable.semanticError;
             return;
         }
+
+        // No matter what, message expression has to exist and it's type should be string type.
+        Optional.ofNullable(errorConstructorExpr.reasonExpr)
+                .map(expr -> checkExpr(expr, env, symTable.stringType))
+                .orElseThrow(AssertionError::new);
+
+        Optional.ofNullable(errorConstructorExpr.detailsExpr)
+                .ifPresent(expr -> checkExpr(expr, env, ((BErrorType) expType).detailType));
         resultType = expType;
+    }
+
+    @Override
+    public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
+        resultType = serviceConstructorExpr.serviceNode.symbol.type;
     }
 
     @Override
@@ -1617,12 +1601,12 @@ public class TypeChecker extends BLangNodeVisitor {
     private void checkFunctionInvocationExpr(BLangInvocation iExpr) {
         Name funcName = names.fromIdNode(iExpr.name);
         Name pkgAlias = names.fromIdNode(iExpr.pkgAlias);
-
         BSymbol funcSymbol = symTable.notFoundSymbol;
+        // TODO: we may not need this section now, with the mandatory 'self'
         // if no package alias, check for same object attached function
         if (pkgAlias == Names.EMPTY && env.enclType != null) {
             Name objFuncName = names.fromString(Symbols.getAttachedFuncSymbolName(
-                    env.enclType.type.tsymbol.name.value, iExpr.name.value));
+                    env.enclType.type.tsymbol.name.value, funcName.value));
             funcSymbol = symResolver.resolveStructField(iExpr.pos, env, objFuncName,
                     env.enclType.type.tsymbol);
             if (funcSymbol != symTable.notFoundSymbol) {
@@ -1635,15 +1619,17 @@ public class TypeChecker extends BLangNodeVisitor {
             funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
         }
 
-        if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
+        if (funcSymbol == symTable.notFoundSymbol || (funcSymbol.tag & SymTag.FUNCTION) != SymTag.FUNCTION) {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
             iExpr.argExprs.forEach(arg -> checkExpr(arg, env));
             resultType = symTable.semanticError;
             return;
         }
-        if (funcSymbol.tag == SymTag.VARIABLE) {
-            // Check for function pointer.
-            iExpr.functionPointerInvocation = true;
+        if (Symbols.isFlagOn(funcSymbol.flags, Flags.REMOTE)) {
+            dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION_SYNTAX);
+        }
+        if (Symbols.isFlagOn(funcSymbol.flags, Flags.RESOURCE)) {
+            dlog.error(iExpr.pos, DiagnosticCode.INVALID_RESOURCE_FUNCTION_INVOCATION);
         }
         // Set the resolved function symbol in the invocation expression.
         // This is used in the code generation phase.
@@ -1651,50 +1637,22 @@ public class TypeChecker extends BLangNodeVisitor {
         checkInvocationParamAndReturnType(iExpr);
     }
 
-    private void checkFunctionInvocationExpr(BLangInvocation iExpr, BStructureType structType) {
-        // check for same object attached function
-        Name objFuncName = names.fromString(Symbols.getAttachedFuncSymbolName(structType
-                .tsymbol.name.value, iExpr.name.value));
-        BSymbol funcSymbol = symResolver.resolveStructField(iExpr.pos, env, objFuncName, structType.tsymbol);
-
-        if (funcSymbol == symTable.notFoundSymbol) {
-            // Check, any function pointer in struct field with given name.
-            funcSymbol = symResolver.resolveStructField(iExpr.pos, env, names.fromIdNode(iExpr.name),
-                    structType.tsymbol);
-            if (structType.tag == TypeTags.OBJECT &&
-                    (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE)) {
-                dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_OBJECT, iExpr.name.value, structType);
-                resultType = symTable.semanticError;
-                return;
-            }
-
-            if (structType.tag == TypeTags.RECORD) {
-                if (funcSymbol == symTable.notFoundSymbol) {
-                    dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, iExpr.name.value,
-                            structType.getKind().typeName(), structType.tsymbol);
-                    resultType = symTable.semanticError;
-                    return;
-                }
-                if (funcSymbol.type.tag != TypeTags.INVOKABLE) {
-                    dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_POINTER_INVOCATION, iExpr.name.value,
-                            structType);
-                    resultType = symTable.semanticError;
-                    return;
-                }
-            }
-
-            if ((funcSymbol.flags & Flags.ATTACHED) != Flags.ATTACHED) {
-                iExpr.functionPointerInvocation = true;
-            }
-        } else {
-            // Attached function found
-            // Check for the explicit initializer function invocation
-            if (structType.tag == TypeTags.RECORD) {
-                BAttachedFunction initializerFunc = ((BRecordTypeSymbol) structType.tsymbol).initializerFunc;
-                if (initializerFunc != null && initializerFunc.funcName.value.equals(iExpr.name.value)) {
-                    dlog.error(iExpr.pos, DiagnosticCode.RECORD_INITIALIZER_INVOKED, structType.tsymbol.toString());
-                }
-            }
+    private void checkObjectFunctionInvocationExpr(BLangInvocation iExpr, BObjectType objectType) {
+        // check for object attached function
+        Name funcName =
+                names.fromString(Symbols.getAttachedFuncSymbolName(objectType.tsymbol.name.value, iExpr.name.value));
+        BSymbol funcSymbol =
+                symResolver.resolveObjectMethod(iExpr.pos, env, funcName, (BObjectTypeSymbol) objectType.tsymbol);
+        if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
+            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_OBJECT, iExpr.name.value, objectType);
+            resultType = symTable.semanticError;
+            return;
+        }
+        if (Symbols.isFlagOn(funcSymbol.flags, Flags.REMOTE)) {
+            dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION_SYNTAX);
+        }
+        if (Symbols.isFlagOn(funcSymbol.flags, Flags.RESOURCE)) {
+            dlog.error(iExpr.pos, DiagnosticCode.INVALID_RESOURCE_FUNCTION_INVOCATION);
         }
         iExpr.symbol = funcSymbol;
         checkInvocationParamAndReturnType(iExpr);
@@ -1880,48 +1838,29 @@ public class TypeChecker extends BLangNodeVisitor {
         return true;
     }
 
-    private void checkActionInvocationExpr(BLangInvocation iExpr, BType conType) {
+    private void checkActionInvocationExpr(BLangInvocation iExpr, BType epType) {
         BType actualType = symTable.semanticError;
-        if (conType == symTable.semanticError || conType.tag != TypeTags.OBJECT
+        if (epType == symTable.semanticError || epType.tag != TypeTags.OBJECT
                 || ((BLangVariableReference) iExpr.expr).symbol.tag != SymTag.ENDPOINT) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION);
             resultType = actualType;
             return;
         }
 
-        final BEndpointVarSymbol epSymbol = (BEndpointVarSymbol) ((BLangVariableReference) iExpr.expr).symbol;
-        if (!epSymbol.interactable) {
-            dlog.error(iExpr.pos, DiagnosticCode.ENDPOINT_NOT_SUPPORT_INTERACTIONS, epSymbol.name);
-            resultType = actualType;
-            return;
-        }
+        final BVarSymbol epSymbol = (BVarSymbol) ((BLangVariableReference) iExpr.expr).symbol;
 
-        BSymbol conSymbol = epSymbol.clientSymbol;
-        if (conSymbol == null
-                || conSymbol == symTable.notFoundSymbol
-                || conSymbol == symTable.errSymbol
-                || !(conSymbol.type.tag == TypeTags.OBJECT || conSymbol.type.tag == TypeTags.RECORD)) {
-            // TODO : Remove struct dependency.
-            dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION);
-            resultType = actualType;
-            return;
-        }
-
+        Name remoteFuncQName = names
+                .fromString(Symbols.getAttachedFuncSymbolName(epType.tsymbol.name.value, iExpr.name.value));
         Name actionName = names.fromIdNode(iExpr.name);
-        Name uniqueFuncName = names.fromString(
-                Symbols.getAttachedFuncSymbolName(conSymbol.name.value, actionName.value));
-        BPackageSymbol packageSymbol = (BPackageSymbol) conSymbol.owner;
-        BSymbol actionSym = symResolver.lookupMemberSymbol(iExpr.pos, packageSymbol.scope, this.env,
-                uniqueFuncName, SymTag.FUNCTION);
-        if (actionSym == symTable.notFoundSymbol) {
-            actionSym = symResolver.resolveStructField(iExpr.pos, env, uniqueFuncName, (BTypeSymbol) conSymbol);
-        }
-        if (actionSym == symTable.errSymbol || actionSym == symTable.notFoundSymbol) {
-            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_ACTION, actionName, epSymbol.name, conSymbol.type);
+        BSymbol remoteFuncSymbol = symResolver
+                .lookupMemberSymbol(iExpr.pos, ((BObjectTypeSymbol) epSymbol.type.tsymbol).methodScope, env,
+                        remoteFuncQName, SymTag.FUNCTION);
+        if (remoteFuncSymbol == symTable.notFoundSymbol || !Symbols.isFlagOn(remoteFuncSymbol.flags, Flags.REMOTE)) {
+            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_ACTION, actionName, epSymbol.type.tsymbol.name);
             resultType = actualType;
             return;
         }
-        iExpr.symbol = actionSym;
+        iExpr.symbol = remoteFuncSymbol;
         checkInvocationParamAndReturnType(iExpr);
     }
 
@@ -2287,9 +2226,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean isSafeNavigableExpr(BLangAccessExpression accessExpr) {
-        return !(accessExpr.getKind() == NodeKind.INVOCATION &&
-                         ((BLangInvocation) accessExpr).builtinMethodInvocation &&
-                         ((BLangInvocation) accessExpr).builtInMethod == BLangBuiltInMethod.IS_FROZEN);
+        return !(accessExpr.getKind() == NodeKind.INVOCATION && ((BLangInvocation) accessExpr).builtinMethodInvocation
+                && ((BLangInvocation) accessExpr).builtInMethod == BLangBuiltInMethod.IS_FROZEN);
     }
 
     private BType checkFieldAccessExpr(BLangFieldBasedAccess fieldAccessExpr, BType varRefType, Name fieldName) {
@@ -2559,8 +2497,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BSymbol getSymbolForBuiltinMethodWithDynamicRetType(BLangInvocation iExpr, BLangBuiltInMethod function) {
         switch (function) {
+            case CLONE:
             case FREEZE:
-                return getSymbolForFreezeBuiltinMethod(iExpr);
+                return getSymbolForAnydataReturningBuiltinMethods(iExpr);
             case IS_FROZEN:
                 return getSymbolForIsFrozenBuiltinMethod(iExpr);
             case STAMP:
@@ -2571,14 +2510,31 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 return symResolver.createSymbolForStampOperator(iExpr.pos, new Name(function.getName()),
                         functionArgList, iExpr.expr);
+            case CALL:
+                return getFunctionPointerCallSymbol(iExpr);
             default:
                 return symTable.notFoundSymbol;
         }
     }
 
-    private BSymbol getSymbolForFreezeBuiltinMethod(BLangInvocation iExpr) {
+    private BSymbol getFunctionPointerCallSymbol(BLangInvocation iExpr) {
+        if (iExpr.expr == null) {
+            // shouldn't reach here
+            return symTable.notFoundSymbol;
+        }
+
+        BSymbol funcSymbol = ((BLangVariableReference) iExpr.expr).symbol;
+        if (funcSymbol == null || funcSymbol.type.tag != TypeTags.INVOKABLE) {
+            return symTable.notFoundSymbol;
+        }
+
+        iExpr.symbol = funcSymbol;
+        return funcSymbol;
+    }
+
+    private BSymbol getSymbolForAnydataReturningBuiltinMethods(BLangInvocation iExpr) {
         BType type = iExpr.expr.type;
-        if (!isValidFreezeOrIsFrozenFunction(type)) {
+        if (!types.isLikeAnydataOrNotNil(type)) {
             return symTable.notFoundSymbol;
         }
 
@@ -2593,8 +2549,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 retType = unionType;
             } else {
-                retType = new BUnionType(null, new LinkedHashSet<BType>() {{ add(type); add(symTable.errorType); }},
-                                            false);
+                retType = new BUnionType(null, new LinkedHashSet<BType>() {{
+                    add(type);
+                    add(symTable.errorType);
+                }}, false);
             }
         }
         return symResolver.createBuiltinMethodSymbol(BLangBuiltInMethod.FREEZE, type, retType, InstructionCodes.FREEZE);
@@ -2602,52 +2560,37 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BSymbol getSymbolForIsFrozenBuiltinMethod(BLangInvocation iExpr) {
         BType type = iExpr.expr.type;
-        if (!isValidFreezeOrIsFrozenFunction(type)) {
+        if (!types.isLikeAnydataOrNotNil(type)) {
             return symTable.notFoundSymbol;
         }
         return symResolver.createBuiltinMethodSymbol(BLangBuiltInMethod.IS_FROZEN, type, symTable.booleanType,
-                                                     InstructionCodes.IS_FROZEN);
+                InstructionCodes.IS_FROZEN);
     }
 
-    private boolean isValidFreezeOrIsFrozenFunction(BType type) {
-        if (type.tag == TypeTags.NIL || (!types.isAnydata(type) && !isNonAnyDataFreezeAllowedType(type))) {
-            return false;
+    private void defineThenTypeGuards(BLangTernaryExpr ternaryExpr, SymbolEnv thenEnv,
+                                      Map<BVarSymbol, BType> thenTypeGuards) {
+        for (Entry<BVarSymbol, BType> entry : thenTypeGuards.entrySet()) {
+            BVarSymbol originalVarSymbol = entry.getKey();
+            BVarSymbol varSymbol = new BVarSymbol(0, originalVarSymbol.name, thenEnv.scope.owner.pkgID,
+                    entry.getValue(), this.env.scope.owner);
+            symbolEnter.defineShadowedSymbol(ternaryExpr.pos, varSymbol, thenEnv);
+
+            // Cache the type guards, to be reused at the desugar.
+            ternaryExpr.ifTypeGuards.put(originalVarSymbol, varSymbol);
         }
-        return true;
     }
 
-    private boolean isNonAnyDataFreezeAllowedType(BType type) {
-        int typeTag = type.tag;
-        if (typeTag == TypeTags.ANY) {
-            return true;
-        }
+    private void defineElseTypeGuards(Map<BVarSymbol, BType> typeGuardsSet, BLangTernaryExpr ternaryExpr,
+                                      SymbolEnv elseEnv) {
+        for (Entry<BVarSymbol, BType> entry : typeGuardsSet.entrySet()) {
+            BVarSymbol originalVarSymbol = entry.getKey();
+            BType remainingType = types.getRemainingType(originalVarSymbol.type, entry.getValue());
+            BVarSymbol varSymbol = new BVarSymbol(0, originalVarSymbol.name, elseEnv.scope.owner.pkgID, remainingType,
+                    this.env.scope.owner);
+            symbolEnter.defineShadowedSymbol(ternaryExpr.expr.pos, varSymbol, elseEnv);
 
-        // check for anydata element/member types as part of recursive calls with structured/union types
-        if (types.isAnydata(type)) {
-            return true;
+            // Cache the type guards, to be reused at the desugar.
+            ternaryExpr.elseTypeGuards.put(originalVarSymbol, varSymbol);
         }
-
-        if (type.tag == TypeTags.MAP && isNonAnyDataFreezeAllowedType(((BMapType) type).constraint)) {
-            return true;
-        }
-
-        if (type.tag == TypeTags.RECORD) {
-            BRecordType recordType = (BRecordType) type;
-            return recordType.fields.stream()
-                    .noneMatch(field -> !Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
-                            !(isNonAnyDataFreezeAllowedType(field.type)));
-        }
-
-        if (type.tag == TypeTags.UNION) {
-            BUnionType unionType = (BUnionType) type;
-            return unionType.memberTypes.stream().anyMatch(this::isNonAnyDataFreezeAllowedType);
-        }
-
-        if (type.tag == TypeTags.TUPLE) {
-            BTupleType tupleType = (BTupleType) type;
-            return tupleType.getTupleTypes().stream().allMatch(this::isNonAnyDataFreezeAllowedType);
-        }
-
-        return type.tag == TypeTags.ARRAY && isNonAnyDataFreezeAllowedType(((BArrayType) type).eType);
     }
 }

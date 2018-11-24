@@ -37,7 +37,6 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.BallerinaHTTPConnectorListener;
 import org.ballerinalang.net.http.HttpConstants;
@@ -145,7 +144,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
         if (httpCarbonMessage.getProperty(ENTITY_ACCESSED_REQUEST) != null) {
             httpRequest = (BMap<String, BValue>) httpCarbonMessage.getProperty(ENTITY_ACCESSED_REQUEST);
         } else {
-            httpRequest = getHttpRequest(httpResource.getBalResource().getResourceInfo().getServiceInfo()
+            httpRequest = getHttpRequest(httpResource.getBalResource().getResourceInfo()
                                                              .getPackageInfo().getProgramFile(), httpCarbonMessage);
         }
 
@@ -204,8 +203,9 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
         //invoke processWebSubNotification function
         PackageInfo packageInfo = context.getProgramFile().getPackageInfo(WEBSUB_PACKAGE);
         FunctionInfo functionInfo = packageInfo.getFunctionInfo("processWebSubNotification");
-        BValue[] returnValues = BLangFunctions.invokeCallable(functionInfo, new BValue[]{requestStruct,
-                new BTypeDescValue(httpResource.getBalResource().getResourceInfo().getServiceInfo().getType())});
+        BValue[] returnValues = BLangFunctions.invokeCallable(functionInfo, new BValue[] {
+                requestStruct, httpResource.getBalResource().getService().getBValue()
+        });
 
         BError errorStruct = (BError) returnValues[0];
         if (errorStruct != null) {
@@ -228,15 +228,15 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
         BMap<String, BValue> subscriberServiceEndpoint =
                 createSubscriberServiceEndpointStruct(httpResource.getBalResource());
         BMap<String, BValue> serviceEndpoint = BLangConnectorSPIUtil.createBStruct(
-                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                httpResource.getBalResource().getResourceInfo().getPackageInfo().getProgramFile(),
                 HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.SERVICE_ENDPOINT);
 
         BMap<String, BValue> connection = BLangConnectorSPIUtil.createBStruct(
-                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.CONNECTION);
+                httpResource.getBalResource().getResourceInfo().getPackageInfo().getProgramFile(),
+                HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.CALLER);
 
-        HttpUtil.enrichServiceEndpointInfo(serviceEndpoint, httpCarbonMessage, httpResource, endpointConfig);
-        HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage, endpointConfig);
+        HttpUtil.enrichHttpCallerWithConnectionInfo(serviceEndpoint, httpCarbonMessage, httpResource, endpointConfig);
+        HttpUtil.enrichHttpCallerWithNativeData(connection, httpCarbonMessage, endpointConfig);
         serviceEndpoint.put(HttpConstants.SERVICE_ENDPOINT_CONNECTION_FIELD, connection);
 
         subscriberServiceEndpoint.put(LISTENER_SERVICE_ENDPOINT, serviceEndpoint);
@@ -247,7 +247,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
      * Method to create the struct representing the WebSub subscriber service endpoint.
      */
     private BMap<String, BValue> createSubscriberServiceEndpointStruct(Resource resource) {
-        return createBStruct(resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+        return createBStruct(resource.getResourceInfo().getPackageInfo().getProgramFile(),
                              WEBSUB_PACKAGE, SERVICE_ENDPOINT);
     }
 
@@ -256,7 +256,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
      * verification request received.
      */
     private BMap<String, BValue> createIntentVerificationRequestStruct(Resource resource) {
-        return createBStruct(resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+        return createBStruct(resource.getResourceInfo().getPackageInfo().getProgramFile(),
                              WEBSUB_PACKAGE, STRUCT_WEBSUB_INTENT_VERIFICATION_REQUEST);
     }
 
@@ -275,8 +275,8 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
     private BMap<String, BValue> createCustomNotificationStruct(HttpCarbonMessage inboundRequest, Resource resource,
                                                                 BMap<String, BValue> httpRequest) {
         String[] paramDetails = webSubServicesRegistry.getResourceDetails().get(resource.getName());
-        BMap<String, BValue> customNotificationStruct =
-                createBStruct(resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+        BMap<String, BValue> customNotificationStruct = createBStruct(
+                resource.getResourceInfo().getPackageInfo().getProgramFile(),
                               paramDetails[0], paramDetails[1]);
         BMap<String, ?> jsonBody = getJsonBody(httpRequest);
         inboundRequest.setProperty(ENTITY_ACCESSED_REQUEST, httpRequest);
@@ -293,7 +293,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
      * onNotification resource.
      */
     private BMap<String, BValue> createDefaultNotificationStruct(Resource resource) {
-        return createBStruct(resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+        return createBStruct(resource.getResourceInfo().getPackageInfo().getProgramFile(),
                              WEBSUB_PACKAGE, STRUCT_WEBSUB_NOTIFICATION_REQUEST);
     }
 

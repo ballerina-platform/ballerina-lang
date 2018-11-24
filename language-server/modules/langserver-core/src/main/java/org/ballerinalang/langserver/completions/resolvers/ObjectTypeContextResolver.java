@@ -74,7 +74,7 @@ public class ObjectTypeContextResolver extends AbstractItemResolver {
         List<SymbolInfo> filteredTypes = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY).stream()
                 .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol)
                 .collect(Collectors.toList());
-        completionItems.addAll(this.getCompletionItemList(filteredTypes));
+        completionItems.addAll(this.getCompletionItemList(filteredTypes, context));
     }
     
     private void fillFunctionSignature(List<CompletionItem> completionItems, boolean snippetCapability) {

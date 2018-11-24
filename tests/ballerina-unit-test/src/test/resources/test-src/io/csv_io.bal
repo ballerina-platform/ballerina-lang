@@ -9,6 +9,8 @@ type Employee record {
 io:ReadableCSVChannel? rch = ();
 io:WritableCSVChannel? wch = ();
 
+const string IO_ERROR_CODE = "{ballerina/io}IOError";
+
 function initReadableCsvChannel(string filePath, string encoding, io:Separator fieldSeparator) {
     io:ReadableByteChannel byteChannel = untaint io:openReadableFile(filePath);
     io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
@@ -34,7 +36,7 @@ function nextRecord() returns (string[]|error) {
     } else if (result is error) {
         return result;
     } else {
-        error e = error("Record channel not initialized properly");
+        error e = error(IO_ERROR_CODE, { message : "Record channel not initialized properly" });
         return e;
     }
 }
@@ -66,5 +68,8 @@ function getTable(string filePath, string encoding, io:Separator fieldSeperator)
         return total;
     } else if (tableResult is error) {
         return tableResult;
+    } else {
+        error e = error(IO_ERROR_CODE, { message : "Record channel not initialized properly" });
+        return e;
     }
 }

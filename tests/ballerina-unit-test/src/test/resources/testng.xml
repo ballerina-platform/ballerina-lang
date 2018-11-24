@@ -46,13 +46,14 @@ under the License.
             <package name="org.ballerinalang.test.vm.*"/>
             <!--package name="org.ballerinalang.test.annotations.*"/>-->
             <!--package name="org.ballerinalang.test.expressions.*"/>-->
+            <package name="org.ballerinalang.test.expressions.*"/>
             <package name="org.ballerinalang.test.documentation.*"/>
             <!--package name="org.ballerinalang.test.statements.*">
                 <exclude name="org.ballerinalang.test.statements.transform.*"/>
             </package>-->
             <!--package name="org.ballerinalang.test.types.*"/>-->
             <package name="org.ballerinalang.test.access.*"/>
-            <!--package name="org.ballerinalang.test.functions.*"/>-->
+            <package name="org.ballerinalang.test.functions.*"/>
             <package name="org.ballerinalang.test.worker.*"/>
             <package name="org.ballerinalang.test.nativeimpl.functions.*">
                 <exclude name="org.ballerinalang.test.nativeimpl.functions.io.socket"/>
@@ -82,8 +83,8 @@ under the License.
             <package name="org.ballerinalang.test.taintchecking.*"/>
             <package name="org.ballerinalang.test.config.*"/>
             <!--<package name="org.ballerinalang.test.streaming.*"/>-->
-            <!--package name="org.ballerinalang.test.object.*"/>-->
-            <!--package name="org.ballerinalang.test.record.*"/>-->
+            <package name="org.ballerinalang.test.object.*"/>
+            <package name="org.ballerinalang.test.record.*"/>
             <package name="org.ballerinalang.test.net.grpc"/>
             <!--package name="org.ballerinalang.test.runtime.*"/>-->
             <!--package name="org.ballerinalang.test.balo.*" />-->

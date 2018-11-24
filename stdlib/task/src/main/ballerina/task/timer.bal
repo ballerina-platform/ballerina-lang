@@ -32,7 +32,14 @@ public type Timer object {
     private boolean isRunning;
 
     // defaultable delay is -1, which means the delay will be the same as the interval
-    public new(onTrigger, onError, interval, delay = -1) {}
+    public function __init((function () returns error?) onTrigger, (function (error) returns ())? onError,
+                           int interval, int delay = -1) {
+        self.onTrigger = onTrigger;
+        self.onError = onError;
+        self.interval = interval;
+        self.delay = delay;
+        self.isRunning = false;
+    }
 
     // Start the timer
     public extern function start();

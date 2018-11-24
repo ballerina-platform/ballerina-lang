@@ -17,13 +17,13 @@
 import ballerina/crypto;
 
 type Person object {
-    public string name;
+    public string name = "";
     public string fullName;
     new(name = 'John, string firstname, string lastname = 'Doe) {
-        fullName = firstname + " " + lastname;
+        self.fullName = firstname + " " + lastname;
     }
     public function getPersonInfo() returns string {
-        return name + "-" + fullName;
+        return self.name + "-" + self.fullName;
     }
 };
 
@@ -36,7 +36,6 @@ string var1 = 'abcd;
 
 public string var2 = "";
 
-@final
 public string var3 = 'efgh;
 
 @readonly

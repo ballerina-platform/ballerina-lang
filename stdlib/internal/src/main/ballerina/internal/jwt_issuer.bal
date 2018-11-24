@@ -14,18 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
 # Represents JWT issuer configurations.
 # + keyAlias - Key alias used for signing
 # + keyPassword - Key password used for signing
 # + keyStoreFilePath - Key store file path
 # + keyStorePassword - Key store password
 public type JWTIssuerConfig record {
-    string keyAlias;
-    string keyPassword;
-    string keyStoreFilePath;
-    string keyStorePassword;
+    string keyAlias = "";
+    string keyPassword = "";
+    string keyStoreFilePath = "";
+    string keyStorePassword = "";
     !...
 };
 
@@ -57,7 +55,10 @@ function createHeader(JwtHeader header) returns (string|error) {
     }
     headerJson[ALG] = header.alg;
     headerJson[TYP] = "JWT";
-    headerJson = addMapToJson(headerJson, header.customClaims);
+    var customClaims = header["customClaims"];
+    if (customClaims is map) {
+        headerJson = addMapToJson(headerJson, customClaims);
+    }
     string headerValInString = headerJson.toString();
     string encodedPayload = check headerValInString.base64Encode();
     return encodedPayload;
@@ -73,12 +74,19 @@ function createPayload(JwtPayload payload) returns (string|error) {
     payloadJson[SUB] = payload.sub;
     payloadJson[ISS] = payload.iss;
     payloadJson[EXP] = payload.exp;
-    payloadJson[IAT] = payload.iat;
-    if (payload.jti != "") {
-        payloadJson[JTI] = payload.jti;
+    var iat = payload["iat"];
+    if (iat is int) {
+        payloadJson[IAT] = iat;
+    }
+    var jti = payload["jti"];
+    if (jti is string) {
+        payloadJson[JTI] = jti;
     }
     payloadJson[AUD] = convertStringArrayToJson(payload.aud);
-    payloadJson = addMapToJson(payloadJson, payload.customClaims);
+    var customClaims = payload["customClaims"];
+    if (customClaims is map) {
+        payloadJson = addMapToJson(payloadJson, customClaims);
+    }
     string payloadInString = payloadJson.toString();
     return payloadInString.base64Encode();
 }

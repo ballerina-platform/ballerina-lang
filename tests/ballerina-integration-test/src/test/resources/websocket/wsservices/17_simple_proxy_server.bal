@@ -33,22 +33,34 @@ service<http:WebSocketService> simpleProxy9 bind { port: 9099 } {
         };
         wsEp.attributes[ASSOCIATED_CONNECTION5] = wsClientEp;
         wsClientEp.attributes[ASSOCIATED_CONNECTION5] = wsEp;
-        check wsClientEp->ready();
+        var returnVal = wsClientEp->ready();
+        if (returnVal is error) {
+             panic returnVal;
+        }
     }
 
     onText(endpoint wsEp, string text) {
         endpoint http:WebSocketClient clientEp = getAssociatedClientEndpoint3(wsEp);
-        check clientEp->pushText(text);
+        var returnVal = clientEp->pushText(text);
+        if (returnVal is error) {
+             panic returnVal;
+        }
     }
 
     onBinary(endpoint wsEp, byte[] data) {
         endpoint http:WebSocketClient clientEp = getAssociatedClientEndpoint3(wsEp);
-        check clientEp->pushBinary(data);
+        var returnVal = clientEp->pushBinary(data);
+        if (returnVal is error) {
+             panic returnVal;
+        }
     }
 
     onClose(endpoint wsEp, int statusCode, string reason) {
         endpoint http:WebSocketClient clientEp = getAssociatedClientEndpoint3(wsEp);
-        check clientEp->close(statusCode = statusCode, reason = reason);
+        var returnVal = clientEp->close(statusCode = statusCode, reason = reason);
+        if (returnVal is error) {
+             panic returnVal;
+        }
     }
 
 }
@@ -56,24 +68,44 @@ service<http:WebSocketService> simpleProxy9 bind { port: 9099 } {
 service<http:WebSocketClientService> clientCallbackService9 {
     onText(endpoint wsEp, string text) {
         endpoint http:WebSocketListener serviceEp = getAssociatedListener3(wsEp);
-        check serviceEp->pushText(text);
+        var returnVal = serviceEp->pushText(text);
+        if (returnVal is error) {
+             panic returnVal;
+        }
     }
 
     onBinary(endpoint wsEp, byte[] data) {
         endpoint http:WebSocketListener serviceEp = getAssociatedListener3(wsEp);
-        check serviceEp->pushBinary(data);
+        var returnVal = serviceEp->pushBinary(data);
+        if (returnVal is error) {
+             panic returnVal;
+        }
     }
 
     onClose(endpoint wsEp, int statusCode, string reason) {
         endpoint http:WebSocketListener serviceEp = getAssociatedListener3(wsEp);
-        check serviceEp->close(statusCode = statusCode, reason = reason);
+        var returnVal = serviceEp->close(statusCode = statusCode, reason = reason);
+        if (returnVal is error) {
+             panic returnVal;
+        }
     }
 }
 
 public function getAssociatedClientEndpoint3(http:WebSocketListener wsServiceEp) returns (http:WebSocketClient) {
-    return check <http:WebSocketClient>wsServiceEp.attributes[ASSOCIATED_CONNECTION5];
+    var returnVal = <http:WebSocketClient>wsServiceEp.attributes[ASSOCIATED_CONNECTION5];
+    if (returnVal is error) {
+         panic returnVal;
+    }
+    else {
+         return returnVal;
+    }
 }
 
 public function getAssociatedListener3(http:WebSocketClient wsClientEp) returns (http:WebSocketListener) {
-    return check <http:WebSocketListener>wsClientEp.attributes[ASSOCIATED_CONNECTION5];
+    var returnVal = <http:WebSocketListener>wsClientEp.attributes[ASSOCIATED_CONNECTION5];
+    if (returnVal is error) {
+         panic returnVal;
+    } else {
+         return returnVal;
+    }
 }

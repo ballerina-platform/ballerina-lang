@@ -36,7 +36,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.ON_ERROR_RESOURCE;
 import static org.ballerinalang.net.grpc.GrpcConstants.ON_MESSAGE_RESOURCE;
 import static org.ballerinalang.net.grpc.GrpcConstants.ON_OPEN_RESOURCE;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_ENDPOINT_TYPE;
+import static org.ballerinalang.net.grpc.GrpcConstants.SERVER;
 import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.ANN_SERVICE_CONFIG;
 import static org.ballerinalang.net.grpc.proto.ServiceProtoUtils.getServiceConfiguration;
 
@@ -49,7 +49,7 @@ public class ServiceDefinitionValidator {
 
     public static final int COMPULSORY_PARAM_COUNT = 1;
 
-    private static final String ENDPOINT_TYPE = PROTOCOL_STRUCT_PACKAGE_GRPC + ":" + SERVICE_ENDPOINT_TYPE;
+    private static final String ENDPOINT_TYPE = PROTOCOL_STRUCT_PACKAGE_GRPC + ":" + SERVER;
 
     /**
      * Validate gRPC service instance.
@@ -83,8 +83,7 @@ public class ServiceDefinitionValidator {
             boolean isNameExists = false;
             boolean clientStreaming = false;
             for (BLangRecordLiteral.BLangRecordKeyValue keyValue : annVals) {
-                switch (((BLangSimpleVarRef) (keyValue.key).expr).variableName
-                        .getValue()) {
+                switch (((BLangSimpleVarRef) (keyValue.key).expr).variableName.getValue()) {
                     case "name":
                         isNameExists = true;
                         break;

@@ -16,25 +16,26 @@
 
 import ballerina/file;
 
-endpoint file:Listener localFolder {
-    path:"target/fs",
-    recursive:false
-};
+listener file:Listener localFolder = new ({
+    path: "target/fs",
+    recursive: false
+});
 
 boolean createInvoke = false;
 boolean modifyInvoke = false;
 boolean deleteInvoke = false;
 
-service fileSystem bind localFolder {
-    onCreate (file:FileEvent m) {
+service fileSystem on localFolder {
+
+    resource function onCreate(file:FileEvent m) {
         createInvoke = true;
     }
 
-    onModify(file:FileEvent m) {
+    resource function onModify(file:FileEvent m) {
         modifyInvoke = true;
     }
 
-    onDelete(file:FileEvent m) {
+    resource function onDelete(file:FileEvent m) {
         deleteInvoke = true;
     }
 }

@@ -22,7 +22,7 @@ type Person1 abstract object {
 };
 
 type Employee1 abstract object {
-    public float salary;
+    public float salary = 0.0;
 
     public function getSalary() returns float; 
 };
@@ -36,6 +36,12 @@ type Manager1 object {
 
     function getName() returns string {
         return self.name + " from inner function";
+    }
+    
+    function __init() {
+        self.age = 99;
+        self.name = "sample name 2";
+        self.salary = 8.0;
     }
 };
 
@@ -59,7 +65,8 @@ type Manager2 object {
         return self.name + " from inner function";
     }
 
-    new(age=20) {
+    function __init(int age=20) {
+        self.age = age;
         self.name = "John";
         self.salary = 1000.0;
     }
@@ -79,13 +86,15 @@ type Manager3 object {
 
     *Employee2;
 
-    new(age=20) {
+    function __init(int age=20) {
+        self.age = age;
         self.salary = 2500.0;
+        self.name = "Doe";
     } 
 };
 
 type Employee2 abstract object {
-    public float salary;
+    public float salary = 0.0;
     *Person1;
 
     public function getSalary() returns float; 
@@ -111,7 +120,9 @@ type Manager4 object {
 
     *Employee3;
 
-    new(name, age=25) {
+    function __init(string name, int age=25) {
+        self.name = name;
+        self.age = age;
         self.salary = 3000.0;
     }
 
@@ -125,7 +136,7 @@ function Manager4.getName(string greeting = "Hello") returns string {
 }
 
 type Employee3 abstract object {
-    public float salary;
+    public float salary = 0.0;
     *Person3;
 
     public function getBonus(float ratio, int months=12) returns float;

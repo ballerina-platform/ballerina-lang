@@ -49,7 +49,8 @@ public class EndpointDeclarationContextResolver extends AbstractItemResolver {
                 PackageID packageID = bSymbol.pkgID;
                 String nameAlias = CommonUtil.getLastItem(packageID.getNameComps()).getValue();
                 if (bSymbol instanceof BPackageSymbol && pkgAlias.equals(nameAlias)) {
-                    return this.getCompletionItemList(getEndpointEntries(info.getScopeEntry().symbol.scope.entries));
+                    List<SymbolInfo> endpointEntries = getEndpointEntries(info.getScopeEntry().symbol.scope.entries);
+                    return this.getCompletionItemList(endpointEntries, context);
                 }
             }
 
@@ -57,7 +58,7 @@ public class EndpointDeclarationContextResolver extends AbstractItemResolver {
         }
 
         List<CompletionItem> completionItems = new ArrayList<>();
-        completionItems.addAll(this.getCompletionItemList(this.getEndpointEntries(visibleSymbols)));
+        completionItems.addAll(this.getCompletionItemList(this.getEndpointEntries(visibleSymbols), context));
         completionItems.addAll(this.getPackagesCompletionItems(context));
         return completionItems;
     }
@@ -66,7 +67,7 @@ public class EndpointDeclarationContextResolver extends AbstractItemResolver {
         List<SymbolInfo> symbolInfoList = new ArrayList<>();
         scopeEntries.entrySet().forEach(entry -> {
             BSymbol bSymbol = entry.getValue().symbol;
-            if (CommonUtil.isEndpointObject(bSymbol)) {
+            if (CommonUtil.isClientObject(bSymbol)) {
                 symbolInfoList.add(new SymbolInfo(entry.getKey().toString(), entry.getValue()));
             }
         });
@@ -77,7 +78,7 @@ public class EndpointDeclarationContextResolver extends AbstractItemResolver {
     private List<SymbolInfo> getEndpointEntries(List<SymbolInfo> symbolInfoList) {
         return symbolInfoList.stream().filter(symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-            return CommonUtil.isEndpointObject(bSymbol) || bSymbol instanceof BPackageSymbol;
+            return CommonUtil.isClientObject(bSymbol) || bSymbol instanceof BPackageSymbol;
         }).collect(Collectors.toList());
     }
 }

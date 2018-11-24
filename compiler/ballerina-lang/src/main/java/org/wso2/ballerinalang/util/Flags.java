@@ -26,7 +26,6 @@ import java.util.Set;
  * @since 0.94
  */
 public class Flags {
-
     public static final int PUBLIC = 1;
     public static final int NATIVE = PUBLIC << 1;
     public static final int FINAL = NATIVE << 1;
@@ -43,6 +42,11 @@ public class Flags {
     public static final int OPTIONAL = ABSTRACT << 1;
     public static final int TESTABLE = OPTIONAL << 1;
     public static final int CONSTANT = TESTABLE << 1;
+    public static final int REMOTE = CONSTANT << 1;
+    public static final int CLIENT = REMOTE << 1;
+    public static final int RESOURCE = CLIENT << 1;
+    public static final int SERVICE = RESOURCE << 1;
+    public static final int LISTENER = SERVICE << 1;
 
     public static int asMask(Set<Flag> flagSet) {
         int mask = 0;
@@ -53,6 +57,9 @@ public class Flags {
                     break;
                 case PRIVATE:
                     mask |= PRIVATE;
+                    break;
+                case REMOTE:
+                    mask |= REMOTE;
                     break;
                 case NATIVE:
                     mask |= NATIVE;
@@ -93,6 +100,18 @@ public class Flags {
                 case TESTABLE:
                     mask |= TESTABLE;
                     break;
+                case CLIENT:
+                    mask |= CLIENT;
+                    break;
+                case RESOURCE:
+                    mask |= RESOURCE;
+                    break;
+                case SERVICE:
+                    mask |= SERVICE;
+                    break;
+                case LISTENER:
+                    mask |= LISTENER;
+                    break;
                 case CONSTANT:
                     mask |= CONSTANT;
                     break;
@@ -111,6 +130,9 @@ public class Flags {
                     break;
                 case PRIVATE:
                     flagVal = PRIVATE;
+                    break;
+                case REMOTE:
+                    flagVal = REMOTE;
                     break;
                 case NATIVE:
                     flagVal = NATIVE;
@@ -147,6 +169,18 @@ public class Flags {
                     break;
                 case OPTIONAL:
                     flagVal = OPTIONAL;
+                    break;
+                case CLIENT:
+                    flagVal = CLIENT;
+                    break;
+                case RESOURCE:
+                    flagVal = RESOURCE;
+                    break;
+                case SERVICE:
+                    flagVal = SERVICE;
+                    break;
+                case LISTENER:
+                    flagVal = LISTENER;
                     break;
                 case CONSTANT:
                     flagVal = CONSTANT;

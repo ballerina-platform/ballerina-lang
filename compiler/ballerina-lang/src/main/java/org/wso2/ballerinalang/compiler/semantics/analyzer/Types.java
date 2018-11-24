@@ -20,11 +20,13 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
@@ -40,6 +42,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BSemanticErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -183,35 +186,88 @@ public class Types {
     }
 
     public boolean isAnydata(BType type) {
+        return isAnydata(type, new HashSet<>());
+    }
+
+    public boolean isAnydata(BType type, Set<BType> unresolvedTypes) {
         if (type.tag <= TypeTags.ANYDATA) {
             return true;
         }
 
         switch (type.tag) {
             case TypeTags.MAP:
-                return isAnydata(((BMapType) type).constraint);
+                return isAnydata(((BMapType) type).constraint, unresolvedTypes);
             case TypeTags.RECORD:
+                if (unresolvedTypes.contains(type)) {
+                    return true;
+                }
+                unresolvedTypes.add(type);
                 BRecordType recordType = (BRecordType) type;
                 List<BType> fieldTypes = recordType.fields.stream()
-                        .map(field -> field.type).collect(Collectors.toList());
-                return isAnydata(fieldTypes) && (recordType.sealed || isAnydata(recordType.restFieldType));
+                                                          .map(field -> field.type)
+                                                          .collect(Collectors.toList());
+                return isAnydata(fieldTypes, unresolvedTypes) &&
+                        (recordType.sealed || isAnydata(recordType.restFieldType, unresolvedTypes));
             case TypeTags.UNION:
-                return isAnydata(((BUnionType) type).memberTypes);
+                return isAnydata(((BUnionType) type).memberTypes, unresolvedTypes);
             case TypeTags.TUPLE:
-                return isAnydata(((BTupleType) type).tupleTypes);
+                return isAnydata(((BTupleType) type).tupleTypes, unresolvedTypes);
             case TypeTags.ARRAY:
-                return isAnydata(((BArrayType) type).eType);
+                return isAnydata(((BArrayType) type).eType, unresolvedTypes);
             case TypeTags.FINITE:
                 Set<BType> valSpaceTypes = ((BFiniteType) type).valueSpace.stream()
-                        .map(val -> val.type).collect(Collectors.toSet());
-                return isAnydata(valSpaceTypes);
+                                                                          .map(val -> val.type).collect(
+                                Collectors.toSet());
+                return isAnydata(valSpaceTypes, unresolvedTypes);
             default:
                 return false;
         }
     }
 
-    private boolean isAnydata(Collection<BType> types) {
-        return types.stream().allMatch(this::isAnydata);
+    private boolean isAnydata(Collection<BType> types, Set<BType> unresolvedTypes) {
+        return types.stream().allMatch(bType -> isAnydata(bType, unresolvedTypes));
+    }
+
+    public boolean isLikeAnydataOrNotNil(BType type) {
+        if (type.tag == TypeTags.NIL || (!isAnydata(type) && !isLikeAnydata(type))) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isLikeAnydata(BType type) {
+        int typeTag = type.tag;
+        if (typeTag == TypeTags.ANY) {
+            return true;
+        }
+
+        // check for anydata element/member types as part of recursive calls with structured/union types
+        if (isAnydata(type)) {
+            return true;
+        }
+
+        if (type.tag == TypeTags.MAP && isLikeAnydata(((BMapType) type).constraint)) {
+            return true;
+        }
+
+        if (type.tag == TypeTags.RECORD) {
+            BRecordType recordType = (BRecordType) type;
+            return recordType.fields.stream()
+                    .noneMatch(field -> !Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
+                            !(isLikeAnydata(field.type)));
+        }
+
+        if (type.tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) type;
+            return unionType.memberTypes.stream().anyMatch(this::isLikeAnydata);
+        }
+
+        if (type.tag == TypeTags.TUPLE) {
+            BTupleType tupleType = (BTupleType) type;
+            return tupleType.getTupleTypes().stream().allMatch(this::isLikeAnydata);
+        }
+
+        return type.tag == TypeTags.ARRAY && isLikeAnydata(((BArrayType) type).eType);
     }
 
     public boolean isBrandedType(BType type) {
@@ -251,7 +307,8 @@ public class Types {
                 return checkRecordEquivalencyForStamping((BRecordType) source, (BRecordType) target, unresolvedTypes);
             } else if (source.tag == TypeTags.MAP) {
                 int mapConstraintTypeTag = ((BMapType) source).constraint.tag;
-                if (mapConstraintTypeTag != TypeTags.ANY && ((BRecordType) target).sealed) {
+                if ((!(mapConstraintTypeTag == TypeTags.ANY || mapConstraintTypeTag == TypeTags.ANYDATA)) &&
+                        ((BRecordType) target).sealed) {
                     for (BField field : ((BStructureType) target).getFields()) {
                         if (field.getType().tag != mapConstraintTypeTag) {
                             return false;
@@ -288,9 +345,19 @@ public class Types {
             if (source.tag == TypeTags.JSON) {
                 return ((BJSONType) source).getConstraint().tag == TypeTags.NONE ||
                         isStampingAllowed(((BJSONType) source).getConstraint(), ((BArrayType) target).eType);
+            } else if (source.tag == TypeTags.TUPLE) {
+                BType arrayElementType = ((BArrayType) target).eType;
+                for (BType tupleMemberType : ((BTupleType) source).getTupleTypes()) {
+                    if (!isStampingAllowed(tupleMemberType, arrayElementType)) {
+                        return false;
+                    }
+                }
+                return true;
             }
         } else if (target.tag == TypeTags.UNION) {
             return checkUnionEquivalencyForStamping(source, target);
+        } else if (target.tag == TypeTags.TUPLE && source.tag == TypeTags.TUPLE) {
+            return checkTupleEquivalencyForStamping(source, target);
         }
 
         return false;
@@ -379,6 +446,26 @@ public class Types {
         return !notAssignable;
     }
 
+    private boolean checkTupleEquivalencyForStamping(BType source, BType target) {
+        if (source.tag != TypeTags.TUPLE || target.tag != TypeTags.TUPLE) {
+            return false;
+        }
+
+        BTupleType lhsTupleType = (BTupleType) target;
+        BTupleType rhsTupleType = (BTupleType) source;
+
+        if (lhsTupleType.tupleTypes.size() != rhsTupleType.tupleTypes.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < lhsTupleType.tupleTypes.size(); i++) {
+            if (!isStampingAllowed(rhsTupleType.tupleTypes.get(i), lhsTupleType.tupleTypes.get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private boolean isAssignable(BType source, BType target, List<TypePair> unresolvedTypes) {
         if (isSameType(source, target)) {
             return true;
@@ -400,6 +487,10 @@ public class Types {
         }
 
         if (target.tag == TypeTags.ANYDATA && isAnydata(source)) {
+            return true;
+        }
+
+        if (target.tag == TypeTags.SERVICE && source.tag == TypeTags.SERVICE) {
             return true;
         }
 
@@ -648,17 +739,13 @@ public class Types {
             return false;
         }
 
-        // RHS type should have at least all the fields as well attached functions of LHS type.
-        if (lhsType.fields.size() > rhsType.fields.size()) {
-            return false;
-        }
-
-        // If only one is a closed record, the records aren't equivalent
+        // If the LHS record is closed and the RHS record is open, the records aren't equivalent
         if (lhsType.sealed && !rhsType.sealed) {
             return false;
         }
 
-        // The rest field types should match if they are open records
+        // If both are open records, the rest field type of the RHS record should be assignable to the rest field
+        // type of the LHS type.
         if ((!lhsType.sealed && !rhsType.sealed) &&
                 !isAssignable(rhsType.restFieldType, lhsType.restFieldType, unresolvedTypes)) {
             return false;
@@ -715,9 +802,6 @@ public class Types {
             case TypeTags.TABLE:
                 BTableType tableType = (BTableType) collectionType;
                 if (variableSize == 1) {
-                    if (tableType.constraint.tag == TypeTags.NONE) {
-                        return Lists.of(symTable.anyType);
-                    }
                     return Lists.of(tableType.constraint);
                 } else if (variableSize == 2) {
                     return Lists.of(symTable.intType, tableType.constraint);
@@ -833,6 +917,43 @@ public class Types {
             return checkStructFieldToJSONCompatibility(type, ((BRecordType) type).restFieldType, unresolvedTypes);
         }
 
+        return true;
+    }
+
+    public boolean checkListenerCompatibility(SymbolEnv env, BType type) {
+        if (type.tag != TypeTags.OBJECT) {
+            return false;
+        }
+        final BSymbol bSymbol = symResolver.lookupSymbol(env, Names.ABSTRACT_LISTENER, SymTag.TYPE);
+        if (bSymbol == symTable.notFoundSymbol || bSymbol.type.tag != TypeTags.OBJECT) {
+            throw new AssertionError("AbstractListener object not defined.");
+        }
+        BObjectType rhsType = (BObjectType) type;
+        BObjectType lhsType = (BObjectType) bSymbol.type;
+
+        BStructureTypeSymbol lhsStructSymbol = (BStructureTypeSymbol) lhsType.tsymbol;
+        List<BAttachedFunction> lhsFuncs = lhsStructSymbol.attachedFuncs;
+        List<BAttachedFunction> rhsFuncs = ((BStructureTypeSymbol) rhsType.tsymbol).attachedFuncs;
+
+        int lhsAttachedFuncCount = lhsStructSymbol.initializerFunc != null ? lhsFuncs.size() - 1 : lhsFuncs.size();
+        if (lhsAttachedFuncCount > rhsFuncs.size()) {
+            return false;
+        }
+
+        for (BAttachedFunction lhsFunc : lhsFuncs) {
+            if (lhsFunc == lhsStructSymbol.initializerFunc || lhsFunc == lhsStructSymbol.defaultsValuesInitFunc) {
+                continue;
+            }
+
+            if (!Symbols.isPublic(lhsFunc.symbol)) {
+                return false;
+            }
+
+            BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, new ArrayList<>());
+            if (rhsFunc == null || !Symbols.isPublic(rhsFunc.symbol)) {
+                return false;
+            }
+        }
         return true;
     }
 
@@ -1239,6 +1360,11 @@ public class Types {
 
             return symTable.notFoundSymbol;
         }
+
+        @Override
+        public BSymbol visit(BServiceType t, BType s) {
+            return symTable.notFoundSymbol;
+        }
     };
 
     private BTypeVisitor<BType, Boolean> sameTypeVisitor = new BTypeVisitor<BType, Boolean>() {
@@ -1391,6 +1517,11 @@ public class Types {
         }
 
         @Override
+        public Boolean visit(BServiceType t, BType s) {
+            return t == s;
+        }
+
+        @Override
         public Boolean visit(BFiniteType t, BType s) {
             return s == t;
         }
@@ -1428,20 +1559,30 @@ public class Types {
         return true;
     }
 
-    private boolean checkFieldEquivalency(BStructureType lhsType, BStructureType rhsType,
-                                          List<TypePair> unresolvedTypes) {
-        Map<Name, BField> rhsFields = rhsType.fields.stream().collect(
-                Collectors.toMap(BField::getName, field -> field));
+    private boolean checkFieldEquivalency(BRecordType lhsType, BRecordType rhsType, List<TypePair> unresolvedTypes) {
+        Map<Name, BField> rhsFields = rhsType.fields.stream().collect(Collectors.toMap(BField::getName, f -> f));
 
+        // Check if the RHS record has corresponding fields to those of the LHS record.
         for (BField lhsField : lhsType.fields) {
             BField rhsField = rhsFields.get(lhsField.name);
 
-            if (rhsField == null || !isAssignable(rhsField.type, lhsField.type, unresolvedTypes)) {
+            // If the LHS field is a required one, there has to be a corresponding required field in the RHS record.
+            if (!Symbols.isOptional(lhsField.symbol) && (rhsField == null || Symbols.isOptional(rhsField.symbol))) {
                 return false;
             }
+
+            // If there is a corresponding RHS field, it should be assignable to the LHS field.
+            if (rhsField != null && !isAssignable(rhsField.type, lhsField.type, unresolvedTypes)) {
+                return false;
+            }
+
+            rhsFields.remove(lhsField.name);
         }
 
-        return true;
+        // If there are any remaining RHS fields, the types of those should be assignable to the rest field type of
+        // the LHS record.
+        return rhsFields.entrySet().stream().allMatch(
+                fieldEntry -> isAssignable(fieldEntry.getValue().type, lhsType.restFieldType, unresolvedTypes));
     }
 
     private boolean checkPublicObjectEquivalency(BStructureType lhsType, BStructureType rhsType,
@@ -1886,6 +2027,47 @@ public class Types {
             return true;
         }
         return false;
+    }
+
+    public BType getRemainingType(BType originalType, Set<BType> set) {
+        if (originalType.tag != TypeTags.UNION) {
+            return originalType;
+        }
+
+        List<BType> memberTypes = new ArrayList<>(((BUnionType) originalType).getMemberTypes());
+
+        for (BType removeType : set) {
+            if (removeType.tag != TypeTags.UNION) {
+                memberTypes.remove(removeType);
+            } else {
+                ((BUnionType) removeType).getMemberTypes().forEach(type -> memberTypes.remove(type));
+            }
+
+            if (memberTypes.size() == 1) {
+                return memberTypes.get(0);
+            }
+        }
+
+        return new BUnionType(null, new HashSet<>(memberTypes), memberTypes.contains(symTable.nilType));
+    }
+
+    public BType getRemainingType(BType originalType, BType removeType) {
+        if (originalType.tag != TypeTags.UNION) {
+            return originalType;
+        }
+
+        List<BType> memberTypes = new ArrayList<>(((BUnionType) originalType).getMemberTypes());
+        if (removeType.tag != TypeTags.UNION) {
+            memberTypes.remove(removeType);
+        } else {
+            ((BUnionType) removeType).getMemberTypes().forEach(type -> memberTypes.remove(type));
+        }
+
+        if (memberTypes.size() == 1) {
+            return memberTypes.get(0);
+        }
+
+        return new BUnionType(null, new HashSet<>(memberTypes), memberTypes.contains(symTable.nilType));
     }
 
     /**

@@ -20,7 +20,6 @@ package org.ballerinalang.test.expressions.stamp;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.types.BAnydataType;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStringType;
 import org.ballerinalang.model.types.TypeTags;
@@ -106,8 +105,8 @@ public class TupleTypeStampInbuiltFunctionTest {
                 BStringType.class);
 
         Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("age")).stringValue(), "25");
-        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("age")).getType().getClass(),
-                BAnydataType.class);
+        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("age")).getType().getTag(),
+                TypeTags.INT_TAG);
 
         Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("status")).stringValue(), "single");
         Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("status")).getType().getClass(),
@@ -119,7 +118,7 @@ public class TupleTypeStampInbuiltFunctionTest {
 
         Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("school")).stringValue(), "Hindu College");
         Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("school")).getType().getClass(),
-                BAnydataType.class);
+                BStringType.class);
     }
 
     @Test
@@ -136,6 +135,40 @@ public class TupleTypeStampInbuiltFunctionTest {
 
         Assert.assertEquals(tupleValue2.getType().getClass(), BRecordType.class);
         Assert.assertEquals(tupleValue2.getType().getName(), "Teacher");
+    }
+
+    @Test
+    public void testStampTupleValueToArray() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampTupleValueToArray");
+        Assert.assertEquals(results.length, 2);
+
+        BValue arrayValue1 = results[0];
+        BValue arrayValue2 = results[1];
+
+        Assert.assertEquals(arrayValue1.getType().getClass(), BRecordType.class);
+        Assert.assertEquals(arrayValue1.getType().getName(), "Employee");
+
+        Assert.assertEquals(arrayValue2.getType().getClass(), BRecordType.class);
+        Assert.assertEquals(arrayValue2.getType().getName(), "Employee");
+
+        Assert.assertEquals(((BMap) arrayValue2).size(), 4);
+
+        Assert.assertEquals(((BValue) ((BMap) arrayValue2).getMap().get("name")).stringValue(), "Raja");
+        Assert.assertEquals(((BValue) ((BMap) arrayValue2).getMap().get("name")).getType().getClass(),
+                BStringType.class);
+
+        Assert.assertEquals(((BValue) ((BMap) arrayValue2).getMap().get("status")).stringValue(), "single");
+        Assert.assertEquals(((BValue) ((BMap) arrayValue2).getMap().get("status")).getType().getClass(),
+                BStringType.class);
+
+        Assert.assertEquals(((BValue) ((BMap) arrayValue2).getMap().get("batch")).stringValue(), "LK2014");
+        Assert.assertEquals(((BValue) ((BMap) arrayValue2).getMap().get("batch")).getType().getClass(),
+                BStringType.class);
+
+        Assert.assertEquals(((BValue) ((BMap) arrayValue2).getMap().get("school")).stringValue(), "Hindu College");
+        Assert.assertEquals(((BValue) ((BMap) arrayValue2).getMap().get("school")).getType().getClass(),
+                BStringType.class);
     }
 }
 

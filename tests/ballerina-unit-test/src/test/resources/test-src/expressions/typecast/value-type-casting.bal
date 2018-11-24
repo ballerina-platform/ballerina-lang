@@ -46,13 +46,13 @@ function floatToAny (float value) returns (any) {
     return result;
 }
 
-function stringToInt(string value) returns (int) {
+function stringToInt(string value) returns (int|error) {
     int result;
     result = check <int>value;
     return result;
 }
 
-function stringToFloat(string value) returns (float) {
+function stringToFloat(string value) returns (float|error) {
     float result;
     result = check <float>value;
     return result;
@@ -94,7 +94,7 @@ function booleanToAny(boolean value) returns (any) {
     return result;
 }
 
-function anyToInt () returns (int) {
+function anyToInt () returns (int|error) {
     int i = 5;
     any a = i;
     int value;
@@ -102,7 +102,7 @@ function anyToInt () returns (int) {
     return value;
 }
 
-function anyToFloat () returns (float) {
+function anyToFloat () returns (float|error) {
     float f = 5.0;
     any a = f;
     float value;
@@ -118,8 +118,8 @@ function anyToString () returns (string) {
     return value;
 }
 
-function anyToBoolean () returns (boolean) {
-    boolean b;
+function anyToBoolean () returns (boolean|error) {
+    boolean b = false;
     any a = b;
     boolean value;
     value = check <boolean>a;

@@ -29,7 +29,7 @@ public type Filter14 object {
     }
 };
 
-Filter14 filter14;
+Filter14 filter14 = new;
 
 endpoint http:Listener echoEP07 {
     port: 9097,

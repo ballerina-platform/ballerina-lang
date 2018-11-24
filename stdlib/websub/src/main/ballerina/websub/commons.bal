@@ -175,9 +175,9 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
 # Function to validate signature for requests received at the callback.
 #
 # + request - The request received
-# + serviceType - The type of the service for which the request was rceived
+# + serviceType - The service for which the request was rceived
 # + return - `error`, if an error occurred in extraction or signature validation failed
-function processWebSubNotification(http:Request request, typedesc serviceType) returns error? {
+function processWebSubNotification(http:Request request, service serviceType) returns error? {
     string secret = retrieveSubscriberServiceAnnotations(serviceType).secret ?: "";
 
     if (!request.hasHeader(X_HUB_SIGNATURE)) {
@@ -506,9 +506,12 @@ public function startHub(string? host = (), int port, int? leaseSeconds = (), st
 public type WebSubHub object {
 
     public string hubUrl;
-    private http:Listener hubServiceEndpoint;
+    private http:Server hubServiceEndpoint;
 
-    new (hubUrl, hubServiceEndpoint) {}
+    public function __init(string hubUrl, http:Server hubServiceEndpoint) {
+         self.hubUrl = hubUrl;
+         self.hubServiceEndpoint = hubServiceEndpoint;
+    }
 
     # Stops the started up Ballerina WebSub Hub.
     #
@@ -549,8 +552,9 @@ public type WebSubHub object {
 };
 
 function WebSubHub.stop() returns boolean {
-    self.hubServiceEndpoint.stop();
-    return stopHubService(self.hubUrl);
+    // TODO: return error
+    var stopResult = self.hubServiceEndpoint.__stop();
+    return stopHubService(self.hubUrl) && !(stopResult is error);
 }
 
 function WebSubHub.publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
@@ -636,7 +640,7 @@ type SubscriptionDetails record {
     !...
 };
 
-function retrieveSubscriberServiceAnnotations(typedesc serviceType) returns SubscriberServiceConfiguration? {
+function retrieveSubscriberServiceAnnotations(service serviceType) returns SubscriberServiceConfiguration? {
     reflect:annotationData[] annotationDataArray = reflect:getServiceAnnotations(serviceType);
     foreach annData in annotationDataArray {
         if (annData.name == ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG && annData.moduleName == WEBSUB_MODULE_NAME) {
