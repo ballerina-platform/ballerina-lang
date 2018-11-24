@@ -128,7 +128,7 @@ public function main (string... args) {
     error? result = serverStreamingEp->receiveMessage("test", ServerStreamingMessageListener);
     if (result is error) {
         // If the service returns an error, print the error.
-        io:println("Error occured while sending event " + payloadError.message);
+        io:println("Error occured while sending event " + result.message);
     } else {
         io:println("Connected successfully to service");
     }
