@@ -53,7 +53,6 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextEdit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeChecker;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
@@ -964,8 +963,8 @@ public class CommonUtil {
     private static boolean builtinFreezeFunctionAllowed(LSContext context, BType bType) {
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         if (compilerContext != null) {
-            TypeChecker typeChecker = TypeChecker.getInstance(compilerContext);
-            return typeChecker.isLikeAnydataOrNotNil(bType);
+            Types types = Types.getInstance(compilerContext);
+            return types.isLikeAnydataOrNotNil(bType);
         }
         return false;
     }
