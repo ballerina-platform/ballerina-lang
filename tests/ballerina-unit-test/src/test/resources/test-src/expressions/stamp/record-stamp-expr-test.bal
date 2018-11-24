@@ -253,6 +253,8 @@ function stampExtendedRecordToRecordWithUnionV7() returns ExtendedEmployeeWithRe
     return employee;
 }
 
+//--------------------------------- Nil type related scenarios ---------------------------------------------
+
 type ExtendedEmployeeWithNilMap record {
     string name;
     string status;
@@ -308,6 +310,23 @@ function stampRecordWithNilValuesV2() returns Employee {
 
     EmployeeWithNil e = EmployeeWithNil.stamp(t1);
     return e;
+}
+
+//------------------------------- Optional field related scenarios ----------------------------------------------
+
+type TeacherWithOptionalField record {
+    string name;
+    int age?;
+    string status;
+    string batch;
+    string school?;
+};
+
+function stampRecordToRecordWithOptionalFields() returns TeacherWithOptionalField|error {
+    Employee emp = { name: "Raja", status: "single", batch: "LK2014" };
+
+    TeacherWithOptionalField|error teacher = TeacherWithOptionalField.stamp(emp);
+    return teacher;
 }
 
 //-------------------------------- Negative Test cases ------------------------------------------------------------

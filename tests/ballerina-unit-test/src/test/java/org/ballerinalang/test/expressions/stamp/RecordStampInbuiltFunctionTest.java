@@ -455,6 +455,25 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue.get("address"), null);
     }
 
+    @Test
+    public void testStampRecordToRecordWithOptionalFields() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampRecordToRecordWithOptionalFields");
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+        Assert.assertEquals(employee0.size(), 3);
+
+        Assert.assertEquals(employee0.get("name").getType().getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get("name").stringValue(), "Raja");
+
+        Assert.assertEquals(employee0.get("batch").getType().getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get("batch").stringValue(), "LK2014");
+
+        Assert.assertEquals(employee0.get("status").getType().getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get("status").stringValue(), "single");
+    }
+
     //---------------------------------- Negative Test cases ----------------------------------------------
 
     @Test
