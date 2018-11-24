@@ -56,6 +56,22 @@ export class DiagramConfig {
             }
         }
     };
+
+    public lifeLine = {
+        footer: {
+            height: 30,
+        },
+        gutter: {
+            h: 50,
+        },
+        header: {
+            height: 30,
+        },
+        line: {
+            height: 135,
+        },
+        width: 120,
+    };
 }
 
 export const DefaultConfig = new DiagramConfig();

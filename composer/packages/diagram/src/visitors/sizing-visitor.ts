@@ -67,8 +67,13 @@ export const visitor: Visitor = {
         const body = viewState.body;
         const header = viewState.header;
 
+        viewState.client.h = config.lifeLine.line.height + (config.lifeLine.header.height * 2);
+        viewState.client.w = config.lifeLine.width;
+
+        const lineHeight = viewState.client.h;
+
         body.w = config.panel.padding.left + config.panel.padding.right;
-        body.h = config.panel.padding.top + config.panel.padding.bottom;
+        body.h = config.panel.padding.top + lineHeight + config.panel.padding.bottom;
 
         header.w = config.panelHeading.padding.left + config.panelHeading.padding.right;
         header.h = config.panelHeading.height;

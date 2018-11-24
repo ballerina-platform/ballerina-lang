@@ -60,6 +60,9 @@ export const visitor: Visitor = {
         // Position the body
         viewState.body.x = viewState.bBox.x;
         viewState.body.y = viewState.header.y + viewState.header.h;
+        // Position client line
+        viewState.client.x = viewState.body.x + config.panel.padding.left;
+        viewState.client.y = viewState.body.y + config.panel.padding.top;
 
         // Update the width of children
         viewState.body.w = viewState.bBox.w;
