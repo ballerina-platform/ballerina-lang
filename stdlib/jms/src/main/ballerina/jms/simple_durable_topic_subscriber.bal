@@ -29,7 +29,7 @@ public type SimpleDurableTopicSubscriber object {
     private Connection? connection = ();
     private Session? session = ();
     private DurableTopicConsumer? subscriber = ();
-    //private SimpleDurableTopicSubscriberActions? consumerActions = ();
+    private SimpleDurableTopicConsumer? consumerActions = ();
 
     # Initializes the simple durable topic subscriber endpoint
     #
@@ -49,17 +49,15 @@ public type SimpleDurableTopicSubscriber object {
             });
         self.session = newSession;
 
-        DurableTopicSubscriber topicSubscriber = new;
-        DurableTopicSubscriberEndpointConfiguration consumerConfig = {
-            session: newSession,
-            topicPattern: c.topicPattern,
-            messageSelector: c.messageSelector,
-            identifier: c.identifier
-        };
-        topicSubscriber.init(consumerConfig);
+        DurableTopicSubscriberEndpointConfiguration consumerConfig = {  session: newSession,
+                                                                        topicPattern: c.topicPattern,
+                                                                        messageSelector: c.messageSelector,
+                                                                        identifier: c.identifier
+                                                                      };
+        DurableTopicConsumer topicSubscriber = new (consumerConfig);
         self.subscriber = topicSubscriber;
-        self.consumerActions = new SimpleDurableTopicSubscriberActions(topicSubscriber.getCallerActions(), newSession,
-            c.identifier);
+        self.consumerActions = new SimpleDurableTopicConsumer(topicSubscriber.getCallerActions(),
+                                   newSession, c.identifier);
     }
 
     # Binds the endpoint to a service
@@ -67,19 +65,24 @@ public type SimpleDurableTopicSubscriber object {
     # + serviceType - type descriptor of the service to bind to
     public function __attach(service s, map<any> data) returns error?  {
         var subscriber = self.subscriber;
-        if (subscriber is DurableTopicSubscriber) {
-            subscriber.__attach(s, data);
+        if (subscriber is DurableTopicConsumer) {
+            var result = subscriber.__attach(s, data);
+            if(result is error) {
+                return result;
+            } else {
+                return ();
+            }
         } else {
             string errorMessage = "Topic Subscriber cannot be nil";
             map errorDetail = { message: errorMessage };
             error e = error(JMS_ERROR_CODE, errorDetail);
-            panic e;
+            return e;
         }
     }
 
     # Starts the endpoint. Function is ignored by the subscriber endpoint
     public function __start() returns error? {
-        // Ignore
+        return ();
     }
 
     //# Retrieves the durable topic subscriber consumer actions
@@ -99,7 +102,7 @@ public type SimpleDurableTopicSubscriber object {
 
     # Stops the endpoint. Function is ignored by the subscriber endpoint
     public function __stop() returns error? {
-        // Ignore
+        return ();
     }
 
     # Creates a text message that can be sent through any JMS message producer to a queue or topic.
@@ -144,13 +147,13 @@ public type SimpleDurableTopicSubscriberEndpointConfiguration record {
 
 
 # Caller actions related to durable topic subscriber endpoint
-public type SimpleDurableTopicConsumer object {
+public type SimpleDurableTopicConsumer client object {
 
-    private DurableTopicConsumer helper;
+    private DurableTopicCaller helper;
     private Session session;
     private string identifier;
 
-    public function __init(DurableTopicConsumer subscriberActions, Session session, string id) {
+    public function __init(DurableTopicCaller subscriberActions, Session session, string id) {
         self.helper = subscriberActions;
         self.session = session;
         self.identifier = id;
@@ -161,7 +164,7 @@ public type SimpleDurableTopicConsumer object {
     # + message - JMS message to be acknowledged
     # + return - error upon failure to acknowledge the received message
     public remote function acknowledge(Message message) returns error? {
-        return self.helper.acknowledge(message);
+        return self.helper->acknowledge(message);
     }
 
     # Synchronously receive a message from the JMS provider
@@ -169,7 +172,7 @@ public type SimpleDurableTopicConsumer object {
     # + timeoutInMilliSeconds - time to wait until a message is received
     # + return - Returns a message or nill if the timeout exceededs. Returns an error on jms provider internal error.
     public remote function receive(int timeoutInMilliSeconds = 0) returns (Message|error)? {
-        return self.helper.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
+        return self.helper->receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
     }
 
     # Unsubscribes the durable subscriber from topic

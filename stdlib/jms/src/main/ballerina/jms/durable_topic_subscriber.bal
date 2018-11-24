@@ -24,12 +24,12 @@ public type DurableTopicConsumer object {
 
     *AbstractListener;
 
-    //public DurableTopicSubscriberActions consumerActions = new;
+    public DurableTopicCaller consumerActions = new;
     public DurableTopicSubscriberEndpointConfiguration config = {};
 
     public function __init(DurableTopicSubscriberEndpointConfiguration config) {
          self.config = config;
-         init(config);
+         self.init(config);
     }
 
     # Initialize durable topic subscriber endpoint
@@ -51,30 +51,31 @@ public type DurableTopicConsumer object {
     # + s - service data which should be attached to listner
     # + data - annotation data which is defined in the service
     public function __attach(service s, map<any> data) returns error? {
-        self.registerListener(s, data);
+        return self.registerListener(s, data);
     }
 
-    extern function registerListener(service serviceType, map<any> data);
+    extern function registerListener(service serviceType, map<any> data) returns error?;
 
     extern function createSubscriber(Session session, string messageSelector);
 
     # Starts the endpoint. Function is ignored by the subscriber endpoint
     public function __start() returns error? {
+        return ();
     }
 
-    //# Return the subscrber caller actions
-    //#
-    //# + return - durable topic subscriber actions
-    //public function getCallerActions() returns DurableTopicSubscriberActions {
-    //    return self.consumerActions;
-    //}
+    # Return the subscrber caller actions
+    #
+    # + return - durable topic subscriber actions
+    public function getCallerActions() returns DurableTopicCaller {
+        return self.consumerActions;
+    }
 
     # Ends consuming messages from the durable topic subscriber endpoint
     public function __stop() returns error? {
-        self.closeSubscriber(self.consumerActions);
+        return self.closeSubscriber(self.consumerActions);
     }
 
-    extern function closeSubscriber(DurableTopicSubscriberActions actions);
+    extern function closeSubscriber(DurableTopicCaller actions) returns error?;
 };
 
 # Configurations related to the durable topic subscriber endpoint
