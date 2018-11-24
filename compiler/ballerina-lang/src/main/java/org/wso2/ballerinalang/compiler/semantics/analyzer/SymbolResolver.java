@@ -342,7 +342,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             return symTable.notFoundSymbol;
         }
 
-        BType targetType = resolveTargetTypeForStamping(targetTypeExpression);
+        BType targetType = resolveTargetType(targetTypeExpression);
         if (targetType == null) {
             resultType = symTable.semanticError;
             return symTable.notFoundSymbol;
@@ -374,7 +374,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             return symTable.notFoundSymbol;
         }
 
-        BType targetType = resolveTargetTypeForStamping(targetTypeExpression);
+        BType targetType = resolveTargetType(targetTypeExpression);
         if (targetType == null) {
             resultType = symTable.semanticError;
             return symTable.notFoundSymbol;
@@ -385,6 +385,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             resultType = symTable.semanticError;
             return symTable.notFoundSymbol;
         }
+        
         BSymbol convSymbol;
         // Check whether we can stamp the source and target types.
         if (isStampSupportedForSourceType(variableSourceType) && isStampSupportedForTargetType(targetType)) {
@@ -402,7 +403,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return symTable.notFoundSymbol;
     }
 
-    private BType resolveTargetTypeForStamping(BLangExpression targetTypeExpression) {
+    private BType resolveTargetType(BLangExpression targetTypeExpression) {
         BType targetType = null;
 
         if (targetTypeExpression.getKind() == NodeKind.TYPEDESC_EXPRESSION) {

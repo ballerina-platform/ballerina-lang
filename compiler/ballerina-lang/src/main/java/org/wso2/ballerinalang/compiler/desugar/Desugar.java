@@ -2820,8 +2820,8 @@ public class Desugar extends BLangNodeVisitor {
                 if (iExpr.symbol.kind == SymbolKind.CONVERSION_OPERATOR) {
                     result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
                 } else {
-                    result = createStampBuiltInMethod(iExpr.pos, iExpr.expr, iExpr.requiredArgs,
-                                                      (BInvokableSymbol) iExpr.symbol);
+                    result = visitCreateStampMethod(iExpr.pos, iExpr.expr, iExpr.requiredArgs,
+                                                    (BInvokableSymbol) iExpr.symbol);
                 }
                 break;
             default:
@@ -2964,27 +2964,27 @@ public class Desugar extends BLangNodeVisitor {
         return conversionExpr;
     }
 
-    private BLangInvocation.BLangBuiltInMethodInvocation createStampBuiltInMethod(DiagnosticPos pos,
-                                                                                  BLangExpression expr,
-                                                                                  List<BLangExpression> requiredArgs,
-                                                                                  BInvokableSymbol bInvokableSymbol) {
-        BType targetType = bInvokableSymbol.retType;
+    private BLangInvocation.BLangBuiltInMethodInvocation visitCreateStampMethod(DiagnosticPos pos,
+                                                                                BLangExpression expr,
+                                                                                List<BLangExpression> requiredArgs,
+                                                                                BInvokableSymbol invokableSymbol) {
+        BType targetType = invokableSymbol.retType;
         if (types.isValueType(targetType) || targetType == symTable.nilType) {
-            return ASTBuilderUtil.createBuiltInMethod(pos, expr, bInvokableSymbol, requiredArgs, symResolver,
+            return ASTBuilderUtil.createBuiltInMethod(pos, expr, invokableSymbol, requiredArgs, symResolver,
                                                       BLangBuiltInMethod.STAMP);
-        } else {
-            BLangExpression sourceExpression = requiredArgs.get(0);
-            BType sourceType = sourceExpression.type;
-            List<BType> args = Lists.of(sourceType);
-            BInvokableType opType = new BInvokableType(args, sourceType, null);
-            BOperatorSymbol cloneSymbol = new BOperatorSymbol(names.fromString(BLangBuiltInMethod.CLONE.getName()),
-                                                              null, opType, null, InstructionCodes.CLONE);
-            BLangBuiltInMethodInvocation cloneInvocation =
-                    ASTBuilderUtil.createBuiltInMethod(pos, sourceExpression, cloneSymbol, new ArrayList<>(),
-                                                       symResolver, BLangBuiltInMethod.CLONE);
-            return ASTBuilderUtil.createBuiltInMethod(pos, expr, bInvokableSymbol, Lists.of(cloneInvocation),
-                                                      symResolver, BLangBuiltInMethod.STAMP);
         }
+        BLangExpression sourceExpression = requiredArgs.get(0);
+        BType sourceType = sourceExpression.type;
+        List<BType> args = Lists.of(sourceType);
+        BInvokableType opType = new BInvokableType(args, sourceType, null);
+        BOperatorSymbol cloneSymbol = new BOperatorSymbol(names.fromString(BLangBuiltInMethod.CLONE.getName()),
+                                                          null, opType, null, InstructionCodes.CLONE);
+        BLangBuiltInMethodInvocation cloneInvocation =
+                ASTBuilderUtil.createBuiltInMethod(pos, sourceExpression, cloneSymbol, new ArrayList<>(),
+                                                   symResolver, BLangBuiltInMethod.CLONE);
+        return ASTBuilderUtil.createBuiltInMethod(pos, expr, invokableSymbol, Lists.of(cloneInvocation),
+                                                  symResolver, BLangBuiltInMethod.STAMP);
+
     }
 
     private BType getElementType(BType type) {
