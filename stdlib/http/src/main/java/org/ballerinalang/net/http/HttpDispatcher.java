@@ -173,7 +173,7 @@ public class HttpDispatcher {
 
         SignatureParams signatureParams = httpResource.getSignatureParams();
         BValue[] bValues = new BValue[signatureParams.getParamCount()];
-        bValues[0] = serviceEndpoint;
+        bValues[0] = connection;
         bValues[1] = inRequest;
         if (signatureParams.getParamCount() == 2) {
             return bValues;
