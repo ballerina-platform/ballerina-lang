@@ -55,21 +55,21 @@ public class NativeConversionNegativeTest {
         BRunUtil.invoke(negativeResult, "testStructWithIncompatibleTypeToJson");
     }
 
-    @Test(description = "Test passing tainted value with from")
+    @Test(description = "Test passing tainted value with create")
     public void testTaintedValue() {
         Assert.assertEquals(taintCheckResult.getErrorCount(), 1);
         BAssertUtil.validateError(taintCheckResult, 0, "tainted value passed to sensitive parameter 'intArg'", 28, 22);
     }
 
-    @Test(description = "Test from function with multiple arguments")
+    @Test(description = "Test create function with multiple arguments")
     public void testFloatToIntWithMultipleArguments() {
         Assert.assertEquals(negativeCompileResult.getErrorCount(), 6);
-        BAssertUtil.validateError(negativeCompileResult, 0, "too many arguments in call to 'from()'", 19, 12);
+        BAssertUtil.validateError(negativeCompileResult, 0, "too many arguments in call to 'create()'", 19, 12);
     }
 
-    @Test(description = "Test from function with no arguments")
+    @Test(description = "Test create function with no arguments")
     public void testToIntWithNoArguments() {
-        BAssertUtil.validateError(negativeCompileResult, 2, "not enough arguments in call to 'from()'", 24, 12);
+        BAssertUtil.validateError(negativeCompileResult, 2, "not enough arguments in call to 'create()'", 24, 12);
     }
 
     @Test(description = "Test conversions not supported")

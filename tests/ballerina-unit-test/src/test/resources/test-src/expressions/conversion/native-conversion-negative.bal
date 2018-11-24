@@ -33,18 +33,6 @@ type Student record {
     !...
 };
 
-function testStructToStruct () returns (Student) {
-    Person p = {name:"Supun",
-                   age:25,
-                   parent:{name:"Parent", age:50},
-                   address:{"city":"Kandy", "country":"SriLanka"},
-                   info:{status:"single"},
-                   marks:[24, 81]
-               };
-    Student s =  Student.create(p);
-    return s;
-}
-
 type Info record {
     byte[] infoBlob = [];
     !...

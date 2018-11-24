@@ -132,6 +132,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -847,6 +848,11 @@ public class CPU {
         int j = operands[1];
 
         BRefType<?> refRegVal = sf.refRegs[i];
+
+        if (refRegVal == null) {
+            return;
+        }
+
         if (!checkIsLikeType(refRegVal, BTypes.typeAnydata)) {
             sf.refRegs[j] = BLangVMErrors.createError(ctx, BLangExceptionHelper
                     .getErrorMessage(RuntimeErrors.UNSUPPORTED_CLONE_OPERATION, refRegVal, refRegVal.getType()));
@@ -942,15 +948,23 @@ public class CPU {
         }
 
         if (!checkIsLikeType(valueToBeStamped, targetType)) {
-            BError error = BLangVMErrors.createError(ctx,
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_STAMP_OPERATION,
-                            valueToBeStamped.getType(), targetType));
+            BError error;
+            if (valueToBeStamped != null) {
+                error = BLangVMErrors.createError(ctx,
+                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_STAMP_OPERATION,
+                                valueToBeStamped.getType(), targetType));
+            } else {
+                error = BLangVMErrors.createError(ctx,
+                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.CANNOT_STAMP_NULL, targetType));
+            }
             sf.refRegs[k] = error;
             return;
         }
 
         try {
-            valueToBeStamped.stamp(targetType);
+            if (valueToBeStamped != null) {
+                valueToBeStamped.stamp(targetType);
+            }
             sf.refRegs[k] = valueToBeStamped;
         } catch (BallerinaException e) {
             BError error = BLangVMErrors.createError(ctx,
@@ -1926,12 +1940,6 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                if (sf.doubleRegs[j] == 0) {
-                    ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
-                    handleError(ctx);
-                    break;
-                }
-
                 sf.doubleRegs[k] = sf.doubleRegs[i] % sf.doubleRegs[j];
                 break;
             case InstructionCodes.DMOD:
@@ -3487,37 +3495,46 @@ public class CPU {
     }
 
     private static boolean isAnydata(BType type) {
+        return isAnydata(type, new HashSet<>());
+    }
+
+    private static boolean isAnydata(BType type, Set<BType> unresolvedTypes) {
         if (type.getTag() <= TypeTags.ANYDATA_TAG) {
             return true;
         }
 
         switch (type.getTag()) {
             case TypeTags.MAP_TAG:
-                return isAnydata(((BMapType) type).getConstrainedType());
+                return isAnydata(((BMapType) type).getConstrainedType(), unresolvedTypes);
             case TypeTags.RECORD_TYPE_TAG:
+                if (unresolvedTypes.contains(type)) {
+                    return true;
+                }
+                unresolvedTypes.add(type);
                 BRecordType recordType = (BRecordType) type;
                 List<BType> fieldTypes = recordType.getFields().values().stream()
-                        .map(BField::getFieldType)
-                        .collect(Collectors.toList());
-                return isAnydata(fieldTypes) && (recordType.sealed || isAnydata(recordType.restFieldType));
+                                                   .map(BField::getFieldType)
+                                                   .collect(Collectors.toList());
+                return isAnydata(fieldTypes, unresolvedTypes) && (recordType.sealed ||
+                        isAnydata(recordType.restFieldType, unresolvedTypes));
             case TypeTags.UNION_TAG:
-                return isAnydata(((BUnionType) type).getMemberTypes());
+                return isAnydata(((BUnionType) type).getMemberTypes(), unresolvedTypes);
             case TypeTags.TUPLE_TAG:
-                return isAnydata(((BTupleType) type).getTupleTypes());
+                return isAnydata(((BTupleType) type).getTupleTypes(), unresolvedTypes);
             case TypeTags.ARRAY_TAG:
-                return isAnydata(((BArrayType) type).getElementType());
+                return isAnydata(((BArrayType) type).getElementType(), unresolvedTypes);
             case TypeTags.FINITE_TYPE_TAG:
                 Set<BType> valSpaceTypes = ((BFiniteType) type).valueSpace.stream()
-                                                                        .map(BValue::getType)
-                                                                        .collect(Collectors.toSet());
-                return isAnydata(valSpaceTypes);
+                                                                          .map(BValue::getType)
+                                                                          .collect(Collectors.toSet());
+                return isAnydata(valSpaceTypes, unresolvedTypes);
             default:
                 return false;
         }
     }
 
-    private static boolean isAnydata(Collection<BType> types) {
-        return types.stream().allMatch(CPU::isAnydata);
+    private static boolean isAnydata(Collection<BType> types, Set<BType> unresolvedTypes) {
+        return types.stream().allMatch(bType -> isAnydata(bType, unresolvedTypes));
     }
 
     private static BType getElementType(BType type) {
@@ -4323,7 +4340,7 @@ public class CPU {
         compensationTable.index++;
     }
 
-    private static boolean checkIsLikeType(BValue sourceValue, BType targetType) {
+    public static boolean checkIsLikeType(BValue sourceValue, BType targetType) {
         BType sourceType = sourceValue == null ? BTypes.typeNull : sourceValue.getType();
         if (checkIsType(sourceType, targetType, new ArrayList<>())) {
             return true;
@@ -4346,7 +4363,7 @@ public class CPU {
                 return checkFiniteTypeAssignable(sourceValue, targetType);
             case TypeTags.UNION_TAG:
                 return ((BUnionType) targetType).getMemberTypes().stream()
-                        .anyMatch(type -> checkIsType(sourceValue, type));
+                        .anyMatch(type -> checkIsLikeType(sourceValue, type));
             default:
                 return false;
         }
@@ -4396,7 +4413,7 @@ public class CPU {
             return false;
         }
 
-        return IntStream.range(0, source.getValues().length)
+        return IntStream.range(0, (int) source.size())
                 .allMatch(i -> checkIsLikeType(source.get(i), targetType.getTupleTypes().get(i)));
     }
 
@@ -4463,7 +4480,8 @@ public class CPU {
         for (Map.Entry targetTypeEntry : targetTypeField.entrySet()) {
             String fieldName = targetTypeEntry.getKey().toString();
 
-            if (!(((BMap) sourceValue).getMap().containsKey(fieldName))) {
+            if (!(((BMap) sourceValue).getMap().containsKey(fieldName)) &&
+                    !(Flags.isFlagOn(targetType.getFields().get(fieldName).flags, Flags.OPTIONAL))) {
                 return false;
             }
         }

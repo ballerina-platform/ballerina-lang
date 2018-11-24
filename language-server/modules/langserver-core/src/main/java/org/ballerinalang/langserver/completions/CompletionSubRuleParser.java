@@ -181,7 +181,7 @@ public class CompletionSubRuleParser {
             if (parserRuleContext == null
                     || parserRuleContext.getClass().equals(BallerinaParser.ExpressionContext.class)
                     || moderateContextTypes.contains(parserRuleContext.getClass())
-                    || parserRuleContext instanceof BallerinaParser.EndpointDeclarationContext
+//                    || parserRuleContext instanceof BallerinaParser.EndpointDeclarationContext
                     || parserRuleContext instanceof BallerinaParser.StatementContext
                     || parserRuleContext instanceof BallerinaParser.DefinitionContext) {
                 context.put(CompletionKeys.PARSER_RULE_CONTEXT_KEY, parserRuleContext);
@@ -208,7 +208,7 @@ public class CompletionSubRuleParser {
                 UtilSymbolKeys.FUNCTION_KEYWORD_KEY,
                 UtilSymbolKeys.SERVICE_KEYWORD_KEY,
                 UtilSymbolKeys.ENDPOINT_KEYWORD_KEY,
-                UtilSymbolKeys.OPEN_BRACKET_KEY)
+                UtilSymbolKeys.OPEN_PARENTHESES_KEY)
         );
         int currentTokenIndex = CommonUtil.getCurrentTokenFromTokenStream(ctx);
         int startIndex = currentTokenIndex;
@@ -290,7 +290,7 @@ public class CompletionSubRuleParser {
             } else if (nodeTypes.contains(token.getText())) {
                 if (token.getText().equals(UtilSymbolKeys.ENDPOINT_KEYWORD_KEY)
                         && CommonUtil.getPreviousDefaultToken(tokenStream, token.getTokenIndex()).getText()
-                        .equals(UtilSymbolKeys.OPEN_BRACKET_KEY)) {
+                        .equals(UtilSymbolKeys.OPEN_PARENTHESES_KEY)) {
                     nodeType = UtilSymbolKeys.RESOURCE_KEYWORD_KEY;
                 } else {
                     nodeType = token.getText();

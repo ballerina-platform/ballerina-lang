@@ -58,6 +58,7 @@ function createError (string errMessage) returns error {
 # + args - Arguments for pulling a module
 # + return - nil if no error occurred, else error.
 public function invokePull (string... args) returns error? {
+    http:Client httpEndpoint = new ({});
     string url = args[0];
     string dirPath = args[1];
     string pkgPath = args[2];
@@ -74,20 +75,15 @@ public function invokePull (string... args) returns error? {
         logFormatter = new BuildLogFormatter();
     }
 
-    // resolve endpoint
-    http:Client httpEndpoint;
     if (host != "" && strPort != "") {
         // validate port
         var port = int.create(strPort);
         if (port is int) {
             http:Client|error result = trap defineEndpointWithProxy(url, host, port, proxyUsername, proxyPassword);
-            match result {
-                http:Client ep => {
-                    httpEndpoint = ep;
-                }
-                error e => {
-                    return createError("failed to resolve host : " + host + " with port " + port);
-                }
+            if (result is http:Client) {
+                httpEndpoint = result;
+            } else if (result is error) {
+                return createError("failed to resolve host : " + host + " with port " + port);
             }
         } else {
             return createError("invalid port : " + strPort);
@@ -113,7 +109,7 @@ public function invokePull (string... args) returns error? {
 # + return - Error if occurred, else nil
 function pullPackage(http:Client httpEndpoint, string url, string pkgPath, string dirPath, string versionRange,
                      string fileSeparator, string terminalWidth) returns error? {
-    endpoint http:Client centralEndpoint = httpEndpoint;
+    http:Client centralEndpoint = httpEndpoint;
 
     string fullPkgPath = pkgPath;
     string destDirPath = dirPath;
@@ -122,12 +118,10 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
 
     http:Response httpResponse = new;
     var result = centralEndpoint -> get(untaint versionRange, message=req);
-
-    match result {
-        http:Response response => httpResponse = response;
-        error e => {
-            return createError("connection to the remote host failed : " + e.reason());
-        }
+    if (result is http:Response) {
+        httpResponse = result;
+    } else if (result is error) {
+        return createError("connection to the remote host failed : " + result.reason());
     }
 
     http:Response res = new;
@@ -136,18 +130,15 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
         return createError("remote registry failed for url :" + url);
     } else if (statusCode != "200") {
         var jsonResponse = httpResponse.getJsonPayload();
-        match jsonResponse {
-            json resp => {
-                if (!(statusCode == "404" && isBuild)) {
-                    return createError(resp.message.toString());
-                } else {
-                    // To ignore printing the error
-                    return createError("");
-                }
+        if (jsonResponse is json) {
+            if (!(statusCode == "404" && isBuild)) {
+                return createError(jsonResponse.message.toString());
+            } else {
+                // To ignore printing the error
+                return createError("");
             }
-            error err => {
-                return createError("error occurred when pulling the module");
-            }
+        } else {
+            return createError("error occurred when pulling the module");
         }
     } else {
         string contentLengthHeader;
@@ -193,19 +184,15 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
             int width = (check int.create(terminalWidth)) - rightMargin;
             check copy(pkgSize, sourceChannel, wch, fullPkgPath, toAndFrom, width);
 
-            match wch.close() {
-                error destChannelCloseError => {
-                    return createError("error occured while closing the channel: " + destChannelCloseError.reason());
-                }
-                () => {
-                    match sourceChannel.close() {
-                        error sourceChannelCloseError => {
-                            return createError("error occured while closing the channel: " + sourceChannelCloseError.reason());
-                        }
-                        () => {
-                            return ();
-                        }
-                    }
+            var destChannelClose = wch.close();
+            if (destChannelClose is error) {
+                return createError("error occured while closing the channel: " + destChannelClose.reason());
+            } else {
+                var srcChannelClose = sourceChannel.close();
+                if (srcChannelClose is error) {
+                    return createError("error occured while closing the channel: " + srcChannelClose.reason());
+                } else {
+                    return ();
                 }
             }
         } else {
@@ -226,7 +213,7 @@ public function main() {}
 # + password - Password of the proxy
 # + return - Endpoint defined
 function defineEndpointWithProxy (string url, string hostname, int port, string username, string password) returns http:Client {
-    endpoint http:Client httpEndpointWithProxy {
+    http:Client httpEndpointWithProxy = new ({
         url: url,
         secureSocket:{
             trustStore:{
@@ -238,7 +225,7 @@ function defineEndpointWithProxy (string url, string hostname, int port, string 
         },
         followRedirects: { enabled: true, maxCount: 5 },
         proxy : getProxyConfigurations(hostname, port, username, password)
-    };
+    });
     return httpEndpointWithProxy;
 }
 
@@ -247,7 +234,7 @@ function defineEndpointWithProxy (string url, string hostname, int port, string 
 # + url - URL to be invoked
 # + return - Endpoint defined
 function defineEndpointWithoutProxy (string url) returns http:Client{
-    endpoint http:Client httpEndpointWithoutProxy {
+    http:Client httpEndpointWithoutProxy = new ({
         url: url,
         secureSocket:{
             trustStore:{
@@ -258,7 +245,7 @@ function defineEndpointWithoutProxy (string url) returns http:Client{
             shareSession: true
         },
         followRedirects: { enabled: true, maxCount: 5 }
-    };
+    });
     return httpEndpointWithoutProxy;
 }
 
@@ -374,13 +361,11 @@ function truncateString (string text, int maxSize) returns (string) {
 function createDirectories(string directoryPath) returns (boolean) {
     internal:Path dirPath = new(directoryPath);
     if (!dirPath.exists()){
-        match dirPath.createDirectory() {
-            () => {
-                return true;
-            }
-            error => {
-                return false;
-            }
+        var result = dirPath.createDirectory();
+        if (result is error) {
+            return false;
+        } else {
+            return true;
         }
     } else {
         return false;
@@ -391,27 +376,21 @@ function createDirectories(string directoryPath) returns (boolean) {
 #
 # + byteChannel - Byte channel to be closed
 function closeChannel(io:ReadableByteChannel|io:WritableByteChannel byteChannel) {
-    match byteChannel {
-        io:ReadableByteChannel rc => {
-            match rc.close() {
-                error channelCloseError => {
-                    io:println(logFormatter.formatLog("Error occured while closing the channel: " +
-                                channelCloseError.reason()));
-                }
-                () => return;
-            }
+    if (byteChannel is io:ReadableByteChannel) {
+        var channelCloseError = byteChannel.close();
+        if (channelCloseError is error) {
+            io:println(logFormatter.formatLog("Error occured while closing the channel: " + channelCloseError.reason()));
+        } else {
+            return;
         }
-        io:WritableByteChannel wc => {
-            match wc.close() {
-                error channelCloseError => {
-                    io:println(logFormatter.formatLog("Error occured while closing the channel: " +
-                                channelCloseError.reason()));
-                }
-                () => return;
-            }
+    } else if (byteChannel is io:WritableByteChannel) {
+        var channelCloseError = byteChannel.close();
+        if (channelCloseError is error) {
+            io:println(logFormatter.formatLog("Error occured while closing the channel: " + channelCloseError.reason()));
+        } else {
+            return;
         }
     }
-
 }
 
 # This function sets the proxy configurations for the endpoint.

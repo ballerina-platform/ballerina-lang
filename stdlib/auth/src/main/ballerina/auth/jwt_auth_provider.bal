@@ -31,7 +31,8 @@ public type JWTAuthProvider object {
     # Provides authentication based on the provided jwt token
     #
     # + jwtAuthProviderConfig - JWT authentication provider configurations
-    public new(jwtAuthProviderConfig) {
+    public function __init(JWTAuthProviderConfig jwtAuthProviderConfig) {
+        self.jwtAuthProviderConfig = jwtAuthProviderConfig;
         self.authCache = new;
     }
 

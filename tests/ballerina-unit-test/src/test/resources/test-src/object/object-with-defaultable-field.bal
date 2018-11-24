@@ -11,10 +11,10 @@ type Person object {
     int year = 0;
     string month = "february";
 
-    new (year = 50, int count, name = "sample value1", string val1 = "default value") {
+    function __init (int year = 50, int count, string name = "sample value1", string val1 = "default value") {
+        self.year = year;
+        self.name = name;
         self.age = self.age + count;
         self.month = val1;
     }
 };
-
-

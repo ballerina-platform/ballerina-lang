@@ -34,7 +34,7 @@ import static org.ballerinalang.database.sql.Constants.SQL_PACKAGE_PATH;
         orgName = "ballerina", packageName = "sql",
         functionName = "close",
         args = {
-                @Argument(name = "callerActions", type = TypeKind.RECORD, structType = Constants.CALLER_ACTIONS ,
+                @Argument(name = "callerActions", type = TypeKind.RECORD, structType = Constants.SQL_CLIENT,
                           structPackage = SQL_PACKAGE_PATH)
         }
 )

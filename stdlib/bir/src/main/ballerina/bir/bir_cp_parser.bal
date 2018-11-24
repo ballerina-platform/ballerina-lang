@@ -9,7 +9,8 @@ public type ConstPoolParser object {
     ConstPool cp = {};
     int i;
 
-    public new(reader) {
+    public function __init(ChannelReader reader) {
+        self.reader = reader;
         self.i = 0;
     }
 

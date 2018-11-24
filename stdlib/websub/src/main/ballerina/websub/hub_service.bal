@@ -25,27 +25,28 @@ import ballerina/time;
 
 map<PendingSubscriptionChangeRequest> pendingRequests = {};
 
+service hubService =
 @http:ServiceConfig {
     basePath:BASE_PATH
 }
-service<http:Service> hubService {
+service {
 
     @http:ResourceConfig {
         methods:["GET"],
         path:HUB_PATH
     }
-    status(endpoint client, http:Request request) {
+    resource function status(http:Caller httpClient, http:Request request) {
         http:Response response = new;
         response.statusCode = http:ACCEPTED_202;
         response.setTextPayload("Ballerina Hub Service - Up and Running!");
-        _ = client->respond(response);
+        _ = httpClient->respond(response);
     }
 
     @http:ResourceConfig {
         methods:["POST"],
         path:HUB_PATH
     }
-    hub(endpoint client, http:Request request) {
+    resource function hub(http:Caller httpClient, http:Request request) {
         http:Response response = new;
         string topic = "";
 
@@ -77,7 +78,7 @@ service<http:Service> hubService {
                 response.statusCode = http:ACCEPTED_202;
             }
 
-            var responseError = client->respond(response);
+            var responseError = httpClient->respond(response);
             if (responseError is error) {
                 log:printError("Error responding to subscription change request", err = responseError);
             } else {
@@ -91,7 +92,7 @@ service<http:Service> hubService {
                 response.statusCode = http:BAD_REQUEST_400;
                 response.setTextPayload("Remote topic registration not allowed/not required at the Hub");
                 log:printWarn("Remote topic registration denied at Hub");
-                var responseError = client->respond(response);
+                var responseError = httpClient->respond(response);
                 if (responseError is error) {
                     log:printError("Error responding on remote topic registration failure", err = responseError);
                 }
@@ -108,7 +109,7 @@ service<http:Service> hubService {
                 response.statusCode = http:ACCEPTED_202;
                 log:printInfo("Topic registration successful at Hub, for topic[" + topic + "]");
             }
-            var responseError = client->respond(response);
+            var responseError = httpClient->respond(response);
             if (responseError is error) {
                 log:printError("Error responding remote topic registration status", err = responseError);
             }
@@ -117,7 +118,7 @@ service<http:Service> hubService {
                 response.statusCode = http:BAD_REQUEST_400;
                 response.setTextPayload("Remote unregistration not allowed/not required at the Hub");
                 log:printWarn("Remote topic unregistration denied at Hub");
-                var responseError = client->respond(response);
+                var responseError = httpClient->respond(response);
                 if (responseError is error) {
                     log:printError("Error responding on remote topic unregistration failure", err = responseError);
                 }
@@ -134,7 +135,7 @@ service<http:Service> hubService {
                 response.statusCode = http:ACCEPTED_202;
                 log:printInfo("Topic unregistration successful at Hub, for topic[" + topic + "]");
             }
-            var responseError = client->respond(response);
+            var responseError = httpClient->respond(response);
             if (responseError is error) {
                 log:printError("Error responding remote topic unregistration status", err = responseError);
             }
@@ -166,9 +167,9 @@ service<http:Service> hubService {
                             string errorMessage = "Error fetching updates for topic URL [" + topic + "]: "
                                                     + errorCause;
                             log:printError(errorMessage);
-                            response.setTextPayload(errorMessage);
+                            response.setTextPayload(untaint errorMessage);
                             response.statusCode = http:BAD_REQUEST_400;
-                            var responseError = client->respond(response);
+                            var responseError = httpClient->respond(response);
                             if (responseError is error) {
                                 log:printError("Error responding on update fetch failure", err = responseError);
                             }
@@ -196,7 +197,7 @@ service<http:Service> hubService {
                         log:printError(errorMessage);
                         response.statusCode = http:BAD_REQUEST_400;
                         response.setTextPayload(errorMessage);
-                        var responseError = client->respond(response);
+                        var responseError = httpClient->respond(response);
                         if (responseError is error) {
                             log:printError("Error responding on payload extraction failure for"
                                                     + " publish request", err = responseError);
@@ -207,12 +208,12 @@ service<http:Service> hubService {
                     if (publishStatus is error) {
                         string errorCause = <string> publishStatus.detail().message;
                         string errorMessage = "Update notification failed for Topic [" + topic + "]: " + errorCause;
-                        response.setTextPayload(errorMessage);
+                        response.setTextPayload(untaint errorMessage);
                         log:printError(errorMessage);
                     } else {
                         log:printInfo("Update notification done for Topic [" + topic + "]");
                         response.statusCode = http:ACCEPTED_202;
-                        var responseError = client->respond(response);
+                        var responseError = httpClient->respond(response);
                         if (responseError is error) {
                             log:printError("Error responding on update notification for topic[" + topic
                                                     + "]", err = responseError);
@@ -225,20 +226,20 @@ service<http:Service> hubService {
                     response.setTextPayload(errorMessage);
                 }
                 response.statusCode = http:BAD_REQUEST_400;
-                var responseError = client->respond(response);
+                var responseError = httpClient->respond(response);
                 if (responseError is error) {
                     log:printError("Error responding to publish request", err = responseError);
                 }
             } else {
                 response.statusCode = http:BAD_REQUEST_400;
-                var responseError = client->respond(response);
+                var responseError = httpClient->respond(response);
                 if (responseError is error) {
                     log:printError("Error responding to request", err = responseError);
                 }
             }
         }
     }
-}
+};
 
 # Function to validate a subscription/unsubscription request, by validating the mode, topic and callback specified.
 #
@@ -271,11 +272,7 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
 # + topic - The topic specified in the new subscription/unsubscription request
 # + params - Parameters specified in the new subscription/unsubscription request
 function verifyIntentAndAddSubscription(string callback, string topic, map<string> params) {
-    endpoint http:Client callbackEp {
-        url:callback,
-        secureSocket: hubClientSecureSocket
-    };
-
+    http:Client callbackEp = new http:Client({ url: callback, secureSocket: hubClientSecureSocket });
     string mode = params[HUB_MODE] ?: "";
     string strLeaseSeconds = params[HUB_LEASE_SECONDS] ?: "";
     int leaseSeconds = int.create(strLeaseSeconds) but { error => 0 };
@@ -354,13 +351,15 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
 # + mode - Whether the change is for addition/removal
 # + topic - The topic for which registration is changing
 function changeTopicRegistrationInDatabase(string mode, string topic) {
-    endpoint h2:Client subscriptionDbEp {
+    h2:Client subscriptionDbEp = new h2:Client({
         path: hubDatabaseDirectory,
         name: hubDatabaseName,
         username: hubDatabaseUsername,
         password: hubDatabasePassword,
-        poolOptions: { maximumPoolSize:5 }
-    };
+        poolOptions: {
+            maximumPoolSize: 5
+        }
+    });
 
     sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:topic};
     if (mode == MODE_REGISTER) {
@@ -388,13 +387,15 @@ function changeTopicRegistrationInDatabase(string mode, string topic) {
 # + mode - Whether the subscription change is for unsubscription/unsubscription
 # + subscriptionDetails - The details of the subscription changing
 function changeSubscriptionInDatabase(string mode, SubscriptionDetails subscriptionDetails) {
-    endpoint h2:Client subscriptionDbEp {
+    h2:Client subscriptionDbEp = new h2:Client({
         path: hubDatabaseDirectory,
         name: hubDatabaseName,
         username: hubDatabaseUsername,
         password: hubDatabasePassword,
-        poolOptions: { maximumPoolSize:5 }
-    };
+        poolOptions: {
+            maximumPoolSize: 5
+        }
+    });
 
     sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:subscriptionDetails.topic};
     sql:Parameter para2 = {sqlType:sql:TYPE_VARCHAR, value:subscriptionDetails.callback};
@@ -437,13 +438,15 @@ function setupOnStartup() {
 
 # Function to load topic registrations from the database.
 function addTopicRegistrationsOnStartup() {
-    endpoint h2:Client subscriptionDbEp {
+    h2:Client subscriptionDbEp = new h2:Client({
         path: hubDatabaseDirectory,
         name: hubDatabaseName,
         username: hubDatabaseUsername,
         password: hubDatabasePassword,
-        poolOptions: { maximumPoolSize:5 }
-    };
+        poolOptions: {
+            maximumPoolSize: 5
+        }
+    });
     var dbResult = subscriptionDbEp->select("SELECT * FROM topics", TopicRegistration);
     if (dbResult is table) {
         table dt = dbResult;
@@ -469,13 +472,15 @@ function addTopicRegistrationsOnStartup() {
 
 # Function to add subscriptions to the broker on startup, if persistence is enabled.
 function addSubscriptionsOnStartup() {
-    endpoint h2:Client subscriptionDbEp {
+    h2:Client subscriptionDbEp = new h2:Client({
         path: hubDatabaseDirectory,
         name: hubDatabaseName,
         username: hubDatabaseUsername,
         password: hubDatabasePassword,
-        poolOptions: { maximumPoolSize:5 }
-    };
+        poolOptions: {
+            maximumPoolSize: 5
+        }
+    });
 
     int time = time:currentTime().time;
     sql:Parameter para1 = {sqlType:sql:TYPE_BIGINT, value:time};
@@ -503,13 +508,15 @@ function addSubscriptionsOnStartup() {
 
 # Function to delete topic and subscription details from the database at shutdown, if persistence is enabled.
 function clearSubscriptionDataInDb() {
-    endpoint h2:Client subscriptionDbEp {
+    h2:Client subscriptionDbEp = new h2:Client({
         path: hubDatabaseDirectory,
         name: hubDatabaseName,
         username: hubDatabaseUsername,
         password: hubDatabasePassword,
-        poolOptions: { maximumPoolSize:5 }
-    };
+        poolOptions: {
+            maximumPoolSize: 5
+        }
+    });
 
     var dbResult = subscriptionDbEp->update("DELETE FROM subscriptions");
     if (dbResult is error) {
@@ -532,11 +539,10 @@ function clearSubscriptionDataInDb() {
 # + return - `http:Response` indicating the response received on fetching the topic URL if successful,
 #            `error` if an HTTP error occurred
 function fetchTopicUpdate(string topic) returns http:Response|error {
-    endpoint http:Client topicEp {
+    http:Client topicEp = new http:Client({
         url:topic,
         secureSocket: hubClientSecureSocket
-    };
-
+    });
     http:Request request = new;
 
     var fetchResponse = topicEp->get("", message = request);
@@ -551,11 +557,10 @@ function fetchTopicUpdate(string topic) returns http:Response|error {
 # + return - Nil if successful, error in case of invalid content-type
 function distributeContent(string callback, SubscriptionDetails subscriptionDetails, WebSubContent webSubContent)
 returns error? {
-    endpoint http:Client callbackEp {
+    http:Client callbackEp = new http:Client({
         url:callback,
         secureSocket: hubClientSecureSocket
-    };
-
+    });
     http:Request request = new;
     request.setPayload(webSubContent.payload);
     check request.setContentType(webSubContent.contentType);
@@ -633,7 +638,11 @@ type PendingSubscriptionChangeRequest object {
     public string topic;
     public string callback;
 
-    new (mode, topic, callback) {}
+    public function __init(string mode, string topic, string callback) {
+         self.mode = mode;
+         self.topic = topic;
+         self.callback = callback;
+    }
 
     # Function to check if two pending subscription change requests are equal.
     #

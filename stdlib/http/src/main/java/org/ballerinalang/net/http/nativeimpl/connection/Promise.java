@@ -33,13 +33,15 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
+import static org.ballerinalang.net.http.HttpConstants.CALLER;
+
 /**
  * {@code Promise} is the extern function to respond back to the client with a PUSH_PROMISE frame.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "promise",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Connection",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = CALLER,
                 structPackage = "ballerina/http"),
         args = {@Argument(name = "promise", type = TypeKind.OBJECT, structType = "PushPromise",
                 structPackage = "ballerina/http")},
