@@ -74,18 +74,15 @@ headers.setEntry("id", "newrequest1");
 
 // Call the method in the service using a client stub.
 var responseFromServer = SamplegRPCServiceBlockingEp->receiveMessage("Ballerina", headers = headers);
-match responseFromServer {
-   // If a response is received, print the payload.
-   (string, grpc:Headers) payload => {
-       string result;
-       grpc:Headers resHeaders;
-       (result, resHeaders) = payload;
-       io:println("Response received : " + result);
-   }
-   // If an error is returned, print the error message.
-   error err => {
-       io:println("Error while connecting grpc end-point : " + err.message);
-   }
+if (responseFromServer is (string, grpc:Headers)) {
+    // If a response is received, print the payload.
+    string result;
+    grpc:Headers resHeaders;
+    (result, resHeaders) = responseFromServer;
+    io:println("Response received : " + responseFromServer[0]);
+} else {
+    // If an error is returned, print the error message.
+    io:println("Error while connecting grpc end-point : " + responseFromServer.message);
 }
 ```
 ### Server Streaming
@@ -129,14 +126,11 @@ public function main (string... args) {
 
     // Execute the service streaming call by registering a message listener.
     error? result = serverStreamingEp->receiveMessage("test", ServerStreamingMessageListener);
-    match result {
-         // If the service returns an error, print the error.
-        error payloadError => {
-            io:println("Error occured while sending event " + payloadError.message);
-        }
-        () => {
-            io:println("Connected successfully to service");
-        }
+    if (result is error) {
+        // If the service returns an error, print the error.
+        io:println("Error occured while sending event " + result.message);
+    } else {
+        io:println("Connected successfully to service");
     }
    // Waits for the service to send the message.
    while (!isCompleted) {}
@@ -201,14 +195,10 @@ endpoint grpc:Client ep;
 
 // Call the relevant service.
 var res = chatEp -> chat(ChatMessageListener);
-match res {
-   // If an error is returned while connecting to the service, print the error.
-   error err => {
-       io:print("error");
-   }
-   grpc:Client con => {
-       ep = con;
-   }
+if (res is error) {
+    io:print("error");
+} else {
+    ep = res;
 }
 
 // Send multiple messages to the service.

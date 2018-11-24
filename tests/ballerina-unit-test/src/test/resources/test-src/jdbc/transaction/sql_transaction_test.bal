@@ -7,19 +7,17 @@ type ResultCount record {
     int COUNTVAL;
 };
 
-function testLocalTransaction() returns (int, int, boolean, boolean) {
-    endpoint h2:Client testDB {
+function testLocalTransaction() returns (int, int) {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int returnVal = 0;
     int count;
-    boolean commited_ = false;
-    boolean aborted_ = false;
     transaction {
         _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 200, 5000.75, 'USA')");
@@ -27,65 +25,52 @@ function testLocalTransaction() returns (int, int, boolean, boolean) {
                                 values ('James', 'Clerk', 200, 5000.75, 'USA')");
     } onretry {
         returnVal = -1;
-    } committed {
-        commited_ = true;
-    } aborted {
-        aborted_ = true;
     }
     //check whether update action is performed
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 200", ResultCount
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 200", ResultCount
     );
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
-    return (returnVal, count, commited_, aborted_);
+    return (returnVal, count);
 }
 
-function testTransactionRollback() returns (int, int, int) {
-    endpoint h2:Client testDB {
+function testTransactionRollback() returns (int, int) {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int returnVal = 0;
     int count;
-    int x;
 
     transaction {
         _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,
                 creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')");
         _ = testDB->update("Insert into Customers2 (firstName,lastName,registrationID,
                 creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')");
-        x = 42;
 
     } onretry {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 210", ResultCount
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 210", ResultCount
     );
-
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
-    return (returnVal, count, x);
+    return (returnVal, count);
 }
 
 function testLocalTransactionUpdateWithGeneratedKeys() returns (int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int returnVal = 0;
     int count;
@@ -98,24 +83,21 @@ function testLocalTransactionUpdateWithGeneratedKeys() returns (int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 615", ResultCount
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 615", ResultCount
     );
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
     return (returnVal, count);
 }
 
 function testTransactionRollbackUpdateWithGeneratedKeys() returns (int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int returnVal = 0;
     int count;
@@ -129,25 +111,22 @@ function testTransactionRollbackUpdateWithGeneratedKeys() returns (int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 618", ResultCount
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 618", ResultCount
     );
 
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
     return (returnVal, count);
 }
 
 function testLocalTransactionStoredProcedure() returns (int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int returnVal = 0;
     int count;
@@ -159,24 +138,21 @@ function testLocalTransactionStoredProcedure() returns (int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 628", ResultCount
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 628", ResultCount
     );
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
     return (returnVal, count);
 }
 
 function testLocalTransactionRollbackStoredProcedure() returns (int, int, int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 3 }
-    };
+    });
 
     int returnVal = 0;
     int count1;
@@ -190,37 +166,28 @@ function testLocalTransactionRollbackStoredProcedure() returns (int, int, int, i
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt1 = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 629",
+    var dt1 = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 629",
         ResultCount);
-    table dt2 = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 631",
+    var dt2 = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 631",
         ResultCount);
-    table dt3 = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 632",
+    var dt3 = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 632",
         ResultCount);
 
-    while (dt1.hasNext()) {
-        ResultCount rs = check <ResultCount>dt1.getNext();
-        count1 = rs.COUNTVAL;
-    }
-    while (dt2.hasNext()) {
-        ResultCount rs = check <ResultCount>dt2.getNext();
-        count2 = rs.COUNTVAL;
-    }
-    while (dt3.hasNext()) {
-        ResultCount rs = check <ResultCount>dt3.getNext();
-        count3 = rs.COUNTVAL;
-    }
+    count1 = getTableCountValColumn(dt1);
+    count2 = getTableCountValColumn(dt2);
+    count3 = getTableCountValColumn(dt3);
     testDB.stop();
     return (returnVal, count1, count2, count3);
 }
 
 function testLocalTransactionBatchUpdate() returns (int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int returnVal = 0;
     int count;
@@ -242,36 +209,32 @@ function testLocalTransactionBatchUpdate() returns (int, int) {
     sql:Parameter[] parameters2 = [para1, para2, para3, para4, para5];
 
     transaction {
-        int[] updateCount1 = check testDB->batchUpdate("Insert into Customers
+        _= testDB->batchUpdate("Insert into Customers
         (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
-        int[] updateCount2 = check testDB->batchUpdate("Insert into Customers
+        _ = testDB->batchUpdate("Insert into Customers
         (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
     } onretry {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 611", ResultCount
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 611", ResultCount
     );
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
     return (returnVal, count);
 }
 
-function testLocalTransactionRollbackBatchUpdate() returns (int, int, boolean) {
-    endpoint h2:Client testDB {
+function testLocalTransactionRollbackBatchUpdate() returns (int, int) {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int returnVal = 0;
     int count;
-    boolean catched = false;
 
     //Batch 1
     sql:Parameter para1 = { sqlType: sql:TYPE_VARCHAR, value: "Alex" };
@@ -289,38 +252,30 @@ function testLocalTransactionRollbackBatchUpdate() returns (int, int, boolean) {
     para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
     sql:Parameter[] parameters2 = [para1, para2, para3, para4, para5];
 
-    try {
-        transaction {
-            int[] updateCount1 = check testDB->batchUpdate("Insert into Customers
-                        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
-            int[] updateCount2 = check testDB->batchUpdate("Insert into Customers2
-                        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
-        } onretry {
-            returnVal = -1;
-        }
-    } catch (error e) {
-        // catch exception thrown from 'check' expr.
-        catched = true;
+    transaction {
+        _ = testDB->batchUpdate("Insert into Customers
+        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
+        _ = testDB->batchUpdate("Insert into Customers2
+        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
+    } onretry {
+        returnVal = -1;
     }
     //check whether update action is performed
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 612", ResultCount
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 612", ResultCount
     );
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
-    return (returnVal, count, catched);
+    return (returnVal, count);
 }
 
 function testTransactionAbort() returns (int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int returnVal = -1;
     int count;
@@ -339,24 +294,21 @@ function testTransactionAbort() returns (int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 220", ResultCount
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 220", ResultCount
     );
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
     return (returnVal, count);
 }
 
 function testTransactionErrorPanic() returns (int, int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int returnVal = 0;
     int catchValue = 0;
@@ -368,18 +320,14 @@ function testTransactionErrorPanic() returns (int, int, int) {
         catchValue = -1;
     }
     //check whether update action is performed
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 260", ResultCount
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 260", ResultCount
     );
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
     return (returnVal, catchValue, count);
 }
 
-function testTransactionErrorPanicHelper(h2:Client db) returns int {
-    endpoint h2:Client testDB = db;
+function testTransactionErrorPanicHelper(h2:Client testDB) returns int {
     int returnVal = 0;
     transaction {
         _ = testDB->update("Insert into Customers (firstName,lastName,
@@ -396,13 +344,13 @@ function testTransactionErrorPanicHelper(h2:Client db) returns int {
 }
 
 function testTransactionErrorPanicAndTrap() returns (int, int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int returnVal = 0;
     int catchValue = 0;
@@ -418,12 +366,9 @@ function testTransactionErrorPanicAndTrap() returns (int, int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 250", ResultCount
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 250", ResultCount
     );
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
     return (returnVal, catchValue, count);
 }
@@ -436,13 +381,13 @@ function testTransactionErrorPanicAndTrapHelper(int i) {
 }
 
 function testTransactionCommitted() returns (int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int returnVal = 1;
     int count;
@@ -455,24 +400,21 @@ function testTransactionCommitted() returns (int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 300", ResultCount
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 300", ResultCount
     );
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
     return (returnVal, count);
 }
 
 function testTwoTransactions() returns (int, int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int returnVal1 = 1;
     int returnVal2 = 1;
@@ -495,24 +437,21 @@ function testTwoTransactions() returns (int, int, int) {
         returnVal2 = 0;
     }
     //check whether update action is performed
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 400", ResultCount
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 400", ResultCount
     );
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
     return (returnVal1, returnVal2, count);
 }
 
 function testTransactionWithoutHandlers() returns (int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     transaction {
         _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) values
@@ -523,24 +462,21 @@ function testTransactionWithoutHandlers() returns (int) {
 
     int count;
     //check whether update action is performed
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 350", ResultCount
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 350", ResultCount
     );
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
     return count;
 }
 
 function testLocalTransactionFailed() returns (string, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     string a = "beforetx";
     int count = -1;
@@ -553,20 +489,12 @@ function testLocalTransactionFailed() returns (string, int) {
     }
     a = a + " afterTrx";
     var dtRet = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 111", ResultCount);
-    if (dtRet is table) {
-        while (dtRet.hasNext()) {
-            var rs = <ResultCount>dtRet.getNext();
-            if (rs is ResultCount) {
-                count = rs.COUNTVAL;
-            }
-        }
-    }
+    count = getTableCountValColumn(dtRet);
     testDB.stop();
     return (a, count);
 }
 
-function testLocalTransactionFailedHelper(string status, h2:Client db) returns string {
-    endpoint h2:Client testDB = db;
+function testLocalTransactionFailedHelper(string status, h2:Client testDB) returns string {
     string a = status;
     transaction with retries = 4 {
         a = a + " inTrx";
@@ -574,28 +502,22 @@ function testLocalTransactionFailedHelper(string status, h2:Client db) returns s
                         values ('James', 'Clerk', 111, 5000.75, 'USA')");
         _ = testDB->update("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country)
                         values ('Anne', 'Clerk', 111, 5000.75, 'USA')");
-    }
-    onretry {
-        a = a + " onRetry";
-    } committed {
-        a = a + " trxCommited";
-    } aborted {
-        a = a + " trxAborted";
+    } onretry {
+        a = a + " inFld";
     }
     return a;
 }
 
 function testLocalTransactionSuccessWithFailed() returns (string, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     string a = "beforetx";
-    int count = -1;
     string|error ret = trap testLocalTransactionSuccessWithFailedHelper(a, testDB);
     if (ret is string) {
         a = ret;
@@ -605,20 +527,12 @@ function testLocalTransactionSuccessWithFailed() returns (string, int) {
     a = a + " afterTrx";
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 222", ResultCount
     );
-    if (dt is table) {
-        while (dt.hasNext()) {
-            var rs = <ResultCount>dt.getNext();
-            if (rs is ResultCount) {
-                count = rs.COUNTVAL;
-            }
-        }
-    }
+    int count = getTableCountValColumn(dt);
     testDB.stop();
     return (a, count);
 }
 
-function testLocalTransactionSuccessWithFailedHelper(string status, h2:Client db) returns string {
-    endpoint h2:Client testDB = db;
+function testLocalTransactionSuccessWithFailedHelper(string status, h2:Client testDB) returns string {
     int i = 0;
     string a = status;
     transaction with retries = 4 {
@@ -633,32 +547,30 @@ function testLocalTransactionSuccessWithFailedHelper(string status, h2:Client db
                                         values ('Anne', 'Clerk', 222, 5000.75, 'USA')");
         }
     } onretry {
-        a = a + " retry";
+        a = a + " inFld";
         i = i + 1;
-    } committed {
-        a = a + " committed";
-    } aborted {
-        a = a + " aborted";
     }
     return a;
 }
 
 function testLocalTransactionFailedWithNextupdate() returns (int) {
-    endpoint h2:Client testDB1 {
+    h2:Client testDB1;
+    h2:Client testDB2;
+    testDB1 = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
-    endpoint h2:Client testDB2 {
+    testDB2 = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int i = 0;
     var ret = trap testLocalTransactionFailedWithNextupdateHelper(testDB1);
@@ -669,18 +581,14 @@ function testLocalTransactionFailedWithNextupdate() returns (int) {
                             values ('James', 'Clerk', 12343, 5000.75, 'USA')");
     testDB1.stop();
 
-    table dt = check testDB2->select("Select COUNT(*) as countval from Customers where registrationID = 12343",
+    var dt = testDB2->select("Select COUNT(*) as countval from Customers where registrationID = 12343",
         ResultCount);
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        i = rs.COUNTVAL;
-    }
+    i = getTableCountValColumn(dt);
     testDB2.stop();
     return i;
 }
 
-function testLocalTransactionFailedWithNextupdateHelper(h2:Client db) {
-    endpoint h2:Client testDB = db;
+function testLocalTransactionFailedWithNextupdateHelper(h2:Client testDB) {
     transaction {
         _ = testDB->update("Insert into Customers (firstNamess,lastName,registrationID,creditLimit,country)
                                     values ('James', 'Clerk', 1234, 5000.75, 'USA')");
@@ -688,13 +596,13 @@ function testLocalTransactionFailedWithNextupdateHelper(h2:Client db) {
 }
 
 function testNestedTwoLevelTransactionSuccess() returns (int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int returnVal = 0;
     int count;
@@ -709,24 +617,21 @@ function testNestedTwoLevelTransactionSuccess() returns (int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 333", ResultCount
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 333", ResultCount
     );
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
     return (returnVal, count);
 }
 
 function testNestedThreeLevelTransactionSuccess() returns (int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int returnVal = 0;
     int count;
@@ -745,24 +650,21 @@ function testNestedThreeLevelTransactionSuccess() returns (int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 444", ResultCount
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 444", ResultCount
     );
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
     return (returnVal, count);
 }
 
 function testNestedThreeLevelTransactionFailed() returns (int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int returnVal = 0;
     int count;
@@ -773,20 +675,12 @@ function testNestedThreeLevelTransactionFailed() returns (int, int) {
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 555", ResultCount
     );
-    if (dt is table) {
-        while (dt.hasNext()) {
-            var rs = <ResultCount>dt.getNext();
-            if (rs is ResultCount) {
-                count = rs.COUNTVAL;
-            }
-        }
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
     return (returnVal, count);
 }
 
-function testNestedThreeLevelTransactionFailedHelper(h2:Client db) returns int {
-    endpoint h2:Client testDB = db;
+function testNestedThreeLevelTransactionFailedHelper(h2:Client testDB) returns int {
     int returnVal = 0;
     transaction {
         _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
@@ -806,13 +700,13 @@ function testNestedThreeLevelTransactionFailedHelper(h2:Client db) returns int {
 }
 
 function testNestedThreeLevelTransactionFailedWithRetrySuccess() returns (int, int, string) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int returnVal = 0;
     string a = "start";
@@ -824,20 +718,12 @@ function testNestedThreeLevelTransactionFailedWithRetrySuccess() returns (int, i
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 666", ResultCount
     );
-    if (dt is table) {
-        while (dt.hasNext()) {
-            var rs = <ResultCount>dt.getNext();
-            if (rs is ResultCount) {
-                count = rs.COUNTVAL;
-            }
-        }
-    }
+    count = getTableCountValColumn(dt);
     testDB.stop();
     return (returnVal, count, a);
 }
 
-function testNestedThreeLevelTransactionFailedWithRetrySuccessHelper(string status, h2:Client db) returns (string, int) {
-    endpoint h2:Client testDB = db;
+function testNestedThreeLevelTransactionFailedWithRetrySuccessHelper(string status, h2:Client testDB) returns (string, int) {
     int returnVal = 0;
     int index = 0;
     string a = status;
@@ -873,13 +759,13 @@ function testNestedThreeLevelTransactionFailedWithRetrySuccessHelper(string stat
 }
 
 function testLocalTransactionWithSelectAndForeachIteration() returns (int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 5 }
-    };
+    });
 
     _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 900, 5000.75, 'USA')");
@@ -887,18 +773,21 @@ function testLocalTransactionWithSelectAndForeachIteration() returns (int, int) 
                                 values ('James', 'Clerk', 900, 5000.75, 'USA')");
 
     int returnVal = 0;
-    int count;
+    int count = -1;
     transaction {
-        table<ResultCount> dt1 = check testDB->select("Select COUNT(*) as countval from Customers where
+        var dt1 = testDB->select("Select COUNT(*) as countval from Customers where
             registrationID = 900", ResultCount);
-        foreach row in dt1 {
-            count = row.COUNTVAL;
+        if (dt1 is table<ResultCount>) {
+            foreach row in dt1 {
+                count = row.COUNTVAL;
+            }
         }
-
-        table<ResultCount> dt2 = check testDB->select("Select COUNT(*) as countval from Customers where
+        var dt2 = testDB->select("Select COUNT(*) as countval from Customers where
             registrationID = 900", ResultCount);
-        foreach row in dt2 {
-            count = row.COUNTVAL;
+        if (dt2 is table<ResultCount>) {
+            foreach row in dt2 {
+                count = row.COUNTVAL;
+            }
         }
     } onretry {
         returnVal = -1;
@@ -908,13 +797,13 @@ function testLocalTransactionWithSelectAndForeachIteration() returns (int, int) 
 }
 
 function testLocalTransactionWithSelectAndHasNextIteration() returns (int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 5 }
-    };
+    });
 
     _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 901, 5000.75, 'USA')");
@@ -922,21 +811,14 @@ function testLocalTransactionWithSelectAndHasNextIteration() returns (int, int) 
                                 values ('James', 'Clerk', 901, 5000.75, 'USA')");
 
     int returnVal = 0;
-    int count;
+    int count = -1;
     transaction {
-        table<ResultCount> dt1 = check testDB->select("Select COUNT(*) as countval from Customers where
+        var dt1 = testDB->select("Select COUNT(*) as countval from Customers where
             registrationID = 901", ResultCount);
-        while (dt1.hasNext()) {
-            ResultCount rs = check <ResultCount>dt1.getNext();
-            count = rs.COUNTVAL;
-        }
-
-        table<ResultCount> dt2 = check testDB->select("Select COUNT(*) as countval from Customers where
+        count = getTableCountValColumn(dt1);
+        var dt2 = testDB->select("Select COUNT(*) as countval from Customers where
             registrationID = 901", ResultCount);
-        while (dt2.hasNext()) {
-            ResultCount rs = check <ResultCount>dt2.getNext();
-            count = rs.COUNTVAL;
-        }
+        count = getTableCountValColumn(dt2);
     } onretry {
         returnVal = -1;
     }
@@ -945,20 +827,31 @@ function testLocalTransactionWithSelectAndHasNextIteration() returns (int, int) 
 }
 
 function testCloseConnectionPool() returns (int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int count;
-    table dt = check testDB->select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SESSIONS", ResultCount);
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
+    var dt = testDB->select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SESSIONS", ResultCount);
+    count = getTableCountValColumn(dt);
     testDB.stop();
     return count;
+}
+
+function getTableCountValColumn(table|error result) returns int {
+    int count = -1;
+    if (result is table) {
+        while (result.hasNext()) {
+            var rs = <ResultCount>result.getNext();
+            if (rs is ResultCount) {
+                count = rs.COUNTVAL;
+            }
+        }
+        return count;
+    }
+    return -1;
 }

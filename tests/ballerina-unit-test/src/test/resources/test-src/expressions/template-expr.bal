@@ -43,7 +43,7 @@ function testArrayVariableAccessInJSONInit () returns (json) {
     return msg;
 }
 
-function testMapVariableAccessInJSONInit () returns (json) {
+function testMapVariableAccessInJSONInit () returns (json|error) {
     json msg;
     map myMap;
 

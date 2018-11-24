@@ -43,6 +43,11 @@ public class BlobIOChannel extends Channel {
     }
 
     @Override
+    public boolean isReadable() {
+        return true;
+    }
+
+    @Override
     public Channel getChannel() {
         throw new UnsupportedOperationException();
     }

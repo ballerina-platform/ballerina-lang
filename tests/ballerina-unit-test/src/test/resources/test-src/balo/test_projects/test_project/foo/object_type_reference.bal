@@ -39,8 +39,8 @@ public type Manager1 object {
     }
 
     public new(age=20) {
-        name = "John";
-        salary = 1000.0;
+        self.name = "John";
+        self.salary = 1000.0;
     }
 };
 

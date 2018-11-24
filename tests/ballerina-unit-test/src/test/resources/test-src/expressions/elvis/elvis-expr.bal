@@ -60,16 +60,14 @@ public type Person record {
 function testElvisRecordTypePositive() returns (string, int) {
     Person|() xP = { name: "Jim", age: 100 };
     Person dP = { name: "default", age: 0 };
-    Person b = {};
-    b = xP ?: dP;
+    Person b = xP ?: dP;
     return (b.name, b.age);
 }
 
 function testElvisRecordTypeNegative() returns (string, int) {
     Person|() xP = ();
     Person dP = { name: "default", age: 0 };
-    Person b = {};
-    b = xP ?: dP;
+    Person b = xP ?: dP;
     return (b.name, b.age);
 }
 
@@ -78,7 +76,7 @@ public type Student object {
     public int age;
     public string favSubject;
 
-    new(string n, int a, string favSub = "Maths") {
+    function __init(string n, int a, string favSub = "Maths") {
         self.name = n;
         self.age = a;
         self.favSubject = favSub;

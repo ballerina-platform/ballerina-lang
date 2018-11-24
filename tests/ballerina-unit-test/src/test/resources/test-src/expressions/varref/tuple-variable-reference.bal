@@ -147,13 +147,20 @@ type FooObj object {
     public string s;
     public float f;
     public byte b;
-    public new(s, f, b){}
+    function __init(string s, float f, byte b){
+        self.s = s;
+        self.f = f;
+        self.b = b;
+    }
 };
 
 type BarObj object {
     public boolean b;
     public int i;
-    public new(b, i){}
+    function __init(boolean b, int i){
+        self.b = b;
+        self.i = i;
+    }
 };
 
 function testTupleVarRefWithArray1() returns (string, int[], boolean, float[]) {
@@ -230,7 +237,7 @@ function testVarRefWithUnionType5() returns ((string|int, int|boolean), float|(i
 
 function testFieldAndIndexBasedVarRefs() returns (anydata, anydata) {
     (int, (string, boolean)) t1 = (2002, ("S1", true));
-    map<anydata> m;
+    map<anydata> m = {};
     (m.var1, (m.var2, _)) = t1;
     return (m.var1, m.var2);
 }

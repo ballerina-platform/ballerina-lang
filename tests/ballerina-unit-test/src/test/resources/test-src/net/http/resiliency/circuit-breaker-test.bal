@@ -19,15 +19,15 @@ import ballerina/io;
 import ballerina/mime;
 import ballerina/runtime;
 
-@final string TEST_SCENARIO_HEADER = "test-scenario";
+const string TEST_SCENARIO_HEADER = "test-scenario";
 
-@final string SCENARIO_TYPICAL = "typical-scenario";
-@final string SCENARIO_TRIAL_RUN_FAILURE = "trial-run-failure";
-@final string SCENARIO_HTTP_SC_FAILURE = "http-status-code-failure";
-@final string SCENARIO_CB_FORCE_OPEN = "cb-force-open-scenario";
-@final string SCENARIO_CB_FORCE_CLOSE = "cb-force-close-scenario";
-@final string SCENARIO_REQUEST_VOLUME_THRESHOLD_SUCCESS = "request-volume-threshold-success-scenario";
-@final string SCENARIO_REQUEST_VOLUME_THRESHOLD_FAILURE = "request-volume-threshold-failure-scenario";
+const string SCENARIO_TYPICAL = "typical-scenario";
+const string SCENARIO_TRIAL_RUN_FAILURE = "trial-run-failure";
+const string SCENARIO_HTTP_SC_FAILURE = "http-status-code-failure";
+const string SCENARIO_CB_FORCE_OPEN = "cb-force-open-scenario";
+const string SCENARIO_CB_FORCE_CLOSE = "cb-force-close-scenario";
+const string SCENARIO_REQUEST_VOLUME_THRESHOLD_SUCCESS = "request-volume-threshold-success-scenario";
+const string SCENARIO_REQUEST_VOLUME_THRESHOLD_FAILURE = "request-volume-threshold-failure-scenario";
 
 function testTypicalScenario() returns (http:Response[], error[]) {
     endpoint http:Client backendClientEP {

@@ -39,6 +39,7 @@ import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.ballerinalang.langserver.index.dao.BPackageSymbolDAO;
 import org.ballerinalang.langserver.index.dao.DAOType;
 import org.ballerinalang.langserver.index.dto.BPackageSymbolDTO;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -95,6 +96,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -586,22 +588,26 @@ public class CommonUtil {
     }
 
     /**
-     * Check whether a given symbol is an endpoint object or not.
+     * Check whether a given symbol is client object or not.
      *
      * @param bSymbol BSymbol to evaluate
      * @return {@link Boolean}  Symbol evaluation status
      */
-    public static boolean isEndpointObject(BSymbol bSymbol) {
-        if (SymbolKind.OBJECT.equals(bSymbol.kind)) {
-            List<BAttachedFunction> attachedFunctions = ((BObjectTypeSymbol) bSymbol).attachedFuncs;
-            for (BAttachedFunction attachedFunction : attachedFunctions) {
-                if (attachedFunction.funcName.getValue().equals(UtilSymbolKeys.EP_OBJECT_IDENTIFIER)) {
-                    return true;
-                }
-            }
-        }
+    public static boolean isClientObject(BSymbol bSymbol) {
+        return SymbolKind.OBJECT.equals(bSymbol.type.tsymbol.kind)
+                && (bSymbol.type.tsymbol.flags & Flags.CLIENT) == Flags.CLIENT;
+    }
 
-        return false;
+    /**
+     * Given an Object type, extract the non-remote functions
+     *
+     * @param objectTypeSymbol  Object Symbol
+     * @return {@link Map}      Map of filtered scope entries
+     */
+    public static Map<Name, Scope.ScopeEntry> getObjectFunctions(BObjectTypeSymbol objectTypeSymbol) {
+        return objectTypeSymbol.methodScope.entries.entrySet().stream()
+                .filter(entry -> (entry.getValue().symbol.flags & Flags.REMOTE) != Flags.REMOTE)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     /**

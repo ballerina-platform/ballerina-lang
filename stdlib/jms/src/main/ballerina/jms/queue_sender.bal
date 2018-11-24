@@ -26,7 +26,7 @@ public type QueueSender object {
     public QueueSenderEndpointConfiguration config = {};
 
     # Default constructor of the endpoint
-    public new() {
+    public function __init() {
         self.producerActions = new;
     }
 

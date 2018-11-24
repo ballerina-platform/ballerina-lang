@@ -1239,8 +1239,8 @@ public class SQLDatasourceUtils {
         SQLDatasource datasource = new SQLDatasource();
         datasource.init(sqlDatasourceParams);
         BMap<String, BValue> sqlClient = BLangConnectorSPIUtil
-                .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.CALLER_ACTIONS);
-        sqlClient.addNativeData(Constants.CALLER_ACTIONS, datasource);
+                .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.SQL_CLIENT);
+        sqlClient.addNativeData(Constants.SQL_CLIENT, datasource);
         return sqlClient;
     }
 
