@@ -3558,21 +3558,25 @@ public class CPU {
     private static boolean checkFieldEquivalency(BRecordType lhsType, BRecordType rhsType,
                                                  List<TypePair> unresolvedTypes) {
         Map<String, BField> rhsFields = rhsType.getFields();
+        Set<String> lhsFieldNames = lhsType.getFields().keySet();
 
-        for (Map.Entry<String, BField> lhsFieldEntry : lhsType.getFields().entrySet()) {
-            BField rhsField = rhsFields.get(lhsFieldEntry.getKey());
+        for (BField lhsField : lhsType.getFields().values()) {
+            BField rhsField = rhsFields.get(lhsField.fieldName);
 
-            if (rhsField == null || !isAssignable(rhsField.fieldType, lhsFieldEntry.getValue().fieldType,
-                                                  unresolvedTypes)) {
+            // If the LHS field is a required one, there has to be a corresponding required field in the RHS record.
+            if (!Flags.isFlagOn(lhsField.flags, Flags.OPTIONAL)
+                    && (rhsField == null || Flags.isFlagOn(rhsField.flags, Flags.OPTIONAL))) {
                 return false;
             }
 
-            rhsFields.remove(lhsFieldEntry.getKey());
+            if (rhsField == null || !isAssignable(rhsField.fieldType, lhsField.fieldType, unresolvedTypes)) {
+                return false;
+            }
         }
 
-        return rhsFields.entrySet().stream().allMatch(
-                fieldEntry -> isAssignable(fieldEntry.getValue().getFieldType(), lhsType.restFieldType,
-                                           unresolvedTypes));
+        return rhsFields.values().stream()
+                            .filter(field -> !lhsFieldNames.contains(field.fieldName))
+                            .allMatch(field -> isAssignable(field.fieldType, lhsType.restFieldType, unresolvedTypes));
     }
 
     private static boolean checkFunctionTypeEqualityForObjectType(BFunctionType source, BFunctionType target,
@@ -4552,19 +4556,27 @@ public class CPU {
         }
 
         Map<String, BField> sourceFields = sourceRecordType.getFields();
+        Set<String> targetFieldNames = targetType.getFields().keySet();
 
         for (BField targetField : targetType.getFields().values()) {
             BField sourceField = sourceFields.get(targetField.getFieldName());
 
-            if (sourceField == null || !checkIsType(sourceField.fieldType, targetField.fieldType, unresolvedTypes)) {
+            // If the LHS field is a required one, there has to be a corresponding required field in the RHS record.
+            if (!Flags.isFlagOn(targetField.flags, Flags.OPTIONAL)
+                    && (sourceField == null || Flags.isFlagOn(sourceField.flags, Flags.OPTIONAL))) {
                 return false;
             }
 
-            sourceFields.remove(targetField.getFieldName());
+            if (sourceField == null || !checkIsType(sourceField.fieldType, targetField.fieldType, unresolvedTypes)) {
+                return false;
+            }
         }
 
-        return sourceFields.values().stream().allMatch(
-                field -> checkIsType(field.getFieldType(), targetType.restFieldType, unresolvedTypes));
+        // If there are fields remaining in the source record, check if they are compatible with the rest field of
+        // the target type.
+        return sourceFields.values().stream()
+                .filter(field -> !targetFieldNames.contains(field.fieldName))
+                .allMatch(field -> checkIsType(field.getFieldType(), targetType.restFieldType, unresolvedTypes));
     }
 
     private static boolean checkIsTableType(BType sourceType, BTableType targetType, List<TypePair> unresolvedTypes) {
