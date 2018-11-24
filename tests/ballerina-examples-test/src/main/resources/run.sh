@@ -52,6 +52,8 @@ do
          packages=(${packages[@]//*$i*})
 done
 
+sh ../bin/ballerina init
+
 for package in "${packages[@]}"
 do
   sh ../bin/ballerina build ${package} ${skipTest} || exit 1
