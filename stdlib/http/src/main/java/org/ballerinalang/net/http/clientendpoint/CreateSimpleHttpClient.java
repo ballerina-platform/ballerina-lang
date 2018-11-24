@@ -66,7 +66,8 @@ public class CreateSimpleHttpClient extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BMap<String, BValue> configBStruct = (BMap<String, BValue>) context.getRefArgument(1);
+        BMap<String, BValue> configBStruct =
+                (BMap<String, BValue>) context.getRefArgument(HttpConstants.CLIENT_ENDPOINT_CONFIG_INDEX);
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(configBStruct);
         String urlString = context.getStringArgument(HttpConstants.CLIENT_ENDPOINT_URL_INDEX);
         HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();

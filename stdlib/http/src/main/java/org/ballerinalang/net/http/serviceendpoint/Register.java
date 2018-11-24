@@ -38,6 +38,8 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 
+import static org.ballerinalang.net.http.HttpConstants.COLON;
+
 /**
  * Get the ID of the connection.
  *
@@ -63,12 +65,11 @@ public class Register extends AbstractHttpNativeFunction {
         HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
         WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
 
-        // TODO: Check if this is valid.
-        // TODO: In HTTP to WebSocket upgrade register WebSocket service in WebSocketServiceRegistry
-        //if (HttpConstants.HTTP_SERVICE_ENDPOINT_NAME.equals(service.getEndpointName())) {
+        String listenerType = service.getServiceInfo().listenerType.getTypeSig();
+        if (HttpConstants.HTTP_SERVICE_ENDPOINT_NAME.equals(listenerType)) {
             httpServicesRegistry.registerService(service);
-        //}
-        if (WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(service.getEndpointName())) {
+        }
+        if (WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(listenerType)) {
             WebSocketService webSocketService = new WebSocketService(service);
             webSocketServicesRegistry.registerService(webSocketService);
         }

@@ -25,9 +25,9 @@ public type HttpCaller client object {
     public ClientEndpointConfig config = {};
     private Client caller;
 
-    public function __init(Client httpClient, string serviceUri, ClientEndpointConfig config) {
+    public function __init(string serviceUri, ClientEndpointConfig config) {
         self.config = config;
-        self.caller = createSimpleHttpClient(httpClient, serviceUri, self.config);
+        self.caller = createSimpleHttpClient(serviceUri, self.config);
     }
 
     # The `post()` function can be used to send HTTP POST requests to HTTP endpoints.
