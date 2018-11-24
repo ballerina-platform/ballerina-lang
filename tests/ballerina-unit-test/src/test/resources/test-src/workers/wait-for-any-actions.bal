@@ -150,6 +150,13 @@ function waitTest17() returns int|string|error {
     return result;
 }
 
+function waitTest18() returns int|string|() {
+    future<()> f1 = runtime:timeout(2000);
+    future<int> f2 = start add_1(5, 2);
+    future<string> f3 = start greet();
+    int|string|() result = wait f1 | f2 | f3;
+    return result;
+}
 function add_panic1(int i, int j) returns int {
     int k = i + j;
     if (true) {
@@ -198,7 +205,8 @@ function add_panic3(int i, int j) returns int {
 
 function add_1(int i, int j) returns int {
     int k = i + j;
-    //runtime:sleep(5000);
+    // sleep for 2s
+    runtime:sleep(2000);
     int l = 0;
     while(l < 999999) {
         l = l + 1;
@@ -218,6 +226,11 @@ function add_3(int i, int j) returns int {
 
 function concat(string name) returns string {
     return "hello " + name;
+}
+
+function greet() returns string {
+    runtime:sleep(3000);
+    return "good morning";
 }
 
 function status() returns boolean {

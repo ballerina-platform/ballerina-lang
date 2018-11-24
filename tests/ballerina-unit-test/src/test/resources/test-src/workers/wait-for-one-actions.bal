@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/runtime;
+
 function waitTest1() returns int {
     future<int> f1 = start add(5, 2);
     int result = wait f1;
@@ -71,7 +73,13 @@ function waitTest8() returns int {
     return result;
 }
 
-//function waitTest8() returns int { // Needs to be tested out
+function waitTest9() returns () {
+    future<()> f1 = runtime:timeout(2000);
+    () result = wait f1;
+    return result;
+}
+
+//function waitTest10() returns int { // Needs to be tested out
 //    int result = 0;
 //    worker w1 {
 //        future<int> f1 = start add(5, 5);
