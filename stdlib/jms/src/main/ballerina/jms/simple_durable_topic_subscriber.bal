@@ -66,7 +66,7 @@ public type SimpleDurableTopicConsumer object {
         var subscriber = self.subscriber;
         if (subscriber is DurableTopicConsumer) {
             var result = subscriber.__attach(s, data);
-            if(result is error) {
+            if (result is error) {
                 return result;
             } else {
                 return ();
