@@ -214,6 +214,48 @@ public class Types {
         return types.stream().allMatch(this::isAnydata);
     }
 
+    public boolean isLikeAnydataOrNotNil(BType type) {
+        if (type.tag == TypeTags.NIL || (!isAnydata(type) && !isLikeAnydata(type))) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isLikeAnydata(BType type) {
+        int typeTag = type.tag;
+        if (typeTag == TypeTags.ANY) {
+            return true;
+        }
+
+        // check for anydata element/member types as part of recursive calls with structured/union types
+        if (isAnydata(type)) {
+            return true;
+        }
+
+        if (type.tag == TypeTags.MAP && isLikeAnydata(((BMapType) type).constraint)) {
+            return true;
+        }
+
+        if (type.tag == TypeTags.RECORD) {
+            BRecordType recordType = (BRecordType) type;
+            return recordType.fields.stream()
+                    .noneMatch(field -> !Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
+                            !(isLikeAnydata(field.type)));
+        }
+
+        if (type.tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) type;
+            return unionType.memberTypes.stream().anyMatch(this::isLikeAnydata);
+        }
+
+        if (type.tag == TypeTags.TUPLE) {
+            BTupleType tupleType = (BTupleType) type;
+            return tupleType.getTupleTypes().stream().allMatch(this::isLikeAnydata);
+        }
+
+        return type.tag == TypeTags.ARRAY && isLikeAnydata(((BArrayType) type).eType);
+    }
+
     public boolean isBrandedType(BType type) {
         return type.tag < TypeTags.ANY;
     }
