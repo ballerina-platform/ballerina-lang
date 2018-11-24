@@ -14,36 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Person record {
-    string name = "";
-    int age = 0;
-    Person? parent = ();
-    json info = {};
-    map address = {};
-    int[] marks = [];
-    any a = ();
-    float score = 0.0;
-    boolean alive = false;
-    !...
-};
+function floatToIntWithMultipleArguments() returns int {
+    float a = 5.0;
+    return int.create(a, a);
+}
 
-type Student record {
-    string name = "";
-    int age = 0;
-    !...
-};
+function testToIntWithNoArguments() {
+    float a = 5.0;
+    return int.create();
+}
 
-type Info record {
-    byte[] infoBlob = [];
-    !...
-};
-
-function testStructWithIncompatibleTypeToJson () returns json {
-    Info info = {};
-    var j = <json>info;
-    if (j is json) {
-        return j;
-    } else {
-        panic j;
-    }
+function anyToInt() returns int {
+    any a = 5;
+    return int.create(a);
 }
