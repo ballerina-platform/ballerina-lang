@@ -3,13 +3,13 @@ import ballerina/http as x;
 import ballerina/http as y;
 
 function testFunc() {
-    endpoint http:Client clientEndpoint1 {
+    http:Client clientEndpoint1 = new ({
        url: "https://postman-echo.com"
-    };
-    endpoint x:Client clientEndpoint2 {
+    });
+    x:Client clientEndpoint2 = new ({
        url: "https://postman-echo.com"
-    };
-    endpoint y:Client clientEndpoint3 {
+    });
+    y:Client clientEndpoint3 = new ({
        url: "https://postman-echo.com"
-    };
+    });
 }
