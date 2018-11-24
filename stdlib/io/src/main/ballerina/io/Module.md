@@ -16,7 +16,7 @@ The most primitive channel is the `ByteChannel` which reads and writes 8-bit byt
 io:ReadableByteChannel readableByteChannel = io:openReadableFile("some/file.txt");
 
 // Here is how 100 bytes are read from the channel.
-(byte[], int)|error = readableByteChannel.read(100);
+(byte[], int)|error result = readableByteChannel.read(100);
 
 // Open a file in write mode.
 io:WritableByteChannel writableByteChannel = io:openWritableFile("some/file.txt");
@@ -24,7 +24,7 @@ io:WritableByteChannel writableByteChannel = io:openWritableFile("some/file.txt"
 // Write some content to the beginning of the file.
 string someContent = "some content";
 byte[] content = someContent.toByteArray("UTF-8");
-int|error writableByteChannel.write(content, 0);
+int|error result = writableByteChannel.write(content, 0);
 
 ```
 ### Character channels
@@ -41,7 +41,7 @@ the respective type.
 
 ```ballerina
 // Reading a JSON.
-json|error readableCharChannel.readJson();
+json|error result = readableCharChannel.readJson();
 ```
 ```ballerina
 // Reading an XML.
