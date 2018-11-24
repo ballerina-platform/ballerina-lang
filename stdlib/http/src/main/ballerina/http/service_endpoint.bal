@@ -24,10 +24,6 @@ import ballerina/system;
 # This is used for creating HTTP server endpoints. An HTTP server endpoint is capable of responding to
 # remote callers. The `Server` is responsible for initializing the endpoint using the provided configurations and
 # providing the actions for communicating with the caller.
-#
-# + remoteDetails - The remote address
-# + local - The local address
-# + protocol - The protocol associated with the service endpoint
 public type Server object {
 
     *AbstractListener;
