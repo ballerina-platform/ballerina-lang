@@ -79,7 +79,7 @@ type TestConnector object {
 # PizzaService HTTP Service
 #
 # + conn - HTTP connection.
-service<http:Service> PizzaService {
+service PizzaService on new http:Server(9090) {
 
     # Check orderPizza resource.
     #
@@ -88,7 +88,7 @@ service<http:Service> PizzaService {
     # + reqest - In request.
 //  # + conn - HTTP connection. Commented due to https://github.com/ballerina-lang/ballerina/issues/5586 issue
 
-    orderPizza(endpoint conn, http:Request req) {
+    resource function orderPizza(http:Caller conn, http:Request req) {
         http:Response res = new;
         _ = conn -> respond(res);
     }

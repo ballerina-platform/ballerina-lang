@@ -943,9 +943,15 @@ public class CPU {
         }
 
         if (!checkIsLikeType(valueToBeStamped, targetType)) {
-            BError error = BLangVMErrors.createError(ctx,
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_STAMP_OPERATION,
-                            valueToBeStamped.getType(), targetType));
+            BError error;
+            if (valueToBeStamped != null) {
+                error = BLangVMErrors.createError(ctx,
+                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_STAMP_OPERATION,
+                                valueToBeStamped.getType(), targetType));
+            } else {
+                error = BLangVMErrors.createError(ctx,
+                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.CANNOT_STAMP_NULL, targetType));
+            }
             sf.refRegs[k] = error;
             return;
         }
@@ -4371,7 +4377,8 @@ public class CPU {
         for (Map.Entry targetTypeEntry : targetTypeField.entrySet()) {
             String fieldName = targetTypeEntry.getKey().toString();
 
-            if (!(((BMap) sourceValue).getMap().containsKey(fieldName))) {
+            if (!(((BMap) sourceValue).getMap().containsKey(fieldName)) &&
+                    !(Flags.isFlagOn(targetType.getFields().get(fieldName).flags, Flags.OPTIONAL))) {
                 return false;
             }
         }

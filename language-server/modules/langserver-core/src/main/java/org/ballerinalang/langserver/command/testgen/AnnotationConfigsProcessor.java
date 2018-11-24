@@ -36,38 +36,38 @@ import java.util.function.BiConsumer;
  */
 public class AnnotationConfigsProcessor {
     /**
-     * Visit annotation for the provided annotations acceptor.
+     * Visit annotation for the provided annotations consumer.
      *
      * @param annotation {@link BLangAnnotationAttachment}
-     * @param acceptor   {@link BiConsumer} annotations acceptor
+     * @param consumer   {@link BiConsumer} annotations consumer
      */
     public static void visitAnnotation(BLangAnnotationAttachment annotation,
-                                       BiConsumer<BLangRecordLiteral.BLangRecordKeyValue, BLangSimpleVarRef> acceptor) {
+                                       BiConsumer<BLangRecordLiteral.BLangRecordKeyValue, BLangSimpleVarRef> consumer) {
         if (annotation.expr instanceof BLangRecordLiteral) {
             BLangRecordLiteral record = (BLangRecordLiteral) annotation.expr;
             for (BLangRecordLiteral.BLangRecordKeyValue keyValue : record.keyValuePairs) {
                 BLangRecordLiteral.BLangRecordKey key = keyValue.key;
                 if (key.expr instanceof BLangSimpleVarRef) {
                     BLangSimpleVarRef varRef = (BLangSimpleVarRef) key.expr;
-                    acceptor.accept(keyValue, varRef);
+                    consumer.accept(keyValue, varRef);
                 }
             }
         }
     }
 
     /**
-     * Visit each records for the provided annotations acceptor.
+     * Visit each records for the provided annotations consumer.
      *
      * @param records  list of {@link BLangRecordLiteral.BLangRecordKeyValue}
-     * @param acceptor {@link BiConsumer} annotations acceptor
+     * @param consumer {@link BiConsumer} annotations consumer
      */
     public static void visitRecords(List<BLangRecordLiteral.BLangRecordKeyValue> records,
-                                    BiConsumer<BLangRecordLiteral.BLangRecordKeyValue, BLangSimpleVarRef> acceptor) {
+                                    BiConsumer<BLangRecordLiteral.BLangRecordKeyValue, BLangSimpleVarRef> consumer) {
         for (BLangRecordLiteral.BLangRecordKeyValue keyValue : records) {
             BLangRecordLiteral.BLangRecordKey key = keyValue.key;
             if (key.expr instanceof BLangSimpleVarRef) {
                 BLangSimpleVarRef varRef = (BLangSimpleVarRef) key.expr;
-                acceptor.accept(keyValue, varRef);
+                consumer.accept(keyValue, varRef);
             }
         }
     }
