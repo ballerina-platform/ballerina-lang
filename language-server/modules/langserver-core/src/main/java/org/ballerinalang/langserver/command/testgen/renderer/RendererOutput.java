@@ -19,7 +19,6 @@ import org.ballerinalang.langserver.command.testgen.template.PlaceHolder;
 import org.eclipse.lsp4j.TextEdit;
 
 import java.util.List;
-import java.util.function.BiConsumer;
 
 /**
  * Represents a Renderer output.
@@ -66,10 +65,9 @@ public interface RendererOutput {
     String getRenderedContent();
 
     /**
-     * Sets focus function name and acceptor.
+     * Returns True when creating a new test file.
      *
-     * @param functionName focus function name
-     * @param focusAcceptor focus position acceptor
+     * @return True when creating a new file, False otherwise
      */
-    void setFocusLineAcceptor(String functionName, BiConsumer<Integer, Integer> focusAcceptor);
+    boolean isNewTestFile();
 }

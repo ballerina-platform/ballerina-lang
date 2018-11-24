@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiConsumer;
 
 import static org.ballerinalang.langserver.command.testgen.AnnotationConfigsProcessor.isRecordValueExists;
 import static org.ballerinalang.langserver.command.testgen.AnnotationConfigsProcessor.searchStringField;
@@ -50,10 +49,9 @@ public class HttpServiceTemplate extends AbstractTestTemplate {
     private final String serviceBasePath;
     private final List<BLangResource> resources;
 
-    public HttpServiceTemplate(BLangPackage builtTestFile, BLangService service,
-                               List<? extends EndpointNode> globalEndpoints,
-                               BiConsumer<Integer, Integer> focusLineAcceptor) {
-        super(builtTestFile, focusLineAcceptor);
+    public HttpServiceTemplate(BLangPackage builtTestFile,
+                               List<? extends EndpointNode> globalEndpoints, BLangService service) {
+        super(builtTestFile);
         String serviceName = service.name.value;
         boolean isSecureTemp = false;
         String serviceUriTemp = HTTP + DEFAULT_IP + ":" + DEFAULT_PORT;
@@ -120,9 +118,8 @@ public class HttpServiceTemplate extends AbstractTestTemplate {
         }
 
         //Append to root template
-        rendererOutput.setFocusLineAcceptor(testServiceFunctionName, focusLineAcceptor);
         rendererOutput.append(PlaceHolder.DECLARATIONS, getServiceUriDeclaration() + LINE_SEPARATOR);
-        rendererOutput.append(PlaceHolder.CONTENT, LINE_SEPARATOR + serviceOutput.getRenderedContent());
+        rendererOutput.append(PlaceHolder.CONTENT, serviceOutput.getRenderedContent());
     }
 
     private String getServiceUriDeclaration() {

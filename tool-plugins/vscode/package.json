@@ -22,8 +22,7 @@
     ],
     "activationEvents": [
         "onLanguage:ballerina",
-        "onCommand:ballerina.showExamples",
-        "onCommand:ballerina.showTraces"
+        "onCommand:ballerina.showExamples"
     ],
     "contributes": {
         "languages": [
@@ -99,10 +98,6 @@
                             "script": {
                                 "type": "string",
                                 "default": "${file}"
-                            },
-                            "networkLogs": {
-                                "type": "boolean",
-                                "default": true
                             }
                         }
                     },
@@ -127,11 +122,6 @@
                                 "type": "boolean",
                                 "default": false,
                                 "description": "Indicates whether to debug the tests for the given script."
-                            },
-                            "networkLogs": {
-                                "type": "boolean",
-                                "default": true,
-                                "description": "Indicates whether to capture network logs ."
                             }
                         }
                     }
@@ -140,9 +130,8 @@
                     {
                         "type": "ballerina",
                         "request": "launch",
-                        "name": "Ballerina Debug",
-                        "script": "${file}",
-                        "networkLogs": true
+                        "name": "Ballerina",
+                        "script": "${file}"
                     },
                     {
                         "type": "ballerina",
@@ -156,8 +145,7 @@
                         "request": "attach",
                         "name": "Ballerina Remote",
                         "host": "127.0.0.1",
-                        "port": 5000,
-                        "networkLogs": true
+                        "port": 5000
                     }
                 ]
             }
@@ -186,10 +174,6 @@
                 "command": "ballerina.showDocs",
                 "title": "Open Doc Preview",
                 "category": "Ballerina"
-            },
-            {
-                "command": "ballerina.showTraces",
-                "title": "Ballerina: Show Network logs"
             }
         ],
         "menus": {
@@ -234,7 +218,6 @@
         "@types/mocha": "^2.2.42",
         "@types/node": "^8.10.25",
         "@types/ws": "^6.0.0",
-        "ast-model": "file:../../composer/ast-model",
         "chai": "^4.2.0",
         "cross-env": "^5.2.0",
         "decache": "^4.4.0",
@@ -246,6 +229,7 @@
         "tslint": "^5.8.0",
         "typescript": "^2.6.1",
         "vsce": "^1.36.2",
-        "vscode-debugadapter-testsupport": "^1.32.0"
+        "vscode-debugadapter-testsupport": "^1.32.0",
+        "ast-model": "file:../../composer/ast-model"
     }
 }

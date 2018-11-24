@@ -41,12 +41,6 @@ suite("Language Server Tests", function () {
         done();
     });
 
-    suiteTeardown((done: MochaDone): any => {
-        langClient.stop().then(()=>{
-            done();
-        });
-    });
-
 
     test("Test Language Server Start", function (done): void {
         langClient.onReady().then(() => {

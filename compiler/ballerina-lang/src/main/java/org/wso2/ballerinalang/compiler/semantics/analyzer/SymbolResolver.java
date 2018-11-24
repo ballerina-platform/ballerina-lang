@@ -1075,7 +1075,7 @@ public class SymbolResolver extends BLangNodeVisitor {
      */
     private boolean isStampSupportedForSourceType(BType sourceType) {
 
-        if (!types.isAnydata(sourceType)) {
+        if (!types.isLikeAnydataOrNotNil(sourceType)) {
             return false;
         }
 

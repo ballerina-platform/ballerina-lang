@@ -253,6 +253,31 @@ function stampExtendedRecordToRecordWithUnionV7() returns ExtendedEmployeeWithRe
     return employee;
 }
 
+type OpenEmployee record {
+    string name;
+    int age;
+    string status;
+};
+
+type TeacherWithAnyRestType record {
+    string name;
+    int age;
+    string status;
+    string batch;
+    string school;
+    any...
+};
+
+function stampAnyRecordToRecord() returns OpenEmployee|error {
+
+    TeacherWithAnyRestType p1 = {name:"Raja", age:25, status:"single", batch:"LK2014", school:"Hindu College"};
+    OpenEmployee|error e1 = OpenEmployee.stamp(p1);
+
+    return e1;
+}
+
+//--------------------------------- Nil type related scenarios ---------------------------------------------
+
 type ExtendedEmployeeWithNilMap record {
     string name;
     string status;
@@ -308,6 +333,23 @@ function stampRecordWithNilValuesV2() returns Employee {
 
     EmployeeWithNil e = EmployeeWithNil.stamp(t1);
     return e;
+}
+
+//------------------------------- Optional field related scenarios ----------------------------------------------
+
+type TeacherWithOptionalField record {
+    string name;
+    int age?;
+    string status;
+    string batch;
+    string school?;
+};
+
+function stampRecordToRecordWithOptionalFields() returns TeacherWithOptionalField|error {
+    Employee emp = { name: "Raja", status: "single", batch: "LK2014" };
+
+    TeacherWithOptionalField|error teacher = TeacherWithOptionalField.stamp(emp);
+    return teacher;
 }
 
 //-------------------------------- Negative Test cases ------------------------------------------------------------
