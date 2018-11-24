@@ -18,7 +18,7 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/websub;
 
-@final string MOCK_HEADER = "MockHeader";
+const string MOCK_HEADER = "MockHeader";
 
 public type WebhookListenerConfiguration record {
     string host = "";
@@ -33,103 +33,79 @@ public type MockDomainEvent record {
     string domain;
 };
 
-endpoint WebhookListenerForPayload listenerOneEP {
-    port:8585
-};
-
 @websub:SubscriberServiceConfig {
     path:"/key"
 }
-service<WebhookServiceForPayload> keyWebhook bind listenerOneEP {
-    onCreated(websub:Notification notification, MockActionEvent event) {
+service keyWebhook on new WebhookServerForPayload({port: 8585}) {
+    resource function onCreated(websub:Notification notification, MockActionEvent event) {
         io:println("Created Notification Received, action: ", event.action);
     }
 
-    onFeature(websub:Notification notification, MockDomainEvent event) {
+    resource function onFeature(websub:Notification notification, MockDomainEvent event) {
         io:println("Feature Notification Received, domain: ", event.domain);
     }
 
-    onStatus(websub:Notification notification, MockActionEvent event) {
+    resource function onStatus(websub:Notification notification, MockActionEvent event) {
         // do nothing - test start up
     }
 }
-
-endpoint WebhookListenerForHeader listenerTwoEP {
-    port:8686
-};
 
 @websub:SubscriberServiceConfig {
     path:"/header"
 }
-service<WebhookServiceForHeader> headerWebhook bind listenerTwoEP {
-    onIssue(websub:Notification notification, MockActionEvent event) {
+service headerWebhook on new WebhookServerForHeader({port: 8686}) {
+    resource function onIssue(websub:Notification notification, MockActionEvent event) {
         io:println("Issue Notification Received, header value: ", notification.getHeader(MOCK_HEADER),
             " action: ", event.action);
     }
 
-    onCommit(websub:Notification notification, MockActionEvent event) {
+    resource function onCommit(websub:Notification notification, MockActionEvent event) {
         io:println("Commit Notification Received, header value: ", notification.getHeader(MOCK_HEADER),
             " action: ", event.action);
     }
 
-    onStatus(websub:Notification notification, MockActionEvent event) {
+    resource function onStatus(websub:Notification notification, MockActionEvent event) {
         // do nothing - test start up
     }
 }
 
-endpoint WebhookListenerForHeaderAndPayload listenerThreeEP {
-    port:8787
-};
-
 @websub:SubscriberServiceConfig {
     path:"/headerAndPayload"
 }
-service<WebhookServiceForHeaderAndPayload> headerAndPayloadWebhook bind listenerThreeEP {
-    onIssueCreated(websub:Notification notification, MockActionEvent event) {
+service headerAndPayloadWebhook on new WebhookServerForHeaderAndPayload({port: 8787}) {
+    resource function onIssueCreated(websub:Notification notification, MockActionEvent event) {
         io:println("Issue Created Notification Received, header value: ", notification.getHeader(MOCK_HEADER),
             " action: ", event.action);
     }
 
-    onFeaturePull(websub:Notification notification, MockDomainEvent event) {
+    resource function onFeaturePull(websub:Notification notification, MockDomainEvent event) {
         io:println("Feature Pull Notification Received, header value: ", notification.getHeader(MOCK_HEADER),
             " domain: ", event.domain);
     }
 
-    onHeaderOnly(websub:Notification notification, MockActionEvent event) {
+    resource function onHeaderOnly(websub:Notification notification, MockActionEvent event) {
         io:println("HeaderOnly Notification Received, header value: ", notification.getHeader(MOCK_HEADER),
             " action: ", event.action);
     }
 
-    onKeyOnly(websub:Notification notification, MockActionEvent event) {
+    resource function onKeyOnly(websub:Notification notification, MockActionEvent event) {
         io:println("KeyOnly Notification Received, header value: ", notification.getHeader(MOCK_HEADER),
             " action: ", event.action);
     }
 
-    onStatus(websub:Notification notification, MockActionEvent event) {
+    resource function onStatus(websub:Notification notification, MockActionEvent event) {
         // do nothing - test start up
     }
 }
 
 /////////////////// Specific Webhook for dispatching by key ///////////////////
-public type WebhookServiceForPayload object {
-    public function getEndpoint() returns (WebhookListenerForPayload) {
-        WebhookListenerForPayload ep = new;
-        return ep;
-    }
-};
+public type WebhookServerForPayload object {
 
-public type WebhookListenerForPayload object {
+    *AbstractListener;
 
-    public WebhookListenerConfiguration webhookListenerConfig = {};
+    private websub:Server websubServer;
 
-    private websub:Listener websubListener;
-
-    public new() {
-        self.websubListener = new;
-    }
-
-    public function init(WebhookListenerConfiguration config) {
-        self.webhookListenerConfig = config;
+    public function __init(WebhookListenerConfiguration config) {
         websub:ExtensionConfig extensionConfig = {
             topicIdentifier: websub:TOPIC_ID_PAYLOAD_KEY,
             payloadKeyResourceMap: {
@@ -144,48 +120,35 @@ public type WebhookListenerForPayload object {
                 }
             }
         };
-        websub:SubscriberServiceEndpointConfiguration sseConfig = { host: config.host, port: config.port,
-            extensionConfig: extensionConfig };
-        self.websubListener.init(sseConfig);
+        websub:SubscriberServiceEndpointConfiguration sseConfig = {
+            host: config.host,
+            port: config.port,
+            extensionConfig: extensionConfig
+        };
+        self.websubServer = new(sseConfig);
     }
 
-    public function register(typedesc serviceType) {
-        self.websubListener.register(serviceType);
+    public function __attach(service serviceType, map<any> data) returns error? {
+        return self.websubServer.__attach(serviceType, data);
     }
 
-    public function start() {
-        self.websubListener.start();
+    public function __start() returns error? {
+        return self.websubServer.__start();
     }
 
-    public function getCallerActions() returns (http:Connection) {
-        return self.websubListener.getCallerActions();
-    }
-
-    public function stop() {
-        self.websubListener.stop();
+    public function __stop() returns error? {
+        return self.websubServer.__stop();
     }
 };
 
 /////////////////// Specific Webhook for dispatching by header ///////////////////
-public type WebhookServiceForHeader object {
-    public function getEndpoint() returns (WebhookListenerForHeader) {
-        WebhookListenerForHeader ep = new;
-        return ep;
-    }
-};
+public type WebhookServerForHeader object {
 
-public type WebhookListenerForHeader object {
+    *AbstractListener;
 
-    public WebhookListenerConfiguration webhookListenerConfig = {};
+    private websub:Server websubServer;
 
-    private websub:Listener websubListener;
-
-    public new() {
-        self.websubListener = new;
-    }
-
-    public function init(WebhookListenerConfiguration config) {
-        self.webhookListenerConfig = config;
+    public function __init(WebhookListenerConfiguration config) {
         websub:ExtensionConfig extensionConfig = {
             topicIdentifier: websub:TOPIC_ID_HEADER,
             topicHeader: MOCK_HEADER,
@@ -195,48 +158,35 @@ public type WebhookListenerForHeader object {
                 "status" : ("onStatus", MockActionEvent)
             }
         };
-        websub:SubscriberServiceEndpointConfiguration sseConfig = { host: config.host, port: config.port,
-            extensionConfig: extensionConfig };
-        self.websubListener.init(sseConfig);
+        websub:SubscriberServiceEndpointConfiguration sseConfig = {
+            host: config.host,
+            port: config.port,
+            extensionConfig: extensionConfig
+        };
+        self.websubServer = new(sseConfig);
     }
 
-    public function register(typedesc serviceType) {
-        self.websubListener.register(serviceType);
+    public function __attach(service serviceType, map<any> data) returns error? {
+        return self.websubServer.__attach(serviceType, data);
     }
 
-    public function start() {
-        self.websubListener.start();
+    public function __start() returns error? {
+        return self.websubServer.__start();
     }
 
-    public function getCallerActions() returns (http:Connection) {
-        return self.websubListener.getCallerActions();
-    }
-
-    public function stop() {
-        self.websubListener.stop();
+    public function __stop() returns error? {
+        return self.websubServer.__stop();
     }
 };
 
 /////////////////// Specific Webhook for dispatching by header and payload ///////////////////
-public type WebhookServiceForHeaderAndPayload object {
-    public function getEndpoint() returns (WebhookListenerForHeaderAndPayload) {
-        WebhookListenerForHeaderAndPayload ep = new;
-        return ep;
-    }
-};
+public type WebhookServerForHeaderAndPayload object {
 
-public type WebhookListenerForHeaderAndPayload object {
+    *AbstractListener;
 
-    public WebhookListenerConfiguration webhookListenerConfig = {};
+    private websub:Server websubServer;
 
-    private websub:Listener websubListener;
-
-    public new() {
-        self.websubListener = new;
-    }
-
-    public function init(WebhookListenerConfiguration config) {
-        self.webhookListenerConfig = config;
+    public function __init(WebhookListenerConfiguration config) {
         websub:ExtensionConfig extensionConfig = {
             topicIdentifier: websub:TOPIC_ID_HEADER_AND_PAYLOAD,
             topicHeader: MOCK_HEADER,
@@ -267,24 +217,23 @@ public type WebhookListenerForHeaderAndPayload object {
                 }
             }
         };
-        websub:SubscriberServiceEndpointConfiguration sseConfig = { host: config.host, port: config.port,
-            extensionConfig: extensionConfig };
-        self.websubListener.init(sseConfig);
+        websub:SubscriberServiceEndpointConfiguration sseConfig = {
+            host: config.host,
+            port: config.port,
+            extensionConfig: extensionConfig
+        };
+        self.websubServer = new(sseConfig);
     }
 
-    public function register(typedesc serviceType) {
-        self.websubListener.register(serviceType);
+    public function __attach(service serviceType, map<any> data) returns error? {
+        return self.websubServer.__attach(serviceType, data);
     }
 
-    public function start() {
-        self.websubListener.start();
+    public function __start() returns error? {
+        return self.websubServer.__start();
     }
 
-    public function getCallerActions() returns (http:Connection) {
-        return self.websubListener.getCallerActions();
-    }
-
-    public function stop() {
-        self.websubListener.stop();
+    public function __stop() returns error? {
+        return self.websubServer.__stop();
     }
 };
