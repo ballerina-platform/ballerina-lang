@@ -33,7 +33,10 @@ function testStructOfStruct () returns (string) {
     Department dpt = {employees:emps};
 
     string country = "";
-    country = dpt["employees"][0]["adrs"]["country"] but { () => "", any a => <string> a};
+    var result = dpt["employees"][0]["adrs"]["country"];
+    if (result is any) {
+        country = <string> result;
+    }
     return country;
 }
 

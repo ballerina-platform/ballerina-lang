@@ -30,7 +30,7 @@ function testDeleteWhileIteration () returns (string) | error {
     map m = {a:"1A", b:"2B", c:"3C"};
     output = "";
     string val;
-    string mval;
+    string mval = "";
     foreach k, v in m {
         val = <string> v;
         if (k == "a") {
@@ -38,7 +38,7 @@ function testDeleteWhileIteration () returns (string) | error {
         }
         stringConcat(k, val);
         if (m.hasKey(k)){
-            mval = m[k] but { () => "", any a => <string> a};
+            mval = m[k] is any ? <string> m[k] : "";
         } else {
             mval = "null";
         }

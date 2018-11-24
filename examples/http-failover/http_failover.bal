@@ -40,18 +40,21 @@ service<http:Service> failoverDemoService bind { port: 9090 } {
         match backendRes {
             http:Response response => {
                 // `->` signifies remote call.
-                caller->respond(response) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+                var result = caller->respond(response);
+                if (result is error) {
+                   log:printError("Error sending response", err = result);
+                }
             }
             error responseError => {
                 // Create a new HTTP response by looking at the error message.
                 http:Response response = new;
                 response.statusCode = 500;
                 response.setPayload(responseError.message);
-                caller->respond(response) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+
+                var result = caller->respond(response);
+                if (result is error) {
+                   log:printError("Error sending response", err = result);
+                }
             }
         }
     }
@@ -72,10 +75,10 @@ service echo bind backendEP {
         runtime:sleep(30000);
 
         outResponse.setPayload("echo Resource is invoked");
-        caller->respond(outResponse) but {
-                    error e => log:printError(
-                        "Error sending response from mock service", err = e)
-                    };
+        var result = caller->respond(outResponse);
+        if (result is error) {
+           log:printError("Error sending response from mock service", err = result);
+        }
     }
 }
 
@@ -91,9 +94,10 @@ service mock bind backendEP {
     mockResource(endpoint caller, http:Request req) {
         http:Response outResponse = new;
         outResponse.setPayload("Mock Resource is Invoked.");
-        caller->respond(outResponse) but {
-                    error e => log:printError(
-                        "Error sending response from mock service", err = e)
-                    };
+
+        var result = caller->respond(outResponse);
+        if (result is error) {
+           log:printError("Error sending response from mock service", err = result);
+        }
     }
 }

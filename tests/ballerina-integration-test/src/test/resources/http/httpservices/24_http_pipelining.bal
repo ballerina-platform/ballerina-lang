@@ -44,9 +44,10 @@ service<http:Service> pipeliningTest bind { port: 9220 } {
             }
         }
 
-        caller->respond(untaint response) but {
-            error err => log:printError(err.reason(), err = err)
-        };
+        var result = caller->respond(untaint response);
+        if (result is error) {
+            log:printError(err.reason(), err = result);
+        }
     }
 }
 
