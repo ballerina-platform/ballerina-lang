@@ -50,19 +50,21 @@ public class Listener {
         Runnable listener = () -> {
             try {
                 listenSocket = new ServerSocket(5010);
-                Socket dataSocket = listenSocket.accept();
-                logReader = new BufferedReader(new InputStreamReader(dataSocket.getInputStream(), "UTF-8"));
-                String line;
-                while ((line = logReader.readLine()) != null) {
-                    JsonObject record = new JsonParser().parse(line).getAsJsonObject();
-                    String rawMessage;
-                    try {
-                        rawMessage = record.get("message").getAsString();
-                    } catch (Exception e) {
-                        rawMessage = "";
+                while (!listenSocket.isClosed()) {
+                    Socket dataSocket = listenSocket.accept();
+                    logReader = new BufferedReader(new InputStreamReader(dataSocket.getInputStream(), "UTF-8"));
+                    String line;
+                    while ((line = logReader.readLine()) != null) {
+                        JsonObject record = new JsonParser().parse(line).getAsJsonObject();
+                        String rawMessage;
+                        try {
+                            rawMessage = record.get("message").getAsString();
+                        } catch (Exception e) {
+                            rawMessage = "";
+                        }
+                        TraceRecord traceRecord = new TraceRecord(LogParser.fromString(rawMessage), record, rawMessage);
+                        ballerinaTraceService.pushLogToClient(traceRecord);
                     }
-                    TraceRecord traceRecord = new TraceRecord(LogParser.fromString(rawMessage), record, rawMessage);
-                    ballerinaTraceService.pushLogToClient(traceRecord);
                 }
             } catch (IOException e) {
                 logger.error("Error starting trace logs listener", e);

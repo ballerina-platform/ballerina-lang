@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.extensions.ballerina.traces;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSGlobalContext;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
+import org.ballerinalang.langserver.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,10 +40,10 @@ public class BallerinaTraceServiceImpl implements BallerinaTraceService {
 
     @Override
     public void pushLogToClient(TraceRecord traceRecord) {
-//        ExtendedLanguageClient client = this.ballerinaLanguageServer.getClient();
-//        if (client == null) {
-//            return;
-//        }
-//        client.traceLogs(traceRecord);
+        ExtendedLanguageClient client = this.ballerinaLanguageServer.getClient();
+        if (client == null) {
+            return;
+        }
+        client.traceLogs(traceRecord);
     }
 }

@@ -64,10 +64,11 @@ public class JsonLogFormatterTest extends TestNG {
     public void testJsonLogFormat() {
         String formatterMessagePart = "[id: 0x65d56de4, correlatedSource: n/a, host:localhost/0:0:0:0:0:0:0:1:9090 - " +
                 "remote:/0:0:0:0:0:0:0:1:52872] OUTBOUND: DefaultFullHttpResponse(decodeResult: success, " +
-                "version: HTTP/1.1, content: CompositeByteBuf(ridx: 0, widx: 55, cap: 55, " +
-                "components\\u003d1))\\nHTTP/1.1 200 OK\\ncontent-type: application/json\\ncontent-length: 55\\n" +
-                "server: wso2-http-transport\\ndate: Fri, 16 Mar 2018 14:26:12 +0530, 55B\\n{\\\"message\\\"" +
-                ":\\\"Max entity body size resource is invoked.\\\"}";
+                "version: HTTP/1.1, " +
+                "content: CompositeByteBuf(ridx: 0, widx: 55, cap: 55, components\\u003d1))\\n" +
+                "HTTP/1.1 200 OK\\ncontent-type: application/json\\ncontent-length: 55\\nserver: " +
+                "wso2-http-transport\\ndate: Fri, 16 Mar 2018 14:26:12 +0530, 55B\\n{\\\"message\\\":\\\"" +
+                "Max entity body size resource is invoked.\\\"}";
 
         String str = jsonLogFormatter.format(logRecord);
         Assert.assertTrue(str.contains(formatterMessagePart), "Json log format is incorrect.");

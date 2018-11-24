@@ -31,6 +31,10 @@ public class LogParser {
     static final Pattern PATH = Pattern.compile("(?:GET|POST|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|PATCH)"
             + " ([^\\s]+)");
     static final Pattern CONTENT_TYPE = Pattern.compile("(?:content-type): ?(.*)",  Pattern.CASE_INSENSITIVE);
+    static final Pattern PAYLOAD_REQUEST =
+            Pattern.compile("(?:DefaultLastHttpContent)(?:.*[\\n\\r])([\\s\\S]*)");
+    static final Pattern PAYLOAD_RESPONSE =
+            Pattern.compile("(?:DefaultFullHttpResponse)(?:.*[\\n\\r])(?:[\\s\\S]*)(?:[\\n\\r])([\\s\\S]*)");
 
     private static String getId(String logLine) {
         Matcher matcher = ID_PATTERN.matcher(logLine);
@@ -67,12 +71,17 @@ public class LogParser {
         return matcher.find() ? matcher.group(1) : "";
     }
 
-    private static String getPayload(String header) {
-        int startIndex = header.lastIndexOf("\n");
-        if (startIndex != -1 && startIndex != header.length()) {
-            return header.substring(startIndex + 1);
+    private static String getPayload(String logLine) {
+        String payload = "";
+        Matcher requestMatcher = PAYLOAD_REQUEST.matcher(logLine);
+        Matcher responseMatcher = PAYLOAD_RESPONSE.matcher(logLine);
+        if (requestMatcher.find()) {
+            payload = requestMatcher.group(1);
         }
-        return "";
+        if (responseMatcher.find()) {
+            payload = responseMatcher.group(1);
+        }
+        return payload;
     }
 
     /**
@@ -95,7 +104,7 @@ public class LogParser {
         String direction = getDirection(logLine);
         String header = getHeader(logLine);
         String headerType = getHeaderType(logLine);
-        String payload = getPayload(header);
+        String payload = getPayload(logLine);
         String headers = removePayload(header, payload);
         String httpMethod = getHttpMethod(logLine);
         String path = getPath(logLine);
