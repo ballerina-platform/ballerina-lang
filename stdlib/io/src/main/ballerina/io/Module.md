@@ -79,7 +79,7 @@ while (readableRecordsChannel.hasNext()) {
     if (result is string[]) {
         println(record); // Retrieved a record.
     } else {
-        return err; // An IO error occurred when reading the records.
+        return result; // An IO error occurred when reading the records.
     }
 }
 ```
