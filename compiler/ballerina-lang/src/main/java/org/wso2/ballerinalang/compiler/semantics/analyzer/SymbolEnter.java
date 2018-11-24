@@ -51,7 +51,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
@@ -533,11 +532,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         serviceSymbol.markdownDocumentation = getMarkdownDocAttachment(serviceNode.markdownDocumentationAttachment);
 
         BType serviceObjectType = symResolver.resolveTypeNode(serviceNode.serviceUDT, env);
-        serviceSymbol.objectType = (BObjectTypeSymbol) serviceObjectType.tsymbol;
-        serviceNode.serviceType = (BObjectType) serviceObjectType;
-
         serviceNode.symbol = serviceSymbol;
-        serviceNode.symbol.type = new BServiceType(serviceObjectType);
+        serviceNode.symbol.type = new BServiceType(serviceObjectType.tsymbol);
         defineSymbol(serviceNode.name.pos, serviceSymbol);
     }
 
@@ -815,7 +811,11 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangSimpleVariable varNode) {
         // assign the type to var type node
         if (varNode.type == null) {
-            varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
+            if (varNode.typeNode != null) {
+                varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
+            } else {
+                varNode.type = symTable.noType;
+            }
         }
 
         Name varName = names.fromIdNode(varNode.name);
@@ -825,18 +825,15 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
+        // Todo - Remove.
         //Check annotations attached to the variable
         if (varNode.annAttachments.size() > 0) {
-            if (hasAnnotation(varNode.annAttachments, Names.ANNOTATION_FINAL.getValue())) {
-                varNode.flagSet.add(Flag.FINAL);
-            }
             if (hasAnnotation(varNode.annAttachments, Names.ANNOTATION_READONLY.getValue())) {
                 varNode.flagSet.add(Flag.READONLY);
             }
         }
 
-        BVarSymbol varSymbol = defineVarSymbol(varNode.pos, varNode.flagSet,
-                varNode.type, varName, env);
+        BVarSymbol varSymbol = defineVarSymbol(varNode.pos, varNode.flagSet, varNode.type, varName, env);
         varSymbol.markdownDocumentation = getMarkdownDocAttachment(varNode.markdownDocumentationAttachment);
         varNode.symbol = varSymbol;
         if (varNode.symbol.type.tsymbol != null && Symbols.isFlagOn(varNode.symbol.type.tsymbol.flags, Flags.CLIENT)) {

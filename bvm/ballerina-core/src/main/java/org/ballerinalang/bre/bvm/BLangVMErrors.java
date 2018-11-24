@@ -31,7 +31,6 @@ import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 
 import java.util.List;
@@ -250,9 +249,6 @@ public class BLangVMErrors {
         values = new Object[4];
 
         String parentScope = "";
-        if (callableUnitInfo instanceof ResourceInfo) {
-            parentScope = ((ResourceInfo) callableUnitInfo).getServiceInfo().getName() + ".";
-        }
 
         values[0] = parentScope + callableUnitInfo.getName();
         values[1] = callableUnitInfo.getPkgPath();

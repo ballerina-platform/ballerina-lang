@@ -17,7 +17,7 @@ type Student record {
     !...
 };
 
-function testStructToStruct () returns (Student) {
+function testStructToStruct () returns (Student|error) {
     Person p = {name:"Supun",
                    age:25,
                    parent:{name:"Parent", age:50},
@@ -25,7 +25,7 @@ function testStructToStruct () returns (Student) {
                    info:{status:"single"},
                    marks:[24, 81]
                };
-    Student s = <Student>p;
+    Student s = check <Student>p;
     return s;
 }
 

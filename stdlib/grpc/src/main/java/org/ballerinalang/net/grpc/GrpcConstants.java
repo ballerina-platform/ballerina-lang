@@ -43,8 +43,8 @@ public class GrpcConstants {
     public static final String SERVICE_REGISTRY_BUILDER = "SERVICE_REGISTRY_BUILDER";
     public static final String SERVER_CONNECTOR = "SERVER_CONNECTOR";
     public static final String CONNECTOR_STARTED = "CONNECTOR_STARTED";
-    public static final String SERVICE_ENDPOINT_TYPE = "Listener";
-    public static final String CALLER_ACTION = "CallerAction";
+    public static final String SERVER = "Server";
+    public static final String CALLER = "Caller";
     public static final String RESPONSE_OBSERVER = "RESPONSE_OBSERVER";
     public static final String RESPONSE_MESSAGE_DEFINITION = "RESPONSE_DEFINITION";
     public static final int CLIENT_RESPONDER_REF_INDEX = 0;

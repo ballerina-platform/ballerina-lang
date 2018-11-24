@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
+import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -109,35 +110,26 @@ public class ServiceDesugar {
                 .lookupMemberSymbol(pos, ((BObjectTypeSymbol) variable.type.tsymbol).methodScope, env, functionName,
                         SymTag.INVOKABLE);
 
+        BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, variable.symbol);
+
         // Create method invocation
-        addMethodInvocation(pos, methodInvocationSymbol, Collections.emptyList(), lifeCycleFunction.body);
+        addMethodInvocation(pos, varRef, methodInvocationSymbol, Collections.emptyList(), lifeCycleFunction.body);
     }
 
-    void rewriteServices(List<BLangService> services, SymbolEnv env) {
-        services.forEach(service -> rewriteService(service, env));
+    BLangBlockStmt rewriteServices(List<BLangService> services, SymbolEnv env) {
+        BLangBlockStmt attachmentsBlock = (BLangBlockStmt) TreeBuilder.createBlockNode();
+        services.forEach(service -> rewriteService(service, env, attachmentsBlock));
+        return attachmentsBlock;
     }
 
-    void rewriteService(BLangService service, SymbolEnv env) {
+    void rewriteService(BLangService service, SymbolEnv env, BLangBlockStmt attachments) {
         // service x on y { ... }
         //
         // after desugar :
-        //      if y is anonymous   ->      y = y(expr)
-        //      (globalVar)         ->      service x = service { ... };
-        //      (init)              ->      y.__attach(x, {});
+        //      if y is anonymous (globalVar)   ->      y = y(expr)
+        //      (globalVar)                     ->      service x = service { ... };
+        //      (init)                          ->      y.__attach(x, {});
         final DiagnosticPos pos = service.pos;
-
-        //      if y is anonymous   ->      y = y(expr)
-        BLangSimpleVarRef listenerVarRef;
-        if (service.attachExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            listenerVarRef = (BLangSimpleVarRef) service.attachExpr;
-        } else {
-            BLangSimpleVariable listenerVar = ASTBuilderUtil
-                    .createVariable(pos, LISTENER + service.name.value, service.attachExpr.type, service.attachExpr,
-                            null);
-            ASTBuilderUtil.defineVariable(listenerVar, env.enclPkg.symbol, names);
-            listenerVarRef = ASTBuilderUtil.createVariableRef(pos, listenerVar.symbol);
-        }
-        service.listenerName = listenerVarRef.variableName.value;
 
         //      (globalVar)         ->      service x = service { ... };
         final BLangServiceConstructorExpr serviceConstructor = ASTBuilderUtil.createServiceConstructor(service);
@@ -145,6 +137,26 @@ public class ServiceDesugar {
                 .createVariable(pos, service.name.value, symTable.anyServiceType, serviceConstructor, null);
         ASTBuilderUtil.defineVariable(serviceVar, env.enclPkg.symbol, names);
         env.enclPkg.globalVars.add(serviceVar);
+
+        if (service.attachExpr == null) {
+            return;
+        }
+
+        //      if y is anonymous   ->      y = y(expr)
+        BLangSimpleVarRef listenerVarRef;
+        if (service.attachExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            listenerVarRef = (BLangSimpleVarRef) service.attachExpr;
+        } else {
+            // Define anonymous listener variable.
+            BLangSimpleVariable listenerVar = ASTBuilderUtil
+                    .createVariable(pos, LISTENER + service.name.value, service.attachExpr.type, service.attachExpr,
+                            null);
+            ASTBuilderUtil.defineVariable(listenerVar, env.enclPkg.symbol, names);
+            listenerVar.symbol.flags |= Flags.LISTENER;
+            env.enclPkg.globalVars.add(listenerVar);
+            listenerVarRef = ASTBuilderUtil.createVariableRef(pos, listenerVar.symbol);
+        }
+        service.listenerName = listenerVarRef.variableName.value;
 
         //      (.<init>)              ->      y.__attach(x, {});
         // Find correct symbol.
@@ -159,14 +171,15 @@ public class ServiceDesugar {
         args.add(ASTBuilderUtil.createVariableRef(pos, serviceVar.symbol));
         args.add(ASTBuilderUtil.createEmptyRecordLiteral(pos, symTable.mapType));
 
-        addMethodInvocation(pos, methodInvocationSymbol, args, env.enclPkg.initFunction.body);
+        addMethodInvocation(pos, listenerVarRef, methodInvocationSymbol, args, attachments);
     }
 
-    void addMethodInvocation(DiagnosticPos pos, BInvokableSymbol methodInvocationSymbol, List<BLangExpression> args,
-            BLangBlockStmt body) {
+    void addMethodInvocation(DiagnosticPos pos, BLangSimpleVarRef varRef, BInvokableSymbol methodInvocationSymbol,
+            List<BLangExpression> args, BLangBlockStmt body) {
         // Create method invocation
         final BLangInvocation methodInvocation = ASTBuilderUtil
                 .createInvocationExprForMethod(pos, methodInvocationSymbol, args, symResolver);
+        methodInvocation.expr = varRef;
 
         BLangExpression rhsExpr = methodInvocation;
         // Add optional check.
@@ -183,5 +196,9 @@ public class ServiceDesugar {
         final BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(pos, ignoreVarRef, rhsExpr, false);
 
         ASTBuilderUtil.appendStatement(assignmentStmt, body);
+    }
+
+    void rewriteAttachments(BLangBlockStmt serviceAttachments, SymbolEnv env) {
+        ASTBuilderUtil.appendStatements(serviceAttachments, env.enclPkg.initFunction.body);
     }
 }

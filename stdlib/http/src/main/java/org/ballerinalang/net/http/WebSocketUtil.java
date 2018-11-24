@@ -53,7 +53,7 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 public class WebSocketUtil {
 
     public static ProgramFile getProgramFile(Resource resource) {
-        return resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
+        return resource.getResourceInfo().getPackageInfo().getProgramFile();
     }
 
     static Annotation getServiceConfigAnnotation(Service service) {
@@ -80,7 +80,7 @@ public class WebSocketUtil {
             public void onSuccess(WebSocketConnection webSocketConnection) {
                 BMap<String, BValue> webSocketEndpoint = BLangConnectorSPIUtil.createObject(
                         wsService.getServiceInfo().getPackageInfo().getProgramFile(), PROTOCOL_PACKAGE_HTTP,
-                        WebSocketConstants.WEBSOCKET_ENDPOINT);
+                        WebSocketConstants.WEBSOCKET_CALLER);
                 BMap<String, BValue> webSocketConnector = BLangConnectorSPIUtil.createObject(
                         wsService.getServiceInfo().getPackageInfo().getProgramFile(), PROTOCOL_PACKAGE_HTTP,
                         WebSocketConstants.WEBSOCKET_CONNECTOR);

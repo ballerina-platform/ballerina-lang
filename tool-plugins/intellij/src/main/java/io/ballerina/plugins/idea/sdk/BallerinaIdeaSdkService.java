@@ -35,6 +35,7 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.util.ObjectUtils;
+import io.ballerina.plugins.idea.BallerinaConstants;
 import io.ballerina.plugins.idea.BallerinaModuleType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -90,7 +91,9 @@ public class BallerinaIdeaSdkService extends BallerinaSdkService {
         }
         // Need to prompt a restart action to clear and re initiate language server instance from the new SDK.
         // Todo - Figure out a way to apply language server changes without restarting.
-        ApplicationManager.getApplication().invokeLater(this::showRestartDialog);
+        if (isBallerinaSdk(projectSdk)) {
+            ApplicationManager.getApplication().invokeLater(this::showRestartDialog);
+        }
     }
 
     @Override
@@ -112,6 +115,10 @@ public class BallerinaIdeaSdkService extends BallerinaSdkService {
         }
         Sdk sdk = ProjectRootManager.getInstance(myProject).getProjectSdk();
         return sdk != null && sdk.getSdkType() instanceof BallerinaSdkType ? sdk : null;
+    }
+
+    private boolean isBallerinaSdk(Sdk sdk) {
+        return sdk != null && BallerinaConstants.BALLERINA_SDK_TYPE.equals(sdk.getSdkType().getName());
     }
 
     @Messages.YesNoResult

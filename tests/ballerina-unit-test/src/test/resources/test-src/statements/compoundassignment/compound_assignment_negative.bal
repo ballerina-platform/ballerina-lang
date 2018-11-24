@@ -1,4 +1,4 @@
-function testMapElementIncrement()  returns (int){
+function testMapElementIncrement()  returns (int|error){
     map namesMap = {fname:1};
     namesMap.fname += 1;
     int x;
@@ -6,7 +6,7 @@ function testMapElementIncrement()  returns (int){
     return x;
 }
 
-function testMapElementDecrement() returns (int){
+function testMapElementDecrement() returns (int|error){
     map namesMap = {fname:1};
     namesMap.fname -= 1;
     int x;
@@ -120,8 +120,8 @@ function testCompoundAssignmentLogicalShift() returns (int){
 }
 
 type Company record {
-   int count;
-   int count2;
+   int count = 0;
+   int count2 = 0;
 };
 
 function testCompoundAssignmentAdditionStructElementRecursive() returns int? {
