@@ -41,18 +41,6 @@ public type Caller client object {
         return self.httpCaller->ok(message);
     }
 
-    # Sends the response to the caller with the status 201 Created.
-    #
-    # + uri - Represents the most specific URI for the newly created resource
-    # + message - The response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
-    #             or `mime:Entity[]`.
-    # + return - Returns an `error` on failure
-    public remote function created(string uri,
-                                   http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
-                                        returns error? {
-        return self.httpCaller->created(uri, message = message);
-    }
-
     # Sends the response to the caller with the status 202 Accepted.
     #
     # + message - The response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
