@@ -14,33 +14,33 @@
 // specific language governing permissions and limitations
 // under the License.
 
-record {} constraint = {};
+record {} ^"any" = {};
 
 # Releases the database connection. If the table data is fully iterated, it will be automatically closed. This explicit
 # close is required only if it is not fully iterated.
-public extern function table<constraint>.close();
+public extern function table<^"any">.close();
 
 # Checks for a new row in the given table. If a new row is found, moves the cursor to it.
 #
 # + return - True if there is a new row; false otherwise
-public extern function table<constraint>.hasNext() returns boolean;
+public extern function table<^"any">.hasNext() returns boolean;
 
 # Retrives the current row and return a record with the data in the columns.
 #
 # + return - The resulting row as a record
-public extern function table<constraint>.getNext() returns any;
+public extern function table<^"any">.getNext() returns any;
 
 # Add record to the table.
 #
 # + data - A record with data
 # + return - An `error` will be returned if there is any error occured during adding data or else nil is returned
-public extern function table<constraint>.add(any data) returns error|();
+public extern function table<^"any">.add(any data) returns error|();
 
 # Remove data from the table.
 #
 # + func - The function pointer for delete crieteria
 # + return - An `int` the number of deleted record count or `error` if any error occured during removing data
-public extern function table<constraint>.remove(function (any) returns (boolean) func) returns int|error;
+public extern function table<^"any">.remove(function (any) returns (boolean) func) returns int|error;
 
 # Execute the given sql query to fetch the records and return as a new in memory table.
 #
@@ -49,8 +49,8 @@ public extern function table<constraint>.remove(function (any) returns (boolean)
 # + joinTable - The table which is joined with 'fromTable'
 # + parameters - liternal parameters to be passed to prepared statement 'sqlQuery'
 # + retType - return type of the resultant table instance
-extern function queryTableWithJoinClause(string sqlQuery, table<constraint> fromTable, table<constraint> joinTable, any parameters,
-                                         any retType) returns table<constraint>;
+extern function queryTableWithJoinClause(string sqlQuery, table<^"any"> fromTable, table<^"any"> joinTable, any parameters,
+                                         any retType) returns table<^"any">;
 
 # Execute the given sql query to fetch the records and return as a new in memory table.
 #
@@ -58,8 +58,8 @@ extern function queryTableWithJoinClause(string sqlQuery, table<constraint> from
 # + fromTable - The table on which the query is executed
 # + parameters - literal parameters to be passed to prepared statement 'sqlQuery'
 # + retType - return type of the resultant table instance
-extern function queryTableWithoutJoinClause(string sqlQuery, table<constraint> fromTable, any parameters,
-                                            any retType) returns table<constraint>;
+extern function queryTableWithoutJoinClause(string sqlQuery, table<^"any"> fromTable, any parameters,
+                                            any retType) returns table<^"any">;
 
 # TableConfig represents properties used during table initialization.
 #

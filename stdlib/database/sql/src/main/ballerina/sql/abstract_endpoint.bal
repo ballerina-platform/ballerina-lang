@@ -25,7 +25,7 @@ public type AbstractSQLClient abstract client object {
     # + return - A `table[]` if there are tables returned by the call action and else nil,
     #            `error` will be returned if there is any error
     public remote function call(@sensitive string sqlQuery, typedesc[]? recordType, Param... parameters)
-       returns @tainted table[]|()|error;
+       returns @tainted table<^"any">[]|()|error;
 
     # The select operation implementation for SQL Client to select data from tables.
     #
@@ -35,7 +35,7 @@ public type AbstractSQLClient abstract client object {
     # + parameters - The parameters to be passed to the select query. The number of parameters is variable
     # + return - A `table` returned by the sql query statement else `error` will be returned if there is any error
     public remote function select(@sensitive string sqlQuery, typedesc? recordType, boolean loadToMemory = false,
-       Param... parameters) returns @tainted table|error;
+       Param... parameters) returns @tainted table<^"any">|error;
 
     # The update operation implementation for SQL Client to update data and schema of the database.
     #

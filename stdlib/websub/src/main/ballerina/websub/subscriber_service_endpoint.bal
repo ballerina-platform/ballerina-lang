@@ -67,7 +67,7 @@ public type Server object {
     # should happen for the services bound to the endpoint.
     #
     # + return - `map[]` array of maps containing subscription details for each service
-    extern function retrieveSubscriptionParameters() returns map[];
+    extern function retrieveSubscriptionParameters() returns map<any>[];
 
 };
 
@@ -102,7 +102,7 @@ function Server.__stop() returns error? {
 }
 
 function Server.sendSubscriptionRequests() {
-    map[] subscriptionDetailsArray = self.retrieveSubscriptionParameters();
+    map<any>[] subscriptionDetailsArray = self.retrieveSubscriptionParameters();
 
     foreach subscriptionDetails in subscriptionDetailsArray {
         if (subscriptionDetails.keys().length() == 0) {

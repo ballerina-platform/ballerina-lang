@@ -47,7 +47,7 @@ public type Server object {
         return self.stop();
     }
 
-    public function __attach(service s, map annotationData) returns error? {
+    public function __attach(service s, map<any> annotationData) returns error? {
         return self.register(s, annotationData);
     }
 
@@ -70,7 +70,7 @@ public type Server object {
     # Gets invoked when attaching a service to the endpoint.
     #
     # + s - The service that needs to be attached
-    extern function register(service s, map annotationData) returns error?;
+    extern function register(service s, map<any> annotationData) returns error?;
 
     # Starts the registered service.
     extern function start();

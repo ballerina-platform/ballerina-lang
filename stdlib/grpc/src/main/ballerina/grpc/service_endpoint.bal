@@ -35,7 +35,7 @@ public type Server object {
         return self.stop();
     }
 
-    public function __attach(service s, map annotationData) returns error? {
+    public function __attach(service s, map<any> annotationData) returns error? {
         io:println("Calling attach.....");
         return self.register(s, annotationData);
     }
@@ -64,7 +64,7 @@ public type Server object {
     #
     # + serviceType - The type of the service to be registered.
     # + annotationData - Annotations attached to the service.
-    public extern function register(service serviceType, map annotationData) returns error?;
+    public extern function register(service serviceType, map<any> annotationData) returns error?;
 
     # Starts the registered service.
     public extern function start() returns error?;

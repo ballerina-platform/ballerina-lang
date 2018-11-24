@@ -16,14 +16,14 @@
 
 public type OutputProcess object {
 
-    private function (map[]) outputFunc;
+    private function (map<any>[]) outputFunc;
 
     public new (outputFunc) {
     }
 
     public function process(StreamEvent[] streamEvents) {
         int index = 0;
-        map[] events = [];
+        map<any>[] events = [];
         int i = 0;
         foreach event in streamEvents {
             if (event.eventType == "CURRENT") {
@@ -42,7 +42,7 @@ public type OutputProcess object {
     }
 };
 
-public function createOutputProcess(function (map[]) outputFunc) returns OutputProcess {
+public function createOutputProcess(function (map<any>[]) outputFunc) returns OutputProcess {
     OutputProcess outputProcess = new(outputFunc);
     return outputProcess;
 }
