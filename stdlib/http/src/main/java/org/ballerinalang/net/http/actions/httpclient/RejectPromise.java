@@ -36,7 +36,7 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "rejectPromise",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.HTTP_CLIENT,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.HTTP_CALLER,
                 structPackage = "ballerina/http"),
         args = {
                 @Argument(name = "client", type = TypeKind.OBJECT),

@@ -31,47 +31,49 @@ function testFreezeOnValuesOfNonAnydataType() {
 }
 
 function testFreezeOnMapWithoutAnydata() {
-    map<PersonObj> m1;
+    map<PersonObj> m1 = {};
     _ = m1.freeze();
 
-    map<stream|PersonObj> m2;
+    map<stream|PersonObj> m2 = {};
     _ = m2.freeze();
 }
 
 function testFreezeOnArrayWithoutAnydata() {
-    PersonObj[] a1;
+    PersonObj[] a1 = [];
     _ = a1.freeze();
 
-    (PersonObjTwo|PersonObj)[] a2;
+    (PersonObjTwo|PersonObj)[] a2 = [];
     _ = a2.freeze();
 }
 
 function testFreezeOnTupleWithoutAnydata() {
-    (PersonObj|PersonObjTwo, PersonObjTwo) t1;
+    PersonObj po = new;
+    PersonObjTwo po2 = new;
+    (PersonObj|PersonObjTwo, PersonObjTwo) t1 = (po, po2);
     _ = t1.freeze();
 }
 
 function testFreezeOnRecordWithoutAnydata() {
-    Department d1;
+    Department d1 = { head: new };
     _ = d1.freeze();
 }
 
 function testInvalidAssignmentWithFreeze() {
-    map<string|PersonObj> m;
+    map<string|PersonObj> m = {};
     map<string|PersonObj> m1 = m.freeze();
 
-    map<(string|PersonObj, FreezeAllowedDepartment|float)> m2;
+    map<(string|PersonObj, FreezeAllowedDepartment|float)> m2 = {};
     map<(any, any)> m3 = m2.freeze();
 
-    (boolean|PersonObj|float)[] a1;
+    (boolean|PersonObj|float)[] a1 = [];
     (boolean|PersonObj|float)[] a2 = a1.freeze();
 
     any[] a3 = a1.freeze();
 
-    (string|PersonObj, FreezeAllowedDepartment|float) t1;
+    (string|PersonObj, FreezeAllowedDepartment|float) t1 = ("", 0.0);
     (string|PersonObj, FreezeAllowedDepartment|float) t2 = t1.freeze();
 
-    FreezeAllowedDepartment fd;
+    FreezeAllowedDepartment fd = { head: "" };
     FreezeAllowedDepartment fd2 = fd.freeze();
 
     string|PersonObj u1 = "hi";
@@ -84,7 +86,7 @@ function testFreezeOnError() {
 }
 
 type PersonObj object {
-    string name;
+    string name = "";
 
     function getName() returns string {
         return self.name;
@@ -92,7 +94,7 @@ type PersonObj object {
 };
 
 type PersonObjTwo object {
-    string id;
+    string id = "";
 
     function getId() returns string {
         return self.id;

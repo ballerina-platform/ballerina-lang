@@ -254,7 +254,8 @@ public class Types {
                 return checkRecordEquivalencyForStamping((BRecordType) source, (BRecordType) target, unresolvedTypes);
             } else if (source.tag == TypeTags.MAP) {
                 int mapConstraintTypeTag = ((BMapType) source).constraint.tag;
-                if (mapConstraintTypeTag != TypeTags.ANY && ((BRecordType) target).sealed) {
+                if ((!(mapConstraintTypeTag == TypeTags.ANY || mapConstraintTypeTag == TypeTags.ANYDATA)) &&
+                        ((BRecordType) target).sealed) {
                     for (BField field : ((BStructureType) target).getFields()) {
                         if (field.getType().tag != mapConstraintTypeTag) {
                             return false;
@@ -1973,6 +1974,47 @@ public class Types {
             return true;
         }
         return false;
+    }
+
+    public BType getRemainingType(BType originalType, Set<BType> set) {
+        if (originalType.tag != TypeTags.UNION) {
+            return originalType;
+        }
+
+        List<BType> memberTypes = new ArrayList<>(((BUnionType) originalType).getMemberTypes());
+
+        for (BType removeType : set) {
+            if (removeType.tag != TypeTags.UNION) {
+                memberTypes.remove(removeType);
+            } else {
+                ((BUnionType) removeType).getMemberTypes().forEach(type -> memberTypes.remove(type));
+            }
+
+            if (memberTypes.size() == 1) {
+                return memberTypes.get(0);
+            }
+        }
+
+        return new BUnionType(null, new HashSet<>(memberTypes), memberTypes.contains(symTable.nilType));
+    }
+
+    public BType getRemainingType(BType originalType, BType removeType) {
+        if (originalType.tag != TypeTags.UNION) {
+            return originalType;
+        }
+
+        List<BType> memberTypes = new ArrayList<>(((BUnionType) originalType).getMemberTypes());
+        if (removeType.tag != TypeTags.UNION) {
+            memberTypes.remove(removeType);
+        } else {
+            ((BUnionType) removeType).getMemberTypes().forEach(type -> memberTypes.remove(type));
+        }
+
+        if (memberTypes.size() == 1) {
+            return memberTypes.get(0);
+        }
+
+        return new BUnionType(null, new HashSet<>(memberTypes), memberTypes.contains(symTable.nilType));
     }
 
     /**

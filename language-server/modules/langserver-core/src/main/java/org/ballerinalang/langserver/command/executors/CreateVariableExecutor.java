@@ -157,7 +157,7 @@ public class CreateVariableExecutor implements LSCommandExecutor {
         }
         PackageID currentPkgId = packageNode.packageID;
         List<TextEdit> edits = new ArrayList<>();
-        BiConsumer<String, String> importsConsumer = (orgName, alias) -> {
+        BiConsumer<String, String> importsAcceptor = (orgName, alias) -> {
             boolean notFound = packageNode.getImports().stream().noneMatch(
                     pkg -> (pkg.orgName.value.equals(orgName) && pkg.alias.value.equals(alias))
             );
@@ -167,7 +167,7 @@ public class CreateVariableExecutor implements LSCommandExecutor {
             }
         };
 
-        String variableType = CommonUtil.FunctionGenerator.generateTypeDefinition(importsConsumer, currentPkgId,
+        String variableType = CommonUtil.FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId,
                                                                                   functionNode.type);
 
         String editText = createVariableDeclaration(variableName, variableType);

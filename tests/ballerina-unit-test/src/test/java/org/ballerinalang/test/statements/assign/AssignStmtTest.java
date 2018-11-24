@@ -35,8 +35,8 @@ import org.testng.annotations.Test;
  */
 public class AssignStmtTest {
 
-    CompileResult result;
-    CompileResult resultNegative;
+    private CompileResult result;
+    private CompileResult resultNegative;
 
     @BeforeClass
     public void setup() {

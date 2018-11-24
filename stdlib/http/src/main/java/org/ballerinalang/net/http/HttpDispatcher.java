@@ -49,9 +49,9 @@ import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.net.http.HttpConstants.CALLER;
 import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_SERVER;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
-import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT;
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_FIELD;
 
 /**
@@ -151,11 +151,10 @@ public class HttpDispatcher {
     public static BValue[] getSignatureParameters(HttpResource httpResource, HttpCarbonMessage httpCarbonMessage,
                                                   Struct endpointConfig) {
         //TODO Think of keeping struct type globally rather than creating for each request
-        ProgramFile programFile =
-                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
+        ProgramFile programFile = httpResource.getBalResource().getResourceInfo().getPackageInfo().getProgramFile();
 
         BMap<String, BValue> serviceEndpoint =
-                BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, SERVICE_ENDPOINT);
+                BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, HTTP_SERVER);
         BMap<String, BValue> connection =
                 BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, CALLER);
         BMap<String, BValue> inRequest =
@@ -174,7 +173,7 @@ public class HttpDispatcher {
 
         SignatureParams signatureParams = httpResource.getSignatureParams();
         BValue[] bValues = new BValue[signatureParams.getParamCount()];
-        bValues[0] = serviceEndpoint;
+        bValues[0] = connection;
         bValues[1] = inRequest;
         if (signatureParams.getParamCount() == 2) {
             return bValues;

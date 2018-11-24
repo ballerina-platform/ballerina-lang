@@ -48,7 +48,7 @@ public class HttpConstants {
 
     public static final String PROTOCOL_HTTP = "http";
     public static final String PROTOCOL_PACKAGE_HTTP = "ballerina" + ORG_NAME_SEPARATOR + "http";
-    public static final String HTTP_SERVICE_ENDPOINT_NAME = "ballerina" + ORG_NAME_SEPARATOR + "http:Listener";
+    public static final String HTTP_SERVICE_ENDPOINT_NAME = "Tballerina/http:Server;";
     public static final String PROTOCOL_HTTPS = "https";
     public static final String HTTP_METHOD = "HTTP_METHOD";
     public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
@@ -155,6 +155,7 @@ public class HttpConstants {
     public static final String PACKAGE_BALLERINA_BUILTIN = BALLERINA_BUILTIN_PKG;
 
     public static final String HTTP_CLIENT = "Client";
+    public static final String HTTP_CALLER = "HttpCaller";
 
     public static final String REQUEST_URL = "REQUEST_URL";
     public static final String SRC_HANDLER = "SRC_HANDLER";
@@ -397,6 +398,10 @@ public class HttpConstants {
     public static final boolean DIRTY_REQUEST = true;
 
     public static final String MOCK_SERVER = "MockServer";
+    public static final String HTTP_SERVER = "Server";
+
+    public static final String COLON = ":";
+    public static final String DOLLAR = "$";
 
     private HttpConstants() {
     }

@@ -14,10 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents the WebSocket client service.
-public type WebSocketClientService object {
-    public function getEndpoint() returns WebSocketClient {
-        WebSocketClient ep = new({});
-        return ep;
-    }
+# Record representing the configuration parameters for the WebSub Hub Client Endpoint.
+#
+# + url - The URL of the target Hub
+# + clientSecureSocket - SSL/TLS related options for the underlying HTTP Client
+# + auth - Authentication mechanism for the underlying HTTP Client
+# + followRedirects - HTTP redirect related configuration
+public type HubClientEndpointConfig record {
+    string url = "";
+    http:SecureSocket? clientSecureSocket = ();
+    http:AuthConfig? auth = ();
+    http:FollowRedirects? followRedirects = ();
+    !...
 };
