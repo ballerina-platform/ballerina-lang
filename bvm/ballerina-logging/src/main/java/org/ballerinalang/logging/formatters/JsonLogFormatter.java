@@ -32,6 +32,6 @@ public class JsonLogFormatter extends Formatter {
 
     @Override
     public String format(LogRecord record) {
-        return new Gson().toJson(record) + "\n";
+        return new Gson().toJson(record) + System.getProperty("line.separator");
     }
 }
