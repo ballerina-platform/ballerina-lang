@@ -30,6 +30,7 @@ then
     skipTest="--skiptests"
 fi
 
+# List of BBEs excluded from building
 exclude=("date-time"
         "proto-to-ballerina"
         "swagger-to-ballerina"
