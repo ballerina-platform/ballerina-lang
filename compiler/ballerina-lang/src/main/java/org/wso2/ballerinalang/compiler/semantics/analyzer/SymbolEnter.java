@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -79,6 +80,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -104,6 +106,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -555,7 +558,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 visitObjectAttachedFunction(funcNode);
                 return;
             }
-            
+
             BSymbol funcSymbol = symTable.notFoundSymbol;
             if (funcNode.receiver.type.tag == TypeTags.OBJECT) {
                 SymbolEnv objectEnv = SymbolEnv.createObjectMethodsEnv(null, (BObjectTypeSymbol) funcNode.receiver.type.
@@ -840,6 +843,17 @@ public class SymbolEnter extends BLangNodeVisitor {
         varNode.symbol = varSymbol;
         if (varNode.symbol.type.tsymbol != null && Symbols.isFlagOn(varNode.symbol.type.tsymbol.flags, Flags.CLIENT)) {
             varSymbol.tag = SymTag.ENDPOINT;
+        }
+
+        if (varSymbol.type.tag == TypeTags.FUTURE && ((BFutureType) varSymbol.type).workerDerivative) {
+            Iterator<BLangLambdaFunction> lambdaFunctions = env.enclPkg.lambdaFunctions.iterator();
+            while (lambdaFunctions.hasNext()) {
+                BLangLambdaFunction lambdaFunction = lambdaFunctions.next();
+                //last lambda needs to be skipped to avoid self reference
+                if (lambdaFunctions.hasNext()) {
+                    lambdaFunction.cachedEnv.scope.define(varSymbol.name, varSymbol);
+                }
+            }
         }
     }
 

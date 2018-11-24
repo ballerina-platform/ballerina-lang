@@ -1803,17 +1803,15 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     private void analyzeReturnTaintedStatus(BLangInvokableNode invokableNode, SymbolEnv symbolEnv) {
         ignoredInvokableSymbol = null;
-        if (invokableNode.workers.isEmpty()) {
-            analyzeNode(invokableNode.body, symbolEnv);
-        } else {
-            analyzeWorkers(invokableNode.workers, true);
-        }
+        workerInteractionTaintedStatusMap = new HashMap<>();
+        analyzeNode(invokableNode.body, symbolEnv);
         if (stopAnalysis) {
             stopAnalysis = false;
         }
     }
 
     private void analyzeWorkers(List<BLangWorker> workers, boolean resetStatusMap) {
+        //TODO: (workers) remove
         if (resetStatusMap) {
             workerInteractionTaintedStatusMap = new HashMap<>();
         }

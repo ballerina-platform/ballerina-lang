@@ -153,6 +153,7 @@ import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MIN_VALUE;
+import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
 
 /**
  * @since 0.94
@@ -617,22 +618,30 @@ public class TypeChecker extends BLangNodeVisitor {
     private boolean isInTopLevelWorkerEnv() {
         // Two scenarios are handled here when a variable comes as an assignment and when it is defined as a variable
         // definition: i = <- W1 and var i = <- W1;
+        if (!env.enclInvokable.flagSet.contains(Flag.WORKER)) {
+            return false;
+        }
+
         boolean isTopLevel = false;
         switch (this.env.node.getKind()) {
             case BLOCK:
-                isTopLevel = this.env.enclEnv.node.getKind() == NodeKind.WORKER;
+                isTopLevel = env.enclInvokable.body == env.node;
+                break;
+            case EXPRESSION_STATEMENT:
+                isTopLevel = env.enclEnv.node == env.enclInvokable.body;
                 break;
             case VARIABLE:
-            case EXPRESSION_STATEMENT:
-                isTopLevel = this.env.enclEnv.enclEnv.node.getKind() == NodeKind.WORKER;
+                //TODO:(workers) fix
                 break;
         }
         return isTopLevel;
     }
 
     private boolean workerExists(SymbolEnv env, String workerName) {
-        BSymbol symbol = this.symResolver.lookupSymbol(env, new Name(workerName), SymTag.WORKER);
-        return (symbol != this.symTable.notFoundSymbol);
+        BSymbol symbol = this.symResolver.lookupSymbol(env, new Name(workerName), SymTag.VARIABLE);
+        return symbol != this.symTable.notFoundSymbol &&
+               symbol.type.tag == TypeTags.FUTURE &&
+               ((BFutureType) symbol.type).workerDerivative;
     }
 
     public void visit(BLangSimpleVarRef varRefExpr) {
@@ -2041,7 +2050,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BFutureType generateFutureType(BInvokableSymbol invocableSymbol) {
         BType retType = invocableSymbol.type.getReturnType();
-        return new BFutureType(TypeTags.FUTURE, retType, null);
+        boolean isWorkerStart = invocableSymbol.name.value.startsWith(WORKER_LAMBDA_VAR_PREFIX);
+        return new BFutureType(TypeTags.FUTURE, retType, null, isWorkerStart);
     }
 
     private void checkRequiredArgs(List<BLangExpression> requiredArgExprs, List<BType> requiredParamTypes) {
