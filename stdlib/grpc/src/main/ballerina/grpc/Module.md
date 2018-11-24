@@ -82,7 +82,7 @@ if (responseFromServer is (string, grpc:Headers)) {
     io:println("Response received : " + responseFromServer[0]);
 } else {
     // If an error is returned, print the error message.
-    io:println("Error while connecting grpc end-point : " + err.message);
+    io:println("Error while connecting grpc end-point : " + responseFromServer.message);
 }
 ```
 ### Server Streaming
