@@ -26,7 +26,7 @@ service serviceName on testEP {
 }
 service serviceEmptyName on testEP {
 
-    resource function test1 (http:Caller caller, http:Request req) {
+    resource function test1(http:Caller caller, http:Request req) {
         http:Response res = new;
         json responseJson = {"echo":"dispatched to empty service name"};
         res.setJsonPayload(responseJson);
@@ -36,7 +36,7 @@ service serviceEmptyName on testEP {
     @http:ResourceConfig {
         path:"/*"
     }
-    resource function proxy (http:Caller caller, http:Request req) {
+    resource function proxy(http:Caller caller, http:Request req) {
         http:Response res = new;
         json responseJson = {"echo":"dispatched to a proxy service"};
         res.setJsonPayload(responseJson);
@@ -46,10 +46,10 @@ service serviceEmptyName on testEP {
 
 service serviceWithNoAnnotation on testEP {
 
-    resource function test1 (http:Caller caller, http:Request req) {
+    resource function test1(http:Caller caller, http:Request req) {
         http:Response res = new;
         json responseJson = {"echo":"dispatched to a service without an annotation"};
         res.setJsonPayload(responseJson);
-        _ = caller -> respond(res);
+        _ = caller->respond(res);
     }
 }

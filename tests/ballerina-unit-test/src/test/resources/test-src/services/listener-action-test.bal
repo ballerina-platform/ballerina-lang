@@ -11,10 +11,10 @@ service echo on echoEP {
         methods:["GET"],
         path:"/message"
     }
-    resource function echo (http:Caller caller, http:Request req) {
+    resource function echo(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload(serviceLevelStringVar);
-        _ = caller -> respond(res);
+        _ = caller->respond(res);
         serviceLevelStringVar = "done";
     }
 }

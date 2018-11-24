@@ -22,19 +22,19 @@ service echo on echoEP {
         methods:["GET"],
         path:"/message"
     }
-    resource function echo (http:Caller caller, http:Request req) {
+    resource function echo(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = caller -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/message_worker"
     }
-    resource function echo_worker (http:Caller caller, http:Request req) {
+    resource function echo_worker(http:Caller caller, http:Request req) {
         worker w1 {
             http:Response res = new;
-            _ = caller -> respond(res);
+            _ = caller->respond(res);
         }
         worker w2 {
             int x = 0;
@@ -46,7 +46,7 @@ service echo on echoEP {
         methods:["POST"],
         path:"/setString"
     }
-    resource function setString (http:Caller caller, http:Request req) {
+    resource function setString(http:Caller caller, http:Request req) {
         http:Response res = new;
         string payloadData = "";
         var payload = req.getTextPayload();
@@ -56,14 +56,14 @@ service echo on echoEP {
             payloadData = payload;
         }
         serviceLevelStr = untaint payloadData;
-        _ = caller -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/getString"
     }
-    resource function getString (http:Caller caller, http:Request req) {
+    resource function getString(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload(serviceLevelStr);
         _ = caller -> respond(res);
@@ -72,47 +72,47 @@ service echo on echoEP {
     @http:ResourceConfig {
         methods:["GET"]
     }
-    resource function removeHeaders (http:Caller caller, http:Request req) {
+    resource function removeHeaders(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setHeader("header1", "wso2");
         res.setHeader("header2", "ballerina");
         res.setHeader("header3", "hello");
         res.removeAllHeaders();
-        _ = caller -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/getServiceLevelString"
     }
-    resource function getServiceLevelString (http:Caller caller, http:Request req) {
+    resource function getServiceLevelString(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload(serviceLevelStringVar);
-        _ = caller -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:constPath
     }
-    resource function connstValueAsAttributeValue (http:Caller caller, http:Request req) {
+    resource function connstValueAsAttributeValue(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("constant path test");
-        _ = caller -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/testEmptyResourceBody"
     }
-    resource function testEmptyResourceBody (http:Caller caller, http:Request req) {
+    resource function testEmptyResourceBody(http:Caller caller, http:Request req) {
     }
 
     @http:ResourceConfig {
         methods:["POST"],
         path:"/getFormParams"
     }
-    resource function getFormParams (http:Caller caller, http:Request req) {
+    resource function getFormParams(http:Caller caller, http:Request req) {
         var params = req.getFormParams();
         http:Response res = new;
         if (params is map<string>) {
@@ -130,20 +130,20 @@ service echo on echoEP {
             string errMsg = <string> params.detail().message;
             res.setTextPayload(errMsg);
         }
-        _ = caller -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["PATCH"],
         path:"/modify"
     }
-    resource function modify11 (http:Caller caller, http:Request req) {
+    resource function modify11(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.statusCode = 204;
-        _ = caller -> respond(res);
+        _ = caller->respond(res);
     }
 }
 
-function getConstPath() returns (string) {
+function getConstPath() returns(string) {
     return "/constantPath";
 }
