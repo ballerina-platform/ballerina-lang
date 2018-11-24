@@ -51,10 +51,10 @@ public type DurableTopicConsumer object {
     # + s - service data which should be attached to listner
     # + data - annotation data which is defined in the service
     public function __attach(service s, map<any> data) returns error? {
-        return self.registerListener(s, data);
+        return self.registerListener(s, data, self.consumerActions);
     }
 
-    extern function registerListener(service serviceType, map<any> data) returns error?;
+    extern function registerListener(service serviceType, map<any> data, DurableTopicCaller consumer) returns error?;
 
     extern function createSubscriber(Session session, string messageSelector);
 

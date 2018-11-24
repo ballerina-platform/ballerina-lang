@@ -48,7 +48,7 @@ public class MessageListenerHandler {
     public static void createAndRegister(Context context) {
         Struct queueConsumerBObject = BallerinaAdapter.getReceiverObject(context);
         Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
-        BMap<String, BValue> consumerConnector = (BMap<String, BValue>) context.getRefArgument(2);
+        BMap<String, BValue> consumerConnector = (BMap<String, BValue>) context.getRefArgument(3);
 
         Resource resource = JMSUtils.extractJMSResource(service);
 
@@ -59,7 +59,7 @@ public class MessageListenerHandler {
                 ((MessageConsumer) nativeData).setMessageListener(listener);
             } catch (JMSException e) {
                 BallerinaAdapter.throwBallerinaException("Error registering the message listener for service"
-                                                 + service.getPackage() + service.getName(), context, e);
+                        + service.getPackage() + service.getName(), context, e);
             }
         }
     }
