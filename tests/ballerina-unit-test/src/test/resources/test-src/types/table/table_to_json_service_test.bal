@@ -19,20 +19,18 @@ import ballerina/h2;
 import ballerina/io;
 import ballerina/http;
 
-endpoint http:NonListener testEP {
-    port:9090
-};
+listener http:MockServer testEP = new(9090);
 
 @http:ServiceConfig { 
     basePath: "/foo" 
 }
-service<http:Service> MyService bind testEP {
+service MyService on testEP {
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/bar1"
     }
-    myResource1 (endpoint caller, http:Request req) {
+    resource function myResource1 (http:Caller caller, http:Request req) {
         h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_DATA_TABLE_H2",
@@ -64,7 +62,7 @@ service<http:Service> MyService bind testEP {
         methods: ["GET"],
         path: "/bar2"
     }
-    myResource2 (endpoint caller, http:Request req) {
+    resource function myResource2 (http:Caller caller, http:Request req) {
         h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_DATA_TABLE_H2",
