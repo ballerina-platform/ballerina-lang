@@ -509,3 +509,8 @@ function createRetryClient(string url, ClientEndpointConfig configuration) retur
         }
     }
 }
+
+function createClient(string url, ClientEndpointConfig config) returns Client|error {
+    HttpClient simpleClient =  new(url, config);
+    return <Client>simpleClient;
+}

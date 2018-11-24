@@ -8,7 +8,7 @@ service hello on mockEP {
         path:"/protocol",
         methods:["GET"]
     }
-    resource function protocol (http:Caller caller, http:Request req) {
+    resource function protocol(http:Caller caller, http:Request req) {
         http:Response res = new;
         //TODO:Added temporarily. To be fixed
         //json connectionJson = {protocol:caller.protocol};
@@ -22,7 +22,7 @@ service hello on mockEP {
         path:"/local",
         methods:["GET"]
     }
-    resource function local (http:Caller caller, http:Request req) {
+    resource function local(http:Caller caller, http:Request req) {
         http:Response res = new;
         //TODO:Added temporarily. To be fixed
         //json connectionJson = {local:{host:caller.local.host, port:caller.local.port}};

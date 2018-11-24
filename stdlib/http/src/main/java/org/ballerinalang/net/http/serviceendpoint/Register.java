@@ -38,8 +38,6 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 
-import static org.ballerinalang.net.http.HttpConstants.COLON;
-
 /**
  * Get the ID of the connection.
  *
