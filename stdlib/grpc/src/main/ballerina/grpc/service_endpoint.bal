@@ -13,8 +13,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/system;
-import ballerina/io;
 
 # TODO: check
 # Represents service endpoint where one or more services can be registered. so that ballerina program can offer
@@ -26,30 +24,18 @@ public type Server object {
     *AbstractListener;
 
     public function __start() returns error? {
-        io:println("Calling start.....");
         return self.start();
     }
 
     public function __stop() returns error? {
-        io:println("Calling stop.....");
         return self.stop();
     }
 
     public function __attach(service s, map annotationData) returns error? {
-        io:println("Calling attach.....");
         return self.register(s, annotationData);
     }
 
-    //@readonly public Remote remoteDetails = {};
-    //@readonly public Local local = {};
-    //@readonly public string protocol = "";
-
-    //private string instanceId;
-
     public function __init(ServiceEndpointConfiguration config) {
-        io:println("Calling init.....");
-        //self.instanceId = system:uuid();
-        //self.config = config;
         self.init(config);
     }
 
@@ -57,8 +43,6 @@ public type Server object {
     #
     # + config - The ServiceEndpointConfiguration of the endpoint.
     public extern function init(ServiceEndpointConfiguration config);
-
-    //public extern function initEndpoint() returns error?;
 
     # Gets called every time a service attaches itself to this endpoint - also happens at module init time.
     #
@@ -69,33 +53,8 @@ public type Server object {
     # Starts the registered service.
     public extern function start() returns error?;
 
-    # Returns the connector that client code uses.
-    #
-    # + return - The connector that client code uses
-    public extern function getCallerActions() returns Caller;
-
     # Stops the registered service.
     public extern function stop() returns error?;
-};
-
-# Presents a read-only view of the remote address.
-#
-# + host - The remote host name/IP
-# + port - The remote port
-public type Remote record {
-    @readonly string host = "";
-    @readonly int port = 0;
-    !...
-};
-
-# Presents a read-only view of the local address.
-#
-# + host - The local host name/IP
-# + port - The local port
-public type Local record {
-    @readonly string host = "";
-    @readonly int port = 0;
-    !...
 };
 
 # Represents the gRPC server endpoint configuration.

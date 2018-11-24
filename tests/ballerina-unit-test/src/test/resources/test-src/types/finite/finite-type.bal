@@ -129,9 +129,10 @@ type Channel object {
 
     public State? b;
 
-    new (b = "off", boolean a = true){
+    function __init (State b = "off", boolean a = true){
+        self.b = b;
         State o =  "on";
-        if(b == o) {
+        if(self.b == o) {
            int i = 4;
         }
     }
