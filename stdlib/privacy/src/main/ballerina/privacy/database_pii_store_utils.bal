@@ -28,7 +28,7 @@ type PiiData record {
 # + idColumn - column name used to store pseudonymized identifier
 # + piiColumn - column name used to store PII
 # + return - insert query
-function buildInsertQuery(string tableName, string idColumn, string piiColumn) returns string {
+function buildInsertQuery (string tableName, string idColumn, string piiColumn) returns string {
     return string `INSERT INTO {{tableName}} ({{idColumn}}, {{piiColumn}}) VALUES (?, ?)`;
 }
 
@@ -38,7 +38,7 @@ function buildInsertQuery(string tableName, string idColumn, string piiColumn) r
 # + idColumn - column name used to store pseudonymized identifier
 # + piiColumn - column name used to store PII
 # + return - select query
-function buildSelectQuery(string tableName, string idColumn, string piiColumn) returns string {
+function buildSelectQuery (string tableName, string idColumn, string piiColumn) returns string {
     return string `SELECT {{piiColumn}} FROM {{tableName}} WHERE {{idColumn}} = ?`;
 }
 
@@ -47,7 +47,7 @@ function buildSelectQuery(string tableName, string idColumn, string piiColumn) r
 # + tableName - table name used to store PII
 # + idColumn - column name used to store pseudonymized identifier
 # + return - delete query
-function buildDeleteQuery(string tableName, string idColumn) returns string {
+function buildDeleteQuery (string tableName, string idColumn) returns string {
     return string `DELETE FROM {{tableName}} WHERE {{idColumn}} = ?`;
 }
 
@@ -56,7 +56,7 @@ function buildDeleteQuery(string tableName, string idColumn) returns string {
 # + tableName - table name used to store PII
 # + idColumn - column name used to store pseudonymized identifier
 # + piiColumn - column name used to store PII
-function validateFieldName(string tableName, string idColumn, string piiColumn) {
+function validateFieldName (string tableName, string idColumn, string piiColumn) {
     if (tableName == "") {
         error err = error("Table name is required");
         panic err;
@@ -76,7 +76,7 @@ function validateFieldName(string tableName, string idColumn, string piiColumn) 
 # + id - pseudonymized identifier getting inserted
 # + queryResult - results of the insert query
 # + return - pseudonymized identifier if insert was successful, error if insert failed
-function processInsertResult(string id, int|error queryResult) returns string|error {
+function processInsertResult (string id, int|error queryResult) returns string|error {
     if (queryResult is error) {
         return queryResult;
     }
@@ -93,7 +93,7 @@ function processInsertResult(string id, int|error queryResult) returns string|er
 # + id - pseudonymized identifier getting selected
 # + queryResult - results of the select query
 # + return - personally identifiable information (PII) if select was successful, error if select failed
-function processSelectResult(string id, table<PiiData>|error queryResult) returns string|error {
+function processSelectResult (string id, table<PiiData>|error queryResult) returns string|error {
     if (queryResult is error) {
         return queryResult;
     }
@@ -112,7 +112,7 @@ function processSelectResult(string id, table<PiiData>|error queryResult) return
 # + id - pseudonymized identifier getting deleted
 # + queryResult - results of the delete query
 # + return - nil if deletion was successful, error if deletion failed
-function processDeleteResult(string id, int|error queryResult) returns error? {
+function processDeleteResult (string id, int|error queryResult) returns error? {
     if (queryResult is error) {
         return queryResult;
     }
