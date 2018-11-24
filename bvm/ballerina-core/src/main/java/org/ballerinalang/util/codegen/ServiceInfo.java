@@ -24,7 +24,9 @@ import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -47,7 +49,8 @@ public class ServiceInfo implements AttributeInfoPool {
     public TypeRefCPEntry listenerType;
     public UTF8CPEntry listenerName;
 
-    private Map<String, FunctionInfo> resourceInfoMap = new HashMap<>();
+    private Map<String, FunctionInfo> resourceInfoMap;
+    private List<String> resourceNameList = new ArrayList<>();
 
     private PackageInfo packageInfo;
 
@@ -74,11 +77,17 @@ public class ServiceInfo implements AttributeInfoPool {
     }
 
     public FunctionInfo[] getResourceInfoEntries() {
+        if (resourceInfoMap == null) {
+            resourceInfoMap = new HashMap<>();
+            for (String name : resourceNameList) {
+                resourceInfoMap.put(name, packageInfo.getFunctionInfo(name));
+            }
+        }
         return resourceInfoMap.values().toArray(new FunctionInfo[0]);
     }
 
-    public void addResourceInfo(String resourceName, FunctionInfo resourceInfo) {
-        resourceInfoMap.put(resourceName, resourceInfo);
+    public void addResourceInfo(String resourceName) {
+        resourceNameList.add(resourceName);
     }
 
     public FunctionInfo getResourceInfo(String resourceName) {

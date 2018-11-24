@@ -2365,8 +2365,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Create resource info entries for all resources
         ((BObjectTypeSymbol) serviceNode.symbol.type.tsymbol).attachedFuncs.stream()
                 .filter(func -> Symbols.isFlagOn(func.symbol.flags, Flags.RESOURCE)).forEach(
-                fuc -> serviceInfo.resourceInfoMap.put(fuc.symbol.getName().value,
-                        currentPkgInfo.functionInfoMap.get(fuc.symbol.getName().value)));
+                fuc -> serviceInfo.resourcesCPIndex.add(addUTF8CPEntry(currentPkgInfo, fuc.symbol.getName().value)));
         // Add documentation attributes
 
         addDocAttachmentAttrInfo(serviceNode.symbol.markdownDocumentation, serviceInfo);

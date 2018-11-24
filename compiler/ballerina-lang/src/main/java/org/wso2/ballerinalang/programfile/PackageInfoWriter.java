@@ -406,10 +406,9 @@ public class PackageInfoWriter {
 
     private static void writeResourceInfo(DataOutputStream dataOutStream,
                                           ServiceInfo serviceInfo) throws IOException {
-        FunctionInfo[] resourceInfoEntries = serviceInfo.resourceInfoMap.values().toArray(new FunctionInfo[0]);
-        dataOutStream.writeShort(resourceInfoEntries.length);
-        for (FunctionInfo resourceInfo : resourceInfoEntries) {
-            dataOutStream.writeInt(resourceInfo.nameCPIndex);
+        dataOutStream.writeShort(serviceInfo.resourcesCPIndex.size());
+        for (Integer resourceNameCPIndex : serviceInfo.resourcesCPIndex) {
+            dataOutStream.writeInt(resourceNameCPIndex);
         }
     }
 

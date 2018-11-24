@@ -896,23 +896,17 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangTernaryExpr ternaryExpr) {
         BType condExprType = checkExpr(ternaryExpr.expr, env, this.symTable.booleanType);
 
-        SymbolEnv thenEnv = env;
-        Map<BVarSymbol, BType> typeGuards = getTypeGuards(ternaryExpr.expr);
-        if (!typeGuards.isEmpty()) {
-            thenEnv = SymbolEnv.createExpressionEnv(ternaryExpr, env);
-            for (Entry<BVarSymbol, BType> entry : typeGuards.entrySet()) {
-                BVarSymbol originalVarSymbol = entry.getKey();
-                BVarSymbol varSymbol = new BVarSymbol(0, originalVarSymbol.name, thenEnv.scope.owner.pkgID,
-                        entry.getValue(), this.env.scope.owner);
-                symbolEnter.defineShadowedSymbol(ternaryExpr.pos, varSymbol, thenEnv);
-
-                // Cache the type guards, to be reused at the desugar.
-                ternaryExpr.typeGuards.put(originalVarSymbol, varSymbol);
-            }
+        SymbolEnv thenEnv = SymbolEnv.createExpressionEnv(ternaryExpr.thenExpr, env);
+        SymbolEnv elseEnv = SymbolEnv.createExpressionEnv(ternaryExpr.elseExpr, env);
+        Map<BVarSymbol, BType> thenTypeGuards = getTypeGuards(ternaryExpr.expr);
+        if (!thenTypeGuards.isEmpty()) {
+            defineThenTypeGuards(ternaryExpr, thenEnv, thenTypeGuards);
+            defineElseTypeGuards(thenTypeGuards, ternaryExpr, elseEnv);
         }
 
         BType thenType = checkExpr(ternaryExpr.thenExpr, thenEnv, expType);
-        BType elseType = checkExpr(ternaryExpr.elseExpr, env, expType);
+        BType elseType = checkExpr(ternaryExpr.elseExpr, elseEnv, expType);
+
         if (condExprType == symTable.semanticError || thenType == symTable.semanticError
                 || elseType == symTable.semanticError) {
             resultType = symTable.semanticError;
@@ -2613,5 +2607,32 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         return type.tag == TypeTags.ARRAY && isLikeAnydata(((BArrayType) type).eType);
+    }
+
+    private void defineThenTypeGuards(BLangTernaryExpr ternaryExpr, SymbolEnv thenEnv,
+                                      Map<BVarSymbol, BType> thenTypeGuards) {
+        for (Entry<BVarSymbol, BType> entry : thenTypeGuards.entrySet()) {
+            BVarSymbol originalVarSymbol = entry.getKey();
+            BVarSymbol varSymbol = new BVarSymbol(0, originalVarSymbol.name, thenEnv.scope.owner.pkgID,
+                    entry.getValue(), this.env.scope.owner);
+            symbolEnter.defineShadowedSymbol(ternaryExpr.pos, varSymbol, thenEnv);
+
+            // Cache the type guards, to be reused at the desugar.
+            ternaryExpr.ifTypeGuards.put(originalVarSymbol, varSymbol);
+        }
+    }
+
+    private void defineElseTypeGuards(Map<BVarSymbol, BType> typeGuardsSet, BLangTernaryExpr ternaryExpr,
+                                      SymbolEnv elseEnv) {
+        for (Entry<BVarSymbol, BType> entry : typeGuardsSet.entrySet()) {
+            BVarSymbol originalVarSymbol = entry.getKey();
+            BType remainingType = types.getRemainingType(originalVarSymbol.type, entry.getValue());
+            BVarSymbol varSymbol = new BVarSymbol(0, originalVarSymbol.name, elseEnv.scope.owner.pkgID, remainingType,
+                    this.env.scope.owner);
+            symbolEnter.defineShadowedSymbol(ternaryExpr.expr.pos, varSymbol, elseEnv);
+
+            // Cache the type guards, to be reused at the desugar.
+            ternaryExpr.elseTypeGuards.put(originalVarSymbol, varSymbol);
+        }
     }
 }

@@ -34,20 +34,21 @@ public type Filter abstract object {
     public function filterResponse(Response response, FilterContext context) returns boolean;
 };
 
+// TODO: validate
 # Representation of request filter Context.
 #
-# + serviceType - Type of the service
+# + serviceType - The service
 # + serviceName - Name of the service
 # + resourceName - Name of the resource
 # + attributes - Attributes to share between filters
 public type FilterContext object {
 
-    @readonly public typedesc serviceType;
+    @readonly public service serviceType;
     @readonly public string serviceName = "";
     @readonly public string resourceName = "";
     @readonly public map attributes = {};
 
-    public function __init(typedesc serviceType, string serviceName, string resourceName) {
+    public function __init(service serviceType, string serviceName, string resourceName) {
         self.serviceType = serviceType;
         self.serviceName = serviceName;
         self.resourceName = resourceName;
