@@ -943,9 +943,15 @@ public class CPU {
         }
 
         if (!checkIsLikeType(valueToBeStamped, targetType)) {
-            BError error = BLangVMErrors.createError(ctx,
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_STAMP_OPERATION,
-                            valueToBeStamped.getType(), targetType));
+            BError error;
+            if (valueToBeStamped != null) {
+                error = BLangVMErrors.createError(ctx,
+                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_STAMP_OPERATION,
+                                valueToBeStamped.getType(), targetType));
+            } else {
+                error = BLangVMErrors.createError(ctx,
+                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.CANNOT_STAMP_NULL, targetType));
+            }
             sf.refRegs[k] = error;
             return;
         }
