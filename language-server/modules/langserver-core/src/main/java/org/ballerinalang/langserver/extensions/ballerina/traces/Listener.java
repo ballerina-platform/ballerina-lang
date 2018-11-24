@@ -16,7 +16,6 @@
 
 package org.ballerinalang.langserver.extensions.ballerina.traces;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.slf4j.Logger;
@@ -55,14 +54,12 @@ public class Listener {
                 logReader = new BufferedReader(new InputStreamReader(dataSocket.getInputStream(), "UTF-8"));
                 String line;
                 while ((line = logReader.readLine()) != null) {
-                    JsonElement parsedTraceLog = new JsonParser().parse(line);
-                    JsonObject rawTrace = parsedTraceLog.getAsJsonObject();
+                    JsonObject record = new JsonParser().parse(line).getAsJsonObject();
                     String rawMessage;
-                    JsonObject record = rawTrace.get("record").getAsJsonObject();
                     try {
                         rawMessage = record.get("message").getAsString();
                     } catch (Exception e) {
-                        rawMessage = parsedTraceLog.getAsString();
+                        rawMessage = "";
                     }
                     TraceRecord traceRecord = new TraceRecord(LogParser.fromString(rawMessage), record, rawMessage);
                     ballerinaTraceService.pushLogToClient(traceRecord);
