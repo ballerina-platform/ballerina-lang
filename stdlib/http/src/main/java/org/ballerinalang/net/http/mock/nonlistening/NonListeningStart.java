@@ -44,5 +44,4 @@ public class NonListeningStart extends org.ballerinalang.net.http.serviceendpoin
     public void execute(Context context) {
         // don't want to open a port to listen, hence nothing to do
     }
-
 }

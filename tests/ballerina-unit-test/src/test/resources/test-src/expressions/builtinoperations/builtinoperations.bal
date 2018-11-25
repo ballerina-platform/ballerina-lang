@@ -38,3 +38,18 @@ function testWithCalc() returns (boolean, boolean, boolean) {
     boolean bool = f.isInfinite();
     return (bool, f.isFinite(), f.isNaN());
 }
+
+function testModWithDivisorAsZero() returns (boolean, boolean, boolean) {
+    float a = 10.0 % 0.0;
+    return (a.isNaN(), a.isInfinite(), a.isFinite());
+}
+
+function testModWithDivisorAsFinite() returns (boolean, boolean, boolean) {
+    float a = 10.0 % 3.0;
+    return (a.isNaN(), a.isInfinite(), a.isFinite());
+}
+
+function testModZeroByZero() returns (boolean, boolean, boolean) {
+    float a = 0.0 % 0.0;
+    return (a.isNaN(), a.isInfinite(), a.isFinite());
+}

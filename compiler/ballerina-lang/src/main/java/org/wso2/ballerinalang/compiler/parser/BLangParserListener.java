@@ -239,7 +239,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean isFieldAnalyseRequired = (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext
                 || ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext)
                 || ctx.parent.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
-        this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, true, false, false, true);
+        this.pkgBuilder
+                .addObjectType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, false, false, false, true);
     }
 
     /**
@@ -560,11 +561,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-
-        boolean publicVar = ctx.PUBLIC() != null;
-        boolean listenerVar = ctx.LISTENER() != null;
-        this.pkgBuilder.addGlobalVariable(getCurrentPos(ctx), getWS(ctx),
-                ctx.Identifier().getText(), ctx.expression() != null, publicVar, listenerVar);
+        boolean isPublic = ctx.PUBLIC() != null;
+        boolean isFinal = ctx.FINAL() != null;
+        boolean isDeclaredWithVar = ctx.VAR() != null;
+        boolean isExpressionAvailable = ctx.expression() != null;
+        boolean isListenerVar = ctx.LISTENER() != null;
+        this.pkgBuilder.addGlobalVariable(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), isPublic,
+                isFinal, isDeclaredWithVar, isExpressionAvailable, isListenerVar);
     }
 
     @Override
@@ -929,19 +932,20 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
+        boolean isFinal = ctx.FINAL() != null;
         boolean isDeclaredWithVar = ctx.VAR() != null;
-        boolean exprAvailable = ctx.ASSIGN() != null;
+        boolean isExpressionAvailable = ctx.expression() != null;
 
         if (ctx.Identifier() != null) {
             this.pkgBuilder.addSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
-                    exprAvailable, isDeclaredWithVar);
+                    isFinal, isDeclaredWithVar, isExpressionAvailable);
         } else if (ctx.bindingPattern().Identifier() != null) {
             this.pkgBuilder.addSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-                    ctx.bindingPattern().Identifier().getText(), exprAvailable, isDeclaredWithVar);
+                    ctx.bindingPattern().Identifier().getText(), isFinal, isDeclaredWithVar, isExpressionAvailable);
         } else if (ctx.bindingPattern().structuredBindingPattern().recordBindingPattern() != null) {
-            this.pkgBuilder.addRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx), isDeclaredWithVar);
+            this.pkgBuilder.addRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx), isFinal, isDeclaredWithVar);
         } else {
-            this.pkgBuilder.addTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx), isDeclaredWithVar);
+            this.pkgBuilder.addTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx), isFinal, isDeclaredWithVar);
         }
     }
 

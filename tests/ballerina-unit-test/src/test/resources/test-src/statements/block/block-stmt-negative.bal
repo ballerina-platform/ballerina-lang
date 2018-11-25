@@ -63,16 +63,16 @@ function testCommentAfterReturnStmt() returns (int) {
     return x;
 }
 
-function testUnreachableTryCatch() returns (string){
-    string a;
+function testUnreachableTrapExpression() returns (string){
+    string a = "";
     if (2 > 1) {
         return "one";
     } else {
         return "two";
     }
-    try {
-        a = "abc";
-    } catch (error e) {
+    var newVar = trap "abc";
+
+    if newVar is error {
         return "catch1";
     }
     return a;
@@ -96,16 +96,16 @@ function testUnreachableBreak() returns (string){
 
 public type testError record {
     string message;
-    error? cause;
-    string code;
+    error cause;
+    string code?;
     !...
 };
 
 function testUnreachableThrow (int value) returns (string) {
     if (value > 10) {
-        testerror tError = error("error", code:"test");
+        testError tError = {message: "error", cause: error("errorMsg", {code:"test"})};
         return "unreachable throw";
-        panic tError;
+        panic tError.cause;
     }
     return "done";
 }
@@ -113,9 +113,9 @@ function testUnreachableThrow (int value) returns (string) {
 function testRedeclareFunctionArgument (int value) returns (string) {
     int value = 11;
     if (value > 10) {
-        testerror tError = error("error", { code: "test" });
+        testError tError = {message: "error", cause: error("errorMsg", {code:"test"})};
         return "unreachable throw";
-        panic tError;
+        panic tError.cause;
     }
     return "done";
 }

@@ -1273,7 +1273,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             if (statement == varDefNode) {
                 break;
             }
-            if (statement.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+            if (statement.getKind() != NodeKind.VARIABLE_DEF) {
                 dlog.error(varDefNode.pos, DiagnosticCode.INVALID_ENDPOINT_DECLARATION);
                 break;
             }

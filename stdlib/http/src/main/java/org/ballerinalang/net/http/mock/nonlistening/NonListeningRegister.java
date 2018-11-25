@@ -59,12 +59,12 @@ public class NonListeningRegister extends org.ballerinalang.net.http.serviceendp
         HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
         WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
 
-        // TODO: Check if this is valid.
-        // TODO: In HTTP to WebSocket upgrade register WebSocket service in WebSocketServiceRegistry
-        if (HttpConstants.HTTP_SERVICE_ENDPOINT_NAME.equals(service.getEndpointName())) {
+        //TODO:This needs to be fixed properly once there's a way to identify the listener type
+        String listenerType = service.getServiceInfo().listenerType.getTypeSig();
+        if (HttpConstants.HTTP_MOCK_SERVER_ENDPOINT_NAME.equals(listenerType)) {
             httpServicesRegistry.registerService(service);
         }
-        if (WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(service.getEndpointName())) {
+        if (WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(listenerType)) {
             WebSocketService webSocketService = new WebSocketService(service);
             webSocketServicesRegistry.registerService(webSocketService);
         }

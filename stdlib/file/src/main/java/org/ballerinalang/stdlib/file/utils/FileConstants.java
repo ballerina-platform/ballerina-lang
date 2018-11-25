@@ -23,22 +23,13 @@ package org.ballerinalang.stdlib.file.utils;
  *
  * @since 0.94.1
  */
-public class Constants {
+public class FileConstants {
     /**
      * package path of the file.
      */
     public static final String FILE_PACKAGE = "ballerina/file";
-    /**
-     * Specifies the struct definition of th path.
-     */
-    public static final String PATH_STRUCT = "Path";
-    /**
-     * Defines the path value.
-     */
-    public static final String PATH_DEFINITION_NAME = "PathDef";
 
     // FileEvent struct field names
-
     public static final String FILE_EVENT_NAME = "name";
 
     public static final String FILE_EVENT_OPERATION = "operation";

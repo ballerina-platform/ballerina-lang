@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.connector.api;
 
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ServiceInfo;
 
 import java.util.List;
@@ -74,4 +75,6 @@ public interface Service {
      * @return version of the package.
      */
     String getPackageVersion();
+
+    BValue getBValue();
 }

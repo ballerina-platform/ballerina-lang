@@ -178,16 +178,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitObjectBody(BallerinaParser.ObjectBodyContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#objectMember}.
-	 * @param ctx the parse tree
-	 */
-	void enterObjectMember(BallerinaParser.ObjectMemberContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#objectMember}.
-	 * @param ctx the parse tree
-	 */
-	void exitObjectMember(BallerinaParser.ObjectMemberContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#typeReference}.
 	 * @param ctx the parse tree
 	 */
