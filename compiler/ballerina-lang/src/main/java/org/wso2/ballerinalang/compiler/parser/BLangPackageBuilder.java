@@ -2459,20 +2459,6 @@ public class BLangPackageBuilder {
         transaction.retryCount = (BLangExpression) exprNodeStack.pop();
     }
 
-    // todo: remove
-    void addCommittedFuncPointer(Set<Whitespace> ws) {
-        BLangTransaction transaction = (BLangTransaction) transactionNodeStack.peek();
-        transaction.addWS(ws);
-        transaction.onCommitFunction = (BLangExpression) exprNodeStack.pop();
-    }
-
-    // todo: remove
-    void addAbortedFuncPointerBlock(Set<Whitespace> ws) {
-        BLangTransaction transaction = (BLangTransaction) transactionNodeStack.peek();
-        transaction.addWS(ws);
-        transaction.onAbortFunction = (BLangExpression) exprNodeStack.pop();
-    }
-
     void startIfElseNode(DiagnosticPos pos) {
         BLangIf ifNode = (BLangIf) TreeBuilder.createIfElseStatementNode();
         ifNode.pos = pos;

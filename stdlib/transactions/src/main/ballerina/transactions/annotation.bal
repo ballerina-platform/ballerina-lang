@@ -33,8 +33,8 @@
 # + oncommitFunc - Function to execute when transaction committed.
 # + onabortFunc - Function to execute when transaction aborted.
 public type TransactionParticipantConfig record {
-    function (string) oncommitFunc?;
-    function (string) onabortFunc?;
+    function (string) oncommit?;
+    function (string) onabort?;
     !...
 };
 

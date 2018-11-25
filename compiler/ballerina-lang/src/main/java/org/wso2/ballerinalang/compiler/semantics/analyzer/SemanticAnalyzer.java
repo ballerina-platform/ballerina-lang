@@ -1478,26 +1478,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             typeChecker.checkExpr(transactionNode.retryCount, env, symTable.intType);
             checkRetryStmtValidity(transactionNode.retryCount);
         }
-
-        // TODO: 10/29/18 remove
-        if (transactionNode.onCommitFunction != null) {
-            typeChecker.checkExpr(transactionNode.onCommitFunction, env, symTable.noType);
-            if (transactionNode.onCommitFunction.type.tag == TypeTags.INVOKABLE) {
-                ((BInvokableSymbol) ((BLangSimpleVarRef) transactionNode.onCommitFunction).symbol)
-                        .isTransactionHandler = true;
-            }
-            checkTransactionHandlerValidity(transactionNode.onCommitFunction);
-        }
-
-        // TODO: 10/29/18 remove
-        if (transactionNode.onAbortFunction != null) {
-            typeChecker.checkExpr(transactionNode.onAbortFunction, env, symTable.noType);
-            if (transactionNode.onAbortFunction.type.tag == TypeTags.INVOKABLE) {
-                ((BInvokableSymbol) ((BLangSimpleVarRef) transactionNode.onAbortFunction).symbol)
-                        .isTransactionHandler = true;
-            }
-            checkTransactionHandlerValidity(transactionNode.onAbortFunction);
-        }
     }
 
     @Override

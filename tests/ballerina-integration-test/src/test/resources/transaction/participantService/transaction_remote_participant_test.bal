@@ -29,8 +29,8 @@ service<http:Service> hello bind { port: 8889 } {
         transactionInfectable: true
     }
     @transactions:Participant {
-        oncommitFunc: baz,
-        onabortFunc: bar
+        oncommit: baz,
+        onabort: bar
     }
     sayHello(endpoint caller, http:Request req) {
         log:printInfo("in-remote: ");

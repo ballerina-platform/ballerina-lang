@@ -45,6 +45,6 @@ public class TransactionConstants {
     public static final String REGISTER_AT_URL = "registerAtURL";
 
     public static final String ANN_NAME_TRX_PARTICIPANT_CONFIG = "Participant";
-    public static final String ANN_NAME_TRX_ONCOMMIT_FUNC = "oncommitFunc";
-    public static final String ANN_NAME_TRX_ONABORT_FUNC = "onabortFunc";
+    public static final String ANN_NAME_TRX_ONCOMMIT_FUNC = "oncommit";
+    public static final String ANN_NAME_TRX_ONABORT_FUNC = "onabort";
 }

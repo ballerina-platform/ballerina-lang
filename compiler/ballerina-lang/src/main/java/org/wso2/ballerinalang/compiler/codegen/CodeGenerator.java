@@ -3011,18 +3011,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             retryCountRegIndex = transactionNode.retryCount.regIndex;
         }
 
-        Operand committedFuncRegIndex = new RegIndex(-1, TypeTags.INVOKABLE);
-        if (transactionNode.onCommitFunction != null) {
-            committedFuncRegIndex.value = getFuncRefCPIndex(
-                    (BInvokableSymbol) ((BLangFunctionVarRef) transactionNode.onCommitFunction).symbol);
-        }
-
-        Operand abortedFuncRegIndex = new RegIndex(-1, TypeTags.INVOKABLE);
-        if (transactionNode.onAbortFunction != null) {
-            abortedFuncRegIndex.value = getFuncRefCPIndex(
-                    (BInvokableSymbol) ((BLangFunctionVarRef) transactionNode.onAbortFunction).symbol);
-        }
-
         Operand transStmtAbortEndAddr = getOperand(-1);
         Operand transStmtFailEndAddr = getOperand(-1);
         Instruction gotoAbortTransBlockEnd = InstructionFactory.get(InstructionCodes.GOTO, transStmtAbortEndAddr);
@@ -3034,9 +3022,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         failInstructions.push(gotoFailTransBlockEnd);
 
         // Start transaction.
+        Operand minusOne = getOperand(-1);
         Operand transactionType = getOperand(Transactions.TransactionType.INITIATOR.value);
         this.emit(InstructionCodes.TR_BEGIN, transactionType, transactionIndexOperand, retryCountRegIndex,
-                committedFuncRegIndex, abortedFuncRegIndex);
+                minusOne, minusOne);
         Operand retryInstructionAddress = getOperand(nextIP());
 
         // Retry transaction.

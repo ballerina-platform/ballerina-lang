@@ -36,9 +36,6 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     public List<BLangBlockStmt> committedBodyList = new ArrayList<>();
     public List<BLangBlockStmt> abortedBodyList = new ArrayList<>();
     public BLangExpression retryCount;
-    // TODO: 10/29/18 remove below 2 lines as they are replaced by aborted, committed blocks.
-    public BLangExpression onCommitFunction;
-    public BLangExpression onAbortFunction;
 
     public BLangTransaction() {
     }
@@ -67,16 +64,6 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     }
 
     @Override
-    public ExpressionNode getOnCommitFunction() {
-        return onCommitFunction;
-    }
-
-    @Override
-    public ExpressionNode getOnAbortFunction() {
-        return onAbortFunction;
-    }
-
-    @Override
     public void setTransactionBody(BlockNode body) {
         this.transactionBody = (BLangBlockStmt) body;
     }
@@ -89,16 +76,6 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     @Override
     public void setRetryCount(ExpressionNode retryCount) {
         this.retryCount = (BLangExpression) retryCount;
-    }
-
-    @Override
-    public void setOnCommitFunction(ExpressionNode committedFunction) {
-        this.onCommitFunction = (BLangExpression) committedFunction;
-    }
-
-    @Override
-    public void setOnAbortFunction(ExpressionNode abortedFunction) {
-        this.onAbortFunction = (BLangExpression) abortedFunction;
     }
 
     @Override
@@ -125,8 +102,6 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     public String toString() {
         return "Transaction: {" + transactionBody + "} "
                 + (onRetryBody != null ? " failed {" + String.valueOf(onRetryBody) + "}" : "")
-                + (retryCount != null ? " retry (" + retryCount + ")" : "")
-                + (onCommitFunction != null ? " committed (" + onCommitFunction + ")" : "")
-                + (onAbortFunction != null ? " aborted (" + onAbortFunction + ")" : "");
+                + (retryCount != null ? " retry (" + retryCount + ")" : "");
     }
 }

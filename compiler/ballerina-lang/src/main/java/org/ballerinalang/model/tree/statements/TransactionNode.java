@@ -31,20 +31,11 @@ public interface TransactionNode extends StatementNode {
 
     ExpressionNode getRetryCount();
 
-    ExpressionNode getOnCommitFunction();
-
-    ExpressionNode getOnAbortFunction();
-
     void setTransactionBody(BlockNode body);
 
     void setOnRetryBody(BlockNode body);
 
     void setRetryCount(ExpressionNode retryCount);
-
-    // todo: remove below 2
-    void setOnCommitFunction(ExpressionNode onCommitFunction);
-
-    void setOnAbortFunction(ExpressionNode onAbortFunction);
 
     void addCommittedBody(BlockNode committedBlock);
 

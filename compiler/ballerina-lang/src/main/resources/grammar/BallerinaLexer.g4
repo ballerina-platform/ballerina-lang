@@ -127,9 +127,6 @@ ABORT       : 'abort' ;
 RETRY       : 'retry' ;
 ONRETRY     : 'onretry' ;
 RETRIES     : 'retries' ;
-// todo: remove ONABORT and ONCOMMIT as they are replaced by COMMITTED and ABORTED blocks.
-ONABORT     : 'onabort' ;
-ONCOMMIT    : 'oncommit' ;
 COMMITTED   : 'committed' ;
 ABORTED     : 'aborted' ;
 LENGTHOF    : 'lengthof' ;

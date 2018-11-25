@@ -22,8 +22,8 @@ string S = "";
 
 
 @transactions:Participant {
-    oncommitFunc:commitFunc,
-    onabortFunc:abortFunc
+    oncommit:commitFunc,
+    onabort:abortFunc
 }
 public function participantFoo() {
     S = S + " in-participantFoo";

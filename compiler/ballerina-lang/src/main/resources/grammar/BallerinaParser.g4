@@ -659,8 +659,6 @@ transactionClause
 // todo: remove oncommited and onabort statements
 transactionPropertyInitStatement
     :   retriesStatement
-    |   oncommitStatement
-    |   onabortStatement
     ;
 
 transactionPropertyInitStatementList
@@ -693,14 +691,6 @@ retryStatement
 
 retriesStatement
     :   RETRIES ASSIGN expression
-    ;
-// todo: remove
-oncommitStatement
-    :   ONCOMMIT ASSIGN expression
-    ;
-// todo: remove
-onabortStatement
-    :   ONABORT ASSIGN expression
     ;
 
 namespaceDeclarationStatement
