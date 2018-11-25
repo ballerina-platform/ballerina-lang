@@ -112,6 +112,7 @@ public class FormattingTest {
                 {"expectedCompilationUnitMultiEOF.bal", "compilationUnitMultiEOF.bal"},
                 {"expectedAnnotation.bal", "annotation.bal"},
                 {"expectedArrowExpr.bal", "arrowExpr.bal"},
+                {"expectedAsyncExpr.bal", "asyncExpr.bal"},
         };
     }
 
