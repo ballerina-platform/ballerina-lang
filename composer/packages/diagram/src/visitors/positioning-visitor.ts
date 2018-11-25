@@ -1,7 +1,7 @@
-import { ASTKindChecker, CompilationUnit, Function, Visitor } from "@ballerina/ast-model";
+import { ASTKindChecker, Block, CompilationUnit, Function, Visitor } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
-import { CompilationUnitViewState, FunctionViewState } from "../view-model/index";
+import { CompilationUnitViewState, FunctionViewState, ViewState } from "../view-model/index";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
@@ -67,8 +67,25 @@ export const visitor: Visitor = {
         viewState.defaultWorker.x = viewState.client.x + viewState.client.w + config.lifeLine.gutter.h;
         viewState.defaultWorker.y = viewState.client.y;
 
+        // Position the body block node
+        if (node.body) {
+            const bodyViewState: ViewState = node.body.viewState;
+            bodyViewState.bBox.x = viewState.defaultWorker.x;
+            bodyViewState.bBox.y = viewState.defaultWorker.y + config.lifeLine.header.height;
+        }
+
         // Update the width of children
         viewState.body.w = viewState.bBox.w;
         viewState.header.w = viewState.bBox.w;
-    }
+    },
+
+    beginVisitBlock(node: Block) {
+        const viewState: ViewState = node.viewState;
+        let height = 0;
+        node.statements.forEach((element) => {
+            element.viewState.bBox.x = viewState.bBox.x;
+            element.viewState.bBox.y = viewState.bBox.y + height;
+            height += element.viewState.bBox.h;
+        });
+    },
 };

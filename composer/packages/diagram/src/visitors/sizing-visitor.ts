@@ -1,8 +1,8 @@
-import { Function, Visitor } from "@ballerina/ast-model";
+import { Block, ExpressionStatement, Function, Visitor } from "@ballerina/ast-model";
 import * as _ from "lodash";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
-import { FunctionViewState } from "../view-model";
+import { FunctionViewState, ViewState } from "../view-model";
 
 // Following element is created to calculate the width of a text rendered in an svg.
 // Please see getTextWidth on how we do the calculation.
@@ -87,4 +87,20 @@ export const visitor: Visitor = {
         viewState.bBox.h = body.h + header.h;
     },
 
+    endVisitBlock(node: Block) {
+        const viewState: ViewState = node.viewState;
+        node.statements.forEach((element) => {
+            viewState.bBox.w = (viewState.bBox.w < element.viewState.bBox.w)
+                ? element.viewState.bBox.w : viewState.bBox.w;
+            viewState.bBox.leftMargin = (viewState.bBox.leftMargin < element.viewState.bBox.leftMargin)
+                ? element.viewState.bBox.leftMargin : viewState.bBox.leftMargin;
+            viewState.bBox.h += element.viewState.bBox.h;
+        });
+    },
+
+    endVisitExpressionStatement(node: ExpressionStatement) {
+        const viewState: ViewState = node.viewState;
+        viewState.bBox.h = config.statement.height;
+        viewState.bBox.w = config.statement.width;
+    },
 };
