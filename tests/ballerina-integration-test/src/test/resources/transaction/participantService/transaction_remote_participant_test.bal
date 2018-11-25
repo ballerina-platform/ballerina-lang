@@ -69,12 +69,21 @@ boolean remoteExecuted = false;
 boolean remoteExecuted2 = false;
 boolean trx_ran_once = false;
 
+function initGlobalVar() {
+    thrown1 = false;
+    thrown2 = false;
+    remoteExecuted = false;
+    remoteExecuted2 = false;
+    trx_ran_once = false;
+}
+
 function initiatorFunc(boolean throw1, boolean throw2, 
                         boolean remote1, boolean remote2,
                         boolean blowRemote1, boolean blowRemote2) returns string {
     endpoint http:Client participantEP {
         url:"http://localhost:8889"
     };
+    initGlobalVar();
     S1 = "";
     transaction with retries=2 {
         log:printInfo("trx-first-line");
