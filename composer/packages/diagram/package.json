@@ -19,7 +19,7 @@
     "coverage": "composer pkg:test:coverage",
     "watch": "composer pkg:watch",
     "watch:test": "composer pkg:test:watch",
-    "storybook": "../../node_modules/.bin/start-storybook -p 9001 -c .storybook",
+    "storybook": "composer pkg:storybook",
     "copy-assets": "copyfiles resources/bbe-asts/* lib",
     "start-ws-ls": "npm run build && node lib/tools/start-ws-lang-server.js",
     "gen-bbe-asts": "npm run build && node lib/tools/update-bbe-asts.js"
