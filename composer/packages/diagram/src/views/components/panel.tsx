@@ -4,6 +4,7 @@ import * as React from "react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
 import { FunctionViewState, SimpleBBox } from "../../view-model/index";
+import { EditableSVGText } from "./editable-svg-text";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
@@ -22,6 +23,12 @@ export const Panel: React.StatelessComponent<{
 
         const headerCenter = header.y + (model.header.h / 2);
 
+        const titleTextBBox = new SimpleBBox();
+        titleTextBBox.h = header.h;
+        titleTextBBox.w = header.w;
+        titleTextBBox.x = header.x + config.panelHeading.title.margin.left;
+        titleTextBBox.y = header.y;
+
         return (
             <g className="panel">
                 <g className="panel-header">
@@ -38,13 +45,11 @@ export const Panel: React.StatelessComponent<{
                     >
                         {getCodePoint(icon)}
                     </text>
-                    <text
-                        x={header.x + config.panelHeading.title.margin.left}
-                        y={headerCenter}
+                    <EditableSVGText
+                        bBox={titleTextBBox}
+                        value={title}
                         className="panel-title"
-                    >
-                        {title}
-                    </text>
+                    />
                 </g>
                 <g className="panel-body">
                     <rect
