@@ -181,7 +181,7 @@ public class CompletionSubRuleParser {
             if (parserRuleContext == null
                     || parserRuleContext.getClass().equals(BallerinaParser.ExpressionContext.class)
                     || moderateContextTypes.contains(parserRuleContext.getClass())
-                    || parserRuleContext instanceof BallerinaParser.EndpointDeclarationContext
+//                    || parserRuleContext instanceof BallerinaParser.EndpointDeclarationContext
                     || parserRuleContext instanceof BallerinaParser.StatementContext
                     || parserRuleContext instanceof BallerinaParser.DefinitionContext) {
                 context.put(CompletionKeys.PARSER_RULE_CONTEXT_KEY, parserRuleContext);

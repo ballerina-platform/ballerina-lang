@@ -14,19 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/http;
-import ballerina/log;
-
-function f1() returns string|error {
-    return "test";
+function returnTaintedValue() returns @tainted float {
+    return 1.2;
 }
 
-service hello1 on new http:Server(9090) {
-    resource function sayHello1 (http:Caller caller, http:Request req) returns error? {
-        http:Response res = new;
-        res.setPayload("Hello, World!");
-        string abc = check f1();
-        caller->respond(res) but { error e => log:printError("Error sending response", err = e) };
-        return ();
-    }
+function testSensitiveArg(@sensitive int intArg) {
+    int c = intArg;
+}
+
+public function convertTaintedValue() {
+    float x = returnTaintedValue();
+    int y = int.create(x);
+    testSensitiveArg(y);
 }

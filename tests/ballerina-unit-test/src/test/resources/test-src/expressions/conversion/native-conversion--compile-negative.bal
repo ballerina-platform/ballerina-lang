@@ -14,19 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/http;
-import ballerina/log;
-
-function f1() returns string|error {
-    return "test";
+function floatToIntWithMultipleArguments() returns int {
+    float a = 5.0;
+    return int.create(a, a);
 }
 
-service hello1 on new http:Server(9090) {
-    resource function sayHello1 (http:Caller caller, http:Request req) returns error? {
-        http:Response res = new;
-        res.setPayload("Hello, World!");
-        string abc = check f1();
-        caller->respond(res) but { error e => log:printError("Error sending response", err = e) };
-        return ();
-    }
+function testToIntWithNoArguments() {
+    float a = 5.0;
+    return int.create();
+}
+
+function anyToInt() returns int {
+    any a = 5;
+    return int.create(a);
 }

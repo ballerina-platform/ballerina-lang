@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.TableColumnFlag;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.RecordVariableNode.BLangRecordVariableKeyValueNode;
@@ -2757,6 +2758,14 @@ public class Desugar extends BLangNodeVisitor {
             case IS_FROZEN:
                 visitFreezeBuiltInMethodInvocation(iExpr);
                 break;
+            case CREATE:
+                if (iExpr.symbol.kind == SymbolKind.CONVERSION_OPERATOR) {
+                    result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
+                } else {
+                    result = visitCreateStampMethod(iExpr.pos, iExpr.expr, iExpr.requiredArgs,
+                                                    (BInvokableSymbol) iExpr.symbol);
+                }
+                break;
             case CALL:
                 visitCallBuiltInMethodInvocation(iExpr);
                 break;
@@ -2905,6 +2914,29 @@ public class Desugar extends BLangNodeVisitor {
         conversionExpr.type = targetType;
         conversionExpr.conversionSymbol = symbol;
         return conversionExpr;
+    }
+
+    private BLangInvocation.BLangBuiltInMethodInvocation visitCreateStampMethod(DiagnosticPos pos,
+                                                                                BLangExpression expr,
+                                                                                List<BLangExpression> requiredArgs,
+                                                                                BInvokableSymbol invokableSymbol) {
+        BType targetType = invokableSymbol.retType;
+        if (types.isValueType(targetType) || targetType == symTable.nilType) {
+            return ASTBuilderUtil.createBuiltInMethod(pos, expr, invokableSymbol, requiredArgs, symResolver,
+                                                      BLangBuiltInMethod.STAMP);
+        }
+        BLangExpression sourceExpression = requiredArgs.get(0);
+        BType sourceType = sourceExpression.type;
+        List<BType> args = Lists.of(sourceType);
+        BInvokableType opType = new BInvokableType(args, sourceType, null);
+        BOperatorSymbol cloneSymbol = new BOperatorSymbol(names.fromString(BLangBuiltInMethod.CLONE.getName()),
+                                                          null, opType, null, InstructionCodes.CLONE);
+        BLangBuiltInMethodInvocation cloneInvocation =
+                ASTBuilderUtil.createBuiltInMethod(pos, sourceExpression, cloneSymbol, new ArrayList<>(),
+                                                   symResolver, BLangBuiltInMethod.CLONE);
+        return ASTBuilderUtil.createBuiltInMethod(pos, expr, invokableSymbol, Lists.of(cloneInvocation),
+                                                  symResolver, BLangBuiltInMethod.STAMP);
+
     }
 
     private BType getElementType(BType type) {

@@ -49,19 +49,19 @@ public class BallerinaSymbolServiceImpl implements BallerinaSymbolService {
     public CompletableFuture<BallerinaEndpointsResponse> endpoints() {
         return CompletableFuture.supplyAsync(() -> {
             BallerinaEndpointsResponse response = new BallerinaEndpointsResponse();
-            response.setEndpoints(getEndpoints());
+            response.setEndpoints(getClientEndpoints());
             return response;
         });
     }
 
-    private List<Endpoint> getEndpoints() {
+    private List<Endpoint> getClientEndpoints() {
         final List<Endpoint> endpoints = new ArrayList<>();
         try {
             BPackageSymbolDAO pkgDAO = ((BPackageSymbolDAO) lsIndex.getDaoFactory().get(DAOType.PACKAGE_SYMBOL));
             BObjectTypeSymbolDAO objDAO = ((BObjectTypeSymbolDAO) lsIndex.getDaoFactory().get(DAOType.OBJECT_TYPE));
 
             List<BPackageSymbolDTO> pkgDTOs = pkgDAO.getAll();
-            List<BObjectTypeSymbolDTO> allEndpoints = objDAO.getAllEndpoints();
+            List<BObjectTypeSymbolDTO> allEndpoints = objDAO.getAllClientEndpoints();
 
             pkgDTOs.forEach(pkgDTO -> {
                 List<Endpoint> endpointsList = allEndpoints.stream()
