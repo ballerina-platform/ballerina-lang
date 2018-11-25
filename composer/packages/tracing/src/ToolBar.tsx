@@ -17,7 +17,7 @@
  */
 import * as _ from "lodash";
 import * as React from "react";
-import { Button, Dropdown } from "semantic-ui-react";
+import { Dropdown, Icon, Menu } from "semantic-ui-react";
 
 export interface ToolBarState {
     filterValue: any;
@@ -88,39 +88,43 @@ export default class ToolBar extends React.Component<ToolBarProps, ToolBarState>
 
         return (
             <div className="logs-console-toolbar">
-                <Button
-                    icon="trash alternate outline"
-                    className="pull-left clear-button"
-                    onClick={() => this.props.clearLogs()}
-                />
-                {
-                    keys.map((key) => {
-                        groupedTraces[key] = groupedTraces[key] || [];
-                        const options = groupedTraces[key].map((option: string) => {
-                            return {
-                                key: option,
-                                text: option,
-                                value: option,
-                            };
-                        });
-                        options.unshift({
-                            key: "all",
-                            text: "All",
-                            value: "all",
-                        });
-                        return (
-                            <span className={`filter-${key} pull-right`} key={key}>
-                                <label htmlFor="dropdown">{filters[key]}</label>
+                <Menu inverted>
+                    <Menu.Item name="ban" onClick={() => this.props.clearLogs()}>
+                        <Icon name="ban" />
+                    </Menu.Item>
+                    {
+                        keys.map((key) => {
+                            groupedTraces[key] = groupedTraces[key] || [];
+                            const options = groupedTraces[key].map((option: string) => {
+                                return {
+                                    key: option,
+                                    text: option,
+                                    value: option,
+                                };
+                            });
+                            options.unshift({
+                                key: "all",
+                                text: "All",
+                                value: "all",
+                            });
+
+                            this.state.filterValue[key] = this.state.filterValue[key] || "all";
+
+                            return (
                                 <Dropdown
-                                    direction="left"
+                                    item
+                                    inverted
+                                    text={filters[key] + ": " + this.state.filterValue[key]}
+                                    key={key}
+                                    className={`filter-${key} pull-right`}
                                     value={this.state.filterValue[key]}
                                     options={options}
                                     onChange={(e, data) => this.onChangeFilter(key, data.value)}
                                 />
-                            </span>);
-                    })
-                }
-
+                            );
+                        })
+                    }
+                </Menu>
             </div>
         );
     }

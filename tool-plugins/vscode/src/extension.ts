@@ -22,11 +22,11 @@ import { ballerinaExtInstance } from './core';
 import { activate as activateDiagram } from './diagram'; 
 import { activate as activateBBE } from './bbe';
 import { activate as activateDocs } from './docs';
+import { activate as activateTraceLogs } from './trace-logs';
 import { activateDebugConfigProvider } from './debugger';
 import { activateTestRunner } from './test-runner';
 import { StaticFeature, ClientCapabilities, DocumentSelector, ServerCapabilities } from 'vscode-languageclient';
 import { ExtendedLangClient } from './core/extended-language-client';
-import { activate as activateTraceLogs } from './trace-logs';
 
 // TODO move this to tracing component
 function onBeforeInit(langClient: ExtendedLangClient) {
@@ -60,7 +60,7 @@ export function activate(context: ExtensionContext): void {
 	activateDiagram(ballerinaExtInstance);
 	// Enable Ballerina by examples
     activateBBE(ballerinaExtInstance);
-    // Enable tracing 
+    // Enable Network logs
     activateTraceLogs(ballerinaExtInstance);
 	// Enable Ballerina Debug Config Provider
 	activateDebugConfigProvider(ballerinaExtInstance);

@@ -17,32 +17,56 @@
  */
 
 import * as React from "react";
-import "./index.scss";
 import ToolBar from "./ToolBar";
 import TraceList from "./TraceList";
 
 export interface TraceLogsState {
     filteredTraces: any[];
+    selected?: string;
 }
 
 export interface TraceLogsProps {
     filters: any;
     clearLogs: () => void;
     traces: any[];
-    selected: string;
+    onSelected: (selected: string | undefined) => void;
 }
 
 export default class TraceLogs extends React.Component<TraceLogsProps, TraceLogsState> {
     public static defaultProps = {
+        /* tslint:disable:no-empty */
+        onSelected: () => {},
         traces : [],
     };
     constructor(props: any, context: any) {
         super(props);
         this.onFilteredTraces = this.onFilteredTraces.bind(this);
+        this.onSelected = this.onSelected.bind(this);
         this.state = {
             filteredTraces: props.traces,
         };
     }
+
+    public onSelected(selected: any) {
+        if (selected.id === this.state.selected) {
+            this.setState({
+                selected: undefined
+            });
+            this.props.onSelected(undefined);
+        } else {
+            this.setState({
+                selected: selected.id
+            });
+            this.props.onSelected(selected);
+        }
+    }
+
+    public componentWillReceiveProps(nextProps: any) {
+        this.setState({
+            filteredTraces: nextProps.traces,
+        });
+    }
+
     public onFilteredTraces(filtered: any) {
         this.setState({
             filteredTraces: filtered,
@@ -53,13 +77,21 @@ export default class TraceLogs extends React.Component<TraceLogsProps, TraceLogs
 
         return (
             <div>
-                <ToolBar
-                    traces={traces}
-                    filters={this.props.filters}
-                    clearLogs={this.props.clearLogs}
-                    onFilteredTraces={this.onFilteredTraces}
-                />
-                <TraceList traces={this.state.filteredTraces} selected={this.props.selected} />
+                <div>
+                    <ToolBar
+                        traces={traces}
+                        filters={this.props.filters}
+                        clearLogs={this.props.clearLogs}
+                        onFilteredTraces={this.onFilteredTraces}
+                    />
+                </div>
+                <div>
+                    <TraceList
+                        traces={this.state.filteredTraces}
+                        selected={this.state.selected}
+                        onSelected={this.onSelected}
+                    />
+                </div>
             </div>
         );
     }

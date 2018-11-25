@@ -18,7 +18,7 @@
 
 import * as React from "react";
 import ReactJson from "react-json-view";
-import { Icon, Segment } from "semantic-ui-react";
+import { Segment } from "semantic-ui-react";
 
 function isJson(text: string) {
     if (typeof text !== "string") {
@@ -35,8 +35,7 @@ function isJson(text: string) {
 }
 
 export interface DetailViewProps {
-    hideDetailView: () => void;
-    meta: any;
+    trace: any;
 }
 
 export default class DetailView extends React.Component<DetailViewProps> {
@@ -44,23 +43,30 @@ export default class DetailView extends React.Component<DetailViewProps> {
         super(props);
     }
     public render() {
-        const { meta, meta: { headers = "" } } = this.props;
-        const payload = meta.payload;
+        const trace = this.props.trace;
+        const headers = trace.message.headers || "";
+        const payload = trace.message.payload;
         const headersArray = headers.split("\n");
-
-        return (
-            <Segment className="detail-view" inverted>
-                <Icon name="close" className="close" onClick={this.props.hideDetailView} />
+        if (payload.trim() ===  "" && headers.trim() === "") {
+            return (
                 <code>
+                    <pre>{trace.rawMessage}</pre>
+                </code>
+            );
+        }
+        return (
+            <Segment inverted padded compact>
+                {
+                    headersArray.length && <code>
                     <pre>
                         {headersArray.map((header: string, index: number) => {
                             const endChar = headersArray.length - 1 === index ? "" : "\n";
                             const splitIndex = header.indexOf(":");
                             if (splitIndex !== -1) {
                                 return ([
-                                    <b>
+                                    <strong>
                                         {header.substring(0, splitIndex)}
-                                    </b>,
+                                    </strong>,
                                     `${header.substring(splitIndex)}${endChar}`,
                                 ]
                                 );
@@ -70,8 +76,9 @@ export default class DetailView extends React.Component<DetailViewProps> {
                         })}
                     </pre>
                 </code>
+                }
                 {
-                    meta.contentType === "application/json" && isJson(payload) ?
+                    trace.message.contentType.indexOf("application/json") > -1 && isJson(payload) ?
                         <ReactJson
                             src={JSON.parse(payload)}
                             theme="eighties"
@@ -80,7 +87,7 @@ export default class DetailView extends React.Component<DetailViewProps> {
                             collapsed={1}
                             displayObjectSize={false}
                             style={{ marginTop: 10, background: "inherit" }}
-                        /> : <code><pre>{meta.payload}</pre></code>
+                        /> : <code><pre>{trace.message.payload}</pre></code>
                 }
 
             </Segment>
