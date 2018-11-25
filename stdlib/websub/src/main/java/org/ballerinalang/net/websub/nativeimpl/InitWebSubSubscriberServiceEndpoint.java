@@ -81,10 +81,10 @@ public class InitWebSubSubscriberServiceEndpoint extends BlockingNativeCallableU
 
         WebSubServicesRegistry webSubServicesRegistry;
 
-        BMap<String, BValue> extensionConfig = (BMap<String, BValue>) config.get(SERVICE_CONFIG_EXTENSION_CONFIG);
-        if (extensionConfig == null) {
+        if (config == null || config.get(SERVICE_CONFIG_EXTENSION_CONFIG) == null) {
              webSubServicesRegistry = new WebSubServicesRegistry(new WebSocketServicesRegistry());
         } else {
+            BMap<String, BValue> extensionConfig = (BMap<String, BValue>) config.get(SERVICE_CONFIG_EXTENSION_CONFIG);
             String topicIdentifier = extensionConfig.get(EXTENSION_CONFIG_TOPIC_IDENTIFIER).stringValue();
             BString topicHeader = null;
             BMap<String, BValue> headerResourceMap = null;
