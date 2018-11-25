@@ -66,11 +66,16 @@ export const visitor: Visitor = {
         const viewState: FunctionViewState = node.viewState;
         const body = viewState.body;
         const header = viewState.header;
+        const client = viewState.client;
+        const defaultWorker = viewState.defaultWorker;
 
-        viewState.client.h = config.lifeLine.line.height + (config.lifeLine.header.height * 2);
-        viewState.client.w = config.lifeLine.width;
+        client.h = config.lifeLine.line.height + (config.lifeLine.header.height * 2);
+        client.w = config.lifeLine.width;
 
-        const lineHeight = viewState.client.h;
+        defaultWorker.h = config.lifeLine.line.height + (config.lifeLine.header.height * 2);
+        defaultWorker.w = config.lifeLine.width;
+
+        const lineHeight = client.h;
 
         body.w = config.panel.padding.left + config.panel.padding.right;
         body.h = config.panel.padding.top + lineHeight + config.panel.padding.bottom;

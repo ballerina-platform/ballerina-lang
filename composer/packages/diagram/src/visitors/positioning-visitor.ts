@@ -63,6 +63,9 @@ export const visitor: Visitor = {
         // Position client line
         viewState.client.x = viewState.body.x + config.panel.padding.left;
         viewState.client.y = viewState.body.y + config.panel.padding.top;
+        // Position default worker
+        viewState.defaultWorker.x = viewState.client.x + viewState.client.w + config.lifeLine.gutter.h;
+        viewState.defaultWorker.y = viewState.client.y;
 
         // Update the width of children
         viewState.body.w = viewState.bBox.w;
