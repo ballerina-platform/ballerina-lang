@@ -2,103 +2,57 @@
 import ballerina/grpc;
 import ballerina/io;
 
-// Blocking client.
-public type HelloWorldBlockingStub object {
-    public grpc:Client clientEndpoint;
-    public grpc:Stub stub;
-
-    function initStub(grpc:Client ep) {
-        grpc:Stub navStub = new;
-        navStub.initStub(ep, "blocking", DESCRIPTOR_KEY,
-                                                                descriptorMap);
-        self.stub = navStub;
-    }
-
-    function hello(string req, grpc:Headers? headers = ()) returns ((string,
-                                                        grpc:Headers)|error) {
-        var unionResp = self.stub.blockingExecute("HelloWorld/hello", req,
-                                                            headers = headers);
-        match unionResp {
-            error err => {
-                return err;
-            }
-            (any, grpc:Headers) payload => {
-                any result;
-                grpc:Headers resHeaders;
-                (result, resHeaders) = payload;
-                return (<string>result, resHeaders);
-            }
-        }
-    }
-};
-
-// Non-blocking client.
-public type HelloWorldStub object {
-    public grpc:Client clientEndpoint;
-    public grpc:Stub stub;
-
-    function initStub(grpc:Client ep) {
-        grpc:Stub navStub = new;
-        navStub.initStub(ep, "non-blocking", DESCRIPTOR_KEY,
-                                                                descriptorMap);
-        self.stub = navStub;
-    }
-
-    function hello(string req, typedesc listener, grpc:Headers? headers = ())
-                                                            returns (error|()) {
-        return self.stub.nonBlockingExecute("HelloWorld/hello", req,
-                                                    listener, headers = headers);
-    }
-};
-
 // Blocking endpoint.
-public type HelloWorldBlockingClient object {
-    public grpc:Client client;
-    public HelloWorldBlockingStub stub;
+public type HelloWorldBlockingClient client object {
+    private grpc:Client grpcClient;
 
-    public function init(grpc:ClientEndpointConfig config) {
+    function __init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
         grpc:Client c = new;
         c.init(config);
-        self.client = c;
-
-        // initialize service stub.
-        HelloWorldBlockingStub s = new;
-        s.initStub(c);
-        self.stub = s;
-
+        error? result = c.initStub("blocking", DESCRIPTOR_KEY, descriptorMap);
+        if (result is error) {
+            panic result;
+        } else {
+            self.grpcClient = c;
+        }
     }
 
-    public function getCallerActions() returns (HelloWorldBlockingStub) {
-        return self.stub;
+    remote function hello(string req, grpc:Headers? headers = ()) returns ((string,
+                                                        grpc:Headers)|error) {
+        var unionResp = check self.grpcClient->blockingExecute("HelloWorld/hello", req, headers = headers);
+        any result;
+        grpc:Headers resHeaders;
+        (result, resHeaders) = unionResp;
+        return (<string>result, resHeaders);
     }
 };
 
 // Non-blocking endpoint
-public type HelloWorldClient object {
-    public grpc:Client client;
-    public HelloWorldStub stub;
+public type HelloWorldClient client object {
+    public grpc:Client grpcClient = new;
 
-    public function init(grpc:ClientEndpointConfig config) {
+    function __init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
         grpc:Client c = new;
         c.init(config);
-        self.client = c;
-
-        // initialize service stub.
-        HelloWorldStub s = new;
-        s.initStub(c);
-        self.stub = s;
-
+        error? result = c.initStub("non-blocking", DESCRIPTOR_KEY, descriptorMap);
+        if (result is error) {
+            panic result;
+        } else {
+            self.grpcClient = c;
+        }
     }
 
-    public function getCallerActions() returns (HelloWorldStub) {
-        return self.stub;
+    remote function hello(string req, typedesc msgListener, grpc:Headers? headers = ())
+                                                            returns (error|()) {
+        return self.grpcClient->nonBlockingExecute("HelloWorld/hello", req,
+                                                    msgListener, headers = headers);
     }
 };
 
 // Service descriptor data.
-@final string DESCRIPTOR_KEY = "HelloWorld.proto";
+const string DESCRIPTOR_KEY = "HelloWorld.proto";
 map descriptorMap =
 {
     "HelloWorld.proto":
@@ -108,7 +62,7 @@ map descriptorMap =
     + "652E70726F746F6275662E537472696E6756616C756528003000620670726F746F33"
     ,
 
-    "google.protobuf.google/protobuf/wrappers.proto":
+    "google/protobuf/wrappers.proto":
     "0A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F120F676F6F"
     + "676C652E70726F746F627566221C0A0B446F75626C6556616C7565120D0A0576616C7565"
     + "180120012801221B0A0A466C6F617456616C7565120D0A0576616C756518012001280222"

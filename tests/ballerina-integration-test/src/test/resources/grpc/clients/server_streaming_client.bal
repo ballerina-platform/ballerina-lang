@@ -21,9 +21,10 @@ import ballerina/runtime;
 int total = 0;
 function testServerStreaming(string name) returns int {
     // Client endpoint configuration
-    endpoint HelloWorldClient helloWorldEp {
+    HelloWorldClient helloWorldEp = new({
         url:"http://localhost:9099"
-    };
+    });
+
     // Executing unary non-blocking call registering server message listener.
     error? result = helloWorldEp->lotsOfReplies(name, HelloWorldMessageListener);
     if (result is error) {
@@ -68,52 +69,29 @@ service<grpc:Service> HelloWorldMessageListener {
     }
 }
 
-// Non-blocking client
-public type HelloWorldStub object {
-
-    public grpc:Client clientEndpoint = new;
-    public grpc:Stub stub = new;
-
-    function initStub(grpc:Client ep) {
-        grpc:Stub navStub = new;
-        error? result = navStub.initStub(ep, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
-        if (result is error) {
-            panic result;
-        } else {
-            self.stub = navStub;
-        }
-    }
-
-    function lotsOfReplies(string req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
-        return self.stub.nonBlockingExecute("grpcservices.HelloWorld45/lotsOfReplies", req, listener, headers = headers);
-    }
-};
-
-
 // Non-blocking client endpoint
-public type HelloWorldClient object {
+public type HelloWorldClient client object {
 
-    public grpc:Client client = new;
-    public HelloWorldStub stub = new;
+    private grpc:Client grpcClient = new;
 
-
-    public function init(grpc:ClientEndpointConfig config) {
+    function __init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
         grpc:Client c = new;
         c.init(config);
-        self.client = c;
-        // initialize service stub.
-        HelloWorldStub s = new;
-        s.initStub(c);
-        self.stub = s;
+        error? result = c.initStub("non-blocking", DESCRIPTOR_KEY, descriptorMap);
+        if (result is error) {
+            panic result;
+        } else {
+            self.grpcClient = c;
+        }
     }
 
-    public function getCallerActions() returns (HelloWorldStub) {
-        return self.stub;
+    remote function lotsOfReplies(string req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld45/lotsOfReplies", req, msgListener, headers = headers);
     }
 };
 
-@final string DESCRIPTOR_KEY = "HelloWorld45.proto";
+const string DESCRIPTOR_KEY = "HelloWorld45.proto";
 map descriptorMap =
 {
     "HelloWorld45.proto":"0A1248656C6C6F576F726C6434352E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F325D0A0C48656C6C6F576F726C643435124D0A0D6C6F74734F665265706C696573121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C75653001620670726F746F33",

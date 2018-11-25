@@ -24,7 +24,8 @@ import ballerina/auth;
 public type AuthnHandlerChain object {
     private AuthHandlerRegistry authHandlerRegistry;
 
-    public new (authHandlerRegistry) {
+    public function __init(AuthHandlerRegistry authHandlerRegistry) {
+        self.authHandlerRegistry = authHandlerRegistry;
     }
 
     # Tries to authenticate against any one of the available authentication handlers

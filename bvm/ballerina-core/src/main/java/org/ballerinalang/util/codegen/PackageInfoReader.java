@@ -28,7 +28,6 @@ import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.types.BRecordType;
-import org.ballerinalang.model.types.BServiceType;
 import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BTableType;
@@ -548,16 +547,22 @@ public class PackageInfoReader {
             UTF8CPEntry serviceNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(serviceNameCPIndex);
             int flags = dataInStream.readInt();
 
-            // Read connector signature cp index;
-            int endpointNameCPIndex = dataInStream.readInt();
-            UTF8CPEntry endpointNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(endpointNameCPIndex);
-
+            // Read service and listener type cp index;
+            TypeRefCPEntry serviceType = (TypeRefCPEntry) packageInfo.getCPEntry(dataInStream.readInt());
+            int cpIndex;
+            TypeRefCPEntry listenerTypeCP = null;
+            UTF8CPEntry listenerNameCP = null;
+            if ((cpIndex = dataInStream.readInt()) != -1) {
+                listenerTypeCP = (TypeRefCPEntry) packageInfo.getCPEntry(cpIndex);
+            }
+            if ((cpIndex = dataInStream.readInt()) != -1) {
+                listenerNameCP = (UTF8CPEntry) packageInfo.getCPEntry(cpIndex);
+            }
             ServiceInfo serviceInfo = new ServiceInfo(packageInfo.getPkgNameCPIndex(), packageInfo.getPkgPath(),
-                    serviceNameCPIndex, serviceNameUTF8Entry.getValue(), flags,
-                    endpointNameCPIndex, endpointNameUTF8Entry.getValue());
+                    serviceNameCPIndex, serviceNameUTF8Entry.getValue(), flags, serviceType, listenerTypeCP,
+                    listenerNameCP);
             serviceInfo.setPackageInfo(packageInfo);
             packageInfo.addServiceInfo(serviceInfo.getName(), serviceInfo);
-            serviceInfo.setType(new BServiceType(serviceInfo.getName(), packageInfo.getPkgPath()));
         }
     }
 
@@ -570,42 +575,8 @@ public class PackageInfoReader {
                 int resNameCPIndex = dataInStream.readInt();
                 UTF8CPEntry resNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(resNameCPIndex);
                 String resName = resNameUTF8Entry.getValue();
-
-                ResourceInfo resourceInfo = new ResourceInfo(packageInfo.getPkgNameCPIndex(), packageInfo.getPkgPath(),
-                        resNameCPIndex, resName);
-                resourceInfo.setServiceInfo(serviceInfo);
-                resourceInfo.setPackageInfo(packageInfo);
-                serviceInfo.addResourceInfo(resName, resourceInfo);
-
-                // Read action signature
-                int resSigCPIndex = dataInStream.readInt();
-                UTF8CPEntry resSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(resSigCPIndex);
-                String resSig = resSigUTF8Entry.getValue();
-                setCallableUnitSignature(packageInfo, resourceInfo, resSig);
-
-                // Read parameter names
-                // TODO Find a better alternative. Storing just param names is like a hack.
-                int paramNameCPIndexesCount = dataInStream.readShort();
-                int[] paramNameCPIndexes = new int[paramNameCPIndexesCount];
-                String[] paramNames = new String[paramNameCPIndexesCount];
-                for (int k = 0; k < paramNameCPIndexesCount; k++) {
-                    int paramNameCPIndex = dataInStream.readInt();
-                    paramNameCPIndexes[k] = paramNameCPIndex;
-                    UTF8CPEntry paramNameCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(paramNameCPIndex);
-                    paramNames[k] = paramNameCPEntry.getValue();
-                }
-                resourceInfo.setParamNameCPIndexes(paramNameCPIndexes);
-                resourceInfo.setParamNames(paramNames);
-
-                // Read worker info entries
-                readWorkerData(packageInfo, resourceInfo);
-
-                // Read attributes of the struct info
-                readAttributeInfoEntries(packageInfo, packageInfo, resourceInfo);
+                serviceInfo.addResourceInfo(resName);
             }
-
-            // Read attributes of the struct info
-            readAttributeInfoEntries(packageInfo, packageInfo, serviceInfo);
         }
     }
 
@@ -685,14 +656,6 @@ public class PackageInfoReader {
                 TEST_START_FUNCTION_SUFFIX));
         packageInfo.setTestStopFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() +
                 TEST_STOP_FUNCTION_SUFFIX));
-
-        // TODO Improve this. We should be able to this in a single pass.
-        ServiceInfo[] serviceInfoEntries = packageInfo.getServiceInfoEntries();
-        for (ServiceInfo serviceInfo : serviceInfoEntries) {
-            FunctionInfo serviceIniFuncInfo = packageInfo.getFunctionInfo(
-                    serviceInfo.getName() + INIT_FUNCTION_SUFFIX);
-            serviceInfo.setInitFunctionInfo(serviceIniFuncInfo);
-        }
     }
 
     private void readFunctionInfo(PackageInfo packageInfo) throws IOException {
@@ -1887,7 +1850,7 @@ public class PackageInfoReader {
             }
             switch (typeChar) {
                 case 'X':
-                    return packageInfoOfType.getServiceInfo(typeName).getType();
+                    return BTypes.typeAnyService;
                 default:
                     return packageInfoOfType.getTypeDefInfo(typeName).typeInfo.getType();
             }
@@ -1915,6 +1878,7 @@ public class PackageInfoReader {
                     return new BStreamType(constraint);
                 case 'G':
                 case 'T':
+                case 'X':
                 case 'Q':
                 default:
                     return constraint;

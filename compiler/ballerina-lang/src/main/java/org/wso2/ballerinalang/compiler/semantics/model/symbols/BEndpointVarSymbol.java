@@ -26,20 +26,8 @@ import org.wso2.ballerinalang.compiler.util.Name;
  *
  * @since 0.965.0
  */
+@Deprecated
 public class BEndpointVarSymbol extends BVarSymbol {
-
-    public BObjectTypeSymbol clientSymbol = null;
-
-    public BInvokableSymbol initFunction = null;
-
-    public boolean interactable;
-    public BInvokableSymbol getClientFunction = null;
-
-    public BInvokableSymbol startFunction = null;
-    public BInvokableSymbol stopFunction = null;
-
-    public boolean registrable;
-    public BInvokableSymbol registerFunction = null;
 
     public BEndpointVarSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
         super(flags, name, pkgID, type, owner);

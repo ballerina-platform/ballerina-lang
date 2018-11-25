@@ -39,7 +39,7 @@ public type Request object {
     private mime:Entity entity;
     private boolean dirtyRequest;
 
-    public new() {
+    public function __init() {
         self.dirtyRequest = false;
         self.entity = self.createNewEntity();
     }

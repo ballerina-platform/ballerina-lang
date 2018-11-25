@@ -17,7 +17,7 @@
 import ballerina/io;
 import ballerina/http;
 
-@final string REMOTE_BACKEND_URL = "ws://localhost:15500/websocket";
+final string REMOTE_BACKEND_URL = "ws://localhost:15500/websocket";
 
 endpoint http:Listener httpCaller {
     port: 9090

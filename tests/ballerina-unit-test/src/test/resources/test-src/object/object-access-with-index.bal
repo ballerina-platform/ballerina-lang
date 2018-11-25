@@ -2,8 +2,9 @@ type Department object {
     public string dptName = "";
     public Person[] employees = [];
 
-    new (dptName = "", employees) {
-        
+    function __init (string dptName = "", Person[] employees) {
+        self.dptName = dptName;
+        self.employees = employees;
     }
 };
 

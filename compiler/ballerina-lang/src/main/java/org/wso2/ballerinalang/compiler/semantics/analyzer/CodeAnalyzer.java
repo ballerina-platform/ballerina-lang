@@ -36,7 +36,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -81,6 +80,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
@@ -1002,10 +1002,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.lastStatement = true;
     }
 
-    public void visit(BLangAction actionNode) {
-        /* not used, covered with functions */
-    }
-
     public void visit(BLangObjectTypeNode objectTypeNode) {
         SymbolEnv objectEnv = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, env);
         if (objectTypeNode.isFieldAnalyseRequired && Symbols.isPublic(objectTypeNode.symbol)) {
@@ -1014,6 +1010,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     .forEach(field -> analyzeNode(field, objectEnv));
         }
         objectTypeNode.functions.forEach(e -> this.analyzeNode(e, objectEnv));
+        if (Symbols.isFlagOn(objectTypeNode.symbol.flags, Flags.CLIENT) && objectTypeNode.functions.stream()
+                .noneMatch(func -> Symbols.isFlagOn(func.symbol.flags, Flags.REMOTE))) {
+            this.dlog.error(objectTypeNode.pos, DiagnosticCode.CLIENT_HAS_NO_REMOTE_FUNCTION);
+        }
     }
 
     private void analyseType(BType type, DiagnosticPos pos) {
@@ -1068,6 +1068,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangSimpleVariableDef varDefNode) {
         this.checkStatementExecutionValidity(varDefNode);
         analyzeNode(varDefNode.var, env);
+        // validate for endpoints here.
+        validateEndpointDeclaration(varDefNode);
     }
 
     public void visit(BLangCompoundAssignment compoundAssignment) {
@@ -1284,12 +1286,61 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void validateActionInvocation(DiagnosticPos pos, BLangNode bLangNode) {
-        BLangNode parent = bLangNode.parent;
+    private void validateEndpointDeclaration(BLangSimpleVariableDef varDefNode) {
+        if (varDefNode.var.symbol.tag != SymTag.ENDPOINT || Objects.isNull(varDefNode.parent) || Objects
+                .isNull(varDefNode.parent.parent)) {
+            return;
+        }
+        // Check for valid parents nodes. (immediate parent is block node)
+        switch (varDefNode.parent.parent.getKind()) {
+            case RESOURCE:
+            case FUNCTION:
+                break;
+            default:
+                dlog.error(varDefNode.pos, DiagnosticCode.INVALID_ENDPOINT_DECLARATION);
+                return;
+        }
+        // Check with siblings now.
+        BLangBlockStmt blockStmt = (BLangBlockStmt) varDefNode.parent;
+        for (BLangStatement statement : blockStmt.stmts) {
+            if (statement == varDefNode) {
+                break;
+            }
+            if (statement.getKind() != NodeKind.VARIABLE_DEF) {
+                dlog.error(varDefNode.pos, DiagnosticCode.INVALID_ENDPOINT_DECLARATION);
+                break;
+            }
+            BLangSimpleVariableDef def = (BLangSimpleVariableDef) statement;
+            if (def.var.symbol.tag != SymTag.ENDPOINT) {
+                dlog.error(varDefNode.pos, DiagnosticCode.INVALID_ENDPOINT_DECLARATION);
+                break;
+            }
+        }
+    }
+
+    private void validateActionInvocation(DiagnosticPos pos, BLangInvocation iExpr) {
+        final NodeKind clientNodeKind = iExpr.expr.getKind();
+        // Validation against node kind.
+        if (clientNodeKind != NodeKind.SIMPLE_VARIABLE_REF && clientNodeKind != NodeKind.FIELD_BASED_ACCESS_EXPR) {
+            dlog.error(pos, DiagnosticCode.INVALID_ACTION_INVOCATION_AS_EXPR);
+        } else if (clientNodeKind == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+            final BLangFieldBasedAccess fieldBasedAccess = (BLangFieldBasedAccess) iExpr.expr;
+            if (fieldBasedAccess.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+                dlog.error(pos, DiagnosticCode.INVALID_ACTION_INVOCATION_AS_EXPR);
+            } else {
+                final BLangSimpleVarRef selfName = (BLangSimpleVarRef) fieldBasedAccess.expr;
+                if (!Names.SELF.equals(selfName.symbol.name)) {
+                    dlog.error(pos, DiagnosticCode.INVALID_ACTION_INVOCATION_AS_EXPR);
+                }
+            }
+        }
+
+        // Validate for parent nodes.
+        BLangNode parent = iExpr.parent;
         while (parent != null) {
             final NodeKind kind = parent.getKind();
             // Allowed node types.
-            if (kind == NodeKind.ASSIGNMENT || kind == NodeKind.EXPRESSION_STATEMENT
+            if (kind == NodeKind.ASSIGNMENT || kind == NodeKind.EXPRESSION_STATEMENT || kind == NodeKind.RETURN
                     || kind == NodeKind.TUPLE_DESTRUCTURE || kind == NodeKind.VARIABLE) {
                 return;
             } else if (kind == NodeKind.CHECK_EXPR || kind == NodeKind.MATCH_EXPRESSION || kind == NodeKind.TRAP_EXPR) {
@@ -1546,6 +1597,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
         // TODO: Fix me.
     }
+
+    @Override
+    public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
+    }
     
     @Override
     public void visit(BLangTypeTestExpr typeTestExpr) {
@@ -1607,7 +1662,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
      * This method checks for private symbols being accessed or used outside of package and|or private symbols being
      * used in public fields of objects/records and will fail those occurrences.
      *
-     * @param node expression node to analyse
+     * @param node expression node to analyze
      */
     private <E extends BLangExpression> void checkAccess(E node) {
         if (node.type != null) {
@@ -1615,7 +1670,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         //check for object new invocation
-        if (node instanceof BLangInvocation) {
+        if (node.getKind() == NodeKind.INVOCATION) {
             BLangInvocation bLangInvocation = (BLangInvocation) node;
             checkAccessSymbol(bLangInvocation.symbol, bLangInvocation.pos);
         }

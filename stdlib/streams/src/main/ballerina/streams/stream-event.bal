@@ -17,16 +17,16 @@
 public type StreamEvent object {
     public EventType eventType;
     public int timestamp;
-    public map data = {};
+    public map<anydata> data = {};
 
     public new((string, map) | map eventData, eventType, timestamp) {
         match eventData {
-            (string, map) t => {
+            (string, map<anydata>) t => {
                 foreach var (k, v) in t[1] {
                     self.data[t[0] + DELIMITER + k] = v;
                 }
             }
-            map m => {
+            map<anydata> m => {
                 self.data = m;
             }
         }
@@ -37,7 +37,7 @@ public type StreamEvent object {
         return clone;
     }
 
-    public function addData(map eventData) {
+    public function addData(map<anydata> eventData) {
         foreach var (k, v) in eventData {
             self.data[k] = v;
         }

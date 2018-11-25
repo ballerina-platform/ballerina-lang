@@ -41,7 +41,7 @@ public type Response object {
     int requestTime = 0;
     private mime:Entity entity;
 
-    public new() {
+    public function __init() {
         self.entity = self.createNewEntity();
     }
 

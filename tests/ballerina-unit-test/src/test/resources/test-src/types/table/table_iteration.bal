@@ -55,13 +55,13 @@ float salValue = -1.0;
 string nameValue = "";
 
 function testForEachInTableWithStmt() returns (int, int, float, string) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     var dt = testDB->select("SELECT * from Person where id = 1", Person);
 
@@ -83,13 +83,13 @@ function testForEachInTableWithStmt() returns (int, int, float, string) {
 }
 
 function testForEachInTableWithIndex() returns (string, string) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     var dt = testDB->select("SELECT * from Person where id < 10 order by id", Person);
 
@@ -108,13 +108,13 @@ function testForEachInTableWithIndex() returns (string, string) {
 }
 
 function testForEachInTable() returns (int, int, float, string) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     var dt = testDB->select("SELECT * from Person where id = 1", Person);
 
@@ -136,13 +136,13 @@ function testForEachInTable() returns (int, int, float, string) {
 }
 
 function testCountInTable() returns (int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     var dt = testDB->select("SELECT * from Person where id < 10", Person);
     int count = -1;
@@ -154,13 +154,13 @@ function testCountInTable() returns (int) {
 }
 
 function testFilterTable() returns (int, int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     var dt = testDB->select("SELECT * from Person", Person);
     Person[] personBelow35 = [];
@@ -178,13 +178,13 @@ function testFilterTable() returns (int, int, int) {
 }
 
 function testFilterWithAnonymousFuncOnTable() returns (int, int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     var dt = testDB->select("SELECT * from Person", Person);
     Person[] personBelow35;
@@ -204,13 +204,13 @@ function testFilterWithAnonymousFuncOnTable() returns (int, int, int) {
 }
 
 function testFilterTableWithCount() returns (int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     var dt = testDB->select("SELECT * from Person", Person);
     int count = -1;
@@ -222,13 +222,13 @@ function testFilterTableWithCount() returns (int) {
 }
 
 function testMapTable() returns (string[]) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     var dt = testDB->select("SELECT * from Person order by id", Person);
     string[] names = [];
@@ -240,14 +240,13 @@ function testMapTable() returns (string[]) {
 }
 
 function testMapWithFilterTable() returns (string[]) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
-
+    });
     var dt = testDB->select("SELECT * from Person order by id", Person);
     string[] names = [];
     if (dt is table<Person>) {
@@ -258,13 +257,13 @@ function testMapWithFilterTable() returns (string[]) {
 }
 
 function testFilterWithMapTable() returns (string[]) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     var dt = testDB->select("SELECT * from Person order by id", Person);
     string[] names = [];
@@ -276,13 +275,13 @@ function testFilterWithMapTable() returns (string[]) {
 }
 
 function testFilterWithMapAndCountTable() returns (int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     var dt = testDB->select("SELECT * from Person order by id", Person);
     int count = -1;
@@ -294,13 +293,13 @@ function testFilterWithMapAndCountTable() returns (int) {
 }
 
 function testAverageWithTable() returns (float) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     var dt = testDB->select("SELECT * from Person order by id", Person);
     float avgSal = -1;
@@ -312,13 +311,13 @@ function testAverageWithTable() returns (float) {
 }
 
 function testMinWithTable() returns (float) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     var dt = testDB->select("SELECT * from Person order by id", Person);
     float avgSal = -1;
@@ -330,13 +329,13 @@ function testMinWithTable() returns (float) {
 }
 
 function testMaxWithTable() returns (float) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     var dt = testDB->select("SELECT * from Person order by id", Person);
     float avgSal = -1;
@@ -348,13 +347,13 @@ function testMaxWithTable() returns (float) {
 }
 
 function testSumWithTable() returns (float) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     var dt = testDB->select("SELECT * from Person order by id", Person);
     float avgSal = -1;
@@ -366,13 +365,13 @@ function testSumWithTable() returns (float) {
 }
 
 function testCloseConnectionPool() returns (int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     var dt = testDB->select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SESSIONS",
         ResultCount);

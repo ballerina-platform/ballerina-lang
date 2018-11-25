@@ -126,26 +126,3 @@ function stampExtendedRecordToAnydata() returns anydata {
 
     return anydataValue;
 }
-
-type OpenEmployee record {
-    string name;
-    int age;
-    string status;
-};
-
-type TeacherWithAnyRestType record {
-    string name;
-    int age;
-    string status;
-    string batch;
-    string school;
-    any...
-};
-
-function stampNonAnydataRecord(int b) returns OpenEmployee {
-
-    TeacherWithAnyRestType p1 = {name:"Raja", age:25, status:"single", batch:"LK2014", school:"Hindu College"};
-    OpenEmployee e1 = OpenEmployee.stamp(p1);
-
-    return e1;
-}
