@@ -400,7 +400,7 @@ function createLoadBalanceHttpClientArray(LoadBalanceClientEndpointConfiguration
 
     foreach target in loadBalanceClientConfig.targets {
         ClientEndpointConfig epConfig = createClientEPConfigFromLoalBalanceEPConfig(loadBalanceClientConfig, target);
-        httpClients[i] = new(epConfig);
+        httpClients[i] = new(target.url , config = epConfig);
         i += 1;
     }
     return httpClients;

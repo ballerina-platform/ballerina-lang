@@ -75,7 +75,7 @@ public type helloWorldClient client object {
         }
     }
 
-    remote function hello(string req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function hello(string req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
         return self.grpcClient->nonBlockingExecute("HelloWorld/hello", req, msgListener, headers = headers);
     }
 };

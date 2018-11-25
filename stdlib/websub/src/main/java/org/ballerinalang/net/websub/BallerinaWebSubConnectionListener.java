@@ -69,7 +69,6 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.PARAM_HUB_T
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.REQUEST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.RESOURCE_NAME_ON_INTENT_VERIFICATION;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.RESOURCE_NAME_ON_NOTIFICATION;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SERVICE_ENDPOINT;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBSUB_INTENT_VERIFICATION_REQUEST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBSUB_NOTIFICATION_REQUEST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SUBSCRIBE;
@@ -79,6 +78,8 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.VERIFICATIO
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.VERIFICATION_REQUEST_MODE;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.VERIFICATION_REQUEST_TOPIC;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_CALLER;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_LISTENER;
 import static org.ballerinalang.net.websub.WebSubUtils.getHttpRequest;
 import static org.ballerinalang.net.websub.WebSubUtils.getJsonBody;
 
@@ -139,7 +140,6 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
     @SuppressWarnings("unchecked")
     protected void extractPropertiesAndStartResourceExecution(HttpCarbonMessage httpCarbonMessage,
                                                               HttpResource httpResource) {
-        BValue subscriberServiceEndpoint = getSubscriberServiceEndpoint(httpResource, httpCarbonMessage);
         BMap<String, BValue>  httpRequest;
         if (httpCarbonMessage.getProperty(ENTITY_ACCESSED_REQUEST) != null) {
             httpRequest = (BMap<String, BValue>) httpCarbonMessage.getProperty(ENTITY_ACCESSED_REQUEST);
@@ -153,7 +153,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
         BValue[] signatureParams = new BValue[paramDetails.size()];
         String resourceName = httpResource.getName();
         if (RESOURCE_NAME_ON_INTENT_VERIFICATION.equals(resourceName)) {
-            signatureParams[0] = subscriberServiceEndpoint;
+            signatureParams[0] = getWebSubCaller(httpResource, httpCarbonMessage);
             BMap<String, BValue> intentVerificationRequestStruct = createIntentVerificationRequestStruct(balResource);
             if (httpCarbonMessage.getProperty(HttpConstants.QUERY_STR) != null) {
                 String queryString = (String) httpCarbonMessage.getProperty(HttpConstants.QUERY_STR);
@@ -223,32 +223,28 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
      * @param httpCarbonMessage the HTTP message representing the request received
      * @return the struct representing the subscriber service endpoint
      */
-    private BMap<String, BValue> getSubscriberServiceEndpoint(HttpResource httpResource,
-                                                              HttpCarbonMessage httpCarbonMessage) {
-        BMap<String, BValue> subscriberServiceEndpoint =
-                createSubscriberServiceEndpointStruct(httpResource.getBalResource());
-        BMap<String, BValue> serviceEndpoint = BLangConnectorSPIUtil.createBStruct(
-                httpResource.getBalResource().getResourceInfo().getPackageInfo().getProgramFile(),
-                HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.SERVICE_ENDPOINT);
+    private BMap<String, BValue> getWebSubCaller(HttpResource httpResource, HttpCarbonMessage httpCarbonMessage) {
+        BMap<String, BValue> subscriberServiceServer =
+                createBStruct(httpResource.getBalResource().getResourceInfo().getPackageInfo().getProgramFile(),
+                              WEBSUB_PACKAGE, WEBSUB_SERVICE_LISTENER);
 
-        BMap<String, BValue> connection = BLangConnectorSPIUtil.createBStruct(
+        BMap<String, BValue> httpServiceServer = BLangConnectorSPIUtil.createBStruct(
+                httpResource.getBalResource().getResourceInfo().getPackageInfo().getProgramFile(),
+                HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.HTTP_LISTENER_ENDPOINT);
+
+        BMap<String, BValue> httpCaller = BLangConnectorSPIUtil.createBStruct(
                 httpResource.getBalResource().getResourceInfo().getPackageInfo().getProgramFile(),
                 HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.CALLER);
 
-        HttpUtil.enrichHttpCallerWithConnectionInfo(serviceEndpoint, httpCarbonMessage, httpResource, endpointConfig);
-        HttpUtil.enrichHttpCallerWithNativeData(connection, httpCarbonMessage, endpointConfig);
-        serviceEndpoint.put(HttpConstants.SERVICE_ENDPOINT_CONNECTION_FIELD, connection);
+        HttpUtil.enrichHttpCallerWithConnectionInfo(httpServiceServer, httpCarbonMessage, httpResource, endpointConfig);
+        HttpUtil.enrichHttpCallerWithNativeData(httpCaller, httpCarbonMessage, endpointConfig);
 
-        subscriberServiceEndpoint.put(LISTENER_SERVICE_ENDPOINT, serviceEndpoint);
-        return subscriberServiceEndpoint;
-    }
+        httpServiceServer.put(HttpConstants.SERVICE_ENDPOINT_CONNECTION_FIELD, httpCaller);
+        subscriberServiceServer.put(LISTENER_SERVICE_ENDPOINT, httpServiceServer);
 
-    /**
-     * Method to create the struct representing the WebSub subscriber service endpoint.
-     */
-    private BMap<String, BValue> createSubscriberServiceEndpointStruct(Resource resource) {
-        return createBStruct(resource.getResourceInfo().getPackageInfo().getProgramFile(),
-                             WEBSUB_PACKAGE, SERVICE_ENDPOINT);
+        return BLangConnectorSPIUtil.createObject(
+                httpResource.getBalResource().getResourceInfo().getPackageInfo().getProgramFile(),
+                WEBSUB_PACKAGE, WEBSUB_SERVICE_CALLER, httpCaller);
     }
 
     /**

@@ -34,9 +34,12 @@ import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketServerConnectorListener;
 import org.ballerinalang.net.http.WebSocketService;
 import org.ballerinalang.net.http.WebSocketServicesRegistry;
+import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+
+import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
 
 /**
  * Get the ID of the connection.
@@ -47,7 +50,7 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "register",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Server",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = HTTP_LISTENER_ENDPOINT,
                 structPackage = "ballerina/http"),
         args = {@Argument(name = "serviceType", type = TypeKind.SERVICE),
                 @Argument(name = "annotationData", type = TypeKind.MAP)},
@@ -63,14 +66,14 @@ public class Register extends AbstractHttpNativeFunction {
         HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
         WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
 
-        String listenerType = service.getServiceInfo().listenerType.getTypeSig();
-        if (HttpConstants.HTTP_SERVICE_ENDPOINT_NAME.equals(listenerType)) {
+        TypeRefCPEntry listenerType = service.getServiceInfo().listenerType;
+        if (listenerType == null || HttpConstants.HTTP_SERVICE_ENDPOINT_NAME.equals(listenerType.getTypeSig())) {
             httpServicesRegistry.registerService(service);
-        }
-        if (WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(listenerType)) {
+        } else if (WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(listenerType.getTypeSig())) {
             WebSocketService webSocketService = new WebSocketService(service);
             webSocketServicesRegistry.registerService(webSocketService);
         }
+        // TODO: 11/24/18 fix silent failure here
 
         if (!isConnectorStarted(serviceEndpoint)) {
             startServerConnector(serviceEndpoint, httpServicesRegistry, webSocketServicesRegistry);

@@ -1000,6 +1000,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 invocationExpr.expr.accept(this);
                 break;
             case STAMP:
+            case CREATE:
             case CALL:
                 invocationExpr.argExprs.forEach(expression -> expression.accept(this));
                 break;
