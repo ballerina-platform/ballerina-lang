@@ -258,11 +258,10 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:
 # + subscriptionDetails - Map containing subscription details
 function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth, http:SecureSocket? localSecureSocket,
                                               http:FollowRedirects? followRedirects, map subscriptionDetails) {
-    Client websubHubClientEP = new Client({
-        url:hub,
+    Client websubHubClientEP = new Client(hub, config = {
         clientSecureSocket: localSecureSocket,
-        auth:auth,
-        followRedirects:followRedirects
+        auth: auth,
+        followRedirects: followRedirects
     });
 
     string topic = <string>subscriptionDetails.topic;
