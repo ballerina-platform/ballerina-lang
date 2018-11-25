@@ -12,7 +12,7 @@
     "prepublishOnly": "npm run build",
     "prebuild": "npm run clean && npm run lint",
     "clean": "composer pkg:clean",
-    "copy-assets": "copyfiles **/tests/resources/**/* lib",
+    "copy-assets": "copyfiles **/resources/**/* lib",
     "lint": "composer pkg:lint",
     "build": "composer pkg:build && npm run copy-assets",
     "test": "composer pkg:test",

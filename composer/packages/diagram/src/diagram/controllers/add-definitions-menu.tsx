@@ -1,3 +1,4 @@
+import { ASTUtil, ASTNode, CompilationUnit } from "@ballerina/ast-model";
 import React, { StatelessComponent } from "react";
 import { Dropdown } from "semantic-ui-react";
 import { DiagramContext } from "../diagram-context";
@@ -36,10 +37,12 @@ export const AddDefinitionsMenu: StatelessComponent<{}> = (
                                         }
                                         return (<Dropdown.Item
                                             onClick={(event, item) => {
-                                                // const itemDef = item.data;
-                                                // use data and create new node
+                                                const {ast} = diagContext;
+                                                if (ast) {
+                                                    addDefinition(item.data.name, ast as CompilationUnit);
+                                                }
                                             }}
-                                            data={definitions}
+                                            data={definition}
                                             key={definition.id}
                                         >
                                             <i className={`fw fw-${definition.icon}`} />
@@ -55,3 +58,12 @@ export const AddDefinitionsMenu: StatelessComponent<{}> = (
         </DiagramContext.Consumer>
     );
 };
+
+function addDefinition(type: string, tree: CompilationUnit) {
+    if (!(ASTUtil as any)[`create${type}Node`]) {
+        return;
+    }
+
+    const newNode: ASTNode = (ASTUtil as any)[`create${type}Node`]();
+    ASTUtil.attachNode(newNode, tree, "topLevelNodes", tree.topLevelNodes.length);
+}
