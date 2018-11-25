@@ -70,7 +70,7 @@ public type testEnumServiceClient client object {
         }
     }
 
-    remote function testEnum (orderInfo req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testEnum (orderInfo req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.testEnumService/testEnum", req, msgListener, headers = headers);
     }
 };
