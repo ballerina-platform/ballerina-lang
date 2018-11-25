@@ -34,7 +34,7 @@ websub:Client websubHubClientEP = new websub:Client({
     url: webSubHub.hubUrl
 });
 
-listener http:Server publisherServiceEP = new http:Server(8080);
+listener http:Listener publisherServiceEP = new http:Listener(8080);
 
 service publisher on publisherServiceEP {
     @http:ResourceConfig {

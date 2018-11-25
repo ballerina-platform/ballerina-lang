@@ -103,7 +103,7 @@ public type WebhookServerForPayload object {
 
     *AbstractListener;
 
-    private websub:Server websubServer;
+    private websub:Listener websubListener;
 
     public function __init(WebhookListenerConfiguration config) {
         websub:ExtensionConfig extensionConfig = {
@@ -125,19 +125,19 @@ public type WebhookServerForPayload object {
             port: config.port,
             extensionConfig: extensionConfig
         };
-        self.websubServer = new(sseConfig);
+        self.websubListener = new(sseConfig);
     }
 
     public function __attach(service serviceType, map<any> data) returns error? {
-        return self.websubServer.__attach(serviceType, data);
+        return self.websubListener.__attach(serviceType, data);
     }
 
     public function __start() returns error? {
-        return self.websubServer.__start();
+        return self.websubListener.__start();
     }
 
     public function __stop() returns error? {
-        return self.websubServer.__stop();
+        return self.websubListener.__stop();
     }
 };
 
@@ -146,7 +146,7 @@ public type WebhookServerForHeader object {
 
     *AbstractListener;
 
-    private websub:Server websubServer;
+    private websub:Listener websubListener;
 
     public function __init(WebhookListenerConfiguration config) {
         websub:ExtensionConfig extensionConfig = {
@@ -163,19 +163,19 @@ public type WebhookServerForHeader object {
             port: config.port,
             extensionConfig: extensionConfig
         };
-        self.websubServer = new(sseConfig);
+        self.websubListener = new(sseConfig);
     }
 
     public function __attach(service serviceType, map<any> data) returns error? {
-        return self.websubServer.__attach(serviceType, data);
+        return self.websubListener.__attach(serviceType, data);
     }
 
     public function __start() returns error? {
-        return self.websubServer.__start();
+        return self.websubListener.__start();
     }
 
     public function __stop() returns error? {
-        return self.websubServer.__stop();
+        return self.websubListener.__stop();
     }
 };
 
@@ -184,7 +184,7 @@ public type WebhookServerForHeaderAndPayload object {
 
     *AbstractListener;
 
-    private websub:Server websubServer;
+    private websub:Listener websubListener;
 
     public function __init(WebhookListenerConfiguration config) {
         websub:ExtensionConfig extensionConfig = {
@@ -222,18 +222,18 @@ public type WebhookServerForHeaderAndPayload object {
             port: config.port,
             extensionConfig: extensionConfig
         };
-        self.websubServer = new(sseConfig);
+        self.websubListener = new(sseConfig);
     }
 
     public function __attach(service serviceType, map<any> data) returns error? {
-        return self.websubServer.__attach(serviceType, data);
+        return self.websubListener.__attach(serviceType, data);
     }
 
     public function __start() returns error? {
-        return self.websubServer.__start();
+        return self.websubListener.__start();
     }
 
     public function __stop() returns error? {
-        return self.websubServer.__stop();
+        return self.websubListener.__stop();
     }
 };
