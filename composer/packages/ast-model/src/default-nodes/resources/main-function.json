@@ -1,0 +1,207 @@
+{
+    "ws": [
+        {
+            "ws": "\n\n",
+            "i": 206,
+            "text": "public",
+            "static": true
+        },
+        {
+            "ws": " ",
+            "i": 208,
+            "text": "function",
+            "static": true
+        },
+        {
+            "ws": " ",
+            "i": 210,
+            "text": "main",
+            "static": false
+        },
+        {
+            "ws": "",
+            "i": 211,
+            "text": "(",
+            "static": true
+        },
+        {
+            "ws": "",
+            "i": 216,
+            "text": ")",
+            "static": true
+        },
+        {
+            "ws": " ",
+            "i": 218,
+            "text": "{",
+            "static": true
+        },
+        {
+            "ws": "\n\n",
+            "i": 220,
+            "text": "}",
+            "static": true
+        }
+    ],
+    "position": {
+        "startColumn": 1,
+        "startLine": 32,
+        "endColumn": 1,
+        "endLine": 34
+    },
+    "id": "30fbfcbf-e14b-4eac-8ed2-840517040121",
+    "workers": [],
+    "returnTypeAnnotationAttachments": [],
+    "name": {
+        "position": {
+            "startColumn": 17,
+            "startLine": 32,
+            "endColumn": 17,
+            "endLine": 32
+        },
+        "id": "1bd35d80-a8f1-43fd-94ff-47435d0f9de8",
+        "literal": false,
+        "value": "main",
+        "kind": "Identifier",
+        "valueWithBar": "main"
+    },
+    "annotationAttachments": [],
+    "returnTypeNode": {
+        "position": {
+            "startColumn": 17,
+            "startLine": 32,
+            "endColumn": 36,
+            "endLine": 32
+        },
+        "id": "5fdffecc-697a-4103-96ec-0d30fe8a5ddc",
+        "symbolType": [
+            "null"
+        ],
+        "typeKind": "nil",
+        "grouped": false,
+        "nullable": false,
+        "kind": "ValueType"
+    },
+    "defaultableParameters": [],
+    "deprecatedAttachments": [],
+    "endpointNodes": [],
+    "body": {
+        "id": "a208c9c3-10ba-4ee3-aeaf-4cd4e2a92351",
+        "statements": [],
+        "kind": "Block"
+    },
+    "parameters": [],
+    "restParameters": {
+        "ws": [
+            {
+                "ws": "",
+                "i": 213,
+                "text": "...",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 215,
+                "text": "args",
+                "static": false
+            }
+        ],
+        "position": {
+            "startColumn": 22,
+            "startLine": 32,
+            "endColumn": 32,
+            "endLine": 32
+        },
+        "id": "caf3ced1-dabb-4fde-8292-d66d55404138",
+        "symbolType": [
+            "[]"
+        ],
+        "name": {
+            "id": "e476569b-d14e-49a7-abac-4886e5717737",
+            "literal": false,
+            "value": "args",
+            "kind": "Identifier",
+            "valueWithBar": "args"
+        },
+        "typeNode": {
+            "id": "301032c4-44f1-40a0-b184-747ba211bc16",
+            "symbolType": [
+                "[]"
+            ],
+            "dimensions": 1,
+            "elementType": {
+                "ws": [
+                    {
+                        "ws": "",
+                        "i": 212,
+                        "text": "string",
+                        "static": true
+                    }
+                ],
+                "position": {
+                    "startColumn": 22,
+                    "startLine": 32,
+                    "endColumn": 22,
+                    "endLine": 32
+                },
+                "id": "87029320-5be5-4f60-8124-08db7faf46c0",
+                "symbolType": [
+                    "string"
+                ],
+                "typeKind": "string",
+                "grouped": false,
+                "nullable": false,
+                "kind": "ValueType"
+            },
+            "grouped": false,
+            "sizes": [],
+            "nullable": false,
+            "kind": "ArrayType",
+            "isRestParam": true
+        },
+        "deprecatedAttachments": [],
+        "annotationAttachments": [],
+        "kind": "Variable",
+        "public": false,
+        "private": false,
+        "native": false,
+        "final": false,
+        "attached": false,
+        "lambda": false,
+        "parallel": false,
+        "connector": false,
+        "deprecated": false,
+        "readonly": false,
+        "function_final": false,
+        "interface": false,
+        "required": false,
+        "record": false,
+        "compensate": false,
+        "abstract": false,
+        "optional": false,
+        "testable": false,
+        "constant": false,
+        "rest": true
+    },
+    "kind": "Function",
+    "public": true,
+    "private": false,
+    "native": false,
+    "final": false,
+    "attached": false,
+    "lambda": false,
+    "parallel": false,
+    "connector": false,
+    "deprecated": false,
+    "readonly": false,
+    "function_final": false,
+    "interface": false,
+    "required": false,
+    "record": false,
+    "compensate": false,
+    "abstract": false,
+    "optional": false,
+    "testable": false,
+    "constant": false,
+    "allParams": []
+}

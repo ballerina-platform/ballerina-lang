@@ -1,0 +1,109 @@
+{
+    "ws": [
+        {
+            "ws": "\n\n",
+            "i": 7,
+            "text": "function",
+            "static": true
+        },
+        {
+            "ws": " ",
+            "i": 9,
+            "text": "function1",
+            "static": false
+        },
+        {
+            "ws": "",
+            "i": 10,
+            "text": "(",
+            "static": true
+        },
+        {
+            "ws": "",
+            "i": 11,
+            "text": ")",
+            "static": true
+        },
+        {
+            "ws": " ",
+            "i": 13,
+            "text": "{",
+            "static": true
+        },
+        {
+            "ws": "\n\n",
+            "i": 15,
+            "text": "}",
+            "static": true
+        }
+    ],
+    "position": {
+        "startColumn": 1,
+        "startLine": 3,
+        "endColumn": 1,
+        "endLine": 5
+    },
+    "id": "51a9b3ef-d038-45a9-bdb1-7ca2500edd1a",
+    "workers": [],
+    "returnTypeAnnotationAttachments": [],
+    "name": {
+        "position": {
+            "startColumn": 10,
+            "startLine": 3,
+            "endColumn": 10,
+            "endLine": 3
+        },
+        "id": "2c599949-6306-4044-9f77-18002fd596f6",
+        "literal": false,
+        "value": "function1",
+        "kind": "Identifier",
+        "valueWithBar": "function1"
+    },
+    "annotationAttachments": [],
+    "returnTypeNode": {
+        "position": {
+            "startColumn": 10,
+            "startLine": 3,
+            "endColumn": 20,
+            "endLine": 3
+        },
+        "id": "7a76982f-8489-4d11-8c68-48d6ae725a77",
+        "symbolType": [
+            "null"
+        ],
+        "typeKind": "nil",
+        "grouped": false,
+        "nullable": false,
+        "kind": "ValueType"
+    },
+    "defaultableParameters": [],
+    "deprecatedAttachments": [],
+    "endpointNodes": [],
+    "body": {
+        "id": "4265a4d3-154e-4558-bd47-c659bb9dc83b",
+        "statements": [],
+        "kind": "Block"
+    },
+    "parameters": [],
+    "kind": "Function",
+    "public": false,
+    "private": false,
+    "native": false,
+    "final": false,
+    "attached": false,
+    "lambda": false,
+    "parallel": false,
+    "connector": false,
+    "deprecated": false,
+    "readonly": false,
+    "function_final": false,
+    "interface": false,
+    "required": false,
+    "record": false,
+    "compensate": false,
+    "abstract": false,
+    "optional": false,
+    "testable": false,
+    "constant": false,
+    "allParams": []
+}
