@@ -1,4 +1,4 @@
-import { exec } from "child_process";
+import { execSync } from "child_process";
 import * as path from "path";
 import * as yargs from "yargs";
 
@@ -28,22 +28,22 @@ process.on("uncaughtException", (error) => {
     }
 });
 
-function run(script: string): Promise<number> {
-    return new Promise((resolve, reject) => {
-        const env = process.env;
-        env.TZ = "utc";
-        env.FORCE_COLOR = "true";
-        env.PATH = path.join(process.cwd(), "..", "..", "node_modules", ".bin")
-            + path.delimiter + process.env.PATH;
-        const scriptProcess = exec(script, {
+function run(script: string): number {
+    const env = process.env;
+    env.TZ = "utc";
+    env.FORCE_COLOR = "true";
+    env.PATH = path.join(process.cwd(), "..", "..", "node_modules", ".bin")
+        + path.delimiter + process.env.PATH;
+    try {
+        execSync(script, {
             cwd: process.cwd(),
-            env
+            env,
+            stdio: "inherit"
         });
-        scriptProcess.stdout.pipe(process.stdout);
-        scriptProcess.stderr.pipe(process.stderr);
-        scriptProcess.on("error", reject);
-        scriptProcess.on("close", (code) => resolve(code));
-    });
+        return 0;
+    } catch (error) {
+        return 1;
+    }
 }
 
 function getArgs(arg: string): string[] {
@@ -60,11 +60,11 @@ function getCommand(command: string, pkgName: string): any {
         command,
         describe: command + " composer pkg " + pkgName,
         handler: async () => {
-            let exitCode: number = 0;
+            let exitCode = 0;
             try {
                 const args = getArgs(command);
                 console.log(command + " " + pkgName);
-                exitCode = await run(getScript(command) + " " + args.join(" "));
+                exitCode = run(getScript(command) + " " + args.join(" "));
             } catch (err) {
                 console.error(err);
                 exitCode = 1;
@@ -95,7 +95,7 @@ function getCommand(command: string, pkgName: string): any {
                 let exitCode: number = 0;
                 try {
                     const args = getArgs("cmd:hoist");
-                    exitCode = await run(args.join(" "));
+                    exitCode = run(args.join(" "));
                 } catch (err) {
                     console.error(err);
                     exitCode = 1;
