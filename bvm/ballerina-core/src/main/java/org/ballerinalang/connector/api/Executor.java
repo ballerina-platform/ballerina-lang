@@ -21,6 +21,7 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.vm.BVMExecutor;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.observability.ObserverContext;
 
@@ -52,9 +53,9 @@ public class Executor {
         if (resource == null || responseCallback == null) {
             throw new BallerinaConnectorException("invalid arguments provided");
         }
-        ResourceInfo resourceInfo = resource.getResourceInfo();
-        BVMExecutor.executeResource(resourceInfo.getPackageInfo().getProgramFile(), resourceInfo,
-                responseCallback, properties, observerContext, values);
+        FunctionInfo resourceInfo = resource.getResourceInfo();
+        BVMExecutor.executeResource(resourceInfo.getPackageInfo().getProgramFile(), resourceInfo, responseCallback,
+                                    properties, observerContext, resource.getService().getServiceInfo(), values);
 
 
 //        WorkerExecutionContext context = new WorkerExecutionContext(resource.getResourceInfo().getPackageInfo()
@@ -80,10 +81,9 @@ public class Executor {
         if (resource == null || responseCallback == null) {
             throw new BallerinaConnectorException("invalid arguments provided");
         }
-        ResourceInfo resourceInfo = resource.getResourceInfo();
-
-        BVMExecutor.executeResource(resourceInfo.getPackageInfo().getProgramFile(), resourceInfo,
-                responseCallback, properties, observerContext, values);
+        FunctionInfo resourceInfo = resource.getResourceInfo();
+        BVMExecutor.executeResource(resourceInfo.getPackageInfo().getProgramFile(), resourceInfo, responseCallback,
+                                    properties, observerContext, resource.getService().getServiceInfo(), values);
 //        ResourceExecutor.execute(resource, responseCallback, properties, observerContext, context, values);
     }
 

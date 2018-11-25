@@ -4267,7 +4267,7 @@ public class BVM {
         return true;
     }
 
-    private static boolean checkIsLikeType(BValue sourceValue, BType targetType) {
+    public static boolean checkIsLikeType(BValue sourceValue, BType targetType) {
         BType sourceType = sourceValue == null ? BTypes.typeNull : sourceValue.getType();
         if (checkIsType(sourceType, targetType, new ArrayList<>())) {
             return true;

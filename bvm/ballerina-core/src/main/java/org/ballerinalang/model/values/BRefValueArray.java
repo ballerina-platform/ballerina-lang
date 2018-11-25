@@ -124,7 +124,7 @@ public class BRefValueArray extends BNewArray implements Serializable {
             }
         } else if (type.getTag() == TypeTags.UNION_TAG) {
             for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-                if (CPU.checkIsLikeType(this, memberType)) {
+                if (BVM.checkIsLikeType(this, memberType)) {
                     this.stamp(memberType);
                     type = memberType;
                     break;

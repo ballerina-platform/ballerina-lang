@@ -373,7 +373,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
             }
         } else if (type.getTag() == TypeTags.UNION_TAG) {
             for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-                if (CPU.checkIsLikeType(this, memberType)) {
+                if (BVM.checkIsLikeType(this, memberType)) {
                     this.stamp(memberType);
                     type = memberType;
                     break;
