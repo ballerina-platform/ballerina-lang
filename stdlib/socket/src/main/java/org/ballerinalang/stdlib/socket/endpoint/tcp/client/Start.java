@@ -35,6 +35,7 @@ import org.ballerinalang.stdlib.socket.exceptions.SelectorInitializeException;
 import org.ballerinalang.stdlib.socket.tcp.ChannelRegisterCallback;
 import org.ballerinalang.stdlib.socket.tcp.SelectorManager;
 import org.ballerinalang.stdlib.socket.tcp.SocketService;
+import org.ballerinalang.stdlib.socket.tcp.SocketUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,17 +94,23 @@ public class Start implements NativeCallableUnit {
             }
         } catch (SelectorInitializeException e) {
             log.error(e.getMessage(), e);
-            throw new BallerinaException("Unable to initialize the selector");
+            context.setReturnValues(SocketUtils.createSocketError(context, "Unable to initialize the selector"));
+            callback.notifySuccess();
         } catch (CancelledKeyException e) {
-            throw new BallerinaException("Unable to start the client socket");
+            context.setReturnValues(SocketUtils.createSocketError(context, "Unable to start the client socket"));
+            callback.notifySuccess();
         } catch (AlreadyBoundException e) {
-            throw new BallerinaException("Client socket is already bound to a port");
+            context.setReturnValues(SocketUtils.createSocketError(context, "Client socket is already bound to a port"));
+            callback.notifySuccess();
         } catch (UnsupportedAddressTypeException e) {
             log.error("Address not supported", e);
-            throw new BallerinaException("Provided address not supported");
+            context.setReturnValues(SocketUtils.createSocketError(context, "Provided address not supported"));
+            callback.notifySuccess();
         } catch (IOException e) {
             log.error(e.getMessage(), e);
-            throw new BallerinaException("Unable to start the client socket: " + e.getMessage());
+            context.setReturnValues(
+                    SocketUtils.createSocketError(context, "Unable to start the client socket: " + e.getMessage()));
+            callback.notifySuccess();
         }
     }
 

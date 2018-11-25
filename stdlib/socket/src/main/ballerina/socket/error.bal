@@ -14,10 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents the server socket service.
-public type Server object {
-    public function getEndpoint() returns Listener {
-        Listener ep = new;
-        return ep;
-    }
+type SocketError record {
+    string message = "";
+    !...
 };

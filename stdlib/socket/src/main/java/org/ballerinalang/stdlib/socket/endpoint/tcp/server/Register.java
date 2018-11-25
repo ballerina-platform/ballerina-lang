@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.socket.endpoint.tcp.listener;
+package org.ballerinalang.stdlib.socket.endpoint.tcp.server;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -25,7 +25,6 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.socket.tcp.SocketService;
@@ -51,8 +50,7 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
         orgName = "ballerina",
         packageName = "socket",
         functionName = "register",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = SOCKET_PACKAGE),
-        args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC)},
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Server", structPackage = SOCKET_PACKAGE),
         isPublic = true
 )
 public class Register extends BlockingNativeCallableUnit {
@@ -62,6 +60,7 @@ public class Register extends BlockingNativeCallableUnit {
         Struct listenerEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
         final SocketService socketService = getSocketService(context, listenerEndpoint);
         listenerEndpoint.addNativeData(SOCKET_SERVICE, socketService);
+        context.setReturnValues();
     }
 
     private SocketService getSocketService(Context context, Struct listenerEndpoint) {

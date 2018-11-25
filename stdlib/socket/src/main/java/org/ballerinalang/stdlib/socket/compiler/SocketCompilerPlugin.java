@@ -55,7 +55,7 @@ import static org.ballerinalang.util.diagnostic.Diagnostic.Kind.ERROR;
  * @since 0.983.0
  */
 @SupportEndpointTypes(
-        value = {@SupportEndpointTypes.EndpointType(orgName = "ballerina", packageName = "socket", name = "Listener"),
+        value = {@SupportEndpointTypes.EndpointType(orgName = "ballerina", packageName = "socket", name = "Server"),
                  @SupportEndpointTypes.EndpointType(orgName = "ballerina", packageName = "socket", name = "Client")}
 )
 public class SocketCompilerPlugin extends AbstractCompilerPlugin {
@@ -187,7 +187,7 @@ public class SocketCompilerPlugin extends AbstractCompilerPlugin {
     private void validateEndpointCaller(String serviceName, BLangResource resource, DiagnosticLog diagnosticLog,
             BStructureType event) {
         String eventType = event.tsymbol.toString();
-        if (!("ballerina/socket:Listener".equals(eventType) || "ballerina/socket:Client".equals(eventType))) {
+        if (!("ballerina/socket:Server".equals(eventType) || "ballerina/socket:Client".equals(eventType))) {
             String msg = String.format("Invalid resource signature for %s in service %s. "
                     + "The parameter should be an 'endpoint'", resource.getName().getValue(), serviceName);
             diagnosticLog.logDiagnostic(ERROR, resource.getPosition(), msg);

@@ -153,7 +153,7 @@ public class SelectorManager {
                 socketService.getSocketChannel()
                         .register(selector, channelRegisterCallback.getInitialInterest(), socketService);
             } catch (ClosedChannelException e) {
-                // TODO: use callback throwError once it's available
+                channelRegisterCallback.notifyFailure("Socket already closed");
             }
             channelRegisterCallback
                     .notifyRegister(channelRegisterCallback.getInitialInterest() == SelectionKey.OP_READ);

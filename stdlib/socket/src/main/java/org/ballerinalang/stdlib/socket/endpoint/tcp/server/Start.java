@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.socket.endpoint.tcp.listener;
+package org.ballerinalang.stdlib.socket.endpoint.tcp.server;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
@@ -35,7 +35,7 @@ import org.ballerinalang.stdlib.socket.exceptions.SelectorInitializeException;
 import org.ballerinalang.stdlib.socket.tcp.ChannelRegisterCallback;
 import org.ballerinalang.stdlib.socket.tcp.SelectorManager;
 import org.ballerinalang.stdlib.socket.tcp.SocketService;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.stdlib.socket.tcp.SocketUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +62,7 @@ import static java.nio.channels.SelectionKey.OP_ACCEPT;
         orgName = "ballerina",
         packageName = "socket",
         functionName = "start",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = SOCKET_PACKAGE),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Server", structPackage = SOCKET_PACKAGE),
         isPublic = true
 )
 public class Start implements NativeCallableUnit {
@@ -89,20 +89,27 @@ public class Start implements NativeCallableUnit {
             ChannelRegisterCallback registerCallback = new ChannelRegisterCallback(socketService, callback, context,
                     OP_ACCEPT);
             selectorManager.registerChannel(registerCallback);
-            //            context.setReturnValues();
         } catch (SelectorInitializeException e) {
             log.error(e.getMessage(), e);
-            throw new BallerinaException("Unable to initialize the selector");
+            context.setReturnValues(SocketUtils.createSocketError(context, "Unable to initialize the selector"));
+            callback.notifySuccess();
         } catch (CancelledKeyException e) {
-            throw new BallerinaException("Server socket registration is failed");
+            context.setReturnValues(
+                    SocketUtils.createSocketError(context, "Server socket registration is failed"));
+            callback.notifySuccess();
         } catch (AlreadyBoundException e) {
-            throw new BallerinaException("Server socket service is already bound to a port");
+            context.setReturnValues(
+                    SocketUtils.createSocketError(context, "Server socket service is already bound to a port"));
+            callback.notifySuccess();
         } catch (UnsupportedAddressTypeException e) {
             log.error("Address not supported", e);
-            throw new BallerinaException("Provided address not supported");
+            context.setReturnValues(SocketUtils.createSocketError(context, "Provided address not supported"));
+            callback.notifySuccess();
         } catch (IOException e) {
             log.error(e.getMessage(), e);
-            throw new BallerinaException("Unable to start the socket service: " + e.getMessage());
+            context.setReturnValues(SocketUtils
+                    .createSocketError(context, "Unable to start the socket service: " + e.getMessage()));
+            callback.notifySuccess();
         }
     }
 

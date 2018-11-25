@@ -25,7 +25,6 @@ import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.socket.SocketConstants;
@@ -39,6 +38,7 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.SocketChannel;
 
+import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 
 /**
@@ -50,8 +50,7 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
         orgName = "ballerina",
         packageName = "socket",
         functionName = "write",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "CallerAction", structPackage = SOCKET_PACKAGE),
-        args = {@Argument(name = "content", type = TypeKind.ARRAY, elementType = TypeKind.BYTE)},
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = CLIENT, structPackage = SOCKET_PACKAGE),
         isPublic = true
 )
 public class Write extends BlockingNativeCallableUnit {
@@ -75,12 +74,12 @@ public class Write extends BlockingNativeCallableUnit {
             }
             context.setReturnValues(new BInteger(write));
         } catch (ClosedChannelException e) {
-            context.setReturnValues(SocketUtils.createError(context, "Client socket close already."));
+            context.setReturnValues(SocketUtils.createSocketError(context, "Client socket close already."));
         } catch (IOException e) {
-            context.setReturnValues(SocketUtils.createError(context, "Write failed."));
+            context.setReturnValues(SocketUtils.createSocketError(context, "Write failed."));
             log.error("Unable to perform write[" + socketChannel.hashCode() + "]", e);
         } catch (NotYetConnectedException e) {
-            context.setReturnValues(SocketUtils.createError(context, "Client socket not connected yet."));
+            context.setReturnValues(SocketUtils.createSocketError(context, "Client socket not connected yet."));
         }
     }
 }

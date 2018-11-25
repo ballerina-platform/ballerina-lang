@@ -17,25 +17,26 @@
 import ballerina/io;
 import ballerina/socket;
 
-endpoint socket:Listener server {
+listener socket:Server server = new ({
     port:59152
-};
+});
 
-service echoServer bind server {
-    onAccept (endpoint caller) {
+service echoServer on server {
+
+    resource function onAccept (socket:Client caller) {
         io:println("Join: ", caller.remotePort);
     }
 
-    onReadReady (endpoint caller, byte[] content) {
+    resource function onReadReady (socket:Client caller, byte[] content) {
         _ = caller->write(content);
         io:println("Server write");
     }
 
-    onClose(endpoint caller) {
+    resource function onClose(socket:Client caller) {
         io:println("Leave: ", caller.remotePort);
     }
 
-    onError(endpoint caller, error er) {
+    resource function onError(socket:Client caller, error er) {
         io:println(er.reason());
     }
 }

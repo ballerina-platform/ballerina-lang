@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.channels.SocketChannel;
 
+import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 
 /**
@@ -44,7 +45,7 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
         orgName = "ballerina",
         packageName = "socket",
         functionName = "shutdownRead",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "CallerAction", structPackage = SOCKET_PACKAGE),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = CLIENT, structPackage = SOCKET_PACKAGE),
         isPublic = true
 )
 public class ShutdownRead extends BlockingNativeCallableUnit {
@@ -58,7 +59,7 @@ public class ShutdownRead extends BlockingNativeCallableUnit {
             socketChannel.shutdownInput();
         } catch (IOException e) {
             log.error("Unable to shutdown the read", e);
-            context.setReturnValues(SocketUtils.createError(context, "Unable to shutdown the read"));
+            context.setReturnValues(SocketUtils.createSocketError(context, "Unable to shutdown the read"));
         }
         context.setReturnValues();
     }

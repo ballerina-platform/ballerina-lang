@@ -16,35 +16,43 @@
 
 # Represents service endpoint where socket server service registered and start.
 #
-# + remotePort - the remote port number to which this socket is connected
-# + localPort - the local port number to which this socket is bound
-# + remoteAddress - the remote IP address string in textual presentation to which the socket is connected
-# + localAddress - the local IP address string in textual presentation to which the socket is bound
-# + id - a unique identification to identify each connection between server and the client
-public type Listener object {
 
-    private CallerAction callerAction;
-    @readonly public int remotePort;
-    @readonly public int localPort;
-    @readonly public string remoteAddress;
-    @readonly public string localAddress;
-    @readonly public int id;
+public type Server object {
 
-    public extern function init(ListenerEndpointConfiguration config);
+    *AbstractListener;
 
-    public extern function register(typedesc serviceType);
+    public function __init(ServerConfig config) {
+        var result = self.initServer(config);
+        if (result is error) {
+            panic result;
+        }
+    }
 
-    public extern function start();
+    public function __start() returns error? {
+        return self.start();
+    }
 
-    public extern function getCallerActions() returns CallerAction;
+    public function __stop() returns error? {
+        return ();
+    }
+
+    public function __attach(service s, map<any> annotationData) returns error? {
+        return self.register(s, annotationData);
+    }
+
+    public extern function initServer(ServerConfig config) returns error?;
+
+    public extern function register(service s, map<any> annotationData) returns error?;
+
+    public extern function start() returns error?;
 };
 
-# Represents the socket server endpoint configuration.
+# Represents the socket server configuration.
 #
 # + interface - the interface that server with to bind
 # + port - the port that server wish to bind
-public type ListenerEndpointConfiguration record {
-    string? interface;
-    int port;
+public type ServerConfig record {
+    string? interface = ();
+    int port = 0;
     !...
 };

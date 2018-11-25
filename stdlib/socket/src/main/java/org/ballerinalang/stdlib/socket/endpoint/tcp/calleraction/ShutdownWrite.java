@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.channels.SocketChannel;
 
+import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 
 /**
@@ -44,7 +45,7 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
         orgName = "ballerina",
         packageName = "socket",
         functionName = "shutdownWrite",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "CallerAction", structPackage = SOCKET_PACKAGE),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = CLIENT, structPackage = SOCKET_PACKAGE),
         isPublic = true
 )
 public class ShutdownWrite extends BlockingNativeCallableUnit {
@@ -58,7 +59,7 @@ public class ShutdownWrite extends BlockingNativeCallableUnit {
             socketChannel.shutdownOutput();
         } catch (IOException e) {
             log.error("Unable to shutdown the write", e);
-            context.setReturnValues(SocketUtils.createError(context, "Unable to shutdown the write"));
+            context.setReturnValues(SocketUtils.createSocketError(context, "Unable to shutdown the write"));
         }
         context.setReturnValues();
     }

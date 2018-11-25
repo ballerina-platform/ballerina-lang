@@ -17,48 +17,48 @@
 import ballerina/io;
 import ballerina/socket;
 
-endpoint socket:Listener server1 {
+listener socket:Server server1 = new ({
     port:60152
-};
+});
 
-endpoint socket:Listener server2 {
+listener socket:Server server2 = new ({
     port:60152
-};
+});
 
-service echoServer1 bind server1 {
-    onAccept (endpoint caller) {
+service echoServer1 on server1 {
+    resource function onAccept (socket:Client caller) {
         io:println("Join: ", caller.remotePort);
     }
 
-    onReadReady (endpoint caller, byte[] content) {
+    resource function onReadReady (socket:Client caller, byte[] content) {
         _ = caller->write(content);
         io:println("Server write");
     }
 
-    onClose(endpoint caller) {
+    resource function onClose(socket:Client caller) {
         io:println("Leave: ", caller.remotePort);
     }
 
-    onError(endpoint caller, error er) {
+    resource function onError(socket:Client caller, error er) {
         io:println(er.reason());
     }
 }
 
-service echoServer2 bind server2 {
-    onAccept (endpoint caller) {
+service echoServer2 on server2 {
+    resource function onAccept (socket:Client caller) {
         io:println("Join: ", caller.remotePort);
     }
 
-    onReadReady (endpoint caller, byte[] content) {
+    resource function onReadReady (socket:Client caller, byte[] content) {
         _ = caller->write(content);
         io:println("Server write");
     }
 
-    onClose(endpoint caller) {
+    resource function onClose(socket:Client caller) {
         io:println("Leave: ", caller.remotePort);
     }
 
-    onError(endpoint caller, error er) {
+    resource function onError(socket:Client caller, error er) {
         io:println(er.reason());
     }
 }

@@ -16,8 +16,8 @@
 
 # Represents the socket client service.
 public type ClientService object {
-    public function getEndpoint() returns Client {
-        Client ep = new;
-        return ep;
+    public function getEndpoint() returns Client? {
+        //Client ep = new;
+        return ();
     }
 };

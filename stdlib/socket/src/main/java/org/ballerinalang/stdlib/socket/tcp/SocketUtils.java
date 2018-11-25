@@ -21,6 +21,7 @@ package org.ballerinalang.stdlib.socket.tcp;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -32,8 +33,7 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
-import static org.ballerinalang.stdlib.socket.SocketConstants.CALLER_ACTION;
-import static org.ballerinalang.stdlib.socket.SocketConstants.ID;
+import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.LOCAL_ADDRESS;
 import static org.ballerinalang.stdlib.socket.SocketConstants.LOCAL_PORT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.REMOTE_ADDRESS;
@@ -46,39 +46,56 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
  */
 public class SocketUtils {
 
+    private static final String SOCKET_ERROR_CODE = "{ballerina/socket}SocketError";
+    private static final String SOCKET_ERROR = "SocketError";
+
     /**
-     * Returns the error struct for the corresponding message.
+     * Creates an error message.
      *
-     * @param context context of the extern function
-     * @param message error message
-     * @return error
+     * @param context context which is invoked.
+     * @param errMsg  the cause for the error.
+     * @return an error which will be propagated to ballerina user.
      */
-    public static BError createError(Context context, String message) {
-        return BLangVMErrors.createError(context, false, message);
+    public static BError createSocketError(Context context, String errMsg) {
+        BMap<String, BValue> errorRecord = BLangConnectorSPIUtil.createBStruct(context, SOCKET_PACKAGE, SOCKET_ERROR);
+        errorRecord.put("message", new BString(errMsg));
+        return BLangVMErrors.createError(context, true, BTypes.typeError, SOCKET_ERROR_CODE, errorRecord);
     }
 
     /**
-     * Create a `CallerAction` object that associated with the given SocketChannel.
+     * Creates an error message.
+     *
+     * @param programFile ProgramFile which is used.
+     * @param errMsg      the cause for the error.
+     * @return an error which will be propagated to ballerina user.
+     */
+    public static BError createSocketError(ProgramFile programFile, String errMsg) {
+        BMap<String, BValue> errorRecord = BLangConnectorSPIUtil
+                .createBStruct(programFile, SOCKET_PACKAGE, SOCKET_ERROR);
+        errorRecord.put("message", new BString(errMsg));
+        return BLangVMErrors.createError(SOCKET_ERROR_CODE, errorRecord);
+    }
+
+    /**
+     * Create a `Caller` object that associated with the given SocketChannel.
      *
      * @param programFile A program file
      * @param client      SocketClient that associate with this caller action
-     * @return 'CallerAction' object
+     * @return 'Caller' object
      */
-    public static BMap<String, BValue> createCallerAction(ProgramFile programFile, SocketChannel client) {
-        BMap<String, BValue> callerEndpoint = BLangConnectorSPIUtil
-                .createBStruct(programFile, SOCKET_PACKAGE, CALLER_ACTION);
-        callerEndpoint.addNativeData(SOCKET_KEY, client);
-        BMap<String, BValue> endpoint = BLangConnectorSPIUtil.createBStruct(programFile, SOCKET_PACKAGE, "Listener");
+    public static BMap<String, BValue> createClient(ProgramFile programFile, SocketChannel client) {
+        BValue initParam = null;
+        BMap<String, BValue> caller = BLangConnectorSPIUtil
+                .createObject(programFile, SOCKET_PACKAGE, CLIENT, initParam);
+        caller.addNativeData(SOCKET_KEY, client);
         if (client != null) {
             Socket socket = client.socket();
-            endpoint.put(REMOTE_PORT, new BInteger(socket.getPort()));
-            endpoint.put(LOCAL_PORT, new BInteger(socket.getLocalPort()));
-            endpoint.put(REMOTE_ADDRESS, new BString(socket.getInetAddress().getHostAddress()));
-            endpoint.put(LOCAL_ADDRESS, new BString(socket.getLocalAddress().getHostAddress()));
-            endpoint.put(ID, new BInteger(client.hashCode()));
+            caller.put(REMOTE_PORT, new BInteger(socket.getPort()));
+            caller.put(LOCAL_PORT, new BInteger(socket.getLocalPort()));
+            caller.put(REMOTE_ADDRESS, new BString(socket.getInetAddress().getHostAddress()));
+            caller.put(LOCAL_ADDRESS, new BString(socket.getLocalAddress().getHostAddress()));
         }
-        endpoint.put("callerAction", callerEndpoint);
-        return endpoint;
+        return caller;
     }
 
     /**

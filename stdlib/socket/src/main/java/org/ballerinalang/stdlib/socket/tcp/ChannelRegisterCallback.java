@@ -22,6 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 
@@ -68,8 +69,19 @@ public class ChannelRegisterCallback {
         if (client) {
             final Resource onConnect = socketService.getResources().get(RESOURCE_ON_CONNECT);
             SocketChannel channel = (SocketChannel) socketService.getSocketChannel();
-            final BMap<String, BValue> callerAction = SocketUtils.createCallerAction(context.getProgramFile(), channel);
-            Executor.submit(onConnect, new TCPSocketCallableUnitCallback(), null, null, callerAction);
+            final BMap<String, BValue> clientObj = SocketUtils.createClient(context.getProgramFile(), channel);
+            Executor.submit(onConnect, new TCPSocketCallableUnitCallback(), null, null, clientObj);
         }
+    }
+
+    /**
+     * Notify for the worker about the failure situation.
+     *
+     * @param errorMsg the error message
+     */
+    public void notifyFailure(String errorMsg) {
+        BError error = SocketUtils.createSocketError(context, errorMsg);
+        context.setReturnValues(error);
+        callableUnitCallback.notifyFailure(error);
     }
 }

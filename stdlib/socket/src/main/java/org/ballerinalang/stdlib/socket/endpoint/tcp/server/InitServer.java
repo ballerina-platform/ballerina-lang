@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.socket.endpoint.tcp.listener;
+package org.ballerinalang.stdlib.socket.endpoint.tcp.server;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -25,11 +25,10 @@ import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.socket.SocketConstants;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.stdlib.socket.tcp.SocketUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,15 +46,12 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "socket",
-        functionName = "init",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = SOCKET_PACKAGE),
-        args = {@Argument(name = "config", type = TypeKind.RECORD, structType = "ListenerEndpointConfiguration",
-                          structPackage = SOCKET_PACKAGE)
-        },
+        functionName = "initServer",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Server", structPackage = SOCKET_PACKAGE),
         isPublic = true
 )
-public class Init extends BlockingNativeCallableUnit {
-    private static final Logger log = LoggerFactory.getLogger(Init.class);
+public class InitServer extends BlockingNativeCallableUnit {
+    private static final Logger log = LoggerFactory.getLogger(InitServer.class);
 
     @Override
     public void execute(Context context) {
@@ -68,10 +64,13 @@ public class Init extends BlockingNativeCallableUnit {
             BMap<String, BValue> endpointConfig = (BMap<String, BValue>) context.getRefArgument(1);
             serviceEndpoint.addNativeData(SocketConstants.LISTENER_CONFIG, endpointConfig);
         } catch (SocketException e) {
-            throw new BallerinaException("Unable to bind the socket port");
+            context.setReturnValues(SocketUtils.createSocketError(context, "Unable to bind the socket port"));
+            return;
         } catch (IOException e) {
             log.error("Unable to initiate the server socket", e);
-            throw new BallerinaException("Unable to initiate the socket service");
+            context.setReturnValues(
+                    SocketUtils.createSocketError(context, "Unable to initiate the socket service"));
+            return;
         }
         context.setReturnValues();
     }

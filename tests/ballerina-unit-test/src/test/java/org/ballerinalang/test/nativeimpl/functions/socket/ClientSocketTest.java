@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.slf4j.Logger;
@@ -143,7 +144,8 @@ public class ClientSocketTest {
         BValue[] args = { new BString(firstMsg), new BString(secondMsg) };
         final BValue[] shutdownWritesResult = BRunUtil.invoke(socketClient, "shutdownWrite", args);
         BError error = (BError) shutdownWritesResult[0];
-        Assert.assertEquals(error.getReason(), "Client socket close already.");
+        Assert.assertEquals(((BMap) error.getDetails()).getMap().get("message").toString(),
+                "Client socket close already.");
         Assert.assertEquals(mockSocketServer.getReceivedString(), firstMsg);
     }
 }

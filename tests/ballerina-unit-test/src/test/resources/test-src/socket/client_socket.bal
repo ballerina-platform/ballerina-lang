@@ -2,18 +2,15 @@ import ballerina/io;
 import ballerina/socket;
 
 function oneWayWrite(string msg) {
-    endpoint socket:Client client {
-        host: "localhost",
-        port: 47826
-    };
+    socket:Client socketClient = new({host: "localhost", port: 47826});
     byte[] msgByteArray = msg.toByteArray("utf-8");
-    var writeResult = client->write(msgByteArray);
+    var writeResult = socketClient->write(msgByteArray);
     if (writeResult is int) {
         io:println("Number of byte written: ", writeResult);
     } else if (writeResult is error) {
         panic writeResult;
     }
-    var closeResult =  client->close();
+    var closeResult =  socketClient->close();
     if (closeResult is error) {
         io:println(closeResult.reason());
     } else {
@@ -22,27 +19,24 @@ function oneWayWrite(string msg) {
 }
 
 function shutdownWrite(string firstMsg, string secondMsg) returns error? {
-    endpoint socket:Client client {
-        host: "localhost",
-        port: 47826
-    };
+    socket:Client socketClient = new({host: "localhost", port: 47826});
     byte[] msgByteArray = firstMsg.toByteArray("utf-8");
-    var writeResult = client->write(msgByteArray);
+    var writeResult = socketClient->write(msgByteArray);
     if (writeResult is int) {
         io:println("Number of byte written: ", writeResult);
     } else if (writeResult is error) {
         panic writeResult;
     }
-    var shutdownResult = client->shutdownWrite();
+    var shutdownResult = socketClient->shutdownWrite();
     if (shutdownResult is error) {
         panic shutdownResult;
     }
     msgByteArray = secondMsg.toByteArray("utf-8");
-    writeResult = client->write(msgByteArray);
+    writeResult = socketClient->write(msgByteArray);
     if (writeResult is int) {
         io:println("Number of byte written: ", writeResult);
     } else if (writeResult is error) {
-        var closeResult = client->close();
+        var closeResult = socketClient->close();
         if (closeResult is error) {
             io:println(closeResult.reason());
         } else {

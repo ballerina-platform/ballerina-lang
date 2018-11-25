@@ -73,8 +73,11 @@ public class ServerSocketTest {
             socketChannel.read(buf);
             Assert.assertEquals(new String(SocketUtils.getByteArrayFromByteBuffer(buf), StandardCharsets.UTF_8),
                     welcomeMsg);
+            Thread.sleep(1);
         } catch (IOException e) {
             Assert.fail(e.getMessage(), e);
+        } catch (InterruptedException e) {
+            // Do nothing.
         }
     }
 

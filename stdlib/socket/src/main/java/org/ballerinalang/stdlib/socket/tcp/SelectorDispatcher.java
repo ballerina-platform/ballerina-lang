@@ -55,7 +55,7 @@ class SelectorDispatcher {
      */
     static void invokeOnError(SocketService socketService, String errorMsg) {
         Resource error = socketService.getResources().get(RESOURCE_ON_ERROR);
-        ProgramFile programFile = error.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
+        ProgramFile programFile = error.getResourceInfo().getPackageInfo().getProgramFile();
         SocketChannel client = null;
         if (socketService.getSocketChannel() != null) {
             client = (SocketChannel) socketService.getSocketChannel();
@@ -76,10 +76,10 @@ class SelectorDispatcher {
      */
     static void invokeReadReady(SocketService socketService, ByteBuffer buffer) {
         final Resource readReady = socketService.getResources().get(RESOURCE_ON_READ_READY);
-        ProgramFile programFile = readReady.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
-        BMap<String, BValue> endpoint = SocketUtils
-                .createCallerAction(programFile, (SocketChannel) socketService.getSocketChannel());
-        BValue[] params = { endpoint, new BByteArray(SocketUtils.getByteArrayFromByteBuffer(buffer)) };
+        ProgramFile programFile = readReady.getResourceInfo().getPackageInfo().getProgramFile();
+        BMap<String, BValue> caller = SocketUtils
+                .createClient(programFile, (SocketChannel) socketService.getSocketChannel());
+        BValue[] params = { caller, new BByteArray(SocketUtils.getByteArrayFromByteBuffer(buffer)) };
         try {
             Executor.submit(readReady, new TCPSocketCallableUnitCallback(), null, null, params);
         } catch (BallerinaConnectorException e) {
@@ -96,10 +96,10 @@ class SelectorDispatcher {
         try {
             socketService.getSocketChannel().close();
             final Resource close = socketService.getResources().get(RESOURCE_ON_CLOSE);
-            ProgramFile programFile = close.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
-            BMap<String, BValue> endpoint = SocketUtils
-                    .createCallerAction(programFile, (SocketChannel) socketService.getSocketChannel());
-            BValue[] params = { endpoint };
+            ProgramFile programFile = close.getResourceInfo().getPackageInfo().getProgramFile();
+            BMap<String, BValue> caller = SocketUtils
+                    .createClient(programFile, (SocketChannel) socketService.getSocketChannel());
+            BValue[] params = { caller };
             Executor.submit(close, new TCPSocketCallableUnitCallback(), null, null, params);
         } catch (IOException e) {
             String msg = "Unable to close the client connection properly";
@@ -118,7 +118,7 @@ class SelectorDispatcher {
      */
     static void invokeOnAccept(SocketService socketService, SocketChannel client) {
         Resource accept = socketService.getResources().get(RESOURCE_ON_ACCEPT);
-        ProgramFile programFile = accept.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
+        ProgramFile programFile = accept.getResourceInfo().getPackageInfo().getProgramFile();
         BValue[] params = getAcceptResourceSignature(client, programFile);
         try {
             Executor.submit(accept, new TCPSocketCallableUnitCallback(), null, null, params);
@@ -128,17 +128,17 @@ class SelectorDispatcher {
     }
 
     private static BValue[] getAcceptResourceSignature(SocketChannel client, ProgramFile programFile) {
-        BMap<String, BValue> endpoint = SocketUtils.createCallerAction(programFile, client);
-        return new BValue[] { endpoint };
+        BMap<String, BValue> caller = SocketUtils.createClient(programFile, client);
+        return new BValue[] { caller };
     }
 
     private static BValue[] getOnErrorResourceSignature(SocketChannel client, ProgramFile programFile, String msg) {
-        BMap<String, BValue> endpoint = SocketUtils.createCallerAction(programFile, client);
-        BError error = createError(msg);
-        return new BValue[] { endpoint, error };
+        BMap<String, BValue> caller = SocketUtils.createClient(programFile, client);
+        BError error = createError(programFile, msg);
+        return new BValue[] { caller, error };
     }
 
-    private static BError createError(String msg) {
-        return SocketUtils.createError(null, msg);
+    private static BError createError(ProgramFile programFile, String msg) {
+        return SocketUtils.createSocketError(programFile, msg);
     }
 }
