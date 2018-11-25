@@ -73,7 +73,7 @@ public type byteServiceClient client object {
         }
     }
 
-    remote function checkBytes (byte[] req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function checkBytes (byte[] req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.byteService/checkBytes", req, msgListener, headers = headers);
     }
 };
