@@ -11,5 +11,6 @@ export const Function = (props: {model: BallerinaFunction}) => {
     return (
         <Panel model={viewState} title={model.name.value} icon="function">
             <LifeLine title="Client" icon="client" model={viewState.client}/>
+            <LifeLine title="Default" icon="worker" model={viewState.defaultWorker}/>
         </Panel>);
 };
