@@ -1853,7 +1853,11 @@ public class PackageInfoReader {
                 case 'X':
                     return BTypes.typeAnyService;
                 default:
-                    return packageInfoOfType.getTypeDefInfo(typeName).typeInfo.getType();
+                    TypeDefInfo typeDefInfo = packageInfoOfType.getTypeDefInfo(typeName);
+                    if (typeDefInfo != null) {
+                        return typeDefInfo.typeInfo.getType();
+                    }
+                    return BTypes.getTypeFromName(typeName);
             }
         }
 
