@@ -919,9 +919,9 @@ public class BLangPackageBuilder {
     }
 
     void addSimpleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean isFinal,
-                                       boolean exprAvailable, boolean isDeclaredWithVar) {
-        BLangSimpleVariableDef varDefNode = createSimpleVariableDef(pos, ws, identifier, isFinal, exprAvailable,
-                isDeclaredWithVar);
+                                       boolean isExpressionAvailable, boolean isDeclaredWithVar) {
+        BLangSimpleVariableDef varDefNode = createSimpleVariableDef(pos, ws, identifier, isFinal,
+                isExpressionAvailable, isDeclaredWithVar);
         addStmtToCurrentBlock(varDefNode);
     }
 
@@ -933,9 +933,6 @@ public class BLangPackageBuilder {
         var.pos = pos;
         var.addWS(ws);
         var.setName(this.createIdentifier(identifier));
-        if (isExpressionAvailable) {
-            var.setInitialExpression(this.exprNodeStack.pop());
-        }
 
         if (isFinal) {
             markVariableAsFinal(var);
@@ -2230,8 +2227,8 @@ public class BLangPackageBuilder {
 
     void addForeachStatementWithSimpleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
                                                            boolean isDeclaredWithVar) {
-        BLangSimpleVariableDef variableDefinitionNode = createSimpleVariableDef(pos, ws, identifier, false, false,
-                isDeclaredWithVar);
+        BLangSimpleVariableDef variableDefinitionNode = createSimpleVariableDef(pos, ws, identifier, false,
+                false, isDeclaredWithVar);
         addForeachStatement(pos, ws, variableDefinitionNode, isDeclaredWithVar);
     }
 

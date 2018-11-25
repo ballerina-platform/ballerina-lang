@@ -942,10 +942,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         if (ctx.Identifier() != null) {
             this.pkgBuilder.addSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
-                    isFinal, isDeclaredWithVar, isExpressionAvailable);
+                    isFinal, isExpressionAvailable, isDeclaredWithVar);
         } else if (ctx.bindingPattern().Identifier() != null) {
             this.pkgBuilder.addSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-                    ctx.bindingPattern().Identifier().getText(), isFinal, isDeclaredWithVar, isExpressionAvailable);
+                    ctx.bindingPattern().Identifier().getText(), isFinal, isExpressionAvailable, isDeclaredWithVar);
         } else if (ctx.bindingPattern().structuredBindingPattern().recordBindingPattern() != null) {
             this.pkgBuilder.addRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx), isFinal, isDeclaredWithVar);
         } else {
