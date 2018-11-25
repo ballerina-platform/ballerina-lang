@@ -51,6 +51,9 @@ export interface Visitor {
   beginVisitCheckExpr?(node: Ballerina.CheckExpr): void;
   endVisitCheckExpr?(node: Ballerina.CheckExpr): void;
 
+  beginVisitCompensate?(node: Ballerina.Compensate): void;
+  endVisitCompensate?(node: Ballerina.Compensate): void;
+
   beginVisitCompilationUnit?(node: Ballerina.CompilationUnit): void;
   endVisitCompilationUnit?(node: Ballerina.CompilationUnit): void;
 
@@ -138,6 +141,9 @@ export interface Visitor {
   beginVisitLambda?(node: Ballerina.Lambda): void;
   endVisitLambda?(node: Ballerina.Lambda): void;
 
+  beginVisitLimit?(node: Ballerina.Limit): void;
+  endVisitLimit?(node: Ballerina.Limit): void;
+
   beginVisitLiteral?(node: Ballerina.Literal): void;
   endVisitLiteral?(node: Ballerina.Literal): void;
 
@@ -194,6 +200,9 @@ export interface Visitor {
   beginVisitRecordType?(node: Ballerina.RecordType): void;
   endVisitRecordType?(node: Ballerina.RecordType): void;
 
+  beginVisitRecordVariable?(node: Ballerina.RecordVariable): void;
+  endVisitRecordVariable?(node: Ballerina.RecordVariable): void;
+
   beginVisitRecordVariableRef?(node: Ballerina.RecordVariableRef): void;
   endVisitRecordVariableRef?(node: Ballerina.RecordVariableRef): void;
 
@@ -208,6 +217,9 @@ export interface Visitor {
 
   beginVisitReturn?(node: Ballerina.Return): void;
   endVisitReturn?(node: Ballerina.Return): void;
+
+  beginVisitScope?(node: Ballerina.Scope): void;
+  endVisitScope?(node: Ballerina.Scope): void;
 
   beginVisitSelectClause?(node: Ballerina.SelectClause): void;
   endVisitSelectClause?(node: Ballerina.SelectClause): void;

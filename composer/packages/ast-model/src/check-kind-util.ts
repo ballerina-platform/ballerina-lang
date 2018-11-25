@@ -63,6 +63,10 @@ export class ASTKindChecker {
     return node.kind === "CheckExpr";
   }
 
+  public static isCompensate(node: ASTNode) {
+    return node.kind === "Compensate";
+  }
+
   public static isCompilationUnit(node: ASTNode) {
     return node.kind === "CompilationUnit";
   }
@@ -171,6 +175,10 @@ export class ASTKindChecker {
     return node.kind === "Lambda";
   }
 
+  public static isLimit(node: ASTNode) {
+    return node.kind === "Limit";
+  }
+
   public static isLiteral(node: ASTNode) {
     return node.kind === "Literal";
   }
@@ -235,6 +243,10 @@ export class ASTKindChecker {
     return node.kind === "RecordType";
   }
 
+  public static isRecordVariable(node: ASTNode) {
+    return node.kind === "RecordVariable";
+  }
+
   public static isRecordVariableRef(node: ASTNode) {
     return node.kind === "RecordVariableRef";
   }
@@ -253,6 +265,10 @@ export class ASTKindChecker {
 
   public static isReturn(node: ASTNode) {
     return node.kind === "Return";
+  }
+
+  public static isScope(node: ASTNode) {
+    return node.kind === "Scope";
   }
 
   public static isSelectClause(node: ASTNode) {
