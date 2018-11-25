@@ -30,7 +30,7 @@ public type Server object {
 
     public SubscriberServiceEndpointConfiguration config = {};
 
-    private http:Server? serviceEndpoint = ();
+    private http:Listener? serviceEndpoint = ();
 
     public function __init(SubscriberServiceEndpointConfiguration config) {
         self.init(config);
@@ -79,7 +79,7 @@ function Server.init(SubscriberServiceEndpointConfiguration c) {
         secureSocket:
         c.httpServiceSecureSocket
     };
-    http:Server httpEndpoint = new(c.port, config = serviceConfig);
+    http:Listener httpEndpoint = new(c.port, config = serviceConfig);
     //httpEndpoint.init(serviceConfig);
     self.serviceEndpoint = httpEndpoint;
 
@@ -231,7 +231,7 @@ public type ExtensionConfig record {
 # + return - `(string, string)` (hub, topic) URLs if successful, `error` if not
 function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:SecureSocket? localSecureSocket,
                                 http:FollowRedirects? followRedirects) returns @tainted (string, string)|error {
-    http:Client resourceEP = new http:Client({
+    http:Client resourceEP = new http:Client(resourceUrl, config = {
         url: resourceUrl,
         auth: auth,
         secureSocket: localSecureSocket,
