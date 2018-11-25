@@ -1,6 +1,6 @@
 import ballerina/http;
 
-listener http:MockServer mockEP = new(9090);
+listener http:MockListener mockEP = new(9090);
 
 service hello on mockEP {
 

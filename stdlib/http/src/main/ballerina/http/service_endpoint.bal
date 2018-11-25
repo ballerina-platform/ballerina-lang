@@ -19,12 +19,11 @@ import ballerina/log;
 import ballerina/system;
 
 /////////////////////////////
-/// HTTP Server Endpoint ///
+/// HTTP Listener Endpoint ///
 /////////////////////////////
 # This is used for creating HTTP server endpoints. An HTTP server endpoint is capable of responding to
-# remote callers. The `Server` is responsible for initializing the endpoint using the provided configurations and
-# providing the actions for communicating with the caller.
-public type Server object {
+# remote callers. The `Listener` is responsible for initializing the endpoint using the provided configurations.
+public type Listener object {
 
     *AbstractListener;
 
@@ -76,7 +75,7 @@ public type Server object {
     extern function stop();
 };
 
-function Server.init(ServiceEndpointConfiguration c) {
+function Listener.init(ServiceEndpointConfiguration c) {
     self.config = c;
     var providers = self.config.authProviders;
     if (providers is AuthProvider[]) {
@@ -445,7 +444,7 @@ public type WebSocketServer object {
 
     private ServiceEndpointConfiguration config = {};
 
-    private Server httpEndpoint;
+    private Listener httpEndpoint;
 
     # Gets invoked during module initialization to initialize the endpoint.
     #
