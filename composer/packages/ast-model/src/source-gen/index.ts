@@ -1,5 +1,6 @@
 import { ASTNode } from "../ast-interfaces";
 import { Visitor } from "../base-visitor";
+import { emitTreeModified } from "../events";
 import { traversNode } from "../model-utils";
 
 class SourceGenVisitor implements Visitor {
@@ -55,7 +56,7 @@ export function getWS(node: ASTNode): any[] {
     return sourceGenVisitor.getWS();
 }
 
-export function attachNode(newNode: ASTNode, tree: ASTNode, attachPoint: string, insertAt: number = 0) {
+export function attachNodeSilently(newNode: ASTNode, tree: ASTNode, attachPoint: string, insertAt: number = 0) {
     const newNodeWS = getWS(newNode);
     const treeWS = getWS(tree);
     const attachPointNodes: ASTNode[] = (tree as any)[attachPoint];
@@ -83,4 +84,9 @@ export function attachNode(newNode: ASTNode, tree: ASTNode, attachPoint: string,
         }
     });
     attachPointNodes[insertAt] = newNode;
+}
+
+export function attachNode(newNode: ASTNode, tree: ASTNode, attachPoint: string, insertAt: number = 0) {
+    attachNodeSilently(newNode, tree, attachPoint, insertAt);
+    emitTreeModified(tree, newNode);
 }
