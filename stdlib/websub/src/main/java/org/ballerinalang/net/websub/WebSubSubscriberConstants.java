@@ -35,7 +35,6 @@ public class WebSubSubscriberConstants {
     public static final String WEBSUB_PACKAGE = "ballerina/websub";
     public static final String WEBSUB_SERVICE_SERVER = "Server";
     public static final String WEBSUB_SERVICE_CALLER = "Caller";
-    public static final String WEBSUB_SERVICE_CALLER_HTTP_CALLER = "httpCaller";
     public static final String WEBSUB_HTTP_ENDPOINT = "serviceEndpoint";
     public static final String WEBSUB_SERVICE_NAME = "webSubServiceName";
 
