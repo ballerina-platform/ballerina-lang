@@ -30,8 +30,9 @@ public type Client client object {
     public ClientEndpointConfig config = {};
     public Client httpClient;
 
-    public function __init(ClientEndpointConfig c) {
-        self.config = c;
+    public function __init(string url, ClientEndpointConfig? config = ()) {
+        self.config = config ?: {};
+        self.config.url = url;
         var result = initialize(self.config);
         if (result is error) {
             panic result;
@@ -508,4 +509,9 @@ function createRetryClient(string url, ClientEndpointConfig configuration) retur
             return createHttpSecureClient(url, configuration);
         }
     }
+}
+
+function createClient(string url, ClientEndpointConfig config) returns Client|error {
+    HttpClient simpleClient =  new(url, config);
+    return <Client>simpleClient;
 }

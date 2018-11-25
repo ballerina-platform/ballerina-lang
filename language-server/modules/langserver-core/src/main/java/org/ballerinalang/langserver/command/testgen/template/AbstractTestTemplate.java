@@ -25,7 +25,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 /**
@@ -40,12 +39,10 @@ public abstract class AbstractTestTemplate implements TestTemplate {
     protected static final String HTTPS = "https://";
     protected static final String WS = "ws://";
     protected static final String WSS = "wss://";
-    protected final BiConsumer<Integer, Integer> focusLineAcceptor;
-    protected final BLangPackage builtTestFile;
-    protected final List<Pair<String, String>> imports;
+    protected BLangPackage builtTestFile;
+    protected List<Pair<String, String>> imports;
 
-    public AbstractTestTemplate(BLangPackage builtTestFile, BiConsumer<Integer, Integer> focusLineAcceptor) {
-        this.focusLineAcceptor = focusLineAcceptor;
+    public AbstractTestTemplate(BLangPackage builtTestFile) {
         this.builtTestFile = builtTestFile;
         this.imports = new ArrayList<>();
         if (builtTestFile != null) {

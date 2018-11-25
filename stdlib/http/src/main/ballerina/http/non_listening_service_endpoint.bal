@@ -16,7 +16,7 @@
 
 
 # Mock server endpoint which does not open a listening port.
-public type MockServer object {
+public type MockListener object {
 
     *AbstractListener;
     private Caller caller = new;
@@ -42,13 +42,13 @@ public type MockServer object {
 
     public function init (ServiceEndpointConfiguration c);
     public extern function initEndpoint () returns (error?);
-    public extern function register (service s, map annotationData);
+    public extern function register (service s, map annotationData) returns error?;
     public extern function start ();
     public extern function getCallerActions() returns Caller;
     public extern function stop ();
 };
 
-function MockServer.init (ServiceEndpointConfiguration c) {
+function MockListener.init (ServiceEndpointConfiguration c) {
     var err = self.initEndpoint();
     if (err is error) {
         panic err;

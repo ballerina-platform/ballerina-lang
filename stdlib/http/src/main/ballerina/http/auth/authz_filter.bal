@@ -36,7 +36,7 @@ public type AuthzFilter object {
     # + request - `Request` instance
     # + context - `FilterContext` instance
     # + return - A flag to indicate if the request flow should be continued(true) or aborted(false), a code and a message
-    public function filterRequest (Server listenerObj, Request request, FilterContext context) returns boolean {
+    public function filterRequest (Listener listenerObj, Request request, FilterContext context) returns boolean {
 		// first check if the resource is marked to be authenticated. If not, no need to authorize.
         ListenerAuthConfig? resourceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, RESOURCE_ANN_NAME,
             reflect:getResourceAnnotations(context.serviceType, context.resourceName));
@@ -73,7 +73,7 @@ public type AuthzFilter object {
 # + authorized - flag to indicate if authorization is successful or not
 # + return - A boolean flag to indicate if the request flow should be continued(true) or
 #            aborted(false)
-function isAuthzSuccessfull(Server listenerObj, boolean authorized) returns boolean {
+function isAuthzSuccessfull(Listener listenerObj, boolean authorized) returns boolean {
     //TODO:Fix this properly
     //endpoint Listener callerObj = listenerObj;
     //Response response = new;

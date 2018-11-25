@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 import ballerina/io;
 import ballerina/mime;
 import ballerina/runtime;
@@ -48,12 +47,17 @@ public type HttpSecureClient client object {
     //for retry and other few places.
     public string serviceUri = "";
     public ClientEndpointConfig config = {};
-    public HttpCaller httpCaller;
+    public Client httpClient;
 
     public function __init(string serviceUri, ClientEndpointConfig config) {
-        self.httpCaller = new(serviceUri, config);
         self.serviceUri = serviceUri;
         self.config = config;
+        var simpleClient = createClient(serviceUri, self.config);
+        if (simpleClient is Client) {
+            self.httpClient = simpleClient;
+        } else {
+            panic simpleClient;
+        }
     }
 
     # This wraps the `post()` function of the underlying HTTP actions provider. Add relevant authentication headers
@@ -67,11 +71,11 @@ public type HttpSecureClient client object {
                                         message) returns Response|error {
         Request req = buildRequest(message);
         check generateSecureRequest(req, self.config);
-        Response response = check self.httpCaller->post(path, req);
+        Response response = check self.httpClient->post(path, req);
         boolean isRetry = isRetryRequired(response, self.config);
         if (isRetry) {
             check updateRequestAndConfig(req, self.config);
-            return self.httpCaller->post(path, req);
+            return self.httpClient->post(path, req);
         }
         return response;
     }
@@ -87,11 +91,11 @@ public type HttpSecureClient client object {
                                         message = ()) returns Response|error {
         Request req = buildRequest(message);
         check generateSecureRequest(req, self.config);
-        Response response = check self.httpCaller->head(path, message = req);
+        Response response = check self.httpClient->head(path, message = req);
         boolean isRetry = isRetryRequired(response, self.config);
         if (isRetry) {
             check updateRequestAndConfig(req, self.config);
-            return self.httpCaller->head(path, message = req);
+            return self.httpClient->head(path, message = req);
         }
         return response;
     }
@@ -107,11 +111,11 @@ public type HttpSecureClient client object {
                                         message) returns Response|error {
         Request req = buildRequest(message);
         check generateSecureRequest(req, self.config);
-        Response response = check self.httpCaller->put(path, req);
+        Response response = check self.httpClient->put(path, req);
         boolean isRetry = isRetryRequired(response, self.config);
         if (isRetry) {
             check updateRequestAndConfig(req, self.config);
-            return self.httpCaller->put(path, req);
+            return self.httpClient->put(path, req);
         }
         return response;
     }
@@ -128,11 +132,11 @@ public type HttpSecureClient client object {
                                              message) returns Response|error {
         Request req = buildRequest(message);
         check generateSecureRequest(req, self.config);
-        Response response = check self.httpCaller->execute(httpVerb, path, req);
+        Response response = check self.httpClient->execute(httpVerb, path, req);
         boolean isRetry = isRetryRequired(response, self.config);
         if (isRetry) {
             check updateRequestAndConfig(req, self.config);
-            return self.httpCaller->execute(httpVerb, path, req);
+            return self.httpClient->execute(httpVerb, path, req);
         }
         return response;
     }
@@ -148,11 +152,11 @@ public type HttpSecureClient client object {
                                             message) returns Response|error {
         Request req = buildRequest(message);
         check generateSecureRequest(req, self.config);
-        Response response = check self.httpCaller->patch(path, req);
+        Response response = check self.httpClient->patch(path, req);
         boolean isRetry = isRetryRequired(response, self.config);
         if (isRetry) {
             check updateRequestAndConfig(req, self.config);
-            return self.httpCaller->patch(path, req);
+            return self.httpClient->patch(path, req);
         }
         return response;
     }
@@ -168,11 +172,11 @@ public type HttpSecureClient client object {
                                             message) returns Response|error {
         Request req = buildRequest(message);
         check generateSecureRequest(req, self.config);
-        Response response = check self.httpCaller->delete(path, req);
+        Response response = check self.httpClient->delete(path, req);
         boolean isRetry = isRetryRequired(response, self.config);
         if (isRetry) {
             check updateRequestAndConfig(req, self.config);
-            return self.httpCaller->delete(path, req);
+            return self.httpClient->delete(path, req);
         }
         return response;
     }
@@ -188,11 +192,11 @@ public type HttpSecureClient client object {
                                         message = ()) returns Response|error {
         Request req = buildRequest(message);
         check generateSecureRequest(req, self.config);
-        Response response = check self.httpCaller->get(path, message = req);
+        Response response = check self.httpClient->get(path, message = req);
         boolean isRetry = isRetryRequired(response, self.config);
         if (isRetry) {
             check updateRequestAndConfig(req, self.config);
-            return self.httpCaller->get(path, message = req);
+            return self.httpClient->get(path, message = req);
         }
         return response;
     }
@@ -208,11 +212,11 @@ public type HttpSecureClient client object {
                                             message = ()) returns Response|error {
         Request req = buildRequest(message);
         check generateSecureRequest(req, self.config);
-        Response response = check self.httpCaller->options(path, message = req);
+        Response response = check self.httpClient->options(path, message = req);
         boolean isRetry = isRetryRequired(response, self.config);
         if (isRetry) {
             check updateRequestAndConfig(req, self.config);
-            return self.httpCaller->options(path, message = req);
+            return self.httpClient->options(path, message = req);
         }
         return response;
     }
@@ -225,11 +229,11 @@ public type HttpSecureClient client object {
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
     public remote function forward(string path, Request request) returns Response|error {
         check generateSecureRequest(request, self.config);
-        Response response = check self.httpCaller->forward(path, request);
+        Response response = check self.httpClient->forward(path, request);
         boolean isRetry = isRetryRequired(response, self.config);
         if (isRetry) {
             check updateRequestAndConfig(request, self.config);
-            return self.httpCaller->forward(path, request);
+            return self.httpClient->forward(path, request);
         }
         return response;
     }
@@ -246,7 +250,7 @@ public type HttpSecureClient client object {
                                                             message) returns HttpFuture|error {
         Request req = buildRequest(message);
         check generateSecureRequest(req, self.config);
-        return self.httpCaller->submit(httpVerb, path, req);
+        return self.httpClient->submit(httpVerb, path, req);
     }
 
     # This just pass the request to actual network call.
@@ -254,7 +258,7 @@ public type HttpSecureClient client object {
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - An HTTP response message, or an error if the invocation fails
     public remote function getResponse(HttpFuture httpFuture) returns Response|error {
-        return self.httpCaller->getResponse(httpFuture);
+        return self.httpClient->getResponse(httpFuture);
     }
 
     # This just pass the request to actual network call.
@@ -262,7 +266,7 @@ public type HttpSecureClient client object {
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - A `boolean` that represents whether a `PushPromise` exists
     public remote function hasPromise(HttpFuture httpFuture) returns boolean {
-        return self.httpCaller->hasPromise(httpFuture);
+        return self.httpClient->hasPromise(httpFuture);
     }
 
     # This just pass the request to actual network call.
@@ -270,7 +274,7 @@ public type HttpSecureClient client object {
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - An HTTP Push Promise message, or an error if the invocation fails
     public remote function getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
-        return self.httpCaller->getNextPromise(httpFuture);
+        return self.httpClient->getNextPromise(httpFuture);
     }
 
     # This just pass the request to actual network call.
@@ -278,14 +282,14 @@ public type HttpSecureClient client object {
     # + promise - The related `PushPromise`
     # + return - A promised HTTP `Response` message, or an error if the invocation fails
     public remote function getPromisedResponse(PushPromise promise) returns Response|error {
-        return self.httpCaller->getPromisedResponse(promise);
+        return self.httpClient->getPromisedResponse(promise);
     }
 
     # This just pass the request to actual network call.
     #
     # + promise - The Push Promise to be rejected
     public remote function rejectPromise(PushPromise promise) {
-        return self.httpCaller->rejectPromise(promise);
+        return self.httpClient->rejectPromise(promise);
     }
 };
 
@@ -300,7 +304,7 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
         httpSecureClient = new(url, config);
         return <Client>httpSecureClient;
     } else {
-        return createSimpleHttpClient(url, config);
+        return createClient(url, config);
     }
 }
 
@@ -368,37 +372,43 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns str
     string[] scopes = config.auth.scopes ?: [];
 
     if (refreshToken == EMPTY_STRING || clientId == EMPTY_STRING || clientSecret == EMPTY_STRING || refreshUrl == EMPTY_STRING) {
-        error err = error("AccessTokenError", { message: "Failed to generate new access token since one or more of refresh token, client id, client secret,
+        error err = error("AccessTokenError",
+            { message: "Failed to generate new access token since one or more of refresh token, client id, client secret,
         refresh url are not provided" });
         return err;
     }
 
-    refreshTokenClient = createSimpleHttpClient(refreshUrl, {});
-    Request refreshTokenRequest = new;
-    string textPayload = "grant_type=refresh_token&refresh_token=" + refreshToken;
-    string scopeString = EMPTY_STRING;
-    foreach requestScope in scopes {
-        scopeString = scopeString + WHITE_SPACE + requestScope;
-    }
-    if (scopeString != EMPTY_STRING) {
-        textPayload = textPayload + "&scope=" + scopeString.trim();
-    }
-    if (config.auth.credentialBearer == AUTH_HEADER_BEARER) {
-        string clientIdSecret = clientId + ":" + clientSecret;
-        refreshTokenRequest.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + check clientIdSecret.base64Encode());
-    } else {
-        textPayload = textPayload + "&client_id=" + clientId + "&client_secret=" + clientSecret;
-    }
-    refreshTokenRequest.setTextPayload(untaint textPayload, contentType = mime:APPLICATION_FORM_URLENCODED);
-    Response refreshTokenResponse = check refreshTokenClient->post(EMPTY_STRING, refreshTokenRequest);
+    var simpleClient = createClient(refreshUrl, { url: refreshUrl });
+    if (simpleClient is Client) {
+        refreshTokenClient = simpleClient;
+        Request refreshTokenRequest = new;
+        string textPayload = "grant_type=refresh_token&refresh_token=" + refreshToken;
+        string scopeString = EMPTY_STRING;
+        foreach requestScope in scopes {
+            scopeString = scopeString + WHITE_SPACE + requestScope;
+        }
+        if (scopeString != EMPTY_STRING) {
+            textPayload = textPayload + "&scope=" + scopeString.trim();
+        }
+        if (config.auth.credentialBearer == AUTH_HEADER_BEARER) {
+            string clientIdSecret = clientId + ":" + clientSecret;
+            refreshTokenRequest.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + check clientIdSecret.base64Encode());
+        } else {
+            textPayload = textPayload + "&client_id=" + clientId + "&client_secret=" + clientSecret;
+        }
+        refreshTokenRequest.setTextPayload(untaint textPayload, contentType = mime:APPLICATION_FORM_URLENCODED);
+        Response refreshTokenResponse = check refreshTokenClient->post(EMPTY_STRING, refreshTokenRequest);
 
-    json generatedToken = check refreshTokenResponse.getJsonPayload();
-    if (refreshTokenResponse.statusCode == OK_200) {
-        return generatedToken.access_token.toString();
+        json generatedToken = check refreshTokenResponse.getJsonPayload();
+        if (refreshTokenResponse.statusCode == OK_200) {
+            return generatedToken.access_token.toString();
+        } else {
+            error err = error("AccessTokenError",
+                { message: "Failed to generate new access token from the given refresh token" });
+            return err;
+        }
     } else {
-        error err = error("AccessTokenError", { message:
-            "Failed to generate new access token from the given refresh token" });
-        return err;
+        return simpleClient;
     }
 }
 

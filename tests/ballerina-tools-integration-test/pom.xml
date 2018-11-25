@@ -218,7 +218,6 @@
                                                         <fileset dir="${basedir}/../../misc/testerina/modules/testerina-core/target/classes" />
                                                         <fileset dir="${basedir}/../../misc/toml-parser/target/classes" />
                                                         <fileset dir="${basedir}/../../misc/tracing-extensions/modules/ballerina-jaeger-extension/target/classes" />
-                                                        <fileset dir="${basedir}/../../stdlib/auth/target/classes" />
                                                         <fileset dir="${basedir}/../../stdlib/builtin/target/classes" />
                                                         <fileset dir="${basedir}/../../stdlib/config-api/target/classes" />
                                                         <fileset dir="${basedir}/../../stdlib/crypto/target/classes" />
@@ -263,7 +262,6 @@
                                                         <fileset dir="${basedir}/../../misc/testerina/modules/testerina-core/src/main/java" />
                                                         <fileset dir="${basedir}/../../misc/toml-parser/src/main/java" />
                                                         <fileset dir="${basedir}/../../misc/tracing-extensions/modules/ballerina-jaeger-extension/src/main/java" />
-                                                        <fileset dir="${basedir}/../../stdlib/auth/src/main/java" />
                                                         <fileset dir="${basedir}/../../stdlib/builtin/src/main/java" />
                                                         <fileset dir="${basedir}/../../stdlib/config-api/src/main/java" />
                                                         <fileset dir="${basedir}/../../stdlib/crypto/src/main/java" />

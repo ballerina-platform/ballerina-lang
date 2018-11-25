@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -1257,6 +1258,13 @@ public class CodeGenerator extends BLangNodeVisitor {
                 genNode(iExpr.requiredArgs.get(0), this.env);
                 emit(InstructionCodes.STAMP, iExpr.requiredArgs.get(0).regIndex, getTypeCPIndex(iExpr.type), regIndex);
                 break;
+            case CREATE:
+                if (iExpr.symbol.kind == SymbolKind.CONVERSION_OPERATOR) {
+                    BConversionOperatorSymbol symbol = (BConversionOperatorSymbol) iExpr.symbol;
+                    emitConversionInstruction(iExpr, iExpr.requiredArgs.get(0), symbol,
+                                              ((BInvokableType) symbol.type).paramTypes.get(1));
+                }
+                break;
         }
     }
 
@@ -1304,35 +1312,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeConversionExpr convExpr) {
-        int opcode = convExpr.conversionSymbol.opcode;
-
-        // Figure out the reg index of the result value
-        BType castExprType = convExpr.type;
-        RegIndex convExprRegIndex = calcAndGetExprRegIndex(convExpr.regIndex, castExprType.tag);
-        convExpr.regIndex = convExprRegIndex;
-        if (opcode == InstructionCodes.NOP) {
-            convExpr.expr.regIndex = createLHSRegIndex(convExprRegIndex);
-            genNode(convExpr.expr, this.env);
-            return;
-        }
-
-        genNode(convExpr.expr, this.env);
-        if (opcode == InstructionCodes.MAP2T ||
-                opcode == InstructionCodes.JSON2T ||
-                opcode == InstructionCodes.ANY2T ||
-                opcode == InstructionCodes.ANY2C ||
-                opcode == InstructionCodes.ANY2E ||
-                opcode == InstructionCodes.T2JSON ||
-                opcode == InstructionCodes.MAP2JSON ||
-                opcode == InstructionCodes.JSON2MAP ||
-                opcode == InstructionCodes.JSON2ARRAY ||
-                opcode == InstructionCodes.O2JSON ||
-                opcode == InstructionCodes.CHECKCAST) {
-            Operand typeCPIndex = getTypeCPIndex(convExpr.targetType);
-            emit(opcode, convExpr.expr.regIndex, typeCPIndex, convExprRegIndex);
-        } else {
-            emit(opcode, convExpr.expr.regIndex, convExprRegIndex);
-        }
+        emitConversionInstruction(convExpr, convExpr.expr, convExpr.conversionSymbol, convExpr.targetType);
     }
 
     public void visit(BLangRecordLiteral recordLiteral) {
@@ -1891,6 +1871,40 @@ public class CodeGenerator extends BLangNodeVisitor {
     private int emit(Instruction instr) {
         currentPkgInfo.instructionList.add(instr);
         return currentPkgInfo.instructionList.size();
+    }
+
+    private void emitConversionInstruction(BLangExpression convExpr, BLangExpression expr,
+                                           BConversionOperatorSymbol symbol, BType targetType) {
+        int opcode = symbol.opcode;
+        // Figure out the reg index of the result value
+        BType castExprType = convExpr.type;
+        RegIndex convExprRegIndex = calcAndGetExprRegIndex(convExpr.regIndex, castExprType.tag);
+        convExpr.regIndex = convExprRegIndex;
+        if (opcode == InstructionCodes.NOP) {
+            expr.regIndex = createLHSRegIndex(convExprRegIndex);
+            genNode(expr, this.env);
+            return;
+        }
+        genNode(expr, this.env);
+        switch (opcode) {
+            case InstructionCodes.MAP2T:
+            case InstructionCodes.JSON2T:
+            case InstructionCodes.ANY2T:
+            case InstructionCodes.ANY2C:
+            case InstructionCodes.ANY2E:
+            case InstructionCodes.T2JSON:
+            case InstructionCodes.MAP2JSON:
+            case InstructionCodes.JSON2MAP:
+            case InstructionCodes.JSON2ARRAY:
+            case InstructionCodes.O2JSON:
+            case InstructionCodes.CHECKCAST:
+                Operand typeCPIndex = getTypeCPIndex(targetType);
+                emit(opcode, expr.regIndex, typeCPIndex, convExprRegIndex);
+                break;
+            default:
+                emit(opcode, expr.regIndex, convExprRegIndex);
+                break;
+        }
     }
 
     private void addVarCountAttrInfo(ConstantPool constantPool,

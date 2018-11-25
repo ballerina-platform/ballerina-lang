@@ -20,7 +20,6 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -59,14 +58,11 @@ public class Register extends AbstractGrpcNativeFunction {
             if (servicesRegistryBuilder == null) {
                 context.setError(MessageUtils.getConnectorError(new BallerinaConnectorException("Error when " +
                         "initializing service register builder.")));
-                //throw  new BallerinaConnectorException("Error when initializing service register builder.");
             } else {
                 servicesRegistryBuilder.addService(ServicesBuilderUtils.getServiceDefinition(service, context));
                 context.setReturnValues();
             }
         } catch (GrpcServerException e) {
-            //throw new BallerinaConnectorException("Error occurred while registering the service. " + e.getMessage(),
-            //        e);
             context.setError(MessageUtils.getConnectorError(e));
         }
     }
