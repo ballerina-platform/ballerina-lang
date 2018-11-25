@@ -23,8 +23,7 @@ import ballerina/log;
 # Object representing the WebSubSubscriber Service Endpoint.
 #
 # + config - The configuration for the endpoint
-# + serviceEndpoint - The underlying HTTP service endpoint
-public type Server object {
+public type Listener object {
 
     *AbstractListener;
 
@@ -71,7 +70,7 @@ public type Server object {
 
 };
 
-function Server.init(SubscriberServiceEndpointConfiguration c) {
+function Listener.init(SubscriberServiceEndpointConfiguration c) {
     self.config = c;
     http:ServiceEndpointConfiguration serviceConfig = {
         host: c.host,
@@ -86,22 +85,18 @@ function Server.init(SubscriberServiceEndpointConfiguration c) {
     self.initWebSubSubscriberServiceEndpoint();
 }
 
-function Server.__start() returns error? {
+function Listener.__start() returns error? {
     // TODO: handle data and return error on error
     self.startWebSubSubscriberServiceEndpoint();
     self.sendSubscriptionRequests();
     return;
 }
 
-//function Listener.getCallerActions() returns http:Connection {
-//    return self.serviceEndpoint.getCallerActions();
-//}
-
-function Server.__stop() returns error? {
+function Listener.__stop() returns error? {
     return self.serviceEndpoint.__stop();
 }
 
-function Server.sendSubscriptionRequests() {
+function Listener.sendSubscriptionRequests() {
     map[] subscriptionDetailsArray = self.retrieveSubscriptionParameters();
 
     foreach subscriptionDetails in subscriptionDetailsArray {

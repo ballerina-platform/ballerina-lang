@@ -79,7 +79,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.VERIFICATIO
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.VERIFICATION_REQUEST_TOPIC;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_CALLER;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_SERVER;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_LISTENER;
 import static org.ballerinalang.net.websub.WebSubUtils.getHttpRequest;
 import static org.ballerinalang.net.websub.WebSubUtils.getJsonBody;
 
@@ -226,7 +226,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
     private BMap<String, BValue> getWebSubCaller(HttpResource httpResource, HttpCarbonMessage httpCarbonMessage) {
         BMap<String, BValue> subscriberServiceServer =
                 createBStruct(httpResource.getBalResource().getResourceInfo().getPackageInfo().getProgramFile(),
-                              WEBSUB_PACKAGE, WEBSUB_SERVICE_SERVER);
+                              WEBSUB_PACKAGE, WEBSUB_SERVICE_LISTENER);
 
         BMap<String, BValue> httpServiceServer = BLangConnectorSPIUtil.createBStruct(
                 httpResource.getBalResource().getResourceInfo().getPackageInfo().getProgramFile(),
