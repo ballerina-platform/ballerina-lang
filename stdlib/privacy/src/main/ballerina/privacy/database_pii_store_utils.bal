@@ -77,10 +77,8 @@ function validateFieldName (string tableName, string idColumn, string piiColumn)
 # + queryResult - results of the insert query
 # + return - pseudonymized identifier if insert was successful, error if insert failed
 function processInsertResult (string id, int|error queryResult) returns string|error {
-    if (queryResult is error) {
-        return queryResult;
-    }
-    if (queryResult > 0) {
+    int intQueryResult = check queryResult;
+    if (intQueryResult > 0) {
         return id;
     } else {
         error err = error("Unable to insert PII with identifier " + id);
@@ -94,12 +92,10 @@ function processInsertResult (string id, int|error queryResult) returns string|e
 # + queryResult - results of the select query
 # + return - personally identifiable information (PII) if select was successful, error if select failed
 function processSelectResult (string id, table<PiiData>|error queryResult) returns string|error {
-    if (queryResult is error) {
-        return queryResult;
-    }
-    if (queryResult.hasNext()) {
-        PiiData piiData = check trap <PiiData>queryResult.getNext();
-        queryResult.close();
+    table<PiiData> tableQueryResult = check queryResult;
+    if (tableQueryResult.hasNext()) {
+        PiiData piiData = check trap <PiiData>tableQueryResult.getNext();
+        tableQueryResult.close();
         return piiData.pii;
     } else {
         error err = error("Identifier " + id + " is not found in PII store");
@@ -113,10 +109,8 @@ function processSelectResult (string id, table<PiiData>|error queryResult) retur
 # + queryResult - results of the delete query
 # + return - nil if deletion was successful, error if deletion failed
 function processDeleteResult (string id, int|error queryResult) returns error? {
-    if (queryResult is error) {
-        return queryResult;
-    }
-    if (queryResult > 0) {
+    int intQueryResult = check queryResult;
+    if (intQueryResult > 0) {
         return ();
     } else {
         error err = error("Identifier " + id + " is not found in PII store");

@@ -47,7 +47,9 @@ type EmployeeObject object {
     string name;
     int id = 10000;
 
-    new(name) {}
+    function __init(string name) {
+        self.name = name;
+    }
 
     function getName() returns string {
         return self.name;
@@ -59,7 +61,9 @@ type LeadObject object {
     int id = 10000;
     float rating = 100.0;
 
-    new(name) {}
+    function __init(string name) {
+        self.name = name;
+    }
 
     function getName() returns string {
         return self.name;
@@ -69,7 +73,9 @@ type LeadObject object {
 type PersonObject object {
     string name;
 
-    new(name) {}
+    function __init(string name) {
+        self.name = name;
+    }
 
     function getName() returns string {
         return self.name;

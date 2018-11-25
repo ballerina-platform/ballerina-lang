@@ -311,7 +311,7 @@ function performRedirection(string location, RedirectClient redirectClient, Http
     RetryClient httpRetryClient;
     var retryClient = createRetryClient(location, createNewEndpoint(location, redirectClient.config));
     if (retryClient is Client) {
-        httpRetryClient = check <RetryClient>retryClient;
+        httpRetryClient = check trap <RetryClient>retryClient;
         log:printDebug(function() returns string {
                 return "Redirect using new clientEP : " + location;
             });
