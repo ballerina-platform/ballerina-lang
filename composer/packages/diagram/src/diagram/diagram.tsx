@@ -1,4 +1,4 @@
-import { CompilationUnit, traversNode } from "@ballerina/ast-model";
+import { ASTUtil, CompilationUnit } from "@ballerina/ast-model";
 import React from "react";
 import { DefaultConfig } from "../config/default";
 import { CompilationUnitViewState } from "../view-model/index";
@@ -54,13 +54,13 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
 
         if (ast) {
             // Initialize AST node view state
-            traversNode(ast, initVisitor);
+            ASTUtil.traversNode(ast, initVisitor);
             // Set width and height to toplevel node.
             ast.viewState = cuViewState;
             // Calculate dimention of AST Nodes.
-            traversNode(ast, sizingVisitor);
+            ASTUtil.traversNode(ast, sizingVisitor);
             // Calculate positions of the AST Nodes.
-            traversNode(ast, positioningVisitor);
+            ASTUtil.traversNode(ast, positioningVisitor);
             // Get React components for AST Nodes.
             children.push(DiagramUtils.getComponents(ast.topLevelNodes));
         }
