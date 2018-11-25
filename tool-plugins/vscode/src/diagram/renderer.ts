@@ -19,7 +19,6 @@ function renderDiagram(context: ExtensionContext, docUri: Uri): string {
     const styles = `
         body {
             background: #f1f1f1;
-            overflow-y: hidden!important;
         }
         .overlay {
             display: none;
