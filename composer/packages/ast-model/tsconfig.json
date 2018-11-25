@@ -3,7 +3,7 @@
   "compilerOptions": {
     "outDir": "lib"
   },
-  "include": ["src", "scripts"],
+  "include": ["src", "tools"],
   "exclude": [
     "**/*-spec.ts"
   ]
