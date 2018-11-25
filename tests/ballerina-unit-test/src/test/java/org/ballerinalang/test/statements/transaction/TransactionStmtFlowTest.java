@@ -23,7 +23,6 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -43,179 +42,129 @@ public class TransactionStmtFlowTest {
     }
 
     @Test
-    public void testTransactionStmt() {
-        BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmt");
+    public void testTransactionStmt1() {
+        BValue[] args = {new BInteger(10)};
+        BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmt", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "start inTrx endTrx rc:1 end");
+    }
+
+    @Test
+    public void testAbortStatement() {
+        BValue[] returns = BRunUtil.invoke(programFile, "testAbortStatement");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "BeforeTR WithinTR BeforAbort AfterTR ");
+    }
+
+    @Test
+    public void testTransactionStmt2() {
+        BValue[] args = {new BInteger(0)};
+        BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmt", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "start inTrx abort rc:1 end");
+    }
+
+    @Test
+    public void testTransactionStmt3() {
+        BValue[] args = {new BInteger(-1)};
+        BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmt", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "start err rc:3 end");
+    }
+
+    @Test
+    public void testTransactionStmt4() {
+        BValue[] args = {new BInteger(-10)};
+        BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmt", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "start trxErr rc:3 end");
+    }
+
+
+    @Test
+    public void testOptionalFailed1() {
+        BValue[] args = {new BInteger(10)};
+        BValue[] returns = BRunUtil.invoke(programFile, "testOptionalFailed", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "start inTrx endTrx end");
     }
 
     @Test
-    public void testTransactionStmtAbort() {
+    public void testOptionalFailed2() {
         BValue[] args = {new BInteger(0)};
-        BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmtAbort", args);
+        BValue[] returns = BRunUtil.invoke(programFile, "testOptionalFailed", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "start inTrx abort end");
     }
 
     @Test
-    public void testTransactionStmtFailed() {
+    public void testOptionalFailed3() {
         BValue[] args = {new BInteger(-1)};
-        BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmtFailed", args);
+        BValue[] returns = BRunUtil.invoke(programFile, "testOptionalFailed", args);
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "start inTrx inFailed inTrx inFailed inTrx inFailed end");
+        Assert.assertEquals(returns[0].stringValue(), "start inTrx err endTrx end");
     }
 
     @Test
-    public void testTransactionStmtTrap() {
-        BValue[] args = {new BInteger(0)};
-        BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmtTrap", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "start inTrx trxErr endTrx end");
-    }
-
-
-    @Test
-    public void testOptionalOnretry() {
-        BValue[] returns = BRunUtil.invoke(programFile, "testOptionalOnretry");
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "start inTrx endTrx end");
-    }
-
-    @Test
-    public void testOptionalOnretryWithAbort() {
-        BValue[] args = {new BInteger(0)};
-        BValue[] returns = BRunUtil.invoke(programFile, "testOptionalOnretryWithAbort", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "start inTrx abort end");
-    }
-
-    @Test
-    public void testOptionalOnretryWithFail() {
-        BValue[] args = {new BInteger(0)};
-        BValue[] returns = BRunUtil.invoke(programFile, "testOptionalOnretryWithFail", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "start inTrx inTrx inTrx end");
-    }
-
-    @Test
-    public void testOptionalOnretryWithTrap() {
-        BValue[] args = {new BInteger(0)};
-        BValue[] returns = BRunUtil.invoke(programFile, "testOptionalOnretryWithTrap", args);
+    public void testOptionalFailed4() {
+        BValue[] args = {new BInteger(-10)};
+        BValue[] returns = BRunUtil.invoke(programFile, "testOptionalFailed", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "start inTrx trxErr endTrx end");
     }
 
     @Test
-    public void testNestedTransaction() {
-        BValue[] returns = BRunUtil.invoke(programFile, "testNestedTransaction");
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "start inOuterTrx inInnerTrx endInnerTrx endOuterTrx end");
-    }
-
-    @Test
-    public void testNestedTransactionInnerAbort() {
-        BValue[] args = {new BInteger(0)};
-        BValue[] returns = BRunUtil.invoke(programFile, "testNestedTransactionInnerAbort", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "start inOuterTrx inInnerTrx abort endOuterTrx end");
-    }
-
-    @Test(enabled = false) // Issue #7706
-    public void testNestedTransactionInnerPanic() {
-        BValue[] args = {new BInteger(0)};
-        BValue[] returns = BRunUtil.invoke(programFile, "testNestedTransactionInnerPanic", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "start inOuterTrx inInnerTrx inInnerTrx inInnerTrx inOuterTrx "
-                + "inInnerTrx inInnerTrx inInnerTrx inOuterTrx inInnerTrx inInnerTrx inInnerTrx end");
-    }
-
-    @Test
-    public void testNestedTransactionInnerTrap() {
-        BValue[] args = {new BInteger(0)};
-        BValue[] returns = BRunUtil.invoke(programFile, "testNestedTransactionInnerTrap", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(),
-                "start inOuterTrx inInnerTrx trxErr endInnerTrx endOuterTrx end");
-    }
-
-    @Test(enabled = false) //Issue #7706
-    public void testNestedTransactionWithFailed1() {
+    public void testTransactionStmtWithFailedAndNonDefaultRetries1() {
         BValue[] args = {new BInteger(-1)};
-        BValue[] returns = BRunUtil.invoke(programFile, "testNestedTransactionWithFailed", args);
+        BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmtWithFailedAndNonDefaultRetries", args);
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "start inOuterTrx inInnerTrx innerFailed inInnerTrx innerFailed "
-                + "outerFailed inOuterTrx inInnerTrx innerFailed inInnerTrx innerFailed outerFailed inOuterTrx "
-                + "inInnerTrx innerFailed inInnerTrx innerFailed outerFailed err end");
-
+        Assert.assertEquals(returns[0].stringValue(), "start err rc:4 end");
     }
 
     @Test
-    public void testNestedTransactionWithFailed2() {
-        BValue[] args = {new BInteger(0)};
-        BValue[] returns = BRunUtil.invoke(programFile, "testNestedTransactionWithFailed", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(),
-                "start inOuterTrx inInnerTrx trxErr endInnerTrx endOuterTrx end");
-    }
-
-    @Test
-    public void testTransactionStmtWithFailedAndNonDefaultRetries() {
+    public void testTransactionStmtWithFailedAndNonDefaultRetries2() {
         BValue[] args = {new BInteger(0)};
         BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmtWithFailedAndNonDefaultRetries", args);
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "start inTrx inFailed inTrx inFailed inTrx inFailed inTrx "
-                + "inFailed end");
+        Assert.assertEquals(returns[0].stringValue(), "start inTrx abort rc:1 end");
     }
 
     @Test
-    public void testTransactionStmtAbortAndNonDefaultRetries() {
-        BValue[] args = {new BInteger(0)};
-        BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmtAbortAndNonDefaultRetries", args);
+    public void testTransactionStmtWithFailedAndNonDefaultRetries3() {
+        BValue[] args = {new BInteger(-10)};
+        BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmtWithFailedAndNonDefaultRetries", args);
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "start inTrx abort end");
+        Assert.assertEquals(returns[0].stringValue(), "start trxErr rc:4 end");
     }
 
     @Test
-    public void testTransactionStmtWithTrapAndNonDefaultRetries() {
-        BValue[] args = {new BInteger(0)};
-        BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmtWithTrapAndNonDefaultRetries", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "start inTrx trxErr endTrx end");
-    }
-
-    @Test
-    public void testTransactionStmtSuccessAndNonDefaultRetries() {
+    public void testTransactionStmtWithFailedAndNonDefaultRetries4() {
         BValue[] args = {new BInteger(10)};
-        BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmtSuccessAndNonDefaultRetries", args);
+        BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmtWithFailedAndNonDefaultRetries", args);
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "start inTrx endTrx end");
+        Assert.assertEquals(returns[0].stringValue(), "start inTrxstart inTrx success endTrx rc:1 end");
     }
 
     @Test
     public void testTransactionStmtWithRetryOff() {
-        BValue[] args = {new BInteger(0)};
+        BValue[] args = {new BInteger(-1)};
         BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmtWithRetryOff", args);
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "start inTrx inFailed end");
+        Assert.assertEquals(returns[0].stringValue(), "start inTrx err endTrx end");
     }
 
     @Test
@@ -223,14 +172,15 @@ public class TransactionStmtFlowTest {
         BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmtWithConstRetryFailed");
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "start inTrx inFailed inTrx inFailed inTrx inFailed inTrx "
-                + "inFailed end");
+        Assert.assertEquals(returns[0].stringValue(), "start err rc:4 end");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*invalid retry count.*")
+    @Test
     public void testTransactionStmtWithConstRetryFailed2() {
-        BRunUtil.invoke(programFile, "testTransactionStmtWithConstRetryFailed2");
+        BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmtWithConstRetryFailed2");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "start invalid retry count end");
     }
 
     @Test
@@ -256,8 +206,7 @@ public class TransactionStmtFlowTest {
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(),
-                "start inFirstTrxBlock inFirstTrxFld inFirstTrxBlock inFirstTrxFld inFirstTrxEnd "
-                        + "inSecTrxBlock inSecTrxEnd end");
+                "start inFirstTrxBlock inFirstTrxFld inFirstTrxBlock err end");
     }
 
     @Test
@@ -266,56 +215,40 @@ public class TransactionStmtFlowTest {
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(),
-                "start inFirstTrxBlock inFirstTrxFld inFirstTrxBlock inFirstTrxFld inFirstTrxEnd "
-                        + "inSecTrxBlock inSecTrxEnd end");
+                "start inFirstTrxBlock inFirstTrxFld inFirstTrxBlock err inSecTrxBlock inFSecTrxEnd end");
     }
 
-    @Test
-    public void testValidAbortAndReturn() {
-        BValue[] returns = BRunUtil.invoke(programFile, "testAbort", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "st inOuterTrx inInnerTrx inOuterTrxEnd afterOuterTrx");
-    }
-
-    @Test
+    @Test()
     public void testTransactionWithBreakValid() {
         BValue[] returns = BRunUtil.invoke(programFile, "transactionWithBreak", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "done");
     }
 
-    @Test
+    @Test()
     public void testTransactionWithContinueValid() {
         BValue[] returns = BRunUtil.invoke(programFile, "transactionWithContinue", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "done");
     }
 
-    @Test
+    @Test()
     public void testTransactionStmtWithFail() {
         BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmtWithFail");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(),
-                "start  inTrx inFailed inTrx inFailed inTrx inFailed inTrx inFailed end");
+                "start  inTrx inFailed inTrx inFailed inTrx inFailed inTrx end");
     }
 
-    @Test
-    public void testSimpleNestedTransactionAbort() {
-        BValue[] returns = BRunUtil.invoke(programFile, "testSimpleNestedTransactionAbort");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(),
-                "start  inOuterTxstart  inInnerTxstart  abortingInnerTxstart  endOuterTxstart");
-    }
-
-    @Test
+    @Test()
     public void testValidReturn() {
         BValue[] returns = BRunUtil.invoke(programFile, "testValidReturn");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(),
-                "start  inOuterTxstart  inInnerTxstart  foo endInnerTx foo endOuterTx");
+                "start  inOuterTxstart  foo endOuterTx");
     }
 
-    @Test
+    @Test()
     public void testValidDoneWithinTransaction() {
         BValue[] returns = BRunUtil.invoke(programFile, "testValidDoneWithinTransaction");
         Assert.assertEquals(returns.length, 1);

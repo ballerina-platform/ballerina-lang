@@ -2984,22 +2984,6 @@ public class CPU {
             }
         }
 
-        // TODO: 10/30/18 remove
-        // Register committed function handler if exists.
-        if (committedFuncIndex != -1) {
-            FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) ctx.constPool[committedFuncIndex];
-            BFunctionPointer fpCommitted = new BFunctionPointer(funcRefCPEntry.getFunctionInfo());
-            TransactionResourceManager.getInstance().registerCommittedFunction(transactionBlockId, fpCommitted);
-        }
-
-        // TODO: 10/30/18 remove
-        // Register aborted function handler if exists.
-        if (abortedFuncIndex != -1) {
-            FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) ctx.constPool[abortedFuncIndex];
-            BFunctionPointer fpAborted = new BFunctionPointer(funcRefCPEntry.getFunctionInfo());
-            TransactionResourceManager.getInstance().registerAbortedFunction(transactionBlockId, fpAborted);
-        }
-
         // If global tx enabled, it is managed via transaction coordinator.
         // Otherwise it is managed locally without any interaction with the transaction coordinator.
         boolean isGlobalTransactionEnabled = ctx.getGlobalTransactionEnabled();

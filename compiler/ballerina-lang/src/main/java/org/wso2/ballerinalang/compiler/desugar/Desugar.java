@@ -1531,9 +1531,6 @@ public class Desugar extends BLangNodeVisitor {
         transactionNode.committedBodyList = rewrite(transactionNode.committedBodyList, env);
         transactionNode.abortedBodyList = rewrite(transactionNode.abortedBodyList, env);
         transactionNode.retryCount = rewriteExpr(transactionNode.retryCount);
-        // TODO: 10/29/18 remove
-        transactionNode.onCommitFunction = rewriteExpr(transactionNode.onCommitFunction);
-        transactionNode.onAbortFunction = rewriteExpr(transactionNode.onAbortFunction);
         result = transactionNode;
     }
 

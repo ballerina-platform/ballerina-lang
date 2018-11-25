@@ -1962,28 +1962,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void exitOncommitStatement(BallerinaParser.OncommitStatementContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-        this.pkgBuilder.addCommittedFuncPointer(getWS(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitOnabortStatement(BallerinaParser.OnabortStatementContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-        this.pkgBuilder.addAbortedFuncPointerBlock(getWS(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void enterNamespaceDeclaration(BallerinaParser.NamespaceDeclarationContext ctx) {
     }
 

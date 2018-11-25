@@ -1476,26 +1476,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitRetriesStatement(BallerinaParser.RetriesStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#oncommitStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterOncommitStatement(BallerinaParser.OncommitStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#oncommitStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitOncommitStatement(BallerinaParser.OncommitStatementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#onabortStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterOnabortStatement(BallerinaParser.OnabortStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#onabortStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitOnabortStatement(BallerinaParser.OnabortStatementContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#namespaceDeclarationStatement}.
 	 * @param ctx the parse tree
 	 */
