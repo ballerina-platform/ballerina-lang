@@ -1518,33 +1518,33 @@ public class Desugar extends BLangNodeVisitor {
         BInvokableSymbol keysFunctionSymbol;
         switch (foreach.collection.type.tag) {
             case TypeTags.ARRAY:
-            case TypeTags.XML:
+//            case TypeTags.XML:
                 blockNode = desugarForeachOfListTypes(foreach, collectionSymbol);
                 break;
-            case TypeTags.MAP:
-                scopeEntry = symTable.rootScope.lookup(names.fromString("map.keys"));
-                 keysFunctionSymbol = (BInvokableSymbol) scopeEntry.symbol;
-                blockNode = desugarForeachOfMappingTypes(foreach, collectionSymbol, "keys", keysFunctionSymbol,
-                        symTable.mapType, ((BMapType) collectionSymbol.type).constraint);
-                break;
-            case TypeTags.JSON:
-                scopeEntry = symTable.rootScope.lookup(names.fromString("json.getKeys"));
-                keysFunctionSymbol = (BInvokableSymbol) scopeEntry.symbol;
-                blockNode = desugarForeachOfMappingTypes(foreach, collectionSymbol, "getKeys", keysFunctionSymbol,
-                        symTable.jsonType, symTable.jsonType);
-                break;
-            case TypeTags.RECORD:
-                scopeEntry = symTable.rootScope.lookup(names.fromString("map.keys"));
-                keysFunctionSymbol = (BInvokableSymbol) scopeEntry.symbol;
-                blockNode = desugarForeachOfMappingTypes(foreach, collectionSymbol, "keys", keysFunctionSymbol,
-                        symTable.mapType, types.inferRecordFieldType((BRecordType) collectionSymbol.type));
-                break;
-            case TypeTags.TABLE:
-                blockNode = desugarForeachOfTableType(foreach, collectionSymbol);
-                break;
-            case TypeTags.STRING:
-                blockNode = desugarForeachOfStringType(foreach, collectionSymbol);
-                break;
+//            case TypeTags.MAP:
+//                scopeEntry = symTable.rootScope.lookup(names.fromString("map.keys"));
+//                 keysFunctionSymbol = (BInvokableSymbol) scopeEntry.symbol;
+//                blockNode = desugarForeachOfMappingTypes(foreach, collectionSymbol, "keys", keysFunctionSymbol,
+//                        symTable.mapType, ((BMapType) collectionSymbol.type).constraint);
+//                break;
+//            case TypeTags.JSON:
+//                scopeEntry = symTable.rootScope.lookup(names.fromString("json.getKeys"));
+//                keysFunctionSymbol = (BInvokableSymbol) scopeEntry.symbol;
+//                blockNode = desugarForeachOfMappingTypes(foreach, collectionSymbol, "getKeys", keysFunctionSymbol,
+//                        symTable.jsonType, symTable.jsonType);
+//                break;
+//            case TypeTags.RECORD:
+//                scopeEntry = symTable.rootScope.lookup(names.fromString("map.keys"));
+//                keysFunctionSymbol = (BInvokableSymbol) scopeEntry.symbol;
+//                blockNode = desugarForeachOfMappingTypes(foreach, collectionSymbol, "keys", keysFunctionSymbol,
+//                        symTable.mapType, types.inferRecordFieldType((BRecordType) collectionSymbol.type));
+//                break;
+//            case TypeTags.TABLE:
+//                blockNode = desugarForeachOfTableType(foreach, collectionSymbol);
+//                break;
+//            case TypeTags.STRING:
+//                blockNode = desugarForeachOfStringType(foreach, collectionSymbol);
+//                break;
             default:
                 blockNode = ASTBuilderUtil.createBlockStmt(foreach.pos);
                 break;
@@ -1578,93 +1578,245 @@ public class Desugar extends BLangNodeVisitor {
         //     io:println(i);
         // }
 
+        // -------------------------------------------------
+        //
+        // any $iterator$ = $data$.iterate();
+        // map<T>? $result$ = $iterator$.next();
+        //
+        // while $result$ != () {
+        //     if $result$ is () {
+        //         break;
+        //     } else {
+        //         T i = $result$.value;
+        //         ....
+        //         [foreach node body]
+        //         ....
+        //     }
+        //     $result$ = $iterator$.next();
+        // }
+
+        // Note - any $iterator$ = $data$.iterate(); -------------------------------------------------------------------
+
         // Get the variable definition from the foreach statement.
         VariableDefinitionNode variableDefinitionNode = foreach.variableDefinitionNode;
 
-        // Note - int $index$ = 0; -------------------------------------------------------------------------------------
-
-        // Create a new symbol for the $index$.
-        BVarSymbol indexSymbol = new BVarSymbol(0, names.fromString("$index$"), this.env.scope.owner.pkgID,
-                symTable.intType, this.env.scope.owner);
-
-        BLangLiteral indexInitialValue = ASTBuilderUtil.createLiteral(foreach.pos, symTable.intType, (long) 0);
-        BLangSimpleVariable indexVariableDefinition = ASTBuilderUtil.createVariable(foreach.pos, "$index$",
-                symTable.intType, indexInitialValue, indexSymbol);
-        BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDef(foreach.pos, indexVariableDefinition);
-
-        // Note - int $size$ = $data$.length(); ------------------------------------------------------------------------
-
         // Create a new symbol for the $size$.
-        BVarSymbol sizeSymbol = new BVarSymbol(0, names.fromString("$size$"), this.env.scope.owner.pkgID,
-                symTable.intType, this.env.scope.owner);
+        BVarSymbol iteratorSymbol = new BVarSymbol(0, names.fromString("$iterator$"), this.env.scope.owner.pkgID,
+                symTable.anyType, this.env.scope.owner);
 
-        BLangIdentifier lengthIdentifier = ASTBuilderUtil.createIdentifier(foreach.pos, "length");
-        BLangSimpleVarRef rhsRef = ASTBuilderUtil.createVariableRef(foreach.pos, collectionSymbol);
+        BLangIdentifier iterateIdentifier = ASTBuilderUtil.createIdentifier(foreach.pos, "iterate");
+        BLangSimpleVarRef dataReference = ASTBuilderUtil.createVariableRef(foreach.pos, collectionSymbol);
 
-        BLangInvocation invocation = (BLangInvocation) TreeBuilder.createInvocationNode();
-        invocation.pos = foreach.pos;
-        invocation.name = lengthIdentifier;
-        invocation.builtinMethodInvocation = true;
-        invocation.builtInMethod = BLangBuiltInMethod.LENGTH;
-        invocation.expr = rhsRef;
-        invocation.symbol = symResolver.resolveBuiltinOperator(names.fromIdNode(lengthIdentifier), symTable.arrayType);
-        invocation.type = symTable.intType;
+        // Note - $data$.iterate();
+        BLangInvocation iteratorInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
+        iteratorInvocation.pos = foreach.pos;
+        iteratorInvocation.name = iterateIdentifier;
+        iteratorInvocation.builtinMethodInvocation = true;
+        iteratorInvocation.builtInMethod = BLangBuiltInMethod.ITERATE;
+        iteratorInvocation.expr = dataReference;
+        LinkedList<BType> paramTypes = new LinkedList<>();
+        paramTypes.add(collectionSymbol.type);
+        iteratorInvocation.symbol = symTable.createOperator(names.fromIdNode(iterateIdentifier), paramTypes,
+                symTable.anyType, InstructionCodes.ITR_NEW);
+        iteratorInvocation.type = symTable.intType;
 
-        BLangSimpleVariable sizeVariableDefinition = ASTBuilderUtil.createVariable(foreach.pos, "$size$",
-                symTable.intType, invocation, sizeSymbol);
-        BLangSimpleVariableDef sizeVariableDef = ASTBuilderUtil.createVariableDef(foreach.pos, sizeVariableDefinition);
+        // Note - any $iterator$ = $data$.iterate();
+        BLangSimpleVariable iteratorVariable = ASTBuilderUtil.createVariable(foreach.pos, "$iterator$",
+                symTable.anyType, iteratorInvocation, iteratorSymbol);
+        BLangSimpleVariableDef iteratorVariableDefinition = ASTBuilderUtil.createVariableDef(foreach.pos,
+                iteratorVariable);
 
-        // Note - $index$ < $size$ -------------------------------------------------------------------------------------
 
-        BLangSimpleVarRef lhsExpr = ASTBuilderUtil.createVariableRef(foreach.pos, indexSymbol);
-        BLangSimpleVarRef rhsExpr = ASTBuilderUtil.createVariableRef(foreach.pos, sizeSymbol);
+        // Create a new symbol for the $result$.
+        BVarSymbol resultSymbol = new BVarSymbol(0, names.fromString("$result$"), this.env.scope.owner.pkgID,
+                foreach.nillableResultType, this.env.scope.owner);
 
-        BOperatorSymbol operatorSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.LESS_THAN,
-                lhsExpr.type, invocation.type);
-        BLangBinaryExpr binaryExpr = ASTBuilderUtil.createBinaryExpr(foreach.pos, lhsExpr, rhsExpr,
-                symTable.booleanType, OperatorKind.LESS_THAN, operatorSymbol);
+        BLangIdentifier nextIdentifier = ASTBuilderUtil.createIdentifier(foreach.pos, "next");
+        BLangSimpleVarRef iteratorReferenceInNext = ASTBuilderUtil.createVariableRef(foreach.pos, iteratorSymbol);
 
+
+        // Note - $iterator$.next();
+        BLangInvocation nextInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
+        nextInvocation.pos = foreach.pos;
+        nextInvocation.name = nextIdentifier;
+        nextInvocation.builtinMethodInvocation = true;
+        nextInvocation.builtInMethod = BLangBuiltInMethod.NEXT;
+        nextInvocation.expr = iteratorReferenceInNext;
+
+        paramTypes = new LinkedList<>();
+        paramTypes.add(collectionSymbol.type);
+
+        nextInvocation.symbol = symTable.createOperator(names.fromIdNode(nextIdentifier), paramTypes,
+                symTable.anyType, InstructionCodes.ITR_NEXT);
+        //                symResolver.resolveBuiltinOperator(names.fromIdNode(nextIdentifier), symTable.anyType);
+
+        nextInvocation.type = foreach.nillableResultType;
+        nextInvocation.originalType = foreach.nillableResultType;
+
+
+        // Note - map<T>? $result$ = $iterator$.next();
+        BLangSimpleVariable resultVariable = ASTBuilderUtil.createVariable(foreach.pos, "$result$",
+                foreach.nillableResultType, nextInvocation, resultSymbol);
+        BLangSimpleVariableDef resultVariableDefinition = ASTBuilderUtil.createVariableDef(foreach.pos, resultVariable);
+
+        // Todo +++++++++++++++++++++++++++
+
+        // Note - $result$ is map<T>
+
+        //        BLangConstrainedType constrainedType = (BLangConstrainedType) TreeBuilder.createConstrainedTypeNode();
+        //        // Todo - ASTBuilderUtil.createTypeNode(((BUnionType) foreach.resultType).memberTypes.iterator()
+        // .next());
+        //        BLangBuiltInRefTypeNode builtInReferenceTypeNode =
+        //                (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
+        //        builtInReferenceTypeNode.typeKind = ((BUnionType) foreach.resultType).memberTypes.iterator().next()
+        // .getKind();
+        //        builtInReferenceTypeNode.type = ((BUnionType) foreach.resultType).memberTypes.iterator().next();
+        //
+        //        constrainedType.type = builtInReferenceTypeNode;
+        //
+        //        BLangValueType constraint = (BLangValueType) TreeBuilder.createValueTypeNode();
+        //        constraint.typeKind = ((BUnionType) foreach.resultType).memberTypes.iterator().next().getKind();
+        //        constraint.type = foreach.varType;
+        //
+        //        constrainedType.constraint = constraint;
+
+
+        // Todo ---------------------------
+
+
+        BLangSimpleVarRef resultReferenceInTypeTest = ASTBuilderUtil.createVariableRef(foreach.pos, resultSymbol);
+
+
+        BLangValueType nilTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
+        nilTypeNode.pos = foreach.pos;
+        nilTypeNode.type = symTable.nilType;
+        nilTypeNode.typeKind = TypeKind.NIL;
+
+        BLangTypeTestExpr typeTestExpressionNode = (BLangTypeTestExpr) TreeBuilder.createTypeTestExpressionNode();
+        typeTestExpressionNode.pos = foreach.pos;
+        typeTestExpressionNode.expr = resultReferenceInTypeTest;
+        typeTestExpressionNode.typeNode = nilTypeNode;
+        typeTestExpressionNode.type = symTable.booleanType;
+
+        BLangBlockStmt ifStatementBody = ASTBuilderUtil.createBlockStmt(foreach.pos);
+        BLangBreak breakNode = (BLangBreak) TreeBuilder.createBreakNode();
+        breakNode.pos = foreach.pos;
+        ifStatementBody.addStatement(breakNode);
+
+
+        // Note - if $result$ is ()
+        BLangIf ifStatement = (BLangIf) TreeBuilder.createIfElseStatementNode();
+        ifStatement.pos = foreach.pos;
+        ifStatement.type = symTable.booleanType;
+        ifStatement.expr = typeTestExpressionNode;
+        ifStatement.body = ifStatementBody;
+
+
+        BVarSymbol resultSymbolInIf = new BVarSymbol(0, names.fromString("$result$"), this.env.scope.owner.pkgID,
+                symTable.nilType, this.env.scope.owner);
+        Map<BVarSymbol, BVarSymbol> ifTypeGuards = new HashMap<>();
+        ifTypeGuards.put(resultSymbol, resultSymbolInIf);
+
+        BVarSymbol resultSymbolInElse = new BVarSymbol(0, names.fromString("$result$"), this.env.scope.owner.pkgID,
+                foreach.resultType, this.env.scope.owner);
+        Map<BVarSymbol, BVarSymbol> elseTypeGuards = new HashMap<>();
+        elseTypeGuards.put(resultSymbol, resultSymbolInElse);
+
+        ifStatement.ifTypeGuards = ifTypeGuards;
+        ifStatement.elseTypeGuards = elseTypeGuards;
+
+
+        // T i = $result$.value;
+
+        BLangSimpleVarRef resultReferenceInVariableDef = ASTBuilderUtil.createVariableRef(foreach.pos, resultSymbol);
+
+        //        BLangLiteral valueLiteral = ASTBuilderUtil.createLiteral(foreach.pos, symTable.stringType, "value");
+        //
+        //
+        //        BLangIndexBasedAccess indexBasedAccessExpression = ASTBuilderUtil.createIndexBasesAccessExpr
+        // (foreach.pos,
+        //                foreach.varType, resultSymbol, valueLiteral);
+        //        indexBasedAccessExpression.expr = resultReferenceInVariableDef;
+
+        BLangIdentifier valueIdentifier = ASTBuilderUtil.createIdentifier(foreach.pos, "value");
+
+        //        BVarSymbol valueSymbol = new BVarSymbol(0, names.fromString("value"), this.env.scope.owner.pkgID,
+        //                foreach.varType, this.env.scope.owner);
+
+        BLangFieldBasedAccess fieldBasedAccessExpression =
+                ASTBuilderUtil.createFieldAccessExpr(resultReferenceInVariableDef, valueIdentifier);
+        fieldBasedAccessExpression.pos = foreach.pos;
+        fieldBasedAccessExpression.type = foreach.varType;
+        fieldBasedAccessExpression.originalType = foreach.varType;
+        //        fieldBasedAccessExpression.symbol = valueSymbol;
+
+        variableDefinitionNode.getVariable().setInitialExpression(fieldBasedAccessExpression);
+
+        BLangBlockStmt elseStatement = foreach.body;
+        elseStatement.stmts.add(0, (BLangStatement) variableDefinitionNode);
+
+
+        ifStatement.elseStmt = elseStatement;
+
+
+        // Note - $result$ != ()
+        BLangSimpleVarRef resultReferenceInWhile = ASTBuilderUtil.createVariableRef(foreach.pos, resultSymbol);
+
+        BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(foreach.pos, symTable.nilType, Names.NIL_VALUE);
+
+
+        BOperatorSymbol operatorSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.NOT_EQUAL,
+                symTable.anyType, nilLiteral.type); // Todo - symTable.anyType correct?
+        BLangBinaryExpr binaryExpr = ASTBuilderUtil.createBinaryExpr(foreach.pos, resultReferenceInWhile, nilLiteral,
+                symTable.booleanType, OperatorKind.NOT_EQUAL, operatorSymbol);
+
+
+        // Note - $result$ = $iterator$.next();
+
+        BLangSimpleVarRef resultReferenceInAssignment = ASTBuilderUtil.createVariableRef(foreach.pos, resultSymbol);
+
+        BLangSimpleVarRef iteratorReferenceAssignment = ASTBuilderUtil.createVariableRef(foreach.pos, iteratorSymbol);
+
+
+        // Note - $iterator$.next();
+        BLangInvocation nextInvocationInAssignment = (BLangInvocation) TreeBuilder.createInvocationNode();
+        nextInvocationInAssignment.pos = foreach.pos;
+        nextInvocationInAssignment.name = nextIdentifier;
+        nextInvocationInAssignment.builtinMethodInvocation = true;
+        nextInvocationInAssignment.builtInMethod = BLangBuiltInMethod.NEXT;
+        nextInvocationInAssignment.expr = iteratorReferenceAssignment;
+        nextInvocationInAssignment.symbol = symTable.createOperator(names.fromIdNode(nextIdentifier), paramTypes,
+                symTable.anyType, InstructionCodes.ITR_NEXT);
+        nextInvocationInAssignment.type = foreach.nillableResultType;
+        nextInvocationInAssignment.originalType = foreach.nillableResultType;
+
+        // Note - $result$ = $iterator$.next();
+        BLangAssignment resultAssignment = ASTBuilderUtil.createAssignmentStmt(foreach.pos, resultReferenceInAssignment,
+                nextInvocationInAssignment, false);
+
+
+        // Note - while $result$ != ()
         BLangWhile whileNode = (BLangWhile) TreeBuilder.createWhileNode();
         whileNode.pos = foreach.pos;
         whileNode.expr = binaryExpr;
-        whileNode.body = foreach.body;
+        whileNode.body = ASTBuilderUtil.createBlockStmt(foreach.pos);
 
-        // Note - T i = $data$[$index$]; -------------------------------------------------------------------------------
 
-        BLangSimpleVarRef indexRef = ASTBuilderUtil.createVariableRef(foreach.pos, indexSymbol);
-        BLangSimpleVarRef collectionReference = ASTBuilderUtil.createVariableRef(foreach.pos, collectionSymbol);
-        BLangIndexBasedAccess indexBasedAccessExpression = ASTBuilderUtil.createIndexBasesAccessExpr(foreach.pos,
-                symTable.intType, indexSymbol, indexRef);
-        indexBasedAccessExpression.expr = collectionReference;
+        whileNode.body.addStatement(ifStatement);
 
-        variableDefinitionNode.getVariable().setInitialExpression(indexBasedAccessExpression);
-        whileNode.body.stmts.add(0, (BLangStatement) variableDefinitionNode);
+        // Note - while ... { ... $result$ = $iterator$.next(); };
+        whileNode.body.addStatement(resultAssignment);
 
-        // Note - $index$ += 1; (i.e. - $index$ = $index$ + 1;) --------------------------------------------------------
-
-        // Note - $index$ (LHS)
-        BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(foreach.pos, indexSymbol);
-        BLangLiteral incrementCount = ASTBuilderUtil.createLiteral(foreach.pos, symTable.intType, (long) 1);
-
-        // Note - $index$ + 1 (RHS)
-        BOperatorSymbol addOperatorSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.ADD,
-                varRef.type, incrementCount.type);
-        BLangBinaryExpr modifiedExpr = ASTBuilderUtil.createBinaryExpr(foreach.pos, varRef, incrementCount,
-                symTable.intType, OperatorKind.ADD, addOperatorSymbol);
-
-        // Note - $index$ = $index$ + 1;
-        BLangAssignment assignmentNode = ASTBuilderUtil.createAssignmentStmt(foreach.pos, varRef, modifiedExpr, false);
-
-        // Add the assignment node to the end of the while node's body.
-        whileNode.body.stmts.add(1, assignmentNode);
 
         // Create a new block statement node.
         BLangBlockStmt blockNode = ASTBuilderUtil.createBlockStmt(foreach.pos);
 
-        // Add the variable definition node to the block.
-        blockNode.addStatement(variableDef);
-        // Add the size variable definition node to the block.
-        blockNode.addStatement(sizeVariableDef);
+        // Add iterator variable to the block.
+        blockNode.addStatement(iteratorVariableDefinition);
+
+        // Add result variable to the block.
+        blockNode.addStatement(resultVariableDefinition);
+
         // Add the while node to the block.
         blockNode.addStatement(whileNode);
 
