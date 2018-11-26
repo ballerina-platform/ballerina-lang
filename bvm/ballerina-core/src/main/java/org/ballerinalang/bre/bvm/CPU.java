@@ -1657,7 +1657,7 @@ public class CPU {
                 try {
                     handleMapStore(ctx, bMap, sf.stringRegs[j], sf.refRegs[k]);
                 } catch (BLangMapStoreException e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+//                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
