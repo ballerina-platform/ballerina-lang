@@ -1,18 +1,18 @@
 import React, { StatelessComponent } from "react";
 import { DiagramContext } from "../../diagram/diagram-context";
-import { SimpleBBox } from "../../view-model/index";
+import { SimplePoint } from "../../view-model/simple-point";
 
 export interface DropDownMenuTriggerProps {
-    bBox: SimpleBBox;
+    position: SimplePoint;
     className?: string;
 }
 
 export const DropDownMenuTrigger: StatelessComponent<DropDownMenuTriggerProps> =
-    ({ bBox, className, children }) => {
-    const { x, y, w, h } = bBox;
+    ({ position, className, children }) => {
+    const { x, y } = position;
     const foreignObjectBBox = {
-        height: h,
-        width: w,
+        height: 10,
+        width: 10,
         x,
         y
     };
