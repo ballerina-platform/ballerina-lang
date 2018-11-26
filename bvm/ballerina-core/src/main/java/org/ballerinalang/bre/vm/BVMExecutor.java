@@ -37,6 +37,7 @@ import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ResourceInfo;
+import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.program.BLangVMUtils;
@@ -114,9 +115,9 @@ public class BVMExecutor {
      * @param observerContext   to be used
      * @param args              to be passed to the resource
      */
-    public static void executeResource(ProgramFile programFile, ResourceInfo resourceInfo,
+    public static void executeResource(ProgramFile programFile, FunctionInfo resourceInfo,
                                        CallableUnitCallback responseCallback, Map<String, Object> properties,
-                                       ObserverContext observerContext, BValue... args) {
+                                       ObserverContext observerContext, ServiceInfo serviceInfo, BValue... args) {
         Map<String, Object> globalProps = new HashMap<>();
         if (properties != null) {
             //TODO fix - rajith
@@ -138,7 +139,7 @@ public class BVMExecutor {
         StrandResourceCallback strandCallback = new StrandResourceCallback(null, responseCallback);
         Strand strand = new Strand(programFile, properties, strandCallback);
 
-        BLangVMUtils.setServiceInfo(strand, resourceInfo.getServiceInfo());
+        BLangVMUtils.setServiceInfo(strand, serviceInfo);
 
         StackFrame idf = new StackFrame(resourceInfo.getPackageInfo(), resourceInfo,
                 resourceInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1);

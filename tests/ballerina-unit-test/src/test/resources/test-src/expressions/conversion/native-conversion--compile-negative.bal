@@ -14,10 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents the WebSocket client service.
-public type WebSocketClientService object {
-    public function getEndpoint() returns WebSocketClient {
-        WebSocketClient ep = new({});
-        return ep;
-    }
-};
+function floatToIntWithMultipleArguments() returns int {
+    float a = 5.0;
+    return int.create(a, a);
+}
+
+function testToIntWithNoArguments() {
+    float a = 5.0;
+    return int.create();
+}
+
+function anyToInt() returns int {
+    any a = 5;
+    return int.create(a);
+}

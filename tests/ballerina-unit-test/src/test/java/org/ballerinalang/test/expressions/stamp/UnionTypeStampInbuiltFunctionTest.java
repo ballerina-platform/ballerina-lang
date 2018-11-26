@@ -20,7 +20,6 @@ package org.ballerinalang.test.expressions.stamp;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.types.BAnydataType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BRecordType;
@@ -65,7 +64,7 @@ public class UnionTypeStampInbuiltFunctionTest {
         Assert.assertEquals(employee0.get("batch").getType().getClass(), BStringType.class);
 
         Assert.assertEquals(employee0.get("school").stringValue(), "Hindu College");
-        Assert.assertEquals(employee0.get("school").getType().getClass(), BAnydataType.class);
+        Assert.assertEquals(employee0.get("school").getType().getClass(), BStringType.class);
     }
 
     @Test
@@ -120,19 +119,19 @@ public class UnionTypeStampInbuiltFunctionTest {
         Assert.assertEquals(((BMapType) employee0.getType()).getConstrainedType().getName(), "Employee");
 
         Assert.assertEquals(employee0.getMap().get("a").getType().getName(), "Employee");
-        Assert.assertEquals(((BValue) ((BMap) employee0.getMap().get("a")).getMap().get("age")).getType().getClass(),
-                BAnydataType.class);
+        Assert.assertEquals(((BValue) ((BMap) employee0.getMap().get("a")).getMap().get("age")).getType().getTag(),
+                TypeTags.INT_TAG);
         Assert.assertEquals(((BValue) ((BMap) employee0.getMap().get("a")).getMap().get("school")).getType().getClass(),
-                BAnydataType.class);
+                BStringType.class);
         Assert.assertEquals(((BValue) ((BMap) employee0.getMap().get("a")).getMap().get("batch")).getType().getClass(),
                 BStringType.class);
 
 
         Assert.assertEquals(employee0.getMap().get("b").getType().getName(), "Employee");
-        Assert.assertEquals(((BValue) ((BMap) employee0.getMap().get("b")).getMap().get("age")).getType().getClass(),
-                BAnydataType.class);
+        Assert.assertEquals(((BValue) ((BMap) employee0.getMap().get("b")).getMap().get("age")).getType().getTag(),
+                TypeTags.INT_TAG);
         Assert.assertEquals(((BValue) ((BMap) employee0.getMap().get("b")).getMap().get("school")).getType().getClass(),
-                BAnydataType.class);
+                BStringType.class);
         Assert.assertEquals(((BValue) ((BMap) employee0.getMap().get("b")).getMap().get("batch")).getType().getClass(),
                 BStringType.class);
     }
@@ -144,7 +143,7 @@ public class UnionTypeStampInbuiltFunctionTest {
         BValue stampedValue = results[0];
 
         Assert.assertEquals(results.length, 1);
-        Assert.assertEquals(stampedValue.getType().getClass(), BAnydataType.class);
+        Assert.assertEquals(stampedValue.getType().getClass(), BStringType.class);
     }
 
     @Test
@@ -168,7 +167,7 @@ public class UnionTypeStampInbuiltFunctionTest {
         BValue stampedValue = results[0];
 
         Assert.assertEquals(results.length, 1);
-        Assert.assertEquals(stampedValue.getType().getClass(), BAnydataType.class);
+        Assert.assertEquals(stampedValue.getType().getClass(), BStringType.class);
     }
 
     @Test

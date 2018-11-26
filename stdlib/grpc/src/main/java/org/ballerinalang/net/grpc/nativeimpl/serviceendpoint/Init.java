@@ -25,7 +25,6 @@ import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.GrpcConstants;
@@ -46,8 +45,8 @@ import java.util.stream.Collectors;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcConstants.SERVER;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVER_CONNECTOR;
-import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_ENDPOINT_TYPE;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_REGISTRY_BUILDER;
 import static org.ballerinalang.net.http.HttpConstants.ENABLE;
 import static org.ballerinalang.net.http.HttpConstants.ENABLED_PROTOCOLS;
@@ -79,10 +78,8 @@ import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
         orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "init",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = SERVICE_ENDPOINT_TYPE,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = SERVER,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
-        args = {@Argument(name = "config", type = TypeKind.RECORD, structType = "ServiceEndpointConfiguration",
-                structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC)},
         isPublic = true
 )
 public class Init extends AbstractGrpcNativeFunction {

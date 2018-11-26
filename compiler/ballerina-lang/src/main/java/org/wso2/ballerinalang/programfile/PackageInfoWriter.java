@@ -406,25 +406,10 @@ public class PackageInfoWriter {
 
     private static void writeResourceInfo(DataOutputStream dataOutStream,
                                           ServiceInfo serviceInfo) throws IOException {
-        ResourceInfo[] resourceInfoEntries = serviceInfo.resourceInfoMap.values().toArray(new ResourceInfo[0]);
-        dataOutStream.writeShort(resourceInfoEntries.length);
-        for (ResourceInfo resourceInfo : resourceInfoEntries) {
-            writeResourceInfo(dataOutStream, resourceInfo);
+        dataOutStream.writeShort(serviceInfo.resourcesCPIndex.size());
+        for (Integer resourceNameCPIndex : serviceInfo.resourcesCPIndex) {
+            dataOutStream.writeInt(resourceNameCPIndex);
         }
-    }
-
-    private static void writeResourceInfo(DataOutputStream dataOutStream,
-                                          ResourceInfo resourceInfo) throws IOException {
-        dataOutStream.writeInt(resourceInfo.nameCPIndex);
-        dataOutStream.writeInt(resourceInfo.signatureCPIndex);
-
-        int[] paramNameCPIndexes = resourceInfo.paramNameCPIndexes;
-        dataOutStream.writeShort(paramNameCPIndexes.length);
-        for (int paramNameCPIndex : paramNameCPIndexes) {
-            dataOutStream.writeInt(paramNameCPIndex);
-        }
-
-        writeAttributeInfoEntries(dataOutStream, resourceInfo.getAttributeInfoEntries());
     }
 
     private static void writeWorkerInfo(DataOutputStream dataOutStream,

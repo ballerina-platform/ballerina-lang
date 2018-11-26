@@ -23,7 +23,7 @@ package org.ballerinalang.net.http;
  */
 public class WebSocketConstants {
 
-    public static final String WEBSOCKET_ENDPOINT_NAME = "ballerina/http:WebSocketListener";
+    public static final String WEBSOCKET_ENDPOINT_NAME = "Tballerina/http:WebSocketServer;";
     public static final String WEBSOCKET_CLIENT_ENDPOINT_NAME = "ballerina/http:WebSocketClient";
     public static final String WEBSOCKET_CONNECTOR = "WebSocketConnector";
     public static final String WEBSOCKET_CALLER = "WebSocketCaller";

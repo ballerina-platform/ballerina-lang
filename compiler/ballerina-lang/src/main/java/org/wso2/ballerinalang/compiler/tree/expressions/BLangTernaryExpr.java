@@ -36,10 +36,12 @@ public class BLangTernaryExpr extends BLangExpression implements TernaryExpressi
     public BLangExpression elseExpr;
 
     // Cache of the type guards
-    public Map<BVarSymbol, BVarSymbol> typeGuards;
+    public Map<BVarSymbol, BVarSymbol> ifTypeGuards;
+    public Map<BVarSymbol, BVarSymbol> elseTypeGuards;
 
     public BLangTernaryExpr() {
-        this.typeGuards = new HashMap<>();
+        this.ifTypeGuards = new HashMap<>();
+        this.elseTypeGuards = new HashMap<>();
     }
 
     @Override

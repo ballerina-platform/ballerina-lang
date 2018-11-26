@@ -83,12 +83,7 @@ typeDefinition
     ;
 
 objectBody
-    :   objectMember* objectMember*
-    ;
-objectMember
-    :   objectFieldDefinition
-    |   objectFunctionDefinition
-    |   typeReference
+    :   (objectFieldDefinition | objectFunctionDefinition | typeReference)*
     ;
 
 typeReference
@@ -127,7 +122,8 @@ constantDefinition
     ;
 
 globalVariableDefinition
-    :   (PUBLIC)? (LISTENER)? typeName Identifier (ASSIGN expression )? SEMICOLON
+    :   PUBLIC? LISTENER? typeName Identifier (ASSIGN expression)? SEMICOLON
+    |   PUBLIC? FINAL (typeName | VAR) Identifier ASSIGN expression SEMICOLON
     |   channelType Identifier SEMICOLON
     ;
 
@@ -274,7 +270,7 @@ statement
 
 variableDefinitionStatement
     :   typeName Identifier SEMICOLON
-    |   (typeName | VAR) bindingPattern ASSIGN expression SEMICOLON
+    |   FINAL? (typeName | VAR) bindingPattern ASSIGN expression SEMICOLON
     ;
 
 recordLiteral

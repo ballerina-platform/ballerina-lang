@@ -21,6 +21,7 @@ import org.ballerinalang.bre.vm.BVM;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.persistence.serializable.SerializableState;
@@ -109,21 +110,33 @@ public class BRefValueArray extends BNewArray implements Serializable {
         if (type.getTag() == TypeTags.TUPLE_TAG) {
             BRefType<?>[] arrayValues = this.getValues();
             for (int i = 0; i < this.size(); i++) {
-                arrayValues[i].stamp(((BTupleType) type).getTupleTypes().get(i));
+                if (arrayValues[i] != null) {
+                    arrayValues[i].stamp(((BTupleType) type).getTupleTypes().get(i));
+                }
             }
 
         } else if (type.getTag() == TypeTags.JSON_TAG) {
             BRefType<?>[] arrayValues = this.getValues();
             for (int i = 0; i < this.size(); i++) {
-                arrayValues[i].stamp(type);
+                if (arrayValues[i] != null) {
+                    arrayValues[i].stamp(type);
+                }
             }
         } else if (type.getTag() == TypeTags.UNION_TAG) {
-            return;
+            for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+                if (BVM.checkIsLikeType(this, memberType)) {
+                    this.stamp(memberType);
+                    type = memberType;
+                    break;
+                }
+            }
         } else if (type.getTag() != TypeTags.ANYDATA_TAG) {
             BType arrayElementType = ((BArrayType) type).getElementType();
             BRefType<?>[] arrayValues = this.getValues();
             for (int i = 0; i < this.size(); i++) {
-                arrayValues[i].stamp(arrayElementType);
+                if (arrayValues[i] != null) {
+                    arrayValues[i].stamp(arrayElementType);
+                }
             }
         }
 

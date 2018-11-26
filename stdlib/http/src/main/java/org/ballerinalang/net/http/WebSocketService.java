@@ -61,7 +61,7 @@ public class WebSocketService {
             idleTimeoutInSeconds = findIdleTimeoutInSeconds(configAnnotationStruct);
             maxFrameSize = findMaxFrameSize(configAnnotationStruct);
         }
-        if (WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(service.getEndpointName())) {
+        if (WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(service.getServiceInfo().listenerType.getTypeSig())) {
             basePath = findFullWebSocketUpgradePath(configAnnotationStruct);
         }
 

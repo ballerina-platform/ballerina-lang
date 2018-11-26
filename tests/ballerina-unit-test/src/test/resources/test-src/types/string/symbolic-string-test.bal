@@ -36,7 +36,6 @@ string var1 = 'abcd;
 
 public string var2 = "";
 
-@final
 public string var3 = 'efgh;
 
 @readonly

@@ -20,7 +20,7 @@ package org.ballerinalang.util.observability;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.model.types.BServiceType;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.program.BLangVMUtils;
 import org.ballerinalang.util.tracer.BSpan;
@@ -263,7 +263,7 @@ public class ObservabilityUtils {
     }
 
     public static String getFullServiceName(ServiceInfo serviceInfo) {
-        BServiceType serviceInfoType = serviceInfo.getType();
+        BType serviceInfoType = serviceInfo.getType();
         return serviceInfoType.getPackagePath().equals(PACKAGE_SEPARATOR)
                 ? serviceInfoType.getName()
                 : serviceInfoType.getPackagePath() + PACKAGE_SEPARATOR + serviceInfoType.getName();
