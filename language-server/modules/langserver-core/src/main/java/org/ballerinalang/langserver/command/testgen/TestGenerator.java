@@ -135,7 +135,7 @@ public class TestGenerator {
         BLangNode bLangNode = nodes.getLeft();
         Object fallBackNode = nodes.getRight();
         boolean fallback = false;
-        //
+
         if (bLangNode == null && fallBackNode == null) {
             throw new TestGeneratorException("Target test construct not found!");
         }
