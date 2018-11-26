@@ -59,7 +59,7 @@ function startTimeWindowTest() returns (Teacher[]) {
 function testTimeWindow() {
 
     forever {
-        from inputStreamTimeWindowTest window timeWindow([1000])
+        from inputStreamTimeWindowTest window timeWindow(1000)
         select inputStreamTimeWindowTest.name, inputStreamTimeWindowTest.age, inputStreamTimeWindowTest.status, inputStreamTimeWindowTest
         .school
         => (Teacher [] emp) {
