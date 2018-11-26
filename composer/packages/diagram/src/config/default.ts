@@ -1,7 +1,9 @@
 
+const STATEMENT_HEIGHT = 20;
+
 export class DiagramConfig {
     public statement = {
-        height: 20,
+        height: STATEMENT_HEIGHT,
         margin: {
             bottom: 0,
             left: 0,
@@ -71,6 +73,16 @@ export class DiagramConfig {
             height: 135,
         },
         width: 120,
+    };
+
+    public flowCtrl = {
+        bottomMargin: STATEMENT_HEIGHT / 2,
+        header: {
+            height: STATEMENT_HEIGHT * 3
+        },
+        leftMargin: STATEMENT_HEIGHT,
+        leftMarginDefault: 60,
+        whileGap: STATEMENT_HEIGHT,
     };
 }
 

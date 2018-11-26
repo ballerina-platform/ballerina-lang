@@ -1,4 +1,4 @@
-import { ASTKindChecker, Block, CompilationUnit, Function, Visitor } from "@ballerina/ast-model";
+import { ASTKindChecker, Block, CompilationUnit, Function, Visitor, While } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
 import { CompilationUnitViewState, FunctionViewState, ViewState } from "../view-model/index";
@@ -73,7 +73,7 @@ export const visitor: Visitor = {
         // Position the body block node
         if (node.body) {
             const bodyViewState: ViewState = node.body.viewState;
-            bodyViewState.bBox.x = viewState.defaultWorker.x;
+            bodyViewState.bBox.x = viewState.defaultWorker.x + viewState.defaultWorker.leftMargin;
             bodyViewState.bBox.y = viewState.defaultWorker.y + config.lifeLine.header.height;
         }
 
@@ -91,4 +91,10 @@ export const visitor: Visitor = {
             height += element.viewState.bBox.h;
         });
     },
+
+    beginVisitWhile(node: While) {
+        const viewState: ViewState = node.viewState;
+        node.body.viewState.bBox.x = viewState.bBox.x;
+        node.body.viewState.bBox.y = viewState.bBox.y + config.flowCtrl.header.height;
+    }
 };
