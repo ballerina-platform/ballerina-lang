@@ -22,7 +22,9 @@
 # + return - TRUE if values are deeply equal, else FALSE.
 public extern function equals(any value1, any value2) returns (boolean);
 
-public type anyStruct record {};
+public type anyStruct record {
+    any...
+};
 
 public type annotationData record {
     string name;
