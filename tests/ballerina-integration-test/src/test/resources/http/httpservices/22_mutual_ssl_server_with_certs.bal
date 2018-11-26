@@ -13,12 +13,12 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/config;
 import ballerina/http;
 import ballerina/io;
 
-endpoint http:Listener mutualSSLListener {
-    port:9217,
+http:ServiceEndpointConfiguration mutualSslCertServiceConf = {
     secureSocket: {
         keyFile: config:getAsString("certificate.key"),
         certFile: config:getAsString("public.cert"),
@@ -27,20 +27,22 @@ endpoint http:Listener mutualSSLListener {
     }
 };
 
+listener http:Listener mutualSSLListener = new(9217, config = mutualSslCertServiceConf);
+
 @http:ServiceConfig {
     basePath:"/echo"
 }
 
-service<http:Service> mutualSSLService bind mutualSSLListener {
+service mutualSSLService on mutualSSLListener {
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/"
     }
-    sayHello (endpoint conn, http:Request req) {
+    resource function sayHello(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("Response received");
-        _ = conn->respond( res);
+        _ = caller->respond( res);
     }
 }
 
