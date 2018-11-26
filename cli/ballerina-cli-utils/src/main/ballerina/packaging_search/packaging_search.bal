@@ -162,7 +162,6 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
 # + return - Endpoint defined
 function defineEndpointWithProxy (string url, string hostname, int port, string username, string password) returns http:Client{
     http:Client httpEndpoint = new (url, config = {
-        url: url,
         secureSocket:{
             trustStore:{
                 path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",

@@ -21,7 +21,7 @@ function f2() returns string|error {
     return "test";
 }
 
-service hello2 on new http:Server(9090) {
+service hello2 on new http:Listener(9090) {
     resource function sayHello2 (http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setPayload("Hello, World!");
