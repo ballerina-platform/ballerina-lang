@@ -879,6 +879,20 @@ public class Types {
         return targetType.accept(conversionVisitor, sourceType);
     }
 
+    BSymbol getTypeConversionOrAssertionOperator(BType sourceType, BType targetType) {
+        if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR ||
+                sourceType == targetType) {
+            return createConversionOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
+        }
+
+        if (isValueType(targetType)) {
+            return symResolver.getExplicitlySimpleBasicTypedExpressionSymbol(sourceType, targetType);
+        } else if (isAssignable(targetType, sourceType)) {
+            return symResolver.createTypeAssertionSymbol(sourceType, targetType);
+        }
+        return symTable.notFoundSymbol;
+    }
+
     public BType getElementType(BType type) {
         if (type.tag != TypeTags.ARRAY) {
             return type;

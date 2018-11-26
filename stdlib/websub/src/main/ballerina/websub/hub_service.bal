@@ -275,9 +275,8 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
     http:Client callbackEp = new http:Client(callback, config = { secureSocket: hubClientSecureSocket });
     string mode = params[HUB_MODE] ?: "";
     string strLeaseSeconds = params[HUB_LEASE_SECONDS] ?: "";
-    var result = <int>strLeaseSeconds;
+    var result = int.create(strLeaseSeconds);
     int leaseSeconds = result is error ? 0 : result;
-
 
     //measured from the time the verification request was made from the hub to the subscriber from the recommendation
     int createdAt = time:currentTime().time;
@@ -453,7 +452,7 @@ function addTopicRegistrationsOnStartup() {
     if (dbResult is table) {
         table dt = dbResult;
         while (dt.hasNext()) {
-            var registrationDetails = <TopicRegistration>dt.getNext();
+            var registrationDetails = trap <TopicRegistration>dt.getNext();
             if (registrationDetails is TopicRegistration) {
                 var registerStatus = registerTopicAtHub(registrationDetails.topic, loadingOnStartUp = true);
                 if (registerStatus is error) {
@@ -493,7 +492,7 @@ function addSubscriptionsOnStartup() {
     if (dbResult is table) {
         table dt = dbResult;
         while (dt.hasNext()) {
-            var subscriptionDetails = <SubscriptionDetails>dt.getNext();
+            var subscriptionDetails = trap <SubscriptionDetails>dt.getNext();
             if (subscriptionDetails is SubscriptionDetails) {
                 addSubscription(subscriptionDetails);
             } else if (subscriptionDetails is error) {

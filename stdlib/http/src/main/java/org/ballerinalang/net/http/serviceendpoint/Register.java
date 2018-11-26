@@ -20,6 +20,7 @@ package org.ballerinalang.net.http.serviceendpoint;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
@@ -34,7 +35,6 @@ import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketServerConnectorListener;
 import org.ballerinalang.net.http.WebSocketService;
 import org.ballerinalang.net.http.WebSocketServicesRegistry;
-import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
@@ -66,14 +66,17 @@ public class Register extends AbstractHttpNativeFunction {
         HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
         WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
 
-        TypeRefCPEntry listenerType = service.getServiceInfo().listenerType;
-        if (listenerType == null || HttpConstants.HTTP_SERVICE_ENDPOINT_NAME.equals(listenerType.getTypeSig())) {
-            httpServicesRegistry.registerService(service);
-        } else if (WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(listenerType.getTypeSig())) {
-            WebSocketService webSocketService = new WebSocketService(service);
-            webSocketServicesRegistry.registerService(webSocketService);
+        ParamDetail param = service.getResources()[0].getParamDetails().get(0);
+        if (param != null) {
+            String callerType = param.getVarType().toString();
+            if (HttpConstants.HTTP_CALLER_NAME.equals(callerType)) {
+                httpServicesRegistry.registerService(service);
+            } else if (WebSocketConstants.WEBSOCKET_CALLER_NAME.equals(callerType)) {
+                WebSocketService webSocketService = new WebSocketService(service);
+                webSocketServicesRegistry.registerService(webSocketService);
+            }
         }
-        // TODO: 11/24/18 fix silent failure here
+        // TODO: 11/24/18 failure need to be validated in the compile time
 
         if (!isConnectorStarted(serviceEndpoint)) {
             startServerConnector(serviceEndpoint, httpServicesRegistry, webSocketServicesRegistry);

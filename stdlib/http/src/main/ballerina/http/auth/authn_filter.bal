@@ -153,19 +153,11 @@ function getAuthAnnotation(string annotationModule, string annotationName, refle
     }
     if (authAnn is reflect:annotationData) {
         if (annotationName == RESOURCE_ANN_NAME) {
-            var resourceConfig = <HttpResourceConfig>authAnn.value;
-            if (resourceConfig is HttpResourceConfig) {
-                return resourceConfig.authConfig;
-            } else if (resourceConfig is error) {
-                panic resourceConfig;
-            }
+            HttpResourceConfig resourceConfig = <HttpResourceConfig>authAnn.value;
+            return resourceConfig.authConfig;
         } else if (annotationName == SERVICE_ANN_NAME) {
-            var serviceConfig = <HttpServiceConfig>authAnn.value;
-            if (serviceConfig is HttpServiceConfig) {
-                return serviceConfig.authConfig;
-            } else if (serviceConfig is error) {
-                panic serviceConfig;
-            }
+            HttpServiceConfig serviceConfig = <HttpServiceConfig>authAnn.value;
+            return serviceConfig.authConfig;
         }
     }
     return ();
