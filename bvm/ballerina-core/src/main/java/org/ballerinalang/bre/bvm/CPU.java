@@ -4918,7 +4918,8 @@ public class CPU {
                 return false;
             }
 
-            return ((ValuePair) otherPair).valueList.containsAll(valueList);
+            return ((ValuePair) otherPair).valueList.containsAll(valueList) &&
+                    valueList.containsAll(((ValuePair) otherPair).valueList);
         }
     }
 }
