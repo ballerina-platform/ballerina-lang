@@ -117,36 +117,36 @@ suite('Ballerina Debug Adapter', () => {
             return dc.hitBreakpoint(launchArgs, { path: PROGRAM, name: 'hello_service.bal', line: 24 });
         }).timeout(15000);
 
-        test('step In, hello world service - package', () => {
-            const PROGRAM = Path.join(DATA_ROOT, 'helloPackage1', 'hello', 'hello_service.bal');
-            const launchArgs = {
-                script: PROGRAM,
-                "ballerina.home": ballerinaHome,
-                request: "launch",
-                name: "Ballerina Debug",
-            };
+        // test('step In, hello world service - package', () => {
+        //     const PROGRAM = Path.join(DATA_ROOT, 'helloPackage1', 'hello', 'hello_service.bal');
+        //     const launchArgs = {
+        //         script: PROGRAM,
+        //         "ballerina.home": ballerinaHome,
+        //         request: "launch",
+        //         name: "Ballerina Debug",
+        //     };
 
-            dc.on('output', (res) => {
-                if (res.body.output.indexOf("started HTTP/WS") > -1) {
-                    http.get('http://0.0.0.0:9090/hello/sayHello');
-                }
-            });
-            dc.hitBreakpoint(launchArgs, { path: PROGRAM, name: 'hello_service.bal', line: 24 });
+        //     dc.on('output', (res) => {
+        //         if (res.body.output.indexOf("started HTTP/WS") > -1) {
+        //             http.get('http://0.0.0.0:9090/hello/sayHello');
+        //         }
+        //     });
+        //     dc.hitBreakpoint(launchArgs, { path: PROGRAM, name: 'hello_service.bal', line: 24 });
 
-            return dc.waitForEvent('stopped', 12000).then((event) => {
-                const threadId: any = event.body.threadId;
-                return dc.stepInRequest({
-                    threadId: threadId
-                });
-            }).then(() => {
-                return dc.waitForEvent('stopped', 12000).then(event => {
-                    assert.equal(event.body.reason, "breakpoint");
-                    return dc.stackTraceRequest({
-                        threadId: event.body.threadId,
-                    });
-                });
-            });
-        }).timeout(15000);
+        //     return dc.waitForEvent('stopped', 12000).then((event) => {
+        //         const threadId: any = event.body.threadId;
+        //         return dc.stepInRequest({
+        //             threadId: threadId
+        //         });
+        //     }).then(() => {
+        //         return dc.waitForEvent('stopped', 12000).then(event => {
+        //             assert.equal(event.body.reason, "breakpoint");
+        //             return dc.stackTraceRequest({
+        //                 threadId: event.body.threadId,
+        //             });
+        //         });
+        //     });
+        // }).timeout(15000);
     });
 
 });
