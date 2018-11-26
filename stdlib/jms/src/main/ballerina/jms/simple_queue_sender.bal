@@ -16,22 +16,22 @@
 
 import ballerina/log;
 
-# Simplified queue sender object
+# Simplified QueueSender object
 # A new connection and a session will be create when this endpoint is initialize. If your requirement is complex
 # please refer QueueSender endpoint.
 #
 # + config - configurations related to the SimpleQueueSender endpoint
-public type SimpleQueueSender object {
+public type SimpleQueueSender client object {
 
     public SimpleQueueSenderEndpointConfiguration config = {};
     private Connection? connection;
     private Session? session = ();
-    private QueueSender? sender = ();
+    private QueueSender sender;
 
     # Initialize the SimpleQueueSender endpoint
     #
     # + c - Configurations related to the SimpleQueueSender endpoint
-    public function init(SimpleQueueSenderEndpointConfiguration c) {
+    public function __init(SimpleQueueSenderEndpointConfiguration c) {
         self.config = c;
         Connection conn = new({
                 initialContextFactory: self.config.initialContextFactory,
@@ -45,52 +45,16 @@ public type SimpleQueueSender object {
                 acknowledgementMode: self.config.acknowledgementMode
             });
         self.session = newSession;
-
-        QueueSender queueSender = new;
-        QueueSenderEndpointConfiguration senderConfig = {
-            session: newSession,
-            queueName: c.queueName
-        };
-        queueSender.init(senderConfig);
-        self.sender = queueSender;
-    }
-
-    # Registers the endpoint in the service.
-    # This method is not used since SimpleQueueSender is a non-service endpoint.
-    #
-    # + serviceType - type descriptor of the service
-    public function register(typedesc serviceType) {
-
-    }
-
-    # Starts the SimpleQueueSender endpoint
-    public function start() {
-
-    }
-
-    # Returns the caller action object of the SimpleQueueSender
-    #
-    # + return - Simple queue sender actions
-    public function getCallerActions() returns QueueSenderActions {
-        var sender = self.sender;
-        if (sender is QueueSender) {
-            return sender.getCallerActions();
-        } else {
-            string errorMessage = "Queue sender cannot be nil";
-            map errorDetail = { message: errorMessage };
-            error e = error(JMS_ERROR_CODE, errorDetail);
-            panic e;
-        }
-    }
-
-    # Stops the  SimpleQueueSender endpoint
-    public function stop() {
+        self.sender = new ({
+                session: newSession,
+                queueName: c.queueName
+        });
     }
 
     # Creates a JMS message which holds text content
     #
-    # + content - the text content used to initialize this message
-    # + return - a message or nil if the session is nil
+    # + content - Text content used to initialize this message
+    # + return - Message or nil if the session is nil
     public function createTextMessage(string content) returns Message|error {
         var session = self.session;
         if (session is Session) {
@@ -101,6 +65,23 @@ public type SimpleQueueSender object {
             error e = error(JMS_ERROR_CODE, errorDetail);
             panic e;
         }
+    }
+
+    # Sends a message to the JMS provider
+    #
+    # + message - Message to be sent to the JMS provider
+    # + return - Error if unable to send the message to the queue
+    public remote function send(Message message) returns error? {
+        return self.sender->send(message);
+    }
+
+    # Sends a message to a given destination of the JMS provider
+    #
+    # + destination - Destination used for the message sender
+    # + message - Message to be sent to the JMS provider
+    # + return - Error if sending fails to the given destination
+    public remote function sendTo(Destination destination, Message message) returns error? {
+        return self.sender->sendTo(destination, message);
     }
 };
 

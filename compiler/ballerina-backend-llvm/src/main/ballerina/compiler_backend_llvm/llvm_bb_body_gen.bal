@@ -6,7 +6,10 @@ type BbBodyGenrator object {
     FuncGenrator parent;
     bir:BasicBlock bb;
 
-    new(builder, parent, bb) {
+    function __init(llvm:LLVMBuilderRef builder, FuncGenrator parent, bir:BasicBlock bb) {
+        self.builder = builder;
+        self.parent = parent;
+        self.bb = bb;
     }
 
     function genBasicBlockBody() returns BbTermGenrator {

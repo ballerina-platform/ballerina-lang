@@ -161,7 +161,7 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
 # + password - Password of the proxy
 # + return - Endpoint defined
 function defineEndpointWithProxy (string url, string hostname, int port, string username, string password) returns http:Client{
-    http:Client httpEndpoint = new ({
+    http:Client httpEndpoint = new (url, config = {
         url: url,
         secureSocket:{
             trustStore:{
@@ -181,8 +181,7 @@ function defineEndpointWithProxy (string url, string hostname, int port, string 
 # + url - URL to be invoked
 # + return - Endpoint defined
 function defineEndpointWithoutProxy (string url) returns http:Client{
-    http:Client httpEndpoint = new ({
-        url: url,
+    http:Client httpEndpoint = new (url, config = {
         secureSocket:{
             trustStore:{
                 path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
@@ -256,7 +255,7 @@ function getDateCreated(json jsonObj) returns string {
 # This function invokes the method to search for modules.
 # + args - Arguments passed
 public function main (string... args) {
-    http:Client httpEndpoint = new({});
+    http:Client httpEndpoint = new("");
     string host = args[2];
     string strPort = args[3];
     if (host != "" && strPort != "") {
