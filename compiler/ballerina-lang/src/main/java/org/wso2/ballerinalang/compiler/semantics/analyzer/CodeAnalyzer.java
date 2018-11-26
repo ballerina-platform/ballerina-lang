@@ -201,6 +201,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private BLangNode parent;
     private Names names;
     private SymbolEnv env;
+    private boolean withinAbortedBlock;
+    private boolean withinCommittedBlock;
 
     public static CodeAnalyzer getInstance(CompilerContext context) {
         CodeAnalyzer codeGenerator = context.get(CODE_ANALYZER_KEY);
@@ -410,6 +412,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.returnWithintransactionCheckStack.push(false);
         this.doneWithintransactionCheckStack.push(false);
         this.transactionCount++;
+        if (this.transactionCount > 1) {
+            this.dlog.error(transactionNode.pos, DiagnosticCode.NESTED_TRANSACTIONS_ARE_INVALID);
+        }
         analyzeNode(transactionNode.transactionBody, env);
         this.transactionCount--;
         this.resetLastStatement();
@@ -419,6 +424,22 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.resetStatementReturns();
             this.resetLastStatement();
             this.withinRetryBlock = false;
+        }
+
+        if (transactionNode.abortedBodyList != null && !transactionNode.abortedBodyList.isEmpty()) {
+            this.withinAbortedBlock = true;
+            analyzeNode(transactionNode.abortedBodyList.get(0), env);
+            this.resetStatementReturns();
+            this.resetLastStatement();
+            this.withinAbortedBlock = false;
+        }
+
+        if (transactionNode.committedBodyList != null && !transactionNode.committedBodyList.isEmpty()) {
+            this.withinCommittedBlock = true;
+            analyzeNode(transactionNode.committedBodyList.get(0), env);
+            this.resetStatementReturns();
+            this.resetLastStatement();
+            this.withinCommittedBlock = false;
         }
 
         List<BLangBlockStmt> committedBodyList = transactionNode.committedBodyList;
@@ -1804,7 +1825,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private boolean isValidTransactionBlock() {
         return (this.transactionWithinHandlerCheckStack.empty() || !this.transactionWithinHandlerCheckStack.peek()) &&
-                !this.withinRetryBlock;
+                !(this.withinRetryBlock || this.withinAbortedBlock || this.withinCommittedBlock);
     }
 
     private void validateMainFunction(BLangFunction funcNode) {
