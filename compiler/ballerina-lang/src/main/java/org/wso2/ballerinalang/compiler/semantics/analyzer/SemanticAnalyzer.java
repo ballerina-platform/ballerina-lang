@@ -670,10 +670,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BUnionType unionType = ((BUnionType) varNode.type);
 
                 List<BTupleType> possibleTypes = unionType.memberTypes.stream()
-                        .filter(type -> TypeTags.TUPLE == type.tag).map(BTupleType.class::cast)
+                        .filter(type -> TypeTags.TUPLE == type.tag)
+                        .map(BTupleType.class::cast)
                         .filter(tupleType -> varNode.memberVariables.size() == tupleType.tupleTypes.size())
                         .collect(Collectors.toList());
 
+                if (possibleTypes.isEmpty()) {
+                    dlog.error(varNode.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, varNode.type);
+                    return false;
+                }
                 if (possibleTypes.size() > 1) {
                     List<BType> memberTupleTypes = new ArrayList<>();
                     for (int i = 0; i < varNode.memberVariables.size(); i++) {
@@ -684,9 +689,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         memberTupleTypes.add(new BUnionType(null, memberTypes, false));
                     }
                     tupleTypeNode = new BTupleType(memberTupleTypes);
-                } else if (possibleTypes.size() == 0) {
-                    dlog.error(varNode.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, varNode.type);
-                    return false;
                 } else {
                     tupleTypeNode = possibleTypes.get(0);
                 }
@@ -755,11 +757,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BUnionType unionType = (BUnionType) recordVar.type;
                 List<BType> possibleTypes = unionType.memberTypes.stream()
                         .filter(type -> TypeTags.RECORD == type.tag || TypeTags.MAP == type.tag)
-                        .map(obj -> {
-                            if (TypeTags.RECORD == obj.tag) {
-                                return BRecordType.class.cast(obj);
+                        .map(bType -> {
+                            if (TypeTags.RECORD == bType.tag) {
+                                return BRecordType.class.cast(bType);
                             }
-                            return BMapType.class.cast(obj);
+                            return BMapType.class.cast(bType);
                         })
                         .filter(rec -> doesRecordContainKeys(rec, recordVar.variableList, recordVar.restParam != null))
                         .collect(Collectors.toList());
@@ -772,35 +774,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     BRecordTypeSymbol recordSymbol = Symbols
                             .createRecordSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
                     recordVarType = (BRecordType) symTable.recordType;
-                    List<BField> fields = new ArrayList<>();
-
-                    recordVar.variableList.stream()
-                            .map(bLangRecordVariableKeyValue -> bLangRecordVariableKeyValue.key.value)
-                            .forEach(fieldName -> {
-                                Set<BType> memberTypes = new HashSet<>();
-                                possibleTypes.forEach(possibleType -> {
-                                    if (possibleType.tag == TypeTags.RECORD) {
-                                        BRecordType possibleRecordType = (BRecordType) possibleType;
-                                        Map<String, BType> possibleTypeFields = possibleRecordType.fields
-                                                .stream()
-                                                .collect(Collectors.toMap(
-                                                        field -> field.getName().getValue(),
-                                                        BField::getType
-                                                ));
-                                        memberTypes.add(possibleTypeFields.get(fieldName) == null ?
-                                                possibleRecordType.restFieldType : possibleTypeFields.get(fieldName));
-                                    } else {
-                                        BMapType possibleMapType = (BMapType) possibleType;
-                                        memberTypes.add(possibleMapType.constraint);
-                                    }
-                                });
-                                BType fieldType = memberTypes.size() > 1 ?
-                                        new BUnionType(null, memberTypes, false) :
-                                        memberTypes.iterator().next();
-                                fields.add(new BField(names.fromString(fieldName),
-                                        new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
-                                                fieldType, recordSymbol)));
-                            });
+                    List<BField> fields = populateAndGetPossibleFieldsForRecVar(recordVar, possibleTypes, recordSymbol);
 
                     if (recordVar.restParam != null) {
                         Set<BType> memberTypes = possibleTypes.stream()
@@ -901,6 +875,49 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return validRecord;
     }
 
+    /**
+     * This method will resolve field types based on a list of possible types.
+     * When a record variable has multiple possible assignable types, each field will be a union of the relevant
+     * possible types field type.
+     *
+     * @param recordVar record variable whose fields types are to be resolved
+     * @param possibleTypes list of possible types
+     * @param recordSymbol symbol of the record type to be used in creating fields
+     * @return the list of fields
+     */
+    private List<BField> populateAndGetPossibleFieldsForRecVar(BLangRecordVariable recordVar, List<BType> possibleTypes,
+                                                      BRecordTypeSymbol recordSymbol) {
+        List<BField> fields = new ArrayList<>();
+        recordVar.variableList.stream()
+                .map(bLangRecordVariableKeyValue -> bLangRecordVariableKeyValue.key.value)
+                .forEach(fieldName -> {
+                    Set<BType> memberTypes = new HashSet<>();
+                    possibleTypes.forEach(possibleType -> {
+                        if (possibleType.tag == TypeTags.RECORD) {
+                            BRecordType possibleRecordType = (BRecordType) possibleType;
+                            Map<String, BType> possibleTypeFields = possibleRecordType.fields
+                                    .stream()
+                                    .collect(Collectors.toMap(
+                                            field -> field.getName().getValue(),
+                                            BField::getType
+                                    ));
+                            memberTypes.add(possibleTypeFields.get(fieldName) == null ?
+                                    possibleRecordType.restFieldType : possibleTypeFields.get(fieldName));
+                        } else {
+                            BMapType possibleMapType = (BMapType) possibleType;
+                            memberTypes.add(possibleMapType.constraint);
+                        }
+                    });
+                    BType fieldType = memberTypes.size() > 1 ?
+                            new BUnionType(null, memberTypes, false) :
+                            memberTypes.iterator().next();
+                    fields.add(new BField(names.fromString(fieldName),
+                            new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
+                                    fieldType, recordSymbol)));
+                });
+        return fields;
+    }
+
     private boolean validateErrorVariable(BLangErrorVariable errorVariable) {
         BErrorType errorType;
         switch (errorVariable.type.tag) {
@@ -989,28 +1006,28 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private boolean doesRecordContainKeys(BType varType, List<BLangRecordVariableKeyValue> variableList,
                                           boolean hasRestParam) {
-        if (varType.tag == TypeTags.RECORD) {
-            BRecordType recordVarType = (BRecordType) varType;
-            Map<String, BField> recordVarTypeFields = recordVarType.fields
-                    .stream()
-                    .collect(Collectors.toMap(
-                            field -> field.getName().getValue(),
-                            field -> field
-                    ));
-            for (BLangRecordVariableKeyValue var : variableList) {
-                if (!recordVarTypeFields.containsKey(var.key.value) && recordVarType.sealed) {
-                    return false;
-                }
-            }
-
-            if (!hasRestParam) {
-                return true;
-            }
-
-            return !recordVarType.sealed;
-        } else { // else it is a map type and all keys are present
+        if (varType.tag == TypeTags.MAP) { // if it is a map type all keys are assumed to be present
             return true;
         }
+
+        BRecordType recordVarType = (BRecordType) varType;
+        Map<String, BField> recordVarTypeFields = recordVarType.fields
+                .stream()
+                .collect(Collectors.toMap(
+                        field -> field.getName().getValue(),
+                        field -> field
+                ));
+        for (BLangRecordVariableKeyValue var : variableList) {
+            if (!recordVarTypeFields.containsKey(var.key.value) && recordVarType.sealed) {
+                return false;
+            }
+        }
+
+        if (!hasRestParam) {
+            return true;
+        }
+
+        return !recordVarType.sealed;
     }
 
     // Statements
@@ -1144,13 +1161,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (rhsType.tag == TypeTags.MAP) {
             BMapType rhsMapType = (BMapType) rhsType;
             BType expectedType = rhsMapType.constraint.tag == TypeTags.ANY ||
-                    rhsMapType.constraint.tag == TypeTags.ANYDATA ?
-                    rhsMapType.constraint : new BUnionType(null,
-                    new LinkedHashSet<BType>() {{
+                    rhsMapType.constraint.tag == TypeTags.ANYDATA ? rhsMapType.constraint :
+                    new BUnionType(null, new LinkedHashSet<BType>() {{
                         add(rhsMapType.constraint);
                         add(symTable.nilType);
-                    }},
-                    true);
+                    }}, true);
 
             lhsVarRef.recordRefFields.forEach(field -> types.checkType(field.variableReference.pos,
                     expectedType, field.variableReference.type, DiagnosticCode.INCOMPATIBLE_TYPES));
@@ -1265,6 +1280,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (!types.isAssignable(rhsErrorType.reasonType, reason.type)) {
             dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, reason.type, rhsErrorType.reasonType);
         }
+
         if (varRef.detail.getKind() == NodeKind.RECORD_VARIABLE_REF) {
             typeChecker.checkExpr(varRef.detail, env);
             checkRecordVarRefEquivalency(

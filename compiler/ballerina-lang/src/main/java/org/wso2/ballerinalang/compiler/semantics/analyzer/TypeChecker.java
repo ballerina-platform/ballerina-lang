@@ -601,7 +601,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordVarRef varRefExpr) {
-
         if (expType.tag == TypeTags.MAP) {
             boolean unresolvedReference = false;
             for (BLangRecordVarRef.BLangRecordVarRefKeyValue recordRefField : varRefExpr.recordRefFields) {
@@ -677,8 +676,7 @@ public class TypeChecker extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorVarRef varRefExpr) {
         BType reasonType = checkExpr(varRefExpr.reason, env, symTable.noType);
-        BType detailType;
-        detailType = varRefExpr.detail.getKind() == NodeKind.RECORD_VARIABLE_REF ?
+        BType detailType = varRefExpr.detail.getKind() == NodeKind.RECORD_VARIABLE_REF ?
                 // detail is destructured, it should be of type map
                 checkExpr(varRefExpr.detail, env, symTable.mapType) :
                 checkExpr(varRefExpr.detail, env, symTable.noType);

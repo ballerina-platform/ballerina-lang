@@ -830,18 +830,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean hasRecordVariable = false;
-        if (ctx.recordBindingPattern() != null) {
-            hasRecordVariable = true;
-        }
-
         String detailIdentifier = null;
         if (ctx.Identifier(1) != null) {
             detailIdentifier = ctx.Identifier(1).getText();
         }
 
         this.pkgBuilder.addErrorVariable(getCurrentPos(ctx), getWS(ctx), ctx.Identifier(0).getText(),
-                detailIdentifier, hasRecordVariable);
+                detailIdentifier, ctx.recordBindingPattern() != null);
     }
 
     @Override

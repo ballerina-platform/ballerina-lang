@@ -328,7 +328,3 @@ function foo7(any x) returns string {
 
     return "Default";
 }
-
-function testRuntimeIsLikeCheck() {
-
-}

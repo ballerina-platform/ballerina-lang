@@ -19,7 +19,6 @@
 package org.ballerinalang.model.tree.statements;
 
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 
 /**
@@ -33,7 +32,7 @@ public interface ErrorDestructureNode extends StatementNode {
 
     ExpressionNode getDetail();
 
-    void addReasonRef(SimpleVariableReferenceNode variableReferenceNode);
+    void addReasonRef(VariableReferenceNode variableReferenceNode);
 
     void addDetailRef(VariableReferenceNode variableReferenceNode);
 

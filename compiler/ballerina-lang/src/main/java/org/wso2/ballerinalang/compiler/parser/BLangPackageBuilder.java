@@ -2224,7 +2224,6 @@ public class BLangPackageBuilder {
     }
 
     void addErrorDestructuringStatement(DiagnosticPos pos, Set<Whitespace> ws) {
-
         BLangErrorDestructure stmt = (BLangErrorDestructure) TreeBuilder.createErrorDestructureStatementNode();
         stmt.pos = pos;
         stmt.addWS(ws);

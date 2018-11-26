@@ -29,7 +29,7 @@ import java.util.EnumSet;
 /**
  * Represents an error variable node.
  * <p>
- * error (reason, detail) = {name: "Peter", married: true};
+ * error (reason, detail) = error ("Error Code", {message: "Error Message"});
  *
  * @since 0.985.0
  */

@@ -752,8 +752,7 @@ public class Desugar extends BLangNodeVisitor {
                 continue;
             }
 
-            BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(variable.pos, symTable.intType,
-                    (long) index);
+            BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(variable.pos, symTable.intType, (long) index);
 
             if (variable.getKind() == NodeKind.TUPLE_VARIABLE) { //else recursively create the var def statements
                 BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(variable.pos,
@@ -1476,35 +1475,24 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorDestructure errorDestructure) {
 
-        //create tuple destruct block stmt
         final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(errorDestructure.pos);
-
-        //create a simple var for the array 'any[] x = (tuple)' based on the dimension for x
-        final BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(errorDestructure.pos, "", symTable.errorType,
-                null, new BVarSymbol(0, names.fromString("$error$"), this.env.scope.owner.pkgID,
-                        symTable.errorType, this.env.scope.owner));
+        final BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(errorDestructure.pos, "",
+                symTable.errorType, null, new BVarSymbol(0, names.fromString("$error$"),
+                        this.env.scope.owner.pkgID, symTable.errorType, this.env.scope.owner));
         errorVar.expr = errorDestructure.expr;
         final BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(errorDestructure.pos,
                 blockStmt);
         variableDef.var = errorVar;
-
-        //create the variable definition statements using the root block stmt created
         createVarRefAssignmentStmts(errorDestructure.varRef, blockStmt, errorVar.symbol, null);
-
-        //finally rewrite the populated block statement
         result = rewrite(blockStmt, env);
     }
 
     private void createVarRefAssignmentStmts(BLangErrorVarRef parentErrorVarRef, BLangBlockStmt parentBlockStmt,
                                              BVarSymbol errorVarySymbol, BLangIndexBasedAccess parentIndexAccessExpr) {
-
-        final BLangAssignment reasonAssignment = ASTBuilderUtil.createAssignmentStmt(parentBlockStmt.pos,
-                parentBlockStmt);
+        BLangAssignment reasonAssignment = ASTBuilderUtil.createAssignmentStmt(parentBlockStmt.pos, parentBlockStmt);
         reasonAssignment.expr = createErrorReasonBuiltinFunction(parentErrorVarRef.reason.pos,
                 symTable.stringType, errorVarySymbol, parentIndexAccessExpr);
-
         reasonAssignment.expr = addConversionExprIfRequired(reasonAssignment.expr, parentErrorVarRef.reason.type);
-
         reasonAssignment.varRef = parentErrorVarRef.reason;
 
         if (parentErrorVarRef.detail == null) {
