@@ -29,7 +29,7 @@ type Person record {
     string name;
     boolean married;
     Age age;
-    (string, int) extra;
+    (string, int) extra?;
     !...
 };
 

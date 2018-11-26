@@ -44,7 +44,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -55,6 +54,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
@@ -71,7 +71,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
@@ -698,23 +698,15 @@ public class ASTBuilderUtil {
         return dupVarSymbol;
     }
 
-    public static BLangErrorConstructorExpr createErrorConstructor(DiagnosticPos pos,
-                                                                   BLangExpression reason,
-                                                                   BLangExpression detail,
-                                                                   BType type) {
-        BLangErrorConstructorExpr errorConst = (BLangErrorConstructorExpr) TreeBuilder.createErrorConstructorNode();
-        errorConst.reasonExpr = reason;
-        errorConst.detailsExpr = detail;
-        errorConst.type = type;
-        errorConst.pos = pos;
-        return errorConst;
-    }
-
-    public static BLangPanic createPanicExpr(DiagnosticPos pos, BLangExpression errorExpression) {
-        BLangPanic panic = (BLangPanic) TreeBuilder.createPanicNode();
-        panic.expr = errorExpression;
-        panic.pos = pos;
-        return panic;
+    static BLangRecordDestructure createRecordDestructureStmt(DiagnosticPos pos, BLangExpression expr,
+                                                              BLangRecordVarRef detail, BLangBlockStmt target) {
+        BLangRecordDestructure destructureStatementNode =
+                (BLangRecordDestructure) TreeBuilder.createRecordDestructureStatementNode();
+        destructureStatementNode.pos = pos;
+        destructureStatementNode.expr = expr;
+        destructureStatementNode.varRef = detail;
+        target.addStatement(destructureStatementNode);
+        return destructureStatementNode;
     }
 
     private static IdentifierNode createIdentifier(String value) {

@@ -130,6 +130,8 @@ public enum NodeKind {
     TRANSFORM,
     TRY,
     TUPLE_DESTRUCTURE,
+    RECORD_DESTRUCTURE,
+    ERROR_DESTRUCTURE,
     VARIABLE_DEF,
     WHILE,
     LOCK,

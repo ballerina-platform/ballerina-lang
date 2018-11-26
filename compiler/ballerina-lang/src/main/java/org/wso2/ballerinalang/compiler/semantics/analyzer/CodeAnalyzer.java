@@ -68,6 +68,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -111,6 +112,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -1114,6 +1116,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(stmt.expr);
     }
 
+    @Override
+    public void visit(BLangErrorDestructure stmt) {
+        this.checkStatementExecutionValidity(stmt);
+        analyzeExpr(stmt.varRef);
+        analyzeExpr(stmt.expr);
+    }
+
     public void visit(BLangBreak breakNode) {
         this.checkStatementExecutionValidity(breakNode);
         if (this.loopCount == 0) {
@@ -1255,6 +1264,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangTupleVarRef varRefExpr) {
+        /* ignore */
+    }
+
+    public void visit(BLangErrorVarRef varRefExpr) {
         /* ignore */
     }
 

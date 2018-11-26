@@ -20,34 +20,42 @@ package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
-import org.ballerinalang.model.tree.statements.RecordDestructureNode;
+import org.ballerinalang.model.tree.statements.ErrorDestructureNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 
 /**
- * Implementation of {@link RecordDestructureNode}.
+ * Implementation of {@link ErrorDestructureNode}.
  *
  * @since 0.985.0
  */
-public class BLangRecordDestructure extends BLangStatement implements RecordDestructureNode {
+public class BLangErrorDestructure extends BLangStatement implements ErrorDestructureNode {
+    public BLangErrorVarRef varRef;
+    public BLangExpression expr;
 
-    public BLangRecordVarRef varRef; // lhs
-    public BLangExpression expr; // rhs
-    public boolean declaredWithVar;
-
-    public BLangRecordDestructure() {
+    @Override
+    public BLangSimpleVarRef getReason() {
+        return this.varRef.reason;
     }
 
     @Override
-    public BLangRecordVarRef getVariableRefs() {
-        return this.varRef;
+    public BLangVariableReference getDetail() {
+        return this.varRef.detail;
     }
 
     @Override
-    public void addVariableRef(VariableReferenceNode variableReferenceNode) {
-        varRef = (BLangRecordVarRef) variableReferenceNode;
+    public void addReasonRef(SimpleVariableReferenceNode variableReferenceNode) {
+        varRef.reason = (BLangSimpleVarRef) variableReferenceNode;
+    }
+
+    @Override
+    public void addDetailRef(VariableReferenceNode variableReferenceNode) {
+        varRef.detail = (BLangVariableReference) variableReferenceNode;
     }
 
     @Override
@@ -67,11 +75,6 @@ public class BLangRecordDestructure extends BLangStatement implements RecordDest
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.RECORD_DESTRUCTURE;
-    }
-
-    @Override
-    public String toString() {
-        return declaredWithVar ? "var " : "" + varRef + " = " + expr;
+        return NodeKind.ERROR_DESTRUCTURE;
     }
 }

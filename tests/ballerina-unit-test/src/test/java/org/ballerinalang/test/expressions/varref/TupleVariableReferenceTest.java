@@ -47,8 +47,8 @@ public class TupleVariableReferenceTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/expressions/varref/tuple-variable-reference.bal");
-        resultNegative = BCompileUtil.compile("test-src/expressions/varref/tuple-variable-reference-negative.bal");
+        result = BCompileUtil.compile("test-src/expressions/varref/tuple_variable_reference.bal");
+        resultNegative = BCompileUtil.compile("test-src/expressions/varref/tuple_variable_reference_negative.bal");
     }
 
     @Test(description = "Test tuple var reference 1")

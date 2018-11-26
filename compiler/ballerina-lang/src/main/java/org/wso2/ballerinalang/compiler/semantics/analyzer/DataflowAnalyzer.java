@@ -79,6 +79,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -129,6 +130,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -946,12 +948,25 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangErrorDestructure errorDestructure) {
+        analyzeNode(errorDestructure.expr, env);
+        checkAssignment(errorDestructure.varRef);
+    }
+
+    @Override
     public void visit(BLangTupleVarRef tupleVarRefExpr) {
         tupleVarRefExpr.expressions.forEach(expr -> analyzeNode(expr, env));
     }
 
     @Override
     public void visit(BLangRecordVarRef varRefExpr) {
+        varRefExpr.recordRefFields.forEach(expr -> analyzeNode(expr.variableReference, env));
+    }
+
+    @Override
+    public void visit(BLangErrorVarRef varRefExpr) {
+        analyzeNode(varRefExpr.reason, env);
+        analyzeNode(varRefExpr.detail, env);
     }
 
     @Override
@@ -1102,7 +1117,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             ((BLangRecordVarRef) varRef).recordRefFields.forEach(field -> checkAssignment(field.variableReference));
             return;
         } else if (varRef.getKind() == NodeKind.TUPLE_VARIABLE_REF) {
-            ((BLangTupleVarRef) varRef).expressions.forEach(expr -> checkAssignment(expr));
+            ((BLangTupleVarRef) varRef).expressions.forEach(this::checkAssignment);
+            return;
+        } else if (varRef.getKind() == NodeKind.ERROR_VARIABLE_REF) {
+            BLangErrorVarRef errorVarRef = (BLangErrorVarRef) varRef;
+            checkAssignment(errorVarRef.reason);
+            checkAssignment(errorVarRef.detail);
             return;
         } else if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF &&
                 varRef.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR &&

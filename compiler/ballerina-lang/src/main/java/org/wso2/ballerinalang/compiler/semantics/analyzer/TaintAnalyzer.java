@@ -128,6 +128,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -722,6 +723,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             BLangRecordVarRefKeyValue varRefExpr = stmt.varRef.recordRefFields.get(varIndex);
             visitAssignment(varRefExpr.variableReference, taintedStatus, stmt.pos);
         }
+    }
+
+    @Override
+    public void visit(BLangErrorDestructure stmt) {
+        stmt.expr.accept(this);
+        visitAssignment(stmt.varRef.reason, taintedStatus, stmt.pos);
+        visitAssignment(stmt.varRef.detail, taintedStatus, stmt.pos);
     }
 
     @Override

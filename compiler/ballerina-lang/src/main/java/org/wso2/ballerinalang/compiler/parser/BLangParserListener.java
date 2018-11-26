@@ -1003,6 +1003,20 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitErrorRefBindingPattern(BallerinaParser.ErrorRefBindingPatternContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        boolean recordBindingPattern = false;
+        if (ctx.recordRefBindingPattern() != null) {
+            recordBindingPattern = true;
+        }
+        this.pkgBuilder.addErrorVariableReference(getCurrentPos(ctx), getWS(ctx), recordBindingPattern,
+                ctx.Identifier() != null ? ctx.Identifier().getText() : null);
+    }
+
+    @Override
     public void enterEntryBindingPattern(BallerinaParser.EntryBindingPatternContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -1329,6 +1343,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.addRecordDestructuringStatement(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitErrorDestructuringStatement(BallerinaParser.ErrorDestructuringStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addErrorDestructuringStatement(getCurrentPos(ctx), getWS(ctx));
     }
 
     /**

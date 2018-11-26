@@ -130,6 +130,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -179,6 +180,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -758,7 +760,25 @@ public class BLangPackageBuilder {
             tupleVarRef.expressions.add(0, expr);
         }
         this.exprNodeStack.push(tupleVarRef);
+    }
 
+
+    void addErrorVariableReference(DiagnosticPos pos,
+                                   Set<Whitespace> ws,
+                                   boolean recordBindingPattern,
+                                   String identifier) {
+        BLangErrorVarRef errorVarRef = (BLangErrorVarRef) TreeBuilder.createErrorVariableReferenceNode();
+        errorVarRef.pos = pos;
+        errorVarRef.addWS(ws);
+        if (identifier != null) {
+            addNameReference(pos, ws, null, identifier);
+            createSimpleVariableReference(pos, ws);
+            errorVarRef.detail = (BLangVariableReference) this.exprNodeStack.pop();
+        } else if (recordBindingPattern) {
+            errorVarRef.detail = (BLangVariableReference) this.exprNodeStack.pop();
+        }
+        errorVarRef.reason = (BLangSimpleVarRef) this.exprNodeStack.pop();
+        this.exprNodeStack.push(errorVarRef);
     }
 
     void startRecordVariableList() {
@@ -2286,13 +2306,23 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(stmt);
     }
 
-    public void addRecordDestructuringStatement(DiagnosticPos pos, Set<Whitespace> ws) {
+    void addRecordDestructuringStatement(DiagnosticPos pos, Set<Whitespace> ws) {
 
         BLangRecordDestructure stmt = (BLangRecordDestructure) TreeBuilder.createRecordDestructureStatementNode();
         stmt.pos = pos;
         stmt.addWS(ws);
         stmt.expr = (BLangExpression) exprNodeStack.pop();
         stmt.varRef = (BLangRecordVarRef) exprNodeStack.pop();
+        addStmtToCurrentBlock(stmt);
+    }
+
+    void addErrorDestructuringStatement(DiagnosticPos pos, Set<Whitespace> ws) {
+
+        BLangErrorDestructure stmt = (BLangErrorDestructure) TreeBuilder.createErrorDestructureStatementNode();
+        stmt.pos = pos;
+        stmt.addWS(ws);
+        stmt.expr = (BLangExpression) exprNodeStack.pop();
+        stmt.varRef = (BLangErrorVarRef) exprNodeStack.pop();
         addStmtToCurrentBlock(stmt);
     }
 

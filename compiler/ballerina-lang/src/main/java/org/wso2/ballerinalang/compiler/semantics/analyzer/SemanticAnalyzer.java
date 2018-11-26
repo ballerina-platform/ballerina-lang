@@ -115,6 +115,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -139,6 +140,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -195,6 +197,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.tree.NodeKind.BRACED_TUPLE_EXPR;
+import static org.ballerinalang.model.tree.NodeKind.ERROR_CONSTRUCTOR;
 import static org.ballerinalang.model.tree.NodeKind.LITERAL;
 import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_EXPR;
 
@@ -1110,6 +1113,19 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 recordDeStmt.expr.pos);
     }
 
+    @Override
+    public void visit(BLangErrorDestructure errorDeStmt) {
+        // check reason var ref
+        getTypeOfVarReferenceInAssignment(errorDeStmt.varRef.reason);
+        if (errorDeStmt.expr.getKind() == ERROR_CONSTRUCTOR) {
+            // TODO: 11/26/18 Need to support error literals as well
+            dlog.error(errorDeStmt.expr.pos, DiagnosticCode.INVALID_ERROR_LITERAL_BINDING_PATTERN);
+            return;
+        }
+        typeChecker.checkExpr(errorDeStmt.expr, this.env);
+        checkErrorVarRefEquivalency(errorDeStmt.pos, errorDeStmt.varRef, errorDeStmt.expr.type, errorDeStmt.expr.pos);
+    }
+
     /**
      * When rhs is an expression of type record, this method will check the type of each field in the
      * record type against the record var ref fields.
@@ -1121,6 +1137,22 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
      */
     private void checkRecordVarRefEquivalency(DiagnosticPos pos, BLangRecordVarRef lhsVarRef, BType rhsType,
                                               DiagnosticPos rhsPos) {
+
+        if (rhsType.tag == TypeTags.MAP) {
+            BMapType rhsMapType = (BMapType) rhsType;
+            BType expectedType = rhsMapType.constraint.tag == TypeTags.ANY ||
+                    rhsMapType.constraint.tag == TypeTags.ANYDATA ?
+                    rhsMapType.constraint : new BUnionType(null,
+                    new LinkedHashSet<BType>() {{
+                        add(rhsMapType.constraint);
+                        add(symTable.nilType);
+                    }},
+                    true);
+
+            lhsVarRef.recordRefFields.forEach(field -> types.checkType(field.variableReference.pos,
+                    expectedType, field.variableReference.type, DiagnosticCode.INCOMPATIBLE_TYPES));
+            return;
+        }
 
         if (rhsType.tag != TypeTags.RECORD) {
             dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, "record type", rhsType);
@@ -1142,13 +1174,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         // check if all fields in record var ref are found in rhs record type
-        lhsVarRef.recordRefFields.forEach(lhsField -> {
-            if (rhsRecordType.fields.stream()
-                    .noneMatch(rhsField -> lhsField.variableName.value.equals(rhsField.name.toString()))) {
-                dlog.error(pos, DiagnosticCode.INVALID_FIELD_IN_RECORD_BINDING_PATTERN,
-                        lhsField.variableName.value, rhsType);
-            }
-        });
+        lhsVarRef.recordRefFields.stream()
+                .filter(lhsField -> rhsRecordType.fields.stream()
+                        .noneMatch(rhsField -> lhsField.variableName.value.equals(rhsField.name.toString())))
+                .forEach(lhsField -> dlog.error(pos, DiagnosticCode.INVALID_FIELD_IN_RECORD_BINDING_PATTERN,
+                        lhsField.variableName.value, rhsType));
 
         for (BField rhsField : rhsRecordType.fields) {
             List<BLangRecordVarRefKeyValue> expField = lhsVarRef.recordRefFields.stream()
@@ -1172,6 +1202,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         (BLangRecordVarRef) variableReference, rhsField.type, rhsPos);
             } else if (variableReference.getKind() == NodeKind.TUPLE_VARIABLE_REF) {
                 checkTupleVarRefEquivalency(pos, (BLangTupleVarRef) variableReference, rhsField.type, rhsPos);
+            } else if (variableReference.getKind() == NodeKind.ERROR_VARIABLE_REF) {
+                checkErrorVarRefEquivalency(pos, (BLangErrorVarRef) variableReference, rhsField.type, rhsPos);
             } else {
                 types.checkType(variableReference.pos,
                         rhsField.type, variableReference.type, DiagnosticCode.INCOMPATIBLE_TYPES);
@@ -1215,6 +1247,37 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     break;
                 }
             }
+        }
+    }
+
+    private void checkErrorVarRefEquivalency(DiagnosticPos pos, BLangErrorVarRef varRef, BType rhsType,
+                                             DiagnosticPos rhsPos) {
+        if (rhsType.tag != TypeTags.ERROR) {
+            dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.errorType, rhsType);
+            return;
+        }
+        BErrorType rhsErrorType = (BErrorType) rhsType;
+
+        BLangSimpleVarRef reason = varRef.reason;
+        Name varName = names.fromIdNode(reason.variableName);
+        if (varName == Names.IGNORE) {
+            dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.errorType, rhsType);
+            return;
+        }
+        if (!types.isAssignable(rhsErrorType.reasonType, reason.type)) {
+            dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, reason.type, rhsErrorType.reasonType);
+        }
+
+        if (varRef.detail.getKind() == NodeKind.RECORD_VARIABLE_REF) {
+            typeChecker.checkExpr(varRef.detail, env);
+            checkRecordVarRefEquivalency(
+                    pos, (BLangRecordVarRef) varRef.detail, ((BErrorType) rhsType).detailType, rhsPos);
+            return;
+        }
+
+        getTypeOfVarReferenceInAssignment(varRef.detail);
+        if (!types.isAssignable(rhsErrorType.detailType, varRef.detail.type)) {
+            dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, varRef.detail.type, rhsErrorType.detailType);
         }
     }
 

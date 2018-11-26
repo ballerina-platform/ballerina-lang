@@ -814,6 +814,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitRecordDestructuringStatement(BallerinaParser.RecordDestructuringStatementContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#errorDestructuringStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterErrorDestructuringStatement(BallerinaParser.ErrorDestructuringStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#errorDestructuringStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitErrorDestructuringStatement(BallerinaParser.ErrorDestructuringStatementContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#compoundAssignmentStatement}.
 	 * @param ctx the parse tree
 	 */
@@ -1023,6 +1033,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitRecordRefBindingPattern(BallerinaParser.RecordRefBindingPatternContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#errorRefBindingPattern}.
+	 * @param ctx the parse tree
+	 */
+	void enterErrorRefBindingPattern(BallerinaParser.ErrorRefBindingPatternContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#errorRefBindingPattern}.
+	 * @param ctx the parse tree
+	 */
+	void exitErrorRefBindingPattern(BallerinaParser.ErrorRefBindingPatternContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#entryRefBindingPattern}.
 	 * @param ctx the parse tree

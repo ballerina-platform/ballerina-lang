@@ -82,6 +82,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -601,9 +602,29 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordVarRef varRefExpr) {
+
+        if (expType.tag == TypeTags.MAP) {
+            boolean unresolvedReference = false;
+            for (BLangRecordVarRef.BLangRecordVarRefKeyValue recordRefField : varRefExpr.recordRefFields) {
+                checkExpr(recordRefField.variableReference, env, symTable.anyType);
+                BVarSymbol bVarSymbol = getVarSymbolForRecordVariableReference(recordRefField.variableReference);
+                if (bVarSymbol == null) {
+                    unresolvedReference = true;
+                }
+            }
+
+            if (unresolvedReference) {
+                resultType = symTable.semanticError;
+                return;
+            }
+
+            resultType = symTable.mapType;
+            return;
+        }
+
         List<BField> fields = new ArrayList<>();
-        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID,
-                null, env.scope.owner);
+        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0, names.fromString("anonymous-record"),
+                env.enclPkg.symbol.pkgID, null, env.scope.owner);
         boolean unresolvedReference = false;
         for (BLangRecordVarRef.BLangRecordVarRefKeyValue recordRefField : varRefExpr.recordRefFields) {
             checkExpr(recordRefField.variableReference, env);
@@ -651,6 +672,18 @@ public class TypeChecker extends BLangNodeVisitor {
             results.add(checkExpr(varRefExpr.expressions.get(i), env, symTable.noType));
         }
         BType actualType = new BTupleType(results);
+        resultType = types.checkType(varRefExpr, actualType, expType);
+    }
+
+    @Override
+    public void visit(BLangErrorVarRef varRefExpr) {
+        BType reasonType = checkExpr(varRefExpr.reason, env, symTable.noType);
+        BType detailType;
+        detailType = varRefExpr.detail.getKind() == NodeKind.RECORD_VARIABLE_REF ?
+                // detail is destructured, it should be of type map
+                checkExpr(varRefExpr.detail, env, symTable.mapType) :
+                checkExpr(varRefExpr.detail, env, symTable.noType);
+        BErrorType actualType = new BErrorType(null, reasonType, detailType);
         resultType = types.checkType(varRefExpr, actualType, expType);
     }
 
@@ -1559,6 +1592,9 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         if (varRef.getKind() == NodeKind.TUPLE_VARIABLE_REF) {
             return (BVarSymbol) ((BLangTupleVarRef) varRef).symbol;
+        }
+        if (varRef.getKind() == NodeKind.ERROR_VARIABLE_REF) {
+            return (BVarSymbol) ((BLangErrorVarRef) varRef).symbol;
         }
         if (varRef.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
             return (BVarSymbol) ((BLangFieldBasedAccess) varRef).symbol;

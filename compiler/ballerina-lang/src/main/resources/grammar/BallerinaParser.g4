@@ -289,7 +289,8 @@ annotationAttachment
 // STATEMENTS / BLOCKS
 
 statement
-    :   variableDefinitionStatement
+    :   errorDestructuringStatement
+    |   variableDefinitionStatement
     |   assignmentStatement
     |   tupleDestructuringStatement
     |   recordDestructuringStatement
@@ -376,6 +377,10 @@ tupleDestructuringStatement
 
 recordDestructuringStatement
     :   recordRefBindingPattern ASSIGN expression SEMICOLON
+    ;
+
+errorDestructuringStatement
+    :   errorRefBindingPattern ASSIGN expression SEMICOLON
     ;
 
 compoundAssignmentStatement
@@ -471,6 +476,7 @@ bindingRefPattern
 structuredRefBindingPattern
     :   tupleRefBindingPattern
     |   recordRefBindingPattern
+    |   errorRefBindingPattern
     ;
 
 tupleRefBindingPattern
@@ -479,6 +485,10 @@ tupleRefBindingPattern
 
 recordRefBindingPattern
     :   LEFT_BRACE entryRefBindingPattern RIGHT_BRACE
+    ;
+
+errorRefBindingPattern
+    :   TYPE_ERROR LEFT_PARENTHESIS variableReference (COMMA (Identifier | recordRefBindingPattern))? RIGHT_PARENTHESIS
     ;
 
 entryRefBindingPattern
