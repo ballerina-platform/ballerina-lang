@@ -352,6 +352,8 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
 
 %%
 <YYINITIAL> {
+    "__init"                                    { return OBJECT_INIT; }
+
     "abort"                                     { return ABORT; }
     "abstract"                                  { return ABSTRACT; }
     "all"                                       { return ALL; }
@@ -385,6 +387,7 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "error"                                     { return ERROR; }
     "extern"                                    { return EXTERN; }
 
+    "final"                                     { return FINAL; }
     "finally"                                   { return FINALLY; }
     "float"                                     { return FLOAT; }
     "foreach"                                   { return FOREACH; }
