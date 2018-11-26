@@ -194,6 +194,14 @@
             <artifactId>ballerina-runtime</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>docerina</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>testerina</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
             <scope>test</scope>
