@@ -33,7 +33,7 @@ function openForWriting (string filePath, string encoding) returns io:WritableCh
 @http:ServiceConfig {
     basePath:"/update-settings"
 }
-service update_token on new http:Server(9295) {
+service update_token on new http:Listener(9295) {
 
     # Updates the access token.
     #

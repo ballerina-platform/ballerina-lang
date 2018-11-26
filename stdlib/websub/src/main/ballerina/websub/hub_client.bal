@@ -27,20 +27,23 @@ import ballerina/mime;
 public type Client client object {
 
     public string hubUrl;
-    HubClientEndpointConfig config = {};
+    HubClientEndpointConfig? config = ();
 
     private http:Client httpClientEndpoint;
     private http:FollowRedirects? followRedirects = ();
 
-    public function __init(HubClientEndpointConfig config) {
-        self.hubUrl = config.url;
-        http:ClientEndpointConfig httpConfig = {
-            url: config.url,
-            auth: config.auth,
-            secureSocket: config.clientSecureSocket,
-            followRedirects: config.followRedirects
-        };
-        self.httpClientEndpoint = new (self.hubUrl, config = httpConfig);
+    public function __init(string url, HubClientEndpointConfig? config = ()) {
+        self.hubUrl = url;
+        http:ClientEndpointConfig? httpClientConfig = ();
+        if (config is HubClientEndpointConfig) {
+            http:ClientEndpointConfig httpConfig = {
+                auth: config.auth,
+                secureSocket: config.clientSecureSocket,
+                followRedirects: config.followRedirects
+            };
+            httpClientConfig = httpConfig;
+        }
+        self.httpClientEndpoint = new (self.hubUrl, config = httpClientConfig);
         self.config = config;
     }
 
@@ -221,12 +224,10 @@ remote function Client.notifyUpdate(string topic, map<string>? headers = ()) ret
 
 # Record representing the configuration parameters for the WebSub Hub Client Endpoint.
 #
-# + url - The URL of the target Hub
 # + clientSecureSocket - SSL/TLS related options for the underlying HTTP Client
 # + auth - Authentication mechanism for the underlying HTTP Client
 # + followRedirects - HTTP redirect related configuration
 public type HubClientEndpointConfig record {
-    string url = "";
     http:SecureSocket? clientSecureSocket = ();
     http:AuthConfig? auth = ();
     http:FollowRedirects? followRedirects = ();
@@ -351,10 +352,7 @@ function invokeClientConnectorOnRedirection(@sensitive string hub, @sensitive st
 
 function subscribeWithRetries(string hubUrl, SubscriptionChangeRequest subscriptionRequest, http:AuthConfig? auth,
                               int remainingRedirects = 0) returns @tainted SubscriptionChangeResponse| error {
-    http:Client clientEndpoint = new http:Client(hubUrl, config = {
-        url: hubUrl,
-        auth: auth
-    });
+    http:Client clientEndpoint = new http:Client(hubUrl, config = { auth: auth });
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_SUBSCRIBE, subscriptionRequest);
     var response = clientEndpoint->post("", builtSubscriptionRequest);
     return processHubResponse(hubUrl, MODE_SUBSCRIBE, subscriptionRequest, response, clientEndpoint,
@@ -364,7 +362,6 @@ function subscribeWithRetries(string hubUrl, SubscriptionChangeRequest subscript
 function unsubscribeWithRetries(string hubUrl, SubscriptionChangeRequest unsubscriptionRequest, http:AuthConfig? auth,
                                 int remainingRedirects = 0) returns @tainted SubscriptionChangeResponse|error {
     http:Client clientEndpoint = new http:Client(hubUrl, config = {
-        url: hubUrl,
         auth: auth
     });
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_UNSUBSCRIBE, unsubscriptionRequest);

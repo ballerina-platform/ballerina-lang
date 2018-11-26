@@ -425,9 +425,11 @@ function getInferredJwtAuthProviderConfig(AuthProvider authProvider) returns aut
 /// WebSocket Service Endpoint ///
 //////////////////////////////////
 # Represents a WebSocket service endpoint.
-public type WebSocketServer object {
+public type WebSocketListener object {
 
     *AbstractListener;
+
+    private Listener httpEndpoint;
 
     public function __start() returns error? {
         return self.httpEndpoint.start();
@@ -441,16 +443,11 @@ public type WebSocketServer object {
         return self.httpEndpoint.register(s, annotationData);
     }
 
-    private ServiceEndpointConfiguration config = {};
-
-    private Listener httpEndpoint;
 
     # Gets invoked during module initialization to initialize the endpoint.
     #
     # + c - The `ServiceEndpointConfiguration` of the endpoint
     public function __init(int port, ServiceEndpointConfiguration? config = ()) {
-        self.config = config ?: {};
-        self.config.port = port;
         self.httpEndpoint = new(port, config = config);
     }
 

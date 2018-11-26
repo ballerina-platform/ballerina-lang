@@ -9,13 +9,12 @@ type Person record {
     int age;
 };
 
-listener http:MockServer echoEP  = new(9090);
+listener http:MockListener echoEP  = new(9090);
 
 @http:ServiceConfig {basePath:"/echo"}
 service echo on echoEP {
 
     string serviceLevelStr = "";
-
     string serviceLevelStringVar = "sample value";
 
     @http:ResourceConfig {
@@ -55,7 +54,7 @@ service echo on echoEP {
         } else if (payload is string) {
             payloadData = payload;
         }
-        serviceLevelStr = untaint payloadData;
+        self.serviceLevelStr = untaint payloadData;
         _ = caller->respond(res);
     }
 
@@ -65,7 +64,7 @@ service echo on echoEP {
     }
     resource function getString(http:Caller caller, http:Request req) {
         http:Response res = new;
-        res.setTextPayload(serviceLevelStr);
+        res.setTextPayload(self.serviceLevelStr);
         _ = caller -> respond(res);
     }
 
@@ -87,7 +86,7 @@ service echo on echoEP {
     }
     resource function getServiceLevelString(http:Caller caller, http:Request req) {
         http:Response res = new;
-        res.setTextPayload(serviceLevelStringVar);
+        res.setTextPayload(self.serviceLevelStringVar);
         _ = caller->respond(res);
     }
 
