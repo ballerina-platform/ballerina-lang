@@ -233,6 +233,13 @@ public class NativeConversionTest {
         Assert.assertTrue(returns[0] instanceof BMap);
     }
 
+    @Test(description = "Test any type to anydata type at runtime")
+    public void testAnyRecordToAnydataMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAnyRecordToAnydataMap");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(((BMap) returns[0]).get("name").stringValue(), "Waruna");
+    }
+
     @Test(description = "Test converting a map to json")
     public void testMapToJsonConversion() {
         BValue[] result = BRunUtil.invoke(compileResult, "testComplexMapToJson");

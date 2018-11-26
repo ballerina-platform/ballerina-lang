@@ -181,6 +181,15 @@ function testStructToJsonConstrainedNegative() returns json {
     return j;
 }
 
+function testAnyRecordToAnydataMap() returns (map | error) {
+    Person4 p = {   name:"Waruna",
+                    parent:{name:"Parent"},
+                    address:{"city":"Colombo", "country":"SriLanka"}
+    };
+    map<anydata> m =  check map<anydata>.create(p);
+    return m;
+}
+
 function testJsonToStruct () returns (Person | error) {
     json j = {name:"Child",
                  age:25,
