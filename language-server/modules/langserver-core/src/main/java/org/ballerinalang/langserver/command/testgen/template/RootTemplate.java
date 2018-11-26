@@ -79,7 +79,7 @@ public class RootTemplate extends AbstractTestTemplate {
      *
      * @param function function
      * @param builtTestFile built test file package
-     * @param focusLineAcceptor
+     * @param focusLineAcceptor focus line acceptor
      * @return root template
      */
     public static RootTemplate fromFunction(BLangFunction function, BLangPackage builtTestFile,
@@ -92,8 +92,9 @@ public class RootTemplate extends AbstractTestTemplate {
     /**
      * Create root template for a http service.
      *
-     * @param service service
-     * @param builtTestFile built test file package
+     * @param service           service
+     * @param builtTestFile     built test file package
+     * @param focusLineAcceptor focus line acceptor
      * @return root template
      */
     public static RootTemplate fromHttpService(BLangService service, BLangPackage builtTestFile,
@@ -107,8 +108,9 @@ public class RootTemplate extends AbstractTestTemplate {
     /**
      * Create root template for a websocket service.
      *
-     * @param service service
-     * @param builtTestFile built test file package
+     * @param service           service
+     * @param builtTestFile     built test file package
+     * @param focusLineAcceptor focus line acceptor
      * @return root template
      */
     public static RootTemplate fromHttpWSService(BLangService service, BLangPackage builtTestFile,
@@ -122,8 +124,9 @@ public class RootTemplate extends AbstractTestTemplate {
     /**
      * Create root template for a client websocket service.
      *
-     * @param service service
-     * @param builtTestFile built test file package
+     * @param service           service
+     * @param builtTestFile     built test file package
+     * @param focusLineAcceptor focus line acceptor
      * @return root template
      */
     public static RootTemplate fromHttpClientWSService(BLangService service, BLangPackage builtTestFile,

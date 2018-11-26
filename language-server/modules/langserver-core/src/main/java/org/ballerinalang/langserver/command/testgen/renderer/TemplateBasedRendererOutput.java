@@ -48,7 +48,7 @@ public class TemplateBasedRendererOutput implements RendererOutput {
      */
     private Map<String, String> placeHolders = new HashMap<>();
     /**
-     * Need to track focus position.
+     * Need to track focus line.
      */
     private BiConsumer<Integer, Integer> focusLineAcceptor;
     /**
@@ -148,7 +148,7 @@ public class TemplateBasedRendererOutput implements RendererOutput {
      * Sets focus function name and acceptor.
      *
      * @param focusFunctionName focus function name
-     * @param acceptor     focus position acceptor
+     * @param acceptor          focus line acceptor
      */
     @Override
     public void setFocusLineAcceptor(String focusFunctionName, BiConsumer<Integer, Integer> acceptor) {
