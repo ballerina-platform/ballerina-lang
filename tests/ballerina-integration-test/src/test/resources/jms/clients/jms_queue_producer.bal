@@ -12,17 +12,17 @@ jms:Session jmsSession = new (jmsConnection, {
         acknowledgementMode: "AUTO_ACKNOWLEDGE"
     });
 
-endpoint jms:QueueSender queueSender {
+jms:QueueSender queueSender = new({
     session: jmsSession,
     queueName: "MyQueue4"
-};
+});
 
 public function main () {
     // Create a Text message.
     var msg = jmsSession.createTextMessage("Test Text");
     if (msg is jms:Message) {
          // Send the Ballerina message to the JMS provider.
-         _ = queueSender -> send(msg);
+         _ = queueSender->send(msg);
     } else {
          panic msg;
     }
