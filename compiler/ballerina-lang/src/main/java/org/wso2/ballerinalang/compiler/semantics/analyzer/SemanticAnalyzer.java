@@ -1336,8 +1336,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangForeach foreach) {
         // Check the collection's type.
         typeChecker.checkExpr(foreach.collection, env);
-        // Get the type of the foreach node's type node.
-        foreach.varType = types.checkForeachTypedBindingPatternType(foreach.collection);
+        // Set the type of the foreach node's type node.
+        types.setForeachTypedBindingPatternType(foreach);
         // Create a new block environment for the foreach node's body.
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(foreach.body, env);
         // Check foreach node's variables and set types.
