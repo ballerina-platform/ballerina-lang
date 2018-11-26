@@ -29,4 +29,8 @@ public class BServiceType extends BObjectType {
         super(objectTypeInfo, typeName, pkgPath, flags);
     }
 
+    @Override
+    public int getTag() {
+        return TypeTags.SERVICE_TAG;
+    }
 }

@@ -64,7 +64,7 @@ public class NonListeningRegister extends org.ballerinalang.net.http.serviceendp
         if (HttpConstants.HTTP_MOCK_SERVER_ENDPOINT_NAME.equals(listenerType)) {
             httpServicesRegistry.registerService(service);
         }
-        if (WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(listenerType)) {
+        if (WebSocketConstants.WEBSOCKET_CALLER_NAME.equals(listenerType)) {
             WebSocketService webSocketService = new WebSocketService(service);
             webSocketServicesRegistry.registerService(webSocketService);
         }
