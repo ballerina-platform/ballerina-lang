@@ -6,6 +6,7 @@ export class FunctionViewState extends ViewState {
     public body: SimpleBBox = new SimpleBBox();
     public client: SimpleBBox = new SimpleBBox();
     public defaultWorker: SimpleBBox = new SimpleBBox();
+    public menu: SimpleBBox = new SimpleBBox();
 
     constructor() {
         super();
