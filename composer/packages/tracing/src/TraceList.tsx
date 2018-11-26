@@ -57,11 +57,11 @@ class TraceList extends React.Component<TraceListProps> {
     public render() {
         return (
             <div id="logs-console">
-                <Table celled inverted unstackable>
+                <Table celled inverted unstackable compact striped>
                     <Table.Header>
                         <Table.Row>
                             <Table.HeaderCell></Table.HeaderCell>
-                            <Table.HeaderCell>Method</Table.HeaderCell>
+                            <Table.HeaderCell className="method">Method</Table.HeaderCell>
                             <Table.HeaderCell>Path</Table.HeaderCell>
                             <Table.HeaderCell>Direction</Table.HeaderCell>
                         </Table.Row>
@@ -75,14 +75,14 @@ class TraceList extends React.Component<TraceListProps> {
                                     key={record.id}
                                     onClick={() => this.props.onSelected(record)}
                                 >
-                                    <Table.Cell>
+                                    <Table.Cell className="direction-icon">
                                         <Icon
                                             name={this.getDirectionIcon(record.logger,
                                                 record.message.direction)}
                                             title={`${record.logger} - ${record.message.direction}`}
                                         />
                                     </Table.Cell>
-                                    <Table.Cell>
+                                    <Table.Cell className="method">
                                         {
                                             record.message.httpMethod &&
                                             <Label horizontal className={record.message.httpMethod.toLowerCase()}>
@@ -91,8 +91,8 @@ class TraceList extends React.Component<TraceListProps> {
                                         }
 
                                     </Table.Cell>
-                                    <Table.Cell>{record.message.path}</Table.Cell>
-                                    <Table.Cell>{record.message.direction}</Table.Cell>
+                                    <Table.Cell className="path">{record.message.path}</Table.Cell>
+                                    <Table.Cell className="direction">{record.message.direction}</Table.Cell>
                                 </Table.Row>
                             );
                         })}
