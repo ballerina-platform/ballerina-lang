@@ -1,4 +1,4 @@
-import { ASTNode, Block, ExpressionStatement, Function, VariableDef, Visitor, While } from "@ballerina/ast-model";
+import { ASTNode, Block, ExpressionStatement, Function, If, VariableDef, Visitor, While } from "@ballerina/ast-model";
 import * as _ from "lodash";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
@@ -125,6 +125,28 @@ export const visitor: Visitor = {
             viewState.bBox.leftMargin = bodyBBox.leftMargin + config.flowCtrl.leftMargin;
         } else {
             viewState.bBox.leftMargin = config.flowCtrl.leftMarginDefault;
+        }
+    },
+
+    endVisitIf(node: If) {
+        const viewState: ViewState = node.viewState;
+        const bodyBBox: SimpleBBox = node.body.viewState.bBox;
+
+        viewState.bBox.w = node.body.viewState.bBox.w;
+        viewState.bBox.h = node.body.viewState.bBox.h + config.flowCtrl.header.height
+                            + config.flowCtrl.whileGap + config.flowCtrl.bottomMargin;
+        // If body has a left margin assign to while
+        // tslint:disable-next-line:prefer-conditional-expression
+        if (bodyBBox.leftMargin) {
+            viewState.bBox.leftMargin = bodyBBox.leftMargin + config.flowCtrl.leftMargin;
+        } else {
+            viewState.bBox.leftMargin = config.flowCtrl.leftMarginDefault;
+        }
+
+        // Add Else block
+        if (node.elseStatement) {
+            viewState.bBox.h += node.elseStatement.viewState.bBox.h;
+            viewState.bBox.w += node.elseStatement.viewState.bBox.w;
         }
     },
 

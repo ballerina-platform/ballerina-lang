@@ -1,4 +1,4 @@
-import { ASTKindChecker, Block, CompilationUnit, Function, Visitor, While } from "@ballerina/ast-model";
+import { ASTKindChecker, Block, CompilationUnit, Function, If, Visitor, While } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
 import { CompilationUnitViewState, FunctionViewState, ViewState } from "../view-model/index";
@@ -96,5 +96,17 @@ export const visitor: Visitor = {
         const viewState: ViewState = node.viewState;
         node.body.viewState.bBox.x = viewState.bBox.x;
         node.body.viewState.bBox.y = viewState.bBox.y + config.flowCtrl.header.height;
+    },
+
+    beginVisitIf(node: If) {
+        const viewState: ViewState = node.viewState;
+        node.body.viewState.bBox.x = viewState.bBox.x;
+        node.body.viewState.bBox.y = viewState.bBox.y + config.flowCtrl.header.height;
+
+        if (node.elseStatement) {
+            node.elseStatement.viewState.bBox.x = viewState.bBox.x + node.body.viewState.bBox.w;
+            node.elseStatement.viewState.bBox.y = viewState.bBox.y +
+                config.flowCtrl.header.height + node.body.viewState.bBox.h;
+        }
     }
 };
