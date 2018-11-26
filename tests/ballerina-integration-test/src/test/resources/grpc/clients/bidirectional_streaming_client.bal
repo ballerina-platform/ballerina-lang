@@ -38,7 +38,7 @@ public function main(string... args) {
     mes.name = "Sam";
     mes.message = "Hi ";
     error? connErr = ep->send(mes);
-    io:println(err.message but { () => "" });
+    io:println(err.message ?: "");
     //this will hold forever since this is chat application
     runtime:sleep(6000);
     _ = ep->complete();

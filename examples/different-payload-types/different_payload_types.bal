@@ -65,9 +65,11 @@ service<http:Service> actionService bind { port: 9090 } {
         response = check clientEP->post("/echo", bodyParts);
         handleResponse(response);
 
-        caller->respond("Client actions successfully executed!") but {
-            error err => log:printError(err.message, err = err)
-        };
+        var result = caller->respond("Client actions successfully executed!");
+
+        if (result is error) {
+            log:printError(err.message, err = result);
+        }
     }
 }
 
@@ -92,38 +94,51 @@ service<http:Service> backEndService bind { port: 9091 } {
 
             if (mime:TEXT_PLAIN == baseType) {
                 string textValue = check req.getTextPayload();
-                client->respond(untaint textValue) but {
-                    error err => log:printError(err.message, err = err)
-                };
+
+                var result = client->respond(untaint textValue);
+
+                if (result is error) {
+                    log:printError(err.message, err = result);
+                }
 
             } else if (mime:APPLICATION_XML == baseType) {
                 xml xmlValue = check req.getXmlPayload();
-                client->respond(untaint xmlValue) but {
-                    error err => log:printError(err.message, err = err)
-                };
+
+                var result = client->respond(untaint xmlValue);
+
+                if (result is error) {
+                    log:printError(err.message, err = result);
+                }
 
             } else if (mime:APPLICATION_JSON == baseType) {
                 json jsonValue = check req.getJsonPayload();
-                client->respond(untaint jsonValue) but {
-                    error err => log:printError(err.message, err = err)
-                };
+                var result = client->respond(untaint jsonValue);
+
+                if (result is error) {
+                    log:printError(err.message, err = result);
+                }
 
             } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
                 byte[] blobValue = check req.getBinaryPayload();
-                client->respond(untaint blobValue) but {
-                    error err => log:printError(err.message, err = err)
-                };
+                var result = client->respond(untaint blobValue);
+                if (result is error) {
+                    log:printError(err.message, err = result);
+                }
 
             } else if (mime:MULTIPART_FORM_DATA == baseType) {
                 mime:Entity[] bodyParts = check req.getBodyParts();
-                client->respond(untaint bodyParts) but {
-                    error err => log:printError(err.message, err = err)
-                };
+                var result = client->respond(untaint bodyParts);
+
+                if (result is error) {
+                    log:printError(err.message, err = result);
+                }
             }
         } else {
-            client->respond(()) but {
-                error err => log:printError(err.message, err = err)
-            };
+            var result = client->respond(());
+
+            if (result is error) {
+                log:printError(err.message, err = result);
+            }
         }
     }
 
@@ -135,9 +150,11 @@ service<http:Service> backEndService bind { port: 9091 } {
         byte[] bytes = check req.getBinaryPayload();
         http:Response response = new;
         response.setBinaryPayload(untaint bytes, contentType = mime:IMAGE_PNG);
-        client->respond(response) but {
-            error err => log:printError(err.message, err = err)
-        };
+        var result = client->respond(response);
+
+        if (result is error) {
+            log:printError(err.message, err = result);
+        }
     }
 }
 
