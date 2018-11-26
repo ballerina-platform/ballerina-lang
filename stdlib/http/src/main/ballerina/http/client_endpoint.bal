@@ -320,7 +320,8 @@ public type ProxyConfig record {
 public type ConnectionThrottling record {
     int maxActiveConnections = -1;
     int waitTime = 60000;
-    int maxActiveStreamsPerConnection = -1;
+    // In order to distribute the workload among multiple connections in HTTP/2 scenario.
+    int maxActiveStreamsPerConnection = 20000;
     !...
 };
 
