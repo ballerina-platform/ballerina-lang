@@ -293,7 +293,8 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
                 case TypeTags.JSON_TAG:
                     return getJSONString();
                 default:
-                    String keySeparator = type.getTag() == TypeTags.MAP_TAG ? "\"" : "";
+                    String keySeparator = type.getTag() == TypeTags.MAP_TAG || type.getTag() == TypeTags.ANYDATA_TAG
+                            ? "\"" : "";
                     for (Iterator<Map.Entry<K, V>> i = map.entrySet().iterator(); i.hasNext();) {
                         String key;
                         Map.Entry<K, V> e = i.next();
@@ -329,7 +330,8 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
                 case TypeTags.JSON_TAG:
                     return getJSONString();
                 default:
-                    String keySeparator = type.getTag() == TypeTags.MAP_TAG ? "\"" : "";
+                    String keySeparator = type.getTag() == TypeTags.MAP_TAG || type.getTag() == TypeTags.ANYDATA_TAG
+                            ? "\"" : "";
                     map.forEach((mapKey, value) -> {
                         String key = keySeparator + mapKey + keySeparator;
                         sj.add(key + ":" + getStringValue(value));
