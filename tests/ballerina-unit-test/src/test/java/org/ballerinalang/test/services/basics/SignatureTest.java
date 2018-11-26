@@ -103,6 +103,6 @@ public class SignatureTest {
         CompileResult compileResult = BCompileUtil.compile(new File(getClass().getClassLoader()
                 .getResource("test-src/services/resources/duplicate_resource_test.bal").getPath()).getAbsolutePath());
         Assert.assertEquals(compileResult.getErrorCount(), 1);
-        BAssertUtil.validateError(compileResult, 0, "redeclared symbol 'employee'", 8, 5);
+        BAssertUtil.validateError(compileResult, 0, "redeclared symbol 'dataservice.employee'", 8, 23);
     }
 }
