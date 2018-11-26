@@ -20,6 +20,7 @@ public type MockListener object {
 
     *AbstractListener;
     private Caller caller = new;
+    private int port = 0;
     private ServiceEndpointConfiguration config = {};
 
     public function __start() returns error? {
@@ -36,7 +37,7 @@ public type MockListener object {
 
     public function __init(int port, ServiceEndpointConfiguration? config = ()) {
         self.config = config ?: {};
-        self.config.port = port;
+        self.port = port;
         self.init(self.config);
     }
 

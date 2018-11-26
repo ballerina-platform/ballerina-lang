@@ -34,10 +34,13 @@ public type Client client object {
 
     public function __init(HubClientEndpointConfig config) {
         self.hubUrl = config.url;
-        http:ClientEndpointConfig httpConfig = {url:config.url, auth:config.auth,
-                                                secureSocket: config.clientSecureSocket,
-                                                followRedirects:config.followRedirects};
-        self.httpClientEndpoint = new (httpConfig);
+        http:ClientEndpointConfig httpConfig = {
+            url: config.url,
+            auth: config.auth,
+            secureSocket: config.clientSecureSocket,
+            followRedirects: config.followRedirects
+        };
+        self.httpClientEndpoint = new (self.hubUrl, config = httpConfig);
         self.config = config;
     }
 
@@ -216,6 +219,20 @@ remote function Client.notifyUpdate(string topic, map<string>? headers = ()) ret
     return;
 }
 
+# Record representing the configuration parameters for the WebSub Hub Client Endpoint.
+#
+# + url - The URL of the target Hub
+# + clientSecureSocket - SSL/TLS related options for the underlying HTTP Client
+# + auth - Authentication mechanism for the underlying HTTP Client
+# + followRedirects - HTTP redirect related configuration
+public type HubClientEndpointConfig record {
+    string url = "";
+    http:SecureSocket? clientSecureSocket = ();
+    http:AuthConfig? auth = ();
+    http:FollowRedirects? followRedirects = ();
+    !...
+};
+
 # Builds the topic registration change request to register or unregister a topic at the hub.
 #
 # + mode - Whether the request is for registration or unregistration
@@ -334,7 +351,10 @@ function invokeClientConnectorOnRedirection(@sensitive string hub, @sensitive st
 
 function subscribeWithRetries(string hubUrl, SubscriptionChangeRequest subscriptionRequest, http:AuthConfig? auth,
                               int remainingRedirects = 0) returns @tainted SubscriptionChangeResponse| error {
-    http:Client clientEndpoint = new http:Client({ url: hubUrl, auth: auth });
+    http:Client clientEndpoint = new http:Client(hubUrl, config = {
+        url: hubUrl,
+        auth: auth
+    });
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_SUBSCRIBE, subscriptionRequest);
     var response = clientEndpoint->post("", builtSubscriptionRequest);
     return processHubResponse(hubUrl, MODE_SUBSCRIBE, subscriptionRequest, response, clientEndpoint,
@@ -343,7 +363,10 @@ function subscribeWithRetries(string hubUrl, SubscriptionChangeRequest subscript
 
 function unsubscribeWithRetries(string hubUrl, SubscriptionChangeRequest unsubscriptionRequest, http:AuthConfig? auth,
                                 int remainingRedirects = 0) returns @tainted SubscriptionChangeResponse|error {
-    http:Client clientEndpoint = new http:Client({ url: hubUrl, auth: auth });
+    http:Client clientEndpoint = new http:Client(hubUrl, config = {
+        url: hubUrl,
+        auth: auth
+    });
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_UNSUBSCRIBE, unsubscriptionRequest);
     var response = clientEndpoint->post("", builtSubscriptionRequest);
     return processHubResponse(hubUrl, MODE_UNSUBSCRIBE, unsubscriptionRequest, response, clientEndpoint,

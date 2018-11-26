@@ -481,7 +481,6 @@ public type FailoverClientEndpointConfiguration record {
 function createClientEPConfigFromFailoverEPConfig(FailoverClientEndpointConfiguration foConfig,
                                                   TargetService target) returns ClientEndpointConfig {
     ClientEndpointConfig clientEPConfig = {
-        url:target.url,
         circuitBreaker:foConfig.circuitBreaker,
         timeoutMillis:foConfig.timeoutMillis,
         keepAlive:foConfig.keepAlive,
