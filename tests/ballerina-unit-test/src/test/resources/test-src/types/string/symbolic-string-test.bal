@@ -176,7 +176,7 @@ function testStringArray() returns (string) {
 }
 
 function testMap() returns (string[]) {
-    map addrMap = { number: "No.20", road: 'Mount_Lavinia, country: 'SriLanka };
+    map<any> addrMap = { number: "No.20", road: 'Mount_Lavinia, country: 'SriLanka };
     addrMap['postalCode] = 'PO00300;
     string [3] stringArr = [<string>addrMap['country], <string>addrMap['road], <string>addrMap["postalCode"]];
     return stringArr;

@@ -101,7 +101,7 @@ public type HelloWorldClient client object {
 
 
 const string DESCRIPTOR_KEY = "HelloWorld85.proto";
-function getDescriptorMap() returns map {
+function getDescriptorMap() returns map<any> {
     return
     {
         "HelloWorld85.proto":
