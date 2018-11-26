@@ -2281,17 +2281,23 @@ public class CPU {
                         sf.refRegs[j] = null;
                         break;
                     }
-                    ctx.setError(BLangVMErrors.createError(ctx,  "assertion error: expected '" + expectedType + "', " +
-                            "found '()'"));
+                    ctx.setError(BLangVMErrors.createError(ctx,
+                                                           BLangExceptionHelper.getErrorMessage(
+                                                                   RuntimeErrors.TYPE_ASSERTION_ERROR, expectedType,
+                                                                   "()")));
                     handleError(ctx);
                 } else if (isSimpleBasicType(expectedType)) {
                     execExplicitlyTypedExpressionOpCode(ctx, sf, expectedType, bRefTypeValue, j);
                 } else if (expectedType.equals(bRefTypeValue.getType())) {
                     sf.refRegs[j] = bRefTypeValue;
                 } else {
-                    ctx.setError(BLangVMErrors.createError(ctx,  "assertion error: expected '" +
-                            (expectedType.getTag() == TypeTags.NULL_TAG ? "()" : expectedType) + "', found '" +
-                            bRefTypeValue.getType() + "'"));
+                    ctx.setError(
+                            BLangVMErrors.createError(ctx,
+                                                      BLangExceptionHelper.getErrorMessage(
+                                                              RuntimeErrors.TYPE_ASSERTION_ERROR,
+                                                                   (expectedType.getTag() == TypeTags.NULL_TAG ?
+                                                                            "()" : expectedType),
+                                                                   bRefTypeValue.getType())));
                     handleError(ctx);
                 }
                 break;
