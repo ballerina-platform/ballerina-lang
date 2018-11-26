@@ -2,10 +2,10 @@ import ballerina/http;
 
 listener http:MockListener echoEP  = new(9090);
 
-string serviceLevelStringVar = "sample value";
-
 @http:ServiceConfig {basePath:"/listener"}
 service echo on echoEP {
+
+    string serviceLevelStringVar = "sample value";
 
     @http:ResourceConfig {
         methods:["GET"],
@@ -13,8 +13,8 @@ service echo on echoEP {
     }
     resource function echo(http:Caller caller, http:Request req) {
         http:Response res = new;
-        res.setTextPayload(serviceLevelStringVar);
+        res.setTextPayload(self.serviceLevelStringVar);
         _ = caller->respond(res);
-        serviceLevelStringVar = "done";
+        self.serviceLevelStringVar = "done";
     }
 }
