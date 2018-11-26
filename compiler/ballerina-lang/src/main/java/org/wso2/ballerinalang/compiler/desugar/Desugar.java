@@ -3989,7 +3989,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangExpression getDefaultValueLiteral(DefaultValueLiteral defaultValue, int paramTypeTag) {
-        if(defaultValue == null || defaultValue.getValue() == null) {
+        if (defaultValue == null || defaultValue.getValue() == null) {
             return getNullLiteral();
         }
         Object value = defaultValue.getValue();
@@ -4016,6 +4016,7 @@ public class Desugar extends BLangNodeVisitor {
                     if (literalTypeTag == TypeTags.FLOAT) {
                         return getFloatLiteral(Double.parseDouble((String) value));
                     }
+                    return getStringLiteral((String) value);
                 default:
                     return getStringLiteral((String) value);
             }
