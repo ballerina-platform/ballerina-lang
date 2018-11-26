@@ -1,8 +1,8 @@
-import { Block, ExpressionStatement, Function, Visitor } from "@ballerina/ast-model";
+import { ASTNode, Block, ExpressionStatement, Function, VariableDef, Visitor, While } from "@ballerina/ast-model";
 import * as _ from "lodash";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
-import { FunctionViewState, ViewState } from "../view-model";
+import { FunctionViewState, SimpleBBox, ViewState } from "../view-model";
 
 // Following element is created to calculate the width of a text rendered in an svg.
 // Please see getTextWidth on how we do the calculation.
@@ -59,6 +59,12 @@ function getTextWidth(text: string, minWidth = config.statement.width , maxWidth
 }
 */
 
+function sizeStatement(node: ASTNode) {
+    const viewState: ViewState = node.viewState;
+    viewState.bBox.h = config.statement.height;
+    viewState.bBox.w = config.statement.width;
+}
+
 export const visitor: Visitor = {
 
     // tslint:disable-next-line:ban-types
@@ -72,10 +78,13 @@ export const visitor: Visitor = {
         client.h = config.lifeLine.line.height + (config.lifeLine.header.height * 2);
         client.w = config.lifeLine.width;
 
-        defaultWorker.h = config.lifeLine.line.height + (config.lifeLine.header.height * 2);
+        defaultWorker.h = node.body!.viewState.bBox.h + (config.lifeLine.header.height * 2)
+                            + config.statement.height; // for bottom plus
         defaultWorker.w = config.lifeLine.width;
 
-        const lineHeight = client.h;
+        const lineHeight = (client.h > defaultWorker.h) ? client.h : defaultWorker.h;
+        // Sync up the heights of lifelines
+        client.h = defaultWorker.h = lineHeight;
 
         body.w = config.panel.padding.left + config.panel.padding.right;
         body.h = config.panel.padding.top + lineHeight + config.panel.padding.bottom;
@@ -83,24 +92,47 @@ export const visitor: Visitor = {
         header.w = config.panelHeading.padding.left + config.panelHeading.padding.right;
         header.h = config.panelHeading.height;
 
+        // Set the margin
+        defaultWorker.leftMargin = (defaultWorker.w / 2);
+
         viewState.bBox.w = (body.w > header.w) ? body.w : header.w;
         viewState.bBox.h = body.h + header.h;
     },
 
     endVisitBlock(node: Block) {
         const viewState: ViewState = node.viewState;
+        let height = 0;
         node.statements.forEach((element) => {
             viewState.bBox.w = (viewState.bBox.w < element.viewState.bBox.w)
                 ? element.viewState.bBox.w : viewState.bBox.w;
             viewState.bBox.leftMargin = (viewState.bBox.leftMargin < element.viewState.bBox.leftMargin)
                 ? element.viewState.bBox.leftMargin : viewState.bBox.leftMargin;
-            viewState.bBox.h += element.viewState.bBox.h;
+            height += element.viewState.bBox.h;
         });
+        viewState.bBox.h = height;
+    },
+
+    endVisitWhile(node: While) {
+        const viewState: ViewState = node.viewState;
+        const bodyBBox: SimpleBBox = node.body.viewState.bBox;
+
+        viewState.bBox.w = node.body.viewState.bBox.w;
+        viewState.bBox.h = node.body.viewState.bBox.h + config.flowCtrl.header.height
+                            + config.flowCtrl.whileGap + config.flowCtrl.bottomMargin;
+        // If body has a left margin assign to while
+        // tslint:disable-next-line:prefer-conditional-expression
+        if (bodyBBox.leftMargin) {
+            viewState.bBox.leftMargin = bodyBBox.leftMargin + config.flowCtrl.leftMargin;
+        } else {
+            viewState.bBox.leftMargin = config.flowCtrl.leftMarginDefault;
+        }
     },
 
     endVisitExpressionStatement(node: ExpressionStatement) {
-        const viewState: ViewState = node.viewState;
-        viewState.bBox.h = config.statement.height;
-        viewState.bBox.w = config.statement.width;
+        sizeStatement(node);
     },
+
+    endVisitVariableDef(node: VariableDef) {
+        sizeStatement(node);
+    }
 };

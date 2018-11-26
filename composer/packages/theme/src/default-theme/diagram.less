@@ -1,3 +1,6 @@
+@diagram-background: white;
+@panel-background: ivory;
+
 .diagram-container {
     text{
         fill: black;
@@ -7,7 +10,7 @@
     .diagram-canvas {
         .panel {
             .panel-body{
-                fill: antiquewhite;
+                fill: @panel-background;
 
                 .life-line{
                     stroke:black;
@@ -16,6 +19,33 @@
                         stroke-width: 0px;
                         text-anchor: middle;
                     }
+                }
+
+                .condition {
+                    .label {
+                        text-anchor: middle;
+                    }
+
+                    polyline {
+                        fill: #FFFFFF;
+                        stroke: black;
+                        stroke-width: 1px;
+                    }
+                }
+
+                .condition-line {
+                    stroke: black;
+                    stroke-width: 1px;
+                    fill: none;
+                }
+
+                .hide-line {
+                    stroke: @panel-background;
+                    stroke-width: 2px;
+                }
+
+                .arrow-head {
+                    fill: black;
                 }
             }
             

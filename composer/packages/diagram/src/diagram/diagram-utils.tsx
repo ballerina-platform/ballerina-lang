@@ -5,6 +5,10 @@ import * as components from "../views/index";
 export class DiagramUtils {
 
     public static getComponents(nodeArray: any): React.ReactNode[] {
+        // Convert to array
+        if (!(nodeArray instanceof Array)) {
+            nodeArray = [nodeArray];
+        }
         const children: any = [];
         nodeArray.forEach((node: any) => {
             const ChildComp = (components as any)[node.kind];
