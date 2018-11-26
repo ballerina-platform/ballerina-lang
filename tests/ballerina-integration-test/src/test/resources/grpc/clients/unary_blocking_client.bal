@@ -117,9 +117,7 @@ public type HelloWorldBlockingClient client object {
     function __init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
         grpc:Client c = new;
-        io:println(config);
         c.init(config);
-        io:println(DESCRIPTOR_KEY);
         error? result = c.initStub("blocking", DESCRIPTOR_KEY, getDescriptorMap());
         if (result is error) {
             panic result;
@@ -141,7 +139,12 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders = new;
         (result, resHeaders) = unionResp;
-        return (check int.create(result), resHeaders);
+        var value = int.create(result);
+        if (value is int) {
+            return (value, resHeaders);
+        } else {
+            return value;
+        }
     }
 
     remote function testFloat(float req, grpc:Headers? headers = ()) returns ((float, grpc:Headers)|error) {
@@ -149,7 +152,12 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders = new;
         (result, resHeaders) = unionResp;
-        return (check float.create(result), resHeaders);
+        var value = float.create(result);
+        if (value is float) {
+            return (value, resHeaders);
+        } else {
+            return value;
+        }
     }
 
     remote function testBoolean(boolean req, grpc:Headers? headers = ()) returns ((boolean, grpc:Headers)|error) {
@@ -157,7 +165,12 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders = new;
         (result, resHeaders) = unionResp;
-        return (check boolean.create(result), resHeaders);
+        var value = boolean.create(result);
+        if (value is boolean) {
+            return (value, resHeaders);
+        } else {
+            return value;
+        }
     }
 
     remote function testStruct(Request req, grpc:Headers? headers = ()) returns ((Response, grpc:Headers)|error) {
@@ -165,7 +178,12 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders = new;
         (result, resHeaders) = unionResp;
-        return (check Response.create(result), resHeaders);
+        var value = Response.create(result);
+        if (value is Response) {
+            return (value, resHeaders);
+        } else {
+            return value;
+        }
     }
 
     remote function testResponseInsideMatch(string req, grpc:Headers? headers = ()) returns (Response, grpc:Headers)|error {
@@ -174,7 +192,12 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders = new;
         (result, resHeaders) = unionResp;
-        return (check Response.create(result), resHeaders);
+        var value = Response.create(result);
+        if (value is Response) {
+            return (value, resHeaders);
+        } else {
+            return value;
+        }
     }
 };
 
