@@ -52,10 +52,18 @@ service {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unless @last}}, {
     }{{#deprecated}}
     deprecated {}
     {{/deprecated}}
-    {{resourceName}} (endpoint outboundEp, http:Request _{{resourceName}}Req{{#parameters}}{{>pathParams}}{{/parameters}}{{#requestBody}}{{>reqBody}}{{/requestBody}}) {
+    {{resourceName}} (endpoint outboundEp, http:Request _{{resourceName}}Req,{{#parameters}}{{>pathParams}}{{/parameters}}{{#requestBody}}{{>reqBody}}{{/requestBody}}) {
 
     }
-  {{/value}}{{/sameResourceOperations}}{{/if}}{{/value}}{{/paths}}{{#paths}}{{#value}}{{#operations}}{{#value}}
+  {{/value}}{{/sameResourceOperations}}{{/if}} {{#if noOperationsForPath}}
+    {{#deprecated}}
+        deprecated {}
+    {{/deprecated}}
+    {{resourceName}} (endpoint outboundEp, http:Request _{{resourceName}}Req) {
+
+    }
+  {{/if}}
+{{/value}}{{/paths}}{{#paths}}{{#value}}{{#operations}}{{#value}}
     @swagger:ResourceInfo {
         summary: "{{summary}}"{{#if tags}},
         tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}]{{/if}}{{#if description}},

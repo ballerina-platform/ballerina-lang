@@ -137,9 +137,7 @@ public class SwaggerResourceMapper {
             path = new Path();
             pathMap.put(operationAdaptor.getPath(), path);
         }
-        //String httpOperation = operationAdaptor.getHttpOperation();
         Operation operation = operationAdaptor.getOperation();
-        operation.setOperationId(operation.getOperationId() + httpMethod);
         switch (httpMethod) {
             case HttpConstants.ANNOTATION_METHOD_GET:
                 path.get(operation);

@@ -16,11 +16,18 @@
 
 package org.ballerinalang.swagger.utils;
 
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.PathItem;
+import org.ballerinalang.swagger.model.BallerinaPath;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
+import java.util.UUID;
 import javax.annotation.Nullable;
 
 /**
@@ -35,21 +42,21 @@ public class CodegenUtils {
      * @return if {@code path} is a ballerina project directory or not
      */
     public static boolean isBallerinaProject(Path path) {
-       boolean isProject = false;
-       Path cachePath = path.resolve(".ballerina");
+        boolean isProject = false;
+        Path cachePath = path.resolve(".ballerina");
 
-       // .ballerina cache path should exist in ballerina project directory
-       if (Files.exists(cachePath)) {
-           isProject = true;
-       }
+        // .ballerina cache path should exist in ballerina project directory
+        if (Files.exists(cachePath)) {
+            isProject = true;
+        }
 
-       return isProject;
+        return isProject;
     }
 
     /**
      * Resolves path to write generated main source files.
      *
-     * @param pkg module
+     * @param pkg  module
      * @param path output path without module name
      * @return path to write generated source files
      */
@@ -62,7 +69,7 @@ public class CodegenUtils {
     /**
      * Resolves path to write generated implementation source files.
      *
-     * @param pkg module
+     * @param pkg     module
      * @param srcPath resolved path for main source files
      * @return path to write generated source files
      */
@@ -74,7 +81,7 @@ public class CodegenUtils {
      * Writes a file with content to specified {@code filePath}.
      *
      * @param filePath valid file path to write the content
-     * @param content content of the file
+     * @param content  content of the file
      * @throws IOException when a file operation fails
      */
     public static void writeFile(Path filePath, String content) throws IOException {
@@ -92,6 +99,7 @@ public class CodegenUtils {
 
     /**
      * Removes underscores and hyphens for identifiers.
+     *
      * @param identifier Path
      * @return Cleaned identifier.
      */
@@ -106,6 +114,26 @@ public class CodegenUtils {
             resourceName = spllitedIdentifier[spllitedIdentifier.length - 1];
         }
 
-        return resourceName.replaceAll(" ", "_").replaceAll("-", "");
+        return resourceName.replaceAll(" ", "_").replaceAll("-", "")
+                .replaceAll("/", "");
+    }
+
+    public static String generateOperationId(OpenAPI openAPI) {
+        int prevNumber = 0;
+        for (Map.Entry<String, PathItem> path : openAPI.getPaths().entrySet()) {
+            for (Operation operation : path.getValue().readOperations()) {
+                String operationId = operation.getOperationId();
+                if (operationId!= null && operationId.matches("resource\\d+")) {
+                    String[] numbers = operationId.split("resource");
+                    if (numbers.length > 0) {
+                        int number = Integer.parseInt(numbers[numbers.length - 1]);
+                        if (prevNumber < number) {
+                            prevNumber = number;
+                        }
+                    }
+                }
+            }
+        }
+        return "resource" + (prevNumber + 1);
     }
 }

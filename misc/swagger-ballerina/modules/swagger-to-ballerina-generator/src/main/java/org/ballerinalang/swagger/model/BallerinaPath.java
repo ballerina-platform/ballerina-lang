@@ -37,6 +37,8 @@ import java.util.Set;
 public class BallerinaPath implements BallerinaSwaggerObject<BallerinaPath, PathItem> {
     private String ref;
     private String summary;
+    private String resourceName;
+    private boolean noOperationsForPath;
     private boolean sameResourceOperationExists;
     private String description;
     private Set<Map.Entry<String, BallerinaOperation>> operations;
@@ -69,15 +71,17 @@ public class BallerinaPath implements BallerinaSwaggerObject<BallerinaPath, Path
         for (Map.Entry<PathItem.HttpMethod, Operation> operationI : operationMap.entrySet()) {
             String operationIId = operationI.getValue().getOperationId();
             boolean idMatched = false;
-            for (Map.Entry<PathItem.HttpMethod, Operation> operationJ : operationMap.entrySet()) {
-                String operationJId = operationJ.getValue().getOperationId();
-                if (!operationIId.equals(operationJId) && CodegenUtils.normalizeForBIdentifier(operationIId)
-                        .equals(CodegenUtils.normalizeForBIdentifier(operationJId))) {
-                    idMatched = true;
+            if (operationIId != null) {
+                for (Map.Entry<PathItem.HttpMethod, Operation> operationJ : operationMap.entrySet()) {
+                    String operationJId = operationJ.getValue().getOperationId();
+                    if (!operationIId.equals(operationJId) && CodegenUtils.normalizeForBIdentifier(operationIId)
+                            .equals(CodegenUtils.normalizeForBIdentifier(operationJId))) {
+                        idMatched = true;
+                    }
                 }
             }
 
-            operation = new BallerinaOperation().buildContext(item.getGet(), openAPI);
+            operation = new BallerinaOperation().buildContext(operationI.getValue(), openAPI);
             if (idMatched) {
                 entry = new AbstractMap.SimpleEntry<>(operationI.getKey().name(), operation);
                 if (categorizedOperations.get(CodegenUtils.normalizeForBIdentifier(operationIId)) != null) {
@@ -92,14 +96,17 @@ public class BallerinaPath implements BallerinaSwaggerObject<BallerinaPath, Path
                             .addMethod(operationI.getKey().name());
                 }
             } else {
-                // TODO: remove temporary setting the operation ID to be contain operation name.
-                operation.setOperationId(operation.getOperationId() + operationI.getKey().name());
+                // Add operation ID if there is no operationID
+                if (operation.getOperationId() == null) {
+                    operation.setOperationId(CodegenUtils.generateOperationId(openAPI));
+                }
                 entry = new AbstractMap.SimpleEntry<>(operationI.getKey().name(), operation);
                 operations.add(entry);
             }
         }
         sameResourceOperations = categorizedOperations.entrySet();
-        sameResourceOperationExists = !sameResourceOperations.isEmpty();
+        this.setSameResourceOperationExists(!sameResourceOperations.isEmpty());
+        this.setNoOperationsForPath(operationMap.isEmpty());
         return this;
     }
 
@@ -136,5 +143,25 @@ public class BallerinaPath implements BallerinaSwaggerObject<BallerinaPath, Path
 
     public Set<Map.Entry<String, BallerinaOperation>> getOperations() {
         return operations;
+    }
+
+    public String getResourceName() {
+        return resourceName;
+    }
+
+    public void setResourceName(String resourceName) {
+        this.resourceName = CodegenUtils.normalizeForBIdentifier(resourceName);
+    }
+
+    public boolean isNoOperationsForPath() {
+        return noOperationsForPath;
+    }
+
+    private void setNoOperationsForPath(boolean noOperationsForPath) {
+        this.noOperationsForPath = noOperationsForPath;
+    }
+
+    private void setSameResourceOperationExists(boolean sameResourceOperationExists) {
+        this.sameResourceOperationExists = sameResourceOperationExists;
     }
 }

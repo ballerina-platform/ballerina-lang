@@ -107,13 +107,17 @@ public class BallerinaOpenApi implements BallerinaSwaggerObject<BallerinaOpenApi
         Paths pathList = openAPI.getPaths();
         for (Map.Entry<String, PathItem> path : pathList.entrySet()) {
             BallerinaPath balPath = new BallerinaPath().buildContext(path.getValue(), openAPI);
-            balPath.getOperations().forEach(operation -> {
-                if (operation.getValue().getOperationId() == null) {
-                    String pathName = path.getKey().substring(1); // need to drop '/' prefix from the key, ex:'/path'
-                    String operationId = operation.getKey() + StringUtils.capitalize(pathName);
-                    operation.getValue().setOperationId(CodegenUtils.normalizeForBIdentifier(operationId));
-                }
-            });
+            if (balPath.isNoOperationsForPath()) {
+                balPath.setResourceName(path.getKey());
+            } else {
+                balPath.getOperations().forEach(operation -> {
+                    if (operation.getValue().getOperationId() == null) {
+                        String pathName = path.getKey().substring(1); // need to drop '/' prefix from the key, ex:'/path'
+                        String operationId = operation.getKey() + StringUtils.capitalize(pathName);
+                        operation.getValue().setOperationId(CodegenUtils.normalizeForBIdentifier(operationId));
+                    }
+                });
+            }
             paths.add(new AbstractMap.SimpleEntry<>(path.getKey(), balPath));
         }
     }
