@@ -8,7 +8,7 @@ type BbTermGenrator object {
     bir:BasicBlock bb;
     llvm:LLVMBasicBlockRef bbRef;
 
-    function __init (llvm:LLVMBuilderRef builder, bir:BasicBlock bb, llvm:LLVMBasicBlockRef bbRef, FuncGenrator parent) {
+    function __init(llvm:LLVMBuilderRef builder, bir:BasicBlock bb, llvm:LLVMBasicBlockRef bbRef, FuncGenrator parent) {
         self.builder = builder;
         self.parent = parent;
         self.bb = bb;
