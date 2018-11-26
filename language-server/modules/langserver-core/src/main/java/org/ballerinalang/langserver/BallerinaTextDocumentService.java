@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver;
 
 import com.google.gson.JsonObject;
+import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
@@ -99,6 +100,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipError;
 
+import static org.ballerinalang.langserver.command.CommandUtil.getCommandForNodeType;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TEST_DIR_NAME;
 
@@ -399,14 +401,16 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 LSDocument document = new LSDocument(fileUri);
                 List<Diagnostic> diagnostics = params.getContext().getDiagnostics();
 
-                String topLevelNodeType = CommonUtil.topLevelNodeTypeInLine(params.getTextDocument(), start,
-                                                                            documentManager);
+                Pair<String, String> topLevelNodePair = CommonUtil.topLevelNodeInLine(params.getTextDocument(), start,
+                                                                                      documentManager);
+
                 // Add create test commands
                 String innerDirName = LSCompilerUtil.getCurrentModulePath(document.getPath())
                         .relativize(document.getPath())
                         .toString().split(File.separator)[0];
-                if (diagnostics.isEmpty() && document.hasProjectRepo() && !TEST_DIR_NAME.equals(innerDirName)) {
-                    commands.addAll(CommandUtil.getTestGenerationCommand(topLevelNodeType, fileUri, params));
+                if (topLevelNodePair != null && diagnostics.isEmpty() && document.hasProjectRepo() &&
+                        !TEST_DIR_NAME.equals(innerDirName)) {
+                    commands.addAll(CommandUtil.getTestGenerationCommand(topLevelNodePair, fileUri, params));
                 }
 
                 // Add commands base on node diagnostics
@@ -419,8 +423,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 }
 
                 // Add commands base on node type
-                if (topLevelNodeType != null) {
-                    commands.addAll(CommandUtil.getCommandForNodeType(topLevelNodeType, fileUri, start.getLine()));
+                if (topLevelNodePair != null) {
+                    commands.addAll(getCommandForNodeType(topLevelNodePair.getLeft(), fileUri, start.getLine()));
                 }
                 return commands;
             } catch (Exception e) {

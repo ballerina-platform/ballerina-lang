@@ -32,6 +32,7 @@ import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
+import org.ballerinalang.util.BLangConstants;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.Command;
@@ -98,14 +99,16 @@ public class CommandUtil {
     /**
      * Get the command for generate test class.
      *
-     * @param topLevelNodeType top level node
+     * @param topLevelNodePair top level node
      * @param docUri           Document Uri
      * @param params           Code action parameters
      * @return {@link Command}  Test Generation command
      */
-    public static List<Command> getTestGenerationCommand(String topLevelNodeType, String docUri,
+    public static List<Command> getTestGenerationCommand(Pair<String, String> topLevelNodePair, String docUri,
                                                          CodeActionParams params) {
         List<Command> commands = new ArrayList<>();
+        String topLevelNodeType = topLevelNodePair.getLeft();
+        String topLevelNodeName = topLevelNodePair.getRight();
 
         List<Object> args = new ArrayList<>();
         args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri));
@@ -116,9 +119,9 @@ public class CommandUtil {
         if (UtilSymbolKeys.SERVICE_KEYWORD_KEY.equals(topLevelNodeType)) {
             commands.add(new Command(CommandConstants.CREATE_TEST_SERVICE_TITLE,
                                      CommandConstants.CMD_CREATE_TEST, args));
-        } else if (UtilSymbolKeys.FUNCTION_KEYWORD_KEY.equals(topLevelNodeType)) {
-            commands.add(new Command(CommandConstants.CREATE_TEST_FUNC_TITLE,
-                                     CommandConstants.CMD_CREATE_TEST, args));
+        } else if (UtilSymbolKeys.FUNCTION_KEYWORD_KEY.equals(topLevelNodeType) &&
+                !BLangConstants.CONSTRUCTOR_FUNCTION_SUFFIX.equals(topLevelNodeName)) {
+            commands.add(new Command(CommandConstants.CREATE_TEST_FUNC_TITLE, CommandConstants.CMD_CREATE_TEST, args));
         }
         return commands;
     }

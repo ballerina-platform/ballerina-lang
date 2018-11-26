@@ -18,6 +18,8 @@ package org.ballerinalang.langserver.common.utils;
 import com.google.common.collect.Lists;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.command.testgen.TestGenerator.TestFunctionGenerator;
@@ -351,10 +353,10 @@ public class CommonUtil {
      * @param identifier    Document Identifier
      * @param startPosition Start position
      * @param docManager    Workspace document manager
-     * @return {@link String}   Top level node type
+     * @return {@link Pair}   A pair of top level node type and followed by optional name
      */
-    public static String topLevelNodeTypeInLine(TextDocumentIdentifier identifier, Position startPosition,
-                                                WorkspaceDocumentManager docManager) {
+    public static Pair<String, String> topLevelNodeInLine(TextDocumentIdentifier identifier, Position startPosition,
+                                                          WorkspaceDocumentManager docManager) {
         List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "endpoint", "object",
                 "record");
         LSDocument document = new LSDocument(identifier.getUri());
@@ -368,9 +370,15 @@ public class CommonUtil {
                 String lineContent = splitedFileContent[startPosition.getLine()];
                 List<String> alphaNumericTokens = new ArrayList<>(Arrays.asList(lineContent.split("[^\\w']+")));
 
-                for (String topLevelKeyword : topLevelKeywords) {
-                    if (alphaNumericTokens.contains(topLevelKeyword)) {
-                        return topLevelKeyword;
+                for (int i = 0; i < alphaNumericTokens.size(); i++) {
+                    String topLevelKeyword = alphaNumericTokens.get(i);
+                    if (topLevelKeywords.contains(topLevelKeyword)) {
+                        String nextToken = "";
+                        int j = i + 1;
+                        if (j < alphaNumericTokens.size()) {
+                            nextToken = alphaNumericTokens.get(j);
+                        }
+                        return new ImmutablePair<>(topLevelKeyword, nextToken);
                     }
                 }
             }
