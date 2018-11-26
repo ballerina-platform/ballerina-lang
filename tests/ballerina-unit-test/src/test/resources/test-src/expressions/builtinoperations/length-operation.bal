@@ -61,7 +61,7 @@ function arrayLengthAccessTestMapInitializerCase (int x, int y) returns (int|err
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
-    map tempMap = {"length": arr.length()};
+    map<any> tempMap = {"length": arr.length()};
     int length;
     length =check <int> tempMap.length;
     return length;
@@ -156,13 +156,13 @@ function arrayLengthAccessTestJSONArrayCase (int x, int y) returns (int) {
 }
 
 function lengthOfMap () returns (int) {
-    map namesMap = {fname:"foo", lname:"bar", sname:"abc", tname:"pqr"};
+    map<any> namesMap = {fname:"foo", lname:"bar", sname:"abc", tname:"pqr"};
     int length = namesMap.length();
     return length;
 }
 
 function lengthOfEmptyMap () returns (int) {
-    map namesMap = {};
+    map<any> namesMap = {};
     int length = namesMap.length();
     return length;
 }
@@ -228,7 +228,7 @@ function accessLengthOfNullArray() returns (int) {
 }
 
 function accessLengthOfNullMap() returns (int) {
-    map m = {};
+    map<any> m = {};
     int length = m.length();
     return length;
 }

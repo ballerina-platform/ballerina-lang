@@ -20,5 +20,5 @@ public type AbstractListener abstract object {
 
     public function __stop() returns error?;
 
-    public function __attach(service s, map annotationData) returns error?;
+    public function __attach(service s, map<any> annotationData) returns error?;
 };

@@ -17,7 +17,7 @@
 public type SimpleSelect object {
 
     private function (StreamEvent[]) nextProcessorPointer;
-    private function(StreamEvent o) returns map selectFunc;
+    private function(StreamEvent o) returns map<any> selectFunc;
 
 
     new(nextProcessorPointer, selectFunc) {
@@ -38,7 +38,7 @@ public type SimpleSelect object {
     }
 };
 
-public function createSimpleSelect(function (StreamEvent[]) nextProcPointer, function(StreamEvent o) returns map selectFunc)
+public function createSimpleSelect(function (StreamEvent[]) nextProcPointer, function(StreamEvent o) returns map<any> selectFunc)
         returns SimpleSelect {
     SimpleSelect simpleSelect = new(nextProcPointer, selectFunc);
     return simpleSelect;

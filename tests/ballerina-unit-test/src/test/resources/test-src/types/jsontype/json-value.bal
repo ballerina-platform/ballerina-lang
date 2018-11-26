@@ -370,7 +370,7 @@ function testNullJsonToBoolean() returns (boolean) {
     return check <boolean>j;
 }
 
-function testNullJsonToMap() returns (map) {
+function testNullJsonToMap() returns (map<any>) {
     json j = null;
     return check <map>j;
 }

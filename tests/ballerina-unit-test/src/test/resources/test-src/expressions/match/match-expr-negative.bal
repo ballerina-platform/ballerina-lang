@@ -26,17 +26,17 @@ function testMatchExprWithUndefinedVar(string|int|float|error a) returns string 
 function testMatchExprWithNonMatchingPatterns(string|int|float|error a) returns string {
     string x = foo(a) but { 
                     int => "value1", 
-                    map => "value2", 
+                    map<any> => "value2",
                     string => "value3",
                     json j => "value4"
                 };
     return x;
 }
 
-function testMatchExprWithMissingPatterns(string|int|float|error|map a) returns string {
+function testMatchExprWithMissingPatterns(string|int|float|error|map<any> a) returns string {
     string x = a but { 
                     int => "value1",
-                    map j => "value2"
+                    map<any> j => "value2"
                 };
     return x;
 }

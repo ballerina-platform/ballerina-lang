@@ -63,7 +63,7 @@ public type Request object {
     #
     # + path - Path to the location of matrix parameters
     # + return - A map of matrix paramters which can be found for the given path
-    public extern function getMatrixParams(string path) returns map;
+    public extern function getMatrixParams(string path) returns map<any>;
 
     # Gets the `Entity` associated with the request.
     #
