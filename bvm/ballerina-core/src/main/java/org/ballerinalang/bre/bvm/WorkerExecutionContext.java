@@ -161,19 +161,22 @@ public class WorkerExecutionContext {
     }
 
     public boolean isInTransaction() {
-        return BLangVMUtils.getTransactionInfo(this) != null;
+        return false;
+//        return BLangVMUtils.getTransactionInfo(this) != null;
     }
 
     public void setLocalTransactionInfo(LocalTransactionInfo localTransactionInfo) {
-        BLangVMUtils.setTransactionInfo(this, localTransactionInfo);
+//        BLangVMUtils.setTransactionInfo(this, localTransactionInfo);
     }
 
     public LocalTransactionInfo getLocalTransactionInfo() {
-        return BLangVMUtils.getTransactionInfo(this);
+        return null;
+//        return BLangVMUtils.getTransactionInfo(this);
     }
 
     public boolean getGlobalTransactionEnabled() {
-        return BLangVMUtils.getGlobalTransactionEnabled(this);
+        return true;
+//        return BLangVMUtils.getGlobalTransactionEnabled(this);
     }
 
     public boolean isRootContext() {

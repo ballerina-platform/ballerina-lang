@@ -17,7 +17,8 @@
 */
 package org.ballerinalang.util.transactions;
 
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.vm.BVMExecutor;
+import org.ballerinalang.bre.vm.Strand;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
@@ -27,7 +28,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.program.BLangFunctions;
 
 /**
  * Utility methods used in transaction handling.
@@ -36,8 +36,8 @@ import org.ballerinalang.util.program.BLangFunctions;
  */
 public class TransactionUtils {
 
-    public static BValue[] notifyTransactionBegin(WorkerExecutionContext ctx, String globalTransactionId, String url,
-            int transactionBlockId, String protocol) {
+    public static BValue[] notifyTransactionBegin(Strand ctx, String globalTransactionId, String url,
+                                                  int transactionBlockId, String protocol) {
         BValue[] args = {
                 (globalTransactionId == null ? null : new BString(globalTransactionId)),
                 new BInteger(transactionBlockId), new BString(url),
@@ -48,35 +48,35 @@ public class TransactionUtils {
         return returns;
     }
 
-    public static void notifyTransactionEnd(WorkerExecutionContext ctx, String globalTransactionId,
+    public static void notifyTransactionEnd(Strand ctx, String globalTransactionId,
             int transactionBlockId) {
         BValue[] args = {new BString(globalTransactionId), new BInteger(transactionBlockId)};
         BValue[] returns = invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_END_TRANSACTION, args);
         checkTransactionCoordinatorError(returns[0], ctx, "error in transaction end: ");
     }
 
-    public static void notifyTransactionAbort(WorkerExecutionContext ctx, String globalTransactionId,
+    public static void notifyTransactionAbort(Strand ctx, String globalTransactionId,
             int transactionBlockId) {
         BValue[] args = {new BString(globalTransactionId), new BInteger(transactionBlockId)};
         invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_ABORT_TRANSACTION, args);
     }
 
-    public static boolean isInitiator(WorkerExecutionContext ctx, String globalTransactionId,
+    public static boolean isInitiator(Strand ctx, String globalTransactionId,
             int transactionBlockId) {
         BValue[] args = {new BString(globalTransactionId), new BInteger(transactionBlockId)};
         BValue[] returns = invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_IS_INITIATOR, args);
         return ((BBoolean) returns[0]).booleanValue();
     }
 
-    private static void checkTransactionCoordinatorError(BValue value, WorkerExecutionContext ctx, String errMsg) {
+    private static void checkTransactionCoordinatorError(BValue value, Strand ctx, String errMsg) {
         if (value.getType().getTag() == TypeTags.ERROR_TAG) {
             throw new BallerinaException(errMsg + ((BError) value).details);
         }
     }
 
-    private static BValue[] invokeCoordinatorFunction(WorkerExecutionContext ctx, String functionName, BValue[] args) {
+    private static BValue[] invokeCoordinatorFunction(Strand ctx, String functionName, BValue[] args) {
         PackageInfo packageInfo = ctx.programFile.getPackageInfo(TransactionConstants.COORDINATOR_PACKAGE);
         FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
-        return BLangFunctions.invokeCallable(functionInfo, args);
+        return BVMExecutor.executeFunction(functionInfo.getPackageInfo().getProgramFile(), functionInfo, args);
     }
 }

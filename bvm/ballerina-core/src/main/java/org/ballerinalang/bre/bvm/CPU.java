@@ -2908,21 +2908,21 @@ public class CPU {
             String protocol = null;
             String url = null;
             if (isGlobalTransactionEnabled) {
-                BValue[] returns = TransactionUtils.notifyTransactionBegin(ctx, null, null, transactionBlockId,
-                        TransactionConstants.DEFAULT_COORDINATION_TYPE);
-                BMap<String, BValue> txDataStruct = (BMap<String, BValue>) returns[0];
-                globalTransactionId = txDataStruct.get(TransactionConstants.TRANSACTION_ID).stringValue();
-                protocol = txDataStruct.get(TransactionConstants.CORDINATION_TYPE).stringValue();
-                url = txDataStruct.get(TransactionConstants.REGISTER_AT_URL).stringValue();
+//                BValue[] returns = TransactionUtils.notifyTransactionBegin(ctx, null, null, transactionBlockId,
+//                        TransactionConstants.DEFAULT_COORDINATION_TYPE);
+//                BMap<String, BValue> txDataStruct = (BMap<String, BValue>) returns[0];
+//                globalTransactionId = txDataStruct.get(TransactionConstants.TRANSACTION_ID).stringValue();
+//                protocol = txDataStruct.get(TransactionConstants.CORDINATION_TYPE).stringValue();
+//                url = txDataStruct.get(TransactionConstants.REGISTER_AT_URL).stringValue();
             } else {
                 globalTransactionId = UUID.randomUUID().toString().replaceAll("-", "");
             }
-            localTransactionInfo = new LocalTransactionInfo(globalTransactionId, url, protocol);
-            ctx.setLocalTransactionInfo(localTransactionInfo);
+//            localTransactionInfo = new LocalTransactionInfo(globalTransactionId, url, protocol);
+//            ctx.setLocalTransactionInfo(localTransactionInfo);
         } else {
             if (isGlobalTransactionEnabled) {
-                TransactionUtils.notifyTransactionBegin(ctx, localTransactionInfo.getGlobalTransactionId(),
-                        localTransactionInfo.getURL(), transactionBlockId, localTransactionInfo.getProtocol());
+//                TransactionUtils.notifyTransactionBegin(ctx, localTransactionInfo.getGlobalTransactionId(),
+//                        localTransactionInfo.getURL(), transactionBlockId, localTransactionInfo.getProtocol());
             }
         }
         localTransactionInfo.beginTransactionBlock(transactionBlockId, retryCount);
@@ -2931,18 +2931,18 @@ public class CPU {
     private static void retryTransaction(WorkerExecutionContext ctx, int transactionBlockId, int startOfAbortIP,
                                          int startOfNoThrowEndIP) {
         LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
-        if (!localTransactionInfo.isRetryPossible(ctx, transactionBlockId)) {
-            if (ctx.getError() == null) {
-                ctx.ip = startOfNoThrowEndIP;
-            } else {
-                String errorMsg = ctx.getError().reason;
-                if (BLangVMErrors.TRANSACTION_ERROR.equals(errorMsg)) {
-                    ctx.ip = startOfNoThrowEndIP;
-                } else {
-                    ctx.ip = startOfAbortIP;
-                }
-            }
-        }
+//        if (!localTransactionInfo.isRetryPossible(ctx, transactionBlockId)) {
+//            if (ctx.getError() == null) {
+//                ctx.ip = startOfNoThrowEndIP;
+//            } else {
+//                String errorMsg = ctx.getError().reason;
+//                if (BLangVMErrors.TRANSACTION_ERROR.equals(errorMsg)) {
+//                    ctx.ip = startOfNoThrowEndIP;
+//                } else {
+//                    ctx.ip = startOfAbortIP;
+//                }
+//            }
+//        }
         localTransactionInfo.incrementCurrentRetryCount(transactionBlockId);
     }
 
@@ -2953,20 +2953,20 @@ public class CPU {
         try {
             //In success case no need to do anything as with the transaction end phase it will be committed.
             if (status == TransactionStatus.FAILED.value()) {
-                notifyCoordinator = localTransactionInfo.onTransactionFailed(ctx, transactionBlockId);
-                if (notifyCoordinator) {
-                    if (isGlobalTransactionEnabled) {
-                        TransactionUtils.notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(),
-                                transactionBlockId);
-                    } else {
-                        TransactionResourceManager.getInstance()
-                                .notifyAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId, false);
-                    }
-                }
+//                notifyCoordinator = localTransactionInfo.onTransactionFailed(ctx, transactionBlockId);
+//                if (notifyCoordinator) {
+//                    if (isGlobalTransactionEnabled) {
+//                        TransactionUtils.notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(),
+//                                transactionBlockId);
+//                    } else {
+//                        TransactionResourceManager.getInstance()
+//                                .notifyAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId, false);
+//                    }
+//                }
             } else if (status == TransactionStatus.ABORTED.value()) {
                 if (isGlobalTransactionEnabled) {
-                    TransactionUtils.notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(),
-                            transactionBlockId);
+//                    TransactionUtils.notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(),
+//                            transactionBlockId);
                 } else {
                     TransactionResourceManager.getInstance()
                             .notifyAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId, false);
@@ -2983,11 +2983,11 @@ public class CPU {
             } else if (status == TransactionStatus.END.value()) { //status = 1 Transaction end
                 boolean isOuterTx = localTransactionInfo.onTransactionEnd(transactionBlockId);
                 if (isGlobalTransactionEnabled) {
-                    TransactionUtils.notifyTransactionEnd(ctx, localTransactionInfo.getGlobalTransactionId(),
-                            transactionBlockId);
+//                    TransactionUtils.notifyTransactionEnd(ctx, localTransactionInfo.getGlobalTransactionId(),
+//                            transactionBlockId);
                 }
                 if (isOuterTx) {
-                    BLangVMUtils.removeTransactionInfo(ctx);
+//                    BLangVMUtils.removeTransactionInfo(ctx);
                 }
             }
         } catch (Throwable e) {
