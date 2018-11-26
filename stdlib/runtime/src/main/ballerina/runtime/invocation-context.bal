@@ -24,7 +24,7 @@ public type InvocationContext record {
     string id;
     UserPrincipal userPrincipal;
     AuthContext authContext;
-    map attributes;
+    map<any> attributes;
     !...
 };
 
@@ -47,7 +47,7 @@ public type AuthContext record {
 public type UserPrincipal record {
     string userId;
     string username;
-    map claims;
+    map<any> claims;
     string[] scopes;
     !...
 };

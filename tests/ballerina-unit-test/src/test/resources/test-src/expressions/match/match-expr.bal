@@ -99,7 +99,7 @@ function testAssignabileTypesInPatterns(string|int|float|error a) returns json {
 
 function testMatchErrorWithCauses() {
     error cause1 = error("root cause");
-    map data = {cause : cause1};
+    map<any> data = {cause : cause1};
     error cause2 = error("intermediate cause", data);
     data = {cause : cause2};
     error err1 = error("actual error", data);

@@ -49,6 +49,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -87,6 +88,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
+import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
@@ -107,6 +109,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -225,6 +228,9 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Sort type definitions with precedence, before defining their members.
         pkgNode.typeDefinitions.sort(Comparator.comparing(t -> t.precedence));
+
+        // Define error details
+        defineErrorDetails(pkgNode.typeDefinitions, pkgEnv);
 
         // Define type def fields (if any)
         defineFields(pkgNode.typeDefinitions, pkgEnv);
@@ -829,14 +835,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        // Todo - Remove.
-        //Check annotations attached to the variable
-        if (varNode.annAttachments.size() > 0) {
-            if (hasAnnotation(varNode.annAttachments, Names.ANNOTATION_READONLY.getValue())) {
-                varNode.flagSet.add(Flag.READONLY);
-            }
-        }
-
         BVarSymbol varSymbol = defineVarSymbol(varNode.pos, varNode.flagSet, varNode.type, varName, env);
         varSymbol.markdownDocumentation = getMarkdownDocAttachment(varNode.markdownDocumentationAttachment);
         varNode.symbol = varSymbol;
@@ -1034,6 +1032,33 @@ public class SymbolEnter extends BLangNodeVisitor {
             case CONSTANT:
                 pkgNode.constants.add((BLangConstant) node);
                 break;
+        }
+    }
+
+    private void defineErrorDetails(List<BLangTypeDefinition> typeDefNodes, SymbolEnv pkgEnv) {
+        for (BLangTypeDefinition typeDef : typeDefNodes) {
+            if (typeDef.typeNode.getKind() != NodeKind.ERROR_TYPE) {
+                continue;
+            }
+
+            BLangErrorType errorTypeNode = (BLangErrorType) typeDef.typeNode;
+            SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(errorTypeNode, typeDef.symbol.scope, pkgEnv);
+
+            BType reasonType = Optional.ofNullable(errorTypeNode.reasonType)
+                                        .map(bLangType -> symResolver.resolveTypeNode(bLangType, typeDefEnv))
+                                        .orElse(symTable.stringType);
+            BType detailType = Optional.ofNullable(errorTypeNode.detailType)
+                                        .map(bLangType -> symResolver.resolveTypeNode(bLangType, typeDefEnv))
+                                        .orElse(symTable.mapType);
+
+            if (reasonType == symTable.stringType && detailType == symTable.mapType) {
+                typeDef.symbol.type = symTable.errorType;
+                continue;
+            }
+
+            BErrorType errorType = (BErrorType) typeDef.symbol.type;
+            errorType.reasonType = reasonType;
+            errorType.detailType = detailType;
         }
     }
 

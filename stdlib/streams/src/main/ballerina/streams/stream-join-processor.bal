@@ -17,7 +17,7 @@
 import ballerina/io;
 
 public type StreamJoinProcessor object {
-    private (function (map e1Data, map e2Data) returns boolean)? onConditionFunc;
+    private (function (map<any> e1Data, map<any> e2Data) returns boolean)? onConditionFunc;
     private function (any) nextProcessor;
     public Window? lhsWindow;
     public Window? rhsWindow;
@@ -232,7 +232,7 @@ public type StreamJoinProcessor object {
 };
 
 public function createStreamJoinProcessor(function (any) nextProcessor, JoinType joinType,
-                                          (function (map e1Data, map e2Data) returns boolean)? conditionFunc = ())
+                                          (function (map<any> e1Data, map<any> e2Data) returns boolean)? conditionFunc = ())
                     returns StreamJoinProcessor {
     StreamJoinProcessor joinProcesor = new(nextProcessor, joinType, conditionFunc);
     return joinProcesor;

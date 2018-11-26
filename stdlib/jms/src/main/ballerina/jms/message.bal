@@ -29,7 +29,7 @@ public type Message object {
     # Gets map content of the JMS message
     #
     # + return - the string containing this message's data or an JMS error
-    public extern function getMapMessageContent() returns @tainted map|error;
+    public extern function getMapMessageContent() returns @tainted map<any>|error;
 
     # Sets a JMS transport string property from the message
     #
