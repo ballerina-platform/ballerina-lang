@@ -7,8 +7,8 @@ public type TrxErrorData record {
 
 public type TrxError error<string, TrxErrorData>;
 
-@final int RETRYCOUNT = 4;
-@final int RETRYCOUNT_2 = -4;
+final int RETRYCOUNT = 4;
+final int RETRYCOUNT_2 = -4;
 
 string workerTest = "";
 

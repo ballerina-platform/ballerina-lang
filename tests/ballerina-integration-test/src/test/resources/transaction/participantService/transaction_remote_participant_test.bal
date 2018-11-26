@@ -22,7 +22,7 @@ import ballerina/transactions;
 @http:ServiceConfig {
     basePath: "/"
 }
-service<http:Service> hello bind { port: 8889 } {
+service hello on new http:Listener(8889) {
     @http:ResourceConfig {
         methods: ["POST"],
         path: "/",
@@ -32,7 +32,7 @@ service<http:Service> hello bind { port: 8889 } {
         oncommit: baz,
         onabort: bar
     }
-    sayHello(endpoint caller, http:Request req) {
+    resource function sayHello(http:Caller caller, http:Request req) {
         log:printInfo("in-remote: ");
         S1 = S1 + " in-remote";
         var payload =  req.getTextPayload();
@@ -80,9 +80,7 @@ function initGlobalVar() {
 function initiatorFunc(boolean throw1, boolean throw2, 
                         boolean remote1, boolean remote2,
                         boolean blowRemote1, boolean blowRemote2) returns string {
-    endpoint http:Client participantEP {
-        url:"http://localhost:8889"
-    };
+    http:Client participantEP = new("http://localhost:8889");
     initGlobalVar();
     S1 = "";
     transaction with retries=2 {
@@ -180,11 +178,11 @@ function blowUp()  returns int {
 @http:ServiceConfig {
     basePath: "/"
 }
-service<http:Service> initiatorService bind { port: 8888 } {
+service initiatorService on new http:Listener(8888) {
     @http:ResourceConfig {
         methods: ["POST"]
     }
-    remoteParticipantTransactionSuccessTest(endpoint caller, http:Request req) {
+    resource function remoteParticipantTransactionSuccessTest(http:Caller caller, http:Request req) {
         string result = initiatorFunc(false, false,
                                       true, false,
                                       false, false);
@@ -196,7 +194,7 @@ service<http:Service> initiatorService bind { port: 8888 } {
     @http:ResourceConfig {
         methods: ["POST"]
     }
-    remoteParticipantTransactionFailSuccessTest(endpoint caller, http:Request req) {
+    resource function remoteParticipantTransactionFailSuccessTest(http:Caller caller, http:Request req) {
         string result = initiatorFunc(true, false,
                                       true, true,
                                       false, false);
@@ -208,7 +206,8 @@ service<http:Service> initiatorService bind { port: 8888 } {
     @http:ResourceConfig {
         methods: ["POST"]
     }
-    remoteParticipantTransactionExceptionInRemoteNoSecondRemoteCall(endpoint caller, http:Request req) {
+    resource function remoteParticipantTransactionExceptionInRemoteNoSecondRemoteCall(http:Caller caller,
+                                                                                http:Request req) {
         string result = initiatorFunc(false, false,
                                       true, false,
                                       true, false);
@@ -221,7 +220,8 @@ service<http:Service> initiatorService bind { port: 8888 } {
     @http:ResourceConfig {
         methods: ["POST"]
     }
-    remoteParticipantTransactionExceptionInRemoteThenSuccessInRemote(endpoint caller, http:Request req) {
+    resource function remoteParticipantTransactionExceptionInRemoteThenSuccessInRemote(http:Caller caller,
+                                                                                http:Request req) {
         string result = initiatorFunc(false, false,
                                       true, true,
                                       true, false);
@@ -234,7 +234,8 @@ service<http:Service> initiatorService bind { port: 8888 } {
     @http:ResourceConfig {
         methods: ["POST"]
     }
-    remoteParticipantTransactionExceptionInRemoteThenExceptionInRemote(endpoint caller, http:Request req) {
+    resource function remoteParticipantTransactionExceptionInRemoteThenExceptionInRemote(http:Caller caller,
+                                                                                http:Request req) {
         string result = initiatorFunc(false, false,
                                       true, true,
                                       true, true);
@@ -242,8 +243,4 @@ service<http:Service> initiatorService bind { port: 8888 } {
         res.setPayload(result);
         caller->respond(res) but { error e => log:printError("Error sending response: " + result, err = e) };
     }
-
-
-
-
 }
