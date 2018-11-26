@@ -19,7 +19,7 @@
 # service through this endpoint.
 #
 # + id - Caller endpoint id.
-public type Server object {
+public type Listener object {
 
     *AbstractListener;
 

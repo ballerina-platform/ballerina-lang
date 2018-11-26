@@ -18,7 +18,7 @@ import ballerina/grpc;
 import ballerina/io;
 
 // Server endpoint configuration
-listener grpc:Server server3 = new ({
+listener grpc:Listener ep3 = new ({
     host:"localhost",
     port:9095
 });
@@ -30,7 +30,7 @@ listener grpc:Server server3 = new ({
     descriptor: <string>descriptorMap3[DESCRIPTOR_KEY_3],
     descMap: descriptorMap3
 }
-service Chat on server3 {
+service Chat on ep3 {
     map<grpc:Caller> consMap = {};
     resource function onOpen(grpc:Caller caller) {
         self.consMap[<string>caller.getInstanceId()] = caller;
