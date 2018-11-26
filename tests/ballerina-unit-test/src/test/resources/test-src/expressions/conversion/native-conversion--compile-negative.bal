@@ -19,17 +19,17 @@ type PersonObj object {
     public int age = 10;
 };
 
-function floatToIntWithMultipleArguments() returns int {
+function testFloatToIntWithMultipleArguments() returns int {
     float a = 5.0;
     return int.create(a, a);
 }
 
-function testToIntWithNoArguments() {
+function testFloatToIntWithNoArguments() {
     float a = 5.0;
     return int.create();
 }
 
-function objctToJson() returns json|error {
+function testObjectToJson() returns json|error {
     PersonObj p = new PersonObj();
     return json.create(p);
 }
