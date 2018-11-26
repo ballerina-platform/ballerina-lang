@@ -621,6 +621,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
 
             case TypeTags.FLOAT:
+                // TODO:Remove the instanceof check by converting the float literal instance in Semantic analysis phase
                 double doubleVal = literalExpr.value instanceof String ?
                         Double.parseDouble((String) literalExpr.value) :
                         (Double) literalExpr.value;
@@ -2033,7 +2034,8 @@ public class CodeGenerator extends BLangNodeVisitor {
                 defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new ByteCPEntry(defaultValue.byteValue));
                 break;
             case TypeTags.FLOAT:
-                defaultValue.floatValue = (Double) value;
+                // TODO:Remove the instanceof check by converting the float literal instance in Semantic analysis phase
+                defaultValue.floatValue = value instanceof String ? Double.parseDouble((String) value) : (Double) value;
                 defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new FloatCPEntry(defaultValue.floatValue));
                 break;
             case TypeTags.STRING:
