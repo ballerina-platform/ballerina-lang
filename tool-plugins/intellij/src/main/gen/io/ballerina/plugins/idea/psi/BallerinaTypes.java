@@ -474,7 +474,7 @@ public interface BallerinaTypes {
   IElementType NOT_EQUAL = new BallerinaTokenType("!=");
   IElementType NULL_LITERAL = new BallerinaTokenType("NULL_LITERAL");
   IElementType OBJECT = new BallerinaTokenType("object");
-  IElementType OBJECT_INIT = new BallerinaTokenType("object_init");
+  IElementType OBJECT_INIT = new BallerinaTokenType("OBJECT_INIT");
   IElementType OCTAL_INTEGER_LITERAL = new BallerinaTokenType("OCTAL_INTEGER_LITERAL");
   IElementType ON = new BallerinaTokenType("on");
   IElementType ONABORT = new BallerinaTokenType("onabort");

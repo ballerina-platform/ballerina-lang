@@ -24,6 +24,9 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaReservedWord extends BallerinaCompositeElement {
 
   @Nullable
+  PsiElement getObjectInit();
+
+  @Nullable
   PsiElement getContinue();
 
   @Nullable
@@ -31,9 +34,6 @@ public interface BallerinaReservedWord extends BallerinaCompositeElement {
 
   @Nullable
   PsiElement getMap();
-
-  @Nullable
-  PsiElement getObjectInit();
 
   @Nullable
   PsiElement getStart();

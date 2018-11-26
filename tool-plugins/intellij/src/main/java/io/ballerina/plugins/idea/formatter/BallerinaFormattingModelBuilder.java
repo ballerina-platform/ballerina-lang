@@ -47,6 +47,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.ATTACHMENT_POINT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.AWAIT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BINDING_PATTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BINDING_REF_PATTERN;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.BIT_COMPLEMENT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BLOCK;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BRACED_OR_TUPLE_EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BREAK;
@@ -564,6 +565,10 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .betweenInside(DOT, IDENTIFIER, FIELD).spaceIf(false)
                 .betweenInside(NOT, IDENTIFIER, FIELD).spaceIf(false)
                 .before(FIELD).spaceIf(false)
+
+                // Unary Expressions
+                .after(BIT_COMPLEMENT).spaceIf(false)
+                .between(NOT,VARIABLE_REFERENCE_EXPRESSION).spaceIf(false)
 
                 // Operators
                 .around(ASSIGN).spaceIf(true)

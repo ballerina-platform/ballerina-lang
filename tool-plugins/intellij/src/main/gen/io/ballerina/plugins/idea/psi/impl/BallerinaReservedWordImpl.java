@@ -43,6 +43,12 @@ public class BallerinaReservedWordImpl extends BallerinaCompositeElementImpl imp
 
   @Override
   @Nullable
+  public PsiElement getObjectInit() {
+    return findChildByType(OBJECT_INIT);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getContinue() {
     return findChildByType(CONTINUE);
   }
@@ -57,12 +63,6 @@ public class BallerinaReservedWordImpl extends BallerinaCompositeElementImpl imp
   @Nullable
   public PsiElement getMap() {
     return findChildByType(MAP);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getObjectInit() {
-    return findChildByType(OBJECT_INIT);
   }
 
   @Override
