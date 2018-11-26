@@ -201,33 +201,33 @@ public type HelloWorldClient client object {
         }
     }
 
-    remote function testInputNestedStruct(Person req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testInputNestedStruct(Person req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld/testInputNestedStruct", req, msgListener,
             headers = headers);
     }
 
-    remote function testOutputNestedStruct(string req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testOutputNestedStruct(string req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld/testOutputNestedStruct", req, msgListener,
             headers = headers);
     }
 
-    remote function testInputStructOutputStruct(StockRequest req, typedesc msgListener, grpc:Headers? headers = ()) returns (error
+    remote function testInputStructOutputStruct(StockRequest req, service msgListener, grpc:Headers? headers = ()) returns (error
                 ?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld/testInputStructOutputStruct", req, msgListener,
             headers = headers);
     }
 
-    remote function testInputStructNoOutput(StockQuote req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testInputStructNoOutput(StockQuote req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld/testInputStructNoOutput", req, msgListener,
             headers = headers);
     }
 
-    remote function testNoInputOutputStruct(Empty req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testNoInputOutputStruct(Empty req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld/testNoInputOutputStruct", req, msgListener,
             headers = headers);
     }
 
-    remote function testNoInputOutputArray(Empty req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testNoInputOutputArray(Empty req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld/testNoInputOutputArray", req, msgListener,
             headers = headers);
     }

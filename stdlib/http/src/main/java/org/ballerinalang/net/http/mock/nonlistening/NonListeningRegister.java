@@ -32,7 +32,7 @@ import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketService;
 import org.ballerinalang.net.http.WebSocketServicesRegistry;
 
-import static org.ballerinalang.net.http.HttpConstants.MOCK_SERVER;
+import static org.ballerinalang.net.http.HttpConstants.MOCK_LISTENER_ENDPOINT;
 
 /**
  * Get the ID of the connection.
@@ -43,7 +43,7 @@ import static org.ballerinalang.net.http.HttpConstants.MOCK_SERVER;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "register",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = MOCK_SERVER,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = MOCK_LISTENER_ENDPOINT,
                 structPackage = "ballerina.http"),
         args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC),
                 @Argument(name = "annotationData", type = TypeKind.MAP)},
