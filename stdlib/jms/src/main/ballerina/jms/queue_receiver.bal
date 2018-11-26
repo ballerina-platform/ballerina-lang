@@ -22,13 +22,15 @@ import ballerina/log;
 # + config - configurations related to the QueueReceiver
 public type QueueReceiver object {
 
-    public QueueReceiverActions consumerActions = new;
+    *AbstractListener;
+
+    public QueueReceiverCaller consumerActions = new;
     public QueueReceiverEndpointConfiguration config = {};
 
     # Initializes the QueueReceiver endpoint
     #
     # + c - Configurations related to the QueueReceiver endpoint
-    public function init(QueueReceiverEndpointConfiguration c) {
+    public function __init(QueueReceiverEndpointConfiguration c) {
         self.config = c;
         self.consumerActions.queueReceiver = self;
         var session = c.session;
@@ -48,32 +50,34 @@ public type QueueReceiver object {
     # Binds the queue receiver endpoint to a service
     #
     # + serviceType - type descriptor of the service to bind to
-    public function register(typedesc serviceType) {
-        self.registerListener(serviceType, self.consumerActions);
+    public function __attach(service serviceType, map<any> data) returns error? {
+        return self.registerListener(serviceType, self.consumerActions);
     }
 
-    extern function registerListener(typedesc serviceType, QueueReceiverActions actions);
+    extern function registerListener(service serviceType, QueueReceiverCaller actions) returns error?;
 
     extern function createQueueReceiver(Session session, string messageSelector, Destination? destination = ());
 
     # Starts the endpoint. Function is ignored by the receiver endpoint
-    public function start() {
+    public function __start() returns error? {
+        return ();
         // Ignore
     }
 
     # Retrieves the QueueReceiver consumer action handler
     #
     # + return - queue receiver action handler
-    public function getCallerActions() returns QueueReceiverActions {
+    public function getCallerActions() returns QueueReceiverCaller {
         return self.consumerActions;
     }
 
     # Stops consuming messages through QueueReceiver endpoint
-    public function stop() {
+    public function __stop() returns error? {
         self.closeQueueReceiver(self.consumerActions);
+        return ();
     }
 
-    extern function closeQueueReceiver(QueueReceiverActions actions);
+    extern function closeQueueReceiver(QueueReceiverCaller actions);
 };
 
 # Configurations related to the QueueReceiver endpoint
@@ -93,7 +97,7 @@ public type QueueReceiverEndpointConfiguration record {
 # Caller actions related to queue receiver endpoint.
 #
 # + queueReceiver - queue receiver endpoint
-public type QueueReceiverActions object {
+public type QueueReceiverCaller client object {
 
     public QueueReceiver? queueReceiver = ();
 
@@ -101,23 +105,23 @@ public type QueueReceiverActions object {
     #
     # + message - JMS message to be acknowledged
     # + return - error upon failure to acknowledge the received message
-    public extern function acknowledge(Message message) returns error?;
+    public remote extern function acknowledge(Message message) returns error?;
 
     # Synchronously receive a message from the JMS provider
     #
     # + timeoutInMilliSeconds - time to wait until a message is received
     # + return - Returns a message or nil if the timeout exceeds. Returns an error on jms provider internal error
-    public extern function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
+    public remote extern function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
 
     # Synchronously receive a message from a given destination
     #
     # + destination - destination to subscribe to
     # + timeoutInMilliSeconds - time to wait until a message is received
     # + return - Returns a message or () if the timeout exceededs. Returns an error on jms provider internal error.
-    public function receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|error)?;
+    public remote function receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|error)?;
 };
 
-function QueueReceiverActions.receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|
+remote function QueueReceiverCaller.receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|
         error)? {
     var queueReceiver = self.queueReceiver;
     if (queueReceiver is QueueReceiver) {
@@ -133,7 +137,7 @@ function QueueReceiverActions.receiveFrom(Destination destination, int timeoutIn
     } else {
          log:printInfo("Message receiver is not properly initialized for queue " + destination.destinationName);
     }
-    var result = self.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
+    var result = self->receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
     self.queueReceiver.closeQueueReceiver(self);
     return result;
 }

@@ -18,7 +18,7 @@ import ballerina/grpc;
 import ballerina/io;
 
 // Server endpoint configuration
-listener grpc:Server server3 = new ({
+listener grpc:Listener ep3 = new ({
     host:"localhost",
     port:9095
 });
@@ -30,22 +30,22 @@ listener grpc:Server server3 = new ({
     descriptor: <string>descriptorMap3[DESCRIPTOR_KEY_3],
     descMap: descriptorMap3
 }
-service Chat on server3 {
-    map<any> consMap = {};
-    resource function onOpen(grpc:Caller client) {
-        consMap[<string>client.id] = client;
+service Chat on ep3 {
+    map<grpc:Caller> consMap = {};
+    resource function onOpen(grpc:Caller caller) {
+        self.consMap[<string>caller.getInstanceId()] = caller;
     }
 
-    resource function onMessage(grpc:Caller client, ChatMessage chatMsg) {
-        endpoint grpc:Listener con;
+    resource function onMessage(grpc:Caller caller, ChatMessage chatMsg) {
+        grpc:Caller con = new;
         string msg = string `{{chatMsg.name}}: {{chatMsg.message}}`;
         io:println(msg);
-        string[] conKeys = consMap.keys();
+        string[] conKeys = self.consMap.keys();
         int len = conKeys.length();
         int i = 0;
         while (i < len) {
-            var result = <grpc:Listener>consMap[conKeys[i]];
-            if (result is grpc:Listener) {
+            var result = self.consMap[conKeys[i]];
+            if (result is grpc:Caller) {
                 con = result;
                 error? err = con->send(msg);
                 if (err is error) {
@@ -56,21 +56,22 @@ service Chat on server3 {
         }
     }
 
-    resource function onError(grpc:Caller client, error err) {
+    resource function onError(grpc:Caller caller, error err) {
         io:println("Something unexpected happens at server : " + err.reason());
     }
 
-    resource function onComplete(grpc:Caller client) {
-        endpoint grpc:Listener con;
-        string msg = string `{{client.id}} left the chat`;
+    resource function onComplete(grpc:Caller caller) {
+        grpc:Caller con = new;
+        string msg = string `{{caller.getInstanceId()}} left the chat`;
         io:println(msg);
-        var v = consMap.remove(<string>client.id);
-        string[] conKeys = consMap.keys();
+        var v = self.consMap.remove(<string>caller.getInstanceId());
+        string[] conKeys = self.consMap.keys();
         int len = conKeys.length();
         int i = 0;
+
         while (i < len) {
-            var result = <grpc:Listener>consMap[conKeys[i]];
-            if (result is grpc:Listener) {
+            var result = self.consMap[conKeys[i]];
+            if (result is grpc:Caller) {
                 con = result;
                 error? err = con->send(msg);
                 if (err is error) {

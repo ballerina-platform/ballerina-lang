@@ -238,7 +238,7 @@ public type TimeWindow object {
         timerEventWrapper[0] = timerEvent;
         self.process(timerEventWrapper);
         if (!self.timerQueue.isEmpty()) {
-            task:Timer timer = check <task:Timer>self.timerQueue.removeFirst();
+            task:Timer timer = check trap <task:Timer>self.timerQueue.removeFirst();
             _ = timer.stop();
         }
         return ();

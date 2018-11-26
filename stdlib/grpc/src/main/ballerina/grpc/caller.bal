@@ -13,9 +13,24 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/system;
 
 # Provides the gRPC actions for interacting with caller.
 public type Caller client object {
+
+    public Remote remoteDetails = {};
+    public Local local = {};
+    public string protocol = "";
+
+    private string instanceId;
+
+    public function __init() {
+        self.instanceId = system:uuid();
+    }
+
+    public function getInstanceId() returns string {
+        return self.instanceId;
+    }
 
     # Sends outbound response to the caller.
     #
@@ -41,4 +56,24 @@ public type Caller client object {
     # + headers - Optional headers parameter. Passes header value if needed. Default sets to nil.
     # + return - Returns an error if encounters an error while sending the response, returns nil otherwise.
     public remote extern function sendError(int statusCode, string message, Headers? headers = ()) returns error?;
+};
+
+# Presents a read-only view of the remote address.
+#
+# + host - The remote host name/IP
+# + port - The remote port
+public type Remote record {
+    string host = "";
+    int port = 0;
+    !...
+};
+
+# Presents a read-only view of the local address.
+#
+# + host - The local host name/IP
+# + port - The local port
+public type Local record {
+    string host = "";
+    int port = 0;
+    !...
 };

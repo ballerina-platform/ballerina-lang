@@ -17,7 +17,7 @@ import ballerina/config;
 import ballerina/grpc;
 import ballerina/log;
 
-listener grpc:Server server10 = new ({
+listener grpc:Listener ep10 = new ({
     host:"localhost",
     port:9317,
     secureSocket:{
@@ -32,7 +32,7 @@ listener grpc:Server server10 = new ({
     descriptor: <string>descriptorMap10[DESCRIPTOR_KEY_10],
     descMap: descriptorMap10
 }
-service grpcMutualSslService on server10 {
+service grpcMutualSslService on ep10 {
     resource function hello(grpc:Caller caller, string name) {
         log:printInfo("name: " + name);
         string message = "Hello " + name;

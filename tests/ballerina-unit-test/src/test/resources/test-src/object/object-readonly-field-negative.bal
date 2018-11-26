@@ -21,6 +21,6 @@ public function testReadOnlyGlobalVarAccessInDifferentPackage() returns (int, in
     int i = 0;
 }
 
-@readonly service<http:Service> FooService {
+@readonly service FooService on new http:Listener(9090) {
 
 }

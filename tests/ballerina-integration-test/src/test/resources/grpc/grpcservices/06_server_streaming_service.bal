@@ -18,7 +18,7 @@ import ballerina/grpc;
 import ballerina/io;
 
 // Server endpoint configuration
-listener grpc:Server server6 = new ({
+listener grpc:Listener ep6 = new ({
     host:"localhost",
     port:9099
 });
@@ -27,7 +27,7 @@ listener grpc:Server server6 = new ({
     descriptor: <string>descriptorMap6[DESCRIPTOR_KEY_6],
     descMap: descriptorMap6
 }
-service HelloWorld45 on server6 {
+service HelloWorld45 on ep6 {
 
     @grpc:ResourceConfig {streaming:true}
     resource function lotsOfReplies(grpc:Caller caller, string name) {

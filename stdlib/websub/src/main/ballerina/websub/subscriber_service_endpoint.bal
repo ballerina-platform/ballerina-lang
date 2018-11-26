@@ -23,17 +23,16 @@ import ballerina/log;
 # Object representing the WebSubSubscriber Service Endpoint.
 #
 # + config - The configuration for the endpoint
-# + serviceEndpoint - The underlying HTTP service endpoint
-public type Server object {
+public type Listener object {
 
     *AbstractListener;
 
-    public SubscriberServiceEndpointConfiguration config = {};
+    public SubscriberServiceEndpointConfiguration? config = ();
 
-    private http:Server? serviceEndpoint = ();
+    private http:Listener? serviceEndpoint = ();
 
-    public function __init(SubscriberServiceEndpointConfiguration config) {
-        self.init(config);
+    public function __init(int port, SubscriberServiceEndpointConfiguration? config = ()) {
+        self.init(port, sseEpConfig =  config);
     }
 
     public function __attach(service s, map<any> data) returns error? {
@@ -44,8 +43,8 @@ public type Server object {
 
     # Gets called when the endpoint is being initialized during module initialization.
     #
-    # + c - The Subscriber Service Endpoint Configuration of the endpoint
-    function init(SubscriberServiceEndpointConfiguration c);
+    # + sseEpConfig - The Subscriber Service Endpoint Configuration of the endpoint
+    function init(int port, SubscriberServiceEndpointConfiguration? sseEpConfig = ());
 
     extern function initWebSubSubscriberServiceEndpoint();
 
@@ -71,37 +70,34 @@ public type Server object {
 
 };
 
-function Server.init(SubscriberServiceEndpointConfiguration c) {
-    self.config = c;
-    http:ServiceEndpointConfiguration serviceConfig = {
-        host: c.host,
-        port: c.port,
-        secureSocket:
-        c.httpServiceSecureSocket
-    };
-    http:Server httpEndpoint = new(c.port, config = serviceConfig);
-    //httpEndpoint.init(serviceConfig);
+function Listener.init(int port, SubscriberServiceEndpointConfiguration? sseEpConfig = ()) {
+    self.config = sseEpConfig;
+    http:ServiceEndpointConfiguration? serviceConfig = ();
+    if (sseEpConfig is SubscriberServiceEndpointConfiguration) {
+        http:ServiceEndpointConfiguration httpServiceConfig = {
+            host: sseEpConfig.host,
+            secureSocket: sseEpConfig.httpServiceSecureSocket
+        };
+        serviceConfig = httpServiceConfig;
+    }
+    http:Listener httpEndpoint = new(port, config = serviceConfig);
     self.serviceEndpoint = httpEndpoint;
 
     self.initWebSubSubscriberServiceEndpoint();
 }
 
-function Server.__start() returns error? {
+function Listener.__start() returns error? {
     // TODO: handle data and return error on error
     self.startWebSubSubscriberServiceEndpoint();
     self.sendSubscriptionRequests();
     return;
 }
 
-//function Listener.getCallerActions() returns http:Connection {
-//    return self.serviceEndpoint.getCallerActions();
-//}
-
-function Server.__stop() returns error? {
+function Listener.__stop() returns error? {
     return self.serviceEndpoint.__stop();
 }
 
-function Server.sendSubscriptionRequests() {
+function Listener.sendSubscriptionRequests() {
     map<any>[] subscriptionDetailsArray = self.retrieveSubscriptionParameters();
 
     foreach subscriptionDetails in subscriptionDetailsArray {
@@ -109,8 +105,9 @@ function Server.sendSubscriptionRequests() {
             continue;
         }
 
+        // TODO: fix retrieveSubscriptionParameters to put values as relevant types.
         string strSubscribeOnStartUp = <string>subscriptionDetails.subscribeOnStartUp;
-        boolean subscribeOnStartUp = <boolean>strSubscribeOnStartUp;
+        boolean subscribeOnStartUp = boolean.create(strSubscribeOnStartUp);
 
         if (subscribeOnStartUp) {
             string resourceUrl = <string>subscriptionDetails.resourceUrl;
@@ -118,15 +115,15 @@ function Server.sendSubscriptionRequests() {
             string topic = <string>subscriptionDetails.topic;
 
             http:SecureSocket? newSecureSocket;
-            var secureSocket = <http:SecureSocket>subscriptionDetails.secureSocket;
+            var secureSocket = trap <http:SecureSocket>subscriptionDetails.secureSocket;
             newSecureSocket = secureSocket is http:SecureSocket ? secureSocket : ();
 
             http:AuthConfig? auth;
-            var httpAuth = <http:AuthConfig>subscriptionDetails.auth;
+            var httpAuth = trap <http:AuthConfig>subscriptionDetails.auth;
             auth = httpAuth is http:AuthConfig ? httpAuth : ();
 
             http:FollowRedirects? followRedirects;
-            var httpFollowRedirects = <http:FollowRedirects>subscriptionDetails.followRedirects;
+            var httpFollowRedirects = trap <http:FollowRedirects>subscriptionDetails.followRedirects;
             followRedirects = httpFollowRedirects is http:FollowRedirects ? httpFollowRedirects : ();
 
             if (hub == "" || topic == "") {
@@ -169,12 +166,10 @@ function Server.sendSubscriptionRequests() {
 # Object representing the configuration for the WebSub Subscriber Service Endpoint.
 #
 # + host - The host name/IP of the endpoint
-# + port - The port to which the endpoint should bind to
 # + httpServiceSecureSocket - The SSL configurations for the service endpoint
 # + extensionConfig - The extension configuration to introduce custom subscriber services (webhooks)
 public type SubscriberServiceEndpointConfiguration record {
     string host = "";
-    int port = 0;
     http:ServiceSecureSocket? httpServiceSecureSocket = ();
     ExtensionConfig? extensionConfig = ();
     !...
@@ -230,8 +225,7 @@ public type ExtensionConfig record {
 # + return - `(string, string)` (hub, topic) URLs if successful, `error` if not
 function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:SecureSocket? localSecureSocket,
                                 http:FollowRedirects? followRedirects) returns @tainted (string, string)|error {
-    http:Client resourceEP = new http:Client({
-        url: resourceUrl,
+    http:Client resourceEP = new http:Client(resourceUrl, config = {
         auth: auth,
         secureSocket: localSecureSocket,
         followRedirects:followRedirects
@@ -264,11 +258,10 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:
 # + subscriptionDetails - Map containing subscription details
 function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth, http:SecureSocket? localSecureSocket,
                                               http:FollowRedirects? followRedirects, map<any> subscriptionDetails) {
-    Client websubHubClientEP = new Client({
-        url:hub,
+    Client websubHubClientEP = new Client(hub, config = {
         clientSecureSocket: localSecureSocket,
-        auth:auth,
-        followRedirects:followRedirects
+        auth: auth,
+        followRedirects: followRedirects
     });
 
     string topic = <string>subscriptionDetails.topic;
@@ -282,7 +275,7 @@ function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth,
     int leaseSeconds = 0;
 
     string strLeaseSeconds = <string>subscriptionDetails.leaseSeconds;
-    var convIntLeaseSeconds = <int>strLeaseSeconds;
+    var convIntLeaseSeconds = int.create(strLeaseSeconds);
     if (convIntLeaseSeconds is int) {
         leaseSeconds = convIntLeaseSeconds;
     } else if (convIntLeaseSeconds is error) {

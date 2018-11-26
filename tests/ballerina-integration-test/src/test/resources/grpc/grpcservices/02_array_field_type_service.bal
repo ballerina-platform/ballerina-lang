@@ -16,7 +16,7 @@
 import ballerina/grpc;
 import ballerina/io;
 
-listener grpc:Server server2 = new ({
+listener grpc:Listener ep2 = new ({
     host:"localhost",
     port:9092
 });
@@ -25,7 +25,7 @@ listener grpc:Server server2 = new ({
     descriptor: <string>descriptorMap2[DESCRIPTOR_KEY_2],
     descMap: descriptorMap2
 }
-service HelloWorld3 on server2 {
+service HelloWorld3 on ep2 {
 
     resource function testIntArrayInput(grpc:Caller caller, TestInt req) {
         io:println(req);

@@ -84,6 +84,22 @@ public class OpenRecordEquivalencyRulesTest {
         assertEquals(returns[0].stringValue(), "{name:\"John Doe\", age:25}");
     }
 
+    @Test(description = "RHS closed and LHS open and assigning to an extra optional field in LHS",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*invalid field access: field 'weight' not found in record type " +
+                  "'Person1'.*")
+    public void testCRToORClosedToOpenAssignment4() {
+        BRunUtil.invoke(closedRecToOpenRec, "testClosedToOpenAssignment4");
+    }
+
+    @Test(description = "RHS closed and LHS open and adding a rest field in LHS",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*invalid field access: field 'rest' not found in record type " +
+                  "'Person1'.*")
+    public void testCRToORClosedToOpenAssignment5() {
+        BRunUtil.invoke(closedRecToOpenRec, "testClosedToOpenAssignment5");
+    }
+
     @Test(description = "RHS closed and LHS open with RHS required fields corresponding to LHS optional fields")
     public void testCRToORReqFieldToOptField() {
         BValue[] returns = BRunUtil.invoke(closedRecToOpenRec, "testReqFieldToOptField");
@@ -164,8 +180,8 @@ public class OpenRecordEquivalencyRulesTest {
 
     @Test(description = "Adding an invalid rest field type",
           expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*invalid map insertion: expected value of type 'string\\|int', found " +
-                  "'float'.*")
+          expectedExceptionsMessageRegExp = ".*invalid value for record field 'rest3': expected value of type " +
+                  "'string\\|int', found 'float'.*")
     public void testORToORRestFieldToRestField2() {
         BRunUtil.invoke(openRecToOpenRec, "testRestFieldToRestField2");
     }

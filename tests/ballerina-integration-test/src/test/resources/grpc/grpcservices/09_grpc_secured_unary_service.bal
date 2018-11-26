@@ -16,7 +16,7 @@
 import ballerina/grpc;
 import ballerina/log;
 
-listener grpc:Server server9 = new ({
+listener grpc:Listener ep9 = new ({
     host:"localhost",
     port:8085,
     secureSocket:{
@@ -47,7 +47,7 @@ listener grpc:Server server9 = new ({
     descriptor: <string>descriptorMap9[DESCRIPTOR_KEY_9],
     descMap: descriptorMap9
 }
-service HelloWorld85 on server9 {
+service HelloWorld85 on ep9 {
     resource function hello(grpc:Caller caller, string name) {
         log:printInfo("name: " + name);
         string message = "Hello " + name;

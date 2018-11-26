@@ -1215,6 +1215,7 @@ public class BLangPackageBuilder {
                 ++index;
             }
             recordLiteral.addWS(ws);
+            recordLiteral.pos = pos;
             if (commaWsStack.size() > 0) {
                 recordLiteral.addWS(commaWsStack.pop());
             }
@@ -2551,6 +2552,7 @@ public class BLangPackageBuilder {
         typeDef.typeNode = (BLangType) this.typeNodeStack.pop();
         typeDef.pos = pos;
         this.compUnit.addTopLevelNode(typeDef);
+        serviceNode.serviceTypeDefinition = typeDef;
         serviceNode.serviceUDT = createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(),
                 typeDef.name);
 

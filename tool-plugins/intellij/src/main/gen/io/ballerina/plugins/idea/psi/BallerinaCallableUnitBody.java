@@ -27,6 +27,9 @@ public interface BallerinaCallableUnitBody extends BallerinaCompositeElement {
   BallerinaBlock getBlock();
 
   @NotNull
+  List<BallerinaWorkerDefinition> getWorkerDefinitionList();
+
+  @NotNull
   PsiElement getLeftBrace();
 
   @Nullable
