@@ -271,7 +271,7 @@ public class TypeChecker extends BLangNodeVisitor {
             if (expType.tag == TypeTags.DECIMAL) {
                 literalType = symTable.decimalType;
                 literalExpr.value = String.valueOf(literalValue);
-            } else if (TypeTags.FLOAT == expType.tag) {
+            } else if (expType.tag == TypeTags.FLOAT) {
                 literalExpr.value = Double.parseDouble(String.valueOf(literalValue));
             }
         }
