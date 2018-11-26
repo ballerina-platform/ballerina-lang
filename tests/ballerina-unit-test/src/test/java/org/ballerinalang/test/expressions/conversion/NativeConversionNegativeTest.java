@@ -63,19 +63,19 @@ public class NativeConversionNegativeTest {
 
     @Test(description = "Test create function with multiple arguments")
     public void testFloatToIntWithMultipleArguments() {
-        Assert.assertEquals(negativeCompileResult.getErrorCount(), 6);
-        BAssertUtil.validateError(negativeCompileResult, 0, "too many arguments in call to 'create()'", 24, 12);
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 8);
+        BAssertUtil.validateError(negativeCompileResult, 0, "too many arguments in call to 'create()'", 30, 12);
     }
 
     @Test(description = "Test create function with no arguments")
-    public void testToIntWithNoArguments() {
-        BAssertUtil.validateError(negativeCompileResult, 2, "not enough arguments in call to 'create()'", 29, 12);
+    public void testFloatToIntWithNoArguments() {
+        BAssertUtil.validateError(negativeCompileResult, 2, "not enough arguments in call to 'create()'", 35, 12);
     }
 
-    @Test(description = "Test conversions not supported")
-    public void testObjctToJson() {
+    @Test(description = "Test object conversions not supported")
+    public void testObjectToJson() {
         BAssertUtil.validateError(negativeCompileResult, 4, "incompatible types: 'PersonObj' cannot be converted to "
-                + "'json'", 34, 12);
+                + "'json'", 40, 12);
     }
 }
 
