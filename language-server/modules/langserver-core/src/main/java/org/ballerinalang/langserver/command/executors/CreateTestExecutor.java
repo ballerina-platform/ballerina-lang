@@ -59,6 +59,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
 
+import static org.ballerinalang.langserver.BallerinaWorkspaceService.Experimental.SHOW_TEXT_DOCUMENT;
 import static org.ballerinalang.langserver.command.CommandUtil.getBLangNode;
 
 /**
@@ -220,7 +221,7 @@ public class CreateTestExecutor implements LSCommandExecutor {
                 client.applyEdit(editParams);
                 String message = "Tests generated into the file:" + testFile.toString();
                 client.showMessage(new MessageParams(MessageType.Info, message));
-                if (workspace.getExperimentalClientCapabilities().get("showTextDocument")) {
+                if (workspace.getExperimentalClientCapabilities().get(SHOW_TEXT_DOCUMENT.name())) {
                     Location location = new Location(identifier.getUri(), focus);
                     client.showTextDocument(location);
                 }
