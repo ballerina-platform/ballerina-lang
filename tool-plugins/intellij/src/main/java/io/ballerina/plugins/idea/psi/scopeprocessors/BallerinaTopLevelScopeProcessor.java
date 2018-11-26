@@ -36,7 +36,6 @@ import io.ballerina.plugins.idea.psi.BallerinaCompositeElement;
 import io.ballerina.plugins.idea.psi.BallerinaDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaFile;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaGlobalEndpointDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaGlobalVariable;
 import io.ballerina.plugins.idea.psi.BallerinaGlobalVariableDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaMatchExpressionPatternClause;
@@ -253,26 +252,6 @@ public class BallerinaTopLevelScopeProcessor extends BallerinaScopeProcessorBase
                             myResult.addElement(BallerinaCompletionUtils
                                     .createChannelVariableLookupElement(child, null));
                             lookupElementsFound = true;
-                        } else if (myElement.getText().equals(identifier.getText())) {
-                            add(identifier);
-                        }
-                    }
-                } else if (lastChild instanceof BallerinaGlobalEndpointDefinition) {
-                    BallerinaGlobalEndpointDefinition child = (BallerinaGlobalEndpointDefinition) lastChild;
-                    PsiElement identifier = child.getIdentifier();
-                    if (identifier != null) {
-                        if (myResult != null) {
-                            String publicFieldsOnly = state.get(BallerinaCompletionUtils.PUBLIC_DEFINITIONS_ONLY);
-                            if (publicFieldsOnly != null) {
-                                if (child.isPublic()) {
-                                    myResult.addElement(BallerinaCompletionUtils.createGlobalEndpointLookupElement
-                                            (child));
-                                    lookupElementsFound = true;
-                                }
-                            } else {
-                                myResult.addElement(BallerinaCompletionUtils.createGlobalEndpointLookupElement(child));
-                                lookupElementsFound = true;
-                            }
                         } else if (myElement.getText().equals(identifier.getText())) {
                             add(identifier);
                         }

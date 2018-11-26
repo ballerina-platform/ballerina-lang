@@ -16,7 +16,7 @@
 import ballerina/grpc;
 import ballerina/io;
 
-listener grpc:Server server7 = new ({
+listener grpc:Listener ep7 = new ({
     port:9100
 });
 
@@ -24,7 +24,7 @@ listener grpc:Server server7 = new ({
     descriptor: <string>descriptorMap7[DESCRIPTOR_KEY_7],
     descMap: descriptorMap7
 }
-service HelloWorld100 on server7 {
+service HelloWorld100 on ep7 {
     resource function hello(grpc:Caller caller, string name) {
         io:println("name: " + name);
         string message = "Hello " + name;

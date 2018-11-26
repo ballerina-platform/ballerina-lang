@@ -38,7 +38,7 @@ import io.ballerina.plugins.idea.psi.BallerinaFunctionInvocation;
 import io.ballerina.plugins.idea.psi.BallerinaInvocation;
 import io.ballerina.plugins.idea.psi.BallerinaInvocationArg;
 import io.ballerina.plugins.idea.psi.BallerinaInvocationArgList;
-import io.ballerina.plugins.idea.psi.BallerinaObjectCallableUnitSignature;
+
 import io.ballerina.plugins.idea.psi.BallerinaObjectDefaultableParameter;
 import io.ballerina.plugins.idea.psi.BallerinaObjectInitializerParameterList;
 import io.ballerina.plugins.idea.psi.BallerinaObjectParameter;
@@ -129,7 +129,7 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
     }
 
     @Nullable
-    public static Object findElement(@NotNull PsiElement element) {
+    private static Object findElement(@NotNull PsiElement element) {
         // Return the element in the same file. Otherwise the parameter info will not be shown properly.
         BallerinaInvocationArgList ballerinaInvocationArgList = PsiTreeUtil.getParentOfType(element,
                 BallerinaInvocationArgList.class);
@@ -193,18 +193,6 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                         context.setItemsToShow(new Object[]{""});
                     }
                     context.showHint(functionInvocation, functionInvocation.getTextOffset(), this);
-                } else if (signature instanceof BallerinaObjectCallableUnitSignature) {
-                    BallerinaFormalParameterList formalParameterList =
-                            ((BallerinaObjectCallableUnitSignature) signature).getFormalParameterList();
-                    if (formalParameterList != null) {
-                        // Note - We can set multiple object if we need to show overloaded function parameters.
-                        context.setItemsToShow(new Object[]{formalParameterList});
-                    } else {
-                        // If no parameters are required, we set an empty string. Otherwise we wont be able to show
-                        // "no param" message.
-                        context.setItemsToShow(new Object[]{""});
-                    }
-                    context.showHint(functionInvocation, functionInvocation.getTextOffset(), this);
                 }
             }
         } else if (element instanceof BallerinaTypeInitExpression) {
@@ -231,9 +219,6 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                 if (callableUnitSignature instanceof BallerinaCallableUnitSignature) {
                     formalParameterList =
                             ((BallerinaCallableUnitSignature) callableUnitSignature).getFormalParameterList();
-                } else if (callableUnitSignature instanceof BallerinaObjectCallableUnitSignature) {
-                    formalParameterList =
-                            ((BallerinaObjectCallableUnitSignature) callableUnitSignature).getFormalParameterList();
                 }
 
                 if (formalParameterList != null) {
@@ -263,7 +248,7 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         }
     }
 
-    public static int getCurrentParameterIndex(@NotNull Object o, int offset) {
+    private static int getCurrentParameterIndex(@NotNull Object o, int offset) {
         if (o instanceof BallerinaFunctionInvocation) {
             BallerinaFunctionInvocation functionInvocation = (BallerinaFunctionInvocation) o;
             BallerinaInvocationArgList invocationArgList = functionInvocation.getInvocationArgList();
@@ -342,7 +327,7 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         updateObjectParameterPresentation(p, context);
     }
 
-    public static String updateObjectParameterPresentation(Object p, @NotNull ParameterInfoUIContext context) {
+    private static String updateObjectParameterPresentation(Object p, @NotNull ParameterInfoUIContext context) {
         // This method contains the logic which we use to show the parameters in the popup.
         if (p instanceof BallerinaFormalParameterList) {
             // Get the parameter list. We highlight defaultable and rest parameters together since they can be mixed.
@@ -368,8 +353,8 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                 false, false, false, context.getDefaultParameterColor());
     }
 
-    public static String updatePresentation(@NotNull ParameterInfoUIContext context,
-                                            @NotNull List<String> parameterPresentations, int parameterListSize) {
+    private static String updatePresentation(@NotNull ParameterInfoUIContext context,
+            @NotNull List<String> parameterPresentations, int parameterListSize) {
         // These will be used to identify which parameter is selected. This will be highlighted in the popup.
         int start = 0;
         int end = 0;
@@ -419,7 +404,7 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
      * @param node BallerinaFormalParameterList which contains the parameters
      * @return list of parameter presentations
      */
-    public static List<String> getParameterPresentations(@Nullable BallerinaFormalParameterList node) {
+    private static List<String> getParameterPresentations(@Nullable BallerinaFormalParameterList node) {
         List<String> params = new LinkedList<>();
         if (node == null) {
             return params;
@@ -442,7 +427,7 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         return params;
     }
 
-    public static List<String> getParameterPresentations(@Nullable BallerinaObjectParameterList node) {
+    private static List<String> getParameterPresentations(@Nullable BallerinaObjectParameterList node) {
         List<String> params = new LinkedList<>();
         if (node == null) {
             return params;
@@ -471,7 +456,7 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
      * @param text text to be formatted
      * @return formatted string.
      */
-    public static String formatParameter(String text) {
+    private static String formatParameter(String text) {
         return text.trim().replaceAll("\\s+", " ").replaceAll("( )?\\[ ]", "[]");
     }
 }

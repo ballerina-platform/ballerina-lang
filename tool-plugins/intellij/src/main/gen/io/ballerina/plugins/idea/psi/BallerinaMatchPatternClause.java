@@ -27,10 +27,10 @@ public interface BallerinaMatchPatternClause extends BallerinaCompositeElement {
   BallerinaBindingPatternPattern getBindingPatternPattern();
 
   @Nullable
-  BallerinaNamedPattern getNamedPattern();
+  BallerinaExpressionPattern getExpressionPattern();
 
   @Nullable
-  BallerinaSimpleLiteralPattern getSimpleLiteralPattern();
+  BallerinaNamedPattern getNamedPattern();
 
   @Nullable
   BallerinaUnnamedPattern getUnnamedPattern();

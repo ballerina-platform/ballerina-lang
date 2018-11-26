@@ -51,4 +51,4 @@ const string OUTCOME_HAZARD = "hazard";
 
 public const string TRANSACTION_UNKNOWN = "Transaction-Unknown";
 
-listener http:Listener coordinatorListener = new(coordinatorPort);
+listener http:Listener coordinatorListener = new(coordinatorPort, config = { host: coordinatorHost });

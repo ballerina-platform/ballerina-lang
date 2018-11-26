@@ -32,8 +32,7 @@ public type Client client object {
 
     public function __init(string url, ClientEndpointConfig? config = ()) {
         self.config = config ?: {};
-        self.config.url = url;
-        var result = initialize(self.config);
+        var result = initialize(url, self.config);
         if (result is error) {
             panic result;
         } else {
@@ -222,7 +221,6 @@ public type TargetService record {
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
 # + auth - HTTP authentication related configurations
 public type ClientEndpointConfig record {
-    string url = "";
     CircuitBreakerConfig? circuitBreaker = ();
     int timeoutMillis = 60000;
     KeepAlive keepAlive = KEEPALIVE_AUTO;
@@ -358,9 +356,9 @@ public type AuthConfig record {
     !...
 };
 
-function initialize(ClientEndpointConfig config) returns Client|error {
+function initialize(string serviceUrl, ClientEndpointConfig config) returns Client|error {
     boolean httpClientRequired = false;
-    string url = config.url;
+    string url = serviceUrl;
     if (url.hasSuffix("/")) {
         int lastIndex = url.length() - 1;
         url = url.substring(0, lastIndex);

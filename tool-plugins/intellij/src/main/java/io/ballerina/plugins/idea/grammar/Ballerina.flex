@@ -255,13 +255,12 @@ DOCUMENTATION_SPACE = [ ]
 
 // MARKDOWN_DOCUMENTATION_MODE
 DEFINITION_REFERERNCE = {REFERENCE_TYPE} {DOCUMENTATION_SPACE}+
-REFERENCE_TYPE = {TYPE}|{ENDPOINT}|{SERVICE}|{VARIABLE}|{VAR}|{ANNOTATION}|{MODULE}|{FUNCTION}|{PARAMETER}
+REFERENCE_TYPE = {TYPE}|{SERVICE}|{VARIABLE}|{VAR}|{ANNOTATION}|{MODULE}|{FUNCTION}|{PARAMETER}
 MARKDOWN_DOCUMENTATION_TEXT = {DOCUMENTATION_TEXT_CHARACTER}+
 DOCUMENTATION_TEXT_CHARACTER =  [^`\n] | '\\' {BACKTICK}
 DOCUMENTATION_ESCAPED_CHARACTERS = {DOCUMENTATION_SPACE}
 MARKDOWN_DOCUMENTATION_LINE_END = [\n]
 TYPE = "type"
-ENDPOINT = "endpoint"
 SERVICE = "service"
 VARIABLE = "variable"
 VAR = "var"
@@ -363,7 +362,6 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "ascending"                                 { return ASCENDING; }
     "await"                                     { return AWAIT; }
 
-    "bind"                                      { return BIND; }
     "boolean"                                   { return BOOLEAN; }
     "break"                                     { return BREAK; }
     "but"                                       { return BUT; }
@@ -372,6 +370,7 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "catch"                                     { return CATCH; }
     "channel"                                   { return CHANNEL; }
     "check"                                     { return CHECK; }
+    "client"                                    { return CLIENT; }
     "compensation"                              { return COMPENSATION; }
     "compensate"                                { return COMPENSATE; }
     "const"                                     { return CONST; }
@@ -383,7 +382,6 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "descending"                                { return DESCENDING; }
 
     "else"                                      { return ELSE; }
-    "endpoint"                                  { return ENDPOINT; }
     "error"                                     { return ERROR; }
     "extern"                                    { return EXTERN; }
 
@@ -405,6 +403,7 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
 
     "lengthof"                                  { return LENGTHOF; }
     "limit"                                     { return LIMIT; }
+    "listener"                                  { return LISTENER; }
     "lock"                                      { return LOCK; }
 
     "map"                                       { return MAP; }
@@ -423,6 +422,7 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "public"                                    { return PUBLIC; }
 
     "record"                                    { return RECORD; }
+    "remote"                                    { return REMOTE; }
     "resource"                                  { return RESOURCE; }
     "retry"                                     { return RETRY; }
     "retries"                                   { return RETRIES; }
