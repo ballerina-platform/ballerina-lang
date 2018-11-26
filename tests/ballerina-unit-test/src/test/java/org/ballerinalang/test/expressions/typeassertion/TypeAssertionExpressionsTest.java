@@ -157,6 +157,18 @@ public class TypeAssertionExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'map<json>', found 'map<string>'.*")
+    public void testMapElementAssertionNegative() {
+        BRunUtil.invoke(result, "testMapElementAssertionNegative", new BValue[0]);
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'int', found 'string'.*")
+    public void testListElementAssertionNegative() {
+        BRunUtil.invoke(result, "testListElementAssertionNegative", new BValue[0]);
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'int', found 'string'.*")
     public void testStringAsInvalidBasicType() {
         BRunUtil.invoke(result, "testStringAsInvalidBasicType", new BValue[0]);
@@ -164,14 +176,14 @@ public class TypeAssertionExpressionsTest {
 
     @Test
     public void testAssertionNegatives() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        Assert.assertEquals(resultNegative.getErrorCount(), 3);
         int errIndex = 0;
         validateError(resultNegative, errIndex++, "incompatible types: 'Def' cannot be explicitly typed as 'Abc'",
                       19, 15);
-        validateError(resultNegative, errIndex, "incompatible types: 'map<int>' cannot be explicitly typed as 'map'",
+        validateError(resultNegative, errIndex++, "incompatible types: 'map<int>' cannot be explicitly typed as 'map'",
                       22, 14);
-//        validateError(resultNegative, errIndex, "incompatible types: 'stream<int|string>' cannot be explicitly " +
-//                              "typed as 'stream<int|json>'", 25, 27);
+        validateError(resultNegative, errIndex, "incompatible types: 'stream<int|string>' cannot be explicitly " +
+                              "typed as 'stream<int|json>'", 25, 27);
     }
 
     @DataProvider
@@ -195,7 +207,9 @@ public class TypeAssertionExpressionsTest {
 //                {"testFutureAssertionPositive"},
                 {"testObjectAssertionPositive"},
 //                {"testStreamAssertionPositive"},
-                {"testTypedescAssertionPositive"}
+                {"testTypedescAssertionPositive"},
+                {"testMapElementAssertionPositive"},
+                {"testListElementAssertionPositive"}
         };
     }
 }

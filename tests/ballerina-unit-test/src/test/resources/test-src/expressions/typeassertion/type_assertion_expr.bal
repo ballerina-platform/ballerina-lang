@@ -408,6 +408,84 @@ function testTypedescAssertionNegative() {
     int t2 = <int> a;
 }
 
+function testMapElementAssertionPositive() returns boolean {
+    Employee e1 = { name: "Anne", id: 12495673 };
+    EmployeeObject e2 = new("John");
+    int iVal = 12345;
+    boolean bVal = true;
+    string sVal = "Hello from Ballerina";
+    map<string> strMapVal = {
+        stringVal: sVal
+    };
+
+    map<any> m = {
+        emp1: e1,
+        intVal: iVal,
+        emp2: e2,
+        boolVal: bVal,
+        mapVal: strMapVal
+    };
+
+    map<string> strMapValTwo = <map<string>> m.mapVal;
+
+    return <Employee> m.emp1 === e1 && <EmployeeObject> m.emp2 === e2 && <int> m.intVal == iVal &&
+                <string> strMapValTwo.stringVal == sVal && bVal == <boolean> m.boolVal;
+}
+
+function testMapElementAssertionNegative() {
+    Employee e1 = { name: "Anne", id: 12495673 };
+    EmployeeObject e2 = new("John");
+    int iVal = 12345;
+    boolean bVal = true;
+    string sVal = "Hello from Ballerina";
+    map<string> strMapVal = {
+        stringVal: sVal
+    };
+
+    map<any> m = {
+        emp1: e1,
+        intVal: iVal,
+        emp2: e2,
+        boolVal: bVal,
+        mapVal: strMapVal
+    };
+
+    Employee e3 = <Employee> m.emp1;
+    int iVal2 = <int> m.intVal;
+    map<json> strMapValTwo = <map<json>> m.mapVal;
+}
+
+function testListElementAssertionPositive() returns boolean {
+    Employee e1 = { name: "Anne", id: 12495673 };
+    int iVal = 12345;
+    int iValTwo = 2357812;
+    boolean bVal = true;
+    string sVal = "Hello from Ballerina";
+    any[] anyArr = [iValTwo, sVal, bVal];
+
+    (Employee, int, any[]) t1 = (e1, iVal, anyArr);
+
+    any a = t1[2];
+    any[] anyArrTwo = <any[]> a;
+
+    return <Employee> t1[0] === e1 && <int> t1[1] == iVal && <int> anyArrTwo[0] == iValTwo &&
+                <string> anyArrTwo[1] == sVal && bVal == <boolean> anyArrTwo[2];
+}
+
+function testListElementAssertionNegative() {
+    Employee e1 = { name: "Anne", id: 12495673 };
+    int iVal = 12345;
+    boolean bVal = true;
+    string sVal = "Hello from Ballerina";
+    any[] anyArr = [sVal, bVal];
+
+    (Employee, int, any[]) t1 = (e1, iVal, anyArr);
+
+    any a = t1[2];
+    any[] anyArrTwo = <any[]> a;
+    int iValTwo = <int> anyArrTwo[0];
+}
+
 function testStringAsInvalidBasicType() {
     string|int u1 = "I'm not an int!";
     any a = u1;

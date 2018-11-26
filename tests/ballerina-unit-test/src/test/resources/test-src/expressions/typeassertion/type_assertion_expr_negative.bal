@@ -21,8 +21,8 @@ function testAssertionWithUnassignableTypes() {
     map<int> m1 = {};
     map m2 = <map> m1;
 
-    //stream<int|string> f1;
-    //stream<int|json> f2 = <stream<int|json>> f1;
+    stream<int|string> f1;
+    stream<int|json> f2 = <stream<int|json>> f1;
 }
 
 type Abc record {
