@@ -308,15 +308,13 @@ function redirect(Response response, HttpOperation httpVerb, Request request,
 
 function performRedirection(string location, RedirectClient redirectClient, HttpOperation redirectMethod,
                             Request request, Response response) returns @untainted Response|error {
-    RetryClient httpRetryClient;
-    var retryClient = createRetryClient(location, createNewEndpoint(location, redirectClient.config));
+    var retryClient = createRetryClient(location, createNewEndpointConfig(redirectClient.config));
     if (retryClient is Client) {
-        httpRetryClient = check <RetryClient>retryClient;
         log:printDebug(function() returns string {
                 return "Redirect using new clientEP : " + location;
             });
         Response|error result = invokeEndpoint("", createRedirectRequest(response.statusCode, request),
-            redirectMethod, httpRetryClient.httpClient);
+            redirectMethod, retryClient.httpClient);
         return checkRedirectEligibility(result, location, redirectMethod, request, redirectClient);
     } else {
         return retryClient;
@@ -324,8 +322,8 @@ function performRedirection(string location, RedirectClient redirectClient, Http
 }
 
 //Create a new HTTP client endpoint configuration with a given location as the url.
-function createNewEndpoint(string location, ClientEndpointConfig config) returns ClientEndpointConfig {
-    ClientEndpointConfig newEpConfig = { url: location,
+function createNewEndpointConfig(ClientEndpointConfig config) returns ClientEndpointConfig {
+    ClientEndpointConfig newEpConfig = {
         circuitBreaker: config.circuitBreaker,
         timeoutMillis: config.timeoutMillis,
         keepAlive: config.keepAlive,

@@ -45,17 +45,17 @@ public function main(string... args) {
 }
 
 
-service<grpc:Service> ChatMessageListener {
+service ChatMessageListener = service {
 
-    onMessage(string message) {
+    resource function onMessage(string message) {
         io:println("Response received from server: " + message);
     }
 
-    onError(error err) {
+    resource function onError(error err) {
         io:println("Error reported from server: " + err.reason());
     }
 
-    onComplete() {
+    resource function onComplete() {
         io:println("Server Complete Sending Responses.");
     }
 }
@@ -78,7 +78,7 @@ public type ChatClient client object {
         }
     }
 
-    remote function chat(typedesc msgListener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|error) {
+    remote function chat(service msgListener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|error) {
         return self.grpcClient->streamingExecute("Chat/chat", msgListener, headers = headers);
     }
 };
