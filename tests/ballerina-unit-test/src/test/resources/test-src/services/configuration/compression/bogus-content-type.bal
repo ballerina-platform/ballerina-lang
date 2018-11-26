@@ -1,18 +1,16 @@
 import ballerina/http;
 
-endpoint http:NonListener mockEP {
-    port:9091
-};
+listener http:MockListener mockEP  = new(9091);
 
 @http:ServiceConfig {compression: {enable: http:COMPRESSION_ALWAYS, contentTypes:["hello=/#bal", "fywvwiuwi"]}}
-service<http:Service> alwaysCompressWithBogusContentType bind mockEP {
+service alwaysCompressWithBogusContentType on mockEP {
     @http:ResourceConfig {
         methods:["GET"],
         path:"/"
     }
-    test1 (endpoint conn, http:Request req) {
+    resource function test1 (http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("Hello World!!!");
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 }
