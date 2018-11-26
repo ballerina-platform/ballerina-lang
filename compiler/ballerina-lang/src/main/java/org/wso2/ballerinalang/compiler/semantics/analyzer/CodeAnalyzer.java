@@ -1523,7 +1523,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
         }
 
+        boolean statementReturn = this.statementReturns;
+
         this.visitFunction(bLangLambdaFunction.function);
+
+        this.statementReturns = statementReturn;
 
         if (isWorker) {
             this.workerActionSystemStack.peek().endWorkerActionStateMachine();
