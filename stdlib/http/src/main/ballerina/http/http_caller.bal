@@ -134,7 +134,9 @@ public type HttpCaller client object {
     # + path - Request path
     # + request - An HTTP inbound request message
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote extern function forward(@sensitive string path, Request request) returns Response|error;
+    public remote function forward(@sensitive string path, Request request) returns Response|error {
+        return nativeForward(self.url, self.config, path, request);
+    }
 
     # Submits an HTTP request to a service with the specified HTTP verb.
     # The `submit()` function does not give out a `Response` as the result,
@@ -203,6 +205,9 @@ extern function nativeOptions(string serviceUri, ClientEndpointConfig config, @s
 
 extern function nativeSubmit(string serviceUri, ClientEndpointConfig config, @sensitive string httpVerb, string path, Request req)
                                                             returns HttpFuture|error;
+
+extern function nativeForward(string url, ClientEndpointConfig config, @sensitive string path, Request req)
+                                                            returns Response|error;
 
 # Defines a timeout error occurred during service invocation.
 #
