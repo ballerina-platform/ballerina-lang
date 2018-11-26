@@ -319,7 +319,13 @@ public class SymbolResolver extends BLangNodeVisitor {
     BSymbol createSymbolForStampOperator(DiagnosticPos pos, Name name, List<BLangExpression> functionArgList,
                                          BLangExpression targetTypeExpression) {
         // If there are more than one argument for stamp in-built function then fail.
-        if (functionArgList.size() != 1) {
+        if (functionArgList.size() < 1) {
+            dlog.error(pos, DiagnosticCode.NOT_ENOUGH_ARGS_FUNC_CALL, name);
+            resultType = symTable.semanticError;
+            return symTable.notFoundSymbol;
+        }
+
+        if (functionArgList.size() > 1) {
             dlog.error(pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, name);
             resultType = symTable.semanticError;
             return symTable.notFoundSymbol;
@@ -327,7 +333,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         BLangExpression argumentExpression = functionArgList.get(0);
         BType variableSourceType = argumentExpression.type;
-        if (!isStampSupportedForSourceType(variableSourceType)) {
+        if (!types.isLikeAnydataOrNotNil(variableSourceType) || !isStampSupportedForSourceType(variableSourceType)) {
             dlog.error(pos, DiagnosticCode.NOT_SUPPORTED_SOURCE_TYPE_FOR_STAMP, variableSourceType.toString());
             resultType = symTable.semanticError;
             return symTable.notFoundSymbol;
@@ -343,6 +349,12 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         BType targetType = resolveTargetType(targetTypeExpression);
         if (targetType == null) {
+            resultType = symTable.semanticError;
+            return symTable.notFoundSymbol;
+        }
+
+        if (!types.isAnydata(targetType)) {
+            dlog.error(pos, DiagnosticCode.INCOMPATIBLE_STAMP_TYPE, variableSourceType, targetType);
             resultType = symTable.semanticError;
             return symTable.notFoundSymbol;
         }
@@ -379,7 +391,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             return symTable.notFoundSymbol;
         }
         // Check whether the types are anydata, since conversion is supported only for any data types.
-        if (!types.isAnydata(variableSourceType) || !types.isAnydata(targetType)) {
+        if (!types.isLikeAnydataOrNotNil(variableSourceType) || !types.isAnydata(targetType)) {
             dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION, variableSourceType, targetType);
             resultType = symTable.semanticError;
             return symTable.notFoundSymbol;
@@ -1099,9 +1111,6 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @return eligibility to use 'stamp' function
      */
     private boolean isStampSupportedForTargetType(BType targetType) {
-        if (!types.isAnydata(targetType)) {
-            return false;
-        }
 
         switch (targetType.tag) {
             case TypeTags.ARRAY:
@@ -1130,10 +1139,6 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @return eligibility to use as the target type for 'stamp' function
      */
     private boolean isStampSupportedForSourceType(BType sourceType) {
-
-        if (!types.isLikeAnydataOrNotNil(sourceType)) {
-            return false;
-        }
 
         switch (sourceType.tag) {
             case TypeTags.ARRAY:
