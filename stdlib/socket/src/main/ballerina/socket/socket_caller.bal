@@ -14,10 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents the socket client service.
-public type ClientService object {
-    public function getEndpoint() returns Client? {
-        //Client ep = new;
-        return ();
-    }
-};
+
+# Represents caller object in socket service resources and client callback service resources.
+# This has all the actions expose by socket:Client.
+public type Caller Client;

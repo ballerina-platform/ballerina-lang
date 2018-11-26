@@ -22,7 +22,7 @@ package org.ballerinalang.stdlib.socket.exceptions;
  * This is the runtime exception throws during the
  * {@link java.nio.channels.Selector} initialization if any error occurs.
  *
- * @since 0.983.0
+ * @since 0.985.0
  */
 public class SelectorInitializeException extends RuntimeException {
 

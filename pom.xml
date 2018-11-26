@@ -1667,7 +1667,7 @@
                 <module>stdlib/time</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
-                <!--<module>stdlib/observability</module>-->
+                <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/mysql</module>
                 <module>stdlib/database/sql</module>
@@ -1682,7 +1682,7 @@
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
-                <!--<module>compiler/ballerina-backend-llvm</module>-->
+                <module>compiler/ballerina-backend-llvm</module>
                 <!--<module>compiler/ballerina-backend-bvm</module>-->
 
                 <!--Should Run Before tests/ballerina-test-->
@@ -1690,16 +1690,16 @@
 
                 <module>tests/ballerina-unit-test</module>
 
-                <!--<module>cli/ballerina-cli-utils</module>-->
+                <module>cli/ballerina-cli-utils</module>
 
-                <!--<module>language-server</module>-->
-                <!--<module>misc/docerina</module>-->
+                <module>language-server</module>
+                <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
-                <!--<module>misc/swagger-ballerina</module>-->
+                <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
                 <module>misc/toml-parser</module>
-                <!--<module>misc/metrics-extensions</module>-->
-                <!--<module>misc/tracing-extensions</module>-->
+                <module>misc/metrics-extensions</module>
+                <module>misc/tracing-extensions</module>
                 <module>misc/strip-bouncycastle</module>
 
                 <module>composer</module>
@@ -1751,7 +1751,7 @@
                 <module>stdlib/time</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
-                <!--<module>stdlib/observability</module>-->
+                <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/mysql</module>
                 <module>stdlib/database/sql</module>
@@ -1766,23 +1766,23 @@
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
-                <!--<module>compiler/ballerina-backend-llvm</module>-->
+                <module>compiler/ballerina-backend-llvm</module>
                 <!--<module>compiler/ballerina-backend-bvm</module>-->
 
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
                 <module>tests/ballerina-unit-test</module>
                 <module>tests/ballerina-compiler-plugin-test</module>
-                <!--<module>cli/ballerina-cli-utils</module>-->
+                <module>cli/ballerina-cli-utils</module>
 
-                <!--<module>language-server</module>-->
-                <!--<module>misc/docerina</module>-->
+                <module>language-server</module>
+                <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
-                <!--<module>misc/swagger-ballerina</module>-->
+                <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
                 <module>misc/toml-parser</module>
-                <!--<module>misc/metrics-extensions</module>-->
-                <!--<module>misc/tracing-extensions</module>-->
+                <module>misc/metrics-extensions</module>
+                <module>misc/tracing-extensions</module>
                 <module>misc/strip-bouncycastle</module>
 
                 <module>distribution/zip/ballerina</module>
@@ -1831,7 +1831,7 @@
                 <module>stdlib/time</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
-                <!--<module>stdlib/observability</module>-->
+                <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/mysql</module>
                 <module>stdlib/database/sql</module>
@@ -1846,7 +1846,7 @@
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
-                <!--<module>compiler/ballerina-backend-llvm</module>-->
+                <module>compiler/ballerina-backend-llvm</module>
                 <!--<module>compiler/ballerina-backend-bvm</module>-->
 
                 <!--Should Run Before tests/ballerina-test-->
@@ -1855,16 +1855,16 @@
                 <module>tests/ballerina-unit-test</module>
                 <module>tests/ballerina-compiler-plugin-test</module>
 
-                <!--<module>cli/ballerina-cli-utils</module>-->
+                <module>cli/ballerina-cli-utils</module>
 
-                <!--<module>language-server</module>-->
+                <module>language-server</module>
                 <module>misc/ballerina-maven-plugins</module>
-                <!--<module>misc/docerina</module>-->
-                <!--<module>misc/swagger-ballerina</module>-->
+                <module>misc/docerina</module>
+                <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
                 <module>misc/toml-parser</module>
-                <!--<module>misc/metrics-extensions</module>-->
-                <!--<module>misc/tracing-extensions</module>-->
+                <module>misc/metrics-extensions</module>
+                <module>misc/tracing-extensions</module>
                 <module>misc/strip-bouncycastle</module>
 
                 <module>composer</module>

@@ -44,7 +44,7 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
 /**
  * Register socket listener service.
  *
- * @since 0.983.0
+ * @since 0.985.0
  */
 @BallerinaFunction(
         orgName = "ballerina",

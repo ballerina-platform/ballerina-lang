@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents service endpoint where socket server service registered and start.
+# Represents socket client and related actions.
 #
 # + remotePort - the remote port number to which this socket is connected
 # + localPort - the local port number to which this socket is bound
@@ -70,6 +70,6 @@ public type Client client object {
 public type ClientConfig record {
     string host;
     int port;
-    typedesc callbackService?;
+    service callbackService?;
     !...
 };

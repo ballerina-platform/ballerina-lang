@@ -52,7 +52,7 @@ import static org.ballerinalang.util.diagnostic.Diagnostic.Kind.ERROR;
 /**
  * Compiler plugin for validating Socket services.
  *
- * @since 0.983.0
+ * @since 0.985.0
  */
 @SupportEndpointTypes(
         value = {@SupportEndpointTypes.EndpointType(orgName = "ballerina", packageName = "socket", name = "Server"),

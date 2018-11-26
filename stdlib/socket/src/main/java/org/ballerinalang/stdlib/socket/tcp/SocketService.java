@@ -27,7 +27,7 @@ import java.util.Map;
  * This will hold the ServerSocketChannel or client SocketChannel
  * and the associate resources for the service that server or client belong.
  *
- * @since 0.983.0
+ * @since 0.985.0
  */
 public class SocketService {
 

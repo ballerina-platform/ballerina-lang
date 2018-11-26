@@ -41,7 +41,7 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 /**
  * 'close' method implementation of the socket server listener's caller action.
  *
- * @since 0.983.0
+ * @since 0.985.0
  */
 @BallerinaFunction(
         orgName = "ballerina",

@@ -56,7 +56,7 @@ import static java.nio.channels.SelectionKey.OP_READ;
 /**
  * Connect to the remote server.
  *
- * @since 0.983.0
+ * @since 0.985.0
  */
 
 @BallerinaFunction(

@@ -21,7 +21,6 @@ package org.ballerinalang.stdlib.socket.endpoint.tcp.client;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
@@ -56,7 +55,7 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
 /**
  * Initialize the client socket endpoint.
  *
- * @since 0.983.0
+ * @since 0.985.0
  */
 @BallerinaFunction(
         orgName = "ballerina",
@@ -77,10 +76,11 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             Service service = null;
             if (clientServiceType != null) {
                 service = BLangConnectorSPIUtil.getServiceFromType(context.getProgramFile(), clientServiceType);
-                if (!"ballerina/socket:Client".equals(service.getEndpointName())) {
-                    throw new BallerinaConnectorException(
-                            "The callback service should be of type socket:ClientService service");
-                }
+//                if (!"ballerina/socket:Client".equals(service.getEndpointName())) {
+//                    context.setReturnValues(SocketUtils.createSocketError(context,
+//                            "The callback service should be of type socket:ClientService service"));
+//                    return;
+//                }
             }
             SocketChannel socketChannel = SocketChannel.open();
             socketChannel.configureBlocking(true);
