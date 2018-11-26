@@ -19,16 +19,16 @@ import ballerina/log;
 import ballerina/system;
 
 /////////////////////////////
-/// HTTP Server Endpoint ///
+/// HTTP Listener Endpoint ///
 /////////////////////////////
 # This is used for creating HTTP server endpoints. An HTTP server endpoint is capable of responding to
-# remote callers. The `Server` is responsible for initializing the endpoint using the provided configurations and
-# providing the actions for communicating with the caller.
-public type Server object {
+# remote callers. The `Listener` is responsible for initializing the endpoint using the provided configurations.
+public type Listener object {
 
     *AbstractListener;
 
     private Caller caller = new;
+    private int port = 0;
     private ServiceEndpointConfiguration config = {};
 
     public function __start() returns error? {
@@ -48,7 +48,7 @@ public type Server object {
     public function __init(int port, ServiceEndpointConfiguration? config = ()) {
         self.instanceId = system:uuid();
         self.config = config ?: {};
-        self.config.port = port;
+        self.port = port;
         self.init(self.config);
     }
 
@@ -76,7 +76,7 @@ public type Server object {
     extern function stop();
 };
 
-function Server.init(ServiceEndpointConfiguration c) {
+function Listener.init(ServiceEndpointConfiguration c) {
     self.config = c;
     var providers = self.config.authProviders;
     if (providers is AuthProvider[]) {
@@ -132,7 +132,6 @@ public type RequestLimits record {
 # Provides a set of configurations for HTTP service endpoints.
 #
 # + host - The host name/IP of the endpoint
-# + port - The port to which the endpoint should bind to
 # + keepAlive - Can be set to either `KEEPALIVE_AUTO`, which respects the `connection` header, or `KEEPALIVE_ALWAYS`,
 #               which always keeps the connection alive, or `KEEPALIVE_NEVER`, which always closes the connection
 # + secureSocket - The SSL configurations for the service endpoint. This needs to be configured in order to
@@ -151,7 +150,6 @@ public type RequestLimits record {
 # + negativeAuthzCache - Caching configurations for negative authorizations
 public type ServiceEndpointConfiguration record {
     string host = "0.0.0.0";
-    int port = 0; //User must provide a port number. If not an error will be thrown as "listener port is not defined!"
     KeepAlive keepAlive = KEEPALIVE_AUTO;
     ServiceSecureSocket? secureSocket = ();
     string httpVersion = "1.1";
@@ -427,9 +425,11 @@ function getInferredJwtAuthProviderConfig(AuthProvider authProvider) returns aut
 /// WebSocket Service Endpoint ///
 //////////////////////////////////
 # Represents a WebSocket service endpoint.
-public type WebSocketServer object {
+public type WebSocketListener object {
 
     *AbstractListener;
+
+    private Listener httpEndpoint;
 
     public function __start() returns error? {
         return self.httpEndpoint.start();
@@ -443,16 +443,11 @@ public type WebSocketServer object {
         return self.httpEndpoint.register(s, annotationData);
     }
 
-    private ServiceEndpointConfiguration config = {};
-
-    private Server httpEndpoint;
 
     # Gets invoked during module initialization to initialize the endpoint.
     #
     # + c - The `ServiceEndpointConfiguration` of the endpoint
     public function __init(int port, ServiceEndpointConfiguration? config = ()) {
-        self.config = config ?: {};
-        self.config.port = port;
         self.httpEndpoint = new(port, config = config);
     }
 

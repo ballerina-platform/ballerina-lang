@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaResourceParameterListImpl extends BallerinaCompositeElementImpl implements BallerinaResourceParameterList {
+public class BallerinaServiceConstructorExpressionImpl extends BallerinaExpressionImpl implements BallerinaServiceConstructorExpression {
 
-  public BallerinaResourceParameterListImpl(@NotNull ASTNode node) {
+  public BallerinaServiceConstructorExpressionImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitResourceParameterList(this);
+    visitor.visitServiceConstructorExpression(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -42,15 +42,21 @@ public class BallerinaResourceParameterListImpl extends BallerinaCompositeElemen
   }
 
   @Override
-  @Nullable
-  public BallerinaParameterList getParameterList() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaParameterList.class);
+  @NotNull
+  public List<BallerinaAnnotationAttachment> getAnnotationAttachmentList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaAnnotationAttachment.class);
   }
 
   @Override
   @Nullable
-  public BallerinaEndpointParameter getEndpointParameter() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaEndpointParameter.class);
+  public BallerinaServiceBody getServiceBody() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaServiceBody.class);
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getService() {
+    return notNullChild(findChildByType(SERVICE));
   }
 
 }

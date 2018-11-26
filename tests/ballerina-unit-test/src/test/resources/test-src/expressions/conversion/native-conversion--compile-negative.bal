@@ -14,16 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Record representing the configuration parameters for the WebSub Hub Client Endpoint.
-#
-# + url - The URL of the target Hub
-# + clientSecureSocket - SSL/TLS related options for the underlying HTTP Client
-# + auth - Authentication mechanism for the underlying HTTP Client
-# + followRedirects - HTTP redirect related configuration
-public type HubClientEndpointConfig record {
-    string url = "";
-    http:SecureSocket? clientSecureSocket = ();
-    http:AuthConfig? auth = ();
-    http:FollowRedirects? followRedirects = ();
-    !...
-};
+function floatToIntWithMultipleArguments() returns int {
+    float a = 5.0;
+    return int.create(a, a);
+}
+
+function testToIntWithNoArguments() {
+    float a = 5.0;
+    return int.create();
+}
+
+function anyToInt() returns int {
+    any a = 5;
+    return int.create(a);
+}

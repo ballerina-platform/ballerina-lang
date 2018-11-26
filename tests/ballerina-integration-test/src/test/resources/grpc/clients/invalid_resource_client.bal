@@ -143,19 +143,19 @@ public type helloWorldClient client object {
         }
     }
 
-    remote function hello(string req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function hello(string req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld98/hello", req, msgListener, headers = headers);
     }
 
-    remote function testInt(int req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testInt(int req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld98/testInt", req, msgListener, headers = headers);
     }
 
-    remote function testFloat(float req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testFloat(float req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld98/testFloat", req, msgListener, headers = headers);
     }
 
-    remote function testBoolean(boolean req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testBoolean(boolean req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld98/testBoolean", req, msgListener, headers = headers);
     }
 };

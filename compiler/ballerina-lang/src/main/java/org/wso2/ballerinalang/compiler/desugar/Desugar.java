@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.TableColumnFlag;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.RecordVariableNode.BLangRecordVariableKeyValueNode;
@@ -196,6 +197,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.DefaultValueLiteral;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -2757,6 +2759,14 @@ public class Desugar extends BLangNodeVisitor {
             case IS_FROZEN:
                 visitFreezeBuiltInMethodInvocation(iExpr);
                 break;
+            case CREATE:
+                if (iExpr.symbol.kind == SymbolKind.CONVERSION_OPERATOR) {
+                    result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
+                } else {
+                    result = visitCreateStampMethod(iExpr.pos, iExpr.expr, iExpr.requiredArgs,
+                                                    (BInvokableSymbol) iExpr.symbol);
+                }
+                break;
             case CALL:
                 visitCallBuiltInMethodInvocation(iExpr);
                 break;
@@ -2907,6 +2917,29 @@ public class Desugar extends BLangNodeVisitor {
         return conversionExpr;
     }
 
+    private BLangInvocation.BLangBuiltInMethodInvocation visitCreateStampMethod(DiagnosticPos pos,
+                                                                                BLangExpression expr,
+                                                                                List<BLangExpression> requiredArgs,
+                                                                                BInvokableSymbol invokableSymbol) {
+        BType targetType = invokableSymbol.retType;
+        if (types.isValueType(targetType) || targetType == symTable.nilType) {
+            return ASTBuilderUtil.createBuiltInMethod(pos, expr, invokableSymbol, requiredArgs, symResolver,
+                                                      BLangBuiltInMethod.STAMP);
+        }
+        BLangExpression sourceExpression = requiredArgs.get(0);
+        BType sourceType = sourceExpression.type;
+        List<BType> args = Lists.of(sourceType);
+        BInvokableType opType = new BInvokableType(args, sourceType, null);
+        BOperatorSymbol cloneSymbol = new BOperatorSymbol(names.fromString(BLangBuiltInMethod.CLONE.getName()),
+                                                          null, opType, null, InstructionCodes.CLONE);
+        BLangBuiltInMethodInvocation cloneInvocation =
+                ASTBuilderUtil.createBuiltInMethod(pos, sourceExpression, cloneSymbol, new ArrayList<>(),
+                                                   symResolver, BLangBuiltInMethod.CLONE);
+        return ASTBuilderUtil.createBuiltInMethod(pos, expr, invokableSymbol, Lists.of(cloneInvocation),
+                                                  symResolver, BLangBuiltInMethod.STAMP);
+
+    }
+
     private BType getElementType(BType type) {
         if (type.tag != TypeTags.ARRAY) {
             return type;
@@ -2983,7 +3016,8 @@ public class Desugar extends BLangNodeVisitor {
             if (namedArgs.containsKey(param.name.value)) {
                 expr = namedArgs.get(param.name.value);
             } else {
-                expr = getDefaultValueLiteral(param.defaultValue, param.type.tag);
+                int paramTypeTag = param.type.tag;
+                expr = getDefaultValueLiteral(param.defaultValue, paramTypeTag);
                 expr = addConversionExprIfRequired(expr, param.type);
             }
             args.add(expr);
@@ -3954,14 +3988,15 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
-    // TODO: Allowing decimal defaultable args may break some cases of the union type defaultable args.
-    // TODO: We need to preserve the literal type to resolve this.
-    private BLangExpression getDefaultValueLiteral(Object value, int typeTag) {
-        if (value == null) {
+    private BLangExpression getDefaultValueLiteral(DefaultValueLiteral defaultValue, int paramTypeTag) {
+        if (defaultValue == null || defaultValue.getValue() == null) {
             return getNullLiteral();
         }
+        Object value = defaultValue.getValue();
+        int literalTypeTag = defaultValue.getLiteralTypeTag();
+
         if (value instanceof Long) {
-            switch (typeTag) {
+            switch (paramTypeTag) {
                 case TypeTags.FLOAT:
                     return getFloatLiteral(((Long) value).doubleValue());
                 case TypeTags.DECIMAL:
@@ -3971,11 +4006,17 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
         if (value instanceof String) {
-            switch (typeTag) {
+            switch (paramTypeTag) {
                 case TypeTags.FLOAT:
                     return getFloatLiteral(Double.parseDouble((String) value));
                 case TypeTags.DECIMAL:
                     return getDecimalLiteral(String.valueOf(value));
+                case TypeTags.FINITE:
+                case TypeTags.UNION:
+                    if (literalTypeTag == TypeTags.FLOAT) {
+                        return getFloatLiteral(Double.parseDouble((String) value));
+                    }
+                    return getStringLiteral((String) value);
                 default:
                     return getStringLiteral((String) value);
             }
