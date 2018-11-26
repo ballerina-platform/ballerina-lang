@@ -20,47 +20,45 @@ import ballerina/sql;
 import ballerina/h2;
 import ballerina/system;
 
-endpoint http:Listener participant2EP02 {
-    port:8890
-};
+listener http:Listener participant2EP02 = new(8890);
 
-endpoint h2:Client testDB {
+h2:Client testDB = new({
     path: "../../../target/tempdb/",
     name: "TEST_SQL_CONNECTOR",
     username: "SA",
     password: "",
     poolOptions: { maximumPoolSize: 10 },
     dbOptions: { "IFEXISTS": true }
-};
+});
 
 State2 state2 = new;
 
 @http:ServiceConfig {
     basePath:"/"
 }
-service<http:Service> participant2 bind participant2EP02 {
+service participant2 on participant2EP02 {
 
-    getState(endpoint ep, http:Request req) {
+    resource function getState(http:Caller ep, http:Request req) {
         http:Response res = new;
         res.setTextPayload(state2.toString());
         state2.reset();
         _ = ep -> respond(res);
     }
 
-    task1 (endpoint conn, http:Request req) {
+    resource function task1 (http:Caller conn, http:Request req) {
         http:Response res = new;
         res.setTextPayload("Resource is invoked");
         var forwardRes = conn -> respond(res);  
         match forwardRes {
             error err => {
                 io:print("Participant2 could not send response to participant1. Error:");
-                io:println(err);
+                io:println(err.reason());
             }
             () => io:print("");
         }
     }
 
-    task2 (endpoint conn, http:Request req) {
+    resource function task2 (http:Caller conn, http:Request req) {
         http:Response res = new;
         string result = "incorrect id";
         transaction {
@@ -73,34 +71,38 @@ service<http:Service> participant2 bind participant2EP02 {
         match forwardRes {
             error err => {
                 io:print("Participant2 could not send response to participant1. Error:");
-                io:println(err);
+                io:println(err.reason());
             }
             () => io:print("");
         }
     }
 
-    testSaveToDatabaseSuccessfulInParticipant(endpoint ep, http:Request req) {
+    resource function testSaveToDatabaseSuccessfulInParticipant(http:Caller ep, http:Request req) {
         saveToDatabase(ep, req, false);
     }
 
-    testSaveToDatabaseFailedInParticipant(endpoint ep, http:Request req) {
+    resource function testSaveToDatabaseFailedInParticipant(http:Caller ep, http:Request req) {
         saveToDatabase(ep, req, true);
     }
 
     @http:ResourceConfig {
         path: "/checkCustomerExists/{uuid}"
     }
-    checkCustomerExists(endpoint ep, http:Request req, string uuid) {
+    resource function checkCustomerExists(http:Caller ep, http:Request req, string uuid) {
         http:Response res = new;  res.statusCode = 200;
         sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:uuid};
         var x = testDB -> select("SELECT registrationID FROM Customers WHERE registrationID = ?", Registration, para1);
         match x {
             table dt => {
-               string payload;
+               string payload = "";
                while (dt.hasNext()) {
-                   Registration reg = check <Registration>dt.getNext();
-                   io:println(reg);
-                   payload = reg.REGISTRATIONID;
+                   var reg = <Registration>dt.getNext();
+                    if (reg is error) {
+                        panic(reg);
+                    } else if (reg is Registration) {
+                        io:println(reg);
+                        payload = reg.REGISTRATIONID;
+                    }
                }
                res.setTextPayload(untaint payload);
             }
@@ -117,8 +119,8 @@ type Registration record {
     string REGISTRATIONID;
 };
 
-function saveToDatabase(http:Listener conn, http:Request req, boolean shouldAbort) {
-    endpoint http:Listener ep = conn;
+function saveToDatabase(http:Caller conn, http:Request req, boolean shouldAbort) {
+    http:Caller ep = conn;
     http:Response res = new;  res.statusCode = 200;
     transaction {
         transaction {
@@ -129,15 +131,10 @@ function saveToDatabase(http:Listener conn, http:Request req, boolean shouldAbor
         }
         string uuid = system:uuid();
 
-        try {
-            var result = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                                 values ('John', 'Doe', '" + uuid + "', 5000.75, 'USA')");
-            match result {
-                int insertCount => io:println(insertCount);
-                error => io:println("");
-            }
-        } catch (error e) {
-            io:println("FAILED!!!!!");
+
+        var helperRes = trap saveToDatabaseUpdateHelper1(uuid);
+        if (helperRes is error) {
+            io:println("FAILED!!!");
         }
 
         res.setTextPayload(uuid);
@@ -145,7 +142,7 @@ function saveToDatabase(http:Listener conn, http:Request req, boolean shouldAbor
         match forwardRes {
             error err => {
                 io:print("Participant2 could not send response to participant1. Error:");
-                io:println(err);
+                io:println(err.reason());
             }
             () => io:print("");
         }
@@ -157,6 +154,15 @@ function saveToDatabase(http:Listener conn, http:Request req, boolean shouldAbor
         } aborted {
             state2.abortedFunctionCalled = true;
         }
+}
+
+function saveToDatabaseUpdateHelper1(string uuid) {
+    var result = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                                     values ('John', 'Doe', '" + uuid + "', 5000.75, 'USA')");
+    match result {
+        int insertCount => io:println(insertCount);
+        error => io:println("");
+    }
 }
 
 function onAbort2(string transactionid) {
@@ -177,23 +183,23 @@ function onLocalParticipantCommit2(string transactionid) {
 
 type State2 object {
 
-    boolean abortedFunctionCalled;
-    boolean committedFunctionCalled;
-    boolean localParticipantCommittedFunctionCalled;
-    boolean localParticipantAbortedFunctionCalled;
+    boolean abortedFunctionCalled= false;
+    boolean committedFunctionCalled= false;
+    boolean localParticipantCommittedFunctionCalled= false;
+    boolean localParticipantAbortedFunctionCalled= false;
 
 
     function reset() {
-        abortedFunctionCalled = false;
-        committedFunctionCalled = false;
-        localParticipantCommittedFunctionCalled = false;
-        localParticipantAbortedFunctionCalled = false;
+        self.abortedFunctionCalled = false;
+        self.committedFunctionCalled = false;
+        self.localParticipantCommittedFunctionCalled = false;
+        self.localParticipantAbortedFunctionCalled = false;
     }
 
     function toString() returns string {
         return io:sprintf("abortedFunctionCalled=%b,committedFunctionCalled=%s," +
                             "localParticipantCommittedFunctionCalled=%s,localParticipantAbortedFunctionCalled=%s",
-                            abortedFunctionCalled, committedFunctionCalled,
-                                localParticipantCommittedFunctionCalled, localParticipantAbortedFunctionCalled);
+                            self.abortedFunctionCalled, self.committedFunctionCalled,
+                            self.localParticipantCommittedFunctionCalled, self.localParticipantAbortedFunctionCalled);
     }
 };

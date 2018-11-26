@@ -30,8 +30,8 @@
 
 # Contains the configurations for local transaction participant function.
 #
-# + oncommitFunc - Function to execute when transaction committed.
-# + onabortFunc - Function to execute when transaction aborted.
+# + oncommit - Function to execute when transaction committed.
+# + onabort - Function to execute when transaction aborted.
 public type TransactionParticipantConfig record {
     function (string) oncommit?;
     function (string) onabort?;

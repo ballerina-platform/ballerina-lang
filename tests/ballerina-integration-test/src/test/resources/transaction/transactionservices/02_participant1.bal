@@ -17,29 +17,25 @@
 import ballerina/io;
 import ballerina/http;
 
-endpoint http:Listener participant1EP01 {
-    port:8889
-};
+listener http:Listener participant1EP01 = new(8889);
 
-endpoint http:Client participant2EP01 {
-    url: "http://localhost:8890"
-};
+http:Client participant2EP01 = new("http://localhost:8890");
 
 State1 state1 = new();
 
 @http:ServiceConfig {
     basePath:"/"
 }
-service<http:Service> participant1 bind participant1EP01 {
+service participant1 on participant1EP01 {
 
-    getState(endpoint ep, http:Request req) {
+    resource function getState(http:Caller ep, http:Request req) {
         http:Response res = new;
         res.setTextPayload(state1.toString());
         state1.reset();
         _ = ep -> respond(res);
     }
 
-    testRemoteParticipantAbort(endpoint ep, http:Request req) {
+    resource function testRemoteParticipantAbort(http:Caller ep, http:Request req) {
 
         transaction {
             transaction { // local participant
@@ -59,7 +55,7 @@ service<http:Service> participant1 bind participant1EP01 {
         _ = ep -> respond(res);
     }
 
-    noOp(endpoint ep, http:Request req) {
+    resource function noOp(http:Caller ep, http:Request req) {
 
         transaction {
             transaction { // local participant
@@ -80,7 +76,7 @@ service<http:Service> participant1 bind participant1EP01 {
     @http:ResourceConfig {
         transactionInfectable: false
     }
-    nonInfectable(endpoint ep, http:Request req) {
+    resource function nonInfectable(http:Caller ep, http:Request req) {
 
         transaction {
             transaction { // local participant
@@ -103,7 +99,7 @@ service<http:Service> participant1 bind participant1EP01 {
     @http:ResourceConfig {
         transactionInfectable: true
     }
-    infectable(endpoint ep, http:Request req) {
+    resource function infectable(http:Caller ep, http:Request req) {
 
         transaction {
             transaction { // local participant
@@ -125,7 +121,7 @@ service<http:Service> participant1 bind participant1EP01 {
     @http:ResourceConfig {
         path:"/"
     }
-    member (endpoint conn, http:Request req) {
+    resource function member (http:Caller conn, http:Request req) {
 
         http:Request newReq = new;
         newReq.setHeader("participant-id", req.getHeader("x-b7a-xid"));
@@ -150,7 +146,7 @@ service<http:Service> participant1 bind participant1EP01 {
                             match forwardRes2 {
                                 error err => {
                                     io:print("Participant1 could not forward response from participant2 to initiator. Error:");
-                                    io:println(err);
+                                    io:println(err.reason());
                                 }
                                 () => io:print("");
                             }
@@ -163,7 +159,7 @@ service<http:Service> participant1 bind participant1EP01 {
         }
     }
 
-    testSaveToDatabaseSuccessfulInParticipant(endpoint ep, http:Request req) {
+    resource function testSaveToDatabaseSuccessfulInParticipant(http:Caller ep, http:Request req) {
         http:Response res = new;  res.statusCode = 500;
         http:Request newReq = new;
         var result = participant2EP01 -> get("/testSaveToDatabaseSuccessfulInParticipant", message = newReq);
@@ -178,7 +174,7 @@ service<http:Service> participant1 bind participant1EP01 {
         _ = ep -> respond(res);
     }
 
-    testSaveToDatabaseFailedInParticipant(endpoint ep, http:Request req) {
+    resource function testSaveToDatabaseFailedInParticipant(http:Caller ep, http:Request req) {
         http:Response res = new;  res.statusCode = 500;
         transaction {
             transaction {
@@ -206,14 +202,14 @@ service<http:Service> participant1 bind participant1EP01 {
     }
 }
 
-function sendErrorResponseToInitiator(http:Listener conn) {
-    endpoint http:Listener conn2 = conn;
+function sendErrorResponseToInitiator(http:Caller conn) {
+    http:Caller conn2 = conn;
     http:Response errRes = new; errRes.statusCode = 500;
     var respondResult = conn2 -> respond(errRes);
     match respondResult {
         error respondErr => {
             io:print("Participant1 could not send error response to initiator. Error:");
-            io:println(respondErr);
+            io:println(respondErr.reason());
         }
         () => return;
     }
@@ -221,25 +217,25 @@ function sendErrorResponseToInitiator(http:Listener conn) {
 
 type State1 object {
 
-    boolean abortedByParticipant;
-    boolean abortedFunctionCalled;
-    boolean committedFunctionCalled;
-    boolean localParticipantAbortedFunctionCalled;
-    boolean localParticipantCommittedFunctionCalled;
+    boolean abortedByParticipant = false;
+    boolean abortedFunctionCalled = false;
+    boolean committedFunctionCalled = false;
+    boolean localParticipantAbortedFunctionCalled = false;
+    boolean localParticipantCommittedFunctionCalled = false;
 
 
     function reset() {
-        abortedByParticipant = false;
-        abortedFunctionCalled = false;
-        committedFunctionCalled = false;
-        localParticipantAbortedFunctionCalled = false;
-        localParticipantCommittedFunctionCalled = false;
+        self.abortedByParticipant = false;
+        self.abortedFunctionCalled = false;
+        self.committedFunctionCalled = false;
+        self.localParticipantAbortedFunctionCalled = false;
+        self.localParticipantCommittedFunctionCalled = false;
     }
 
     function toString() returns string {
         return io:sprintf("abortedByParticipant=%b,abortedFunctionCalled=%b,committedFunctionCalled=%s," +
                             "localParticipantAbortedFunctionCalled=%s,localParticipantCommittedFunctionCalled=%s",
-                            abortedByParticipant, abortedFunctionCalled, committedFunctionCalled,
-                            localParticipantAbortedFunctionCalled, localParticipantCommittedFunctionCalled);
+                        self.abortedByParticipant, self.abortedFunctionCalled, self.committedFunctionCalled,
+                        self.localParticipantAbortedFunctionCalled, self.localParticipantCommittedFunctionCalled);
     }
 };
