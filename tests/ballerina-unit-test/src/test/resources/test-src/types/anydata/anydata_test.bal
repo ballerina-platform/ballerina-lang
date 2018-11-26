@@ -15,11 +15,11 @@
 // under the License.
 
 type Foo record {
-    int a;
+    int a = 0;
 };
 
 type ClosedFoo record {
-    int ca;
+    int ca = 0;
     !...
 };
 
@@ -126,49 +126,49 @@ function testTableAssignment() returns anydata {
 function testMapAssignment() {
     anydata ad;
 
-    map<int> mi;
+    map<int> mi = {};
     ad = mi;
 
-    map<float> mf;
+    map<float> mf = {};
     ad = mf;
 
-    map<boolean> mb;
+    map<boolean> mb = {};
     ad = mb;
 
-    map<byte> mby;
+    map<byte> mby = {};
     ad = mby;
 
-    map<string> ms;
+    map<string> ms = {};
     ad = ms;
 
-    map<json> mj;
+    map<json> mj = {};
     ad = mj;
 
-    map<xml> mx;
+    map<xml> mx = {};
     ad = mx;
 
-    map<Foo> mr;
+    map<Foo> mr = {};
     ad = mr;
 
-    map<ClosedFoo> mcr;
+    map<ClosedFoo> mcr = {};
     ad = mcr;
 
-    map<table> mt;
+    map<table> mt = {};
     ad = mt;
 
-    map<map<anydata>> mmad;
+    map<map<anydata>> mmad = {};
     ad = mmad;
 
-    map<anydata[]> madr;
+    map<anydata[]> madr = {};
     ad = madr;
 
-    map<DataType> mu;
+    map<DataType> mu = {};
     ad = mu;
 
-    map<((DataType, string), int, float)> mtup;
+    map<((DataType, string), int, float)> mtup = {};
     ad = mtup;
 
-    map<()> mnil;
+    map<()> mnil = {};
     ad = mnil;
 }
 
@@ -184,12 +184,12 @@ function testConstrainedMaps() returns map<anydata> {
               { 3, "Jim", 330.5 }
             ]
         };
-    map<string> smap;
+    map<string> smap = {};
 
     smap["foo"] = "foo";
     smap["bar"] = "bar";
 
-    map<anydata> adm;
+    map<anydata> adm = {};
     adm["byte"] = b;
     adm["json"] = j;
     adm["record"] = foo;
@@ -245,7 +245,7 @@ function testArrayAssignment() {
     table[] at = [t];
     ad = at;
 
-    map<anydata> m;
+    map<anydata> m = {};
     map<anydata>[] amad = [m];
     ad = amad;
 
@@ -337,7 +337,7 @@ function testUnionAssignment2() returns anydata[] {
     rets[i] = dt;
     i += 1;
 
-    map<anydata> m;
+    map<anydata> m = {};
     m["foo"] = foo;
     dt = m;
     rets[i] = dt;
@@ -414,25 +414,25 @@ function testFiniteTypeAssignment() returns anydata {
 
 function testAnydataToValueTypes() returns (int, float, boolean, string) {
     anydata ad = 33;
-    int i;
+    int i = 0;
     if (ad is int) {
         i = ad;
     }
 
     ad = 23.45;
-    float f;
+    float f = 0;
     if (ad is float) {
         f = ad;
     }
 
     ad = true;
-    boolean bool;
+    boolean bool = false;
     if (ad is boolean) {
         bool = ad;
     }
 
     ad = "Hello World!";
-    string s;
+    string s = "";
     if (ad is string) {
         s = ad;
     }
@@ -443,7 +443,7 @@ function testAnydataToValueTypes() returns (int, float, boolean, string) {
 function testAnydataToJson() returns json {
     json j = { name: "apple", color: "red", price: 40 };
     anydata adJ = j;
-    json convertedJ;
+    json convertedJ = null;
     if (adJ is json) {
         convertedJ = adJ;
     }
@@ -453,7 +453,7 @@ function testAnydataToJson() returns json {
 function testAnydataToXml() returns xml {
     xml x = xml `<book>The Lost World</book>`;
     anydata adx = x;
-    xml convertedX;
+    xml convertedX = xml ` `;
     if (adx is xml) {
         convertedX = adx;
     }
@@ -463,14 +463,14 @@ function testAnydataToXml() returns xml {
 function testAnydataToRecord() returns (Foo, ClosedFoo) {
     Foo foo = {a: 15};
     anydata adr = foo;
-    Foo convertedFoo;
+    Foo convertedFoo = {};
     if (adr is Foo) {
         convertedFoo = adr;
     }
 
     ClosedFoo cFoo = {ca: 20};
     adr = cFoo;
-    ClosedFoo convertedCFoo;
+    ClosedFoo convertedCFoo = {};
     if (adr is ClosedFoo) {
         convertedCFoo = adr;
     }
@@ -480,105 +480,105 @@ function testAnydataToRecord() returns (Foo, ClosedFoo) {
 function testAnydataToMap() {
     anydata ad;
 
-    map<int> mi;
+    map<int> mi = {};
     ad = mi;
     map<int> convertedMi;
     if (ad is map<int>) {
         convertedMi = ad;
     }
 
-    map<float> mf;
+    map<float> mf = {};
     ad = mf;
     map<float> convertedMf;
     if (ad is map<float>) {
         convertedMf = ad;
     }
 
-    map<boolean> mb;
+    map<boolean> mb = {};
     ad = mb;
     map<boolean> convertedMb;
     if (ad is map<boolean>) {
         convertedMb = ad;
     }
 
-    map<byte> mby;
+    map<byte> mby = {};
     ad = mby;
     map<byte> convertedMby;
     if (ad is map<byte>) {
         convertedMby = ad;
     }
 
-    map<string> ms;
+    map<string> ms = {};
     ad = ms;
     map<string> convertedMs;
     if (ad is map<string>) {
         convertedMs = ad;
     }
 
-    map<json> mj;
+    map<json> mj = {};
     ad = mj;
     map<json> convertedMj;
     if (ad is map<json>) {
         convertedMj = ad;
     }
 
-    map<xml> mx;
+    map<xml> mx = {};
     ad = mx;
     map<xml> convertedMx;
     if (ad is map<xml>) {
         convertedMx = ad;
     }
 
-    map<Foo> mr;
+    map<Foo> mr = {};
     ad = mr;
     map<Foo> convertedMfoo;
     if (ad is map<Foo>) {
         convertedMfoo = ad;
     }
 
-    map<ClosedFoo> mcr;
+    map<ClosedFoo> mcr = {};
     ad = mcr;
     map<ClosedFoo> convertedMCfoo;
     if (ad is map<ClosedFoo>) {
         convertedMCfoo = ad;
     }
 
-    map<table> mt;
+    map<table> mt = {};
     ad = mt;
     map<table> convertedMt;
     if (ad is map<table>) {
         convertedMt = ad;
     }
 
-    map<map<anydata>> mmad;
+    map<map<anydata>> mmad = {};
     ad = mmad;
     map<map<anydata>> convertedMmad;
     if (ad is map<map<anydata>>) {
         convertedMmad = ad;
     }
 
-    map<anydata[]> madr;
+    map<anydata[]> madr = {};
     ad = madr;
     map<anydata[]> convertedMadr;
     if (ad is map<anydata[]>) {
         convertedMadr = ad;
     }
 
-    map<DataType> mu;
+    map<DataType> mu = {};
     ad = mu;
     map<DataType> convertedMu;
     if (ad is map<DataType>) {
         convertedMu = ad;
     }
 
-    map<((DataType, string), int, float)> mtup;
+    map<((DataType, string), int, float)> mtup = {};
     ad = mtup;
     map<((DataType, string), int, float)> convertedMtup;
     if (ad is map<((DataType, string), int, float)>) {
         convertedMtup = ad;
     }
 
-    map<()> mnil;
+    map<()> mnil = {};
     ad = mnil;
     map<()> convertedMnil;
     if (ad is map<()>) {
@@ -586,7 +586,7 @@ function testAnydataToMap() {
     }
 }
 
-function testAnydataToTable() returns table<Employee> {
+function testAnydataToTable() returns table<Employee>? {
     table<Employee> t = table {
                 { key id, name, salary },
                 [ { 1, "Mary",  300.5 },
@@ -595,7 +595,7 @@ function testAnydataToTable() returns table<Employee> {
                 ]
             };
     anydata ad = t;
-    table<Employee> convertedT;
+    table<Employee>|() convertedT = ();
     if (ad is table<Employee>) {
         convertedT = ad;
     }
@@ -686,7 +686,7 @@ function testAnydataToUnion2() returns DataType[] {
         i += 1;
     }
 
-    map<anydata> m;
+    map<anydata> m = {};
     m["foo"] = foo;
     ad = m;
     if (ad is DataType) {

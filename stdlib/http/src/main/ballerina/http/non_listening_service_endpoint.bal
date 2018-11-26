@@ -16,10 +16,11 @@
 
 
 # Mock server endpoint which does not open a listening port.
-public type MockServer object {
+public type MockListener object {
 
     *AbstractListener;
     private Caller caller = new;
+    private int port = 0;
     private ServiceEndpointConfiguration config = {};
 
     public function __start() returns error? {
@@ -36,7 +37,7 @@ public type MockServer object {
 
     public function __init(int port, ServiceEndpointConfiguration? config = ()) {
         self.config = config ?: {};
-        self.config.port = port;
+        self.port = port;
         self.init(self.config);
     }
 
@@ -48,7 +49,7 @@ public type MockServer object {
     public extern function stop ();
 };
 
-function MockServer.init (ServiceEndpointConfiguration c) {
+function MockListener.init (ServiceEndpointConfiguration c) {
     var err = self.initEndpoint();
     if (err is error) {
         panic err;

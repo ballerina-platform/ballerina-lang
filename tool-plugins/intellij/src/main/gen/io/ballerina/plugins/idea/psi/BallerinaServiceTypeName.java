@@ -20,19 +20,10 @@ package io.ballerina.plugins.idea.psi;
 import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
-import io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition;
-import com.intellij.psi.StubBasedPsiElement;
-import io.ballerina.plugins.idea.stubs.BallerinaGlobalEndpointDefinitionStub;
 
-public interface BallerinaGlobalEndpointDefinition extends BallerinaNamedElement, BallerinaTopLevelDefinition, StubBasedPsiElement<BallerinaGlobalEndpointDefinitionStub> {
+public interface BallerinaServiceTypeName extends BallerinaCompositeElement {
 
   @NotNull
-  BallerinaEndpointDefinition getEndpointDefinition();
-
-  @Nullable
-  PsiElement getPublic();
-
-  @Nullable
-  PsiElement getIdentifier();
+  PsiElement getService();
 
 }

@@ -28,6 +28,7 @@ import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BFutureType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
+import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BStructureType;
@@ -111,6 +112,7 @@ import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BLangFreezeException;
+import org.ballerinalang.util.exceptions.BLangMapStoreException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -127,6 +129,7 @@ import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1651,43 +1654,10 @@ public class CPU {
                     handleNullRefError(ctx);
                     break;
                 }
-
-                BRefType<?> value = sf.refRegs[k];
-                BType mapType = bMap.getType();
-                BType expType = null;
-
-                switch (mapType.getTag()) {
-                    case TypeTags.MAP_TAG:
-                        if (isValidMapInsertion(mapType, value)) {
-                            insertToMap(ctx, bMap, sf.stringRegs[j], value);
-                        } else {
-                            expType = ((BMapType) mapType).getConstrainedType();
-                        }
-                        break;
-                    case TypeTags.RECORD_TYPE_TAG:
-                    case TypeTags.OBJECT_TYPE_TAG:
-                        BStructureType structureType = (BStructureType) mapType;
-                        BField targetField = structureType.getFields().get(sf.stringRegs[j]);
-                        BType targetFieldType;
-
-                        if (structureType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-                            targetFieldType = targetField == null ? ((BRecordType) structureType).restFieldType :
-                                                                    targetField.fieldType;
-                        } else {
-                            targetFieldType = targetField.getFieldType();
-                        }
-
-                        if (checkIsType(value, targetFieldType)) {
-                            insertToMap(ctx, bMap, sf.stringRegs[j], value);
-                        } else {
-                            expType = targetFieldType;
-                        }
-                        break;
-                }
-
-                if (expType != null) {
-//                    ctx.setError(BLangVMErrors.createError(ctx, BLangExceptionHelper
-//                            .getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION, expType, value.getType())));
+                try {
+                    handleMapStore(ctx, bMap, sf.stringRegs[j], sf.refRegs[k]);
+                } catch (BLangMapStoreException e) {
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1921,7 +1891,7 @@ public class CPU {
                 if (sf.refRegs[i] == null) {
                     sf.intRegs[k] = sf.refRegs[j] == null ? 1 : 0;
                 } else {
-                    sf.intRegs[k] = isEqual(sf.refRegs[i], sf.refRegs[j]) ? 1 : 0;
+                    sf.intRegs[k] = isEqual(sf.refRegs[i], sf.refRegs[j], new ArrayList<>()) ? 1 : 0;
                 }
                 break;
             case InstructionCodes.REF_EQ:
@@ -1979,7 +1949,7 @@ public class CPU {
                 if (sf.refRegs[i] == null) {
                     sf.intRegs[k] = (sf.refRegs[j] != null) ? 1 : 0;
                 } else {
-                    sf.intRegs[k] = (!isEqual(sf.refRegs[i], sf.refRegs[j])) ? 1 : 0;
+                    sf.intRegs[k] = (!isEqual(sf.refRegs[i], sf.refRegs[j], new ArrayList<>())) ? 1 : 0;
                 }
                 break;
             case InstructionCodes.REF_NEQ:
@@ -3409,14 +3379,13 @@ public class CPU {
             return false;
         }
 
-        // If only one is a closed record, the records aren't equivalent
+        // Cannot assign open records to closed record types
         if (lhsType.sealed && !rhsType.sealed) {
             return false;
         }
 
         // The rest field types should match if they are open records
-        if ((!lhsType.sealed && !rhsType.sealed) &&
-                !isAssignable(rhsType.restFieldType, lhsType.restFieldType, unresolvedTypes)) {
+        if (!rhsType.sealed && !isAssignable(rhsType.restFieldType, lhsType.restFieldType, unresolvedTypes)) {
             return false;
         }
 
@@ -3494,21 +3463,25 @@ public class CPU {
     private static boolean checkFieldEquivalency(BRecordType lhsType, BRecordType rhsType,
                                                  List<TypePair> unresolvedTypes) {
         Map<String, BField> rhsFields = rhsType.getFields();
+        Set<String> lhsFieldNames = lhsType.getFields().keySet();
 
-        for (Map.Entry<String, BField> lhsFieldEntry : lhsType.getFields().entrySet()) {
-            BField rhsField = rhsFields.get(lhsFieldEntry.getKey());
+        for (BField lhsField : lhsType.getFields().values()) {
+            BField rhsField = rhsFields.get(lhsField.fieldName);
 
-            if (rhsField == null || !isAssignable(rhsField.fieldType, lhsFieldEntry.getValue().fieldType,
-                                                  unresolvedTypes)) {
+            // If the LHS field is a required one, there has to be a corresponding required field in the RHS record.
+            if (!Flags.isFlagOn(lhsField.flags, Flags.OPTIONAL)
+                    && (rhsField == null || Flags.isFlagOn(rhsField.flags, Flags.OPTIONAL))) {
                 return false;
             }
 
-            rhsFields.remove(lhsFieldEntry.getKey());
+            if (rhsField == null || !isAssignable(rhsField.fieldType, lhsField.fieldType, unresolvedTypes)) {
+                return false;
+            }
         }
 
-        return rhsFields.entrySet().stream().allMatch(
-                fieldEntry -> isAssignable(fieldEntry.getValue().getFieldType(), lhsType.restFieldType,
-                                           unresolvedTypes));
+        return rhsFields.values().stream()
+                            .filter(field -> !lhsFieldNames.contains(field.fieldName))
+                            .allMatch(field -> isAssignable(field.fieldType, lhsType.restFieldType, unresolvedTypes));
     }
 
     private static boolean checkFunctionTypeEqualityForObjectType(BFunctionType source, BFunctionType target,
@@ -4002,6 +3975,59 @@ public class CPU {
 
     }
 
+    private static void handleMapStore(WorkerExecutionContext ctx, BMap<String, BRefType> bMap, String fieldName,
+                                       BRefType<?> value) {
+        BType mapType = bMap.getType();
+
+        switch (mapType.getTag()) {
+            case TypeTags.MAP_TAG:
+                if (!isValidMapInsertion(mapType, value)) {
+                    BType expType = ((BMapType) mapType).getConstrainedType();
+                    throw new BLangMapStoreException(BLangExceptionHelper
+                                                             .getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION,
+                                                                              expType, value.getType()));
+                }
+                insertToMap(ctx, bMap, fieldName, value);
+                break;
+            case TypeTags.OBJECT_TYPE_TAG:
+                BObjectType objType = (BObjectType) mapType;
+                BField objField = objType.getFields().get(fieldName);
+                BType objFieldType = objField.getFieldType();
+                if (!checkIsType(value, objFieldType)) {
+                    throw new BLangMapStoreException(BLangExceptionHelper.getErrorMessage(
+                            RuntimeErrors.INVALID_OBJECT_FIELD_ADDITION, fieldName, objFieldType, value.getType()));
+                }
+                insertToMap(ctx, bMap, fieldName, value);
+                break;
+            case TypeTags.RECORD_TYPE_TAG:
+                BRecordType recType = (BRecordType) mapType;
+                BField recField = recType.getFields().get(fieldName);
+                BType recFieldType;
+
+                if (recField != null) {
+                    // If there is a corresponding field in the record, use it
+                    recFieldType = recField.fieldType;
+                } else if (recType.restFieldType != null) {
+                    // If there isn't a corresponding field, but there is a rest field, use it
+                    recFieldType = recType.restFieldType;
+                } else {
+                    // If both of the above conditions fail, the implication is that this is an attempt to insert a
+                    // value to a non-existent field in a closed record.
+                    throw new BLangMapStoreException(BLangExceptionHelper
+                                                             .getErrorMessage(RuntimeErrors.INVALID_RECORD_FIELD_ACCESS,
+                                                                              fieldName, recType));
+                }
+
+                if (!checkIsType(value, recFieldType)) {
+                    throw new BLangMapStoreException(BLangExceptionHelper.getErrorMessage(
+                            RuntimeErrors.INVALID_RECORD_FIELD_ADDITION, fieldName, recFieldType, value.getType()));
+                }
+
+                insertToMap(ctx, bMap, fieldName, value);
+                break;
+        }
+    }
+
     private static void insertToMap(WorkerExecutionContext ctx, BMap bMap, String fieldName, BValue value) {
         try {
             bMap.put(fieldName, value);
@@ -4412,10 +4438,6 @@ public class CPU {
             return false;
         }
 
-        if (targetType.getFields().size() > sourceRecordType.getFields().size()) {
-            return false;
-        }
-
         // If both are sealed (one is sealed means other is also sealed) check the rest field type
         if (!sourceRecordType.sealed &&
                 !checkIsType(sourceRecordType.restFieldType, targetType.restFieldType, unresolvedTypes)) {
@@ -4423,11 +4445,27 @@ public class CPU {
         }
 
         Map<String, BField> sourceFields = sourceRecordType.getFields();
+        Set<String> targetFieldNames = targetType.getFields().keySet();
 
-        return targetType.getFields().values().stream().noneMatch(targetField -> {
-            BField sourceField = sourceFields.get(targetField.fieldName);
-            return sourceField == null || !checkIsType(sourceField.fieldType, targetField.fieldType, unresolvedTypes);
-        });
+        for (BField targetField : targetType.getFields().values()) {
+            BField sourceField = sourceFields.get(targetField.getFieldName());
+
+            // If the LHS field is a required one, there has to be a corresponding required field in the RHS record.
+            if (!Flags.isFlagOn(targetField.flags, Flags.OPTIONAL)
+                    && (sourceField == null || Flags.isFlagOn(sourceField.flags, Flags.OPTIONAL))) {
+                return false;
+            }
+
+            if (sourceField == null || !checkIsType(sourceField.fieldType, targetField.fieldType, unresolvedTypes)) {
+                return false;
+            }
+        }
+
+        // If there are fields remaining in the source record, check if they are compatible with the rest field of
+        // the target type.
+        return sourceFields.values().stream()
+                .filter(field -> !targetFieldNames.contains(field.fieldName))
+                .allMatch(field -> checkIsType(field.getFieldType(), targetType.restFieldType, unresolvedTypes));
     }
 
     private static boolean checkIsTableType(BType sourceType, BTableType targetType, List<TypePair> unresolvedTypes) {
@@ -4519,11 +4557,12 @@ public class CPU {
     /**
      * Deep value equality check for anydata.
      *
-     * @param lhsValue  The value on the left hand side
-     * @param rhsValue  The value on the right hand side
+     * @param lhsValue          The value on the left hand side
+     * @param rhsValue          The value on the right hand side
+     * @param checkedValues     Structured value pairs already compared or being compared
      * @return True if values are equal, else false.
      */
-    private static boolean isEqual(BValue lhsValue, BValue rhsValue) {
+    private static boolean isEqual(BValue lhsValue, BValue rhsValue, List<ValuePair> checkedValues) {
         if (lhsValue == rhsValue) {
             return true;
         }
@@ -4559,10 +4598,10 @@ public class CPU {
             case TypeTags.MAP_TAG:
             case TypeTags.JSON_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                return isMappingType(rhsValTypeTag) && isEqual((BMap) lhsValue, (BMap) rhsValue);
+                return isMappingType(rhsValTypeTag) && isEqual((BMap) lhsValue, (BMap) rhsValue, checkedValues);
             case TypeTags.TUPLE_TAG:
             case TypeTags.ARRAY_TAG:
-                return isListType(rhsValTypeTag) && isEqual((BNewArray) lhsValue, (BNewArray) rhsValue);
+                return isListType(rhsValTypeTag) && isEqual((BNewArray) lhsValue, (BNewArray) rhsValue, checkedValues);
         }
         return false;
     }
@@ -4578,17 +4617,24 @@ public class CPU {
     /**
      * Deep equality check for an array/tuple.
      *
-     * @param lhsList   The array/tuple on the left hand side
-     * @param rhsList   The array/tuple on the right hand side
+     * @param lhsList           The array/tuple on the left hand side
+     * @param rhsList           The array/tuple on the right hand side
+     * @param checkedValues     Structured value pairs already compared or being compared
      * @return True if the array/tuple values are equal, else false.
      */
-    private static boolean isEqual(BNewArray lhsList, BNewArray rhsList) {
+    private static boolean isEqual(BNewArray lhsList, BNewArray rhsList, List<ValuePair> checkedValues) {
+        ValuePair compValuePair = new ValuePair(lhsList, rhsList);
+        if (checkedValues.contains(compValuePair)) {
+            return true;
+        }
+        checkedValues.add(compValuePair);
+
         if (lhsList.size() != rhsList.size()) {
             return false;
         }
 
         for (int i = 0; i < lhsList.size(); i++) {
-            if (!isEqual(lhsList.getBValue(i), rhsList.getBValue(i))) {
+            if (!isEqual(lhsList.getBValue(i), rhsList.getBValue(i), checkedValues)) {
                 return false;
             }
         }
@@ -4598,11 +4644,18 @@ public class CPU {
     /**
      * Deep equality check for a map.
      *
-     * @param lhsMap    Map on the left hand side
-     * @param rhsMap    Map on the right hand side
+     * @param lhsMap            Map on the left hand side
+     * @param rhsMap            Map on the right hand side
+     * @param checkedValues     Structured value pairs already compared or being compared
      * @return True if the map values are equal, else false.
      */
-    private static boolean isEqual(BMap lhsMap, BMap rhsMap) {
+    private static boolean isEqual(BMap lhsMap, BMap rhsMap, List<ValuePair> checkedValues) {
+        ValuePair compValuePair = new ValuePair(lhsMap, rhsMap);
+        if (checkedValues.contains(compValuePair)) {
+            return true;
+        }
+        checkedValues.add(compValuePair);
+
         if (lhsMap.size() != rhsMap.size()) {
             return false;
         }
@@ -4614,7 +4667,7 @@ public class CPU {
         Iterator<Map.Entry<String, BValue>> mapIterator = lhsMap.getMap().entrySet().iterator();
         while (mapIterator.hasNext()) {
             Map.Entry<String, BValue> lhsMapEntry = mapIterator.next();
-            if (!isEqual(lhsMapEntry.getValue(), rhsMap.get(lhsMapEntry.getKey()))) {
+            if (!isEqual(lhsMapEntry.getValue(), rhsMap.get(lhsMapEntry.getKey()), checkedValues)) {
                 return false;
             }
         }
@@ -4660,7 +4713,7 @@ public class CPU {
 
     /**
      * Reference equality check for values. If both the values are simple basic types, returns the same
-     * result as {@link CPU#isEqual(BValue, BValue)}
+     * result as {@link CPU#isEqual(BValue, BValue, List)}
      *
      * @param lhsValue  The value on the left hand side
      * @param rhsValue  The value on the right hand side
@@ -4678,7 +4731,7 @@ public class CPU {
         }
 
         if (isSimpleBasicType(lhsValue.getType()) && isSimpleBasicType(rhsValue.getType())) {
-            return isEqual(lhsValue, rhsValue);
+            return isEqual(lhsValue, rhsValue, Collections.emptyList());
         }
 
         return false;
@@ -4686,7 +4739,7 @@ public class CPU {
 
     /**
      * Reference inequality check for values. If both the values are simple basic types, returns the same
-     * result as the negation of {@link CPU#isEqual(BValue, BValue)}
+     * result as the negation of {@link CPU#isEqual(BValue, BValue, List)}
      *
      * @param lhsValue  The value on the left hand side
      * @param rhsValue  The value on the right hand side
@@ -4699,7 +4752,7 @@ public class CPU {
         }
 
         if (isSimpleBasicType(lhsValue.getType()) && isSimpleBasicType(rhsValue.getType())) {
-            return !isEqual(lhsValue, rhsValue);
+            return !isEqual(lhsValue, rhsValue, Collections.emptyList());
         }
 
         return lhsValue != rhsValue;
@@ -4731,6 +4784,30 @@ public class CPU {
 
             TypePair other = (TypePair) obj;
             return this.sourceType.equals(other.sourceType) && this.targetType.equals(other.targetType);
+        }
+    }
+
+    /**
+     * Unordered BValue vector of size two, to hold two values being compared.
+     *
+     * @since 0.985.0
+     */
+    private static class ValuePair {
+        List<BValue> valueList = new ArrayList<>(2);
+
+        ValuePair(BValue valueOne, BValue valueTwo) {
+            valueList.add(valueOne);
+            valueList.add(valueTwo);
+        }
+
+        @Override
+        public boolean equals(Object otherPair) {
+            if (!(otherPair instanceof ValuePair)) {
+                return false;
+            }
+
+            return ((ValuePair) otherPair).valueList.containsAll(valueList) &&
+                    valueList.containsAll(((ValuePair) otherPair).valueList);
         }
     }
 }

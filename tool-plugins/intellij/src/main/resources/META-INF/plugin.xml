@@ -84,8 +84,6 @@
         <stubIndex implementation="io.ballerina.plugins.idea.stubs.index.BallerinaFunctionIndex"/>
         <stubIndex implementation="io.ballerina.plugins.idea.stubs.index.BallerinaGlobalVariableIndex"/>
         <stubIndex implementation="io.ballerina.plugins.idea.stubs.index.BallerinaAnnotationIndex"/>
-        <stubIndex implementation="io.ballerina.plugins.idea.stubs.index.BallerinaGlobalEndpointIndex"/>
-        <stubIndex implementation="io.ballerina.plugins.idea.stubs.index.BallerinaEndpointIndex"/>
         <stubIndex implementation="io.ballerina.plugins.idea.stubs.index.BallerinaWorkerIndex"/>
         <stubIndex implementation="io.ballerina.plugins.idea.stubs.index.BallerinaNamespaceIndex"/>
         <!--Add organization index-->
