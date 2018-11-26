@@ -3016,14 +3016,8 @@ public class Desugar extends BLangNodeVisitor {
             if (namedArgs.containsKey(param.name.value)) {
                 expr = namedArgs.get(param.name.value);
             } else {
-                if(param.defaultValue == null) {
-                    expr = getNullLiteral();
-                } else {
-                    Object defaultValue = param.defaultValue.getValue();
-                    int literalTypeTag = param.defaultValue.getLiteralTypeTag();
-                    int paramTypeTag = param.type.tag;
-                    expr = getDefaultValueLiteral(defaultValue, paramTypeTag, literalTypeTag);
-                }
+                int paramTypeTag = param.type.tag;
+                expr = getDefaultValueLiteral(param.defaultValue, paramTypeTag);
                 expr = addConversionExprIfRequired(expr, param.type);
             }
             args.add(expr);
@@ -3994,10 +3988,13 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
-    private BLangExpression getDefaultValueLiteral(Object value, int paramTypeTag, int literalTypeTag) {
-        if (value == null) {
+    private BLangExpression getDefaultValueLiteral(DefaultValueLiteral defaultValue, int paramTypeTag) {
+        if(defaultValue == null || defaultValue.getValue() == null) {
             return getNullLiteral();
         }
+        Object value = defaultValue.getValue();
+        int literalTypeTag = defaultValue.getLiteralTypeTag();
+
         if (value instanceof Long) {
             switch (paramTypeTag) {
                 case TypeTags.FLOAT:
