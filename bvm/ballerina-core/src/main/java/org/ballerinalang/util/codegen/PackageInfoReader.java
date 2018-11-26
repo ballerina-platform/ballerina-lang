@@ -47,10 +47,9 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.NativeUnitLoader;
 import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
-import org.ballerinalang.util.codegen.Instruction.InstructionCompensate;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
 import org.ballerinalang.util.codegen.Instruction.InstructionLock;
-import org.ballerinalang.util.codegen.Instruction.InstructionScopeEnd;
+import org.ballerinalang.util.codegen.Instruction.InstructionUnLock;
 import org.ballerinalang.util.codegen.Instruction.InstructionVCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
@@ -109,7 +108,6 @@ import static org.ballerinalang.util.BLangConstants.STOP_FUNCTION_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.TEST_INIT_FUNCTION_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.TEST_START_FUNCTION_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.TEST_STOP_FUNCTION_SUFFIX;
-import static org.ballerinalang.util.codegen.InstructionCodes.COMPENSATE;
 
 /**
  * Reads a Ballerina {@code PackageInfo} structure from a file.
@@ -1469,11 +1467,12 @@ public class PackageInfoReader {
                             typeTags, retRegs));
                     break;
                 case InstructionCodes.LOCK:
-                case InstructionCodes.UNLOCK:
                     int varCount = codeStream.readInt();
+                    int fieldCount = codeStream.readInt();
                     BType[] varTypes = new BType[varCount];
-                    int[] pkgRefs = new int[varCount];
-                    int[] varRegs = new int[varCount];
+                    int[] pkgRefs = new int[varCount + fieldCount];
+                    int[] varRegs = new int[varCount + fieldCount];
+                    int[] fieldRegs = new int[fieldCount];
                     for (int m = 0; m < varCount; m++) {
                         int varSigCPIndex = codeStream.readInt();
                         TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) packageInfo.getCPEntry(varSigCPIndex);
@@ -1485,7 +1484,42 @@ public class PackageInfoReader {
                         pkgRefs[m] = pkgRefCPEntry.getPackageInfo().pkgIndex;
                         varRegs[m] = codeStream.readInt();
                     }
-                    packageInfo.addInstruction(new InstructionLock(opcode, varTypes, pkgRefs, varRegs));
+
+                    String uuid = ((UTF8CPEntry) packageInfo.getCPEntry(codeStream.readInt())).getValue();
+
+                    for (int n = 0; n < fieldCount; n++) {
+                        pkgRefCPIndex = codeStream.readInt();
+                        pkgRefCPEntry = (PackageRefCPEntry) packageInfo.getCPEntry(pkgRefCPIndex);
+
+                        pkgRefs[varCount + n] = pkgRefCPEntry.getPackageInfo().pkgIndex;
+                        varRegs[varCount + n] = codeStream.readInt();
+
+                        fieldRegs[n] = codeStream.readInt();
+                    }
+                    packageInfo.addInstruction(new InstructionLock(opcode, varTypes, pkgRefs, varRegs, fieldRegs,
+                            varCount, uuid));
+                    break;
+                case InstructionCodes.UNLOCK:
+                    int globalVarCount = codeStream.readInt();
+                    boolean hasFieldVar = (codeStream.readInt() > 0) ? true : false;
+                    String lockUuid = ((UTF8CPEntry) packageInfo.getCPEntry(codeStream.readInt())).getValue();
+                    BType[] globalVarTypes = new BType[globalVarCount];
+                    int[] lockPkgRefs = new int[globalVarCount];
+                    int[] globalVarRegs = new int[globalVarCount];
+
+                    for (int m = 0; m < globalVarCount; m++) {
+                        int varSigCPIndex = codeStream.readInt();
+                        TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) packageInfo.getCPEntry(varSigCPIndex);
+                        globalVarTypes[m] = typeRefCPEntry.getType();
+
+                        pkgRefCPIndex = codeStream.readInt();
+                        pkgRefCPEntry = (PackageRefCPEntry) packageInfo.getCPEntry(pkgRefCPIndex);
+
+                        lockPkgRefs[m] = pkgRefCPEntry.getPackageInfo().pkgIndex;
+                        globalVarRegs[m] = codeStream.readInt();
+                    }
+                    packageInfo.addInstruction(new InstructionUnLock(opcode, globalVarTypes, lockPkgRefs, globalVarRegs,
+                            globalVarCount, lockUuid, hasFieldVar));
                     break;
                 default:
                     throw new ProgramFileFormatException("unknown opcode " + opcode +

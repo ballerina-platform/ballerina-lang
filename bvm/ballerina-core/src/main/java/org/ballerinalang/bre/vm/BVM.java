@@ -470,7 +470,8 @@ public class BVM {
 //                    }
                         break;
                     case InstructionCodes.CHNRECEIVE:
-                        Instruction.InstructionCHNReceive chnReceiveIns = (Instruction.InstructionCHNReceive) instruction;
+                        Instruction.InstructionCHNReceive chnReceiveIns =
+                                (Instruction.InstructionCHNReceive) instruction;
                         if (!handleCHNReceive(strand, chnReceiveIns.channelName, chnReceiveIns.receiverType,
                                 chnReceiveIns.receiverReg, chnReceiveIns.keyType, chnReceiveIns.keyReg)) {
                             return;
