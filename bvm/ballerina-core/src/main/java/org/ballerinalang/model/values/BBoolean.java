@@ -52,22 +52,23 @@ public final class BBoolean extends BValueType implements BRefType<Boolean> {
 
     @Override
     public long intValue() {
-        return 0;
+        return value ? 1 : 0;
     }
 
     @Override
     public byte byteValue() {
-        return 0;
+        return value ? (byte) 1 : 0;
     }
 
     @Override
     public double floatValue() {
-        return 0;
+        return value ? 1 : 0;
     }
 
     @Override
     public BigDecimal decimalValue() {
-        return BigDecimal.ZERO;
+        return value ? BigDecimal.ONE.setScale(1, BigDecimal.ROUND_HALF_EVEN) :
+                BigDecimal.ZERO.setScale(1, BigDecimal.ROUND_HALF_EVEN);
     }
 
     @Override
