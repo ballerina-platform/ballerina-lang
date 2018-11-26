@@ -831,7 +831,7 @@ public class CompiledPackageSymbolEnter {
         }
     }
 
-    private Object getDefaultValue(DataInputStream dataInStream)
+    private DefaultValueLiteral getDefaultValue(DataInputStream dataInStream)
             throws IOException {
         String typeDesc = getUTF8CPEntryValue(dataInStream);
 

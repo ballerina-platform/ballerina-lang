@@ -3744,7 +3744,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Only named parameters can have default values.
         for (BVarSymbol param : funcSymbol.defaultableParams) {
-            DefaultValue defaultVal = getDefaultValue(((DefaultValueLiteral) param.defaultValue).getValue());
+            DefaultValue defaultVal = getDefaultValue(param.defaultValue.getValue());
             paramDefaulValAttrInfo.addParamDefaultValueInfo(defaultVal);
         }
 

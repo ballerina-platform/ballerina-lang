@@ -3019,8 +3019,8 @@ public class Desugar extends BLangNodeVisitor {
                 if(param.defaultValue == null) {
                     expr = getNullLiteral();
                 } else {
-                    Object defaultValue = ((DefaultValueLiteral) param.defaultValue).getValue();
-                    int literalTypeTag = ((DefaultValueLiteral) param.defaultValue).getLiteralTypeTag();
+                    Object defaultValue = param.defaultValue.getValue();
+                    int literalTypeTag = param.defaultValue.getLiteralTypeTag();
                     int paramTypeTag = param.type.tag;
                     expr = getDefaultValueLiteral(defaultValue, paramTypeTag, literalTypeTag);
                 }
