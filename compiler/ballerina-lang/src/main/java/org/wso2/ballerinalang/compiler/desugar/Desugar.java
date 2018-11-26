@@ -1522,7 +1522,22 @@ public class Desugar extends BLangNodeVisitor {
             String o2FullName = String.join(":", v2.pkgID.getName().getValue(), v2.name.getValue());
             return o1FullName.compareTo(o2FullName);
         }).collect(Collectors.toSet());
+
+        //check both a field and parent are in locked variables
+        if (!lockNode.lockVariables.isEmpty()) {
+            lockNode.fieldVariables.values().forEach(exprSet -> exprSet.removeIf(expr -> isParentLocked(lockNode,
+                    expr)));
+        }
         result = lockNode;
+    }
+
+    boolean isParentLocked(BLangLock lock, BLangVariableReference expr) {
+        if (lock.lockVariables.contains(expr.symbol)) {
+            return true;
+        } else if (expr instanceof BLangStructFieldAccessExpr) {
+            return isParentLocked(lock, (BLangVariableReference) ((BLangStructFieldAccessExpr) expr).expr);
+        }
+        return false;
     }
 
     @Override
@@ -1745,7 +1760,6 @@ public class Desugar extends BLangNodeVisitor {
                 // We consider both of them as package level variables.
                 genVarRefExpr = new BLangPackageVarRef((BVarSymbol) varRefExpr.symbol);
 
-                // Only locking service level and package level variables.
                 if (!enclLocks.isEmpty()) {
                     enclLocks.peek().addLockVariable((BVarSymbol) varRefExpr.symbol);
                 }
@@ -1777,6 +1791,11 @@ public class Desugar extends BLangNodeVisitor {
                 targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos,
                         (BLangVariableReference) fieldAccessExpr.expr, stringLit, (BVarSymbol) fieldAccessExpr.symbol,
                         false);
+
+                // expr symbol is null when their is a array as the field
+                if (!enclLocks.isEmpty() && (((BLangVariableReference) fieldAccessExpr.expr).symbol != null)) {
+                    enclLocks.peek().addFieldVariable((BLangStructFieldAccessExpr) targetVarRef);
+                }
             }
         } else if (varRefType.tag == TypeTags.RECORD) {
             if (fieldAccessExpr.symbol != null && fieldAccessExpr.symbol.type.tag == TypeTags.INVOKABLE
@@ -1787,6 +1806,11 @@ public class Desugar extends BLangNodeVisitor {
                 targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos,
                         (BLangVariableReference) fieldAccessExpr.expr, stringLit, (BVarSymbol) fieldAccessExpr.symbol,
                         true);
+
+                // expr symbol is null when their is a array as the field
+                if (!enclLocks.isEmpty() && (((BLangVariableReference) fieldAccessExpr.expr).symbol != null)) {
+                    enclLocks.peek().addFieldVariable((BLangStructFieldAccessExpr) targetVarRef);
+                }
             }
         } else if (varRefType.tag == TypeTags.MAP) {
             targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, (BLangVariableReference) fieldAccessExpr.expr,

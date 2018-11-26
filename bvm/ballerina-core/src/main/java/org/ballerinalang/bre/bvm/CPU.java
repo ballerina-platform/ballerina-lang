@@ -88,6 +88,7 @@ import org.ballerinalang.util.codegen.Instruction.InstructionCHNSend;
 import org.ballerinalang.util.codegen.Instruction.InstructionFORKJOIN;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
 import org.ballerinalang.util.codegen.Instruction.InstructionLock;
+import org.ballerinalang.util.codegen.Instruction.InstructionUnLock;
 import org.ballerinalang.util.codegen.Instruction.InstructionVCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.InstructionCodes;
@@ -138,6 +139,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Stack;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -775,14 +777,16 @@ public class CPU {
                     case InstructionCodes.LOCK:
                         InstructionLock instructionLock = (InstructionLock) instruction;
                         if (!handleVariableLock(ctx, instructionLock.types,
-                                instructionLock.pkgRefs, instructionLock.varRegs)) {
+                                instructionLock.pkgRefs, instructionLock.varRegs, instructionLock.fieldNames,
+                                instructionLock.varCount, instructionLock.uuid)) {
                             return;
                         }
                         break;
                     case InstructionCodes.UNLOCK:
-                        InstructionLock instructionUnLock = (InstructionLock) instruction;
+                        InstructionUnLock instructionUnLock = (InstructionUnLock) instruction;
                         handleVariableUnlock(ctx, instructionUnLock.types,
-                                instructionUnLock.pkgRefs, instructionUnLock.varRegs);
+                                instructionUnLock.pkgRefs, instructionUnLock.varRegs,
+                                instructionUnLock.varCount, instructionUnLock.uuid, instructionUnLock.hasFieldVar);
                         break;
                     case InstructionCodes.AWAIT:
                         ctx = execAwait(ctx, operands);
@@ -2765,12 +2769,14 @@ public class CPU {
     }
 
     private static boolean handleVariableLock(WorkerExecutionContext ctx, BType[] types,
-                                              int[] pkgRegs, int[] varRegs) {
+                                              int[] pkgRegs, int[] varRegs, String[] fieldNames, int varCount,
+                                              String uuid) {
         boolean lockAcquired = true;
-        for (int i = 0; i < varRegs.length && lockAcquired; i++) {
+        for (int i = 0; i < varCount && lockAcquired; i++) {
             BType paramType = types[i];
             int pkgIndex = pkgRegs[i];
             int regIndex = varRegs[i];
+
             switch (paramType.getTag()) {
                 case TypeTags.INT_TAG:
                     lockAcquired = ctx.programFile.globalMemArea.lockIntField(ctx, pkgIndex, regIndex);
@@ -2790,13 +2796,42 @@ public class CPU {
                 default:
                     lockAcquired = ctx.programFile.globalMemArea.lockRefField(ctx, pkgIndex, regIndex);
             }
+
+        }
+
+        if (varRegs.length > varCount) {
+            if (ctx.localProps == null) {
+                ctx.localProps = new HashMap<>();
+            }
+
+            ctx.localProps.putIfAbsent(Constants.LOCK_VARS, new HashMap<UUID, Stack<VarLock>>());
+            HashMap locks = (HashMap) ctx.localProps.get(Constants.LOCK_VARS);
+            locks.putIfAbsent(uuid, new Stack<VarLock>());
+            Stack<VarLock> lockStack = (Stack) locks.get(uuid);
+
+            for (int i = 0; (i < varRegs.length - varCount) && lockAcquired; i++) {
+                int regIndex = varRegs[varCount + i];
+                VarLock lock = ((BMap) ctx.workerLocal.refRegs[regIndex]).getFieldLock(fieldNames[i]);
+                lockAcquired = lock.lock(ctx);
+                if (lockAcquired) {
+                    lockStack.push(lock);
+                }
+            }
         }
         return lockAcquired;
     }
 
-    private static void handleVariableUnlock(WorkerExecutionContext ctx, BType[] types,
-                                             int[] pkgRegs, int[] varRegs) {
-        for (int i = varRegs.length - 1; i > -1; i--) {
+    private static void handleVariableUnlock(WorkerExecutionContext ctx, BType[] types, int[] pkgRegs, int[] varRegs,
+                                             int varCount, String uuid, boolean hasFieldVar) {
+        if (hasFieldVar) {
+            HashMap locks = (HashMap) ctx.localProps.get(Constants.LOCK_VARS);
+            Stack<VarLock> lockStack = (Stack<VarLock>) locks.get(uuid);
+            while (!lockStack.isEmpty()) {
+                lockStack.pop().unlock();
+            }
+        }
+
+        for (int i = varCount - 1; i > -1; i--) {
             BType paramType = types[i];
             int pkgIndex = pkgRegs[i];
             int regIndex = varRegs[i];
