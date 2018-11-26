@@ -36,7 +36,7 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.MessageAcknowledgeme
                    packageName = "jms",
                    functionName = "acknowledge",
                    receiver = @Receiver(type = TypeKind.OBJECT,
-                                        structType = "QueueReceiverActions",
+                                        structType = "QueueReceiverCaller",
                                         structPackage = "ballerina/jms"),
                    args = {
                            @Argument(name = "message",

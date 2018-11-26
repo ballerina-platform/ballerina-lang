@@ -48,7 +48,7 @@ public class CompletionKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<BLangNode> PREVIOUS_NODE_KEY
             = new LSContext.Key<>();
-    public static final LSContext.Key<String> NEXT_NODE_KEY
+    public static final LSContext.Key<Integer> NEXT_NODE_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<Integer> LOOP_COUNT_KEY
             = new LSContext.Key<>();
