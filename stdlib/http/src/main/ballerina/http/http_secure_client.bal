@@ -39,20 +39,20 @@ public const POST_BODY_BEARER = "POST_BODY_BEARER";
 # Provides secure HTTP actions for interacting with HTTP endpoints. This will make use of the authentication schemes
 # configured in the HTTP client endpoint to secure the HTTP requests.
 #
-# + serviceUri - The URL of the remote HTTP endpoint
+# + url - The URL of the remote HTTP endpoint
 # + config - The configurations of the client endpoint associated with this HttpActions instance
 # + httpClient - The underlying `HttpActions` instance which will be making the actual network calls
 public type HttpSecureClient client object {
     //These properties are populated from the init call to the client connector as these were needed later stage
     //for retry and other few places.
-    public string serviceUri = "";
+    public string url = "";
     public ClientEndpointConfig config = {};
     public Client httpClient;
 
-    public function __init(string serviceUri, ClientEndpointConfig config) {
-        self.serviceUri = serviceUri;
+    public function __init(string url, ClientEndpointConfig config) {
+        self.url = url;
         self.config = config;
-        var simpleClient = createClient(serviceUri, self.config);
+        var simpleClient = createClient(url, self.config);
         if (simpleClient is Client) {
             self.httpClient = simpleClient;
         } else {
