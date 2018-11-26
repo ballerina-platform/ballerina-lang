@@ -127,13 +127,18 @@ public class TestGenerator {
         return fileTemplate;
     }
 
-    private static RootTemplate getRootTemplate(String fileName, Pair<BLangNode, Object> result,
+    private static RootTemplate getRootTemplate(String fileName, Pair<BLangNode, Object> nodes,
                                                 BLangPackage builtTestFile,
                                                 BiConsumer<Integer, Integer> focusLineAcceptor)
             throws TestGeneratorException {
-        BLangNode bLangNode = result.getLeft();
-        Object fallBackNode = result.getRight();
+
+        BLangNode bLangNode = nodes.getLeft();
+        Object fallBackNode = nodes.getRight();
         boolean fallback = false;
+        //
+        if (bLangNode == null && fallBackNode == null) {
+            throw new TestGeneratorException("Target test construct not found!");
+        }
 
         if (bLangNode instanceof BLangFunction) {
             // A function
