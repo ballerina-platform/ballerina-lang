@@ -128,7 +128,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         Map<String, Boolean> experimentalClientCapabilities =
                 (LinkedTreeMap<String, Boolean>) params.getCapabilities().getExperimental();
 
-        if (experimentalClientCapabilities != null && experimentalClientCapabilities.get(INTROSPECTION.name())) {
+        if (experimentalClientCapabilities != null && experimentalClientCapabilities.get(INTROSPECTION.getValue())) {
             ballerinaTraceListener.startListener();
         }
 

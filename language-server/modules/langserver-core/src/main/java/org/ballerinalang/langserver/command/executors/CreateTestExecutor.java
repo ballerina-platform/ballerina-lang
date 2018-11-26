@@ -221,7 +221,7 @@ public class CreateTestExecutor implements LSCommandExecutor {
                 client.applyEdit(editParams);
                 String message = "Tests generated into the file:" + testFile.toString();
                 client.showMessage(new MessageParams(MessageType.Info, message));
-                if (workspace.getExperimentalClientCapabilities().get(SHOW_TEXT_DOCUMENT.name())) {
+                if (workspace.getExperimentalClientCapabilities().get(SHOW_TEXT_DOCUMENT.getValue())) {
                     Location location = new Location(identifier.getUri(), focus);
                     client.showTextDocument(location);
                 }
