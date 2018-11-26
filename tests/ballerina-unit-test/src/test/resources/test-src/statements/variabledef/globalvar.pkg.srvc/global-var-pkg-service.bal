@@ -18,7 +18,7 @@ int glbVarPkgFunc = varpkg:getIntValue();
 
 string serviceVarString = varpkg:glbVarString;
 
-listener http:MockServer globalVarEP = new(9090);
+listener http:MockListener globalVarEP = new(9090);
 
 @http:ServiceConfig {basePath:"/globalvar-pkg"}
 service GlobalVar on globalVarEP {

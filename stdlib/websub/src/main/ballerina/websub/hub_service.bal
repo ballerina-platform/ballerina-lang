@@ -223,7 +223,7 @@ service {
                 } else {
                     string errorMessage = "Publish request denied for unregistered topic[" + topic + "]";
                     log:printDebug(errorMessage);
-                    response.setTextPayload(errorMessage);
+                    response.setTextPayload(untaint errorMessage);
                 }
                 response.statusCode = http:BAD_REQUEST_400;
                 var responseError = httpCaller->respond(response);
@@ -275,7 +275,7 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
     http:Client callbackEp = new http:Client(callback, config = { secureSocket: hubClientSecureSocket });
     string mode = params[HUB_MODE] ?: "";
     string strLeaseSeconds = params[HUB_LEASE_SECONDS] ?: "";
-    int leaseSeconds = <int>strLeaseSeconds but {error => 0};
+    int leaseSeconds = int.create(strLeaseSeconds) but { error => 0 };
 
     //measured from the time the verification request was made from the hub to the subscriber from the recommendation
     int createdAt = time:currentTime().time;
@@ -451,7 +451,7 @@ function addTopicRegistrationsOnStartup() {
     if (dbResult is table) {
         table dt = dbResult;
         while (dt.hasNext()) {
-            var registrationDetails = <TopicRegistration>dt.getNext();
+            var registrationDetails = trap <TopicRegistration>dt.getNext();
             if (registrationDetails is TopicRegistration) {
                 var registerStatus = registerTopicAtHub(registrationDetails.topic, loadingOnStartUp = true);
                 if (registerStatus is error) {
@@ -491,7 +491,7 @@ function addSubscriptionsOnStartup() {
     if (dbResult is table) {
         table dt = dbResult;
         while (dt.hasNext()) {
-            var subscriptionDetails = <SubscriptionDetails>dt.getNext();
+            var subscriptionDetails = trap <SubscriptionDetails>dt.getNext();
             if (subscriptionDetails is SubscriptionDetails) {
                 addSubscription(subscriptionDetails);
             } else if (subscriptionDetails is error) {
