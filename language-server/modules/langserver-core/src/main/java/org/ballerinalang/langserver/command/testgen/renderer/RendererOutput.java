@@ -69,7 +69,7 @@ public interface RendererOutput {
      * Sets focus function name and acceptor.
      *
      * @param functionName focus function name
-     * @param focusAcceptor focus position acceptor
+     * @param focusAcceptor focus line acceptor
      */
     void setFocusLineAcceptor(String functionName, BiConsumer<Integer, Integer> focusAcceptor);
 }

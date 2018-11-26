@@ -69,12 +69,12 @@ public class TestGenerator {
     /**
      * Creates a test file for a given BLangPackage in source file path.
      *
-     * @param documentManager       document manager
-     * @param bLangNodePair         A pair of {@link BLangNode} and fallback node
-     * @param focusLineAcceptor focus position acceptor
-     * @param builtSourceFile       built {@link BLangPackage} source file
-     * @param pkgRelativePath       package relative path
-     * @param testFile              test file
+     * @param documentManager   document manager
+     * @param bLangNodePair     A pair of {@link BLangNode} and fallback node
+     * @param focusLineAcceptor focus line acceptor
+     * @param builtSourceFile   built {@link BLangPackage} source file
+     * @param pkgRelativePath   package relative path
+     * @param testFile          test file
      * @return generated test file path
      * @throws TestGeneratorException when test case generation fails
      */

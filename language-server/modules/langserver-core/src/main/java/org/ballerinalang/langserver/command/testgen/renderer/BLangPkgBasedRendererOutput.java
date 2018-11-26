@@ -147,7 +147,7 @@ public class BLangPkgBasedRendererOutput implements RendererOutput {
      * Sets focus function name and acceptor.
      *
      * @param functionName focus function name
-     * @param acceptor focus position acceptor
+     * @param acceptor     focus line acceptor
      */
     @Override
     public void setFocusLineAcceptor(String functionName, BiConsumer<Integer, Integer> acceptor) {
