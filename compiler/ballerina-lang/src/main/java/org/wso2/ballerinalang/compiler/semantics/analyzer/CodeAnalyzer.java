@@ -1525,6 +1525,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         this.visitFunction(bLangLambdaFunction.function);
 
+        resetStatementReturns();
+
         if (isWorker) {
             this.workerActionSystemStack.peek().endWorkerActionStateMachine();
             this.workerCount--;
