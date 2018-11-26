@@ -43,20 +43,20 @@ public function main(string... args) {
 
 service ClientService = service {
 
-	resource function onConnect(socket:Client caller) {
+	resource function onConnect(socket:Caller caller) {
 		io:println("connect: ", caller.remotePort);
     }
     
-	resource function onReadReady (socket:Client caller, byte[] content) {
+	resource function onReadReady (socket:Caller caller, byte[] content) {
 		io:println("client write");	
 		_ = caller->write(content);		
     }
     
-    resource function onClose(socket:Client caller) {
+    resource function onClose(socket:Caller caller) {
 		io:println("Leave: ", caller.remotePort);
     }
     
-    resource function onError(socket:Client caller, error er) {
+    resource function onError(socket:Caller caller, error er) {
 		io:println(er.reason());
     }
 };
