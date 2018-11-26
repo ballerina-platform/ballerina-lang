@@ -879,14 +879,13 @@ public class Types {
         return targetType.accept(conversionVisitor, sourceType);
     }
 
-    BSymbol getTypeConversionOrAssertionOperator(BType sourceType, BType targetType) {
-        if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR ||
-                sourceType == targetType) {
+    BSymbol getTypeAssertionOperator(BType sourceType, BType targetType) {
+        if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR) {
             return createConversionOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
         }
 
         if (isValueType(targetType)) {
-            return symResolver.getExplicitlySimpleBasicTypedExpressionSymbol(sourceType, targetType);
+            return symResolver.getExplicitlyTypedExpressionSymbol(sourceType, targetType);
         } else if (isAssignable(targetType, sourceType)) {
             return symResolver.createTypeAssertionSymbol(sourceType, targetType);
         }
