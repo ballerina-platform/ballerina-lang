@@ -100,7 +100,7 @@ function testSafeNavigatingJSONWithNilInMiddle_2 () returns any {
 }
 
 function testSafeNavigatingNilMap () returns any {
-    map m = {};
+    map<any> m = {};
     return m["foo"];
 }
 
@@ -205,20 +205,20 @@ function testNonExistingMapKeyWithFieldAccess() returns string {
     return m.a;
 }
 
-function testMapNilLiftingOnLHS_1() returns map {
-    map m = {};
+function testMapNilLiftingOnLHS_1() returns map<any> {
+    map<any> m = {};
     m.name = "John";
     return m;
 }
 
-function testMapNilLiftingOnLHS_2() returns map {
+function testMapNilLiftingOnLHS_2() returns map<any> {
     map<json> m = {};
     m["name"].fname = "John";
     return m;
 }
 
-function testMapNilLiftingOnLHS_3() returns map<map?> {
-    map<map?> m = {};
+function testMapNilLiftingOnLHS_3() returns map<map<any>?> {
+    map<map<any>?> m = {};
     m["name"].fname = "John";
     return m;
 }
@@ -236,7 +236,7 @@ function testMapNilLiftingOnLHS_5() returns map<string>? {
 }
 
 type A record {
-    map? foo = ();
+    map<any>? foo = ();
 };
 
 function testMapInRecordNilLiftingOnLHS_1() returns A {

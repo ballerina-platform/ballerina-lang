@@ -1,5 +1,5 @@
-function testMapWithUnsupportedKey () returns (map) {
-    map m = { foo(): "supun"};
+function testMapWithUnsupportedKey () returns (map<any>) {
+    map<any> m = { foo(): "supun"};
     return m;
 }
 

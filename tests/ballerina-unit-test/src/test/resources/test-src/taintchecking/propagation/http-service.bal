@@ -8,7 +8,7 @@ service sample on helloWorldEP {
         path:"/path/{foo}"
     }
     resource function params (http:Caller caller, http:Request req, string foo) {
-        map paramsMap = req.getQueryParams();
+        map<any> paramsMap = req.getQueryParams();
         var bar = paramsMap.bar;
 
         secureFunction(foo, foo);

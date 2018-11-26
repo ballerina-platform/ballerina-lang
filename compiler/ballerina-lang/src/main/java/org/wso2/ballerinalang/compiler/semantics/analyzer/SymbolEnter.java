@@ -835,14 +835,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        // Todo - Remove.
-        //Check annotations attached to the variable
-        if (varNode.annAttachments.size() > 0) {
-            if (hasAnnotation(varNode.annAttachments, Names.ANNOTATION_READONLY.getValue())) {
-                varNode.flagSet.add(Flag.READONLY);
-            }
-        }
-
         BVarSymbol varSymbol = defineVarSymbol(varNode.pos, varNode.flagSet, varNode.type, varName, env);
         varSymbol.markdownDocumentation = getMarkdownDocAttachment(varNode.markdownDocumentationAttachment);
         varNode.symbol = varSymbol;

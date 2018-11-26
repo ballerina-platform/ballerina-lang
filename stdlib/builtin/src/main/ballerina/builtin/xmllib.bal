@@ -78,7 +78,7 @@ public extern function xml.slice(int startIndex, int endIndex) returns (xml);
 # Sets the attributes to the provided attributes map.
 #
 # + attributes - Attributes map
-public extern function xml.setAttributes(map attributes);
+public extern function xml.setAttributes(map<any> attributes);
 
 # Converts a XML object to a JSON representation.
 #
