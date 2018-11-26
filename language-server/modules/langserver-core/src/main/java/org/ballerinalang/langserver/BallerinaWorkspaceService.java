@@ -48,13 +48,14 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Workspace service implementation for Ballerina.
  */
-class BallerinaWorkspaceService implements WorkspaceService {
+public class BallerinaWorkspaceService implements WorkspaceService {
     private static final Logger logger = LoggerFactory.getLogger(BallerinaWorkspaceService.class);
     private BallerinaLanguageServer ballerinaLanguageServer;
     private WorkspaceDocumentManager workspaceDocumentManager;
     private DiagnosticsHelper diagnosticsHelper;
     private LSGlobalContext lsGlobalContext;
     private LSCompiler lsCompiler;
+    private Map<String, Boolean> experimentalClientCapabilities;
 
     BallerinaWorkspaceService(LSGlobalContext globalContext) {
         this.lsGlobalContext = globalContext;
@@ -134,5 +135,23 @@ class BallerinaWorkspaceService implements WorkspaceService {
             logger.warn("No command executor found for \"" + params.getCommand() + "\"");
             return false;
         });
+    }
+
+    /**
+     * Sets experimental client capabilities.
+     *
+     * @param experimentalClientCapabilities a map of capabilities
+     */
+    public void setExperimentalClientCapabilities(Map<String, Boolean> experimentalClientCapabilities) {
+        this.experimentalClientCapabilities = experimentalClientCapabilities;
+    }
+
+    /**
+     * Returns experimental client capabilities.
+     *
+     * @return a map of capabilities
+     */
+    public Map<String, Boolean> getExperimentalClientCapabilities() {
+        return this.experimentalClientCapabilities;
     }
 }
