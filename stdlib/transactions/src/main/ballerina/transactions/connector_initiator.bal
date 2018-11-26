@@ -29,18 +29,13 @@ type InitiatorClientEP client object {
     http:Client httpClient;
 
     function __init(InitiatorClientConfig conf) {
-        int timeOut = conf.timeoutMillis;
-        int retryCount = conf.retryConfig.count;
-        int retryInterval = conf.retryConfig.interval;
-
         http:Client httpEP = new(conf.registerAtURL, config = {
-            url:conf.registerAtURL,
-            timeoutMillis:timeOut,
-            retryConfig:{
-                count:retryCount,
-                interval:retryInterval
-            }
-        });
+                timeoutMillis:conf.timeoutMillis,
+                retryConfig:{
+                    count:conf.retryConfig.count,
+                    interval:conf.retryConfig.interval
+                }
+            });
         self.httpClient = httpEP;
     }
 
