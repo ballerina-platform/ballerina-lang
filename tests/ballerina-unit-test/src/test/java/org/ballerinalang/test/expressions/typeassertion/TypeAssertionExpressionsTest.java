@@ -176,6 +176,13 @@ public class TypeAssertionExpressionsTest {
         BRunUtil.invoke(result, "testStringAsInvalidBasicType", new BValue[0]);
     }
 
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'PersonObject', found " +
+                    "'EmployeeObject'.*")
+    public void testBroaderObjectAssertion() {
+        BRunUtil.invoke(result, "testBroaderObjectAssertion", new BValue[0]);
+    }
+
     @Test
     public void testAssertionNegatives() {
         Assert.assertEquals(resultNegative.getErrorCount(), 3);
