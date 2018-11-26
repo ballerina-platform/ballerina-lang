@@ -492,6 +492,12 @@ function testStringAsInvalidBasicType() {
     int i = <int> a;
 }
 
+function testBroaderObjectAssertion() {
+    EmployeeObject e = new("Em Zee");
+    PersonObject p = e;
+    PersonObject p2 = <PersonObject> p;
+}
+
 function testFunc(string s, int i) returns string {
     return <string> i + s;
 }

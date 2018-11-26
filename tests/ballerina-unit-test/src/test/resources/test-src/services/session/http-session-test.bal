@@ -358,13 +358,13 @@ service<http:Service> sample2 bind sessionEP {
         if (!req.hasHeader("counter")) {
             session.setAttribute("Name", "chamil");
             session.setAttribute("Lang", "ballerina");
-            map attributes = session.getAttributes();
+            map<any> attributes = session.getAttributes();
             string[] arr = attributes.keys();
             string v0;
             v0 = <string>attributes[arr[0]];
             res.setTextPayload(arr[0] + ":" + v0);
         } else {
-            map attributes = session.getAttributes();
+            map<any> attributes = session.getAttributes();
             string[] arr = attributes.keys();
             string v1;
             v1 = <string>attributes[arr[1]];
@@ -380,7 +380,7 @@ service<http:Service> sample2 bind sessionEP {
     getmap2 (endpoint conn, http:Request req) {
 
         http:Session session = req.createSessionIfAbsent();
-        map attributes = session.getAttributes();
+        map<any> attributes = session.getAttributes();
         string v0 = "map not present";
         if ((attributes.length()) != 0) {
             string[] arr = attributes.keys();

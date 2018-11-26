@@ -8,7 +8,7 @@ function forkJoinWithWorkers () {
             worker forkWorker2 {
                 int a = 5;
             }
-        } join (all) (map m) {
+        } join (all) (map<any> m) {
         }
     }
 

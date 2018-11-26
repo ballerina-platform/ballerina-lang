@@ -5,7 +5,7 @@ public function main(string... args) {
 }
 
 public function testSelectWithTaintedQueryNegative(string... args) {
-    endpoint mysql:Client testDB {
+    mysql:Client testDB = new({
         host:"localhost",
         port:3306,
         name:"testdb",
@@ -13,7 +13,7 @@ public function testSelectWithTaintedQueryNegative(string... args) {
         password:"root",
         poolOptions:{maximumPoolSize:5},
         dbOptions: {}
-    };
+    });
 
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = " + args[0], ());
     testDB.stop();
