@@ -16,16 +16,16 @@ jms:Session jmsSession1 = new (conn1, {
     });
 
 // Initialize a Queue consumer using the created session.
-endpoint jms:QueueReceiver consumer1 {
+listener jms:QueueReceiver consumer1 = new({
     session: jmsSession1,
     queueName: "MyQueue"
-};
+});
 
 // Bind the created consumer to the listener service.
-service<jms:Consumer> jmsListener1 bind consumer1 {
+service jmsListener1 on consumer1 {
 
     // OnMessage resource get invoked when a message is received.
-    onMessage(endpoint consumer, jms:Message message) {
+    resource function onMessage(jms:QueueReceiverCaller consumer, jms:Message message) {
         var messageText = message.getTextMessageContent();
 //        string correlationId = check message.getCorrelationID();
 //        io:print("correlationId:" + correlationId);
@@ -57,20 +57,18 @@ service<jms:Consumer> jmsListener1 bind consumer1 {
 
 // This is to make sure that the test case can detect the PID using port. Removing following will result in
 // intergration testframe work failing to kill the ballerina service.
-endpoint http:Listener helloWorldEp1 {
-    port:9091
-};
+listener http:Listener helloWorldEp1 = new(9091);
 
 @http:ServiceConfig {
     basePath:"/jmsDummyService"
 }
-service<http:Service> helloWorld1 bind helloWorldEp1 {
+service helloWorld1 on helloWorldEp1 {
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/"
     }
-    sayHello (endpoint client, http:Request req) {
+    resource function sayHello (http:Caller caller, http:Request req) {
         // Do nothing
     }
 }

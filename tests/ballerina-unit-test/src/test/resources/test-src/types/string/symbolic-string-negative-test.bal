@@ -29,7 +29,7 @@ function testWithSpaces() returns (string) {
     string var6 = 'Hello󿿽;
 
 // Maps
-    map addrMap = { road: 'Mount Lavinia, country: 'SriLanka };
+    map<any> addrMap = { road: 'Mount Lavinia, country: 'SriLanka };
     addrMap['country sl] = 'PO00300;
     // Records
     Student stu = { name: 'Adam Page, age: 17};

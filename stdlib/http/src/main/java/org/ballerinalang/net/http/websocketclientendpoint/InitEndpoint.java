@@ -77,7 +77,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         Struct clientEndpointConfig = clientEndpoint.getStructField(HttpConstants.CLIENT_ENDPOINT_CONFIG);
 
         String remoteUrl = clientEndpoint.getStringField(WebSocketConstants.CLIENT_URL_CONFIG);
-        Value clientServiceType = clientEndpointConfig.getTypeField(WebSocketConstants.CLIENT_SERVICE_CONFIG);
+        BValue clientServiceType = clientEndpointConfig.getServiceField(WebSocketConstants.CLIENT_SERVICE_CONFIG);
         WebSocketService wsService;
         if (clientServiceType != null) {
             Service service = BLangConnectorSPIUtil.getServiceFromType(context.getProgramFile(), clientServiceType);

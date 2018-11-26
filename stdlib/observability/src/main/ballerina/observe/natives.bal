@@ -80,8 +80,17 @@ public type Counter object {
     #          will be used.
     # + tags - The key/value pair of Tags. If no tags are provided, the default nil value will be used.
     public function __init(string name, string? desc = "", map<string>? tags = ()) {
-        self.description = desc ?: "";
-        self.metricTags = tags ?: DEFAULT_TAGS;
+        self.name = name;
+        if (desc is string) {
+            self.description = desc;
+        } else {
+            self.description = "";
+        }
+        if (tags is map<string>) {
+            self.metricTags = tags;
+        } else {
+            self.metricTags = DEFAULT_TAGS;
+        }
         self.initialize();
     }
 
@@ -141,9 +150,28 @@ public type Gauge object {
     #                     calculation.
     public function __init(string name, string? desc = "", map<string>? tags = (),
                StatisticConfig[]? statisticConfig = ()) {
+<<<<<<< HEAD
         self.description = desc ?: "";
         self.metricTags = tags ?: DEFAULT_TAGS;
         self.statisticConfigs = statisticConfig ?: DEFAULT_GAUGE_STATS_CONFIG;
+=======
+        self.name = name;
+        if (desc is string) {
+            self.description = desc;
+        } else {
+            self.description = "";
+        }
+        if (tags is map<string>) {
+            self.metricTags = tags;
+        } else {
+            self.metricTags = DEFAULT_TAGS;
+        }
+        if (statisticConfig is StatisticConfig[]) {
+            self.statisticConfigs = statisticConfig;
+        } else {
+            self.statisticConfigs = DEFAULT_GAUGE_STATS_CONFIG;
+        }
+>>>>>>> 633c25ce8fe26ad11b45f38dc36967e46ff66707
         self.initialize();
     }
 

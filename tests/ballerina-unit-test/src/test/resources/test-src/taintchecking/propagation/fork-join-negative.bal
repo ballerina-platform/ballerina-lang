@@ -6,7 +6,7 @@ public function main (string... args) {
         worker w2 {
             "staticData" -> fork;
         }
-    } join (all) (map results) {
+    } join (all) (map<any> results) {
         secureFunction(results, results);
     }
 }

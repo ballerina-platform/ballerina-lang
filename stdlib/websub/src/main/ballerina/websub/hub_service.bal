@@ -223,7 +223,7 @@ service {
                 } else {
                     string errorMessage = "Publish request denied for unregistered topic[" + topic + "]";
                     log:printDebug(errorMessage);
-                    response.setTextPayload(errorMessage);
+                    response.setTextPayload(untaint errorMessage);
                 }
                 response.statusCode = http:BAD_REQUEST_400;
                 var responseError = httpCaller->respond(response);
@@ -261,7 +261,7 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
         }
         return;
     }
-    map errorDetail = { message : "Topic/Callback cannot be null for subscription/unsubscription request" };
+    map<any> errorDetail = { message : "Topic/Callback cannot be null for subscription/unsubscription request" };
     error err = error(WEBSUB_ERROR_CODE, errorDetail);
     return err;
 }
@@ -449,8 +449,8 @@ function addTopicRegistrationsOnStartup() {
         }
     });
     var dbResult = subscriptionDbEp->select("SELECT * FROM topics", TopicRegistration);
-    if (dbResult is table) {
-        table dt = dbResult;
+    if (dbResult is table<TopicRegistration>) {
+        table<TopicRegistration> dt = dbResult;
         while (dt.hasNext()) {
             var registrationDetails = trap <TopicRegistration>dt.getNext();
             if (registrationDetails is TopicRegistration) {
@@ -489,8 +489,8 @@ function addSubscriptionsOnStartup() {
 
     var dbResult = subscriptionDbEp->select("SELECT topic, callback, secret, lease_seconds, created_at"
             + " FROM subscriptions", SubscriptionDetails);
-    if (dbResult is table) {
-        table dt = dbResult;
+    if (dbResult is table<SubscriptionDetails>) {
+        table<SubscriptionDetails> dt = dbResult;
         while (dt.hasNext()) {
             var subscriptionDetails = trap <SubscriptionDetails>dt.getNext();
             if (subscriptionDetails is SubscriptionDetails) {

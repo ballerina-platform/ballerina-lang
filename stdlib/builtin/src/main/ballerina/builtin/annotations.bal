@@ -14,9 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Representation of readonly annotation.
-public annotation<type> readonly;
-
 # Denote that the parameter is security sensitive hence tainted data should not be accepted.
 public annotation<type, parameter> sensitive;
 

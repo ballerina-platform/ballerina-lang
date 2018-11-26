@@ -19,6 +19,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
@@ -168,6 +169,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -204,7 +206,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private BLangDiagnosticLog dlog;
 
     private boolean overridingAnalysis = true;
-    private boolean mainFunctionAnalysis;
+    private boolean entryPointPreAnalysis;
     private boolean entryPointAnalysis;
     private boolean stopAnalysis;
     private boolean blockedOnWorkerInteraction;
@@ -333,10 +335,12 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         restParam = funcNode.restParam;
 
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
-        if (CompilerUtils.isMainFunction(funcNode)) {
-            mainFunctionAnalysis = true;
+        if (funcNode.flagSet.contains(Flag.RESOURCE) || CompilerUtils.isMainFunction(funcNode)) {
+            // This is to analyze the entry-point function and attach taint table to it. If entry-point analysis is
+            // blocked calling visitEntryPoint function will result in generating duplicate error messages.
+            entryPointPreAnalysis = true;
             boolean isBlocked = visitInvokable(funcNode, funcEnv);
-            mainFunctionAnalysis = false;
+            entryPointPreAnalysis = false;
 
             if (!isBlocked) {
                 visitEntryPoint(funcNode, funcEnv);
@@ -351,14 +355,12 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangService serviceNode) {
+        /* ignored */
     }
 
     @Override
     public void visit(BLangResource resourceNode) {
-        BSymbol resourceSymbol = resourceNode.symbol;
-        SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceSymbol.scope, env);
-        visitEntryPoint(resourceNode, resourceEnv);
-        resourceNode.symbol.taintTable = new HashMap<>();
+        /* ignored */
     }
 
     @Override
@@ -492,8 +494,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             if (varTaintedStatus == TaintedStatus.TAINTED && varRefExpr instanceof BLangVariableReference) {
                 BLangVariableReference varRef = (BLangVariableReference) varRefExpr;
                 if (varRef.symbol != null && varRef.symbol.owner != null
-                        && (varRef.symbol.owner instanceof BPackageSymbol
-                        || SymbolKind.SERVICE.equals(varRef.symbol.owner.kind))) {
+                        && (varRef.symbol.owner.getKind() == SymbolKind.PACKAGE
+                        || (varRef.symbol.owner.flags & Flags.SERVICE) == Flags.SERVICE)) {
                     addTaintError(pos, varRef.symbol.name.value,
                             DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE);
                     return;
@@ -623,7 +625,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatch.BLangMatchStructuredBindingPatternClause clause) {
-        /*ignore*/
+        clause.body.accept(this);
     }
 
     @Override
@@ -1604,15 +1606,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         entryPointAnalysis = false;
 
         boolean isBlocked = processBlockedNode(invNode);
-        if (isBlocked) {
-            return;
-        } else {
+        if (!isBlocked) {
             // Display errors only if scan of was fully complete, so that errors will not get duplicated.
             taintErrorSet.forEach(error -> this.dlog.error(error.pos, error.diagnosticCode, error.paramName));
         }
-        this.blockedNode = null;
-        this.ignoredInvokableSymbol = null;
-        this.taintErrorSet.clear();
     }
 
     private boolean isEntryPointParamsInvalid(List<BLangSimpleVariable> params) {
@@ -1727,7 +1724,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             // are untainted, the code of the function is wrong (and passes a tainted value generated within the
             // function body to a sensitive parameter). Hence, instead of adding error to table, directly generate the
             // error and fail the compilation.
-            if (!mainFunctionAnalysis && paramIndex == ALL_UNTAINTED_TABLE_ENTRY_INDEX &&
+            if (!entryPointPreAnalysis && paramIndex == ALL_UNTAINTED_TABLE_ENTRY_INDEX &&
                     (analyzerPhase == AnalyzerPhase.INITIAL_ANALYSIS
                             || analyzerPhase == AnalyzerPhase.BLOCKED_NODE_ANALYSIS
                             || analyzerPhase == AnalyzerPhase.LOOPS_RESOLVED_ANALYSIS)) {
@@ -1862,7 +1859,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             // Add the function being blocked into the blocked node list for later processing.
             this.blockedNode.invokableNode = invokableNode;
             if (analyzerPhase == AnalyzerPhase.INITIAL_ANALYSIS) {
-                if (mainFunctionAnalysis || entryPointAnalysis) {
+                if (entryPointPreAnalysis || entryPointAnalysis) {
                     blockedEntryPointNodeList.add(blockedNode);
                 } else {
                     blockedNodeList.add(blockedNode);
