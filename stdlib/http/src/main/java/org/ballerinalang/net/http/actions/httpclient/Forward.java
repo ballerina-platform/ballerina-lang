@@ -40,9 +40,7 @@ import java.util.Locale;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
-        functionName = "forward",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.HTTP_CALLER,
-                structPackage = "ballerina/http")
+        functionName = "nativeForward"
 )
 public class Forward extends AbstractHTTPAction {
 
@@ -55,7 +53,7 @@ public class Forward extends AbstractHTTPAction {
 
     @Override
     protected HttpCarbonMessage createOutboundRequestMsg(Context context) {
-        String path = context.getStringArgument(0);
+        String path = context.getStringArgument(1);
         BMap<String, BValue> requestStruct = ((BMap<String, BValue>) context.getRefArgument(1));
 
         if (requestStruct.getNativeData(HttpConstants.REQUEST) == null &&
