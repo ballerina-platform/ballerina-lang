@@ -124,3 +124,9 @@ function testErrorInRecordWithDestructure() returns (int, string, any) {
     Bar {x, e: error (reason, detail)} = b;
     return (x, reason, detail.message);
 }
+
+function testErrorWithAnonErrorType() returns (string, string?) {
+    error<string, map<string>> err = error ("Error Code", {message: "Fatal"});
+    error<string, map<string>> error (reason, {message}) = err;
+    return (reason, message);
+}
