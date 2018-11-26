@@ -6,10 +6,10 @@ type Employee record {
 };
 
 public function main(string... args) {
-    testSelectWithUntaintedQueryProducingTaintedReturnNegative(...args);
+    testSelectWithUntaintedQueryProducingTaintedReturn(...args);
 }
 
-public function testSelectWithUntaintedQueryProducingTaintedReturnNegative(string... args) {
+public function testSelectWithUntaintedQueryProducingTaintedReturn(string... args) {
     mysql:Client testDB = new({
         host:"localhost",
         port:3306,
@@ -21,17 +21,13 @@ public function testSelectWithUntaintedQueryProducingTaintedReturnNegative(strin
     });
 
     var output = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
-    match output {
-        table dt => {
-            while (dt.hasNext()) {
-                var rs = <Employee>dt.getNext();
-                match rs {
-                    Employee emp => testFunction(emp.name);
-                    error => return;
-                }
-            }
+    if (output is table) {
+        while (output.hasNext()) {
+            var rs = <Employee>output.getNext();
+            testFunction(rs.name);
         }
-        error => return;
+    } else {
+        panic output;
     }
     testDB.stop();
     return;

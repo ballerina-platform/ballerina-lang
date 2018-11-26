@@ -221,7 +221,7 @@ service {
                         done;
                     }
                 } else {
-                    string errorMessage = "Publish request denied for unregistered topic[" + topic + "]";
+                    string errorMessage = "Publish request denied for unregistered topic[" + untaint topic + "]";
                     log:printDebug(errorMessage);
                     response.setTextPayload(errorMessage);
                 }

@@ -14,7 +14,7 @@ service sample on helloWorldEP {
         map paramsMap = req.getQueryParams();
         var bar = paramsMap.bar;
 
-        serviceLevelVariable = "static";
+        self.serviceLevelVariable = "static";
         globalLevelVariable = "static";
     }
 }
