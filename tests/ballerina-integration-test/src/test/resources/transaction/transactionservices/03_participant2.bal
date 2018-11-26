@@ -57,14 +57,13 @@ service participant2 on participant2EP02 {
             () => io:print("");
         }
     }
-
+    @transactions:Participant {
+    }
     resource function task2 (http:Caller conn, http:Request req) {
         http:Response res = new;
         string result = "incorrect id";
-        transaction {
-            if (req.getHeader("x-b7a-xid") == req.getHeader("participant-id")) {
-                result = "equal id";
-            }
+        if (req.getHeader("x-b7a-xid") == req.getHeader("participant-id")) {
+            result = "equal id";
         }
         res.setTextPayload(result);
         var forwardRes = conn -> respond(res);  
@@ -119,41 +118,35 @@ type Registration record {
     string REGISTRATIONID;
 };
 
+
+@transactions:Participant {
+    oncommit:onCommit2,
+    onabort:onAbort2
+}
 function saveToDatabase(http:Caller conn, http:Request req, boolean shouldAbort) {
     http:Caller ep = conn;
     http:Response res = new;  res.statusCode = 200;
-    transaction {
-        transaction {
-        } committed {
-            state2.localParticipantCommittedFunctionCalled = true;
-        } aborted {
-            state2.localParticipantAbortedFunctionCalled = true;
-        }
-        string uuid = system:uuid();
 
+    saveToDatabase_localParticipant();
+    string uuid = system:uuid();
+    var helperRes = trap saveToDatabaseUpdateHelper1(uuid);
+    if (helperRes is error) {
+        io:println("FAILED!!!");
+    }
 
-        var helperRes = trap saveToDatabaseUpdateHelper1(uuid);
-        if (helperRes is error) {
-            io:println("FAILED!!!");
+    res.setTextPayload(uuid);
+    var forwardRes = ep -> respond(res);
+    match forwardRes {
+        error err => {
+            io:print("Participant2 could not send response to participant1. Error:");
+            io:println(err.reason());
         }
+        () => io:print("");
+    }
+    if(shouldAbort) {
+        log:printInfo("can not abort from a participant function");
+    }
 
-        res.setTextPayload(uuid);
-        var forwardRes = ep -> respond(res);
-        match forwardRes {
-            error err => {
-                io:print("Participant2 could not send response to participant1. Error:");
-                io:println(err.reason());
-            }
-            () => io:print("");
-        }
-        if(shouldAbort) {
-            abort;
-        }
-        } committed {
-            state2.committedFunctionCalled = true;
-        } aborted {
-            state2.abortedFunctionCalled = true;
-        }
 }
 
 function saveToDatabaseUpdateHelper1(string uuid) {
@@ -180,6 +173,14 @@ function onLocalParticipantAbort2(string transactionid) {
 function onLocalParticipantCommit2(string transactionid) {
     state2.localParticipantCommittedFunctionCalled = true;
 }
+
+@transactions:Participant {
+    oncommit:onLocalParticipantCommit2,
+    onabort:onLocalParticipantAbort2
+}
+function saveToDatabase_localParticipant() {
+    log:printInfo("saveToDatabase_localParticipant");
+}        
 
 type State2 object {
 

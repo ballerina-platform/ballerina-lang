@@ -16,6 +16,8 @@
 
 import ballerina/http;
 import ballerina/io;
+import ballerina/log;
+import ballerina/transactions;
 
 listener http:Listener initiatorEP00 = new(8888);
 
@@ -39,83 +41,72 @@ service InitiatorService00 on initiatorEP00 {
         transaction {
             _ = participant1EP00 -> get("/noOp");
 
-            transaction { // local participant
-            } committed {
-                state0.localParticipantCommittedFunctionCalled = true;
-            } aborted {
-                state0.localParticipantAbortedFunctionCalled = true;
-            }
+            testInitiatorAbort_ParticipantTransaction();
 
             state0.abortedByInitiator = true;
             abort;
         } committed {
+            log:printInfo("testInitiatorAbort.committed");
             state0.committedFunctionCalled = true;
         } aborted {
+            log:printInfo("testInitiatorAbort.aborted");
             state0.abortedFunctionCalled = true;
         }
-
-        http:Response res = new; res.statusCode = 200;
-        _ = ep -> respond(res);
+        _ = ep -> respond("response");
     }
 
     resource function testRemoteParticipantAbort(http:Caller ep, http:Request req) {
-
-
         transaction {
-            _ = participant1EP00 -> get("/testRemoteParticipantAbort");
-
-            transaction { // local participant
-            }
-            } committed {
-                state0.committedFunctionCalled = true;
-            } aborted {
-                state0.abortedFunctionCalled = true;
+            var response = participant1EP00 -> get("/testRemoteParticipantAbort");
+            if (response is http:Response) {
+                log:printInfo("/testRemoteParticipantAbort response code: " + response.statusCode);
+            } else if (response is error) {
+                log:printInfo("/testRemoteParticipantAbort errored");
             }
 
-        http:Response res = new;  res.statusCode = 200;
-        _ = ep -> respond(res);
-    }
+            testRemoteParticipantAbort_ParticipantTransaction();
 
-    resource function testLocalParticipantAbort(http:Caller ep, http:Request req) {
-
-
-        transaction {
-            _ = participant1EP00 -> get("/noOp");
-
-            transaction { // local participant
-                state0.abortedByLocalParticipant = true;
-                abort;
-            } committed {
-                state0.localParticipantCommittedFunctionCalled = true;
-            } aborted {
-                state0.localParticipantAbortedFunctionCalled = true;
-            }
-        } committed {
-            state0.committedFunctionCalled = true;
-        } aborted {
-            state0.abortedFunctionCalled = true;
+            http:Response res = new;  res.statusCode = 200;
+            _ = ep -> respond(res);
         }
-
-
-        http:Response res = new;  res.statusCode = 200;
-        _ = ep -> respond(res);
     }
+
+    // local participant function can not abort with new syntax.
+    //resource function testLocalParticipantAbort(http:Caller ep, http:Request req) {
+    //
+    //
+    //    transaction {
+    //        _ = participant1EP00 -> get("/noOp");
+    //
+    //        transaction { // local participant
+    //            state0.abortedByLocalParticipant = true;
+    //            abort;
+    //        } committed {
+    //            state0.localParticipantCommittedFunctionCalled = true;
+    //        } aborted {
+    //            state0.localParticipantAbortedFunctionCalled = true;
+    //        }
+    //    } committed {
+    //        state0.committedFunctionCalled = true;
+    //    } aborted {
+    //        state0.abortedFunctionCalled = true;
+    //    }
+    //
+    //
+    //    http:Response res = new;  res.statusCode = 200;
+    //    _ = ep -> respond(res);
+    //}
 
     resource function testLocalParticipantSuccess(http:Caller ep, http:Request req) {
-
-
         transaction {
             _ = participant1EP00 -> get("/noOp");
 
-            transaction { // local participant
-            } committed {
-                state0.localParticipantCommittedFunctionCalled = true;
-            } aborted {
-                state0.localParticipantAbortedFunctionCalled = true;
-            }
+            testLocalParticipantSuccess_ParticipantTransaction();
         } committed {
+            log:printInfo("testLocalParticipantSuccess-committed block");
             state0.committedFunctionCalled = true;
         } aborted {
+            log:printInfo("testLocalParticipantSuccess-aborted block");
             state0.abortedFunctionCalled = true;
         }
 
@@ -133,12 +124,7 @@ service InitiatorService00 on initiatorEP00 {
             var result = participant1EP00 -> get("/nonInfectable");
             match result {
                 http:Response participant1Res => {
-                    transaction { // local participant
-                    } committed {
-                        state0.localParticipantCommittedFunctionCalled = true;
-                    } aborted {
-                        state0.localParticipantAbortedFunctionCalled = true;
-                    }
+                    testTransactionInfectableFalse_ParticipantTransaction();
                     res = participant1Res;
                     if(participant1Res.statusCode == 500) {
                         state0.abortedByInitiator = true;
@@ -157,6 +143,7 @@ service InitiatorService00 on initiatorEP00 {
         _ = ep -> respond(res);
     }
 
+
     @http:ResourceConfig {
         transactionInfectable: true
     }
@@ -164,13 +151,7 @@ service InitiatorService00 on initiatorEP00 {
 
         transaction {
             _ = participant1EP00 -> get("/infectable");
-
-            transaction { // local participant
-            } committed {
-                state0.localParticipantCommittedFunctionCalled = true;
-            } aborted {
-                state0.localParticipantAbortedFunctionCalled = true;
-            }
+            testTransactionInfectableTrue_ParticipantTransaction();
         } committed {
             state0.committedFunctionCalled = true;
         } aborted {
@@ -182,6 +163,7 @@ service InitiatorService00 on initiatorEP00 {
         _ = ep -> respond(res);
     }
 
+
     @http:ResourceConfig {
         path:"/"
     }
@@ -189,8 +171,10 @@ service InitiatorService00 on initiatorEP00 {
 
         transaction {
             var getResult = participant1EP00 -> get("/");
+            log:printInfo("initiator.transaction.after./.call");
             match getResult {
                 error err => {
+                    log:printInfo("initiator.transaction.after./.call.error");
                     io:print("Initiator could not send get request to participant. Error:");
                     sendErrorResponseToCaller(conn);
                     abort;
@@ -206,8 +190,13 @@ service InitiatorService00 on initiatorEP00 {
                     }
                 }
             }
+            log:printInfo("initiator.transaction.lastLine");
         } onretry {
             io:println("Intiator failed");
+        } committed {
+            io:println("Intiator committed");
+        } aborted {
+            io:println("Intiator aborted");
         }
     }
 
@@ -217,12 +206,7 @@ service InitiatorService00 on initiatorEP00 {
             var result = participant1EP00 -> get("/testSaveToDatabaseSuccessfulInParticipant");
             match result {
                 http:Response participant1Res => {
-                    transaction { // local participant
-                    } committed {
-                        state0.localParticipantCommittedFunctionCalled = true;
-                    } aborted {
-                        state0.localParticipantAbortedFunctionCalled = true;
-                    }
+                    testSaveToDatabaseSuccessfulInParticipant_ParticipantTransaction();
                     res = participant1Res;
                     if(participant1Res.statusCode == 500) {
                         state0.abortedByInitiator = true;
@@ -247,12 +231,7 @@ service InitiatorService00 on initiatorEP00 {
             var result = participant1EP00 -> get("/testSaveToDatabaseFailedInParticipant");
             match result {
                 http:Response participant1Res => {
-                    transaction { // local participant
-                    } committed {
-                        state0.localParticipantCommittedFunctionCalled = true;
-                    } aborted {
-                        state0.localParticipantAbortedFunctionCalled = true;
-                    }
+                    testSaveToDatabaseFailedInParticipant_ParticipantTransaction();
                     res = participant1Res;
                     if(participant1Res.statusCode == 500) {
                         state0.abortedByInitiator = true;
@@ -270,6 +249,124 @@ service InitiatorService00 on initiatorEP00 {
         }
         _ = ep -> respond(res);
     }
+}
+
+
+@transactions:Participant {
+    oncommit:testInitiatorAbortParticipantTransaction_committed,
+    onabort:testInitiatorAbortParticipantTransaction_aborted
+}
+function testInitiatorAbort_ParticipantTransaction() {
+    log:printInfo("in testInitiatorAbortParticipantTransaction");
+}
+
+function testInitiatorAbort_ParticipantTransaction_committed(string tid) {
+    log:printInfo("testInitiatorAbort_ParticipantTransaction_committed");
+    state0.localParticipantCommittedFunctionCalled = true;
+}
+
+function testInitiatorAbort_ParticipantTransaction_aborted(string tid) {
+    log:printInfo("testInitiatorAbort_ParticipantTransaction_aborted");
+    state0.localParticipantAbortedFunctionCalled = true;
+}
+
+
+@transactions:Participant {
+    oncommit:testLocalParticipantSuccess_committed,
+    onabort:testLocalParticipantSuccess_aborted
+}
+function testLocalParticipantSuccess_ParticipantTransaction() {
+    log:printInfo("in testLocalParticipantSuccess_ParticipantTransaction");
+}
+
+function testLocalParticipantSuccess_committed(string tid) {
+    state0.localParticipantCommittedFunctionCalled = true;
+}
+
+function testLocalParticipantSuccess_aborted(string tid) {
+    state0.localParticipantAbortedFunctionCalled = true;
+}
+
+@transactions:Participant {
+    oncommit:testTransactionInfectableFalse_committed,
+    onabort:testTransactionInfectableFalse_aborted
+}
+function testTransactionInfectableFalse_ParticipantTransaction() {
+    log:printInfo("in testTransactionInfectableFalse_ParticipantTransaction");
+}
+
+function testTransactionInfectableFalse_committed(string tid) {
+    state0.localParticipantCommittedFunctionCalled = true;
+}
+
+function testTransactionInfectableFalse_aborted(string tid) {
+    state0.localParticipantAbortedFunctionCalled = true;
+}
+
+@transactions:Participant {
+    oncommit:testTransactionInfectableTrue_committed,
+    onabort:testTransactionInfectableTrue_aborted
+}
+function testTransactionInfectableTrue_ParticipantTransaction() {
+    log:printInfo("in testTransactionInfectableTrue_ParticipantTransaction");
+}
+
+function testTransactionInfectableTrue_committed(string tid) {
+    state0.localParticipantCommittedFunctionCalled = true;
+}
+
+function testTransactionInfectableTrue_aborted(string tid) {
+    state0.localParticipantAbortedFunctionCalled = true;
+}
+
+@transactions:Participant {
+    oncommit:testSaveToDatabaseFailedInParticipant_committed,
+    onabort:testSaveToDatabaseFailedInParticipant_aborted
+}
+function testSaveToDatabaseFailedInParticipant_ParticipantTransaction() {
+    log:printInfo("in testSaveToDatabaseFailedInParticipant_ParticipantTransaction");
+}
+
+function testSaveToDatabaseFailedInParticipant_committed(string tid) {
+    state0.localParticipantCommittedFunctionCalled = true;
+}
+
+function testSaveToDatabaseFailedInParticipant_aborted(string tid) {
+    state0.localParticipantAbortedFunctionCalled = true;
+}
+
+@transactions:Participant {
+    oncommit:testSaveToDatabaseSuccessfulInParticipant_committed,
+    onabort:testSaveToDatabaseSuccessfulInParticipant_aborted
+}
+function testSaveToDatabaseSuccessfulInParticipant_ParticipantTransaction() {
+    log:printInfo("in testSaveToDatabaseSuccessfulInParticipant_ParticipantTransaction");
+}
+
+function testSaveToDatabaseSuccessfulInParticipant_committed(string tid) {
+    state0.localParticipantCommittedFunctionCalled = true;
+}
+
+function testSaveToDatabaseSuccessfulInParticipant_aborted(string tid) {
+    state0.localParticipantAbortedFunctionCalled = true;
+}
+
+@transactions:Participant {
+    oncommit:testInitiatorAbortParticipantTransaction_committed,
+    onabort:testInitiatorAbortParticipantTransaction_aborted
+}
+function testRemoteParticipantAbort_ParticipantTransaction() {
+    log:printInfo("in testRemoteParticipantAbort_ParticipantTransaction");
+}
+
+function testInitiatorAbortParticipantTransaction_committed(string tid) {
+    log:printInfo("state0.committedFunctionCalled = true");
+    state0.committedFunctionCalled = true;
+}
+
+function testInitiatorAbortParticipantTransaction_aborted(string tid) {
+    log:printInfo("state0.abortedFunctionCalled = true");
+    state0.abortedFunctionCalled = true;
 }
 
 function sendErrorResponseToCaller(http:Caller conn) {

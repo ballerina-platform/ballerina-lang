@@ -100,7 +100,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         boolean isTransactionInfectable = httpResource.isTransactionInfectable();
         boolean isInterruptible = httpResource.isInterruptible();
         Map<String, Object> properties = collectRequestProperties(inboundMessage, isTransactionInfectable,
-                                                                  isInterruptible);
+                isInterruptible, httpResource.isTransactionAnnotated());
         BValue[] signatureParams = HttpDispatcher.getSignatureParameters(httpResource, inboundMessage, endpointConfig);
         Resource balResource = httpResource.getBalResource();
 
@@ -117,7 +117,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
         CallableUnitCallback callback = new HttpCallableUnitCallback(inboundMessage);
         String gTransactionId = (String) properties.get(Constants.GLOBAL_TRANSACTION_ID);
-        if (gTransactionId != null) {
+        if (gTransactionId != null && httpResource.isTransactionAnnotated()) {
             TransactableCallableUnitCallback trxUnitCallback =
                     new TransactableCallableUnitCallback(callback, gTransactionId);
             trxUnitCallback.setTransactionOnCommit(httpResource.getTransactionOnCommitFunc());
@@ -133,7 +133,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
     }
 
     private Map<String, Object> collectRequestProperties(HttpCarbonMessage inboundMessage, boolean isInfectable,
-                                                         boolean isInterruptible) {
+                                                         boolean isInterruptible, boolean isTransactionAnnotated) {
         Map<String, Object> properties = new HashMap<>();
         if (inboundMessage.getProperty(HttpConstants.SRC_HANDLER) != null) {
             Object srcHandler = inboundMessage.getProperty(HttpConstants.SRC_HANDLER);
@@ -147,7 +147,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
             throw new BallerinaConnectorException("Cannot create transaction context: " +
                                                           "resource is not transactionInfectable");
         }
-        if (isInfectable && txnId != null && registerAtUrl != null) {
+        if (isTransactionAnnotated && isInfectable && txnId != null && registerAtUrl != null) {
             properties.put(Constants.GLOBAL_TRANSACTION_ID, txnId);
             properties.put(Constants.TRANSACTION_URL, registerAtUrl);
             return properties;

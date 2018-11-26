@@ -16,6 +16,8 @@
 
 import ballerina/io;
 import ballerina/http;
+import ballerina/transactions;
+import ballerina/log;
 
 listener http:Listener participant1EP01 = new(8889);
 
@@ -36,39 +38,29 @@ service participant1 on participant1EP01 {
     }
 
     resource function testRemoteParticipantAbort(http:Caller ep, http:Request req) {
-
+        log:printInfo("in testRemoteParticipantAbort");
         transaction {
-            transaction { // local participant
-            } committed {
-                state1.localParticipantCommittedFunctionCalled = true;
-            } aborted {
-                state1.localParticipantAbortedFunctionCalled = true;
-            }
+            log:printInfo("in testRemoteParticipantAbort.transaction");
+            testRemoteParticipantAbort_localParticipant();
+            log:printInfo("in testRemoteParticipantAbort.transaction.after.localparticipant");
             state1.abortedByParticipant = true;
             abort;
         } committed {
-            state1.committedFunctionCalled = true;
+            onCommit1("from block");
         } aborted {
-            state1.abortedFunctionCalled = true;
+            log:printInfo("testRemoteParticipantAbort aborted");
+            onAbort1("from block");
         }
         http:Response res = new;  res.statusCode = 200;
         _ = ep -> respond(res);
     }
 
+    @transactions:Participant {
+        oncommit:onCommit1,
+        onabort:onAbort1
+    }
     resource function noOp(http:Caller ep, http:Request req) {
-
-        transaction {
-            transaction { // local participant
-            } committed {
-                state1.localParticipantCommittedFunctionCalled = true;
-            } aborted {
-                state1.localParticipantAbortedFunctionCalled = true;
-            }
-        } committed {
-            state1.committedFunctionCalled = true;
-        } aborted {
-            state1.abortedFunctionCalled = true;
-        }
+        noOp_localParticipant();
         http:Response res = new;  res.statusCode = 200;
         _ = ep -> respond(res);
     }
@@ -77,19 +69,13 @@ service participant1 on participant1EP01 {
         transactionInfectable: false
     }
     resource function nonInfectable(http:Caller ep, http:Request req) {
-
         transaction {
-            transaction { // local participant
-                abort;
-            } committed {
-                state1.localParticipantCommittedFunctionCalled = true;
-            } aborted {
-                state1.localParticipantAbortedFunctionCalled = true;
-            }
+            log:printInfo("Starting a new trx: as this resource is non infectable");
+            nonInfectable_localParticipant();
         } committed {
-            state1.committedFunctionCalled = true;
+            onCommit1("from block");
         } aborted {
-            state1.abortedFunctionCalled = true;
+            onAbort1("from block");
         }
         http:Response res = new;  res.statusCode = 200;
         res.setTextPayload("Non infectable resource call successful");
@@ -99,21 +85,12 @@ service participant1 on participant1EP01 {
     @http:ResourceConfig {
         transactionInfectable: true
     }
+    @transactions:Participant {
+        oncommit:onCommit1,
+        onabort:onAbort1
+    }
     resource function infectable(http:Caller ep, http:Request req) {
-
-        transaction {
-            transaction { // local participant
-                abort;
-            } committed {
-                state1.localParticipantCommittedFunctionCalled = true;
-            } aborted {
-                state1.localParticipantAbortedFunctionCalled = true;
-            }
-        } committed {
-            state1.committedFunctionCalled = true;
-        } aborted {
-            state1.abortedFunctionCalled = true;
-        }
+        infectable_localParticipant();
         http:Response res = new;  res.statusCode = 200;
         _ = ep -> respond(res);
     }
@@ -121,41 +98,45 @@ service participant1 on participant1EP01 {
     @http:ResourceConfig {
         path:"/"
     }
+    @transactions:Participant {}
     resource function member (http:Caller conn, http:Request req) {
 
         http:Request newReq = new;
         newReq.setHeader("participant-id", req.getHeader("x-b7a-xid"));
-        transaction {
-            var forwardResult = participant2EP01 -> forward("/task1", req);
-            match forwardResult {
-                error err => {
-                    io:print("Participant1 could not send get request to participant2/task1. Error:");
-                    sendErrorResponseToInitiator(conn);
-                    abort;
-                }
-                http:Response forwardRes => {
-                    var getResult = participant2EP01 -> get("/task2", message = newReq);
-                    match getResult {
-                        error err => {
-                            io:print("Participant1 could not send get request to participant2/task2. Error:");
-                            sendErrorResponseToInitiator(conn);
-                            abort;
-                        }
-                        http:Response getRes => {
-                            var forwardRes2 = conn -> respond(getRes);
-                            match forwardRes2 {
-                                error err => {
-                                    io:print("Participant1 could not forward response from participant2 to initiator. Error:");
-                                    io:println(err.reason());
-                                }
-                                () => io:print("");
+        log:printInfo("call received at participant1/");
+        log:printInfo("participant1.transaction");
+        var forwardResult = participant2EP01 -> forward("/task1", req);
+        log:printInfo("participant1.transaction.after-forward");
+        match forwardResult {
+            error err => {
+                io:print("Participant1 could not send get request to participant2/task1. Error:");
+                sendErrorResponseToInitiator(conn);
+                panic err;
+            }
+            http:Response forwardRes => {
+                log:printInfo("participant1.transaction.before task2");
+                var getResult = participant2EP01 -> get("/task2", message = newReq);
+                log:printInfo("participant1.transaction.after task2");
+                match getResult {
+                    error err => {
+                        io:print("Participant1 could not send get request to participant2/task2. Error:");
+                        sendErrorResponseToInitiator(conn);
+                        panic err;
+                    }
+                    http:Response getRes => {
+                        log:printInfo("participant1.transaction.before.respondback");
+                        var forwardRes2 = conn -> respond(getRes);
+                        log:printInfo("participant1.transaction.after.respondback");
+                        match forwardRes2 {
+                            error err => {
+                                io:print("Participant1 could not forward response from participant2 to initiator. Error:");
+                                io:println(err.reason());
                             }
+                            () => io:print("");
                         }
                     }
                 }
             }
-        } onretry {
-            io:println("Participant1 failed");
         }
     }
 
@@ -173,30 +154,23 @@ service participant1 on participant1EP01 {
         }
         _ = ep -> respond(res);
     }
-
+    @transactions:Participant {
+        oncommit:onCommit1,
+        onabort:onAbort1
+    }
     resource function testSaveToDatabaseFailedInParticipant(http:Caller ep, http:Request req) {
         http:Response res = new;  res.statusCode = 500;
-        transaction {
-            transaction {
-            } committed {
-                state1.localParticipantCommittedFunctionCalled = true;
-            } aborted {
-                state1.localParticipantAbortedFunctionCalled = true;
+
+        testSaveToDatabaseFailedInParticipant_localParticipant();
+        http:Request newReq = new;
+        var result = participant2EP01 -> get("/testSaveToDatabaseFailedInParticipant", message = newReq);
+        match result {
+            http:Response participant1Res => {
+                res = participant1Res;
             }
-            http:Request newReq = new;
-            var result = participant2EP01 -> get("/testSaveToDatabaseFailedInParticipant", message = newReq);
-            match result {
-                http:Response participant1Res => {
-                    res = participant1Res;
-                }
-                error => {
-                    res.statusCode = 500;
-                }
+            error => {
+                res.statusCode = 500;
             }
-        } committed {
-            state1.committedFunctionCalled = true;
-        } aborted {
-            state1.abortedFunctionCalled = true;
         }
         _ = ep -> respond(res);
     }
@@ -214,6 +188,66 @@ function sendErrorResponseToInitiator(http:Caller conn) {
         () => return;
     }
 }
+
+function onAbort1(string transactionid) {
+    log:printInfo("onAbort1");
+    state1.abortedFunctionCalled = true;
+}
+
+function onCommit1(string transactionid) {
+    log:printInfo("onCommit1");
+    state1.committedFunctionCalled = true;
+}
+
+function onLocalParticipantAbort1(string transactionid) {
+    log:printInfo("onLocalParticipantAbort1");
+    state1.localParticipantAbortedFunctionCalled = true;
+}
+
+function onLocalParticipantCommit1(string transactionid) {
+    log:printInfo("onLocalParticipantCommit1");
+    state1.localParticipantCommittedFunctionCalled = true;
+}
+@transactions:Participant {
+    oncommit:onLocalParticipantCommit1,
+    onabort:onLocalParticipantAbort1
+}
+function testRemoteParticipantAbort_localParticipant() {
+    log:printInfo("testRemoteParticipantAbort_localParticipant");
+}
+
+@transactions:Participant {
+    oncommit:onLocalParticipantCommit1,
+    onabort:onLocalParticipantAbort1
+}
+function noOp_localParticipant() {
+    log:printInfo("noOp_localParticipant");
+}
+
+@transactions:Participant {
+    oncommit:onLocalParticipantCommit1,
+    onabort:onLocalParticipantAbort1
+}
+function nonInfectable_localParticipant() {
+    log:printInfo("nonInfectable_localParticipant");
+}
+
+@transactions:Participant {
+    oncommit:onLocalParticipantCommit1,
+    onabort:onLocalParticipantAbort1
+}
+function infectable_localParticipant() {
+    log:printInfo("infectable_localParticipant");
+}
+
+@transactions:Participant {
+    oncommit:onLocalParticipantCommit1,
+    onabort:onLocalParticipantAbort1
+}
+function testSaveToDatabaseFailedInParticipant_localParticipant() {
+    log:printInfo("infectable_localParticipant");
+}
+
 
 type State1 object {
 

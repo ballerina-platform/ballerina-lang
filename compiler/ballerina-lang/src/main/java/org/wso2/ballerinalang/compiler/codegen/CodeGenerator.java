@@ -2962,7 +2962,10 @@ public class CodeGenerator extends BLangNodeVisitor {
                 trEndStatusReg);
 
         // Process transaction statements.
+        boolean prevRegResetState = this.regIndexResetDisabled;
+        this.regIndexResetDisabled = true;
         this.genNode(transactionNode.transactionBody, this.env);
+        this.regIndexResetDisabled = prevRegResetState;
 
         // Last instruction of the transaction block.
         int trErrorHandlerAddress = nextIP();
@@ -2980,7 +2983,11 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Committed body.
         if (!transactionNode.committedBodyList.isEmpty()) {
+            boolean prevRegIndexResetDisabledState = this.regIndexResetDisabled;
+            this.regIndexResetDisabled = true;
             this.genNode(transactionNode.committedBodyList.get(0), this.env);
+            this.regIndexResetDisabled = prevRegIndexResetDisabledState;
+
         }
 
         emit(InstructionCodes.GOTO, txConclusionEndAddr);
@@ -2992,7 +2999,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         // If retry possible run on-retry block, otherwise goto retry instruction.
         emit(InstructionCodes.BR_FALSE, trEndStatusReg, retryInstructionAddress);
         if (transactionNode.onRetryBody != null) {
+            boolean prevRegIndexResetDisabledState = this.regIndexResetDisabled;
+            this.regIndexResetDisabled = true;
             this.genNode(transactionNode.onRetryBody, this.env);
+            this.regIndexResetDisabled = prevRegIndexResetDisabledState;
 
         }
         emit(InstructionCodes.GOTO, retryInstructionAddress);
@@ -3008,7 +3018,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         emit(InstructionCodes.TR_END, transactionIndexOperand,
                 getOperand(Transactions.TransactionStatus.ABORTED.value()), trEndStatusReg, errorRegIndex);
         if (!transactionNode.abortedBodyList.isEmpty()) {
+            boolean prevRegIndexResetDisabledState = this.regIndexResetDisabled;
+            this.regIndexResetDisabled = true;
             this.genNode(transactionNode.abortedBodyList.get(0), this.env);
+            this.regIndexResetDisabled = prevRegIndexResetDisabledState;
         }
 
         // Conclude transaction handling.

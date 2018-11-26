@@ -70,10 +70,16 @@ public class HttpResource {
     private BFunctionPointer transactionOnCommitFunc;
     private BFunctionPointer transactionOnAbortFunc;
 
+    private boolean transactionAnnotated = false;
+
     protected HttpResource(Resource resource, HttpService parentService) {
         this.balResource = resource;
         this.parentService = parentService;
         this.producesSubTypes = new ArrayList<>();
+    }
+
+    public boolean isTransactionAnnotated() {
+        return transactionAnnotated;
     }
 
     public String getName() {
@@ -186,6 +192,8 @@ public class HttpResource {
         Annotation resourceConfigAnnotation = getResourceConfigAnnotation(resource);
         httpResource.setInterruptible(httpService.isInterruptible() || hasInterruptibleAnnotation(resource));
 
+        setupTransactionAnnotations(resource, httpResource);
+
         if (resourceConfigAnnotation == null) {
             if (log.isDebugEnabled()) {
                 log.debug("resourceConfig not specified in the Resource instance, using default sub path");
@@ -205,7 +213,6 @@ public class HttpResource {
         httpResource.setCorsHeaders(CorsHeaders.buildCorsHeaders(resourceConfig.getStructField(CORS_FIELD)));
 
         httpResource.setTransactionInfectable(resourceConfig.getBooleanField(TRANSACTION_INFECTABLE_FIELD));
-        setupTransactionAnnotations(resource, httpResource);
 
         processResourceCors(httpResource, httpService);
         httpResource.prepareAndValidateSignatureParams();
@@ -216,14 +223,19 @@ public class HttpResource {
         Annotation transactionConfigAnnotation = HttpUtil.getTransactionConfigAnnotation(resource,
                         TransactionConstants.TRANSACTION_PACKAGE_PATH);
         if (transactionConfigAnnotation != null) {
+            httpResource.transactionAnnotated = true;
             Struct annotationStruct = transactionConfigAnnotation.getValue();
-            BFunctionPointer oncommitFunc = (BFunctionPointer) annotationStruct.getRefField(
-                    TransactionConstants.ANN_NAME_TRX_ONCOMMIT_FUNC).getVMValue();
-            httpResource.setTransactionOnCommitFunc(oncommitFunc);
+            Value onCommitField = annotationStruct.getRefField(TransactionConstants.ANN_NAME_TRX_ONCOMMIT_FUNC);
+            if (onCommitField != null) {
+                BFunctionPointer oncommitFunc = (BFunctionPointer) onCommitField.getVMValue();
+                httpResource.setTransactionOnCommitFunc(oncommitFunc);
+            }
 
-            BFunctionPointer onabortFunc = (BFunctionPointer) annotationStruct.getRefField(
-                    TransactionConstants.ANN_NAME_TRX_ONABORT_FUNC).getVMValue();
-            httpResource.setTransactionOnAbortFunc(onabortFunc);
+            Value onAbortField = annotationStruct.getRefField(TransactionConstants.ANN_NAME_TRX_ONABORT_FUNC);
+            if (onAbortField != null) {
+                BFunctionPointer onabortFunc = (BFunctionPointer) onAbortField.getVMValue();
+                httpResource.setTransactionOnAbortFunc(onabortFunc);
+            }
         }
     }
 
