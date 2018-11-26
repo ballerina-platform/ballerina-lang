@@ -18,15 +18,14 @@
 package org.ballerinalang.test.utils.debug;
 
 import org.ballerinalang.BLangProgramRunner;
+import org.ballerinalang.bre.vm.BVMExecutor;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.program.BLangFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,11 +92,11 @@ public class DebuggerExecutor implements Runnable {
         // Invoke package init function
         FunctionInfo funcInfo = BLangProgramRunner.getEntryFunctionInfo(entryPkgInfo, functionName);
         try {
-            BLangFunctions.invokeEntrypointCallable(programFile, funcInfo, new BValue[]{arrayArgs});
+            BVMExecutor.executeEntryFunction(programFile, funcInfo, arrayArgs);
         } catch (Exception e) {
             log.debug("error occurred, invoking the function - " + e.getMessage(), e);
         } finally {
-            BLangFunctions.invokeVMUtilFunction(entryPkgInfo.getStopFunctionInfo());
+            BVMExecutor.executeFunction(programFile, entryPkgInfo.getStopFunctionInfo());
         }
 
         debugger.notifyExit();

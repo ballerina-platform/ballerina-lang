@@ -29,9 +29,7 @@ public class DebugContext {
 
     private LineNumberInfo lastLine;
 
-    private String workerId;
-
-    private boolean workerPaused;
+    private boolean strandPaused;
 
     private boolean cmdChanged = false;
 
@@ -64,20 +62,12 @@ public class DebugContext {
         this.lastLine = null;
     }
 
-    public String getWorkerId() {
-        return workerId;
+    public boolean isStrandPaused() {
+        return strandPaused;
     }
 
-    public void setWorkerId(String workerId) {
-        this.workerId = workerId;
-    }
-
-    public boolean isWorkerPaused() {
-        return workerPaused;
-    }
-
-    public void setWorkerPaused(boolean workerPaused) {
-        this.workerPaused = workerPaused;
+    public void setStrandPaused(boolean strandPaused) {
+        this.strandPaused = strandPaused;
     }
 
     public boolean isCmdChanged() {

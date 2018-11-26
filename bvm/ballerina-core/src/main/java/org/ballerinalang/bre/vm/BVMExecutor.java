@@ -36,7 +36,6 @@ import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.observability.ObserverContext;
@@ -137,7 +136,7 @@ public class BVMExecutor {
         }
 
         StrandResourceCallback strandCallback = new StrandResourceCallback(null, responseCallback);
-        Strand strand = new Strand(programFile, properties, strandCallback);
+        Strand strand = new Strand(programFile, resourceInfo.getName(), properties, strandCallback);
 
         BLangVMUtils.setServiceInfo(strand, serviceInfo);
 
@@ -154,7 +153,7 @@ public class BVMExecutor {
     private static BValue execute(ProgramFile programFile, CallableUnitInfo callableInfo,
                                   BValue[] args, Map<String, Object> properties, boolean waitForResponse) {
         StrandWaitCallback strandCallback = new StrandWaitCallback(callableInfo.getRetParamTypes()[0]);
-        Strand strand = new Strand(programFile, properties, strandCallback);
+        Strand strand = new Strand(programFile, callableInfo.getName(), properties, strandCallback);
 
         StackFrame idf = new StackFrame(callableInfo.getPackageInfo(), callableInfo,
                 callableInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1);

@@ -181,9 +181,9 @@ public class BVM {
                     strand.currentFrame.ip = -1;
                     return;
                 }
-//                if (debugEnabled && debug(strand)) {
-//                    return;
-//                }
+                if (debugEnabled && debug(strand)) {
+                    return;
+                }
 
                 Instruction instruction = sf.code[sf.ip];
                 int opcode = instruction.getOpcode();
@@ -831,7 +831,8 @@ public class BVM {
         }
 
         SafeStrandCallback strndCallback = new SafeStrandCallback(callableUnitInfo.getRetParamTypes()[0]);
-        Strand calleeStrand = new Strand(strand.programFile, strand.globalProps, strndCallback);
+        Strand calleeStrand = new Strand(strand.programFile, callableUnitInfo.getName(),
+                strand.globalProps, strndCallback);
         calleeStrand.pushFrame(df);
         if (callableUnitInfo.isNative()) {
             Context nativeCtx = new NativeCallContext(calleeStrand, callableUnitInfo, df);
@@ -2839,20 +2840,20 @@ public class BVM {
     /**
      * Method to calculate and detect debug points when the instruction point is given.
      */
-    private static boolean debug(WorkerExecutionContext ctx) {
+    private static boolean debug(Strand ctx) {
         Debugger debugger = ctx.programFile.getDebugger();
         if (!debugger.isClientSessionActive()) {
             return false;
         }
         DebugContext debugContext = ctx.getDebugContext();
 
-        if (debugContext.isWorkerPaused()) {
-            debugContext.setWorkerPaused(false);
+        if (debugContext.isStrandPaused()) {
+            debugContext.setStrandPaused(false);
             return false;
         }
 
         LineNumberInfo currentExecLine = debugger
-                .getLineNumber(ctx.callableUnitInfo.getPackageInfo().getPkgPath(), ctx.ip);
+                .getLineNumber(ctx.currentFrame.callableUnitInfo.getPackageInfo().getPkgPath(), ctx.currentFrame.ip);
         /*
          Below if check stops hitting the same debug line again and again in case that single line has
          multiple instructions.
@@ -2893,8 +2894,7 @@ public class BVM {
      * @param debugger        Debugger object.
      * @return Boolean true if it's a debug point, false otherwise.
      */
-    private static boolean debugPointCheck(WorkerExecutionContext ctx, LineNumberInfo currentExecLine,
-                                           Debugger debugger) {
+    private static boolean debugPointCheck(Strand ctx, LineNumberInfo currentExecLine, Debugger debugger) {
         if (!currentExecLine.isDebugPoint()) {
             return false;
         }
@@ -2910,10 +2910,10 @@ public class BVM {
      * @param currentExecLine Current execution line.
      * @param debugger        Debugger object.
      */
-    private static void debugHit(WorkerExecutionContext ctx, LineNumberInfo currentExecLine, Debugger debugger) {
+    private static void debugHit(Strand ctx, LineNumberInfo currentExecLine, Debugger debugger) {
         ctx.getDebugContext().setLastLine(currentExecLine);
         debugger.pauseWorker(ctx);
-        debugger.notifyDebugHit(ctx, currentExecLine, ctx.getDebugContext().getWorkerId());
+        debugger.notifyDebugHit(ctx, currentExecLine, ctx.getId());
     }
 
     private static void handleAnyToRefTypeCast(Strand ctx, StackFrame sf, int[] operands,

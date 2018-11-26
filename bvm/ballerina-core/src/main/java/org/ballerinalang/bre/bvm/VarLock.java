@@ -19,6 +19,7 @@ package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.bre.vm.BVMScheduler;
 import org.ballerinalang.bre.vm.Strand;
+import org.ballerinalang.bre.vm.Strand.State;
 
 import java.util.ArrayDeque;
 
@@ -44,6 +45,7 @@ public class VarLock {
             return true;
         }
         waitingForLock.offerLast(ctx);
+        BVMScheduler.stateChange(ctx, State.RUNNABLE, State.PAUSED);
 //        BLangScheduler.workerWaitForLock(ctx);
         return false;
     }
@@ -53,6 +55,7 @@ public class VarLock {
         current.removeLast();
         if (!waitingForLock.isEmpty()) {
             Strand ctx = waitingForLock.removeFirst();
+            BVMScheduler.stateChange(ctx, State.PAUSED, State.RUNNABLE);
             BVMScheduler.schedule(ctx);
         }
     }
