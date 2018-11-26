@@ -21,15 +21,17 @@ import ballerina/log;
 # + config - Simple topic subscrirber enpoint configuration
 public type SimpleTopicSubscriber object {
 
+    *AbstractListener;
+
     public SimpleTopicSubscriberEndpointConfiguration config = {};
     private Connection? connection;
     private Session? session = ();
-    private TopicSubscriber? subscriber = ();
+    private TopicSubscriber subscriber;
 
     # Initialize simple topic subscirber endpoint
     #
     # + c - Simple topic subscrirber enpoint configuration
-    public function init(SimpleTopicSubscriberEndpointConfiguration c) {
+    public function __init(SimpleTopicSubscriberEndpointConfiguration c) {
         self.config = c;
         Connection conn = new({
                 initialContextFactory: self.config.initialContextFactory,
@@ -44,54 +46,36 @@ public type SimpleTopicSubscriber object {
             });
         self.session = newSession;
 
-        TopicSubscriber topicSubscriber = new;
         TopicSubscriberEndpointConfiguration consumerConfig = {
             session: newSession,
             topicPattern: c.topicPattern,
             messageSelector: c.messageSelector
         };
-        topicSubscriber.init(consumerConfig);
-        self.subscriber = topicSubscriber;
+        self.subscriber = new(consumerConfig);
     }
 
     # Register simple topic subscriber endpoint
     #
     # + serviceType - Type descriptor of the service
-    public function register(typedesc serviceType) {
-        var subscriber = self.subscriber;
-        if (subscriber is TopicSubscriber) {
-            subscriber.register(serviceType);
-        } else {
-            string errorMessage = "Topic Subscriber cannot be nil";
-            map errorDetail = { message: errorMessage };
-            error e = error(JMS_ERROR_CODE, errorDetail);
-            panic e;
-        }
+    public function __attach(service serviceType, map<any> data) returns error? {
+          return self.subscriber.registerListener(serviceType, self.subscriber.consumerActions);
     }
 
     # Start simple topic subscriber endpoint
-    public function start() {
-
+    public function __start() returns error? {
+         return ();
     }
 
     # Get simple topic subscriber actions
     #
     # + return - Topic subscriber actions
-    public function getCallerActions() returns TopicSubscriberActions {
-        var subscriber = self.subscriber;
-        if (subscriber is TopicSubscriber) {
-            return subscriber.getCallerActions();
-        } else {
-            string errorMessage = "Topic Subscriber cannot be nil";
-            map errorDetail = { message: errorMessage };
-            error e = error(JMS_ERROR_CODE, errorDetail);
-            panic e;
-        }
+    public function getCallerActions() returns TopicSubscriberCaller {
+        return self.subscriber.getCallerActions();
     }
 
     # Stop simple topic subsriber endpoint
-    public function stop() {
-
+    public function __stop() returns error? {
+        return self.subscriber.closeSubscriber(self.subscriber.consumerActions);
     }
 
     # Create JMS text message
@@ -104,7 +88,7 @@ public type SimpleTopicSubscriber object {
             return session.createTextMessage(message);
         } else {
             string errorMessage = "Session cannot be nil";
-            map errorDetail = { message: errorMessage };
+            map<any> errorDetail = { message: errorMessage };
             error e = error(JMS_ERROR_CODE, errorDetail);
             panic e;
         }
@@ -114,13 +98,13 @@ public type SimpleTopicSubscriber object {
     #
     # + message - A message body to create a map message
     # + return - a message or nil if the session is nil.
-    public function createMapMessage(map message) returns Message|error {
+    public function createMapMessage(map<any> message) returns Message|error {
         var session = self.session;
         if (session is Session) {
             return session.createMapMessage(message);
         } else {
             string errorMessage = "Session cannot be nil";
-            map errorDetail = { message: errorMessage };
+            map<any> errorDetail = { message: errorMessage };
             error e = error(JMS_ERROR_CODE, errorDetail);
             panic e;
         }
@@ -142,7 +126,7 @@ public type SimpleTopicSubscriberEndpointConfiguration record {
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
     string messageSelector = "";
-    map properties = {};
+    map<any> properties = {};
     string topicPattern = "";
     !...
 };

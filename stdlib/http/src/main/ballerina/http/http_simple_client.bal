@@ -18,21 +18,21 @@
 # and `execute()` functions are provided. More complex and specific endpoint types can be created by wrapping this
 # generic HTTP actions implementation.
 #
-# + serviceUri - The URL of the remote HTTP endpoint
+# + url - The URL of the remote HTTP endpoint
 # + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
 # + httpClient - HTTP client for outbound HTTP requests
 public type HttpClient client object {
 
-    public string serviceUri;
+    public string url;
     public ClientEndpointConfig config;
     public HttpCaller httpCaller;
     public Client httpClient;
 
-    public function __init(string serviceUri, ClientEndpointConfig config) {
-        self.httpCaller = new(serviceUri, config);
-        self.serviceUri = serviceUri;
+    public function __init(string url, ClientEndpointConfig config) {
+        self.httpCaller = new(url, config);
+        self.url = url;
         self.config = config;
-        self.httpClient = createSimpleHttpClient(serviceUri, self.config);
+        self.httpClient = createSimpleHttpClient(url, self.config);
     }
 
     # The `post()` function can be used to send HTTP POST requests to HTTP endpoints.

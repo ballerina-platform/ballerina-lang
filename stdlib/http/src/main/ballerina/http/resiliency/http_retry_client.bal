@@ -38,14 +38,14 @@ public type RetryInferredConfig record {
 # Provides the HTTP actions for interacting with an HTTP endpoint. This is created by wrapping the HTTP client
 # to provide retrying over HTTP requests.
 #
-# + serviceUri - Target service url
+# + url - Target service url
 # + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
 # + retryInferredConfig - Derived set of configurations associated with retry
 # + httpClient - HTTP client for outbound HTTP requests
 # + httpCaller - HTTP client for outbound HTTP requests
 public type RetryClient client object {
 
-    public string serviceUri;
+    public string url;
     public ClientEndpointConfig config;
     public RetryInferredConfig retryInferredConfig;
     public Client httpClient;
@@ -53,13 +53,13 @@ public type RetryClient client object {
     # Provides the HTTP actions for interacting with an HTTP endpoint. This is created by wrapping the HTTP client
     # to provide retrying over HTTP requests.
     #
-    # + serviceUri - Target service url
+    # + url - Target service url
     # + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
     # + retryInferredConfig - Derived set of configurations associated with retry
     # + httpClient - HTTP client for outbound HTTP requests
-    public function __init(string serviceUri, ClientEndpointConfig config, RetryInferredConfig retryInferredConfig,
+    public function __init(string url, ClientEndpointConfig config, RetryInferredConfig retryInferredConfig,
                                         Client httpClient) {
-        self.serviceUri = serviceUri;
+        self.url = url;
         self.config = config;
         self.retryInferredConfig = retryInferredConfig;
         self.httpClient = httpClient;

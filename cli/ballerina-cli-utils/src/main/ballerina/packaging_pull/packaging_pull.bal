@@ -58,7 +58,7 @@ function createError (string errMessage) returns error {
 # + args - Arguments for pulling a module
 # + return - nil if no error occurred, else error.
 public function invokePull (string... args) returns error? {
-    http:Client httpEndpoint = new ({});
+    http:Client httpEndpoint = new ("");
     string url = args[0];
     string dirPath = args[1];
     string pkgPath = args[2];
@@ -69,7 +69,7 @@ public function invokePull (string... args) returns error? {
     string proxyPassword = args[7];
     string terminalWidth = args[8];
     string versionRange = args[9];
-    isBuild = untaint <boolean>args[10];
+    isBuild = untaint boolean.create(args[10]);
 
     if (isBuild) {
         logFormatter = new BuildLogFormatter();
@@ -77,7 +77,7 @@ public function invokePull (string... args) returns error? {
 
     if (host != "" && strPort != "") {
         // validate port
-        var port = <int> strPort;
+        var port = int.create(strPort);
         if (port is int) {
             http:Client|error result = trap defineEndpointWithProxy(url, host, port, proxyUsername, proxyPassword);
             if (result is http:Client) {
@@ -146,7 +146,7 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
 
         if (httpResponse.hasHeader("content-length")) {
             contentLengthHeader = httpResponse.getHeader("content-length");
-            pkgSize = check <int> contentLengthHeader;
+            pkgSize = check int.create(contentLengthHeader);
         } else {
             return createError("module size information is missing from remote repository. please retry.");
         }
@@ -181,7 +181,7 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
 
             string toAndFrom = " [central.ballerina.io -> home repo]";
             int rightMargin = 3;
-            int width = (check <int>terminalWidth) - rightMargin;
+            int width = (check int.create(terminalWidth)) - rightMargin;
             check copy(pkgSize, sourceChannel, wch, fullPkgPath, toAndFrom, width);
 
             var destChannelClose = wch.close();
@@ -213,8 +213,7 @@ public function main() {}
 # + password - Password of the proxy
 # + return - Endpoint defined
 function defineEndpointWithProxy (string url, string hostname, int port, string username, string password) returns http:Client {
-    http:Client httpEndpointWithProxy = new ({
-        url: url,
+    http:Client httpEndpointWithProxy = new (url, config = {
         secureSocket:{
             trustStore:{
                 path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
@@ -234,8 +233,7 @@ function defineEndpointWithProxy (string url, string hostname, int port, string 
 # + url - URL to be invoked
 # + return - Endpoint defined
 function defineEndpointWithoutProxy (string url) returns http:Client{
-    http:Client httpEndpointWithoutProxy = new ({
-        url: url,
+    http:Client httpEndpointWithoutProxy = new (url, config = {
         secureSocket:{
             trustStore:{
                 path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",

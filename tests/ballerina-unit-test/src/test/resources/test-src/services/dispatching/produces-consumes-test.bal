@@ -1,6 +1,6 @@
 import ballerina/http;
 
-listener http:MockServer testEP = new(9090);
+listener http:MockListener testEP = new(9090);
 
 service echo66 on testEP {
     @http:ResourceConfig {

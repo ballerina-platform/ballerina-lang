@@ -223,7 +223,7 @@ service {
                 } else {
                     string errorMessage = "Publish request denied for unregistered topic[" + topic + "]";
                     log:printDebug(errorMessage);
-                    response.setTextPayload(errorMessage);
+                    response.setTextPayload(untaint errorMessage);
                 }
                 response.statusCode = http:BAD_REQUEST_400;
                 var responseError = httpCaller->respond(response);
@@ -261,7 +261,7 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
         }
         return;
     }
-    map errorDetail = { message : "Topic/Callback cannot be null for subscription/unsubscription request" };
+    map<any> errorDetail = { message : "Topic/Callback cannot be null for subscription/unsubscription request" };
     error err = error(WEBSUB_ERROR_CODE, errorDetail);
     return err;
 }
@@ -272,10 +272,10 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
 # + topic - The topic specified in the new subscription/unsubscription request
 # + params - Parameters specified in the new subscription/unsubscription request
 function verifyIntentAndAddSubscription(string callback, string topic, map<string> params) {
-    http:Client callbackEp = new http:Client(callback, config = { url: callback, secureSocket: hubClientSecureSocket });
+    http:Client callbackEp = new http:Client(callback, config = { secureSocket: hubClientSecureSocket });
     string mode = params[HUB_MODE] ?: "";
     string strLeaseSeconds = params[HUB_LEASE_SECONDS] ?: "";
-    int leaseSeconds = <int>strLeaseSeconds but {error => 0};
+    int leaseSeconds = int.create(strLeaseSeconds) but { error => 0 };
 
     //measured from the time the verification request was made from the hub to the subscriber from the recommendation
     int createdAt = time:currentTime().time;
@@ -448,10 +448,10 @@ function addTopicRegistrationsOnStartup() {
         }
     });
     var dbResult = subscriptionDbEp->select("SELECT * FROM topics", TopicRegistration);
-    if (dbResult is table) {
-        table dt = dbResult;
+    if (dbResult is table<TopicRegistration>) {
+        table<TopicRegistration> dt = dbResult;
         while (dt.hasNext()) {
-            var registrationDetails = <TopicRegistration>dt.getNext();
+            var registrationDetails = trap <TopicRegistration>dt.getNext();
             if (registrationDetails is TopicRegistration) {
                 var registerStatus = registerTopicAtHub(registrationDetails.topic, loadingOnStartUp = true);
                 if (registerStatus is error) {
@@ -488,10 +488,10 @@ function addSubscriptionsOnStartup() {
 
     var dbResult = subscriptionDbEp->select("SELECT topic, callback, secret, lease_seconds, created_at"
             + " FROM subscriptions", SubscriptionDetails);
-    if (dbResult is table) {
-        table dt = dbResult;
+    if (dbResult is table<SubscriptionDetails>) {
+        table<SubscriptionDetails> dt = dbResult;
         while (dt.hasNext()) {
-            var subscriptionDetails = <SubscriptionDetails>dt.getNext();
+            var subscriptionDetails = trap <SubscriptionDetails>dt.getNext();
             if (subscriptionDetails is SubscriptionDetails) {
                 addSubscription(subscriptionDetails);
             } else if (subscriptionDetails is error) {
@@ -539,10 +539,7 @@ function clearSubscriptionDataInDb() {
 # + return - `http:Response` indicating the response received on fetching the topic URL if successful,
 #            `error` if an HTTP error occurred
 function fetchTopicUpdate(string topic) returns http:Response|error {
-    http:Client topicEp = new http:Client(topic, config = {
-        url: topic,
-        secureSocket: hubClientSecureSocket
-    });
+    http:Client topicEp = new http:Client(topic, config = { secureSocket: hubClientSecureSocket });
     http:Request request = new;
 
     var fetchResponse = topicEp->get("", message = request);
@@ -557,10 +554,7 @@ function fetchTopicUpdate(string topic) returns http:Response|error {
 # + return - Nil if successful, error in case of invalid content-type
 function distributeContent(string callback, SubscriptionDetails subscriptionDetails, WebSubContent webSubContent)
 returns error? {
-    http:Client callbackEp = new http:Client(callback, config = {
-        url: callback,
-        secureSocket: hubClientSecureSocket
-    });
+    http:Client callbackEp = new http:Client(callback, config = { secureSocket: hubClientSecureSocket });
     http:Request request = new;
     request.setPayload(webSubContent.payload);
     check request.setContentType(webSubContent.contentType);

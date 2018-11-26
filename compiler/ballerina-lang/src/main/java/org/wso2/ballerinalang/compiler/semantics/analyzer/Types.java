@@ -746,8 +746,7 @@ public class Types {
 
         // If both are open records, the rest field type of the RHS record should be assignable to the rest field
         // type of the LHS type.
-        if ((!lhsType.sealed && !rhsType.sealed) &&
-                !isAssignable(rhsType.restFieldType, lhsType.restFieldType, unresolvedTypes)) {
+        if (!rhsType.sealed && !isAssignable(rhsType.restFieldType, lhsType.restFieldType, unresolvedTypes)) {
             return false;
         }
 
@@ -878,6 +877,19 @@ public class Types {
         }
 
         return targetType.accept(conversionVisitor, sourceType);
+    }
+
+    BSymbol getTypeAssertionOperator(BType sourceType, BType targetType) {
+        if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR) {
+            return createConversionOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
+        }
+
+        if (isValueType(targetType)) {
+            return symResolver.getExplicitlyTypedExpressionSymbol(sourceType, targetType);
+        } else if (isAssignable(targetType, sourceType)) {
+            return symResolver.createTypeAssertionSymbol(sourceType, targetType);
+        }
+        return symTable.notFoundSymbol;
     }
 
     public BType getElementType(BType type) {
@@ -1678,14 +1690,14 @@ public class Types {
             BFiniteType expType = (BFiniteType) type;
             boolean foundMember = expType.valueSpace
                     .stream()
-                    .map(memberLiteral -> {
+                    .anyMatch(memberLiteral -> {
                         if (((BLangLiteral) memberLiteral).value == null) {
                             return literalExpr.value == null;
                         } else {
-                            return ((BLangLiteral) memberLiteral).value.equals(literalExpr.value);
+                            return (((BLangLiteral) memberLiteral).value.equals(literalExpr.value) &&
+                                    ((BLangLiteral) memberLiteral).typeTag == literalExpr.typeTag);
                         }
-                    })
-                    .anyMatch(found -> found);
+                    });
             return foundMember;
         }
         return false;

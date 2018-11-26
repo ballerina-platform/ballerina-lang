@@ -157,7 +157,7 @@ service OrderMgtService on serviceEndpoint5 {
 }
 service productmgt on serviceEndpoint5 {
 
-    map productsMap = populateSampleProducts();
+    map<any> productsMap = populateSampleProducts();
 
     @http:ResourceConfig {
         methods:["GET"],
@@ -194,8 +194,8 @@ service productmgt on serviceEndpoint5 {
     }
 }
 
-function populateSampleProducts() returns (map) {
-    map productsMap = {};
+function populateSampleProducts() returns (map<any>) {
+    map<any> productsMap = {};
     json prod_1 = {"Product":{"ID":"123000", "Name":"ABC_1", "Description":"Sample product."}};
     json prod_2 = {"Product":{"ID":"123001", "Name":"ABC_2", "Description":"Sample product."}};
     json prod_3 = {"Product":{"ID":"123002", "Name":"ABC_3", "Description":"Sample product."}};

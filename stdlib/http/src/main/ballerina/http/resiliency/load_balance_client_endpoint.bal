@@ -374,7 +374,6 @@ public type LoadBalanceClientEndpointConfiguration record {
 function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointConfiguration lbConfig,
                                                      TargetService target) returns ClientEndpointConfig {
     ClientEndpointConfig clientEPConfig = {
-        url:target.url,
         circuitBreaker:lbConfig.circuitBreaker,
         timeoutMillis:lbConfig.timeoutMillis,
         keepAlive:lbConfig.keepAlive,

@@ -9,7 +9,7 @@ function invalidTimeoutResultType() returns int {
 	     int a = 0;
 	     int b = 15;
 	   }
-	} join (all) (map results) { } timeout (1) (float results) { }
+	} join (all) (map<any> results) { } timeout (1) (float results) { }
 	return x;
 }
 

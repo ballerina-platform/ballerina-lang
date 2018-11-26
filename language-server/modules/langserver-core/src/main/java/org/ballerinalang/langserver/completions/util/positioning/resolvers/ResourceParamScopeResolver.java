@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.TreeVisitor;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
@@ -26,14 +27,11 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
  */
 public class ResourceParamScopeResolver extends CursorPositionResolver {
     /**
-     * Check whether the cursor position is located before the evaluating statement node.
-     * @param nodePosition position of the node
-     * @param node statement being evaluated
-     * @return true|false
+     * {@inheritDoc}
      */
     @Override
-    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, BLangNode node, TreeVisitor treeVisitor,
-                                      LSContext completionContext) {
+    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, TreeVisitor treeVisitor, LSContext completionContext,
+                                      BLangNode node, BSymbol bSymbol) {
         // TODO: Finalize the implementation
         return false;
     }

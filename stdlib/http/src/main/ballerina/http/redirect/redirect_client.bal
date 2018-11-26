@@ -23,14 +23,14 @@ import ballerina/config;
 
 # Provides redirect functionality for HTTP client actions.
 #
-# + serviceUri - Target service url
+# + url - Target service url
 # + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
 # + redirectConfig - Configurations associated with redirect
 # + httpClient - HTTP client for outbound HTTP requests
 # + currentRedirectCount - Current redirect count of the HTTP client
 public type RedirectClient client object {
 
-    public string serviceUri;
+    public string url;
     public ClientEndpointConfig config;
     public FollowRedirects redirectConfig;
     public Client httpClient;
@@ -38,13 +38,12 @@ public type RedirectClient client object {
 
     # Create a redirect client with the given configurations.
     #
-    # + serviceUri - Target service url
+    # + url - Target service url
     # + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
     # + redirectConfig - Configurations associated with redirect
     # + httpClient - HTTP client for outbound HTTP requests
-    public function __init(string serviceUri, ClientEndpointConfig config,
-                           FollowRedirects redirectConfig, Client httpClient) {
-        self.serviceUri = serviceUri;
+    public function __init(string url, ClientEndpointConfig config, FollowRedirects redirectConfig, Client httpClient) {
+        self.url = url;
         self.config = config;
         self.redirectConfig = redirectConfig;
         self.httpClient = httpClient;
@@ -227,7 +226,7 @@ public type RedirectClient client object {
 //Invoke relevant HTTP client action and check the response for redirect eligibility.
 function performRedirectIfEligible(RedirectClient redirectClient, string path, Request request,
                                    HttpOperation httpOperation) returns Response|error {
-    string originalUrl = redirectClient.serviceUri + path;
+    string originalUrl = redirectClient.url + path;
     log:printDebug(function() returns string {
         return "Checking redirect eligibility for original request " + originalUrl;
     });
@@ -308,7 +307,7 @@ function redirect(Response response, HttpOperation httpVerb, Request request,
 
 function performRedirection(string location, RedirectClient redirectClient, HttpOperation redirectMethod,
                             Request request, Response response) returns @untainted Response|error {
-    var retryClient = createRetryClient(location, createNewEndpoint(location, redirectClient.config));
+    var retryClient = createRetryClient(location, createNewEndpointConfig(redirectClient.config));
     if (retryClient is Client) {
         log:printDebug(function() returns string {
                 return "Redirect using new clientEP : " + location;
@@ -322,8 +321,8 @@ function performRedirection(string location, RedirectClient redirectClient, Http
 }
 
 //Create a new HTTP client endpoint configuration with a given location as the url.
-function createNewEndpoint(string location, ClientEndpointConfig config) returns ClientEndpointConfig {
-    ClientEndpointConfig newEpConfig = { url: location,
+function createNewEndpointConfig(ClientEndpointConfig config) returns ClientEndpointConfig {
+    ClientEndpointConfig newEpConfig = {
         circuitBreaker: config.circuitBreaker,
         timeoutMillis: config.timeoutMillis,
         keepAlive: config.keepAlive,

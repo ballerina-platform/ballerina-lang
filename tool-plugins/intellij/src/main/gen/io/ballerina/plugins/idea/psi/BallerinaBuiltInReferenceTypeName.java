@@ -39,6 +39,9 @@ public interface BallerinaBuiltInReferenceTypeName extends BallerinaCompositeEle
   BallerinaMapTypeName getMapTypeName();
 
   @Nullable
+  BallerinaServiceTypeName getServiceTypeName();
+
+  @Nullable
   BallerinaStreamTypeName getStreamTypeName();
 
   @Nullable
