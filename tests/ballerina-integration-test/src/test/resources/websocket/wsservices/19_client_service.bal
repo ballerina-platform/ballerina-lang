@@ -22,9 +22,9 @@ import ballerina/log;
 @http:WebSocketServiceConfig {
     path: "/client/service"
 }
-service<http:WebSocketService> clientFailure200 bind { port: 9200 } {
+service clientFailure200 on new http:WebSocketListener(9200) {
 
-    onOpen(endpoint wsEp) {
+    resource function onOpen(http:WebSocketCaller wsEp) {
         endpoint http:WebSocketClient wsClientEp {
             url: REMOTE_BACKEND_URL200
         };
@@ -34,7 +34,7 @@ service<http:WebSocketService> clientFailure200 bind { port: 9200 } {
         }
     }
 
-    onText(endpoint caller, string text) {
+    resource function onText(WebSocketCaller caller, string text) {
         endpoint http:WebSocketClient wsClientEp {
             url: REMOTE_BACKEND_URL200,
             callbackService: ClientService200
@@ -45,14 +45,14 @@ service<http:WebSocketService> clientFailure200 bind { port: 9200 } {
         }
     }
 
-    onBinary(endpoint caller, byte[] data) {
+    resource function onBinary(WebSocketCaller caller, byte[] data) {
         endpoint http:WebSocketClient wsClientEp {
             url: REMOTE_BACKEND_URL200,
             callbackService: callback200
         };
     }
 }
-service<http:WebSocketService> callback200 {
-}
-service<http:WebSocketClientService> ClientService200 {
-}
+service callback200 = @http:WebSocketServiceConfig {} service {
+};
+service<http:WebSocketClientService> ClientService200 = @http:WebSocketServiceConfig {} service{
+};

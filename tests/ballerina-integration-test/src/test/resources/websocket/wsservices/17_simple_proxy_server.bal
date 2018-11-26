@@ -17,15 +17,15 @@
 import ballerina/http;
 import ballerina/log;
 
-@final string REMOTE_BACKEND_URL = "ws://localhost:15300/websocket";
-@final public string ASSOCIATED_CONNECTION5 = "ASSOCIATED_CONNECTION";
+final string REMOTE_BACKEND_URL = "ws://localhost:15300/websocket";
+final public string ASSOCIATED_CONNECTION5 = "ASSOCIATED_CONNECTION";
 
 @http:WebSocketServiceConfig {
     path: "/"
 }
-service<http:WebSocketService> simpleProxy9 bind { port: 9099 } {
+service simpleProxy9 on new http:WebSocketListener(9099) {
 
-    onOpen(endpoint wsEp) {
+    resource function onOpen(http:WebSocketCaller wsEp) {
         endpoint http:WebSocketClient wsClientEp {
             url: REMOTE_BACKEND_URL,
             callbackService: clientCallbackService9,
@@ -39,7 +39,7 @@ service<http:WebSocketService> simpleProxy9 bind { port: 9099 } {
         }
     }
 
-    onText(endpoint wsEp, string text) {
+    resource function onText(http:WebSocketCaller wsEp, string text) {
         endpoint http:WebSocketClient clientEp = getAssociatedClientEndpoint3(wsEp);
         var returnVal = clientEp->pushText(text);
         if (returnVal is error) {
@@ -47,7 +47,7 @@ service<http:WebSocketService> simpleProxy9 bind { port: 9099 } {
         }
     }
 
-    onBinary(endpoint wsEp, byte[] data) {
+    resource function onBinary(http:WebSocketCaller wsEp, byte[] data) {
         endpoint http:WebSocketClient clientEp = getAssociatedClientEndpoint3(wsEp);
         var returnVal = clientEp->pushBinary(data);
         if (returnVal is error) {
@@ -55,7 +55,7 @@ service<http:WebSocketService> simpleProxy9 bind { port: 9099 } {
         }
     }
 
-    onClose(endpoint wsEp, int statusCode, string reason) {
+    resource function onClose(http:WebSocketCaller wsEp, int statusCode, string reason) {
         endpoint http:WebSocketClient clientEp = getAssociatedClientEndpoint3(wsEp);
         var returnVal = clientEp->close(statusCode = statusCode, reason = reason);
         if (returnVal is error) {
@@ -65,8 +65,8 @@ service<http:WebSocketService> simpleProxy9 bind { port: 9099 } {
 
 }
 
-service<http:WebSocketClientService> clientCallbackService9 {
-    onText(endpoint wsEp, string text) {
+service clientCallbackService9 = @http:WebSocketServiceConfig {} service {
+    resource function onText(http:WebSocketCaller wsEp, string text) {
         endpoint http:WebSocketListener serviceEp = getAssociatedListener3(wsEp);
         var returnVal = serviceEp->pushText(text);
         if (returnVal is error) {
@@ -74,7 +74,7 @@ service<http:WebSocketClientService> clientCallbackService9 {
         }
     }
 
-    onBinary(endpoint wsEp, byte[] data) {
+    resource function onBinary(endpoint wsEp, byte[] data) {
         endpoint http:WebSocketListener serviceEp = getAssociatedListener3(wsEp);
         var returnVal = serviceEp->pushBinary(data);
         if (returnVal is error) {
@@ -82,14 +82,14 @@ service<http:WebSocketClientService> clientCallbackService9 {
         }
     }
 
-    onClose(endpoint wsEp, int statusCode, string reason) {
+    resource function onClose(endpoint wsEp, int statusCode, string reason) {
         endpoint http:WebSocketListener serviceEp = getAssociatedListener3(wsEp);
         var returnVal = serviceEp->close(statusCode = statusCode, reason = reason);
         if (returnVal is error) {
              panic returnVal;
         }
     }
-}
+};
 
 public function getAssociatedClientEndpoint3(http:WebSocketListener wsServiceEp) returns (http:WebSocketClient) {
     var returnVal = <http:WebSocketClient>wsServiceEp.attributes[ASSOCIATED_CONNECTION5];

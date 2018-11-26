@@ -17,17 +17,17 @@
 import ballerina/http;
 import ballerina/log;
 
-@final string REMOTE_BACKEND_URL2 = "ws://localhost:15100/websocket";
-@final string ASSOCIATED_CONNECTION2 = "ASSOCIATED_CONNECTION";
-@final string strData1 = "data";
-@final byte[] APPLICATION_DATA = strData1.toByteArray("UTF-8");
+final string REMOTE_BACKEND_URL2 = "ws://localhost:15100/websocket";
+final string ASSOCIATED_CONNECTION2 = "ASSOCIATED_CONNECTION";
+final string strData1 = "data";
+final byte[] APPLICATION_DATA = strData1.toByteArray("UTF-8");
 
 @http:WebSocketServiceConfig {
     path: "/pingpong/ws"
 }
-service<http:WebSocketService> PingPongTestService1 bind { port: 9092 } {
+service PingPongTestService1 on new http:WebSocketListener(9092) {
 
-    onOpen(endpoint wsEp) {
+    resource function onOpen(http:WebSocketCaller wsEp) {
         endpoint http:WebSocketClient wsClientEp {
             url: REMOTE_BACKEND_URL2,
             callbackService: clientCallbackService,
@@ -42,7 +42,7 @@ service<http:WebSocketService> PingPongTestService1 bind { port: 9092 } {
         }
     }
 
-    onText(endpoint wsEp, string text) {
+    resource function onText(endpoint wsEp, string text) {
         endpoint http:WebSocketClient clientEp;
         if (text == "custom-headers") {
             clientEp = getAssociatedClientEndpoint1(wsEp);
@@ -61,16 +61,16 @@ service<http:WebSocketService> PingPongTestService1 bind { port: 9092 } {
     }
 }
 
-service<http:WebSocketClientService> clientCallbackService {
+service clientCallbackService = @http:WebSocketServiceConfig {} service{
 
-    onText(endpoint wsEp, string text) {
-        endpoint http:WebSocketListener serverEp = getAssociatedListener1(wsEp);
+    resource function onText(endpoint wsEp, string text) {
+        listener http:WebSocketListener serverEp = getAssociatedListener1(wsEp);
         var returnVal = serverEp->pushText(text);
         if (returnVal is error) {
              panic returnVal;
         }
     }
-}
+};
 
 public function getAssociatedClientEndpoint1(http:WebSocketListener wsServiceEp) returns (http:WebSocketClient) {
     var returnVal = <http:WebSocketClient>wsServiceEp.attributes[ASSOCIATED_CONNECTION2];

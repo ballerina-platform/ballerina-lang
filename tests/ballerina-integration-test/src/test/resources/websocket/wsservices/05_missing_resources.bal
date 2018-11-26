@@ -19,8 +19,8 @@ import ballerina/http;
 @http:WebSocketServiceConfig {
     idleTimeoutInSeconds: 10
 }
-service<http:WebSocketService> onlyOnBinary bind { port: 9086 } {
-    onBinary(endpoint caller, byte[] data){
+service onlyOnBinary on new http:WebSocketListener(9086) {
+    resource function onBinary(http:WebSocketCaller caller, byte[] data) {
         var returnVal = caller->pushBinary(data);
         if (returnVal is error) {
            panic returnVal;
@@ -28,8 +28,8 @@ service<http:WebSocketService> onlyOnBinary bind { port: 9086 } {
     }
 }
 
-service<http:WebSocketService> onlyOnText bind { port: 9087 } {
-    onText(endpoint caller, string data) {
+service onlyOnText on new http:WebSocketListener(9087) {
+    resource function onText(http:WebSocketCaller caller, string data) {
         var returnVal = caller->pushText(data);
         if (returnVal is error) {
              panic returnVal;
