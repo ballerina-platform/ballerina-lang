@@ -20,6 +20,8 @@ package org.ballerinalang.bre.vm;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.DebugContext;
+import org.ballerinalang.util.program.BLangVMUtils;
+import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
 import java.util.HashMap;
 import java.util.List;
@@ -133,6 +135,22 @@ public class Strand {
 
     public BError getError() {
         return error;
+    }
+
+    public boolean isInTransaction() {
+        return BLangVMUtils.getTransactionInfo(this) != null;
+    }
+
+    public void setLocalTransactionInfo(LocalTransactionInfo localTransactionInfo) {
+        BLangVMUtils.setTransactionInfo(this, localTransactionInfo);
+    }
+
+    public LocalTransactionInfo getLocalTransactionInfo() {
+        return BLangVMUtils.getTransactionInfo(this);
+    }
+
+    public boolean getGlobalTransactionEnabled() {
+        return BLangVMUtils.getGlobalTransactionEnabled(this);
     }
 
     public void createLock() {

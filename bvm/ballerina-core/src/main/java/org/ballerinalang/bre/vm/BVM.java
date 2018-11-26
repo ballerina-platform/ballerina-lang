@@ -88,6 +88,7 @@ import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.util.FunctionFlags;
+import org.ballerinalang.util.TransactionStatus;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ErrorTableEntry;
 import org.ballerinalang.util.codegen.FunctionInfo;
@@ -125,6 +126,10 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.program.BLangVMUtils;
+import org.ballerinalang.util.transactions.LocalTransactionInfo;
+import org.ballerinalang.util.transactions.TransactionConstants;
+import org.ballerinalang.util.transactions.TransactionResourceManager;
+import org.ballerinalang.util.transactions.TransactionUtils;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 
 import java.math.BigDecimal;
@@ -138,6 +143,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -418,7 +424,7 @@ public class BVM {
                         i = operands[0];
                         j = operands[1];
                         k = operands[2];
-//                        retryTransaction(strand, i, j, k);
+                        retryTransaction(strand, i, j, k);
                         break;
                     case InstructionCodes.CALL:
                         callIns = (InstructionCALL) instruction;
@@ -441,16 +447,16 @@ public class BVM {
                         j = operands[1];
                         k = operands[2];
                         l = operands[3];
-//                    beginTransaction(strand, i, j, k, l);
+                        beginTransaction(strand, i, j, k, l);
                         break;
                     case InstructionCodes.TR_END:
                         i = operands[0];
                         j = operands[1];
-//                    endTransaction(ctx, i, j);
+                        endTransaction(strand, i, j);
                         break;
                     case InstructionCodes.WRKSEND:
-//                    InstructionWRKSendReceive wrkSendIns = (InstructionWRKSendReceive) instruction;
-//                    handleWorkerSend(ctx, wrkSendIns.dataChannelInfo, wrkSendIns.type, wrkSendIns.reg);
+//                        InstructionWRKSendReceive wrkSendIns = (InstructionWRKSendReceive) instruction;
+//                        handleWorkerSend(strand, wrkSendIns.dataChannelInfo, wrkSendIns.type, wrkSendIns.reg);
                         break;
                     case InstructionCodes.WRKRECEIVE:
 //                    InstructionWRKSendReceive wrkReceiveIns = (InstructionWRKSendReceive) instruction;
@@ -460,16 +466,16 @@ public class BVM {
 //                    }
                         break;
                     case InstructionCodes.CHNRECEIVE:
-                    Instruction.InstructionCHNReceive chnReceiveIns = (Instruction.InstructionCHNReceive) instruction;
-                    if (!handleCHNReceive(strand, chnReceiveIns.channelName, chnReceiveIns.receiverType,
-                            chnReceiveIns.receiverReg, chnReceiveIns.keyType, chnReceiveIns.keyReg)) {
-                        return;
-                    }
+                        Instruction.InstructionCHNReceive chnReceiveIns = (Instruction.InstructionCHNReceive) instruction;
+                        if (!handleCHNReceive(strand, chnReceiveIns.channelName, chnReceiveIns.receiverType,
+                                chnReceiveIns.receiverReg, chnReceiveIns.keyType, chnReceiveIns.keyReg)) {
+                            return;
+                        }
                         break;
                     case InstructionCodes.CHNSEND:
-                    Instruction.InstructionCHNSend chnSendIns = (Instruction.InstructionCHNSend) instruction;
-                    handleCHNSend(strand, chnSendIns.channelName, chnSendIns.dataType, chnSendIns.dataReg,
-                                  chnSendIns.keyType, chnSendIns.keyReg);
+                        Instruction.InstructionCHNSend chnSendIns = (Instruction.InstructionCHNSend) instruction;
+                        handleCHNSend(strand, chnSendIns.channelName, chnSendIns.dataType, chnSendIns.dataReg,
+                                chnSendIns.keyType, chnSendIns.keyReg);
                         break;
                     case InstructionCodes.FLUSH:
                         // TODO fix - rajith
@@ -2591,12 +2597,11 @@ public class BVM {
                     break;
                 }
 
-                //                    TODO fix - rajith
-//                try {
-//                    sf.refRegs[j] = JSONUtils.toJSON((BTable) bRefType, ctx.isInTransaction());
-//                } catch (Exception e) {
-//                    handleTypeConversionError(ctx, sf, j, TypeConstants.TABLE_TNAME, TypeConstants.XML_TNAME);
-//                }
+                try {
+                    sf.refRegs[j] = JSONUtils.toJSON((BTable) bRefType, ctx.isInTransaction());
+                } catch (Exception e) {
+                    handleTypeConversionError(ctx, sf, j, TypeConstants.TABLE_TNAME, TypeConstants.XML_TNAME);
+                }
                 break;
             case InstructionCodes.T2MAP:
                 convertStructToMap(operands, sf);
@@ -2974,133 +2979,130 @@ public class BVM {
         sf.refRegs[i] = new BMap<>(structInfo.getType());
     }
 
-    private static void beginTransaction(WorkerExecutionContext ctx, int transactionBlockId, int retryCountRegIndex,
+    private static void beginTransaction(Strand ctx, int transactionBlockId, int retryCountRegIndex,
                                          int committedFuncIndex, int abortedFuncIndex) {
-        //TODO fix - rajith
         //If global tx enabled, it is managed via transaction coordinator. Otherwise it is managed locally without
         //any interaction with the transaction coordinator.
-//        boolean isGlobalTransactionEnabled = ctx.getGlobalTransactionEnabled();
-//
-//        //Transaction is attempted three times by default to improve resiliency
-//        int retryCount = TransactionConstants.DEFAULT_RETRY_COUNT;
-//        if (retryCountRegIndex != -1) {
-//            retryCount = (int) ctx.workerLocal.longRegs[retryCountRegIndex];
-//            if (retryCount < 0) {
-//                ctx.setError(BLangVMErrors
-//                        .createError(ctx, BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RETRY_COUNT)));
-//                handleError(ctx);
-//                return;
-//            }
-//        }
-//
-//        //Register committed function handler if exists.
-//        if (committedFuncIndex != -1) {
-//            FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) ctx.constPool[committedFuncIndex];
-//            BFunctionPointer fpCommitted = new BFunctionPointer(funcRefCPEntry.getFunctionInfo());
-//            TransactionResourceManager.getInstance().registerCommittedFunction(transactionBlockId, fpCommitted);
-//        }
-//
-//        //Register aborted function handler if exists.
-//        if (abortedFuncIndex != -1) {
-//            FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) ctx.constPool[abortedFuncIndex];
-//            BFunctionPointer fpAborted = new BFunctionPointer(funcRefCPEntry.getFunctionInfo());
-//            TransactionResourceManager.getInstance().registerAbortedFunction(transactionBlockId, fpAborted);
-//        }
-//
-//        LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
-//        if (localTransactionInfo == null) {
-//            String globalTransactionId;
-//            String protocol = null;
-//            String url = null;
-//            if (isGlobalTransactionEnabled) {
-//                BValue[] returns = TransactionUtils.notifyTransactionBegin(ctx, null, null, transactionBlockId,
-//                        TransactionConstants.DEFAULT_COORDINATION_TYPE);
-//                BMap<String, BValue> txDataStruct = (BMap<String, BValue>) returns[0];
-//                globalTransactionId = txDataStruct.get(TransactionConstants.TRANSACTION_ID).stringValue();
-//                protocol = txDataStruct.get(TransactionConstants.CORDINATION_TYPE).stringValue();
-//                url = txDataStruct.get(TransactionConstants.REGISTER_AT_URL).stringValue();
-//            } else {
-//                globalTransactionId = UUID.randomUUID().toString().replaceAll("-", "");
-//            }
-//            localTransactionInfo = new LocalTransactionInfo(globalTransactionId, url, protocol);
-//            ctx.setLocalTransactionInfo(localTransactionInfo);
-//        } else {
-//            if (isGlobalTransactionEnabled) {
-//                TransactionUtils.notifyTransactionBegin(ctx, localTransactionInfo.getGlobalTransactionId(),
-//                        localTransactionInfo.getURL(), transactionBlockId, localTransactionInfo.getProtocol());
-//            }
-//        }
-//        localTransactionInfo.beginTransactionBlock(transactionBlockId, retryCount);
+        boolean isGlobalTransactionEnabled = ctx.getGlobalTransactionEnabled();
+
+        //Transaction is attempted three times by default to improve resiliency
+        int retryCount = TransactionConstants.DEFAULT_RETRY_COUNT;
+        if (retryCountRegIndex != -1) {
+            retryCount = (int) ctx.currentFrame.longRegs[retryCountRegIndex];
+            if (retryCount < 0) {
+                ctx.setError(BLangVMErrors
+                        .createError(ctx, BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RETRY_COUNT)));
+                handleError(ctx);
+                return;
+            }
+        }
+
+        //Register committed function handler if exists.
+        if (committedFuncIndex != -1) {
+            FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) ctx.currentFrame.constPool[committedFuncIndex];
+            BFunctionPointer fpCommitted = new BFunctionPointer(funcRefCPEntry.getFunctionInfo());
+            TransactionResourceManager.getInstance().registerCommittedFunction(transactionBlockId, fpCommitted);
+        }
+
+        //Register aborted function handler if exists.
+        if (abortedFuncIndex != -1) {
+            FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) ctx.currentFrame.constPool[abortedFuncIndex];
+            BFunctionPointer fpAborted = new BFunctionPointer(funcRefCPEntry.getFunctionInfo());
+            TransactionResourceManager.getInstance().registerAbortedFunction(transactionBlockId, fpAborted);
+        }
+
+        LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
+        if (localTransactionInfo == null) {
+            String globalTransactionId;
+            String protocol = null;
+            String url = null;
+            if (isGlobalTransactionEnabled) {
+                BValue[] returns = TransactionUtils.notifyTransactionBegin(ctx, null, null, transactionBlockId,
+                        TransactionConstants.DEFAULT_COORDINATION_TYPE);
+                BMap<String, BValue> txDataStruct = (BMap<String, BValue>) returns[0];
+                globalTransactionId = txDataStruct.get(TransactionConstants.TRANSACTION_ID).stringValue();
+                protocol = txDataStruct.get(TransactionConstants.CORDINATION_TYPE).stringValue();
+                url = txDataStruct.get(TransactionConstants.REGISTER_AT_URL).stringValue();
+            } else {
+                globalTransactionId = UUID.randomUUID().toString().replaceAll("-", "");
+            }
+            localTransactionInfo = new LocalTransactionInfo(globalTransactionId, url, protocol);
+            ctx.setLocalTransactionInfo(localTransactionInfo);
+        } else {
+            if (isGlobalTransactionEnabled) {
+                TransactionUtils.notifyTransactionBegin(ctx, localTransactionInfo.getGlobalTransactionId(),
+                        localTransactionInfo.getURL(), transactionBlockId, localTransactionInfo.getProtocol());
+            }
+        }
+        localTransactionInfo.beginTransactionBlock(transactionBlockId, retryCount);
     }
 
     private static void retryTransaction(Strand ctx, int transactionBlockId,
                                          int startOfAbortIP, int startOfNoThrowEndIP) {
-        //TODO fix - rajith
-//        LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
-//        if (!localTransactionInfo.isRetryPossible(ctx, transactionBlockId)) {
-//            if (ctx.getError() == null) {
-//                ctx.ip = startOfNoThrowEndIP;
-//            } else {
-//                String errorMsg = ctx.getError().reason;
-//                if (BLangVMErrors.TRANSACTION_ERROR.equals(errorMsg)) {
-//                    ctx.ip = startOfNoThrowEndIP;
-//                } else {
-//                    ctx.ip = startOfAbortIP;
-//                }
-//            }
-//        }
-//        localTransactionInfo.incrementCurrentRetryCount(transactionBlockId);
+        LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
+        if (!localTransactionInfo.isRetryPossible(ctx, transactionBlockId)) {
+            if (ctx.getError() == null) {
+                ctx.currentFrame.ip = startOfNoThrowEndIP;
+            } else {
+                String errorMsg = ctx.getError().reason;
+                if (BLangVMErrors.TRANSACTION_ERROR.equals(errorMsg)) {
+                    ctx.currentFrame.ip = startOfNoThrowEndIP;
+                } else {
+                    ctx.currentFrame.ip = startOfAbortIP;
+                }
+            }
+        }
+        localTransactionInfo.incrementCurrentRetryCount(transactionBlockId);
     }
 
-    private static void endTransaction(WorkerExecutionContext ctx, int transactionBlockId, int status) {
-        //TODO fix - rajith
-//        LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
-//        boolean isGlobalTransactionEnabled = ctx.getGlobalTransactionEnabled();
-//        boolean notifyCoordinator;
-//        try {
-//            //In success case no need to do anything as with the transaction end phase it will be committed.
-//            if (status == TransactionStatus.FAILED.value()) {
-//                notifyCoordinator = localTransactionInfo.onTransactionFailed(ctx, transactionBlockId);
-//                if (notifyCoordinator) {
-//                    if (isGlobalTransactionEnabled) {
-//                        TransactionUtils.notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(),
-//                                transactionBlockId);
-//                    } else {
-//                        TransactionResourceManager.getInstance()
-//                              .notifyAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId, false);
-//                    }
-//                }
-//            } else if (status == TransactionStatus.ABORTED.value()) {
-//                if (isGlobalTransactionEnabled) {
-//                    TransactionUtils.notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(),
-//                            transactionBlockId);
-//                } else {
-//                    TransactionResourceManager.getInstance()
-//                            .notifyAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId, false);
-//                }
-//            } else if (status == TransactionStatus.SUCCESS.value()) {
-//                //We dont' need to notify the coordinator in this case. If it does not receive abort from the tx
-//                //it will commit at the end message
-//                if (!isGlobalTransactionEnabled) {
-//                    TransactionResourceManager.getInstance()
-//                            .prepare(localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
-//                    TransactionResourceManager.getInstance()
-//                            .notifyCommit(localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
-//                }
-//            } else if (status == TransactionStatus.END.value()) { //status = 1 Transaction end
-//                boolean isOuterTx = localTransactionInfo.onTransactionEnd(transactionBlockId);
-//                if (isGlobalTransactionEnabled) {
-//                    TransactionUtils.notifyTransactionEnd(ctx, localTransactionInfo.getGlobalTransactionId(),
-//                            transactionBlockId);
-//                }
-//                if (isOuterTx) {
-//                    BLangVMUtils.removeTransactionInfo(ctx);
-//                }
-//            }
-//        } catch (Throwable e) {
-//            ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
-//            handleError(ctx);
-//        }
+    private static void endTransaction(Strand ctx, int transactionBlockId, int status) {
+        LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
+        boolean isGlobalTransactionEnabled = ctx.getGlobalTransactionEnabled();
+        boolean notifyCoordinator;
+        try {
+            //In success case no need to do anything as with the transaction end phase it will be committed.
+            if (status == TransactionStatus.FAILED.value()) {
+                notifyCoordinator = localTransactionInfo.onTransactionFailed(ctx, transactionBlockId);
+                if (notifyCoordinator) {
+                    if (isGlobalTransactionEnabled) {
+                        TransactionUtils.notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(),
+                                transactionBlockId);
+                    } else {
+                        TransactionResourceManager.getInstance()
+                                .notifyAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId, false);
+                    }
+                }
+            } else if (status == TransactionStatus.ABORTED.value()) {
+                if (isGlobalTransactionEnabled) {
+                    TransactionUtils.notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(),
+                            transactionBlockId);
+                } else {
+                    TransactionResourceManager.getInstance()
+                            .notifyAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId, false);
+                }
+            } else if (status == TransactionStatus.SUCCESS.value()) {
+                //We dont' need to notify the coordinator in this case. If it does not receive abort from the tx
+                //it will commit at the end message
+                if (!isGlobalTransactionEnabled) {
+                    TransactionResourceManager.getInstance()
+                            .prepare(localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
+                    TransactionResourceManager.getInstance()
+                            .notifyCommit(localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
+                }
+            } else if (status == TransactionStatus.END.value()) { //status = 1 Transaction end
+                boolean isOuterTx = localTransactionInfo.onTransactionEnd(transactionBlockId);
+                if (isGlobalTransactionEnabled) {
+                    TransactionUtils.notifyTransactionEnd(ctx, localTransactionInfo.getGlobalTransactionId(),
+                            transactionBlockId);
+                }
+                if (isOuterTx) {
+                    BLangVMUtils.removeTransactionInfo(ctx);
+                }
+            }
+        } catch (Throwable e) {
+            ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+            handleError(ctx);
+        }
     }
 
     private static Strand invokeVirtualFunction(Strand ctx, StackFrame sf, int receiver,
