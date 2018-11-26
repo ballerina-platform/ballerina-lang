@@ -44,6 +44,7 @@ public type Client client object {
             httpClientConfig = httpConfig;
         }
         self.httpClientEndpoint = new (self.hubUrl, config = httpClientConfig);
+        self.followRedirects = config.followRedirects;
         self.config = config;
     }
 
