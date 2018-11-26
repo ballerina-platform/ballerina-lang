@@ -1,4 +1,4 @@
-import { ASTNode, Block, ExpressionStatement, Function, If, VariableDef, Visitor, While } from "@ballerina/ast-model";
+import { Assignment, ASTNode, Block, ExpressionStatement, Function, If, VariableDef, Visitor, While } from "@ballerina/ast-model";
 import * as _ from "lodash";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
@@ -134,7 +134,7 @@ export const visitor: Visitor = {
 
         viewState.bBox.w = node.body.viewState.bBox.w;
         viewState.bBox.h = node.body.viewState.bBox.h + config.flowCtrl.header.height
-                            + config.flowCtrl.whileGap + config.flowCtrl.bottomMargin;
+                            + config.flowCtrl.bottomMargin;
         // If body has a left margin assign to while
         // tslint:disable-next-line:prefer-conditional-expression
         if (bodyBBox.leftMargin) {
@@ -155,6 +155,10 @@ export const visitor: Visitor = {
     },
 
     endVisitVariableDef(node: VariableDef) {
+        sizeStatement(node);
+    },
+
+    endVisitAssignment(node: Assignment) {
         sizeStatement(node);
     }
 };

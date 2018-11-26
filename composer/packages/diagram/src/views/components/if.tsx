@@ -60,7 +60,7 @@ export const If: React.StatelessComponent<{
         r2.y = r1.y;
 
         r3.x = r2.x;
-        r3.y = p1.y + config.flowCtrl.whileGap;
+        r3.y = p1.y;
         if (model.elseStatement) {
             r3.y += model.elseStatement.viewState.bBox.h;
         }
