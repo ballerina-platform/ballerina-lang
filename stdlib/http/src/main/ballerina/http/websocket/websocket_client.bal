@@ -32,14 +32,15 @@ public type WebSocketClient client object {
     @readonly public map attributes = {};
 
     private WebSocketConnector conn = new;
+    private string url = "";
     private WebSocketClientEndpointConfig config = {};
 
     # Gets called when the endpoint is being initialize during module init time.
     #
     # + c - The `WebSocketClientEndpointConfig` of the endpoint
     public function __init(string url, WebSocketClientEndpointConfig? config) {
+        self.url = url;
         self.config = config ?: {};
-        self.config.url = url;
         self.initEndpoint();
     }
 
@@ -49,19 +50,19 @@ public type WebSocketClient client object {
     # Push text to the connection.
     #
     # + data - Data to be sent, if byte[] it is converted to a UTF-8 string for sending
-    # + final - True if this is a final frame of a (long) message
+    # + finalFrame - True if this is a final frame of a (long) message
     # + return  - `error` if an error occurs when sending
-    public remote function pushText(string|json|xml|boolean|int|float|byte|byte[] data, boolean final = true) returns error? {
-        return self.conn.pushText(data, final = final);
+    public remote function pushText(string|json|xml|boolean|int|float|byte|byte[] data, boolean finalFrame = true) returns error? {
+        return self.conn.pushText(data, finalFrame);
     }
 
     # Push binary data to the connection.
     #
     # + data - Binary data to be sent
-    # + final - True if this is a final frame of a (long) message
+    # + finalFrame - True if this is a final frame of a (long) message
     # + return - `error` if an error occurs when sending
-    public remote function pushBinary(byte[] data, boolean final = true) returns error? {
-        return self.conn.pushBinary(data, final = final);
+    public remote function pushBinary(byte[] data, boolean finalFrame = true) returns error? {
+        return self.conn.pushBinary(data, finalFrame);
     }
 
     # Ping the connection.
@@ -105,7 +106,6 @@ public type WebSocketClient client object {
 
 # Configuration struct for WebSocket client endpoint.
 #
-# + url - The url of the server to connect to
 # + callbackService - The callback service for the client. Resources in this service gets called on receipt of messages from the server.
 # + subProtocols - Negotiable sub protocols for the client
 # + customHeaders - Custom headers which should be sent to the server
@@ -114,8 +114,7 @@ public type WebSocketClient client object {
 #                    `WebSocketClient`needs to be called once to start receiving messages.
 # + secureSocket - SSL/TLS related options
 public type WebSocketClientEndpointConfig record {
-    string url = "";
-    typedesc? callbackService = ();
+    service? callbackService = ();
     string[] subProtocols = [];
     map<string> customHeaders = {};
     int idleTimeoutInSeconds = -1;

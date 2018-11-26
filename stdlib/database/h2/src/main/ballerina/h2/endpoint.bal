@@ -26,7 +26,7 @@ import ballerina/sql;
 # + password - Password for the database connection
 # + poolOptions - Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
 # + dbOptions - A map of DB specific properties
-public type ClientEndpointConfiguration record {
+public type ClientEndpointConfig record {
     string host = "";
     string path = "";
     int port = 9092;
@@ -45,11 +45,11 @@ public type ClientEndpointConfiguration record {
 # + sqlClient - The base SQL Client
 public type Client client object {
     *sql:AbstractSQLClient;
-    private ClientEndpointConfiguration config;
+    private ClientEndpointConfig config;
     private sql:Client sqlClient;
 
     # Gets called when the H2 client is instantiated.
-    public function __init(ClientEndpointConfiguration c) {
+    public function __init(ClientEndpointConfig c) {
         self.config = c;
         self.sqlClient = createClient(c);
     }
@@ -125,4 +125,4 @@ public type Client client object {
     }
 };
 
-extern function createClient(ClientEndpointConfiguration config) returns sql:Client;
+extern function createClient(ClientEndpointConfig config) returns sql:Client;

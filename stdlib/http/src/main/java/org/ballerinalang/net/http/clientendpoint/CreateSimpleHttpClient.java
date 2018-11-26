@@ -43,6 +43,9 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Map;
 
+import static org.ballerinalang.net.http.HttpConstants.HTTP_CLIENT;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
+
 /**
  * Initialization of client endpoint.
  *
@@ -113,10 +116,14 @@ public class CreateSimpleHttpClient extends BlockingNativeCallableUnit {
         }
         HttpClientConnector httpClientConnector = httpConnectorFactory
                 .createHttpClientConnector(properties, senderConfiguration);
-
-        clientEndpointConfig.addNativeData(HttpConstants.HTTP_CLIENT, httpClientConnector);
-        clientEndpointConfig.addNativeData(HttpConstants.CLIENT_ENDPOINT_CONFIG, clientEndpointConfig);
-        context.setReturnValues();
+        BMap<String, BValue> httpClient = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(),
+                                                                                      HTTP_PACKAGE_PATH,
+                                                                                      HTTP_CLIENT, urlString,
+                                                                                      clientEndpointConfig);
+        httpClient.addNativeData(HttpConstants.HTTP_CLIENT, httpClientConnector);
+        httpClient.addNativeData(HttpConstants.CLIENT_ENDPOINT_CONFIG, clientEndpointConfig);
+        configBStruct.addNativeData(HttpConstants.HTTP_CLIENT, httpClientConnector);
+        context.setReturnValues((httpClient));
     }
 
     private void populateSenderConfigurationOptions(SenderConfiguration senderConfiguration, Struct

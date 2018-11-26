@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-@final StatisticConfig[] DEFAULT_GAUGE_STATS_CONFIG = [{ timeWindow: 600000, buckets: 5,
+final StatisticConfig[] DEFAULT_GAUGE_STATS_CONFIG = [{ timeWindow: 600000, buckets: 5,
     percentiles: [0.33, 0.5, 0.66, 0.99] }];
 
-@final map<string> DEFAULT_TAGS = {};
+final map<string> DEFAULT_TAGS = {};
 
 
 # Start a span with no parent span.
@@ -79,7 +79,7 @@ public type Counter object {
     # + desc - Description of the Counter instance. If no description is provided, the the default empty string
     #          will be used.
     # + tags - The key/value pair of Tags. If no tags are provided, the default nil value will be used.
-    public new(name, string? desc = "", map<string>? tags = ()) {
+    public function __init(string name, string? desc = "", map<string>? tags = ()) {
         self.description = desc but {
             () => ""
         };
@@ -143,7 +143,7 @@ public type Gauge object {
     #                     statistics configurations array is passed, then statistics calculation will be disabled.
     #                     If nil () is passed, then default statistics configs will be used for the statitics
     #                     calculation.
-    public new(name, string? desc = "", map<string>? tags = (),
+    public function __init(string name, string? desc = "", map<string>? tags = (),
                StatisticConfig[]? statisticConfig = ()) {
         self.description = desc but {
             () => ""

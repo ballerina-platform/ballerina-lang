@@ -19,6 +19,7 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.connector.api.Annotation;
+import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
@@ -61,7 +62,8 @@ public class WebSocketService {
             idleTimeoutInSeconds = findIdleTimeoutInSeconds(configAnnotationStruct);
             maxFrameSize = findMaxFrameSize(configAnnotationStruct);
         }
-        if (WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(service.getEndpointName())) {
+        ParamDetail param = service.getResources()[0].getParamDetails().get(0);
+        if (param != null && WebSocketConstants.WEBSOCKET_CALLER_NAME.equals(param.getVarType().toString())) {
             basePath = findFullWebSocketUpgradePath(configAnnotationStruct);
         }
 

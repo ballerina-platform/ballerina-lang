@@ -45,17 +45,17 @@ public function main(string... args) {
 }
 
 
-service<grpc:Service> ChatMessageListener {
+service ChatMessageListener = service {
 
-    onMessage(string message) {
+    resource function onMessage(string message) {
         io:println("Response received from server: " + message);
     }
 
-    onError(error err) {
+    resource function onError(error err) {
         io:println("Error reported from server: " + err.reason());
     }
 
-    onComplete() {
+    resource function onComplete() {
         io:println("Server Complete Sending Responses.");
     }
 }
@@ -78,8 +78,8 @@ public type ChatClient client object {
         }
     }
 
-    remote function chat(typedesc listener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|error) {
-        return self.grpcClient->streamingExecute("Chat/chat", listener, headers = headers);
+    remote function chat(service msgListener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|error) {
+        return self.grpcClient->streamingExecute("Chat/chat", msgListener, headers = headers);
     }
 };
 
@@ -88,7 +88,7 @@ type ChatMessage record {
     string message = "";
 };
 
-@final string DESCRIPTOR_KEY4 = "Chat.proto";
+const string DESCRIPTOR_KEY4 = "Chat.proto";
 map descriptorMap4 =
 {
     "Chat.proto":

@@ -54,7 +54,7 @@ type {{this.messageName}} record {
 {{/fieldList}}
 {{/enumList}}{{/messageList}}
 {{#enumList}}public type {{messageName}} {{#fieldList}}"{{name}}"{{#unless @last}}|{{/unless}}{{/fieldList}};
-{{#fieldList}}@final public {{../messageName}} {{uppercase ../messageName}}_{{name}} = "{{name}}";
+{{#fieldList}}public final {{../messageName}} {{uppercase ../messageName}}_{{name}} = "{{name}}";
 {{/fieldList}}{{/enumList}}{{#if rootDescriptorKey}}
 const string DESCRIPTOR_KEY = "{{rootDescriptorKey}}";
 map descriptorMap = {

@@ -1,20 +1,18 @@
 import ballerina/http;
 import ballerina/http;
 
-endpoint http:NonListener testEP {
-    port:9090
-};
+listener http:MockListener testEP = new(9090);
 
 @http:ServiceConfig {
     basePath:"/hello"
 }
-service<http:Service> testService bind testEP {
+service testService on testEP {
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/t1/{person}/bar/{yearParam}/foo"
     }
-     test1 (endpoint caller, http:Request req, string person, string yearParam) {
+    resource function test1(http:Caller caller, http:Request req, string person, string yearParam) {
         http:Response res = new;
         json outJson = {};
         outJson.pathParams = string `{{person}}, {{yearParam}}`;
@@ -40,14 +38,14 @@ service<http:Service> testService bind testEP {
         outJson.queryParams = string `x={{x}}&y={{y}}`;
 
         res.setJsonPayload(untaint outJson);
-        _ = caller -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/t2/{person}/foo;a=5;b=10"
     }
-     testEncoded (endpoint caller, http:Request req, string person) {
+    resource function testEncoded(http:Caller caller, http:Request req, string person) {
         http:Response res = new;
         json outJson = {};
         outJson.person = person;
@@ -59,6 +57,6 @@ service<http:Service> testService bind testEP {
         outJson.fooParamSize = fooMParams.length();
 
         res.setJsonPayload(untaint outJson);
-        _ = caller -> respond(res);
+        _ = caller->respond(res);
     }
 }

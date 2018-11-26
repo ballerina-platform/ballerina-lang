@@ -2,7 +2,6 @@ import ballerina/sql;
 import ballerina/h2;
 import ballerina/time;
 import ballerina/io;
-import ballerina/internal;
 
 type ResultCustomers record {
     string FIRSTNAME;
@@ -286,26 +285,6 @@ function testCallProcedureWithResultSet() returns (string) {
     } else if (ret is ()) {
         firstName = "error";
     }
-    testDB.stop();
-    return firstName;
-}
-
-function testCallFunctionWithReturningRefcursor() returns (string) {
-    h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTOR_H2",
-            username: "SA",
-            password: "",
-            poolOptions: { maximumPoolSize: 1 }
-        });
-
-    sql:Parameter para1 = { sqlType: sql:TYPE_REFCURSOR, direction: sql:DIRECTION_OUT, recordType: ResultCustomers };
-
-    transaction {
-        var ret = testDB->call("{? = call SelectPersonData()}", [ResultCustomers], para1);
-    }
-    var dt = <table>para1.value;
-    string firstName = getTableFirstNameColumn(dt);
     testDB.stop();
     return firstName;
 }
