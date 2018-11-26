@@ -88,12 +88,20 @@ export function render(context: ExtensionContext, langClient: ExtendedLangClient
             background: #565656 !important;
             color: rgba(255, 255, 255, 0.9)!important;
         }
-        table td{
+        table td, table th{
             max-width: 100px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;        
-            padding: 0.6em!important;
+            padding: 0.5em!important;
+        }
+        table tr td.direction-icon{
+            width: 25px;
+            text-align: center;
+        }
+        table tr td.method, table tr th.method{
+            width: 100px;
+            text-align: center!important;
         }
         .ui.inverted.segment{
             background: #1e1e1e!important;
@@ -101,13 +109,18 @@ export function render(context: ExtensionContext, langClient: ExtendedLangClient
         .ui.active.transition.visible.dimmer{
             background: #1e1e1e!important;
         }
-        .ui.horizontal.label.post {background-color: #49cc90!important; color: white; }
-        .ui.horizontal.label.put {background-color: #fca130!important; color: white; }
-        .ui.horizontal.label.get {background-color: #61affe!important; color: white; }
-        .ui.horizontal.label.delete {background-color: #f93e3e!important; color: white; }
-        .ui.horizontal.label.patch {background-color: #50e3c2!important; color: white; }
-        .ui.horizontal.label.head {background-color: #9012fe!important; color: white; }
-        .ui.horizontal.label.options {background-color: #0d5aa7!important; color: white; }
+        .ui.horizontal.label {
+            color: #ffffff;
+            -webkit-text-stroke: .025em rgba(0,0,0,0.2);
+            margin: 0!important;
+        }
+        .ui.horizontal.label.post {background-color: #49cc90!important; }
+        .ui.horizontal.label.put {background-color: #fca130!important; }
+        .ui.horizontal.label.get {background-color: #61affe!important; }
+        .ui.horizontal.label.delete {background-color: #f93e3e!important; }
+        .ui.horizontal.label.patch {background-color: #50e3c2!important; }
+        .ui.horizontal.label.head {background-color: #9012fe!important; }
+        .ui.horizontal.label.options {background-color: #0d5aa7!important; }
         #logs-console table thead{
             display: table-header-group!important;
         }
