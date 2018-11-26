@@ -223,7 +223,7 @@ service {
                 } else {
                     string errorMessage = "Publish request denied for unregistered topic[" + untaint topic + "]";
                     log:printDebug(errorMessage);
-                    response.setTextPayload(errorMessage);
+                    response.setTextPayload(untaint errorMessage);
                 }
                 response.statusCode = http:BAD_REQUEST_400;
                 var responseError = httpCaller->respond(response);
