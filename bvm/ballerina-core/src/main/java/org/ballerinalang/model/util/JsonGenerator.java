@@ -23,6 +23,7 @@ import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStreamingJSON;
 import org.ballerinalang.model.values.BValue;
@@ -287,9 +288,9 @@ public class JsonGenerator {
                     break;
                 }
                 this.writeStartArray();
-                BRefValueArray jsonArray = (BRefValueArray) json;
+                BNewArray jsonArray = (BNewArray) json;
                 for (int i = 0; i < jsonArray.size(); i++) {
-                    this.serialize(jsonArray.get(i));
+                    this.serialize(jsonArray.getBValue(i));
                 }
                 this.writeEndArray();
                 break;
@@ -307,12 +308,22 @@ public class JsonGenerator {
                 break;
             case TypeTags.MAP_TAG:
             case TypeTags.JSON_TAG:
-                this.startObject();
-                for (Entry<String, BValue> entry : ((BMap<String, BValue>) json).getMap().entrySet()) {
-                    this.writeFieldName(entry.getKey());
-                    serialize(entry.getValue());
+            case TypeTags.RECORD_TYPE_TAG:
+                if (json instanceof BRefValueArray) {
+                    this.writeStartArray();
+                    BNewArray array = (BNewArray) json;
+                    for (int i = 0; i < array.size(); i++) {
+                        this.serialize(array.getBValue(i));
+                    }
+                    this.writeEndArray();
+                } else {
+                    this.startObject();
+                    for (Entry<String, BValue> entry : ((BMap<String, BValue>) json).getMap().entrySet()) {
+                        this.writeFieldName(entry.getKey());
+                        serialize(entry.getValue());
+                    }
+                    this.endObject();
                 }
-                this.endObject();
                 break;
             case TypeTags.STRING_TAG:
                 this.writeString(json.stringValue());
