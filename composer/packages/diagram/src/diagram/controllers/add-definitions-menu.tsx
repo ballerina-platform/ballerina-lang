@@ -1,4 +1,4 @@
-import { ASTUtil, ASTNode, CompilationUnit } from "@ballerina/ast-model";
+import { ASTNode, ASTUtil, CompilationUnit } from "@ballerina/ast-model";
 import React, { StatelessComponent } from "react";
 import { Dropdown } from "semantic-ui-react";
 import { DiagramContext } from "../diagram-context";
