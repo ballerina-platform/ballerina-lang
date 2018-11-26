@@ -777,7 +777,7 @@ public class CPU {
                     case InstructionCodes.LOCK:
                         InstructionLock instructionLock = (InstructionLock) instruction;
                         if (!handleVariableLock(ctx, instructionLock.types,
-                                instructionLock.pkgRefs, instructionLock.varRegs, instructionLock.fieldNames,
+                                instructionLock.pkgRefs, instructionLock.varRegs, instructionLock.fieldRegs,
                                 instructionLock.varCount, instructionLock.uuid)) {
                             return;
                         }
@@ -2769,7 +2769,7 @@ public class CPU {
     }
 
     private static boolean handleVariableLock(WorkerExecutionContext ctx, BType[] types,
-                                              int[] pkgRegs, int[] varRegs, String[] fieldNames, int varCount,
+                                              int[] pkgRegs, int[] varRegs, int[] fieldRegs, int varCount,
                                               String uuid) {
         boolean lockAcquired = true;
         for (int i = 0; i < varCount && lockAcquired; i++) {
@@ -2799,33 +2799,35 @@ public class CPU {
 
         }
 
-        if (varRegs.length > varCount) {
-            if (ctx.localProps == null) {
-                ctx.localProps = new HashMap<>();
-            }
+        if (varRegs.length <= varCount) {
+            return lockAcquired;
+        }
 
-            ctx.localProps.putIfAbsent(Constants.LOCK_VARS, new HashMap<UUID, Stack<VarLock>>());
-            HashMap locks = (HashMap) ctx.localProps.get(Constants.LOCK_VARS);
-            locks.putIfAbsent(uuid, new Stack<VarLock>());
-            Stack<VarLock> lockStack = (Stack) locks.get(uuid);
+        //if field variables exists
+        if (ctx.localProps == null) {
+            ctx.localProps = new HashMap<>();
+        }
 
-            for (int i = 0; (i < varRegs.length - varCount) && lockAcquired; i++) {
-                int regIndex = varRegs[varCount + i];
-                VarLock lock = ((BMap) ctx.workerLocal.refRegs[regIndex]).getFieldLock(fieldNames[i]);
-                lockAcquired = lock.lock(ctx);
-                if (lockAcquired) {
-                    lockStack.push(lock);
-                }
+        ctx.localProps.putIfAbsent(uuid, new Stack<VarLock>());
+        Stack lockStack = (Stack) ctx.localProps.get(uuid);
+
+        for (int i = 0; (i < varRegs.length - varCount) && lockAcquired; i++) {
+            int regIndex = varRegs[varCount + i];
+            String field = ctx.workerLocal.stringRegs[fieldRegs[i]];
+            VarLock lock = ((BMap) ctx.workerLocal.refRegs[regIndex]).getFieldLock(field);
+            lockAcquired = lock.lock(ctx);
+            if (lockAcquired) {
+                lockStack.push(lock);
             }
         }
+
         return lockAcquired;
     }
 
     private static void handleVariableUnlock(WorkerExecutionContext ctx, BType[] types, int[] pkgRegs, int[] varRegs,
                                              int varCount, String uuid, boolean hasFieldVar) {
         if (hasFieldVar) {
-            HashMap locks = (HashMap) ctx.localProps.get(Constants.LOCK_VARS);
-            Stack<VarLock> lockStack = (Stack<VarLock>) locks.get(uuid);
+            Stack<VarLock> lockStack = (Stack<VarLock>) ctx.localProps.get(uuid);
             while (!lockStack.isEmpty()) {
                 lockStack.pop().unlock();
             }

@@ -22,6 +22,7 @@ function incrementParam(Student param, CircuitBreakerInferredConfig conf) {
    lock {
        foreach i in 1 ... 1000 {
             conf.rollingWindow.requestVolumeThreshold = conf.rollingWindow.requestVolumeThreshold + i;
+            conf.resetTimeMillis = i;
            param.score = param.score + i;
        }
     }

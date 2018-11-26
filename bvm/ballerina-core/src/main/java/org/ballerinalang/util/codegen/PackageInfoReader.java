@@ -1470,7 +1470,7 @@ public class PackageInfoReader {
                     BType[] varTypes = new BType[varCount];
                     int[] pkgRefs = new int[varCount + fieldCount];
                     int[] varRegs = new int[varCount + fieldCount];
-                    String[] fieldNames = new String[fieldCount];
+                    int[] fieldRegs = new int[fieldCount];
                     for (int m = 0; m < varCount; m++) {
                         int varSigCPIndex = codeStream.readInt();
                         TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) packageInfo.getCPEntry(varSigCPIndex);
@@ -1492,10 +1492,9 @@ public class PackageInfoReader {
                         pkgRefs[varCount + n] = pkgRefCPEntry.getPackageInfo().pkgIndex;
                         varRegs[varCount + n] = codeStream.readInt();
 
-                        int fieldNameIndex = codeStream.readInt();
-                        fieldNames[n] = ((UTF8CPEntry) packageInfo.getCPEntry(fieldNameIndex)).getValue();
+                        fieldRegs[n] = codeStream.readInt();
                     }
-                    packageInfo.addInstruction(new InstructionLock(opcode, varTypes, pkgRefs, varRegs, fieldNames,
+                    packageInfo.addInstruction(new InstructionLock(opcode, varTypes, pkgRefs, varRegs, fieldRegs,
                             varCount, uuid));
                     break;
                 case InstructionCodes.UNLOCK:

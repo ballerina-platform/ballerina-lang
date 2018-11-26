@@ -2920,8 +2920,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 operands[i++] = getOperand(pkgRefCPIndex);
                 operands[i++] = expr.expr.regIndex;
 
-                int fieldNameCPEntry = addUTF8CPEntry(currentPkgInfo, (String) ((BLangLiteral) expr.indexExpr).value);
-                operands[i++] = getOperand(fieldNameCPEntry);
+                operands[i++] = expr.indexExpr.regIndex;
             }
         }
 

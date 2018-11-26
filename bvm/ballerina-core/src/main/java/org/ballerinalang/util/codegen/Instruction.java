@@ -299,17 +299,17 @@ public class Instruction {
         public BType[] types;
         public int[] pkgRefs;
         public int[] varRegs;
-        public String[] fieldNames;
+        public int[] fieldRegs;
         public int varCount;
         public String uuid;
 
-        InstructionLock(int opcode, BType[] types, int[] pkgRefs, int[] varRegs, String[] fieldNames, int varCount,
+        InstructionLock(int opcode, BType[] types, int[] pkgRefs, int[] varRegs, int[] fieldNames, int varCount,
                         String uuid) {
             super(opcode);
             this.types = types;
             this.pkgRefs = pkgRefs;
             this.varRegs = varRegs;
-            this.fieldNames = fieldNames;
+            this.fieldRegs = fieldNames;
             this.varCount = varCount;
             this.uuid = uuid;
         }
