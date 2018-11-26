@@ -25,12 +25,12 @@
 # + localAddress - Local interface the connection should bound
 public type Socket object {
 
-    @readonly public ReadableByteChannel readableChannel = new;
-    @readonly public WritableByteChannel writableChannel = new;
-    @readonly public int remotePort = 0;
-    @readonly public int localPort = 0;
-    @readonly public string remoteAddress = "";
-    @readonly public string localAddress = "";
+    public ReadableByteChannel readableChannel = new;
+    public WritableByteChannel writableChannel = new;
+    public int remotePort = 0;
+    public int localPort = 0;
+    public string remoteAddress = "";
+    public string localAddress = "";
 
     public function __init() {
         self.init();
