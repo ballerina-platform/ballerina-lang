@@ -1691,14 +1691,14 @@ public class Types {
             BFiniteType expType = (BFiniteType) type;
             boolean foundMember = expType.valueSpace
                     .stream()
-                    .map(memberLiteral -> {
+                    .anyMatch(memberLiteral -> {
                         if (((BLangLiteral) memberLiteral).value == null) {
                             return literalExpr.value == null;
                         } else {
-                            return ((BLangLiteral) memberLiteral).value.equals(literalExpr.value);
+                            return (((BLangLiteral) memberLiteral).value.equals(literalExpr.value) &&
+                                    ((BLangLiteral) memberLiteral).typeTag == literalExpr.typeTag);
                         }
-                    })
-                    .anyMatch(found -> found);
+                    });
             return foundMember;
         }
         return false;
