@@ -69,28 +69,24 @@ public class TestGenerator {
     /**
      * Creates a test file for a given BLangPackage in source file path.
      *
-     * @param documentManager       document manager
-     * @param bLangNodePair         A pair of {@link BLangNode} and fallback node
-     * @param focusLineAcceptor focus position acceptor
-     * @param builtSourceFile       built {@link BLangPackage} source file
-     * @param pkgRelativePath       package relative path
-     * @param testFile              test file
+     * @param documentManager document manager
+     * @param bLangNodePair   A pair of {@link BLangNode} and fallback node
+     * @param builtSourceFile built {@link BLangPackage} source file
+     * @param pkgRelativePath package relative path
+     * @param testFile        test file
      * @return generated test file path
      * @throws TestGeneratorException when test case generation fails
      */
     public static List<TextEdit> generate(WorkspaceDocumentManager documentManager,
-                                          Pair<BLangNode, Object> bLangNodePair,
-                                          BiConsumer<Integer, Integer> focusLineAcceptor,
-                                          BLangPackage builtSourceFile, String pkgRelativePath,
-                                          File testFile) throws TestGeneratorException {
-        RootTemplate template = getRootTemplate(pkgRelativePath, bLangNodePair, builtSourceFile, focusLineAcceptor);
-        RendererOutput rendererOutput = getRendererOutput(documentManager, testFile, focusLineAcceptor);
-        template.render(rendererOutput);
+                                          Pair<BLangNode, Object> bLangNodePair, BLangPackage builtSourceFile,
+                                          String pkgRelativePath, File testFile) throws TestGeneratorException {
+        RootTemplate rootTemplate = getRootTemplateForBLangNode(pkgRelativePath, bLangNodePair, builtSourceFile);
+        RendererOutput rendererOutput = getRendererOutput(documentManager, testFile);
+        rootTemplate.render(rendererOutput);
         return rendererOutput.getRenderedTextEdits();
     }
 
-    private static RendererOutput getRendererOutput(WorkspaceDocumentManager documentManager, File testFile,
-                                                    BiConsumer<Integer, Integer> focusLineAcceptor)
+    private static RendererOutput getRendererOutput(WorkspaceDocumentManager documentManager, File testFile)
             throws TestGeneratorException {
         // If exists, read the test file content
         String testContent = "";
@@ -103,13 +99,11 @@ public class TestGenerator {
             }
         }
 
-        // Create tests
+        // Create file template
         RendererOutput fileTemplate;
         if (testContent.isEmpty()) {
-            // Create tests from file template
             fileTemplate = new TemplateBasedRendererOutput("rootTest.bal");
         } else {
-            // Create tests from blang package
             BallerinaFile ballerinaFile;
             try {
                 ballerinaFile = LSCompiler.compileContent(testContent, CompilerPhase.COMPILER_PLUGIN);
@@ -118,7 +112,7 @@ public class TestGenerator {
             }
             Optional<BLangPackage> optBLangPackage = ballerinaFile.getBLangPackage();
             if (optBLangPackage.isPresent()) {
-                fileTemplate = new BLangPkgBasedRendererOutput(optBLangPackage.get(), focusLineAcceptor);
+                fileTemplate = new BLangPkgBasedRendererOutput(optBLangPackage.get());
             } else {
                 String msg = "Appending failed! unknown error occurred while appending to:" + testFile.toString();
                 throw new TestGeneratorException(msg);
@@ -127,17 +121,15 @@ public class TestGenerator {
         return fileTemplate;
     }
 
-    private static RootTemplate getRootTemplate(String fileName, Pair<BLangNode, Object> result,
-                                                BLangPackage builtTestFile,
-                                                BiConsumer<Integer, Integer> focusLineAcceptor)
-            throws TestGeneratorException {
+    private static RootTemplate getRootTemplateForBLangNode(String fileName, Pair<BLangNode, Object> result,
+                                                            BLangPackage builtTestFile) throws TestGeneratorException {
         BLangNode bLangNode = result.getLeft();
         Object fallBackNode = result.getRight();
         boolean fallback = false;
 
         if (bLangNode instanceof BLangFunction) {
             // A function
-            return RootTemplate.fromFunction((BLangFunction) bLangNode, builtTestFile, focusLineAcceptor);
+            return RootTemplate.fromFunction((BLangFunction) bLangNode, builtTestFile);
 
         } else if (bLangNode instanceof BLangService || (fallback = fallBackNode instanceof BLangService)) {
             // A Service
@@ -148,13 +140,13 @@ public class TestGenerator {
             if ("http".equals(owner)) {
                 switch (service.serviceTypeStruct.typeName.value) {
                     case "Service": {
-                        return RootTemplate.fromHttpService(service, builtTestFile, focusLineAcceptor);
+                        return RootTemplate.fromHttpService(service, builtTestFile);
                     }
                     case "WebSocketService": {
-                        return RootTemplate.fromHttpWSService(service, builtTestFile, focusLineAcceptor);
+                        return RootTemplate.fromHttpWSService(service, builtTestFile);
                     }
                     case "WebSocketClientService":
-                        return RootTemplate.fromHttpClientWSService(service, builtTestFile, focusLineAcceptor);
+                        return RootTemplate.fromHttpClientWSService(service, builtTestFile);
                     default:
                         break;
                 }
@@ -164,7 +156,7 @@ public class TestGenerator {
             throw new TestGeneratorException(service.serviceTypeStruct.toString() + " is not supported!");
         }
         // Whole file
-        return new RootTemplate(fileName, builtTestFile, focusLineAcceptor);
+        return new RootTemplate(fileName, builtTestFile);
     }
 
     /**
@@ -178,17 +170,17 @@ public class TestGenerator {
         private String functionName;
         private String returnType;
 
-        public TestFunctionGenerator(BiConsumer<String, String> importsAcceptor, PackageID currentPkgId,
+        public TestFunctionGenerator(BiConsumer<String, String> importsConsumer, PackageID currentPkgId,
                                      BLangFunction function) {
             List<BLangSimpleVariable> params = function.requiredParams;
             List<BLangType> paramTypes = params.stream().map(variable -> variable.typeNode).collect(
                     Collectors.toList());
             List<String> paramNames = new ArrayList<>();
             params.forEach(variable -> paramNames.add(variable.name.value));
-            init(importsAcceptor, currentPkgId, function.name.value, paramNames, paramTypes, function.returnTypeNode);
+            init(importsConsumer, currentPkgId, function.name.value, paramNames, paramTypes, function.returnTypeNode);
         }
 
-        public TestFunctionGenerator(BiConsumer<String, String> importsAcceptor, PackageID currentPkgId,
+        public TestFunctionGenerator(BiConsumer<String, String> importsConsumer, PackageID currentPkgId,
                                      BLangFunctionTypeNode type) {
             List<BLangVariable> params = type.params;
             List<BLangType> paramTypes = params.stream().map(variable -> variable.typeNode).collect(
@@ -201,10 +193,10 @@ public class TestGenerator {
                     paramNames.add(null);
                 }
             });
-            init(importsAcceptor, currentPkgId, "", paramNames, paramTypes, type.returnTypeNode);
+            init(importsConsumer, currentPkgId, "", paramNames, paramTypes, type.returnTypeNode);
         }
 
-        public TestFunctionGenerator(BiConsumer<String, String> importsAcceptor, PackageID currentPkgId,
+        public TestFunctionGenerator(BiConsumer<String, String> importsConsumer, PackageID currentPkgId,
                                      BInvokableType invokableType) {
             this.functionName = "";
             List<BType> params = invokableType.paramTypes;
@@ -216,7 +208,7 @@ public class TestGenerator {
             // Populate target function's parameters
             Set<String> lookupSet = new HashSet<>();
             for (int i = 0; i < params.size(); i++) {
-                String paramType = generateTypeDefinition(importsAcceptor, currentPkgId,
+                String paramType = generateTypeDefinition(importsConsumer, currentPkgId,
                                                           params.get(i));
                 String paramName = CommonUtil.generateName(1, lookupSet);
                 lookupSet.add(paramName);
@@ -224,7 +216,7 @@ public class TestGenerator {
                 this.typeSpace[i] = paramType;
                 this.namesSpace[i] = paramName;
 
-                String[] pValueSpace = getValueSpaceByType(importsAcceptor, currentPkgId, params.get(i),
+                String[] pValueSpace = getValueSpaceByType(importsConsumer, currentPkgId, params.get(i),
                                                            createTemplateArray(VALUE_SPACE_LENGTH));
 
                 for (int j = 0; j < pValueSpace.length; j++) {
@@ -235,8 +227,8 @@ public class TestGenerator {
             }
 
             // Populate target function's return type
-            this.returnType = generateTypeDefinition(importsAcceptor, currentPkgId, returnBType);
-            String[] rtValSpace = getValueSpaceByType(importsAcceptor, currentPkgId, returnBType,
+            this.returnType = generateTypeDefinition(importsConsumer, currentPkgId, returnBType);
+            String[] rtValSpace = getValueSpaceByType(importsConsumer, currentPkgId, returnBType,
                                                       createTemplateArray(VALUE_SPACE_LENGTH));
 
             this.typeSpace[params.size()] = returnType;
@@ -247,7 +239,7 @@ public class TestGenerator {
             });
         }
 
-        private void init(BiConsumer<String, String> importsAcceptor, PackageID currentPkgId,
+        private void init(BiConsumer<String, String> importsConsumer, PackageID currentPkgId,
                           String functionName,
                           List<String> paramNames, List<BLangType> paramTypes, BLangType returnTypeNode) {
             this.functionName = functionName;
@@ -258,7 +250,7 @@ public class TestGenerator {
             // Populate target function's parameters
             Set<String> lookupSet = new HashSet<>();
             for (int i = 0; i < paramNames.size(); i++) {
-                String paramType = generateTypeDefinition(importsAcceptor, currentPkgId,
+                String paramType = generateTypeDefinition(importsConsumer, currentPkgId,
                                                           paramTypes.get(i));
                 String paramName = paramNames.get(i);
                 if (paramName == null) {
@@ -268,7 +260,7 @@ public class TestGenerator {
                 this.typeSpace[i] = paramType;
                 this.namesSpace[i] = paramName;
 
-                String[] pValueSpace = getValueSpaceByNode(importsAcceptor, currentPkgId, paramTypes.get(i),
+                String[] pValueSpace = getValueSpaceByNode(importsConsumer, currentPkgId, paramTypes.get(i),
                                                            createTemplateArray(VALUE_SPACE_LENGTH));
                 for (int j = 0; j < pValueSpace.length; j++) {
                     // Need to apply transpose of `pValueSpace`
@@ -279,9 +271,9 @@ public class TestGenerator {
             }
 
             // Populate target function's return type
-            this.returnType = generateTypeDefinition(importsAcceptor, currentPkgId,
+            this.returnType = generateTypeDefinition(importsConsumer, currentPkgId,
                                                      returnTypeNode);
-            String[] rtValSpace = getValueSpaceByNode(importsAcceptor, currentPkgId, returnTypeNode,
+            String[] rtValSpace = getValueSpaceByNode(importsConsumer, currentPkgId, returnTypeNode,
                                                       createTemplateArray(VALUE_SPACE_LENGTH));
 
             this.typeSpace[paramNames.size()] = returnType;

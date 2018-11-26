@@ -42,10 +42,12 @@ endpoint jms:SimpleQueueReceiver consumerEP {
 service<jms:Consumer> jmsListener bind consumerEP {
 
     // The `OnMessage` resource gets invoked when a message is received.
+    var msg = message.getTextMessageContent();
     onMessage(endpoint consumer, jms:Message message) {
-        match (message.getTextMessageContent()) {
-            string messageText => log:printInfo("Message : " + messageText);
-            error e => log:printError("Error occurred while reading message", err = e);
+        if (msg is string) {
+            log:printInfo("Message : " + msg);
+        } else {
+            log:printError("Error occurred while reading message", err = msg);
         }
     }
 }
@@ -68,17 +70,14 @@ endpoint jms:SimpleTopicPublisher topicPublisher {
 
 public function main(string... args) {
     // Create a text message.
-    match (topicPublisher.createTextMessage("Hello from Ballerina")) {
-        error e => {
-            log:printError("Error occurred while creating message", err = e);
-        }
-
-        jms:Message msg => {
-            // Send the Ballerina message to the JMS provider.
-            topicPublisher->send(msg) but {
-                error e => log:printError("Error occurred while sending message", err = e)
-            };
-        }
+    var msg = topicPublisher.createTextMessage("Hello from Ballerina");
+    if (msg is error) {
+        log:printError("Error occurred while creating message", err = msg);
+    } else {
+        var result = topicPublisher->send(msg);
+        if (result is error) {
+            log:printError("Error occurred while sending message", err = result)
+        };
     }
 }
 ```
@@ -115,9 +114,11 @@ service<jms:Consumer> jmsListener bind consumerEP {
     // The `OnMessage` resource gets invoked when a message is received.
     onMessage(endpoint consumer, jms:Message message) {
         // Retrieve the text message.
-        match (message.getTextMessageContent()) {
-            string messageText => log:printInfo("Message : " + messageText);
-            error e => log:printError("Error occurred while reading message", err = e);
+        var msg = message.getTextMessageContent();
+        if (msg is string) {
+            log:printInfo("Message : " + message.getTextMessageContent());
+        } else {
+            log:printError("Error occurred while reading message", err = msg);
         }
     }
 }
@@ -150,14 +151,13 @@ endpoint jms:QueueSender queueSender {
 
 public function main(string... args) {
     // Create a text message.
-    match (jmsSession.createTextMessage("Hello from Ballerina")) {
-        error e => {
-            log:printError("Error occurred while creating message", err = e);
-        }
-
-        jms:Message msg => {
-            // Send the Ballerina message to the JMS provider.
-            queueSender->send(msg) but { error e => log:printError("Error occurred while sending message", err = e) };
+    var msg = jmsSession.createTextMessage("Hello from Ballerina");
+    if (msg is error) {
+        log:printError("Error occurred while creating message", err = msg);
+    } else {
+        var result = queueSender->send(msg);
+        if (result is error) {
+            log:printError("Error occurred while sending message", err = result)
         }
     }
 }
@@ -187,9 +187,11 @@ endpoint jms:TopicSubscriber subscriberEndpoint {
 
 service<jms:Consumer> jmsListener bind subscriberEndpoint {
     onMessage(endpoint subscriber, jms:Message message) {
-        match (message.getTextMessageContent()) {
-            string messageText => log:printInfo("Message : " + messageText);
-            error e => log:printError("Error occurred while reading message", err = e);
+        var msg = message.getTextMessageContent();
+        if (msg is string) {
+            log:printInfo("Message : " + msg);
+        } else {
+            log:printError("Error occurred while reading message", err = msg);
         }
     }
 }
@@ -218,14 +220,13 @@ endpoint jms:TopicPublisher topicPublisher {
 };
 
 public function main(string... args) {
-    match (jmsSession.createTextMessage("Hello from Ballerina")) {
-        error e => {
-            log:printError("Error occurred while creating message", err = e);
-        }
-        jms:Message msg => {
-            topicPublisher->send(msg) but {
-                error e => log:printError("Error occurred while sending message", err = e)
-            };
+    var msg = jmsSession.createTextMessage("Hello from Ballerina");
+    if (msg is error) {
+        log:printError("Error occurred while creating message", err = msg);
+    } else {
+        var result = topicPublisher->send(msg);
+        if (result is error) {
+            log:printError("Error occurred while sending message", err = result)
         }
     }
 }

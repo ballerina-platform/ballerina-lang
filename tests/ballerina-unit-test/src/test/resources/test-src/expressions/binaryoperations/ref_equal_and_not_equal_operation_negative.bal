@@ -22,7 +22,7 @@ function checkRefEqualityOfTwoTypes() returns boolean {
 
 function checkRefEqualityOfArraysOfDifferentTypes() returns boolean {
     int[2] a = [0, 0];
-    string[2] b= ["", ""];
+    string[2] b = ["", ""];
     boolean bool1 = a === b && !(a !== b);
 
     (float|int)[] c = [];
@@ -46,7 +46,7 @@ function checkRefEqualityOfMapsOfIncompatibleConstraintTypes() returns boolean {
 
 function checkRefEqualityOfTuplesOfDifferentTypes() returns boolean {
     (string, int) a = ("", 0);
-    (boolean, float) b = (false, 0);
+    (boolean, float) b = (false, 0.0);
     boolean bool1 = a === b && !(a !== b);
 
     (float|int, int) c = (0, 0);
@@ -94,7 +94,7 @@ type Abc object {
     public string name;
     private int area;
 
-    function __init(string name, int area) {
+    public function __init(string name, int area) {
         self.name = name;
         self.area = area;
     }
@@ -104,7 +104,7 @@ type Def object {
     public string name;
     private int id;
 
-    function __init(string name, int id) {
+    public function __init(string name, int id) {
         self.name = name;
         self.id = id;
     }

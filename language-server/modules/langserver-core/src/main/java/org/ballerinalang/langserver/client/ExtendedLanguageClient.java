@@ -17,7 +17,6 @@
 package org.ballerinalang.langserver.client;
 
 import org.ballerinalang.langserver.extensions.ballerina.traces.TraceRecord;
-import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 import org.eclipse.lsp4j.services.LanguageClient;
 
@@ -27,7 +26,4 @@ import org.eclipse.lsp4j.services.LanguageClient;
 public interface ExtendedLanguageClient extends LanguageClient {
     @JsonNotification("window/traceLogs")
     void traceLogs(TraceRecord rawTrace);
-
-    @JsonNotification("window/showTextDocument")
-    void showTextDocument(Location location);
 }

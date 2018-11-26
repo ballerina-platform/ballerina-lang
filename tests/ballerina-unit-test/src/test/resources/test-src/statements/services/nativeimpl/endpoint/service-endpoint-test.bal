@@ -1,6 +1,6 @@
 import ballerina/http;
 
-listener http:MockServer mockEP = new(9090);
+listener http:MockListener mockEP = new(9090);
 
 service hello on mockEP {
 
@@ -10,9 +10,7 @@ service hello on mockEP {
     }
     resource function protocol(http:Caller caller, http:Request req) {
         http:Response res = new;
-        //TODO:Added temporarily. To be fixed
-        //json connectionJson = {protocol:caller.protocol};
-        json connectionJson = {protocol:"test"};
+        json connectionJson = {protocol:caller.protocol};
         res.statusCode = 200;
         res.setJsonPayload(untaint connectionJson);
         _ = caller -> respond(res);
@@ -24,9 +22,7 @@ service hello on mockEP {
     }
     resource function local(http:Caller caller, http:Request req) {
         http:Response res = new;
-        //TODO:Added temporarily. To be fixed
-        //json connectionJson = {local:{host:caller.local.host, port:caller.local.port}};
-        json connectionJson = {protocol:"test"};
+        json connectionJson = {local:{host:caller.localAddress.host, port:caller.localAddress.port}};
         res.statusCode = 200;
         res.setJsonPayload(untaint connectionJson);
         _ = caller -> respond(res);

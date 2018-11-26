@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 # Provides the HTTP actions for interacting with an HTTP server. Apart from the standard HTTP methods, `forward()`
 # and `execute()` functions are provided. More complex and specific endpoint types can be created by wrapping this
 # generic HTTP actions implementation.

@@ -14,36 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Person record {
-    string name = "";
-    int age = 0;
-    Person? parent = ();
-    json info = {};
-    map address = {};
-    int[] marks = [];
-    any a = ();
-    float score = 0.0;
-    boolean alive = false;
-    !...
-};
+function returnTaintedValue() returns @tainted float {
+    return 1.2;
+}
 
-type Student record {
-    string name = "";
-    int age = 0;
-    !...
-};
+function testSensitiveArg(@sensitive int intArg) {
+    int c = intArg;
+}
 
-type Info record {
-    byte[] infoBlob = [];
-    !...
-};
-
-function testStructWithIncompatibleTypeToJson () returns json {
-    Info info = {};
-    var j = <json>info;
-    if (j is json) {
-        return j;
-    } else {
-        panic j;
-    }
+public function convertTaintedValue() {
+    float x = returnTaintedValue();
+    int y = int.create(x);
+    testSensitiveArg(y);
 }

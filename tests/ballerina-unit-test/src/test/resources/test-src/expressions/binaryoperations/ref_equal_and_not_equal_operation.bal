@@ -35,7 +35,7 @@ type Abc object {
     float salary;
     private int id;
 
-    function __init(string name, float salary, int id) {
+    public function __init (string name, float salary, int id) {
         self.name = name;
         self.salary = salary;
         self.id = id;
@@ -48,7 +48,7 @@ type Def object {
     private int id;
     private int idTwo = 0;
 
-    function __init(string name, float salary, int id) {
+    public function __init(string name, float salary, int id) {
         self.name = name;
         self.salary = salary;
         self.id = id;
@@ -136,7 +136,7 @@ function testClosedRecordRefEqualityNegative() returns boolean {
 }
 
 function testArrayRefEqualityPositive() returns boolean {
-    int[3] a = [1, 2, 3];
+    int[3] a = [0, 0, 0];
     int[3] b = a;
 
     boolean refEquals = a === b && !(a !== b);
@@ -156,8 +156,8 @@ function testArrayRefEqualityPositive() returns boolean {
 }
 
 function testArrayRefEqualityNegative() returns boolean {
-    int[2] a = [1, 2];
-    int[2] b = [1, 2];
+    int[2] a = [0, 0];
+    int[2] b = [0, 0];
 
     boolean refEquals = a === b || !(a !== b);
 
@@ -284,7 +284,7 @@ function testIntByteEqualityNegative() returns boolean {
 }
 
 function testXmlRefEqualityPositive() returns boolean {
-    xml x1 = xml ` `;
+    xml x1 = xml `<foo> </foo>`;
     xml x2 = x1;
 
     xml x3 = xml `<book><name>The Lost World<!-- I'm a comment --></name></book>`;

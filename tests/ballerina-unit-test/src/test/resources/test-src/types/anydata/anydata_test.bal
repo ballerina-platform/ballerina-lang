@@ -29,6 +29,20 @@ type Employee record {
     float salary;
     !...
 };
+    
+type Person record {
+    string name = "";
+    int age = 0;
+    Person? parent = ();
+    json info = ();
+    map<anydata>? address = ();
+    int[]? marks = ();
+    anydata a = ();
+    float score = 0.0;
+    boolean alive = false;
+    Person[]? children = ();
+    !...
+};
 
 function testLiteralValueAssignment() returns (anydata, anydata, anydata, anydata) {
     anydata adi = 10;
@@ -62,6 +76,23 @@ function testRecordAssignment() returns (anydata, anydata) {
     anydata adcr = cf;
 
     return (adr, adcr);
+}
+
+function testCyclicRecordAssignment() returns (anydata) {
+    Person p = {name:"Child",
+                age:25,
+                parent:{name:"Parent", age:50},
+                address:{"city":"Colombo", "country":"SriLanka"},
+                info:{status:"single"},
+                marks:[67, 38, 91]
+    };
+    anydata adp = p;
+    any p2 =  <Person> adp;
+    if(p2 is anydata){
+        return p2;
+    } else {
+        return ();
+    }
 }
 
 function testXMLAssignment() returns (anydata, anydata) {

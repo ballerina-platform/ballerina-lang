@@ -40,7 +40,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Map;
 
-import static org.ballerinalang.net.http.HttpConstants.HTTP_SERVER;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONFIG_FIELD;
 
@@ -89,7 +89,7 @@ public class Services {
             properties = Collections.singletonMap(HttpConstants.SRC_HANDLER, srcHandler);
         }
         BMap<String, BValue> tempEndpoint = BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_HTTP,
-                HTTP_SERVER);
+                HTTP_LISTENER_ENDPOINT);
         BValue[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request, BLangConnectorSPIUtil
                 .toStruct((BMap<String, BValue>) tempEndpoint.get(SERVICE_ENDPOINT_CONFIG_FIELD)));
         callback.setRequestStruct(signatureParams[0]);
