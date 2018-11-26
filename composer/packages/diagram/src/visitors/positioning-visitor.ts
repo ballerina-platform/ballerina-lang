@@ -66,6 +66,9 @@ export const visitor: Visitor = {
         // Position default worker
         viewState.defaultWorker.x = viewState.client.x + viewState.client.w + config.lifeLine.gutter.h;
         viewState.defaultWorker.y = viewState.client.y;
+        // Position drop down menu for adding workers and endpoints
+        viewState.menu.x = viewState.defaultWorker.x + viewState.defaultWorker.w + config.lifeLine.gutter.h;
+        viewState.menu.y = viewState.defaultWorker.y;
 
         // Position the body block node
         if (node.body) {
