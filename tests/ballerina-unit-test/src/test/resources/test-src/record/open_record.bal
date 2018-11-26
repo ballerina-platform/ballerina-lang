@@ -341,7 +341,9 @@ type Animal object {
     public string kind = "";
     public string name = "";
 
-    new(name, kind){
+    function __init(string name, string kind) {
+        self.name = name;
+        self.kind = kind;
     }
 };
 
@@ -429,5 +431,5 @@ function testFuncPtrAsRecordField() returns string {
         return p.lname + ", " + p.fname;
     };
 
-    return p.fullName();
+    return p.fullName.call();
 }

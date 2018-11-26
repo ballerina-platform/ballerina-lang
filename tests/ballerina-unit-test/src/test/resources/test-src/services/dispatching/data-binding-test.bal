@@ -1,7 +1,7 @@
 import ballerina/http;
 import ballerina/mime;
 
-listener http:MockServer testEP = new(9090);
+listener http:MockListener testEP = new(9090);
 
 type Person record {
     string name;

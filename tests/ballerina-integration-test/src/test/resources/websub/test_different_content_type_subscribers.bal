@@ -19,7 +19,7 @@ import ballerina/mime;
 import ballerina/http;
 import ballerina/websub;
 
-listener websub:Listener websubEP = new websub:Listener({ port: 8282 });
+listener websub:Listener websubEP = new websub:Listener(8282);
 
 @websub:SubscriberServiceConfig {
     path:"/websub",

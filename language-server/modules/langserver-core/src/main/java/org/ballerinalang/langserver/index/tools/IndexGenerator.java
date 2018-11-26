@@ -23,7 +23,6 @@ import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.index.DTOUtil;
 import org.ballerinalang.langserver.index.LSIndexException;
 import org.ballerinalang.langserver.index.LSIndexImpl;
-import org.ballerinalang.langserver.index.ObjectType;
 import org.ballerinalang.langserver.index.dao.BFunctionSymbolDAO;
 import org.ballerinalang.langserver.index.dao.BObjectTypeSymbolDAO;
 import org.ballerinalang.langserver.index.dao.BOtherTypeSymbolDAO;

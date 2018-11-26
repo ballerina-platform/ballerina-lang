@@ -42,6 +42,9 @@ public interface BallerinaGlobalVariableDefinition extends BallerinaNamedElement
   PsiElement getIdentifier();
 
   @Nullable
+  PsiElement getListener();
+
+  @Nullable
   PsiElement getPublic();
 
 }

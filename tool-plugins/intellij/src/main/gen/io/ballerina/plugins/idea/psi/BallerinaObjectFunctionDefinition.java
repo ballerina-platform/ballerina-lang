@@ -48,6 +48,15 @@ public interface BallerinaObjectFunctionDefinition extends BallerinaCompositeEle
   PsiElement getFunction();
 
   @Nullable
+  PsiElement getPrivate();
+
+  @Nullable
   PsiElement getPublic();
+
+  @Nullable
+  PsiElement getRemote();
+
+  @Nullable
+  PsiElement getResource();
 
 }

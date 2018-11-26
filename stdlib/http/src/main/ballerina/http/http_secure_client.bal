@@ -378,7 +378,7 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns str
         return err;
     }
 
-    var simpleClient = createClient(refreshUrl, { url: refreshUrl });
+    var simpleClient = createClient(refreshUrl, {});
     if (simpleClient is Client) {
         refreshTokenClient = simpleClient;
         Request refreshTokenRequest = new;
