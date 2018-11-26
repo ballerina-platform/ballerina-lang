@@ -162,8 +162,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.NOT_EQUAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.NULLABLE_TYPE_NAME;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.OBJECT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.OBJECT_BODY;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.OBJECT_INITIALIZER;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.OBJECT_INITIALIZER_PARAMETER_LIST;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ON;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ONABORT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ONCOMMIT;
@@ -450,7 +448,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
 
                 .before(NEW).spaceIf(true)
                 .between(NEW, SEMICOLON).spaceIf(false)
-                .between(NEW, OBJECT_INITIALIZER_PARAMETER_LIST).spaceIf(false)
                 .between(NEW, LEFT_PARENTHESIS).spaceIf(false)
                 .after(NEW).spaceIf(true)
 
@@ -540,7 +537,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
 
                 .around(OBJECT_BODY).spaceIf(true)
                 .around(FIELD_DEFINITION).spaceIf(true)
-                .around(OBJECT_INITIALIZER).spaceIf(true)
 
                 .around(ANNOTATION_ATTACHMENT).spaceIf(true)
                 .around(ATTACHMENT_POINT).spaceIf(false)
