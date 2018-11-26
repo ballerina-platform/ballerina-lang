@@ -19,7 +19,7 @@ type Person record {
     int age = 0;
     Person? parent = ();
     json info = {};
-    map address = {};
+    map<any> address = {};
     int[] marks = [];
     any a = ();
     float score = 0.0;

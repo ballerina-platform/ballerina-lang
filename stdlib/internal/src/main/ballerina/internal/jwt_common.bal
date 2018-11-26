@@ -40,7 +40,7 @@ public type JwtHeader record {
     string typ?;
     string cty?;
     string kid?;
-    map customClaims?;
+    map<any> customClaims?;
     !...
 };
 
@@ -61,6 +61,6 @@ public type JwtPayload record {
     int exp = 0;
     int nbf?;
     int iat?;
-    map customClaims?;
+    map<any> customClaims?;
     !...
 };

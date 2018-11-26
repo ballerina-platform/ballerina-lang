@@ -3,7 +3,7 @@ type Person record {
     int age;
     Person? parent;
     json info;
-    map address;
+    map<any> address;
     int[] marks;
 };
 
@@ -11,7 +11,7 @@ type Person record {
 type Student record {
     string name;
     int age;
-    map address;
+    map<any> address;
     int[] marks;
 };
 

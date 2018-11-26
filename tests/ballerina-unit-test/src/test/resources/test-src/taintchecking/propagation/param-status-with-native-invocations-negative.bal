@@ -17,14 +17,14 @@
 import ballerina/mysql;
 import ballerina/io;
 
-endpoint mysql:Client mysqlDB {
+mysql:Client mysqlDB = new({
     host: "localhost",
     port: 3306,
     name: "ballerinademo",
     username: "demouser",
     password: "password@123",
     dbOptions: { useSSL: false}
-};
+});
 
 public function main(string... args) returns error? {
     string s1 = args[0];

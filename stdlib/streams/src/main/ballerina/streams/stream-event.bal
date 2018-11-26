@@ -19,7 +19,7 @@ public type StreamEvent object {
     public int timestamp;
     public map<anydata> data = {};
 
-    public new((string, map) | map eventData, eventType, timestamp) {
+    public new((string, map<any>) | map<any> eventData, eventType, timestamp) {
         match eventData {
             (string, map<anydata>) t => {
                 foreach k, v in t[1] {
@@ -43,8 +43,8 @@ public type StreamEvent object {
         }
     }
 
-    function cloneData() returns map {
-        map dataClone = {};
+    function cloneData() returns map<any> {
+        map<any> dataClone = {};
         foreach k, v in self.data {
             dataClone[k] = v;
         }
