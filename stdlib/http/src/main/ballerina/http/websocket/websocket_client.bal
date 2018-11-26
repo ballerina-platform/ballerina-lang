@@ -115,7 +115,7 @@ public type WebSocketClient client object {
 # + secureSocket - SSL/TLS related options
 public type WebSocketClientEndpointConfig record {
     string url = "";
-    typedesc? callbackService = ();
+    service? callbackService = ();
     string[] subProtocols = [];
     map<string> customHeaders = {};
     int idleTimeoutInSeconds = -1;
