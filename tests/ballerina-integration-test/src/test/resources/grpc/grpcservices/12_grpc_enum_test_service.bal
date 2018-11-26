@@ -15,7 +15,7 @@
 // under the License.
 import ballerina/grpc;
 
-listener grpc:Server server12 = new ({
+listener grpc:Listener ep12 = new ({
     host:"localhost",
     port:8555
 });
@@ -24,7 +24,7 @@ listener grpc:Server server12 = new ({
     descriptor: <string>descriptorMap12[DESCRIPTOR_KEY_12],
     descMap: descriptorMap12
 }
-service testEnumService on server12 {
+service testEnumService on ep12 {
     resource function testEnum(grpc:Caller caller, orderInfo orderReq) {
         string permission = "";
         if (orderReq.mode == r) {

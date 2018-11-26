@@ -24,22 +24,16 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
-import io.ballerina.plugins.idea.stubs.BallerinaEndpointDefinitionStub;
 import io.ballerina.plugins.idea.psi.*;
-import com.intellij.psi.stubs.IStubElementType;
 
-public class BallerinaEndpointDefinitionImpl extends BallerinaNamedElementImpl<BallerinaEndpointDefinitionStub> implements BallerinaEndpointDefinition {
+public class BallerinaServiceBodyMemberImpl extends BallerinaCompositeElementImpl implements BallerinaServiceBodyMember {
 
-  public BallerinaEndpointDefinitionImpl(@NotNull BallerinaEndpointDefinitionStub stub, @NotNull IStubElementType type) {
-    super(stub, type);
-  }
-
-  public BallerinaEndpointDefinitionImpl(@NotNull ASTNode node) {
+  public BallerinaServiceBodyMemberImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitEndpointDefinition(this);
+    visitor.visitServiceBodyMember(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -48,39 +42,15 @@ public class BallerinaEndpointDefinitionImpl extends BallerinaNamedElementImpl<B
   }
 
   @Override
-  @NotNull
-  public List<BallerinaAnnotationAttachment> getAnnotationAttachmentList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaAnnotationAttachment.class);
+  @Nullable
+  public BallerinaObjectFieldDefinition getObjectFieldDefinition() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaObjectFieldDefinition.class);
   }
 
   @Override
   @Nullable
-  public BallerinaEndpointInitialization getEndpointInitialization() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaEndpointInitialization.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaEndpointType getEndpointType() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaEndpointType.class);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getSemicolon() {
-    return findChildByType(SEMICOLON);
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getEndpoint() {
-    return notNullChild(findChildByType(ENDPOINT));
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getIdentifier() {
-    return findChildByType(IDENTIFIER);
+  public BallerinaObjectFunctionDefinition getObjectFunctionDefinition() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaObjectFunctionDefinition.class);
   }
 
 }

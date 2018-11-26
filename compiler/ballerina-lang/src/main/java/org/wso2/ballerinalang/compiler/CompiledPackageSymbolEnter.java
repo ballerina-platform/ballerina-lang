@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.DefaultValueLiteral;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
@@ -830,34 +831,34 @@ public class CompiledPackageSymbolEnter {
         }
     }
 
-    private Object getDefaultValue(DataInputStream dataInStream)
+    private DefaultValueLiteral getDefaultValue(DataInputStream dataInStream)
             throws IOException {
         String typeDesc = getUTF8CPEntryValue(dataInStream);
 
         int valueCPIndex;
         switch (typeDesc) {
             case TypeDescriptor.SIG_BOOLEAN:
-                return dataInStream.readBoolean();
+                return new DefaultValueLiteral(dataInStream.readBoolean(), TypeTags.BOOLEAN);
             case TypeDescriptor.SIG_INT:
                 valueCPIndex = dataInStream.readInt();
                 IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[valueCPIndex];
-                return integerCPEntry.getValue();
+                return new DefaultValueLiteral(integerCPEntry.getValue(), TypeTags.INT);
             case TypeDescriptor.SIG_BYTE:
                 valueCPIndex = dataInStream.readInt();
                 ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[valueCPIndex];
-                return byteCPEntry.getValue();
+                return new DefaultValueLiteral(byteCPEntry.getValue(), TypeTags.BYTE);
             case TypeDescriptor.SIG_FLOAT:
                 valueCPIndex = dataInStream.readInt();
                 FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[valueCPIndex];
-                return floatCPEntry.getValue();
+                return new DefaultValueLiteral(floatCPEntry.getValue(), TypeTags.FLOAT);
             case TypeDescriptor.SIG_DECIMAL:
                 valueCPIndex = dataInStream.readInt();
                 UTF8CPEntry decimalEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
-                return decimalEntry.getValue();
+                return new DefaultValueLiteral(decimalEntry.getValue(), TypeTags.DECIMAL);
             case TypeDescriptor.SIG_STRING:
                 valueCPIndex = dataInStream.readInt();
                 UTF8CPEntry stringCPEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
-                return stringCPEntry.getValue();
+                return new DefaultValueLiteral(stringCPEntry.getValue(), TypeTags.STRING);
             case TypeDescriptor.SIG_NULL:
                 break;
             default:

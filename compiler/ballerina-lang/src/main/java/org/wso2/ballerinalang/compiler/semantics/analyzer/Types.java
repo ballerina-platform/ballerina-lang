@@ -746,8 +746,7 @@ public class Types {
 
         // If both are open records, the rest field type of the RHS record should be assignable to the rest field
         // type of the LHS type.
-        if ((!lhsType.sealed && !rhsType.sealed) &&
-                !isAssignable(rhsType.restFieldType, lhsType.restFieldType, unresolvedTypes)) {
+        if (!rhsType.sealed && !isAssignable(rhsType.restFieldType, lhsType.restFieldType, unresolvedTypes)) {
             return false;
         }
 

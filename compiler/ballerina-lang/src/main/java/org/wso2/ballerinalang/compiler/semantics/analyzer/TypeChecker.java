@@ -244,14 +244,14 @@ public class TypeChecker extends BLangNodeVisitor {
 
         Object literalValue = literalExpr.value;
 
-        if (TypeTags.INT == literalType.tag) {
-            if (TypeTags.FLOAT == expType.tag) {
+        if (literalType.tag == TypeTags.INT) {
+            if (expType.tag == TypeTags.FLOAT) {
                 literalType = symTable.floatType;
                 literalExpr.value = ((Long) literalValue).doubleValue();
-            } else if (TypeTags.DECIMAL == expType.tag) {
+            } else if (expType.tag == TypeTags.DECIMAL) {
                 literalType = symTable.decimalType;
                 literalExpr.value = String.valueOf(literalValue);
-            } else if (TypeTags.BYTE == expType.tag) {
+            } else if (expType.tag == TypeTags.BYTE) {
                 if (!isByteLiteralValue((Long) literalValue)) {
                     dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, literalType);
                     return;
@@ -262,13 +262,13 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         // check whether this is a byte array
-        if (TypeTags.BYTE_ARRAY == literalExpr.typeTag) {
+        if (literalExpr.typeTag == TypeTags.BYTE_ARRAY) {
             literalType = new BArrayType(symTable.byteType);
         }
 
         // Check whether this belongs to decimal type or float type
-        if (TypeTags.FLOAT == literalType.tag) {
-            if (TypeTags.DECIMAL == expType.tag) {
+        if (literalType.tag == TypeTags.FLOAT) {
+            if (expType.tag == TypeTags.DECIMAL) {
                 literalType = symTable.decimalType;
                 literalExpr.value = String.valueOf(literalValue);
             } else if (TypeTags.FLOAT == expType.tag) {

@@ -1,11 +1,11 @@
 import ballerina/http;
 
-listener http:MockServer echoEP  = new(9090);
+listener http:MockListener echoEP  = new(9090);
+
+string serviceLevelStringVar = "sample value";
 
 @http:ServiceConfig {basePath:"/listener"}
 service echo on echoEP {
-
-    string serviceLevelStringVar = "sample value";
 
     @http:ResourceConfig {
         methods:["GET"],

@@ -32,10 +32,10 @@ public class AnnotationAttachmentMetaInfo {
     
     private String packageAlias;
     
-    private String attachmentPoint;
+    private int attachmentPoint;
 
     public AnnotationAttachmentMetaInfo(String attachmentName, Queue<String> fieldQueue, String packageAlias,
-                                        String attachmentPoint) {
+                                        int attachmentPoint) {
         this.attachmentName = attachmentName;
         this.fieldQueue = fieldQueue;
         this.packageAlias = packageAlias;
@@ -54,7 +54,7 @@ public class AnnotationAttachmentMetaInfo {
         return packageAlias;
     }
 
-    public String getAttachmentPoint() {
+    public int getAttachmentPoint() {
         return attachmentPoint;
     }
 }

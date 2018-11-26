@@ -24,16 +24,7 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaServiceBody extends BallerinaCompositeElement {
 
   @NotNull
-  List<BallerinaEndpointDefinition> getEndpointDefinitionList();
-
-  @NotNull
-  List<BallerinaNamespaceDeclarationStatement> getNamespaceDeclarationStatementList();
-
-  @NotNull
-  List<BallerinaResourceDefinition> getResourceDefinitionList();
-
-  @NotNull
-  List<BallerinaVariableDefinitionStatement> getVariableDefinitionStatementList();
+  List<BallerinaServiceBodyMember> getServiceBodyMemberList();
 
   @NotNull
   PsiElement getLeftBrace();
