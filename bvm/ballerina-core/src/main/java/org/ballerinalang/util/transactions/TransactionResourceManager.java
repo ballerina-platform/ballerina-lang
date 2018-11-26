@@ -208,7 +208,6 @@ public class TransactionResourceManager {
                 }
             }
         }
-        // TODO: 10/31/18 remove; there is nor commited function just a committed block
         invokeCommittedFunction(transactionId, transactionBlockId);
         removeContextsFromRegistry(combinedId, transactionId);
         return commitSuccess;
@@ -337,10 +336,10 @@ public class TransactionResourceManager {
         if (fp != null) {
             BLangFunctions.invokeCallable(fp.value(), args);
         }
-        // todo: should be call abort functions as this might be just a rollback call.
-        // temporarily disabling invoking abort functions.
-//        List<BFunctionPointer> funcs = participantRegistry.getAbortedFuncs(transactionId);
-//        invokeFunctions(args, funcs);
+        // todo: even though this is called aborted function, it actually is a rollback function.
+        // Temporarily disabling invocation of abort functions.
+        //        List<BFunctionPointer> funcs = participantRegistry.getAbortedFuncs(transactionId);
+        //        invokeFunctions(args, funcs);
         participantRegistry.purge(transactionId);
     }
 
@@ -355,13 +354,13 @@ public class TransactionResourceManager {
     }
 
     public void notifySuccess(String transactionId) {
-        // let the transaction know that the corresponding service.resource finished successfully.
+        // pass
     }
 
     public void notifyFailure(String gTransactionId) {
         participantRegistry.participantFailed(gTransactionId);
-        // the resource excepted (uncaught)
-        log.info("Callable unit excepted corresponding to global trx id : " + gTransactionId);
+        // The resource excepted (uncaught).
+        log.info("Trx infected callable unit excepted id : " + gTransactionId);
     }
 
     public void notifyFailure(String gTransactionId, String uniqueName) {

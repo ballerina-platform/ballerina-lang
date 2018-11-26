@@ -54,9 +54,6 @@ type TwoPhaseCommitTransaction object {
                     "aborted" => { return "aborted"; }
                 }
             }
-            //if (result is error) {
-            //    return error("hazard");
-            //}
             return "aborted";
         }
 

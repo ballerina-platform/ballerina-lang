@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 
 /**
@@ -54,7 +53,8 @@ class ParticipantRegistry {
         participantStack.peek().add(participant);
     }
 
-    public void register(String gTransactionId, String participantName, BFunctionPointer committed, BFunctionPointer aborted) {
+    public void register(String gTransactionId, String participantName,
+                         BFunctionPointer committed, BFunctionPointer aborted) {
         Participant participant = new Participant(gTransactionId, committed, aborted);
         localFunctionParticipants.computeIfAbsent(gTransactionId, gid -> new HashMap<>())
                 .put(participantName, participant);

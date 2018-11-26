@@ -2966,8 +2966,6 @@ public class CPU {
             }
             ctx.setLocalTransactionInfo(localTransactionInfo);
         } else {
-            // todo: this block might not be executing?
-            // test (measure) make sure and delete if possible!
             if (isGlobalTransactionEnabled) {
                 TransactionUtils.notifyTransactionBegin(ctx, localTransactionInfo.getGlobalTransactionId(),
                         localTransactionInfo.getURL(), transactionBlockId, localTransactionInfo.getProtocol());
@@ -3087,8 +3085,7 @@ public class CPU {
 
     private static void transactionAbortedEnd(WorkerExecutionContext ctx, int txBlockId,
                                               LocalTransactionInfo localTxInfo, int statusRegIndex, int errorRegIndex) {
-        // notify only if, aborted by 'abort' statement.
-        // otherwise it already knows.
+        // Notify only if, aborted by 'abort' statement.
         if (ctx.workerLocal.intRegs[statusRegIndex] == 0) {
             notifyTransactionAbort(ctx, txBlockId, localTxInfo);
         }
@@ -3113,7 +3110,6 @@ public class CPU {
     private static void transationEndEnd(WorkerExecutionContext ctx, int transactionBlockId,
                                          LocalTransactionInfo localTransactionInfo) {
         boolean isOuterTx = localTransactionInfo.onTransactionEnd(transactionBlockId);
-
         if (isOuterTx) {
             BLangVMUtils.removeTransactionInfo(ctx);
         }
@@ -3167,7 +3163,8 @@ public class CPU {
         }
     }
 
-    private static TransactionUtils.CoordinatorCommit notifyGlobalPrepareAndCommit(WorkerExecutionContext ctx, int transactionBlockId, LocalTransactionInfo localTransactionInfo) {
+    private static TransactionUtils.CoordinatorCommit notifyGlobalPrepareAndCommit(
+            WorkerExecutionContext ctx, int transactionBlockId, LocalTransactionInfo localTransactionInfo) {
         return TransactionUtils.notifyTransactionEnd(ctx,
                 localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
     }

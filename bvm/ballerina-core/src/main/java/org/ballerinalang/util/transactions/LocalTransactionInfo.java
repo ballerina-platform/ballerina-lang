@@ -123,10 +123,6 @@ public class LocalTransactionInfo {
         if (!isGlobalTransactionEnabled) {
             return true;
         }
-        //        boolean isNotInitiator = !TransactionUtils.isInitiator(context, globalTransactionId, transactionId);
-        //        if (currentRetryCount != 0 && isNotInitiator) {
-        //            return false;
-        //        }
         return true;
     }
 
@@ -199,6 +195,9 @@ public class LocalTransactionInfo {
         return transactionFailure.peek();
     }
 
+    /**
+     * Carrier for transaction failure information.
+     */
     public static class TransactionFailure {
         private final int offendingIp;
 

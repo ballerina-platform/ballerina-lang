@@ -14,20 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-///////////////////////////
-/// Service Annotations ///
-///////////////////////////
-
-// record
-
-//public annotation <service> Participant TransactionParticipantConfig;
-
-
-
-////////////////////////////
-/// Function Annotations ///
-////////////////////////////
-
 # Contains the configurations for local transaction participant function.
 #
 # + oncommit - Function to execute when transaction committed.
@@ -37,6 +23,10 @@ public type TransactionParticipantConfig record {
     function (string) onabort?;
     !...
 };
+
+/////////////////////////////////////////
+/// Function and Resource Annotations ///
+/////////////////////////////////////////
 
 # The annotation which is used to configure local transaction participant function.
 public annotation <function, resource> Participant TransactionParticipantConfig;

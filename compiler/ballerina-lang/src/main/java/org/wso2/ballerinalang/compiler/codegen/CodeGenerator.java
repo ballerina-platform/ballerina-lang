@@ -2968,13 +2968,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         abortedFromStatus.pop();
         failInstructions.pop();
 
-        // committed body
-//        Operand endOfTxHandlingAddress = getOperand(-1);
-//        emit(InstructionCodes.BR_FALSE, coordinatorStatusReg, endOfTxHandlingAddress);
+        // Committed body.
         if (!transactionNode.committedBodyList.isEmpty()) {
             this.genNode(transactionNode.committedBodyList.get(0), this.env);
         }
-//        endOfTxHandlingAddress.value = nextIP();
 
         emit(InstructionCodes.GOTO, txConclusionEndAddr);
 
@@ -3010,7 +3007,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(Transactions.TransactionStatus.END.value()),
                 trEndStatusReg, errorRegIndex);
 
-        // Rethrow captured exceptions, if available
+        // Rethrow captured exceptions, if available.
         Operand oneAfterRethrowInstructionAddress = getOperand(-1);
         emit(InstructionCodes.BR_FALSE, trEndStatusReg, oneAfterRethrowInstructionAddress);
         emit(InstructionCodes.PANIC, errorRegIndex);

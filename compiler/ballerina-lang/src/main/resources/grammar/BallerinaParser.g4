@@ -607,7 +607,6 @@ transactionClause
     :   TRANSACTION (WITH transactionPropertyInitStatementList)? LEFT_BRACE statement* RIGHT_BRACE
     ;
 
-// todo: remove oncommited and onabort statements
 transactionPropertyInitStatement
     :   retriesStatement
     ;

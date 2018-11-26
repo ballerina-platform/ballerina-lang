@@ -64,13 +64,6 @@ public class TransactionUtils {
                     return CoordinatorCommit.COMMITTED;
                 }
                 return CoordinatorCommit.ABORTED;
-            case TypeTags.MAP_TAG:
-                // todo: refine this, I just guessed what would come in case of an error.
-                // is this the error?
-                CoordinatorCommit error = CoordinatorCommit.ERROR;
-                BMap<String, BValue> errorMap = (BMap<String, BValue>) returns[0];
-                error.setStatus("error str taken from map");
-                return error;
             default:
                 throw new IllegalStateException("Transaction coordinator returned unexpected result upon trx end: "
                         + returns[0].stringValue());
