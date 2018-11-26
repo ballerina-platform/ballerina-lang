@@ -4,8 +4,8 @@ import * as React from "react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
 import { ViewState } from "../../view-model";
-import { Condition } from "./condition";
 import { ArrowHead } from "./arrow-head";
+import { Condition } from "./condition";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
