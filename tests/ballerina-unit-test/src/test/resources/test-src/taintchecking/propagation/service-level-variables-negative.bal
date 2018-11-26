@@ -10,11 +10,11 @@ service sample on helloWorldEP {
         methods:["GET"],
         path:"/path/{foo}"
     }
-    resource function params (http:Caller, http:Request req, string foo) {
+    resource function params (http:Caller caller, http:Request req, string foo) {
         map paramsMap = req.getQueryParams();
         var bar = paramsMap.bar;
 
-        serviceLevelVariable = foo;
+        self.serviceLevelVariable = foo;
         globalLevelVariable = foo;
     }
 }
