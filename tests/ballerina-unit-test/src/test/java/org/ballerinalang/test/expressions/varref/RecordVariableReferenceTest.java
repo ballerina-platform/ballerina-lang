@@ -181,7 +181,8 @@ public class RecordVariableReferenceTest {
 
     @Test
     public void testNegativeRecordVariables() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 19);
+        System.out.println(resultNegative);
+        Assert.assertEquals(resultNegative.getErrorCount(), 17);
         final String undefinedSymbol = "undefined symbol ";
         final String expectingClosedRecord = "invalid closed record binding pattern on opened record type {0}";
 
@@ -198,8 +199,6 @@ public class RecordVariableReferenceTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "not enough fields to match to closed record type 'Person'", 72, 5);
         BAssertUtil.validateError(resultNegative, ++i, "variable assignment is required", 97, 5);
-        BAssertUtil.validateError(resultNegative, ++i, "variable 'fooVar1' is not initialized", 97, 12);
-        BAssertUtil.validateError(resultNegative, ++i, "variable 'fooVar2' is not initialized", 97, 27);
         BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'Bar', found 'string'", 98, 12);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'Bar'", 98, 27);
