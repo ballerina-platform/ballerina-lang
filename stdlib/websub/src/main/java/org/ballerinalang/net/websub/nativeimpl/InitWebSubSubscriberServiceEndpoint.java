@@ -53,6 +53,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.TOPIC_ID_HE
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.TOPIC_ID_PAYLOAD_KEY;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_HTTP_ENDPOINT;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_LISTENER;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY;
 
 /**
@@ -64,7 +65,8 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERV
 @BallerinaFunction(
         orgName = "ballerina", packageName = "websub",
         functionName = "initWebSubSubscriberServiceEndpoint",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Server", structPackage = WEBSUB_PACKAGE)
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = WEBSUB_SERVICE_LISTENER,
+                structPackage = WEBSUB_PACKAGE)
 )
 public class InitWebSubSubscriberServiceEndpoint extends BlockingNativeCallableUnit {
 

@@ -308,15 +308,13 @@ function redirect(Response response, HttpOperation httpVerb, Request request,
 
 function performRedirection(string location, RedirectClient redirectClient, HttpOperation redirectMethod,
                             Request request, Response response) returns @untainted Response|error {
-    RetryClient httpRetryClient;
     var retryClient = createRetryClient(location, createNewEndpoint(location, redirectClient.config));
     if (retryClient is Client) {
-        httpRetryClient = check trap <RetryClient>retryClient;
         log:printDebug(function() returns string {
                 return "Redirect using new clientEP : " + location;
             });
         Response|error result = invokeEndpoint("", createRedirectRequest(response.statusCode, request),
-            redirectMethod, httpRetryClient.httpClient);
+            redirectMethod, retryClient.httpClient);
         return checkRedirectEligibility(result, location, redirectMethod, request, redirectClient);
     } else {
         return retryClient;

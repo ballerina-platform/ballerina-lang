@@ -27,7 +27,6 @@ import org.ballerinalang.connector.impl.ValueImpl;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -122,9 +121,9 @@ public class NonBlockingExecute extends AbstractExecute {
 
             NonBlockingStub nonBlockingStub = (NonBlockingStub) connectionStub;
 
-            BTypeDescValue serviceType = (BTypeDescValue) context.getRefArgument(2);
+            BMap serviceValue = (BMap) context.getRefArgument(2);
             Service callbackService = BLangConnectorSPIUtil.getServiceFromType(context.getProgramFile(), getTypeField
-                    (serviceType));
+                    (serviceValue));
             try {
                 MethodDescriptor.MethodType methodType = getMethodType(methodDescriptor);
                 if (methodType.equals(MethodDescriptor.MethodType.UNARY)) {
@@ -159,7 +158,7 @@ public class NonBlockingExecute extends AbstractExecute {
         return false;
     }
 
-    private Value getTypeField(BTypeDescValue refField) {
+    private Value getTypeField(BValue refField) {
         if (refField == null) {
             return null;
         }

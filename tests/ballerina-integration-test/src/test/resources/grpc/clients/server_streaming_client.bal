@@ -49,21 +49,21 @@ function testServerStreaming(string name) returns int {
 }
 
 // Server Message Listener.
-service<grpc:Service> HelloWorldMessageListener {
+service HelloWorldMessageListener = service {
 
     // Resource registered to receive server messages
-    onMessage(string message) {
+    resource function onMessage(string message) {
         io:println("Response received from server: " + message);
         total = total + 1;
     }
 
     // Resource registered to receive server error messages
-    onError(error err) {
+    resource function onError(error err) {
         io:println("Error reported from server: " + err.reason());
     }
 
     // Resource registered to receive server completed message.
-    onComplete() {
+    resource function onComplete() {
         io:println("Server Complete Sending Response.");
         total = total + 1;
     }
@@ -86,7 +86,7 @@ public type HelloWorldClient client object {
         }
     }
 
-    remote function lotsOfReplies(string req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function lotsOfReplies(string req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld45/lotsOfReplies", req, msgListener, headers = headers);
     }
 };
