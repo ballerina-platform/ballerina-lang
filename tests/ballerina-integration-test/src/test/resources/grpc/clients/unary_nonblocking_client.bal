@@ -47,21 +47,21 @@ function testUnaryNonBlockingClient() returns int {
 }
 
 // Server Message Listener.
-service<grpc:Service> HelloWorldMessageListener {
+service HelloWorldMessageListener = service {
 
     // Resource registered to receive server messages
-    onMessage(string message) {
+    resource function onMessage(string message) {
         io:println("Response received from server: " + message);
         total = total + 1;
     }
 
     // Resource registered to receive server error messages
-    onError(error err) {
+    resource function onError(error err) {
         io:println("Error reported from server: " + err.reason());
     }
 
     // Resource registered to receive server completed message.
-    onComplete() {
+    resource function onComplete() {
         io:println("Server Complete Sending Response.");
         total = total + 1;
     }
@@ -140,23 +140,23 @@ public type HelloWorldClient client object {
         }
     }
 
-    remote function hello(string req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function hello(string req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
         return grpcClient->nonBlockingExecute("grpcservices.HelloWorld100/hello", req, msgListener, headers = headers);
     }
 
-    remote function testInt(int req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testInt(int req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
         return grpcClient->nonBlockingExecute("grpcservices.HelloWorld100/testInt", req, msgListener, headers = headers);
     }
 
-    remote function testFloat(float req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testFloat(float req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
         return grpcClient->nonBlockingExecute("grpcservices.HelloWorld100/testFloat", req, msgListener, headers = headers);
     }
 
-    remote function testBoolean(boolean req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testBoolean(boolean req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
         return grpcClient->nonBlockingExecute("grpcservices.HelloWorld100/testBoolean", req, msgListener, headers = headers);
     }
 
-    remote function testStruct(Request req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testStruct(Request req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
         return grpcClient->nonBlockingExecute("grpcservices.HelloWorld100/testStruct", req, msgListener, headers = headers);
     }
 };
