@@ -28,6 +28,7 @@ public type Listener object {
     *AbstractListener;
 
     private Caller caller = new;
+    private int port = 0;
     private ServiceEndpointConfiguration config = {};
 
     public function __start() returns error? {
@@ -47,7 +48,7 @@ public type Listener object {
     public function __init(int port, ServiceEndpointConfiguration? config = ()) {
         self.instanceId = system:uuid();
         self.config = config ?: {};
-        self.config.port = port;
+        self.port = port;
         self.init(self.config);
     }
 
@@ -150,7 +151,7 @@ public type RequestLimits record {
 # + negativeAuthzCache - Caching configurations for negative authorizations
 public type ServiceEndpointConfiguration record {
     string host = "0.0.0.0";
-    int port = 0; //User must provide a port number. If not an error will be thrown as "listener port is not defined!"
+    //int port = 0; //User must provide a port number. If not an error will be thrown as "listener port is not defined!"
     KeepAlive keepAlive = KEEPALIVE_AUTO;
     ServiceSecureSocket? secureSocket = ();
     string httpVersion = "1.1";
