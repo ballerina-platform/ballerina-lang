@@ -58,22 +58,22 @@ function testClientStreaming(string[] args) returns (string) {
 }
 
 // Server Message Listener.
-service HelloWorldMessageListener {
+service HelloWorldMessageListener = service {
 
     // Resource registered to receive server messages
-    function onMessage(string message) {
+    resource function onMessage(string message) {
         response = untaint message;
         io:println("Response received from server: " + response);
         total = 1;
     }
 
     // Resource registered to receive server error messages
-    function onError(error err) {
+    resource function onError(error err) {
         io:println("Error reported from server: " + err.reason());
     }
 
     // Resource registered to receive server completed message.
-    function onComplete() {
+    resource function onComplete() {
         total = 1;
         io:println("Server Complete Sending Responses.");
     }
@@ -96,7 +96,7 @@ public type HelloWorldClient client object {
         }
     }
 
-    remote function lotsOfGreetings(typedesc msgListener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|error) {
+    remote function lotsOfGreetings(service msgListener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|error) {
         return self.grpcClient->streamingExecute("grpcservices.HelloWorld7/lotsOfGreetings", msgListener, headers = headers);
     }
 };

@@ -27,7 +27,6 @@ import org.ballerinalang.connector.impl.ValueImpl;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -113,9 +112,9 @@ public class StreamingExecute extends AbstractExecute {
         if (connectionStub instanceof NonBlockingStub) {
             NonBlockingStub nonBlockingStub = (NonBlockingStub) connectionStub;
 
-            BTypeDescValue serviceType = (BTypeDescValue) context.getRefArgument(1);
+            BMap serviceValue = (BMap) context.getRefArgument(1);
             Service callbackService = BLangConnectorSPIUtil.getServiceFromType(context.getProgramFile(), getTypeField
-                    (serviceType));
+                    (serviceValue));
 
             // Update request headers when request headers exists in the context.
             BValue headerValues = context.getNullableRefArgument(MESSAGE_HEADER_REF_INDEX);
@@ -159,7 +158,7 @@ public class StreamingExecute extends AbstractExecute {
         return false;
     }
 
-    private Value getTypeField(BTypeDescValue refField) {
+    private Value getTypeField(BValue refField) {
         if (refField == null) {
             return null;
         }

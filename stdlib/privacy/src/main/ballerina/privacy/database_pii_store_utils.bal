@@ -79,12 +79,13 @@ function validateFieldName (string tableName, string idColumn, string piiColumn)
 function processInsertResult (string id, int|error queryResult) returns string|error {
     if (queryResult is error) {
         return queryResult;
-    }
-    if (queryResult > 0) {
-        return id;
     } else {
-        error err = error("Unable to insert PII with identifier " + id);
-        return err;
+        if (queryResult > 0) {
+            return id;
+        } else {
+            error err = error("Unable to insert PII with identifier " + id);
+            return err;
+        }
     }
 }
 
@@ -96,14 +97,15 @@ function processInsertResult (string id, int|error queryResult) returns string|e
 function processSelectResult (string id, table<PiiData>|error queryResult) returns string|error {
     if (queryResult is error) {
         return queryResult;
-    }
-    if (queryResult.hasNext()) {
-        PiiData piiData = check <PiiData>queryResult.getNext();
-        queryResult.close();
-        return piiData.pii;
     } else {
-        error err = error("Identifier " + id + " is not found in PII store");
-        return err;
+        if (queryResult.hasNext()) {
+            PiiData piiData = check <PiiData>queryResult.getNext();
+            queryResult.close();
+            return piiData.pii;
+        } else {
+            error err = error("Identifier " + id + " is not found in PII store");
+            return err;
+        }
     }
 }
 
@@ -115,11 +117,12 @@ function processSelectResult (string id, table<PiiData>|error queryResult) retur
 function processDeleteResult (string id, int|error queryResult) returns error? {
     if (queryResult is error) {
         return queryResult;
-    }
-    if (queryResult > 0) {
-        return ();
     } else {
-        error err = error("Identifier " + id + " is not found in PII store");
-        return err;
+        if (queryResult > 0) {
+            return ();
+        } else {
+            error err = error("Identifier " + id + " is not found in PII store");
+            return err;
+        }
     }
 }

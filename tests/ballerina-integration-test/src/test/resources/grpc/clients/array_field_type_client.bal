@@ -303,47 +303,47 @@ public type HelloWorldClient client object {
         }
     }
 
-    remote function testIntArrayInput(TestInt req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testIntArrayInput(TestInt req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testIntArrayInput", req, msgListener, headers = headers);
     }
 
-    remote function testStringArrayInput(TestString req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testStringArrayInput(TestString req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testStringArrayInput", req, msgListener, headers = headers);
     }
 
-    remote function testFloatArrayInput(TestFloat req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testFloatArrayInput(TestFloat req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testFloatArrayInput", req, msgListener, headers = headers);
     }
 
-    remote function testBooleanArrayInput(TestBoolean req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testBooleanArrayInput(TestBoolean req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testBooleanArrayInput", req, msgListener, headers = headers);
     }
 
-    remote function testStructArrayInput(TestStruct req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testStructArrayInput(TestStruct req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testStructArrayInput", req, msgListener, headers = headers);
     }
 
-    remote function testIntArrayOutput(typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testIntArrayOutput(service msgListener, grpc:Headers? headers = ()) returns (error?) {
         Empty req = {};
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testIntArrayOutput", req, msgListener, headers = headers);
     }
 
-    remote function testStringArrayOutput(typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testStringArrayOutput(service msgListener, grpc:Headers? headers = ()) returns (error?) {
         Empty req = {};
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testStringArrayOutput", req, msgListener, headers = headers);
     }
 
-    remote function testFloatArrayOutput(typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testFloatArrayOutput(service msgListener, grpc:Headers? headers = ()) returns (error?) {
         Empty req = {};
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testFloatArrayOutput", req, msgListener, headers = headers);
     }
 
-    remote function testBooleanArrayOutput(typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testBooleanArrayOutput(service msgListener, grpc:Headers? headers = ()) returns (error?) {
         Empty req = {};
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testBooleanArrayOutput", req, msgListener, headers = headers);
     }
 
-    remote function testStructArrayOutput(typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testStructArrayOutput(service msgListener, grpc:Headers? headers = ()) returns (error?) {
         Empty req = {};
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testStructArrayOutput", req, msgListener, headers = headers);
     }
