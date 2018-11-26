@@ -22,8 +22,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.connector.api.Value;
-import org.ballerinalang.connector.impl.ValueImpl;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BMap;
@@ -122,8 +120,7 @@ public class NonBlockingExecute extends AbstractExecute {
             NonBlockingStub nonBlockingStub = (NonBlockingStub) connectionStub;
 
             BMap serviceValue = (BMap) context.getRefArgument(2);
-            Service callbackService = BLangConnectorSPIUtil.getServiceFromType(context.getProgramFile(), getTypeField
-                    (serviceValue));
+            Service callbackService = BLangConnectorSPIUtil.getServiceFromType(context.getProgramFile(), serviceValue);
             try {
                 MethodDescriptor.MethodType methodType = getMethodType(methodDescriptor);
                 if (methodType.equals(MethodDescriptor.MethodType.UNARY)) {
@@ -158,10 +155,4 @@ public class NonBlockingExecute extends AbstractExecute {
         return false;
     }
 
-    private Value getTypeField(BValue refField) {
-        if (refField == null) {
-            return null;
-        }
-        return ValueImpl.createValue(refField);
-    }
 }
