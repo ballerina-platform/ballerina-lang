@@ -29,7 +29,7 @@ export function renderTraceLogs(
         "logger": "Logger",
         "message.direction": "Inbound/Outbound",
         "message.httpMethod": "Method",
-        "message.id": "Activity Id",
+        "message.id": "Channel Id",
         "message.path": "Path",
     };
     const props = {
