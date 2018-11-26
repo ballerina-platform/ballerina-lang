@@ -12,7 +12,7 @@ service CustomerMgtService on serviceEndpoint5 {
     @http:ResourceConfig {
         methods:["GET", "POST"]
     }
-    resource function customers (http:Caller caller, http:Request req) {
+    resource function customers(http:Caller caller, http:Request req) {
         json payload = {};
         string httpMethod = req.method;
         if (httpMethod.equalsIgnoreCase("GET")) {
@@ -38,7 +38,7 @@ service Ecommerce on serviceEndpoint5 {
         methods:["GET"],
         path:"/products/{prodId}"
     }
-    resource function productsInfo (http:Caller caller, http:Request req, string prodId) {
+    resource function productsInfo(http:Caller caller, http:Request req, string prodId) {
         string reqPath = "/productsservice/" + untaint prodId;
         http:Request clientRequest = new;
         var clientResponse = productsService->get(untaint reqPath, message = clientRequest);
@@ -53,7 +53,7 @@ service Ecommerce on serviceEndpoint5 {
         methods:["POST"],
         path:"/products"
     }
-    resource function productMgt (http:Caller caller, http:Request req) {
+    resource function productMgt(http:Caller caller, http:Request req) {
         http:Request clientRequest = new;
         var jsonReq = req.getJsonPayload();
         if (jsonReq is json) {
@@ -76,7 +76,7 @@ service Ecommerce on serviceEndpoint5 {
         methods:["GET"],
         path:"/orders"
     }
-    resource function ordersInfo (http:Caller caller, http:Request req) {
+    resource function ordersInfo(http:Caller caller, http:Request req) {
         http:Request clientRequest = new;
         var clientResponse = productsService->get("/orderservice/orders", message = clientRequest);
         if (clientResponse is http:Response) {
@@ -90,7 +90,7 @@ service Ecommerce on serviceEndpoint5 {
         methods:["POST"],
         path:"/orders"
     }
-    resource function ordersMgt (http:Caller caller, http:Request req) {
+    resource function ordersMgt(http:Caller caller, http:Request req) {
         http:Request clientRequest = new;
         var clientResponse = productsService->post("/orderservice/orders", clientRequest);
         if (clientResponse is http:Response) {
@@ -104,7 +104,7 @@ service Ecommerce on serviceEndpoint5 {
         methods:["GET"],
         path:"/customers"
     }
-    resource function customersInfo (http:Caller caller, http:Request req) {
+    resource function customersInfo(http:Caller caller, http:Request req) {
         http:Request clientRequest = new;
         var clientResponse = productsService->get("/customerservice/customers", message = clientRequest);
         if (clientResponse is http:Response) {
@@ -118,7 +118,7 @@ service Ecommerce on serviceEndpoint5 {
         methods:["POST"],
         path:"/customers"
     }
-    resource function customerMgt (http:Caller caller, http:Request req) {
+    resource function customerMgt(http:Caller caller, http:Request req) {
         http:Request clientRequest = new;
         var clientResponse = productsService->post("/customerservice/customers", clientRequest);
         if (clientResponse is http:Response) {
@@ -137,7 +137,7 @@ service OrderMgtService on serviceEndpoint5 {
     @http:ResourceConfig {
         methods:["GET", "POST"]
     }
-    resource function orders (http:Caller caller, http:Request req) {
+    resource function orders(http:Caller caller, http:Request req) {
         json payload = {};
         string httpMethod = req.method;
         if (httpMethod.equalsIgnoreCase("GET")) {
@@ -163,7 +163,7 @@ service productmgt on serviceEndpoint5 {
         methods:["GET"],
         path:"/{prodId}"
     }
-    resource function product (http:Caller caller, http:Request req, string prodId) {
+    resource function product(http:Caller caller, http:Request req, string prodId) {
         http:Response res = new;
         var result = <json>self.productsMap[prodId];
         if (result is json) {
@@ -178,7 +178,7 @@ service productmgt on serviceEndpoint5 {
         methods:["POST"],
         path:"/"
     }
-    resource function addProduct (http:Caller caller, http:Request req) {
+    resource function addProduct(http:Caller caller, http:Request req) {
         var jsonReq = req.getJsonPayload();
         if (jsonReq is json) {
             string productId = extractFieldValue3(jsonReq.Product.ID);
@@ -194,7 +194,7 @@ service productmgt on serviceEndpoint5 {
     }
 }
 
-function populateSampleProducts () returns (map) {
+function populateSampleProducts() returns (map) {
     map productsMap = {};
     json prod_1 = {"Product":{"ID":"123000", "Name":"ABC_1", "Description":"Sample product."}};
     json prod_2 = {"Product":{"ID":"123001", "Name":"ABC_2", "Description":"Sample product."}};
