@@ -16,7 +16,7 @@
 import ballerina/grpc;
 import ballerina/io;
 
-listener grpc:Server server = new ({
+listener grpc:Listener ep = new ({
     host:"localhost",
     port:9090
 });
@@ -25,7 +25,7 @@ listener grpc:Server server = new ({
     descriptor: <string>descriptorMap1[DESCRIPTOR_KEY_1],
     descMap: descriptorMap1
 }
-service HelloWorld on server {
+service HelloWorld on ep {
 
     resource function testInputNestedStruct(grpc:Caller caller, Person req) {
         io:println("name: " + req.name);

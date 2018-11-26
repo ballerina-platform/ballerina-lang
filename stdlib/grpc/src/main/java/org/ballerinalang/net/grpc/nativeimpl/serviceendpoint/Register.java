@@ -32,7 +32,7 @@ import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.GrpcConstants.SERVER;
+import static org.ballerinalang.net.grpc.GrpcConstants.LISTENER;
 
 /**
  * Extern function to register service to service endpoint.
@@ -43,7 +43,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.SERVER;
         orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "register",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = SERVER,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = LISTENER,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         isPublic = true
 )
