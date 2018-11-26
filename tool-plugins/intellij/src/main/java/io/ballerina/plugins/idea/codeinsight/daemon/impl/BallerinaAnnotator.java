@@ -118,6 +118,10 @@ public class BallerinaAnnotator implements Annotator {
                     || elementType == BallerinaTypes.DOUBLE_BACK_TICK_INLINE_CODE
                     || elementType == BallerinaTypes.TRIPLE_BACK_TICK_INLINE_CODE) {
                 annotateInlineCode(element, holder);
+            } else if (elementType == BallerinaTypes.MARKDOWN_DOCUMENTATION_TEXT
+                    || elementType == BallerinaTypes.DEPRECATED_TEMPLATE_TEXT) {
+                Annotation annotation = holder.createInfoAnnotation(element, null);
+                annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.DOCUMENTATION);
             } else if (elementType == BallerinaTypes.MARKDOWN_DOCUMENTATION_LINE_START) {
                 TextRange textRange = element.getTextRange();
                 // Highlights "#"

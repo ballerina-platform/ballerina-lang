@@ -55,7 +55,6 @@ public class Forward extends AbstractHTTPAction {
 
     @Override
     protected HttpCarbonMessage createOutboundRequestMsg(Context context) {
-        BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
         String path = context.getStringArgument(0);
         BMap<String, BValue> requestStruct = ((BMap<String, BValue>) context.getRefArgument(1));
 
@@ -68,11 +67,11 @@ public class Forward extends AbstractHTTPAction {
 
         if (HttpUtil.isEntityDataSourceAvailable(requestStruct)) {
             HttpUtil.enrichOutboundMessage(outboundRequestMsg, requestStruct);
-            prepareOutboundRequest(context, bConnector, path, outboundRequestMsg);
+            prepareOutboundRequest(context, path, outboundRequestMsg);
             outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD,
                     BLangConnectorSPIUtil.toStruct(requestStruct).getStringField(HttpConstants.HTTP_REQUEST_METHOD));
         } else {
-            prepareOutboundRequest(context, bConnector, path, outboundRequestMsg);
+            prepareOutboundRequest(context, path, outboundRequestMsg);
             String httpVerb = (String) outboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD);
             outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
         }

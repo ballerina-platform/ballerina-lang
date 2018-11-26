@@ -21,12 +21,12 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorModificationUtil;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
 import io.ballerina.plugins.idea.BallerinaLanguage;
-import io.ballerina.plugins.idea.psi.BallerinaEndpointDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaTypeDefinition;
 import org.jetbrains.annotations.NotNull;
 
@@ -55,9 +55,7 @@ public class BallerinaEnterBetweenBracesHandler extends EnterBetweenBracesHandle
         // Check whether the semicolon is needed.
         if (needToInsertSemicolon(element)) {
             PsiElement definition = PsiTreeUtil.getParentOfType(element, BallerinaTypeDefinition.class);
-            if (definition == null) {
-                definition = PsiTreeUtil.getParentOfType(element, BallerinaEndpointDefinition.class);
-            }
+
             if (definition == null) {
                 return Result.Continue;
             }
@@ -71,6 +69,10 @@ public class BallerinaEnterBetweenBracesHandler extends EnterBetweenBracesHandle
             EditorModificationUtil.insertStringAtCaret(editor, ";", false, -(caretShift + 1));
             // Commit the document.
             PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
+        } else if (isInDocMode(editor)) {
+            EditorModificationUtil.insertStringAtCaret(editor, "# ", false);
+            // Commit the document.
+            PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
         }
         return Result.Continue;
     }
@@ -78,18 +80,17 @@ public class BallerinaEnterBetweenBracesHandler extends EnterBetweenBracesHandle
     private boolean needToInsertSemicolon(PsiElement element) {
         // Check for type definition.
         BallerinaTypeDefinition typeDefinition = PsiTreeUtil.getParentOfType(element, BallerinaTypeDefinition.class);
-        if (typeDefinition != null) {
-            // Check whether the type definition has a semicolon.
-            return typeDefinition.getSemicolon() == null;
-        }
-        // Check for endpoint definition.
-        BallerinaEndpointDefinition ballerinaEndpointDefinition = PsiTreeUtil.getParentOfType(element,
-                BallerinaEndpointDefinition.class);
-        if (ballerinaEndpointDefinition != null) {
-            // Check whether the endpoint definition has a semicolon.
-            return ballerinaEndpointDefinition.getSemicolon() == null;
-        }
-        return false;
+        // Check whether the type definition has a semicolon.
+        return typeDefinition != null && typeDefinition.getSemicolon() == null;
+
+    }
+
+    private boolean isInDocMode(Editor editor) {
+        // Checks whether the previous line starts with "#".
+        int line = editor.getCaretModel().getLogicalPosition().line - 1;
+        String lineString = editor.getDocument().getText(new TextRange(editor.getDocument().getLineStartOffset(line),
+                editor.getDocument().getLineEndOffset(line)));
+        return lineString.startsWith("#");
     }
 
     @Override

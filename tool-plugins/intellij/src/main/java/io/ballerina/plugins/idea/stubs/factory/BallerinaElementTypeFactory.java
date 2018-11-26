@@ -19,9 +19,7 @@ package io.ballerina.plugins.idea.stubs.factory;
 import com.intellij.psi.stubs.IStubElementType;
 import io.ballerina.plugins.idea.stubs.types.BallerinaAliasStubElementType;
 import io.ballerina.plugins.idea.stubs.types.BallerinaAnnotationDefinitionStubElementType;
-import io.ballerina.plugins.idea.stubs.types.BallerinaEndpointDefinitionStubElementType;
 import io.ballerina.plugins.idea.stubs.types.BallerinaFunctionDefinitionStubElementType;
-import io.ballerina.plugins.idea.stubs.types.BallerinaGlobalEndpointDefinitionStubElementType;
 import io.ballerina.plugins.idea.stubs.types.BallerinaGlobalVariableDefinitionStubElementType;
 import io.ballerina.plugins.idea.stubs.types.BallerinaNameReferenceStubElementType;
 import io.ballerina.plugins.idea.stubs.types.BallerinaNamespaceDeclarationStubElementType;
@@ -44,34 +42,30 @@ public class BallerinaElementTypeFactory {
     public static IStubElementType stubFactory(@NotNull String name) {
         // NOTE - If the element type is wrong, an error will occur while loading the lexer in syntax highlighting.
         switch (name) {
-            case "FUNCTION_DEFINITION":
-                return new BallerinaFunctionDefinitionStubElementType(name);
-            case "TYPE_DEFINITION":
-                return new BallerinaTypeDefinitionStubElementType(name);
-            case "GLOBAL_VARIABLE_DEFINITION":
-                return new BallerinaGlobalVariableDefinitionStubElementType(name);
-            case "ANNOTATION_DEFINITION":
-                return new BallerinaAnnotationDefinitionStubElementType(name);
-            case "GLOBAL_ENDPOINT_DEFINITION":
-                return new BallerinaGlobalEndpointDefinitionStubElementType(name);
-            case "ENDPOINT_DEFINITION":
-                return new BallerinaEndpointDefinitionStubElementType(name);
-            case "WORKER_DEFINITION":
-                return new BallerinaWorkerDefinitionStubElementType(name);
-            case "PACKAGE_NAME":
-                return new BallerinaPackageNameStubElementType(name);
-            case "ORG_NAME":
-                return new BallerinaOrgNameStubElementType(name);
-            case "PACKAGE_VERSION":
-                return new BallerinaPackageVersionStubElementType(name);
-            case "ALIAS":
-                return new BallerinaAliasStubElementType(name);
-            case "NAME_REFERENCE":
-                return new BallerinaNameReferenceStubElementType(name);
-            case "PACKAGE_REFERENCE":
-                return new BallerinaPackageReferenceStubElementType(name);
-            case "NAMESPACE_DECLARATION":
-                return new BallerinaNamespaceDeclarationStubElementType(name);
+        case "FUNCTION_DEFINITION":
+            return new BallerinaFunctionDefinitionStubElementType(name);
+        case "TYPE_DEFINITION":
+            return new BallerinaTypeDefinitionStubElementType(name);
+        case "GLOBAL_VARIABLE_DEFINITION":
+            return new BallerinaGlobalVariableDefinitionStubElementType(name);
+        case "ANNOTATION_DEFINITION":
+            return new BallerinaAnnotationDefinitionStubElementType(name);
+        case "WORKER_DEFINITION":
+            return new BallerinaWorkerDefinitionStubElementType(name);
+        case "PACKAGE_NAME":
+            return new BallerinaPackageNameStubElementType(name);
+        case "ORG_NAME":
+            return new BallerinaOrgNameStubElementType(name);
+        case "PACKAGE_VERSION":
+            return new BallerinaPackageVersionStubElementType(name);
+        case "ALIAS":
+            return new BallerinaAliasStubElementType(name);
+        case "NAME_REFERENCE":
+            return new BallerinaNameReferenceStubElementType(name);
+        case "PACKAGE_REFERENCE":
+            return new BallerinaPackageReferenceStubElementType(name);
+        case "NAMESPACE_DECLARATION":
+            return new BallerinaNamespaceDeclarationStubElementType(name);
         }
         throw new RuntimeException("Unknown element type: " + name);
     }

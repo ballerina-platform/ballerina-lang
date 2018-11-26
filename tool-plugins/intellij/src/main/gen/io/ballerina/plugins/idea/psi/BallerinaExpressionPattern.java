@@ -21,15 +21,24 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaServiceEndpointAttachments extends BallerinaCompositeElement {
-
-  @NotNull
-  List<BallerinaNameReference> getNameReferenceList();
+public interface BallerinaExpressionPattern extends BallerinaCompositeElement {
 
   @Nullable
-  BallerinaRecordLiteral getRecordLiteral();
+  BallerinaBlock getBlock();
 
   @NotNull
-  PsiElement getBind();
+  BallerinaExpression getExpression();
+
+  @Nullable
+  BallerinaStatement getStatement();
+
+  @NotNull
+  PsiElement getEqualGt();
+
+  @Nullable
+  PsiElement getLeftBrace();
+
+  @Nullable
+  PsiElement getRightBrace();
 
 }
