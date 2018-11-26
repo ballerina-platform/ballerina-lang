@@ -10,7 +10,7 @@ public function main(string... args) {
 }
 
 public function testSelectWithUntaintedQueryProducingTaintedReturn(string... args) {
-    endpoint mysql:Client testDB {
+    mysql:Client testDB = new({
         host:"localhost",
         port:3306,
         name:"testdb",
@@ -18,7 +18,7 @@ public function testSelectWithUntaintedQueryProducingTaintedReturn(string... arg
         password:"root",
         poolOptions:{maximumPoolSize:5},
         dbOptions: {}
-    };
+    });
 
     var output = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
     match output {

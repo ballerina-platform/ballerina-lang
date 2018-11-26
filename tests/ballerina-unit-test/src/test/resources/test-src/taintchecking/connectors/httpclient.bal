@@ -1,10 +1,7 @@
 import ballerina/http;
 
-endpoint http:Client clientEndpoint {
-    url: "https://postman-echo.com"
-};
-
 public function main (string... args) {
+    http:Client clientEndpoint = new("https://postman-echo.com");
     string param = "staticValue";
     string headerName = "staticValue";
     string headerValue = "staticValue";
