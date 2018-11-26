@@ -65,7 +65,6 @@ import java.util.Optional;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.ACCEPT_ENCODING;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
-import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_CONFIG;
 import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_SERVICE_URI;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
@@ -123,8 +122,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
 
     String getCompressionConfigFromEndpointConfig(BMap<String, BValue> httpClientStruct) {
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(httpClientStruct);
-        Struct epConfig = (Struct) clientEndpointConfig.getNativeData(CLIENT_ENDPOINT_CONFIG);
-        return epConfig.getRefField(ANN_CONFIG_ATTR_COMPRESSION).getStringValue();
+        return clientEndpointConfig.getRefField(ANN_CONFIG_ATTR_COMPRESSION).getStringValue();
     }
 
     void handleAcceptEncodingHeader(HttpCarbonMessage outboundRequest, String compressionConfigValue) {

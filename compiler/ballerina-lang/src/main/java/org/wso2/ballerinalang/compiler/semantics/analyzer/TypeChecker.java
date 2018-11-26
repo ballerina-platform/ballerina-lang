@@ -896,23 +896,17 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangTernaryExpr ternaryExpr) {
         BType condExprType = checkExpr(ternaryExpr.expr, env, this.symTable.booleanType);
 
-        SymbolEnv thenEnv = env;
-        Map<BVarSymbol, BType> typeGuards = getTypeGuards(ternaryExpr.expr);
-        if (!typeGuards.isEmpty()) {
-            thenEnv = SymbolEnv.createExpressionEnv(ternaryExpr, env);
-            for (Entry<BVarSymbol, BType> entry : typeGuards.entrySet()) {
-                BVarSymbol originalVarSymbol = entry.getKey();
-                BVarSymbol varSymbol = new BVarSymbol(0, originalVarSymbol.name, thenEnv.scope.owner.pkgID,
-                        entry.getValue(), this.env.scope.owner);
-                symbolEnter.defineShadowedSymbol(ternaryExpr.pos, varSymbol, thenEnv);
-
-                // Cache the type guards, to be reused at the desugar.
-                ternaryExpr.typeGuards.put(originalVarSymbol, varSymbol);
-            }
+        SymbolEnv thenEnv = SymbolEnv.createExpressionEnv(ternaryExpr.thenExpr, env);
+        SymbolEnv elseEnv = SymbolEnv.createExpressionEnv(ternaryExpr.elseExpr, env);
+        Map<BVarSymbol, BType> thenTypeGuards = getTypeGuards(ternaryExpr.expr);
+        if (!thenTypeGuards.isEmpty()) {
+            defineThenTypeGuards(ternaryExpr, thenEnv, thenTypeGuards);
+            defineElseTypeGuards(thenTypeGuards, ternaryExpr, elseEnv);
         }
 
         BType thenType = checkExpr(ternaryExpr.thenExpr, thenEnv, expType);
-        BType elseType = checkExpr(ternaryExpr.elseExpr, env, expType);
+        BType elseType = checkExpr(ternaryExpr.elseExpr, elseEnv, expType);
+
         if (condExprType == symTable.semanticError || thenType == symTable.semanticError
                 || elseType == symTable.semanticError) {
             resultType = symTable.semanticError;
@@ -2516,6 +2510,14 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 return symResolver.createSymbolForStampOperator(iExpr.pos, new Name(function.getName()),
                         functionArgList, iExpr.expr);
+            case CREATE:
+                functionArgList = iExpr.argExprs;
+                // Resolve the type of the variables passed as arguments to create in-built function.
+                for (BLangExpression expression : functionArgList) {
+                    checkExpr(expression, env, symTable.noType);
+                }
+                return symResolver.createSymbolForCreateOperator(iExpr.pos, new Name(function.getName()),
+                                                                 functionArgList, iExpr.expr);
             case CALL:
                 return getFunctionPointerCallSymbol(iExpr);
             default:
@@ -2540,7 +2542,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BSymbol getSymbolForAnydataReturningBuiltinMethods(BLangInvocation iExpr) {
         BType type = iExpr.expr.type;
-        if (!isLikeAnydataOrNotNil(type)) {
+        if (!types.isLikeAnydataOrNotNil(type)) {
             return symTable.notFoundSymbol;
         }
 
@@ -2566,52 +2568,37 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BSymbol getSymbolForIsFrozenBuiltinMethod(BLangInvocation iExpr) {
         BType type = iExpr.expr.type;
-        if (!isLikeAnydataOrNotNil(type)) {
+        if (!types.isLikeAnydataOrNotNil(type)) {
             return symTable.notFoundSymbol;
         }
         return symResolver.createBuiltinMethodSymbol(BLangBuiltInMethod.IS_FROZEN, type, symTable.booleanType,
                 InstructionCodes.IS_FROZEN);
     }
 
-    public boolean isLikeAnydataOrNotNil(BType type) {
-        if (type.tag == TypeTags.NIL || (!types.isAnydata(type) && !isLikeAnydata(type))) {
-            return false;
+    private void defineThenTypeGuards(BLangTernaryExpr ternaryExpr, SymbolEnv thenEnv,
+                                      Map<BVarSymbol, BType> thenTypeGuards) {
+        for (Entry<BVarSymbol, BType> entry : thenTypeGuards.entrySet()) {
+            BVarSymbol originalVarSymbol = entry.getKey();
+            BVarSymbol varSymbol = new BVarSymbol(0, originalVarSymbol.name, thenEnv.scope.owner.pkgID,
+                    entry.getValue(), this.env.scope.owner);
+            symbolEnter.defineShadowedSymbol(ternaryExpr.pos, varSymbol, thenEnv);
+
+            // Cache the type guards, to be reused at the desugar.
+            ternaryExpr.ifTypeGuards.put(originalVarSymbol, varSymbol);
         }
-        return true;
     }
 
-    private boolean isLikeAnydata(BType type) {
-        int typeTag = type.tag;
-        if (typeTag == TypeTags.ANY) {
-            return true;
-        }
+    private void defineElseTypeGuards(Map<BVarSymbol, BType> typeGuardsSet, BLangTernaryExpr ternaryExpr,
+                                      SymbolEnv elseEnv) {
+        for (Entry<BVarSymbol, BType> entry : typeGuardsSet.entrySet()) {
+            BVarSymbol originalVarSymbol = entry.getKey();
+            BType remainingType = types.getRemainingType(originalVarSymbol.type, entry.getValue());
+            BVarSymbol varSymbol = new BVarSymbol(0, originalVarSymbol.name, elseEnv.scope.owner.pkgID, remainingType,
+                    this.env.scope.owner);
+            symbolEnter.defineShadowedSymbol(ternaryExpr.expr.pos, varSymbol, elseEnv);
 
-        // check for anydata element/member types as part of recursive calls with structured/union types
-        if (types.isAnydata(type)) {
-            return true;
+            // Cache the type guards, to be reused at the desugar.
+            ternaryExpr.elseTypeGuards.put(originalVarSymbol, varSymbol);
         }
-
-        if (type.tag == TypeTags.MAP && isLikeAnydata(((BMapType) type).constraint)) {
-            return true;
-        }
-
-        if (type.tag == TypeTags.RECORD) {
-            BRecordType recordType = (BRecordType) type;
-            return recordType.fields.stream()
-                    .noneMatch(field -> !Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
-                            !(isLikeAnydata(field.type)));
-        }
-
-        if (type.tag == TypeTags.UNION) {
-            BUnionType unionType = (BUnionType) type;
-            return unionType.memberTypes.stream().anyMatch(this::isLikeAnydata);
-        }
-
-        if (type.tag == TypeTags.TUPLE) {
-            BTupleType tupleType = (BTupleType) type;
-            return tupleType.getTupleTypes().stream().allMatch(this::isLikeAnydata);
-        }
-
-        return type.tag == TypeTags.ARRAY && isLikeAnydata(((BArrayType) type).eType);
     }
 }

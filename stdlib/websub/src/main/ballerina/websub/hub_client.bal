@@ -27,17 +27,20 @@ import ballerina/mime;
 public type Client client object {
 
     public string hubUrl;
-    public HubClientEndpointConfig config = {};
+    HubClientEndpointConfig config = {};
 
     private http:Client httpClientEndpoint;
-    private http:FollowRedirects? followRedirects;
+    private http:FollowRedirects? followRedirects = ();
 
     public function __init(HubClientEndpointConfig config) {
         self.hubUrl = config.url;
-        http:ClientEndpointConfig httpConfig = {url:config.url, auth:config.auth,
-                                                secureSocket: config.clientSecureSocket,
-                                                followRedirects:config.followRedirects};
-        self.httpClientEndpoint = new (httpConfig);
+        http:ClientEndpointConfig httpConfig = {
+            url: config.url,
+            auth: config.auth,
+            secureSocket: config.clientSecureSocket,
+            followRedirects: config.followRedirects
+        };
+        self.httpClientEndpoint = new (self.hubUrl, config = httpConfig);
         self.config = config;
     }
 
@@ -89,7 +92,7 @@ public type Client client object {
     public remote function notifyUpdate(string topic, map<string>? headers = ()) returns error?;
 };
 
-function Client.subscribe(SubscriptionChangeRequest subscriptionRequest)
+remote function Client.subscribe(SubscriptionChangeRequest subscriptionRequest)
     returns @tainted SubscriptionChangeResponse|error {
 
     http:Client httpClientEndpoint = self.httpClientEndpoint;
@@ -100,7 +103,7 @@ function Client.subscribe(SubscriptionChangeRequest subscriptionRequest)
                               redirectCount);
 }
 
-function Client.unsubscribe(SubscriptionChangeRequest unsubscriptionRequest)
+remote function Client.unsubscribe(SubscriptionChangeRequest unsubscriptionRequest)
     returns @tainted SubscriptionChangeResponse|error {
 
     http:Client httpClientEndpoint = self.httpClientEndpoint;
@@ -111,7 +114,7 @@ function Client.unsubscribe(SubscriptionChangeRequest unsubscriptionRequest)
                               redirectCount);
 }
 
-function Client.registerTopic(string topic) returns error? {
+remote function Client.registerTopic(string topic) returns error? {
     http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = buildTopicRegistrationChangeRequest(MODE_REGISTER, topic);
     var registrationResponse = httpClientEndpoint->post("", request);
@@ -132,7 +135,7 @@ function Client.registerTopic(string topic) returns error? {
     return;
 }
 
-function Client.unregisterTopic(string topic) returns error? {
+remote function Client.unregisterTopic(string topic) returns error? {
     http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = buildTopicRegistrationChangeRequest(MODE_UNREGISTER, topic);
     var unregistrationResponse = httpClientEndpoint->post("", request);
@@ -153,7 +156,7 @@ function Client.unregisterTopic(string topic) returns error? {
     return;
 }
 
-function Client.publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
+remote function Client.publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
                                       string? contentType = (), map<string>? headers = ()) returns error? {
 
     http:Client httpClientEndpoint = self.httpClientEndpoint;
@@ -188,7 +191,7 @@ function Client.publishUpdate(string topic, string|xml|json|byte[]|io:ReadableBy
     return;
 }
 
-function Client.notifyUpdate(string topic, map<string>? headers = ()) returns error? {
+remote function Client.notifyUpdate(string topic, map<string>? headers = ()) returns error? {
     http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = new;
     string queryParams = HUB_MODE + "=" + MODE_PUBLISH + "&" + HUB_TOPIC + "=" + topic;
@@ -215,6 +218,20 @@ function Client.notifyUpdate(string topic, map<string>? headers = ()) returns er
     }
     return;
 }
+
+# Record representing the configuration parameters for the WebSub Hub Client Endpoint.
+#
+# + url - The URL of the target Hub
+# + clientSecureSocket - SSL/TLS related options for the underlying HTTP Client
+# + auth - Authentication mechanism for the underlying HTTP Client
+# + followRedirects - HTTP redirect related configuration
+public type HubClientEndpointConfig record {
+    string url = "";
+    http:SecureSocket? clientSecureSocket = ();
+    http:AuthConfig? auth = ();
+    http:FollowRedirects? followRedirects = ();
+    !...
+};
 
 # Builds the topic registration change request to register or unregister a topic at the hub.
 #
@@ -334,8 +351,10 @@ function invokeClientConnectorOnRedirection(@sensitive string hub, @sensitive st
 
 function subscribeWithRetries(string hubUrl, SubscriptionChangeRequest subscriptionRequest, http:AuthConfig? auth,
                               int remainingRedirects = 0) returns @tainted SubscriptionChangeResponse| error {
-    http:ClientEndpointConfig config = { url:hubUrl, auth:auth };
-    http:Client clientEndpoint = new http:Client(config);
+    http:Client clientEndpoint = new http:Client(hubUrl, config = {
+        url: hubUrl,
+        auth: auth
+    });
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_SUBSCRIBE, subscriptionRequest);
     var response = clientEndpoint->post("", builtSubscriptionRequest);
     return processHubResponse(hubUrl, MODE_SUBSCRIBE, subscriptionRequest, response, clientEndpoint,
@@ -344,8 +363,10 @@ function subscribeWithRetries(string hubUrl, SubscriptionChangeRequest subscript
 
 function unsubscribeWithRetries(string hubUrl, SubscriptionChangeRequest unsubscriptionRequest, http:AuthConfig? auth,
                                 int remainingRedirects = 0) returns @tainted SubscriptionChangeResponse|error {
-    http:ClientEndpointConfig config = { url:hubUrl, auth:auth };
-    http:Client clientEndpoint = new http:Client(config);
+    http:Client clientEndpoint = new http:Client(hubUrl, config = {
+        url: hubUrl,
+        auth: auth
+    });
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_UNSUBSCRIBE, unsubscriptionRequest);
     var response = clientEndpoint->post("", builtSubscriptionRequest);
     return processHubResponse(hubUrl, MODE_UNSUBSCRIBE, unsubscriptionRequest, response, clientEndpoint,

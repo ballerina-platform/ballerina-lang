@@ -58,22 +58,22 @@ function testClientStreaming(string[] args) returns (string) {
 }
 
 // Server Message Listener.
-service<grpc:Service> HelloWorldMessageListener {
+service HelloWorldMessageListener = service {
 
     // Resource registered to receive server messages
-    onMessage(string message) {
+    resource function onMessage(string message) {
         response = untaint message;
         io:println("Response received from server: " + response);
         total = 1;
     }
 
     // Resource registered to receive server error messages
-    onError(error err) {
+    resource function onError(error err) {
         io:println("Error reported from server: " + err.reason());
     }
 
     // Resource registered to receive server completed message.
-    onComplete() {
+    resource function onComplete() {
         total = 1;
         io:println("Server Complete Sending Responses.");
     }
@@ -94,14 +94,14 @@ public type HelloWorldClient client object {
         } else {
             self.grpcClient = c;
         }
-    };
+    }
 
-    remote function lotsOfGreetings(typedesc listener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|error) {
-        return self.grpcClient->streamingExecute("grpcservices.HelloWorld7/lotsOfGreetings", listener, headers = headers);
+    remote function lotsOfGreetings(service msgListener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|error) {
+        return self.grpcClient->streamingExecute("grpcservices.HelloWorld7/lotsOfGreetings", msgListener, headers = headers);
     }
 };
 
-@final string DESCRIPTOR_KEY = "HelloWorld7.proto";
+const string DESCRIPTOR_KEY = "HelloWorld7.proto";
 map descriptorMap =
 {
     "HelloWorld7.proto":"0A1148656C6C6F576F726C64372E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F325E0A0B48656C6C6F576F726C6437124F0A0F6C6F74734F664772656574696E6773121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C75652801620670726F746F33",

@@ -994,6 +994,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 invocationExpr.expr.accept(this);
                 break;
             case STAMP:
+            case CREATE:
             case CALL:
                 invocationExpr.argExprs.forEach(expression -> expression.accept(this));
                 break;
@@ -1039,7 +1040,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         overridingAnalysis = false;
 
         // Copy the taint information from the original symbol to the newly created type guarded symbol
-        ternaryExpr.typeGuards
+        ternaryExpr.ifTypeGuards
+                .forEach((originalSymbol, guardedSymbol) -> guardedSymbol.tainted = originalSymbol.tainted);
+        ternaryExpr.elseTypeGuards
                 .forEach((originalSymbol, guardedSymbol) -> guardedSymbol.tainted = originalSymbol.tainted);
 
         ternaryExpr.thenExpr.accept(this);

@@ -42,7 +42,7 @@ import org.wso2.transport.http.netty.message.ResponseHandle;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "getNextPromise",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.HTTP_CLIENT,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.HTTP_CALLER,
                 structPackage = "ballerina/http"),
         args = {
                 @Argument(name = "client", type = TypeKind.OBJECT),

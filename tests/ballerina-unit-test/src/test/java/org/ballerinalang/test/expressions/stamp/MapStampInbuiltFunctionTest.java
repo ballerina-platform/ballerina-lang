@@ -123,10 +123,10 @@ public class MapStampInbuiltFunctionTest {
         Assert.assertEquals(results.length, 1);
         Assert.assertEquals(mapValue.size(), 2);
 
-        Assert.assertEquals(mapValue.get("a").getType().getClass(), BAnydataType.class);
+        Assert.assertEquals(mapValue.get("a").getType().getTag(), TypeTags.INT_TAG);
         Assert.assertEquals(mapValue.get("a").stringValue(), "1");
 
-        Assert.assertEquals(mapValue.get("b").getType().getClass(), BAnydataType.class);
+        Assert.assertEquals(mapValue.get("b").getType().getTag(), TypeTags.INT_TAG);
         Assert.assertEquals(mapValue.get("b").stringValue(), "2");
     }
 
@@ -268,16 +268,16 @@ public class MapStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue.size(), 2);
 
         Assert.assertEquals(mapValue.getMap().get("a").getType().getName(), "Employee");
-        Assert.assertEquals(((BValue) ((BMap) mapValue.getMap().get("a")).getMap().get("age")).getType().getClass(),
-                BAnydataType.class);
+        Assert.assertEquals(((BValue) ((BMap) mapValue.getMap().get("a")).getMap().get("age")).getType().getTag(),
+                TypeTags.INT_TAG);
         Assert.assertEquals(((BValue) ((BMap) mapValue.getMap().get("a")).getMap().get("school")).getType().
-                getClass(), BAnydataType.class);
+                getClass(), BStringType.class);
 
         Assert.assertEquals(mapValue.getMap().get("b").getType().getName(), "Employee");
-        Assert.assertEquals(((BValue) ((BMap) mapValue.getMap().get("b")).getMap().get("age")).getType().getClass(),
-                BAnydataType.class);
+        Assert.assertEquals(((BValue) ((BMap) mapValue.getMap().get("b")).getMap().get("age")).getType().getTag(),
+                TypeTags.INT_TAG);
         Assert.assertEquals(((BValue) ((BMap) mapValue.getMap().get("b")).getMap().get("school")).getType().
-                getClass(), BAnydataType.class);
+                getClass(), BStringType.class);
     }
 
     @Test
@@ -339,16 +339,16 @@ public class MapStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue.size(), 2);
 
         Assert.assertEquals(mapValue.getMap().get("a").getType().getName(), "Employee");
-        Assert.assertEquals(((BValue) ((BMap) mapValue.getMap().get("a")).getMap().get("age")).getType().getClass(),
-                BAnydataType.class);
+        Assert.assertEquals(((BValue) ((BMap) mapValue.getMap().get("a")).getMap().get("age")).getType().getTag(),
+                TypeTags.INT_TAG);
         Assert.assertEquals(((BValue) ((BMap) mapValue.getMap().get("a")).getMap().get("school")).getType().
-                getClass(), BAnydataType.class);
+                getClass(), BStringType.class);
 
         Assert.assertEquals(mapValue.getMap().get("b").getType().getName(), "Employee");
-        Assert.assertEquals(((BValue) ((BMap) mapValue.getMap().get("b")).getMap().get("age")).getType().getClass(),
-                BAnydataType.class);
+        Assert.assertEquals(((BValue) ((BMap) mapValue.getMap().get("b")).getMap().get("age")).getType().getTag(),
+                TypeTags.INT_TAG);
         Assert.assertEquals(((BValue) ((BMap) mapValue.getMap().get("b")).getMap().get("school")).getType().
-                getClass(), BAnydataType.class);
+                getClass(), BStringType.class);
     }
 
     @Test
@@ -384,19 +384,19 @@ public class MapStampInbuiltFunctionTest {
         Assert.assertEquals(((BMapType) employee0.getType()).getConstrainedType().getName(), "Employee");
 
         Assert.assertEquals(employee0.getMap().get("a").getType().getName(), "Employee");
-        Assert.assertEquals(((BValue) ((BMap) employee0.getMap().get("a")).getMap().get("age")).getType().getClass(),
-                BAnydataType.class);
+        Assert.assertEquals(((BValue) ((BMap) employee0.getMap().get("a")).getMap().get("age")).getType().getTag(),
+                TypeTags.INT_TAG);
         Assert.assertEquals(((BValue) ((BMap) employee0.getMap().get("a")).getMap().get("school")).getType().getClass(),
-                BAnydataType.class);
+                BStringType.class);
         Assert.assertEquals(((BValue) ((BMap) employee0.getMap().get("a")).getMap().get("batch")).getType().getClass(),
                 BStringType.class);
 
 
         Assert.assertEquals(employee0.getMap().get("b").getType().getName(), "Employee");
-        Assert.assertEquals(((BValue) ((BMap) employee0.getMap().get("b")).getMap().get("age")).getType().getClass(),
-                BAnydataType.class);
+        Assert.assertEquals(((BValue) ((BMap) employee0.getMap().get("b")).getMap().get("age")).getType().getTag(),
+                TypeTags.INT_TAG);
         Assert.assertEquals(((BValue) ((BMap) employee0.getMap().get("b")).getMap().get("school")).getType().getClass(),
-                BAnydataType.class);
+                BStringType.class);
         Assert.assertEquals(((BValue) ((BMap) employee0.getMap().get("b")).getMap().get("batch")).getType().getClass(),
                 BStringType.class);
     }
@@ -430,11 +430,11 @@ public class MapStampInbuiltFunctionTest {
         Assert.assertEquals(((BMap) ((BMap) employee0.getMap().get("bb")).getMap().get("a")).getType().getName(),
                 "Employee");
         Assert.assertEquals(((BValue) (((BMap) ((BMap) employee0.getMap().get("bb")).getMap().get("a"))).getMap().
-                        get("age")).getType().getClass(),
-                BAnydataType.class);
+                        get("age")).getType().getTag(),
+                TypeTags.INT_TAG);
         Assert.assertEquals(((BValue) (((BMap) ((BMap) employee0.getMap().get("bb")).getMap().get("a"))).getMap().
                         get("school")).getType().getClass(),
-                BAnydataType.class);
+                BStringType.class);
         Assert.assertEquals(((BValue) (((BMap) ((BMap) employee0.getMap().get("bb")).getMap().get("a"))).getMap().
                         get("batch")).getType().getClass(),
                 BStringType.class);
@@ -443,11 +443,11 @@ public class MapStampInbuiltFunctionTest {
         Assert.assertEquals(((BMap) ((BMap) employee0.getMap().get("bb")).getMap().get("b")).getType().getName(),
                 "Employee");
         Assert.assertEquals(((BValue) (((BMap) ((BMap) employee0.getMap().get("bb")).getMap().get("b"))).getMap().
-                        get("age")).getType().getClass(),
-                BAnydataType.class);
+                        get("age")).getType().getTag(),
+                TypeTags.INT_TAG);
         Assert.assertEquals(((BValue) (((BMap) ((BMap) employee0.getMap().get("bb")).getMap().get("b"))).getMap().
                         get("school")).getType().getClass(),
-                BAnydataType.class);
+                BStringType.class);
         Assert.assertEquals(((BValue) (((BMap) ((BMap) employee0.getMap().get("bb")).getMap().get("b"))).getMap().
                         get("batch")).getType().getClass(),
                 BStringType.class);
@@ -480,7 +480,7 @@ public class MapStampInbuiltFunctionTest {
         Assert.assertEquals(mapVaue.getMap().size(), 2);
 
         Assert.assertEquals(((BValue) ((BMap) ((BMap) mapVaue.getMap().get("a")).getMap().get("aa")).
-                getMap().get("aa")).getType().getClass(), BAnydataType.class);
+                getMap().get("aa")).getType().getTag(), TypeTags.INT_TAG);
         Assert.assertEquals(((BValue) ((BMap) ((BMap) mapVaue.getMap().get("a")).getMap().get("aa")).
                 getMap().get("aa")).stringValue(), "11");
     }

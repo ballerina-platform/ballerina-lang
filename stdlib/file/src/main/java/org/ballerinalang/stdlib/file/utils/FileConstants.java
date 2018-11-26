@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
@@ -6,7 +6,7 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -14,7 +14,23 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
  */
- 
-export * from './activator';
+
+package org.ballerinalang.stdlib.file.utils;
+
+/**
+ * Constants used by the file API.
+ *
+ * @since 0.94.1
+ */
+public class FileConstants {
+    /**
+     * package path of the file.
+     */
+    public static final String FILE_PACKAGE = "ballerina/file";
+
+    // FileEvent struct field names
+    public static final String FILE_EVENT_NAME = "name";
+
+    public static final String FILE_EVENT_OPERATION = "operation";
+}

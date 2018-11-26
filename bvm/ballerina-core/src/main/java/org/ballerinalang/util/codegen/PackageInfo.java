@@ -170,7 +170,6 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     public void addServiceInfo(String serviceName, ServiceInfo serviceInfo) {
         serviceInfo.setPackageInfo(this);
         serviceInfoMap.put(serviceName, serviceInfo);
-        structureTypeInfoMap.put(serviceName, serviceInfo);
     }
 
     public CustomTypeInfo getStructureTypeInfo(String structureTypeName) {

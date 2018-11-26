@@ -1215,6 +1215,7 @@ public class BLangPackageBuilder {
                 ++index;
             }
             recordLiteral.addWS(ws);
+            recordLiteral.pos = pos;
             if (commaWsStack.size() > 0) {
                 recordLiteral.addWS(commaWsStack.pop());
             }
@@ -2532,22 +2533,32 @@ public class BLangPackageBuilder {
     void endServiceDef(DiagnosticPos pos, Set<Whitespace> ws, String serviceName, DiagnosticPos identifierPos,
             boolean isAnonServiceValue) {
         BLangService serviceNode = (BLangService) serviceNodeStack.pop();
+        serviceNode.pos = pos;
+        serviceNode.addWS(ws);
         serviceNode.isAnonymousServiceValue = isAnonServiceValue;
         if (serviceName == null) {
             serviceName = this.anonymousModelHelper.getNextAnonymousTypeKey(pos.src.pkgID);
+            identifierPos = pos;
         }
         BLangIdentifier identifier = (BLangIdentifier) createIdentifier(serviceName);
         identifier.pos = identifierPos;
         serviceNode.setName(identifier);
-        serviceNode.serviceUDT = (BLangUserDefinedType) this.typeNodeStack.pop();
-        if (!isAnonServiceValue) {
-            serviceNode.attachExpr = (BLangExpression) this.exprNodeStack.pop();
-        }
-        serviceNode.pos = pos;
-        serviceNode.addWS(ws);
+
+        // Define type nodeDefinition.
+        BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
+        typeDef.setName(identifier);
+        typeDef.flagSet.add(Flag.SERVICE);
+
+        typeDef.typeNode = (BLangType) this.typeNodeStack.pop();
+        typeDef.pos = pos;
+        this.compUnit.addTopLevelNode(typeDef);
+        serviceNode.serviceUDT = createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(),
+                typeDef.name);
+
         this.compUnit.addTopLevelNode(serviceNode);
 
         if (!isAnonServiceValue) {
+            serviceNode.attachExpr = (BLangExpression) this.exprNodeStack.pop();
             return;
         }
         final BLangServiceConstructorExpr serviceConstNode = (BLangServiceConstructorExpr) TreeBuilder

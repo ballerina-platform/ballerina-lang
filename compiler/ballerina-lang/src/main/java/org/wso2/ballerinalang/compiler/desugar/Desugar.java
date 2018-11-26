@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.TableColumnFlag;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.RecordVariableNode.BLangRecordVariableKeyValueNode;
@@ -1915,27 +1916,39 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangTernaryExpr ternaryExpr) {
         ternaryExpr.expr = rewriteExpr(ternaryExpr.expr);
 
-        for (Entry<BVarSymbol, BVarSymbol> typeGuard : ternaryExpr.typeGuards.entrySet()) {
-            BVarSymbol guardedSymbol = typeGuard.getValue();
-
-            // Create a varRef to the original variable
-            BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(ternaryExpr.expr.pos, typeGuard.getKey());
-
-            // Create a variable definition
-            BLangExpression conversionExpr = addConversionExprIfRequired(varRef, guardedSymbol.type);
-            BLangSimpleVariable var = ASTBuilderUtil.createVariable(ternaryExpr.expr.pos, guardedSymbol.name.value,
-                    guardedSymbol.type, conversionExpr, guardedSymbol);
-            BLangSimpleVariableDef varDef = ASTBuilderUtil.createVariableDef(ternaryExpr.expr.pos, var);
-
-            // Replace the expression with the var def and the existing expression
-            BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(varDef, ternaryExpr.thenExpr);
+        for (Entry<BVarSymbol, BVarSymbol> typeGuard : ternaryExpr.ifTypeGuards.entrySet()) {
+            BLangStatementExpression stmtExpr = getStmtExpression(ternaryExpr.thenExpr, typeGuard);
             stmtExpr.type = ternaryExpr.thenExpr.type;
             ternaryExpr.thenExpr = stmtExpr;
+        }
+
+        for (Entry<BVarSymbol, BVarSymbol> typeGuard : ternaryExpr.elseTypeGuards.entrySet()) {
+            BLangStatementExpression stmtExpr = getStmtExpression(ternaryExpr.elseExpr, typeGuard);
+            stmtExpr.type = ternaryExpr.elseExpr.type;
+            ternaryExpr.elseExpr = stmtExpr;
         }
 
         ternaryExpr.thenExpr = rewriteExpr(ternaryExpr.thenExpr);
         ternaryExpr.elseExpr = rewriteExpr(ternaryExpr.elseExpr);
         result = ternaryExpr;
+    }
+
+    private BLangStatementExpression getStmtExpression(BLangExpression expr,
+                                                       Entry<BVarSymbol, BVarSymbol> typeGuard) {
+        BVarSymbol guardedSymbol = typeGuard.getValue();
+
+        // Create a varRef to the original variable
+        BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(expr.pos, typeGuard.getKey());
+
+        // Create a variable definition
+        BLangExpression conversionExpr = addConversionExprIfRequired(varRef, guardedSymbol.type);
+        BLangSimpleVariable var = ASTBuilderUtil.createVariable(expr.pos, guardedSymbol.name.value,
+                guardedSymbol.type, conversionExpr, guardedSymbol);
+        BLangSimpleVariableDef varDef = ASTBuilderUtil.createVariableDef(expr.pos, var);
+
+        // Create a block expression expression with the var def and the existing expression
+        BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(varDef, expr);
+        return stmtExpr;
     }
 
     @Override
@@ -2511,7 +2524,7 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
         result = ASTBuilderUtil
-                .createEmptyTypeInit(serviceConstructorExpr.pos, serviceConstructorExpr.serviceNode.serviceType);
+                .createEmptyTypeInit(serviceConstructorExpr.pos, serviceConstructorExpr.serviceNode.symbol.type);
     }
 
     @Override
@@ -2746,6 +2759,14 @@ public class Desugar extends BLangNodeVisitor {
             case IS_FROZEN:
                 visitFreezeBuiltInMethodInvocation(iExpr);
                 break;
+            case CREATE:
+                if (iExpr.symbol.kind == SymbolKind.CONVERSION_OPERATOR) {
+                    result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
+                } else {
+                    result = visitCreateStampMethod(iExpr.pos, iExpr.expr, iExpr.requiredArgs,
+                                                    (BInvokableSymbol) iExpr.symbol);
+                }
+                break;
             case CALL:
                 visitCallBuiltInMethodInvocation(iExpr);
                 break;
@@ -2894,6 +2915,29 @@ public class Desugar extends BLangNodeVisitor {
         conversionExpr.type = targetType;
         conversionExpr.conversionSymbol = symbol;
         return conversionExpr;
+    }
+
+    private BLangInvocation.BLangBuiltInMethodInvocation visitCreateStampMethod(DiagnosticPos pos,
+                                                                                BLangExpression expr,
+                                                                                List<BLangExpression> requiredArgs,
+                                                                                BInvokableSymbol invokableSymbol) {
+        BType targetType = invokableSymbol.retType;
+        if (types.isValueType(targetType) || targetType == symTable.nilType) {
+            return ASTBuilderUtil.createBuiltInMethod(pos, expr, invokableSymbol, requiredArgs, symResolver,
+                                                      BLangBuiltInMethod.STAMP);
+        }
+        BLangExpression sourceExpression = requiredArgs.get(0);
+        BType sourceType = sourceExpression.type;
+        List<BType> args = Lists.of(sourceType);
+        BInvokableType opType = new BInvokableType(args, sourceType, null);
+        BOperatorSymbol cloneSymbol = new BOperatorSymbol(names.fromString(BLangBuiltInMethod.CLONE.getName()),
+                                                          null, opType, null, InstructionCodes.CLONE);
+        BLangBuiltInMethodInvocation cloneInvocation =
+                ASTBuilderUtil.createBuiltInMethod(pos, sourceExpression, cloneSymbol, new ArrayList<>(),
+                                                   symResolver, BLangBuiltInMethod.CLONE);
+        return ASTBuilderUtil.createBuiltInMethod(pos, expr, invokableSymbol, Lists.of(cloneInvocation),
+                                                  symResolver, BLangBuiltInMethod.STAMP);
+
     }
 
     private BType getElementType(BType type) {

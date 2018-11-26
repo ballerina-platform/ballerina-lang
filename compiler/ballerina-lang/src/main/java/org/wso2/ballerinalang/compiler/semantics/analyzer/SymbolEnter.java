@@ -51,7 +51,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
@@ -534,11 +533,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         serviceSymbol.markdownDocumentation = getMarkdownDocAttachment(serviceNode.markdownDocumentationAttachment);
 
         BType serviceObjectType = symResolver.resolveTypeNode(serviceNode.serviceUDT, env);
-        serviceSymbol.objectType = (BObjectTypeSymbol) serviceObjectType.tsymbol;
-        serviceNode.serviceType = (BObjectType) serviceObjectType;
-
         serviceNode.symbol = serviceSymbol;
-        serviceNode.symbol.type = new BServiceType(serviceObjectType);
+        serviceNode.symbol.type = new BServiceType(serviceObjectType.tsymbol);
         defineSymbol(serviceNode.name.pos, serviceSymbol);
     }
 

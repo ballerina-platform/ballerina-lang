@@ -111,7 +111,7 @@ public class Symbols {
                                                      PackageID pkgID,
                                                      BType type,
                                                      BSymbol owner) {
-        BServiceSymbol serviceSymbol = new BServiceSymbol(flags, name, pkgID, type, owner, null);
+        BServiceSymbol serviceSymbol = new BServiceSymbol(flags, name, pkgID, type, owner);
         serviceSymbol.kind = SymbolKind.SERVICE;
         return serviceSymbol;
     }
@@ -177,9 +177,7 @@ public class Symbols {
         }
 
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-        BConversionOperatorSymbol symbol = new BConversionOperatorSymbol(pkgID, opType, owner, implicit, safe, opcode);
-        symbol.kind = SymbolKind.CONVERSION_OPERATOR;
-        return symbol;
+        return new BConversionOperatorSymbol(pkgID, opType, sourceType, owner, implicit, safe, opcode);
     }
 
     public static BConversionOperatorSymbol createUnboxValueTypeOpSymbol(BType sourceType, BType targetType) {
@@ -207,10 +205,7 @@ public class Symbols {
 
         List<BType> paramTypes = Lists.of(sourceType, targetType);
         BInvokableType opType = new BInvokableType(paramTypes, targetType, null);
-        BConversionOperatorSymbol symbol = new BConversionOperatorSymbol(null, opType,
-                null, false, true, opcode);
-        symbol.kind = SymbolKind.CONVERSION_OPERATOR;
-        return symbol;
+        return new BConversionOperatorSymbol(null, opType, sourceType, null, false, true, opcode);
     }
 
     public static String getAttachedFuncSymbolName(String typeName, String funcName) {
@@ -234,7 +229,7 @@ public class Symbols {
     }
 
     public static boolean isAttachPointPresent(int mask, int attachPoint) {
-        return (mask & attachPoint) == attachPoint;
+        return (mask & attachPoint) != 0;
     }
 
     public static boolean isOptional(BSymbol sym) {

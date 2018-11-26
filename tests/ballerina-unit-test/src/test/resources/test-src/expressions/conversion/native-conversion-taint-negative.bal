@@ -14,10 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents the WebSocket client service.
-public type WebSocketService object {
-    public function getEndpoint() returns WebSocketCaller {
-        WebSocketCaller ep = new;
-        return ep;
-    }
-};
+function returnTaintedValue() returns @tainted float {
+    return 1.2;
+}
+
+function testSensitiveArg(@sensitive int intArg) {
+    int c = intArg;
+}
+
+public function convertTaintedValue() {
+    float x = returnTaintedValue();
+    int y = int.create(x);
+    testSensitiveArg(y);
+}
