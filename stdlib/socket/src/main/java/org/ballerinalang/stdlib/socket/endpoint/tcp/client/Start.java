@@ -36,7 +36,6 @@ import org.ballerinalang.stdlib.socket.tcp.ChannelRegisterCallback;
 import org.ballerinalang.stdlib.socket.tcp.SelectorManager;
 import org.ballerinalang.stdlib.socket.tcp.SocketService;
 import org.ballerinalang.stdlib.socket.tcp.SocketUtils;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

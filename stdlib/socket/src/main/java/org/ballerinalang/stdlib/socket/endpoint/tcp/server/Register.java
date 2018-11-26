@@ -50,7 +50,7 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
         orgName = "ballerina",
         packageName = "socket",
         functionName = "register",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Server", structPackage = SOCKET_PACKAGE),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = SOCKET_PACKAGE),
         isPublic = true
 )
 public class Register extends BlockingNativeCallableUnit {

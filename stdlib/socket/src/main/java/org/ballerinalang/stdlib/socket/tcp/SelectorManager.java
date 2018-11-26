@@ -46,7 +46,7 @@ import static java.nio.channels.SelectionKey.OP_READ;
 /**
  * This will manage the Selector instance and handle the accept, read and write operations.
  *
- * @since 0.975.1
+ * @since 0.985.0
  */
 public class SelectorManager {
 

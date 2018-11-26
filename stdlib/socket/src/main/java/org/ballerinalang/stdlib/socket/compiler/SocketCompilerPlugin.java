@@ -55,7 +55,7 @@ import static org.ballerinalang.util.diagnostic.Diagnostic.Kind.ERROR;
  * @since 0.985.0
  */
 @SupportEndpointTypes(
-        value = {@SupportEndpointTypes.EndpointType(orgName = "ballerina", packageName = "socket", name = "Server"),
+        value = {@SupportEndpointTypes.EndpointType(orgName = "ballerina", packageName = "socket", name = "Listener"),
                  @SupportEndpointTypes.EndpointType(orgName = "ballerina", packageName = "socket", name = "Client")}
 )
 public class SocketCompilerPlugin extends AbstractCompilerPlugin {
@@ -99,7 +99,7 @@ public class SocketCompilerPlugin extends AbstractCompilerPlugin {
         resources.forEach(res -> validate(serviceNode.getName().getValue(), res, this.diagnosticLog));
     }
 
-    public void validate(String serviceName, BLangResource resource, DiagnosticLog diagnosticLog) {
+    private void validate(String serviceName, BLangResource resource, DiagnosticLog diagnosticLog) {
         switch (resource.getName().getValue()) {
             case RESOURCE_ON_CONNECT:
             case RESOURCE_ON_ACCEPT:

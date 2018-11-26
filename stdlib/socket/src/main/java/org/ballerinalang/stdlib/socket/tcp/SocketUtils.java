@@ -43,6 +43,8 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 
 /**
  * Represents the util functions of Socket operations.
+ *
+ * @since 0.985.0
  */
 public class SocketUtils {
 
@@ -52,9 +54,9 @@ public class SocketUtils {
     /**
      * Creates an error message.
      *
-     * @param context context which is invoked.
-     * @param errMsg  the cause for the error.
-     * @return an error which will be propagated to ballerina user.
+     * @param context context which is invoked
+     * @param errMsg  the cause for the error
+     * @return an error which will be propagated to ballerina user
      */
     public static BError createSocketError(Context context, String errMsg) {
         BMap<String, BValue> errorRecord = BLangConnectorSPIUtil.createBStruct(context, SOCKET_PACKAGE, SOCKET_ERROR);
@@ -65,9 +67,9 @@ public class SocketUtils {
     /**
      * Creates an error message.
      *
-     * @param programFile ProgramFile which is used.
-     * @param errMsg      the cause for the error.
-     * @return an error which will be propagated to ballerina user.
+     * @param programFile ProgramFile which is used
+     * @param errMsg      the cause for the error
+     * @return an error which will be propagated to ballerina user
      */
     public static BError createSocketError(ProgramFile programFile, String errMsg) {
         BMap<String, BValue> errorRecord = BLangConnectorSPIUtil
@@ -84,9 +86,7 @@ public class SocketUtils {
      * @return 'Caller' object
      */
     public static BMap<String, BValue> createClient(ProgramFile programFile, SocketChannel client) {
-        BValue initParam = null;
-        BMap<String, BValue> caller = BLangConnectorSPIUtil
-                .createObject(programFile, SOCKET_PACKAGE, CLIENT, initParam);
+        BMap<String, BValue> caller = BLangConnectorSPIUtil.createObject(programFile, SOCKET_PACKAGE, CLIENT, null);
         caller.addNativeData(SOCKET_KEY, client);
         if (client != null) {
             Socket socket = client.socket();

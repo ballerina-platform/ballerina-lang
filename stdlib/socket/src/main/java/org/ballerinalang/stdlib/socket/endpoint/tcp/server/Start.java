@@ -62,7 +62,7 @@ import static java.nio.channels.SelectionKey.OP_ACCEPT;
         orgName = "ballerina",
         packageName = "socket",
         functionName = "start",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Server", structPackage = SOCKET_PACKAGE),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = SOCKET_PACKAGE),
         isPublic = true
 )
 public class Start implements NativeCallableUnit {

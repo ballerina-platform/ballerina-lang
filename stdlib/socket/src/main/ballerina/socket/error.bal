@@ -14,7 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type SocketError record {
+# SocketError will return in a socket related error situation.
+#
+public type SocketError record {
     string message = "";
     !...
 };

@@ -18,31 +18,22 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/socket;
 
-endpoint http:Listener echoEP {
-    port:9090
-};
+listener http:MockListener echoEP  = new(9090);
 
-endpoint socket:Client client {
-    host: "localhost",
-    port: 47826,
-    callbackService: ClientService
-};
-
-@http:ServiceConfig {
-    basePath:"/echo"
-}
-service<http:Service> echo bind echoEP {
+@http:ServiceConfig { basePath: "/echo" }
+service echo on echoEP {
 
     @http:ResourceConfig {
         methods:["POST"],
         path:"/"
     }
-    echo1 (endpoint caller, http:Request req) {
+    resource function echo1 (http:Caller caller, http:Request req) {
+        socket:Client socketClient = new({host: "localhost", port: 47826, callbackService: ClientService});
         var payload = req.getTextPayload();
         http:Response resp = new;
         if (payload is string) {
 	        byte[] payloadByte = payload.toByteArray("UTF-8");
-	        var writeResult = client->write(payloadByte);
+	        var writeResult = socketClient->write(payloadByte);
             if (writeResult is int) {
                 io:println("Number of byte written: ", writeResult);
                 _ = caller -> accepted();
@@ -67,13 +58,13 @@ service<http:Service> echo bind echoEP {
     }
 }
 
-service<socket:ClientService> ClientService {
+service ClientService = service {
 
-	onConnect(endpoint caller) {
+	resource function onConnect(socket:Caller caller) {
 		io:println("connect: ", caller.remotePort);
     }
 
-	onReadReady (endpoint caller, byte[] content) {
+	resource function onReadReady (socket:Caller caller, byte[] content) {
         io:println("New content received for callback");
         var str = getString(content);
         if (str is string) {
@@ -89,14 +80,14 @@ service<socket:ClientService> ClientService {
         }
     }
 
-    onClose(endpoint caller) {
+    resource function onClose(socket:Caller caller) {
 		io:println("Leave: ", caller.remotePort);
     }
 
-    onError(endpoint caller, error er) {
+    resource function onError(socket:Caller caller, error er) {
         io:println(er.reason());
     }
-}
+};
 
 function getString(byte[] content) returns string|error {
     io:ReadableByteChannel byteChannel = io:createReadableChannel(content);

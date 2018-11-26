@@ -16,12 +16,11 @@
 
 # Represents service endpoint where socket server service registered and start.
 #
-
-public type Server object {
+public type Listener object {
 
     *AbstractListener;
 
-    public function __init(ServerConfig config) {
+    public function __init(ListenerConfig config) {
         var result = self.initServer(config);
         if (result is error) {
             panic result;
@@ -40,18 +39,18 @@ public type Server object {
         return self.register(s, annotationData);
     }
 
-    public extern function initServer(ServerConfig config) returns error?;
+    extern function initServer(ListenerConfig config) returns error?;
 
-    public extern function register(service s, map<any> annotationData) returns error?;
+    extern function register(service s, map<any> annotationData) returns error?;
 
-    public extern function start() returns error?;
+    extern function start() returns error?;
 };
 
 # Represents the socket server configuration.
 #
 # + interface - the interface that server with to bind
 # + port - the port that server wish to bind
-public type ServerConfig record {
+public type ListenerConfig record {
     string? interface = ();
     int port = 0;
     !...

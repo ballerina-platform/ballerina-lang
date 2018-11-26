@@ -47,7 +47,7 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
         orgName = "ballerina",
         packageName = "socket",
         functionName = "initServer",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Server", structPackage = SOCKET_PACKAGE),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = SOCKET_PACKAGE),
         isPublic = true
 )
 public class InitServer extends BlockingNativeCallableUnit {
