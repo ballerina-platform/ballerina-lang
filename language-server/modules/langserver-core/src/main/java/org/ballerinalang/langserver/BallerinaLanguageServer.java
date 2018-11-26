@@ -54,6 +54,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import static org.ballerinalang.langserver.BallerinaWorkspaceService.Experimental.INTROSPECTION;
+
 /**
  * Language server implementation for Ballerina.
  */
@@ -123,12 +125,15 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         TextDocumentClientCapabilities textDocCapabilities = params.getCapabilities().getTextDocument();
         ((BallerinaTextDocumentService) this.textService).setClientCapabilities(textDocCapabilities);
 
-        Map<String, Boolean> experimentalCapabilities =
+        Map<String, Boolean> experimentalClientCapabilities =
                 (LinkedTreeMap<String, Boolean>) params.getCapabilities().getExperimental();
 
-        if (experimentalCapabilities != null && experimentalCapabilities.get("introspection")) {
+        if (experimentalClientCapabilities != null && experimentalClientCapabilities.get(INTROSPECTION.getValue())) {
             ballerinaTraceListener.startListener();
         }
+
+        BallerinaWorkspaceService workspaceService = (BallerinaWorkspaceService) this.workspaceService;
+        workspaceService.setExperimentalClientCapabilities(experimentalClientCapabilities);
 
         // Set AST provider and examples provider capabilities
         HashMap<String, Boolean> experimentalServerCapabilities = new HashMap<String, Boolean>();
