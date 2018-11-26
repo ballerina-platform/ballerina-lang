@@ -14,6 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+type PersonObj object { 
+    public string name = "Waruna";
+    public int age = 10;
+};
+
 function floatToIntWithMultipleArguments() returns int {
     float a = 5.0;
     return int.create(a, a);
@@ -24,7 +29,7 @@ function testToIntWithNoArguments() {
     return int.create();
 }
 
-function anyToInt() returns int {
-    any a = 5;
-    return int.create(a);
+function objctToJson() returns json|error {
+    PersonObj p = new PersonObj();
+    return json.create(p);
 }
