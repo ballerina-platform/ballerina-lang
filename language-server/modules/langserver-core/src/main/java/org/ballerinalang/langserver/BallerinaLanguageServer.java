@@ -54,6 +54,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import static org.ballerinalang.langserver.BallerinaWorkspaceService.Experimental.INTROSPECTION;
+
 /**
  * Language server implementation for Ballerina.
  */
@@ -126,7 +128,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         Map<String, Boolean> experimentalClientCapabilities =
                 (LinkedTreeMap<String, Boolean>) params.getCapabilities().getExperimental();
 
-        if (experimentalClientCapabilities != null && experimentalClientCapabilities.get("introspection")) {
+        if (experimentalClientCapabilities != null && experimentalClientCapabilities.get(INTROSPECTION.name())) {
             ballerinaTraceListener.startListener();
         }
 

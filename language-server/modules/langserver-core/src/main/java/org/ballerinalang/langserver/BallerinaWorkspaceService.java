@@ -154,4 +154,14 @@ public class BallerinaWorkspaceService implements WorkspaceService {
     public Map<String, Boolean> getExperimentalClientCapabilities() {
         return this.experimentalClientCapabilities;
     }
+
+    public enum Experimental {
+        INTROSPECTION("introspection"), SHOW_TEXT_DOCUMENT("showTextDocument");
+
+        private final String name;
+
+        Experimental(String name) {
+            this.name = name;
+        }
+    }
 }
