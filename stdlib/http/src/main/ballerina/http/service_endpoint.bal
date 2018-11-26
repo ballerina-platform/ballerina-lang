@@ -99,8 +99,8 @@ function Listener.init(ServiceEndpointConfiguration c) {
 # + host - The remote host name/IP
 # + port - The remote port
 public type Remote record {
-    @readonly string host = "";
-    @readonly int port = 0;
+    string host = "";
+    int port = 0;
     !...
 };
 
@@ -109,8 +109,8 @@ public type Remote record {
 # + host - The local host name/IP
 # + port - The local port
 public type Local record {
-    @readonly string host = "";
-    @readonly int port = 0;
+    string host = "";
+    int port = 0;
     !...
 };
 
