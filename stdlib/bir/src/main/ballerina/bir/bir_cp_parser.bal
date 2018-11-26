@@ -48,8 +48,8 @@ public type ConstPoolParser object {
 
     function parsePackageId() {
         PackageId id = { org: self.cp.strings[self.reader.readInt32()],
-            name: <string> self.cp.strings[self.reader.readInt32()],
-            varstionVallue: <string> self.cp.strings[self.reader.readInt32()] };
+            name: self.cp.strings[self.reader.readInt32()],
+            varstionVallue: self.cp.strings[self.reader.readInt32()] };
         self.cp.packages[self.i] = id;
     }
 

@@ -32,8 +32,7 @@ public type Client client object {
 
     public function __init(string url, ClientEndpointConfig? config = ()) {
         self.config = config ?: {};
-        self.config.url = url;
-        var result = initialize(self.config);
+        var result = initialize(url, self.config);
         if (result is error) {
             panic result;
         } else {
@@ -222,7 +221,6 @@ public type TargetService record {
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
 # + auth - HTTP authentication related configurations
 public type ClientEndpointConfig record {
-    string url = "";
     CircuitBreakerConfig? circuitBreaker = ();
     int timeoutMillis = 60000;
     KeepAlive keepAlive = KEEPALIVE_AUTO;
@@ -322,7 +320,8 @@ public type ProxyConfig record {
 public type ConnectionThrottling record {
     int maxActiveConnections = -1;
     int waitTime = 60000;
-    int maxActiveStreamsPerConnection = -1;
+    // In order to distribute the workload among multiple connections in HTTP/2 scenario.
+    int maxActiveStreamsPerConnection = 20000;
     !...
 };
 
@@ -358,9 +357,9 @@ public type AuthConfig record {
     !...
 };
 
-function initialize(ClientEndpointConfig config) returns Client|error {
+function initialize(string serviceUrl, ClientEndpointConfig config) returns Client|error {
     boolean httpClientRequired = false;
-    string url = config.url;
+    string url = serviceUrl;
     if (url.hasSuffix("/")) {
         int lastIndex = url.length() - 1;
         url = url.substring(0, lastIndex);
@@ -392,7 +391,7 @@ function createRedirectClient(string url, ClientEndpointConfig configuration) re
         if (redirectConfig.enabled) {
             var retryClient = createRetryClient(url, configuration);
             if (retryClient is Client) {
-                return <Client>new RedirectClient(url, configuration, redirectConfig, retryClient);
+                return new RedirectClient(url, configuration, redirectConfig, retryClient);
             } else {
                 return retryClient;
             }
@@ -463,8 +462,7 @@ function createCircuitBreakerClient(string uri, ClientEndpointConfig configurati
                                         lastForcedOpenTime:circuitStartTime,
                                         totalBuckets: bucketArray
                                       };
-        return <Client>(new CircuitBreakerClient(uri, configuration,
-            circuitBreakerInferredConfig, cbHttpClient, circuitHealth));
+        return new CircuitBreakerClient(uri, configuration, circuitBreakerInferredConfig, cbHttpClient, circuitHealth);
     } else {
         //remove following once we can ignore
         if (configuration.cache.enabled) {
@@ -489,14 +487,14 @@ function createRetryClient(string url, ClientEndpointConfig configuration) retur
         if (configuration.cache.enabled) {
             var httpCachingClient = createHttpCachingClient(url, configuration, configuration.cache);
             if (httpCachingClient is Client) {
-                return <Client>new RetryClient(url, configuration, retryInferredConfig, httpCachingClient);
+                return new RetryClient(url, configuration, retryInferredConfig, httpCachingClient);
             } else {
                 return httpCachingClient;
             }
         } else{
             var httpSecureClient = createHttpSecureClient(url, configuration);
             if (httpSecureClient is Client) {
-                return <Client>new RetryClient(url, configuration, retryInferredConfig, httpSecureClient);
+                return new RetryClient(url, configuration, retryInferredConfig, httpSecureClient);
             } else {
                 return httpSecureClient;
             }
@@ -513,5 +511,5 @@ function createRetryClient(string url, ClientEndpointConfig configuration) retur
 
 function createClient(string url, ClientEndpointConfig config) returns Client|error {
     HttpClient simpleClient =  new(url, config);
-    return <Client>simpleClient;
+    return simpleClient;
 }

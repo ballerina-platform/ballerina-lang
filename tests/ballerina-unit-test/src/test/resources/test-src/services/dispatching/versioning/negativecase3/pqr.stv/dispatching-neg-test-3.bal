@@ -1,10 +1,7 @@
-
 import ballerina/http;
 import ballerina/io;
 
-endpoint http:NonListener passthruEP {
-    port:9090
-};
+listener http:MockListener passthruEP  = new(9090);
 
 @http:ServiceConfig {
     basePath:"/echo/{version}/bar",
@@ -12,15 +9,15 @@ endpoint http:NonListener passthruEP {
         pattern:"v{major}"
     }
 }
-service<http:Service> echo1 bind passthruEP {
+service echo1 on passthruEP {
 
     @http:ResourceConfig {
         path:"/go"
     }
-    sample(endpoint conn, http:Request req) {
+    resource function sample(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setJsonPayload({hello:"only match major but no major"});
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 }
 
@@ -31,14 +28,14 @@ service<http:Service> echo1 bind passthruEP {
         matchMajorVersion:true
     }
 }
-service<http:Service> echo2 bind passthruEP {
+service echo2 on passthruEP {
 
     @http:ResourceConfig {
         path:"/go"
     }
-    sample(endpoint conn, http:Request req) {
+    resource function sample(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setJsonPayload({hello:"only match major but no major"});
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 }

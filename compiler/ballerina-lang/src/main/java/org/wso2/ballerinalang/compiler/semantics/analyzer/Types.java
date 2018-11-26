@@ -746,8 +746,7 @@ public class Types {
 
         // If both are open records, the rest field type of the RHS record should be assignable to the rest field
         // type of the LHS type.
-        if ((!lhsType.sealed && !rhsType.sealed) &&
-                !isAssignable(rhsType.restFieldType, lhsType.restFieldType, unresolvedTypes)) {
+        if (!rhsType.sealed && !isAssignable(rhsType.restFieldType, lhsType.restFieldType, unresolvedTypes)) {
             return false;
         }
 
@@ -878,6 +877,20 @@ public class Types {
         }
 
         return targetType.accept(conversionVisitor, sourceType);
+    }
+
+    BSymbol getTypeConversionOrAssertionOperator(BType sourceType, BType targetType) {
+        if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR ||
+                sourceType == targetType) {
+            return createConversionOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
+        }
+
+        if (isValueType(targetType)) {
+            return symResolver.getExplicitlySimpleBasicTypedExpressionSymbol(sourceType, targetType);
+        } else if (isAssignable(targetType, sourceType)) {
+            return symResolver.createTypeAssertionSymbol(sourceType, targetType);
+        }
+        return symTable.notFoundSymbol;
     }
 
     public BType getElementType(BType type) {

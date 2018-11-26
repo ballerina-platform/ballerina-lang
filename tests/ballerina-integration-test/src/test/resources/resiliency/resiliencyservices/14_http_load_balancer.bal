@@ -17,22 +17,21 @@
 
 import ballerina/http;
 import ballerina/log;
+import ballerina/io;
 import ballerina/runtime;
 
-endpoint http:Listener backendEP {
-    port: 8093
-};
+listener http:Listener backendEP = new(8093);
 
-endpoint http:LoadBalanceClient lbBackendEP {
+http:LoadBalanceClient lbBackendEP = new({
     targets: [
         { url: "http://localhost:8093/mock1" },
         { url: "http://localhost:8093/mock2" },
         { url: "http://localhost:8093/mock3" }
     ],
     timeoutMillis: 5000
-};
+});
 
-endpoint http:LoadBalanceClient lbFailoverBackendEP {
+http:LoadBalanceClient lbFailoverBackendEP = new({
     targets: [
         { url: "http://localhost:8093/mock4" },
         { url: "http://localhost:8093/mock2" },
@@ -40,19 +39,20 @@ endpoint http:LoadBalanceClient lbFailoverBackendEP {
     ],
     failover: true,
     timeoutMillis: 2000
-};
+});
 
-endpoint http:LoadBalanceClient delayedBackendEP {
+http:LoadBalanceClient delayedBackendEP = new({
     targets: [
         { url: "http://localhost:8093/mock4" },
         { url: "http://localhost:8093/mock5" }
     ],
     failover: true,
     timeoutMillis: 2000
-};
+});
 
 CustomLoadBalancerRule customLbRule = new CustomLoadBalancerRule(2);
-endpoint http:LoadBalanceClient customLbBackendEP {
+
+http:LoadBalanceClient customLbBackendEP = new ({
     targets: [
         { url: "http://localhost:8093/mock1" },
         { url: "http://localhost:8093/mock2" },
@@ -60,16 +60,16 @@ endpoint http:LoadBalanceClient customLbBackendEP {
     ],
     lbRule: customLbRule,
     timeoutMillis: 5000
-};
+});
 
 @http:ServiceConfig {
     basePath: "/lb"
 }
-service<http:Service> loadBalancerDemoService bind { port: 9313 } {
+service loadBalancerDemoService on new http:Listener(9313) {
     @http:ResourceConfig {
         path: "/roundRobin"
     }
-    roundRobin(endpoint caller, http:Request req) {
+    resource function roundRobin(http:Caller caller, http:Request req) {
         json requestPayload = { "name": "Ballerina" };
         var response = lbBackendEP->post("/", requestPayload);
         if (response is http:Response) {
@@ -91,7 +91,7 @@ service<http:Service> loadBalancerDemoService bind { port: 9313 } {
     @http:ResourceConfig {
         path: "/failover"
     }
-    lbFailover(endpoint caller, http:Request req) {
+    resource function lbFailover(http:Caller caller, http:Request req) {
         json requestPayload = { "name": "Ballerina" };
         var response = lbFailoverBackendEP->post("/", requestPayload);
         if (response is http:Response) {
@@ -113,7 +113,7 @@ service<http:Service> loadBalancerDemoService bind { port: 9313 } {
     @http:ResourceConfig {
         path: "/delay"
     }
-    delayResource(endpoint caller, http:Request req) {
+    resource function delayResource(http:Caller caller, http:Request req) {
         json requestPayload = { "name": "Ballerina" };
         var response = delayedBackendEP->post("/", requestPayload);
         if (response is http:Response) {
@@ -135,7 +135,7 @@ service<http:Service> loadBalancerDemoService bind { port: 9313 } {
     @http:ResourceConfig {
         path: "/custom"
     }
-    customResource(endpoint caller, http:Request req) {
+    resource function customResource(http:Caller caller, http:Request req) {
         json requestPayload = { "name": "Ballerina" };
         var response = customLbBackendEP->post("/", requestPayload);
         if (response is http:Response) {
@@ -156,11 +156,11 @@ service<http:Service> loadBalancerDemoService bind { port: 9313 } {
 }
 
 @http:ServiceConfig { basePath: "/mock1" }
-service mock1 bind backendEP {
+service mock1 on backendEP {
     @http:ResourceConfig {
         path: "/"
     }
-    mock1Resource(endpoint caller, http:Request req) {
+    resource function mock1Resource(http:Caller caller, http:Request req) {
         var responseToCaller = caller->respond("Mock1 Resource is Invoked.");
         if (responseToCaller is error) {
             log:printError("Error sending response from mock service", err = responseToCaller);
@@ -169,11 +169,11 @@ service mock1 bind backendEP {
 }
 
 @http:ServiceConfig { basePath: "/mock2" }
-service mock2 bind backendEP {
+service mock2 on backendEP {
     @http:ResourceConfig {
         path: "/"
     }
-    mock2Resource(endpoint caller, http:Request req) {
+    resource function mock2Resource(http:Caller caller, http:Request req) {
         var responseToCaller = caller->respond("Mock2 Resource is Invoked.");
         if (responseToCaller is error) {
             log:printError("Error sending response from mock service", err = responseToCaller);
@@ -182,11 +182,11 @@ service mock2 bind backendEP {
 }
 
 @http:ServiceConfig { basePath: "/mock3" }
-service mock3 bind backendEP {
+service mock3 on backendEP {
     @http:ResourceConfig {
         path: "/"
     }
-    mock3Resource(endpoint caller, http:Request req) {
+    resource function mock3Resource(http:Caller caller, http:Request req) {
         var responseToCaller = caller->respond("Mock3 Resource is Invoked.");
         if (responseToCaller is error) {
             log:printError("Error sending response from mock service", err = responseToCaller);
@@ -195,11 +195,11 @@ service mock3 bind backendEP {
 }
 
 @http:ServiceConfig { basePath: "/mock4" }
-service mock4 bind backendEP {
+service mock4 on backendEP {
     @http:ResourceConfig {
         path: "/"
     }
-    mock4Resource(endpoint caller, http:Request req) {
+    resource function mock4Resource(http:Caller caller, http:Request req) {
         runtime:sleep(5000);
         var responseToCaller = caller->respond("Mock4 Resource is Invoked.");
         if (responseToCaller is error) {
@@ -209,11 +209,11 @@ service mock4 bind backendEP {
 }
 
 @http:ServiceConfig { basePath: "/mock5" }
-service mock5 bind backendEP {
+service mock5 on backendEP {
     @http:ResourceConfig {
         path: "/"
     }
-    mock5Resource(endpoint caller, http:Request req) {
+    resource function mock5Resource(http:Caller caller, http:Request req) {
         runtime:sleep(5000);
         var responseToCaller = caller->respond("Mock5 Resource is Invoked.");
         if (responseToCaller is error) {
@@ -229,19 +229,21 @@ public type CustomLoadBalancerRule object {
 
     public int index;
 
-    public new (index) {}
+    public function __init(int index) {
+        self.index = index;
+    }
 
     # Provides an HTTP client which is choosen according to the custom algorithm.
     #
     # + loadBalanceClientsArray - Array of HTTP clients which needs to be load balanced
     # + return - Choosen `CallerActions` from the algorithm or an `error` for a failure in
     #            the algorithm implementation
-    public function getNextCallerActions(http:CallerActions[] loadBalanceClientsArray) returns http:CallerActions|error;
+    public function getNextClient(http:Client[] loadBalanceClientsArray) returns http:Client|error;
 };
 
-function CustomLoadBalancerRule.getNextCallerActions(http:CallerActions[] loadBalanceClientsArray)
-                                          returns http:CallerActions|error {
-    http:CallerActions httpClient = new;
+function CustomLoadBalancerRule.getNextClient(http:Client[] loadBalanceClientsArray)
+                                          returns http:Client|error {
+    http:Client httpClient = loadBalanceClientsArray[self.index];
     if (self.index >= loadBalanceClientsArray.length()) {
         error err = error("Provided index is doesn't match with the targets.");
         return err;

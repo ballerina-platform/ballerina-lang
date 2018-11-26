@@ -2,7 +2,7 @@ import ballerina/io;
 import ballerina/http;
 import ballerina/runtime;
 
-listener http:MockServer echoEP = new(9090);
+listener http:MockListener echoEP = new(9090);
 
 int sampleRequestCount = 0;
 
@@ -92,15 +92,15 @@ service sample1 on echoEP {
 }
 
 type Person record {
-    int age;
-    string name;
-    Address address;
+    int age = 0;
+    string name = "";
+    Address address = {};
 };
 
 type Address record {
-    int no;
-    string line1;
-    string line2;
+    int no = 0;
+    string line1 = "";
+    string line2 = "";
 };
 
 string finalText1 = "";
@@ -200,5 +200,40 @@ service sample3 on echoEP {
         }
         res.setTextPayload(message);
         _ = conn -> respond(res);
+    }
+}
+
+//Test when there is a field access within a lock
+@http:ServiceConfig {}
+service<http:Service> sample4 bind echoEP {
+
+    echo(endpoint conn, http:Request req) {
+
+       Person p = {};
+       workerFunc(p);
+
+        http:Response res = new;
+        res.setTextPayload(<string>p.age);
+        _ = conn -> respond(res);
+    }
+}
+
+function workerFunc(Person param) {
+
+    worker w1 {
+        increment(param);
+    }
+
+    worker w2 {
+        increment(param);
+    }
+
+}
+
+function increment(Person param) {
+   lock {
+       foreach i in 1 ... 1000 {
+           param.age = param.age + i;
+       }
     }
 }

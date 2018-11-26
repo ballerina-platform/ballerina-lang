@@ -323,14 +323,14 @@ function createAuthFiltersForSecureListener(ServiceEndpointConfiguration config,
                 var authStoreProviderConfig = provider.authStoreProviderConfig;
                 if (authStoreProviderConfig is auth:LdapAuthProviderConfig) {
                     auth:LdapAuthStoreProvider ldapAuthStoreProvider = new(authStoreProviderConfig, instanceId);
-                    authStoreProvider = <auth:AuthStoreProvider>ldapAuthStoreProvider;
+                    authStoreProvider = ldapAuthStoreProvider;
                 } else {
                     error e = error("Authstore config not provided for : " + provider.authStoreProvider);
                     panic e;
                 }
             } else if (provider.authStoreProvider == AUTH_PROVIDER_CONFIG) {
                 auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
-                authStoreProvider = <auth:AuthStoreProvider>configAuthStoreProvider;
+                authStoreProvider = configAuthStoreProvider;
             } else {
                 error configError = error("Unsupported auth store provider : " + provider.authStoreProvider);
                 panic configError;
@@ -347,9 +347,9 @@ HttpAuthzHandler authzHandler = new(authStoreProvider, positiveAuthzCache, negat
 
 function createBasicAuthHandler() returns HttpAuthnHandler {
     auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
-    auth:AuthStoreProvider authStoreProvider = <auth:AuthStoreProvider>configAuthStoreProvider;
+    auth:AuthStoreProvider authStoreProvider = configAuthStoreProvider;
     HttpBasicAuthnHandler basicAuthHandler = new(authStoreProvider);
-    return <HttpAuthnHandler>basicAuthHandler;
+    return basicAuthHandler;
 }
 
 function createAuthHandler(AuthProvider authProvider, string instanceId) returns HttpAuthnHandler {
@@ -358,10 +358,10 @@ function createAuthHandler(AuthProvider authProvider, string instanceId) returns
         if (authProvider.authStoreProvider == AUTH_PROVIDER_CONFIG) {
             if (authProvider.propagateJwt) {
                 auth:ConfigJwtAuthProvider configAuthProvider = new(getInferredJwtAuthProviderConfig(authProvider));
-                authStoreProvider = <auth:AuthStoreProvider>configAuthProvider;
+                authStoreProvider = configAuthProvider;
             } else {
                 auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
-                authStoreProvider = <auth:AuthStoreProvider>configAuthStoreProvider;
+                authStoreProvider = configAuthStoreProvider;
             }
         } else if (authProvider.authStoreProvider == AUTH_PROVIDER_LDAP) {
             var authStoreProviderConfig = authProvider.authStoreProviderConfig;
@@ -370,9 +370,9 @@ function createAuthHandler(AuthProvider authProvider, string instanceId) returns
                 if (authProvider.propagateJwt) {
                     auth:LdapJwtAuthProvider ldapAuthProvider =
                     new(getInferredJwtAuthProviderConfig(authProvider),ldapAuthStoreProvider);
-                    authStoreProvider = <auth:AuthStoreProvider>ldapAuthProvider;
+                    authStoreProvider = ldapAuthProvider;
                 } else {
-                    authStoreProvider = <auth:AuthStoreProvider>ldapAuthStoreProvider;
+                    authStoreProvider = ldapAuthStoreProvider;
                 }
             } else {
                 error e = error("Authstore config not provided for : " + authProvider.authStoreProvider);
@@ -384,7 +384,7 @@ function createAuthHandler(AuthProvider authProvider, string instanceId) returns
             panic e;
         }
         HttpBasicAuthnHandler basicAuthHandler = new(authStoreProvider);
-        return <HttpAuthnHandler>basicAuthHandler;
+        return basicAuthHandler;
     } else if (authProvider.scheme == AUTH_SCHEME_JWT){
         auth:JWTAuthProviderConfig jwtConfig = {};
         jwtConfig.issuer = authProvider.issuer;
@@ -395,7 +395,7 @@ function createAuthHandler(AuthProvider authProvider, string instanceId) returns
         jwtConfig.trustStorePassword = authProvider.trustStore.password ?: "";
         auth:JWTAuthProvider jwtAuthProvider = new(jwtConfig);
         HttpJwtAuthnHandler jwtAuthnHandler = new(jwtAuthProvider);
-        return <HttpAuthnHandler>jwtAuthnHandler;
+        return jwtAuthnHandler;
     } else {
         error e = error("Invalid auth scheme: " + authProvider.scheme);
         panic e;
@@ -425,9 +425,11 @@ function getInferredJwtAuthProviderConfig(AuthProvider authProvider) returns aut
 /// WebSocket Service Endpoint ///
 //////////////////////////////////
 # Represents a WebSocket service endpoint.
-public type WebSocketServer object {
+public type WebSocketListener object {
 
     *AbstractListener;
+
+    private Listener httpEndpoint;
 
     public function __start() returns error? {
         return self.httpEndpoint.start();
@@ -441,16 +443,11 @@ public type WebSocketServer object {
         return self.httpEndpoint.register(s, annotationData);
     }
 
-    private ServiceEndpointConfiguration config = {};
-
-    private Listener httpEndpoint;
 
     # Gets invoked during module initialization to initialize the endpoint.
     #
     # + c - The `ServiceEndpointConfiguration` of the endpoint
     public function __init(int port, ServiceEndpointConfiguration? config = ()) {
-        self.config = config ?: {};
-        self.config.port = port;
         self.httpEndpoint = new(port, config = config);
     }
 

@@ -197,6 +197,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.DefaultValueLiteral;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -1522,7 +1523,22 @@ public class Desugar extends BLangNodeVisitor {
             String o2FullName = String.join(":", v2.pkgID.getName().getValue(), v2.name.getValue());
             return o1FullName.compareTo(o2FullName);
         }).collect(Collectors.toSet());
+
+        //check both a field and parent are in locked variables
+        if (!lockNode.lockVariables.isEmpty()) {
+            lockNode.fieldVariables.values().forEach(exprSet -> exprSet.removeIf(expr -> isParentLocked(lockNode,
+                    expr)));
+        }
         result = lockNode;
+    }
+
+    boolean isParentLocked(BLangLock lock, BLangVariableReference expr) {
+        if (lock.lockVariables.contains(expr.symbol)) {
+            return true;
+        } else if (expr instanceof BLangStructFieldAccessExpr) {
+            return isParentLocked(lock, (BLangVariableReference) ((BLangStructFieldAccessExpr) expr).expr);
+        }
+        return false;
     }
 
     @Override
@@ -1745,7 +1761,6 @@ public class Desugar extends BLangNodeVisitor {
                 // We consider both of them as package level variables.
                 genVarRefExpr = new BLangPackageVarRef((BVarSymbol) varRefExpr.symbol);
 
-                // Only locking service level and package level variables.
                 if (!enclLocks.isEmpty()) {
                     enclLocks.peek().addLockVariable((BVarSymbol) varRefExpr.symbol);
                 }
@@ -1777,6 +1792,11 @@ public class Desugar extends BLangNodeVisitor {
                 targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos,
                         (BLangVariableReference) fieldAccessExpr.expr, stringLit, (BVarSymbol) fieldAccessExpr.symbol,
                         false);
+
+                // expr symbol is null when their is a array as the field
+                if (!enclLocks.isEmpty() && (((BLangVariableReference) fieldAccessExpr.expr).symbol != null)) {
+                    enclLocks.peek().addFieldVariable((BLangStructFieldAccessExpr) targetVarRef);
+                }
             }
         } else if (varRefType.tag == TypeTags.RECORD) {
             if (fieldAccessExpr.symbol != null && fieldAccessExpr.symbol.type.tag == TypeTags.INVOKABLE
@@ -1787,6 +1807,11 @@ public class Desugar extends BLangNodeVisitor {
                 targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos,
                         (BLangVariableReference) fieldAccessExpr.expr, stringLit, (BVarSymbol) fieldAccessExpr.symbol,
                         true);
+
+                // expr symbol is null when their is a array as the field
+                if (!enclLocks.isEmpty() && (((BLangVariableReference) fieldAccessExpr.expr).symbol != null)) {
+                    enclLocks.peek().addFieldVariable((BLangStructFieldAccessExpr) targetVarRef);
+                }
             }
         } else if (varRefType.tag == TypeTags.MAP) {
             targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, (BLangVariableReference) fieldAccessExpr.expr,
@@ -3015,7 +3040,8 @@ public class Desugar extends BLangNodeVisitor {
             if (namedArgs.containsKey(param.name.value)) {
                 expr = namedArgs.get(param.name.value);
             } else {
-                expr = getDefaultValueLiteral(param.defaultValue, param.type.tag);
+                int paramTypeTag = param.type.tag;
+                expr = getDefaultValueLiteral(param.defaultValue, paramTypeTag);
                 expr = addConversionExprIfRequired(expr, param.type);
             }
             args.add(expr);
@@ -3986,14 +4012,15 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
-    // TODO: Allowing decimal defaultable args may break some cases of the union type defaultable args.
-    // TODO: We need to preserve the literal type to resolve this.
-    private BLangExpression getDefaultValueLiteral(Object value, int typeTag) {
-        if (value == null) {
+    private BLangExpression getDefaultValueLiteral(DefaultValueLiteral defaultValue, int paramTypeTag) {
+        if (defaultValue == null || defaultValue.getValue() == null) {
             return getNullLiteral();
         }
+        Object value = defaultValue.getValue();
+        int literalTypeTag = defaultValue.getLiteralTypeTag();
+
         if (value instanceof Long) {
-            switch (typeTag) {
+            switch (paramTypeTag) {
                 case TypeTags.FLOAT:
                     return getFloatLiteral(((Long) value).doubleValue());
                 case TypeTags.DECIMAL:
@@ -4003,11 +4030,17 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
         if (value instanceof String) {
-            switch (typeTag) {
+            switch (paramTypeTag) {
                 case TypeTags.FLOAT:
                     return getFloatLiteral(Double.parseDouble((String) value));
                 case TypeTags.DECIMAL:
                     return getDecimalLiteral(String.valueOf(value));
+                case TypeTags.FINITE:
+                case TypeTags.UNION:
+                    if (literalTypeTag == TypeTags.FLOAT) {
+                        return getFloatLiteral(Double.parseDouble((String) value));
+                    }
+                    return getStringLiteral((String) value);
                 default:
                     return getStringLiteral((String) value);
             }
@@ -4103,7 +4136,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // Set the taint information to the constructed init function
         initFunction.symbol.taintTable = new HashMap<>();
-        TaintRecord taintRecord = new TaintRecord(Boolean.FALSE, new ArrayList<>());
+        TaintRecord taintRecord = new TaintRecord(TaintRecord.TaintedStatus.UNTAINTED, new ArrayList<>());
         initFunction.symbol.taintTable.put(TaintAnalyzer.ALL_UNTAINTED_TABLE_ENTRY_INDEX, taintRecord);
 
         // Update Object type with attached function details

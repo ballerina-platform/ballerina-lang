@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaEndpointInitializationImpl extends BallerinaCompositeElementImpl implements BallerinaEndpointInitialization {
+public class BallerinaExpressionPatternImpl extends BallerinaCompositeElementImpl implements BallerinaExpressionPattern {
 
-  public BallerinaEndpointInitializationImpl(@NotNull ASTNode node) {
+  public BallerinaExpressionPatternImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitEndpointInitialization(this);
+    visitor.visitExpressionPattern(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,20 +43,38 @@ public class BallerinaEndpointInitializationImpl extends BallerinaCompositeEleme
 
   @Override
   @Nullable
-  public BallerinaRecordLiteral getRecordLiteral() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaRecordLiteral.class);
+  public BallerinaBlock getBlock() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaBlock.class);
+  }
+
+  @Override
+  @NotNull
+  public BallerinaExpression getExpression() {
+    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaExpression.class));
   }
 
   @Override
   @Nullable
-  public BallerinaVariableReference getVariableReference() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaVariableReference.class);
+  public BallerinaStatement getStatement() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaStatement.class);
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getEqualGt() {
+    return notNullChild(findChildByType(EQUAL_GT));
   }
 
   @Override
   @Nullable
-  public PsiElement getAssign() {
-    return findChildByType(ASSIGN);
+  public PsiElement getLeftBrace() {
+    return findChildByType(LEFT_BRACE);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getRightBrace() {
+    return findChildByType(RIGHT_BRACE);
   }
 
 }
