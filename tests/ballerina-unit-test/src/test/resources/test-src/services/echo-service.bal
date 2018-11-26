@@ -9,14 +9,13 @@ type Person record {
     int age;
 };
 
-listener http:MockServer echoEP  = new(9090);
+string serviceLevelStr = "";
+string serviceLevelStringVar = "sample value";
+
+listener http:MockListener echoEP  = new(9090);
 
 @http:ServiceConfig {basePath:"/echo"}
 service echo on echoEP {
-
-    string serviceLevelStr = "";
-
-    string serviceLevelStringVar = "sample value";
 
     @http:ResourceConfig {
         methods:["GET"],

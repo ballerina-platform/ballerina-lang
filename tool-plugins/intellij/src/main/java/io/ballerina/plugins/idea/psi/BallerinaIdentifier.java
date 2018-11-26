@@ -74,8 +74,7 @@ public class BallerinaIdentifier extends LeafPsiElement implements PsiNameIdenti
             PsiElement superParent = parent.getParent();
             if (superParent instanceof BallerinaInvocation) {
                 return new BallerinaInvocationReference(this);
-            } else if (!(superParent instanceof BallerinaCallableUnitSignature ||
-                    superParent instanceof BallerinaObjectCallableUnitSignature)) {
+            } else if (!(superParent instanceof BallerinaCallableUnitSignature)) {
                 return new BallerinaNameReferenceReference(this);
             }
         } else if (parent instanceof BallerinaWorkerReply) {

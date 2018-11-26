@@ -69,6 +69,14 @@ public class ClosedRecordEquivalencyRulesTest {
         assertEquals(returns[0].stringValue(), "{name:\"John Doe\", age:25}");
     }
 
+    @Test(description = "RHS and LHS closed with additional fields (optional) than RHS",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*invalid field access: field 'weight' not found in record type " +
+                  "'Person1'.*")
+    public void testCRToCRClosedToClosedAssignment4() {
+        BRunUtil.invoke(closedRecToClosedRec, "testClosedToClosedAssignment4");
+    }
+
     @Test(description = "RHS and LHS closed with RHS required fields corresponding to LHS optional fields")
     public void testCRToCRReqFieldToOptField() {
         BValue[] returns = BRunUtil.invoke(closedRecToClosedRec, "testReqFieldToOptField");

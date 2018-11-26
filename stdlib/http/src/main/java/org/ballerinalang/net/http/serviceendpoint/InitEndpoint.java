@@ -51,6 +51,7 @@ import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY_PASSWORD;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY_STORE;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_OCSP_STAPLING;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_PORT;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_PROTOCOLS;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_CERTIFICATES;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_STORE;
@@ -89,7 +90,8 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
 
             // Creating server connector
             Struct serviceEndpointConfig = serviceEndpoint.getStructField(HttpConstants.SERVICE_ENDPOINT_CONFIG);
-            ListenerConfiguration listenerConfiguration = getListenerConfig(serviceEndpointConfig);
+            long port = serviceEndpoint.getIntField(ENDPOINT_CONFIG_PORT);
+            ListenerConfiguration listenerConfiguration = getListenerConfig(port, serviceEndpointConfig);
             ServerConnector httpServerConnector =
                     HttpConnectionManager.getInstance().createHttpServerConnector(listenerConfiguration);
             serviceEndpoint.addNativeData(HttpConstants.HTTP_SERVER_CONNECTOR, httpServerConnector);
@@ -102,12 +104,10 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
             BError errorStruct = HttpUtil.getError(context, e);
             context.setReturnValues(errorStruct);
         }
-
     }
 
-    private ListenerConfiguration getListenerConfig(Struct endpointConfig) {
+    private ListenerConfiguration getListenerConfig(long port, Struct endpointConfig) {
         String host = endpointConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_HOST);
-        long port = endpointConfig.getIntField(HttpConstants.ENDPOINT_CONFIG_PORT);
         String keepAlive = endpointConfig.getRefField(HttpConstants.ENDPOINT_CONFIG_KEEP_ALIVE).getStringValue();
         Struct sslConfig = endpointConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
         String httpVersion = endpointConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_VERSION);
