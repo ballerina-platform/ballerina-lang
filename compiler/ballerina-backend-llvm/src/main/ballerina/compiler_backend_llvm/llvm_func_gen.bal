@@ -10,7 +10,10 @@ type FuncGenrator object {
     llvm:LLVMValueRef varAllocBB = {};
     llvm:LLVMBuilderRef builder;
 
-    new(mod, builder, func) {
+    function __init(llvm:LLVMModuleRef mod, llvm:LLVMBuilderRef builder, bir:Function func) {
+        self.mod = mod;
+        self.builder = builder;
+        self.func = func;
     }
 
     function genFunctionDecl() {

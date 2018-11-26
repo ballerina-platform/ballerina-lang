@@ -36,7 +36,6 @@ import io.ballerina.plugins.idea.BallerinaIcons;
 import io.ballerina.plugins.idea.psi.BallerinaCompositeElement;
 import io.ballerina.plugins.idea.psi.BallerinaFile;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaGlobalEndpointDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaGlobalVariableDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaNamedElement;
 import io.ballerina.plugins.idea.psi.BallerinaTypeDefinition;
@@ -181,8 +180,6 @@ public abstract class BallerinaNamedElementImpl<T extends BallerinaNamedStub<?>>
             icon = BallerinaIcons.GLOBAL_VARIABLE;
         } else if (this instanceof BallerinaTypeDefinition) {
             icon = BallerinaIcons.TYPE;
-        } else if (this instanceof BallerinaGlobalEndpointDefinition) {
-            icon = BallerinaIcons.GLOBAL_ENDPOINT;
         }
         if (icon != null) {
             if ((flags & Iconable.ICON_FLAG_VISIBILITY) != 0) {

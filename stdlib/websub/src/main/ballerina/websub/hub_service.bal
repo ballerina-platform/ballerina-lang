@@ -35,18 +35,18 @@ service {
         methods:["GET"],
         path:HUB_PATH
     }
-    resource function status(http:Caller httpClient, http:Request request) {
+    resource function status(http:Caller httpCaller, http:Request request) {
         http:Response response = new;
         response.statusCode = http:ACCEPTED_202;
         response.setTextPayload("Ballerina Hub Service - Up and Running!");
-        _ = httpClient->respond(response);
+        _ = httpCaller->respond(response);
     }
 
     @http:ResourceConfig {
         methods:["POST"],
         path:HUB_PATH
     }
-    resource function hub(http:Caller httpClient, http:Request request) {
+    resource function hub(http:Caller httpCaller, http:Request request) {
         http:Response response = new;
         string topic = "";
 
@@ -78,7 +78,7 @@ service {
                 response.statusCode = http:ACCEPTED_202;
             }
 
-            var responseError = httpClient->respond(response);
+            var responseError = httpCaller->respond(response);
             if (responseError is error) {
                 log:printError("Error responding to subscription change request", err = responseError);
             } else {
@@ -92,7 +92,7 @@ service {
                 response.statusCode = http:BAD_REQUEST_400;
                 response.setTextPayload("Remote topic registration not allowed/not required at the Hub");
                 log:printWarn("Remote topic registration denied at Hub");
-                var responseError = httpClient->respond(response);
+                var responseError = httpCaller->respond(response);
                 if (responseError is error) {
                     log:printError("Error responding on remote topic registration failure", err = responseError);
                 }
@@ -109,7 +109,7 @@ service {
                 response.statusCode = http:ACCEPTED_202;
                 log:printInfo("Topic registration successful at Hub, for topic[" + topic + "]");
             }
-            var responseError = httpClient->respond(response);
+            var responseError = httpCaller->respond(response);
             if (responseError is error) {
                 log:printError("Error responding remote topic registration status", err = responseError);
             }
@@ -118,7 +118,7 @@ service {
                 response.statusCode = http:BAD_REQUEST_400;
                 response.setTextPayload("Remote unregistration not allowed/not required at the Hub");
                 log:printWarn("Remote topic unregistration denied at Hub");
-                var responseError = httpClient->respond(response);
+                var responseError = httpCaller->respond(response);
                 if (responseError is error) {
                     log:printError("Error responding on remote topic unregistration failure", err = responseError);
                 }
@@ -135,7 +135,7 @@ service {
                 response.statusCode = http:ACCEPTED_202;
                 log:printInfo("Topic unregistration successful at Hub, for topic[" + topic + "]");
             }
-            var responseError = httpClient->respond(response);
+            var responseError = httpCaller->respond(response);
             if (responseError is error) {
                 log:printError("Error responding remote topic unregistration status", err = responseError);
             }
@@ -169,7 +169,7 @@ service {
                             log:printError(errorMessage);
                             response.setTextPayload(untaint errorMessage);
                             response.statusCode = http:BAD_REQUEST_400;
-                            var responseError = httpClient->respond(response);
+                            var responseError = httpCaller->respond(response);
                             if (responseError is error) {
                                 log:printError("Error responding on update fetch failure", err = responseError);
                             }
@@ -197,7 +197,7 @@ service {
                         log:printError(errorMessage);
                         response.statusCode = http:BAD_REQUEST_400;
                         response.setTextPayload(errorMessage);
-                        var responseError = httpClient->respond(response);
+                        var responseError = httpCaller->respond(response);
                         if (responseError is error) {
                             log:printError("Error responding on payload extraction failure for"
                                                     + " publish request", err = responseError);
@@ -213,7 +213,7 @@ service {
                     } else {
                         log:printInfo("Update notification done for Topic [" + topic + "]");
                         response.statusCode = http:ACCEPTED_202;
-                        var responseError = httpClient->respond(response);
+                        var responseError = httpCaller->respond(response);
                         if (responseError is error) {
                             log:printError("Error responding on update notification for topic[" + topic
                                                     + "]", err = responseError);
@@ -226,13 +226,13 @@ service {
                     response.setTextPayload(errorMessage);
                 }
                 response.statusCode = http:BAD_REQUEST_400;
-                var responseError = httpClient->respond(response);
+                var responseError = httpCaller->respond(response);
                 if (responseError is error) {
                     log:printError("Error responding to publish request", err = responseError);
                 }
             } else {
                 response.statusCode = http:BAD_REQUEST_400;
-                var responseError = httpClient->respond(response);
+                var responseError = httpCaller->respond(response);
                 if (responseError is error) {
                     log:printError("Error responding to request", err = responseError);
                 }
@@ -272,7 +272,7 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
 # + topic - The topic specified in the new subscription/unsubscription request
 # + params - Parameters specified in the new subscription/unsubscription request
 function verifyIntentAndAddSubscription(string callback, string topic, map<string> params) {
-    http:Client callbackEp = new http:Client({ url: callback, secureSocket: hubClientSecureSocket });
+    http:Client callbackEp = new http:Client(callback, config = { secureSocket: hubClientSecureSocket });
     string mode = params[HUB_MODE] ?: "";
     string strLeaseSeconds = params[HUB_LEASE_SECONDS] ?: "";
     int leaseSeconds = <int>strLeaseSeconds but {error => 0};
@@ -539,10 +539,7 @@ function clearSubscriptionDataInDb() {
 # + return - `http:Response` indicating the response received on fetching the topic URL if successful,
 #            `error` if an HTTP error occurred
 function fetchTopicUpdate(string topic) returns http:Response|error {
-    http:Client topicEp = new http:Client({
-        url:topic,
-        secureSocket: hubClientSecureSocket
-    });
+    http:Client topicEp = new http:Client(topic, config = { secureSocket: hubClientSecureSocket });
     http:Request request = new;
 
     var fetchResponse = topicEp->get("", message = request);
@@ -557,10 +554,7 @@ function fetchTopicUpdate(string topic) returns http:Response|error {
 # + return - Nil if successful, error in case of invalid content-type
 function distributeContent(string callback, SubscriptionDetails subscriptionDetails, WebSubContent webSubContent)
 returns error? {
-    http:Client callbackEp = new http:Client({
-        url:callback,
-        secureSocket: hubClientSecureSocket
-    });
+    http:Client callbackEp = new http:Client(callback, config = { secureSocket: hubClientSecureSocket });
     http:Request request = new;
     request.setPayload(webSubContent.payload);
     check request.setContentType(webSubContent.contentType);

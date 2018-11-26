@@ -1,10 +1,10 @@
 import ballerina/http;
 
-service<http:Service> dataservice bind { port: 9091 } {
+service dataservice on new http:MockListener(9091) {
 
-    employee(endpoint caller, http:Request req) {
+    resource function employee(http:Caller caller, http:Request req) {
     }
 
-    employee(endpoint caller, http:Request req) {
+    resource function employee(http:Caller caller, http:Request req) {
     }
 }

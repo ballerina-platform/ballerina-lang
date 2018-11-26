@@ -80,7 +80,7 @@ public type grpcMutualSslServiceClient client object {
         }
     }
 
-    remote function hello (string req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function hello (string req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
 
         return self.grpcClient->nonBlockingExecute("grpcservices.grpcMutualSslService/hello", req, msgListener, headers = headers);
     }

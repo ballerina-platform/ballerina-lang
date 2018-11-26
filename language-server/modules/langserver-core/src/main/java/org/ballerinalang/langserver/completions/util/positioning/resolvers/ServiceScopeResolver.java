@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.tree.Node;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -36,9 +37,12 @@ import java.util.Map;
  * Service scope position resolver.
  */
 public class ServiceScopeResolver extends CursorPositionResolver {
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, BLangNode node, TreeVisitor treeVisitor,
-                                      LSContext completionContext) {
+    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, TreeVisitor treeVisitor, LSContext completionContext,
+                                      BLangNode node, BSymbol bSymbol) {
         Position position = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         DiagnosticPos zeroBasedPo = CommonUtil.toZeroBasedPosition(nodePosition);
         int line = position.getLine();
@@ -52,7 +56,7 @@ public class ServiceScopeResolver extends CursorPositionResolver {
             Map<Name, Scope.ScopeEntry> visibleSymbolEntries =
                     treeVisitor.resolveAllVisibleSymbols(treeVisitor.getSymbolEnv());
             treeVisitor.populateSymbols(visibleSymbolEntries, treeVisitor.getSymbolEnv());
-            treeVisitor.setNextNode(node);
+            treeVisitor.setNextNode(bSymbol);
             treeVisitor.forceTerminateVisitor();
             return true;
         }

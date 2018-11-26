@@ -79,6 +79,12 @@ public class BallerinaGlobalVariableDefinitionImpl extends BallerinaNamedElement
 
   @Override
   @Nullable
+  public PsiElement getListener() {
+    return findChildByType(LISTENER);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getPublic() {
     return findChildByType(PUBLIC);
   }

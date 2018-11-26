@@ -21,12 +21,9 @@ import ballerina/runtime;
 
 public int forceCloseStateCount = 0;
 
-endpoint http:Listener circuitBreakerEP02 {
-    port:9308
-};
+listener http:Listener circuitBreakerEP02 = new(9308);
 
-endpoint http:Client unhealthyClientEP {
-    url: "http://localhost:8088",
+http:ClientEndpointConfig conf02 = {
     circuitBreaker: {
         rollingWindow: {
             timeWindowMillis: 60000,
@@ -37,21 +34,22 @@ endpoint http:Client unhealthyClientEP {
         resetTimeMillis: 1000,
         statusCodes: [501, 502, 503]
     },
-
     timeoutMillis: 2000
 };
+
+http:Client unhealthyClientEP = new("http://localhost:8088", config = conf02);
 
 @http:ServiceConfig {
     basePath: "/cb"
 }
-service<http:Service> circuitbreaker02 bind circuitBreakerEP02 {
+service circuitbreaker02 on circuitBreakerEP02 {
 
     @http:ResourceConfig {
         methods: ["GET", "POST"],
         path: "/forceclose"
     }
-    invokeForceClose(endpoint caller, http:Request request) {
-        var cbClient = <http:CircuitBreakerClient>unhealthyClientEP.getCallerActions();
+    resource function invokeForceClose(http:Caller caller, http:Request request) {
+        var cbClient = <http:CircuitBreakerClient>unhealthyClientEP.httpClient;
         if (cbClient is http:CircuitBreakerClient) {
             forceCloseStateCount += 1;
             runtime:sleep(1000);
@@ -82,12 +80,12 @@ service<http:Service> circuitbreaker02 bind circuitBreakerEP02 {
 }
 
 @http:ServiceConfig { basePath: "/unhealthy" }
-service<http:Service> unhealthyService bind { port: 8088 } {
+service unhealthyService on new http:Listener(8088) {
     @http:ResourceConfig {
         methods: ["GET", "POST"],
         path: "/"
     }
-    sayHello(endpoint caller, http:Request req) {
+    resource function sayHello(http:Caller caller, http:Request req) {
         http:Response res = new;
         if (forceCloseStateCount <= 3) {
             runtime:sleep(5000);
