@@ -12,7 +12,7 @@ jms:Session jmsSession = new (jmsConnection, {
         acknowledgementMode: "AUTO_ACKNOWLEDGE"
     });
 
-jms:TopicPublisher publisher =new({
+jms:TopicPublisher publisher = new({
     session: jmsSession,
     topicPattern: "testTopicSubscriberPublisher"
 });
