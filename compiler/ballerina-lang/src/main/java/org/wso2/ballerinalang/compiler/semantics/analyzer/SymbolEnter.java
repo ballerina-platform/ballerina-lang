@@ -248,18 +248,21 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public void visit(BLangAnnotation annotationNode) {
-        BSymbol annotationSymbol = Symbols.createAnnotationSymbol(Flags.asMask(annotationNode.flagSet),
+        BAnnotationSymbol annotationSymbol = Symbols.createAnnotationSymbol(Flags.asMask(annotationNode.flagSet),
                 AttachPoints.asMask(annotationNode.attachPoints), names.fromIdNode(annotationNode.name),
                 env.enclPkg.symbol.pkgID, null, env.scope.owner);
         annotationSymbol.markdownDocumentation =
                 getMarkdownDocAttachment(annotationNode.markdownDocumentationAttachment);
-        annotationSymbol.type = new BAnnotationType((BAnnotationSymbol) annotationSymbol);
+        annotationSymbol.type = new BAnnotationType(annotationSymbol);
         annotationNode.symbol = annotationSymbol;
         defineSymbol(annotationNode.name.pos, annotationSymbol);
         SymbolEnv annotationEnv = SymbolEnv.createAnnotationEnv(annotationNode, annotationSymbol.scope, env);
         if (annotationNode.typeNode != null) {
-            BType structType = this.symResolver.resolveTypeNode(annotationNode.typeNode, annotationEnv);
-            ((BAnnotationSymbol) annotationSymbol).attachedType = structType.tsymbol;
+            BType recordType = this.symResolver.resolveTypeNode(annotationNode.typeNode, annotationEnv);
+            annotationSymbol.attachedType = recordType.tsymbol;
+            if (recordType != symTable.semanticError && recordType.tag != TypeTags.RECORD) {
+                dlog.error(annotationNode.typeNode.pos, DiagnosticCode.ANNOTATION_REQUIRE_RECORD, recordType);
+            }
         }
     }
 

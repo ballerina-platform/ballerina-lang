@@ -4594,6 +4594,7 @@ public class CPU {
             case TypeTags.BYTE_TAG:
             case TypeTags.NULL_TAG:
             case TypeTags.XML_TAG:
+            case TypeTags.SERVICE_TAG:
                 return sourceType.getTag() == targetType.getTag();
             case TypeTags.MAP_TAG:
                 return checkIsMapType(sourceType, (BMapType) targetType, unresolvedTypes);
@@ -4854,6 +4855,8 @@ public class CPU {
             case TypeTags.TUPLE_TAG:
             case TypeTags.ARRAY_TAG:
                 return isListType(rhsValTypeTag) && isEqual((BNewArray) lhsValue, (BNewArray) rhsValue, checkedValues);
+            case TypeTags.SERVICE_TAG:
+                break;
         }
         return false;
     }
