@@ -31,7 +31,7 @@ public type ParentFoo object {
     public Baz z = 1;
 
 
-    public function __init(int i, ChildFoo c) {
+    public function __init (int i, ChildFoo  c){
         self.i = i;
         self.c = c;
     }
