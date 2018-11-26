@@ -16,7 +16,16 @@ export class MockLangClient implements DiagramLangClient {
       return Promise.resolve({ kind: "Empty" });
     }
     public getEndpoints(): Thenable<BallerinaEndpoint[]> {
-      return Promise.resolve([]);
+      return Promise.resolve([
+        {
+          name: "Client",
+          packageName: "http"
+        },
+        {
+          name: "Client",
+          packageName: "jms"
+        }
+      ]);
     }
     public goToSource(line: number, column: number): void {
       // do nothing

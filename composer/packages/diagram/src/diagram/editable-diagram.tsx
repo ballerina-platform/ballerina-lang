@@ -102,11 +102,12 @@ export class EditableDiagram extends React.Component<EdiatableDiagramProps, Edit
         // create context contributions for the children
         const contextContributions = {
             editingEnabled: this.state.editingEnabled,
+            langClient: this.props.langClient,
             toggleEditing: () => {
                 this.setState({
                     editingEnabled: !this.state.editingEnabled,
                 });
-            },
+            }
         };
 
         // merge with parent (if any) or with default context
