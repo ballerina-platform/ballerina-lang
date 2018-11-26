@@ -1,5 +1,6 @@
 import { ASTNode } from "../ast-interfaces";
 import { Visitor } from "../base-visitor";
+import { ASTKindChecker } from "../check-kind-util";
 import { emitTreeModified } from "../events";
 import { traversNode } from "../model-utils";
 
@@ -56,17 +57,16 @@ export function getWS(node: ASTNode): any[] {
     return sourceGenVisitor.getWS();
 }
 
-export function attachNodeSilently(newNode: ASTNode, tree: ASTNode, attachPoint: string, insertAt: number = 0) {
+export function attachNodeSilently(
+    newNode: ASTNode, tree: ASTNode,
+    attachingNode: ASTNode, attachPoint: string, insertAt: number = 0) {
+
     const newNodeWS = getWS(newNode);
     const treeWS = getWS(tree);
     const attachPointNodes: ASTNode[] = (tree as any)[attachPoint];
 
-    let startIndex = 1; // should be index of the first whitespace of the new node
-
-    if (attachPointNodes[insertAt - 1]) {
-        const attachPointWS = getWS(attachPointNodes[insertAt - 1]);
-        startIndex = attachPointWS[attachPointWS.length - 1].i + 1;
-    }
+    // should be index of the first whitespace of the new node
+    const startIndex = getStartIndex(attachingNode, attachPointNodes, insertAt);
 
     // get the diff between the current and should be index of the first ws of new node
     const newNodeDiff = startIndex - newNodeWS[0].i;
@@ -86,7 +86,27 @@ export function attachNodeSilently(newNode: ASTNode, tree: ASTNode, attachPoint:
     attachPointNodes[insertAt] = newNode;
 }
 
-export function attachNode(newNode: ASTNode, tree: ASTNode, attachPoint: string, insertAt: number = 0) {
-    attachNodeSilently(newNode, tree, attachPoint, insertAt);
+export function attachNode(
+    newNode: ASTNode, tree: ASTNode,
+    attachingNode: ASTNode, attachPoint: string, insertAt: number = 0) {
+
+    attachNodeSilently(newNode, tree, attachingNode, attachPoint, insertAt);
     emitTreeModified(tree, newNode);
+}
+
+function getStartIndex(attachingNode: ASTNode, attachPointNodes: ASTNode[], insertAt: number): number {
+    if (attachPointNodes[insertAt - 1]) {
+        const attachPointWS = getWS(attachPointNodes[insertAt - 1]);
+        return attachPointWS[attachPointWS.length - 1].i + 1;
+    }
+
+    // compilationUnits does not have braces arround them, so use 1 as starting index
+    if (ASTKindChecker.isCompilationUnit(attachingNode)) {
+        return 1;
+    }
+
+    const attachingNodeWS = getWS(attachingNode);
+    const index = attachingNodeWS.find((ws) => (ws.text === "{"));
+
+    return index === undefined ? 1 : index;
 }

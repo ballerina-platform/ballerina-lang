@@ -8,7 +8,7 @@ export function render (context: ExtensionContext, langClient: ExtendedLangClien
 }
 
 function renderDiagram(context: ExtensionContext, docUri: Uri): string {
-    
+
     const body = `
         <div id="warning">
         </div>
