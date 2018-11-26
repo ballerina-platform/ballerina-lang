@@ -22,13 +22,15 @@ import ballerina/log;
 # + config - Topic subscriber endpoint configuration
 public type TopicSubscriber object {
 
-    public TopicSubscriberActions consumerActions = new;
+    *AbstractListener;
+
+    public TopicSubscriberCaller consumerActions = new;
     public TopicSubscriberEndpointConfiguration config = {};
 
     # Initialize topic subscriber endpoint
     #
     # + c - Topic subscriber configuration
-    public function init(TopicSubscriberEndpointConfiguration c) {
+    public function __init(TopicSubscriberEndpointConfiguration c) {
         self.config = c;
         self.consumerActions.topicSubscriber = self;
         var session = c.session;
@@ -48,32 +50,32 @@ public type TopicSubscriber object {
     # Register topic subscriber endpoint
     #
     # + serviceType - Type descriptor of the service
-    public function register(typedesc serviceType) {
-        self.registerListener(serviceType, self.consumerActions);
+    public function __attach(service serviceType, map<any> data) returns error? {
+        return self.registerListener(serviceType, self.consumerActions);
     }
 
-    extern function registerListener(typedesc serviceType, TopicSubscriberActions actions);
+    extern function registerListener(service serviceType, TopicSubscriberCaller actions) returns error?;
 
     extern function createSubscriber(Session session, string messageSelector, Destination? destination = ());
 
     # Start topic subscriber endpoint
-    public function start() {
-
+    public function __start() returns error? {
+        return ();
     }
 
     # Get topic subscriber actions
     #
     # + return - Topic subscriber actions
-    public function getCallerActions() returns TopicSubscriberActions {
+    public function getCallerActions() returns TopicSubscriberCaller {
         return self.consumerActions;
     }
 
     # Stop topic subscriber endpoint
-    public function stop() {
-        self.closeSubscriber(self.consumerActions);
+    public function __stop() returns error? {
+        return self.closeSubscriber(self.consumerActions);
     }
 
-    extern function closeSubscriber(TopicSubscriberActions actions);
+    extern function closeSubscriber(TopicSubscriberCaller actions) returns error?;
 };
 
 # Configuration related to topic subscriber endpoint
@@ -93,7 +95,7 @@ public type TopicSubscriberEndpointConfiguration record {
 # Actions that topic subscriber endpoint could perform
 #
 # + topicSubscriber - JMS topic subscriber
-public type TopicSubscriberActions object {
+public type TopicSubscriberCaller client object {
 
     public TopicSubscriber? topicSubscriber = ();
 
@@ -101,23 +103,23 @@ public type TopicSubscriberActions object {
     #
     # + message - JMS message to be acknowledged
     # + return - error on failure to acknowledge a received message
-    public extern function acknowledge(Message message) returns error?;
+    public remote extern function acknowledge(Message message) returns error?;
 
     # Synchronously receive a message from the JMS provider
     #
     # + timeoutInMilliSeconds - Time to wait until a message is received
     # + return - Returns a message or nill if the timeout exceededs. Returns an error on jms provider internal error.
-    public extern function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
+    public remote extern function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
 
     # Synchronously receive a message from the JMS provider
     #
     # + destination - destination to subscribe to
     # + timeoutInMilliSeconds - Time to wait until a message is received
     # + return - Returns a message or nill if the timeout exceededs. Returns an error on jms provider internal error.
-    public function receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|error)?;
+    public remote function receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|error)?;
 };
 
-function TopicSubscriberActions.receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|
+remote function TopicSubscriberCaller.receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|
         error)? {
     var subscriber = self.topicSubscriber;
     if (subscriber is TopicSubscriber) {
@@ -132,8 +134,8 @@ function TopicSubscriberActions.receiveFrom(Destination destination, int timeout
     } else {
         log:printInfo("Topic subscriber is not properly initialized");
     }
-    var result = self.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
-    self.topicSubscriber.closeSubscriber(self);
+    var result = self->receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
+    var returnVal = self.topicSubscriber.closeSubscriber(self);
     return result;
 }
 
