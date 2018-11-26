@@ -90,7 +90,7 @@ public class BallerinaEnterBetweenBracesHandler extends EnterBetweenBracesHandle
         int line = editor.getCaretModel().getLogicalPosition().line - 1;
         String lineString = editor.getDocument().getText(new TextRange(editor.getDocument().getLineStartOffset(line),
                 editor.getDocument().getLineEndOffset(line)));
-        return lineString.startsWith("#");
+        return lineString.trim().startsWith("#");
     }
 
     @Override

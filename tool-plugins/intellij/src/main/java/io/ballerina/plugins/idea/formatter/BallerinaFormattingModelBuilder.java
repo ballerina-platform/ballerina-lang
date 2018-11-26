@@ -94,6 +94,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.FIELD;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FIELD_BINDING_PATTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FIELD_DEFINITION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FIELD_REF_BINDING_PATTERN;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.FINAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FINALLY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FINALLY_CLAUSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FINITE_TYPE;
@@ -297,6 +298,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(LISTENER).spaceIf(true)
                 .around(VAR).spaceIf(true)
                 .around(CONST).spaceIf(true)
+                .around(FINAL).spaceIf(true)
                 .around(IF).spaceIf(true)
                 .around(MATCH).spaceIf(true)
                 .around(ELSE).spaceIf(true)
