@@ -243,7 +243,7 @@ public function createHttpCachingClient(string url, ClientEndpointConfig config,
     log:printDebug(function() returns string {
         return "Created HTTP caching client: " + io:sprintf("%s", httpCachingClient);
     });
-    return <Client>httpCachingClient;
+    return httpCachingClient;
 }
 
 remote function HttpCachingClient.post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
@@ -748,7 +748,8 @@ function getResponseAge(Response cachedResponse) returns int {
         return 0;
     }
 
-    var ageValue = <int>cachedResponse.getHeader(AGE);
+    string ageHeaderString = cachedResponse.getHeader(AGE);
+    var ageValue = int.create(ageHeaderString);
     if (ageValue is int) {
         return ageValue;
     }

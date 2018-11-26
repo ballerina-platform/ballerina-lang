@@ -279,6 +279,10 @@ public class SymbolResolver extends BLangNodeVisitor {
         return types.getConversionOperator(sourceType, targetType);
     }
 
+    public BSymbol resolveTypeConversionOrAssertionOperator(BType sourceType, BType targetType) {
+        return types.getTypeConversionOrAssertionOperator(sourceType, targetType);
+    }
+
     public BSymbol resolveBinaryOperator(OperatorKind opKind,
                                          BType lhsType,
                                          BType rhsType) {
@@ -375,7 +379,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             resultType = symTable.semanticError;
             return symTable.notFoundSymbol;
         }
-        
+
         BLangExpression argumentExpression = functionArgList.get(0);
         BType variableSourceType = argumentExpression.type;
         // Create in-built function can only called on typedesc.
@@ -525,6 +529,40 @@ public class SymbolResolver extends BLangNodeVisitor {
         List<BType> paramTypes = Lists.of(type);
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
         return new BOperatorSymbol(names.fromString(method.getName()), null, opType, null, opcode);
+    }
+
+    BOperatorSymbol createTypeAssertionSymbol(BType type, BType retType) {
+        List<BType> paramTypes = Lists.of(type);
+        BInvokableType opType = new BInvokableType(paramTypes, retType, null);
+        return new BOperatorSymbol(Names.ASSERTION_OP, null, opType, null, InstructionCodes.TYPE_ASSERTION);
+    }
+
+    BSymbol getExplicitlySimpleBasicTypedExpressionSymbol(BType sourceType, BType targetType) {
+        int sourceTypeTag = sourceType.tag;
+        if (types.isValueType(sourceType)) {
+            if (sourceType == targetType) {
+                return Symbols.createConversionOperatorSymbol(sourceType, targetType, symTable.errorType, false,
+                                                              true, InstructionCodes.NOP, null, null);
+            }
+
+            if (!(sourceTypeTag == TypeTags.STRING && targetType.tag != TypeTags.STRING)) {
+                return resolveOperator(Names.CONVERSION_OP, Lists.of(sourceType, targetType));
+            }
+        } else {
+            switch (sourceTypeTag) {
+                case TypeTags.ANY:
+                case TypeTags.ANYDATA:
+                case TypeTags.JSON:
+                    return createTypeAssertionSymbol(sourceType, targetType);
+                case TypeTags.UNION:
+                    if (((BUnionType) sourceType).memberTypes.stream()
+                            .anyMatch(memType -> getExplicitlySimpleBasicTypedExpressionSymbol(
+                                    memType, targetType) != symTable.notFoundSymbol)) {
+                        return createTypeAssertionSymbol(sourceType, targetType);
+                    }
+            }
+        }
+        return symTable.notFoundSymbol;
     }
 
     public BSymbol resolveUnaryOperator(DiagnosticPos pos,
