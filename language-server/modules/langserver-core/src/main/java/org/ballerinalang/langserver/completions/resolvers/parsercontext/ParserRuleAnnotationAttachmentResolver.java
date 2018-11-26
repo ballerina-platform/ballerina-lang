@@ -36,10 +36,10 @@ public class ParserRuleAnnotationAttachmentResolver extends AbstractItemResolver
     
     @Override
     public List<CompletionItem> resolveItems(LSServiceOperationContext ctx) {
-        String attachmentPointType = ctx.get(CompletionKeys.NEXT_NODE_KEY) != null ?
-                ctx.get(CompletionKeys.NEXT_NODE_KEY) : "";
+        int attachmentPointType = ctx.get(CompletionKeys.NEXT_NODE_KEY) != null ?
+                ctx.get(CompletionKeys.NEXT_NODE_KEY) : -1;
 
-        if (attachmentPointType.isEmpty()) {
+        if (attachmentPointType == -1) {
             return new ArrayList<>();
         }
         return filterAnnotations(attachmentPointType, ctx);
@@ -50,7 +50,7 @@ public class ParserRuleAnnotationAttachmentResolver extends AbstractItemResolver
      * 
      * @return {@link List}
      */
-    private ArrayList<CompletionItem> filterAnnotations(String attachmentPoint, LSContext ctx) {
+    private ArrayList<CompletionItem> filterAnnotations(int attachmentPoint, LSContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         
         LSAnnotationCache.getInstance().getAnnotationMapForType(attachmentPoint, ctx)

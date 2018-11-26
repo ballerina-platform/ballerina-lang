@@ -46,7 +46,7 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.MessageListenerHandl
                           type = TypeKind.TYPEDESC),
                 @Argument(name = "consumerActions",
                           type = TypeKind.OBJECT,
-                          structType = "DurableTopicSubscriberActions")
+                          structType = "DurableTopicSubscriberCaller")
         },
         isPublic = true
 )

@@ -80,10 +80,8 @@ public class InitTopicPublisher extends AbstractBlockingAction {
             Destination topic = destinationObject != null ? destinationObject :
                     JMSUtils.getTopic(session, topicPattern);
             MessageProducer producer = session.createProducer(topic);
-            Struct topicProducerConnectorBObject
-                    = topicProducerBObject.getStructField(Constants.TOPIC_PUBLISHER_FIELD_PRODUCER_ACTIONS);
-            topicProducerConnectorBObject.addNativeData(Constants.JMS_PRODUCER_OBJECT, producer);
-            topicProducerConnectorBObject.addNativeData(Constants.SESSION_CONNECTOR_OBJECT,
+            topicProducerBObject.addNativeData(Constants.JMS_PRODUCER_OBJECT, producer);
+            topicProducerBObject.addNativeData(Constants.SESSION_CONNECTOR_OBJECT,
                     new SessionConnector(session));
         } catch (JMSException e) {
             BallerinaAdapter.throwBallerinaException("Error creating topic producer", context, e);
