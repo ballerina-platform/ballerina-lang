@@ -80,7 +80,7 @@ type TestConnector record {
 @http:ServiceConfig {
     basePath:"/hello"
 }
-service PizzaService on new http:Listener(9090) {
+service PizzaService on new http:MockListener(9090) {
 
     # Check orderPizza resource.
     # + req - In request.

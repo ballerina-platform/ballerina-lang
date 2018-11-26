@@ -38,7 +38,7 @@ type Employee record {
 };
 
 # PizzaService HTTP Service
-service PizzaService on new http:Listener(9090){
+service PizzaService on new http:MockListener(9090){
 
     # Check orderPizza resource.
     # + conn - HTTP connection.
