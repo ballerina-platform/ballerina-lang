@@ -33,6 +33,9 @@ public interface BallerinaReservedWord extends BallerinaCompositeElement {
   PsiElement getMap();
 
   @Nullable
+  PsiElement getObjectInit();
+
+  @Nullable
   PsiElement getStart();
 
 }

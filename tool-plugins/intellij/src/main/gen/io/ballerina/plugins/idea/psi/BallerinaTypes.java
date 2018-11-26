@@ -68,7 +68,6 @@ public interface BallerinaTypes {
   IElementType CALLABLE_UNIT_SIGNATURE = new BallerinaCompositeElementType("CALLABLE_UNIT_SIGNATURE");
   IElementType CATCH_CLAUSE = new BallerinaCompositeElementType("CATCH_CLAUSE");
   IElementType CATCH_CLAUSES = new BallerinaCompositeElementType("CATCH_CLAUSES");
-  IElementType CHANNEL_DEFINITION = new BallerinaCompositeElementType("CHANNEL_DEFINITION");
   IElementType CHANNEL_TYPE = new BallerinaCompositeElementType("CHANNEL_TYPE");
   IElementType CHECKED_EXPRESSION = new BallerinaCompositeElementType("CHECKED_EXPRESSION");
   IElementType CLOSE_TAG = new BallerinaCompositeElementType("CLOSE_TAG");
@@ -132,8 +131,7 @@ public interface BallerinaTypes {
   IElementType FUNCTION_NAME_REFERENCE = new BallerinaCompositeElementType("FUNCTION_NAME_REFERENCE");
   IElementType FUNCTION_TYPE_NAME = new BallerinaCompositeElementType("FUNCTION_TYPE_NAME");
   IElementType FUTURE_TYPE_NAME = new BallerinaCompositeElementType("FUTURE_TYPE_NAME");
-  IElementType GLOBAL_VARIABLE = new BallerinaCompositeElementType("GLOBAL_VARIABLE");
-  IElementType GLOBAL_VARIABLE_DEFINITION = BallerinaElementTypeFactory.stubFactory("GLOBAL_VARIABLE_DEFINITION");
+  IElementType GLOBAL_VARIABLE_DEFINITION = new BallerinaCompositeElementType("GLOBAL_VARIABLE_DEFINITION");
   IElementType GROUP_BY_CLAUSE = new BallerinaCompositeElementType("GROUP_BY_CLAUSE");
   IElementType GROUP_TYPE_NAME = new BallerinaCompositeElementType("GROUP_TYPE_NAME");
   IElementType HAVING_CLAUSE = new BallerinaCompositeElementType("HAVING_CLAUSE");
@@ -176,14 +174,8 @@ public interface BallerinaTypes {
   IElementType NAME_REFERENCE = BallerinaElementTypeFactory.stubFactory("NAME_REFERENCE");
   IElementType NULLABLE_TYPE_NAME = new BallerinaCompositeElementType("NULLABLE_TYPE_NAME");
   IElementType OBJECT_BODY = new BallerinaCompositeElementType("OBJECT_BODY");
-  IElementType OBJECT_DEFAULTABLE_PARAMETER = new BallerinaCompositeElementType("OBJECT_DEFAULTABLE_PARAMETER");
   IElementType OBJECT_FIELD_DEFINITION = new BallerinaCompositeElementType("OBJECT_FIELD_DEFINITION");
   IElementType OBJECT_FUNCTION_DEFINITION = new BallerinaCompositeElementType("OBJECT_FUNCTION_DEFINITION");
-  IElementType OBJECT_INITIALIZER = new BallerinaCompositeElementType("OBJECT_INITIALIZER");
-  IElementType OBJECT_INITIALIZER_PARAMETER_LIST = new BallerinaCompositeElementType("OBJECT_INITIALIZER_PARAMETER_LIST");
-  IElementType OBJECT_MEMBER = new BallerinaCompositeElementType("OBJECT_MEMBER");
-  IElementType OBJECT_PARAMETER = new BallerinaCompositeElementType("OBJECT_PARAMETER");
-  IElementType OBJECT_PARAMETER_LIST = new BallerinaCompositeElementType("OBJECT_PARAMETER_LIST");
   IElementType OBJECT_TYPE_NAME = new BallerinaCompositeElementType("OBJECT_TYPE_NAME");
   IElementType ON_ABORT_STATEMENT = new BallerinaCompositeElementType("ON_ABORT_STATEMENT");
   IElementType ON_COMMIT_STATEMENT = new BallerinaCompositeElementType("ON_COMMIT_STATEMENT");
@@ -422,6 +414,7 @@ public interface BallerinaTypes {
   IElementType EXPRESSION_END = new BallerinaTokenType("EXPRESSION_END");
   IElementType EXTERN = new BallerinaTokenType("extern");
   IElementType FAIL = new BallerinaTokenType("fail");
+  IElementType FINAL = new BallerinaTokenType("final");
   IElementType FINALLY = new BallerinaTokenType("finally");
   IElementType FIRST = new BallerinaTokenType("first");
   IElementType FLOAT = new BallerinaTokenType("float");
@@ -481,6 +474,7 @@ public interface BallerinaTypes {
   IElementType NOT_EQUAL = new BallerinaTokenType("!=");
   IElementType NULL_LITERAL = new BallerinaTokenType("NULL_LITERAL");
   IElementType OBJECT = new BallerinaTokenType("object");
+  IElementType OBJECT_INIT = new BallerinaTokenType("object_init");
   IElementType OCTAL_INTEGER_LITERAL = new BallerinaTokenType("OCTAL_INTEGER_LITERAL");
   IElementType ON = new BallerinaTokenType("on");
   IElementType ONABORT = new BallerinaTokenType("onabort");
@@ -726,9 +720,6 @@ public interface BallerinaTypes {
       else if (type == CATCH_CLAUSES) {
         return new BallerinaCatchClausesImpl(node);
       }
-      else if (type == CHANNEL_DEFINITION) {
-        return new BallerinaChannelDefinitionImpl(node);
-      }
       else if (type == CHANNEL_TYPE) {
         return new BallerinaChannelTypeImpl(node);
       }
@@ -918,9 +909,6 @@ public interface BallerinaTypes {
       else if (type == FUTURE_TYPE_NAME) {
         return new BallerinaFutureTypeNameImpl(node);
       }
-      else if (type == GLOBAL_VARIABLE) {
-        return new BallerinaGlobalVariableImpl(node);
-      }
       else if (type == GLOBAL_VARIABLE_DEFINITION) {
         return new BallerinaGlobalVariableDefinitionImpl(node);
       }
@@ -1050,29 +1038,11 @@ public interface BallerinaTypes {
       else if (type == OBJECT_BODY) {
         return new BallerinaObjectBodyImpl(node);
       }
-      else if (type == OBJECT_DEFAULTABLE_PARAMETER) {
-        return new BallerinaObjectDefaultableParameterImpl(node);
-      }
       else if (type == OBJECT_FIELD_DEFINITION) {
         return new BallerinaObjectFieldDefinitionImpl(node);
       }
       else if (type == OBJECT_FUNCTION_DEFINITION) {
         return new BallerinaObjectFunctionDefinitionImpl(node);
-      }
-      else if (type == OBJECT_INITIALIZER) {
-        return new BallerinaObjectInitializerImpl(node);
-      }
-      else if (type == OBJECT_INITIALIZER_PARAMETER_LIST) {
-        return new BallerinaObjectInitializerParameterListImpl(node);
-      }
-      else if (type == OBJECT_MEMBER) {
-        return new BallerinaObjectMemberImpl(node);
-      }
-      else if (type == OBJECT_PARAMETER) {
-        return new BallerinaObjectParameterImpl(node);
-      }
-      else if (type == OBJECT_PARAMETER_LIST) {
-        return new BallerinaObjectParameterListImpl(node);
       }
       else if (type == OBJECT_TYPE_NAME) {
         return new BallerinaObjectTypeNameImpl(node);
