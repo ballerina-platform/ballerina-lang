@@ -784,8 +784,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BLangBuiltInMethod builtInFunction = BLangBuiltInMethod.getFromString(iExpr.name.value);
         // Returns if the function is a builtin function
-        if (BLangBuiltInMethod.UNDEFINED != builtInFunction && checkBuiltinFunctionInvocation(iExpr, builtInFunction,
-                varRefType)) {
+        if (BLangBuiltInMethod.UNDEFINED != builtInFunction && builtInFunction.isExternal() &&
+                checkBuiltinFunctionInvocation(iExpr, builtInFunction, varRefType)) {
             return;
         }
 
