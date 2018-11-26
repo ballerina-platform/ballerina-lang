@@ -30,6 +30,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.util.LinkedHashMap;
+
 /**
  * Test cases for error variable references.
  *
@@ -143,6 +145,30 @@ public class ErrorVariableReferenceTest {
         Assert.assertEquals(returns[1].stringValue(), "Err3");
         Assert.assertEquals(returns[2].stringValue(), "Something Wrong3");
         Assert.assertNull(returns[3]);
+    }
+
+    @Test(description = "Test simple error var def inside tuple with destructuring error")
+    public void testBasicErrorVariableWithFieldBasedRef() {
+        BValue[] returns = BRunUtil.invoke(result, "testBasicErrorVariableWithFieldBasedRef");
+        Assert.assertEquals(returns.length, 1);
+        LinkedHashMap<String, BValue> results = ((BMap) returns[0]).getMap();
+        Assert.assertEquals(results.get("res1").stringValue(), "Error One");
+        Assert.assertEquals(results.get("rec").stringValue(), "{message:\"Something Wrong\", fatal:true}");
+        Assert.assertEquals(results.get("res2").stringValue(), "Error One");
+        Assert.assertEquals(results.get("message").stringValue(), "Something Wrong");
+        Assert.assertTrue(((BBoolean) results.get("fatal")).booleanValue());
+    }
+
+    @Test(description = "Test simple error var def inside tuple with destructuring error")
+    public void testBasicErrorVariableWithIndexBasedRef() {
+        BValue[] returns = BRunUtil.invoke(result, "testBasicErrorVariableWithIndexBasedRef");
+        Assert.assertEquals(returns.length, 1);
+        LinkedHashMap<String, BValue> results = ((BMap) returns[0]).getMap();
+        Assert.assertEquals(results.get("res1").stringValue(), "Error One");
+        Assert.assertEquals(results.get("rec").stringValue(), "{message:\"Something Wrong\", fatal:true}");
+        Assert.assertEquals(results.get("res2").stringValue(), "Error One");
+        Assert.assertEquals(results.get("message").stringValue(), "Something Wrong");
+        Assert.assertTrue(((BBoolean) results.get("fatal")).booleanValue());
     }
 
     @Test

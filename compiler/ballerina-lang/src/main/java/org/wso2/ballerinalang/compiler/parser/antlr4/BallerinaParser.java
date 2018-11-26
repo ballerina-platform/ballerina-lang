@@ -7020,12 +7020,14 @@ public class BallerinaParser extends Parser {
 	public static class ErrorRefBindingPatternContext extends ParserRuleContext {
 		public TerminalNode TYPE_ERROR() { return getToken(BallerinaParser.TYPE_ERROR, 0); }
 		public TerminalNode LEFT_PARENTHESIS() { return getToken(BallerinaParser.LEFT_PARENTHESIS, 0); }
-		public VariableReferenceContext variableReference() {
-			return getRuleContext(VariableReferenceContext.class,0);
+		public List<VariableReferenceContext> variableReference() {
+			return getRuleContexts(VariableReferenceContext.class);
+		}
+		public VariableReferenceContext variableReference(int i) {
+			return getRuleContext(VariableReferenceContext.class,i);
 		}
 		public TerminalNode RIGHT_PARENTHESIS() { return getToken(BallerinaParser.RIGHT_PARENTHESIS, 0); }
 		public TerminalNode COMMA() { return getToken(BallerinaParser.COMMA, 0); }
-		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
 		public RecordRefBindingPatternContext recordRefBindingPattern() {
 			return getRuleContext(RecordRefBindingPatternContext.class,0);
 		}
@@ -7064,10 +7066,37 @@ public class BallerinaParser extends Parser {
 				match(COMMA);
 				setState(1363);
 				switch (_input.LA(1)) {
+				case SERVICE:
+				case FUNCTION:
+				case OBJECT:
+				case RECORD:
+				case ABSTRACT:
+				case CLIENT:
+				case TYPE_INT:
+				case TYPE_BYTE:
+				case TYPE_FLOAT:
+				case TYPE_DECIMAL:
+				case TYPE_BOOL:
+				case TYPE_STRING:
+				case TYPE_ERROR:
+				case TYPE_MAP:
+				case TYPE_JSON:
+				case TYPE_XML:
+				case TYPE_TABLE:
+				case TYPE_STREAM:
+				case TYPE_ANY:
+				case TYPE_DESC:
+				case TYPE_FUTURE:
+				case TYPE_ANYDATA:
+				case OBJECT_INIT:
+				case FOREACH:
+				case CONTINUE:
+				case START:
+				case LEFT_PARENTHESIS:
 				case Identifier:
 					{
 					setState(1361);
-					match(Identifier);
+					variableReference(0);
 					}
 					break;
 				case LEFT_BRACE:
@@ -18760,7 +18789,7 @@ public class BallerinaParser extends Parser {
 		"\u0549\3\2\2\2\u0549\u054a\7\u008e\2\2\u054a\u00a3\3\2\2\2\u054b\u054c"+
 		"\7\u008b\2\2\u054c\u054d\5\u00a8U\2\u054d\u054e\7\u008c\2\2\u054e\u00a5"+
 		"\3\2\2\2\u054f\u0550\7P\2\2\u0550\u0551\7\u008d\2\2\u0551\u0557\5\u00dc"+
-		"o\2\u0552\u0555\7\u008a\2\2\u0553\u0556\7\u00c5\2\2\u0554\u0556\5\u00a4"+
+		"o\2\u0552\u0555\7\u008a\2\2\u0553\u0556\5\u00dco\2\u0554\u0556\5\u00a4"+
 		"S\2\u0555\u0553\3\2\2\2\u0555\u0554\3\2\2\2\u0556\u0558\3\2\2\2\u0557"+
 		"\u0552\3\2\2\2\u0557\u0558\3\2\2\2\u0558\u0559\3\2\2\2\u0559\u055a\7\u008e"+
 		"\2\2\u055a\u00a7\3\2\2\2\u055b\u0560\5\u00aaV\2\u055c\u055d\7\u008a\2"+

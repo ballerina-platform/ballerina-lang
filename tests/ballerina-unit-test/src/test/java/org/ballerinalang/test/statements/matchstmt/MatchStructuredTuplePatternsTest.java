@@ -259,5 +259,4 @@ public class MatchStructuredTuplePatternsTest {
         Assert.assertEquals(results.get(++i), msg + "int : 876");
         Assert.assertEquals(results.get(++i), "Default");
     }
-
 }

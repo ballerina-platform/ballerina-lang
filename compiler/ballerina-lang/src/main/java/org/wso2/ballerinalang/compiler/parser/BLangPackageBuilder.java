@@ -746,21 +746,14 @@ public class BLangPackageBuilder {
         this.exprNodeStack.push(tupleVarRef);
     }
 
-    void addErrorVariableReference(DiagnosticPos pos,
-                                   Set<Whitespace> ws,
-                                   boolean recordBindingPattern,
-                                   String identifier) {
+    void addErrorVariableReference(DiagnosticPos pos, Set<Whitespace> ws, boolean hasDetailExpr) {
         BLangErrorVarRef errorVarRef = (BLangErrorVarRef) TreeBuilder.createErrorVariableReferenceNode();
         errorVarRef.pos = pos;
         errorVarRef.addWS(ws);
-        if (identifier != null) {
-            addNameReference(pos, ws, null, identifier);
-            createSimpleVariableReference(pos, ws);
-            errorVarRef.detail = (BLangVariableReference) this.exprNodeStack.pop();
-        } else if (recordBindingPattern) {
+        if (hasDetailExpr) {
             errorVarRef.detail = (BLangVariableReference) this.exprNodeStack.pop();
         }
-        errorVarRef.reason = (BLangSimpleVarRef) this.exprNodeStack.pop();
+        errorVarRef.reason = (BLangVariableReference) this.exprNodeStack.pop();
         this.exprNodeStack.push(errorVarRef);
     }
 

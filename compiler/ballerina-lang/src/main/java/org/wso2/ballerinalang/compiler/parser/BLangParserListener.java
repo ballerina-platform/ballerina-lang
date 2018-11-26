@@ -869,11 +869,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean recordBindingPattern = false;
-        if (ctx.recordRefBindingPattern() != null) {
+        if (ctx.recordRefBindingPattern() != null || ctx.variableReference().size() == 2) {
             recordBindingPattern = true;
         }
-        this.pkgBuilder.addErrorVariableReference(getCurrentPos(ctx), getWS(ctx), recordBindingPattern,
-                ctx.Identifier() != null ? ctx.Identifier().getText() : null);
+        this.pkgBuilder.addErrorVariableReference(getCurrentPos(ctx), getWS(ctx), recordBindingPattern);
     }
 
     @Override

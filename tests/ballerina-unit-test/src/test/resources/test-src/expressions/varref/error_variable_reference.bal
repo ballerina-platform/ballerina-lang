@@ -159,3 +159,23 @@ function testErrorInRecordWithDestructure2() returns (int, string, any, any) {
     {x, e: error (reason, {message, extra})} = b;
     return (x, reason, message, extra);
 }
+
+function testBasicErrorVariableWithFieldBasedRef() returns map<any> {
+    FooError err1 = error ("Error One", {message: "Something Wrong", fatal: true});
+
+    map<any> results = {};
+
+    error (results.res1, results.rec) = err1;
+    error (results.res2, {message: results.message, fatal: results.fatal}) = err1;
+    return results;
+}
+
+function testBasicErrorVariableWithIndexBasedRef() returns map<any> {
+    FooError err1 = error ("Error One", {message: "Something Wrong", fatal: true});
+
+    map<any> results = {};
+
+    error (results["res1"], results["rec"]) = err1;
+    error (results["res2"], {message: results["message"], fatal: results["fatal"]}) = err1;
+    return results;
+}

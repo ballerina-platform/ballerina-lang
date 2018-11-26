@@ -34,7 +34,7 @@ public class BLangErrorVarRef extends BLangVariableReference implements ErrorVar
 
     public BVarSymbol varSymbol;
     public BLangIdentifier pkgAlias;
-    public BLangSimpleVarRef reason;
+    public BLangVariableReference reason;
     public BLangVariableReference detail;
 
     public BLangErrorVarRef() {

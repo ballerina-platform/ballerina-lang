@@ -1261,16 +1261,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         BErrorType rhsErrorType = (BErrorType) rhsType;
 
-        BLangSimpleVarRef reason = varRef.reason;
-        Name varName = names.fromIdNode(reason.variableName);
-        if (varName == Names.IGNORE) {
-            dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.errorType, rhsType);
-            return;
-        }
+        BLangVariableReference reason = varRef.reason;
         if (!types.isAssignable(rhsErrorType.reasonType, reason.type)) {
             dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, reason.type, rhsErrorType.reasonType);
         }
-
         if (varRef.detail.getKind() == NodeKind.RECORD_VARIABLE_REF) {
             typeChecker.checkExpr(varRef.detail, env);
             checkRecordVarRefEquivalency(

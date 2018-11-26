@@ -1501,7 +1501,9 @@ public class Desugar extends BLangNodeVisitor {
         final BLangAssignment reasonAssignment = ASTBuilderUtil.createAssignmentStmt(parentBlockStmt.pos,
                 parentBlockStmt);
         reasonAssignment.expr = createErrorReasonBuiltinFunction(parentErrorVarRef.reason.pos,
-                parentErrorVarRef.reason.type, errorVarySymbol, parentIndexAccessExpr);
+                symTable.stringType, errorVarySymbol, parentIndexAccessExpr);
+
+        reasonAssignment.expr = addConversionExprIfRequired(reasonAssignment.expr, parentErrorVarRef.reason.type);
 
         reasonAssignment.varRef = parentErrorVarRef.reason;
 

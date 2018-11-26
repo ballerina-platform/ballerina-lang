@@ -181,7 +181,6 @@ public class RecordVariableReferenceTest {
 
     @Test
     public void testNegativeRecordVariables() {
-        System.out.println(resultNegative);
         Assert.assertEquals(resultNegative.getErrorCount(), 17);
         final String undefinedSymbol = "undefined symbol ";
         final String expectingClosedRecord = "invalid closed record binding pattern on opened record type {0}";
