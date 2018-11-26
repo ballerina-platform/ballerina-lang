@@ -2937,7 +2937,7 @@ public class CPU {
 
     private static void beginTransaction(WorkerExecutionContext ctx, int transactionType, int transactionBlockId,
                                          int retryCountRegIndex, int committedFuncIndex, int abortedFuncIndex) {
-        if (transactionType == Transactions.TransactionType.PARTICIPANT.value) {
+        if (transactionType == Transactions.TransactionType.PARTICIPANT.value && transactionBlockId < 0) {
             beginTransactionParticipant(ctx, transactionBlockId, committedFuncIndex, abortedFuncIndex);
             return;
         }

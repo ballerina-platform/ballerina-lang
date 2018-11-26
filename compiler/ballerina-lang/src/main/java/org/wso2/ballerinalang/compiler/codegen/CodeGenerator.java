@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -231,6 +232,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 import javax.xml.XMLConstants;
@@ -1764,7 +1766,15 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private void emitTransactionBeginIfApplicable(BLangBlockStmt body) {
         BLangNode parent = body.parent;
+        if (parent == null) {
+            return;
+        }
+        // Resource functions are not applicable for local transaction participants, they are remote participants.
         if (parent instanceof BLangFunction) {
+            Set<Flag> flagSet = ((BLangFunction) parent).flagSet;
+            if (flagSet != null && flagSet.contains(Flag.RESOURCE)) {
+                return;
+            }
             BLangFunction function = (BLangFunction) parent;
             List<BLangAnnotationAttachment> participantAnnotation = function.annAttachments.stream()
                     .filter(a -> Transactions.isTransactionsAnnotation(a.pkgAlias.value, a.annotationName.value))
