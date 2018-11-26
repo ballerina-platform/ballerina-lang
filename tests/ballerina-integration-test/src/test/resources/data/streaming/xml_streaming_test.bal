@@ -17,18 +17,20 @@ import ballerina/http;
 import ballerina/h2;
 import ballerina/log;
 
-endpoint h2:Client testDB {
+h2:Client testDB = new({
     path: "../../tempdb/",
     name: "STREAMING_XML_TEST_DB",
     username: "SA",
     password: "",
     poolOptions: { maximumPoolSize: 1 },
     dbOptions: { IFEXISTS: true }
-};
+});
 
-service<http:Service> dataService bind { port: 9090 } {
+listener http:Listener dataServiceListener = new(9090);
 
-    getData(endpoint caller, http:Request req) {
+service dataService on dataServiceListener {
+
+    resource function getData(http:Caller caller, http:Request req) {
 
         var selectRet = testDB->select("SELECT * FROM Data", ());
         if (selectRet is table) {

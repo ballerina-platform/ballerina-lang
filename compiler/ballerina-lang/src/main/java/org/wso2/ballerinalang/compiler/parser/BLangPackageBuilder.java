@@ -2602,6 +2602,7 @@ public class BLangPackageBuilder {
         typeDef.typeNode = (BLangType) this.typeNodeStack.pop();
         typeDef.pos = pos;
         this.compUnit.addTopLevelNode(typeDef);
+        serviceNode.serviceTypeDefinition = typeDef;
         serviceNode.serviceUDT = createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(),
                 typeDef.name);
 

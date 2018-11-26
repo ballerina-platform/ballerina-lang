@@ -105,8 +105,9 @@ function Listener.sendSubscriptionRequests() {
             continue;
         }
 
+        // TODO: fix retrieveSubscriptionParameters to put values as relevant types.
         string strSubscribeOnStartUp = <string>subscriptionDetails.subscribeOnStartUp;
-        boolean subscribeOnStartUp = <boolean>strSubscribeOnStartUp;
+        boolean subscribeOnStartUp = boolean.create(strSubscribeOnStartUp);
 
         if (subscribeOnStartUp) {
             string resourceUrl = <string>subscriptionDetails.resourceUrl;
@@ -114,15 +115,15 @@ function Listener.sendSubscriptionRequests() {
             string topic = <string>subscriptionDetails.topic;
 
             http:SecureSocket? newSecureSocket;
-            var secureSocket = <http:SecureSocket>subscriptionDetails.secureSocket;
+            var secureSocket = trap <http:SecureSocket>subscriptionDetails.secureSocket;
             newSecureSocket = secureSocket is http:SecureSocket ? secureSocket : ();
 
             http:AuthConfig? auth;
-            var httpAuth = <http:AuthConfig>subscriptionDetails.auth;
+            var httpAuth = trap <http:AuthConfig>subscriptionDetails.auth;
             auth = httpAuth is http:AuthConfig ? httpAuth : ();
 
             http:FollowRedirects? followRedirects;
-            var httpFollowRedirects = <http:FollowRedirects>subscriptionDetails.followRedirects;
+            var httpFollowRedirects = trap <http:FollowRedirects>subscriptionDetails.followRedirects;
             followRedirects = httpFollowRedirects is http:FollowRedirects ? httpFollowRedirects : ();
 
             if (hub == "" || topic == "") {
@@ -225,7 +226,6 @@ public type ExtensionConfig record {
 function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:SecureSocket? localSecureSocket,
                                 http:FollowRedirects? followRedirects) returns @tainted (string, string)|error {
     http:Client resourceEP = new http:Client(resourceUrl, config = {
-        url: resourceUrl,
         auth: auth,
         secureSocket: localSecureSocket,
         followRedirects:followRedirects
@@ -275,7 +275,7 @@ function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth,
     int leaseSeconds = 0;
 
     string strLeaseSeconds = <string>subscriptionDetails.leaseSeconds;
-    var convIntLeaseSeconds = <int>strLeaseSeconds;
+    var convIntLeaseSeconds = int.create(strLeaseSeconds);
     if (convIntLeaseSeconds is int) {
         leaseSeconds = convIntLeaseSeconds;
     } else if (convIntLeaseSeconds is error) {
