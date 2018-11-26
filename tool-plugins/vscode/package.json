@@ -234,7 +234,6 @@
         "@types/mocha": "^2.2.42",
         "@types/node": "^8.10.25",
         "@types/ws": "^6.0.0",
-        "ast-model": "file:../../composer/ast-model",
         "chai": "^4.2.0",
         "cross-env": "^5.2.0",
         "decache": "^4.4.0",
