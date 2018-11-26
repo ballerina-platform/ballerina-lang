@@ -63,7 +63,7 @@ public final class BLangConnectorSPIUtil {
      */
     public static Service getServiceRegistered(Context context) {
         BValue result = context.getRefArgument(1);
-        if (result == null || result.getType().getTag() != TypeTags.OBJECT_TYPE_TAG) {
+        if (result == null || result.getType().getTag() != TypeTags.SERVICE_TAG) {
             throw new BallerinaConnectorException("Can't get service reference");
         }
         final ProgramFile programFile = context.getProgramFile();

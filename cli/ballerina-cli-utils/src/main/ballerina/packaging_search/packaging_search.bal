@@ -51,22 +51,22 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
     } else {
         var jsonResponse = httpResponse.getJsonPayload();
         if (jsonResponse is json) {
-            var artifacts = <json[]> jsonResponse.artifacts;
+            var artifacts = trap <json[]> jsonResponse.artifacts;
             if (artifacts is json[]) {
                 if (artifacts.length() > 0) {
                     int artifactsLength = artifacts.length();
                     printTitle("Ballerina Central");
-                    
+
                     int rightMargin = 3;
                     int width;
-                    var intTerminalWidth = <int> terminalWidth;
+                    var intTerminalWidth = int.create(terminalWidth);
                     if (intTerminalWidth is int) {
                         width = intTerminalWidth - rightMargin;
                     } else {
                         io:println("invalid terminal width : " + terminalWidth);
                         return;
                     }
-                    
+
                     int dateColWidth = 15;
                     int versionColWidth = 8;
                     int authorsColWidth = 15;
@@ -74,10 +74,10 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
                     float descColFactor = 16.0;
                     int additionalSpace = 7;
                     float remainingWidth = width - <float>(dateColWidth + versionColWidth + additionalSpace);
-                    
+
                     int nameColWidth = math:round(remainingWidth * (nameColFactor / (nameColFactor + descColFactor)));
-                    int descColWidth = math:round(remainingWidth * (descColFactor / (nameColFactor + descColFactor)));  
-                    
+                    int descColWidth = math:round(remainingWidth * (descColFactor / (nameColFactor + descColFactor)));
+
                     printInCLI("|NAME", nameColWidth);
                     int minDescColWidth = 60;
                     if (descColWidth >= minDescColWidth) {
@@ -86,14 +86,14 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
                     } else {
                         printInCLI("DESCRIPTION", descColWidth);
                     }
-                    
+
                     printInCLI("DATE", dateColWidth);
                     printInCLI("VERSION", versionColWidth);
 
                     io:println("");
 
                     printCharacter("|-", nameColWidth, "-");
-                    
+
                     if (descColWidth >= minDescColWidth) {
                         printCharacter("-", descColWidth - authorsColWidth, "-");
                         printCharacter("-", authorsColWidth, "-");
@@ -112,9 +112,9 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
                         string orgName = jsonElement.orgName.toString();
                         string packageName = jsonElement.packageName.toString();
                         printInCLI("|"+ orgName + "/" + packageName, nameColWidth);
-                        
+
                         string summary = jsonElement.summary.toString();
-                                        
+
                         if (descColWidth >= minDescColWidth) {
                             printInCLI(summary, descColWidth - authorsColWidth);
                             string authors = "";
@@ -133,7 +133,7 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
 
                         json createTimeJson = <json> jsonElement.createdDate;
                         printInCLI(getDateCreated(createTimeJson), dateColWidth);
-                        
+
                         string packageVersion = jsonElement.packageVersion.toString();
                         printInCLI(packageVersion, versionColWidth);
                         i = i + 1;
@@ -240,7 +240,7 @@ function printTitle(string title) {
 # + return - Date and time the module was created
 function getDateCreated(json jsonObj) returns string {
     string jsonTime = jsonObj.time.toString();
-    var timeInMillis = <int> jsonTime;
+    var timeInMillis = int.create(jsonTime);
     if (timeInMillis is int) {
         time:Time timeStruct = new(timeInMillis, { zoneId: "UTC", zoneOffset: 0 });
         string customTimeString = timeStruct.format("yyyy-MM-dd-E");
@@ -258,7 +258,7 @@ public function main (string... args) {
     string host = args[2];
     string strPort = args[3];
     if (host != "" && strPort != "") {
-        var port = <int> strPort;
+        var port = int.create(strPort);
         if (port is int) {
             http:Client|error result = trap defineEndpointWithProxy(args[0], host, port, args[4], args[5]);
             if (result is http:Client) {

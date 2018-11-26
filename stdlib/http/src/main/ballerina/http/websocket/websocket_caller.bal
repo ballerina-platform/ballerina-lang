@@ -27,7 +27,7 @@ public type WebSocketCaller client object {
     @readonly public string negotiatedSubProtocol = "";
     @readonly public boolean isSecure = false;
     @readonly public boolean isOpen = false;
-    @readonly public map attributes = {};
+    @readonly public map<any> attributes = {};
 
     private WebSocketConnector conn = new;
 
