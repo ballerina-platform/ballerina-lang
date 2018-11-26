@@ -1,5 +1,5 @@
-int count;
-string word;
+int count = 0;
+string word = "";
 
 function test1(){
     int x = 0;

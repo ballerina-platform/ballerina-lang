@@ -25,9 +25,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.PsiUtilCore;
 import io.ballerina.plugins.idea.BallerinaLanguage;
 import io.ballerina.plugins.idea.highlighting.BallerinaSyntaxHighlighter;
-import io.ballerina.plugins.idea.psi.BallerinaEndpointDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaGlobalVariableDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaResourceDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaServiceBody;
 import io.ballerina.plugins.idea.psi.BallerinaSimpleTypeName;
 import org.jetbrains.annotations.NonNls;
@@ -97,16 +95,10 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
 
         @Override
         protected boolean isInContext(@NotNull PsiElement element) {
-            BallerinaResourceDefinition resourceDefinition = PsiTreeUtil.getParentOfType(element,
-                    BallerinaResourceDefinition.class);
-            BallerinaEndpointDefinition endpointDefinition = PsiTreeUtil.getParentOfType(element,
-                    BallerinaEndpointDefinition.class);
             BallerinaServiceBody serviceDefinition = PsiTreeUtil.getParentOfType(element,
                     BallerinaServiceBody.class);
-            if (serviceDefinition != null && endpointDefinition == null) {
-                if (resourceDefinition == null || resourceDefinition.getChildren().length == 1) {
-                    return true;
-                }
+            if (serviceDefinition != null) {
+                return true;
             }
             return false;
         }

@@ -55,7 +55,7 @@ import java.util.concurrent.TimeUnit;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 
 /**
- * Get the ID of the connection.
+ * Initialize the WebSocket Client.
  *
  * @since 0.966
  */
@@ -66,7 +66,7 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "WebSocketClient",
                              structPackage = "ballerina/http"),
         args = {@Argument(name = "epName", type = TypeKind.STRING),
-                @Argument(name = "config", type = TypeKind.RECORD, structType = "ServiceEndpointConfiguration")},
+                @Argument(name = "config", type = TypeKind.RECORD, structType = "WebSocketClientEndpointConfig")},
         isPublic = true
 )
 public class InitEndpoint extends BlockingNativeCallableUnit {
@@ -76,7 +76,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
         Struct clientEndpointConfig = clientEndpoint.getStructField(HttpConstants.CLIENT_ENDPOINT_CONFIG);
 
-        String remoteUrl = clientEndpointConfig.getStringField(WebSocketConstants.CLIENT_URL_CONFIG);
+        String remoteUrl = clientEndpoint.getStringField(WebSocketConstants.CLIENT_URL_CONFIG);
         Value clientServiceType = clientEndpointConfig.getTypeField(WebSocketConstants.CLIENT_SERVICE_CONFIG);
         WebSocketService wsService;
         if (clientServiceType != null) {

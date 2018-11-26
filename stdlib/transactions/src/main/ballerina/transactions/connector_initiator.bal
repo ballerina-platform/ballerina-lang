@@ -25,38 +25,28 @@ type InitiatorClientConfig record {
     } retryConfig = {};
 };
 
-type InitiatorClientEP object {
-    http:Client httpClient = new;
+type InitiatorClientEP client object {
+    http:Client httpClient;
 
-    function init(InitiatorClientConfig conf) {
-        endpoint http:Client httpEP {
+    function __init(InitiatorClientConfig conf) {
+        int timeOut = conf.timeoutMillis;
+        int retryCount = conf.retryConfig.count;
+        int retryInterval = conf.retryConfig.interval;
+
+        http:Client httpEP = new(conf.registerAtURL, config = {
             url:conf.registerAtURL,
-            timeoutMillis:conf.timeoutMillis,
+            timeoutMillis:timeOut,
             retryConfig:{
-                count:conf.retryConfig.count, interval:conf.retryConfig.interval
+                count:retryCount,
+                interval:retryInterval
             }
-        };
+        });
         self.httpClient = httpEP;
     }
 
-    function getCallerActions() returns InitiatorClient {
-        InitiatorClient client = new;
-        client.clientEP = self;
-        return client;
-    }
-};
-
-type InitiatorClient object {
-    InitiatorClientEP clientEP = new;
-
-    new() {
-
-    }
-
-    function register(string transactionId, int transactionBlockId, RemoteProtocol[] participantProtocols)
-        returns RegistrationResponse|error {
-
-        endpoint http:Client httpClient = self.clientEP.httpClient;
+    remote function register(string transactionId, int transactionBlockId, RemoteProtocol[] participantProtocols)
+                 returns RegistrationResponse|error {
+        http:Client httpClient = self.httpClient;
         string participantId = getParticipantId(transactionBlockId);
         RegistrationRequest regReq = {
             transactionId:transactionId, participantId:participantId, participantProtocols:participantProtocols

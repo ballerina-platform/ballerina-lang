@@ -177,7 +177,7 @@ public class LSAnnotationCache {
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.FUNCTION)) {
                     addAttachment(annotationSymbol, functionAnnotations, bPackageSymbol.pkgID);
                 }
-                if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.ENDPOINT)) {
+                if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.CLIENT)) {
                     addAttachment(annotationSymbol, endpointAnnotations, bPackageSymbol.pkgID);
                 }
             }

@@ -21,11 +21,11 @@ string response = "";
 int total = 0;
 function testClientStreaming(string[] args) returns (string) {
     // Client endpoint configuration
-    endpoint HelloWorldClient helloWorldEp {
+    HelloWorldClient helloWorldEp = new ({
         url:"http://localhost:9096"
-    };
+    });
 
-    endpoint grpc:Client ep;
+    grpc:StreamingClient ep;
     // Executing unary non-blocking call registering server message listener.
     var res = helloWorldEp->lotsOfGreetings(HelloWorldMessageListener);
     if (res is error) {
@@ -58,74 +58,50 @@ function testClientStreaming(string[] args) returns (string) {
 }
 
 // Server Message Listener.
-service<grpc:Service> HelloWorldMessageListener {
+service HelloWorldMessageListener = service {
 
     // Resource registered to receive server messages
-    onMessage(string message) {
+    resource function onMessage(string message) {
         response = untaint message;
         io:println("Response received from server: " + response);
         total = 1;
     }
 
     // Resource registered to receive server error messages
-    onError(error err) {
+    resource function onError(error err) {
         io:println("Error reported from server: " + err.reason());
     }
 
     // Resource registered to receive server completed message.
-    onComplete() {
+    resource function onComplete() {
         total = 1;
         io:println("Server Complete Sending Responses.");
     }
 }
 
-// Non-blocking client
-public type HelloWorldStub object {
-
-    public grpc:Client clientEndpoint = new;
-    public grpc:Stub stub = new;
-
-
-    function initStub(grpc:Client ep) {
-        grpc:Stub navStub = new;
-        error? result = navStub.initStub(ep, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
-        if (result is error) {
-            panic result;
-        } else {
-            self.stub = navStub;
-        }
-    }
-
-    function lotsOfGreetings(typedesc listener, grpc:Headers? headers = ()) returns (grpc:Client|error) {
-        return self.stub.streamingExecute("grpcservices.HelloWorld7/lotsOfGreetings", listener, headers = headers);
-    }
-};
-
-
 // Non-blocking client endpoint
-public type HelloWorldClient object {
+public type HelloWorldClient client object {
 
-    public grpc:Client client = new;
-    public HelloWorldStub stub = new;
+    private grpc:Client grpcClient = new;
 
-
-    public function init(grpc:ClientEndpointConfig con) {
+    function __init(grpc:ClientEndpointConfig con) {
         // initialize client endpoint.
         grpc:Client c = new;
         c.init(con);
-        self.client = c;
-        // initialize service stub.
-        HelloWorldStub s = new;
-        s.initStub(c);
-        self.stub = s;
+        error? result = c.initStub("non-blocking", DESCRIPTOR_KEY, descriptorMap);
+        if (result is error) {
+            panic result;
+        } else {
+            self.grpcClient = c;
+        }
     }
 
-    public function getCallerActions() returns (HelloWorldStub) {
-        return self.stub;
+    remote function lotsOfGreetings(service msgListener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|error) {
+        return self.grpcClient->streamingExecute("grpcservices.HelloWorld7/lotsOfGreetings", msgListener, headers = headers);
     }
 };
 
-@final string DESCRIPTOR_KEY = "HelloWorld7.proto";
+const string DESCRIPTOR_KEY = "HelloWorld7.proto";
 map descriptorMap =
 {
     "HelloWorld7.proto":"0A1148656C6C6F576F726C64372E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F325E0A0B48656C6C6F576F726C6437124F0A0F6C6F74734F664772656574696E6773121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C75652801620670726F746F33",

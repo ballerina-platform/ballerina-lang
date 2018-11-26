@@ -65,8 +65,6 @@ import java.util.Optional;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.ACCEPT_ENCODING;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
-import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_CONFIG;
-import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_SERVICE_URI;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
@@ -104,7 +102,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
 
         // Extract Argument values
         BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
-        String path = context.getStringArgument(0);
+        String path = context.getStringArgument(1);
 
         BMap<String, BValue> requestStruct = ((BMap<String, BValue>) context.getNullableRefArgument(1));
         if (requestStruct == null) {
@@ -116,15 +114,14 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
 
         HttpUtil.checkEntityAvailability(context, requestStruct);
         HttpUtil.enrichOutboundMessage(requestMsg, requestStruct);
-        prepareOutboundRequest(context, bConnector, path, requestMsg);
+        prepareOutboundRequest(context, path, requestMsg);
         handleAcceptEncodingHeader(requestMsg, getCompressionConfigFromEndpointConfig(bConnector));
         return requestMsg;
     }
 
     String getCompressionConfigFromEndpointConfig(BMap<String, BValue> httpClientStruct) {
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(httpClientStruct);
-        Struct epConfig = (Struct) clientEndpointConfig.getNativeData(CLIENT_ENDPOINT_CONFIG);
-        return epConfig.getRefField(ANN_CONFIG_ATTR_COMPRESSION).getStringValue();
+        return clientEndpointConfig.getRefField(ANN_CONFIG_ATTR_COMPRESSION).getStringValue();
     }
 
     void handleAcceptEncodingHeader(HttpCarbonMessage outboundRequest, String compressionConfigValue) {
@@ -139,16 +136,14 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         }
     }
 
-    protected void prepareOutboundRequest(Context context, BMap<String, BValue> connector, String path,
-                                          HttpCarbonMessage outboundRequest) {
-        validateParams(connector);
+    protected void prepareOutboundRequest(Context context, String path, HttpCarbonMessage outboundRequest) {
         if (context.isInTransaction()) {
             LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
             outboundRequest.setHeader(HttpConstants.HEADER_X_XID, localTransactionInfo.getGlobalTransactionId());
             outboundRequest.setHeader(HttpConstants.HEADER_X_REGISTER_AT_URL, localTransactionInfo.getURL());
         }
         try {
-            String uri = connector.get(CLIENT_ENDPOINT_SERVICE_URI).stringValue() + path;
+            String uri = getServiceUri(context) + path;
             URL url = new URL(uri);
 
             int port = getOutboundReqPort(url);
@@ -162,6 +157,14 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         } catch (Exception e) {
             throw new BallerinaException("Failed to prepare request. " + e.getMessage());
         }
+    }
+
+    private String getServiceUri(Context context) {
+        String serviceUri = context.getStringArgument(0);
+        if (serviceUri.isEmpty()) {
+            throw new BallerinaException("Service uri is not defined correctly.");
+        }
+        return serviceUri;
     }
 
     private void setOutboundReqHeaders(HttpCarbonMessage outboundRequest, int port, String host) {
@@ -226,12 +229,6 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
             port = 443;
         }
         return port;
-    }
-
-    private void validateParams(BMap<String, BValue> connector) {
-        if (connector == null || connector.get(CLIENT_ENDPOINT_SERVICE_URI) == null) {
-            throw new BallerinaException("Connector parameters not defined correctly.");
-        }
     }
 
     protected void executeNonBlockingAction(DataContext dataContext, boolean async) {
@@ -319,9 +316,9 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
      */
     private void send(DataContext dataContext, HttpCarbonMessage outboundRequestMsg, boolean async) {
         BMap<String, BValue> bConnector = (BMap<String, BValue>) dataContext.context.getRefArgument(0);
-        Struct httpClient = BLangConnectorSPIUtil.toStruct(bConnector);
+        Struct clientEndpoint = BLangConnectorSPIUtil.toStruct(bConnector);
         HttpClientConnector clientConnector = (HttpClientConnector)
-                httpClient.getNativeData(HttpConstants.CALLER_ACTIONS);
+                clientEndpoint.getNativeData(HttpConstants.HTTP_CLIENT);
         String contentType = HttpUtil.getContentTypeFromTransportMessage(outboundRequestMsg);
         String boundaryString = null;
 

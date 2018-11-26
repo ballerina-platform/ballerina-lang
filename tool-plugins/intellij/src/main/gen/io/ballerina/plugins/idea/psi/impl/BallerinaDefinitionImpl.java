@@ -49,14 +49,14 @@ public class BallerinaDefinitionImpl extends BallerinaCompositeElementImpl imple
 
   @Override
   @Nullable
-  public BallerinaFunctionDefinition getFunctionDefinition() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaFunctionDefinition.class);
+  public BallerinaConstantDefinition getConstantDefinition() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaConstantDefinition.class);
   }
 
   @Override
   @Nullable
-  public BallerinaGlobalEndpointDefinition getGlobalEndpointDefinition() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaGlobalEndpointDefinition.class);
+  public BallerinaFunctionDefinition getFunctionDefinition() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaFunctionDefinition.class);
   }
 
   @Override

@@ -40,11 +40,11 @@ const string DEFAULT_DB_PASSWORD = "";
 @readonly boolean hubTopicRegistrationRequired = false;
 @readonly string hubPublicUrl = "";
 
-@final boolean hubPersistenceEnabled = config:getAsBoolean("b7a.websub.hub.enablepersistence");
-@final string hubDatabaseDirectory = config:getAsString("b7a.websub.hub.db.directory", default = DEFAULT_DB_DIRECTORY);
-@final string hubDatabaseName = config:getAsString("b7a.websub.hub.db.name", default = DEFAULT_DB_NAME);
-@final string hubDatabaseUsername = config:getAsString("b7a.websub.hub.db.username", default = DEFAULT_DB_USERNAME);
-@final string hubDatabasePassword = config:getAsString("b7a.websub.hub.db.password", default = DEFAULT_DB_PASSWORD);
+final boolean hubPersistenceEnabled = config:getAsBoolean("b7a.websub.hub.enablepersistence");
+final string hubDatabaseDirectory = config:getAsString("b7a.websub.hub.db.directory", default = DEFAULT_DB_DIRECTORY);
+final string hubDatabaseName = config:getAsString("b7a.websub.hub.db.name", default = DEFAULT_DB_NAME);
+final string hubDatabaseUsername = config:getAsString("b7a.websub.hub.db.username", default = DEFAULT_DB_USERNAME);
+final string hubDatabasePassword = config:getAsString("b7a.websub.hub.db.password", default = DEFAULT_DB_PASSWORD);
 //TODO:add pool options
 
 @readonly boolean hubSslEnabled = false;
@@ -55,14 +55,12 @@ const string DEFAULT_DB_PASSWORD = "";
 #
 # + return - The `http:Listener` to which the service is bound
 function startHubService() returns http:Listener {
-    http:Listener hubServiceEP = new;
-    hubServiceEP.init({
-            host: hubHost,
-            port: hubPort,
-            secureSocket: hubServiceSecureSocket
-    });
-    hubServiceEP.register(hubService);
-    hubServiceEP.start();
+    http:ServiceEndpointConfiguration httpEpConfig = {host: hubHost, port: hubPort,
+                                                      secureSocket: hubServiceSecureSocket};
+    http:Listener hubServiceEP = new http:Listener(hubPort, config = httpEpConfig);
+    // TODO : handle errors
+    _ = hubServiceEP.__attach(hubService, {});
+    _ = hubServiceEP.__start();
     return hubServiceEP;
 }
 

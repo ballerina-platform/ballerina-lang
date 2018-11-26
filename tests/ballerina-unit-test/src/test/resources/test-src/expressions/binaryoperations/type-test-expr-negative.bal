@@ -210,7 +210,12 @@ public type Z1 object {
     *Y1;
     public boolean s;
     
-    public new (p, q, r, s) {}
+    public function __init(int p, string q, float r, boolean s) {
+        self.p = p;
+        self.q = q;
+        self.r = r;
+        self.s = s;
+    }
 };
 
 function testObjectEquivalency() returns (string, string) {

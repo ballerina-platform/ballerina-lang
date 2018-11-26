@@ -26,6 +26,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConstants;
 
+import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
+
 /**
  * Get the ID of the connection.
  *
@@ -35,7 +37,7 @@ import org.ballerinalang.net.http.HttpConstants;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "stop",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = HTTP_LISTENER_ENDPOINT,
                              structPackage = "ballerina/http"),
         isPublic = true
 )

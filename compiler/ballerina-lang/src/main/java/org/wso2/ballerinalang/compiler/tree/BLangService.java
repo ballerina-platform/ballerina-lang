@@ -34,6 +34,7 @@ import org.ballerinalang.model.tree.statements.XMLNSDeclStatementNode;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
@@ -47,10 +48,11 @@ import java.util.Set;
 
 /**
  * @since 0.94
+ *
+ *  TODO : Fix me.
  */
 public class BLangService extends BLangNode implements ServiceNode {
 
-    public BLangIdentifier name;
     public BLangUserDefinedType serviceTypeStruct;
     public List<BLangSimpleVariableDef> vars;
     public List<BLangResource> resources;
@@ -66,6 +68,13 @@ public class BLangService extends BLangNode implements ServiceNode {
     public List<BLangXMLNSStatement> nsDeclarations;
 
     public BSymbol symbol;
+    public BLangIdentifier name;
+    public BLangUserDefinedType serviceUDT;
+    public BLangExpression attachExpr;
+    public boolean isAnonymousServiceValue;
+
+    // Cached values.
+    public String listenerName;
 
     public BLangService() {
         this.vars = new ArrayList<>();
@@ -216,7 +225,6 @@ public class BLangService extends BLangNode implements ServiceNode {
 
     @Override
     public String toString() {
-        return "BLangService: " + flagSet + " " + annAttachments + " " + getName() + "<" + serviceTypeStruct + "> "
-                + vars + " " + resources;
+        return "BLangService: " + flagSet + " " + annAttachments + " " + getName();
     }
 }

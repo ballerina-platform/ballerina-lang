@@ -1,31 +1,31 @@
 type Department record {
-    string dptName;
-    Person[] employees;
+    string dptName = "";
+    Person[] employees = [];
 };
 
 type Person record {
     string name = "default first name";
-    string lname;
-    map adrs;
+    string lname = "";
+    map adrs = {};
     int age = 999;
-    Family family;
-    Person? parent;
+    Family family = {};
+    Person? parent = ();
 };
 
 type Family record {
-    string spouse;
-    int noOfChildren;
-    string[] children;
+    string spouse = "";
+    int noOfChildren = 0;
+    string[] children = [];
 };
 
 type Employee record {
     string name = "default first name";
-    string lname;
-    map address;
+    string lname = "";
+    map address = {};
     int age = 999;
-    Family family;
-    Person? parent;
-    string designation;
+    Family family = {};
+    Person? parent = ();
+    string designation = "";
 };
 
 function testStructOfStruct () returns string {
@@ -163,8 +163,8 @@ function testAnydataRestFieldRHSIndexAccess() returns anydata {
 }
 
 type Person2 record {
-    string name;
-    int age;
+    string name = "";
+    int age = 0;
     string...
 };
 
@@ -187,8 +187,8 @@ function testStringRestFieldRHSIndexAccess() returns (string?, string?) {
 }
 
 type Person3 record {
-    string name;
-    int age;
+    string name = "";
+    int age = 0;
     int...
 };
 
@@ -211,8 +211,8 @@ function testIntRestFieldRHSIndexAccess() returns (int?, int?) {
 }
 
 type Person4 record {
-    string name;
-    int age;
+    string name = "";
+    int age = 0;
     float...
 };
 
@@ -234,8 +234,8 @@ function testFloatRestFieldRHSIndexAccess() returns (float?, float?) {
 }
 
 type Person5 record {
-    string name;
-    int age;
+    string name = "";
+    int age = 0;
     boolean...
 };
 
@@ -257,8 +257,8 @@ function testBooleanRestFieldRHSIndexAccess() returns (boolean?, boolean?) {
 }
 
 type Person6 record {
-    string name;
-    int age;
+    string name = "";
+    int age = 0;
     map...
 };
 
@@ -274,15 +274,15 @@ function testMapRestFieldRHSAccess() returns map {
 }
 
 function testMapRestFieldRHSIndexAccess() returns (map?, map?) {
-    map misc;
+    map misc = {};
     Person6 p = {misc:misc};
     map? invMap = p["invMap"];
     return (p["misc"], invMap);
 }
 
 type Person7 record {
-    string name;
-    int age;
+    string name = "";
+    int age = 0;
     (float|string|boolean)...
 };
 
@@ -304,8 +304,8 @@ function testUnionRestFieldRHSIndexAccess() returns ((float|string|boolean)?, (f
 }
 
 type Person8 record {
-    string name;
-    int age;
+    string name = "";
+    int age = 0;
     ()...
 };
 
@@ -315,8 +315,8 @@ function testNilRestField() returns Person8 {
 }
 
 type Person9 record {
-    string name;
-    int age;
+    string name = "";
+    int age = 0;
     Department...
 };
 
@@ -338,16 +338,18 @@ function testRecordRestFieldRHSIndexAccess() returns (Department?, Department?) 
 }
 
 type Animal object {
-    public string kind;
-    public string name;
+    public string kind = "";
+    public string name = "";
 
-    new(name, kind){
+    function __init(string name, string kind) {
+        self.name = name;
+        self.kind = kind;
     }
 };
 
 type Person10 record {
-    string name;
-    int age;
+    string name = "";
+    int age = 0;
     Animal...
 };
 
@@ -370,8 +372,8 @@ function testObjectRestFieldRHSIndexAccess() returns (Animal?, Animal?) {
 }
 
 type Person11 record {
-    string name;
-    int age;
+    string name = "";
+    int age = 0;
     (float, string, Animal)...
 };
 
@@ -393,8 +395,8 @@ function testTupleRestFieldRHSIndexAccess() returns ((float, string, Animal)?, (
 }
 
 type Person12 record {
-    string name;
-    int age;
+    string name = "";
+    int age = 0;
     any...
 };
 
@@ -418,8 +420,8 @@ function testAnyRestFieldRHSIndexAccess() returns (any, any) {
 }
 
 type PersonA record {
-    string fname;
-    string lname;
+    string fname = "";
+    string lname = "";
     function() returns string fullName?;
 };
 
@@ -429,5 +431,5 @@ function testFuncPtrAsRecordField() returns string {
         return p.lname + ", " + p.fname;
     };
 
-    return p.fullName();
+    return p.fullName.call();
 }

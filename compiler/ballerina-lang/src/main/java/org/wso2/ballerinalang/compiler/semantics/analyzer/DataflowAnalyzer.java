@@ -26,7 +26,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -99,6 +98,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
@@ -817,6 +817,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangObjectTypeNode objectTypeNode) {
         SymbolEnv objectEnv = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, env);
         objectTypeNode.fields.forEach(field -> analyzeNode(field, objectEnv));
+        objectTypeNode.referencedFields.forEach(field -> analyzeNode(field, objectEnv));
 
         // Visit the constructor with the same scope as the object
         if (objectTypeNode.initFunction != null) {
@@ -838,16 +839,18 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         if (!anonymousModelHelper.isAnonymousType(objectTypeNode.symbol) &&
                 !Symbols.isFlagOn(objectTypeNode.symbol.flags, Flags.ABSTRACT)) {
-            objectTypeNode.fields.stream().filter(field -> !Symbols.isPrivate(field.symbol)).forEach(field -> {
-                if (this.uninitializedVars.containsKey(field.symbol)) {
-                    this.dlog.error(field.pos, DiagnosticCode.OBJECT_UNINITIALIZED_FIELD, field.name);
-                }
-            });
+            Stream.concat(objectTypeNode.fields.stream(), objectTypeNode.referencedFields.stream())
+                .filter(field -> !Symbols.isPrivate(field.symbol))
+                .forEach(field -> {
+                    if (this.uninitializedVars.containsKey(field.symbol)) {
+                        this.dlog.error(field.pos, DiagnosticCode.OBJECT_UNINITIALIZED_FIELD, field.name);
+                    }
+                });
         }
 
         objectTypeNode.functions.forEach(function -> analyzeNode(function, env));
     }
-    
+
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
     }
@@ -923,6 +926,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         analyzeNode(errorConstructorExpr.reasonExpr, env);
     }
 
+    public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
+    }
+
     @Override
     public void visit(BLangTypeTestExpr typeTestExpr) {
         analyzeNode(typeTestExpr.expr, env);
@@ -930,10 +936,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorType errorType) {
-    }
-
-    @Override
-    public void visit(BLangAction actionNode) {
     }
 
     @Override
@@ -1015,7 +1017,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     private void addUninitializedVar(BLangVariable variable) {
         if (variable.symbol.type.tag != TypeTags.CHANNEL &&
-                variable.symbol.type.tag != TypeTags.STREAM && !this.uninitializedVars.containsKey(variable.symbol)) {
+            variable.symbol.type.tag != TypeTags.STREAM && !this.uninitializedVars.containsKey(variable.symbol)) {
             this.uninitializedVars.put(variable.symbol, InitStatus.UN_INIT);
         }
     }
@@ -1124,10 +1126,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             checkAssignment(errorVarRef.reason);
             checkAssignment(errorVarRef.detail);
             return;
-        } else if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF &&
-                varRef.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR &&
-                varRef.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR &&
-                varRef.getKind() != NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
+        } else if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF
+                && varRef.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR
+                && varRef.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR
+                && varRef.getKind() != NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
             return;
         }
 

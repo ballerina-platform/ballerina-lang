@@ -36,39 +36,29 @@ definition
     |   typeDefinition
     |   annotationDefinition
     |   globalVariableDefinition
-    |   globalEndpointDefinition
     |   constantDefinition
     ;
 
 serviceDefinition
-    :   SERVICE (LT nameReference GT)? Identifier serviceEndpointAttachments? serviceBody
-    ;
-
-serviceEndpointAttachments
-    :   BIND nameReference (COMMA nameReference)*
-    |   BIND recordLiteral
+    :   SERVICE Identifier? ON expression serviceBody
     ;
 
 serviceBody
-    :   LEFT_BRACE endpointDeclaration* (variableDefinitionStatement | namespaceDeclarationStatement)* resourceDefinition* RIGHT_BRACE
+    :   LEFT_BRACE serviceBodyMember* RIGHT_BRACE
     ;
 
-resourceDefinition
-    :   documentationString? annotationAttachment* deprecatedAttachment? Identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS returnParameter? callableUnitBody
-    ;
-
-resourceParameterList
-    :   ENDPOINT Identifier (COMMA parameterList)?
-    |   parameterList
+serviceBodyMember
+    :   objectFieldDefinition
+    |   objectFunctionDefinition
     ;
 
 callableUnitBody
-    :   LEFT_BRACE endpointDeclaration* (statement* | workerDeclaration+) RIGHT_BRACE
+    :   LEFT_BRACE (statement* | workerDeclaration+) RIGHT_BRACE
     ;
 
 
 functionDefinition
-    :   (PUBLIC)? (EXTERN)? FUNCTION ((Identifier | typeName) DOT)? callableUnitSignature (callableUnitBody | SEMICOLON)
+    :   (PUBLIC)? (REMOTE)? (EXTERN)? FUNCTION ((Identifier | typeName) DOT)? callableUnitSignature (callableUnitBody | SEMICOLON)
     ;
 
 lambdaFunction
@@ -93,24 +83,11 @@ typeDefinition
     ;
 
 objectBody
-    :   objectMember* objectInitializer? objectMember*
-    ;
-objectMember
-    :   objectFieldDefinition
-    |   objectFunctionDefinition
-    |   typeReference
+    :   (objectFieldDefinition | objectFunctionDefinition | typeReference)*
     ;
 
 typeReference
     :   MUL simpleTypeName SEMICOLON
-    ;
-
-objectInitializer
-    :   documentationString? annotationAttachment* (PUBLIC)? NEW objectInitializerParameterList callableUnitBody
-    ;
-
-objectInitializerParameterList
-    :   LEFT_PARENTHESIS objectParameterList? RIGHT_PARENTHESIS
     ;
 
 objectFieldDefinition
@@ -132,21 +109,8 @@ sealedLiteral
 
 restDescriptorPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
 
-objectParameterList
-    :   (objectParameter | objectDefaultableParameter) (COMMA (objectParameter | objectDefaultableParameter))* (COMMA restParameter)?
-    |   restParameter
-    ;
-
-objectParameter
-    :   annotationAttachment* typeName? Identifier
-    ;
-
-objectDefaultableParameter
-    :   objectParameter ASSIGN expression
-    ;
-
 objectFunctionDefinition
-    :   documentationString? annotationAttachment* deprecatedAttachment? (PUBLIC | PRIVATE)? (EXTERN)? FUNCTION callableUnitSignature (callableUnitBody | SEMICOLON)
+    :   documentationString? annotationAttachment* deprecatedAttachment? (PUBLIC | PRIVATE)? (REMOTE|RESOURCE)? (EXTERN)? FUNCTION callableUnitSignature (callableUnitBody | SEMICOLON)
     ;
 
 annotationDefinition
@@ -158,7 +122,8 @@ constantDefinition
     ;
 
 globalVariableDefinition
-    :   (PUBLIC)? typeName Identifier (ASSIGN expression )? SEMICOLON
+    :   PUBLIC? LISTENER? typeName Identifier (ASSIGN expression)? SEMICOLON
+    |   PUBLIC? FINAL (typeName | VAR) Identifier ASSIGN expression SEMICOLON
     |   channelType Identifier SEMICOLON
     ;
 
@@ -170,9 +135,11 @@ attachmentPoint
     :   SERVICE
     |   RESOURCE
     |   FUNCTION
+    |   REMOTE
     |   OBJECT
+    |   CLIENT
+    |   LISTENER
     |   TYPE
-    |   ENDPOINT
     |   PARAMETER
     |   ANNOTATION
     ;
@@ -183,23 +150,6 @@ workerDeclaration
 
 workerDefinition
     :   WORKER Identifier
-    ;
-
-globalEndpointDefinition
-    :   PUBLIC? endpointDeclaration
-    ;
-
-endpointDeclaration
-    :   annotationAttachment* ENDPOINT endpointType Identifier endpointInitlization? SEMICOLON
-    ;
-
-endpointType
-    :   nameReference
-    ;
-
-endpointInitlization
-    :   recordLiteral
-    |   ASSIGN variableReference
     ;
 
 finiteType
@@ -218,7 +168,7 @@ typeName
     |   typeName QUESTION_MARK                                                                  # nullableTypeNameLabel
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                                             # groupTypeNameLabel
     |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS                           # tupleTypeNameLabel
-    |   ABSTRACT? OBJECT LEFT_BRACE objectBody RIGHT_BRACE                                      # objectTypeNameLabel
+    |   ABSTRACT? CLIENT? OBJECT LEFT_BRACE objectBody RIGHT_BRACE                              # objectTypeNameLabel
     |   RECORD LEFT_BRACE recordFieldDefinitionList RIGHT_BRACE                                 # recordTypeNameLabel
     ;
 
@@ -261,6 +211,7 @@ builtInReferenceTypeName
     |   TYPE_JSON (LT nameReference GT)?
     |   TYPE_TABLE (LT nameReference GT)?
     |   TYPE_STREAM (LT typeName GT)?
+    |   SERVICE
     |   errorTypeName
     |   functionTypeName
     ;
@@ -322,7 +273,7 @@ statement
 
 variableDefinitionStatement
     :   typeName Identifier SEMICOLON
-    |   (typeName | VAR) bindingPattern ASSIGN expression SEMICOLON
+    |   FINAL? (typeName | VAR) bindingPattern ASSIGN expression SEMICOLON
     ;
 
 recordLiteral
@@ -652,7 +603,7 @@ invocationArg
     ;
 
 actionInvocation
-    :   START? nameReference RARROW functionInvocation
+    :   START? variableReference RARROW functionInvocation
     ;
 
 expressionList
@@ -729,6 +680,7 @@ expression
     |   arrowFunction                                                       # arrowFunctionExpression
     |   typeInitExpr                                                        # typeInitExpression
     |   errorConstructorExpr                                                # errorConstructorExpression
+    |   serviceConstructorExpr                                              # serviceConstructorExpression
     |   tableQuery                                                          # tableQueryExpression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
     |   (ADD | SUB | BIT_COMPLEMENT | NOT | LENGTHOF | UNTAINT) expression  # unaryExpression
@@ -764,6 +716,10 @@ typeInitExpr
 
 errorConstructorExpr
     :   TYPE_ERROR LEFT_PARENTHESIS expression (COMMA expression)? RIGHT_PARENTHESIS
+    ;
+
+serviceConstructorExpr
+    :   annotationAttachment* SERVICE serviceBody
     ;
 
 trapExpr
@@ -967,6 +923,7 @@ reservedWord
     |   TYPE_MAP
     |   START
     |   CONTINUE
+    |   OBJECT_INIT
     ;
 
 

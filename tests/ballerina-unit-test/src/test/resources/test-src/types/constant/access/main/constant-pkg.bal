@@ -1,12 +1,12 @@
 import variable;
 
-@final int constNegativeInt = -342;
+final int constNegativeInt = -342;
 
-@final int constNegativeIntWithSpace = -     88;
+final int constNegativeIntWithSpace = -     88;
 
-@final float constNegativeFloat = -88.2;
+final float constNegativeFloat = -88.2;
 
-@final float constNegativeFloatWithSpace = -      3343.88;
+final float constNegativeFloatWithSpace = -      3343.88;
 
 float glbVarFloat = variable:constFloat;
 
@@ -23,7 +23,7 @@ function getNegativeConstants() returns (int, int, float, float) {
 }
 
 
-@final float a = 4.0;
+final float a = 4.0;
 
 function floatIntConversion() returns (float, float, float){
     float[] f = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 8.0];

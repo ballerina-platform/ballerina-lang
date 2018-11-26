@@ -17,9 +17,9 @@ import ballerina/grpc;
 import ballerina/io;
 
 // Client endpoint configuration
-endpoint HelloWorldBlockingClient helloWorldBlockingEp {
+HelloWorldBlockingClient helloWorldBlockingEp = new ({
     url:"http://localhost:9101"
-};
+});
 
 function testUnaryBlockingClient(string name) returns (string) {
 
@@ -64,25 +64,25 @@ function testBlockingHeader(string name) returns (string) {
     }
 }
 
-// Blocking client
-public type HelloWorldBlockingStub object {
+// Blocking endpoint.
+public type HelloWorldBlockingClient client object {
 
-    public grpc:Client clientEndpoint = new;
-    public grpc:Stub stub = new;
+    private grpc:Client grpcClient = new;
 
-
-    function initStub(grpc:Client ep) {
-        grpc:Stub navStub = new;
-        error? result = navStub.initStub(ep, "blocking", DESCRIPTOR_KEY, descriptorMap);
+    function __init(grpc:ClientEndpointConfig config) {
+        // initialize client endpoint.
+        grpc:Client c = new;
+        c.init(config);
+        error? result = c.initStub("blocking", DESCRIPTOR_KEY, descriptorMap);
         if (result is error) {
             panic result;
         } else {
-            self.stub = navStub;
+            self.grpcClient = c;
         }
     }
 
-    function hello(string req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
-        var unionResp = check self.stub.blockingExecute("grpcservices.HelloWorld101/hello", req, headers = headers);
+    remote function hello(string req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
+        var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld101/hello", req, headers = headers);
         any result = ();
         grpc:Headers resHeaders = new;
         (result, resHeaders) = unionResp;
@@ -90,75 +90,29 @@ public type HelloWorldBlockingStub object {
     }
 };
 
-// Non-blocking client
-public type HelloWorldStub object {
+//Non-blocking endpoint
+public type HelloWorldClient client object {
 
-    public grpc:Client clientEndpoint = new;
-    public grpc:Stub stub = new;
+    private grpc:Client grpcClient = new;
 
-
-    function initStub(grpc:Client ep) {
-        grpc:Stub navStub = new;
-        error? result = navStub.initStub(ep, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
+    function __init(grpc:ClientEndpointConfig config) {
+        // initialize client endpoint.
+        grpc:Client c = new;
+        c.init(config);
+        error? result = c.initStub("non-blocking", DESCRIPTOR_KEY, descriptorMap);
         if (result is error) {
             panic result;
         } else {
-            self.stub = navStub;
+            self.grpcClient = c;
         }
     }
 
-    function hello(string req, typedesc listener, grpc:Headers? headers = ()) returns (error|()) {
-        return self.stub.nonBlockingExecute("grpcservices.HelloWorld101/hello", req, listener, headers = headers);
+    remote function hello(string req, service msgListener, grpc:Headers? headers = ()) returns (error|()) {
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld101/hello", req, msgListener, headers = headers);
     }
 };
 
-// Blocking endpoint.
-public type HelloWorldBlockingClient object {
-
-    public grpc:Client client = new;
-    public HelloWorldBlockingStub stub = new;
-
-
-    public function init(grpc:ClientEndpointConfig config) {
-        // initialize client endpoint.
-        grpc:Client c = new;
-        c.init(config);
-        self.client = c;
-        // initialize service stub.
-        HelloWorldBlockingStub s = new;
-        s.initStub(c);
-        self.stub = s;
-    }
-
-    public function getCallerActions() returns (HelloWorldBlockingStub) {
-        return self.stub;
-    }
-};
-
-//Non-blocking endpoint
-public type HelloWorldClient object {
-
-    public grpc:Client client = new;
-    public HelloWorldStub stub = new;
-
-
-    public function init(grpc:ClientEndpointConfig config) {
-        // initialize client endpoint.
-        grpc:Client c = new;
-        c.init(config);
-        self.client = c;
-        // initialize service stub.
-        HelloWorldStub s = new;
-        s.initStub(c);
-        self.stub = s;
-    }
-
-    public function getCallerActions() returns (HelloWorldStub) {
-        return self.stub;
-    }
-};
-
-@final string DESCRIPTOR_KEY = "HelloWorld101.proto";
+const string DESCRIPTOR_KEY = "HelloWorld101.proto";
 map descriptorMap =
 {
     "HelloWorld101.proto":"0A1348656C6C6F576F726C643130312E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F32540A0D48656C6C6F576F726C6431303112430A0568656C6C6F121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C7565620670726F746F33",

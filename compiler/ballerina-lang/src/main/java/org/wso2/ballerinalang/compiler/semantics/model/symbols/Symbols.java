@@ -128,26 +128,6 @@ public class Symbols {
         return symbol;
     }
 
-    public static BInvokableSymbol createActionSymbol(int flags,
-                                                      Name name,
-                                                      PackageID pkgID,
-                                                      BType type,
-                                                      BSymbol owner) {
-        BInvokableSymbol symbol = createInvokableSymbol(SymTag.ACTION, flags, name, pkgID, type, owner);
-        symbol.kind = SymbolKind.ACTION;
-        return symbol;
-    }
-
-    public static BInvokableSymbol createResourceSymbol(int flags,
-                                                        Name name,
-                                                        PackageID pkgID,
-                                                        BType type,
-                                                        BSymbol owner) {
-        BInvokableSymbol symbol = createInvokableSymbol(SymTag.RESOURCE, flags, name, pkgID, type, owner);
-        symbol.kind = SymbolKind.RESOURCE;
-        return symbol;
-    }
-
     public static BTypeSymbol createTypeSymbol(int symTag,
                                                int flags,
                                                Name name,
@@ -197,9 +177,7 @@ public class Symbols {
         }
 
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-        BConversionOperatorSymbol symbol = new BConversionOperatorSymbol(pkgID, opType, owner, implicit, safe, opcode);
-        symbol.kind = SymbolKind.CONVERSION_OPERATOR;
-        return symbol;
+        return new BConversionOperatorSymbol(pkgID, opType, sourceType, owner, implicit, safe, opcode);
     }
 
     public static BConversionOperatorSymbol createUnboxValueTypeOpSymbol(BType sourceType, BType targetType) {
@@ -227,10 +205,7 @@ public class Symbols {
 
         List<BType> paramTypes = Lists.of(sourceType, targetType);
         BInvokableType opType = new BInvokableType(paramTypes, targetType, null);
-        BConversionOperatorSymbol symbol = new BConversionOperatorSymbol(null, opType,
-                null, false, true, opcode);
-        symbol.kind = SymbolKind.CONVERSION_OPERATOR;
-        return symbol;
+        return new BConversionOperatorSymbol(null, opType, sourceType, null, false, true, opcode);
     }
 
     public static String getAttachedFuncSymbolName(String typeName, String funcName) {
@@ -254,7 +229,7 @@ public class Symbols {
     }
 
     public static boolean isAttachPointPresent(int mask, int attachPoint) {
-        return (mask & attachPoint) == attachPoint;
+        return (mask & attachPoint) != 0;
     }
 
     public static boolean isOptional(BSymbol sym) {

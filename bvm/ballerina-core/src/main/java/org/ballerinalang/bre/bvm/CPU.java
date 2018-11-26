@@ -28,6 +28,7 @@ import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BFutureType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
+import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BStructureType;
@@ -114,6 +115,7 @@ import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BLangFreezeException;
+import org.ballerinalang.util.exceptions.BLangMapStoreException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -132,6 +134,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -842,6 +845,11 @@ public class CPU {
         int j = operands[1];
 
         BRefType<?> refRegVal = sf.refRegs[i];
+
+        if (refRegVal == null) {
+            return;
+        }
+
         if (!checkIsLikeType(refRegVal, BTypes.typeAnydata)) {
             sf.refRegs[j] = BLangVMErrors.createError(ctx, BLangExceptionHelper
                     .getErrorMessage(RuntimeErrors.UNSUPPORTED_CLONE_OPERATION, refRegVal, refRegVal.getType()));
@@ -937,15 +945,23 @@ public class CPU {
         }
 
         if (!checkIsLikeType(valueToBeStamped, targetType)) {
-            BError error = BLangVMErrors.createError(ctx,
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_STAMP_OPERATION,
-                            valueToBeStamped.getType(), targetType));
+            BError error;
+            if (valueToBeStamped != null) {
+                error = BLangVMErrors.createError(ctx,
+                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_STAMP_OPERATION,
+                                valueToBeStamped.getType(), targetType));
+            } else {
+                error = BLangVMErrors.createError(ctx,
+                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.CANNOT_STAMP_NULL, targetType));
+            }
             sf.refRegs[k] = error;
             return;
         }
 
         try {
-            valueToBeStamped.stamp(targetType);
+            if (valueToBeStamped != null) {
+                valueToBeStamped.stamp(targetType);
+            }
             sf.refRegs[k] = valueToBeStamped;
         } catch (BallerinaException e) {
             BError error = BLangVMErrors.createError(ctx,
@@ -1733,43 +1749,10 @@ public class CPU {
                     handleNullRefError(ctx);
                     break;
                 }
-
-                BRefType<?> value = sf.refRegs[k];
-                BType mapType = bMap.getType();
-                BType expType = null;
-
-                switch (mapType.getTag()) {
-                    case TypeTags.MAP_TAG:
-                        if (isValidMapInsertion(mapType, value)) {
-                            insertToMap(ctx, bMap, sf.stringRegs[j], value);
-                        } else {
-                            expType = ((BMapType) mapType).getConstrainedType();
-                        }
-                        break;
-                    case TypeTags.RECORD_TYPE_TAG:
-                    case TypeTags.OBJECT_TYPE_TAG:
-                        BStructureType structureType = (BStructureType) mapType;
-                        BField targetField = structureType.getFields().get(sf.stringRegs[j]);
-                        BType targetFieldType;
-
-                        if (structureType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-                            targetFieldType = targetField == null ? ((BRecordType) structureType).restFieldType :
-                                                                    targetField.fieldType;
-                        } else {
-                            targetFieldType = targetField.getFieldType();
-                        }
-
-                        if (checkIsType(value, targetFieldType)) {
-                            insertToMap(ctx, bMap, sf.stringRegs[j], value);
-                        } else {
-                            expType = targetFieldType;
-                        }
-                        break;
-                }
-
-                if (expType != null) {
-                    ctx.setError(BLangVMErrors.createError(ctx, BLangExceptionHelper
-                            .getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION, expType, value.getType())));
+                try {
+                    handleMapStore(ctx, bMap, sf.stringRegs[j], sf.refRegs[k]);
+                } catch (BLangMapStoreException e) {
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1921,12 +1904,6 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                if (sf.doubleRegs[j] == 0) {
-                    ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
-                    handleError(ctx);
-                    break;
-                }
-
                 sf.doubleRegs[k] = sf.doubleRegs[i] % sf.doubleRegs[j];
                 break;
             case InstructionCodes.DMOD:
@@ -3384,37 +3361,46 @@ public class CPU {
     }
 
     private static boolean isAnydata(BType type) {
+        return isAnydata(type, new HashSet<>());
+    }
+
+    private static boolean isAnydata(BType type, Set<BType> unresolvedTypes) {
         if (type.getTag() <= TypeTags.ANYDATA_TAG) {
             return true;
         }
 
         switch (type.getTag()) {
             case TypeTags.MAP_TAG:
-                return isAnydata(((BMapType) type).getConstrainedType());
+                return isAnydata(((BMapType) type).getConstrainedType(), unresolvedTypes);
             case TypeTags.RECORD_TYPE_TAG:
+                if (unresolvedTypes.contains(type)) {
+                    return true;
+                }
+                unresolvedTypes.add(type);
                 BRecordType recordType = (BRecordType) type;
                 List<BType> fieldTypes = recordType.getFields().values().stream()
-                        .map(BField::getFieldType)
-                        .collect(Collectors.toList());
-                return isAnydata(fieldTypes) && (recordType.sealed || isAnydata(recordType.restFieldType));
+                                                   .map(BField::getFieldType)
+                                                   .collect(Collectors.toList());
+                return isAnydata(fieldTypes, unresolvedTypes) && (recordType.sealed ||
+                        isAnydata(recordType.restFieldType, unresolvedTypes));
             case TypeTags.UNION_TAG:
-                return isAnydata(((BUnionType) type).getMemberTypes());
+                return isAnydata(((BUnionType) type).getMemberTypes(), unresolvedTypes);
             case TypeTags.TUPLE_TAG:
-                return isAnydata(((BTupleType) type).getTupleTypes());
+                return isAnydata(((BTupleType) type).getTupleTypes(), unresolvedTypes);
             case TypeTags.ARRAY_TAG:
-                return isAnydata(((BArrayType) type).getElementType());
+                return isAnydata(((BArrayType) type).getElementType(), unresolvedTypes);
             case TypeTags.FINITE_TYPE_TAG:
                 Set<BType> valSpaceTypes = ((BFiniteType) type).valueSpace.stream()
-                                                                        .map(BValue::getType)
-                                                                        .collect(Collectors.toSet());
-                return isAnydata(valSpaceTypes);
+                                                                          .map(BValue::getType)
+                                                                          .collect(Collectors.toSet());
+                return isAnydata(valSpaceTypes, unresolvedTypes);
             default:
                 return false;
         }
     }
 
-    private static boolean isAnydata(Collection<BType> types) {
-        return types.stream().allMatch(CPU::isAnydata);
+    private static boolean isAnydata(Collection<BType> types, Set<BType> unresolvedTypes) {
+        return types.stream().allMatch(bType -> isAnydata(bType, unresolvedTypes));
     }
 
     private static BType getElementType(BType type) {
@@ -3488,14 +3474,13 @@ public class CPU {
             return false;
         }
 
-        // If only one is a closed record, the records aren't equivalent
+        // Cannot assign open records to closed record types
         if (lhsType.sealed && !rhsType.sealed) {
             return false;
         }
 
         // The rest field types should match if they are open records
-        if ((!lhsType.sealed && !rhsType.sealed) &&
-                !isAssignable(rhsType.restFieldType, lhsType.restFieldType, unresolvedTypes)) {
+        if (!rhsType.sealed && !isAssignable(rhsType.restFieldType, lhsType.restFieldType, unresolvedTypes)) {
             return false;
         }
 
@@ -3573,21 +3558,25 @@ public class CPU {
     private static boolean checkFieldEquivalency(BRecordType lhsType, BRecordType rhsType,
                                                  List<TypePair> unresolvedTypes) {
         Map<String, BField> rhsFields = rhsType.getFields();
+        Set<String> lhsFieldNames = lhsType.getFields().keySet();
 
-        for (Map.Entry<String, BField> lhsFieldEntry : lhsType.getFields().entrySet()) {
-            BField rhsField = rhsFields.get(lhsFieldEntry.getKey());
+        for (BField lhsField : lhsType.getFields().values()) {
+            BField rhsField = rhsFields.get(lhsField.fieldName);
 
-            if (rhsField == null || !isAssignable(rhsField.fieldType, lhsFieldEntry.getValue().fieldType,
-                                                  unresolvedTypes)) {
+            // If the LHS field is a required one, there has to be a corresponding required field in the RHS record.
+            if (!Flags.isFlagOn(lhsField.flags, Flags.OPTIONAL)
+                    && (rhsField == null || Flags.isFlagOn(rhsField.flags, Flags.OPTIONAL))) {
                 return false;
             }
 
-            rhsFields.remove(lhsFieldEntry.getKey());
+            if (rhsField == null || !isAssignable(rhsField.fieldType, lhsField.fieldType, unresolvedTypes)) {
+                return false;
+            }
         }
 
-        return rhsFields.entrySet().stream().allMatch(
-                fieldEntry -> isAssignable(fieldEntry.getValue().getFieldType(), lhsType.restFieldType,
-                                           unresolvedTypes));
+        return rhsFields.values().stream()
+                            .filter(field -> !lhsFieldNames.contains(field.fieldName))
+                            .allMatch(field -> isAssignable(field.fieldType, lhsType.restFieldType, unresolvedTypes));
     }
 
     private static boolean checkFunctionTypeEqualityForObjectType(BFunctionType source, BFunctionType target,
@@ -4080,6 +4069,59 @@ public class CPU {
 
     }
 
+    private static void handleMapStore(WorkerExecutionContext ctx, BMap<String, BRefType> bMap, String fieldName,
+                                       BRefType<?> value) {
+        BType mapType = bMap.getType();
+
+        switch (mapType.getTag()) {
+            case TypeTags.MAP_TAG:
+                if (!isValidMapInsertion(mapType, value)) {
+                    BType expType = ((BMapType) mapType).getConstrainedType();
+                    throw new BLangMapStoreException(BLangExceptionHelper
+                                                             .getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION,
+                                                                              expType, value.getType()));
+                }
+                insertToMap(ctx, bMap, fieldName, value);
+                break;
+            case TypeTags.OBJECT_TYPE_TAG:
+                BObjectType objType = (BObjectType) mapType;
+                BField objField = objType.getFields().get(fieldName);
+                BType objFieldType = objField.getFieldType();
+                if (!checkIsType(value, objFieldType)) {
+                    throw new BLangMapStoreException(BLangExceptionHelper.getErrorMessage(
+                            RuntimeErrors.INVALID_OBJECT_FIELD_ADDITION, fieldName, objFieldType, value.getType()));
+                }
+                insertToMap(ctx, bMap, fieldName, value);
+                break;
+            case TypeTags.RECORD_TYPE_TAG:
+                BRecordType recType = (BRecordType) mapType;
+                BField recField = recType.getFields().get(fieldName);
+                BType recFieldType;
+
+                if (recField != null) {
+                    // If there is a corresponding field in the record, use it
+                    recFieldType = recField.fieldType;
+                } else if (recType.restFieldType != null) {
+                    // If there isn't a corresponding field, but there is a rest field, use it
+                    recFieldType = recType.restFieldType;
+                } else {
+                    // If both of the above conditions fail, the implication is that this is an attempt to insert a
+                    // value to a non-existent field in a closed record.
+                    throw new BLangMapStoreException(BLangExceptionHelper
+                                                             .getErrorMessage(RuntimeErrors.INVALID_RECORD_FIELD_ACCESS,
+                                                                              fieldName, recType));
+                }
+
+                if (!checkIsType(value, recFieldType)) {
+                    throw new BLangMapStoreException(BLangExceptionHelper.getErrorMessage(
+                            RuntimeErrors.INVALID_RECORD_FIELD_ADDITION, fieldName, recFieldType, value.getType()));
+                }
+
+                insertToMap(ctx, bMap, fieldName, value);
+                break;
+        }
+    }
+
     private static void insertToMap(WorkerExecutionContext ctx, BMap bMap, String fieldName, BValue value) {
         try {
             bMap.put(fieldName, value);
@@ -4220,7 +4262,7 @@ public class CPU {
         compensationTable.index++;
     }
 
-    private static boolean checkIsLikeType(BValue sourceValue, BType targetType) {
+    public static boolean checkIsLikeType(BValue sourceValue, BType targetType) {
         BType sourceType = sourceValue == null ? BTypes.typeNull : sourceValue.getType();
         if (checkIsType(sourceType, targetType, new ArrayList<>())) {
             return true;
@@ -4243,7 +4285,7 @@ public class CPU {
                 return checkFiniteTypeAssignable(sourceValue, targetType);
             case TypeTags.UNION_TAG:
                 return ((BUnionType) targetType).getMemberTypes().stream()
-                        .anyMatch(type -> checkIsType(sourceValue, type));
+                        .anyMatch(type -> checkIsLikeType(sourceValue, type));
             default:
                 return false;
         }
@@ -4360,7 +4402,8 @@ public class CPU {
         for (Map.Entry targetTypeEntry : targetTypeField.entrySet()) {
             String fieldName = targetTypeEntry.getKey().toString();
 
-            if (!(((BMap) sourceValue).getMap().containsKey(fieldName))) {
+            if (!(((BMap) sourceValue).getMap().containsKey(fieldName)) &&
+                    !(Flags.isFlagOn(targetType.getFields().get(fieldName).flags, Flags.OPTIONAL))) {
                 return false;
             }
         }
@@ -4506,10 +4549,6 @@ public class CPU {
             return false;
         }
 
-        if (targetType.getFields().size() > sourceRecordType.getFields().size()) {
-            return false;
-        }
-
         // If both are sealed (one is sealed means other is also sealed) check the rest field type
         if (!sourceRecordType.sealed &&
                 !checkIsType(sourceRecordType.restFieldType, targetType.restFieldType, unresolvedTypes)) {
@@ -4517,11 +4556,27 @@ public class CPU {
         }
 
         Map<String, BField> sourceFields = sourceRecordType.getFields();
+        Set<String> targetFieldNames = targetType.getFields().keySet();
 
-        return targetType.getFields().values().stream().noneMatch(targetField -> {
-            BField sourceField = sourceFields.get(targetField.fieldName);
-            return sourceField == null || !checkIsType(sourceField.fieldType, targetField.fieldType, unresolvedTypes);
-        });
+        for (BField targetField : targetType.getFields().values()) {
+            BField sourceField = sourceFields.get(targetField.getFieldName());
+
+            // If the LHS field is a required one, there has to be a corresponding required field in the RHS record.
+            if (!Flags.isFlagOn(targetField.flags, Flags.OPTIONAL)
+                    && (sourceField == null || Flags.isFlagOn(sourceField.flags, Flags.OPTIONAL))) {
+                return false;
+            }
+
+            if (sourceField == null || !checkIsType(sourceField.fieldType, targetField.fieldType, unresolvedTypes)) {
+                return false;
+            }
+        }
+
+        // If there are fields remaining in the source record, check if they are compatible with the rest field of
+        // the target type.
+        return sourceFields.values().stream()
+                .filter(field -> !targetFieldNames.contains(field.fieldName))
+                .allMatch(field -> checkIsType(field.getFieldType(), targetType.restFieldType, unresolvedTypes));
     }
 
     private static boolean checkIsTableType(BType sourceType, BTableType targetType, List<TypePair> unresolvedTypes) {

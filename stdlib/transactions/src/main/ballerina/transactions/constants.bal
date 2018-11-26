@@ -17,14 +17,14 @@
 import ballerina/config;
 
 const string basePath = "/balcoordinator";
-@final string initiatorCoordinatorBasePath = basePath + "/initiator";
-@final string initiator2pcCoordinatorBasePath = basePath + "/initiator/2pc";
-@final string participant2pcCoordinatorBasePath = basePath + "/participant/2pc";
+final string initiatorCoordinatorBasePath = basePath + "/initiator";
+final string initiator2pcCoordinatorBasePath = basePath + "/initiator/2pc";
+final string participant2pcCoordinatorBasePath = basePath + "/participant/2pc";
 const string registrationPath = "/register";
-@final string registrationPathPattern = "/{transactionBlockId}" + registrationPath;
+final string registrationPathPattern = "/{transactionBlockId}" + registrationPath;
 
-@final string coordinatorHost = config:getAsString("b7a.transactions.coordinator.host", default = getHostAddress());
-@final int coordinatorPort = config:getAsInt("b7a.transactions.coordinator.port", default = getAvailablePort());
+final string coordinatorHost = config:getAsString("b7a.transactions.coordinator.host", default = getHostAddress());
+final int coordinatorPort = config:getAsInt("b7a.transactions.coordinator.port", default = getAvailablePort());
 
 const string TRANSACTION_CONTEXT_VERSION = "1.0";
 
@@ -51,7 +51,4 @@ const string OUTCOME_HAZARD = "hazard";
 
 public const string TRANSACTION_UNKNOWN = "Transaction-Unknown";
 
-endpoint http:Listener coordinatorListener {
-    host:coordinatorHost,
-    port:coordinatorPort
-};
+listener http:Listener coordinatorListener = new(coordinatorPort, config = { host: coordinatorHost });

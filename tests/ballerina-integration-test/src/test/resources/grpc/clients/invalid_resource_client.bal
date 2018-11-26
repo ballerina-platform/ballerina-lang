@@ -16,9 +16,9 @@
 import ballerina/grpc;
 import ballerina/io;
 
-endpoint HelloWorldBlockingClient helloWorldBlockingEp {
+HelloWorldBlockingClient helloWorldBlockingEp = new ({
     url:"http://localhost:9098"
-};
+});
 
 function testInvalidRemoteMethod(string name) returns (string) {
     (string, grpc:Headers)|error unionResp = helloWorldBlockingEp->hello(name);
@@ -78,47 +78,48 @@ function testNonExistenceRemoteMethod(boolean isAvailable) returns (boolean|stri
     }
 }
 
-public type HelloWorldBlockingStub object {
+public type HelloWorldBlockingClient client object {
 
-    public grpc:Client clientEndpoint = new;
-    public grpc:Stub stub = new;
+    private grpc:Client grpcClient = new;
 
-    function initStub(grpc:Client ep) {
-        grpc:Stub navStub = new;
-        error? result = navStub.initStub(ep, "blocking", DESCRIPTOR_KEY, descriptorMap);
+    function __init(grpc:ClientEndpointConfig config) {
+        // initialize client endpoint.
+        grpc:Client c = new;
+        c.init(config);
+        error? result = c.initStub("blocking", DESCRIPTOR_KEY, descriptorMap);
         if (result is error) {
             panic result;
         } else {
-            self.stub = navStub;
+            self.grpcClient = c;
         }
     }
 
-    function hello(string req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
-        var unionResp = check self.stub.blockingExecute("grpcservices.HelloWorld98/hello1", req, headers = headers);
+    remote function hello(string req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
+        var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld98/hello1", req, headers = headers);
         any result = ();
         grpc:Headers resHeaders = new;
         (result, resHeaders) = unionResp;
         return (<string>result, resHeaders);
     }
 
-    function testInt(int req, grpc:Headers? headers = ()) returns ((int, grpc:Headers)|error) {
-        var unionResp = check self.stub.blockingExecute("grpcservices.HelloWorld98/testInt", req, headers = headers);
+    remote function testInt(int req, grpc:Headers? headers = ()) returns ((int, grpc:Headers)|error) {
+        var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld98/testInt", req, headers = headers);
         any result = ();
         grpc:Headers resHeaders = new;
         (result, resHeaders) = unionResp;
         return (check <int>result, resHeaders);
     }
 
-    function testFloat(float req, grpc:Headers? headers = ()) returns ((float, grpc:Headers)|error) {
-        var unionResp = check self.stub.blockingExecute("grpcservices.HelloWorld98/testFloat", req, headers = headers);
+    remote function testFloat(float req, grpc:Headers? headers = ()) returns ((float, grpc:Headers)|error) {
+        var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld98/testFloat", req, headers = headers);
         any result = ();
         grpc:Headers resHeaders = new;
         (result, resHeaders) = unionResp;
         return (check <float>result, resHeaders);
     }
 
-    function testBoolean(boolean req, grpc:Headers? headers = ()) returns ((boolean, grpc:Headers)|error) {
-        var unionResp = check self.stub.blockingExecute("grpcservices.HelloWorld98/testBoolean", req, headers = headers);
+    remote function testBoolean(boolean req, grpc:Headers? headers = ()) returns ((boolean, grpc:Headers)|error) {
+        var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld98/testBoolean", req, headers = headers);
         any result = ();
         grpc:Headers resHeaders = new;
         (result, resHeaders) = unionResp;
@@ -126,81 +127,40 @@ public type HelloWorldBlockingStub object {
     }
 };
 
-public type HelloWorldStub object {
+public type helloWorldClient client object {
 
-    public grpc:Client clientEndpoint = new;
-    public grpc:Stub stub = new;
+    private grpc:Client grpcClient = new;
 
-    function initStub(grpc:Client ep) {
-        grpc:Stub navStub = new;
-        error? result = navStub.initStub(ep, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
+    function __init(grpc:ClientEndpointConfig config) {
+        // initialize client endpoint.
+        grpc:Client c = new;
+        c.init(config);
+        error? result = c.initStub("non-blocking", DESCRIPTOR_KEY, descriptorMap);
         if (result is error) {
             panic result;
         } else {
-            self.stub = navStub;
+            self.grpcClient = c;
         }
     }
 
-    function hello(string req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
-        return self.stub.nonBlockingExecute("grpcservices.HelloWorld98/hello", req, listener, headers = headers);
+    remote function hello(string req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld98/hello", req, msgListener, headers = headers);
     }
 
-    function testInt(int req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
-        return self.stub.nonBlockingExecute("grpcservices.HelloWorld98/testInt", req, listener, headers = headers);
+    remote function testInt(int req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld98/testInt", req, msgListener, headers = headers);
     }
 
-    function testFloat(float req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
-        return self.stub.nonBlockingExecute("grpcservices.HelloWorld98/testFloat", req, listener, headers = headers);
+    remote function testFloat(float req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld98/testFloat", req, msgListener, headers = headers);
     }
 
-    function testBoolean(boolean req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
-        return self.stub.nonBlockingExecute("grpcservices.HelloWorld98/testBoolean", req, listener, headers = headers);
-    }
-};
-
-public type HelloWorldBlockingClient object {
-
-    public grpc:Client client = new;
-    public HelloWorldBlockingStub stub = new;
-
-    public function init(grpc:ClientEndpointConfig config) {
-        // initialize client endpoint.
-        grpc:Client c = new;
-        c.init(config);
-        self.client = c;
-        // initialize service stub.
-        HelloWorldBlockingStub s = new;
-        s.initStub(c);
-        self.stub = s;
-    }
-
-    public function getCallerActions() returns (HelloWorldBlockingStub) {
-        return self.stub;
+    remote function testBoolean(boolean req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld98/testBoolean", req, msgListener, headers = headers);
     }
 };
 
-public type helloWorldClient object {
-
-    public grpc:Client client = new;
-    public HelloWorldStub stub = new;
-
-    public function init(grpc:ClientEndpointConfig config) {
-        // initialize client endpoint.
-        grpc:Client c = new;
-        c.init(config);
-        self.client = c;
-        // initialize service stub.
-        HelloWorldStub s = new;
-        s.initStub(c);
-        self.stub = s;
-    }
-
-    public function getCallerActions() returns (HelloWorldStub) {
-        return self.stub;
-    }
-};
-
-@final string DESCRIPTOR_KEY = "HelloWorld98.proto";
+const string DESCRIPTOR_KEY = "HelloWorld98.proto";
 map descriptorMap =
 {
     "HelloWorld98.proto":"0A1248656C6C6F576F726C6439382E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F32E1010A0C48656C6C6F576F726C64393812430A0568656C6C6F121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C756512440A0774657374496E74121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1B2E676F6F676C652E70726F746F6275662E496E74363456616C756512460A0974657374466C6F6174121B2E676F6F676C652E70726F746F6275662E466C6F617456616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C7565620670726F746F33",

@@ -14,14 +14,30 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# TODO: check
 # Represents service endpoint where one or more services can be registered. so that ballerina program can offer
 # service through this endpoint.
 #
 # + id - Caller endpoint id.
 public type Listener object {
-    public int id = 0;
 
-    private CallerAction conn;
+    *AbstractListener;
+
+    public function __start() returns error? {
+        return self.start();
+    }
+
+    public function __stop() returns error? {
+        return self.stop();
+    }
+
+    public function __attach(service s, map annotationData) returns error? {
+        return self.register(s, annotationData);
+    }
+
+    public function __init(ServiceEndpointConfiguration config) {
+        self.init(config);
+    }
 
     # Gets called when the endpoint is being initialize during module init time.
     #
@@ -31,18 +47,14 @@ public type Listener object {
     # Gets called every time a service attaches itself to this endpoint - also happens at module init time.
     #
     # + serviceType - The type of the service to be registered.
-    public extern function register(typedesc serviceType);
+    # + annotationData - Annotations attached to the service.
+    public extern function register(service serviceType, map annotationData) returns error?;
 
     # Starts the registered service.
-    public extern function start();
+    public extern function start() returns error?;
 
     # Stops the registered service.
-    public extern function stop();
-
-    # Returns the client connection that servicestub code uses.
-    #
-    # + return - Client connection.
-    public extern function getCallerActions() returns CallerAction;
+    public extern function stop() returns error?;
 };
 
 # Represents the gRPC server endpoint configuration.
@@ -86,10 +98,4 @@ public type ServiceSecureSocket record {
     boolean shareSession = true;
     ServiceOcspStapling? ocspStapling = ();
     !...
-};
-
-public type Service object {
-    function getEndpoint() returns Listener {
-        return new;
-    }
 };
