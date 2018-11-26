@@ -18,6 +18,7 @@
 package org.ballerinalang.launcher.util;
 
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
@@ -222,16 +223,17 @@ public class BRunUtil {
     }
 
     private static BValue[] spreadToBValueArray(BValue[] response) {
-        if (!(response != null && response.length > 0 && response[0] instanceof BValueArray) ||
-                (((((BValueArray) response[0]).elementType == BTypes.typeByte) ||
-                        (((BValueArray) response[0]).elementType == BTypes.typeBoolean) ||
-                        (((BValueArray) response[0]).elementType == BTypes.typeString) ||
-                        (((BValueArray) response[0]).elementType == BTypes.typeFloat) ||
-                        (((BValueArray) response[0]).elementType == BTypes.typeInt)))) {
+        if (!(response != null && response.length > 0 && response[0] instanceof BValueArray)) {
             return response;
         }
 
         BValueArray refValueArray = (BValueArray) response[0];
+        BType elementType = refValueArray.elementType;
+        if (elementType == BTypes.typeString || elementType == BTypes.typeInt || elementType == BTypes.typeFloat
+                || elementType == BTypes.typeBoolean || elementType == BTypes.typeByte) {
+            return response;
+        }
+
         int length = (int) refValueArray.size();
         BValue[] arr = new BValue[length];
         for (int i = 0; i < length; i++) {

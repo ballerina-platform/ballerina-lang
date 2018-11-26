@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -47,7 +47,7 @@ import static org.ballerinalang.model.util.FreezeUtils.handleInvalidUpdate;
 import static org.ballerinalang.model.util.FreezeUtils.isOpenForFreeze;
 
 /**
- * @since 0.87
+ * @since 0.985.0
  */
 public class BValueArray extends BNewArray implements Serializable {
 

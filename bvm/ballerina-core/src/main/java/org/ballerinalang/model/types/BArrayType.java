@@ -69,17 +69,13 @@ public class BArrayType extends BType implements BIndexedType {
             int tag = elementType.getTag();
             switch (tag) {
                 case TypeTags.INT_TAG:
-                    return (V) new BValueArray(BTypes.typeInt, size);
                 case TypeTags.FLOAT_TAG:
-                    return (V) new BValueArray(BTypes.typeFloat, size);
+                case TypeTags.BOOLEAN_TAG:
+                case TypeTags.STRING_TAG:
+                case TypeTags.BYTE_TAG:
+                    return (V) new BValueArray(elementType, size);
                 case TypeTags.DECIMAL_TAG:
                     return (V) new BDecimalArray(size);
-                case TypeTags.BOOLEAN_TAG:
-                    return (V) new BValueArray(BTypes.typeBoolean, size);
-                case TypeTags.STRING_TAG:
-                    return (V) new BValueArray(BTypes.typeString, size);
-                case TypeTags.BYTE_TAG:
-                    return (V) new BValueArray(BTypes.typeByte, size);
                 case TypeTags.ARRAY_TAG: // fall through
                 default:
                     return (V) new BValueArray(this);
@@ -94,17 +90,13 @@ public class BArrayType extends BType implements BIndexedType {
         int tag = elementType.getTag();
         switch (tag) {
             case TypeTags.INT_TAG:
-                return (V) new BValueArray(BTypes.typeInt);
             case TypeTags.FLOAT_TAG:
-                return (V) new BValueArray(BTypes.typeFloat);
+            case TypeTags.BOOLEAN_TAG:
+            case TypeTags.STRING_TAG:
+            case TypeTags.BYTE_TAG:
+                return (V) new BValueArray(elementType);
             case TypeTags.DECIMAL_TAG:
                 return (V) new BDecimalArray();
-            case TypeTags.BOOLEAN_TAG:
-                return (V) new BValueArray(BTypes.typeBoolean);
-            case TypeTags.STRING_TAG:
-                return (V) new BValueArray(BTypes.typeString);
-            case TypeTags.BYTE_TAG:
-                return (V) new BValueArray(BTypes.typeByte);
             default:
                 return (V) new BValueArray();
         }

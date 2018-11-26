@@ -79,30 +79,25 @@ public class ListUtils {
             return;
         }
 
+        BValueArray bValueArray = (BValueArray) array;
         switch (((BArrayType) array.getType()).getElementType().getTag()) {
             case TypeTags.BOOLEAN_TAG:
-                BValueArray bBooleanArray = (BValueArray) array;
-                bBooleanArray.add(index, ((BBoolean) refType).value() ? 1 : 0);
+                bValueArray.add(index, ((BBoolean) refType).value() ? 1 : 0);
                 return;
             case TypeTags.BYTE_TAG:
-                BValueArray bByteArray = (BValueArray) array;
-                bByteArray.add(index, (byte) refType.value());
+                bValueArray.add(index, (byte) refType.value());
                 return;
             case TypeTags.FLOAT_TAG:
-                BValueArray bFloatArray = (BValueArray) array;
-                bFloatArray.add(index, (double) refType.value());
+                bValueArray.add(index, (double) refType.value());
                 return;
             case TypeTags.INT_TAG:
-                BValueArray bIntArray = (BValueArray) array;
-                bIntArray.add(index, (long) refType.value());
+                bValueArray.add(index, (long) refType.value());
                 return;
             case TypeTags.STRING_TAG:
-                BValueArray bStringArray = (BValueArray) array;
-                bStringArray.add(index, (String) refType.value());
+                bValueArray.add(index, (String) refType.value());
                 return;
             default:
-                BValueArray bRefValueArray = (BValueArray) array;
-                bRefValueArray.add(index, refType);
+                bValueArray.add(index, refType);
         }
     }
 }

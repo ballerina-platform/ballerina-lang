@@ -1405,11 +1405,7 @@ public class CPU {
         int pkgIndex;
         int lvIndex; // Index of the local variable
 
-        BValueArray bIntArray;
-        BValueArray bByteArray;
-        BValueArray bFloatArray;
-        BValueArray bStringArray;
-        BValueArray bBooleanArray;
+        BValueArray bValueArray;
         BMap<String, BRefType> bMap;
 
         switch (opcode) {
@@ -1442,9 +1438,9 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bIntArray = Optional.of((BValueArray) sf.refRegs[i]).get();
+                bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    sf.longRegs[k] = bIntArray.getInt(sf.longRegs[j]);
+                    sf.longRegs[k] = bValueArray.getInt(sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1454,9 +1450,9 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bByteArray = Optional.of((BValueArray) sf.refRegs[i]).get();
+                bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    sf.intRegs[k] = bByteArray.getByte(sf.longRegs[j]);
+                    sf.intRegs[k] = bValueArray.getByte(sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1466,9 +1462,9 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bFloatArray = Optional.of((BValueArray) sf.refRegs[i]).get();
+                bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    sf.doubleRegs[k] = bFloatArray.getFloat(sf.longRegs[j]);
+                    sf.doubleRegs[k] = bValueArray.getFloat(sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1478,9 +1474,9 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bStringArray = Optional.of((BValueArray) sf.refRegs[i]).get();
+                bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    sf.stringRegs[k] = bStringArray.getString(sf.longRegs[j]);
+                    sf.stringRegs[k] = bValueArray.getString(sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1490,9 +1486,9 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bBooleanArray = Optional.of((BValueArray) sf.refRegs[i]).get();
+                bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    sf.intRegs[k] = bBooleanArray.getBoolean(sf.longRegs[j]);
+                    sf.intRegs[k] = bValueArray.getBoolean(sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1588,11 +1584,7 @@ public class CPU {
         int k;
         int pkgIndex;
 
-        BValueArray bIntArray;
-        BValueArray bByteArray;
-        BValueArray bFloatArray;
-        BValueArray bStringArray;
-        BValueArray bBooleanArray;
+        BValueArray bValueArray;
         BMap<String, BRefType> bMap;
 
         switch (opcode) {
@@ -1600,9 +1592,9 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bIntArray = Optional.of((BValueArray) sf.refRegs[i]).get();
+                bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    bIntArray.add(sf.longRegs[j], sf.longRegs[k]);
+                    bValueArray.add(sf.longRegs[j], sf.longRegs[k]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1612,9 +1604,9 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bByteArray = Optional.of((BValueArray) sf.refRegs[i]).get();
+                bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    bByteArray.add(sf.longRegs[j], (byte) sf.intRegs[k]);
+                    bValueArray.add(sf.longRegs[j], (byte) sf.intRegs[k]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1624,9 +1616,9 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bFloatArray = Optional.of((BValueArray) sf.refRegs[i]).get();
+                bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    bFloatArray.add(sf.longRegs[j], sf.doubleRegs[k]);
+                    bValueArray.add(sf.longRegs[j], sf.doubleRegs[k]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1636,9 +1628,9 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bStringArray = Optional.of((BValueArray) sf.refRegs[i]).get();
+                bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    bStringArray.add(sf.longRegs[j], sf.stringRegs[k]);
+                    bValueArray.add(sf.longRegs[j], sf.stringRegs[k]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1648,9 +1640,9 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bBooleanArray = Optional.of((BValueArray) sf.refRegs[i]).get();
+                bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    bBooleanArray.add(sf.longRegs[j], sf.intRegs[k]);
+                    bValueArray.add(sf.longRegs[j], sf.intRegs[k]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
