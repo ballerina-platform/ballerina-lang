@@ -21,11 +21,10 @@ import org.ballerinalang.model.values.BError;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.DebugContext;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
+import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -34,7 +33,7 @@ import java.util.concurrent.Semaphore;
 public class Strand {
     private static final int DEFAULT_CONTROL_STACK_SIZE = 2000;
 
-    public String name;
+    private String id;
 
     public volatile State state;
 
@@ -63,7 +62,7 @@ public class Strand {
 
     public int callBacksRemaining;
 
-    public Strand(ProgramFile programFile, Map<String, Object> properties, StrandCallback respCallback) {
+    public Strand(ProgramFile programFile, String name, Map<String, Object> properties, StrandCallback respCallback) {
         this.programFile = programFile;
         this.respCallback = respCallback;
         this.callStack = new StackFrame[DEFAULT_CONTROL_STACK_SIZE];
@@ -74,6 +73,20 @@ public class Strand {
             this.globalProps = properties;
         }
         this.callBacksRemaining = 0;
+        this.id = name + "-" + UUID.randomUUID().toString();
+        initDebugger();
+    }
+
+    private void initDebugger() {
+        if (!programFile.getDebugger().isDebugEnabled()) {
+            return;
+        }
+        this.debugContext = new DebugContext();
+        this.programFile.getDebugger().addStrand(this);
+    }
+
+    public String getId() {
+        return id;
     }
 
     public StackFrame pushFrame(StackFrame frame) {
@@ -136,6 +149,10 @@ public class Strand {
 
     public void releaseExecutionLock() {
         executionLock.release();
+    }
+
+    public DebugContext getDebugContext() {
+        return debugContext;
     }
 
     /**

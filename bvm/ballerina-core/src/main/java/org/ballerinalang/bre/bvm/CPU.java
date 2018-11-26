@@ -76,7 +76,6 @@ import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.persistence.states.State;
 import org.ballerinalang.persistence.store.PersistenceStore;
-import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.TransactionStatus;
 import org.ballerinalang.util.codegen.ErrorTableEntry;
 import org.ballerinalang.util.codegen.FunctionInfo;
@@ -2743,8 +2742,8 @@ public class CPU {
         }
         DebugContext debugContext = ctx.getDebugContext();
 
-        if (debugContext.isWorkerPaused()) {
-            debugContext.setWorkerPaused(false);
+        if (debugContext.isStrandPaused()) {
+            debugContext.setStrandPaused(false);
             return false;
         }
 
@@ -2809,8 +2808,8 @@ public class CPU {
      */
     private static void debugHit(WorkerExecutionContext ctx, LineNumberInfo currentExecLine, Debugger debugger) {
         ctx.getDebugContext().setLastLine(currentExecLine);
-        debugger.pauseWorker(ctx);
-        debugger.notifyDebugHit(ctx, currentExecLine, ctx.getDebugContext().getWorkerId());
+//        debugger.pauseWorker(ctx);
+//        debugger.notifyDebugHit(ctx, currentExecLine, ctx.getDebugContext().getWorkerId());
     }
 
     private static void handleAnyToRefTypeCast(WorkerExecutionContext ctx, WorkerData sf, int[] operands,
