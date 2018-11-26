@@ -35,7 +35,6 @@ public type Client client object {
     public function __init(HubClientEndpointConfig config) {
         self.hubUrl = config.url;
         http:ClientEndpointConfig httpConfig = {
-            url: config.url,
             auth: config.auth,
             secureSocket: config.clientSecureSocket,
             followRedirects: config.followRedirects
@@ -352,7 +351,6 @@ function invokeClientConnectorOnRedirection(@sensitive string hub, @sensitive st
 function subscribeWithRetries(string hubUrl, SubscriptionChangeRequest subscriptionRequest, http:AuthConfig? auth,
                               int remainingRedirects = 0) returns @tainted SubscriptionChangeResponse| error {
     http:Client clientEndpoint = new http:Client(hubUrl, config = {
-        url: hubUrl,
         auth: auth
     });
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_SUBSCRIBE, subscriptionRequest);
@@ -364,7 +362,6 @@ function subscribeWithRetries(string hubUrl, SubscriptionChangeRequest subscript
 function unsubscribeWithRetries(string hubUrl, SubscriptionChangeRequest unsubscriptionRequest, http:AuthConfig? auth,
                                 int remainingRedirects = 0) returns @tainted SubscriptionChangeResponse|error {
     http:Client clientEndpoint = new http:Client(hubUrl, config = {
-        url: hubUrl,
         auth: auth
     });
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_UNSUBSCRIBE, unsubscriptionRequest);

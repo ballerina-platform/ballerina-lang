@@ -226,7 +226,6 @@ public type ExtensionConfig record {
 function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:SecureSocket? localSecureSocket,
                                 http:FollowRedirects? followRedirects) returns @tainted (string, string)|error {
     http:Client resourceEP = new http:Client(resourceUrl, config = {
-        url: resourceUrl,
         auth: auth,
         secureSocket: localSecureSocket,
         followRedirects:followRedirects

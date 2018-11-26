@@ -272,7 +272,7 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
 # + topic - The topic specified in the new subscription/unsubscription request
 # + params - Parameters specified in the new subscription/unsubscription request
 function verifyIntentAndAddSubscription(string callback, string topic, map<string> params) {
-    http:Client callbackEp = new http:Client(callback, config = { url: callback, secureSocket: hubClientSecureSocket });
+    http:Client callbackEp = new http:Client(callback, config = { secureSocket: hubClientSecureSocket });
     string mode = params[HUB_MODE] ?: "";
     string strLeaseSeconds = params[HUB_LEASE_SECONDS] ?: "";
     int leaseSeconds = <int>strLeaseSeconds but {error => 0};
@@ -540,7 +540,6 @@ function clearSubscriptionDataInDb() {
 #            `error` if an HTTP error occurred
 function fetchTopicUpdate(string topic) returns http:Response|error {
     http:Client topicEp = new http:Client(topic, config = {
-        url: topic,
         secureSocket: hubClientSecureSocket
     });
     http:Request request = new;
@@ -558,7 +557,6 @@ function fetchTopicUpdate(string topic) returns http:Response|error {
 function distributeContent(string callback, SubscriptionDetails subscriptionDetails, WebSubContent webSubContent)
 returns error? {
     http:Client callbackEp = new http:Client(callback, config = {
-        url: callback,
         secureSocket: hubClientSecureSocket
     });
     http:Request request = new;
