@@ -71,14 +71,14 @@ public type CacheConfig record {
 
 # An HTTP caching client implementation which takes an `HttpActions` instance and wraps it with an HTTP caching layer.
 #
-# + serviceUri - The URL of the remote HTTP endpoint
+# + url - The URL of the remote HTTP endpoint
 # + config - The configurations of the client endpoint associated with this `CachingActions` instance
 # + httpClient - The underlying `HttpActions` instance which will be making the actual network calls
 # + cache - The cache storage for the HTTP responses
 # + cacheConfig - Configurations for the underlying cache storage and for controlling the HTTP caching behaviour
 public type HttpCachingClient client object {
 
-    public string serviceUri = "";
+    public string url = "";
     public ClientEndpointConfig config = {};
     public Client httpClient;
     public HttpCache cache;
@@ -88,11 +88,11 @@ public type HttpCachingClient client object {
     # caching responses. The `CacheConfig` instance is used for initializing a new HTTP cache for the client and
     # the `ClientEndpointConfig` is used for creating the underlying HTTP client.
     #
-    # + serviceUri - The URL of the HTTP endpoint to connect to
+    # + url - The URL of the HTTP endpoint to connect to
     # + config - The configurations for the client endpoint associated with the caching client
     # + cacheConfig - The configurations for the HTTP cache to be used with the caching client
-    public function __init(string serviceUri, ClientEndpointConfig config, CacheConfig cacheConfig) {
-        var httpSecureClient = createHttpSecureClient(serviceUri, config);
+    public function __init(string url, ClientEndpointConfig config, CacheConfig cacheConfig) {
+        var httpSecureClient = createHttpSecureClient(url, config);
         if (httpSecureClient is Client) {
             self.httpClient = httpSecureClient;
         } else {
