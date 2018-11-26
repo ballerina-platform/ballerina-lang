@@ -990,7 +990,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     private void addUninitializedVar(BLangVariable variable) {
         if (variable.symbol.type.tag != TypeTags.CHANNEL &&
-                variable.symbol.type.tag != TypeTags.STREAM && !this.uninitializedVars.containsKey(variable.symbol)) {
+            variable.symbol.type.tag != TypeTags.STREAM && !this.uninitializedVars.containsKey(variable.symbol)) {
             this.uninitializedVars.put(variable.symbol, InitStatus.UN_INIT);
         }
     }

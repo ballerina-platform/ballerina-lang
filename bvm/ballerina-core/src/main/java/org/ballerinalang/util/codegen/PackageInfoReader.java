@@ -53,6 +53,7 @@ import org.ballerinalang.util.codegen.Instruction.InstructionFORKJOIN;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
 import org.ballerinalang.util.codegen.Instruction.InstructionLock;
 import org.ballerinalang.util.codegen.Instruction.InstructionScopeEnd;
+import org.ballerinalang.util.codegen.Instruction.InstructionUnLock;
 import org.ballerinalang.util.codegen.Instruction.InstructionVCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
@@ -450,8 +451,12 @@ public class PackageInfoReader {
         ObjectTypeInfo objectInfo = new ObjectTypeInfo();
 
         // Set struct type
-        BObjectType objectType = new BObjectType(objectInfo, typeDefInfo.name,
-                packageInfo.getPkgPath(), typeDefInfo.flags);
+        BObjectType objectType;
+        if (Flags.isFlagOn(typeDefInfo.flags, Flags.SERVICE)) {
+            objectType = new BServiceType(objectInfo, typeDefInfo.name, packageInfo.getPkgPath(), typeDefInfo.flags);
+        } else {
+            objectType = new BObjectType(objectInfo, typeDefInfo.name, packageInfo.getPkgPath(), typeDefInfo.flags);
+        }
         objectInfo.setType(objectType);
 
         // Read struct field info entries
@@ -551,20 +556,17 @@ public class PackageInfoReader {
             // Read service and listener type cp index;
             TypeRefCPEntry serviceType = (TypeRefCPEntry) packageInfo.getCPEntry(dataInStream.readInt());
             int cpIndex;
-            BType listenerType = null;
-            String listenerName = null;
+            TypeRefCPEntry listenerTypeCP = null;
+            UTF8CPEntry listenerNameCP = null;
             if ((cpIndex = dataInStream.readInt()) != -1) {
-                TypeRefCPEntry listenerTypeCP = (TypeRefCPEntry) packageInfo.getCPEntry(cpIndex);
-                listenerType = listenerTypeCP.getType();
+                listenerTypeCP = (TypeRefCPEntry) packageInfo.getCPEntry(cpIndex);
             }
             if ((cpIndex = dataInStream.readInt()) != -1) {
-                UTF8CPEntry listenerNameCP = (UTF8CPEntry) packageInfo.getCPEntry(cpIndex);
-                listenerName = listenerNameCP.getValue();
+                listenerNameCP = (UTF8CPEntry) packageInfo.getCPEntry(cpIndex);
             }
             ServiceInfo serviceInfo = new ServiceInfo(packageInfo.getPkgNameCPIndex(), packageInfo.getPkgPath(),
-                    serviceNameCPIndex, serviceNameUTF8Entry.getValue(), flags,
-                    new BServiceType(serviceNameUTF8Entry.getValue(), packageInfo.getPkgPath(), serviceType.getType()),
-                    listenerType, listenerName);
+                    serviceNameCPIndex, serviceNameUTF8Entry.getValue(), flags, serviceType, listenerTypeCP,
+                    listenerNameCP);
             serviceInfo.setPackageInfo(packageInfo);
             packageInfo.addServiceInfo(serviceInfo.getName(), serviceInfo);
         }
@@ -579,35 +581,7 @@ public class PackageInfoReader {
                 int resNameCPIndex = dataInStream.readInt();
                 UTF8CPEntry resNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(resNameCPIndex);
                 String resName = resNameUTF8Entry.getValue();
-
-                ResourceInfo resourceInfo = new ResourceInfo(packageInfo.getPkgNameCPIndex(), packageInfo.getPkgPath(),
-                        resNameCPIndex, resName);
-                resourceInfo.setServiceInfo(serviceInfo);
-                resourceInfo.setPackageInfo(packageInfo);
-                serviceInfo.addResourceInfo(resName, resourceInfo);
-
-                // Read action signature
-                int resSigCPIndex = dataInStream.readInt();
-                UTF8CPEntry resSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(resSigCPIndex);
-                String resSig = resSigUTF8Entry.getValue();
-                setCallableUnitSignature(packageInfo, resourceInfo, resSig);
-
-                // Read parameter names
-                // TODO Find a better alternative. Storing just param names is like a hack.
-                int paramNameCPIndexesCount = dataInStream.readShort();
-                int[] paramNameCPIndexes = new int[paramNameCPIndexesCount];
-                String[] paramNames = new String[paramNameCPIndexesCount];
-                for (int k = 0; k < paramNameCPIndexesCount; k++) {
-                    int paramNameCPIndex = dataInStream.readInt();
-                    paramNameCPIndexes[k] = paramNameCPIndex;
-                    UTF8CPEntry paramNameCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(paramNameCPIndex);
-                    paramNames[k] = paramNameCPEntry.getValue();
-                }
-                resourceInfo.setParamNameCPIndexes(paramNameCPIndexes);
-                resourceInfo.setParamNames(paramNames);
-
-                // Read attributes of the struct info
-                readAttributeInfoEntries(packageInfo, packageInfo, resourceInfo);
+                serviceInfo.addResourceInfo(resName);
             }
         }
     }
@@ -688,14 +662,6 @@ public class PackageInfoReader {
                 TEST_START_FUNCTION_SUFFIX));
         packageInfo.setTestStopFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() +
                 TEST_STOP_FUNCTION_SUFFIX));
-
-        // TODO Improve this. We should be able to this in a single pass.
-        ServiceInfo[] serviceInfoEntries = packageInfo.getServiceInfoEntries();
-        for (ServiceInfo serviceInfo : serviceInfoEntries) {
-            FunctionInfo serviceIniFuncInfo = packageInfo.getFunctionInfo(
-                    serviceInfo.getName() + INIT_FUNCTION_SUFFIX);
-            serviceInfo.setInitFunctionInfo(serviceIniFuncInfo);
-        }
     }
 
     private void readFunctionInfo(PackageInfo packageInfo) throws IOException {
@@ -1340,6 +1306,7 @@ public class PackageInfoReader {
                 case InstructionCodes.STAMP:
                 case InstructionCodes.NEWSTREAM:
                 case InstructionCodes.CHECKCAST:
+                case InstructionCodes.TYPE_ASSERTION:
                 case InstructionCodes.MAP2T:
                 case InstructionCodes.JSON2T:
                 case InstructionCodes.ANY2T:
@@ -1504,11 +1471,12 @@ public class PackageInfoReader {
                             typeTags, retRegs));
                     break;
                 case InstructionCodes.LOCK:
-                case InstructionCodes.UNLOCK:
                     int varCount = codeStream.readInt();
+                    int fieldCount = codeStream.readInt();
                     BType[] varTypes = new BType[varCount];
-                    int[] pkgRefs = new int[varCount];
-                    int[] varRegs = new int[varCount];
+                    int[] pkgRefs = new int[varCount + fieldCount];
+                    int[] varRegs = new int[varCount + fieldCount];
+                    int[] fieldRegs = new int[fieldCount];
                     for (int m = 0; m < varCount; m++) {
                         int varSigCPIndex = codeStream.readInt();
                         TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) packageInfo.getCPEntry(varSigCPIndex);
@@ -1520,7 +1488,42 @@ public class PackageInfoReader {
                         pkgRefs[m] = pkgRefCPEntry.getPackageInfo().pkgIndex;
                         varRegs[m] = codeStream.readInt();
                     }
-                    packageInfo.addInstruction(new InstructionLock(opcode, varTypes, pkgRefs, varRegs));
+
+                    String uuid = ((UTF8CPEntry) packageInfo.getCPEntry(codeStream.readInt())).getValue();
+
+                    for (int n = 0; n < fieldCount; n++) {
+                        pkgRefCPIndex = codeStream.readInt();
+                        pkgRefCPEntry = (PackageRefCPEntry) packageInfo.getCPEntry(pkgRefCPIndex);
+
+                        pkgRefs[varCount + n] = pkgRefCPEntry.getPackageInfo().pkgIndex;
+                        varRegs[varCount + n] = codeStream.readInt();
+
+                        fieldRegs[n] = codeStream.readInt();
+                    }
+                    packageInfo.addInstruction(new InstructionLock(opcode, varTypes, pkgRefs, varRegs, fieldRegs,
+                            varCount, uuid));
+                    break;
+                case InstructionCodes.UNLOCK:
+                    int globalVarCount = codeStream.readInt();
+                    boolean hasFieldVar = (codeStream.readInt() > 0) ? true : false;
+                    String lockUuid = ((UTF8CPEntry) packageInfo.getCPEntry(codeStream.readInt())).getValue();
+                    BType[] globalVarTypes = new BType[globalVarCount];
+                    int[] lockPkgRefs = new int[globalVarCount];
+                    int[] globalVarRegs = new int[globalVarCount];
+
+                    for (int m = 0; m < globalVarCount; m++) {
+                        int varSigCPIndex = codeStream.readInt();
+                        TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) packageInfo.getCPEntry(varSigCPIndex);
+                        globalVarTypes[m] = typeRefCPEntry.getType();
+
+                        pkgRefCPIndex = codeStream.readInt();
+                        pkgRefCPEntry = (PackageRefCPEntry) packageInfo.getCPEntry(pkgRefCPIndex);
+
+                        lockPkgRefs[m] = pkgRefCPEntry.getPackageInfo().pkgIndex;
+                        globalVarRegs[m] = codeStream.readInt();
+                    }
+                    packageInfo.addInstruction(new InstructionUnLock(opcode, globalVarTypes, lockPkgRefs, globalVarRegs,
+                            globalVarCount, lockUuid, hasFieldVar));
                     break;
                 case COMPENSATE:
                     int nameIndex = codeStream.readInt();
@@ -1919,6 +1922,7 @@ public class PackageInfoReader {
                     return new BStreamType(constraint);
                 case 'G':
                 case 'T':
+                case 'X':
                 case 'Q':
                 default:
                     return constraint;

@@ -20,14 +20,14 @@
 //# LoadBalancer caller actions which provides load balancing and failover capabilities to the
 //#load balance client endpoint.
 //#
-//# + serviceUri - The URL of the remote HTTP endpoint
+//# + url - The URL of the remote HTTP endpoint
 //# + config - The configurations of the client endpoint associated with this `LoadBalancer` instance
 //# + loadBalanceClientsArray - Array of HTTP clients for load balancing
 //# + lbRule - Load balancing rule
 //# + failover - Whether to fail over in case of a failure
 //public type LoadBalancerActions object {
 //
-//   public string serviceUri;
+//   public string url;
 //   public ClientEndpointConfig config;
 //   public CallerActions[] loadBalanceClientsArray;
 //   public LoadBalancerRule lbRule;
@@ -35,12 +35,12 @@
 //
 //    # Load Balancer adds an additional layer to the HTTP client to make network interactions more resilient.
 //    #
-//    # + serviceUri - The URL of the remote HTTP endpoint
+//    # + url - The URL of the remote HTTP endpoint
 //    # + config - The configurations of the client endpoint associated with this `LoadBalancer` instance
 //    # + loadBalanceClientsArray - Array of HTTP clients for load balancing
 //    # + lbRule - Load balancing rule
 //    # + failover - Whether to fail over in case of a failure
-//    public new(serviceUri, config, loadBalanceClientsArray, lbRule, failover) {}
+//    public new(url, config, loadBalanceClientsArray, lbRule, failover) {}
 //
 //    # The POST action implementation of the LoadBalancer Connector.
 //    #

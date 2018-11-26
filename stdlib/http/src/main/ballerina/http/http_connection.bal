@@ -14,12 +14,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 # The caller actions for responding to client requests.
+#
+# + remoteAddress - The remote address
+# + localAddress - The local address
+# + protocol - The protocol associated with the service endpoint
 public type Caller client object {
 
     private ServiceEndpointConfiguration config = {};
     private FilterContext? filterContext = ();
+
+    //TODO:Make these readonly
+    public Remote remoteAddress = {};
+    public Local localAddress = {};
+    public string protocol = "";
 
     # Sends the outbound response to the caller.
     #

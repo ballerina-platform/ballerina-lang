@@ -81,13 +81,12 @@ public type HelloWorldBlockingClient client object {
 public type HelloWorldClient client object {
 
     public grpc:Client grpcClient = new;
-    public HelloWorldStub stub = new;
 
     function __init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
         grpc:Client c = new;
         c.init(config);
-        error? result = navStub.initStub("non-blocking", DESCRIPTOR_KEY, descriptorMap);
+        error? result = c.initStub("non-blocking", DESCRIPTOR_KEY, descriptorMap);
         if (result is error) {
             panic result;
         } else {
@@ -95,13 +94,13 @@ public type HelloWorldClient client object {
         }
     }
 
-    remote function hello(string req, typedesc listener, grpc:Headers? headers = ()) returns (error|()) {
-        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld85/hello", req, listener, headers = headers);
+    remote function hello(string req, service msgListener, grpc:Headers? headers = ()) returns (error|()) {
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld85/hello", req, msgListener, headers = headers);
     }
 };
 
 
-@final string DESCRIPTOR_KEY = "HelloWorld85.proto";
+const string DESCRIPTOR_KEY = "HelloWorld85.proto";
 map descriptorMap =
 {
     "HelloWorld85.proto":"0A1248656C6C6F576F726C6438352E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F32530A0C48656C6C6F576F726C64383512430A0568656C6C6F121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C7565620670726F746F33",

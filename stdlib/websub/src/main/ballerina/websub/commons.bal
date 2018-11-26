@@ -175,9 +175,9 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
 # Function to validate signature for requests received at the callback.
 #
 # + request - The request received
-# + serviceType - The type of the service for which the request was rceived
+# + serviceType - The service for which the request was rceived
 # + return - `error`, if an error occurred in extraction or signature validation failed
-function processWebSubNotification(http:Request request, typedesc serviceType) returns error? {
+function processWebSubNotification(http:Request request, service serviceType) returns error? {
     string secret = retrieveSubscriberServiceAnnotations(serviceType).secret ?: "";
 
     if (!request.hasHeader(X_HUB_SIGNATURE)) {
@@ -502,15 +502,14 @@ public function startHub(string? host = (), int port, int? leaseSeconds = (), st
 # Object representing a Ballerina WebSub Hub.
 #
 # + hubUrl - The URL of the started up Ballerina WebSub Hub
-# + hubServiceEndpoint - The HTTP endpoint to which the Ballerina WebSub Hub is bound
 public type WebSubHub object {
 
     public string hubUrl;
-    private http:Server hubServiceEndpoint;
+    private http:Listener hubHttpListener;
 
-    public function __init(string hubUrl, http:Server hubServiceEndpoint) {
+    public function __init(string hubUrl, http:Listener hubHttpListener) {
          self.hubUrl = hubUrl;
-         self.hubServiceEndpoint = hubServiceEndpoint;
+         self.hubHttpListener = hubHttpListener;
     }
 
     # Stops the started up Ballerina WebSub Hub.
@@ -552,8 +551,9 @@ public type WebSubHub object {
 };
 
 function WebSubHub.stop() returns boolean {
-    self.hubServiceEndpoint.__stop();
-    return stopHubService(self.hubUrl);
+    // TODO: return error
+    var stopResult = self.hubHttpListener.__stop();
+    return stopHubService(self.hubUrl) && !(stopResult is error);
 }
 
 function WebSubHub.publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
@@ -639,15 +639,15 @@ type SubscriptionDetails record {
     !...
 };
 
-function retrieveSubscriberServiceAnnotations(typedesc serviceType) returns SubscriberServiceConfiguration? {
+function retrieveSubscriberServiceAnnotations(service serviceType) returns SubscriberServiceConfiguration? {
     reflect:annotationData[] annotationDataArray = reflect:getServiceAnnotations(serviceType);
     foreach annData in annotationDataArray {
         if (annData.name == ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG && annData.moduleName == WEBSUB_MODULE_NAME) {
-            var subscriberServiceAnnotation = <SubscriberServiceConfiguration> (annData.value);
+            var subscriberServiceAnnotation = trap <SubscriberServiceConfiguration> (annData.value);
             if (subscriberServiceAnnotation is SubscriberServiceConfiguration) {
                 return subscriberServiceAnnotation;
             } else if (subscriberServiceAnnotation is error) {
-                panic subscriberServiceAnnotation;
+                return;
             }
         }
     }

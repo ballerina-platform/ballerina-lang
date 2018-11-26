@@ -23,14 +23,14 @@ import ballerina/config;
 
 # Provides redirect functionality for HTTP client actions.
 #
-# + serviceUri - Target service url
+# + url - Target service url
 # + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
 # + redirectConfig - Configurations associated with redirect
 # + httpClient - HTTP client for outbound HTTP requests
 # + currentRedirectCount - Current redirect count of the HTTP client
 public type RedirectClient client object {
 
-    public string serviceUri;
+    public string url;
     public ClientEndpointConfig config;
     public FollowRedirects redirectConfig;
     public Client httpClient;
@@ -38,13 +38,15 @@ public type RedirectClient client object {
 
     # Create a redirect client with the given configurations.
     #
-    # + serviceUri - Target service url
+    # + url - Target service url
     # + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
     # + redirectConfig - Configurations associated with redirect
     # + httpClient - HTTP client for outbound HTTP requests
-    public function __init(string serviceUri, ClientEndpointConfig config,
-                           FollowRedirects redirectConfig, Client httpClient) {
-        self.httpClient = createSimpleHttpClient(serviceUri, config);
+    public function __init(string url, ClientEndpointConfig config, FollowRedirects redirectConfig, Client httpClient) {
+        self.url = url;
+        self.config = config;
+        self.redirectConfig = redirectConfig;
+        self.httpClient = httpClient;
     }
 
     # If the received response for the `get()` action is redirect eligible, redirect will be performed automatically
@@ -224,7 +226,7 @@ public type RedirectClient client object {
 //Invoke relevant HTTP client action and check the response for redirect eligibility.
 function performRedirectIfEligible(RedirectClient redirectClient, string path, Request request,
                                    HttpOperation httpOperation) returns Response|error {
-    string originalUrl = redirectClient.serviceUri + path;
+    string originalUrl = redirectClient.url + path;
     log:printDebug(function() returns string {
         return "Checking redirect eligibility for original request " + originalUrl;
     });
@@ -233,8 +235,9 @@ function performRedirectIfEligible(RedirectClient redirectClient, string path, R
 }
 
 //Inspect the response for redirect eligibility.
-function checkRedirectEligibility(Response|error response, string resolvedRequestedURI, HttpOperation httpVerb, Request
-    request, RedirectClient redirectClient) returns @untainted Response|error {
+function checkRedirectEligibility(Response|error response, string resolvedRequestedURI,
+                                  HttpOperation httpVerb, Request request, RedirectClient redirectClient)
+                                    returns @untainted Response|error {
     if (response is Response) {
         if (isRedirectResponse(response.statusCode)) {
             return redirect(response, httpVerb, request, redirectClient, resolvedRequestedURI);
@@ -258,8 +261,8 @@ function isRedirectResponse(int statusCode) returns boolean {
 }
 
 //If max redirect count is not reached, perform redirection.
-function redirect(Response response, HttpOperation httpVerb, Request request, RedirectClient redirectClient,
-                  string resolvedRequestedURI) returns @untainted Response|error {
+function redirect(Response response, HttpOperation httpVerb, Request request,
+                  RedirectClient redirectClient, string resolvedRequestedURI) returns @untainted Response|error {
     int currentCount = redirectClient.currentRedirectCount;
     int maxCount = redirectClient.redirectConfig.maxCount;
     if (currentCount >= maxCount) {
@@ -281,7 +284,8 @@ function redirect(Response response, HttpOperation httpVerb, Request request, Re
                 if (!isAbsolute(location)) {
                     var resolvedURI = resolve(resolvedRequestedURI, location);
                     if (resolvedURI is string) {
-                        return performRedirection(resolvedURI, redirectClient, redirectMethod, request, response);
+                        return performRedirection(resolvedURI, redirectClient, redirectMethod, request,
+                            response);
                     } else if (resolvedURI is error) {
                         redirectClient.currentRedirectCount = 0;
                         return resolvedURI;
@@ -302,14 +306,14 @@ function redirect(Response response, HttpOperation httpVerb, Request request, Re
 }
 
 function performRedirection(string location, RedirectClient redirectClient, HttpOperation redirectMethod,
-                                       Request request, Response response) returns @untainted Response|error {
-    var retryClient = createRetryClient(location, createNewEndpoint(location, redirectClient.config));
+                            Request request, Response response) returns @untainted Response|error {
+    var retryClient = createRetryClient(location, createNewEndpointConfig(redirectClient.config));
     if (retryClient is Client) {
         log:printDebug(function() returns string {
                 return "Redirect using new clientEP : " + location;
             });
         Response|error result = invokeEndpoint("", createRedirectRequest(response.statusCode, request),
-            redirectMethod, retryClient);
+            redirectMethod, retryClient.httpClient);
         return checkRedirectEligibility(result, location, redirectMethod, request, redirectClient);
     } else {
         return retryClient;
@@ -317,8 +321,8 @@ function performRedirection(string location, RedirectClient redirectClient, Http
 }
 
 //Create a new HTTP client endpoint configuration with a given location as the url.
-function createNewEndpoint(string location, ClientEndpointConfig config) returns ClientEndpointConfig {
-    ClientEndpointConfig newEpConfig = { url: location,
+function createNewEndpointConfig(ClientEndpointConfig config) returns ClientEndpointConfig {
+    ClientEndpointConfig newEpConfig = {
         circuitBreaker: config.circuitBreaker,
         timeoutMillis: config.timeoutMillis,
         keepAlive: config.keepAlive,
