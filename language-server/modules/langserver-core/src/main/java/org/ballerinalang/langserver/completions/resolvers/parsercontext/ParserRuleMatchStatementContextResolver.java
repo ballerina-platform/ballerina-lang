@@ -139,11 +139,7 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
     private void fillVarSymbolMatchSnippet(BVarSymbol varSymbol, List<CompletionItem> completionItems, LSContext ctx) {
         BType symbolType = varSymbol.getType();
         String varName = varSymbol.getName().getValue();
-        if (symbolType instanceof BTupleType) {
-            String fixedValuePattern = "\t" + generateMatchPattern(getStructuredFixedValueMatch(symbolType), ctx);
-            String fixedValueSnippet = this.generateMatchSnippet(fixedValuePattern);
-            completionItems.add(this.getVariableCompletionItem(varSymbol, fixedValueSnippet, varName));
-        } else if (symbolType instanceof BRecordType) {
+        if (symbolType instanceof BTupleType || symbolType instanceof BRecordType) {
             String fixedValuePattern = "\t" + generateMatchPattern(getStructuredFixedValueMatch(symbolType), ctx);
             String fixedValueSnippet = this.generateMatchSnippet(fixedValuePattern);
             completionItems.add(this.getVariableCompletionItem(varSymbol, fixedValueSnippet, varName));

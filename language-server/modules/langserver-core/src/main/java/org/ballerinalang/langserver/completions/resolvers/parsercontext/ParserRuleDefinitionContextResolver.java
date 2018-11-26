@@ -52,7 +52,7 @@ public class ParserRuleDefinitionContextResolver extends AbstractItemResolver {
                     BSymbol symbol = symbolInfo.getScopeEntry().symbol;
                     String symbolName = symbol.getName().getValue();
                     CompletionItem completionItem = BTypeCompletionItemBuilder.build((BTypeSymbol) symbol, symbolName);
-                    completionItem.setInsertText(symbolName + "::");
+                    completionItem.setInsertText(symbolName + ".");
                     return completionItem;
                 }).collect(Collectors.toList());
     }

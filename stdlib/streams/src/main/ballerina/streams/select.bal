@@ -24,58 +24,61 @@ public type Select object {
 
 
     new(nextProcessorPointer, aggregatorArr, groupbyFuncArray, selectFunc) {
+        self.aggregatorsCloneMap = {};
     }
 
     public function process(StreamEvent[] streamEvents) {
         StreamEvent[] outputStreamEvents = [];
-        if (lengthof aggregatorArr > 0) {
-            map<StreamEvent> groupedEvents;
+        if (self.aggregatorArr.length() > 0) {
+            map<StreamEvent> groupedEvents = {};
             foreach event in streamEvents {
 
                 if (event.eventType == RESET) {
-                    aggregatorsCloneMap.clear();
+                    self.aggregatorsCloneMap.clear();
                 }
 
                 string groupbyKey;
-                match groupbyFuncArray {
+                match self.groupbyFuncArray {
                     (function(StreamEvent o) returns string) [] groupbyFunctionArray => {
-                        groupbyKey = getGroupByKey(groupbyFunctionArray, event);
+                        groupbyKey = self.getGroupByKey(groupbyFunctionArray, event);
                     }
                 }
 
-                Aggregator[] aggregatorsClone;
-                match (aggregatorsCloneMap[groupbyKey]) {
+                Aggregator[] aggregatorsClone = [];
+                match (self.aggregatorsCloneMap[groupbyKey]) {
                     Aggregator[] aggregators => {
                         aggregatorsClone = aggregators;
                     }
                     () => {
                         int i = 0;
-                        foreach aggregator in aggregatorArr {
-                            aggregatorsClone[i] = aggregator.clone();
+                        foreach aggregator in self.aggregatorArr {
+                            aggregatorsClone[i] = aggregator.copy();
                             i += 1;
                         }
-                        aggregatorsCloneMap[groupbyKey] = aggregatorsClone;
+                        self.aggregatorsCloneMap[groupbyKey] = aggregatorsClone;
                     }
                 }
-                StreamEvent e = new ((OUTPUT, selectFunc(event, aggregatorsClone)), event.eventType, event.timestamp);
+                StreamEvent e = new ((OUTPUT, self.selectFunc(event, aggregatorsClone)), event.eventType, event
+                    .timestamp);
                 groupedEvents[groupbyKey] = e;
             }
             foreach key in groupedEvents.keys() {
                 match groupedEvents[key] {
                     StreamEvent e => {
-                        outputStreamEvents[lengthof outputStreamEvents] = e;
+                        outputStreamEvents[outputStreamEvents.length()] = e;
                     }
                     () => {}
                 }
             }
         } else {
             foreach event in streamEvents {
-                StreamEvent e = new ((OUTPUT, selectFunc(event, aggregatorArr)), event.eventType, event.timestamp);
-                outputStreamEvents[lengthof outputStreamEvents] = e;
+                StreamEvent e = new ((OUTPUT, self.selectFunc(event, self.aggregatorArr)), event.eventType,
+                    event.timestamp);
+                outputStreamEvents[outputStreamEvents.length()] = e;
             }
         }
-        if (lengthof outputStreamEvents > 0) {
-            nextProcessorPointer(outputStreamEvents);
+        if (outputStreamEvents.length() > 0) {
+            self.nextProcessorPointer(outputStreamEvents);
         }
     }
 

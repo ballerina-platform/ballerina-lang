@@ -95,7 +95,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -821,12 +820,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void visit(BLangErrorType errorTypeNode) {
-        BType reasonType = Optional.ofNullable(errorTypeNode.reasonType)
-                .map(bLangType -> resolveTypeNode(bLangType, env)).orElse(symTable.stringType);
-        BType detailType = Optional.ofNullable(errorTypeNode.detailType)
-                .map(bLangType -> resolveTypeNode(bLangType, env)).orElse(symTable.mapType);
-
-        if (reasonType == symTable.stringType && detailType == symTable.mapType) {
+        if (errorTypeNode.reasonType == null && errorTypeNode.detailType == null) {
             resultType = symTable.errorType;
             return;
         }
@@ -835,7 +829,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         BErrorTypeSymbol errorTypeSymbol = Symbols
                 .createErrorSymbol(Flags.asMask(EnumSet.noneOf(Flag.class)), Names.EMPTY, env.enclPkg.symbol.pkgID,
                         null, env.scope.owner);
-        BErrorType errorType = new BErrorType(errorTypeSymbol, reasonType, detailType);
+        BErrorType errorType = new BErrorType(errorTypeSymbol, null, null);
         errorTypeSymbol.type = errorType;
 
         resultType = errorType;
@@ -1099,7 +1093,7 @@ public class SymbolResolver extends BLangNodeVisitor {
      */
     private boolean isStampSupportedForSourceType(BType sourceType) {
 
-        if (!types.isAnydata(sourceType)) {
+        if (!types.isLikeAnydataOrNotNil(sourceType)) {
             return false;
         }
 
