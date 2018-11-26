@@ -31,12 +31,12 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.net.grpc.GrpcConstants.LISTENER;
 import static org.ballerinalang.net.grpc.GrpcConstants.ON_COMPLETE_RESOURCE;
 import static org.ballerinalang.net.grpc.GrpcConstants.ON_ERROR_RESOURCE;
 import static org.ballerinalang.net.grpc.GrpcConstants.ON_MESSAGE_RESOURCE;
 import static org.ballerinalang.net.grpc.GrpcConstants.ON_OPEN_RESOURCE;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.GrpcConstants.LISTENER;
 import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.ANN_SERVICE_CONFIG;
 import static org.ballerinalang.net.grpc.proto.ServiceProtoUtils.getServiceConfiguration;
 
