@@ -1,6 +1,6 @@
-import { ASTNode } from "@ballerina/ast-model";
-import { ASTDidChangeParams, ASTDidChangeResponse, BallerinaASTNode, BallerinaEndpoint,
-    BallerinaSourceFragment, GetASTParams, GetASTResponse  } from "@ballerina/lang-service";
+import { ASTNode, ASTUtil } from "@ballerina/ast-model";
+import { ASTDidChangeParams, ASTDidChangeResponse, BallerinaAST, BallerinaASTNode,
+    BallerinaEndpoint, BallerinaSourceFragment, GetASTParams, GetASTResponse  } from "@ballerina/lang-service";
 import debounce from "lodash.debounce";
 import React from "react";
 import { CommonDiagramProps, Diagram } from "./diagram";
@@ -79,6 +79,19 @@ export class EditableDiagram extends React.Component<EdiatableDiagramProps, Edit
                 this.forceUpdate();
             }, resizeDelay);
         }
+        ASTUtil.onTreeModified((tree) => {
+            // tslint:disable-next-line:no-console
+            console.log("---------------->");
+            const { langClient, docUri } = this.props;
+            // tslint:disable-next-line:no-console
+            console.log("---------------->", tree);
+            langClient.astDidChange({
+                ast: tree as BallerinaAST,
+                textDocumentIdentifier: {
+                    uri: docUri
+                },
+            });
+        });
     }
 
     public updateAST(uri: string = this.props.docUri) {

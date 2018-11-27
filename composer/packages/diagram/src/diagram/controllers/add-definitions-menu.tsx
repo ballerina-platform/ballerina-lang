@@ -65,5 +65,5 @@ function addDefinition(type: string, tree: CompilationUnit) {
     }
 
     const newNode: ASTNode = (ASTUtil as any)[`create${type}Node`]();
-    ASTUtil.attachNode(newNode, tree, "topLevelNodes", tree.topLevelNodes.length);
+    ASTUtil.attachNode(newNode, tree, tree, "topLevelNodes", tree.topLevelNodes.length);
 }
