@@ -1,0 +1,8 @@
+/*-------------------
+    Border Radius
+--------------------*/
+
+@relativeBorderRadius: 0;
+@absoluteBorderRadius: 0;
+
+@defaultBorderRadius: @absoluteBorderRadius;
