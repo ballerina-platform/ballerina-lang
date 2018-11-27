@@ -42,7 +42,7 @@ service PingPongTestService1 on new http:WebSocketListener(9092) {
         }
     }
 
-    resource function onText(endpoint wsEp, string text) {
+    resource function onText(http:WebSocketCaller wsEp, string text) {
         endpoint http:WebSocketClient clientEp;
         if (text == "custom-headers") {
             clientEp = getAssociatedClientEndpoint1(wsEp);
@@ -63,7 +63,7 @@ service PingPongTestService1 on new http:WebSocketListener(9092) {
 
 service clientCallbackService = @http:WebSocketServiceConfig {} service{
 
-    resource function onText(endpoint wsEp, string text) {
+    resource function onText(http:WebSocketCaller wsEp, string text) {
         listener http:WebSocketListener serverEp = getAssociatedListener1(wsEp);
         var returnVal = serverEp->pushText(text);
         if (returnVal is error) {

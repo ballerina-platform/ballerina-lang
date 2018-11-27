@@ -74,7 +74,7 @@ service clientCallbackService9 = @http:WebSocketServiceConfig {} service {
         }
     }
 
-    resource function onBinary(endpoint wsEp, byte[] data) {
+    resource function onBinary(http:WebSocketCaller wsEp, byte[] data) {
         endpoint http:WebSocketListener serviceEp = getAssociatedListener3(wsEp);
         var returnVal = serviceEp->pushBinary(data);
         if (returnVal is error) {

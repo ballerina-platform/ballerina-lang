@@ -37,7 +37,7 @@ service simple on ep1 {
 
 service simpleProxy1 = @http:WebSocketServiceConfig {} service {
 
-    resource function onOpen(endpoint wsEp) {
+    resource function onOpen(http:WebSocketCaller wsEp) {
     }
 };
 
