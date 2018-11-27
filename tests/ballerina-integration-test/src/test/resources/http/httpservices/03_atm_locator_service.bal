@@ -36,7 +36,7 @@ service ATMLocator on serviceEnpoint {
         http:Request backendServiceReq = new;
         var jsonLocatorReq = req.getJsonPayload();
         if (jsonLocatorReq is json) {
-            string zipCode = extractFieldValue2(jsonLocatorReq["ATMLocator"]["ZipCode"]);
+            string zipCode = jsonLocatorReq["ATMLocator"]["ZipCode"].toString();
             io:println("Zip Code " + zipCode);
             json branchLocatorReq = {"BranchLocator":{"ZipCode":""}};
             branchLocatorReq.BranchLocator.ZipCode = zipCode;
@@ -55,7 +55,7 @@ service ATMLocator on serviceEnpoint {
 
         var branchLocatorRes = locatorResponse.getJsonPayload();
         if (branchLocatorRes is json) {
-            string branchCode = extractFieldValue2(branchLocatorRes.ABCBank.BranchCode);
+            string branchCode = branchLocatorRes.ABCBank.BranchCode.toString();
             io:println("Branch Code " + branchCode);
             json bankInfoReq = {"BranchInfo":{"BranchCode":""}};
             bankInfoReq.BranchInfo.BranchCode = branchCode;
@@ -87,7 +87,7 @@ service Bankinfo on serviceEnpoint {
         http:Response res = new;
         var jsonRequest = req.getJsonPayload();
         if (jsonRequest is json) {
-            string branchCode = extractFieldValue2(jsonRequest.BranchInfo.BranchCode);
+            string branchCode = jsonRequest.BranchInfo.BranchCode.toString();
             json payload = {};
             if (branchCode == "123") {
                 payload = {"ABC Bank":{"Address":"111 River Oaks Pkwy, San Jose, CA 95999"}};
@@ -115,7 +115,7 @@ service Banklocator on serviceEnpoint {
         http:Response res = new;
         var jsonRequest = req.getJsonPayload();
         if (jsonRequest is json) {
-            string zipCode = extractFieldValue2(jsonRequest.BranchLocator.ZipCode);
+            string zipCode = jsonRequest.BranchLocator.ZipCode.toString();
             json payload = {};
             if (zipCode == "95999") {
                 payload = {"ABCBank":{"BranchCode":"123"}};
@@ -131,11 +131,3 @@ service Banklocator on serviceEnpoint {
     }
 }
 
-//Keep this until there's a simpler way to get a string value out of a json
-function extractFieldValue2(json fieldValue) returns string {
-    if (fieldValue is string) {
-        return fieldValue;
-    } else {
-        return "error";
-    }
-}
