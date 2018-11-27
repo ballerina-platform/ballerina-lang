@@ -53,6 +53,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -226,6 +227,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -1251,6 +1253,23 @@ public class CodeGenerator extends BLangNodeVisitor {
                     emitConversionInstruction(iExpr, iExpr.requiredArgs.get(0), symbol,
                                               ((BInvokableType) symbol.type).paramTypes.get(1));
                 }
+                break;
+            case ITERATE:
+                emit(InstructionCodes.ITR_NEW, iExpr.expr.regIndex, regIndex);
+                break;
+            case NEXT:
+                List<Operand> list = new LinkedList<>();
+                list.add(iExpr.expr.regIndex);
+                list.add(new Operand(1)); // Todo - Cleanup counts
+                list.add(new Operand(iExpr.type.tag));
+                list.add(new Operand(1)); // Todo - Cleanup counts
+                list.add(iExpr.regIndex);
+
+                BType resultType = ((BUnionType) iExpr.type).memberTypes.iterator().next();
+                list.add(getTypeCPIndex(resultType));
+
+
+                emit(InstructionCodes.ITR_NEXT, list.toArray(new Operand[0]));
                 break;
         }
     }
