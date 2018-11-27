@@ -31,7 +31,6 @@ import com.intellij.openapi.util.Key;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import io.ballerina.plugins.idea.BallerinaIcons;
-import io.ballerina.plugins.idea.completion.inserthandlers.BallerinaSingleCharacterInsertHandler;
 import io.ballerina.plugins.idea.completion.inserthandlers.BracesInsertHandler;
 import io.ballerina.plugins.idea.psi.BallerinaAnyIdentifierName;
 import io.ballerina.plugins.idea.psi.BallerinaCallableUnitSignature;

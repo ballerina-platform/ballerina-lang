@@ -568,7 +568,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
 
                 // Unary Expressions
                 .after(BIT_COMPLEMENT).spaceIf(false)
-                .between(NOT,VARIABLE_REFERENCE_EXPRESSION).spaceIf(false)
+                .between(NOT, VARIABLE_REFERENCE_EXPRESSION).spaceIf(false)
 
                 // Operators
                 .around(ASSIGN).spaceIf(true)

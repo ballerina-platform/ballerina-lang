@@ -29,7 +29,6 @@ import io.ballerina.plugins.idea.psi.impl.BallerinaElementFactory;
 import io.ballerina.plugins.idea.psi.reference.BallerinaFieldReference;
 import io.ballerina.plugins.idea.psi.reference.BallerinaInvocationReference;
 import io.ballerina.plugins.idea.psi.reference.BallerinaNameReferenceReference;
-import io.ballerina.plugins.idea.psi.reference.BallerinaObjectFieldReference;
 import io.ballerina.plugins.idea.psi.reference.BallerinaObjectFunctionReference;
 import io.ballerina.plugins.idea.psi.reference.BallerinaOrgReference;
 import io.ballerina.plugins.idea.psi.reference.BallerinaTypeReference;
