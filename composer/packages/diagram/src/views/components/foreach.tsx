@@ -5,7 +5,7 @@ import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
 import { ViewState } from "../../view-model/index";
 import { ArrowHead } from "./arrow-head";
-import { Condition } from "./condition";
+import { ForeachBox } from "./foreach-box";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
@@ -64,7 +64,7 @@ export const Foreach: React.StatelessComponent<{
 
         return (
             <g className="panel">
-                <Condition {...conditionProps}/>
+                <ForeachBox {...conditionProps}/>
                 {body}
                 <polyline className="condition-line"
                     points={`${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y} ${p4.x},${p4.y}`}
