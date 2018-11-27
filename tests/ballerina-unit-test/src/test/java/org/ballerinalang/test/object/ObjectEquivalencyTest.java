@@ -127,7 +127,7 @@ public class ObjectEquivalencyTest {
 
     @Test(description = "Test object equivalency negative",
             expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*'eq:BarObj' cannot be cast to 'eq2:FooObj'.*")
+            expectedExceptionsMessageRegExp = "error: assertion error: expected 'eq2:FooObj', found 'eq:BarObj'.*")
     public void testObjectEqViewFromThirdPackageNegative() {
         BRunUtil.invoke(compileResult, "testObjectEqViewFromThirdPackage");
     }
