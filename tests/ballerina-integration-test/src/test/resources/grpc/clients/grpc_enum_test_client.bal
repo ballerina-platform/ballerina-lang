@@ -16,7 +16,7 @@
 import ballerina/grpc;
 
 function testEnum() returns (string) {
-    endpoint testEnumServiceBlockingClient blockingEp = new ({
+    testEnumServiceBlockingClient blockingEp = new ({
         url:"http://localhost:8555"
     });
 
@@ -51,7 +51,7 @@ public type testEnumServiceBlockingClient client object {
         grpc:Headers resHeaders = new;
         any result = ();
         (result, resHeaders) = unionResp;
-        return (<string>result, resHeaders);
+        return (string.create(result), resHeaders);
     }
 };
 

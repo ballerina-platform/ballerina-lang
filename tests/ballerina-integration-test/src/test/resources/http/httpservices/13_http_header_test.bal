@@ -1,35 +1,25 @@
 import ballerina/http;
 
-endpoint http:Listener headerServiceEP {
-    port: 9106
-};
-
-endpoint http:Listener stockServiceEP {
-    port: 9107
-};
-
-endpoint http:Client stockqEP {
-    url: "http://localhost:9107"
-};
+http:Client stockqEP = new("http://localhost:9107");
 
 @http:ServiceConfig {
     basePath:"/product"
 }
-service<http:Service> headerService bind headerServiceEP {
+service headerService on new http:Listener(9106) {
 
-    value (endpoint conn, http:Request req) {
+    resource function value(http:Caller caller, http:Request req) {
         req.setHeader("core", "aaa");
         req.addHeader("core", "bbb");
 
         var result = stockqEP -> get("/sample/stocks", message = untaint req);
         if (result is http:Response) {
-            _ = conn->respond(result);
+            _ = caller->respond(result);
         } else if (result is error) {
-            _ = conn->respond(result.reason());
+            _ = caller->respond(result.reason());
         }
     }
 
-    id (endpoint conn, http:Request req) {
+    resource function id(http:Caller caller, http:Request req) {
         http:Response clntResponse = new;
         var clientResponse = stockqEP -> forward("/sample/customers", req);
         if (clientResponse is http:Response) {
@@ -44,9 +34,9 @@ service<http:Service> headerService bind headerServiceEP {
             } else {
                 payload = {"response":"person header not available"};
             }
-            _ = conn -> respond(payload);
+            _ = caller->respond(payload);
         } else if (clientResponse is error) {
-            _ = conn -> respond(clientResponse.reason());
+            _ = caller->respond(clientResponse.reason());
         }
     }
 }
@@ -54,13 +44,13 @@ service<http:Service> headerService bind headerServiceEP {
 @http:ServiceConfig {
     basePath:"/sample"
 }
-service<http:Service> quoteService1 bind stockServiceEP {
+service quoteService1 on new http:Listener(9107) {
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/stocks"
     }
-    company (endpoint conn, http:Request req) {
+    resource function company(http:Caller caller, http:Request req) {
         json payload = {};
         if (req.hasHeader("core")) {
             string[] headers = req.getHeaders("core");
@@ -74,17 +64,17 @@ service<http:Service> quoteService1 bind stockServiceEP {
         }
         http:Response res = new;
         res.setJsonPayload(untaint payload);
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/customers"
     }
-    product (endpoint conn, http:Request req) {
+    resource function product(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setHeader("person", "kkk");
         res.addHeader("person", "jjj");
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 }
