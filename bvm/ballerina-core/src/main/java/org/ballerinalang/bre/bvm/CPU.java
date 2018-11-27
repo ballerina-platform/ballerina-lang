@@ -3014,15 +3014,16 @@ public class CPU {
 
     private static boolean handleWorkerReceive(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo,
                                                BType type, int reg) {
-        WorkerDataChannel.WorkerResult passedInValue = getWorkerChannel(
-                ctx, workerDataChannelInfo.getChannelName()).tryTakeData(ctx);
-        if (passedInValue != null) {
-            WorkerData currentFrame = ctx.workerLocal;
-            copyArgValueForWorkerReceive(currentFrame, reg, type, passedInValue.value);
-            return true;
-        } else {
-            return false;
-        }
+//        WorkerDataChannel.WorkerResult passedInValue = getWorkerChannel(
+//                ctx, workerDataChannelInfo.getChannelName()).tryTakeData(ctx);
+//        if (passedInValue != null) {
+//            WorkerData currentFrame = ctx.workerLocal;
+//            copyArgValueForWorkerReceive(currentFrame, reg, type, passedInValue.value);
+//            return true;
+//        } else {
+//            return false;
+//        }
+        return false;
     }
 
     public static void copyArgValueForWorkerReceive(WorkerData currentSF, int regIndex, BType paramType,

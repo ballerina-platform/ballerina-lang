@@ -64,7 +64,13 @@ public class Strand {
 
     public int callBacksRemaining;
 
-    public Strand(ProgramFile programFile, String name, Map<String, Object> properties, StrandCallback respCallback) {
+    //TODO try to generalize below to normal data channels
+    public WDChannels parentChannels;
+
+    public WDChannels wdChannels;
+
+    public Strand(ProgramFile programFile, String name, Map<String, Object> properties, StrandCallback respCallback,
+                  WDChannels parentChannels) {
         this.programFile = programFile;
         this.respCallback = respCallback;
         this.callStack = new StackFrame[DEFAULT_CONTROL_STACK_SIZE];
@@ -76,6 +82,8 @@ public class Strand {
         }
         this.callBacksRemaining = 0;
         this.id = name + "-" + UUID.randomUUID().toString();
+        this.parentChannels = parentChannels;
+        this.wdChannels = new WDChannels();
         initDebugger();
     }
 

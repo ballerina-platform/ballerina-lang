@@ -25,7 +25,6 @@ import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.bre.bvm.SignalType;
-import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerDataChannel;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.bvm.WorkerSignal;
@@ -98,6 +97,7 @@ import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
 import org.ballerinalang.util.codegen.Instruction.InstructionLock;
 import org.ballerinalang.util.codegen.Instruction.InstructionVCALL;
+import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.ObjectTypeInfo;
@@ -459,15 +459,15 @@ public class BVM {
                         endTransaction(strand, i, j);
                         break;
                     case InstructionCodes.WRKSEND:
-//                        InstructionWRKSendReceive wrkSendIns = (InstructionWRKSendReceive) instruction;
-//                        handleWorkerSend(strand, wrkSendIns.dataChannelInfo, wrkSendIns.type, wrkSendIns.reg);
+                        InstructionWRKSendReceive wrkSendIns = (InstructionWRKSendReceive) instruction;
+                        handleWorkerSend(strand, wrkSendIns.dataChannelInfo, wrkSendIns.type, wrkSendIns.reg);
                         break;
                     case InstructionCodes.WRKRECEIVE:
-//                    InstructionWRKSendReceive wrkReceiveIns = (InstructionWRKSendReceive) instruction;
-//                    if (!handleWorkerReceive(ctx, wrkReceiveIns.dataChannelInfo, wrkReceiveIns.type,
-//                            wrkReceiveIns.reg)) {
-//                        return;
-//                    }
+                        InstructionWRKSendReceive wrkReceiveIns = (InstructionWRKSendReceive) instruction;
+                        if (!handleWorkerReceive(strand, wrkReceiveIns.dataChannelInfo, wrkReceiveIns.type,
+                                wrkReceiveIns.reg)) {
+                            return;
+                        }
                         break;
                     case InstructionCodes.CHNRECEIVE:
                         Instruction.InstructionCHNReceive chnReceiveIns = (Instruction.InstructionCHNReceive) instruction;
@@ -847,7 +847,7 @@ public class BVM {
 
         SafeStrandCallback strndCallback = new SafeStrandCallback(callableUnitInfo.getRetParamTypes()[0]);
         Strand calleeStrand = new Strand(strand.programFile, callableUnitInfo.getName(),
-                strand.globalProps, strndCallback);
+                strand.globalProps, strndCallback, strand.wdChannels);
         calleeStrand.pushFrame(df);
         if (callableUnitInfo.isNative()) {
             Context nativeCtx = new NativeCallContext(calleeStrand, callableUnitInfo, df);
@@ -3103,15 +3103,15 @@ public class BVM {
         return invokeCallable(ctx, attachedFuncInfo, argRegs, retReg, flags);
     }
 
-    private static void handleWorkerSend(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo,
+    private static void handleWorkerSend(Strand ctx, WorkerDataChannelInfo workerDataChannelInfo,
                                          BType type, int reg) {
-//        BRefType val = extractValue(ctx.workerLocal, type, reg);
-//        WorkerDataChannel dataChannel = getWorkerChannel(ctx, workerDataChannelInfo.getChannelName());
-//        dataChannel.putData(val);
+        BRefType val = extractValue(ctx.currentFrame, type, reg);
+        WorkerDataChannel dataChannel = getWorkerChannel(ctx, workerDataChannelInfo.getChannelName());
+        dataChannel.putData(val);
     }
 
-    private static WorkerDataChannel getWorkerChannel(WorkerExecutionContext ctx, String name) {
-        return ctx.respCtx.getWorkerDataChannel(name);
+    private static WorkerDataChannel getWorkerChannel(Strand ctx, String name) {
+        return ctx.parentChannels.getWorkerDataChannel(name);
     }
 
     private static BRefType extractValue(StackFrame data, BType type, int reg) {
@@ -3138,13 +3138,13 @@ public class BVM {
         return result;
     }
 
-    private static boolean handleWorkerReceive(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo,
+    private static boolean handleWorkerReceive(Strand ctx, WorkerDataChannelInfo workerDataChannelInfo,
                                                BType type, int reg) {
         WorkerDataChannel.WorkerResult passedInValue = getWorkerChannel(
                 ctx, workerDataChannelInfo.getChannelName()).tryTakeData(ctx);
         if (passedInValue != null) {
-            WorkerData currentFrame = ctx.workerLocal;
-//            copyArgValueForWorkerReceive(currentFrame, reg, type, passedInValue.value);
+            StackFrame currentFrame = ctx.currentFrame;
+            copyArgValueForWorkerReceive(currentFrame, reg, type, passedInValue.value);
             return true;
         } else {
             return false;
