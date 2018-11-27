@@ -107,7 +107,7 @@ function createStreamingConstruct() {
         [function (streams:StreamEvent e) returns string {
             return <string>e.data["inputStream.name"];
         }],
-        function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map {
+        function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<any> {
             streams:Sum sumAggregator1 = check <streams:Sum>aggregatorArr1[0];
             streams:Count countAggregator1 = check <streams:Count>aggregatorArr1[1];
             // got rid of type casting
@@ -121,7 +121,7 @@ function createStreamingConstruct() {
     );
 
     streams:Window tmpWindow = streams:timeWindow([1000], nextProcessPointer = select.process);
-    streams:Filter filter = streams:createFilter(tmpWindow.process, function (map m) returns boolean {
+    streams:Filter filter = streams:createFilter(tmpWindow.process, function (map<any> m) returns boolean {
             // simplify filter
             return check <int>m["inputStream.age"] > getValue();
         }
@@ -129,7 +129,7 @@ function createStreamingConstruct() {
 
     inputStream.subscribe(function (Teacher t) {
             // make it type unaware and proceed
-            map keyVal = <map>t;
+            map<any> keyVal = <map>t;
             streams:StreamEvent[] eventArr = streams:buildStreamEvent(keyVal, "inputStream");
             filter.process(eventArr);
         }

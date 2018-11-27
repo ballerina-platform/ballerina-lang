@@ -11,7 +11,7 @@ function workerDeclTest() {
 	     int y = 0;
 	     int g = y + 1;
 	   }
-	} join (all) (map results) { io:println(results); }
+	} join (all) (map<any> results) { io:println(results); }
    }
    worker wy { }
 }
@@ -31,7 +31,7 @@ function forkJoinWithMessageParsingTest() returns int {
 	     a <- w1;
 	     b -> w1;
 	   }
-	} join (all) (map results) { io:println(results); }
+	} join (all) (map<any> results) { io:println(results); }
 	return x;
 }
 
@@ -52,7 +52,7 @@ function forkJoinWithSingleForkMessages() returns int {
 	     b -> w1;
 	     b -> fork;
 	   }
-	} join (all) (map results) { io:println(results); }
+	} join (all) (map<any> results) { io:println(results); }
 	return x;
 }
 
@@ -67,7 +67,7 @@ function basicForkJoinTest() returns int {
 	     int a = 0;
 	     int b = 15;
 	   }
-	} join (all) (map results) { }
+	} join (all) (map<any> results) { }
 	return x;
 }
 
@@ -88,7 +88,7 @@ function forkJoinWithMultipleForkMessages() returns int {
 	     b -> w1;
 	     (a, b) -> fork;
 	   }
-	} join (all) (map results) {  io:println(results);  }
+	} join (all) (map<any> results) {  io:println(results);  }
 	return x;
 }
 
@@ -107,7 +107,7 @@ function simpleWorkerMessagePassingTest() {
 }
 
 function forkJoinWithSomeJoin() returns int | error {
-    map m = {};
+    map<any> m = {};
     m["x"] = 25;
     int ret;
     fork {
@@ -128,7 +128,7 @@ function forkJoinWithSomeJoin() returns int | error {
 	     int b = 15;
 	     m["x"] = b;
 	   }
-	} join (some 1) (map results) {  io:println(results);  }
+	} join (some 1) (map<any> results) {  io:println(results);  }
 	match <int> m["x"] {
 	    int a => return a;
 	    error err => return err;

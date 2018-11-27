@@ -8,10 +8,9 @@ public function main() {
     // Start up the internal Ballerina Hub on port 9191, allowing remote publishers to register topics and publish
     // updates for the topics.
     io:println("Starting up the Ballerina Hub Service");
-    websub:WebSubHub webSubHub =
-        websub:startHub(9191, remotePublishingEnabled = true) but {
-            websub:HubStartedUpError hubStartedUpErr => hubStartedUpErr.startedUpHub
-        };
+
+    var result = websub:startHub(9191, remotePublishingEnabled = true);
+    websub:WebSubHub webSubHub = result is websub:HubStartedUpError ? result.startedUpHub : result;
 
     // Wait for the subscriber to subscribe at this hub and for the publisher to publish the notifications.
     runtime:sleep(10000);

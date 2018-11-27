@@ -107,21 +107,21 @@ public function testArraysOfArrays() returns (boolean) {
 public function testMaps () returns (boolean) {
 int[] a = [900, 2230];
 int[] b = [2230, 900];
-    map m1 = {line1:"No. 20", line2:"Palm Grove",
+    map<any> m1 = {line1:"No. 20", line2:"Palm Grove",
                  city:"Colombo 03", country:"Sri Lanka", checkinsTimes: a};
-    map m2 = {line1:"No. 20", line2:"Palm Grove",
+    map<any> m2 = {line1:"No. 20", line2:"Palm Grove",
                  city:"Colombo 03", country:"Sri Lanka", checkinsTimes: a};
 
-    map mUnorder = {line1:"No. 20", city:"Colombo 03", line2:"Palm Grove",
+    map<any> mUnorder = {line1:"No. 20", city:"Colombo 03", line2:"Palm Grove",
                        country:"Sri Lanka", checkinsTimes: a};
 
-    map mArrayUnorder = {line1:"No. 20", line2:"Palm Grove",
+    map<any> mArrayUnorder = {line1:"No. 20", line2:"Palm Grove",
                             city:"Colombo 03", country:"Sri Lanka", checkinsTimes: b};
 
-    map mStringValueMismatch = {line1:"No. 20", line2:"Palm Groveeeeeeee",
+    map<any> mStringValueMismatch = {line1:"No. 20", line2:"Palm Groveeeeeeee",
                                    city:"Colombo 03", country:"Sri Lanka", checkinsTimes: a};
 
-    map mMissingKeys = {line1:"No. 20",
+    map<any> mMissingKeys = {line1:"No. 20",
                            city:"Colombo 03", country:"Sri Lanka", checkinsTimes: a};
 
     return reflect:equals(m1,m2) &&

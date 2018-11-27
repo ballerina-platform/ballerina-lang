@@ -91,17 +91,15 @@ function testGetXmlPayload(http:Request req) returns xml|error {
     return req.getXmlPayload();
 }
 
-endpoint http:NonListener mockEP {
-    port:9090
-};
+listener http:MockListener mockEP = new(9090);
 
 @http:ServiceConfig { basePath: "/hello" }
-service<http:Service> hello bind mockEP {
+service hello on mockEP {
 
     @http:ResourceConfig {
         path: "/addheader/{key}/{value}"
     }
-    addheader(endpoint caller, http:Request inReq, string key, string value) {
+    resource function addheader(http:Caller caller, http:Request inReq, string key, string value) {
         http:Request req = new;
         req.addHeader(untaint key, value);
         string result = untaint req.getHeader(untaint key);
@@ -113,7 +111,7 @@ service<http:Service> hello bind mockEP {
     @http:ResourceConfig {
         path: "/11"
     }
-    echo1(endpoint caller, http:Request req) {
+    resource function echo1(http:Caller caller, http:Request req) {
         http:Response res = new;
         string method = req.method;
         res.setTextPayload(untaint method);
@@ -123,7 +121,7 @@ service<http:Service> hello bind mockEP {
     @http:ResourceConfig {
         path: "/12"
     }
-    echo2(endpoint caller, http:Request req) {
+    resource function echo2(http:Caller caller, http:Request req) {
         http:Response res = new;
         string url = req.rawPath;
         res.setTextPayload(untaint url);
@@ -133,7 +131,7 @@ service<http:Service> hello bind mockEP {
     @http:ResourceConfig {
         path: "/13"
     }
-    echo3(endpoint caller, http:Request req) {
+    resource function echo3(http:Caller caller, http:Request req) {
         http:Response res = new;
         string url = req.rawPath;
         res.setTextPayload(untaint url);
@@ -143,7 +141,7 @@ service<http:Service> hello bind mockEP {
     @http:ResourceConfig {
         path: "/getHeader"
     }
-    getHeader(endpoint caller, http:Request req) {
+    resource function getHeader(http:Caller caller, http:Request req) {
         http:Response res = new;
         string header = untaint req.getHeader("content-type");
         res.setJsonPayload({ value: header });
@@ -164,7 +162,7 @@ service<http:Service> hello bind mockEP {
     @http:ResourceConfig {
         path: "/getJsonPayload"
     }
-    GetJsonPayload(endpoint caller, http:Request req) {
+    resource function getJsonPayload(http:Caller caller, http:Request req) {
         http:Response res = new;
         var returnResult = req.getJsonPayload();
         if (returnResult is error) {
@@ -179,7 +177,7 @@ service<http:Service> hello bind mockEP {
     @http:ResourceConfig {
         path: "/GetTextPayload"
     }
-    GetTextPayload(endpoint caller, http:Request req) {
+    resource function getTextPayload(http:Caller caller, http:Request req) {
         http:Response res = new;
         var returnResult = req.getTextPayload();
         if (returnResult is error) {
@@ -194,7 +192,7 @@ service<http:Service> hello bind mockEP {
     @http:ResourceConfig {
         path: "/GetXmlPayload"
     }
-    GetXmlPayload(endpoint caller, http:Request req) {
+    resource function getXmlPayload(http:Caller caller, http:Request req) {
         http:Response res = new;
         var returnResult = req.getXmlPayload();
         if (returnResult is error) {
@@ -210,7 +208,7 @@ service<http:Service> hello bind mockEP {
     @http:ResourceConfig {
         path: "/GetBinaryPayload"
     }
-    GetBinaryPayload(endpoint caller, http:Request req) {
+    resource function getBinaryPayload(http:Caller caller, http:Request req) {
         http:Response res = new;
         var returnResult = req.getBinaryPayload();
         if (returnResult is error) {
@@ -226,7 +224,7 @@ service<http:Service> hello bind mockEP {
     @http:ResourceConfig {
         path: "/GetByteChannel"
     }
-    GetByteChannel(endpoint caller, http:Request req) {
+    resource function getByteChannel(http:Caller caller, http:Request req) {
         http:Response res = new;
         var returnResult = req.getByteChannel();
         if (returnResult is error) {
@@ -241,7 +239,7 @@ service<http:Service> hello bind mockEP {
     @http:ResourceConfig {
         path: "/RemoveHeader"
     }
-    RemoveHeader(endpoint caller, http:Request inReq) {
+    resource function removeHeader(http:Caller caller, http:Request inReq) {
         http:Request req = new;
         req.setHeader("Content-Type", "application/x-www-form-urlencoded");
         req.removeHeader("Content-Type");
@@ -257,7 +255,7 @@ service<http:Service> hello bind mockEP {
     @http:ResourceConfig {
         path: "/RemoveAllHeaders"
     }
-    RemoveAllHeaders(endpoint caller, http:Request inReq) {
+    resource function removeAllHeaders(http:Caller caller, http:Request inReq) {
         http:Request req = new;
         req.setHeader("Content-Type", "application/x-www-form-urlencoded");
         req.setHeader("Expect", "100-continue");
@@ -275,7 +273,7 @@ service<http:Service> hello bind mockEP {
     @http:ResourceConfig {
         path: "/setHeader/{key}/{value}"
     }
-    setHeader(endpoint caller, http:Request inReq, string key, string value) {
+    resource function setHeader(http:Caller caller, http:Request inReq, string key, string value) {
         http:Request req = new;
         req.setHeader(untaint key, "abc");
         req.setHeader(untaint key, value);
@@ -289,7 +287,7 @@ service<http:Service> hello bind mockEP {
     @http:ResourceConfig {
         path: "/SetJsonPayload/{value}"
     }
-    SetJsonPayload(endpoint caller, http:Request inReq, string value) {
+    resource function setJsonPayload(http:Caller caller, http:Request inReq, string value) {
         http:Request req = new;
         json jsonStr = { lang: value };
         req.setJsonPayload(untaint jsonStr);
@@ -307,7 +305,7 @@ service<http:Service> hello bind mockEP {
     @http:ResourceConfig {
         path: "/SetStringPayload/{value}"
     }
-    SetStringPayload(endpoint caller, http:Request inReq, string value) {
+    resource function setStringPayload(http:Caller caller, http:Request inReq, string value) {
         http:Request req = new;
         req.setTextPayload(untaint value);
         http:Response res = new;
@@ -324,7 +322,7 @@ service<http:Service> hello bind mockEP {
     @http:ResourceConfig {
         path: "/SetXmlPayload"
     }
-    SetXmlPayload(endpoint caller, http:Request inReq) {
+    resource function setXmlPayload(http:Caller caller, http:Request inReq) {
         http:Request req = new;
         xml xmlStr = xml `<name>Ballerina</name>`;
         req.setXmlPayload(xmlStr);
@@ -343,7 +341,7 @@ service<http:Service> hello bind mockEP {
     @http:ResourceConfig {
         path: "/SetBinaryPayload"
     }
-    SetBinaryPayload(endpoint caller, http:Request inReq) {
+    resource function setBinaryPayload(http:Caller caller, http:Request inReq) {
         http:Request req = new;
         string text = "Ballerina";
         byte[] payload = text.toByteArray("UTF-8");

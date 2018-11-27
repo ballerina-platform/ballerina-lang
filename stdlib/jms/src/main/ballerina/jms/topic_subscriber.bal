@@ -142,12 +142,12 @@ remote function TopicSubscriberCaller.receiveFrom(Destination destination, int t
 function validateTopic(Destination destination) {
     if (destination.destinationName == "") {
         string errorMessage = "Destination name cannot be empty";
-        map errorDetail = { message: errorMessage };
+        map<any> errorDetail = { message: errorMessage };
         error topicSubscriberConfigError = error(JMS_ERROR_CODE, errorDetail);
         panic topicSubscriberConfigError;
     } else if (destination.destinationType != "topic") {
         string errorMessage = "Destination should should be a topic";
-        map errorDetail = { message: errorMessage };
+        map<any> errorDetail = { message: errorMessage };
         error topicSubscriberConfigError = error(JMS_ERROR_CODE, errorDetail);
         panic topicSubscriberConfigError;
     }

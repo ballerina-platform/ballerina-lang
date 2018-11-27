@@ -88,6 +88,7 @@ import org.ballerinalang.util.codegen.Instruction.InstructionCHNSend;
 import org.ballerinalang.util.codegen.Instruction.InstructionFORKJOIN;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
 import org.ballerinalang.util.codegen.Instruction.InstructionLock;
+import org.ballerinalang.util.codegen.Instruction.InstructionUnLock;
 import org.ballerinalang.util.codegen.Instruction.InstructionVCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.InstructionCodes;
@@ -132,6 +133,7 @@ import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -139,6 +141,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Stack;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -148,6 +151,10 @@ import java.util.stream.LongStream;
 import static org.ballerinalang.runtime.Constants.STATE_ID;
 import static org.ballerinalang.util.BLangConstants.BBYTE_MAX_VALUE;
 import static org.ballerinalang.util.BLangConstants.BBYTE_MIN_VALUE;
+import static org.ballerinalang.util.BLangConstants.BINT_MAX_VALUE_BIG_DECIMAL_RANGE_MAX;
+import static org.ballerinalang.util.BLangConstants.BINT_MAX_VALUE_DOUBLE_RANGE_MAX;
+import static org.ballerinalang.util.BLangConstants.BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN;
+import static org.ballerinalang.util.BLangConstants.BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
 import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
 
 /**
@@ -603,6 +610,7 @@ public class CPU {
                     case InstructionCodes.CHECKCAST:
                     case InstructionCodes.IS_ASSIGNABLE:
                     case InstructionCodes.O2JSON:
+                    case InstructionCodes.TYPE_ASSERTION:
                         execTypeCastOpcodes(ctx, sf, opcode, operands);
                         break;
 
@@ -773,14 +781,16 @@ public class CPU {
                     case InstructionCodes.LOCK:
                         InstructionLock instructionLock = (InstructionLock) instruction;
                         if (!handleVariableLock(ctx, instructionLock.types,
-                                instructionLock.pkgRefs, instructionLock.varRegs)) {
+                                instructionLock.pkgRefs, instructionLock.varRegs, instructionLock.fieldRegs,
+                                instructionLock.varCount, instructionLock.uuid)) {
                             return;
                         }
                         break;
                     case InstructionCodes.UNLOCK:
-                        InstructionLock instructionUnLock = (InstructionLock) instruction;
+                        InstructionUnLock instructionUnLock = (InstructionUnLock) instruction;
                         handleVariableUnlock(ctx, instructionUnLock.types,
-                                instructionUnLock.pkgRefs, instructionUnLock.varRegs);
+                                instructionUnLock.pkgRefs, instructionUnLock.varRegs,
+                                instructionUnLock.varCount, instructionUnLock.uuid, instructionUnLock.hasFieldVar);
                         break;
                     case InstructionCodes.AWAIT:
                         ctx = execAwait(ctx, operands);
@@ -1976,7 +1986,7 @@ public class CPU {
                 if (sf.refRegs[i] == null) {
                     sf.intRegs[k] = sf.refRegs[j] == null ? 1 : 0;
                 } else {
-                    sf.intRegs[k] = isEqual(sf.refRegs[i], sf.refRegs[j]) ? 1 : 0;
+                    sf.intRegs[k] = isEqual(sf.refRegs[i], sf.refRegs[j], new ArrayList<>()) ? 1 : 0;
                 }
                 break;
             case InstructionCodes.REF_EQ:
@@ -2034,7 +2044,7 @@ public class CPU {
                 if (sf.refRegs[i] == null) {
                     sf.intRegs[k] = (sf.refRegs[j] != null) ? 1 : 0;
                 } else {
-                    sf.intRegs[k] = (!isEqual(sf.refRegs[i], sf.refRegs[j])) ? 1 : 0;
+                    sf.intRegs[k] = (!isEqual(sf.refRegs[i], sf.refRegs[j], new ArrayList<>())) ? 1 : 0;
                 }
                 break;
             case InstructionCodes.REF_NEQ:
@@ -2253,6 +2263,40 @@ public class CPU {
         TypeRefCPEntry typeRefCPEntry;
 
         switch (opcode) {
+            case InstructionCodes.TYPE_ASSERTION:
+                i = operands[0];
+                cpIndex = operands[1];
+                j = operands[2];
+                typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
+                BType expectedType = typeRefCPEntry.getType();
+
+                bRefTypeValue = sf.refRegs[i];
+
+                if (bRefTypeValue == null) {
+                    if (expectedType.getTag() == TypeTags.NULL_TAG) {
+                        sf.refRegs[j] = null;
+                        break;
+                    }
+                    ctx.setError(BLangVMErrors.createError(ctx,
+                                                           BLangExceptionHelper.getErrorMessage(
+                                                                   RuntimeErrors.TYPE_ASSERTION_ERROR, expectedType,
+                                                                   "()")));
+                    handleError(ctx);
+                } else if (isSimpleBasicType(expectedType)) {
+                    execExplicitlyTypedExpressionOpCode(ctx, sf, expectedType, bRefTypeValue, j);
+                } else if (expectedType.equals(bRefTypeValue.getType())) {
+                    sf.refRegs[j] = bRefTypeValue;
+                } else {
+                    ctx.setError(
+                            BLangVMErrors.createError(ctx,
+                                                      BLangExceptionHelper.getErrorMessage(
+                                                              RuntimeErrors.TYPE_ASSERTION_ERROR,
+                                                                   (expectedType.getTag() == TypeTags.NULL_TAG ?
+                                                                            "()" : expectedType),
+                                                                   bRefTypeValue.getType())));
+                    handleError(ctx);
+                }
+                break;
             case InstructionCodes.I2ANY:
                 i = operands[0];
                 j = operands[1];
@@ -2375,6 +2419,42 @@ public class CPU {
         }
     }
 
+    private static void execExplicitlyTypedExpressionOpCode(WorkerExecutionContext ctx, WorkerData sf, BType targetType,
+                                                            BRefType bRefTypeValue, int regIndex) {
+        BType sourceType = bRefTypeValue.getType();
+        int targetTag = targetType.getTag();
+        if (!isSimpleBasicType(sourceType) ||
+                (sourceType.getTag() == TypeTags.STRING_TAG && targetTag != TypeTags.STRING_TAG)) {
+            ctx.setError(BLangVMErrors.createError(ctx,  "assertion error: expected '" + targetType + "', found '" +
+                    bRefTypeValue.getType() + "'"));
+            handleError(ctx);
+            return;
+        }
+
+        try {
+            switch (targetTag) {
+                case TypeTags.STRING_TAG:
+                    sf.stringRegs[regIndex] = bRefTypeValue.stringValue();
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    sf.doubleRegs[regIndex] = ((BValueType) bRefTypeValue).floatValue();
+                    break;
+                case TypeTags.DECIMAL_TAG:
+                    sf.refRegs[regIndex] = new BDecimal(((BValueType) bRefTypeValue).decimalValue());
+                    break;
+                case TypeTags.INT_TAG:
+                    sf.longRegs[regIndex] = ((BValueType) bRefTypeValue).intValue();
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    sf.intRegs[regIndex] = ((BValueType) bRefTypeValue).booleanValue() ? 1 : 0;
+                    break;
+            }
+        } catch (BallerinaException e) {
+            ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+            handleError(ctx);
+        }
+    }
+
     private static void execTypeConversionOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode,
                                                   int[] operands) {
         int i;
@@ -2401,7 +2481,9 @@ public class CPU {
             case InstructionCodes.I2D:
                 i = operands[0];
                 j = operands[1];
-                sf.refRegs[j] = new BDecimal(new BigDecimal(sf.longRegs[i], MathContext.DECIMAL128));
+                sf.refRegs[j] = new BDecimal(
+                        (new BigDecimal(sf.longRegs[i], MathContext.DECIMAL128)).setScale(1,
+                                                                                          BigDecimal.ROUND_HALF_EVEN));
                 break;
             case InstructionCodes.I2BI:
                 i = operands[0];
@@ -2420,7 +2502,22 @@ public class CPU {
             case InstructionCodes.F2I:
                 i = operands[0];
                 j = operands[1];
-                sf.longRegs[j] = (long) sf.doubleRegs[i];
+                double valueToConvert = sf.doubleRegs[i];
+                if (Double.isNaN(valueToConvert) || Double.isInfinite(valueToConvert)) {
+                    ctx.setError(BLangVMErrors.createError(ctx, "'float' value '" + valueToConvert + "' cannot be " +
+                            "converted to 'int'"));
+                    handleError(ctx);
+                    break;
+                }
+
+                if (!isFloatWithinIntRange(valueToConvert)) {
+                    ctx.setError(BLangVMErrors.createError(ctx, "out of range 'float' value '" + valueToConvert + "'" +
+                            " cannot be converted to 'int'"));
+                    handleError(ctx);
+                    break;
+                }
+
+                sf.longRegs[j] = Math.round(valueToConvert);
                 break;
             case InstructionCodes.F2S:
                 i = operands[0];
@@ -2493,12 +2590,20 @@ public class CPU {
             case InstructionCodes.B2D:
                 i = operands[0];
                 j = operands[1];
-                sf.refRegs[j] = sf.intRegs[i] == 1 ? new BDecimal(BigDecimal.ONE) : new BDecimal(BigDecimal.ZERO);
+                sf.refRegs[j] = sf.intRegs[i] == 1 ?
+                        new BDecimal(BigDecimal.ONE.setScale(1, BigDecimal.ROUND_HALF_EVEN)) :
+                        new BDecimal(BigDecimal.ZERO.setScale(1, BigDecimal.ROUND_HALF_EVEN));
                 break;
             case InstructionCodes.D2I:
                 i = operands[0];
                 j = operands[1];
-                sf.longRegs[j] = ((BDecimal) sf.refRegs[i]).intValue();
+                if (!isDecimalWithinIntRange(((BDecimal) sf.refRegs[i]).decimalValue())) {
+                    ctx.setError(BLangVMErrors.createError(ctx, "out of range 'decimal' value '" +
+                            sf.refRegs[i] + "' cannot be converted to 'int'"));
+                    handleError(ctx);
+                    break;
+                }
+                sf.longRegs[j] = Math.round(((BDecimal) sf.refRegs[i]).decimalValue().doubleValue());
                 break;
             case InstructionCodes.D2F:
                 i = operands[0];
@@ -2595,6 +2700,15 @@ public class CPU {
 
     public static boolean isByteLiteral(long longValue) {
         return (longValue >= BBYTE_MIN_VALUE && longValue <= BBYTE_MAX_VALUE);
+    }
+
+    public static boolean isFloatWithinIntRange(double doubleValue) {
+        return doubleValue < BINT_MAX_VALUE_DOUBLE_RANGE_MAX && doubleValue > BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
+    }
+
+    public static boolean isDecimalWithinIntRange(BigDecimal decimalValue) {
+        return decimalValue.compareTo(BINT_MAX_VALUE_BIG_DECIMAL_RANGE_MAX) == -1 &&
+                decimalValue.compareTo(BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN) == 1;
     }
 
     private static void execIteratorOperation(WorkerExecutionContext ctx, WorkerData sf, Instruction instruction) {
@@ -2737,12 +2851,14 @@ public class CPU {
     }
 
     private static boolean handleVariableLock(WorkerExecutionContext ctx, BType[] types,
-                                              int[] pkgRegs, int[] varRegs) {
+                                              int[] pkgRegs, int[] varRegs, int[] fieldRegs, int varCount,
+                                              String uuid) {
         boolean lockAcquired = true;
-        for (int i = 0; i < varRegs.length && lockAcquired; i++) {
+        for (int i = 0; i < varCount && lockAcquired; i++) {
             BType paramType = types[i];
             int pkgIndex = pkgRegs[i];
             int regIndex = varRegs[i];
+
             switch (paramType.getTag()) {
                 case TypeTags.INT_TAG:
                     lockAcquired = ctx.programFile.globalMemArea.lockIntField(ctx, pkgIndex, regIndex);
@@ -2762,13 +2878,44 @@ public class CPU {
                 default:
                     lockAcquired = ctx.programFile.globalMemArea.lockRefField(ctx, pkgIndex, regIndex);
             }
+
         }
+
+        if (varRegs.length <= varCount) {
+            return lockAcquired;
+        }
+
+        //if field variables exists
+        if (ctx.localProps == null) {
+            ctx.localProps = new HashMap<>();
+        }
+
+        ctx.localProps.putIfAbsent(uuid, new Stack<VarLock>());
+        Stack lockStack = (Stack) ctx.localProps.get(uuid);
+
+        for (int i = 0; (i < varRegs.length - varCount) && lockAcquired; i++) {
+            int regIndex = varRegs[varCount + i];
+            String field = ctx.workerLocal.stringRegs[fieldRegs[i]];
+            VarLock lock = ((BMap) ctx.workerLocal.refRegs[regIndex]).getFieldLock(field);
+            lockAcquired = lock.lock(ctx);
+            if (lockAcquired) {
+                lockStack.push(lock);
+            }
+        }
+
         return lockAcquired;
     }
 
-    private static void handleVariableUnlock(WorkerExecutionContext ctx, BType[] types,
-                                             int[] pkgRegs, int[] varRegs) {
-        for (int i = varRegs.length - 1; i > -1; i--) {
+    private static void handleVariableUnlock(WorkerExecutionContext ctx, BType[] types, int[] pkgRegs, int[] varRegs,
+                                             int varCount, String uuid, boolean hasFieldVar) {
+        if (hasFieldVar) {
+            Stack<VarLock> lockStack = (Stack<VarLock>) ctx.localProps.get(uuid);
+            while (!lockStack.isEmpty()) {
+                lockStack.pop().unlock();
+            }
+        }
+
+        for (int i = varCount - 1; i > -1; i--) {
             BType paramType = types[i];
             int pkgIndex = pkgRegs[i];
             int regIndex = varRegs[i];
@@ -4450,6 +4597,7 @@ public class CPU {
             case TypeTags.BYTE_TAG:
             case TypeTags.NULL_TAG:
             case TypeTags.XML_TAG:
+            case TypeTags.SERVICE_TAG:
                 return sourceType.getTag() == targetType.getTag();
             case TypeTags.MAP_TAG:
                 return checkIsMapType(sourceType, (BMapType) targetType, unresolvedTypes);
@@ -4665,11 +4813,12 @@ public class CPU {
     /**
      * Deep value equality check for anydata.
      *
-     * @param lhsValue  The value on the left hand side
-     * @param rhsValue  The value on the right hand side
+     * @param lhsValue          The value on the left hand side
+     * @param rhsValue          The value on the right hand side
+     * @param checkedValues     Structured value pairs already compared or being compared
      * @return True if values are equal, else false.
      */
-    private static boolean isEqual(BValue lhsValue, BValue rhsValue) {
+    private static boolean isEqual(BValue lhsValue, BValue rhsValue, List<ValuePair> checkedValues) {
         if (lhsValue == rhsValue) {
             return true;
         }
@@ -4705,10 +4854,12 @@ public class CPU {
             case TypeTags.MAP_TAG:
             case TypeTags.JSON_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                return isMappingType(rhsValTypeTag) && isEqual((BMap) lhsValue, (BMap) rhsValue);
+                return isMappingType(rhsValTypeTag) && isEqual((BMap) lhsValue, (BMap) rhsValue, checkedValues);
             case TypeTags.TUPLE_TAG:
             case TypeTags.ARRAY_TAG:
-                return isListType(rhsValTypeTag) && isEqual((BNewArray) lhsValue, (BNewArray) rhsValue);
+                return isListType(rhsValTypeTag) && isEqual((BNewArray) lhsValue, (BNewArray) rhsValue, checkedValues);
+            case TypeTags.SERVICE_TAG:
+                break;
         }
         return false;
     }
@@ -4724,17 +4875,24 @@ public class CPU {
     /**
      * Deep equality check for an array/tuple.
      *
-     * @param lhsList   The array/tuple on the left hand side
-     * @param rhsList   The array/tuple on the right hand side
+     * @param lhsList           The array/tuple on the left hand side
+     * @param rhsList           The array/tuple on the right hand side
+     * @param checkedValues     Structured value pairs already compared or being compared
      * @return True if the array/tuple values are equal, else false.
      */
-    private static boolean isEqual(BNewArray lhsList, BNewArray rhsList) {
+    private static boolean isEqual(BNewArray lhsList, BNewArray rhsList, List<ValuePair> checkedValues) {
+        ValuePair compValuePair = new ValuePair(lhsList, rhsList);
+        if (checkedValues.contains(compValuePair)) {
+            return true;
+        }
+        checkedValues.add(compValuePair);
+
         if (lhsList.size() != rhsList.size()) {
             return false;
         }
 
         for (int i = 0; i < lhsList.size(); i++) {
-            if (!isEqual(lhsList.getBValue(i), rhsList.getBValue(i))) {
+            if (!isEqual(lhsList.getBValue(i), rhsList.getBValue(i), checkedValues)) {
                 return false;
             }
         }
@@ -4744,11 +4902,18 @@ public class CPU {
     /**
      * Deep equality check for a map.
      *
-     * @param lhsMap    Map on the left hand side
-     * @param rhsMap    Map on the right hand side
+     * @param lhsMap            Map on the left hand side
+     * @param rhsMap            Map on the right hand side
+     * @param checkedValues     Structured value pairs already compared or being compared
      * @return True if the map values are equal, else false.
      */
-    private static boolean isEqual(BMap lhsMap, BMap rhsMap) {
+    private static boolean isEqual(BMap lhsMap, BMap rhsMap, List<ValuePair> checkedValues) {
+        ValuePair compValuePair = new ValuePair(lhsMap, rhsMap);
+        if (checkedValues.contains(compValuePair)) {
+            return true;
+        }
+        checkedValues.add(compValuePair);
+
         if (lhsMap.size() != rhsMap.size()) {
             return false;
         }
@@ -4760,7 +4925,7 @@ public class CPU {
         Iterator<Map.Entry<String, BValue>> mapIterator = lhsMap.getMap().entrySet().iterator();
         while (mapIterator.hasNext()) {
             Map.Entry<String, BValue> lhsMapEntry = mapIterator.next();
-            if (!isEqual(lhsMapEntry.getValue(), rhsMap.get(lhsMapEntry.getKey()))) {
+            if (!isEqual(lhsMapEntry.getValue(), rhsMap.get(lhsMapEntry.getKey()), checkedValues)) {
                 return false;
             }
         }
@@ -4806,7 +4971,7 @@ public class CPU {
 
     /**
      * Reference equality check for values. If both the values are simple basic types, returns the same
-     * result as {@link CPU#isEqual(BValue, BValue)}
+     * result as {@link CPU#isEqual(BValue, BValue, List)}
      *
      * @param lhsValue  The value on the left hand side
      * @param rhsValue  The value on the right hand side
@@ -4824,7 +4989,7 @@ public class CPU {
         }
 
         if (isSimpleBasicType(lhsValue.getType()) && isSimpleBasicType(rhsValue.getType())) {
-            return isEqual(lhsValue, rhsValue);
+            return isEqual(lhsValue, rhsValue, Collections.emptyList());
         }
 
         return false;
@@ -4832,7 +4997,7 @@ public class CPU {
 
     /**
      * Reference inequality check for values. If both the values are simple basic types, returns the same
-     * result as the negation of {@link CPU#isEqual(BValue, BValue)}
+     * result as the negation of {@link CPU#isEqual(BValue, BValue, List)}
      *
      * @param lhsValue  The value on the left hand side
      * @param rhsValue  The value on the right hand side
@@ -4845,7 +5010,7 @@ public class CPU {
         }
 
         if (isSimpleBasicType(lhsValue.getType()) && isSimpleBasicType(rhsValue.getType())) {
-            return !isEqual(lhsValue, rhsValue);
+            return !isEqual(lhsValue, rhsValue, Collections.emptyList());
         }
 
         return lhsValue != rhsValue;
@@ -4877,6 +5042,30 @@ public class CPU {
 
             TypePair other = (TypePair) obj;
             return this.sourceType.equals(other.sourceType) && this.targetType.equals(other.targetType);
+        }
+    }
+
+    /**
+     * Unordered BValue vector of size two, to hold two values being compared.
+     *
+     * @since 0.985.0
+     */
+    private static class ValuePair {
+        List<BValue> valueList = new ArrayList<>(2);
+
+        ValuePair(BValue valueOne, BValue valueTwo) {
+            valueList.add(valueOne);
+            valueList.add(valueTwo);
+        }
+
+        @Override
+        public boolean equals(Object otherPair) {
+            if (!(otherPair instanceof ValuePair)) {
+                return false;
+            }
+
+            return ((ValuePair) otherPair).valueList.containsAll(valueList) &&
+                    valueList.containsAll(((ValuePair) otherPair).valueList);
         }
     }
 }

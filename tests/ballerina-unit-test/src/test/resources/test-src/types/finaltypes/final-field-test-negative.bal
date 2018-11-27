@@ -44,7 +44,7 @@ function finalFunction() {
     int i = 0;
 }
 
-service FooService on new http:Server(9090) {
+service FooService on new http:Listener(9090) {
 
 }
 

@@ -6,17 +6,17 @@ function close(io:ReadableCharacterChannel|io:WritableCharacterChannel
     // Close the character channel when done
     match characterChannel {
         io:ReadableCharacterChannel readableCharChannel => {
-            readableCharChannel.close() but {
-                error e =>
+            var result = readableCharChannel.close();
+            if (result is error){
                 log:printError("Error occurred while closing character stream",
-                    err = e)
+                    err = result)
             };
         }
         io:WritableCharacterChannel writableCharChannel => {
-            writableCharChannel.close() but {
-                error e =>
+            var result = writableCharChannel.close();
+            if (result is error){
                 log:printError("Error occurred while closing character stream",
-                    err = e)
+                    err = result)
             };
         }
     }

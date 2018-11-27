@@ -21,11 +21,9 @@ package org.ballerinalang.net.http.actions.httpclient;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
@@ -40,9 +38,7 @@ import java.util.Locale;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
-        functionName = "forward",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.HTTP_CALLER,
-                structPackage = "ballerina/http")
+        functionName = "nativeForward"
 )
 public class Forward extends AbstractHTTPAction {
 
@@ -55,7 +51,7 @@ public class Forward extends AbstractHTTPAction {
 
     @Override
     protected HttpCarbonMessage createOutboundRequestMsg(Context context) {
-        String path = context.getStringArgument(0);
+        String path = context.getStringArgument(1);
         BMap<String, BValue> requestStruct = ((BMap<String, BValue>) context.getRefArgument(1));
 
         if (requestStruct.getNativeData(HttpConstants.REQUEST) == null &&

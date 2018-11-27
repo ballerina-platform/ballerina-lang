@@ -4,7 +4,7 @@ import ballerina/io;
 @http:ServiceConfig {
     basePath:"/test"
 }
-service TestService on new http:Server(80) {
+service TestService on new http:Listener(80) {
 
     @http:ResourceConfig {
         methods:["GET"],

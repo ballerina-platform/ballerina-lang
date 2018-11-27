@@ -70,6 +70,7 @@ public class BLangService extends BLangNode implements ServiceNode {
     public BSymbol symbol;
     public BLangIdentifier name;
     public BLangUserDefinedType serviceUDT;
+    public BLangTypeDefinition serviceTypeDefinition;
     public BLangExpression attachExpr;
     public boolean isAnonymousServiceValue;
 

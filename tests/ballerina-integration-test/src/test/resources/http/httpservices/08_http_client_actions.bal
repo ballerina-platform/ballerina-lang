@@ -1,35 +1,48 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import ballerina/io;
 import ballerina/http;
 import ballerina/mime;
 
-endpoint http:Client clientEP2 {
-    url: "http://localhost:9097",
-    cache: { enabled: false }
-};
+http:Client clientEP2 = new ("http://localhost:9097", config = { cache: { enabled: false }});
 
 @http:ServiceConfig {
     basePath: "/test1"
 }
-service<http:Service> backEndService bind { port: 9097 } {
+service backEndService on new http:Listener(9097) {
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/greeting"
     }
-    replyText(endpoint client, http:Request req) {
-        _ = client->respond("Hello");
+    resource function replyText(http:Caller caller, http:Request req) {
+        _ = caller->respond("Hello");
     }
 
     @http:ResourceConfig {
         methods: ["POST"],
         path: "/byteChannel"
     }
-    sendByteChannel(endpoint client, http:Request req) {
+    resource function sendByteChannel(http:Caller caller, http:Request req) {
         var byteChannel = req.getByteChannel();
         if (byteChannel is io:ReadableByteChannel) {
-            _ = client->respond(untaint byteChannel);
+            _ = caller->respond(untaint byteChannel);
         } else if (byteChannel is error) {
-            _ = client->respond(untaint byteChannel.reason());
+            _ = caller->respond(untaint byteChannel.reason());
         }
     }
 
@@ -37,7 +50,7 @@ service<http:Service> backEndService bind { port: 9097 } {
         methods: ["POST"],
         path: "/directPayload"
     }
-    postReply(endpoint client, http:Request req) {
+    resource function postReply(http:Caller caller, http:Request req) {
         if (req.hasHeader("content-type")) {
             var mediaType = mime:getMediaType(req.getContentType());
             if (mediaType is mime:MediaType) {
@@ -45,44 +58,44 @@ service<http:Service> backEndService bind { port: 9097 } {
                 if (mime:TEXT_PLAIN == baseType) {
                     var textValue = req.getTextPayload();
                     if (textValue is string) {
-                        _ = client->respond(untaint textValue);
+                        _ = caller->respond(untaint textValue);
                     } else if (textValue is error) {
-                        _ = client->respond(untaint textValue.reason());
+                        _ = caller->respond(untaint textValue.reason());
                     }
                 } else if (mime:APPLICATION_XML == baseType) {
                     var xmlValue = req.getXmlPayload();
                     if (xmlValue is xml) {
-                        _ = client->respond(untaint xmlValue);
+                        _ = caller->respond(untaint xmlValue);
                     } else if (xmlValue is error) {
-                        _ = client->respond(untaint xmlValue.reason());
+                        _ = caller->respond(untaint xmlValue.reason());
                     }
                 } else if (mime:APPLICATION_JSON == baseType) {
                     var jsonValue = req.getJsonPayload();
                     if (jsonValue is json) {
-                        _ = client->respond(untaint jsonValue);
+                        _ = caller->respond(untaint jsonValue);
                     } else if (jsonValue is error) {
-                        _ = client->respond(untaint jsonValue.reason());
+                        _ = caller->respond(untaint jsonValue.reason());
                     }
                 } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
                     var blobValue = req.getBinaryPayload();
                     if (blobValue is byte[]) {
-                        _ = client->respond(untaint blobValue);
+                        _ = caller->respond(untaint blobValue);
                     } else if (blobValue is error) {
-                        _ = client->respond(untaint blobValue.reason());
+                        _ = caller->respond(untaint blobValue.reason());
                     }
                 } else if (mime:MULTIPART_FORM_DATA == baseType) {
                     var bodyParts = req.getBodyParts();
                     if (bodyParts is mime:Entity[]) {
-                    _ = client->respond(untaint bodyParts);
+                    _ = caller->respond(untaint bodyParts);
                     } else if (bodyParts is error) {
-                    _ = client->respond(untaint bodyParts.reason());
+                    _ = caller->respond(untaint bodyParts.reason());
                     }
                 }
             } else if (mediaType is error) {
-                _ = client->respond("Error in parsing media type");
+                _ = caller->respond("Error in parsing media type");
             }
         } else {
-            _ = client->respond(());
+            _ = caller->respond(());
         }
     }
 }
@@ -90,13 +103,13 @@ service<http:Service> backEndService bind { port: 9097 } {
 @http:ServiceConfig {
     basePath: "/test2"
 }
-service<http:Service> testService bind { port: 9098 } {
+service testService on new http:Listener(9098) {
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/clientGet"
     }
-    testGet(endpoint client, http:Request req) {
+    resource function testGet(http:Caller caller, http:Request req) {
         string value = "";
         //No Payload
         var response1 = clientEP2->get("/test1/greeting");
@@ -131,14 +144,14 @@ service<http:Service> testService bind { port: 9098 } {
                 value = value + result.reason();
             }
         }
-        _ = client->respond(untaint value);
+        _ = caller->respond(untaint value);
     }
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/clientPostWithoutBody"
     }
-    testPost(endpoint client, http:Request req) {
+    resource function testPost(http:Caller caller, http:Request req) {
         string value = "";
         //No Payload
         var clientResponse = clientEP2->post("/test1/directPayload", ());
@@ -153,14 +166,14 @@ service<http:Service> testService bind { port: 9098 } {
             value = clientResponse.reason();
         }
 
-        _ = client->respond(untaint value);
+        _ = caller->respond(untaint value);
     }
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/clientPostWithBody"
     }
-    testPostWithBody(endpoint client, http:Request req) {
+    resource function testPostWithBody(http:Caller caller, http:Request req) {
         string value = "";
         var textResponse = clientEP2->post("/test1/directPayload", "Sample Text");
         if (textResponse is http:Response) {
@@ -191,14 +204,14 @@ service<http:Service> testService bind { port: 9098 } {
                 value = value + result.reason();
             }
         }
-        _ = client->respond(untaint value);
+        _ = caller->respond(untaint value);
     }
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/handleBinary"
     }
-    testPostWithBinaryData(endpoint client, http:Request req) {
+    resource function testPostWithBinaryData(http:Caller caller, http:Request req) {
         string value = "";
         string textVal = "Sample Text";
         byte[] binaryValue = textVal.toByteArray("UTF-8");
@@ -211,14 +224,14 @@ service<http:Service> testService bind { port: 9098 } {
                 value = result.reason();
             }
         }
-        _ = client->respond(untaint value);
+        _ = caller->respond(untaint value);
     }
 
     @http:ResourceConfig {
         methods: ["POST"],
         path: "/handleByteChannel"
     }
-    testPostWithByteChannel(endpoint client, http:Request req) {
+    resource function testPostWithByteChannel(http:Caller caller, http:Request req) {
         string value = "";
         var byteChannel = req.getByteChannel();
         if (byteChannel is io:ReadableByteChannel) {
@@ -236,14 +249,14 @@ service<http:Service> testService bind { port: 9098 } {
         } else if (byteChannel is error) {
             value = byteChannel.reason();
         }
-        _ = client->respond(untaint value);
+        _ = caller->respond(untaint value);
     }
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/handleMultiparts"
     }
-    testPostWithBodyParts(endpoint client, http:Request req) {
+    resource function testPostWithBodyParts(http:Caller caller, http:Request req) {
         string value = "";
         mime:Entity part1 = new;
         part1.setJson({ "name": "wso2" });
@@ -285,6 +298,6 @@ service<http:Service> testService bind { port: 9098 } {
         } else if (res is error) {
             value = res.reason();
         }
-        _ = client->respond(untaint value);
+        _ = caller->respond(untaint value);
     }
 }

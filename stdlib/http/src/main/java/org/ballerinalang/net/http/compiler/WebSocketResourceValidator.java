@@ -192,7 +192,7 @@ public class WebSocketResourceValidator {
     private static void validateEndpointParameter(String serviceName, BLangResource resource, DiagnosticLog dlog,
                                                   List<BLangSimpleVariable> paramDetails, boolean isClient) {
         if (paramDetails == null || paramDetails.isEmpty() ||
-                (!isClient && !WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(
+                (!isClient && !WebSocketConstants.WEBSOCKET_CALLER_NAME.equals(
                         paramDetails.get(0).type.toString())) ||
                 (isClient && !WebSocketConstants.WEBSOCKET_CLIENT_ENDPOINT_NAME.equals(
                         paramDetails.get(0).type.toString()))) {

@@ -13,12 +13,12 @@ function testForkJoinAll() returns int[]|error {
             x = 500;
             x -> fork;
         }
-    } join (all) (map airlineResponses) {
+    } join (all) (map<any> airlineResponses) {
         int abc = check <int>airlineResponses.ABC_Airline;
         int xyz = check <int>airlineResponses.XYZ_Airline;
         results[0] = abc;
         results[1] = xyz;
-    } timeout (30000) (map airlineResponses) {
+    } timeout (30000) (map<any> airlineResponses) {
         results[0] = -1;
         results[0] = -1;
     }
@@ -40,9 +40,9 @@ function forkJoinWithEmptyTimeoutBlock() {
         worker worker2 {
             6 -> fork;
         }
-    } join (all)(map results) {
+    } join (all)(map<any> results) {
 
-    } timeout (1000)(map results1) {
+    } timeout (1000)(map<any> results1) {
 
     }
 }

@@ -114,7 +114,7 @@ objectFunctionDefinition
     ;
 
 annotationDefinition
-    :   (PUBLIC)? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier userDefineTypeName? SEMICOLON
+    :   (PUBLIC)? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier typeName? SEMICOLON
     ;
 
 constantDefinition
@@ -205,12 +205,12 @@ valueTypeName
     ;
 
 builtInReferenceTypeName
-    :   TYPE_MAP (LT typeName GT)?
-    |   TYPE_FUTURE (LT typeName GT)?    
+    :   TYPE_MAP (LT typeName GT)
+    |   TYPE_FUTURE (LT typeName GT)
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
     |   TYPE_JSON (LT nameReference GT)?
-    |   TYPE_TABLE (LT nameReference GT)?
-    |   TYPE_STREAM (LT typeName GT)?
+    |   TYPE_TABLE (LT typeName GT)
+    |   TYPE_STREAM (LT typeName GT)
     |   SERVICE
     |   errorTypeName
     |   functionTypeName
@@ -371,9 +371,7 @@ matchStatement
     ;
 
 matchPatternClause
-    :   typeName EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
-    |   typeName Identifier EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
-    |   expression EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
+    :   expression EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
     |   VAR bindingPattern (IF expression)? EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
     ;
 
@@ -685,7 +683,6 @@ expression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
     |   awaitExpression                                                     # awaitExprExpression
     |   trapExpr                                                            # trapExpression
-    |	expression matchExpression										    # matchExprExpression
     |   expression ELVIS expression                                         # elvisExpression
     |   typeDescExpr                                                        # typeAccessExpression
     ;
@@ -722,14 +719,6 @@ shiftExpression
     ;
 
 shiftExprPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
-
-matchExpression
-    :   BUT LEFT_BRACE matchExpressionPatternClause (COMMA matchExpressionPatternClause)* RIGHT_BRACE
-    	;
-
-matchExpressionPatternClause
-    :   typeName Identifier? EQUAL_GT expression
-    ;
 
 //reusable productions
 
