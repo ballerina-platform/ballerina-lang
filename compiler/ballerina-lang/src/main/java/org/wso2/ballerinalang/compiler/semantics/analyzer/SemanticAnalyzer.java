@@ -157,10 +157,12 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
+import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -1365,8 +1367,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private boolean isJoinResultType(BLangSimpleVariable var) {
         BLangType type = var.typeNode;
-        if (type instanceof BuiltInReferenceTypeNode) {
-            return ((BuiltInReferenceTypeNode) type).getTypeKind() == TypeKind.MAP;
+        if (type instanceof BLangConstrainedType) {
+            BLangConstrainedType constrainedType = ((BLangConstrainedType) type);
+            if (constrainedType.constraint instanceof BLangValueType) {
+                if (((BLangValueType) constrainedType.constraint).typeKind == TypeKind.ANY) {
+                    if (constrainedType.type instanceof BuiltInReferenceTypeNode) {
+                        return ((BuiltInReferenceTypeNode) constrainedType.type).getTypeKind() == TypeKind.MAP;
+                    }
+                }
+            }
         }
         return false;
     }

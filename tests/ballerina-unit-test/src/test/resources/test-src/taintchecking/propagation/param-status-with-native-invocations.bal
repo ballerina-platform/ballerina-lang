@@ -29,6 +29,6 @@ mysql:Client mysqlDB = new({
 public function main(string... args) returns error? {
     string s1 = "static-value";
     io:println(s1);
-    table t1 = check mysqlDB->select("SELECT id, age, name from employee where name = " + s1, ());
+    table<any> t1 = check mysqlDB->select("SELECT id, age, name from employee where name = " + s1, ());
     return;
 }
