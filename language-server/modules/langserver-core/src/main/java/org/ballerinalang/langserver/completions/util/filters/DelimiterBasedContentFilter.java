@@ -42,7 +42,6 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -98,7 +97,7 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
                 || parserRuleContext instanceof BallerinaParser.WorkerInteractionStatementContext;
 
         boolean isActionInvocation = UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY.equals(delimiter)
-                && symbol.getScopeEntry().symbol instanceof BEndpointVarSymbol;
+                && CommonUtil.isClientObject(symbol.getScopeEntry().symbol);
 
         if (UtilSymbolKeys.DOT_SYMBOL_KEY.equals(delimiter) || UtilSymbolKeys.BANG_SYMBOL_KEY.equals(delimiter)
                 || isActionInvocation) {
@@ -182,6 +181,7 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
                 ArrayList<BRecordTypeSymbolDTO> recordDTOs = new ArrayList<>(pkgSymbolDAO.getRecords(dto, false));
                 ArrayList<OtherTypeSymbolDTO> otherTypeDTOs = new ArrayList<>(pkgSymbolDAO.getOtherTypes(dto));
                 ArrayList<BObjectTypeSymbolDTO> objDTOs = new ArrayList<>(pkgSymbolDAO.getObjects(dto, false));
+                ArrayList<BObjectTypeSymbolDTO> clientEpDTOs = new ArrayList<>(pkgSymbolDAO.getClientEndpoints(dto));
                 
                 if (bLangImport.isPresent()) {
                     List<CompletionItem> completionItems = funcDTOs.stream()
@@ -191,6 +191,9 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
                             .map(BRecordTypeSymbolDTO::getCompletionItem)
                             .collect(Collectors.toList()));
                     completionItems.addAll(objDTOs.stream()
+                            .map(BObjectTypeSymbolDTO::getCompletionItem)
+                            .collect(Collectors.toList()));
+                    completionItems.addAll(clientEpDTOs.stream()
                             .map(BObjectTypeSymbolDTO::getCompletionItem)
                             .collect(Collectors.toList()));
                     completionItems.addAll(otherTypeDTOs.stream()

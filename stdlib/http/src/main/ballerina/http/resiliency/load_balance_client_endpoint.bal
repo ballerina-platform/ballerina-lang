@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 # LoadBalanceClient endpoint provides load balancing functionality over multiple HTTP clients.
 #
 # + loadBalanceClientConfig - The configurations for the load balance client endpoint
@@ -375,7 +374,6 @@ public type LoadBalanceClientEndpointConfiguration record {
 function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointConfiguration lbConfig,
                                                      TargetService target) returns ClientEndpointConfig {
     ClientEndpointConfig clientEPConfig = {
-        url:target.url,
         circuitBreaker:lbConfig.circuitBreaker,
         timeoutMillis:lbConfig.timeoutMillis,
         keepAlive:lbConfig.keepAlive,
@@ -401,7 +399,7 @@ function createLoadBalanceHttpClientArray(LoadBalanceClientEndpointConfiguration
 
     foreach target in loadBalanceClientConfig.targets {
         ClientEndpointConfig epConfig = createClientEPConfigFromLoalBalanceEPConfig(loadBalanceClientConfig, target);
-        httpClients[i] = new(epConfig);
+        httpClients[i] = new(target.url , config = epConfig);
         i += 1;
     }
     return httpClients;

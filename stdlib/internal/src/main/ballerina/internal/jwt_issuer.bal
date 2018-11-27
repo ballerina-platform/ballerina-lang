@@ -56,7 +56,7 @@ function createHeader(JwtHeader header) returns (string|error) {
     headerJson[ALG] = header.alg;
     headerJson[TYP] = "JWT";
     var customClaims = header["customClaims"];
-    if (customClaims is map) {
+    if (customClaims is map<any>) {
         headerJson = addMapToJson(headerJson, customClaims);
     }
     string headerValInString = headerJson.toString();
@@ -84,14 +84,14 @@ function createPayload(JwtPayload payload) returns (string|error) {
     }
     payloadJson[AUD] = convertStringArrayToJson(payload.aud);
     var customClaims = payload["customClaims"];
-    if (customClaims is map) {
+    if (customClaims is map<any>) {
         payloadJson = addMapToJson(payloadJson, customClaims);
     }
     string payloadInString = payloadJson.toString();
     return payloadInString.base64Encode();
 }
 
-function addMapToJson(json inJson, map mapToConvert) returns (json) {
+function addMapToJson(json inJson, map<any> mapToConvert) returns (json) {
     if (mapToConvert.length() != 0) {
         foreach key in mapToConvert.keys() {
             var customClaims = mapToConvert[key];

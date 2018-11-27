@@ -15,14 +15,14 @@
 // under the License.
 import ballerina/grpc;
 
-endpoint grpc:Listener ep {
+listener grpc:Listener server1 = new ({
     host:"localhost",
     port:9090
-};
+});
 
-service HelloWorld bind ep {
-    invalidReqType(endpoint caller, string? name) {
-        string input = name but {() => ""};
+service HelloWorld on server1 {
+    resource function invalidReqType(grpc:Caller caller, string? name) {
+        string input = name is string ? name : "";
         string message = "Hello " + input;
         error? err = caller->send(message);
         _ = caller->complete();

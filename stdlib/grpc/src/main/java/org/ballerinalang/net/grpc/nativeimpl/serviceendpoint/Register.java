@@ -20,7 +20,6 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -30,10 +29,10 @@ import org.ballerinalang.net.grpc.ServicesRegistry;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 
+import static org.ballerinalang.net.grpc.GrpcConstants.LISTENER;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.GrpcConstants.SERVER;
 
 /**
  * Extern function to register service to service endpoint.
@@ -44,7 +43,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.SERVER;
         orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "register",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = SERVER,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = LISTENER,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         isPublic = true
 )
@@ -59,14 +58,11 @@ public class Register extends AbstractGrpcNativeFunction {
             if (servicesRegistryBuilder == null) {
                 context.setError(MessageUtils.getConnectorError(new BallerinaConnectorException("Error when " +
                         "initializing service register builder.")));
-                //throw  new BallerinaConnectorException("Error when initializing service register builder.");
             } else {
                 servicesRegistryBuilder.addService(ServicesBuilderUtils.getServiceDefinition(service, context));
                 context.setReturnValues();
             }
         } catch (GrpcServerException e) {
-            //throw new BallerinaConnectorException("Error occurred while registering the service. " + e.getMessage(),
-            //        e);
             context.setError(MessageUtils.getConnectorError(e));
         }
     }

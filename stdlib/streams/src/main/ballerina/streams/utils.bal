@@ -16,7 +16,7 @@
 
 import ballerina/time;
 
-public function buildStreamEvent(map keyVals, string streamName) returns StreamEvent[] {
+public function buildStreamEvent(map<any> keyVals, string streamName) returns StreamEvent[] {
     EventType evntType = "CURRENT";
     StreamEvent[] streamEvents = [new((streamName, keyVals), evntType, time:currentTime().time)];
     return streamEvents;

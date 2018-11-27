@@ -44,8 +44,10 @@ service<http:Service> HTTPStreamingService bind { port: 9090 } {
             error err => { log:printError(err.message, err = err);
             setError(res, err.message);}
         }
-        caller->respond(res) but { error e => log:printError(
-                                  "Error sending response", err = e) };
+        var result = caller->respond(res);
+        if (result is error) {
+            log:printError("Error sending response", err = result);
+        }
     }
 
     @http:ResourceConfig {
@@ -73,22 +75,26 @@ service<http:Service> HTTPStreamingService bind { port: 9090 } {
                     log:printError("error occurred while saving file : "
                             + err.message);
                 } finally {
-                    sourceChannel.close() but {
-                        error e => log:printError("Error closing sourceChannel ",
-                            err = e) };
-                    destinationChannel.close() but {
-                        error e =>
-                        log:printError("Error closing destinationChannel",
-                            err = e)
-                    };
+                    var result = sourceChannel.close();
+                    if (result is error) {
+                       log:printError("Error closing sourceChannel", err = result);
+                    }
+
+                    result = destinationChannel.close();
+                    if (result is error) {
+                       log:printError("Error closing destinationChannel", err = result);
+                    }
                 }
             }
             error err => {
                 setError(response, err.message);
             }
         }
-        caller->respond(response) but { error e => log:printError(
-                                        "Error sending response", err = e) };
+
+        var result = caller->respond(response);
+        if (result is error) {
+           log:printError("Error sending response", err = result);
+        }
     }
 }
 

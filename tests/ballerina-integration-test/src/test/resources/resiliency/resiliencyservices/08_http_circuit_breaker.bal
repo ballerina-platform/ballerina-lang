@@ -21,12 +21,9 @@ import ballerina/runtime;
 
 public int forceOpenStateCount = 0;
 
-endpoint http:Listener circuitBreakerEP01 {
-    port:9307
-};
+listener http:Listener circuitBreakerEP01 = new(9307);
 
-endpoint http:Client healthyClientEP {
-    url: "http://localhost:8087",
+http:ClientEndpointConfig conf01 = {
     circuitBreaker: {
         rollingWindow: {
             timeWindowMillis: 60000,
@@ -37,21 +34,22 @@ endpoint http:Client healthyClientEP {
         resetTimeMillis: 1000,
         statusCodes: [501, 502, 503]
     },
-
     timeoutMillis: 2000
 };
+
+http:Client healthyClientEP = new("http://localhost:8087", config = conf01);
 
 @http:ServiceConfig {
     basePath: "/cb"
 }
-service<http:Service> circuitbreaker01 bind circuitBreakerEP01 {
+service circuitbreaker01 on circuitBreakerEP01 {
 
     @http:ResourceConfig {
         methods: ["GET", "POST"],
         path: "/forceopen"
     }
-    invokeForceOpen(endpoint caller, http:Request request) {
-        var cbClient = <http:CircuitBreakerClient>healthyClientEP.getCallerActions();
+    resource function invokeForceOpen(http:Caller caller, http:Request request) {
+        var cbClient = <http:CircuitBreakerClient>healthyClientEP.httpClient;
         if (cbClient is http:CircuitBreakerClient) {
             forceOpenStateCount += 1;
             if (forceOpenStateCount == 2) {
@@ -80,12 +78,12 @@ service<http:Service> circuitbreaker01 bind circuitBreakerEP01 {
 }
 
 @http:ServiceConfig { basePath: "/healthy" }
-service<http:Service> healthyService bind { port: 8087 } {
+service healthyService on new http:Listener(8087) {
     @http:ResourceConfig {
         methods: ["GET", "POST"],
         path: "/"
     }
-    sayHello(endpoint caller, http:Request req) {
+    resource function sayHello(http:Caller caller, http:Request req) {
         var responseToCaller = caller->respond("Hello World!!!");
         if (responseToCaller is error) {
             log:printError("Error sending response from mock service", err = responseToCaller);

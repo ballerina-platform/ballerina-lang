@@ -22,16 +22,10 @@ import com.intellij.psi.PsiElement;
 import io.ballerina.plugins.idea.psi.BallerinaAnnotationDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaAnyIdentifierName;
 import io.ballerina.plugins.idea.psi.BallerinaCallableUnitSignature;
-import io.ballerina.plugins.idea.psi.BallerinaEndpointDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaEndpointParameter;
-import io.ballerina.plugins.idea.psi.BallerinaGlobalEndpointDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaGlobalVariableDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaIdentifier;
 import io.ballerina.plugins.idea.psi.BallerinaNamedPattern;
-import io.ballerina.plugins.idea.psi.BallerinaObjectCallableUnitSignature;
 import io.ballerina.plugins.idea.psi.BallerinaObjectFieldDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaObjectInitializer;
-import io.ballerina.plugins.idea.psi.BallerinaObjectParameter;
 import io.ballerina.plugins.idea.psi.BallerinaOrgName;
 import io.ballerina.plugins.idea.psi.BallerinaPackageReference;
 import io.ballerina.plugins.idea.psi.BallerinaParameterWithType;
@@ -72,8 +66,6 @@ public class BallerinaFindUsageProvider implements FindUsagesProvider {
         if (parent instanceof BallerinaAnyIdentifierName) {
             if (superParent instanceof BallerinaCallableUnitSignature) {
                 return "Function";
-            } else if (superParent instanceof BallerinaObjectCallableUnitSignature) {
-                return "Object Function";
             }
         } else if (parent instanceof BallerinaPackageReference) {
             return "Package";
@@ -81,16 +73,8 @@ public class BallerinaFindUsageProvider implements FindUsagesProvider {
             return "Organization";
         } else if (parent instanceof BallerinaGlobalVariableDefinition) {
             return "Global Variable";
-        } else if (parent instanceof BallerinaEndpointDefinition) {
-            if (superParent instanceof BallerinaGlobalEndpointDefinition) {
-                return "Global Endpoint";
-            } else {
-                return "Endpoint";
-            }
         } else if (parent instanceof BallerinaTypeDefinition) {
             return "Type";
-        } else if (parent instanceof BallerinaObjectCallableUnitSignature) {
-            return "Object Function";
         } else if (parent instanceof BallerinaParameterWithType) {
             return "Parameter";
         } else if (parent instanceof BallerinaWorkerDefinition) {
@@ -99,18 +83,12 @@ public class BallerinaFindUsageProvider implements FindUsagesProvider {
             return "Annotation";
         } else if (parent instanceof BallerinaObjectFieldDefinition) {
             return "Object Field";
-        } else if (parent instanceof BallerinaObjectParameter) {
-            return "Object Parameter";
         } else if (parent instanceof BallerinaVariableDefinitionStatement) {
             return "Variable";
         } else if (parent instanceof BallerinaNamedPattern) {
             return "Variable";
         } else if (parent instanceof BallerinaRestParameter) {
             return "Parameter";
-        } else if (parent instanceof BallerinaEndpointParameter) {
-            return "Endpoint Parameter";
-        } else if (parent instanceof BallerinaObjectInitializer) {
-            return "Object Initializer";
         }
         return "";
     }

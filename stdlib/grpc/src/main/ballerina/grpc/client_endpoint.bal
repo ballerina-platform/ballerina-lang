@@ -30,7 +30,7 @@ public type Client client object {
     # + descriptorKey - Proto descriptor key. Key of proto descriptor.
     # + descriptorMap - Proto descriptor map. descriptor map with all dependent descriptors.
     # + return - Returns an error if encounters an error while initializing the stub, returns nill otherwise.
-    public extern function initStub(string stubType, string descriptorKey, map descriptorMap)
+    public extern function initStub(string stubType, string descriptorKey, map<any> descriptorMap)
                                returns error?;
 
     # Calls when executing blocking call with gRPC service.
@@ -49,7 +49,7 @@ public type Client client object {
     # + listenerService - Call back listener service. This service listens the response message from service.
     # + headers - Optional headers parameter. Passes header value if needed. Default sets to nil.
     # + return - Returns an error if encounters an error while sending the request, returns nil otherwise.
-    public remote extern function nonBlockingExecute(string methodID, any payload, typedesc listenerService,
+    public remote extern function nonBlockingExecute(string methodID, any payload, service listenerService,
                                               Headers? headers = ()) returns error?;
 
 
@@ -59,7 +59,7 @@ public type Client client object {
     # + listenerService - Call back listener service. This service listens the response message from service.
     # + headers - Optional headers parameter. Passes header value if needed. Default sets to nil.
     # + return - Returns client connection if executes successfully, error otherwise.
-    public remote extern function streamingExecute(string methodID, typedesc listenerService, Headers? headers = ())
+    public remote extern function streamingExecute(string methodID, service listenerService, Headers? headers = ())
                                returns StreamingClient|error;
 };
 

@@ -101,6 +101,12 @@ public class BallerinaFunctionDefinitionImpl extends BallerinaNamedElementImpl<B
     return findChildByType(PUBLIC);
   }
 
+  @Override
+  @Nullable
+  public PsiElement getRemote() {
+    return findChildByType(REMOTE);
+  }
+
   @Nullable
   public PsiElement getIdentifier() {
     return BallerinaPsiImplUtil.getIdentifier(this);

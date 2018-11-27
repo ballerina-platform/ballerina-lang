@@ -36,6 +36,6 @@ service HelloWorld bind listener {
     onComplete(endpoint caller) {
         io:println("Server Response");
         error? err = caller->send("Ack");
-        io:println(err.message but { () => "Server send response : Ack" });
+        io:println(err.message ?: "Server send response : Ack");
     }
 }

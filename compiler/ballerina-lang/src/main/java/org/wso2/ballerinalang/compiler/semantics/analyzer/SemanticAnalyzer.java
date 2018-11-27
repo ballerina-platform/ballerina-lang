@@ -139,7 +139,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchTypedBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -463,7 +462,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 dlog.error(varNode.pos, DiagnosticCode.SEALED_ARRAY_TYPE_NOT_INITIALIZED);
                 return;
             }
-            if ((varNode.symbol.type.tag != TypeTags.CHANNEL && varNode.symbol.owner.tag == SymTag.PACKAGE) || Symbols
+            if ((varNode.symbol.type.tag != TypeTags.CHANNEL && varNode.symbol.type.tag != TypeTags.STREAM &&
+                    varNode.symbol.owner.tag == SymTag.PACKAGE) || Symbols
                     .isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {
                 dlog.error(varNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varNode.name);
             }
@@ -563,6 +563,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     symbolEnter.defineNode(simpleVariable, env);
                 }
             }
+
+            // Set the type to the symbol. If the variable is a global variable, a symbol is already created in the
+            // symbol enter. If the variable is a local variable, the symbol will be created above.
+            simpleVariable.symbol.type = rhsType;
         } else if (NodeKind.TUPLE_VARIABLE == variable.getKind()) {
             if (TypeTags.TUPLE != rhsType.tag) {
                 dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, rhsType);
@@ -577,7 +581,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
 
             symbolEnter.defineNode(tupleVariable, env);
-
         } else if (NodeKind.RECORD_VARIABLE == variable.getKind()) {
             BLangRecordVariable recordVariable = (BLangRecordVariable) variable;
             recordVariable.type = rhsType;
@@ -1127,13 +1130,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatch matchNode) {
-
-        //first fail if both static and typed patterns have been defined in the match stmt
-        if (!matchNode.getTypedPatternClauses().isEmpty() && !matchNode.getStaticPatternClauses().isEmpty()) {
-            dlog.error(matchNode.pos, DiagnosticCode.INVALID_PATTERN_CLAUSES_IN_MATCH_STMT);
-            return;
-        }
-
         List<BType> exprTypes;
         BType exprType = typeChecker.checkExpr(matchNode.expr, env, symTable.noType);
         if (exprType.tag == TypeTags.UNION) {
@@ -1148,19 +1144,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             patternClause.accept(this);
         });
         matchNode.exprTypes = exprTypes;
-    }
-
-    public void visit(BLangMatchTypedBindingPatternClause patternClause) {
-        // If the variable is not equal to '_', then define the variable in the block scope
-        if (!patternClause.variable.name.value.endsWith(Names.IGNORE.value)) {
-            SymbolEnv blockEnv = SymbolEnv.createBlockEnv(patternClause.body, env);
-            symbolEnter.defineNode(patternClause.variable, blockEnv);
-            analyzeStmt(patternClause.body, blockEnv);
-            return;
-        }
-
-        symbolEnter.defineNode(patternClause.variable, this.env);
-        analyzeStmt(patternClause.body, this.env);
     }
 
     public void visit(BLangMatchStaticBindingPatternClause patternClause) {
@@ -2494,7 +2477,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv elseEnv = SymbolEnv.createBlockEnv((BLangBlockStmt) ifNode.elseStmt, env);
         for (Entry<BVarSymbol, Set<BType>> entry : this.typeGuards.entrySet()) {
             BVarSymbol originalVarSymbol = entry.getKey();
-            BType remainingType = getRemainingType(originalVarSymbol.type, entry.getValue());
+            BType remainingType = types.getRemainingType(originalVarSymbol.type, entry.getValue());
             BVarSymbol varSymbol = new BVarSymbol(0, originalVarSymbol.name, elseEnv.scope.owner.pkgID, remainingType,
                     this.env.scope.owner);
             symbolEnter.defineShadowedSymbol(ifNode.expr.pos, varSymbol, elseEnv);
@@ -2529,27 +2512,5 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private void resetTypeGards() {
         this.typeGuards = null;
-    }
-
-    private BType getRemainingType(BType originalType, Set<BType> set) {
-        if (originalType.tag != TypeTags.UNION) {
-            return originalType;
-        }
-
-        List<BType> memberTypes = new ArrayList<>(((BUnionType) originalType).getMemberTypes());
-
-        for (BType removeType : set) {
-            if (removeType.tag != TypeTags.UNION) {
-                memberTypes.remove(removeType);
-            } else {
-                ((BUnionType) removeType).getMemberTypes().forEach(type -> memberTypes.remove(type));
-            }
-
-            if (memberTypes.size() == 1) {
-                return memberTypes.get(0);
-            }
-        }
-
-        return new BUnionType(null, new HashSet<>(memberTypes), memberTypes.contains(symTable.nilType));
     }
 }

@@ -52,7 +52,12 @@ public enum RuntimeErrors {
     TASK_NOT_RUNNING("task.not.running", "RUNTIME_0027"),
     ILLEGAL_FORMAT_CONVERSION("illegal.format.conversion", "RUNTIME_0028"),
     INCOMPATIBLE_STAMP_OPERATION("incompatible.stamp.operation", "RUNTIME_0029"),
-    UNSUPPORTED_CLONE_OPERATION("unsupported.clone.operation", "RUNTIME_0030");
+    CANNOT_STAMP_NULL("cannot.stamp.null", "RUNTIME_0030"),
+    UNSUPPORTED_CLONE_OPERATION("unsupported.clone.operation", "RUNTIME_0031"),
+    INVALID_RECORD_FIELD_ACCESS("invalid.record.field.access", "RUNTIME_0032"),
+    INVALID_RECORD_FIELD_ADDITION("invalid.record.field.addition", "RUNTIME_0033"),
+    INVALID_OBJECT_FIELD_ADDITION("invalid.object.field.addition", "RUNTIME_0034"),
+    TYPE_ASSERTION_ERROR("type.assertion.error", "RUNTIME_0035");
 
     private String errorMsgKey;
     private String errorCode;

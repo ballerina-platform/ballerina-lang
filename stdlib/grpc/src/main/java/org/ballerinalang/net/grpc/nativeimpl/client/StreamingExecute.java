@@ -22,12 +22,9 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.connector.api.Value;
-import org.ballerinalang.connector.impl.ValueImpl;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -113,9 +110,8 @@ public class StreamingExecute extends AbstractExecute {
         if (connectionStub instanceof NonBlockingStub) {
             NonBlockingStub nonBlockingStub = (NonBlockingStub) connectionStub;
 
-            BTypeDescValue serviceType = (BTypeDescValue) context.getRefArgument(1);
-            Service callbackService = BLangConnectorSPIUtil.getServiceFromType(context.getProgramFile(), getTypeField
-                    (serviceType));
+            BMap serviceValue = (BMap) context.getRefArgument(1);
+            Service callbackService = BLangConnectorSPIUtil.getServiceFromType(context.getProgramFile(), serviceValue);
 
             // Update request headers when request headers exists in the context.
             BValue headerValues = context.getNullableRefArgument(MESSAGE_HEADER_REF_INDEX);
@@ -144,8 +140,7 @@ public class StreamingExecute extends AbstractExecute {
                 connStruct.addNativeData(REQUEST_SENDER, requestSender);
                 connStruct.addNativeData(REQUEST_MESSAGE_DEFINITION, methodDescriptor
                         .getInputType());
-                clientEndpoint.addNativeData(STREAMING_CLIENT, connStruct);
-                context.setReturnValues(clientEndpoint);
+                context.setReturnValues(connStruct);
                 callback.notifySuccess();
             } catch (RuntimeException | GrpcClientException e) {
                 notifyErrorReply(context, "gRPC Client Connector Error :" + e.getMessage());
@@ -159,10 +154,4 @@ public class StreamingExecute extends AbstractExecute {
         return false;
     }
 
-    private Value getTypeField(BTypeDescValue refField) {
-        if (refField == null) {
-            return null;
-        }
-        return ValueImpl.createValue(refField);
-    }
 }

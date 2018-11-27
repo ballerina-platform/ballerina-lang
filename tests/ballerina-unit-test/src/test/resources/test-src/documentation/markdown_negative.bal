@@ -15,7 +15,7 @@ type Tst record {
 annotation Test Tst;
 
 # Documentation for testConst constant
-@final string testConst = "TestConstantDocumentation";
+final string testConst = "TestConstantDocumentation";
 
 # Documentation for Test struct
 # + a - struct `field a` documentation
@@ -80,7 +80,7 @@ type TestConnector record {
 @http:ServiceConfig {
     basePath:"/hello"
 }
-service<http:Service> PizzaService {
+service PizzaService on new http:MockListener(9090) {
 
     # Check orderPizza resource.
     # + req - In request.
@@ -89,7 +89,7 @@ service<http:Service> PizzaService {
     @http:ResourceConfig {
         path:"/"
     }
-    orderPizza(endpoint conn, http:Request req) {
+    resource function orderPizza(http:Caller conn, http:Request req) {
         http:Response res = new;
         _ = conn -> respond(res);
     }
@@ -98,4 +98,4 @@ service<http:Service> PizzaService {
 # Documentation for testConst constant
 # + testConstd - abc description
 # + return - description
-@final string testConsts = "TestConstantDocumentation";
+final string testConsts = "TestConstantDocumentation";

@@ -129,7 +129,7 @@ function stampConstraintJSONToConstraintJSON() returns json<Person>|error {
     return jsonValue;
 }
 
-function stampConstraintJSONToConstraintMapV2() returns map|error {
+function stampConstraintJSONToConstraintMapV2() returns map<any>|error {
     json<Student> student = { name: "Jon" };
     student.status = "Single";
     student.batch = "LK2014";
@@ -170,6 +170,13 @@ function stampJSONToUnion() returns json|map<anydata>|error {
     return outputValue;
 }
 
+function stampJSONArrayWithNullToAnydataArray() returns anydata []|error{
+    json jsonArray =  [1, false, "foo", (), { first: "John", last: "Pala" }];
+    anydata[]|error anydataArray = anydata[].stamp(jsonArray);
+
+    return anydataArray;
+}
+
 //----------------------------- Negative Test cases ---------------------------------------------------------------
 
 function stampJSONToRecordNegative() returns Student|error {
@@ -177,7 +184,6 @@ function stampJSONToRecordNegative() returns Student|error {
     Student|error student = Student.stamp(employee);
 
     return student;
-
 }
 
 function stampJSONToMapNegative() returns map<string>|error {
@@ -185,5 +191,17 @@ function stampJSONToMapNegative() returns map<string>|error {
     map<string>|error mapValue = map<string>.stamp(employee);
 
     return mapValue;
+}
 
+type StringArray record {
+    string[]? a;
+    !...
+};
+
+function stampNullJSONToArrayNegative() returns StringArray|error {
+
+    json j = ();
+    var s = StringArray.stamp(j);
+
+    return s;
 }
