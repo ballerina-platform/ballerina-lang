@@ -64,7 +64,9 @@ public class IndexGenerator {
 //        List<String> packages = Arrays.asList("auth", "builtin", "cache", "config", "crypto", "file", "grpc", "h2",
 //                "http", "io", "jms", "log", "math", "mime", "mysql", "reflect", "runtime", "sql",
 //                "swagger", "system", "task", "time", "transactions", "websub");
-        List<String> packages = new ArrayList<>();
+        List<String> packages = Arrays.asList("auth", "builtin", "cache", "config", "crypto", "file",
+                "http", "io", "log",
+                "swagger", "time");
         CompilerContext tempCompilerContext = LSContextManager.getInstance().getBuiltInPackagesCompilerContext();
         packages.forEach(pkg -> {
             try {
