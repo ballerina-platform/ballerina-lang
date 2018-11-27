@@ -443,13 +443,12 @@ public class ObjectTest {
     @Test (description = "Negative test to test uninitialized object variables")
     public void testObjectNegativeTestForNonInitializable() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_with_non_defaultable_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 6);
+        Assert.assertEquals(result.getErrorCount(), 5);
         BAssertUtil.validateError(result, 0, "variable 'pp' is not initialized", 2, 1);
         BAssertUtil.validateError(result, 1, "variable 'ee' is not initialized", 3, 1);
         BAssertUtil.validateError(result, 2, "undefined function 'attachInterface' in object 'Person'", 8, 13);
         BAssertUtil.validateError(result, 3, "variable 'p' is not initialized", 8, 13);
         BAssertUtil.validateError(result, 4, "variable 'p' is not initialized", 8, 35);
-        BAssertUtil.validateError(result, 5, "uninitialized field 'p'", 22, 5);
     }
 
     @Test (description = "Negative test to test returning different type without type name")

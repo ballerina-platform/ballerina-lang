@@ -32,12 +32,12 @@ type Person object {
 
     function attachedFn6(int a, float b) returns (int) {
         function (int a, float b) returns (int) foo = (x, y) => self.attachedFn3(x, y);
-        return a + <int>b + foo.call(43, 10.8);
+        return a + <int>b + foo.call(43, 10.2);
     }
 
     function attachedFn7(int a, float b) returns (int) {
         function (int a, float b) returns (int) foo = (x, y) => self.attachedFn3(x, y);
-        return a + <int>b + foo.call(43, 10.8);
+        return a + <int>b + foo.call(43, 10.2);
     }
 };
 
@@ -56,47 +56,47 @@ function Person.attachedFn4() returns (function (int, float) returns (int)) {
 function test1() returns (int) {
     Person p = new;
     function (int a, float b) returns (int) foo = (x, y) => p.attachedFn1(x, y);
-    return foo.call(43, 10.8);
+    return foo.call(43, 10.2);
 }
 
 function test2() returns (int) {
     Person p = new;
     function () returns (function (int, float) returns (int)) foo = () => p.attachedFn2();
     var bar = foo.call();
-    return bar.call(43, 10.8);
+    return bar.call(43, 10.2);
 }
 
 function test3() returns (int) {
     Person p = new;
     function (int a, float b) returns (int) foo = (x, y) => p.attachedFn3(x, y);
-    return foo.call(43, 10.8);
+    return foo.call(43, 10.2);
 }
 
 function test4() returns (int) {
     Person p = new;
     function () returns (function (int, float) returns (int)) foo = () => p.attachedFn4();
     var bar = foo.call();
-    return bar.call(43, 10.8);
+    return bar.call(43, 10.2);
 }
 
 function test5() returns (int) {
     Person p = new;
     function (int a, float b) returns (function (float) returns ((function (boolean) returns (int)))) foo = (x, y) => p.attachedFn5(x, y);
-    var bar = foo.call(43, 10.8);
-    var baz = bar.call(5.8);
+    var bar = foo.call(43, 10.2);
+    var baz = bar.call(5.3);
     return baz.call(true);
 }
 
 function test6() returns (int) {
     Person p = new;
     function (int a, float b) returns (int) foo = (x, y) => p.attachedFn6(x, y);
-    return foo.call(43, 10.8);
+    return foo.call(43, 10.2);
 }
 
 function test7() returns (int) {
     Person p = new;
     function (int a, float b) returns (int) foo = (x, y) => p.attachedFn7(x, y);
-    return foo.call(43, 10.8);
+    return foo.call(43, 10.2);
 }
 
 public type FooObj object {

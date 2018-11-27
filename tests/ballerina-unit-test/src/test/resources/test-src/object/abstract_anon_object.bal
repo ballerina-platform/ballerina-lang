@@ -16,17 +16,17 @@ public type Employee object {
     }
 };
 
-function testAbstractAnonObjectInMatch() returns (string, string) {
-    Person p = new();
-    Employee e =  new();
+function testAbstractAnonObjectInTypeTest() returns (string, string) {
+    any p = new Person();
+    any e =  new Employee();
     
     (string, string) names = ("", "");
-    match (p) {
-        abstract object{ public function getName() returns string;} obj => { names[0] = obj.getName(); }
+    if p is abstract object{ public function getName() returns string;} {
+        names[0] = p.getName();
     }
     
-    match (e) {
-        abstract object { public function getName() returns string;} obj => { names[1] = obj.getName(); }
+    if e is abstract object { public function getName() returns string;} {
+        names[1] = e.getName();
     }
     
     return names;

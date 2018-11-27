@@ -44,12 +44,10 @@ public class ObjectReadonlyFieldTest {
     public void testReadOnlyAccessInDifferentPackage() {
         CompileResult compileResultNegative = BCompileUtil
                 .compile("test-src/object/object-readonly-field-negative.bal");
-        Assert.assertEquals(compileResultNegative.getErrorCount(), 4);
-        BAssertUtil.validateError(compileResultNegative, 0, "cannot assign a value to readonly 'p.age'", 9, 5);
-        BAssertUtil.validateError(compileResultNegative, 1, "cannot assign a value to readonly 'bar:globalInt'", 15, 5);
-        BAssertUtil.validateError(compileResultNegative, 2,
+        Assert.assertEquals(compileResultNegative.getErrorCount(), 2);
+        BAssertUtil.validateError(compileResultNegative, 0,
                 "annotation 'ballerina/builtin:readonly' is not allowed in function", 20, 1);
-        BAssertUtil.validateError(compileResultNegative, 3,
+        BAssertUtil.validateError(compileResultNegative, 1,
                 "annotation 'ballerina/builtin:readonly' is not allowed in service", 24, 1);
     }
 

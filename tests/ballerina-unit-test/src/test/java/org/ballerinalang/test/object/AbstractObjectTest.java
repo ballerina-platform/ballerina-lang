@@ -67,7 +67,7 @@ public class AbstractObjectTest {
 
     @Test
     public void testAbstractAnonObjectInMatch() {
-        BValue[] result = BRunUtil.invoke(anonAbstractObjects, "testAbstractAnonObjectInMatch");
+        BValue[] result = BRunUtil.invoke(anonAbstractObjects, "testAbstractAnonObjectInTypeTest");
         Assert.assertEquals(result[0].stringValue(), "Person Name");
         Assert.assertEquals(result[1].stringValue(), "Employee Name");
     }
