@@ -22,7 +22,6 @@
     "@ballerina/tracing": "^0.983.1-SNAPSHOT"
   },
   "devDependencies": {
-    "@ballerina/composer-cli": "^0.983.1-SNAPSHOT",
-    "extract-text-webpack-plugin": "^4.0.0-beta.0"
+    "@ballerina/composer-cli": "^0.983.1-SNAPSHOT"
   }
 }
