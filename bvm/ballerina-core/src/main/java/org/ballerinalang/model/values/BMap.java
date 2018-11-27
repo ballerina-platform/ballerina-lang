@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.bre.bvm.VarLock;
 import org.ballerinalang.bre.vm.BVM;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BJSONType;
@@ -45,6 +46,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -68,6 +70,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
     private BType type = BTypes.typeMap;
     private HashMap<String, Object> nativeData = new HashMap<>();
     private volatile BVM.FreezeStatus freezeStatus = new BVM.FreezeStatus(BVM.FreezeStatus.State.UNFROZEN);
+    private ConcurrentHashMap<String, VarLock> lockMap = new ConcurrentHashMap();
 
     public BMap() {
         map =  new LinkedHashMap<>();
@@ -480,6 +483,17 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
      */
     public HashMap<String, Object> getNativeData() {
         return nativeData;
+    }
+
+    /**
+     * Returns a variable lock for the given field.
+     *
+     * @param fieldName field of the map that need to be locked
+     * @return VarLock for the given field
+     */
+    public VarLock getFieldLock(String fieldName) {
+        lockMap.putIfAbsent(fieldName, new VarLock());
+        return lockMap.get(fieldName);
     }
 
     /**
