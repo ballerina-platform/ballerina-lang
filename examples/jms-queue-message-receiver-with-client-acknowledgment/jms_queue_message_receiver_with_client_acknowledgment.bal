@@ -30,10 +30,10 @@ service<jms:Consumer> jmsListener bind consumerEndpoint {
             string messageText => {
                 log:printInfo("Message : " + messageText);
                 // This acknowledges the received message using the acknowledge function of the queue receiver endpoint.
-                consumer->acknowledge(message) but {
-                    error e => log:printError("Error occurred while"
-                                              + "acknowledging message", err=e)
-                };
+                var result = consumer->acknowledge(message);
+                if (result is error) {
+                    log:printError("Error occurred while acknowledging message", err = result);
+                }
             }
             error e => log:printError("Error occurred while reading message",
                                       err=e);

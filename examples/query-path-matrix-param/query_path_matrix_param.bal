@@ -31,6 +31,10 @@ service<http:Service> sample bind { port: 9090 } {
         // A util method to set the JSON payload to the response message.
         res.setJsonPayload(untaint responseJson);
         // Send a response to the client.
-        caller->respond(res) but { error e => log:printError("Error when responding", err = e) };
+        var result = caller->respond(res);
+
+        if (result is error) {
+            log:printError("Error when responding", err = result);
+        }
     }
 }

@@ -68,9 +68,9 @@ public extern function lookupMetric(string name, map<string>? tags = ()) returns
 # + metricTags - Tags associated with the counter metric.
 public type Counter object {
 
-    @readonly public string name;
-    @readonly public string description;
-    @readonly public map<string> metricTags;
+    public string name;
+    public string description;
+    public map<string> metricTags;
 
     # This instantiates the Counter object. Name field is mandatory, and description and tags fields
     # are optional and have its own default values when no params are passed.
@@ -132,10 +132,10 @@ public type Counter object {
 #                      of the gauge during its usage.
 public type Gauge object {
 
-    @readonly public string name;
-    @readonly public string description;
-    @readonly public map<string> metricTags;
-    @readonly public StatisticConfig[] statisticConfigs;
+    public string name;
+    public string description;
+    public map<string> metricTags;
+    public StatisticConfig[] statisticConfigs;
 
     # This instantiates the Gauge object. Name field is mandatory, and description, tags, and statitics config fields
     # are optional and have its own default values when no params are passed.
@@ -151,21 +151,9 @@ public type Gauge object {
     public function __init(string name, string? desc = "", map<string>? tags = (),
                StatisticConfig[]? statisticConfig = ()) {
         self.name = name;
-        if (desc is string) {
-            self.description = desc;
-        } else {
-            self.description = "";
-        }
-        if (tags is map<string>) {
-            self.metricTags = tags;
-        } else {
-            self.metricTags = DEFAULT_TAGS;
-        }
-        if (statisticConfig is StatisticConfig[]) {
-            self.statisticConfigs = statisticConfig;
-        } else {
-            self.statisticConfigs = DEFAULT_GAUGE_STATS_CONFIG;
-        }
+        self.description = desc ?: "";
+        self.metricTags = tags ?: DEFAULT_TAGS;
+        self.statisticConfigs = statisticConfig ?: DEFAULT_GAUGE_STATS_CONFIG;
         self.initialize();
     }
 
@@ -220,12 +208,12 @@ public type Gauge object {
 # + value - Current value the metric.
 # + summary - If the metric is configured with statistics config, then the calculated statistics of the metric.
 public type Metric record {
-    @readonly string name;
-    @readonly string desc;
-    @readonly map<string> tags;
-    @readonly string metricType;
-    @readonly int|float value;
-    @readonly Snapshot[]? summary;
+    string name;
+    string desc;
+    map<string> tags;
+    string metricType;
+    int|float value;
+    Snapshot[]? summary;
 };
 
 # This represents the statistic configuration that can be used to instatiate gauge metric.
@@ -244,8 +232,8 @@ public type StatisticConfig record {
 # + percentile - The percentile of the reported value.
 # + value - The value of the percentile.
 public type PercentileValue record {
-    @readonly float percentile;
-    @readonly float value;
+    float percentile;
+    float value;
 };
 
 # This represents the snapshot of the statistics calculation of the gauge.
@@ -257,10 +245,10 @@ public type PercentileValue record {
 # + stdDev - The standard deviation value within the time window.
 # + percentileValues - The percentiles values calculated wihtin the time window.
 public type Snapshot record {
-    @readonly int timeWindow;
-    @readonly float mean;
-    @readonly float max;
-    @readonly float min;
-    @readonly float stdDev;
-    @readonly PercentileValue[] percentileValues;
+    int timeWindow;
+    float mean;
+    float max;
+    float min;
+    float stdDev;
+    PercentileValue[] percentileValues;
 };

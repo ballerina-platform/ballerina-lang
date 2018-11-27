@@ -72,7 +72,7 @@ public type Client client object {
     # + return - A `table` returned by the sql query statement else `error` will be returned if there is any error
     public remote function select(@sensitive string sqlQuery, typedesc? recordType, boolean loadToMemory = false,
                                   sql:Param... parameters) returns @tainted table<record {}>|error {
-    return self.sqlClient->select(sqlQuery, recordType, loadToMemory = loadToMemory, ...parameters);
+        return self.sqlClient->select(sqlQuery, recordType, loadToMemory = loadToMemory, ...parameters);
     }
 
 

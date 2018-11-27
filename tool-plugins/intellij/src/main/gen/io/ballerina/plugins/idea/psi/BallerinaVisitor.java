@@ -192,14 +192,6 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitCompositeElement(o);
   }
 
-  public void visitChannelDefinition(@NotNull BallerinaChannelDefinition o) {
-    visitCompositeElement(o);
-  }
-
-  public void visitChannelType(@NotNull BallerinaChannelType o) {
-    visitCompositeElement(o);
-  }
-
   public void visitCheckedExpression(@NotNull BallerinaCheckedExpression o) {
     visitExpression(o);
   }
@@ -389,10 +381,6 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitCompositeElement(o);
   }
 
-  public void visitGlobalVariable(@NotNull BallerinaGlobalVariable o) {
-    visitCompositeElement(o);
-  }
-
   public void visitGlobalVariableDefinition(@NotNull BallerinaGlobalVariableDefinition o) {
     visitNamedElement(o);
     // visitTopLevelDefinition(o);
@@ -539,35 +527,11 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitCompositeElement(o);
   }
 
-  public void visitObjectDefaultableParameter(@NotNull BallerinaObjectDefaultableParameter o) {
-    visitCompositeElement(o);
-  }
-
   public void visitObjectFieldDefinition(@NotNull BallerinaObjectFieldDefinition o) {
     visitCompositeElement(o);
   }
 
   public void visitObjectFunctionDefinition(@NotNull BallerinaObjectFunctionDefinition o) {
-    visitCompositeElement(o);
-  }
-
-  public void visitObjectInitializer(@NotNull BallerinaObjectInitializer o) {
-    visitCompositeElement(o);
-  }
-
-  public void visitObjectInitializerParameterList(@NotNull BallerinaObjectInitializerParameterList o) {
-    visitCompositeElement(o);
-  }
-
-  public void visitObjectMember(@NotNull BallerinaObjectMember o) {
-    visitCompositeElement(o);
-  }
-
-  public void visitObjectParameter(@NotNull BallerinaObjectParameter o) {
-    visitCompositeElement(o);
-  }
-
-  public void visitObjectParameterList(@NotNull BallerinaObjectParameterList o) {
     visitCompositeElement(o);
   }
 
@@ -1118,6 +1082,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
   }
 
   public void visitBindingPatternPattern(@NotNull BallerinaBindingPatternPattern o) {
+    visitCompositeElement(o);
+  }
+
+  public void visitChannelType(@NotNull BallerinaChannelType o) {
     visitCompositeElement(o);
   }
 

@@ -83,24 +83,11 @@ typeDefinition
     ;
 
 objectBody
-    :   objectMember* objectInitializer? objectMember*
-    ;
-objectMember
-    :   objectFieldDefinition
-    |   objectFunctionDefinition
-    |   typeReference
+    :   (objectFieldDefinition | objectFunctionDefinition | typeReference)*
     ;
 
 typeReference
     :   MUL simpleTypeName SEMICOLON
-    ;
-
-objectInitializer
-    :   documentationString? annotationAttachment* (PUBLIC)? NEW objectInitializerParameterList callableUnitBody
-    ;
-
-objectInitializerParameterList
-    :   LEFT_PARENTHESIS objectParameterList? RIGHT_PARENTHESIS
     ;
 
 objectFieldDefinition
@@ -122,19 +109,6 @@ sealedLiteral
 
 restDescriptorPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
 
-objectParameterList
-    :   (objectParameter | objectDefaultableParameter) (COMMA (objectParameter | objectDefaultableParameter))* (COMMA restParameter)?
-    |   restParameter
-    ;
-
-objectParameter
-    :   annotationAttachment* typeName? Identifier
-    ;
-
-objectDefaultableParameter
-    :   objectParameter ASSIGN expression
-    ;
-
 objectFunctionDefinition
     :   documentationString? annotationAttachment* deprecatedAttachment? (PUBLIC | PRIVATE)? (REMOTE|RESOURCE)? (EXTERN)? FUNCTION callableUnitSignature (callableUnitBody | SEMICOLON)
     ;
@@ -148,7 +122,8 @@ constantDefinition
     ;
 
 globalVariableDefinition
-    :   (PUBLIC)? (LISTENER)? typeName Identifier (ASSIGN expression )? SEMICOLON
+    :   PUBLIC? LISTENER? typeName Identifier (ASSIGN expression)? SEMICOLON
+    |   PUBLIC? FINAL (typeName | VAR) Identifier ASSIGN expression SEMICOLON
     |   channelType Identifier SEMICOLON
     ;
 
@@ -297,7 +272,7 @@ statement
 
 variableDefinitionStatement
     :   typeName Identifier SEMICOLON
-    |   (typeName | VAR) bindingPattern ASSIGN expression SEMICOLON
+    |   FINAL? (typeName | VAR) bindingPattern ASSIGN expression SEMICOLON
     ;
 
 recordLiteral
@@ -933,6 +908,7 @@ reservedWord
     |   TYPE_MAP
     |   START
     |   CONTINUE
+    |   OBJECT_INIT
     ;
 
 

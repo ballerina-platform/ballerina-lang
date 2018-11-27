@@ -562,17 +562,6 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClauseNode) {
-        if (patternClauseNode.variable != null) {
-            this.acceptNode(patternClauseNode.variable);
-        }
-
-        if (patternClauseNode.body != null) {
-            this.acceptNode(patternClauseNode.body);
-        }
-    }
-
-    @Override
     public void visit(BLangMatch.BLangMatchStaticBindingPatternClause patternClauseNode) {
         /*ignore*/
     }

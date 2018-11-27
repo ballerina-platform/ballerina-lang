@@ -60,9 +60,10 @@ service<http:Service> helloWorld bind helloWorldEP {
         string userId = getConfigValue(user, "userid");
         string groups = getConfigValue(user, "groups");
         string payload = "{userId: " + userId + ", groups: " + groups + "} \n";
-        outboundEP->respond(payload) but {
-            error err => log:printError(err.message, err = err)
-        };
+        var result = outboundEP->respond(payload);
+        if (result is error){
+            log:printError(err.message, err = result);
+        }
     }
 }
 

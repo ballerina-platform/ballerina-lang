@@ -36,7 +36,10 @@ service<http:Service> echo bind echoEP {
         http:Response res = new;
         res.setHeader(filter_name_header, req.getHeader(filter_name_header));
         res.setPayload("Hello, World!");
-        caller->respond(res) but {error e => log:printError("Error sending response", err = e)};
+        var result = caller->respond(res);
+        if (result is error) {
+           log:printError("Error sending response", err = result);
+        }
     }
 }
 

@@ -29,7 +29,10 @@ public function main() {
     // Send a `GET` request to the specified endpoint.
     var response = httpEndpoint->get("/hello/sayHello");
     match response {
-        http:Response resp => log:printInfo(resp.getPayloadAsString() but {error => "Failed to retrieve payload."});
+        http:Response resp => {
+            var result = resp.getPayloadAsString();
+            log:printInfo(result is error ? "Failed to retrieve payload." : result);
+        }
         error err => log:printError("Failed to call the endpoint.");
     }
 }

@@ -228,9 +228,9 @@ function testSelectIntFloatData() returns (int, int, float, float) {
     int long_type = -1;
     float float_type = -1;
     float double_type = -1;
-    if (dt is table) {
+    if (dt is table<ResultDataType>) {
         while (dt.hasNext()) {
-            var rs = <ResultDataType>dt.getNext();
+            var rs = dt.getNext();
             if (rs is ResultDataType) {
                 int_type = rs.INT_TYPE;
                 long_type = rs.LONG_TYPE;
@@ -255,7 +255,7 @@ function testCallProcedure() returns (string, string) {
     string returnValue = "";
     var ret = testDB->call("{call InsertPersonData(100,'James')}", ());
 
-    if (ret is table[]) {
+    if (ret is table<record {}>[]) {
         returnValue = "table";
     } else if (ret is ()) {
         returnValue = "nil";
@@ -280,7 +280,7 @@ function testCallProcedureWithResultSet() returns (string) {
     string firstName = "";
     var ret = testDB->call("{call SelectPersonData()}", [ResultCustomers]);
 
-    if (ret is table[]) {
+    if (ret is table<record {}>[]) {
         firstName = getTableFirstNameColumn(ret[0]);
     } else if (ret is ()) {
         firstName = "error";
@@ -422,9 +422,9 @@ function testBoolArrayofQueryParameters() returns (int) {
     var dt = testDB->select("SELECT int_type from DataTypeTable where row_id = ? and boolean_type in(?) and
         string_type in (?)", ResultIntType, 1, para1, para2);
     int value = -1;
-    if (dt is table) {
+    if (dt is table<ResultIntType>) {
         while (dt.hasNext()) {
-            var rs = <ResultIntType>dt.getNext();
+            var rs = dt.getNext();
             if (rs is ResultIntType) {
                 value = rs.INT_TYPE;
             }
@@ -445,9 +445,9 @@ function testBlobArrayQueryParameter() returns int {
 
     var dt1 = testDB->select("SELECT blob_type from BlobTable where row_id = 7", ResultBlob);
     byte[] blobData = [];
-    if (dt1 is table) {
+    if (dt1 is table<ResultBlob>) {
         while (dt1.hasNext()) {
-            var rs = <ResultBlob>dt1.getNext();
+            var rs = dt1.getNext();
             if (rs is ResultBlob) {
                 blobData = rs.BLOB_TYPE;
             }
@@ -459,9 +459,9 @@ function testBlobArrayQueryParameter() returns int {
 
     var dt = testDB->select("SELECT row_id from BlobTable where row_id = ? and blob_type in (?)", ResultRowIDBlob, 7, para1);
     int value = -1;
-    if (dt is table) {
+    if (dt is table<ResultRowIDBlob>) {
         while (dt.hasNext()) {
-            var rs = <ResultRowIDBlob>dt.getNext();
+            var rs = dt.getNext();
             if (rs is ResultRowIDBlob) {
                 value = rs.row_id;
             }
@@ -508,9 +508,9 @@ function testArrayInParameters() returns (int, int[], int[], float[],
 
     var dt = testDB->select("SELECT int_array, long_array, double_array, boolean_array,
         string_array, float_array from ArrayTypes where row_id = 2", ResultArrayType);
-    if (dt is table) {
+    if (dt is table<ResultArrayType>) {
         while (dt.hasNext()) {
-            var rs = <ResultArrayType>dt.getNext();
+            var rs = dt.getNext();
             if (rs is ResultArrayType) {
                 int_arr = rs.INT_ARRAY;
                 long_arr = rs.LONG_ARRAY;
@@ -693,9 +693,9 @@ function testBlobInParameter() returns (int, byte[]) {
         paraID, paraBlob);
     int insertCount = getIntResult(result);
     var dt = testDB->select("SELECT blob_type from BlobTable where row_id=3", ResultBlob);
-    if (dt is table) {
+    if (dt is table<ResultBlob>) {
         while (dt.hasNext()) {
-            var rs = <ResultBlob>dt.getNext();
+            var rs = dt.getNext();
             if (rs is ResultBlob) {
                 blobVal = rs.BLOB_TYPE;
             }
@@ -731,9 +731,9 @@ function testINParametersWithDirectValues() returns (int, int, float,
     float n = -1;
     float dec = -1;
     float real = -1;
-    if (dt is table) {
+    if (dt is table<ResultBalTypes>) {
         while (dt.hasNext()) {
-            var rs = <ResultBalTypes> dt.getNext();
+            var rs = dt.getNext();
             if (rs is ResultBalTypes) {
                 i = rs.INT_TYPE;
                 l = rs.LONG_TYPE;
@@ -789,9 +789,9 @@ function testINParametersWithDirectVariables() returns (int, int, float,
     float dec = -1;
     float real = -1;
 
-    if (dt is table) {
+    if (dt is table<ResultBalTypes>) {
         while (dt.hasNext()) {
-            var rs = <ResultBalTypes>dt.getNext();
+            var rs = dt.getNext();
             if (rs is ResultBalTypes) {
                 i = rs.INT_TYPE;
                 l = rs.LONG_TYPE;
@@ -1469,11 +1469,11 @@ function getIntResult(int|error result) returns int {
     return -1;
 }
 
-function getTableCountValColumn(table|error result) returns int {
+function getTableCountValColumn(table<record {}>|error result) returns int {
     int count = -1;
-    if (result is table) {
+    if (result is table<record {}>) {
         while (result.hasNext()) {
-            var rs = <ResultCount>result.getNext();
+            var rs = result.getNext();
             if (rs is ResultCount) {
                 count = rs.COUNTVAL;
             }
@@ -1483,11 +1483,11 @@ function getTableCountValColumn(table|error result) returns int {
     return -1;
 }
 
-function getTableFirstNameColumn(table|error result) returns string {
-    if (result is table) {
+function getTableFirstNameColumn(table<record {}>|error result) returns string {
+    if (result is table<record {}>) {
         string firstName= "";
         while (result.hasNext()) {
-            var rs = <ResultCustomers>result.getNext();
+            var rs = result.getNext();
             if (rs is ResultCustomers) {
                 firstName = rs.FIRSTNAME;
             }
@@ -1504,33 +1504,33 @@ function getBatchUpdateCount(int[]|error result) returns int[] {
     return [];
 }
 
-function getJsonConversionResult(table|error tableOrError) returns json {
+function getJsonConversionResult(table<record {}>|error tableOrError) returns json {
     json retVal = {};
-    if (tableOrError is table) {
-        var jsonConversionResult = <json>tableOrError;
+    if (tableOrError is table<record {}>) {
+        var jsonConversionResult = json.create(tableOrError);
         if (jsonConversionResult is json) {
             retVal = jsonConversionResult;
         } else if (jsonConversionResult is error) {
-            retVal = {"Error" : <string>jsonConversionResult.detail().message};
+            retVal = {"Error" : string.create(jsonConversionResult.detail().message)};
         }
     } else if (tableOrError is error) {
-        retVal = {"Error" : <string>tableOrError.detail().message};
+        retVal = {"Error" : string.create(tableOrError.detail().message)};
     }
     return retVal;
 }
 
-function getXMLConversionResult(table|error tableOrError) returns xml {
+function getXMLConversionResult(table<record {}>|error tableOrError) returns xml {
     xml retVal = xml `<Error/>`;
-    if (tableOrError is table) {
-        var xmlConversionResult = <xml>tableOrError;
+    if (tableOrError is table<record {}>) {
+        var xmlConversionResult = xml.create(tableOrError);
         if (xmlConversionResult is xml) {
             retVal = xmlConversionResult;
         } else if (xmlConversionResult is error) {
-            string errorXML = <string>xmlConversionResult.detail().message;
+            string errorXML = string.create(xmlConversionResult.detail().message);
             retVal = xml `<Error>{{errorXML}}</Error>`;
         }
     } else if (tableOrError is error) {
-        string errorXML = <string>tableOrError.detail().message;
+        string errorXML = string.create(tableOrError.detail().message);
         retVal = xml `<Error>{{errorXML}}</Error>`;
     }
     return retVal;

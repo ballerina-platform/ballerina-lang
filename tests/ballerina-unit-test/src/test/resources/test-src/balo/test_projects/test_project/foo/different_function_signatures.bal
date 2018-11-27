@@ -68,7 +68,9 @@ public type Employee object {
     public string name;
     public int salary;
 
-    public new (name = "supun", salary = 100) {
+    public function __init (string name = "supun", int salary = 100) {
+        self.name = name;
+        self.salary = salary;
     }
 
     public function getSalary (string n, int b = 0) returns int {
@@ -78,7 +80,7 @@ public type Employee object {
 
 
 public type Person object {
-    public int age;
+    public int age = 0;
 
     public function test1(int a = 77, string n = "inner default") returns (int, string);
 
