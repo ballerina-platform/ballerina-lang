@@ -106,6 +106,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -368,15 +369,12 @@ public class CommonUtil {
             if ((splitedFileContent.length - 1) >= cursorLine) {
                 String lineContent = splitedFileContent[cursorLine];
                 List<String> alphaNumericTokens = new ArrayList<>(Arrays.asList(lineContent.split("[^\\w']+")));
-                for (int i = 0; i < alphaNumericTokens.size(); i++) {
-                    String topLevelKeyword = alphaNumericTokens.get(i);
-                    if (topLevelKeywords.contains(topLevelKeyword)) {
-                        int nextTokenIndex = i + 1;
-                        if (nextTokenIndex < alphaNumericTokens.size() &&
-                                CONSTRUCTOR_FUNCTION_SUFFIX.equals(alphaNumericTokens.get(nextTokenIndex))) {
-                            // Skip __init function
-                            return null;
-                        }
+
+                ListIterator<String> iterator = alphaNumericTokens.listIterator();
+                while (iterator.hasNext()) {
+                    String topLevelKeyword = iterator.next();
+                    if (topLevelKeywords.contains(topLevelKeyword) &&
+                            (!iterator.hasNext() || !CONSTRUCTOR_FUNCTION_SUFFIX.equals(iterator.next()))) {
                         return topLevelKeyword;
                     }
                 }
