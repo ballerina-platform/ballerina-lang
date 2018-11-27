@@ -96,6 +96,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangChannelLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
@@ -864,6 +865,11 @@ public class CodeGenerator extends BLangNodeVisitor {
                 new StringCPEntry(addUTF8CPEntry(currentPkgInfo, streamLiteral.streamName), streamLiteral.streamName);
         Operand nameCPIndex = getOperand(currentPkgInfo.addCPEntry(nameCPEntry));
         emit(InstructionCodes.NEWSTREAM, streamLiteral.regIndex, typeCPIndex, nameCPIndex);
+    }
+
+    @Override
+    public void visit(BLangChannelLiteral channelLiteral) {
+        channelLiteral.regIndex = calcAndGetExprRegIndex(channelLiteral);
     }
 
     @Override

@@ -4163,7 +4163,7 @@ public class Desugar extends BLangNodeVisitor {
         String identifier;
         switch (typeInitExpr.parent.getKind()) {
             case ASSIGNMENT:
-                identifier = ((BLangLocalVarRef) ((BLangAssignment) typeInitExpr.parent).varRef).symbol.name.value;
+                identifier = ((BLangSimpleVarRef) ((BLangAssignment) typeInitExpr.parent).varRef).symbol.name.value;
                 break;
             case VARIABLE:
                 identifier = ((BLangSimpleVariable) typeInitExpr.parent).name.value;
