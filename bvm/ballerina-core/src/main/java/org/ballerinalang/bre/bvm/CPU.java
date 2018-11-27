@@ -2752,13 +2752,18 @@ public class CPU {
             case InstructionCodes.ITR_NEXT:
                 nextInstruction = (InstructionIteratorNext) instruction;
                 iterator = (BIterator) sf.refRegs[nextInstruction.iteratorIndex];
-                BValue value = Optional.of(iterator).get().getNext();
-                BMap<String, BValue> newMap = new BMap<>(nextInstruction.constraintType);
 
+                // Get the next value.
+                BValue value = Optional.of(iterator).get().getNext();
                 if (value != null) {
+                    // If the value is not null, we create a new map and add the value to the map with the key
+                    // `value`. Then we set this map to the corresponding registry location.
+                    BMap<String, BValue> newMap = new BMap<>(nextInstruction.constraintType);
                     newMap.put("value", value);
                     sf.refRegs[nextInstruction.retRegs[0]] = (BRefType) newMap;
                 } else {
+                    // If the value is null, that means we have reached the end of the iterable list. So we set null
+                    // to the corresponding registry location.
                     sf.refRegs[nextInstruction.retRegs[0]] = null;
                 }
                 break;
