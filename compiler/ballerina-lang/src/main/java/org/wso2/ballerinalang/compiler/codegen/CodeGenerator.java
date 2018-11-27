@@ -2719,11 +2719,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         emit((InstructionCodes.UNLOCK), unlockOps);
         emit(instructGotoLockEnd);
 
-        ErrorTableEntry errorTableEntry = new ErrorTableEntry(fromIP, toIP, nextIP(), null);
+        RegIndex errorRegIndex = getRegIndex(TypeTags.ERROR);
+
+        ErrorTableEntry errorTableEntry = new ErrorTableEntry(fromIP, toIP, nextIP(), errorRegIndex);
         errorTable.addErrorTableEntry(errorTableEntry);
 
         emit((InstructionCodes.UNLOCK), unlockOps);
-        emit(InstructionFactory.get(InstructionCodes.PANIC, getOperand(-1)));
+        emit(InstructionFactory.get(InstructionCodes.PANIC, errorRegIndex));
         gotoLockEndAddr.value = nextIP();
     }
 
