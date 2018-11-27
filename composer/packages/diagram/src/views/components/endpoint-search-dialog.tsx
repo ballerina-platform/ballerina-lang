@@ -1,7 +1,7 @@
 import { BallerinaEndpoint } from "@ballerina/lang-service";
 import React from "react";
-import { Dropdown, DropdownItemProps, Modal } from "semantic-ui-react";
-import { DiagramContext, IDiagramContext } from "../../diagram/index";
+import { Dropdown, DropdownItemProps, Header, Modal, Transition } from "semantic-ui-react";
+import { DiagramContext, IDiagramContext } from "../../diagram/diagram-context";
 
 export class EndpointSearchDialog extends React.Component<{
     show: boolean,
@@ -12,22 +12,13 @@ export class EndpointSearchDialog extends React.Component<{
     endpoints: BallerinaEndpoint[]
 }> {
 
-    public static context = DiagramContext;
+    public static contextType = DiagramContext;
 
     public state = {
-        endpoints: [
-            {
-                name: "Client",
-                packageName: "http"
-            },
-            {
-                name: "Client",
-                packageName: "jms"
-            }
-        ]
+        endpoints: []
     };
 
-    private dropDownRef = React.createRef<any>();
+    private lastUsedEndpoint: string | undefined;
 
     public componentDidMount() {
         const context = this.context as IDiagramContext;
@@ -42,29 +33,40 @@ export class EndpointSearchDialog extends React.Component<{
     }
 
     public render() {
-        const { show, onClose } = this.props;
+        const { show, onClose, onEndpointSelect } = this.props;
         const options: DropdownItemProps[] = this.state.endpoints.map((ep: BallerinaEndpoint) => ({
             text: ep.packageName + ":" + ep.name,
             value: ep.packageName + ":" + ep.name
         }));
-        return  <Modal
-                open={show}
-                onClose={onClose}
-                basic
-                size="small"
-                className="endpoint-search-dialog"
-            >
-                <Dropdown
-                    clearable
-                    fluid
-                    search
-                    selection
-                    searchInput={{ autoFocus: true, autoComplete: "on" }}
-                    placeholder="Select Endpoint Type"
-                    defaultOpen
-                    options={options}
-                    ref={this.dropDownRef}
-                />
-            </Modal>;
+        return <Transition visible={show} animation="fade" duration={500}>
+                <Modal
+                    open={show}
+                    onClose={onClose}
+                    basic
+                    size="small"
+                    className="endpoint-search-dialog"
+                    dimmer
+                >
+                    <Header as="h4">Select from available endpoints</Header>
+                    <Dropdown
+                        clearable
+                        fluid
+                        search
+                        selection
+                        searchInput={{ autoFocus: true, autoComplete: "on" }}
+                        placeholder="Select Endpoint Type"
+                        defaultOpen
+                        options={options}
+                        onChange={(evt, { value }) => {
+                            if (onEndpointSelect) {
+                                onEndpointSelect(value);
+                                this.lastUsedEndpoint = value as string;
+                            }
+                            onClose();
+                        }}
+                        defaultValue={this.lastUsedEndpoint}
+                    />
+                </Modal>
+            </Transition>;
     }
 }
