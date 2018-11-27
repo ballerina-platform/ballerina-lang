@@ -303,10 +303,46 @@ public class ArrayStampInbuiltFunctionTest {
     }
 
     @Test
+    public void testStampBasicArrayToAnydataArray() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampBasicArrayToAnydataArray");
+        Assert.assertEquals(((BInteger) results[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) results[1]).intValue(), 2);
+        Assert.assertEquals(((BInteger) results[2]).intValue(), 3);
+        Assert.assertEquals(((BInteger) results[3]).intValue(), 4);
+    }
+
+    @Test
+    public void testStampBasicArrayToJSONArray() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampBasicArrayToJSONArray");
+        Assert.assertEquals(((BInteger) results[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) results[1]).intValue(), 2);
+        Assert.assertEquals(((BInteger) results[2]).intValue(), 3);
+        Assert.assertEquals(((BInteger) results[3]).intValue(), 4);
+    }
+
+    @Test
     public void testStampBasicArrayToTuple() {
 
         BValue[] results = BRunUtil.invoke(compileResult, "stampBasicArrayToTuple");
         Assert.assertEquals(((BInteger) results[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) results[1]).intValue(), 2);
+    }
+
+    @Test
+    public void testStampBasicArrayToAnydataTuple() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampBasicArrayToAnydataTuple");
+        Assert.assertEquals(((BInteger) results[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) results[1]).intValue(), 2);
+    }
+
+    @Test
+    public void testStampBasicArrayToBasicArray() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampBasicArrayToBasicArray");
+        Assert.assertEquals(((BValueArray) results[0]).getInt(0), 1);
+        Assert.assertEquals(((BValueArray) results[0]).getInt(1), 2);
     }
 }

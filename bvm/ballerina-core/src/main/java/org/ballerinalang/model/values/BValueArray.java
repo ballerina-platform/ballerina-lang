@@ -333,122 +333,6 @@ public class BValueArray extends BNewArray implements Serializable {
         this.arrayType = type;
     }
 
-    private boolean isBasicType(BType type) {
-        return type == BTypes.typeString || type == BTypes.typeInt || type == BTypes.typeFloat ||
-                type == BTypes.typeBoolean || type == BTypes.typeByte;
-    }
-
-    private void moveBasicTypeArrayToRefValueArray() {
-        refValues = (BRefType[]) newArrayInstance(BRefType.class);
-        if (elementType == BTypes.typeBoolean) {
-            for (int i = 0; i < this.size(); i++) {
-                refValues[i] = new BBoolean(booleanValues[i] == 1);
-            }
-            booleanValues = null;
-        }
-
-        if (elementType == BTypes.typeInt) {
-            for (int i = 0; i < this.size(); i++) {
-                refValues[i] = new BInteger(intValues[i]);
-            }
-            intValues = null;
-        }
-
-        if (elementType == BTypes.typeString) {
-            for (int i = 0; i < this.size(); i++) {
-                refValues[i] = new BString(stringValues[i]);
-            }
-            stringValues = null;
-        }
-
-        if (elementType == BTypes.typeFloat) {
-            for (int i = 0; i < this.size(); i++) {
-                refValues[i] = new BFloat(floatValues[i]);
-            }
-            floatValues = null;
-        }
-
-        if (elementType == BTypes.typeByte) {
-            for (int i = 0; i < this.size(); i++) {
-                refValues[i] = new BByte(byteValues[i]);
-            }
-            byteValues = null;
-        }
-
-        elementType = null;
-    }
-
-    private void moveRefValueArrayToBasicTypeArray(BType type, BType arrayElementType) {
-        BRefType<?>[] arrayValues = this.getValues();
-
-        if (arrayElementType.getTag() == TypeTags.INT_TAG) {
-            intValues = (long[]) newArrayInstance(Long.TYPE);
-            for (int i = 0; i < this.size(); i++) {
-                intValues[i] = ((BInteger) arrayValues[i]).value();
-            }
-        }
-
-        if (arrayElementType.getTag() == TypeTags.FLOAT_TAG) {
-            floatValues = (double[]) newArrayInstance(Double.TYPE);
-            for (int i = 0; i < this.size(); i++) {
-                floatValues[i] = ((BFloat) arrayValues[i]).value();
-            }
-        }
-
-        if (arrayElementType.getTag() == TypeTags.BOOLEAN_TAG) {
-            booleanValues = (int[]) newArrayInstance(Integer.TYPE);
-            for (int i = 0; i < this.size(); i++) {
-                booleanValues[i] = ((BBoolean) arrayValues[i]).value() ? 1 : 0;
-            }
-        }
-
-        if (arrayElementType.getTag() == TypeTags.STRING_TAG) {
-            stringValues = (String[]) newArrayInstance(String.class);
-            for (int i = 0; i < this.size(); i++) {
-                stringValues[i] = arrayValues[i].stringValue();
-            }
-        }
-
-        if (arrayElementType.getTag() == TypeTags.BYTE_TAG) {
-            byteValues = (byte[]) newArrayInstance(Byte.TYPE);
-            for (int i = 0; i < this.size(); i++) {
-                byteValues[i] = ((BByte) arrayValues[i]).value();
-            }
-        }
-
-        this.elementType = arrayElementType;
-        this.arrayType = type;
-        refValues = null;
-    }
-
-    @Override
-    public void grow(int newLength) {
-        if (elementType != null) {
-            switch (elementType.getTag()) {
-                case TypeTags.INT_TAG:
-                    intValues = Arrays.copyOf(intValues, newLength);
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    booleanValues = Arrays.copyOf(booleanValues, newLength);
-                    break;
-                case TypeTags.BYTE_TAG:
-                    byteValues = Arrays.copyOf(byteValues, newLength);
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    floatValues = Arrays.copyOf(floatValues, newLength);
-                    break;
-                case TypeTags.STRING_TAG:
-                    stringValues = Arrays.copyOf(stringValues, newLength);
-                    break;
-                default:
-                    refValues = Arrays.copyOf(refValues, newLength);
-                    break;
-            }
-        } else {
-            refValues = Arrays.copyOf(refValues, newLength);
-        }
-    }
-
     @Override
     public BValue copy(Map<BValue, BValue> refs) {
         if (isFrozen()) {
@@ -651,6 +535,122 @@ public class BValueArray extends BNewArray implements Serializable {
             if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
                 handleInvalidUpdate(freezeStatus.getState());
             }
+        }
+    }
+
+    private boolean isBasicType(BType type) {
+        return type == BTypes.typeString || type == BTypes.typeInt || type == BTypes.typeFloat ||
+                type == BTypes.typeBoolean || type == BTypes.typeByte;
+    }
+
+    private void moveBasicTypeArrayToRefValueArray() {
+        refValues = (BRefType[]) newArrayInstance(BRefType.class);
+        if (elementType == BTypes.typeBoolean) {
+            for (int i = 0; i < this.size(); i++) {
+                refValues[i] = new BBoolean(booleanValues[i] == 1);
+            }
+            booleanValues = null;
+        }
+
+        if (elementType == BTypes.typeInt) {
+            for (int i = 0; i < this.size(); i++) {
+                refValues[i] = new BInteger(intValues[i]);
+            }
+            intValues = null;
+        }
+
+        if (elementType == BTypes.typeString) {
+            for (int i = 0; i < this.size(); i++) {
+                refValues[i] = new BString(stringValues[i]);
+            }
+            stringValues = null;
+        }
+
+        if (elementType == BTypes.typeFloat) {
+            for (int i = 0; i < this.size(); i++) {
+                refValues[i] = new BFloat(floatValues[i]);
+            }
+            floatValues = null;
+        }
+
+        if (elementType == BTypes.typeByte) {
+            for (int i = 0; i < this.size(); i++) {
+                refValues[i] = new BByte(byteValues[i]);
+            }
+            byteValues = null;
+        }
+
+        elementType = null;
+    }
+
+    private void moveRefValueArrayToBasicTypeArray(BType type, BType arrayElementType) {
+        BRefType<?>[] arrayValues = this.getValues();
+
+        if (arrayElementType.getTag() == TypeTags.INT_TAG) {
+            intValues = (long[]) newArrayInstance(Long.TYPE);
+            for (int i = 0; i < this.size(); i++) {
+                intValues[i] = ((BInteger) arrayValues[i]).value();
+            }
+        }
+
+        if (arrayElementType.getTag() == TypeTags.FLOAT_TAG) {
+            floatValues = (double[]) newArrayInstance(Double.TYPE);
+            for (int i = 0; i < this.size(); i++) {
+                floatValues[i] = ((BFloat) arrayValues[i]).value();
+            }
+        }
+
+        if (arrayElementType.getTag() == TypeTags.BOOLEAN_TAG) {
+            booleanValues = (int[]) newArrayInstance(Integer.TYPE);
+            for (int i = 0; i < this.size(); i++) {
+                booleanValues[i] = ((BBoolean) arrayValues[i]).value() ? 1 : 0;
+            }
+        }
+
+        if (arrayElementType.getTag() == TypeTags.STRING_TAG) {
+            stringValues = (String[]) newArrayInstance(String.class);
+            for (int i = 0; i < this.size(); i++) {
+                stringValues[i] = arrayValues[i].stringValue();
+            }
+        }
+
+        if (arrayElementType.getTag() == TypeTags.BYTE_TAG) {
+            byteValues = (byte[]) newArrayInstance(Byte.TYPE);
+            for (int i = 0; i < this.size(); i++) {
+                byteValues[i] = ((BByte) arrayValues[i]).value();
+            }
+        }
+
+        this.elementType = arrayElementType;
+        this.arrayType = type;
+        refValues = null;
+    }
+
+    @Override
+    public void grow(int newLength) {
+        if (elementType != null) {
+            switch (elementType.getTag()) {
+                case TypeTags.INT_TAG:
+                    intValues = Arrays.copyOf(intValues, newLength);
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    booleanValues = Arrays.copyOf(booleanValues, newLength);
+                    break;
+                case TypeTags.BYTE_TAG:
+                    byteValues = Arrays.copyOf(byteValues, newLength);
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    floatValues = Arrays.copyOf(floatValues, newLength);
+                    break;
+                case TypeTags.STRING_TAG:
+                    stringValues = Arrays.copyOf(stringValues, newLength);
+                    break;
+                default:
+                    refValues = Arrays.copyOf(refValues, newLength);
+                    break;
+            }
+        } else {
+            refValues = Arrays.copyOf(refValues, newLength);
         }
     }
 }

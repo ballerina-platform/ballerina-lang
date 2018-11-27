@@ -27,6 +27,7 @@ import org.ballerinalang.model.types.BStringType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -171,6 +172,14 @@ public class TupleTypeStampInbuiltFunctionTest {
         Assert.assertEquals(((BValue) ((BMap) arrayValue2).getMap().get("school")).stringValue(), "Hindu College");
         Assert.assertEquals(((BValue) ((BMap) arrayValue2).getMap().get("school")).getType().getClass(),
                 BStringType.class);
+    }
+
+    @Test
+    public void testStampTupleToBasicArray() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampTupleToBasicArray");
+        Assert.assertEquals(((BValueArray) results[0]).getInt(0), 1);
+        Assert.assertEquals(((BValueArray) results[0]).getInt(1), 2);
     }
 }
 

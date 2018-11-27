@@ -4213,35 +4213,6 @@ public class CPU {
         compensationTable.index++;
     }
 
-    public static boolean checkIsLikeType(BValue sourceValue, BType targetType) {
-        BType sourceType = sourceValue == null ? BTypes.typeNull : sourceValue.getType();
-        if (checkIsType(sourceType, targetType, new ArrayList<>())) {
-            return true;
-        }
-
-        switch (targetType.getTag()) {
-            case TypeTags.RECORD_TYPE_TAG:
-                return checkIsLikeRecordType(sourceValue, (BRecordType) targetType);
-            case TypeTags.JSON_TAG:
-                return checkIsLikeJSONType(sourceValue, (BJSONType) targetType);
-            case TypeTags.MAP_TAG:
-                return checkIsLikeMapType(sourceValue, (BMapType) targetType);
-            case TypeTags.ARRAY_TAG:
-                return checkIsLikeArrayType(sourceValue, (BArrayType) targetType);
-            case TypeTags.TUPLE_TAG:
-                return checkIsLikeTupleType(sourceValue, (BTupleType) targetType);
-            case TypeTags.ANYDATA_TAG:
-                return checkIsLikeAnydataType(sourceValue, targetType);
-            case TypeTags.FINITE_TYPE_TAG:
-                return checkFiniteTypeAssignable(sourceValue, targetType);
-            case TypeTags.UNION_TAG:
-                return ((BUnionType) targetType).getMemberTypes().stream()
-                        .anyMatch(type -> checkIsLikeType(sourceValue, type));
-            default:
-                return false;
-        }
-    }
-
     public static BType resolveMatchingAnydataType(BValue value) {
         if(checkIsLikeType(value, BTypes.typeInt)){
             return BTypes.typeInt;
@@ -4279,6 +4250,35 @@ public class CPU {
 
         //not possible
         return null;
+    }
+
+    public static boolean checkIsLikeType(BValue sourceValue, BType targetType) {
+        BType sourceType = sourceValue == null ? BTypes.typeNull : sourceValue.getType();
+        if (checkIsType(sourceType, targetType, new ArrayList<>())) {
+            return true;
+        }
+
+        switch (targetType.getTag()) {
+            case TypeTags.RECORD_TYPE_TAG:
+                return checkIsLikeRecordType(sourceValue, (BRecordType) targetType);
+            case TypeTags.JSON_TAG:
+                return checkIsLikeJSONType(sourceValue, (BJSONType) targetType);
+            case TypeTags.MAP_TAG:
+                return checkIsLikeMapType(sourceValue, (BMapType) targetType);
+            case TypeTags.ARRAY_TAG:
+                return checkIsLikeArrayType(sourceValue, (BArrayType) targetType);
+            case TypeTags.TUPLE_TAG:
+                return checkIsLikeTupleType(sourceValue, (BTupleType) targetType);
+            case TypeTags.ANYDATA_TAG:
+                return checkIsLikeAnydataType(sourceValue, targetType);
+            case TypeTags.FINITE_TYPE_TAG:
+                return checkFiniteTypeAssignable(sourceValue, targetType);
+            case TypeTags.UNION_TAG:
+                return ((BUnionType) targetType).getMemberTypes().stream()
+                        .anyMatch(type -> checkIsLikeType(sourceValue, type));
+            default:
+                return false;
+        }
     }
 
     private static boolean checkIsLikeAnydataType(BValue sourceValue, BType targetType) {
@@ -4325,7 +4325,9 @@ public class CPU {
             return false;
         }
 
-        if (source.elementType != null) {
+        if (source.elementType == BTypes.typeInt || source.elementType == BTypes.typeString ||
+                source.elementType == BTypes.typeFloat || source.elementType == BTypes.typeBoolean ||
+                source.elementType == BTypes.typeByte) {
             int bound = (int) source.size();
             for (int i = 0; i < bound; i++) {
                 if (!checkIsType(source.elementType, targetType.getTupleTypes().get(i), new ArrayList<>())) {
