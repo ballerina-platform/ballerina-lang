@@ -55,12 +55,12 @@ public final class BInteger extends BValueType implements BRefType<Long> {
 
     @Override
     public BigDecimal decimalValue() {
-        return new BigDecimal(stringValue(), MathContext.DECIMAL128);
+        return new BigDecimal(stringValue(), MathContext.DECIMAL128).setScale(1, BigDecimal.ROUND_HALF_EVEN);
     }
 
     @Override
     public boolean booleanValue() {
-        return false;
+        return value != 0;
     }
 
     @Override

@@ -37,8 +37,11 @@ service<http:Service> multipartDemoService bind {port: 9090} {
                 response.setBodyParts(untaint bodyParts);
             }
         }
-        caller->respond(response) but {
-            error e => log:printError("Error sending response", err = e) };
+        var result = caller->respond(response);
+
+        if (result is error) {
+            log:printError("Error sending response", err = result);
+        }
     }
 
     @http:ResourceConfig {
@@ -81,12 +84,19 @@ service<http:Service> multipartDemoService bind {port: 9090} {
                 response.setPayload(
                             "Error occurred while sending multipart request!");
                 response.statusCode = 500;
-                caller->respond(response) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+
+                var result = caller->respond(response);
+
+                if (result is error) {
+                    log:printError("Error sending response", err = result);
+                }
             }
-            http:Response returnResult => {caller->respond(returnResult) but {
-                error e => log:printError("Error sending response", err = e) };
+            http:Response returnResult => {
+                var result = caller->respond(returnResult);
+
+                if (result is error) {
+                    log:printError("Error sending response", err = result);
+                }
             }
         }
     }

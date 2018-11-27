@@ -198,7 +198,7 @@ public type Entity object {
         if (contentLength == "") {
             return -1;
         } else {
-            return <int>contentLength;
+            return int.create(contentLength);
         }
     }
 

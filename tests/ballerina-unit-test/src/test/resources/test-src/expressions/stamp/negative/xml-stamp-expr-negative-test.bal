@@ -46,11 +46,11 @@ function stampXMLToObject() returns BookObject {
     return objectValue;
 }
 
-function stampXMLToMap() returns map {
+function stampXMLToMap() returns map<any> {
 
     xml xmlValue = xml `<book>The Lost World</book>`;
 
-    map mapValue = map.stamp(xmlValue);
+    map<any> mapValue = map.stamp(xmlValue);
     return mapValue;
 }
 

@@ -252,14 +252,14 @@ public class SnippetGenerator {
     }
 
     /**
-     * Get ObjectConstructor Snippet Block.
+     * Get Object Initializer Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
-    public static SnippetBlock getObjectConstructorSnippet() {
-        String snippet = "public new(${1:args}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR
-                + "}";
-        return new SnippetBlock(ItemResolverConstants.NEW_OBJECT_CONSTRUCTOR_TYPE, snippet,
+    public static SnippetBlock getObjectInitializerSnippet() {
+        String snippet = "public function __init(${1:any arg}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" +
+                CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.NEW_OBJECT_INITIALIZER_TYPE, snippet,
                                 ItemResolverConstants.SNIPPET_TYPE, SnippetType.SNIPPET);
     }
 

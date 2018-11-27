@@ -51,10 +51,10 @@ public type TopicSubscriber object {
     #
     # + serviceType - Type descriptor of the service
     public function __attach(service serviceType, map<any> data) returns error? {
-        return self.registerListener(serviceType, self.consumerActions);
+        return self.registerListener(serviceType, self.consumerActions, data);
     }
 
-    extern function registerListener(service serviceType, TopicSubscriberCaller actions) returns error?;
+    extern function registerListener(service serviceType, TopicSubscriberCaller actions, map<any> data) returns error?;
 
     extern function createSubscriber(Session session, string messageSelector, Destination? destination = ());
 
@@ -142,12 +142,12 @@ remote function TopicSubscriberCaller.receiveFrom(Destination destination, int t
 function validateTopic(Destination destination) {
     if (destination.destinationName == "") {
         string errorMessage = "Destination name cannot be empty";
-        map errorDetail = { message: errorMessage };
+        map<any> errorDetail = { message: errorMessage };
         error topicSubscriberConfigError = error(JMS_ERROR_CODE, errorDetail);
         panic topicSubscriberConfigError;
     } else if (destination.destinationType != "topic") {
         string errorMessage = "Destination should should be a topic";
-        map errorDetail = { message: errorMessage };
+        map<any> errorDetail = { message: errorMessage };
         error topicSubscriberConfigError = error(JMS_ERROR_CODE, errorDetail);
         panic topicSubscriberConfigError;
     }

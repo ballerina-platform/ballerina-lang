@@ -146,6 +146,10 @@ import java.util.stream.LongStream;
 import static org.ballerinalang.runtime.Constants.STATE_ID;
 import static org.ballerinalang.util.BLangConstants.BBYTE_MAX_VALUE;
 import static org.ballerinalang.util.BLangConstants.BBYTE_MIN_VALUE;
+import static org.ballerinalang.util.BLangConstants.BINT_MAX_VALUE_BIG_DECIMAL_RANGE_MAX;
+import static org.ballerinalang.util.BLangConstants.BINT_MAX_VALUE_DOUBLE_RANGE_MAX;
+import static org.ballerinalang.util.BLangConstants.BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN;
+import static org.ballerinalang.util.BLangConstants.BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
 import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
 
 /**
@@ -157,7 +161,6 @@ import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
 public class CPU {
 
     public static void traceCode(Instruction[] code) {
-
         PrintStream printStream = System.out;
         for (int i = 0; i < code.length; i++) {
             printStream.println(i + ": " + code[i].toString());
@@ -165,13 +168,11 @@ public class CPU {
     }
 
     private static WorkerExecutionContext handleHalt(WorkerExecutionContext ctx) {
-
         BLangScheduler.workerDone(ctx);
         return ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.HALT, ctx.workerResult));
     }
 
     public static void exec(WorkerExecutionContext ctx) {
-
         while (ctx != null && !ctx.isRootContext()) {
             try {
                 tryExec(ctx);
@@ -184,7 +185,6 @@ public class CPU {
     }
 
     private static void tryExec(WorkerExecutionContext ctx) {
-
         BLangScheduler.workerRunning(ctx);
 
         int i, j, k, l;
@@ -446,7 +446,7 @@ public class CPU {
                     case InstructionCodes.CALL:
                         callIns = (InstructionCALL) instruction;
                         ctx = BLangFunctions.invokeCallable(callIns.functionInfo, ctx, callIns.argRegs,
-                         callIns.retRegs, false, callIns.flags);
+                                callIns.retRegs, false, callIns.flags);
                         if (ctx == null) {
                             return;
                         }
@@ -454,7 +454,7 @@ public class CPU {
                     case InstructionCodes.VCALL:
                         InstructionVCALL vcallIns = (InstructionVCALL) instruction;
                         ctx = invokeVirtualFunction(ctx, vcallIns.receiverRegIndex, vcallIns.functionInfo,
-                         vcallIns.argRegs, vcallIns.retRegs, vcallIns.flags);
+                                vcallIns.argRegs, vcallIns.retRegs, vcallIns.flags);
                         if (ctx == null) {
                             return;
                         }
@@ -478,14 +478,14 @@ public class CPU {
                     case InstructionCodes.WRKRECEIVE:
                         InstructionWRKSendReceive wrkReceiveIns = (InstructionWRKSendReceive) instruction;
                         if (!handleWorkerReceive(ctx, wrkReceiveIns.dataChannelInfo, wrkReceiveIns.type,
-                         wrkReceiveIns.reg)) {
+                                wrkReceiveIns.reg)) {
                             return;
                         }
                         break;
                     case InstructionCodes.CHNRECEIVE:
                         InstructionCHNReceive chnReceiveIns = (InstructionCHNReceive) instruction;
                         if (!handleCHNReceive(ctx, chnReceiveIns.channelName, chnReceiveIns.receiverType,
-                         chnReceiveIns.receiverReg, chnReceiveIns.keyType, chnReceiveIns.keyReg)) {
+                                chnReceiveIns.receiverReg, chnReceiveIns.keyType, chnReceiveIns.keyReg)) {
                             return;
                         }
                         break;
@@ -542,7 +542,7 @@ public class CPU {
                         funcRefCPEntry = (FunctionRefCPEntry) ctx.constPool[i];
                         typeEntry = (TypeRefCPEntry) ctx.constPool[k];
                         BFunctionPointer functionPointer = new BFunctionPointer(funcRefCPEntry.getFunctionInfo(),
-                         typeEntry.getType());
+                                typeEntry.getType());
                         sf.refRegs[j] = functionPointer;
                         findAndAddAdditionalVarRegIndexes(ctx, operands, functionPointer);
                         break;
@@ -560,10 +560,10 @@ public class CPU {
                             break;
                         }
 
-                        StructureTypeInfo structInfo =
-                         (ObjectTypeInfo) ((BStructureType) structVal.getType()).getTypeInfo();
-                        FunctionInfo attachedFuncInfo =
-                         structInfo.funcInfoEntries.get(funcRefCPEntry.getFunctionInfo().getName());
+                        StructureTypeInfo structInfo = (ObjectTypeInfo) ((BStructureType)
+                                structVal.getType()).getTypeInfo();
+                        FunctionInfo attachedFuncInfo = structInfo.funcInfoEntries
+                                .get(funcRefCPEntry.getFunctionInfo().getName());
 
                         BFunctionPointer fPointer = new BFunctionPointer(attachedFuncInfo, typeEntry.getType());
                         sf.refRegs[j] = fPointer;
@@ -598,6 +598,7 @@ public class CPU {
                     case InstructionCodes.CHECKCAST:
                     case InstructionCodes.IS_ASSIGNABLE:
                     case InstructionCodes.O2JSON:
+                    case InstructionCodes.TYPE_ASSERTION:
                         execTypeCastOpcodes(ctx, sf, opcode, operands);
                         break;
 
@@ -770,17 +771,17 @@ public class CPU {
                         break;
                     case InstructionCodes.LOCK:
                         InstructionLock instructionLock = (InstructionLock) instruction;
-                        if (!handleVariableLock(ctx, instructionLock.types, instructionLock.pkgRefs,
-                         instructionLock.varRegs, instructionLock.fieldRegs, instructionLock.varCount,
-                          instructionLock.uuid)) {
+                        if (!handleVariableLock(ctx, instructionLock.types,
+                                instructionLock.pkgRefs, instructionLock.varRegs, instructionLock.fieldRegs,
+                                instructionLock.varCount, instructionLock.uuid)) {
                             return;
                         }
                         break;
                     case InstructionCodes.UNLOCK:
                         InstructionUnLock instructionUnLock = (InstructionUnLock) instruction;
-                        handleVariableUnlock(ctx, instructionUnLock.types, instructionUnLock.pkgRefs,
-                         instructionUnLock.varRegs, instructionUnLock.varCount, instructionUnLock.uuid,
-                          instructionUnLock.hasFieldVar);
+                        handleVariableUnlock(ctx, instructionUnLock.types,
+                                instructionUnLock.pkgRefs, instructionUnLock.varRegs,
+                                instructionUnLock.varCount, instructionUnLock.uuid, instructionUnLock.hasFieldVar);
                         break;
                     case InstructionCodes.WAIT:
                         ctx = execAwait(ctx, operands);
@@ -801,7 +802,6 @@ public class CPU {
     }
 
     private static void createClone(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
-
         int i = operands[0];
         int j = operands[1];
 
@@ -820,7 +820,6 @@ public class CPU {
     }
 
     private static void createNewError(int[] operands, WorkerExecutionContext ctx, WorkerData sf) {
-
         int i = operands[0];
         int j = operands[1];
         int k = operands[2];
@@ -830,7 +829,6 @@ public class CPU {
     }
 
     private static void handleErrorBuiltinMethods(int opcode, int[] operands, WorkerData sf) {
-
         int i = operands[0];
         int j = operands[1];
         BError error = (BError) sf.refRegs[i];
@@ -845,8 +843,7 @@ public class CPU {
     }
 
     private static void handleFreezeBuiltinMethods(WorkerExecutionContext ctx, int opcode, int[] operands,
-     WorkerData sf) {
-
+                                                   WorkerData sf) {
         int i = operands[0];
         int j = operands[1];
         BRefType value = sf.refRegs[i];
@@ -909,18 +906,14 @@ public class CPU {
         }
 
         if (!checkIsLikeType(valueToBeStamped, targetType)) {
-//            BError error = BLangVMErrors.createError(ctx,
-//                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_STAMP_OPERATION,
-//                            valueToBeStamped.getType(), targetType));
-//            sf.refRegs[k] = error;
-            BError error = null;
+            BError error;
             if (valueToBeStamped != null) {
-//                error = BLangVMErrors.createError(ctx,
-//                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_STAMP_OPERATION,
-//                                valueToBeStamped.getType(), targetType));
+                error = BLangVMErrors.createError(ctx,
+                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_STAMP_OPERATION,
+                                valueToBeStamped.getType(), targetType));
             } else {
-//                error = BLangVMErrors.createError(ctx,
-//                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.CANNOT_STAMP_NULL, targetType));
+                error = BLangVMErrors.createError(ctx,
+                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.CANNOT_STAMP_NULL, targetType));
             }
             sf.refRegs[k] = error;
             return;
@@ -951,15 +944,14 @@ public class CPU {
      * @param keyReg      message key registry index
      */
     private static void handleCHNSend(WorkerExecutionContext ctx, String channelName, BType dataType, int dataReg,
-     BType keyType, int keyReg) {
-
+            BType keyType, int keyReg) {
         BRefType keyVal = null;
         if (keyType != null) {
             keyVal = extractValue(ctx.workerLocal, keyType, keyReg);
         }
         BRefType dataVal = extractValue(ctx.workerLocal, dataType, dataReg);
         ChannelRegistry.PendingContext pendingCtx = ChannelManager.channelSenderAction(channelName, keyVal, dataVal,
-         keyType, dataType);
+                keyType, dataType);
         if (pendingCtx != null) {
             //inject the value to the ctx
 //            copyArgValueForWorkerReceive(pendingCtx.context.workerLocal, pendingCtx.regIndex, dataType, dataVal);
@@ -988,8 +980,7 @@ public class CPU {
      * @return true if a matching value is available
      */
     private static boolean handleCHNReceive(WorkerExecutionContext ctx, String channelName, BType receiverType,
-     int receiverReg, BType keyType, int keyIndex) {
-
+            int receiverReg, BType keyType, int keyIndex) {
         BValue keyVal = null;
         if (keyType != null) {
             keyVal = extractValue(ctx.workerLocal, keyType, keyIndex);
@@ -1009,8 +1000,8 @@ public class CPU {
     }
 
     private static WorkerExecutionContext invokeCallable(WorkerExecutionContext ctx, BFunctionPointer fp,
-     FunctionCallCPEntry funcCallCPEntry, FunctionInfo functionInfo, WorkerData sf) {
-
+                                                         FunctionCallCPEntry funcCallCPEntry,
+                                                         FunctionInfo functionInfo, WorkerData sf) {
         List<BClosure> closureVars = fp.getClosureVars();
         int[] argRegs = funcCallCPEntry.getArgRegs();
         if (closureVars.isEmpty()) {
@@ -1064,7 +1055,6 @@ public class CPU {
     }
 
     private static int expandLongRegs(WorkerData sf, BFunctionPointer fp) {
-
         int longIndex = 0;
         if (fp.getAdditionalIndexCount(BTypes.typeInt.getTag()) > 0) {
             if (sf.longRegs == null) {
@@ -1079,14 +1069,14 @@ public class CPU {
     }
 
     private static int expandIntRegs(WorkerData sf, BFunctionPointer fp) {
-
         int intIndex = 0;
-        if (fp.getAdditionalIndexCount(BTypes.typeBoolean.getTag()) > 0 || fp.getAdditionalIndexCount(BTypes.typeByte.getTag()) > 0) {
+        if (fp.getAdditionalIndexCount(BTypes.typeBoolean.getTag()) > 0  ||
+                fp.getAdditionalIndexCount(BTypes.typeByte.getTag()) > 0) {
             if (sf.intRegs == null) {
                 sf.intRegs = new int[0];
             }
-            int[] newIntRegs =
-             new int[sf.intRegs.length + fp.getAdditionalIndexCount(BTypes.typeBoolean.getTag()) + fp.getAdditionalIndexCount(BTypes.typeByte.getTag())];
+            int[] newIntRegs = new int[sf.intRegs.length + fp.getAdditionalIndexCount(BTypes.typeBoolean.getTag()) +
+                    fp.getAdditionalIndexCount(BTypes.typeByte.getTag())];
             System.arraycopy(sf.intRegs, 0, newIntRegs, 0, sf.intRegs.length);
             intIndex = sf.intRegs.length;
             sf.intRegs = newIntRegs;
@@ -1095,14 +1085,13 @@ public class CPU {
     }
 
     private static int expandDoubleRegs(WorkerData sf, BFunctionPointer fp) {
-
         int doubleIndex = 0;
         if (fp.getAdditionalIndexCount(BTypes.typeFloat.getTag()) > 0) {
             if (sf.doubleRegs == null) {
                 sf.doubleRegs = new double[0];
             }
-            double[] newDoubleRegs =
-             new double[sf.doubleRegs.length + fp.getAdditionalIndexCount(BTypes.typeFloat.getTag())];
+            double[] newDoubleRegs = new double[sf.doubleRegs.length +
+                    fp.getAdditionalIndexCount(BTypes.typeFloat.getTag())];
             System.arraycopy(sf.doubleRegs, 0, newDoubleRegs, 0, sf.doubleRegs.length);
             doubleIndex = sf.doubleRegs.length;
             sf.doubleRegs = newDoubleRegs;
@@ -1111,14 +1100,13 @@ public class CPU {
     }
 
     private static int expandStringRegs(WorkerData sf, BFunctionPointer fp) {
-
         int stringIndex = 0;
         if (fp.getAdditionalIndexCount(BTypes.typeString.getTag()) > 0) {
             if (sf.stringRegs == null) {
                 sf.stringRegs = new String[0];
             }
-            String[] newStringRegs =
-             new String[sf.stringRegs.length + fp.getAdditionalIndexCount(BTypes.typeString.getTag())];
+            String[] newStringRegs = new String[sf.stringRegs.length +
+                    fp.getAdditionalIndexCount(BTypes.typeString.getTag())];
             System.arraycopy(sf.stringRegs, 0, newStringRegs, 0, sf.stringRegs.length);
             stringIndex = sf.stringRegs.length;
             sf.stringRegs = newStringRegs;
@@ -1127,14 +1115,13 @@ public class CPU {
     }
 
     private static int expandRefRegs(WorkerData sf, BFunctionPointer fp) {
-
         int refIndex = 0;
         if (fp.getAdditionalIndexCount(BTypes.typeAny.getTag()) > 0) {
             if (sf.refRegs == null) {
                 sf.refRegs = new BRefType[0];
             }
-            BRefType<?>[] newRefRegs =
-             new BRefType[sf.refRegs.length + fp.getAdditionalIndexCount(BTypes.typeAny.getTag())];
+            BRefType<?>[] newRefRegs = new BRefType[sf.refRegs.length +
+                    fp.getAdditionalIndexCount(BTypes.typeAny.getTag())];
             System.arraycopy(sf.refRegs, 0, newRefRegs, 0, sf.refRegs.length);
             refIndex = sf.refRegs.length;
             sf.refRegs = newRefRegs;
@@ -1143,7 +1130,7 @@ public class CPU {
     }
 
     private static void findAndAddAdditionalVarRegIndexes(WorkerExecutionContext ctx, int[] operands,
-     BFunctionPointer fp) {
+                                                          BFunctionPointer fp) {
 
         int h = operands[3];
 
@@ -1160,32 +1147,32 @@ public class CPU {
             switch (type) {
                 case TypeTags.INT_TAG: {
                     fp.addClosureVar(new BClosure(new BInteger(ctx.workerLocal.longRegs[index]), BTypes.typeInt),
-                     TypeTags.INT_TAG);
+                            TypeTags.INT_TAG);
                     break;
                 }
                 case TypeTags.BYTE_TAG: {
                     fp.addClosureVar(new BClosure(new BByte((byte) ctx.workerLocal.intRegs[index]), BTypes.typeByte),
-                     TypeTags.BYTE_TAG);
+                            TypeTags.BYTE_TAG);
                     break;
                 }
                 case TypeTags.FLOAT_TAG: {
                     fp.addClosureVar(new BClosure(new BFloat(ctx.workerLocal.doubleRegs[index]), BTypes.typeFloat),
-                     TypeTags.FLOAT_TAG);
+                            TypeTags.FLOAT_TAG);
                     break;
                 }
                 case TypeTags.DECIMAL_TAG: {
                     fp.addClosureVar(new BClosure(ctx.workerLocal.refRegs[index], BTypes.typeDecimal),
-                     TypeTags.DECIMAL_TAG);
+                            TypeTags.DECIMAL_TAG);
                     break;
                 }
                 case TypeTags.BOOLEAN_TAG: {
                     fp.addClosureVar(new BClosure(new BBoolean(ctx.workerLocal.intRegs[index] == 1),
-                     BTypes.typeBoolean), TypeTags.BOOLEAN_TAG);
+                                    BTypes.typeBoolean), TypeTags.BOOLEAN_TAG);
                     break;
                 }
                 case TypeTags.STRING_TAG: {
                     fp.addClosureVar(new BClosure(new BString(ctx.workerLocal.stringRegs[index]), BTypes.typeString),
-                     TypeTags.STRING_TAG);
+                            TypeTags.STRING_TAG);
                     break;
                 }
                 default:
@@ -1195,8 +1182,8 @@ public class CPU {
         }
     }
 
-    private static void execCmpAndBranchOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, int[] operands) {
-
+    private static void execCmpAndBranchOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode,
+                                                int[] operands) {
         int i;
         int j;
         int k;
@@ -1330,7 +1317,6 @@ public class CPU {
     }
 
     private static void execIntegerRangeOpcodes(WorkerData sf, int[] operands) {
-
         int i = operands[0];
         int j = operands[1];
         int k = operands[2];
@@ -1338,7 +1324,6 @@ public class CPU {
     }
 
     private static void execLoadOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, int[] operands) {
-
         int i;
         int j;
         int k;
@@ -1523,7 +1508,6 @@ public class CPU {
     }
 
     private static void execStoreOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, int[] operands) {
-
         int i;
         int j;
         int k;
@@ -1604,9 +1588,9 @@ public class CPU {
                 BNewArray list = Optional.of((BNewArray) sf.refRegs[i]).get();
                 long index = sf.longRegs[j];
                 BRefType refReg = sf.refRegs[k];
-                BType elementType = (list.getType().getTag() == TypeTags.ARRAY_TAG) ?
-                 ((BArrayType) list.getType()).getElementType() :
-                  ((BTupleType) list.getType()).getTupleTypes().get((int) index);
+                BType elementType = (list.getType().getTag() == TypeTags.ARRAY_TAG)
+                        ? ((BArrayType) list.getType()).getElementType()
+                        : ((BTupleType) list.getType()).getTupleTypes().get((int) index);
                 if (!checkCast(refReg, elementType)) {
 //                    ctx.setError(BLangVMErrors.createError(ctx,
 //                            BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE,
@@ -1699,7 +1683,6 @@ public class CPU {
     }
 
     private static void execBinaryOpCodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, int[] operands) {
-
         int i;
         int j;
         int k;
@@ -1831,12 +1814,6 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                if (sf.doubleRegs[j] == 0) {
-//                    ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
-                    handleError(ctx);
-                    break;
-                }
-
                 sf.doubleRegs[k] = sf.doubleRegs[i] % sf.doubleRegs[j];
                 break;
             case InstructionCodes.DMOD:
@@ -2075,7 +2052,6 @@ public class CPU {
     }
 
     private static void execXMLOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, int[] operands) {
-
         int i;
         int j;
         int k;
@@ -2094,7 +2070,8 @@ public class CPU {
 
                 xmlVal = Optional.of((BXML) sf.refRegs[i]).get();
                 xmlQName = Optional.of((BXMLQName) sf.refRegs[j]).get();
-                xmlVal.setAttribute(xmlQName.getLocalName(), xmlQName.getUri(), xmlQName.getPrefix(), sf.stringRegs[k]);
+                xmlVal.setAttribute(xmlQName.getLocalName(), xmlQName.getUri(), xmlQName.getPrefix(),
+                        sf.stringRegs[k]);
                 break;
             case InstructionCodes.XMLATTRLOAD:
                 i = operands[0];
@@ -2104,7 +2081,7 @@ public class CPU {
                 xmlVal = Optional.of((BXML) sf.refRegs[i]).get();
                 xmlQName = Optional.of((BXMLQName) sf.refRegs[j]).get();
                 sf.stringRegs[k] = xmlVal.getAttribute(xmlQName.getLocalName(), xmlQName.getUri(),
-                 xmlQName.getPrefix());
+                        xmlQName.getPrefix());
                 break;
             case InstructionCodes.XML2XMLATTRS:
                 i = operands[0];
@@ -2182,7 +2159,6 @@ public class CPU {
     }
 
     private static void execTypeCastOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, int[] operands) {
-
         int i;
         int j;
         int cpIndex; // Index of the constant pool
@@ -2191,6 +2167,40 @@ public class CPU {
         TypeRefCPEntry typeRefCPEntry;
 
         switch (opcode) {
+            case InstructionCodes.TYPE_ASSERTION:
+                i = operands[0];
+                cpIndex = operands[1];
+                j = operands[2];
+                typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
+                BType expectedType = typeRefCPEntry.getType();
+
+                bRefTypeValue = sf.refRegs[i];
+
+                if (bRefTypeValue == null) {
+                    if (expectedType.getTag() == TypeTags.NULL_TAG) {
+                        sf.refRegs[j] = null;
+                        break;
+                    }
+                    ctx.setError(BLangVMErrors.createError(ctx,
+                                                           BLangExceptionHelper.getErrorMessage(
+                                                                   RuntimeErrors.TYPE_ASSERTION_ERROR, expectedType,
+                                                                   "()")));
+                    handleError(ctx);
+                } else if (isSimpleBasicType(expectedType)) {
+                    execExplicitlyTypedExpressionOpCode(ctx, sf, expectedType, bRefTypeValue, j);
+                } else if (expectedType.equals(bRefTypeValue.getType())) {
+                    sf.refRegs[j] = bRefTypeValue;
+                } else {
+                    ctx.setError(
+                            BLangVMErrors.createError(ctx,
+                                                      BLangExceptionHelper.getErrorMessage(
+                                                              RuntimeErrors.TYPE_ASSERTION_ERROR,
+                                                                   (expectedType.getTag() == TypeTags.NULL_TAG ?
+                                                                            "()" : expectedType),
+                                                                   bRefTypeValue.getType())));
+                    handleError(ctx);
+                }
+                break;
             case InstructionCodes.I2ANY:
                 i = operands[0];
                 j = operands[1];
@@ -2276,10 +2286,10 @@ public class CPU {
                 bRefTypeValue = sf.refRegs[i];
 
                 if (checkCast(bRefTypeValue, typeRefCPEntry.getType())) {
-                    sf.refRegs[j] = bRefTypeValue;
+                        sf.refRegs[j] = bRefTypeValue;
                 } else {
-                    handleTypeCastError(ctx, sf, j, bRefTypeValue != null ? bRefTypeValue.getType() : BTypes.typeNull
-                    , typeRefCPEntry.getType());
+                    handleTypeCastError(ctx, sf, j, bRefTypeValue != null ? bRefTypeValue.getType() : BTypes.typeNull,
+                            typeRefCPEntry.getType());
                 }
                 break;
             case InstructionCodes.IS_ASSIGNABLE:
@@ -2313,9 +2323,44 @@ public class CPU {
         }
     }
 
-    private static void execTypeConversionOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode,
-     int[] operands) {
+    private static void execExplicitlyTypedExpressionOpCode(WorkerExecutionContext ctx, WorkerData sf, BType targetType,
+                                                            BRefType bRefTypeValue, int regIndex) {
+        BType sourceType = bRefTypeValue.getType();
+        int targetTag = targetType.getTag();
+        if (!isSimpleBasicType(sourceType) ||
+                (sourceType.getTag() == TypeTags.STRING_TAG && targetTag != TypeTags.STRING_TAG)) {
+            ctx.setError(BLangVMErrors.createError(ctx,  "assertion error: expected '" + targetType + "', found '" +
+                    bRefTypeValue.getType() + "'"));
+            handleError(ctx);
+            return;
+        }
 
+        try {
+            switch (targetTag) {
+                case TypeTags.STRING_TAG:
+                    sf.stringRegs[regIndex] = bRefTypeValue.stringValue();
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    sf.doubleRegs[regIndex] = ((BValueType) bRefTypeValue).floatValue();
+                    break;
+                case TypeTags.DECIMAL_TAG:
+                    sf.refRegs[regIndex] = new BDecimal(((BValueType) bRefTypeValue).decimalValue());
+                    break;
+                case TypeTags.INT_TAG:
+                    sf.longRegs[regIndex] = ((BValueType) bRefTypeValue).intValue();
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    sf.intRegs[regIndex] = ((BValueType) bRefTypeValue).booleanValue() ? 1 : 0;
+                    break;
+            }
+        } catch (BallerinaException e) {
+            ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+            handleError(ctx);
+        }
+    }
+
+    private static void execTypeConversionOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode,
+                                                  int[] operands) {
         int i;
         int j;
         BRefType bRefType;
@@ -2340,7 +2385,9 @@ public class CPU {
             case InstructionCodes.I2D:
                 i = operands[0];
                 j = operands[1];
-                sf.refRegs[j] = new BDecimal(new BigDecimal(sf.longRegs[i], MathContext.DECIMAL128));
+                sf.refRegs[j] = new BDecimal(
+                        (new BigDecimal(sf.longRegs[i], MathContext.DECIMAL128)).setScale(1,
+                                                                                          BigDecimal.ROUND_HALF_EVEN));
                 break;
             case InstructionCodes.I2BI:
                 i = operands[0];
@@ -2359,7 +2406,22 @@ public class CPU {
             case InstructionCodes.F2I:
                 i = operands[0];
                 j = operands[1];
-                sf.longRegs[j] = (long) sf.doubleRegs[i];
+                double valueToConvert = sf.doubleRegs[i];
+                if (Double.isNaN(valueToConvert) || Double.isInfinite(valueToConvert)) {
+                    ctx.setError(BLangVMErrors.createError(ctx, "'float' value '" + valueToConvert + "' cannot be " +
+                            "converted to 'int'"));
+                    handleError(ctx);
+                    break;
+                }
+
+                if (!isFloatWithinIntRange(valueToConvert)) {
+                    ctx.setError(BLangVMErrors.createError(ctx, "out of range 'float' value '" + valueToConvert + "'" +
+                            " cannot be converted to 'int'"));
+                    handleError(ctx);
+                    break;
+                }
+
+                sf.longRegs[j] = Math.round(valueToConvert);
                 break;
             case InstructionCodes.F2S:
                 i = operands[0];
@@ -2432,12 +2494,20 @@ public class CPU {
             case InstructionCodes.B2D:
                 i = operands[0];
                 j = operands[1];
-                sf.refRegs[j] = sf.intRegs[i] == 1 ? new BDecimal(BigDecimal.ONE) : new BDecimal(BigDecimal.ZERO);
+                sf.refRegs[j] = sf.intRegs[i] == 1 ?
+                        new BDecimal(BigDecimal.ONE.setScale(1, BigDecimal.ROUND_HALF_EVEN)) :
+                        new BDecimal(BigDecimal.ZERO.setScale(1, BigDecimal.ROUND_HALF_EVEN));
                 break;
             case InstructionCodes.D2I:
                 i = operands[0];
                 j = operands[1];
-                sf.longRegs[j] = ((BDecimal) sf.refRegs[i]).intValue();
+                if (!isDecimalWithinIntRange(((BDecimal) sf.refRegs[i]).decimalValue())) {
+                    ctx.setError(BLangVMErrors.createError(ctx, "out of range 'decimal' value '" +
+                            sf.refRegs[i] + "' cannot be converted to 'int'"));
+                    handleError(ctx);
+                    break;
+                }
+                sf.longRegs[j] = Math.round(((BDecimal) sf.refRegs[i]).decimalValue().doubleValue());
                 break;
             case InstructionCodes.D2F:
                 i = operands[0];
@@ -2533,12 +2603,19 @@ public class CPU {
     }
 
     public static boolean isByteLiteral(long longValue) {
-
         return (longValue >= BBYTE_MIN_VALUE && longValue <= BBYTE_MAX_VALUE);
     }
 
-    private static void execIteratorOperation(WorkerExecutionContext ctx, WorkerData sf, Instruction instruction) {
+    public static boolean isFloatWithinIntRange(double doubleValue) {
+        return doubleValue < BINT_MAX_VALUE_DOUBLE_RANGE_MAX && doubleValue > BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
+    }
 
+    public static boolean isDecimalWithinIntRange(BigDecimal decimalValue) {
+        return decimalValue.compareTo(BINT_MAX_VALUE_BIG_DECIMAL_RANGE_MAX) == -1 &&
+                decimalValue.compareTo(BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN) == 1;
+    }
+
+    private static void execIteratorOperation(WorkerExecutionContext ctx, WorkerData sf, Instruction instruction) {
         int i, j;
         BValue collection;
         BIterator iterator;
@@ -2557,13 +2634,11 @@ public class CPU {
                     sf.refRegs[j] = new BIterator() {
                         @Override
                         public boolean hasNext() {
-
                             return false;
                         }
 
                         @Override
                         public BValue[] getNext(int arity) {
-
                             return null;
                         }
                     };
@@ -2588,7 +2663,6 @@ public class CPU {
     }
 
     private static void copyValuesToRegistries(int[] typeTags, int[] targetReg, BValue[] values, WorkerData sf) {
-
         for (int i = 0; i < typeTags.length; i++) {
             BValue source = values[i];
             int target = targetReg[i];
@@ -2614,8 +2688,8 @@ public class CPU {
         }
     }
 
-    private static void execXMLCreationOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, int[] operands) {
-
+    private static void execXMLCreationOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode,
+                                               int[] operands) {
         int i;
         int j;
         int k;
@@ -2673,64 +2747,64 @@ public class CPU {
         }
     }
 
-    private static boolean handleVariableLock(WorkerExecutionContext ctx, BType[] types, int[] pkgRegs, int[] varRegs
-    , int[] fieldRegs, int varCount, String uuid) {
-
+    private static boolean handleVariableLock(WorkerExecutionContext ctx, BType[] types,
+                                              int[] pkgRegs, int[] varRegs, int[] fieldRegs, int varCount,
+                                              String uuid) {
         boolean lockAcquired = true;
-//        for (int i = 0; i < varCount && lockAcquired; i++) {
-//            BType paramType = types[i];
-//            int pkgIndex = pkgRegs[i];
-//            int regIndex = varRegs[i];
-//
-//            switch (paramType.getTag()) {
-//                case TypeTags.INT_TAG:
-//                    lockAcquired = ctx.programFile.globalMemArea.lockIntField(ctx, pkgIndex, regIndex);
-//                    break;
-//                case TypeTags.BYTE_TAG:
-//                    lockAcquired = ctx.programFile.globalMemArea.lockBooleanField(ctx, pkgIndex, regIndex);
-//                    break;
-//                case TypeTags.FLOAT_TAG:
-//                    lockAcquired = ctx.programFile.globalMemArea.lockFloatField(ctx, pkgIndex, regIndex);
-//                    break;
-//                case TypeTags.STRING_TAG:
-//                    lockAcquired = ctx.programFile.globalMemArea.lockStringField(ctx, pkgIndex, regIndex);
-//                    break;
-//                case TypeTags.BOOLEAN_TAG:
-//                    lockAcquired = ctx.programFile.globalMemArea.lockBooleanField(ctx, pkgIndex, regIndex);
-//                    break;
-//                default:
-//                    lockAcquired = ctx.programFile.globalMemArea.lockRefField(ctx, pkgIndex, regIndex);
-//            }
-//
-//        }
-//
-//        if (varRegs.length <= varCount) {
-//            return lockAcquired;
-//        }
-//
-//        //if field variables exists
-//        if (ctx.localProps == null) {
-//            ctx.localProps = new HashMap<>();
-//        }
-//
-//        ctx.localProps.putIfAbsent(uuid, new Stack<VarLock>());
-//        Stack lockStack = (Stack) ctx.localProps.get(uuid);
-//
-//        for (int i = 0; (i < varRegs.length - varCount) && lockAcquired; i++) {
-//            int regIndex = varRegs[varCount + i];
-//            String field = ctx.workerLocal.stringRegs[fieldRegs[i]];
-//            VarLock lock = ((BMap) ctx.workerLocal.refRegs[regIndex]).getFieldLock(field);
-//            lockAcquired = lock.lock(ctx);
-//            if (lockAcquired) {
-//                lockStack.push(lock);
-//            }
-//        }
+        for (int i = 0; i < varCount && lockAcquired; i++) {
+            BType paramType = types[i];
+            int pkgIndex = pkgRegs[i];
+            int regIndex = varRegs[i];
+
+            switch (paramType.getTag()) {
+                case TypeTags.INT_TAG:
+                    lockAcquired = ctx.programFile.globalMemArea.lockIntField(ctx, pkgIndex, regIndex);
+                    break;
+                case TypeTags.BYTE_TAG:
+                    lockAcquired = ctx.programFile.globalMemArea.lockBooleanField(ctx, pkgIndex, regIndex);
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    lockAcquired = ctx.programFile.globalMemArea.lockFloatField(ctx, pkgIndex, regIndex);
+                    break;
+                case TypeTags.STRING_TAG:
+                    lockAcquired = ctx.programFile.globalMemArea.lockStringField(ctx, pkgIndex, regIndex);
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    lockAcquired = ctx.programFile.globalMemArea.lockBooleanField(ctx, pkgIndex, regIndex);
+                    break;
+                default:
+                    lockAcquired = ctx.programFile.globalMemArea.lockRefField(ctx, pkgIndex, regIndex);
+            }
+
+        }
+
+        if (varRegs.length <= varCount) {
+            return lockAcquired;
+        }
+
+        //if field variables exists
+        if (ctx.localProps == null) {
+            ctx.localProps = new HashMap<>();
+        }
+
+        ctx.localProps.putIfAbsent(uuid, new Stack<VarLock>());
+        Stack lockStack = (Stack) ctx.localProps.get(uuid);
+
+        for (int i = 0; (i < varRegs.length - varCount) && lockAcquired; i++) {
+            int regIndex = varRegs[varCount + i];
+            String field = ctx.workerLocal.stringRegs[fieldRegs[i]];
+            VarLock lock = ((BMap) ctx.workerLocal.refRegs[regIndex]).getFieldLock(field);
+            lockAcquired = lock.lock(ctx);
+            if (lockAcquired) {
+                lockStack.push(lock);
+            }
+        }
+
         return lockAcquired;
     }
 
     private static void handleVariableUnlock(WorkerExecutionContext ctx, BType[] types, int[] pkgRegs, int[] varRegs,
-     int varCount, String uuid, boolean hasFieldVar) {
-
+                                             int varCount, String uuid, boolean hasFieldVar) {
         if (hasFieldVar) {
             Stack<VarLock> lockStack = (Stack<VarLock>) ctx.localProps.get(uuid);
             while (!lockStack.isEmpty()) {
@@ -2768,20 +2842,19 @@ public class CPU {
      * Method to calculate and detect debug points when the instruction point is given.
      */
     private static boolean debug(WorkerExecutionContext ctx) {
-
         Debugger debugger = ctx.programFile.getDebugger();
         if (!debugger.isClientSessionActive()) {
             return false;
         }
         DebugContext debugContext = ctx.getDebugContext();
 
-        if (debugContext.isStrandPaused()) {
-            debugContext.setStrandPaused(false);
+        if (debugContext.isWorkerPaused()) {
+            debugContext.setWorkerPaused(false);
             return false;
         }
 
-        LineNumberInfo currentExecLine = debugger.getLineNumber(ctx.callableUnitInfo.getPackageInfo().getPkgPath(),
-         ctx.ip);
+        LineNumberInfo currentExecLine = debugger
+                .getLineNumber(ctx.callableUnitInfo.getPackageInfo().getPkgPath(), ctx.ip);
         /*
          Below if check stops hitting the same debug line again and again in case that single line has
          multiple instructions.
@@ -2823,8 +2896,7 @@ public class CPU {
      * @return Boolean true if it's a debug point, false otherwise.
      */
     private static boolean debugPointCheck(WorkerExecutionContext ctx, LineNumberInfo currentExecLine,
-     Debugger debugger) {
-
+                                           Debugger debugger) {
         if (!currentExecLine.isDebugPoint()) {
             return false;
         }
@@ -2841,15 +2913,13 @@ public class CPU {
      * @param debugger        Debugger object.
      */
     private static void debugHit(WorkerExecutionContext ctx, LineNumberInfo currentExecLine, Debugger debugger) {
-
         ctx.getDebugContext().setLastLine(currentExecLine);
 //        debugger.pauseWorker(ctx);
 //        debugger.notifyDebugHit(ctx, currentExecLine, ctx.getDebugContext().getWorkerId());
     }
 
     private static void handleAnyToRefTypeCast(WorkerExecutionContext ctx, WorkerData sf, int[] operands,
-     BType targetType) {
-
+                                               BType targetType) {
         int i = operands[0];
         int j = operands[1];
 
@@ -2864,55 +2934,50 @@ public class CPU {
     }
 
     private static void handleTypeCastError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex,
-     BType sourceType, BType targetType) {
-
+                                            BType sourceType, BType targetType) {
         handleTypeCastError(ctx, sf, errorRegIndex, sourceType.toString(), targetType.toString());
     }
 
     private static void handleTypeCastError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex,
-     String sourceType, String targetType) {
-//        BError errorVal = BLangVMErrors.createTypeCastError(ctx, sourceType, targetType);
-//        sf.refRegs[errorRegIndex] = errorVal;
+                                            String sourceType, String targetType) {
+        BError errorVal = BLangVMErrors.createTypeCastError(ctx, sourceType, targetType);
+        sf.refRegs[errorRegIndex] = errorVal;
     }
 
     private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex,
-     BType sourceType, BType targetType) {
-
+                                                  BType sourceType, BType targetType) {
         handleTypeConversionError(ctx, sf, errorRegIndex, sourceType.toString(), targetType.toString());
     }
 
     private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex,
-     String sourceTypeName, String targetTypeName) {
-
+                                                  String sourceTypeName, String targetTypeName) {
         String errorMsg = "'" + sourceTypeName + "' cannot be converted to '" + targetTypeName + "'";
         handleTypeConversionError(ctx, sf, errorRegIndex, errorMsg);
     }
 
-    private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex,
-     String errorMessage) {
-//        BError errorVal = BLangVMErrors.createTypeConversionError(ctx, errorMessage);
-//        sf.refRegs[errorRegIndex] = errorVal;
+    private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf,
+                                                  int errorRegIndex, String errorMessage) {
+        BError errorVal = BLangVMErrors.createTypeConversionError(ctx, errorMessage);
+        sf.refRegs[errorRegIndex] = errorVal;
     }
 
     private static void createNewIntRange(int[] operands, WorkerData sf) {
-
         long startValue = sf.longRegs[operands[0]];
         long endValue = sf.longRegs[operands[1]];
         sf.refRegs[operands[2]] = new BIntRange(startValue, endValue);
     }
 
     private static void createNewStruct(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
-
         int cpIndex = operands[0];
         int i = operands[1];
         StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) ctx.constPool[cpIndex];
-        StructureTypeInfo structInfo =
-         (StructureTypeInfo) ((TypeDefInfo) structureRefCPEntry.getStructureTypeInfo()).typeInfo;
+        StructureTypeInfo structInfo = (StructureTypeInfo) ((TypeDefInfo) structureRefCPEntry
+                .getStructureTypeInfo()).typeInfo;
         sf.refRegs[i] = new BMap<>(structInfo.getType());
     }
 
     private static void beginTransaction(WorkerExecutionContext ctx, int transactionBlockId, int retryCountRegIndex,
-     int committedFuncIndex, int abortedFuncIndex) {
+                                         int committedFuncIndex, int abortedFuncIndex) {
         //If global tx enabled, it is managed via transaction coordinator. Otherwise it is managed locally without
         //any interaction with the transaction coordinator.
         boolean isGlobalTransactionEnabled = ctx.getGlobalTransactionEnabled();
@@ -2970,8 +3035,7 @@ public class CPU {
     }
 
     private static void retryTransaction(WorkerExecutionContext ctx, int transactionBlockId, int startOfAbortIP,
-     int startOfNoThrowEndIP) {
-
+                                         int startOfNoThrowEndIP) {
         LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
 //        if (!localTransactionInfo.isRetryPossible(ctx, transactionBlockId)) {
 //            if (ctx.getError() == null) {
@@ -2989,39 +3053,38 @@ public class CPU {
     }
 
     private static void endTransaction(WorkerExecutionContext ctx, int transactionBlockId, int status) {
-
         LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
         boolean isGlobalTransactionEnabled = ctx.getGlobalTransactionEnabled();
         boolean notifyCoordinator;
         try {
             //In success case no need to do anything as with the transaction end phase it will be committed.
             if (status == TransactionStatus.FAILED.value()) {
-//                notifyCoordinator = localTransactionInfo.onTransactionFailed(ctx, transactionBlockId);
-//                if (notifyCoordinator) {
-//                    if (isGlobalTransactionEnabled) {
-//                        TransactionUtils.notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(),
-//                                transactionBlockId);
-//                    } else {
-//                        TransactionResourceManager.getInstance()
-//                                .notifyAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId,
-// false);
-//                    }
-//                }
+                notifyCoordinator = localTransactionInfo.onTransactionFailed(ctx, transactionBlockId);
+                if (notifyCoordinator) {
+                    if (isGlobalTransactionEnabled) {
+                        TransactionUtils.notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(),
+                                transactionBlockId);
+                    } else {
+                        TransactionResourceManager.getInstance()
+                                .notifyAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId, false);
+                    }
+                }
             } else if (status == TransactionStatus.ABORTED.value()) {
                 if (isGlobalTransactionEnabled) {
 //                    TransactionUtils.notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(),
 //                            transactionBlockId);
                 } else {
-                    TransactionResourceManager.getInstance().notifyAbort(localTransactionInfo.getGlobalTransactionId(),
-                            transactionBlockId, false);
+                    TransactionResourceManager.getInstance()
+                            .notifyAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId, false);
                 }
             } else if (status == TransactionStatus.SUCCESS.value()) {
                 //We dont' need to notify the coordinator in this case. If it does not receive abort from the tx
                 //it will commit at the end message
                 if (!isGlobalTransactionEnabled) {
-                    TransactionResourceManager.getInstance().prepare(localTransactionInfo.getGlobalTransactionId(),
-                     transactionBlockId);
-                    TransactionResourceManager.getInstance().notifyCommit(localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
+                    TransactionResourceManager.getInstance()
+                            .prepare(localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
+                    TransactionResourceManager.getInstance()
+                            .notifyCommit(localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
                 }
             } else if (status == TransactionStatus.END.value()) { //status = 1 Transaction end
                 boolean isOuterTx = localTransactionInfo.onTransactionEnd(transactionBlockId);
@@ -3040,8 +3103,8 @@ public class CPU {
     }
 
     private static WorkerExecutionContext invokeVirtualFunction(WorkerExecutionContext ctx, int receiver,
-     FunctionInfo virtualFuncInfo, int[] argRegs, int[] retRegs, int flags) {
-
+                                                                FunctionInfo virtualFuncInfo, int[] argRegs,
+                                                                int[] retRegs, int flags) {
         BMap<String, BValue> structVal = (BMap<String, BValue>) ctx.workerLocal.refRegs[receiver];
 
         // TODO use ObjectTypeInfo once record init function is removed
@@ -3051,20 +3114,17 @@ public class CPU {
     }
 
     private static void handleWorkerSend(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo,
-     BType type, int reg) {
-
+                                         BType type, int reg) {
         BRefType val = extractValue(ctx.workerLocal, type, reg);
         WorkerDataChannel dataChannel = getWorkerChannel(ctx, workerDataChannelInfo.getChannelName());
         dataChannel.putData(val);
     }
 
     private static WorkerDataChannel getWorkerChannel(WorkerExecutionContext ctx, String name) {
-
         return ctx.respCtx.getWorkerDataChannel(name);
     }
 
     private static BRefType extractValue(WorkerData data, BType type, int reg) {
-
         BRefType result;
         switch (type.getTag()) {
             case TypeTags.INT_TAG:
@@ -3103,8 +3163,7 @@ public class CPU {
     }
 
     public static void copyArgValueForWorkerReceive(WorkerData currentSF, int regIndex, BType paramType,
-     BRefType passedInValue) {
-
+                                                     BRefType passedInValue) {
         switch (paramType.getTag()) {
             case TypeTags.INT_TAG:
                 currentSF.longRegs[regIndex] = ((BInteger) passedInValue).intValue();
@@ -3127,13 +3186,11 @@ public class CPU {
     }
 
     private static WorkerExecutionContext handleReturn(WorkerExecutionContext ctx) {
-
         BLangScheduler.workerDone(ctx);
         return ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.RETURN, ctx.workerResult));
     }
 
     private static boolean checkFiniteTypeAssignable(BValue bRefTypeValue, BType lhsType) {
-
         BFiniteType fType = (BFiniteType) lhsType;
         if (bRefTypeValue == null) {
             // we should not reach here
@@ -3153,7 +3210,6 @@ public class CPU {
     }
 
     private static boolean checkUnionCast(BValue rhsValue, BType lhsType, List<TypePair> unresolvedTypes) {
-
         BUnionType unionType = (BUnionType) lhsType;
         for (BType memberType : unionType.getMemberTypes()) {
             if (checkCast(rhsValue, memberType, unresolvedTypes)) {
@@ -3164,12 +3220,10 @@ public class CPU {
     }
 
     public static boolean checkCast(BValue rhsValue, BType lhsType) {
-
         return checkCast(rhsValue, lhsType, new ArrayList<>());
     }
 
     private static boolean checkCast(BValue rhsValue, BType lhsType, List<TypePair> unresolvedTypes) {
-
         BType rhsType = rhsValue == null ? BTypes.typeNull : rhsValue.getType();
         if (isSameOrAnyType(rhsType, lhsType)) {
             return true;
@@ -3190,7 +3244,9 @@ public class CPU {
         if (lhsType.getTag() == TypeTags.ARRAY_TAG && rhsValue instanceof BNewArray) {
             BType sourceType = rhsValue.getType();
             if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
-                if (((BArrayType) sourceType).getState() == BArrayState.CLOSED_SEALED && ((BArrayType) lhsType).getState() == BArrayState.CLOSED_SEALED && ((BArrayType) sourceType).getSize() != ((BArrayType) lhsType).getSize()) {
+                if (((BArrayType) sourceType).getState() == BArrayState.CLOSED_SEALED
+                        && ((BArrayType) lhsType).getState() == BArrayState.CLOSED_SEALED
+                        && ((BArrayType) sourceType).getSize() != ((BArrayType) lhsType).getSize()) {
                     return false;
                 }
                 sourceType = ((BArrayType) rhsValue.getType()).getElementType();
@@ -3214,18 +3270,17 @@ public class CPU {
      * Checks whether the source type is the same as the target type or if the target type is any type, and if true
      * the return value would be true.
      *
-     * @param rhsType the source type - the type (of the value) being cast/assigned
-     * @param lhsType the target type against which cast/assignability is checked
-     * @return true if the lhsType is any or is the same as rhsType
+     * @param rhsType   the source type - the type (of the value) being cast/assigned
+     * @param lhsType   the target type against which cast/assignability is checked
+     * @return          true if the lhsType is any or is the same as rhsType
      */
     private static boolean isSameOrAnyType(BType rhsType, BType lhsType) {
-
         return lhsType.getTag() == TypeTags.ANY_TAG || rhsType.equals(lhsType);
     }
 
     private static boolean checkCastByType(BType rhsType, BType lhsType, List<TypePair> unresolvedTypes) {
-
-        if (rhsType.getTag() == TypeTags.INT_TAG && (lhsType.getTag() == TypeTags.FLOAT_TAG || lhsType.getTag() == TypeTags.DECIMAL_TAG)) {
+        if (rhsType.getTag() == TypeTags.INT_TAG &&
+                (lhsType.getTag() == TypeTags.FLOAT_TAG || lhsType.getTag() == TypeTags.DECIMAL_TAG)) {
             return true;
         } else if (rhsType.getTag() == TypeTags.FLOAT_TAG && lhsType.getTag() == TypeTags.DECIMAL_TAG) {
             return true;
@@ -3271,7 +3326,7 @@ public class CPU {
 
         if (rhsType.getTag() == TypeTags.STREAM_TAG && lhsType.getTag() == TypeTags.STREAM_TAG) {
             return isAssignable(((BStreamType) rhsType).getConstrainedType(),
-             ((BStreamType) lhsType).getConstrainedType(), unresolvedTypes);
+                    ((BStreamType) lhsType).getConstrainedType(), unresolvedTypes);
         }
 
         if (rhsType.getTag() == TypeTags.FUNCTION_POINTER_TAG && lhsType.getTag() == TypeTags.FUNCTION_POINTER_TAG) {
@@ -3286,7 +3341,6 @@ public class CPU {
     }
 
     private static boolean checkMapCast(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
-
         BMapType sourceMapType = (BMapType) sourceType;
         BMapType targetMapType = (BMapType) targetType;
 
@@ -3298,21 +3352,22 @@ public class CPU {
             return true;
         }
 
-        if (sourceMapType.getConstrainedType().getTag() == TypeTags.OBJECT_TYPE_TAG && targetMapType.getConstrainedType().getTag() == TypeTags.OBJECT_TYPE_TAG) {
+        if (sourceMapType.getConstrainedType().getTag() == TypeTags.OBJECT_TYPE_TAG &&
+                targetMapType.getConstrainedType().getTag() == TypeTags.OBJECT_TYPE_TAG) {
             return checkObjectEquivalency((BStructureType) sourceMapType.getConstrainedType(),
-             (BStructureType) targetMapType.getConstrainedType(), unresolvedTypes);
+                    (BStructureType) targetMapType.getConstrainedType(), unresolvedTypes);
         }
 
-        if (sourceMapType.getConstrainedType().getTag() == TypeTags.RECORD_TYPE_TAG && targetMapType.getConstrainedType().getTag() == TypeTags.RECORD_TYPE_TAG) {
+        if (sourceMapType.getConstrainedType().getTag() == TypeTags.RECORD_TYPE_TAG &&
+                targetMapType.getConstrainedType().getTag() == TypeTags.RECORD_TYPE_TAG) {
             return checkRecordEquivalency((BRecordType) targetMapType.getConstrainedType(),
-             (BRecordType) sourceMapType.getConstrainedType(), unresolvedTypes);
+                                          (BRecordType) sourceMapType.getConstrainedType(), unresolvedTypes);
         }
 
         return false;
     }
 
     private static boolean checkArrayCast(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
-
         if (targetType.getTag() == TypeTags.ARRAY_TAG && sourceType.getTag() == TypeTags.ARRAY_TAG) {
             BArrayType sourceArrayType = (BArrayType) sourceType;
             BArrayType targetArrayType = (BArrayType) targetType;
@@ -3333,7 +3388,6 @@ public class CPU {
     }
 
     private static boolean checkTupleCast(BValue sourceValue, BType targetType, List<TypePair> unresolvedTypes) {
-
         BRefValueArray source = (BRefValueArray) sourceValue;
         BTupleType target = (BTupleType) targetType;
         List<BType> targetTupleTypes = target.getTupleTypes();
@@ -3349,12 +3403,10 @@ public class CPU {
     }
 
     private static boolean isAnydata(BType type) {
-
         return isAnydata(type, new HashSet<>());
     }
 
     private static boolean isAnydata(BType type, Set<BType> unresolvedTypes) {
-
         if (type.getTag() <= TypeTags.ANYDATA_TAG) {
             return true;
         }
@@ -3368,9 +3420,11 @@ public class CPU {
                 }
                 unresolvedTypes.add(type);
                 BRecordType recordType = (BRecordType) type;
-                List<BType> fieldTypes =
-                 recordType.getFields().values().stream().map(BField::getFieldType).collect(Collectors.toList());
-                return isAnydata(fieldTypes, unresolvedTypes) && (recordType.sealed || isAnydata(recordType.restFieldType, unresolvedTypes));
+                List<BType> fieldTypes = recordType.getFields().values().stream()
+                                                   .map(BField::getFieldType)
+                                                   .collect(Collectors.toList());
+                return isAnydata(fieldTypes, unresolvedTypes) && (recordType.sealed ||
+                        isAnydata(recordType.restFieldType, unresolvedTypes));
             case TypeTags.UNION_TAG:
                 return isAnydata(((BUnionType) type).getMemberTypes(), unresolvedTypes);
             case TypeTags.TUPLE_TAG:
@@ -3378,8 +3432,9 @@ public class CPU {
             case TypeTags.ARRAY_TAG:
                 return isAnydata(((BArrayType) type).getElementType(), unresolvedTypes);
             case TypeTags.FINITE_TYPE_TAG:
-                Set<BType> valSpaceTypes =
-                 ((BFiniteType) type).valueSpace.stream().map(BValue::getType).collect(Collectors.toSet());
+                Set<BType> valSpaceTypes = ((BFiniteType) type).valueSpace.stream()
+                                                                          .map(BValue::getType)
+                                                                          .collect(Collectors.toSet());
                 return isAnydata(valSpaceTypes, unresolvedTypes);
             default:
                 return false;
@@ -3387,12 +3442,10 @@ public class CPU {
     }
 
     private static boolean isAnydata(Collection<BType> types, Set<BType> unresolvedTypes) {
-
         return types.stream().allMatch(bType -> isAnydata(bType, unresolvedTypes));
     }
 
     private static BType getElementType(BType type) {
-
         if (type.getTag() != TypeTags.ARRAY_TAG) {
             return type;
         }
@@ -3401,12 +3454,11 @@ public class CPU {
     }
 
     public static boolean checkStructEquivalency(BStructureType rhsType, BStructureType lhsType) {
-
         return checkObjectEquivalency(rhsType, lhsType, new ArrayList<>());
     }
 
     private static boolean checkObjectEquivalency(BStructureType rhsType, BStructureType lhsType,
-     List<TypePair> unresolvedTypes) {
+                                                 List<TypePair> unresolvedTypes) {
         // If we encounter two types that we are still resolving, then skip it.
         // This is done to avoid recursive checking of the same type.
         TypePair pair = new TypePair(rhsType, lhsType);
@@ -3425,24 +3477,30 @@ public class CPU {
         }
 
         // If both structs are private, they should be in the same package.
-        if (!Flags.isFlagOn(lhsType.flags, Flags.PUBLIC) && !rhsType.getPackagePath().equals(lhsType.getPackagePath())) {
+        if (!Flags.isFlagOn(lhsType.flags, Flags.PUBLIC) &&
+                !rhsType.getPackagePath().equals(lhsType.getPackagePath())) {
             return false;
         }
 
         // Adjust the number of the attached functions of the lhs struct based on
         //  the availability of the initializer function.
-        int lhsAttachedFunctionCount = lhsType.initializer != null ? lhsType.getAttachedFunctions().length - 1 :
-         lhsType.getAttachedFunctions().length;
+        int lhsAttachedFunctionCount = lhsType.initializer != null ?
+                lhsType.getAttachedFunctions().length - 1 :
+                lhsType.getAttachedFunctions().length;
 
-        if (lhsType.getFields().size() > rhsType.getFields().size() || lhsAttachedFunctionCount > rhsType.getAttachedFunctions().length) {
+        if (lhsType.getFields().size() > rhsType.getFields().size() ||
+                lhsAttachedFunctionCount > rhsType.getAttachedFunctions().length) {
             return false;
         }
 
-        return !Flags.isFlagOn(lhsType.flags, Flags.PUBLIC) && rhsType.getPackagePath().equals(lhsType.getPackagePath()) ? checkPrivateObjectsEquivalency(lhsType, rhsType, unresolvedTypes) : checkPublicObjectsEquivalency(lhsType, rhsType, unresolvedTypes);
+        return !Flags.isFlagOn(lhsType.flags, Flags.PUBLIC) &&
+                rhsType.getPackagePath().equals(lhsType.getPackagePath()) ?
+                checkPrivateObjectsEquivalency(lhsType, rhsType, unresolvedTypes) :
+                checkPublicObjectsEquivalency(lhsType, rhsType, unresolvedTypes);
     }
 
     public static boolean checkRecordEquivalency(BRecordType lhsType, BRecordType rhsType,
-     List<TypePair> unresolvedTypes) {
+                                                 List<TypePair> unresolvedTypes) {
         // Both records should be public or private.
         // Get the XOR of both flags(masks)
         // If both are public, then public bit should be 0;
@@ -3453,7 +3511,8 @@ public class CPU {
         }
 
         // If both records are private, they should be in the same package.
-        if (!Flags.isFlagOn(lhsType.flags, Flags.PUBLIC) && !rhsType.getPackagePath().equals(lhsType.getPackagePath())) {
+        if (!Flags.isFlagOn(lhsType.flags, Flags.PUBLIC) &&
+                !rhsType.getPackagePath().equals(lhsType.getPackagePath())) {
             return false;
         }
 
@@ -3471,8 +3530,7 @@ public class CPU {
     }
 
     private static boolean checkPrivateObjectsEquivalency(BStructureType lhsType, BStructureType rhsType,
-     List<TypePair> unresolvedTypes) {
-
+                                                           List<TypePair> unresolvedTypes) {
         Map<String, BField> rhsFields = rhsType.getFields();
         for (Map.Entry<String, BField> lhsFieldEntry : lhsType.getFields().entrySet()) {
             BField rhsField = rhsFields.get(lhsFieldEntry.getKey());
@@ -3497,7 +3555,7 @@ public class CPU {
     }
 
     private static boolean checkPublicObjectsEquivalency(BStructureType lhsType, BStructureType rhsType,
-     List<TypePair> unresolvedTypes) {
+                                                           List<TypePair> unresolvedTypes) {
         // Check the whether there is any private fields in RHS type
         if (rhsType.getFields().values().stream().anyMatch(field -> !Flags.isFlagOn(field.flags, Flags.PUBLIC))) {
             return false;
@@ -3506,7 +3564,8 @@ public class CPU {
         Map<String, BField> rhsFields = rhsType.getFields();
         for (Map.Entry<String, BField> lhsFieldEntry : lhsType.getFields().entrySet()) {
             BField rhsField = rhsFields.get(lhsFieldEntry.getKey());
-            if (rhsField == null || !Flags.isFlagOn(lhsFieldEntry.getValue().flags, Flags.PUBLIC) || !isSameType(rhsField.fieldType, lhsFieldEntry.getValue().fieldType)) {
+            if (rhsField == null || !Flags.isFlagOn(lhsFieldEntry.getValue().flags, Flags.PUBLIC) ||
+                    !isSameType(rhsField.fieldType, lhsFieldEntry.getValue().fieldType)) {
                 return false;
             }
         }
@@ -3539,8 +3598,7 @@ public class CPU {
     }
 
     private static boolean checkFieldEquivalency(BRecordType lhsType, BRecordType rhsType,
-     List<TypePair> unresolvedTypes) {
-
+                                                 List<TypePair> unresolvedTypes) {
         Map<String, BField> rhsFields = rhsType.getFields();
         Set<String> lhsFieldNames = lhsType.getFields().keySet();
 
@@ -3548,8 +3606,8 @@ public class CPU {
             BField rhsField = rhsFields.get(lhsField.fieldName);
 
             // If the LHS field is a required one, there has to be a corresponding required field in the RHS record.
-            if (!Flags.isFlagOn(lhsField.flags, Flags.OPTIONAL) && (rhsField == null || Flags.isFlagOn(rhsField.flags
-            , Flags.OPTIONAL))) {
+            if (!Flags.isFlagOn(lhsField.flags, Flags.OPTIONAL)
+                    && (rhsField == null || Flags.isFlagOn(rhsField.flags, Flags.OPTIONAL))) {
                 return false;
             }
 
@@ -3558,13 +3616,15 @@ public class CPU {
             }
         }
 
-        return rhsFields.values().stream().filter(field -> !lhsFieldNames.contains(field.fieldName)).allMatch(field -> isAssignable(field.fieldType, lhsType.restFieldType, unresolvedTypes));
+        return rhsFields.values().stream()
+                            .filter(field -> !lhsFieldNames.contains(field.fieldName))
+                            .allMatch(field -> isAssignable(field.fieldType, lhsType.restFieldType, unresolvedTypes));
     }
 
     private static boolean checkFunctionTypeEqualityForObjectType(BFunctionType source, BFunctionType target,
-     List<TypePair> unresolvedTypes) {
-
-        if (source.paramTypes.length != target.paramTypes.length || source.retParamTypes.length != target.retParamTypes.length) {
+                                                                  List<TypePair> unresolvedTypes) {
+        if (source.paramTypes.length != target.paramTypes.length ||
+                source.retParamTypes.length != target.retParamTypes.length) {
             return false;
         }
 
@@ -3589,11 +3649,15 @@ public class CPU {
         return true;
     }
 
-    private static BAttachedFunction getMatchingInvokableType(BAttachedFunction[] rhsFuncs, BAttachedFunction lhsFunc
-    , List<TypePair> unresolvedTypes) {
-
-        return Arrays.stream(rhsFuncs).filter(rhsFunc -> lhsFunc.funcName.equals(rhsFunc.funcName)).filter(rhsFunc -> checkFunctionTypeEqualityForObjectType(rhsFunc.type, lhsFunc.type, unresolvedTypes)).findFirst().orElse(null);
+    private static BAttachedFunction getMatchingInvokableType(BAttachedFunction[] rhsFuncs, BAttachedFunction lhsFunc,
+                                                              List<TypePair> unresolvedTypes) {
+        return Arrays.stream(rhsFuncs)
+                .filter(rhsFunc -> lhsFunc.funcName.equals(rhsFunc.funcName))
+                .filter(rhsFunc -> checkFunctionTypeEqualityForObjectType(rhsFunc.type, lhsFunc.type, unresolvedTypes))
+                .findFirst()
+                .orElse(null);
     }
+
 
     private static boolean isSameType(BType rhsType, BType lhsType) {
         // First check whether both references points to the same object.
@@ -3614,7 +3678,6 @@ public class CPU {
     }
 
     private static boolean checkArrayEquivalent(BType actualType, BType expType) {
-
         if (expType.getTag() == TypeTags.ARRAY_TAG && actualType.getTag() == TypeTags.ARRAY_TAG) {
             // Both types are array types
             BArrayType lhrArrayType = (BArrayType) expType;
@@ -3629,8 +3692,7 @@ public class CPU {
     }
 
     private static boolean checkJSONEquivalency(BValue json, BJSONType sourceType, BJSONType targetType,
-     List<TypePair> unresolvedTypes) {
-
+                                                List<TypePair> unresolvedTypes) {
         BRecordType sourceConstrainedType = (BRecordType) sourceType.getConstrainedType();
         BRecordType targetConstrainedType = (BRecordType) targetType.getConstrainedType();
 
@@ -3678,15 +3740,14 @@ public class CPU {
     /**
      * Check the compatibility of casting a JSON to a target type.
      *
-     * @param json            JSON to cast
-     * @param sourceType      Type of the source JSON
-     * @param targetType      Target type
+     * @param json       JSON to cast
+     * @param sourceType Type of the source JSON
+     * @param targetType Target type
      * @param unresolvedTypes Unresolved types
      * @return Runtime compatibility for casting
      */
     private static boolean checkJSONCast(BValue json, BType sourceType, BType targetType,
-     List<TypePair> unresolvedTypes) {
-
+                                         List<TypePair> unresolvedTypes) {
         switch (targetType.getTag()) {
             case TypeTags.STRING_TAG:
             case TypeTags.INT_TAG:
@@ -3703,8 +3764,8 @@ public class CPU {
                 BRefValueArray array = (BRefValueArray) json;
                 for (int i = 0; i < array.size(); i++) {
                     // get the element type of source and json, and recursively check for json casting.
-                    BType sourceElementType = sourceType.getTag() == TypeTags.ARRAY_TAG ?
-                     ((BArrayType) sourceType).getElementType() : sourceType;
+                    BType sourceElementType = sourceType.getTag() == TypeTags.ARRAY_TAG
+                            ? ((BArrayType) sourceType).getElementType() : sourceType;
                     if (!checkJSONCast(array.get(i), sourceElementType, arrayType.getElementType(), unresolvedTypes)) {
                         return false;
                     }
@@ -3712,7 +3773,8 @@ public class CPU {
                 return true;
             case TypeTags.JSON_TAG:
                 // If JSON is unconstrained, any JSON value is compatible
-                if (((BJSONType) targetType).getConstrainedType() == null && getElementType(sourceType).getTag() == TypeTags.JSON_TAG) {
+                if (((BJSONType) targetType).getConstrainedType() == null &&
+                        getElementType(sourceType).getTag() == TypeTags.JSON_TAG) {
                     return true;
                 } else if (sourceType.getTag() != TypeTags.JSON_TAG) {
                     // If JSON is constrained, only JSON objects are compatible
@@ -3728,19 +3790,17 @@ public class CPU {
     }
 
     private static void convertStructToMap(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
-
         int i = operands[0];
         int j = operands[1];
 
         // TODO: do validation for type?
         BMap newMap = new BMap(BTypes.typeMap);
-        ((BMap) sf.refRegs[i]).getMap().forEach((key, value) -> newMap.put(key, value == null ? null :
-         ((BValue) value).copy(new HashMap<>())));
+        ((BMap) sf.refRegs[i]).getMap().forEach((key, value)
+                -> newMap.put(key, value == null ? null : ((BValue) value).copy(new HashMap<>())));
         sf.refRegs[j] = newMap;
     }
 
     private static void convertStructToJSON(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
-
         int i = operands[0];
         int cpIndex = operands[1];
         int j = operands[2];
@@ -3750,14 +3810,13 @@ public class CPU {
         try {
             sf.refRegs[j] = JSONUtils.convertMapToJSON(bStruct, targetType);
         } catch (Exception e) {
-            String errorMsg =
-             "cannot convert '" + bStruct.getType() + "' to type '" + targetType + "': " + e.getMessage();
+            String errorMsg = "cannot convert '" + bStruct.getType() + "' to type '" + targetType + "': " +
+                    e.getMessage();
             handleTypeConversionError(ctx, sf, j, errorMsg);
         }
     }
 
     private static void convertArrayToJSON(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
-
         int i = operands[0];
         int j = operands[1];
 
@@ -3765,14 +3824,13 @@ public class CPU {
         try {
             sf.refRegs[j] = JSONUtils.convertArrayToJSON(bArray);
         } catch (Exception e) {
-            String errorMsg =
-             "cannot convert '" + bArray.getType() + "' to type '" + BTypes.typeJSON + "': " + e.getMessage();
+            String errorMsg = "cannot convert '" + bArray.getType() + "' to type '" + BTypes.typeJSON + "': " +
+                    e.getMessage();
             handleTypeConversionError(ctx, sf, j, errorMsg);
         }
     }
 
     private static void convertJSONToArray(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
-
         int i = operands[0];
         int cpIndex = operands[1];
         int j = operands[2];
@@ -3787,13 +3845,13 @@ public class CPU {
         try {
             sf.refRegs[j] = JSONUtils.convertJSON(json, targetType);
         } catch (Exception e) {
-            String errorMsg = "cannot convert '" + json.getType() + "' to type '" + targetType + "': " + e.getMessage();
+            String errorMsg = "cannot convert '" + json.getType() + "' to type '" + targetType + "': " +
+                    e.getMessage();
             handleTypeConversionError(ctx, sf, j, errorMsg);
         }
     }
 
     private static void convertMapToJSON(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
-
         int i = operands[0];
         int cpIndex = operands[1];
         int j = operands[2];
@@ -3803,13 +3861,13 @@ public class CPU {
         try {
             sf.refRegs[j] = JSONUtils.convertMapToJSON((BMap<String, BValue>) bMap, targetType);
         } catch (Exception e) {
-            String errorMsg = "cannot convert '" + bMap.getType() + "' to type '" + targetType + "': " + e.getMessage();
+            String errorMsg = "cannot convert '" + bMap.getType() + "' to type '" + targetType + "': " +
+                    e.getMessage();
             handleTypeConversionError(ctx, sf, j, errorMsg);
         }
     }
 
     private static void convertJSONToMap(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
-
         int i = operands[0];
         int cpIndex = operands[1];
         int j = operands[2];
@@ -3824,13 +3882,13 @@ public class CPU {
         try {
             sf.refRegs[j] = JSONUtils.jsonToBMap(json, targetType);
         } catch (Exception e) {
-            String errorMsg = "cannot convert '" + json.getType() + "' to type '" + targetType + "': " + e.getMessage();
+            String errorMsg = "cannot convert '" + json.getType() + "' to type '" + targetType + "': " +
+                    e.getMessage();
             handleTypeConversionError(ctx, sf, j, errorMsg);
         }
     }
 
     private static void convertMapToStruct(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
-
         int i = operands[0];
         int cpIndex = operands[1];
         int j = operands[2];
@@ -3843,14 +3901,14 @@ public class CPU {
             sf.refRegs[j] = convertMapToStruct(ctx, bMap, structType);
         } catch (BallerinaException e) {
             sf.refRegs[j] = null;
-            String errorMsg = "cannot convert '" + bMap.getType() + "' to type '" + structType + ": " + e.getMessage();
+            String errorMsg = "cannot convert '" + bMap.getType() + "' to type '" + structType + ": " +
+                    e.getMessage();
             handleTypeConversionError(ctx, sf, j, errorMsg);
         }
     }
 
-    private static BMap<String, BValue> convertMapToStruct(WorkerExecutionContext ctx, BMap<String, BValue> bMap,
-     BStructureType structType) {
-
+    private static BMap<String, BValue> convertMapToStruct(WorkerExecutionContext ctx,
+                                                           BMap<String, BValue> bMap, BStructureType structType) {
         BMap<String, BValue> bStruct = new BMap<>(structType);
         StructureTypeInfo structInfo = (StructureTypeInfo) structType.getTypeInfo();
 
@@ -3860,8 +3918,8 @@ public class CPU {
 
             boolean containsField = bMap.hasKey(key);
             if (!containsField) {
-                DefaultValueAttributeInfo defaultValAttrInfo = (DefaultValueAttributeInfo) getAttributeInfo(fieldInfo
-                , AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE);
+                DefaultValueAttributeInfo defaultValAttrInfo = (DefaultValueAttributeInfo)
+                        getAttributeInfo(fieldInfo, AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE);
                 if (defaultValAttrInfo != null) {
                     switch (fieldType.getTag()) {
                         case TypeTags.INT_TAG:
@@ -3890,8 +3948,8 @@ public class CPU {
 
             BValue mapVal = bMap.get(key);
             if (mapVal == null && BTypes.isValueType(fieldType)) {
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key
-                , fieldType, null);
+                throw BLangExceptionHelper.getRuntimeException(
+                        RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key, fieldType, null);
             }
 
             if (mapVal != null && mapVal.getType().getTag() == TypeTags.MAP_TAG) {
@@ -3900,8 +3958,9 @@ public class CPU {
             }
 
             if (!checkCast(mapVal, fieldType, new ArrayList<TypePair>())) {
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key
-                , fieldType, mapVal == null ? null : mapVal.getType());
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING,
+                                                               key, fieldType,
+                                                               mapVal == null ? null : mapVal.getType());
             }
             bStruct.put(key, mapVal);
         }
@@ -3909,8 +3968,7 @@ public class CPU {
     }
 
     private static BValue convertMap(WorkerExecutionContext ctx, BMap<String, BValue> mapValue, BType targetType,
-     String key) {
-
+                                     String key) {
         switch (targetType.getTag()) {
             case TypeTags.RECORD_TYPE_TAG:
                 return convertMapToStruct(ctx, mapValue, (BStructureType) targetType);
@@ -3932,11 +3990,10 @@ public class CPU {
                 }
         }
         throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key,
-         targetType, mapValue.getType());
+                                                       targetType, mapValue.getType());
     }
 
     private static void convertJSONToStruct(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
-
         int i = operands[0];
         int cpIndex = operands[1];
         int j = operands[2];
@@ -3945,15 +4002,15 @@ public class CPU {
         BRefType<?> bjson = sf.refRegs[i];
         if (bjson == null) {
             handleTypeConversionError(ctx, sf, j, bjson != null ? bjson.getType() : BTypes.typeNull,
-             typeRefCPEntry.getType());
+                    typeRefCPEntry.getType());
             return;
         }
 
         try {
             sf.refRegs[j] = JSONUtils.convertJSONToStruct(bjson, (BStructureType) typeRefCPEntry.getType());
         } catch (Exception e) {
-            String errorMsg =
-             "cannot convert '" + TypeConstants.JSON_TNAME + "' to type '" + typeRefCPEntry.getType() + "': " + e.getMessage();
+            String errorMsg = "cannot convert '" + TypeConstants.JSON_TNAME + "' to type '" +
+                    typeRefCPEntry.getType() + "': " + e.getMessage();
             handleTypeConversionError(ctx, sf, j, errorMsg);
         }
     }
@@ -3974,13 +4031,12 @@ public class CPU {
             ctx.setError(null);
         } else {
             BLangScheduler.workerExcepted(ctx);
-            throw new HandleErrorException(ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.ERROR,
-             ctx.workerResult)));
+            throw new HandleErrorException(
+                    ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.ERROR, ctx.workerResult)));
         }
     }
 
     private static AttributeInfo getAttributeInfo(AttributeInfoPool attrInfoPool, AttributeInfo.Kind attrInfoKind) {
-
         for (AttributeInfo attributeInfo : attrInfoPool.getAttributeInfoEntries()) {
             if (attributeInfo.getKind() == attrInfoKind) {
                 return attributeInfo;
@@ -3990,7 +4046,6 @@ public class CPU {
     }
 
     private static void calculateLength(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
-
         int i = operands[0];
         int cpIndex = operands[1];
         int j = operands[2];
@@ -4029,7 +4084,6 @@ public class CPU {
     }
 
     private static WorkerExecutionContext execAwait(WorkerExecutionContext ctx, int[] operands) {
-
         int futureReg = operands[0];
         int retValReg = operands[1];
         BFuture future = (BFuture) ctx.workerLocal.refRegs[futureReg];
@@ -4053,22 +4107,22 @@ public class CPU {
         public WorkerExecutionContext ctx;
 
         public HandleErrorException(WorkerExecutionContext ctx) {
-
             this.ctx = ctx;
         }
 
     }
 
     private static void handleMapStore(WorkerExecutionContext ctx, BMap<String, BRefType> bMap, String fieldName,
-     BRefType<?> value) {
-
+                                       BRefType<?> value) {
         BType mapType = bMap.getType();
 
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
                 if (!isValidMapInsertion(mapType, value)) {
                     BType expType = ((BMapType) mapType).getConstrainedType();
-                    throw new BLangMapStoreException(BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION, expType, value.getType()));
+                    throw new BLangMapStoreException(BLangExceptionHelper
+                                                             .getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION,
+                                                                              expType, value.getType()));
                 }
                 insertToMap(ctx, bMap, fieldName, value);
                 break;
@@ -4077,7 +4131,8 @@ public class CPU {
                 BField objField = objType.getFields().get(fieldName);
                 BType objFieldType = objField.getFieldType();
                 if (!checkIsType(value, objFieldType)) {
-                    throw new BLangMapStoreException(BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_OBJECT_FIELD_ADDITION, fieldName, objFieldType, value.getType()));
+                    throw new BLangMapStoreException(BLangExceptionHelper.getErrorMessage(
+                            RuntimeErrors.INVALID_OBJECT_FIELD_ADDITION, fieldName, objFieldType, value.getType()));
                 }
                 insertToMap(ctx, bMap, fieldName, value);
                 break;
@@ -4095,11 +4150,14 @@ public class CPU {
                 } else {
                     // If both of the above conditions fail, the implication is that this is an attempt to insert a
                     // value to a non-existent field in a closed record.
-                    throw new BLangMapStoreException(BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RECORD_FIELD_ACCESS, fieldName, recType));
+                    throw new BLangMapStoreException(BLangExceptionHelper
+                                                             .getErrorMessage(RuntimeErrors.INVALID_RECORD_FIELD_ACCESS,
+                                                                              fieldName, recType));
                 }
 
                 if (!checkIsType(value, recFieldType)) {
-                    throw new BLangMapStoreException(BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RECORD_FIELD_ADDITION, fieldName, recFieldType, value.getType()));
+                    throw new BLangMapStoreException(BLangExceptionHelper.getErrorMessage(
+                            RuntimeErrors.INVALID_RECORD_FIELD_ADDITION, fieldName, recFieldType, value.getType()));
                 }
 
                 insertToMap(ctx, bMap, fieldName, value);
@@ -4108,7 +4166,6 @@ public class CPU {
     }
 
     private static void insertToMap(WorkerExecutionContext ctx, BMap bMap, String fieldName, BValue value) {
-
         try {
             bMap.put(fieldName, value);
         } catch (BLangFreezeException e) {
@@ -4128,7 +4185,6 @@ public class CPU {
     }
 
     private static boolean isValidMapInsertion(BType mapType, BValue value) {
-
         if (value == null) {
             return true;
         }
@@ -4142,7 +4198,6 @@ public class CPU {
     }
 
     public static boolean isAssignable(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
-
         if (isSameOrAnyType(sourceType, targetType)) {
             return true;
         }
@@ -4157,11 +4212,13 @@ public class CPU {
         }
 
         if (targetType.getTag() == TypeTags.ARRAY_TAG && sourceType.getTag() == TypeTags.ARRAY_TAG) {
-            if (((BArrayType) sourceType).getState() == BArrayState.CLOSED_SEALED && ((BArrayType) targetType).getState() == BArrayState.CLOSED_SEALED && ((BArrayType) sourceType).getSize() != ((BArrayType) targetType).getSize()) {
+            if (((BArrayType) sourceType).getState() == BArrayState.CLOSED_SEALED
+                    && ((BArrayType) targetType).getState() == BArrayState.CLOSED_SEALED
+                    && ((BArrayType) sourceType).getSize() != ((BArrayType) targetType).getSize()) {
                 return false;
             }
             return checkArrayCast(((BArrayType) sourceType).getElementType(),
-             ((BArrayType) targetType).getElementType(), unresolvedTypes);
+                                  ((BArrayType) targetType).getElementType(), unresolvedTypes);
         }
 
         if (sourceType.getTag() == TypeTags.TUPLE_TAG && targetType.getTag() == TypeTags.TUPLE_TAG) {
@@ -4172,7 +4229,6 @@ public class CPU {
     }
 
     private static boolean checkUnionAssignable(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
-
         if (sourceType.getTag() == TypeTags.UNION_TAG) {
             for (BType sourceMemberType : ((BUnionType) sourceType).getMemberTypes()) {
                 if (!checkUnionAssignable(sourceMemberType, targetType, unresolvedTypes)) {
@@ -4192,7 +4248,6 @@ public class CPU {
     }
 
     private static boolean checkTupleAssignable(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
-
         List<BType> targetTupleTypes = ((BTupleType) targetType).getTupleTypes();
         List<BType> sourceTupleTypes = ((BTupleType) sourceType).getTupleTypes();
 
@@ -4208,13 +4263,13 @@ public class CPU {
     }
 
     private static boolean checkFunctionCast(BType sourceType, BFunctionType targetType) {
-
         if (sourceType.getTag() != TypeTags.FUNCTION_POINTER_TAG) {
             return false;
         }
 
         BFunctionType source = (BFunctionType) sourceType;
-        if (source.paramTypes.length != targetType.paramTypes.length || source.retParamTypes.length != targetType.retParamTypes.length) {
+        if (source.paramTypes.length != targetType.paramTypes.length ||
+                source.retParamTypes.length != targetType.retParamTypes.length) {
             return false;
         }
 
@@ -4234,7 +4289,6 @@ public class CPU {
     }
 
     public static boolean checkIsLikeType(BValue sourceValue, BType targetType) {
-
         BType sourceType = sourceValue == null ? BTypes.typeNull : sourceValue.getType();
         if (checkIsType(sourceType, targetType, new ArrayList<>())) {
             return true;
@@ -4256,19 +4310,20 @@ public class CPU {
             case TypeTags.FINITE_TYPE_TAG:
                 return checkFiniteTypeAssignable(sourceValue, targetType);
             case TypeTags.UNION_TAG:
-                return ((BUnionType) targetType).getMemberTypes().stream().anyMatch(type -> checkIsLikeType(sourceValue, type));
+                return ((BUnionType) targetType).getMemberTypes().stream()
+                        .anyMatch(type -> checkIsLikeType(sourceValue, type));
             default:
                 return false;
         }
     }
 
     private static boolean checkIsLikeAnydataType(BValue sourceValue, BType targetType) {
-
         switch (sourceValue.getType().getTag()) {
             case TypeTags.RECORD_TYPE_TAG:
             case TypeTags.JSON_TAG:
             case TypeTags.MAP_TAG:
-                return ((BMap) sourceValue).getMap().entrySet().stream().allMatch(value -> checkIsLikeType((BValue) value, targetType));
+                return ((BMap) sourceValue).getMap().values().stream()
+                        .allMatch(value -> checkIsLikeType((BValue) value, targetType));
             case TypeTags.ARRAY_TAG:
                 BNewArray arr = (BNewArray) sourceValue;
                 switch (arr.getType().getTag()) {
@@ -4280,10 +4335,12 @@ public class CPU {
                     case TypeTags.BYTE_TAG:
                         return true;
                     default:
-                        return Arrays.stream(((BRefValueArray) sourceValue).getValues()).allMatch(value -> checkIsLikeType(value, targetType));
+                        return Arrays.stream(((BRefValueArray) sourceValue).getValues())
+                                .allMatch(value -> checkIsLikeType(value, targetType));
                 }
             case TypeTags.TUPLE_TAG:
-                return Arrays.stream(((BRefValueArray) sourceValue).getValues()).allMatch(value -> checkIsLikeType(value, targetType));
+                return Arrays.stream(((BRefValueArray) sourceValue).getValues())
+                        .allMatch(value -> checkIsLikeType(value, targetType));
             case TypeTags.ANYDATA_TAG:
                 return true;
             case TypeTags.FINITE_TYPE_TAG:
@@ -4295,7 +4352,6 @@ public class CPU {
     }
 
     private static boolean checkIsLikeTupleType(BValue sourceValue, BTupleType targetType) {
-
         if (!(sourceValue instanceof BRefValueArray)) {
             return false;
         }
@@ -4305,12 +4361,11 @@ public class CPU {
             return false;
         }
 
-        return IntStream.range(0, (int) source.size()).allMatch(i -> checkIsLikeType(source.get(i),
-         targetType.getTupleTypes().get(i)));
+        return IntStream.range(0, (int) source.size())
+                .allMatch(i -> checkIsLikeType(source.get(i), targetType.getTupleTypes().get(i)));
     }
 
     private static boolean checkIsLikeArrayType(BValue sourceValue, BArrayType targetType) {
-
         if (!(sourceValue instanceof BRefValueArray)) {
             return false;
         }
@@ -4326,7 +4381,6 @@ public class CPU {
     }
 
     private static boolean checkIsLikeMapType(BValue sourceValue, BMapType targetType) {
-
         if (!(sourceValue instanceof BMap)) {
             return false;
         }
@@ -4340,7 +4394,6 @@ public class CPU {
     }
 
     private static boolean checkIsLikeJSONType(BValue sourceValue, BJSONType targetType) {
-
         if (targetType.getConstrainedType() != null) {
             return checkIsLikeType(sourceValue, targetType.getConstrainedType());
         } else if (sourceValue.getType().getTag() == TypeTags.ARRAY_TAG) {
@@ -4361,7 +4414,6 @@ public class CPU {
     }
 
     private static boolean checkIsLikeRecordType(BValue sourceValue, BRecordType targetType) {
-
         if (!(sourceValue instanceof BMap)) {
             return false;
         }
@@ -4376,7 +4428,8 @@ public class CPU {
         for (Map.Entry targetTypeEntry : targetTypeField.entrySet()) {
             String fieldName = targetTypeEntry.getKey().toString();
 
-            if (!(((BMap) sourceValue).getMap().containsKey(fieldName)) && !(Flags.isFlagOn(targetType.getFields().get(fieldName).flags, Flags.OPTIONAL))) {
+            if (!(((BMap) sourceValue).getMap().containsKey(fieldName)) &&
+                    !(Flags.isFlagOn(targetType.getFields().get(fieldName).flags, Flags.OPTIONAL))) {
                 return false;
             }
         }
@@ -4403,7 +4456,6 @@ public class CPU {
     }
 
     private static boolean checkIsType(BValue sourceVal, BType targetType) {
-
         if (isMutable(sourceVal)) {
             BType sourceType = sourceVal == null ? BTypes.typeNull : sourceVal.getType();
             return checkIsType(sourceType, targetType, new ArrayList<>());
@@ -4427,6 +4479,7 @@ public class CPU {
             case TypeTags.BYTE_TAG:
             case TypeTags.NULL_TAG:
             case TypeTags.XML_TAG:
+            case TypeTags.SERVICE_TAG:
                 return sourceType.getTag() == targetType.getTag();
             case TypeTags.MAP_TAG:
                 return checkIsMapType(sourceType, (BMapType) targetType, unresolvedTypes);
@@ -4441,8 +4494,8 @@ public class CPU {
             case TypeTags.TUPLE_TAG:
                 return checkIsTupleType(sourceType, (BTupleType) targetType, unresolvedTypes);
             case TypeTags.UNION_TAG:
-                return ((BUnionType) targetType).getMemberTypes().stream().anyMatch(type -> checkIsType(sourceType,
-                 type, unresolvedTypes));
+                return ((BUnionType) targetType).getMemberTypes().stream()
+                        .anyMatch(type -> checkIsType(sourceType, type, unresolvedTypes));
             case TypeTags.TABLE_TAG:
                 return checkIsTableType(sourceType, (BTableType) targetType, unresolvedTypes);
             case TypeTags.ANY_TAG:
@@ -4460,15 +4513,15 @@ public class CPU {
     }
 
     private static boolean checkIsMapType(BType sourceType, BMapType targetType, List<TypePair> unresolvedTypes) {
-
         if (sourceType.getTag() != TypeTags.MAP_TAG) {
             return false;
         }
         return checkContraints(((BMapType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
-         unresolvedTypes);
+                unresolvedTypes);
     }
 
-    private static boolean checkIsJSONType(BType sourceType, BJSONType targetType, List<TypePair> unresolvedTypes) {
+    private static boolean checkIsJSONType(BType sourceType, BJSONType targetType,
+                                         List<TypePair> unresolvedTypes) {
         // If the target is an constrained JSON, then value also should be of
         // constrained JSON type. And the constraints should satisfy 'is type'
         // relationship.
@@ -4505,7 +4558,6 @@ public class CPU {
     }
 
     private static boolean checkIsRecordType(BType sourceType, BRecordType targetType, List<TypePair> unresolvedTypes) {
-
         if (sourceType.getTag() != TypeTags.RECORD_TYPE_TAG) {
             return false;
         }
@@ -4525,8 +4577,8 @@ public class CPU {
         }
 
         // If both are sealed (one is sealed means other is also sealed) check the rest field type
-        if (!sourceRecordType.sealed && !checkIsType(sourceRecordType.restFieldType, targetType.restFieldType,
-         unresolvedTypes)) {
+        if (!sourceRecordType.sealed &&
+                !checkIsType(sourceRecordType.restFieldType, targetType.restFieldType, unresolvedTypes)) {
             return false;
         }
 
@@ -4537,7 +4589,8 @@ public class CPU {
             BField sourceField = sourceFields.get(targetField.getFieldName());
 
             // If the LHS field is a required one, there has to be a corresponding required field in the RHS record.
-            if (!Flags.isFlagOn(targetField.flags, Flags.OPTIONAL) && (sourceField == null || Flags.isFlagOn(sourceField.flags, Flags.OPTIONAL))) {
+            if (!Flags.isFlagOn(targetField.flags, Flags.OPTIONAL)
+                    && (sourceField == null || Flags.isFlagOn(sourceField.flags, Flags.OPTIONAL))) {
                 return false;
             }
 
@@ -4548,20 +4601,20 @@ public class CPU {
 
         // If there are fields remaining in the source record, check if they are compatible with the rest field of
         // the target type.
-        return sourceFields.values().stream().filter(field -> !targetFieldNames.contains(field.fieldName)).allMatch(field -> checkIsType(field.getFieldType(), targetType.restFieldType, unresolvedTypes));
+        return sourceFields.values().stream()
+                .filter(field -> !targetFieldNames.contains(field.fieldName))
+                .allMatch(field -> checkIsType(field.getFieldType(), targetType.restFieldType, unresolvedTypes));
     }
 
     private static boolean checkIsTableType(BType sourceType, BTableType targetType, List<TypePair> unresolvedTypes) {
-
         if (sourceType.getTag() != TypeTags.TABLE_TAG) {
             return false;
         }
         return checkContraints(((BTableType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
-         unresolvedTypes);
+                unresolvedTypes);
     }
 
     private static boolean checkIsArrayType(BType sourceType, BArrayType targetType, List<TypePair> unresolvedTypes) {
-
         if (sourceType.getTag() != TypeTags.ARRAY_TAG) {
             return false;
         }
@@ -4574,7 +4627,6 @@ public class CPU {
     }
 
     private static boolean checkIsTupleType(BType sourceType, BTupleType targetType, List<TypePair> unresolvedTypes) {
-
         if (sourceType.getTag() != TypeTags.TUPLE_TAG) {
             return false;
         }
@@ -4594,7 +4646,6 @@ public class CPU {
     }
 
     private static boolean checkIsFiniteType(BType sourceType, BFiniteType targetType, List<TypePair> unresolvedTypes) {
-
         if (sourceType.getTag() != TypeTags.FINITE_TYPE_TAG) {
             return false;
         }
@@ -4608,17 +4659,15 @@ public class CPU {
     }
 
     private static boolean checkIsFutureType(BType sourceType, BFutureType targetType, List<TypePair> unresolvedTypes) {
-
         if (sourceType.getTag() != TypeTags.FUTURE_TAG) {
             return false;
         }
         return checkContraints(((BFutureType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
-         unresolvedTypes);
+                unresolvedTypes);
     }
 
     private static boolean checkContraints(BType sourceConstraint, BType targetConstraint,
-     List<TypePair> unresolvedTypes) {
-
+                                           List<TypePair> unresolvedTypes) {
         if (sourceConstraint == null) {
             sourceConstraint = BTypes.typeAny;
         }
@@ -4631,7 +4680,6 @@ public class CPU {
     }
 
     private static boolean isMutable(BValue value) {
-
         if (value == null) {
             return false;
         }
@@ -4647,13 +4695,12 @@ public class CPU {
     /**
      * Deep value equality check for anydata.
      *
-     * @param lhsValue      The value on the left hand side
-     * @param rhsValue      The value on the right hand side
-     * @param checkedValues Structured value pairs already compared or being compared
+     * @param lhsValue          The value on the left hand side
+     * @param rhsValue          The value on the right hand side
+     * @param checkedValues     Structured value pairs already compared or being compared
      * @return True if values are equal, else false.
      */
     private static boolean isEqual(BValue lhsValue, BValue rhsValue, List<ValuePair> checkedValues) {
-
         if (lhsValue == rhsValue) {
             return true;
         }
@@ -4693,30 +4740,29 @@ public class CPU {
             case TypeTags.TUPLE_TAG:
             case TypeTags.ARRAY_TAG:
                 return isListType(rhsValTypeTag) && isEqual((BNewArray) lhsValue, (BNewArray) rhsValue, checkedValues);
+            case TypeTags.SERVICE_TAG:
+                break;
         }
         return false;
     }
 
     private static boolean isListType(int typeTag) {
-
         return typeTag == TypeTags.ARRAY_TAG || typeTag == TypeTags.TUPLE_TAG;
     }
 
     private static boolean isMappingType(int typeTag) {
-
         return typeTag == TypeTags.MAP_TAG || typeTag == TypeTags.RECORD_TYPE_TAG || typeTag == TypeTags.JSON_TAG;
     }
 
     /**
      * Deep equality check for an array/tuple.
      *
-     * @param lhsList       The array/tuple on the left hand side
-     * @param rhsList       The array/tuple on the right hand side
-     * @param checkedValues Structured value pairs already compared or being compared
+     * @param lhsList           The array/tuple on the left hand side
+     * @param rhsList           The array/tuple on the right hand side
+     * @param checkedValues     Structured value pairs already compared or being compared
      * @return True if the array/tuple values are equal, else false.
      */
     private static boolean isEqual(BNewArray lhsList, BNewArray rhsList, List<ValuePair> checkedValues) {
-
         ValuePair compValuePair = new ValuePair(lhsList, rhsList);
         if (checkedValues.contains(compValuePair)) {
             return true;
@@ -4738,13 +4784,12 @@ public class CPU {
     /**
      * Deep equality check for a map.
      *
-     * @param lhsMap        Map on the left hand side
-     * @param rhsMap        Map on the right hand side
-     * @param checkedValues Structured value pairs already compared or being compared
+     * @param lhsMap            Map on the left hand side
+     * @param rhsMap            Map on the right hand side
+     * @param checkedValues     Structured value pairs already compared or being compared
      * @return True if the map values are equal, else false.
      */
     private static boolean isEqual(BMap lhsMap, BMap rhsMap, List<ValuePair> checkedValues) {
-
         ValuePair compValuePair = new ValuePair(lhsMap, rhsMap);
         if (checkedValues.contains(compValuePair)) {
             return true;
@@ -4769,13 +4814,13 @@ public class CPU {
         return true;
     }
 
+
     /**
      * Maintains the frozen status of a freezable {@link BValue}.
      *
      * @since 0.985.0
      */
     public static class FreezeStatus {
-
         /**
          * Representation of the current state of a freeze attempt.
          */
@@ -4786,27 +4831,22 @@ public class CPU {
         private State currentState;
 
         public FreezeStatus(State state) {
-
             this.currentState = state;
         }
 
         private void setFrozen() {
-
             this.currentState = State.FROZEN;
         }
 
         private void setUnfrozen() {
-
             this.currentState = State.UNFROZEN;
         }
 
         public State getState() {
-
             return currentState;
         }
 
         public boolean isFrozen() {
-
             return currentState == State.FROZEN;
         }
     }
@@ -4815,13 +4855,12 @@ public class CPU {
      * Reference equality check for values. If both the values are simple basic types, returns the same
      * result as {@link CPU#isEqual(BValue, BValue, List)}
      *
-     * @param lhsValue The value on the left hand side
-     * @param rhsValue The value on the right hand side
+     * @param lhsValue  The value on the left hand side
+     * @param rhsValue  The value on the right hand side
      * @return True if values are reference equal or in the case of simple basic types if the values are equal,
      * else false.
      */
     private static boolean isReferenceEqual(BValue lhsValue, BValue rhsValue) {
-
         if (lhsValue == rhsValue) {
             return true;
         }
@@ -4842,13 +4881,12 @@ public class CPU {
      * Reference inequality check for values. If both the values are simple basic types, returns the same
      * result as the negation of {@link CPU#isEqual(BValue, BValue, List)}
      *
-     * @param lhsValue The value on the left hand side
-     * @param rhsValue The value on the right hand side
+     * @param lhsValue  The value on the left hand side
+     * @param rhsValue  The value on the right hand side
      * @return True if values are not reference equal or in the case of simple basic types if the values are not equal,
      * else false.
      */
     private static boolean isReferenceInequal(BValue lhsValue, BValue rhsValue) {
-
         if (lhsValue == null || rhsValue == null) {
             return lhsValue != rhsValue;
         }
@@ -4861,7 +4899,6 @@ public class CPU {
     }
 
     private static boolean isSimpleBasicType(BType type) {
-
         return type.getTag() < TypeTags.JSON_TAG;
     }
 
@@ -4871,19 +4908,16 @@ public class CPU {
      * @since 0.982.0
      */
     private static class TypePair {
-
         BType sourceType;
         BType targetType;
 
         public TypePair(BType sourceType, BType targetType) {
-
             this.sourceType = sourceType;
             this.targetType = targetType;
         }
 
         @Override
         public boolean equals(Object obj) {
-
             if (!(obj instanceof TypePair)) {
                 return false;
             }
@@ -4899,23 +4933,21 @@ public class CPU {
      * @since 0.985.0
      */
     private static class ValuePair {
-
         List<BValue> valueList = new ArrayList<>(2);
 
         ValuePair(BValue valueOne, BValue valueTwo) {
-
             valueList.add(valueOne);
             valueList.add(valueTwo);
         }
 
         @Override
         public boolean equals(Object otherPair) {
-
             if (!(otherPair instanceof ValuePair)) {
                 return false;
             }
 
-            return ((ValuePair) otherPair).valueList.containsAll(valueList) && valueList.containsAll(((ValuePair) otherPair).valueList);
+            return ((ValuePair) otherPair).valueList.containsAll(valueList) &&
+                    valueList.containsAll(((ValuePair) otherPair).valueList);
         }
     }
 }

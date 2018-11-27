@@ -547,14 +547,14 @@ function testTupleWithAssignableTypes_2() returns boolean {
 // ========================== Map ==========================
 
 function testSimpleUnconstrainedMap_1() returns (boolean, boolean) {
-    map m = {"key1": "value1"};
+    map<any> m = {"key1": "value1"};
     boolean b0 = m is map<string>;
     boolean b1 = m is map<json>;
     return (b0, b1);
 }
 
 function testSimpleUnconstrainedMap_2() returns (boolean, boolean, boolean, boolean, boolean) {
-    map m = {"key1": "value1"};
+    map<any> m = {"key1": "value1"};
     any a = m;
     boolean b0 = a is map;
     boolean b1 = a is map<any>;

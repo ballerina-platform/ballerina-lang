@@ -32,11 +32,11 @@ service websubSubscriber bind websubEP {
         } else {
             log:printWarn("Intent verification denied for subscription request");
         }
-        caller->respond(untaint response) but {
-            error e =>
-                log:printError("Error responding to intent verification request",
-                               err = e)
-        };
+        var result = caller->respond(untaint response);
+
+        if (result is error) {
+            log:printError("Error responding to intent verification request", err = result);
+        }
     }
 
     // Define the resource that accepts the content delivery requests.

@@ -47,7 +47,7 @@ type InitiatorClientEP client object {
             transactionId:transactionId, participantId:participantId, participantProtocols:participantProtocols
         };
 
-        json reqPayload = check <json>regReq;
+        json reqPayload = check json.create(regReq);
         http:Request req = new;
         req.setJsonPayload(reqPayload);
         var result = httpClient->post("", req);
@@ -58,6 +58,6 @@ type InitiatorClientEP client object {
             return err;
         }
         json resPayload = check res.getJsonPayload();
-        return <RegistrationResponse>resPayload;
+        return RegistrationResponse.create(resPayload);
     }
 };

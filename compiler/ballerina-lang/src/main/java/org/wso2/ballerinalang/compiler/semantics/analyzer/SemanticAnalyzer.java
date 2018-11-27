@@ -139,7 +139,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchTypedBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -1129,13 +1128,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatch matchNode) {
-
-        //first fail if both static and typed patterns have been defined in the match stmt
-        if (!matchNode.getTypedPatternClauses().isEmpty() && !matchNode.getStaticPatternClauses().isEmpty()) {
-            dlog.error(matchNode.pos, DiagnosticCode.INVALID_PATTERN_CLAUSES_IN_MATCH_STMT);
-            return;
-        }
-
         List<BType> exprTypes;
         BType exprType = typeChecker.checkExpr(matchNode.expr, env, symTable.noType);
         if (exprType.tag == TypeTags.UNION) {
@@ -1150,19 +1142,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             patternClause.accept(this);
         });
         matchNode.exprTypes = exprTypes;
-    }
-
-    public void visit(BLangMatchTypedBindingPatternClause patternClause) {
-        // If the variable is not equal to '_', then define the variable in the block scope
-        if (!patternClause.variable.name.value.endsWith(Names.IGNORE.value)) {
-            SymbolEnv blockEnv = SymbolEnv.createBlockEnv(patternClause.body, env);
-            symbolEnter.defineNode(patternClause.variable, blockEnv);
-            analyzeStmt(patternClause.body, blockEnv);
-            return;
-        }
-
-        symbolEnter.defineNode(patternClause.variable, this.env);
-        analyzeStmt(patternClause.body, this.env);
     }
 
     public void visit(BLangMatchStaticBindingPatternClause patternClause) {

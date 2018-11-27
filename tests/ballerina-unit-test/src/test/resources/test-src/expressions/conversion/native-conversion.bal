@@ -47,7 +47,7 @@ type Student record {
     !...
 };
 
-function testStructToMap () returns (map | error) {
+function testStructToMap () returns (map<any> | error) {
     Person p = {name:"Child",
                    age:25,
                    parent:{name:"Parent", age:50},
@@ -635,7 +635,7 @@ type movie record {
     !...
 };
 
-function testStructToMapWithRefTypeArray () returns (map, int)|error {
+function testStructToMapWithRefTypeArray () returns (map<any>, int)|error {
     movie theRevenant = {title:"The Revenant",
                             year:2015,
                             released:"08 Jan 2016",
@@ -774,7 +774,7 @@ function testComplexMapToJson () returns json|error {
     return j2;
 }
 
-function testJsonToMapUnconstrained() returns map|error {
+function testJsonToMapUnconstrained() returns map<any>|error {
     json jx = {};
     jx.x = 5;
     jx.y = 10;
@@ -787,7 +787,7 @@ function testJsonToMapUnconstrained() returns map|error {
     return m;
 }
 
-function testJsonToMapConstrained1() returns map|error {
+function testJsonToMapConstrained1() returns map<any>|error {
     json j = {};
     j.x = "A";
     j.y = "B";
@@ -801,7 +801,7 @@ type T1 record {
     !...
 };
 
-function testJsonToMapConstrained2() returns map|error {
+function testJsonToMapConstrained2() returns map<any>|error {
     json j1 = {};
     j1.x = 5;
     j1.y = 10;
@@ -812,7 +812,7 @@ function testJsonToMapConstrained2() returns map|error {
     return m;
 }
 
-function testJsonToMapConstrainedFail() returns map {
+function testJsonToMapConstrainedFail() returns map<any> {
     json j1 = {};
     j1.x = 5;
     j1.y = 10.5;

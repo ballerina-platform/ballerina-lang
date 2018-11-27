@@ -227,10 +227,10 @@ function testMappingDatesToNillableTimeType() returns (int, int, int,
         while (dt.hasNext()) {
             var rs = <ResultDatesWithNillableTimeType>dt.getNext();
             if (rs is ResultDatesWithNillableTimeType) {
-                dateRetrieved = rs.DATE_TYPE.time but { () => -1 };
-                timeRetrieved = rs.TIME_TYPE.time but { () => -1 };
-                timestampRetrieved = rs.TIMESTAMP_TYPE.time but { () => -1 };
-                datetimeRetrieved = rs.DATETIME_TYPE.time but { () => -1 };
+                dateRetrieved = rs.DATE_TYPE.time ?: -1;
+                timeRetrieved = rs.TIME_TYPE.time ?: -1;
+                timestampRetrieved = rs.TIMESTAMP_TYPE.time but ?: -1;
+                datetimeRetrieved = rs.DATETIME_TYPE.time ?: -1;
             }
         }
     }
@@ -271,10 +271,10 @@ function testMappingDatesToNillableIntType(int datein, int timein,
         while (dt.hasNext()) {
             var rs = <ResultDatesWithNillableIntType>dt.getNext();
             if (rs is ResultDatesWithNillableIntType) {
-                time = rs.TIME_TYPE but { () => -1 };
-                date = rs.DATE_TYPE but { () => -1 };
-                timestamp = rs.TIMESTAMP_TYPE but { () => -1 };
-                datetime = rs.DATETIME_TYPE but { () => -1 };
+                time = rs.TIME_TYPE ?: -1;
+                date = rs.DATE_TYPE ?: -1;
+                timestamp = rs.TIMESTAMP_TYPE ?: -1;
+                datetime = rs.DATETIME_TYPE ?: -1;
             }
         }
     }
@@ -314,10 +314,10 @@ timein, int timestampin) returns (string, string, string,
         while (dt.hasNext()) {
             var rs = <ResultDatesWithNillableStringType>dt.getNext();
             if (rs is ResultDatesWithNillableStringType) {
-                time = rs.TIME_TYPE but { () => "nil" };
-                date = rs.DATE_TYPE but { () => "nil" };
-                timestamp = rs.TIMESTAMP_TYPE but { () => "nil" };
-                datetime = rs.DATETIME_TYPE but { () => "nil" };
+                time = rs.TIME_TYPE ?: "nil";
+                date = rs.DATE_TYPE ?: "nil";
+                timestamp = rs.TIMESTAMP_TYPE ?: "nil";
+                datetime = rs.DATETIME_TYPE ?: "nil";
             }
         }
     }

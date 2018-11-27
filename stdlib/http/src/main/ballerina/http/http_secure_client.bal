@@ -302,7 +302,7 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
     HttpSecureClient httpSecureClient;
     if (config.auth is AuthConfig) {
         httpSecureClient = new(url, config);
-        return <Client>httpSecureClient;
+        return httpSecureClient;
     } else {
         return createClient(url, config);
     }

@@ -34,10 +34,10 @@ service<http:Service> http11Service bind { port: 9090 } {
             }
         }
         // Send the response back to the caller.
-        caller->respond(response) but {
-            error e => log:printError(
-                           "Error occurred while sending the response",
-                           err = e) };
+        var result = caller->respond(response);
+        if (result is error) {
+           log:printError("Error occurred while sending the response", err = result);
+        }
 
     }
 }
@@ -64,10 +64,9 @@ service http2service bind http2serviceEP {
         response.setPayload(msg);
 
         // Send the response back to the caller (http11Service).
-        caller->respond(response) but {
-            error e => log:printError(
-                           "Error occurred while sending the response",
-                           err = e) };
-
+        var result = caller->respond(response);
+        if (result is error) {
+            log:printError("Error occurred while sending the response", err = result);
+        }
     }
 }

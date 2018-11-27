@@ -30,7 +30,7 @@ public type Client client object {
     # + descriptorKey - Proto descriptor key. Key of proto descriptor.
     # + descriptorMap - Proto descriptor map. descriptor map with all dependent descriptors.
     # + return - Returns an error if encounters an error while initializing the stub, returns nill otherwise.
-    public extern function initStub(string stubType, string descriptorKey, map descriptorMap)
+    public extern function initStub(string stubType, string descriptorKey, map<any> descriptorMap)
                                returns error?;
 
     # Calls when executing blocking call with gRPC service.

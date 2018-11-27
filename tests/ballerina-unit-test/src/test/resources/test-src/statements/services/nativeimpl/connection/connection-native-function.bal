@@ -1,16 +1,14 @@
 import ballerina/http;
 
-endpoint http:NonListener mockEP {
-    port:9090
-};
+listener http:MockListener mockEP = new(9090);
 
-service<http:Service> hello bind mockEP {
+service hello on mockEP {
     @http:ResourceConfig {
         path:"/redirect",
         methods:["GET"]
     }
-    redirect (endpoint conn, http:Request req) {
+    resource function redirect (http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = conn -> redirect(res, http:REDIRECT_MOVED_PERMANENTLY_301, ["location1"]);
+        _ = caller->redirect(res, http:REDIRECT_MOVED_PERMANENTLY_301, ["location1"]);
     }
 }

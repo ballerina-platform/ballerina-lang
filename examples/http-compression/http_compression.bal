@@ -18,9 +18,11 @@ service<http:Service> autoCompress bind listenerEndpoint {
         path: "/"
     }
     invokeEndpoint(endpoint caller, http:Request req) {
-        caller->respond({ "Type": "Auto compression" }) but {
-            error e => log:printError("Error sending response", err = e)
-        };
+        var result = caller->respond({ "Type": "Auto compression" });
+
+        if (result is error) {
+           log:printError("Error sending response", err = result);
+        }
     }
 }
 
@@ -40,15 +42,17 @@ service<http:Service> alwaysCompress bind listenerEndpoint {
     // Since compression is only constrained to "text/plain" MIME type,
     // `getJson` resource does not compress the response entity body.
     getJson(endpoint caller, http:Request req) {
-        caller->respond({ "Type": "Always but constrained by content-type" }) but {
-            error e => log:printError("Error sending response", err = e)
-        };
+        var result = caller->respond({ "Type": "Always but constrained by content-type" });
+        if (result is error) {
+           log:printError("Error sending response", err = result);
+        }
     }
     // The response entity body is always compressed since MIME type has matched.
     getString(endpoint caller, http:Request req) {
-        caller->respond("Type : This is a string") but {
-            error e => log:printError("Error sending response", err = e)
-        };
+        var result = caller->respond("Type : This is a string");
+        if (result is error) {
+           log:printError("Error sending response", err = result);
+        }
     }
 }
 
@@ -71,13 +75,16 @@ service<http:Service> passthrough bind { port: 9092 } {
         var result = clientEndpoint->post("/backend/echo", untaint req);
         match result {
             http:Response clientResponse => {
-                caller->respond(clientResponse) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+                var result = caller->respond(clientResponse);
+                if (result is error) {
+                   log:printError("Error sending response", err = result);
+                }
             }
             error responseError => {
-                caller->respond({ "error": "error occurred while invoking the service" }) but {
-                    error e => log:printError("Error sending response", err = e) };
+                var result = caller->respond({ "error": "error occurred while invoking the service" });
+                if (result is error) {
+                   log:printError("Error sending response", err = result);
+                }
             }
         }
     }
@@ -94,6 +101,10 @@ service<http:Service> backend bind listenerEndpoint {
         } else {
             res.setPayload("Accept-Encoding header is not present");
         }
-        caller->respond(res) but { error e => log:printError("Error sending response", err = e) };
+
+        var result = caller->respond(res);
+        if (result is error) {
+           log:printError("Error sending response", err = result);
+        }
     }
 }

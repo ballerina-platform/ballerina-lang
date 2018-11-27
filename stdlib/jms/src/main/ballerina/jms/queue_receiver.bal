@@ -51,10 +51,10 @@ public type QueueReceiver object {
     #
     # + serviceType - type descriptor of the service to bind to
     public function __attach(service serviceType, map<any> data) returns error? {
-        return self.registerListener(serviceType, self.consumerActions);
+        return self.registerListener(serviceType, self.consumerActions, data);
     }
 
-    extern function registerListener(service serviceType, QueueReceiverCaller actions) returns error?;
+    extern function registerListener(service serviceType, QueueReceiverCaller actions, map<any> data) returns error?;
 
     extern function createQueueReceiver(Session session, string messageSelector, Destination? destination = ());
 
@@ -145,12 +145,12 @@ remote function QueueReceiverCaller.receiveFrom(Destination destination, int tim
 function validateQueue(Destination destination) {
     if (destination.destinationName == "") {
         string errorMessage = "Destination name cannot be empty";
-        map errorDetail = { message: errorMessage };
+        map<any> errorDetail = { message: errorMessage };
         error queueReceiverConfigError = error(JMS_ERROR_CODE, errorDetail);
         panic queueReceiverConfigError;
     } else if (destination.destinationType != "queue") {
         string errorMessage = "Destination should should be a queue";
-        map errorDetail = { message: errorMessage };
+        map<any> errorDetail = { message: errorMessage };
         error queueReceiverConfigError = error(JMS_ERROR_CODE, errorDetail);
         panic queueReceiverConfigError;
     }

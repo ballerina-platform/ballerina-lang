@@ -45,7 +45,7 @@ function testArrayVariableAccessInJSONInit () returns (json) {
 
 function testMapVariableAccessInJSONInit () returns (json|error) {
     json msg;
-    map myMap;
+    map<any> myMap;
 
     myMap = {"stirngVal":"value0", "intVal":1};
     //with new cast change, have to do the casting outside if it is a unsafe cast, hence moved the cast expression

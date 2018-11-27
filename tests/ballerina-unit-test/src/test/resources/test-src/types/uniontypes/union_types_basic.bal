@@ -21,8 +21,8 @@ function getUnion(string|int|float si) returns (int|float|string) {
 }
 
 
-function testNullableTypeBasics1() returns (int|json|string|float|map|boolean|()) {
-    int|string|float|json|map|boolean|() k = 5;
+function testNullableTypeBasics1() returns (int|json|string|float|map<any>|boolean|()) {
+    int|string|float|json|map<any>|boolean|() k = 5;
 
     k = "sss";
     k = 1.0;
@@ -30,7 +30,7 @@ function testNullableTypeBasics1() returns (int|json|string|float|map|boolean|()
     json j = { name: "ddd" };
     k = j;
 
-    map m = { name: "dddd" };
+    map<any> m = { name: "dddd" };
     k = m;
 
     k = true;

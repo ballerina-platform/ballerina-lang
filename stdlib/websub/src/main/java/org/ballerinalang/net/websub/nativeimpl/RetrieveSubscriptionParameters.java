@@ -154,10 +154,9 @@ public class RetrieveSubscriptionParameters extends BlockingNativeCallableUnit {
                     callback = webSubHttpService.getBasePath();
                     Struct serviceEndpointConfig =
                             serviceEndpoint.getRefField(SERVICE_ENDPOINT_CONFIG_NAME).getStructValue();
-                    if (!serviceEndpointConfig.getStringField(ENDPOINT_CONFIG_HOST).isEmpty()
-                            && serviceEndpointConfig.getIntField(ENDPOINT_CONFIG_PORT) != 0) {
-                        callback = serviceEndpointConfig.getStringField(ENDPOINT_CONFIG_HOST) + ":"
-                                + serviceEndpointConfig.getIntField(ENDPOINT_CONFIG_PORT) + callback;
+                    long port = serviceEndpoint.getIntField(ENDPOINT_CONFIG_PORT);
+                    if (!serviceEndpointConfig.getStringField(ENDPOINT_CONFIG_HOST).isEmpty() && port != 0) {
+                        callback = serviceEndpointConfig.getStringField(ENDPOINT_CONFIG_HOST) + ":" + port + callback;
                     } else {
                         callback = ((ServerConnector) serviceEndpoint.getNativeData(HTTP_SERVER_CONNECTOR))
                                 .getConnectorID() + callback;
