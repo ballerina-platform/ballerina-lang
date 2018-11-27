@@ -32,7 +32,6 @@ import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
-import org.ballerinalang.util.BLangConstants;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.Command;
@@ -80,41 +79,32 @@ public class CommandUtil {
     /**
      * Get the commands for the given node type.
      *
-     * @param topLevelNodePair Node Type
+     * @param topLevelNodeType Node Type
      * @param docUri           Document URI
      * @param line             Node line
      * @return {@link List}    List of commands for the line
      */
-    public static List<Command> getCommandForNodeType(Pair<String, String> topLevelNodePair, String docUri, int line) {
+    public static List<Command> getCommandForNodeType(String topLevelNodeType, String docUri, int line) {
         List<Command> commands = new ArrayList<>();
-        String nodeType = topLevelNodePair.getLeft();
-        String nodeName = topLevelNodePair.getRight();
-        if (UtilSymbolKeys.OBJECT_KEYWORD_KEY.equals(nodeType)) {
+        if (UtilSymbolKeys.OBJECT_KEYWORD_KEY.equals(topLevelNodeType)) {
             commands.add(getInitializerGenerationCommand(docUri, line));
         }
-        if (!BLangConstants.CONSTRUCTOR_FUNCTION_SUFFIX.equals(nodeName)) {
-            // Skip __init function
-            //TODO: Fix doc generation for the __init function
-            commands.add(getDocGenerationCommand(nodeType, docUri, line));
-            commands.add(getAllDocGenerationCommand(docUri));
-        }
+        commands.add(getDocGenerationCommand(topLevelNodeType, docUri, line));
+        commands.add(getAllDocGenerationCommand(docUri));
         return commands;
     }
 
     /**
      * Get the command for generate test class.
      *
-     * @param topLevelNodePair top level node
+     * @param topLevelNodeType top level node
      * @param docUri           Document Uri
      * @param params           Code action parameters
      * @return {@link Command}  Test Generation command
      */
-    public static List<Command> getTestGenerationCommand(Pair<String, String> topLevelNodePair, String docUri,
+    public static List<Command> getTestGenerationCommand(String topLevelNodeType, String docUri,
                                                          CodeActionParams params) {
         List<Command> commands = new ArrayList<>();
-        String topLevelNodeType = topLevelNodePair.getLeft();
-        String topLevelNodeName = topLevelNodePair.getRight();
-
         List<Object> args = new ArrayList<>();
         args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri));
         Position position = params.getRange().getStart();
@@ -124,8 +114,7 @@ public class CommandUtil {
         if (UtilSymbolKeys.SERVICE_KEYWORD_KEY.equals(topLevelNodeType)) {
             commands.add(new Command(CommandConstants.CREATE_TEST_SERVICE_TITLE,
                                      CommandConstants.CMD_CREATE_TEST, args));
-        } else if (UtilSymbolKeys.FUNCTION_KEYWORD_KEY.equals(topLevelNodeType) &&
-                !BLangConstants.CONSTRUCTOR_FUNCTION_SUFFIX.equals(topLevelNodeName)) {
+        } else if (UtilSymbolKeys.FUNCTION_KEYWORD_KEY.equals(topLevelNodeType)) {
             commands.add(new Command(CommandConstants.CREATE_TEST_FUNC_TITLE, CommandConstants.CMD_CREATE_TEST, args));
         }
         return commands;

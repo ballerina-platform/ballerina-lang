@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver;
 
 import com.google.gson.JsonObject;
-import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
@@ -395,36 +394,36 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<List<? extends Command>> codeAction(CodeActionParams params) {
         return CompletableFuture.supplyAsync(() -> {
             List<Command> commands = new ArrayList<>();
-            String fileUri = params.getTextDocument().getUri();
+            TextDocumentIdentifier identifier = params.getTextDocument();
+            String fileUri = identifier.getUri();
             try {
-                Position start = params.getRange().getStart();
+                int line = params.getRange().getStart().getLine();
                 LSDocument document = new LSDocument(fileUri);
                 List<Diagnostic> diagnostics = params.getContext().getDiagnostics();
 
-                Pair<String, String> topLevelNodePair = CommonUtil.topLevelNodeInLine(params.getTextDocument(), start,
-                                                                                      documentManager);
+                String topLevelNodeType = CommonUtil.topLevelNodeInLine(identifier, line, documentManager);
 
                 // Add create test commands
                 String innerDirName = LSCompilerUtil.getCurrentModulePath(document.getPath())
                         .relativize(document.getPath())
                         .toString().split(File.separator)[0];
-                if (topLevelNodePair != null && diagnostics.isEmpty() && document.hasProjectRepo() &&
+                if (topLevelNodeType != null && diagnostics.isEmpty() && document.hasProjectRepo() &&
                         !TEST_DIR_NAME.equals(innerDirName)) {
-                    commands.addAll(CommandUtil.getTestGenerationCommand(topLevelNodePair, fileUri, params));
+                    commands.addAll(CommandUtil.getTestGenerationCommand(topLevelNodeType, fileUri, params));
                 }
 
                 // Add commands base on node diagnostics
                 if (!diagnostics.isEmpty()) {
                     diagnostics.forEach(diagnostic -> {
-                        if (start.getLine() == diagnostic.getRange().getStart().getLine()) {
+                        if (line == diagnostic.getRange().getStart().getLine()) {
                             commands.addAll(CommandUtil.getCommandsByDiagnostic(diagnostic, params));
                         }
                     });
                 }
 
                 // Add commands base on node type
-                if (topLevelNodePair != null) {
-                    commands.addAll(getCommandForNodeType(topLevelNodePair, fileUri, start.getLine()));
+                if (topLevelNodeType != null) {
+                    commands.addAll(getCommandForNodeType(topLevelNodeType, fileUri, line));
                 }
                 return commands;
             } catch (Exception e) {

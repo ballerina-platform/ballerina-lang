@@ -18,8 +18,6 @@ package org.ballerinalang.langserver.common.utils;
 import com.google.common.collect.Lists;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.command.testgen.TestGenerator.TestFunctionGenerator;
@@ -119,6 +117,7 @@ import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
+import static org.ballerinalang.util.BLangConstants.CONSTRUCTOR_FUNCTION_SUFFIX;
 
 /**
  * Common utils to be reuse in language server implementation.
@@ -348,17 +347,17 @@ public class CommonUtil {
     }
 
     /**
-     * Get the top level node type in the line.
+     * Get the top level node type at the cursor line.
      *
-     * @param identifier    Document Identifier
-     * @param startPosition Start position
-     * @param docManager    Workspace document manager
-     * @return {@link Pair}   A pair of top level node type and followed by optional name
+     * @param identifier Document Identifier
+     * @param cursorLine Cursor line
+     * @param docManager Workspace document manager
+     * @return {@link String}   Top level node type
      */
-    public static Pair<String, String> topLevelNodeInLine(TextDocumentIdentifier identifier, Position startPosition,
-                                                          WorkspaceDocumentManager docManager) {
+    public static String topLevelNodeInLine(TextDocumentIdentifier identifier, int cursorLine,
+                                            WorkspaceDocumentManager docManager) {
         List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "endpoint", "object",
-                "record");
+                                                      "record");
         LSDocument document = new LSDocument(identifier.getUri());
 
         try {
@@ -366,19 +365,19 @@ public class CommonUtil {
             Path compilationPath = getUntitledFilePath(filePath.toString()).orElse(filePath);
             String fileContent = docManager.getFileContent(compilationPath);
             String[] splitedFileContent = fileContent.split(LINE_SEPARATOR_SPLIT);
-            if ((splitedFileContent.length - 1) >= startPosition.getLine()) {
-                String lineContent = splitedFileContent[startPosition.getLine()];
+            if ((splitedFileContent.length - 1) >= cursorLine) {
+                String lineContent = splitedFileContent[cursorLine];
                 List<String> alphaNumericTokens = new ArrayList<>(Arrays.asList(lineContent.split("[^\\w']+")));
-
                 for (int i = 0; i < alphaNumericTokens.size(); i++) {
                     String topLevelKeyword = alphaNumericTokens.get(i);
                     if (topLevelKeywords.contains(topLevelKeyword)) {
-                        String nextToken = "";
-                        int j = i + 1;
-                        if (j < alphaNumericTokens.size()) {
-                            nextToken = alphaNumericTokens.get(j);
+                        int nextTokenIndex = i + 1;
+                        if (nextTokenIndex < alphaNumericTokens.size() &&
+                                CONSTRUCTOR_FUNCTION_SUFFIX.equals(alphaNumericTokens.get(nextTokenIndex))) {
+                            // Skip __init function
+                            return null;
                         }
-                        return new ImmutablePair<>(topLevelKeyword, nextToken);
+                        return topLevelKeyword;
                     }
                 }
             }
