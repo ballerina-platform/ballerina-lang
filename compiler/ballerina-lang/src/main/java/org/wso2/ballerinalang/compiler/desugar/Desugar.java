@@ -1576,11 +1576,11 @@ public class Desugar extends BLangNodeVisitor {
         //         break;
         //     } else {
         //         T i = $result$.value;
+        //         $result$ = $iterator$.next();
         //         ....
         //         [foreach node body]
         //         ....
         //     }
-        //     $result$ = $iterator$.next();
         // }
 
         // Note - any $iterator$ = $data$.iterate(); -------------------------------------------------------------------
@@ -1697,17 +1697,6 @@ public class Desugar extends BLangNodeVisitor {
         BLangBlockStmt elseStatement = foreach.body;
         elseStatement.stmts.add(0, (BLangStatement) variableDefinitionNode);
 
-        ifStatement.elseStmt = elseStatement;
-
-        // Note - $result$ != ()
-        BLangSimpleVarRef resultReferenceInWhile = ASTBuilderUtil.createVariableRef(foreach.pos, resultSymbol);
-        BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(foreach.pos, symTable.nilType, Names.NIL_VALUE);
-
-        BOperatorSymbol operatorSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.NOT_EQUAL,
-                symTable.anyType, nilLiteral.type);
-        BLangBinaryExpr binaryExpr = ASTBuilderUtil.createBinaryExpr(foreach.pos, resultReferenceInWhile, nilLiteral,
-                symTable.booleanType, OperatorKind.NOT_EQUAL, operatorSymbol);
-
         // Note - $result$ = $iterator$.next();
         BLangSimpleVarRef resultReferenceInAssignment = ASTBuilderUtil.createVariableRef(foreach.pos, resultSymbol);
         BLangSimpleVarRef iteratorReferenceAssignment = ASTBuilderUtil.createVariableRef(foreach.pos, iteratorSymbol);
@@ -1728,15 +1717,26 @@ public class Desugar extends BLangNodeVisitor {
         BLangAssignment resultAssignment = ASTBuilderUtil.createAssignmentStmt(foreach.pos, resultReferenceInAssignment,
                 nextInvocationInAssignment, false);
 
+        // Note - while ... { ... $result$ = $iterator$.next(); };
+        elseStatement.stmts.add(1, resultAssignment);
+
+        ifStatement.elseStmt = elseStatement;
+
+        // Note - $result$ != ()
+        BLangSimpleVarRef resultReferenceInWhile = ASTBuilderUtil.createVariableRef(foreach.pos, resultSymbol);
+        BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(foreach.pos, symTable.nilType, Names.NIL_VALUE);
+
+        BOperatorSymbol operatorSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.NOT_EQUAL,
+                symTable.anyType, nilLiteral.type);
+        BLangBinaryExpr binaryExpr = ASTBuilderUtil.createBinaryExpr(foreach.pos, resultReferenceInWhile, nilLiteral,
+                symTable.booleanType, OperatorKind.NOT_EQUAL, operatorSymbol);
+
         // Note - while $result$ != ()
         BLangWhile whileNode = (BLangWhile) TreeBuilder.createWhileNode();
         whileNode.pos = foreach.pos;
         whileNode.expr = binaryExpr;
         whileNode.body = ASTBuilderUtil.createBlockStmt(foreach.pos);
         whileNode.body.addStatement(ifStatement);
-
-        // Note - while ... { ... $result$ = $iterator$.next(); };
-        whileNode.body.addStatement(resultAssignment);
 
         // Create a new block statement node.
         BLangBlockStmt blockNode = ASTBuilderUtil.createBlockStmt(foreach.pos);
