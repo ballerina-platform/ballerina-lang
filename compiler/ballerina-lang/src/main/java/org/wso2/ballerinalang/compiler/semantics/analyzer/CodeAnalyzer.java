@@ -158,6 +158,7 @@ import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -203,6 +204,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private BLangNode parent;
     private Names names;
     private SymbolEnv env;
+    private final Stack<HashSet<BType>> returnTypes = new Stack<>();
 
     public static CodeAnalyzer getInstance(CompilerContext context) {
         CodeAnalyzer codeGenerator = context.get(CODE_ANALYZER_KEY);
@@ -316,6 +318,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         this.returnWithintransactionCheckStack.push(true);
         this.doneWithintransactionCheckStack.push(true);
+        this.returnTypes.push(new HashSet<>());
         this.resetFunction();
         if (Symbols.isNative(funcNode.symbol)) {
             return;
@@ -333,6 +336,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                                 funcNode.getKind().toString().toLowerCase());
             }
         }
+        this.returnTypes.pop();
         this.returnWithintransactionCheckStack.pop();
         this.doneWithintransactionCheckStack.pop();
         if (funcNode.symbol.isTransactionHandler) {
@@ -453,6 +457,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         this.statementReturns = true;
         analyzeExpr(returnStmt.expr);
+        this.returnTypes.peek().add(returnStmt.expr.type);
     }
 
     @Override
@@ -1124,6 +1129,21 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         if (!this.inWorker()) {
             return;
+        }
+        Set<BType> returnTypesUpToNow = this.returnTypes.peek();
+        HashSet<BType> returnTypeAndSendType = new HashSet<>();
+        for (BType returnType : returnTypesUpToNow) {
+            if (returnType.tag == TypeTags.ERROR) {
+                returnTypeAndSendType.add(returnType);
+            } else {
+                this.dlog.error(workerSendNode.pos, DiagnosticCode.WORKER_AFTER_RETURN);
+            }
+        }
+        returnTypeAndSendType.add(workerSendNode.expr.type);
+        if (returnTypeAndSendType.size() > 1) {
+            workerSendNode.type = new BUnionType(null, returnTypeAndSendType, false);
+        } else {
+            workerSendNode.type = workerSendNode.expr.type;
         }
         this.workerActionSystemStack.peek().addWorkerAction(workerSendNode);
         analyzeExpr(workerSendNode.expr);
@@ -1839,8 +1859,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private void validateWorkerActionParameters(BLangWorkerSend send, BLangWorkerReceive receive) {
-        this.typeChecker.checkExpr(send.expr, send.env, receive.type);
-        addImplicitCast(send.expr.type, receive);
+        types.checkType(receive, send.type, receive.type);
+        addImplicitCast(send.type, receive);
     }
 
     private void validateWorkerActionParameters(BLangWorkerSyncSendExpr send, BLangWorkerReceive receive) {
