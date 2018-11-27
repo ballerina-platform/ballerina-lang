@@ -908,14 +908,14 @@ public class CPU {
         if (!checkIsLikeType(valueToBeStamped, targetType)) {
             BError error;
             if (valueToBeStamped != null) {
-                error = BLangVMErrors.createError(ctx,
-                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_STAMP_OPERATION,
-                                valueToBeStamped.getType(), targetType));
+//                error = BLangVMErrors.createError(ctx,
+//                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_STAMP_OPERATION,
+//                                valueToBeStamped.getType(), targetType));
             } else {
-                error = BLangVMErrors.createError(ctx,
-                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.CANNOT_STAMP_NULL, targetType));
+//                error = BLangVMErrors.createError(ctx,
+//                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.CANNOT_STAMP_NULL, targetType));
             }
-            sf.refRegs[k] = error;
+//            sf.refRegs[k] = error;
             return;
         }
 
@@ -2181,23 +2181,23 @@ public class CPU {
                         sf.refRegs[j] = null;
                         break;
                     }
-                    ctx.setError(BLangVMErrors.createError(ctx,
-                                                           BLangExceptionHelper.getErrorMessage(
-                                                                   RuntimeErrors.TYPE_ASSERTION_ERROR, expectedType,
-                                                                   "()")));
+//                    ctx.setError(BLangVMErrors.createError(ctx,
+//                                                           BLangExceptionHelper.getErrorMessage(
+//                                                                   RuntimeErrors.TYPE_ASSERTION_ERROR, expectedType,
+//                                                                   "()")));
                     handleError(ctx);
                 } else if (isSimpleBasicType(expectedType)) {
                     execExplicitlyTypedExpressionOpCode(ctx, sf, expectedType, bRefTypeValue, j);
                 } else if (expectedType.equals(bRefTypeValue.getType())) {
                     sf.refRegs[j] = bRefTypeValue;
                 } else {
-                    ctx.setError(
-                            BLangVMErrors.createError(ctx,
-                                                      BLangExceptionHelper.getErrorMessage(
-                                                              RuntimeErrors.TYPE_ASSERTION_ERROR,
-                                                                   (expectedType.getTag() == TypeTags.NULL_TAG ?
-                                                                            "()" : expectedType),
-                                                                   bRefTypeValue.getType())));
+//                    ctx.setError(
+//                            BLangVMErrors.createError(ctx,
+//                                                      BLangExceptionHelper.getErrorMessage(
+//                                                              RuntimeErrors.TYPE_ASSERTION_ERROR,
+//                                                                   (expectedType.getTag() == TypeTags.NULL_TAG ?
+//                                                                            "()" : expectedType),
+//                                                                   bRefTypeValue.getType())));
                     handleError(ctx);
                 }
                 break;
@@ -2329,8 +2329,8 @@ public class CPU {
         int targetTag = targetType.getTag();
         if (!isSimpleBasicType(sourceType) ||
                 (sourceType.getTag() == TypeTags.STRING_TAG && targetTag != TypeTags.STRING_TAG)) {
-            ctx.setError(BLangVMErrors.createError(ctx,  "assertion error: expected '" + targetType + "', found '" +
-                    bRefTypeValue.getType() + "'"));
+//            ctx.setError(BLangVMErrors.createError(ctx,  "assertion error: expected '" + targetType + "', found '" +
+//                    bRefTypeValue.getType() + "'"));
             handleError(ctx);
             return;
         }
@@ -2354,7 +2354,7 @@ public class CPU {
                     break;
             }
         } catch (BallerinaException e) {
-            ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+//            ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
             handleError(ctx);
         }
     }
@@ -2408,15 +2408,15 @@ public class CPU {
                 j = operands[1];
                 double valueToConvert = sf.doubleRegs[i];
                 if (Double.isNaN(valueToConvert) || Double.isInfinite(valueToConvert)) {
-                    ctx.setError(BLangVMErrors.createError(ctx, "'float' value '" + valueToConvert + "' cannot be " +
-                            "converted to 'int'"));
+//                    ctx.setError(BLangVMErrors.createError(ctx, "'float' value '" + valueToConvert + "' cannot be " +
+//                            "converted to 'int'"));
                     handleError(ctx);
                     break;
                 }
 
                 if (!isFloatWithinIntRange(valueToConvert)) {
-                    ctx.setError(BLangVMErrors.createError(ctx, "out of range 'float' value '" + valueToConvert + "'" +
-                            " cannot be converted to 'int'"));
+//                  ctx.setError(BLangVMErrors.createError(ctx, "out of range 'float' value '" + valueToConvert + "'" +
+//                          " cannot be converted to 'int'"));
                     handleError(ctx);
                     break;
                 }
@@ -2502,8 +2502,8 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 if (!isDecimalWithinIntRange(((BDecimal) sf.refRegs[i]).decimalValue())) {
-                    ctx.setError(BLangVMErrors.createError(ctx, "out of range 'decimal' value '" +
-                            sf.refRegs[i] + "' cannot be converted to 'int'"));
+//                    ctx.setError(BLangVMErrors.createError(ctx, "out of range 'decimal' value '" +
+//                            sf.refRegs[i] + "' cannot be converted to 'int'"));
                     handleError(ctx);
                     break;
                 }
@@ -2758,22 +2758,22 @@ public class CPU {
 
             switch (paramType.getTag()) {
                 case TypeTags.INT_TAG:
-                    lockAcquired = ctx.programFile.globalMemArea.lockIntField(ctx, pkgIndex, regIndex);
+//                    lockAcquired = ctx.programFile.globalMemArea.lockIntField(ctx, pkgIndex, regIndex);
                     break;
                 case TypeTags.BYTE_TAG:
-                    lockAcquired = ctx.programFile.globalMemArea.lockBooleanField(ctx, pkgIndex, regIndex);
+//                    lockAcquired = ctx.programFile.globalMemArea.lockBooleanField(ctx, pkgIndex, regIndex);
                     break;
                 case TypeTags.FLOAT_TAG:
-                    lockAcquired = ctx.programFile.globalMemArea.lockFloatField(ctx, pkgIndex, regIndex);
+//                    lockAcquired = ctx.programFile.globalMemArea.lockFloatField(ctx, pkgIndex, regIndex);
                     break;
                 case TypeTags.STRING_TAG:
-                    lockAcquired = ctx.programFile.globalMemArea.lockStringField(ctx, pkgIndex, regIndex);
+//                    lockAcquired = ctx.programFile.globalMemArea.lockStringField(ctx, pkgIndex, regIndex);
                     break;
                 case TypeTags.BOOLEAN_TAG:
-                    lockAcquired = ctx.programFile.globalMemArea.lockBooleanField(ctx, pkgIndex, regIndex);
+//                    lockAcquired = ctx.programFile.globalMemArea.lockBooleanField(ctx, pkgIndex, regIndex);
                     break;
                 default:
-                    lockAcquired = ctx.programFile.globalMemArea.lockRefField(ctx, pkgIndex, regIndex);
+//                    lockAcquired = ctx.programFile.globalMemArea.lockRefField(ctx, pkgIndex, regIndex);
             }
 
         }
@@ -2794,7 +2794,7 @@ public class CPU {
             int regIndex = varRegs[varCount + i];
             String field = ctx.workerLocal.stringRegs[fieldRegs[i]];
             VarLock lock = ((BMap) ctx.workerLocal.refRegs[regIndex]).getFieldLock(field);
-            lockAcquired = lock.lock(ctx);
+//            lockAcquired = lock.lock(ctx);
             if (lockAcquired) {
                 lockStack.push(lock);
             }
@@ -2848,10 +2848,10 @@ public class CPU {
         }
         DebugContext debugContext = ctx.getDebugContext();
 
-        if (debugContext.isWorkerPaused()) {
-            debugContext.setWorkerPaused(false);
-            return false;
-        }
+//        if (debugContext.isWorkerPaused()) {
+//            debugContext.setWorkerPaused(false);
+//            return false;
+//        }
 
         LineNumberInfo currentExecLine = debugger
                 .getLineNumber(ctx.callableUnitInfo.getPackageInfo().getPkgPath(), ctx.ip);
@@ -2940,8 +2940,8 @@ public class CPU {
 
     private static void handleTypeCastError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex,
                                             String sourceType, String targetType) {
-        BError errorVal = BLangVMErrors.createTypeCastError(ctx, sourceType, targetType);
-        sf.refRegs[errorRegIndex] = errorVal;
+//        BError errorVal = BLangVMErrors.createTypeCastError(ctx, sourceType, targetType);
+//        sf.refRegs[errorRegIndex] = errorVal;
     }
 
     private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex,
@@ -2957,8 +2957,8 @@ public class CPU {
 
     private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf,
                                                   int errorRegIndex, String errorMessage) {
-        BError errorVal = BLangVMErrors.createTypeConversionError(ctx, errorMessage);
-        sf.refRegs[errorRegIndex] = errorVal;
+//        BError errorVal = BLangVMErrors.createTypeConversionError(ctx, errorMessage);
+//        sf.refRegs[errorRegIndex] = errorVal;
     }
 
     private static void createNewIntRange(int[] operands, WorkerData sf) {
@@ -3059,16 +3059,16 @@ public class CPU {
         try {
             //In success case no need to do anything as with the transaction end phase it will be committed.
             if (status == TransactionStatus.FAILED.value()) {
-                notifyCoordinator = localTransactionInfo.onTransactionFailed(ctx, transactionBlockId);
-                if (notifyCoordinator) {
-                    if (isGlobalTransactionEnabled) {
-                        TransactionUtils.notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(),
-                                transactionBlockId);
-                    } else {
-                        TransactionResourceManager.getInstance()
-                                .notifyAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId, false);
-                    }
-                }
+//                notifyCoordinator = localTransactionInfo.onTransactionFailed(ctx, transactionBlockId);
+//                if (notifyCoordinator) {
+//                    if (isGlobalTransactionEnabled) {
+//                        TransactionUtils.notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(),
+//                                transactionBlockId);
+//                    } else {
+//                        TransactionResourceManager.getInstance()
+//                              .notifyAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId, false);
+//                    }
+//                }
             } else if (status == TransactionStatus.ABORTED.value()) {
                 if (isGlobalTransactionEnabled) {
 //                    TransactionUtils.notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(),
