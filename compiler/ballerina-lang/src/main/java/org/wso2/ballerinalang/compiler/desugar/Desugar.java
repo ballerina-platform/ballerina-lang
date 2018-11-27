@@ -1520,6 +1520,7 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.ARRAY:
             case TypeTags.XML:
             case TypeTags.MAP:
+            case TypeTags.TABLE:
                 blockNode = desugarForeachOfListTypes(foreach, collectionSymbol);
                 break;
 //                blockNode = desugarForeachOfListTypes(foreach, collectionSymbol);
