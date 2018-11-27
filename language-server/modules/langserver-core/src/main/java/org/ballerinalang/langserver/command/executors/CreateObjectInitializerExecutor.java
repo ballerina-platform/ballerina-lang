@@ -30,6 +30,7 @@ import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
@@ -49,9 +50,9 @@ import static org.ballerinalang.langserver.command.CommandUtil.applySingleTextEd
  * @since 0.983.0
  */
 @JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
-public class CreateObjectConstructorExecutor implements LSCommandExecutor {
+public class CreateObjectInitializerExecutor implements LSCommandExecutor {
 
-    private static final String COMMAND = "CREATE_CONSTRUCTOR";
+    private static final String COMMAND = "CREATE_INITIALIZER";
 
     /**
      * {@inheritDoc}
@@ -89,17 +90,25 @@ public class CreateObjectConstructorExecutor implements LSCommandExecutor {
                         && ((BLangTypeDefinition) topLevelNode).symbol.kind.equals(SymbolKind.OBJECT)
                         && topLevelNode.getPosition().getStartLine() - 1 == finalLine)
                 .findAny()
-                .orElseThrow(() -> new LSCommandExecutorException("Error Executing Create Constructor Command"));
+                .orElseThrow(() -> new LSCommandExecutorException("Error Executing Create Initializer Command"));
         List<BLangSimpleVariable> fields = ((BLangObjectTypeNode) ((BLangTypeDefinition) objectNode).typeNode).fields;
 
-        DiagnosticPos zeroBasedIndex = CommonUtil.toZeroBasedPosition(CommonUtil.getLastItem(fields).getPosition());
-        int lastFieldLine = zeroBasedIndex.getEndLine();
-        int lastFieldOffset = zeroBasedIndex.getStartColumn();
+        int lastFieldLine;
+        int lastFieldOffset;
+        if (fields.isEmpty()) {
+            Diagnostic.DiagnosticPosition position = objectNode.getPosition();
+            lastFieldLine = position.getStartLine() - 1;
+            lastFieldOffset = position.getStartColumn() - 1 + 4;
+        } else {
+            DiagnosticPos zeroBasedIndex = CommonUtil.toZeroBasedPosition(CommonUtil.getLastItem(fields).getPosition());
+            lastFieldLine = zeroBasedIndex.getEndLine();
+            lastFieldOffset = zeroBasedIndex.getStartColumn();
+        }
         String constructorSnippet = CommandUtil.getObjectConstructorSnippet(fields, lastFieldOffset);
         Range range = new Range(new Position(lastFieldLine + 1, 0), new Position(lastFieldLine + 1, 0));
 
         return applySingleTextEdit(constructorSnippet, range, textDocumentIdentifier,
-                context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
+                                   context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
     }
 
     /**
