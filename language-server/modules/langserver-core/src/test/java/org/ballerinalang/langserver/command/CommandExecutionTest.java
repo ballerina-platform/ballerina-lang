@@ -132,7 +132,7 @@ public class CommandExecutionTest {
                 new CommandArgument("node.type", configJsonObject.get("nodeType").getAsString()),
                 new CommandArgument("doc.uri", sourcePath.toUri().toString()),
                 new CommandArgument("node.line", configJsonObject.get("nodeLine").getAsString()));
-        JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_CREATE_CONSTRUCTOR);
+        JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_CREATE_INITIALIZER);
         responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
                 .forEach(element -> element.getAsJsonObject().remove("textDocument"));
         Assert.assertEquals(responseJson, expected);

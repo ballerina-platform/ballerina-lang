@@ -62,10 +62,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.StringJoiner;
 import java.util.regex.Matcher;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.ballerinalang.langserver.common.utils.CommonUtil.FunctionGenerator.generateTypeDefinition;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 
 /**
@@ -79,20 +80,24 @@ public class CommandUtil {
     /**
      * Get the commands for the given node type.
      *
-     * @param nodeType Node Type
-     * @param docUri   Document URI
-     * @param line     Node line
-     * @return {@link List}     List of commands for the line
+     * @param topLevelNodePair Node Type
+     * @param docUri           Document URI
+     * @param line             Node line
+     * @return {@link List}    List of commands for the line
      */
-    public static List<Command> getCommandForNodeType(String nodeType, String docUri, int line) {
+    public static List<Command> getCommandForNodeType(Pair<String, String> topLevelNodePair, String docUri, int line) {
         List<Command> commands = new ArrayList<>();
-
+        String nodeType = topLevelNodePair.getLeft();
+        String nodeName = topLevelNodePair.getRight();
         if (UtilSymbolKeys.OBJECT_KEYWORD_KEY.equals(nodeType)) {
-            commands.add(getConstructorGenerationCommand(docUri, line));
+            commands.add(getInitializerGenerationCommand(docUri, line));
         }
-        commands.add(getDocGenerationCommand(nodeType, docUri, line));
-        commands.add(getAllDocGenerationCommand(docUri));
-
+        if (!BLangConstants.CONSTRUCTOR_FUNCTION_SUFFIX.equals(nodeName)) {
+            // Skip __init function
+            //TODO: Fix doc generation for the __init function
+            commands.add(getDocGenerationCommand(nodeType, docUri, line));
+            commands.add(getAllDocGenerationCommand(docUri));
+        }
         return commands;
     }
 
@@ -203,14 +208,18 @@ public class CommandUtil {
      * @return {@link String}   Constructor snippet as String
      */
     public static String getObjectConstructorSnippet(List<BLangSimpleVariable> fields, int baseOffset) {
-        List<String> fieldNames = fields.stream()
-                .filter(bField -> ((bField.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC))
-                .map(bField -> bField.getName().getValue())
-                .collect(Collectors.toList());
+        StringJoiner funcFields = new StringJoiner(", ");
+        StringJoiner funcBody = new StringJoiner(CommonUtil.LINE_SEPARATOR);
         String offsetStr = String.join("", Collections.nCopies(baseOffset, " "));
+        fields.stream()
+                .filter(bField -> ((bField.symbol.flags & Flags.PUBLIC) != Flags.PUBLIC))
+                .forEach(var -> {
+                    funcFields.add(generateTypeDefinition(null, null, var) + " " + var.name.value);
+                    funcBody.add(offsetStr + "    self." + var.name.value + " = " + var.name.value + ";");
+                });
 
-        return offsetStr + "new(" + String.join(", ", fieldNames) + ") {" + CommonUtil.LINE_SEPARATOR
-                + CommonUtil.LINE_SEPARATOR + offsetStr + "}" + CommonUtil.LINE_SEPARATOR;
+        return offsetStr + "public function __init(" + funcFields.toString() + ") {" + CommonUtil.LINE_SEPARATOR +
+                funcBody.toString() + CommonUtil.LINE_SEPARATOR + offsetStr + "}" + CommonUtil.LINE_SEPARATOR;
     }
 
     /**
@@ -362,11 +371,11 @@ public class CommandUtil {
                 new ArrayList<>(Collections.singletonList(docUriArg)));
     }
 
-    private static Command getConstructorGenerationCommand(String docUri, int line) {
+    private static Command getInitializerGenerationCommand(String docUri, int line) {
         CommandArgument docUriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri);
         CommandArgument startLineArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, String.valueOf(line));
-        return new Command(CommandConstants.CREATE_CONSTRUCTOR_TITLE, CommandConstants.CMD_CREATE_CONSTRUCTOR,
-                new ArrayList<>(Arrays.asList(docUriArg, startLineArg)));
+        return new Command(CommandConstants.CREATE_INITIALIZER_TITLE, CommandConstants.CMD_CREATE_INITIALIZER,
+                           new ArrayList<>(Arrays.asList(docUriArg, startLineArg)));
     }
 
     /**

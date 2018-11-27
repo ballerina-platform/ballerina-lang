@@ -96,7 +96,7 @@ public class CodeActionTest {
                 case CommandConstants.CMD_ADD_ALL_DOC:
                     Assert.assertEquals(title, "Document All");
                     break;
-                case CommandConstants.CMD_CREATE_CONSTRUCTOR:
+                case CommandConstants.CMD_CREATE_INITIALIZER:
                     Assert.assertEquals(title, "Create Constructor");
                     break;
                 default:

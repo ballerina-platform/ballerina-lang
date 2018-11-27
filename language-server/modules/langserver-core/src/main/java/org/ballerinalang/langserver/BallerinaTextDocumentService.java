@@ -424,7 +424,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
                 // Add commands base on node type
                 if (topLevelNodePair != null) {
-                    commands.addAll(getCommandForNodeType(topLevelNodePair.getLeft(), fileUri, start.getLine()));
+                    commands.addAll(getCommandForNodeType(topLevelNodePair, fileUri, start.getLine()));
                 }
                 return commands;
             } catch (Exception e) {

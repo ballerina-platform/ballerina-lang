@@ -259,7 +259,7 @@ public class SnippetGenerator {
     public static SnippetBlock getObjectConstructorSnippet() {
         String snippet = "public function __init(${1:any arg}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" +
                 CommonUtil.LINE_SEPARATOR + "}";
-        return new SnippetBlock(ItemResolverConstants.NEW_OBJECT_CONSTRUCTOR_TYPE, snippet,
+        return new SnippetBlock(ItemResolverConstants.NEW_OBJECT_INITIALIZER_TYPE, snippet,
                                 ItemResolverConstants.SNIPPET_TYPE, SnippetType.SNIPPET);
     }
 
