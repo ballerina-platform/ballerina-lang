@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BAnydataType;
 import org.ballerinalang.model.types.BJSONType;
+import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStringType;
 import org.ballerinalang.model.types.TypeTags;
@@ -60,8 +61,10 @@ public class ArrayStampInbuiltFunctionTest {
 
         Assert.assertEquals(results.length, 2);
 
-        Assert.assertEquals((mapValue0).getType().getClass(), BAnydataType.class);
-        Assert.assertEquals((mapValue1).getType().getClass(), BAnydataType.class);
+        Assert.assertEquals((mapValue0).getType().getClass(), BMapType.class);
+        Assert.assertEquals(((BMapType) mapValue0.getType()).getConstrainedType().getClass(), BAnydataType.class);
+        Assert.assertEquals((mapValue1).getType().getClass(), BMapType.class);
+        Assert.assertEquals(((BMapType) mapValue1.getType()).getConstrainedType().getClass(), BAnydataType.class);
     }
 
     @Test
@@ -145,8 +148,11 @@ public class ArrayStampInbuiltFunctionTest {
 
         Assert.assertEquals(results.length, 2);
 
-        Assert.assertEquals((mapValue0).getType().getClass(), BRecordType.class);
-        Assert.assertEquals((mapValue1).getType().getClass(), BRecordType.class);
+        Assert.assertEquals((mapValue0).getType().getClass(), BMapType.class);
+        Assert.assertEquals(((BMapType) (mapValue0).getType()).getConstrainedType().getClass(), BAnydataType.class);
+        Assert.assertEquals((mapValue1).getType().getClass(), BMapType.class);
+        Assert.assertEquals((mapValue1).getType().getClass(), BMapType.class);
+        Assert.assertEquals(((BMapType) (mapValue1).getType()).getConstrainedType().getClass(), BAnydataType.class);
     }
 
     @Test
@@ -158,8 +164,10 @@ public class ArrayStampInbuiltFunctionTest {
 
         Assert.assertEquals(results.length, 2);
 
-        Assert.assertEquals((mapValue0).getType().getClass(), BAnydataType.class);
-        Assert.assertEquals((mapValue1).getType().getClass(), BAnydataType.class);
+        Assert.assertEquals((mapValue0).getType().getClass(), BMapType.class);
+        Assert.assertEquals(((BMapType) mapValue0.getType()).getConstrainedType().getClass(), BAnydataType.class);
+        Assert.assertEquals((mapValue1).getType().getClass(), BMapType.class);
+        Assert.assertEquals(((BMapType) mapValue1.getType()).getConstrainedType().getClass(), BAnydataType.class);
     }
 
     @Test

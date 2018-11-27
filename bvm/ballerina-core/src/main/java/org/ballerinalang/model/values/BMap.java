@@ -380,6 +380,9 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
                 }
             }
         }
+        if (type.getTag() == TypeTags.ANYDATA_TAG) {
+            type = CPU.resolveMatchingAnydataType(this);
+        }
 
         this.type = type;
     }

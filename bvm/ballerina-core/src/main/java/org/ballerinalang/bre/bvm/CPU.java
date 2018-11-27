@@ -4242,6 +4242,45 @@ public class CPU {
         }
     }
 
+    public static BType resolveMatchingAnydataType(BValue value) {
+        if(checkIsLikeType(value, BTypes.typeInt)){
+            return BTypes.typeInt;
+        }
+
+        if(checkIsLikeType(value, BTypes.typeFloat)) {
+            return BTypes.typeFloat;
+        }
+
+        if(checkIsLikeType(value, BTypes.typeString)) {
+            return BTypes.typeString;
+        }
+
+        if(checkIsLikeType(value, BTypes.typeBoolean)) {
+            return BTypes.typeBoolean;
+        }
+
+        if(checkIsLikeType(value, BTypes.typeByte)) {
+            return BTypes.typeByte;
+        }
+
+        BType anydataArrayType = new BArrayType(BTypes.typeAnydata);
+        if(checkIsLikeType(value, anydataArrayType)) {
+            return anydataArrayType;
+        }
+
+        if(checkIsLikeType(value, BTypes.typeXML)) {
+            return BTypes.typeXML;
+        }
+
+        BType anydataMapType = new BMapType(BTypes.typeAnydata);
+        if(checkIsLikeType(value, anydataMapType)){
+            return anydataMapType;
+        }
+
+        //not possible
+        return null;
+    }
+
     private static boolean checkIsLikeAnydataType(BValue sourceValue, BType targetType) {
         switch (sourceValue.getType().getTag()) {
             case TypeTags.RECORD_TYPE_TAG:

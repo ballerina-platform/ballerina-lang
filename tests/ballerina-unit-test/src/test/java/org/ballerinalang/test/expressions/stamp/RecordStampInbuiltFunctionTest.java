@@ -208,7 +208,9 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue0.get("school").getType().getClass(), BStringType.class);
 
         Assert.assertEquals(((BMap) mapValue0.get("emp")).size(), 3);
-        Assert.assertEquals(mapValue0.get("emp").getType().getClass(), BAnydataType.class);
+        Assert.assertEquals(mapValue0.get("emp").getType().getClass(), BMapType.class);
+        Assert.assertEquals(((BMapType) mapValue0.get("emp").getType()).getConstrainedType().getClass(),
+                BAnydataType.class);
     }
 
     @Test
@@ -220,7 +222,8 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(results.length, 1);
         Assert.assertEquals(mapValue.size(), 5);
 
-        Assert.assertEquals(mapValue.getType().getClass(), BAnydataType.class);
+        Assert.assertEquals(mapValue.getType().getClass(), BMapType.class);
+        Assert.assertEquals(((BMapType) mapValue.getType()).getConstrainedType().getClass(), BAnydataType.class);
     }
 
     @Test
@@ -275,7 +278,10 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue.get("batch").getType().getClass(), BStringType.class);
         Assert.assertEquals(mapValue.get("batch").stringValue(), "LK2014");
 
-        Assert.assertEquals(mapValue.get("address").getType().getClass(), BAnydataType.class);
+        Assert.assertEquals(mapValue.get("address").getType().getClass(), BMapType.class);
+        Assert.assertEquals(((BMapType) mapValue.get("address").getType()).getConstrainedType().getClass(),
+                BAnydataType.class);
+
     }
 
     @Test

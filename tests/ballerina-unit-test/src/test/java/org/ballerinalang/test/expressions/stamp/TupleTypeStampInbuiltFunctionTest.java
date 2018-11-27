@@ -20,6 +20,8 @@ package org.ballerinalang.test.expressions.stamp;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.types.BAnydataType;
+import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStringType;
 import org.ballerinalang.model.types.TypeTags;
@@ -133,8 +135,8 @@ public class TupleTypeStampInbuiltFunctionTest {
         Assert.assertEquals(tupleValue1.stringValue(), "Mohan");
         Assert.assertEquals(tupleValue1.getType().getClass(), BStringType.class);
 
-        Assert.assertEquals(tupleValue2.getType().getClass(), BRecordType.class);
-        Assert.assertEquals(tupleValue2.getType().getName(), "Teacher");
+        Assert.assertEquals(tupleValue2.getType().getClass(), BMapType.class);
+        Assert.assertEquals(((BMapType) tupleValue2.getType()).getConstrainedType().getClass(), BAnydataType.class);
     }
 
     @Test

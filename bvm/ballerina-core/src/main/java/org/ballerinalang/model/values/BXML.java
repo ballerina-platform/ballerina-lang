@@ -21,6 +21,7 @@ import org.apache.axiom.om.OMNode;
 import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.XMLNodeType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -270,6 +271,9 @@ public abstract class BXML<T> implements BRefType<T>, BCollection {
 
     @Override
     public void stamp(BType type) {
+        if(type.getTag() == TypeTags.ANYDATA_TAG){
+            type = CPU.resolveMatchingAnydataType(this);
+        }
         this.type = type;
     }
 

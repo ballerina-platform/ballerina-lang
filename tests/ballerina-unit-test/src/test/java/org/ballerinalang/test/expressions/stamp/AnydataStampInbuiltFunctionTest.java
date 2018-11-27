@@ -203,7 +203,8 @@ public class AnydataStampInbuiltFunctionTest {
         BMap<String, BValue> mapValue = (BMap<String, BValue>) results[0];
 
         Assert.assertEquals(results.length, 1);
-        Assert.assertEquals(mapValue.getType().getClass(), BAnydataType.class);
+        Assert.assertEquals(mapValue.getType().getClass(), BMapType.class);
+        Assert.assertEquals(((BMapType) mapValue.getType()).getConstrainedType().getClass(), BAnydataType.class);
     }
 
     @Test

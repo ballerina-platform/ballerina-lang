@@ -301,11 +301,8 @@ public class BValueArray extends BNewArray implements Serializable {
                 }
             }
         } else if (type.getTag() == TypeTags.ANYDATA_TAG) {
-            if (elementType != null && isBasicType(elementType)) {
-                moveBasicTypeArrayToRefValueArray();
-                this.arrayType = type;
-                return;
-            }
+            type = CPU.resolveMatchingAnydataType(this);
+            this.stamp(type);
         } else {
             BType arrayElementType = ((BArrayType) type).getElementType();
 
