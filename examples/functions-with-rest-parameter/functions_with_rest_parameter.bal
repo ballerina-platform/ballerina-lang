@@ -7,7 +7,7 @@ function printFruits(string separator,
                      string title = "Fruits: ",
                      string... concatStrings) {
 
-    string finalStr;
+    string finalStr = "";
     foreach index, str in concatStrings {
         if (index == 0) {
             finalStr = str;

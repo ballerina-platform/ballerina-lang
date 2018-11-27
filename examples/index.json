@@ -190,8 +190,8 @@
                 "url": "type-conversion"
             },
             {
-                "name": "Lengthof",
-                "url": "lengthof"
+                "name": "Length",
+                "url": "length"
             },
             {
                 "name": "Integer Ranges",

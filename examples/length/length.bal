@@ -5,8 +5,8 @@ public function main() {
     int[] intArray = [1, 2, 3];
     int length;
 
-    // This prints the length of the integer array created. The length is calculated using the `lengthof` unary operator.
-    length = lengthof intArray;
+    // This prints the length of the integer array created. The length is calculated using the `length` function.
+    length = intArray.length();
     io:println("Integer array size: ", length);
 
     // This creates a JSON array with several JSON elements.
@@ -16,24 +16,24 @@ public function main() {
     ];
 
     // This prints the length of the created JSON array.
-    length = lengthof jsonArray;
+    length = jsonArray.length();
     io:println("JSON array size: ", length);
 
     // This creates an `int` constrained map.
-    map<int> strMap;
+    map<int> strMap = {};
     strMap["A"] = 1;
     strMap["B"] = 2;
     strMap["C"] = 3;
 
     // This prints the length of the created map.
-    length = lengthof strMap;
+    length = strMap.length();
     io:println("Map size: ", length);
 
     // This creates a string.
     string myStr = "My name is Peter Parker";
     
     // This prints the length of the string.
-    length = lengthof myStr;
+    length = myStr.length();
     io:println("String size: ", length);
 
     xml x1 = xml `<book>
@@ -41,6 +41,6 @@ public function main() {
                     <author>Sir Arthur Conan Doyle</author>
                     <!--Price: $10-->
                   </book>`;
-    length = lengthof x1.*.elements();
+    length = x1.*.elements().length();
     io:println("XML child elements size: ", length);
 }

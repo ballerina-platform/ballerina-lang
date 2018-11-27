@@ -21,7 +21,7 @@ public function main() {
             io:println(blnc);
         }
         error err => {
-            io:println("Error occurred: " + err.message);
+            io:println("Error occurred: " + err.reason());
         }
     }
 }
