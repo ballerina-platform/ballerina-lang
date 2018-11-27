@@ -89,7 +89,7 @@ public class BVMExecutor {
         initProgramFile(programFile);
 //        new BalxEmitter().emit(programFile);
         BValue[] result = new BValue[]{execute(programFile, functionInfo, args, null, true)};
-        BLangScheduler.waitForWorkerCompletion();
+        BVMScheduler.waitForStrandCompletion();
         return result;
     }
 
@@ -109,7 +109,6 @@ public class BVMExecutor {
                     providedArgNo + ".");
         }
         BValue[] result = new BValue[]{execute(programFile, functionInfo, args, null, true)};
-        BLangScheduler.waitForWorkerCompletion();
         return result;
     }
 
@@ -180,7 +179,6 @@ public class BVMExecutor {
         }
 
         BValue result = populateReturnData(strandCallback, callableInfo);
-        BVMScheduler.waitForStrandCompletion();
         return result;
     }
 
