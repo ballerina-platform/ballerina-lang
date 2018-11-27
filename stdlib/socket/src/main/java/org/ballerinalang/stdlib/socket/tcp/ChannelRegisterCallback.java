@@ -59,7 +59,7 @@ public class ChannelRegisterCallback {
     }
 
     /**
-     * Notify for the worker to resume the hold thread.
+     * Notifies the worker to resume the hold thread.
      *
      * @param client whether this was call as a socket client notify.
      */
@@ -75,7 +75,7 @@ public class ChannelRegisterCallback {
     }
 
     /**
-     * Notify for the worker about the failure situation.
+     * Notifies the worker about the failure situation.
      *
      * @param errorMsg the error message
      */

@@ -40,23 +40,23 @@ public type Client client object {
 
     extern function start();
 
-    # Write given data to the client socket.
+    # Writes given data to the client socket.
     #
     # + content - - the content that wish to send to the client socket
     # + return - - number of byte got written or an error if encounters an error while writing
     public remote extern function write(byte[] content) returns int|error;
 
-    # Close the client socket connection.
+    # Closes the client socket connection.
     #
     # + return - - an error if encounters an error while closing the connection or returns nil otherwise
     public remote extern function close() returns error?;
 
-    # Shutdown the furhter read from socket.
+    # Shutdowns the further read from socket.
     #
     # + return - an error if encounters an error while shutdown the read from socket or returns nil otherwise
     public remote extern function shutdownRead() returns error?;
 
-    # Shutdown the furhter write from socket.
+    # Shutdowns the further write from socket.
     #
     # + return - an error if encounters an error while shutdown the write from socket or returns nil otherwise
     public remote extern function shutdownWrite() returns error?;

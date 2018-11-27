@@ -60,6 +60,7 @@ import static org.ballerinalang.util.diagnostic.Diagnostic.Kind.ERROR;
 )
 public class SocketCompilerPlugin extends AbstractCompilerPlugin {
 
+    private static final String INVALID_RESOURCE_SIGNATURE = "Invalid resource signature for %s in service %s. ";
     private DiagnosticLog diagnosticLog = null;
 
     @Override
@@ -121,21 +122,20 @@ public class SocketCompilerPlugin extends AbstractCompilerPlugin {
     private void validateOnError(String serviceName, BLangResource resource, DiagnosticLog diagnosticLog) {
         final List<BLangSimpleVariable> readReadyParams = resource.getParameters();
         if (readReadyParams.size() != 2) {
-            String msg = String.format("Invalid resource signature for %s in service %s. "
-                            + "Parameters should be an 'endpoint' and 'error'",
+            String msg = String.format(INVALID_RESOURCE_SIGNATURE + "Parameters should be an 'endpoint' and 'error'",
                     resource.getName().getValue(), serviceName);
             diagnosticLog.logDiagnostic(ERROR, resource.getPosition(), msg);
             return;
         }
         BType caller = readReadyParams.get(0).type;
-        if (caller.getKind().equals(OBJECT) && caller instanceof BStructureType) {
+        if (OBJECT.equals(caller.getKind()) && caller instanceof BStructureType) {
             validateEndpointCaller(serviceName, resource, diagnosticLog, (BStructureType) caller);
         }
         BType error = readReadyParams.get(1).getTypeNode().type;
         if (RECORD.equals(error.getKind()) && error instanceof BRecordType) {
             if (!"error".equals(error.tsymbol.toString())) {
-                String msg = String.format("Invalid resource signature for %s in service %s. "
-                        + "The second parameter should be an 'error'", resource.getName().getValue(), serviceName);
+                String msg = String.format(INVALID_RESOURCE_SIGNATURE + "The second parameter should be an 'error'",
+                        resource.getName().getValue(), serviceName);
                 diagnosticLog.logDiagnostic(ERROR, resource.getPosition(), msg);
             }
         }
@@ -144,21 +144,19 @@ public class SocketCompilerPlugin extends AbstractCompilerPlugin {
     private void validateOnReadReady(String serviceName, BLangResource resource, DiagnosticLog diagnosticLog) {
         final List<BLangSimpleVariable> readReadyParams = resource.getParameters();
         if (readReadyParams.size() != 2) {
-            String msg = String.format("Invalid resource signature for %s in service %s. "
-                            + "Parameters should be an 'endpoint' and 'byte[]'",
+            String msg = String.format(INVALID_RESOURCE_SIGNATURE + "Parameters should be an 'endpoint' and 'byte[]'",
                     resource.getName().getValue(), serviceName);
             diagnosticLog.logDiagnostic(ERROR, resource.getPosition(), msg);
             return;
         }
         BType caller = readReadyParams.get(0).type;
-        if (caller.getKind().equals(OBJECT) && caller instanceof BStructureType) {
+        if (OBJECT.equals(caller.getKind()) && caller instanceof BStructureType) {
             validateEndpointCaller(serviceName, resource, diagnosticLog, (BStructureType) caller);
         }
         BType content = readReadyParams.get(1).getTypeNode().type;
         if (ARRAY.equals(content.getKind()) && content instanceof BArrayType) {
             if (!"byte".equals(((BArrayType) content).eType.tsymbol.toString())) {
-                String msg = String
-                        .format("Invalid resource signature for %s in service %s. Second parameter should be a byte[]",
+                String msg = String.format(INVALID_RESOURCE_SIGNATURE + "Second parameter should be a byte[]",
                                 resource.getName().getValue(), serviceName);
                 diagnosticLog.logDiagnostic(ERROR, resource.getPosition(), msg);
             }
@@ -172,14 +170,13 @@ public class SocketCompilerPlugin extends AbstractCompilerPlugin {
     private void validateOnAccept(String serviceName, BLangResource resource, DiagnosticLog diagnosticLog) {
         final List<BLangSimpleVariable> acceptParams = resource.getParameters();
         if (acceptParams.size() != 1) {
-            String msg = String.format("Invalid resource signature for %s in service %s. "
-                            + "The parameter should be an 'endpoint'",
+            String msg = String.format(INVALID_RESOURCE_SIGNATURE + "The parameter should be an 'endpoint'",
                     resource.getName().getValue(), serviceName);
             diagnosticLog.logDiagnostic(ERROR, resource.getPosition(), msg);
             return;
         }
         BType caller = acceptParams.get(0).type;
-        if (caller.getKind().equals(OBJECT) && caller instanceof BStructureType) {
+        if (OBJECT.equals(caller.getKind()) && caller instanceof BStructureType) {
             validateEndpointCaller(serviceName, resource, diagnosticLog, (BStructureType) caller);
         }
     }
@@ -188,8 +185,8 @@ public class SocketCompilerPlugin extends AbstractCompilerPlugin {
             BStructureType event) {
         String eventType = event.tsymbol.toString();
         if (!("ballerina/socket:Server".equals(eventType) || "ballerina/socket:Client".equals(eventType))) {
-            String msg = String.format("Invalid resource signature for %s in service %s. "
-                    + "The parameter should be an 'endpoint'", resource.getName().getValue(), serviceName);
+            String msg = String.format(INVALID_RESOURCE_SIGNATURE + "The parameter should be an 'endpoint'",
+                    resource.getName().getValue(), serviceName);
             diagnosticLog.logDiagnostic(ERROR, resource.getPosition(), msg);
         }
     }

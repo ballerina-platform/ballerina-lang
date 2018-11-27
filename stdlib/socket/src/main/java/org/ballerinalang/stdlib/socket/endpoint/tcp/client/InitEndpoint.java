@@ -24,7 +24,6 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -72,15 +71,10 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         try {
             Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
             Struct clientEndpointConfig = clientEndpoint.getStructField(CLIENT_CONFIG);
-            Value clientServiceType = clientEndpointConfig.getTypeField(CLIENT_SERVICE_CONFIG);
+            BValue clientServiceType = clientEndpointConfig.getServiceField(CLIENT_SERVICE_CONFIG);
             Service service = null;
             if (clientServiceType != null) {
                 service = BLangConnectorSPIUtil.getServiceFromType(context.getProgramFile(), clientServiceType);
-//                if (!"ballerina/socket:Client".equals(service.getEndpointName())) {
-//                    context.setReturnValues(SocketUtils.createSocketError(context,
-//                            "The callback service should be of type socket:ClientService service"));
-//                    return;
-//                }
             }
             SocketChannel socketChannel = SocketChannel.open();
             socketChannel.configureBlocking(true);
