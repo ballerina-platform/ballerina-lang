@@ -44,7 +44,7 @@ type Person3 record {
 type Person4 record {
     string name = "";
     Person4? parent = ();
-    map? address?;
+    map<anydata>? address?;
     !...
 };
 
@@ -84,6 +84,7 @@ function testMapToStruct () returns Person|error {
 
     json info = {status:"single"};
     map<string> addr = {"city":"Colombo", "country":"SriLanka"};
+    map<any> m = {name:"Child",
     map<anydata> m = {name:"Child",
                 age:25,
                 parent:parent,
@@ -100,6 +101,7 @@ function testMapToStruct () returns Person|error {
 
 function testNestedMapToNestedStruct() returns Person|error {
     int[] marks = [87, 94, 72];
+    map<any> parent = {
     map<anydata> parent = {
         name:"Parent",
         age:50,
@@ -114,6 +116,7 @@ function testNestedMapToNestedStruct() returns Person|error {
 
     json info = {status:"single"};
     map<string> addr = {"city":"Colombo", "country":"SriLanka"};
+    map<any> m = {name:"Child",
     map<anydata> m = {name:"Child",
         age:25,
         parent:parent,
@@ -606,7 +609,7 @@ function testNonArrayJsonToArray () returns StringArray {
         panic a;
     }
 }
-
+    
 function testNullJsonToStruct () returns Person {
     json j = ();
     var p = Person.create(j);
@@ -836,7 +839,7 @@ function testStructWithIncompatibleTypeToJson () returns json {
     }
 }
 
-function testJsonToMapUnconstrained() returns map|error {
+function testJsonToMapUnconstrained() returns map<any>|error {
     json jx = {};
     jx.x = 5;
     jx.y = 10;
@@ -860,7 +863,6 @@ function testJsonToMapConstrained1() returns map<any>|error {
 type T1 record {
     int x = 0;
     int y = 0;
-    !...
 };
 
 function testJsonToMapConstrained2() returns map<any>|error {
