@@ -73,6 +73,12 @@ public class BallerinaVariableDefinitionStatementWithAssignmentImpl extends Ball
 
   @Override
   @Nullable
+  public PsiElement getFinal() {
+    return findChildByType(FINAL);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getVar() {
     return findChildByType(VAR);
   }

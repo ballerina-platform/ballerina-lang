@@ -10,17 +10,15 @@ public function main (string... args) {
     req.setHeader(headerName, headerValue);
 
     var response = clientEndpoint -> get("/get?test=" + param, message = req);
-    match response {
-        http:Response resp => {
-            var msg = resp.getTextPayload();
-            match msg {
-                string stringPayload => {
-                    normalFunction (stringPayload);
-                }
-                error payloadError => return;
-            }
+    if (response is http:Response) {
+        var msg = response.getTextPayload();
+        if (msg is string) {
+            normalFunction(msg);
+        } else {
+            panic msg;
         }
-        error err => return;
+    } else {
+        panic response;
     }
 }
 
