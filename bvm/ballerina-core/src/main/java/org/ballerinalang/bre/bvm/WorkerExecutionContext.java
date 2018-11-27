@@ -213,6 +213,6 @@ public class WorkerExecutionContext {
         if (distributedTransactionsEnabledConfig != null && distributedTransactionsEnabledConfig.equals(FALSE)) {
             distributedTransactionEnabled = false;
         }
-        BLangVMUtils.setGlobalTransactionEnabledStatus(this, distributedTransactionEnabled);
+//        BLangVMUtils.setGlobalTransactionEnabledStatus(this, distributedTransactionEnabled);
     }
 }
