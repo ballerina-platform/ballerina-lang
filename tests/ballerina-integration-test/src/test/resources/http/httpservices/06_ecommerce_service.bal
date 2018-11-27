@@ -204,11 +204,3 @@ function populateSampleProducts() returns (map<any>) {
     return productsMap1;
 }
 
-//Keep this until there's a simpler way to get a string value out of a json
-function extractFieldValue3(json fieldValue) returns string {
-    if (fieldValue is string) {
-        return fieldValue;
-    } else {
-        return "error";
-    }
-}
