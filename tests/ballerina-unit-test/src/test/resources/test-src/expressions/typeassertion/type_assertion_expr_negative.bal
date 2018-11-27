@@ -19,7 +19,7 @@ function testAssertionWithUnassignableTypes() {
     Abc abc = <Abc> def;
 
     map<int> m1 = {};
-    map m2 = <map> m1;
+    map<any> m2 = <map<any>> m1;
 
     stream<int|string> f1;
     stream<int|json> f2 = <stream<int|json>> f1;

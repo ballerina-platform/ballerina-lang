@@ -259,17 +259,17 @@ function testJsonAssertionNegative() {
 function testMapAssertionPositive() returns boolean {
     map<string> m = { mapType: "constrained", elementType: "string" };
     anydata a = m;
-    map m2 = <map<string>> a;
+    map<any> m2 = <map<string>> a;
 
-    map m3 = { mapType: "unconstrained", elementType: "any", elementCount: 3 };
+    map<any> m3 = { mapType: "unconstrained", elementType: "any", elementCount: 3 };
     any a2 = m3;
-    map m4 = <map> a2;
+    map<any> m4 = <map<any>> a2;
 
     return m === m2 && m3 === m4;
 }
 
 function testMapAssertionNegative() {
-    map m1 = { mapType: "unconstrained", elementType: "any" };
+    map<any> m1 = { mapType: "unconstrained", elementType: "any" };
     map<string> m2 = <map<string>> m1;
 }
 
@@ -496,6 +496,15 @@ function testBroaderObjectAssertion() {
     EmployeeObject e = new("Em Zee");
     PersonObject p = e;
     PersonObject p2 = <PersonObject> p;
+}
+
+function testAssertionPanicWithCheckTrap() returns string|int|error {
+    return check trap broaderObjectAssertionHelper();
+}
+
+function broaderObjectAssertionHelper() returns string|int {
+    testBroaderObjectAssertion();
+    return "successful";
 }
 
 function testFunc(string s, int i) returns string {
