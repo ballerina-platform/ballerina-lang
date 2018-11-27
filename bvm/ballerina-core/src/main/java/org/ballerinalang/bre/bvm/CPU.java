@@ -2770,32 +2770,6 @@ public class CPU {
         }
     }
 
-    private static void copyValuesToRegistries(int[] typeTags, int[] targetReg, BValue[] values, WorkerData sf) {
-        for (int i = 0; i < typeTags.length; i++) {
-            BValue source = values[i];
-            int target = targetReg[i];
-            switch (typeTags[i]) {
-                case TypeTags.INT_TAG:
-                    sf.longRegs[target] = ((BInteger) source).intValue();
-                    break;
-                case TypeTags.BYTE_TAG:
-                    sf.intRegs[target] = ((BByte) source).byteValue();
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    sf.doubleRegs[target] = ((BFloat) source).floatValue();
-                    break;
-                case TypeTags.STRING_TAG:
-                    sf.stringRegs[target] = source.stringValue();
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    sf.intRegs[target] = ((BBoolean) source).booleanValue() ? 1 : 0;
-                    break;
-                default:
-                    sf.refRegs[target] = (BRefType) source;
-            }
-        }
-    }
-
     private static void execXMLCreationOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode,
                                                int[] operands) {
         int i;
