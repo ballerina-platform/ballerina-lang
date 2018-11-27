@@ -850,7 +850,8 @@ public final class BXMLItem extends BXML<OMNode> {
         @Override
         public BValue getNext() {
             if (hasNext()) {
-                return cursor++ == 0 ? value : null;
+                cursor++;
+                return value;
             }
             return null;
         }

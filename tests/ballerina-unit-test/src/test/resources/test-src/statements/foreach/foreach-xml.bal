@@ -21,7 +21,7 @@ function testXMLWithArityOne () returns (string) {
     output = "";
     foreach var x in xdata {
         if x is xml {
-            concatString(<string>x);
+            concatString(string.create(x));
         }
     }
     return output;
@@ -32,7 +32,7 @@ function testXMLWithArityTwo () returns (string) {
     int i = 0;
     foreach var x in xdata {
         if x is xml {
-            concatIntString(i, <string>x);
+            concatIntString(i, string.create(x));
             i += 1;
         }
     }
@@ -44,7 +44,7 @@ function testXMLWithArityChildren () returns (string) {
     int i = 0;
     foreach var x in xdata.*.elements() {
         if x is xml {
-            concatIntString(i, <string>x);
+            concatIntString(i, string.create(x));
             i += 1;
         }
     }

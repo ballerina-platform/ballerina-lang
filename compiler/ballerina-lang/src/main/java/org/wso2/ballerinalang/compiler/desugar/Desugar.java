@@ -1518,7 +1518,7 @@ public class Desugar extends BLangNodeVisitor {
         BInvokableSymbol keysFunctionSymbol;
         switch (foreach.collection.type.tag) {
             case TypeTags.ARRAY:
-//            case TypeTags.XML:
+            case TypeTags.XML:
                 blockNode = desugarForeachOfListTypes(foreach, collectionSymbol);
                 break;
 //            case TypeTags.MAP:
