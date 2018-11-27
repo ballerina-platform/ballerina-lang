@@ -1,27 +1,37 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import ballerina/io;
 import ballerina/mime;
 import ballerina/http;
 
-endpoint http:Listener serviceEnpoint {
-    port:9092
-};
+listener http:Listener serviceEnpoint = new(9092);
 
-endpoint http:Client bankInfoService {
-    url: "http://localhost:9092/bankinfo/product"
-};
+http:Client bankInfoService = new("http://localhost:9092/bankinfo/product");
 
-endpoint http:Client branchLocatorService {
-    url: "http://localhost:9092/branchlocator/product"
-};
+http:Client branchLocatorService = new("http://localhost:9092/branchlocator/product");
 
 @http:ServiceConfig {
     basePath:"/ABCBank"
 }
-service<http:Service> ATMLocator bind serviceEnpoint {
+service ATMLocator on serviceEnpoint {
     @http:ResourceConfig {
         methods:["POST"]
     }
-    locator (endpoint caller, http:Request req) {
+    resource function locator(http:Caller caller, http:Request req) {
 
         http:Request backendServiceReq = new;
         var jsonLocatorReq = req.getJsonPayload();
@@ -68,12 +78,12 @@ service<http:Service> ATMLocator bind serviceEnpoint {
 @http:ServiceConfig {
     basePath:"/bankinfo"
 }
-service<http:Service> Bankinfo bind serviceEnpoint {
+service Bankinfo on serviceEnpoint {
 
     @http:ResourceConfig {
         methods:["POST"]
     }
-    product (endpoint caller, http:Request req) {
+    resource function product(http:Caller caller, http:Request req) {
         http:Response res = new;
         var jsonRequest = req.getJsonPayload();
         if (jsonRequest is json) {
@@ -96,12 +106,12 @@ service<http:Service> Bankinfo bind serviceEnpoint {
 @http:ServiceConfig {
     basePath:"/branchlocator"
 }
-service<http:Service> Banklocator bind serviceEnpoint {
+service Banklocator on serviceEnpoint {
 
     @http:ResourceConfig {
         methods:["POST"]
     }
-    product (endpoint caller, http:Request req) {
+    resource function product(http:Caller caller, http:Request req) {
         http:Response res = new;
         var jsonRequest = req.getJsonPayload();
         if (jsonRequest is json) {
@@ -123,11 +133,9 @@ service<http:Service> Banklocator bind serviceEnpoint {
 
 //Keep this until there's a simpler way to get a string value out of a json
 function extractFieldValue2(json fieldValue) returns string {
-    match fieldValue {
-        int i => return "error";
-        string s => return s;
-        boolean b => return "error";
-        ()  => return "error";
-        json j => return "error";
+    if (fieldValue is string) {
+        return fieldValue;
+    } else {
+        return "error";
     }
 }
