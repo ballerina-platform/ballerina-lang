@@ -1521,28 +1521,14 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.XML:
             case TypeTags.MAP:
             case TypeTags.TABLE:
+            case TypeTags.RECORD:
                 blockNode = desugarForeachOfListTypes(foreach, collectionSymbol);
                 break;
-//                blockNode = desugarForeachOfListTypes(foreach, collectionSymbol);
-//                scopeEntry = symTable.rootScope.lookup(names.fromString("map.keys"));
-//                 keysFunctionSymbol = (BInvokableSymbol) scopeEntry.symbol;
-//                blockNode = desugarForeachOfMappingTypes(foreach, collectionSymbol, "keys", keysFunctionSymbol,
-//                        symTable.mapType, ((BMapType) collectionSymbol.type).constraint);
-//                break;
 //            case TypeTags.JSON:
 //                scopeEntry = symTable.rootScope.lookup(names.fromString("json.getKeys"));
 //                keysFunctionSymbol = (BInvokableSymbol) scopeEntry.symbol;
 //                blockNode = desugarForeachOfMappingTypes(foreach, collectionSymbol, "getKeys", keysFunctionSymbol,
 //                        symTable.jsonType, symTable.jsonType);
-//                break;
-//            case TypeTags.RECORD:
-//                scopeEntry = symTable.rootScope.lookup(names.fromString("map.keys"));
-//                keysFunctionSymbol = (BInvokableSymbol) scopeEntry.symbol;
-//                blockNode = desugarForeachOfMappingTypes(foreach, collectionSymbol, "keys", keysFunctionSymbol,
-//                        symTable.mapType, types.inferRecordFieldType((BRecordType) collectionSymbol.type));
-//                break;
-//            case TypeTags.TABLE:
-//                blockNode = desugarForeachOfTableType(foreach, collectionSymbol);
 //                break;
 //            case TypeTags.STRING:
 //                blockNode = desugarForeachOfStringType(foreach, collectionSymbol);
