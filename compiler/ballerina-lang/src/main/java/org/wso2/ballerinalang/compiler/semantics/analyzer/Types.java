@@ -803,6 +803,7 @@ public class Types {
                 break;
             case TypeTags.STRING:
                 mapType.constraint = symTable.stringType;
+                break;
             case TypeTags.SEMANTIC_ERROR:
                 foreachNode.varType = symTable.semanticError;
                 foreachNode.resultType = symTable.semanticError;

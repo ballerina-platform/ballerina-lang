@@ -1514,8 +1514,6 @@ public class Desugar extends BLangNodeVisitor {
 
         // Get the symbol of the variable (collection).
         BVarSymbol collectionSymbol = dataVariable.symbol;
-        Scope.ScopeEntry scopeEntry;
-        BInvokableSymbol keysFunctionSymbol;
         switch (foreach.collection.type.tag) {
             case TypeTags.ARRAY:
             case TypeTags.XML:
@@ -1524,15 +1522,8 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.RECORD:
                 blockNode = desugarForeachOfListTypes(foreach, collectionSymbol);
                 break;
-            case TypeTags.JSON:
-                blockNode = desugarForeachOfListTypes(foreach, collectionSymbol);
-//                scopeEntry = symTable.rootScope.lookup(names.fromString("json.getKeys"));
-//                keysFunctionSymbol = (BInvokableSymbol) scopeEntry.symbol;
-//                blockNode = desugarForeachOfMappingTypes(foreach, collectionSymbol, "getKeys", keysFunctionSymbol,
-//                        symTable.jsonType, symTable.jsonType);
-//                break;
-//            case TypeTags.STRING:
-//                blockNode = desugarForeachOfStringType(foreach, collectionSymbol);
+            case TypeTags.STRING:
+                blockNode = desugarForeachOfStringType(foreach, collectionSymbol);
                 break;
             default:
                 blockNode = ASTBuilderUtil.createBlockStmt(foreach.pos);
