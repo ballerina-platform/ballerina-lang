@@ -617,7 +617,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitArrayTypeNameLabel(BallerinaParser.ArrayTypeNameLabelContext ctx) {
-        if (ctx.exception != null) {
+        // Todo - This is a temporary fix. Need to set the exception in a common location in the context.
+        if (ctx.exception != null || ((BallerinaParser.TypeTestExpressionContext) ctx.parent).exception != null) {
             return;
         }
 
