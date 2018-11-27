@@ -48,8 +48,8 @@ public type DurableTopicSubscriber object {
         return self.registerListener(serviceType, self.consumerActions, data);
     }
 
-    extern function registerListener(service serviceType, DurableTopicSubscriberCaller actions, map<any> data)
-                                    returns error?;
+    extern function registerListener(service serviceType, DurableTopicSubscriberCaller actions,
+                                     map<any> data) returns error?;
 
     extern function createSubscriber(Session session, string messageSelector) returns error?;
 
