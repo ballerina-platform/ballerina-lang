@@ -958,6 +958,44 @@ function testExplicitlyTypedExprForExactValues() returns error? {
     return;
 }
 
+function init(InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig rec) returns string {
+    if (rec is ServerModeConfig) {
+        return "Server mode configuration";
+    } else if (rec is EmbeddedModeConfig) {
+        return "Embedded mode configuration";
+    } else {
+        return "In-memory mode configuration";
+    }
+}
+
+public type InMemoryModeConfig record {
+    string name = "";
+    string username = "";
+    string password = "";
+    map<any> dbOptions = {name:"asdf"};
+    !...
+};
+
+public type ServerModeConfig record {
+    string host = "";
+    int port = 9090;
+    *InMemoryModeConfig;
+    !...
+};
+
+public type EmbeddedModeConfig record {
+    string path = "";
+    *InMemoryModeConfig;
+    !...
+};
+
+function testTypeAssertionOnRecordLiterals() returns (string, string, string) {
+    string s1 = init(<ServerModeConfig>{});
+    string s2 = init(<EmbeddedModeConfig>{});
+    string s3 = init(<InMemoryModeConfig>{});
+    return (s1, s2, s3);
+}
+
 function getString(string s) returns string {
     return s;
 }

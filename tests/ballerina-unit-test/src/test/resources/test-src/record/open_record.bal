@@ -259,7 +259,7 @@ function testBooleanRestFieldRHSIndexAccess() returns (boolean?, boolean?) {
 type Person6 record {
     string name = "";
     int age = 0;
-    map...
+    map<any>...
 };
 
 function testMapRestField() returns Person6 {

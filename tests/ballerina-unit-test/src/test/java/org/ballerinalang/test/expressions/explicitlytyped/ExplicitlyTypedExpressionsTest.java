@@ -402,6 +402,14 @@ public class ExplicitlyTypedExpressionsTest {
     }
 
     @Test
+    public void testTypeAssertionOnRecordLiterals() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeAssertionOnRecordLiterals");
+        Assert.assertEquals(returns[0].stringValue(), "Server mode configuration");
+        Assert.assertEquals(returns[1].stringValue(), "Embedded mode configuration");
+        Assert.assertEquals(returns[2].stringValue(), "In-memory mode configuration");
+    }
+
+    @Test
     public void testNegativeExprs() {
         Assert.assertEquals(resultNegative.getErrorCount(), 10);
         int errIndex = 0;
