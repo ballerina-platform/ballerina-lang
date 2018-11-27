@@ -38,11 +38,6 @@ import io.ballerina.plugins.idea.psi.BallerinaFunctionInvocation;
 import io.ballerina.plugins.idea.psi.BallerinaInvocation;
 import io.ballerina.plugins.idea.psi.BallerinaInvocationArg;
 import io.ballerina.plugins.idea.psi.BallerinaInvocationArgList;
-
-import io.ballerina.plugins.idea.psi.BallerinaObjectDefaultableParameter;
-import io.ballerina.plugins.idea.psi.BallerinaObjectInitializerParameterList;
-import io.ballerina.plugins.idea.psi.BallerinaObjectParameter;
-import io.ballerina.plugins.idea.psi.BallerinaObjectParameterList;
 import io.ballerina.plugins.idea.psi.BallerinaParameter;
 import io.ballerina.plugins.idea.psi.BallerinaRestParameter;
 import io.ballerina.plugins.idea.psi.BallerinaTypeInitExpression;
@@ -195,22 +190,6 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                     context.showHint(functionInvocation, functionInvocation.getTextOffset(), this);
                 }
             }
-        } else if (element instanceof BallerinaTypeInitExpression) {
-            BallerinaTypeInitExpression ballerinaTypeInitExpr = (BallerinaTypeInitExpression) element;
-            BallerinaObjectInitializerParameterList objectInitializerParameterList = BallerinaPsiImplUtil
-                    .getObjectInitializerParameterList(ballerinaTypeInitExpr);
-            if (objectInitializerParameterList != null) {
-                BallerinaObjectParameterList objectParameterList =
-                        objectInitializerParameterList.getObjectParameterList();
-                if (objectParameterList != null) {
-                    context.setItemsToShow(new Object[]{objectParameterList});
-                } else {
-                    // If no parameters are required, we set an empty string. Otherwise we wont be able to show
-                    // "no param" message.
-                    context.setItemsToShow(new Object[]{""});
-                }
-                context.showHint(ballerinaTypeInitExpr, ballerinaTypeInitExpr.getTextOffset(), this);
-            }
         } else if (element instanceof BallerinaInvocation) {
             BallerinaInvocation ballerinaTypeInitExpr = (BallerinaInvocation) element;
             PsiElement callableUnitSignature = BallerinaPsiImplUtil.getCallableUnitSignature(ballerinaTypeInitExpr);
@@ -336,12 +315,6 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             // Get the parameter presentations.
             List<String> parameterPresentations = getParameterPresentations(formalParameterList);
             return updatePresentation(context, parameterPresentations, parameterList.size());
-        } else if (p instanceof BallerinaObjectParameterList) {
-            BallerinaObjectParameterList objectParameterList = (BallerinaObjectParameterList) p;
-            List<BallerinaObjectParameter> parameterList = objectParameterList.getObjectParameterList();
-            // Get the parameter presentations.
-            List<String> parameterPresentations = getParameterPresentations(objectParameterList);
-            return updatePresentation(context, parameterPresentations, parameterList.size());
         } else if (p instanceof String) {
             // Handle empty parameter scenario.
             if (((String) p).isEmpty()) {
@@ -417,29 +390,6 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         // Add defaultable parameters.
         List<BallerinaDefaultableParameter> defaultableParameterList = node.getDefaultableParameterList();
         for (BallerinaDefaultableParameter parameter : defaultableParameterList) {
-            params.add(formatParameter(parameter.getText()));
-        }
-        // Add test parameter.
-        BallerinaRestParameter restParameter = node.getRestParameter();
-        if (restParameter != null) {
-            params.add(formatParameter(restParameter.getText()));
-        }
-        return params;
-    }
-
-    private static List<String> getParameterPresentations(@Nullable BallerinaObjectParameterList node) {
-        List<String> params = new LinkedList<>();
-        if (node == null) {
-            return params;
-        }
-        // Add parameters.
-        List<BallerinaObjectParameter> parameterList = node.getObjectParameterList();
-        for (BallerinaObjectParameter parameter : parameterList) {
-            params.add(formatParameter(parameter.getText()));
-        }
-        // Add defaultable parameters.
-        List<BallerinaObjectDefaultableParameter> defaultableParameterList = node.getObjectDefaultableParameterList();
-        for (BallerinaObjectDefaultableParameter parameter : defaultableParameterList) {
             params.add(formatParameter(parameter.getText()));
         }
         // Add test parameter.

@@ -68,7 +68,7 @@ public class CommandConstants {
 
     public static final String ADD_ALL_DOC_TITLE = "Document All";
 
-    public static final String CREATE_CONSTRUCTOR_TITLE = "Create Constructor";
+    public static final String CREATE_INITIALIZER_TITLE = "Create Initializer";
 
     public static final String PULL_MOD_TITLE = "Pull from Ballerina Central";
 
@@ -85,7 +85,7 @@ public class CommandConstants {
 
     public static final String CMD_ADD_ALL_DOC = "ADD_ALL_DOC";
 
-    public static final String CMD_CREATE_CONSTRUCTOR = "CREATE_CONSTRUCTOR";
+    public static final String CMD_CREATE_INITIALIZER = "CREATE_INITIALIZER";
 
     public static final String CMD_PULL_MODULE = "PULL_MODULE";
 }
