@@ -597,7 +597,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.workerDefinition() != null) {
             workerName = ctx.workerDefinition().Identifier().getText();
         }
-        this.pkgBuilder.addWorker(getCurrentPos(ctx), getWS(ctx), workerName);
+        boolean retParamsAvail = ctx.workerDefinition().returnParameter() != null;
+        this.pkgBuilder.addWorker(getCurrentPos(ctx), getWS(ctx), workerName, retParamsAvail);
     }
 
     /**

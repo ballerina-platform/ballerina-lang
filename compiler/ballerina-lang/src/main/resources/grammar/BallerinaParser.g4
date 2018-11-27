@@ -149,7 +149,7 @@ workerDeclaration
     ;
 
 workerDefinition
-    :   WORKER Identifier
+    :   WORKER Identifier returnParameter?
     ;
 
 finiteType
