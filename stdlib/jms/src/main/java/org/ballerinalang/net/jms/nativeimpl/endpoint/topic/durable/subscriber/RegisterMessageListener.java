@@ -43,10 +43,12 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.MessageListenerHandl
                              structPackage = "ballerina/jms"),
         args = {
                 @Argument(name = "serviceType",
-                          type = TypeKind.TYPEDESC),
+                        type = TypeKind.TYPEDESC),
                 @Argument(name = "consumerActions",
-                          type = TypeKind.OBJECT,
-                          structType = "DurableTopicSubscriberCaller")
+                        type = TypeKind.OBJECT,
+                        structType = "DurableTopicSubscriberCaller"),
+                @Argument(name = "data",
+                        type = TypeKind.MAP)
         },
         isPublic = true
 )
