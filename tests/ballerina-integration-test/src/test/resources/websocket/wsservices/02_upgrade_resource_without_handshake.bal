@@ -24,7 +24,7 @@ service UpgradeWithoutHandshake on new http:WebSocketListener(9079) {
             upgradeService: upgradeService
         }
     }
-    resource function websocketProxy(http:WebSocketCaller caller, http:Request req) {
+    resource function websocketProxy(http:Caller caller, http:Request req) {
         io:println("Simply log something");
     }
 }

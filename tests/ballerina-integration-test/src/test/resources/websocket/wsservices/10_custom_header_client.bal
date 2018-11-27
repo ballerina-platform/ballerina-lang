@@ -28,12 +28,11 @@ final byte[] APPLICATION_DATA = strData1.toByteArray("UTF-8");
 service PingPongTestService1 on new http:WebSocketListener(9092) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
-        endpoint http:WebSocketClient wsClientEp {
-            url: REMOTE_BACKEND_URL2,
-            callbackService: clientCallbackService,
+        http:WebSocketClient wsClientEp = new (
+            REMOTE_BACKEND_URL2,
+            config = {callbackService: clientCallbackService,
             readyOnConnect: false,
-            customHeaders: { "X-some-header": "some-header-value" }
-        };
+            customHeaders: { "X-some-header": "some-header-value" }});
         wsEp.attributes[ASSOCIATED_CONNECTION2] = wsClientEp;
         wsClientEp.attributes[ASSOCIATED_CONNECTION2] = wsEp;
         var returnVal = wsClientEp->ready();
@@ -43,7 +42,7 @@ service PingPongTestService1 on new http:WebSocketListener(9092) {
     }
 
     resource function onText(http:WebSocketCaller wsEp, string text) {
-        endpoint http:WebSocketClient clientEp;
+        http:WebSocketClient clientEp;
         if (text == "custom-headers") {
             clientEp = getAssociatedClientEndpoint1(wsEp);
             var returnVal = clientEp->pushText(text + ":X-some-header");
@@ -61,10 +60,10 @@ service PingPongTestService1 on new http:WebSocketListener(9092) {
     }
 }
 
-service clientCallbackService = @http:WebSocketServiceConfig {} service{
+service clientCallbackService = @http:WebSocketServiceConfig {} service {
 
-    resource function onText(http:WebSocketCaller wsEp, string text) {
-        listener http:WebSocketListener serverEp = getAssociatedListener1(wsEp);
+    resource function onText(http:WebSocketClient wsEp, string text) {
+        http:WebSocketCaller serverEp = getAssociatedListener1(wsEp);
         var returnVal = serverEp->pushText(text);
         if (returnVal is error) {
              panic returnVal;
@@ -72,20 +71,20 @@ service clientCallbackService = @http:WebSocketServiceConfig {} service{
     }
 };
 
-public function getAssociatedClientEndpoint1(http:WebSocketListener wsServiceEp) returns (http:WebSocketClient) {
-    var returnVal = <http:WebSocketClient>wsServiceEp.attributes[ASSOCIATED_CONNECTION2];
+public function getAssociatedClientEndpoint1(http:WebSocketCaller wsServiceEp) returns (http:WebSocketClient) {
+    var returnVal = wsServiceEp.attributes[ASSOCIATED_CONNECTION2];
     if (returnVal is error) {
          panic returnVal;
-    } else {
+    } else if (returnVal is http:WebSocketClient) {
          return returnVal;
     }
 }
 
-public function getAssociatedListener1(http:WebSocketClient wsClientEp) returns (http:WebSocketListener) {
-    var returnVal = <http:WebSocketListener>wsClientEp.attributes[ASSOCIATED_CONNECTION2];
+public function getAssociatedListener1(http:WebSocketClient wsClientEp) returns (http:WebSocketCaller) {
+    var returnVal = wsClientEp.attributes[ASSOCIATED_CONNECTION2];
     if (returnVal is error) {
          panic returnVal;
-    } else {
+    } else if (returnVal is http:WebSocketCaller) {
          return returnVal;
     }
 }

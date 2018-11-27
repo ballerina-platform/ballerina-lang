@@ -31,7 +31,7 @@ service simple6 on new http:Listener(9096) {
         }
     }
     resource function websocketProxy(http:Caller httpEp, http:Request req, string path1, string path2) {
-        listener http:WebSocketListener wsServiceEp;
+        http:WebSocketCaller wsServiceEp;
         wsServiceEp = httpEp->acceptWebSocketUpgrade({ "X-some-header": "some-header-value" });
         wsServiceEp.attributes[PATH1] = path1;
         wsServiceEp.attributes[PATH2] = path2;
@@ -40,7 +40,7 @@ service simple6 on new http:Listener(9096) {
     }
 }
 
-service simpleProxy6 {
+service simpleProxy6 = @http:WebSocketServiceConfig {} service {
 
     resource function onText(http:WebSocketCaller wsEp, string text) {
         if (text == "send") {
@@ -56,4 +56,4 @@ service simpleProxy6 {
             }
         }
     }
-}
+};

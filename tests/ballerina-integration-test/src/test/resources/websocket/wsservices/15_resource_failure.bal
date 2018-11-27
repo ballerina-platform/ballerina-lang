@@ -25,8 +25,8 @@ service simple7 on new http:Listener(9097) {
             upgradeService: castErrror
         }
     }
-    websocketProxy(htt:Caller httpEp, http:Request req, string path1, string path2) {
-        endpoint http:WebSocketListener wsServiceEp;
+    resource function websocketProxy(http:Caller httpEp, http:Request req, string path1, string path2) {
+        http:WebSocketCaller wsServiceEp;
         wsServiceEp = httpEp->acceptWebSocketUpgrade({ "X-some-header": "some-header-value" });
         wsServiceEp.attributes["Query1"] = req.getQueryParams().q1;
     }
@@ -37,7 +37,7 @@ service simple7 on new http:Listener(9097) {
 service castErrror = @http:WebSocketServiceConfig {} service {
 
     resource function onText(http:WebSocketCaller wsEp, string text) {
-        endpoint http:WebSocketClient val;
+        http:WebSocketClient val;
         var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
         if (returnVal is error) {
              panic returnVal;
@@ -46,7 +46,7 @@ service castErrror = @http:WebSocketServiceConfig {} service {
         }
     }
     resource function onBinary(http:WebSocketCaller wsEp, byte[] data) {
-        endpoint http:WebSocketClient val;
+        http:WebSocketClient val;
         var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
         if (returnVal is error) {
              panic returnVal;
@@ -55,7 +55,7 @@ service castErrror = @http:WebSocketServiceConfig {} service {
         }
     }
     resource function onPing(http:WebSocketCaller wsEp, byte[] data) {
-        endpoint http:WebSocketClient val;
+        http:WebSocketClient val;
         var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
         if (returnVal is error) {
              panic returnVal;
@@ -64,7 +64,7 @@ service castErrror = @http:WebSocketServiceConfig {} service {
         }
     }
     resource function onIdleTimeout(http:WebSocketCaller wsEp) {
-        endpoint http:WebSocketClient val;
+        http:WebSocketClient val;
         var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
         if (returnVal is error) {
              panic returnVal;
@@ -73,7 +73,7 @@ service castErrror = @http:WebSocketServiceConfig {} service {
         }
     }
     resource function onClose(http:WebSocketCaller wsEp, int code, string reason) {
-        endpoint http:WebSocketClient val;
+        http:WebSocketClient val;
         var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
         if (returnVal is error) {
              panic returnVal;

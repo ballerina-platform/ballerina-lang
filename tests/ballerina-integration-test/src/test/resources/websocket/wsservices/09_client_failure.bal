@@ -24,8 +24,6 @@ final string REMOTE_BACKEND_URL1 = "ws://localhost:15500/websocket";
 service clientFailure on new http:WebSocketListener(9091) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
-        endpoint http:WebSocketClient wsClientEp {
-            url: REMOTE_BACKEND_URL1
-        };
+        http:WebSocketClient wsClientEp = new(REMOTE_BACKEND_URL1);
     }
 }

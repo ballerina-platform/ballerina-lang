@@ -23,9 +23,6 @@ listener http:WebSocketListener socketListener = new(9078);
     path: "/"
 }
 service isOpen on socketListener{
-    resource function onOpen(http:WebSocketCaller caller){
-         socketListener = untaint caller;
-    }
 
     resource function onText(http:WebSocketCaller caller, string text) {
         _ = caller->close(timeoutInSecs = 0);

@@ -28,7 +28,7 @@ service simple3 on new http:Listener(9093) {
         }
     }
     resource function websocketProxy(http:Caller httpEp, http:Request req) {
-        listener http:WebSocketListener wsServiceEp;
+        http:WebSocketCaller wsServiceEp;
         wsServiceEp = httpEp->acceptWebSocketUpgrade({ "X-some-header": "some-header-value" });
         wsServiceEp.attributes[CUSTOM_HEADER] = req.getHeader(CUSTOM_HEADER);
     }
