@@ -10,9 +10,9 @@ function concatIntString (int i, string v) {
 
 json j1 = {name:"bob", age:10, pass:true, subjects: [{subject:"maths", marks:75}, {subject:"English", marks:85}]};
 
-function testJSONObject () returns (string) {
+function testJSONObject () returns string|error {
     output = "";
-    foreach var (i, j) in j1 {
+    foreach var (i, j) in check map<json>.create(j1) {
         concatString(j.toString());
     }
     return output;
@@ -45,33 +45,33 @@ function testArrayOfJSON () returns string | error {
     return output;
 }
 
-function testJSONString () returns (string) {
+function testJSONString () returns string|error {
     output = "";
-    foreach var (i, j) in j1.name {
+    foreach var (i, j) in check map<json>.create(j1.name) {
         concatString(j.toString());
     }
     return output;
 }
 
-function testJSONNumber () returns (string) {
+function testJSONNumber () returns string|error {
     output = "";
-    foreach var (i, j) in j1.age {
+    foreach var (i, j) in check map<json>.create(j1.age) {
         concatString(j.toString());
     }
     return output;
 }
 
-function testJSONBoolean () returns (string) {
+function testJSONBoolean () returns string|error {
     output = "";
-    foreach var (i, j) in j1.pass {
+    foreach var (i, j) in check map<json>.create(j1.pass) {
         concatString(j.toString());
     }
     return output;
 }
 
-function testJSONNull () returns (string) {
+function testJSONNull () returns string|error {
     output = "";
-    foreach var (i, j) in j1.city {
+    foreach var (i, j) in check map<json>.create(j1.city) {
         concatString(j.toString());
     }
     return output;
@@ -87,7 +87,7 @@ type Protocol record {
     string url;
 };
 
-function testJSONToStructCast () returns string | error {
+function testJSONToStructCast () returns string|error {
     json j = {data:"data", plist:[{name:"a", url:"h1"}, {name:"b", url:"h2"}]};
     var p = Protocols.create(j);
     if p is Protocols {
@@ -101,22 +101,22 @@ function testJSONToStructCast () returns string | error {
     }
 }
 
-function testAddWhileIteration () returns (string) {
+function testAddWhileIteration () returns string|error {
     output = "";
-    foreach var (i, j) in j1 {
+    foreach var (i, j) in check map<json>.create(j1) {
         if (j.toString() == "bob") {
             j1["lastname"] = "smith";
         }
     }
-    foreach var (i, j) in j1 {
+    foreach var (i, j) in check map<json>.create(j1) {
         concatString(j.toString());
     }
     return output;
 }
 
-function testDeleteWhileIteration () returns (string) {
+function testDeleteWhileIteration () returns string|error {
     output = "";
-    foreach var (i, j) in j1 {
+    foreach var (i, j) in check map<json>.create(j1) {
         string str = j.toString();
         if (str == "bob") {
            any x = j1.remove("subjects");
@@ -124,7 +124,7 @@ function testDeleteWhileIteration () returns (string) {
         concatString(str);
     }
 
-    foreach var (i, j) in j1 {
+    foreach var (i, j) in check map<json>.create(j1) {
         concatString(j.toString());
     }
     return output;

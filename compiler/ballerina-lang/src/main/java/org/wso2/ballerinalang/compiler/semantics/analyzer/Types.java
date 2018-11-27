@@ -772,12 +772,6 @@ public class Types {
                     add(bMapType.constraint);
                 }});
                 break;
-            case TypeTags.JSON:
-                mapType.constraint = new BTupleType(new LinkedList<BType>() {{
-                    add(symTable.stringType);
-                    add(symTable.jsonType);
-                }});
-                break;
             case TypeTags.RECORD:
                 BRecordType recordType = (BRecordType) collectionType;
                 mapType.constraint = new BTupleType(new LinkedList<BType>() {{
@@ -794,7 +788,7 @@ public class Types {
             case TypeTags.TABLE:
                 BTableType tableType = (BTableType) collectionType;
                 if (tableType.constraint.tag == TypeTags.NONE) {
-                    mapType.constraint = symTable.anydataType; // Todo - any type or anydata?
+                    mapType.constraint = symTable.anydataType;
                     foreachNode.varType = mapType.constraint;
                     foreachNode.nillableResultType = unionType;
                     return;
