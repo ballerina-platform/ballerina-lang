@@ -92,18 +92,16 @@ function testReturnWithinMatchWithinTransaction() returns (string) {
     while (i < 5) {
         i = i + 1;
         transaction {
-            match (unionVar) {
-                string str => {
-                    if (i == 2) {
-                        return "ff";
-                    }
+            if (unionVar is string) {
+                if (i == 2) {
+                    return "ff";
                 }
-                int i1 => {
-                    if (i == 2) {
-                        return "ff";
-                    }
+            } else {
+                if (i == 2) {
+                    return "ff";
                 }
             }
+
         }
     }
     return "done";

@@ -119,9 +119,10 @@ function isValidCoordinationType(string coordinationType) returns boolean {
 }
 
 function protoName(UProtocol p) returns string {
-    match p {
-        LocalProtocol l => return l.name;
-        RemoteProtocol r => return r.name;
+    if (p is LocalProtocol) {
+        return p.name;
+    } else {
+        return p.name;
     }
 }
 

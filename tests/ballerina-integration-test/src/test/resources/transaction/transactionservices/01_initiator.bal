@@ -123,18 +123,14 @@ service InitiatorService00 on initiatorEP00 {
         transaction {
             testLocalParticipantSuccess_ParticipantTransaction();
             var result = participant1EP00 -> get("/nonInfectable");
-            match result {
-                http:Response participant1Res => {
-                    testTransactionInfectableFalse_ParticipantTransaction();
-                    res = participant1Res;
-                    if(participant1Res.statusCode == 500) {
-                        state0.abortedByInitiator = true;
-                        abort;
-                    }
+            if (result is http:Response) {
+                res = result;
+                if(result.statusCode == 500) {
+                    state0.abortedByInitiator = true;
+                    abort;
                 }
-                error => {
-                    res.statusCode = 500;
-                }
+            } else {
+                res.statusCode = 500;
             }
         } committed {
             state0.committedFunctionCalled = true;
@@ -173,22 +169,18 @@ service InitiatorService00 on initiatorEP00 {
         transaction {
             var getResult = participant1EP00 -> get("/");
             log:printInfo("initiator.transaction.after./.call");
-            match getResult {
-                error err => {
-                    log:printInfo("initiator.transaction.after./.call.error");
-                    io:print("Initiator could not send get request to participant. Error:");
-                    sendErrorResponseToCaller(conn);
-                    abort;
-                }
-                http:Response participant1Res => {
-                    var fwdResult = conn -> respond(participant1Res);
-                    match fwdResult {
-                        error err => {
-                            io:print("Initiator could not forward response from participant 1 to originating client. Error:");
-                            io:print(err.reason());
-                        }
-                        () => io:print("");
-                    }
+            if (getResult is error) {
+                log:printInfo("initiator.transaction.after./.call.error");
+                io:print("Initiator could not send get request to participant. Error:");
+                sendErrorResponseToCaller(conn);
+                abort;
+            } else {
+                var fwdResult = conn -> respond(getResult);
+                if (fwdResult is error) {
+                    io:print("Initiator could not forward response from participant 1 to originating client. Error:");
+                    io:print(fwdResult.reason());
+                } else {
+                    io:print("");
                 }
             }
             log:printInfo("initiator.transaction.lastLine");
@@ -205,18 +197,15 @@ service InitiatorService00 on initiatorEP00 {
         http:Response res = new;  res.statusCode = 500;
         transaction {
             var result = participant1EP00 -> get("/testSaveToDatabaseSuccessfulInParticipant");
-            match result {
-                http:Response participant1Res => {
-                    testSaveToDatabaseSuccessfulInParticipant_ParticipantTransaction();
-                    res = participant1Res;
-                    if(participant1Res.statusCode == 500) {
-                        state0.abortedByInitiator = true;
-                        abort;
-                    }
+            if (result is http:Response) {
+                testSaveToDatabaseSuccessfulInParticipant_ParticipantTransaction();
+                res = result;
+                if(result.statusCode == 500) {
+                    state0.abortedByInitiator = true;
+                    abort;
                 }
-                error => {
-                    res.statusCode = 500;
-                }
+            } else {
+                res.statusCode = 500;
             }
         } committed {
             state0.committedFunctionCalled = true;
@@ -230,18 +219,15 @@ service InitiatorService00 on initiatorEP00 {
         http:Response res = new;  res.statusCode = 500;
         transaction {
             var result = participant1EP00 -> get("/testSaveToDatabaseFailedInParticipant");
-            match result {
-                http:Response participant1Res => {
-                    testSaveToDatabaseFailedInParticipant_ParticipantTransaction();
-                    res = participant1Res;
-                    if(participant1Res.statusCode == 500) {
-                        state0.abortedByInitiator = true;
-                        abort;
-                    }
+            if(result is http:Response) {
+                testSaveToDatabaseFailedInParticipant_ParticipantTransaction();
+                res = result;
+                if(result.statusCode == 500) {
+                    state0.abortedByInitiator = true;
+                    abort;
                 }
-                error => {
-                    res.statusCode = 500;
-                }
+            } else {
+                res.statusCode = 500;
             }
         } committed {
             state0.committedFunctionCalled = true;
@@ -376,12 +362,11 @@ function sendErrorResponseToCaller(http:Caller conn) {
     http:Caller conn2 = conn;
     http:Response errRes = new; errRes.statusCode = 500;
     var respondResult = conn2 -> respond(errRes);
-    match respondResult {
-        error respondErr => {
-            io:print("Initiator could not send error response to originating client. Error:");
-            io:println(respondErr.reason());
-        }
-        () => return;
+    if (respondResult is error) {
+        io:print("Initiator could not send error response to originating client. Error:");
+        io:println(respondResult.reason());
+    } else {
+        return;
     }
 }
 

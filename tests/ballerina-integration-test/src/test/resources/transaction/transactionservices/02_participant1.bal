@@ -107,41 +107,34 @@ service participant1 on participant1EP01 {
         log:printInfo("participant1.transaction");
         var forwardResult = participant2EP01 -> forward("/task1", req);
         log:printInfo("participant1.transaction.after-forward");
-        match forwardResult {
-            error err => {
-                io:print("Participant1 could not send get request to participant2/task1. Error:");
+        if (forwardResult is error) {
+            io:print("Participant1 could not send get request to participant2/task1. Error:");
+            sendErrorResponseToInitiator(conn);
+            panic forwardResult;
+        } else {
+            log:printInfo("participant1.transaction.before task2");
+            var getResult = participant2EP01 -> get("/task2", message = newReq);
+            log:printInfo("participant1.transaction.after task2");
+            if (getResult is error) {
+                io:print("Participant1 could not send get request to participant2/task2. Error:");
                 sendErrorResponseToInitiator(conn);
-                panic err;
-            }
-            http:Response forwardRes => {
-                log:printInfo("participant1.transaction.before task2");
-                var getResult = participant2EP01 -> get("/task2", message = newReq);
-                log:printInfo("participant1.transaction.after task2");
-                match getResult {
-                    error err => {
-                        io:print("Participant1 could not send get request to participant2/task2. Error:");
-                        sendErrorResponseToInitiator(conn);
-                        panic err;
-                    }
-                    http:Response getRes => {
-                        log:printInfo("participant1.transaction.before.respondback");
-                        var payload = getRes.getTextPayload();
-                        if (payload is string) {
-                            log:printInfo("payload: " + payload);
-                        } else {
-                            log:printInfo("payload error: " + payload.reason());
-                        }
+                panic getResult;
+            } else {
+                log:printInfo("participant1.transaction.before.respondback");
+                var payload = getResult.getTextPayload();
+                if (payload is string) {
+                    log:printInfo("payload: " + payload);
+                } else {
+                    log:printInfo("payload error: " + payload.reason());
+                }
 
-                        var forwardRes2 = conn -> respond(getRes);
-                        log:printInfo("participant1.transaction.after.respondback");
-                        match forwardRes2 {
-                            error err => {
-                                io:print("Participant1 could not forward response from participant2 to initiator. Error:");
-                                io:println(err.reason());
-                            }
-                            () => io:print("");
-                        }
-                    }
+                var forwardRes2 = conn -> respond(getResult);
+                log:printInfo("participant1.transaction.after.respondback");
+                if (forwardRes2 is error) {
+                    io:print("Participant1 could not forward response from participant2 to initiator. Error:");
+                    io:println(forwardRes2.reason());
+                } else {
+                    io:print("");
                 }
             }
         }
@@ -153,13 +146,10 @@ service participant1 on participant1EP01 {
         http:Response res = new;  res.statusCode = 500;
         http:Request newReq = new;
         var result = participant2EP01 -> get("/testSaveToDatabaseSuccessfulInParticipant", message = newReq);
-        match result {
-            http:Response participant1Res => {
-                res = participant1Res;
-            }
-            error => {
-                res.statusCode = 500;
-            }
+        if (result is http:Response) {
+            res = result;
+        } else {
+            res.statusCode = 500;
         }
         _ = ep -> respond(res);
     }
@@ -175,13 +165,10 @@ service participant1 on participant1EP01 {
         testSaveToDatabaseFailedInParticipant_localParticipant();
         http:Request newReq = new;
         var result = participant2EP01 -> get("/testSaveToDatabaseFailedInParticipant", message = newReq);
-        match result {
-            http:Response participant1Res => {
-                res = participant1Res;
-            }
-            error => {
-                res.statusCode = 500;
-            }
+        if (result is http:Response) {
+            res = result;
+        } else {
+            res.statusCode = 500;
         }
         _ = ep -> respond(res);
     }
@@ -191,12 +178,11 @@ function sendErrorResponseToInitiator(http:Caller conn) {
     http:Caller conn2 = conn;
     http:Response errRes = new; errRes.statusCode = 500;
     var respondResult = conn2 -> respond(errRes);
-    match respondResult {
-        error respondErr => {
-            io:print("Participant1 could not send error response to initiator. Error:");
-            io:println(respondErr.reason());
-        }
-        () => return;
+    if (respondResult is error) {
+        io:print("Participant1 could not send error response to initiator. Error:");
+        io:println(respondResult.reason());
+    } else {
+        return;
     }
 }
 

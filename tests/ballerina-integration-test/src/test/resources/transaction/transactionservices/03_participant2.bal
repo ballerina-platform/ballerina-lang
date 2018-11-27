@@ -49,12 +49,11 @@ service participant2 on participant2EP02 {
         http:Response res = new;
         res.setTextPayload("Resource is invoked");
         var forwardRes = conn -> respond(res);  
-        match forwardRes {
-            error err => {
-                io:print("Participant2 could not send response to participant1. Error:");
-                io:println(err.reason());
-            }
-            () => io:print("");
+        if (forwardRes is error) {
+            io:print("Participant2 could not send response to participant1. Error:");
+            io:println(forwardRes.reason());
+        } else {
+            io:print("");
         }
     }
     @transactions:Participant {
@@ -67,16 +66,15 @@ service participant2 on participant2EP02 {
         }
         res.setTextPayload(result);
         var forwardRes = conn -> respond(res);  
-        match forwardRes {
-            error err => {
-                io:print("Participant2 could not send response to participant1. Error:");
-                io:println(err.reason());
-            }
-            () => io:print("");
+        if (forwardRes is error) {
+            io:print("Participant2 could not send response to participant1. Error:");
+            io:println(forwardRes.reason());
+        } else {
+            io:print("");
         }
     }
 
-    @transactions:Participant {}
+    //@transactions:Participant {}
     resource function testSaveToDatabaseSuccessfulInParticipant(http:Caller ep, http:Request req) {
         saveToDatabase(ep, req, false);
     }
@@ -93,23 +91,19 @@ service participant2 on participant2EP02 {
         http:Response res = new;  res.statusCode = 200;
         sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:uuid};
         var x = testDB -> select("SELECT registrationID FROM Customers WHERE registrationID = ?", Registration, para1);
-        match x {
-            table dt => {
-               string payload = "";
-               while (dt.hasNext()) {
-                   var reg = <Registration>dt.getNext();
-                    if (reg is error) {
-                        panic(reg);
-                    } else if (reg is Registration) {
-                        io:println(reg);
-                        payload = reg.REGISTRATIONID;
-                    }
-               }
-               res.setTextPayload(untaint payload);
+        if (x is error) {
+            io:println("query returned error");
+            res.statusCode = 500;
+        } else {
+            string payload = "";
+            io:println("query returned");
+            while (x.hasNext()) {
+                io:println("has rows");
+                var reg = <Registration>x.getNext();
+                io:println(reg);
+                payload = reg.REGISTRATIONID;
             }
-            error err1 => {
-               res.statusCode = 500;
-            }
+           res.setTextPayload(untaint payload);
         }
 
         _ = ep -> respond(res);
@@ -121,10 +115,10 @@ type Registration record {
 };
 
 
-@transactions:Participant {
-    oncommit:onCommit2,
-    onabort:onAbort2
-}
+//@transactions:Participant {
+//    oncommit:onCommit2,
+//    onabort:onAbort2
+//}
 function saveToDatabase(http:Caller conn, http:Request req, boolean shouldAbort) {
     http:Caller ep = conn;
     http:Response res = new;  res.statusCode = 200;
@@ -138,12 +132,11 @@ function saveToDatabase(http:Caller conn, http:Request req, boolean shouldAbort)
 
     res.setTextPayload(uuid);
     var forwardRes = ep -> respond(res);
-    match forwardRes {
-        error err => {
-            io:print("Participant2 could not send response to participant1. Error:");
-            io:println(err.reason());
-        }
-        () => io:print("");
+    if (forwardRes is error) {
+        io:print("Participant2 could not send response to participant1. Error:");
+        io:println(forwardRes.reason());
+    } else {
+        io:print("");
     }
     if(shouldAbort) {
         log:printInfo("can not abort from a participant function");
@@ -152,11 +145,26 @@ function saveToDatabase(http:Caller conn, http:Request req, boolean shouldAbort)
 }
 
 function saveToDatabaseUpdateHelper1(string uuid) {
+    io:println("inserting uuid: " + uuid);
     var result = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                                      values ('John', 'Doe', '" + uuid + "', 5000.75, 'USA')");
-    match result {
-        int insertCount => io:println(insertCount);
-        error => io:println("");
+    if (result is int) {
+        io:println(result);
+    } else {
+        io:println("");
+    }
+
+    var x = testDB -> select("SELECT registrationID FROM Customers ", Registration);
+    if (x is error) {
+        io:println("query returned error");
+    } else {
+        string payload = "";
+        io:println("query returned");
+        while (x.hasNext()) {
+            io:println("has rows");
+            var reg = <Registration>x.getNext();
+            io:println(reg);
+        }
     }
 }
 

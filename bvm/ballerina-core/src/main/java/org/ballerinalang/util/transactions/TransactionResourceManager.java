@@ -119,6 +119,10 @@ public class TransactionResourceManager {
                                       BFunctionPointer aborted, WorkerExecutionContext workerExecutionContext) {
 
         LocalTransactionInfo localTransactionInfo = workerExecutionContext.getLocalTransactionInfo();
+        registerCommittedFunction(transactionBlockId, committed);
+        registerAbortedFunction(transactionBlockId, aborted);
+        localTransactionInfo.beginTransactionBlock(transactionBlockId, 1);
+
         BValue[] bValues = TransactionUtils.notifyTransactionBegin(workerExecutionContext,
                 localTransactionInfo.getGlobalTransactionId(),
                 localTransactionInfo.getURL(), transactionBlockId, localTransactionInfo.getProtocol());

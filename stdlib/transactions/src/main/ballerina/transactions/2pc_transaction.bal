@@ -47,9 +47,10 @@ type TwoPhaseCommitTransaction object {
         if (!localPrepareSuccessful) {
             log:printInfo("Local prepare failed, aborting..");
             var result = self.notifyParticipants(COMMAND_ABORT, ());
-            match result {
-                error => { return "hazard"; }
-                NotifyResult r => match r {
+            if (result is error) {
+                return "hazard";
+            } else {
+                match result {
                     "committed" => { return "committed"; }
                     "aborted" => { return "aborted"; }
                 }
