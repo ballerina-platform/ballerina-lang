@@ -197,6 +197,11 @@
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-cache</artifactId>
                 <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-cache</artifactId>
+                <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-sources</classifier>
             </dependency>
@@ -782,6 +787,11 @@
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-privacy</artifactId>
                 <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-privacy</artifactId>
+                <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-sources</classifier>
             </dependency>
@@ -799,6 +809,7 @@
                 <artifactId>ballerina-config</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-core</artifactId>
