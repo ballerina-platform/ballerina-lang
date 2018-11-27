@@ -1524,7 +1524,8 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.RECORD:
                 blockNode = desugarForeachOfListTypes(foreach, collectionSymbol);
                 break;
-//            case TypeTags.JSON:
+            case TypeTags.JSON:
+                blockNode = desugarForeachOfListTypes(foreach, collectionSymbol);
 //                scopeEntry = symTable.rootScope.lookup(names.fromString("json.getKeys"));
 //                keysFunctionSymbol = (BInvokableSymbol) scopeEntry.symbol;
 //                blockNode = desugarForeachOfMappingTypes(foreach, collectionSymbol, "getKeys", keysFunctionSymbol,
@@ -1532,7 +1533,7 @@ public class Desugar extends BLangNodeVisitor {
 //                break;
 //            case TypeTags.STRING:
 //                blockNode = desugarForeachOfStringType(foreach, collectionSymbol);
-//                break;
+                break;
             default:
                 blockNode = ASTBuilderUtil.createBlockStmt(foreach.pos);
                 break;

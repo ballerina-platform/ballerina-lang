@@ -19,7 +19,7 @@ function concatIntJson(int i, json j) {
 }
 
 function concatIntStringAny(int i, string s, any a) {
-    output = output + i + ":" + s + ":" + <string>a + " ";
+    output = output + i + ":" + s + ":" + string.create(a) + " ";
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

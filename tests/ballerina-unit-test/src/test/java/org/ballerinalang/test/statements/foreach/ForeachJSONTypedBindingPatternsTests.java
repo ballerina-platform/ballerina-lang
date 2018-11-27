@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -85,18 +86,16 @@ public class ForeachJSONTypedBindingPatternsTests {
                 "1:{\"subject\":\"English\", \"marks\":85} ");
     }
 
-    @Test
+    @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp =
+            ".*error:.*NullReferenceException.*")
     public void testDirectAccessInvalidElementWithoutType() {
-        BValue[] returns = BRunUtil.invoke(program, "testDirectAccessInvalidElementWithoutType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "");
+        BRunUtil.invoke(program, "testDirectAccessInvalidElementWithoutType");
     }
 
-    @Test
+    @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp =
+            ".*error:.*NullReferenceException.*")
     public void testDirectAccessInvalidElementWithType() {
-        BValue[] returns = BRunUtil.invoke(program, "testDirectAccessInvalidElementWithType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "");
+        BRunUtil.invoke(program, "testDirectAccessInvalidElementWithType");
     }
 
     @Test

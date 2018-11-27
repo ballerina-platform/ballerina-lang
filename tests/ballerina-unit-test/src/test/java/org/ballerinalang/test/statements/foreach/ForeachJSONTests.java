@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -87,7 +88,8 @@ public class ForeachJSONTests {
         Assert.assertEquals(returns[0].stringValue(), result);
     }
 
-    @Test
+    @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp =
+            ".*error:.*NullReferenceException.*")
     public void testJSONNull() {
         String result = "";
         BValue[] returns = BRunUtil.invoke(program, "testJSONNull");
@@ -113,7 +115,7 @@ public class ForeachJSONTests {
 
     @Test
     public void testDeleteWhileIteration() {
-        String result = "bob 10 true null bob 10 true ";
+        String result = "bob 10 true bob 10 true ";
         BValue[] returns = BRunUtil.invoke(program, "testDeleteWhileIteration");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), result);

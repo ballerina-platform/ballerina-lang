@@ -1,5 +1,3 @@
-import ballerina/io;
-
 string output = "";
 
 function concatString (string value) {
@@ -33,11 +31,12 @@ function testJSONArray () returns (string) {
 
 function testArrayOfJSON () returns string | error {
     output = "";
-    json[] array;
-    match <json[]> j1.subjects {
-        json[] arr1 => array = arr1;
-        error err1 => return err1;
+    json[] array = [];
+    var arr1 = j1.subjects;
+    if arr1 is json[] {
+        array = arr1;
     }
+
     int i = 0;
     foreach var j in array {
         concatIntString(i, j.toString());
@@ -90,15 +89,15 @@ type Protocol record {
 
 function testJSONToStructCast () returns string | error {
     json j = {data:"data", plist:[{name:"a", url:"h1"}, {name:"b", url:"h2"}]};
-    match <Protocols> j {
-        Protocols p => {
-                output = "";
-                foreach var protocol in p.plist {
-                    concatString(protocol.name + "-" + protocol.url);
-                }
-                return output;
+    var p = Protocols.create(j);
+    if p is Protocols {
+        output = "";
+        foreach var protocol in p.plist {
+            concatString(protocol.name + "-" + protocol.url);
         }
-        error err => return err;
+        return output;
+    } else {
+        return p;
     }
 }
 
