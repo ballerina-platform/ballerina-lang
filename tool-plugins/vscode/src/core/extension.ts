@@ -162,7 +162,10 @@ export class BallerinaExtension {
     }
 
     checkCompatibleVersion(pluginVersion: string, ballerinaVersion: string): void {
-        const versionCheck = compareVersions(pluginVersion, ballerinaVersion);
+        const pluginVersionParts = pluginVersion.split(".");
+        pluginVersionParts[2] = "*"; // Match with any patch version
+        const pluginMinorVersion = pluginVersionParts.join(".");
+        const versionCheck = compareVersions(pluginMinorVersion, ballerinaVersion);
 
         if (versionCheck > 0) {
             // Plugin version is greater
