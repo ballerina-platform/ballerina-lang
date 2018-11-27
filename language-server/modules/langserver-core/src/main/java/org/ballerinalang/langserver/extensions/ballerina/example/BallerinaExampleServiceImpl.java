@@ -19,12 +19,16 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import org.ballerinalang.langserver.LSGlobalContext;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStreamReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.lang.reflect.Type;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -37,7 +41,9 @@ public class BallerinaExampleServiceImpl implements BallerinaExampleService {
 
     private static final Logger logger = LoggerFactory.getLogger(BallerinaExampleServiceImpl.class);
 
-    private static final String BBE_DEF_JSON = "all-bbes.json";
+    private static final String BBE_DEF_JSON = "index.json";
+
+    private static final String EXAMPLES_DIR = "examples";
 
     private static final Type EXAMPLE_CATEGORY_TYPE = new TypeToken<List<BallerinaExampleCategory>>() { }.getType();
 
@@ -52,11 +58,19 @@ public class BallerinaExampleServiceImpl implements BallerinaExampleService {
         return CompletableFuture.supplyAsync(() -> {
             BallerinaExampleListResponse response = new BallerinaExampleListResponse();
             Gson gson = new Gson();
-            InputStreamReader inputStreamReader = new InputStreamReader(Thread.currentThread()
-                    .getContextClassLoader().getResourceAsStream(BBE_DEF_JSON), StandardCharsets.UTF_8);
-            JsonReader reader = new JsonReader(inputStreamReader);
-            List<BallerinaExampleCategory> data = gson.fromJson(reader, EXAMPLE_CATEGORY_TYPE);
-            response.setSamples(data);
+            Path bbeJSONPath = Paths.get(CommonUtil.BALLERINA_HOME).resolve(EXAMPLES_DIR).resolve(BBE_DEF_JSON);
+            try {
+                FileReader fileReader = new FileReader(bbeJSONPath.toFile());
+                JsonReader jsonReader = new JsonReader(fileReader);
+                List<BallerinaExampleCategory> data = gson.fromJson(jsonReader, EXAMPLE_CATEGORY_TYPE);
+                response.setSamples(data);
+            } catch (FileNotFoundException e) {
+                if (CommonUtil.LS_DEBUG_ENABLED) {
+                    String msg = e.getMessage();
+                    logger.error("Error while fetching the list of examples" + ((msg != null) ? ": " + msg : ""), e);
+                }
+                response.setSamples(new ArrayList<>());
+            }
             return response;
         });
     }
