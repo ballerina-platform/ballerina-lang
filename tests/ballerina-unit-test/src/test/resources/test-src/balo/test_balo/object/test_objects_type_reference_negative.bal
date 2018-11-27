@@ -21,8 +21,10 @@ type Manager1 object {
 
     *foo:Employee1;
 
-    new(name, age=25) {
-        salary = 3000.0;
+    function __init(string name, int age=25) {
+        self.name = name;
+        self.age = age;
+        self.salary = 3000.0;
     }
 
     public function getBonus(float ratio, int months=6) returns float {

@@ -35,8 +35,12 @@ public type MySqlPiiStore object {
     # + tableName - table name used to store PII
     # + idColumn - column name used to store pseudonymized identifier
     # + piiColumn - column name used to store PII
-    public new (clientEndpoint, tableName, idColumn, piiColumn) {
+    public function __init(mysql:Client clientEndpoint, string tableName, string idColumn, string piiColumn) {
         validateFieldName(tableName, idColumn, piiColumn);
+        self.clientEndpoint = clientEndpoint;
+        self.tableName = tableName;
+        self.idColumn = idColumn;
+        self.piiColumn = piiColumn;
     }
 
     # Pseudonymize personally identifiable information (PII) and store PII and the pseudonymized identifier
@@ -44,10 +48,10 @@ public type MySqlPiiStore object {
     # + pii - PII to be pseudonymized
     # + return - 36 characters long UUID if storage operation was successful, error if storage operation failed
     public function pseudonymize (string pii) returns string|error {
-        endpoint mysql:Client client = self.clientEndpoint;
+        mysql:Client mysqlClient = self.clientEndpoint;
         string dbQuery = buildInsertQuery(self.tableName, self.idColumn, self.piiColumn);
         string id = system:uuid();
-        var queryResult = client->update(dbQuery, id, pii);
+        var queryResult = mysqlClient->update(dbQuery, id, pii);
         return processInsertResult(id, queryResult);
     }
 
@@ -56,9 +60,9 @@ public type MySqlPiiStore object {
     # + id - pseudonymized identifier to be depseudonymize
     # + return - PII if retrieval was successful, error if retrieval failed
     public function depseudonymize (string id) returns string|error {
-        endpoint mysql:Client client = self.clientEndpoint;
+        mysql:Client mysqlClient = self.clientEndpoint;
         string dbQuery = buildSelectQuery(self.tableName, self.idColumn, self.piiColumn);
-        var queryResult = client->select(dbQuery, PiiData, id);
+        var queryResult = mysqlClient->select(dbQuery, PiiData, id);
         return processSelectResult(id, queryResult);
     }
 
@@ -67,9 +71,9 @@ public type MySqlPiiStore object {
     # + id - pseudonymized identifier to be deleted
     # + return - nil if retrieval was successful, error if retrieval failed
     public function delete (string id) returns error? {
-        endpoint mysql:Client client = self.clientEndpoint;
+        mysql:Client mysqlClient = self.clientEndpoint;
         string dbQuery = buildDeleteQuery(self.tableName, self.idColumn);
-        var queryResult = client->update(dbQuery, id);
+        var queryResult = mysqlClient->update(dbQuery, id);
         return processDeleteResult(id, queryResult);
     }
 

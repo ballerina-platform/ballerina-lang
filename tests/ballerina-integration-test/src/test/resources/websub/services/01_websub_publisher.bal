@@ -19,30 +19,26 @@ import ballerina/io;
 import ballerina/log;
 import ballerina/websub;
 
-@final string WEBSUB_TOPIC_ONE = "http://one.websub.topic.com";
-@final string WEBSUB_TOPIC_TWO = "http://two.websub.topic.com";
-@final string WEBSUB_TOPIC_THREE = "http://three.websub.topic.com";
-@final string WEBSUB_TOPIC_FOUR = "http://four.websub.topic.com";
-@final string WEBSUB_TOPIC_FIVE = "http://one.redir.topic.com";
-@final string WEBSUB_TOPIC_SIX = "http://two.redir.topic.com";
+const string WEBSUB_TOPIC_ONE = "http://one.websub.topic.com";
+const string WEBSUB_TOPIC_TWO = "http://two.websub.topic.com";
+const string WEBSUB_TOPIC_THREE = "http://three.websub.topic.com";
+const string WEBSUB_TOPIC_FOUR = "http://four.websub.topic.com";
+const string WEBSUB_TOPIC_FIVE = "http://one.redir.topic.com";
+const string WEBSUB_TOPIC_SIX = "http://two.redir.topic.com";
 
 boolean remoteTopicRegistered = false;
 
 websub:WebSubHub webSubHub = startHubAndRegisterTopic();
 
-endpoint websub:Client websubHubClientEP {
-    url: webSubHub.hubUrl
-};
+websub:Client websubHubClientEP = new websub:Client(webSubHub.hubUrl);
 
-endpoint http:Listener publisherServiceEP {
-    port:8080
-};
+listener http:Listener publisherServiceEP = new http:Listener(8080);
 
-service<http:Service> publisher bind publisherServiceEP {
+service publisher on publisherServiceEP {
     @http:ResourceConfig {
         methods: ["GET", "HEAD"]
     }
-    discover(endpoint caller, http:Request req) {
+    resource function discover(http:Caller caller, http:Request req) {
         http:Response response = new;
         // Add a link header indicating the hub and topic
         websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_TOPIC_ONE);
@@ -56,7 +52,7 @@ service<http:Service> publisher bind publisherServiceEP {
     @http:ResourceConfig {
         methods: ["POST"]
     }
-    notify(endpoint caller, http:Request req) {
+    resource function notify(http:Caller caller, http:Request req) {
         remoteRegisterTopic();
         string mode = "";
         string contentType = "";
@@ -88,11 +84,11 @@ service<http:Service> publisher bind publisherServiceEP {
         }
     }
 
-    topicInfo(endpoint caller, http:Request req) {
+    resource function topicInfo(http:Caller caller, http:Request req) {
         if (req.hasHeader("x-topic")) {
             string topicName = req.getHeader("x-topic");
             websub:SubscriberDetails[] details = webSubHub.getSubscribers(topicName);
-            var j = <json> details[0];
+            var j = json.create(details[0]);
             if (j is json) {
                 var err = caller->respond(j);
                 if (err is error) {
@@ -102,14 +98,14 @@ service<http:Service> publisher bind publisherServiceEP {
                 panic j;
             }
         } else {
-            map allTopics = {};
+            map<string> allTopics = {};
             int index=1;
             string [] availableTopics = webSubHub.getAvailableTopics();
             foreach topic in availableTopics {
                 allTopics["Topic_" + index] = topic;
                 index += 1;
             }
-            var j = <json> allTopics;
+            var j = json.create(allTopics);
             if (j is json) {
                 var err = caller->respond(j);
                 if (err is error) {
@@ -118,16 +114,15 @@ service<http:Service> publisher bind publisherServiceEP {
             } else {
                 panic j;
             }
-
         }
     }
 }
 
-service<http:Service> publisherTwo bind publisherServiceEP {
+service publisherTwo on publisherServiceEP {
     @http:ResourceConfig {
         methods: ["GET", "HEAD"]
     }
-    discover(endpoint caller, http:Request req) {
+    resource function discover(http:Caller caller, http:Request req) {
         http:Response response = new;
         // Add a link header indicating the hub and topic
         websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_TOPIC_FOUR);
@@ -141,7 +136,7 @@ service<http:Service> publisherTwo bind publisherServiceEP {
     @http:ResourceConfig {
         methods: ["POST"]
     }
-    notify(endpoint caller, http:Request req) {
+    resource function notify(http:Caller caller, http:Request req) {
         http:Response response = new;
         response.statusCode = 202;
         var err = caller->respond(response);

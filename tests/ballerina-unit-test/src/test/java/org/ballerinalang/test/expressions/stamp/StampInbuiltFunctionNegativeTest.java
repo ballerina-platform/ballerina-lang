@@ -94,7 +94,7 @@ public class StampInbuiltFunctionNegativeTest {
 
         //Negative test case to confirm values cannot be stamped as primitive type.
         BAssertUtil.validateError(compileResult, 8,
-                "stamp function on type 'any' is not supported",
+                "incompatible stamp type: type 'any' cannot be stamped as type 'string'",
                 62, 27);
 
         //Negative test case to confirm values cannot be stamped as primitive type arrays.
@@ -111,7 +111,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void testRecordStampNegativeTest() {
 
-        Assert.assertEquals(recordNegativeTestCompileResult.getErrorCount(), 18);
+        Assert.assertEquals(recordNegativeTestCompileResult.getErrorCount(), 16);
 
         //Negative test case to confirm record cannot be stamped as xml.
         BAssertUtil.validateError(recordNegativeTestCompileResult, 0,
@@ -158,11 +158,6 @@ public class StampInbuiltFunctionNegativeTest {
         BAssertUtil.validateError(recordNegativeTestCompileResult, 14,
                 "stamp function on type 'ExtendedEmployee' is not supported",
                 125, 28);
-
-        //Negative test case to confirm non anydata record to open record stamp conversion.
-        BAssertUtil.validateError(recordNegativeTestCompileResult, 16,
-                "stamp function on type 'TeacherWithAnyRestType' is not supported",
-                148, 23);
     }
 
     @Test
@@ -229,7 +224,7 @@ public class StampInbuiltFunctionNegativeTest {
 
         //Negative test case to confirm map cannot be stamped as xml.
         BAssertUtil.validateError(mapNegativeTestCompileResult, 0,
-                "stamp function on type 'map' is not supported",
+                "incompatible stamp type: type 'map' cannot be stamped as type 'xml'",
                 26, 20);
 
         //Negative test case to confirm map cannot be stamped as array.

@@ -24,7 +24,7 @@ public type Filter abstract object {
     # + request - An inboud HTTP request message
     # + context - A filter context
     # + return - True if the filter succeeds
-    public function filterRequest(Server listenerObj, Request request, FilterContext context) returns boolean;
+    public function filterRequest(Listener listenerObj, Request request, FilterContext context) returns boolean;
 
     # Response filter function. If a false is returned a 500 Internal Server Error would be sent to the client.
     #
@@ -34,20 +34,21 @@ public type Filter abstract object {
     public function filterResponse(Response response, FilterContext context) returns boolean;
 };
 
+// TODO: validate
 # Representation of request filter Context.
 #
-# + serviceType - Type of the service
+# + serviceType - The service
 # + serviceName - Name of the service
 # + resourceName - Name of the resource
 # + attributes - Attributes to share between filters
 public type FilterContext object {
 
-    @readonly public typedesc serviceType;
-    @readonly public string serviceName = "";
-    @readonly public string resourceName = "";
-    @readonly public map attributes = {};
+    public service serviceType;
+    public string serviceName = "";
+    public string resourceName = "";
+    public map<any> attributes = {};
 
-    public function __init(typedesc serviceType, string serviceName, string resourceName) {
+    public function __init(service serviceType, string serviceName, string resourceName) {
         self.serviceType = serviceType;
         self.serviceName = serviceName;
         self.resourceName = resourceName;

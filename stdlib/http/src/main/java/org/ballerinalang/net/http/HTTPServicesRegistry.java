@@ -23,7 +23,7 @@ import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.connector.api.Value;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
@@ -143,8 +143,9 @@ public class HTTPServicesRegistry {
             }
             Struct webSocketConfig =
                     resourceConfigAnnotation.getValue().getStructField(HttpConstants.ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE);
-            Value serviceType = webSocketConfig.getTypeField(WebSocketConstants.WEBSOCKET_UPGRADE_SERVICE_CONFIG);
-            Service webSocketTypeService = BLangConnectorSPIUtil.getServiceFromType(programFile, serviceType);
+            BMap serviceField =
+                    (BMap) webSocketConfig.getServiceField(WebSocketConstants.WEBSOCKET_UPGRADE_SERVICE_CONFIG);
+            Service webSocketTypeService = BLangConnectorSPIUtil.getService(programFile, serviceField);
             WebSocketService webSocketService = new WebSocketService(sanitizeBasePath(httpService.getBasePath()),
                                                                      upgradeToWebSocketResource, webSocketTypeService);
             webSocketServicesRegistry.registerService(webSocketService);

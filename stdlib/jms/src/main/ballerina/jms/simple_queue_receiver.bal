@@ -23,16 +23,17 @@ import ballerina/log;
 # + config - configurations related to the SimpleQueueReceiver endpoint
 public type SimpleQueueReceiver object {
 
-    public SimpleQueueReceiverEndpointConfiguration config = {};
+    *AbstractListener;
 
+    public SimpleQueueReceiverEndpointConfiguration config = {};
     private Connection? connection;
     private Session? session = ();
-    private QueueReceiver? queueReceiver = ();
+    private QueueReceiver queueReceiver;
 
     # Initialize the SimpleQueueReceiver endpoint
     #
     # + c - Configurations related to the SimpleQueueReceiver endpoint
-    public function init(SimpleQueueReceiverEndpointConfiguration c) {
+    public function __init(SimpleQueueReceiverEndpointConfiguration c) {
         self.config = c;
         Connection conn = new({
                 initialContextFactory: self.config.initialContextFactory,
@@ -47,54 +48,36 @@ public type SimpleQueueReceiver object {
             });
         self.session = newSession;
 
-        QueueReceiver receiver = new;
         QueueReceiverEndpointConfiguration queueReceiverConfig = {
             session: newSession,
             queueName: c.queueName,
             messageSelector: c.messageSelector
         };
-        receiver.init(queueReceiverConfig);
-        self.queueReceiver = receiver;
+        self.queueReceiver = new(queueReceiverConfig);
     }
 
     # Binds the SimlpeQueueReceiver endpoint to a service
     #
     # + serviceType - type descriptor of the service to bind to
-    public function register(typedesc serviceType) {
-        var queueReceiver = self.queueReceiver;
-        if (queueReceiver is QueueReceiver) {
-            queueReceiver.register(serviceType);
-        } else {
-            string errorMessage = "Queue receiver cannot be nil";
-            map errorDetail = { message: errorMessage };
-            error e = error(JMS_ERROR_CODE, errorDetail);
-            panic e;
-        }
+    public function __attach(service serviceType, map<any> data) returns error? {
+        return self.queueReceiver.registerListener(serviceType, self.queueReceiver.consumerActions, data);
     }
 
     # Starts the endpoint. Function is ignored by the receiver endpoint
-    public function start() {
-
+    public function __start() returns error?  {
+        return ();
     }
 
     # Retrieves the SimpleQueueReceiver consumer action handler
     #
     # + return - simple queue receiver action handler
-    public function getCallerActions() returns QueueReceiverActions {
-        var queueReceiver = self.queueReceiver;
-        if (queueReceiver is QueueReceiver) {
-            return queueReceiver.getCallerActions();
-        } else {
-            string errorMessage = "Queue receiver cannot be nil";
-            map errorDetail = { message: errorMessage };
-            error e = error(JMS_ERROR_CODE, errorDetail);
-            panic e;
-        }
+    public function getCallerActions() returns QueueReceiverCaller {
+        return self.queueReceiver.getCallerActions();
     }
 
     # Stops consuming messages through QueueReceiver endpoint
-    public function stop() {
-
+    public function __stop() returns error? {
+        return self.queueReceiver.closeQueueReceiver(self.queueReceiver.consumerActions);
     }
 
     # Creates a JMS message which holds text content
@@ -107,7 +90,7 @@ public type SimpleQueueReceiver object {
             return session.createTextMessage(content);
         } else {
             string errorMessage = "Session cannot be nil";
-            map errorDetail = { message: errorMessage };
+            map<any> errorDetail = { message: errorMessage };
             error e = error(JMS_ERROR_CODE, errorDetail);
             panic e;
         }
@@ -130,7 +113,7 @@ public type SimpleQueueReceiverEndpointConfiguration record {
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
     string messageSelector = "";
-    map properties = {};
+    map<any> properties = {};
     string queueName = "";
     !...
 };

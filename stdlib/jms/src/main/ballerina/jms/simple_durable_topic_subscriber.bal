@@ -22,17 +22,18 @@ import ballerina/log;
 # + config - configurations related to the endpoint
 public type SimpleDurableTopicSubscriber object {
 
-    public SimpleDurableTopicSubscriberEndpointConfiguration config = {};
+    *AbstractListener;
 
+    public SimpleDurableTopicSubscriberEndpointConfiguration config = {};
     private Connection? connection = ();
     private Session? session = ();
-    private DurableTopicSubscriber? subscriber = ();
-    private SimpleDurableTopicSubscriberActions? consumerActions = ();
+    private DurableTopicSubscriber subscriber;
+    private SimpleDurableTopicSubscriberCaller consumerActions;
 
     # Initializes the simple durable topic subscriber endpoint
     #
     # + c - Configurations related to the endpoint
-    public function init(SimpleDurableTopicSubscriberEndpointConfiguration c) {
+    public function __init(SimpleDurableTopicSubscriberEndpointConfiguration c) {
         self.config = c;
         Connection conn = new({
                 initialContextFactory: self.config.initialContextFactory,
@@ -47,57 +48,41 @@ public type SimpleDurableTopicSubscriber object {
             });
         self.session = newSession;
 
-        DurableTopicSubscriber topicSubscriber = new;
         DurableTopicSubscriberEndpointConfiguration consumerConfig = {
             session: newSession,
             topicPattern: c.topicPattern,
             messageSelector: c.messageSelector,
             identifier: c.identifier
         };
-        topicSubscriber.init(consumerConfig);
-        self.subscriber = topicSubscriber;
-        self.consumerActions = new SimpleDurableTopicSubscriberActions(topicSubscriber.getCallerActions(), newSession,
+        self.subscriber = new(consumerConfig);
+        self.consumerActions = new SimpleDurableTopicSubscriberCaller(self.subscriber.getCallerActions(), newSession,
             c.identifier);
     }
 
     # Binds the endpoint to a service
     #
     # + serviceType - type descriptor of the service to bind to
-    public function register(typedesc serviceType) {
-        var subscriber = self.subscriber;
-        if (subscriber is DurableTopicSubscriber) {
-            subscriber.register(serviceType);
-        } else {
-            string errorMessage = "Topic Subscriber cannot be nil";
-            map errorDetail = { message: errorMessage };
-            error e = error(JMS_ERROR_CODE, errorDetail);
-            panic e;
-        }
+    public function __attach(service serviceType, map<any> data) returns error? {
+        return self.subscriber.registerListener(serviceType, self.subscriber.consumerActions, data);
     }
 
     # Starts the endpoint. Function is ignored by the subscriber endpoint
-    public function start() {
+    public function __start() returns error? {
         // Ignore
+        return ();
     }
 
     # Retrieves the durable topic subscriber consumer actions
     #
     # + return - Durable topic subscriber actions
-    public function getCallerActions() returns SimpleDurableTopicSubscriberActions {
-        var consumerActions = self.consumerActions;
-        if (consumerActions is SimpleDurableTopicSubscriberActions) {
-            return consumerActions;
-        } else {
-            string errorMessage = "Consumer actions cannot be nil";
-            map errorDetail = { message: errorMessage };
-            error e = error(JMS_ERROR_CODE, errorDetail);
-            panic e;
-        }
+    public function getCallerActions() returns SimpleDurableTopicSubscriberCaller {
+        return self.consumerActions;
     }
 
     # Stops the endpoint. Function is ignored by the subscriber endpoint
-    public function stop() {
+    public function __stop() returns error? {
         // Ignore
+        return self.subscriber.closeSubscriber(self.subscriber.consumerActions);
     }
 
     # Creates a text message that can be sent through any JMS message producer to a queue or topic.
@@ -110,7 +95,7 @@ public type SimpleDurableTopicSubscriber object {
             return session.createTextMessage(message);
         } else {
             string errorMessage = "Session cannot be nil";
-            map errorDetail = { message: errorMessage };
+            map<any> errorDetail = { message: errorMessage };
             error e = error(JMS_ERROR_CODE, errorDetail);
             panic e;
         }
@@ -134,7 +119,7 @@ public type SimpleDurableTopicSubscriberEndpointConfiguration record {
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
     string identifier = "";
-    map properties = {};
+    map<any> properties = {};
     string messageSelector = "";
     string topicPattern = "";
     !...
@@ -142,13 +127,13 @@ public type SimpleDurableTopicSubscriberEndpointConfiguration record {
 
 
 # Caller actions related to durable topic subscriber endpoint
-public type SimpleDurableTopicSubscriberActions object {
+public type SimpleDurableTopicSubscriberCaller client object {
 
-    private DurableTopicSubscriberActions helper;
+    private DurableTopicSubscriberCaller helper;
     private Session session;
     private string identifier;
 
-    public function __init(DurableTopicSubscriberActions subscriberActions, Session session, string id) {
+    public function __init(DurableTopicSubscriberCaller subscriberActions, Session session, string id) {
         self.helper = subscriberActions;
         self.session = session;
         self.identifier = id;
@@ -158,22 +143,22 @@ public type SimpleDurableTopicSubscriberActions object {
     #
     # + message - JMS message to be acknowledged
     # + return - error upon failure to acknowledge the received message
-    public function acknowledge(Message message) returns error? {
-        return self.helper.acknowledge(message);
+    public remote function acknowledge(Message message) returns error? {
+        return self.helper->acknowledge(message);
     }
 
     # Synchronously receive a message from the JMS provider
     #
     # + timeoutInMilliSeconds - time to wait until a message is received
     # + return - Returns a message or nill if the timeout exceededs. Returns an error on jms provider internal error.
-    public function receive(int timeoutInMilliSeconds = 0) returns (Message|error)? {
-        return self.helper.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
+    public remote function receive(int timeoutInMilliSeconds = 0) returns (Message|error)? {
+        return self.helper->receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
     }
 
     # Unsubscribes the durable subscriber from topic
     #
     # + return - Returns an error on JMS provider internal error
-    public function unsubscribe() returns error? {
+    public remote function unsubscribe() returns error? {
         return self.session.unsubscribe(self.identifier);
     }
 };

@@ -68,6 +68,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     private List<String> pkgNameComps;
     private String pkgVersion;
+    private boolean isInErrorState = false;
 
     BLangParserListener(CompilerContext context, CompilationUnitNode compUnit,
                         BDiagnosticSource diagnosticSource) {
@@ -78,7 +79,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterParameterList(BallerinaParser.ParameterListContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -87,7 +88,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitSimpleParameter(BallerinaParser.SimpleParameterContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -100,7 +101,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void enterFormalParameterList(BallerinaParser.FormalParameterListContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -112,7 +113,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitFormalParameterList(BallerinaParser.FormalParameterListContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -124,7 +125,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitDefaultableParameter(BallerinaParser.DefaultableParameterContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -136,7 +137,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitRestParameter(BallerinaParser.RestParameterContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -149,7 +150,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitParameterTypeName(BallerinaParser.ParameterTypeNameContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -174,7 +175,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitPackageName(BallerinaParser.PackageNameContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -188,7 +189,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitImportDeclaration(BallerinaParser.ImportDeclarationContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -208,7 +209,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitServiceDefinition(BallerinaParser.ServiceDefinitionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         final DiagnosticPos serviceDefPos = getCurrentPos(ctx);
@@ -223,7 +224,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void enterServiceBody(BallerinaParser.ServiceBodyContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         this.pkgBuilder.startServiceDef(getCurrentPos(ctx));
@@ -235,14 +236,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitServiceBody(BallerinaParser.ServiceBodyContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
         boolean isFieldAnalyseRequired = (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext
                 || ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext)
                 || ctx.parent.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
-        this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, true, false, false, true);
+        this.pkgBuilder
+                .addObjectType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, false, false, false, true);
     }
 
     /**
@@ -250,7 +252,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void enterCallableUnitBody(BallerinaParser.CallableUnitBodyContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -262,7 +264,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitCallableUnitBody(BallerinaParser.CallableUnitBodyContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -274,7 +276,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void enterFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -286,7 +288,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -310,7 +312,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterLambdaFunction(BallerinaParser.LambdaFunctionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -319,7 +321,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitLambdaFunction(BallerinaParser.LambdaFunctionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -330,7 +332,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterArrowFunction(BallerinaParser.ArrowFunctionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -339,7 +341,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitArrowFunctionExpression(BallerinaParser.ArrowFunctionExpressionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -348,7 +350,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitArrowParam(BallerinaParser.ArrowParamContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -360,7 +362,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitCallableUnitSignature(BallerinaParser.CallableUnitSignatureContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -375,7 +377,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitFiniteType(BallerinaParser.FiniteTypeContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -387,7 +389,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitTypeDefinition(BallerinaParser.TypeDefinitionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -401,7 +403,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void enterObjectBody(BallerinaParser.ObjectBodyContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -413,7 +415,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitObjectBody(BallerinaParser.ObjectBodyContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -431,7 +433,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitTypeReference(BallerinaParser.TypeReferenceContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -443,7 +445,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitFieldDefinition(BallerinaParser.FieldDefinitionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -461,7 +463,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitObjectFieldDefinition(BallerinaParser.ObjectFieldDefinitionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -485,7 +487,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void enterObjectFunctionDefinition(BallerinaParser.ObjectFunctionDefinitionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -497,7 +499,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitObjectFunctionDefinition(BallerinaParser.ObjectFunctionDefinitionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -519,7 +521,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void enterAnnotationDefinition(BallerinaParser.AnnotationDefinitionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -531,12 +533,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitAnnotationDefinition(BallerinaParser.AnnotationDefinitionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
         boolean publicAnnotation = KEYWORD_PUBLIC.equals(ctx.getChild(0).getText());
-        boolean isTypeAttached = ctx.userDefineTypeName() != null;
+        boolean isTypeAttached = ctx.typeName() != null;
         this.pkgBuilder.endAnnotationDef(getWS(ctx), ctx.Identifier().getText(),
                 getCurrentPosFromIdentifier(ctx.Identifier()), publicAnnotation, isTypeAttached);
     }
@@ -546,7 +548,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitConstantDefinition(BallerinaParser.ConstantDefinitionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         boolean isPublic = ctx.PUBLIC() != null;
@@ -560,19 +562,21 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitGlobalVariableDefinition(BallerinaParser.GlobalVariableDefinitionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
-
-        boolean publicVar = ctx.PUBLIC() != null;
-        boolean listenerVar = ctx.LISTENER() != null;
-        this.pkgBuilder.addGlobalVariable(getCurrentPos(ctx), getWS(ctx),
-                ctx.Identifier().getText(), ctx.expression() != null, publicVar, listenerVar);
+        boolean isPublic = ctx.PUBLIC() != null;
+        boolean isFinal = ctx.FINAL() != null;
+        boolean isDeclaredWithVar = ctx.VAR() != null;
+        boolean isExpressionAvailable = ctx.expression() != null;
+        boolean isListenerVar = ctx.LISTENER() != null;
+        this.pkgBuilder.addGlobalVariable(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), isPublic,
+                isFinal, isDeclaredWithVar, isExpressionAvailable, isListenerVar);
     }
 
     @Override
     public void exitAttachmentPoint(BallerinaParser.AttachmentPointContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         this.pkgBuilder.addAttachPoint(AttachPoint.getAttachmentPoint(ctx.getText()), getWS(ctx));
@@ -580,7 +584,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterWorkerDeclaration(BallerinaParser.WorkerDeclarationContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -589,7 +593,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitWorkerDeclaration(BallerinaParser.WorkerDeclarationContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -605,7 +609,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitWorkerDefinition(BallerinaParser.WorkerDefinitionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -614,7 +618,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitArrayTypeNameLabel(BallerinaParser.ArrayTypeNameLabelContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -646,7 +650,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitUnionTypeNameLabel(BallerinaParser.UnionTypeNameLabelContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -655,7 +659,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitTupleTypeNameLabel(BallerinaParser.TupleTypeNameLabelContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         this.pkgBuilder.addTupleType(getCurrentPos(ctx), getWS(ctx), ctx.typeName().size());
@@ -663,7 +667,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitNullableTypeNameLabel(BallerinaParser.NullableTypeNameLabelContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -672,7 +676,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitGroupTypeNameLabel(BallerinaParser.GroupTypeNameLabelContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -684,7 +688,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void enterRecordFieldDefinitionList(BallerinaParser.RecordFieldDefinitionListContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -693,7 +697,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitRecordFieldDefinitionList(BallerinaParser.RecordFieldDefinitionListContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -714,7 +718,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitSimpleTypeName(BallerinaParser.SimpleTypeNameContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -728,7 +732,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitUserDefineTypeName(BallerinaParser.UserDefineTypeNameContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -737,7 +741,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitValueTypeName(BallerinaParser.ValueTypeNameContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -746,7 +750,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitBuiltInReferenceTypeName(BallerinaParser.BuiltInReferenceTypeNameContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         if (ctx.functionTypeName() != null) {
@@ -767,7 +771,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitErrorTypeName(BallerinaParser.ErrorTypeNameContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         boolean isReasonTypeExists = !ctx.typeName().isEmpty();
@@ -777,7 +781,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitFunctionTypeName(BallerinaParser.FunctionTypeNameContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -801,7 +805,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void enterAnnotationAttachment(BallerinaParser.AnnotationAttachmentContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -813,7 +817,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitAnnotationAttachment(BallerinaParser.AnnotationAttachmentContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -823,7 +827,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitTupleBindingPattern(BallerinaParser.TupleBindingPatternContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -832,7 +836,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitTupleRefBindingPattern(BallerinaParser.TupleRefBindingPatternContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -841,7 +845,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterEntryBindingPattern(BallerinaParser.EntryBindingPatternContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -850,7 +854,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitEntryBindingPattern(BallerinaParser.EntryBindingPatternContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -863,7 +867,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterEntryRefBindingPattern(BallerinaParser.EntryRefBindingPatternContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -872,7 +876,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitEntryRefBindingPattern(BallerinaParser.EntryRefBindingPatternContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -885,7 +889,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitBindingPattern(BallerinaParser.BindingPatternContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -898,7 +902,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitFieldBindingPattern(BallerinaParser.FieldBindingPatternContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -908,7 +912,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitFieldRefBindingPattern(BallerinaParser.FieldRefBindingPatternContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -918,7 +922,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitRestBindingPattern(BallerinaParser.RestBindingPatternContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -929,29 +933,30 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitVariableDefinitionStatement(BallerinaParser.VariableDefinitionStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
+        boolean isFinal = ctx.FINAL() != null;
         boolean isDeclaredWithVar = ctx.VAR() != null;
-        boolean exprAvailable = ctx.ASSIGN() != null;
+        boolean isExpressionAvailable = ctx.expression() != null;
 
         if (ctx.Identifier() != null) {
             this.pkgBuilder.addSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
-                    exprAvailable, isDeclaredWithVar);
+                    isFinal, isDeclaredWithVar, isExpressionAvailable);
         } else if (ctx.bindingPattern().Identifier() != null) {
             this.pkgBuilder.addSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-                    ctx.bindingPattern().Identifier().getText(), exprAvailable, isDeclaredWithVar);
+                    ctx.bindingPattern().Identifier().getText(), isFinal, isDeclaredWithVar, isExpressionAvailable);
         } else if (ctx.bindingPattern().structuredBindingPattern().recordBindingPattern() != null) {
-            this.pkgBuilder.addRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx), isDeclaredWithVar);
+            this.pkgBuilder.addRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx), isFinal, isDeclaredWithVar);
         } else {
-            this.pkgBuilder.addTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx), isDeclaredWithVar);
+            this.pkgBuilder.addTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx), isFinal, isDeclaredWithVar);
         }
     }
 
     @Override
     public void enterRecordLiteral(BallerinaParser.RecordLiteralContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -960,7 +965,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitRecordLiteral(BallerinaParser.RecordLiteralContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -969,7 +974,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitRecordKeyValue(BallerinaParser.RecordKeyValueContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -978,7 +983,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitRecordKey(BallerinaParser.RecordKeyContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -993,7 +998,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterTableLiteral(BallerinaParser.TableLiteralContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         this.pkgBuilder.startTableLiteral();
@@ -1001,7 +1006,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitTableColumnDefinition(BallerinaParser.TableColumnDefinitionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         this.pkgBuilder.endTableColumnDefinition(getWS(ctx));
@@ -1009,7 +1014,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitTableColumn(BallerinaParser.TableColumnContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1033,7 +1038,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitTableDataArray(BallerinaParser.TableDataArrayContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1042,7 +1047,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitTableDataList(BallerinaParser.TableDataListContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         if (ctx.expressionList() != null) {
@@ -1052,7 +1057,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitTableData(BallerinaParser.TableDataContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         this.pkgBuilder.endTableDataList(getCurrentPos(ctx), getWS(ctx));
@@ -1060,7 +1065,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitTableLiteral(BallerinaParser.TableLiteralContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1069,7 +1074,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitArrayLiteral(BallerinaParser.ArrayLiteralContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1079,7 +1084,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitTypeInitExpr(BallerinaParser.TypeInitExprContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1091,7 +1096,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitErrorConstructorExpr(BallerinaParser.ErrorConstructorExprContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1100,7 +1105,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitServiceConstructorExpression(BallerinaParser.ServiceConstructorExpressionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         final DiagnosticPos serviceDefPos = getCurrentPos(ctx);
@@ -1111,7 +1116,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitChannelType(BallerinaParser.ChannelTypeContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1124,7 +1129,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitAssignmentStatement(BallerinaParser.AssignmentStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1133,7 +1138,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitTupleDestructuringStatement(BallerinaParser.TupleDestructuringStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1145,7 +1150,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitRecordDestructuringStatement(BallerinaParser.RecordDestructuringStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1162,7 +1167,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitCompoundAssignmentStatement(BallerinaParser.CompoundAssignmentStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1176,7 +1181,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitCompoundOperator(BallerinaParser.CompoundOperatorContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1185,7 +1190,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterVariableReferenceList(BallerinaParser.VariableReferenceListContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1194,7 +1199,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitVariableReferenceList(BallerinaParser.VariableReferenceListContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1206,7 +1211,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void enterIfElseStatement(BallerinaParser.IfElseStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1218,7 +1223,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitIfElseStatement(BallerinaParser.IfElseStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1230,7 +1235,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitIfClause(BallerinaParser.IfClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1242,7 +1247,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void enterElseIfClause(BallerinaParser.ElseIfClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1255,7 +1260,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitElseIfClause(BallerinaParser.ElseIfClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1267,7 +1272,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void enterElseClause(BallerinaParser.ElseClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1279,7 +1284,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitElseClause(BallerinaParser.ElseClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1288,7 +1293,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterMatchStatement(BallerinaParser.MatchStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         this.pkgBuilder.createMatchNode(getCurrentPos(ctx));
@@ -1296,7 +1301,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitMatchStatement(BallerinaParser.MatchStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         this.pkgBuilder.completeMatchNode(getCurrentPos(ctx), getWS(ctx));
@@ -1304,7 +1309,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterMatchPatternClause(BallerinaParser.MatchPatternClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         this.pkgBuilder.startMatchStmtPattern();
@@ -1312,24 +1317,22 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitMatchPatternClause(BallerinaParser.MatchPatternClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
         if (ctx.bindingPattern() != null) {
             boolean isTypeGuardPresent = ctx.IF() != null;
             this.pkgBuilder.addMatchStmtStructuredBindingPattern(getCurrentPos(ctx), getWS(ctx), isTypeGuardPresent);
-        } else if (ctx.expression() != null) {
-            this.pkgBuilder.addMatchStmtStaticBindingPattern(getCurrentPos(ctx), getWS(ctx));
-        } else {
-            String identifier = ctx.Identifier() != null ? ctx.Identifier().getText() : null;
-            this.pkgBuilder.addMatchStmtSimpleBindingPattern(getCurrentPos(ctx), getWS(ctx), identifier);
+            return;
         }
+
+        this.pkgBuilder.addMatchStmtStaticBindingPattern(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override
     public void enterForeachStatement(BallerinaParser.ForeachStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         this.pkgBuilder.startForeachStatement();
@@ -1337,7 +1340,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitForeachStatement(BallerinaParser.ForeachStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         this.pkgBuilder.addForeachStatement(getCurrentPos(ctx), getWS(ctx));
@@ -1345,7 +1348,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitIntRangeExpression(BallerinaParser.IntRangeExpressionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         this.pkgBuilder.addIntRangeExpression(getCurrentPos(ctx), getWS(ctx),
@@ -1358,7 +1361,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void enterWhileStatement(BallerinaParser.WhileStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1370,7 +1373,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitWhileStatement(BallerinaParser.WhileStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1382,7 +1385,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitContinueStatement(BallerinaParser.ContinueStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1394,7 +1397,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitBreakStatement(BallerinaParser.BreakStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1403,7 +1406,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterForkJoinStatement(BallerinaParser.ForkJoinStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1412,7 +1415,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitForkJoinStatement(BallerinaParser.ForkJoinStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1421,7 +1424,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterJoinClause(BallerinaParser.JoinClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1435,7 +1438,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1461,7 +1464,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1474,7 +1477,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterTimeoutClause(BallerinaParser.TimeoutClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1483,7 +1486,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitTimeoutClause(BallerinaParser.TimeoutClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1492,7 +1495,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterTryCatchStatement(BallerinaParser.TryCatchStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1501,7 +1504,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitTryCatchStatement(BallerinaParser.TryCatchStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1510,7 +1513,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterCatchClauses(BallerinaParser.CatchClausesContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1519,7 +1522,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterCatchClause(BallerinaParser.CatchClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1528,7 +1531,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitCatchClause(BallerinaParser.CatchClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1538,7 +1541,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterFinallyClause(BallerinaParser.FinallyClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1547,7 +1550,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitFinallyClause(BallerinaParser.FinallyClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1556,7 +1559,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitThrowStatement(BallerinaParser.ThrowStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1565,7 +1568,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitPanicStatement(BallerinaParser.PanicStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1577,7 +1580,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitReturnStatement(BallerinaParser.ReturnStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1586,7 +1589,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitInvokeWorker(BallerinaParser.InvokeWorkerContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1596,7 +1599,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitInvokeFork(BallerinaParser.InvokeForkContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1605,7 +1608,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitWorkerReply(BallerinaParser.WorkerReplyContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1624,7 +1627,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitSimpleVariableReference(BallerinaParser.SimpleVariableReferenceContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1633,7 +1636,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitFunctionInvocation(BallerinaParser.FunctionInvocationContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1643,7 +1646,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitFieldVariableReference(BallerinaParser.FieldVariableReferenceContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1664,7 +1667,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitMapArrayVariableReference(BallerinaParser.MapArrayVariableReferenceContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1673,7 +1676,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitReservedWord(BallerinaParser.ReservedWordContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1682,7 +1685,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitAnyIdentifierName(BallerinaParser.AnyIdentifierNameContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1693,7 +1696,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitInvocationReference(BallerinaParser.InvocationReferenceContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1705,7 +1708,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitTypeDescExprInvocationReference(BallerinaParser.TypeDescExprInvocationReferenceContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1720,7 +1723,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void enterInvocationArgList(BallerinaParser.InvocationArgListContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1732,7 +1735,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitInvocationArgList(BallerinaParser.InvocationArgListContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1740,7 +1743,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     public void enterExpressionList(BallerinaParser.ExpressionListContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1749,7 +1752,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitExpressionList(BallerinaParser.ExpressionListContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1758,7 +1761,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitExpressionStmt(BallerinaParser.ExpressionStmtContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1770,7 +1773,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void enterTransactionStatement(BallerinaParser.TransactionStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1782,7 +1785,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitTransactionStatement(BallerinaParser.TransactionStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1803,7 +1806,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     @Override
     public void exitTransactionPropertyInitStatementList(
             BallerinaParser.TransactionPropertyInitStatementListContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1816,7 +1819,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void enterLockStatement(BallerinaParser.LockStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1828,7 +1831,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitLockStatement(BallerinaParser.LockStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1840,7 +1843,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void enterOnretryClause(BallerinaParser.OnretryClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1852,7 +1855,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitOnretryClause(BallerinaParser.OnretryClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1864,7 +1867,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitAbortStatement(BallerinaParser.AbortStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1876,7 +1879,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitDoneStatement(BallerinaParser.DoneStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1888,7 +1891,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitRetryStatement(BallerinaParser.RetryStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1900,7 +1903,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitRetriesStatement(BallerinaParser.RetriesStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         this.pkgBuilder.addRetryCountExpression(getWS(ctx));
@@ -1911,7 +1914,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitOncommitStatement(BallerinaParser.OncommitStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         this.pkgBuilder.addCommittedBlock(getWS(ctx));
@@ -1922,7 +1925,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitOnabortStatement(BallerinaParser.OnabortStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         this.pkgBuilder.addAbortedBlock(getWS(ctx));
@@ -1937,7 +1940,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitNamespaceDeclaration(BallerinaParser.NamespaceDeclarationContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1952,7 +1955,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitBinaryDivMulModExpression(BallerinaParser.BinaryDivMulModExpressionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1961,7 +1964,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitBinaryOrExpression(BallerinaParser.BinaryOrExpressionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1970,7 +1973,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitBinaryRefEqualExpression(BallerinaParser.BinaryRefEqualExpressionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1979,7 +1982,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitBinaryEqualExpression(BallerinaParser.BinaryEqualExpressionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1987,7 +1990,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override public void exitTypeDescExpr(BallerinaParser.TypeDescExprContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1996,7 +1999,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitActionInvocation(BallerinaParser.ActionInvocationContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2005,7 +2008,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitBinaryAndExpression(BallerinaParser.BinaryAndExpressionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2014,7 +2017,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitBinaryAddSubExpression(BallerinaParser.BinaryAddSubExpressionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2023,7 +2026,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitBitwiseExpression(BallerinaParser.BitwiseExpressionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2033,7 +2036,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitBitwiseShiftExpression(BallerinaParser.BitwiseShiftExpressionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2051,7 +2054,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitTypeConversionExpression(BallerinaParser.TypeConversionExpressionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2060,7 +2063,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitBinaryCompareExpression(BallerinaParser.BinaryCompareExpressionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2069,7 +2072,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitIntegerRangeExpression(BallerinaParser.IntegerRangeExpressionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2078,7 +2081,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitUnaryExpression(BallerinaParser.UnaryExpressionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2087,7 +2090,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitTypeTestExpression(BallerinaParser.TypeTestExpressionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         this.pkgBuilder.createTypeTestExpression(getCurrentPos(ctx), getWS(ctx));
@@ -2095,7 +2098,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitBracedOrTupleExpression(BallerinaParser.BracedOrTupleExpressionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         this.pkgBuilder.createBracedOrTupleExpression(getCurrentPos(ctx), getWS(ctx), ctx.expression().size());
@@ -2106,7 +2109,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitTernaryExpression(BallerinaParser.TernaryExpressionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2115,7 +2118,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitCheckedExpression(BallerinaParser.CheckedExpressionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2124,7 +2127,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitNameReference(BallerinaParser.NameReferenceContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2140,7 +2143,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitFunctionNameReference(BallerinaParser.FunctionNameReferenceContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2159,7 +2162,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitReturnParameter(BallerinaParser.ReturnParameterContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2168,7 +2171,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitLambdaReturnParameter(BallerinaParser.LambdaReturnParameterContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2177,7 +2180,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterParameterTypeNameList(BallerinaParser.ParameterTypeNameListContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2189,7 +2192,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitParameterTypeNameList(BallerinaParser.ParameterTypeNameListContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2210,7 +2213,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitParameterList(BallerinaParser.ParameterListContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2231,7 +2234,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitSimpleLiteral(BallerinaParser.SimpleLiteralContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2273,7 +2276,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitNamedArgs(BallerinaParser.NamedArgsContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2285,7 +2288,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitRestArgs(BallerinaParser.RestArgsContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2297,7 +2300,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitXmlLiteral(BallerinaParser.XmlLiteralContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         this.pkgBuilder.attachXmlLiteralWS(getWS(ctx));
@@ -2308,7 +2311,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitComment(BallerinaParser.CommentContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2327,7 +2330,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitElement(BallerinaParser.ElementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2341,7 +2344,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitStartTag(BallerinaParser.StartTagContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2354,7 +2357,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitCloseTag(BallerinaParser.CloseTagContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2366,7 +2369,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitEmptyTag(BallerinaParser.EmptyTagContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2379,7 +2382,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitProcIns(BallerinaParser.ProcInsContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2403,7 +2406,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitAttribute(BallerinaParser.AttributeContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2415,7 +2418,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitText(BallerinaParser.TextContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2433,7 +2436,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitXmlSingleQuotedString(BallerinaParser.XmlSingleQuotedStringContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2448,7 +2451,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitXmlDoubleQuotedString(BallerinaParser.XmlDoubleQuotedStringContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2463,7 +2466,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitXmlQualifiedName(BallerinaParser.XmlQualifiedNameContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2490,7 +2493,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitStringTemplateLiteral(BallerinaParser.StringTemplateLiteralContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2512,7 +2515,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitTableQueryExpression(BallerinaParser.TableQueryExpressionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2521,7 +2524,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterOrderByClause(BallerinaParser.OrderByClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2530,7 +2533,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitOrderByClause(BallerinaParser.OrderByClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2539,7 +2542,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterLimitClause(BallerinaParser.LimitClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2548,7 +2551,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitLimitClause(BallerinaParser.LimitClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2557,7 +2560,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterOrderByVariable(BallerinaParser.OrderByVariableContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2566,7 +2569,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitOrderByVariable(BallerinaParser.OrderByVariableContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2578,7 +2581,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterGroupByClause(BallerinaParser.GroupByClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2587,7 +2590,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitGroupByClause(BallerinaParser.GroupByClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2596,7 +2599,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterHavingClause(BallerinaParser.HavingClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2605,7 +2608,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitHavingClause(BallerinaParser.HavingClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2614,7 +2617,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterSelectExpression(BallerinaParser.SelectExpressionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2623,7 +2626,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitSelectExpression(BallerinaParser.SelectExpressionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2633,7 +2636,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterSelectClause(BallerinaParser.SelectClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2642,7 +2645,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitSelectClause(BallerinaParser.SelectClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2655,7 +2658,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterSelectExpressionList(BallerinaParser.SelectExpressionListContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2664,7 +2667,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitSelectExpressionList(BallerinaParser.SelectExpressionListContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2673,7 +2676,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterWhereClause(BallerinaParser.WhereClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2682,7 +2685,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitWhereClause(BallerinaParser.WhereClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2691,7 +2694,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterSetAssignmentClause(BallerinaParser.SetAssignmentClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2700,7 +2703,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitSetAssignmentClause(BallerinaParser.SetAssignmentClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2709,7 +2712,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterSetClause(BallerinaParser.SetClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2718,7 +2721,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitSetClause(BallerinaParser.SetClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2727,7 +2730,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterStreamingAction(BallerinaParser.StreamingActionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2736,7 +2739,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitStreamingAction(BallerinaParser.StreamingActionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         this.pkgBuilder.endStreamActionNode(getCurrentPos(ctx), getWS(ctx));
@@ -2744,7 +2747,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterPatternStreamingEdgeInput(BallerinaParser.PatternStreamingEdgeInputContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2753,7 +2756,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitPatternStreamingEdgeInput(BallerinaParser.PatternStreamingEdgeInputContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2763,7 +2766,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterWindowClause(BallerinaParser.WindowClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2772,7 +2775,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitWindowClause(BallerinaParser.WindowClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2781,7 +2784,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterWithinClause(BallerinaParser.WithinClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2790,7 +2793,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitWithinClause(BallerinaParser.WithinClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2806,7 +2809,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterPatternClause(BallerinaParser.PatternClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2815,7 +2818,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitPatternClause(BallerinaParser.PatternClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2827,7 +2830,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterPatternStreamingInput(BallerinaParser.PatternStreamingInputContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2836,7 +2839,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitPatternStreamingInput(BallerinaParser.PatternStreamingInputContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2862,7 +2865,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterStreamingInput(BallerinaParser.StreamingInputContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2871,7 +2874,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitStreamingInput(BallerinaParser.StreamingInputContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2885,7 +2888,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterJoinStreamingInput(BallerinaParser.JoinStreamingInputContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2894,7 +2897,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitJoinStreamingInput(BallerinaParser.JoinStreamingInputContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2922,7 +2925,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitJoinType(BallerinaParser.JoinTypeContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2931,7 +2934,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterOutputRateLimit(BallerinaParser.OutputRateLimitContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2940,7 +2943,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitOutputRateLimit(BallerinaParser.OutputRateLimitContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2972,7 +2975,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterTableQuery(BallerinaParser.TableQueryContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2981,7 +2984,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitTableQuery(BallerinaParser.TableQueryContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         boolean isSelectClauseAvailable = ctx.selectClause() != null;
@@ -2994,7 +2997,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterStreamingQueryStatement(BallerinaParser.StreamingQueryStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -3003,7 +3006,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitStreamingQueryStatement(BallerinaParser.StreamingQueryStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -3012,7 +3015,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterForeverStatement(BallerinaParser.ForeverStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -3021,7 +3024,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitForeverStatement(BallerinaParser.ForeverStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -3033,7 +3036,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void enterDocumentationString(BallerinaParser.DocumentationStringContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         this.pkgBuilder.startMarkdownDocumentationString(getCurrentPos(ctx));
@@ -3044,7 +3047,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitDocumentationString(BallerinaParser.DocumentationStringContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         this.pkgBuilder.endMarkdownDocumentationString(getWS(ctx));
@@ -3055,7 +3058,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitDocumentationLine(BallerinaParser.DocumentationLineContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -3067,7 +3070,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitDocumentationContent(BallerinaParser.DocumentationContentContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         String text = ctx.getText() != null ? ctx.getText() : "";
@@ -3079,7 +3082,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitParameterDocumentationLine(BallerinaParser.ParameterDocumentationLineContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -3091,7 +3094,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitParameterDocumentation(BallerinaParser.ParameterDocumentationContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         String parameterName = ctx.docParameterName() != null ? ctx.docParameterName().getText() : "";
@@ -3105,7 +3108,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitParameterDescriptionLine(BallerinaParser.ParameterDescriptionLineContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         String description = ctx.documentationText() != null ? ctx.documentationText().getText() : "";
@@ -3117,7 +3120,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitReturnParameterDocumentation(BallerinaParser.ReturnParameterDocumentationContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         String description = ctx.documentationText() != null ? ctx.documentationText().getText() : "";
@@ -3129,7 +3132,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitReturnParameterDescriptionLine(BallerinaParser.ReturnParameterDescriptionLineContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         String description = ctx.documentationText() != null ? ctx.documentationText().getText() : "";
@@ -3141,7 +3144,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitDeprecatedAttachment(BallerinaParser.DeprecatedAttachmentContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         String contentText = ctx.deprecatedText() != null ? ctx.deprecatedText().getText() : "";
@@ -3153,7 +3156,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitAwaitExpr(BallerinaParser.AwaitExprContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         this.pkgBuilder.createAwaitExpr(getCurrentPos(ctx), getWS(ctx));
@@ -3161,7 +3164,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitTrapExpression(BallerinaParser.TrapExpressionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         this.pkgBuilder.createTrapExpr(getCurrentPos(ctx), getWS(ctx));
@@ -3169,7 +3172,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitVariableReferenceExpression(BallerinaParser.VariableReferenceExpressionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         if (ctx.START() != null) {
@@ -3181,45 +3184,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterMatchExpression(BallerinaParser.MatchExpressionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.startMatchExpression();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitMatchExpression(BallerinaParser.MatchExpressionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.endMatchExpression(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitMatchExpressionPatternClause(BallerinaParser.MatchExpressionPatternClauseContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        String identifier = ctx.Identifier() != null ? ctx.Identifier().getText() : null;
-        this.pkgBuilder.addMatchExprPattern(getCurrentPos(ctx), getWS(ctx), identifier);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void exitElvisExpression(BallerinaParser.ElvisExpressionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -3231,7 +3197,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void enterScopeStatement(BallerinaParser.ScopeStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         this.pkgBuilder.startScopeStmt();
@@ -3242,7 +3208,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitScopeStatement(BallerinaParser.ScopeStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         String name = null;
@@ -3257,7 +3223,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitScopeClause(BallerinaParser.ScopeClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         this.pkgBuilder.addScopeBlock(getCurrentPos(ctx));
@@ -3268,7 +3234,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void enterCompensationClause(BallerinaParser.CompensationClauseContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
         this.pkgBuilder.startOnCompensationBlock();
@@ -3276,7 +3242,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitCompensateStatement(BallerinaParser.CompensateStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -3392,5 +3358,19 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             }
         }
         return originalNodeValue;
+    }
+
+    /**
+     * Mark that this listener is in error state.
+     */
+    public void setErrorState() {
+        this.isInErrorState = true;
+    }
+
+    /**
+     * Mark that this listener is not in an error state.
+     */
+    public void unsetErrorState() {
+        this.isInErrorState = false;
     }
 }

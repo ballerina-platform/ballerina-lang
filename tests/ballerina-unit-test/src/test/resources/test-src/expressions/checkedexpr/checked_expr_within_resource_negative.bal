@@ -21,12 +21,15 @@ function f2() returns string|error {
     return "test";
 }
 
-service<http:Service> hello2  bind { port: 9090 } {
-    sayHello2 (endpoint caller, http:Request req) {
+service hello2 on new http:Listener(9090) {
+    resource function sayHello2 (http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setPayload("Hello, World!");
         string abc = check f2();
-        caller->respond(res) but { error e => log:printError("Error sending response", err = e) };
+        var result = caller->respond(res);
+        if (result is error) {
+            log:printError("Error sending response", err = result);
+        }
         return ();
     }
 }

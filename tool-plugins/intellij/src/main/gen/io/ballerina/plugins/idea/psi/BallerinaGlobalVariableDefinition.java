@@ -29,19 +29,31 @@ public interface BallerinaGlobalVariableDefinition extends BallerinaNamedElement
   @Nullable
   BallerinaExpression getExpression();
 
-  @NotNull
+  @Nullable
   BallerinaTypeName getTypeName();
+
+  @Nullable
+  BallerinaChannelType getChannelType();
 
   @Nullable
   PsiElement getAssign();
 
-  @Nullable
+  @NotNull
   PsiElement getSemicolon();
 
   @Nullable
+  PsiElement getFinal();
+
+  @NotNull
   PsiElement getIdentifier();
 
   @Nullable
+  PsiElement getListener();
+
+  @Nullable
   PsiElement getPublic();
+
+  @Nullable
+  PsiElement getVar();
 
 }

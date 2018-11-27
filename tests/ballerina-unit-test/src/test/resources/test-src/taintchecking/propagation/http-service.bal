@@ -1,23 +1,20 @@
 import ballerina/http;
 
-endpoint http:Listener helloWorldEP {
-port:9090
-};
+listener http:Listener helloWorldEP = new(9090);
 
-service<http:Service> sample bind helloWorldEP {
+service sample on helloWorldEP {
     @http:ResourceConfig {
         methods:["GET"],
         path:"/path/{foo}"
     }
-    params (endpoint caller, http:Request req, string foo) {
-        map paramsMap = req.getQueryParams();
+    resource function params (http:Caller caller, http:Request req, string foo) {
+        map<any> paramsMap = req.getQueryParams();
         var bar = paramsMap.bar;
 
         secureFunction(foo, foo);
         secureFunction(bar, bar);
     }
 }
-
 
 public function secureFunction (@sensitive any secureIn, any insecureIn) {
 

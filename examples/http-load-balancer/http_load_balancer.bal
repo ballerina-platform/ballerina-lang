@@ -39,17 +39,19 @@ service<http:Service> loadBalancerDemoService bind { port: 9090 } {
         // the error-handling logic is executed.
         match response {
             http:Response resp => {
-                caller->respond(resp) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+                var result = caller->respond(outResponse);
+                if (result is error) {
+                   log:printError("Error sending response", err = result);
+                }
             }
             error responseError => {
                 http:Response outResponse = new;
                 outResponse.statusCode = 500;
                 outResponse.setPayload(responseError.message);
-                caller->respond(outResponse) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+                var result = caller->respond(outResponse);
+                if (result is error) {
+                   log:printError("Error sending response", err = result);
+                }
             }
         }
     }
@@ -64,10 +66,10 @@ service mock1 bind backendEP {
     mock1Resource(endpoint caller, http:Request req) {
         http:Response outResponse = new;
         outResponse.setPayload("Mock1 Resource is invoked.");
-        caller->respond(outResponse) but {
-                        error e => log:printError(
-                           "Error sending response from mock service", err = e)
-                        };
+        var result = caller->respond(outResponse);
+        if (result is error) {
+           log:printError("Error sending response from mock service", err = result);
+        }
     }
 }
 
@@ -79,10 +81,10 @@ service mock2 bind backendEP {
     mock2Resource(endpoint caller, http:Request req) {
         http:Response outResponse = new;
         outResponse.setPayload("Mock2 Resource is Invoked.");
-        caller->respond(outResponse) but {
-                        error e => log:printError(
-                           "Error sending response from mock service", err = e)
-                        };
+        var result = caller->respond(outResponse);
+        if (result is error) {
+           log:printError("Error sending response from mock service", err = result);
+        }
     }
 }
 
@@ -94,9 +96,10 @@ service mock3 bind backendEP {
     mock3Resource(endpoint caller, http:Request req) {
         http:Response outResponse = new;
         outResponse.setPayload("Mock3 Resource is Invoked.");
-        caller->respond(outResponse) but {
-                        error e => log:printError(
-                           "Error sending response from mock service", err = e)
-                        };
+
+        var result = caller->respond(outResponse);
+        if (result is error) {
+           log:printError("Error sending response from mock service", err = result);
+        }
     }
 }

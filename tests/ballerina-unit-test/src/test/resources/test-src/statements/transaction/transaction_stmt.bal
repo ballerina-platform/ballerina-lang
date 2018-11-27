@@ -1,5 +1,5 @@
-@final int RETRYCOUNT = 4;
-@final int RETRYCOUNT_2 = -4;
+final int RETRYCOUNT = 4;
+final int RETRYCOUNT_2 = -4;
 
 string workerTest = "";
 

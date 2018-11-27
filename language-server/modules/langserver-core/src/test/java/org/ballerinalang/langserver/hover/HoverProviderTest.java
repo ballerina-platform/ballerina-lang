@@ -52,8 +52,7 @@ public class HoverProviderTest {
         LSContextManager.getInstance().clearAllContexts();
     }
 
-    @Test(description = "Test Hover for built in functions", dataProvider = "hoverBuiltinFuncPosition",
-            enabled = false)
+    @Test(description = "Test Hover for built in functions", dataProvider = "hoverBuiltinFuncPosition")
     public void hoverForBuiltInFunctionTest(Position position, String expectedFile)
             throws URISyntaxException, InterruptedException, IOException {
         Assert.assertEquals(TestUtil.getHoverResponse(balPath.toString(), position, serviceEndpoint),
@@ -65,16 +64,6 @@ public class HoverProviderTest {
     @Test(description = "Test Hover for current package's functions",
             dataProvider = "hoverCurrentPackageFuncPosition")
     public void hoverForCurrentPackageFunctionTest(Position position, String expectedFile)
-            throws InterruptedException, IOException {
-        Assert.assertEquals(TestUtil.getHoverResponse(balPath.toString(), position, serviceEndpoint),
-                getExpectedValue(expectedFile),
-                "Did not match the hover content for " + expectedFile + " and position line:" + position.getLine()
-                        + " character:" + position.getCharacter());
-    }
-
-    @Test(description = "Test Hover for current package's enums", dataProvider = "hoverCurrentPackageEnumPosition",
-            enabled = false)
-    public void hoverForCurrentPackageEnumTest(Position position, String expectedFile)
             throws InterruptedException, IOException {
         Assert.assertEquals(TestUtil.getHoverResponse(balPath.toString(), position, serviceEndpoint),
                 getExpectedValue(expectedFile),
@@ -101,8 +90,8 @@ public class HoverProviderTest {
     @DataProvider(name = "hoverBuiltinFuncPosition")
     public Object[][] getBuiltinFunctionPositions() {
         return new Object[][]{
-                {new Position(45, 7), "builtin-function1.json"},
-                {new Position(46, 19), "builtin-function2.json"}
+                {new Position(43, 7), "builtin-function1.json"},
+                {new Position(44, 19), "builtin-function2.json"}
         };
     }
 

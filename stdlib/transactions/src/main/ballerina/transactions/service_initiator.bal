@@ -88,7 +88,7 @@ service InitiatorService on coordinatorListener {
             } else {
                 RemoteProtocol[] participantProtocols = regReq.participantProtocols;
                 RemoteParticipant participant = new(participantId, initiatedTxn.transactionId, participantProtocols);
-                initiatedTxn.participants[participantId] = <Participant>participant;
+                initiatedTxn.participants[participantId] = participant;
                 RemoteProtocol[] coordinatorProtocols = [];
                 int i = 0;
                 foreach participantProtocol in participantProtocols {
@@ -100,7 +100,7 @@ service InitiatorService on coordinatorListener {
                     i = i + 1;
                 }
                 RegistrationResponse regRes = {transactionId:txnId, coordinatorProtocols:coordinatorProtocols};
-                var resPayload = <json>regRes;
+                var resPayload = json.create(regRes);
                 if (resPayload is json) {
                     http:Response res = new;
                     res.statusCode = http:OK_200;

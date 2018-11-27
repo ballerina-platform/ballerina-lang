@@ -152,7 +152,7 @@ public class BallerinaFragmentServiceImpl implements BallerinaFragmentService {
                 .map(b -> b.getCompilationUnits().stream().filter(
                         compUnit -> LSCompilerUtil.UNTITLED_BAL.equals(compUnit.getName())
                 ).findFirst().orElse(null));
-        return TextDocumentFormatUtil.generateJSON(compilationUnit.orElse(null), new HashMap<>());
+        return TextDocumentFormatUtil.generateJSON(compilationUnit.orElse(null), new HashMap<>(), new HashMap<>());
     }
 
     private static String getParsableString(BallerinaFragmentASTRequest sourceFragment) {

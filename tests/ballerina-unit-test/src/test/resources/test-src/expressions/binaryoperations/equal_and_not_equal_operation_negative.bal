@@ -15,42 +15,42 @@
 // under the License.
 
 function checkEqualityOfTwoTypes() returns boolean {
-    int a;
-    string b;
+    int a = 0;
+    string b = "";
     return a == b && !(a != b);
 }
 
 function checkEqualityOfArraysOfDifferentTypes() returns boolean {
-    int[2] a;
-    string[2] b;
+    int[2] a = [0, 0];
+    string[2] b = ["", ""];
     boolean bool1 = a == b && !(a != b);
 
-    (float|int)[] c;
-    (boolean|xml)[] d;
+    (float|int)[] c = [];
+    (boolean|xml)[] d = [];
     boolean bool2 = c == d && !(c != d);
 
     return bool1 && bool2;
 }
 
 function checkEqualityOfMapsOfIncompatibleConstraintTypes() returns boolean {
-    map<int> a;
-    map<float> b;
+    map<int> a = {};
+    map<float> b = {};
     boolean bool1 = a == b && !(a != b);
 
-    map<string|int> c;
-    map<float> d;
+    map<string|int> c = {};
+    map<float> d = {};
     boolean bool2 = c == d && !(c != d);
 
     return bool1 && bool2;
 }
 
 function checkEqualityOfTuplesOfDifferentTypes() returns boolean {
-    (string, int) a;
-    (boolean, float) b;
+    (string, int) a = ("", 0);
+    (boolean, float) b = (false, 0.0);
     boolean bool1 = a == b && !(a != b);
 
-    (float|int, int) c;
-    (boolean, int) d;
+    (float|int, int) c = (0, 0);
+    (boolean, int) d = (false, 0);
     boolean bool2 = c == d && !(c != d);
 
     return bool1 && bool2;
@@ -80,7 +80,7 @@ function checkEqualityWithJsonForIncompatibleType() returns boolean {
 
 function checkEqualityWithJsonRecordMapForIncompatibleType() returns boolean {
     json<EmployeeWithOptionalId> a = { name: "Em" };
-    map<boolean> b;
+    map<boolean> b = {};
     boolean equals = a == b && !(b != a);
 
     ClosedDept c = { code: "FN101" };
@@ -115,19 +115,19 @@ function testEqualityWithNonAnydataType() returns boolean {
     equals = c == d && !(d != c);
 
     map<int|string> e = { one: 1, two: "two" };
-    map f = { one: 1, two: "two" };
+    map<any> f = { one: 1, two: "two" };
     equals = e == f && !(f != e);
     return equals;
 }
 
 type Employee record {
     string name;
-    int id;
+    int id = 0;
 };
 
 type Person record {
     string name;
-    string id;
+    string id = "";
 };
 
 type ClosedDept record {

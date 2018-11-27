@@ -23,9 +23,10 @@ service<http:Service> helloWorld bind helloWorldEP {
     sayHello(endpoint outboundEP, http:Request request) {
         http:Response response = new;
         response.setTextPayload("Hello World from Docker ! \n");
-        outboundEP->respond(response) but {
-            error e => log:printError(
-                           "Error sending response", err = e)
-        };
+
+        var result = outboundEP->respond(response);
+        if (result is error) {
+            log:printError("Error sending response", err = result);
+        }
     }
 }

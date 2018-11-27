@@ -22,12 +22,9 @@ import ballerina/runtime;
 int requestCount = 0;
 int actualCount = 0;
 
-endpoint http:Listener circuitBreakerEP06 {
-    port:9312
-};
+listener http:Listener circuitBreakerEP06 = new(9312);
 
-endpoint http:Client backendClientEP06 {
-    url: "http://localhost:8092",
+http:ClientEndpointConfig conf06 = {
     circuitBreaker: {
         rollingWindow: {
             timeWindowMillis: 60000,
@@ -41,15 +38,17 @@ endpoint http:Client backendClientEP06 {
     timeoutMillis: 2000
 };
 
+http:Client backendClientEP06 = new("http://localhost:8092", config = conf06);
+
 @http:ServiceConfig {
     basePath: "/cb"
 }
-service<http:Service> circuitbreaker06 bind circuitBreakerEP06 {
+service circuitbreaker06 on circuitBreakerEP06 {
 
     @http:ResourceConfig {
         path: "/trialrun"
     }
-    getState(endpoint caller, http:Request request) {
+    resource function getState(http:Caller caller, http:Request request) {
         requestCount += 1;
         // To ensure the reset timeout period expires
         if (requestCount == 3) {
@@ -75,12 +74,12 @@ service<http:Service> circuitbreaker06 bind circuitBreakerEP06 {
 }
 
 @http:ServiceConfig { basePath: "/hello06" }
-service<http:Service> helloService06 bind { port: 8092 } {
+service helloService06 on new http:Listener(8092) {
     @http:ResourceConfig {
         methods: ["GET", "POST"],
         path: "/"
     }
-    sayHello(endpoint caller, http:Request req) {
+    resource function sayHello(http:Caller caller, http:Request req) {
         actualCount += 1;
         http:Response res = new;
         if (actualCount == 1 || actualCount == 2) {

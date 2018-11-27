@@ -13,9 +13,10 @@ service<http:Service> helloWorld bind { port: 9090 } {
         // Check if the client expects a 100-continue response.
         if (request.expects100Continue()) {
             // Send a 100-continue response to the client.
-            caller->continue() but {
-                error e => log:printError("Error sending response", err = e)
-            };
+            var result = caller->respond(res);
+            if (result is error) {
+                log:printError("Error sending response", err = result);
+            }
         }
 
         // The client starts sending the payload once it receives the 100-continue response.
@@ -26,16 +27,19 @@ service<http:Service> helloWorld bind { port: 9090 } {
                 log:printInfo(payload);
                 res.statusCode = 200;
                 res.setPayload("Hello World!\n");
-                caller->respond(res) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+                var result = caller->respond(res);
+                if (result is error) {
+                    log:printError("Error sending response", err = result);
+                }
             }
             error err => {
                 res.statusCode = 500;
                 res.setPayload(untaint err.message);
-                caller->respond(res) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+
+                var result = caller->respond(res);
+                if (result is error) {
+                    log:printError("Error sending response", err = result);
+                }
             }
         }
     }

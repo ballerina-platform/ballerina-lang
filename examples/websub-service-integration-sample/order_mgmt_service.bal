@@ -37,9 +37,10 @@ service<http:Service> orderMgt bind listener {
         // Add a link header indicating the hub and topic
         websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], ORDER_TOPIC);
         response.statusCode = 202;
-        caller->respond(response) but {
-            error e => log:printError("Error responding on ordering", err = e)
-        };
+        var result = caller->respond(response);
+        if (result is error) {
+           log:printError("Error responding on ordering", err = result);
+        }
     }
 
     // Resource accepting order placement requests
@@ -55,16 +56,19 @@ service<http:Service> orderMgt bind listener {
         // Create the response message indicating successful order creation.
         http:Response response;
         response.statusCode = 202;
-        caller->respond(response) but {
-            error e => log:printError("Error responding on ordering", err = e)
-        };
+        var result = caller->respond(response);
+        if (result is error) {
+           log:printError("Error responding on ordering", err = result);
+        }
 
         // Publish the update to the Hub, to notify subscribers
         string orderCreatedNotification = "New Order Added: " + orderId;
         log:printInfo(orderCreatedNotification);
-        webSubHub.publishUpdate(ORDER_TOPIC, orderCreatedNotification) but {
-            error e => log:printError("Error publishing update", err = e)
-        };
+        result = webSubHub.publishUpdate(ORDER_TOPIC, orderCreatedNotification);
+        if (result is error) {
+            log:printError("Error publishing update", err = result);
+        }
+
     }
 
 }
@@ -72,11 +76,13 @@ service<http:Service> orderMgt bind listener {
 // Start up a Ballerina WebSub Hub on port 9191 and register the topic against
 // which updates will be published
 function startHubAndRegisterTopic() returns websub:WebSubHub {
-    websub:WebSubHub internalHub = websub:startHub(9191) but {
-        websub:HubStartedUpError hubStartedUpErr => hubStartedUpErr.startedUpHub
-    };
-    internalHub.registerTopic(ORDER_TOPIC) but {
-        error e => log:printError("Error registering topic", err = e)
-    };
+    var result = websub:startHub(9191);
+    websub:WebSubHub internalHub = result is websub:HubStartedUpError ? result.startedUpHub : result;
+
+    result = internalHub.registerTopic(ORDER_TOPIC);
+    if (result is error) {
+        log:printError("Error registering topic", err = result);
+    }
+
     return internalHub;
 }
