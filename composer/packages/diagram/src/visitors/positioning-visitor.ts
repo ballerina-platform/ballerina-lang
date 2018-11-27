@@ -1,4 +1,4 @@
-import { ASTKindChecker, Block, CompilationUnit, Function, If, Visitor, While, Foreach } from "@ballerina/ast-model";
+import { ASTKindChecker, Block, CompilationUnit, Foreach, Function, If, Visitor, While } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
 import { CompilationUnitViewState, FunctionViewState, ViewState } from "../view-model/index";

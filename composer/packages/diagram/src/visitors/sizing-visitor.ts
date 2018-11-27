@@ -1,6 +1,6 @@
 import {
     Assignment, ASTNode, Block, ExpressionStatement,
-    Function, If, VariableDef, Visitor, While, Foreach
+    Foreach, Function, If, VariableDef, Visitor, While
 } from "@ballerina/ast-model";
 import * as _ from "lodash";
 import { DiagramConfig } from "../config/default";
