@@ -169,11 +169,7 @@ public class BStreamingJSON extends BRefValueArray {
             BValue value;
             // If the current index is loaded in to memory, then read from it
             if (cursor < array.size) {
-                if (hasNext()) {
-                    value = array.getBValue(cursor);
-                } else {
-                    value = null;
-                }
+                value = array.getBValue(cursor);
             } else {
                 // Otherwise read the next value from data-source and cache it in memory
                 BRefType<?> nextVal = array.datasource.next();
