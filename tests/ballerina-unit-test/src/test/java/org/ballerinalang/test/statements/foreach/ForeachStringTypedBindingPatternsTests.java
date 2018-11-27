@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.985.0
  */
+@Test(enabled = false)
 public class ForeachStringTypedBindingPatternsTests {
 
     private CompileResult program;
