@@ -55,8 +55,8 @@ public class GetNextPromise extends AbstractHTTPAction {
             throw new BallerinaException("invalid http handle");
         }
         BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
-        HttpClientConnector clientConnector =
-                (HttpClientConnector) bConnector.getNativeData(HttpConstants.HTTP_CLIENT);
+        HttpClientConnector clientConnector = (HttpClientConnector) ((BMap<String, BValue>) bConnector.values()[0])
+                .getNativeData(HttpConstants.HTTP_CLIENT);
         clientConnector.getNextPushPromise(responseHandle).
                 setPushPromiseListener(new PromiseListener(dataContext));
     }
@@ -73,7 +73,7 @@ public class GetNextPromise extends AbstractHTTPAction {
         public void onPushPromise(Http2PushPromise pushPromise) {
             BMap<String, BValue> pushPromiseStruct =
                     BLangConnectorSPIUtil.createBStruct(dataContext.context, HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                                                        HttpConstants.PUSH_PROMISE);
+                            HttpConstants.PUSH_PROMISE);
             HttpUtil.populatePushPromiseStruct(pushPromiseStruct, pushPromise);
             dataContext.notifyInboundResponseStatus(pushPromiseStruct, null);
         }
