@@ -22,7 +22,6 @@ import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.vm.BVMExecutor;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
-import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.observability.ObserverContext;
 
 import java.util.Map;

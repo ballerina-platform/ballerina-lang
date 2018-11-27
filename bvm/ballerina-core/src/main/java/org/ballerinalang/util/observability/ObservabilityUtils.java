@@ -22,7 +22,6 @@ import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.codegen.ServiceInfo;
-import org.ballerinalang.util.program.BLangVMUtils;
 import org.ballerinalang.util.tracer.BSpan;
 
 import java.util.ArrayList;
@@ -38,7 +37,6 @@ import java.util.function.Supplier;
 import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 import static org.ballerinalang.util.observability.ObservabilityConstants.KEY_OBSERVER_CONTEXT;
-import static org.ballerinalang.util.observability.ObservabilityConstants.UNKNOWN_SERVICE;
 import static org.ballerinalang.util.tracer.TraceConstants.KEY_SPAN;
 
 /**
