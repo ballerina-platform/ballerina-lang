@@ -1765,7 +1765,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private <E extends BLangExpression> void analyzeExprs(List<E> nodeList) {
         for (int i = 0; i < nodeList.size(); i++) {
-            nodeList.get(i).accept(this);
+            analyzeExpr(nodeList.get(i));
         }
     }
 
