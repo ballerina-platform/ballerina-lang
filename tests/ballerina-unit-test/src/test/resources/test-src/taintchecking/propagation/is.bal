@@ -1,10 +1,10 @@
 public function main (string... args) {
-    var returnData = unionReturn(args[0]);
+    var returnData = unionReturn("static");
     if (returnData is string) {
         string sample = "static";
         sample = sample + returnData;
         secureFunction(sample);
-    } else if (returnData is int) {
+    } else {
         int sample = 100;
         sample = sample + returnData;
         secureFunction(sample);
