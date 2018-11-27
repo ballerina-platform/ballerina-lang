@@ -17,13 +17,13 @@
 */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.bre.vm.SafeStrandCallback;
+import org.ballerinalang.bre.vm.Strand;
 import org.ballerinalang.model.types.BType;
 
 /**
  * Ballerina base value for the "future" type.
  */
-public interface BFuture extends BRefType<SafeStrandCallback> {
+public interface BFuture extends BRefType<Strand> {
 
     /**
      * Cancels the current future, if its possible to do so.

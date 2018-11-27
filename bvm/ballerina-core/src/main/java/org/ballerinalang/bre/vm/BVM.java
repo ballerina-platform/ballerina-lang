@@ -868,7 +868,7 @@ public class BVM {
         } else {
             BVMScheduler.schedule(calleeStrand);
         }
-        strand.currentFrame.refRegs[retReg] = new BCallableFuture(callableUnitInfo.getName(), strndCallback);
+        strand.currentFrame.refRegs[retReg] = new BCallableFuture(callableUnitInfo.getName(), calleeStrand);
         return strand;
     }
 
@@ -4130,7 +4130,7 @@ public class BVM {
         for (int i = 0; i < c; i++) {
             int futureReg = operands[i + 3];
             BFuture future = (BFuture) strand.currentFrame.refRegs[futureReg];
-            callbacks[i] = future.value();
+            callbacks[i] = (SafeStrandCallback) future.value().respCallback;
         }
         strand.createLock();
         strand.waitCompleted = false;
@@ -4153,7 +4153,7 @@ public class BVM {
             // Get the expression followed
             int futureReg = operands[index + 1];
             BFuture future = (BFuture) strand.currentFrame.refRegs[futureReg];
-            callbackHashMap.put(keyRegIndex, future.value());
+            callbackHashMap.put(keyRegIndex, (SafeStrandCallback) future.value().respCallback);
         }
         strand.createLock();
         strand.waitCompleted = false;
