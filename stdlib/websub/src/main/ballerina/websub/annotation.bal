@@ -45,9 +45,7 @@ public type SubscriberServiceConfiguration record {
     int leaseSeconds = 0;
     string secret = "";
     string callback = "";
-    http:AuthConfig? auth = ();
-    http:SecureSocket? secureSocket = ();
-    http:FollowRedirects? followRedirects = ();
+    http:ClientEndpointConfig subscriptionClientConfig?;
     !...
 };
 
