@@ -29,8 +29,7 @@ function testUnaryBlockingClient(string name) returns (string) {
     // Executing unary blocking call
     (string, grpc:Headers)|error unionResp = helloWorldBlockingEp->hello("WSO2", headers = headers);
     if (unionResp is error) {
-        io:println("Error from Connector: " + unionResp.reason());
-        return "Error from Connector: " + unionResp.reason();
+        return "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
     } else {
         string result = "";
         grpc:Headers resHeaders = new;
@@ -51,8 +50,7 @@ function testBlockingHeader(string name) returns (string) {
     // Executing unary blocking call
     (string, grpc:Headers)|error unionResp = helloWorldBlockingEp->hello("WSO2", headers = headers);
     if (unionResp is error) {
-        io:println("Error from Connector: " + unionResp.reason());
-        return "Error: " + unionResp.reason();
+        return "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
     } else {
         string result = "";
         grpc:Headers resHeaders = new;

@@ -29,7 +29,7 @@ function testClientStreaming(string[] args) returns (string) {
     // Executing unary non-blocking call registering server message listener.
     var res = helloWorldEp->lotsOfGreetings(HelloWorldMessageListener);
     if (res is error) {
-        io:println("Error from Connector: " + res.reason());
+        io:println("Error from Connector: " + res.reason() + " - " + <string>res.detail().message);
     } else {
         ep = res;
     }
@@ -39,7 +39,7 @@ function testClientStreaming(string[] args) returns (string) {
         io:print("send greeting: " + greet);
         error? err = ep->send(greet);
         if (err is error) {
-            io:println("Error from Connector: " + err.reason());
+            io:println("Error from Connector: " + err.reason() + " - " + <string>err.detail().message);
         }
     }
     _ = ep->complete();
@@ -69,7 +69,7 @@ service HelloWorldMessageListener = service {
 
     // Resource registered to receive server error messages
     resource function onError(error err) {
-        io:println("Error reported from server: " + err.reason());
+        io:println("Error from Connector: " + err.reason() + " - " + <string>err.detail().message);
     }
 
     // Resource registered to receive server completed message.

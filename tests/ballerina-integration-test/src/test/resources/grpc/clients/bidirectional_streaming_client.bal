@@ -30,7 +30,7 @@ public function main(string... args) {
     // Executing unary non-blocking call registering server message listener.
     var res = chatEp->chat(ChatMessageListener);
     if (res is error) {
-        io:println("Error from Connector: " + res.reason());
+        io:println("Error from Connector: " + res.reason() + " - " + <string>res.detail().message);
     } else {
         ep = con;
     }
@@ -52,7 +52,7 @@ service ChatMessageListener = service {
     }
 
     resource function onError(error err) {
-        io:println("Error reported from server: " + err.reason());
+        io:println("Error from Connector: " + err.reason() + " - " + <string>err.detail().message);
     }
 
     resource function onComplete() {

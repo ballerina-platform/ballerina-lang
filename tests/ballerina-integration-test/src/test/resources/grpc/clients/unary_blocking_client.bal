@@ -28,8 +28,9 @@ HelloWorldBlockingClient helloWorldBlockingEp = new ({
 function testUnaryBlockingClient(string name) returns (string) {
     (string, grpc:Headers)|error unionResp = helloWorldBlockingEp->hello(name);
     if (unionResp is error) {
-        io:println("Error from Connector: " + unionResp.reason());
-        return "Error from Connector: " + unionResp.reason();
+        string msg = "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
+        io:println(msg);
+        return msg;
     } else {
         io:println("Client Got Response : ");
         string result = "";
@@ -42,7 +43,8 @@ function testUnaryBlockingClient(string name) returns (string) {
 function testUnaryBlockingIntClient(int age) returns (int) {
     (int, grpc:Headers)|error unionResp = helloWorldBlockingEp->testInt(age);
     if (unionResp is error) {
-        io:println(unionResp.reason());
+        string msg = "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
+        io:println(msg);
         return -1;
     } else {
         io:println("Client got response : ");
@@ -56,7 +58,8 @@ function testUnaryBlockingIntClient(int age) returns (int) {
 function testUnaryBlockingFloatClient(float salary) returns (float) {
     (float, grpc:Headers)|error unionResp = helloWorldBlockingEp->testFloat(salary);
     if (unionResp is error) {
-        io:println("Error from Connector: " + unionResp.reason());
+        string msg = "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
+        io:println(msg);
         return -1.0;
     } else {
         io:println("Client got response : ");
@@ -70,7 +73,8 @@ function testUnaryBlockingFloatClient(float salary) returns (float) {
 function testUnaryBlockingBoolClient(boolean isAvailable) returns (boolean) {
     (boolean, grpc:Headers)|error unionResp = helloWorldBlockingEp->testBoolean(isAvailable);
     if (unionResp is error) {
-        io:println("Error from Connector: " + unionResp.reason());
+        string msg = "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
+        io:println(msg);
         return false;
     } else {
         io:println("Client got response : ");
@@ -84,7 +88,8 @@ function testUnaryBlockingBoolClient(boolean isAvailable) returns (boolean) {
 function testResponseInsideMatch(string msg) returns Response {
     (Response, grpc:Headers)|error unionResp = helloWorldBlockingEp->testResponseInsideMatch(msg);
     if (unionResp is error) {
-        io:println("Error from Connector: " + unionResp.reason());
+        string message = "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
+        io:println(message);
         return {};
     } else {
         io:println("Client got response : ");
@@ -99,7 +104,8 @@ function testUnaryBlockingStructClient(Request req) returns (Response) {
     //Request req = {name:"Sam", age:25, message:"Testing."};
     (Response, grpc:Headers)|error unionResp = helloWorldBlockingEp->testStruct(req);
     if (unionResp is error) {
-        io:println("Error from Connector: " + unionResp.reason());
+        string msg = "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
+        io:println(msg);
         return {};
     } else {
         io:println("Client got response : ");

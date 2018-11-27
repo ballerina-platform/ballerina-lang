@@ -28,7 +28,7 @@ function testServerStreaming(string name) returns int {
     // Executing unary non-blocking call registering server message listener.
     error? result = helloWorldEp->lotsOfReplies(name, HelloWorldMessageListener);
     if (result is error) {
-        io:println("Error occured while sending event " + result.reason());
+        io:println("Error from Connector: " + result.reason() + " - " + <string>result.detail().message);
         return total;
     } else {
         io:println("Connected successfully");
@@ -59,7 +59,7 @@ service HelloWorldMessageListener = service {
 
     // Resource registered to receive server error messages
     resource function onError(error err) {
-        io:println("Error reported from server: " + err.reason());
+        io:println("Error from Connector: " + err.reason() + " - " + <string>err.detail().message);
     }
 
     // Resource registered to receive server completed message.

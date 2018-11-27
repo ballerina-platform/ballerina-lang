@@ -23,8 +23,7 @@ HelloWorldBlockingClient helloWorldBlockingEp = new ({
 function testInvalidRemoteMethod(string name) returns (string) {
     (string, grpc:Headers)|error unionResp = helloWorldBlockingEp->hello(name);
     if (unionResp is error) {
-        io:println("Error from Connector: " + unionResp.reason());
-        return "Error from Connector: " + unionResp.reason();
+        return "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
     } else {
         io:println("Client Got Response : ");
         string result = "";
@@ -37,7 +36,7 @@ function testInvalidRemoteMethod(string name) returns (string) {
 function testInvalidInputParameter(int age) returns (int) {
     (int, grpc:Headers)|error unionResp = helloWorldBlockingEp->testInt(age);
     if (unionResp is error) {
-        io:println("Error from Connector: " + unionResp.reason());
+        io:println("Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message);
         return -1;
     } else {
         io:println("Client got response : ");
@@ -51,7 +50,7 @@ function testInvalidInputParameter(int age) returns (int) {
 function testInvalidOutputResponse(float salary) returns (float|string) {
     (float, grpc:Headers)|error unionResp = helloWorldBlockingEp->testFloat(salary);
     if (unionResp is error) {
-        string message = "Error from Connector: " + unionResp.reason();
+        string message = "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
         io:println(message);
         return message;
     } else {
@@ -66,7 +65,7 @@ function testInvalidOutputResponse(float salary) returns (float|string) {
 function testNonExistenceRemoteMethod(boolean isAvailable) returns (boolean|string) {
     (boolean, grpc:Headers)|error unionResp = helloWorldBlockingEp->testBoolean(isAvailable);
     if (unionResp is error) {
-        string message = "Error from Connector: " + unionResp.reason();
+        string message = "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
         io:println(message);
         return message;
     } else {
@@ -121,10 +120,13 @@ public type HelloWorldBlockingClient client object {
         grpc:Headers resHeaders = new;
         (result, resHeaders) = unionResp;
         var value = float.create(result);
+        io:println(unionResp);
+        io:println(value);
         if (value is float) {
             return (value, resHeaders);
         } else {
-            return value;
+            error err = error("{ballerina/grpc}INTERNAL", {"message": value.reason()});
+            return err;
         }
     }
 

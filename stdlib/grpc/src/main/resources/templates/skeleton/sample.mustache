@@ -12,17 +12,17 @@ public function main (string... args) {
 {{/if}}
 }
 
-service<grpc:Service> {{serviceName}}MessageListener {
+service {{serviceName}}MessageListener = service {
 
-    onMessage (string message) {
+    resource function onMessage (string message) {
         io:println("Response received from server: " + message);
     }
 
-    onError (error err) {
-        io:println("Error reported from server: " + err.reason());
+    resource function onError (error err) {
+        io:println("Error from Connector: " + err.reason() + " - " + <string>err.detail().message);
     }
 
-    onComplete () {
+    resource function onComplete () {
         io:println("Server Complete Sending Responses.");
     }
-}
+};

@@ -26,8 +26,7 @@ function testInputNestedStruct(Person p) returns (string) {
     (string, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testInputNestedStruct(p);
     io:println(unionResp);
     if (unionResp is error) {
-        io:println("Error from Connector: " + unionResp.reason());
-        return "Error from Connector: " + unionResp.reason();
+        return "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
     } else {
         io:println("Client Got Response : ");
         string result = "";
@@ -42,8 +41,7 @@ function testOutputNestedStruct(string name) returns (Person|string) {
     (Person, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testOutputNestedStruct(name);
     io:println(unionResp);
     if (unionResp is error) {
-        io:println("Error from Connector: " + unionResp.reason());
-        return "Error from Connector: " + unionResp.reason();
+        return "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
     } else {
         io:println("Client Got Response : ");
         Person result = {};
@@ -59,8 +57,7 @@ function testInputStructOutputStruct(StockRequest request) returns (StockQuote|s
     (StockQuote, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testInputStructOutputStruct(request);
     io:println(unionResp);
     if (unionResp is error) {
-        io:println("Error from Connector: " + unionResp.reason());
-        return "Error from Connector: " + unionResp.reason();
+        return "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
     } else {
         io:println("Client Got Response : ");
         StockQuote result = {};
@@ -75,8 +72,7 @@ function testNoInputOutputStruct() returns (StockQuotes|string) {
     (StockQuotes, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testNoInputOutputStruct();
     io:println(unionResp);
     if (unionResp is error) {
-        io:println("Error from Connector: " + unionResp.reason());
-        return "Error from Connector: " + unionResp.reason();
+        return "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
     } else {
         io:println("Client Got Response : ");
         StockQuotes result = {};
@@ -91,8 +87,7 @@ function testNoInputOutputArray() returns (StockNames|string) {
     (StockNames, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testNoInputOutputArray();
     io:println(unionResp);
     if (unionResp is error) {
-        io:println("Error from Connector: " + unionResp.reason());
-        return "Error from Connector: " + unionResp.reason();
+        return "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
     } else {
         io:println("Client Got Response : ");
         StockNames result = {};
@@ -108,8 +103,7 @@ function testInputStructNoOutput(StockQuote quote) returns (string) {
     (grpc:Headers)|error unionResp = HelloWorldBlockingEp->testInputStructNoOutput(quote);
     io:println(unionResp);
     if (unionResp is error) {
-        io:println("Error from Connector: " + unionResp.reason());
-        return "Error from Connector: " + unionResp.reason();
+        return "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
     } else {
         io:println("Client Got No Response : ");
         _ = unionResp;
