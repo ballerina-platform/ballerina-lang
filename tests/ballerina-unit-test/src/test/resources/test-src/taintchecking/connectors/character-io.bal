@@ -12,11 +12,10 @@ public function main (string... args) {
 
     var writeOutput = wch.write(chars, 0);
     var readOutput = rch.read(1);
-    match readOutput {
-        string text => {
-            testFunction(text, text);
-        }
-        error ioError => return;
+    if (readOutput is string) {
+        testFunction(readOutput, readOutput);
+    } else {
+        panic readOutput;
     }
 }
 
