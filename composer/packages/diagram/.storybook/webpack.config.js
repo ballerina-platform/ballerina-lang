@@ -1,5 +1,6 @@
 const path = require("path");
 const TSDocgenPlugin = require("react-docgen-typescript-webpack-plugin");
+
 module.exports = (baseConfig, env, config) => {
   config.module.rules.push({
     test: /\.(ts|tsx)$/,
@@ -13,7 +14,7 @@ module.exports = (baseConfig, env, config) => {
   config.resolve.extensions.push(".ts", ".tsx");
   config.resolve.alias = {
     '../../theme.config$': path.join(
-      __dirname, '../node_modules/@ballerina/theme/src/default-theme/theme.config')
+         __dirname, '../node_modules/@ballerina/theme/src/themes/vscode/theme.config')
   };
   config.node = {};
   config.node.net = "mock";
