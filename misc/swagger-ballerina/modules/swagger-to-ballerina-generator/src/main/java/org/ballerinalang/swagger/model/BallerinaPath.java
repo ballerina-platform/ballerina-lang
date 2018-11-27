@@ -59,13 +59,6 @@ public class BallerinaPath implements BallerinaSwaggerObject<BallerinaPath, Path
         Map.Entry<String, BallerinaOperation> entry;
         BallerinaOperation operation;
 
-        if (item.getExtensions() != null && item.getExtensions().size() > 0) {
-            for (Map.Entry<String, Object> xEntry : item.getExtensions().entrySet()) {
-                resolveExtension(xEntry);
-            }
-            return this;
-        }
-
         // Iterate through the operation map and add operations belong to same ballerina resource.
         Map<PathItem.HttpMethod, Operation> operationMap = item.readOperationsMap();
         for (Map.Entry<PathItem.HttpMethod, Operation> operationI : operationMap.entrySet()) {
@@ -79,6 +72,11 @@ public class BallerinaPath implements BallerinaSwaggerObject<BallerinaPath, Path
                         idMatched = true;
                     }
                 }
+            }
+
+            // Add operation ID if there is no operationID
+            if (operationI.getValue().getOperationId() == null) {
+                operationI.getValue().setOperationId(CodegenUtils.generateOperationId(openAPI));
             }
 
             operation = new BallerinaOperation().buildContext(operationI.getValue(), openAPI);
@@ -96,10 +94,6 @@ public class BallerinaPath implements BallerinaSwaggerObject<BallerinaPath, Path
                             .addMethod(operationI.getKey().name());
                 }
             } else {
-                // Add operation ID if there is no operationID
-                if (operation.getOperationId() == null) {
-                    operation.setOperationId(CodegenUtils.generateOperationId(openAPI));
-                }
                 entry = new AbstractMap.SimpleEntry<>(operationI.getKey().name(), operation);
                 operations.add(entry);
             }
@@ -113,15 +107,6 @@ public class BallerinaPath implements BallerinaSwaggerObject<BallerinaPath, Path
     @Override
     public BallerinaPath buildContext(PathItem item) throws BallerinaOpenApiException {
         return buildContext(item, null);
-    }
-
-    private void resolveExtension(Map.Entry<String, Object> xEntry) {
-        // currently we only support x-MULTI extension
-        if ("x-MULTI".equals(xEntry.getKey())) {
-            BallerinaOperation operation = new BallerinaOperation().buildXContext(xEntry.getValue());
-            Map.Entry<String, BallerinaOperation> entry = new AbstractMap.SimpleEntry<>("multi", operation);
-            operations.add(entry);
-        }
     }
 
     @Override

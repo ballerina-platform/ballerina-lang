@@ -118,12 +118,18 @@ public class CodegenUtils {
                 .replaceAll("/", "");
     }
 
+    /**
+     * Generate operation ID using pattern "resource[number]".
+     *
+     * @param openAPI open api definition for the swagger
+     * @return {@link String}operation ID which match to the "resource[number]"
+     */
     public static String generateOperationId(OpenAPI openAPI) {
         int prevNumber = 0;
         for (Map.Entry<String, PathItem> path : openAPI.getPaths().entrySet()) {
             for (Operation operation : path.getValue().readOperations()) {
                 String operationId = operation.getOperationId();
-                if (operationId!= null && operationId.matches("resource\\d+")) {
+                if (operationId != null && operationId.matches("resource\\d+")) {
                     String[] numbers = operationId.split("resource");
                     if (numbers.length > 0) {
                         int number = Integer.parseInt(numbers[numbers.length - 1]);

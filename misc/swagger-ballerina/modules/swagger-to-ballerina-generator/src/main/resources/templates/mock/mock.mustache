@@ -3,12 +3,12 @@ import ballerina/log;
 import ballerina/mime;
 import ballerina/swagger;
 
-{{#servers}}endpoint http:Listener ep{{@index}} { {{#host}}
+{{#servers}}endpoint http:Listener ep{{@index}} {{=<% %>=}}{<%={{ }}=%>{{#host}}
     host: "{{host}}",{{/host}}
     port: {{port}}
 };
 {{/servers}}
-@swagger:ServiceInfo { {{#info}}
+@swagger:ServiceInfo {{=<% %>=}}{<%={{ }}=%>{{#info}}
     title: "{{title}}"{{#description}},
     description: "{{description}}"{{/description}},
     serviceVersion: "{{version}}"{{#termsOfService}},
@@ -26,44 +26,42 @@ import ballerina/swagger;
 @http:ServiceConfig {
     basePath: "{{servers.0.basePath}}"{{!-- {{only one base path is allowed for all endpoints}} --}}
 }
-service {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unless @last}}, {{/unless}}{{/servers}} {
-{{#paths}}{{#value}}{{#if sameResourceOperationExists}}{{#sameResourceOperations}}{{#value}}
+service {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unless @last}}, {{/unless}}{{/servers}} {{=<% %>=}}{<%={{ }}=%>{{#paths}}{{#value}}{{#if sameResourceOperationExists}}{{#sameResourceOperations}}{{#value}}{{!-- If multiple methods belongs to one Ballerina resource implementation this will generate the code --}}
+
     @swagger:MultiResourceInfo {
-        resourceInformation: { {{#operations}} "{{upper key}}":{{#value}}{
-            summary: "{{summary}}"{{#if tags}},
-            tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}]{{/if}}{{#if description}},
-            description: "{{description}}"{{/if}}{{#if externalDocs}},
-            externalDocs: {{>doc}}{{/if}}{{#if parameters}},
-            parameters: [{{#parameters}}{
-                name: "{{name}}",
-                param_type: "{{schema.type}}",
-                inInfo: "{{in}}",
-                description: "{{description}}", {{#required}}
-                required: {{required}},{{/required}} {{#deprecated}}
-                discontinued: {{deprecated}},{{/deprecated}}
-                allowEmptyValue: "{{allowEmptyValue}}"
-            }{{#unless @last}},{{/unless}}{{/parameters}}]{{/if}}
-    }{{#unless @last}},{{/unless}}{{/value}}{{/operations}} }
+        resourceInformation: {{=<% %>=}}{<%={{ }}=%>{{#operations}}
+            "{{upper key}}":{{#value}}{
+                summary: "{{summary}}"{{#if tags}},
+                tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}]{{/if}}{{#if description}},
+                description: "{{description}}"{{/if}}{{#if externalDocs}},
+                externalDocs: {{>doc}}{{/if}}{{#if parameters}},
+                parameters: [{{#parameters}}{
+                    name: "{{name}}",
+                    param_type: "{{schema.type}}",
+                    inInfo: "{{in}}",
+                    description: "{{description}}", {{#required}}
+                    required: {{required}},{{/required}} {{#deprecated}}
+                    discontinued: {{deprecated}},{{/deprecated}}
+                    allowEmptyValue: "{{allowEmptyValue}}"
+                }{{#unless @last}},{{/unless}}{{/parameters}}]{{/if}}
+            }{{#unless @last}},{{/unless}}{{/value}}{{/operations}}
+        }
     }
-    @http:ResourceConfig { {{#if methods}}
+    @http:ResourceConfig {{=<% %>=}}{<%={{ }}=%>{{#if methods}}
         methods:[{{#methods}}"{{.}}"{{#unless @last}}, {{/unless}}{{/methods}}],{{/if}}
         path:"{{../../key}}"{{#requestBody}}{{#equals "multipart/form-data" requestBody.selectedMedia.mediaType}}{{else}},
         body:"_{{resourceName}}Body"{{/equals}}{{/requestBody}}
     }{{#deprecated}}
     deprecated {}
     {{/deprecated}}
-    {{resourceName}} (endpoint outboundEp, http:Request _{{resourceName}}Req,{{#parameters}}{{>pathParams}}{{/parameters}}{{#requestBody}}{{>reqBody}}{{/requestBody}}) {
+    {{resourceName}} (endpoint outboundEp, http:Request _{{resourceName}}Req{{#parameters}}{{>pathParams}}{{/parameters}}{{#requestBody}}{{>reqBody}}{{/requestBody}}) {
 
-    }
-  {{/value}}{{/sameResourceOperations}}{{/if}} {{#if noOperationsForPath}}
-    {{#deprecated}}
-        deprecated {}
-    {{/deprecated}}
+    }{{/value}}{{/sameResourceOperations}}{{/if}}{{#if noOperationsForPath}}{{#deprecated}} {{!-- If there is not operations available for a path generate a empty resource --}}
+    deprecated {}{{/deprecated}}
     {{resourceName}} (endpoint outboundEp, http:Request _{{resourceName}}Req) {
 
-    }
-  {{/if}}
-{{/value}}{{/paths}}{{#paths}}{{#value}}{{#operations}}{{#value}}
+    }{{/if}}{{/value}}{{/paths}}{{#paths}}{{#value}}{{#operations}}{{#value}}{{!-- Generate Ballerina resource for single method resources --}}
+
     @swagger:ResourceInfo {
         summary: "{{summary}}"{{#if tags}},
         tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}]{{/if}}{{#if description}},
@@ -89,4 +87,5 @@ service {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unless @last}}, {
     {{operationId}} (endpoint outboundEp, http:Request _{{operationId}}Req{{#parameters}}{{>pathParams}}{{/parameters}}{{#requestBody}}{{>reqBody}}{{/requestBody}}) {
 
     }{{/value}}{{/operations}}{{/value}}{{/paths}}
+
 }
