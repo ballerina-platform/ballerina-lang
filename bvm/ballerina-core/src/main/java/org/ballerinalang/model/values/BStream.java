@@ -22,6 +22,7 @@ import io.ballerina.messaging.broker.core.BrokerException;
 import io.ballerina.messaging.broker.core.Consumer;
 import io.ballerina.messaging.broker.core.Message;
 import org.ballerinalang.bre.bvm.CPU;
+import org.ballerinalang.bre.vm.BVMExecutor;
 import org.ballerinalang.broker.BallerinaBroker;
 import org.ballerinalang.broker.BallerinaBrokerByteBuf;
 import org.ballerinalang.model.types.BField;
@@ -33,7 +34,6 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.program.BLangFunctions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -172,11 +172,10 @@ public class BStream implements BRefType<Object> {
             try {
                 BValue data =
                         ((BallerinaBrokerByteBuf) (message.getContentChunks().get(0).getByteBuf()).unwrap()).getValue();
-                List<BValue> argsList = new ArrayList<>();
-                argsList.addAll(closureArgs);
+                List<BValue> argsList = new ArrayList<>(closureArgs);
                 argsList.add(data);
-                BLangFunctions.invokeCallable(functionPointer.value(),
-                                              argsList.toArray(new BValue[argsList.size()]));
+                BVMExecutor.executeFunction(functionPointer.value().getPackageInfo().getProgramFile(),
+                        functionPointer.value(), argsList.toArray(new BValue[0]));
             } catch (Exception e) {
                 throw new BallerinaException("Error delivering event to subscriber: ", e);
             }
