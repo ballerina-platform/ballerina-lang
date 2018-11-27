@@ -1,4 +1,7 @@
-import { Assignment, ASTNode, Block, ExpressionStatement, Function, If, VariableDef, Visitor, While } from "@ballerina/ast-model";
+import {
+    Assignment, ASTNode, Block, ExpressionStatement,
+    Function, If, VariableDef, Visitor, While, Foreach
+} from "@ballerina/ast-model";
 import * as _ from "lodash";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
@@ -79,7 +82,7 @@ export const visitor: Visitor = {
         client.w = config.lifeLine.width;
 
         defaultWorker.h = node.body!.viewState.bBox.h + (config.lifeLine.header.height * 2)
-                            + config.statement.height; // for bottom plus
+            + config.statement.height; // for bottom plus
         defaultWorker.w = config.lifeLine.width;
 
         const lineHeight = (client.h > defaultWorker.h) ? client.h : defaultWorker.h;
@@ -118,7 +121,23 @@ export const visitor: Visitor = {
 
         viewState.bBox.w = node.body.viewState.bBox.w;
         viewState.bBox.h = node.body.viewState.bBox.h + config.flowCtrl.header.height
-                            + config.flowCtrl.whileGap + config.flowCtrl.bottomMargin;
+            + config.flowCtrl.whileGap + config.flowCtrl.bottomMargin;
+        // If body has a left margin assign to while
+        // tslint:disable-next-line:prefer-conditional-expression
+        if (bodyBBox.leftMargin) {
+            viewState.bBox.leftMargin = bodyBBox.leftMargin + config.flowCtrl.leftMargin;
+        } else {
+            viewState.bBox.leftMargin = config.flowCtrl.leftMarginDefault;
+        }
+    },
+
+    endVisitForeach(node: Foreach) {
+        const viewState: ViewState = node.viewState;
+        const bodyBBox: SimpleBBox = node.body.viewState.bBox;
+
+        viewState.bBox.w = node.body.viewState.bBox.w;
+        viewState.bBox.h = node.body.viewState.bBox.h + config.flowCtrl.header.height
+            + config.flowCtrl.whileGap + config.flowCtrl.bottomMargin;
         // If body has a left margin assign to while
         // tslint:disable-next-line:prefer-conditional-expression
         if (bodyBBox.leftMargin) {
@@ -134,7 +153,7 @@ export const visitor: Visitor = {
 
         viewState.bBox.w = node.body.viewState.bBox.w;
         viewState.bBox.h = node.body.viewState.bBox.h + config.flowCtrl.header.height
-                            + config.flowCtrl.bottomMargin;
+            + config.flowCtrl.bottomMargin;
         // If body has a left margin assign to while
         // tslint:disable-next-line:prefer-conditional-expression
         if (bodyBBox.leftMargin) {
