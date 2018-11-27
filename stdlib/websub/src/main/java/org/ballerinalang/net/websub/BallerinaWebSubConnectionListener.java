@@ -24,6 +24,7 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.bre.vm.BVMExecutor;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Executor;
@@ -47,7 +48,6 @@ import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.program.BLangFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -203,9 +203,8 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
         //invoke processWebSubNotification function
         PackageInfo packageInfo = context.getProgramFile().getPackageInfo(WEBSUB_PACKAGE);
         FunctionInfo functionInfo = packageInfo.getFunctionInfo("processWebSubNotification");
-        BValue[] returnValues = BLangFunctions.invokeCallable(functionInfo, new BValue[] {
-                requestStruct, httpResource.getBalResource().getService().getBValue()
-        });
+        BValue[] returnValues = BVMExecutor.executeFunction(functionInfo.getPackageInfo().getProgramFile(),
+                functionInfo, requestStruct, httpResource.getBalResource().getService().getBValue());
 
         BError errorStruct = (BError) returnValues[0];
         if (errorStruct != null) {

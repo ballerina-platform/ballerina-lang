@@ -62,6 +62,15 @@ public class BVMExecutor {
     }
 
     /**
+     * This will invoke package start functions.
+     *
+     * @param programFile to be invoked.
+     */
+    public static void stopProgramFile(ProgramFile programFile) {
+        invokePackageStopFunctions(programFile);
+    }
+
+    /**
      * Execution API to execute program file starting from the given callable unit.
      * this will call package init and start functions as well.
      *
@@ -258,6 +267,18 @@ public class BVMExecutor {
     private static void invokePackageStartFunctions(ProgramFile programFile) {
         for (PackageInfo info : programFile.getPackageInfoEntries()) {
             execute(programFile, info.getStartFunctionInfo(), new BValue[0], null, true);
+        }
+    }
+
+    /**
+     * This will invoke package start functions, this should be invoked after
+     * invoking "invokePackageInitFunctions".
+     *
+     * @param programFile to be invoked.
+     */
+    private static void invokePackageStopFunctions(ProgramFile programFile) {
+        for (PackageInfo info : programFile.getPackageInfoEntries()) {
+            execute(programFile, info.getStopFunctionInfo(), new BValue[0], null, true);
         }
     }
 }
