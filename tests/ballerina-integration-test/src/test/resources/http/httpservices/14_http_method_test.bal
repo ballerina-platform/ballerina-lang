@@ -17,7 +17,7 @@
 import ballerina/http;
 
 listener http:Listener serviceEndpoint4 = new(9108);
-http:Client endPoint = new("https://localhost:9108");
+http:Client endPoint = new("http://localhost:9108");
 
 @http:ServiceConfig {
     basePath:"/headQuote"
