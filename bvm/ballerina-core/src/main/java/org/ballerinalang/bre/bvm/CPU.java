@@ -207,7 +207,7 @@ public class CPU {
                 if (debugEnabled && debug(ctx)) {
                     return;
                 }
-    
+
                 Instruction instruction = ctx.code[ctx.ip];
                 int opcode = instruction.getOpcode();
                 int[] operands = instruction.getOperands();
@@ -2639,7 +2639,15 @@ public class CPU {
                 nextInstruction = (InstructionIteratorNext) instruction;
                 iterator = (BIterator) sf.refRegs[nextInstruction.iteratorIndex];
                 BValue[] values = Optional.of(iterator).get().getNext(nextInstruction.arity);
-                copyValuesToRegistries(nextInstruction.typeTags, nextInstruction.retRegs, values, sf);
+                BMap<String, BValue> newMap = new BMap<>(nextInstruction.constraintType);
+
+                if (values[0] != null) {
+                    newMap.put("value", values[0]);
+                    values[0] = newMap;
+                    copyValuesToRegistries(nextInstruction.typeTags, nextInstruction.retRegs, values, sf);
+                } else {
+                    sf.refRegs[nextInstruction.retRegs[0]] = null;
+                }
                 break;
         }
     }
