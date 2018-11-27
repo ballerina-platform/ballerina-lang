@@ -304,7 +304,12 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders = new;
         (result, resHeaders) = payload;
-        return (check TestBoolean.create(result), resHeaders);
+        var value = TestBoolean.create(result);
+        if (value is TestBoolean) {
+            return (value, resHeaders);
+        } else {
+            return value;
+        }
     }
 
     remote function testStructArrayOutput(grpc:Headers? headers = ()) returns ((TestStruct, grpc:Headers)|error) {

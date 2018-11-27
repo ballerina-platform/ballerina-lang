@@ -49,7 +49,8 @@ public class UnaryBlockingEnumTestCase extends GrpcBaseTest {
         enumServer = new BServerInstance(balServer);
         String enumServiceBal = new File(
                 "src" + File.separator + "test" + File.separator + "resources" + File.separator + "grpc"
-                        + File.separator + "enum" + File.separator + "grpc_enum_test_service.bal").getAbsolutePath();
+                        + File.separator + "grpcservices" + File.separator + "12_grpc_enum_test_service.bal")
+                .getAbsolutePath();
         enumServer.startServer(enumServiceBal, new int[]{8555});
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "grpc_enum_test_client.bal");
         result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());

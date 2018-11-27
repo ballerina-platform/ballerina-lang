@@ -59,7 +59,7 @@ function testBlockingHeader(string name) returns (string) {
         (result, resHeaders) = unionResp;
         io:println("Client Got Response : ");
         io:println(result);
-        string headerValue = resHeaders.get("x-id") :? "none";
+        string headerValue = resHeaders.get("x-id") ?: "none";
         return "Header: " + headerValue;
     }
 }
