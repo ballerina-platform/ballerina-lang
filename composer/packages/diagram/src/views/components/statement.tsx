@@ -1,5 +1,5 @@
 
-import { ASTNode, ASTUtil} from "@ballerina/ast-model";
+import { ASTNode} from "@ballerina/ast-model";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
@@ -22,6 +22,6 @@ export const Statement: React.StatelessComponent<{
 
         return (
             <g className="panel">
-                <text {...statementProps}>{ASTUtil.genSource(model)}</text>
+                <text {...statementProps}>{viewState.bBox.label}</text>
             </g>);
     };

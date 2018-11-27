@@ -1,6 +1,6 @@
 import {
-    Assignment, ASTNode, Block, ExpressionStatement,
-    Foreach, Function, If, VariableDef, Visitor, While
+    Assignment, ASTNode, ASTUtil, Block,
+    ExpressionStatement, Foreach, Function, If, VariableDef, Visitor, While
 } from "@ballerina/ast-model";
 import * as _ from "lodash";
 import { DiagramConfig } from "../config/default";
@@ -28,7 +28,7 @@ const config: DiagramConfig = DiagramUtils.getConfig();
  * @param {number} maxWidth
  * @return {object} {width,text}
  */
-/*
+
 function getTextWidth(text: string, minWidth = config.statement.width , maxWidth = config.statement.maxWidth) {
     textElement.innerHTML = _.escape(text);
     let width = config.statement.padding.left +
@@ -60,12 +60,13 @@ function getTextWidth(text: string, minWidth = config.statement.width , maxWidth
         w: width,
     };
 }
-*/
 
 function sizeStatement(node: ASTNode) {
     const viewState: ViewState = node.viewState;
+    const label = getTextWidth(ASTUtil.genSource(node));
     viewState.bBox.h = config.statement.height;
-    viewState.bBox.w = config.statement.width;
+    viewState.bBox.w = (config.statement.width > label.w) ? config.statement.width : label.w ;
+    viewState.bBox.label = label.text;
 }
 
 export const visitor: Visitor = {
