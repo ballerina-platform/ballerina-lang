@@ -26,11 +26,7 @@ service HelloWorld on ep {
 
         // Sends response message with headers.
         error? err = caller->send(message, headers = resHeader);
-        if (err is error) {
-            io:println(err);
-        } else {
-            io:println("Server send response : " + message);
-        }
+        io:println(err.message ?: "Server send response : " + message);
 
         // Sends `completed` notification to caller.
         _ = caller->complete();

@@ -213,12 +213,8 @@ public type StreamJoinProcessor object {
         } else {
             // Inner join (join): The output is generated only if
             // there is a matching event in both the streams.
-            StreamEvent lEvt = lhsEvent but {
-                () => new StreamEvent({}, "CURRENT", 1)
-            };
-            StreamEvent rEvt = rhsEvent but {
-                () => new StreamEvent({}, "CURRENT", 1)
-            };
+            StreamEvent lEvt = lhsEvent ?: new StreamEvent({}, "CURRENT", 1);
+            StreamEvent rEvt = rhsEvent ?: new StreamEvent({}, "CURRENT", 1);
             if (lhsTriggered) {
                 joined = lEvt.copy();
                 joined.addData(rEvt.data);

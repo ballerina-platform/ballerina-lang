@@ -33,7 +33,10 @@ service<http:Service> hello bind { port: 9090 } {
             // Since there is no validation error, mark the details as trusted data and set to the response.
             res.setPayload(untaint details);
         }
-        caller->respond(res) but { error e => log:printError(respErr, err = e) };
+        var result = caller->respond(res);
+        if (result is error) {
+           log:printError(respErr, err = result);
+        }
     }
 
     //Bind the XML payload of the inbound request to the `store` variable.
@@ -55,7 +58,10 @@ service<http:Service> hello bind { port: 9090 } {
             // Since there is no validation error, mark the city as trusted data and set to the response.
             res.setPayload(untaint city);
         }
-        caller->respond(res) but { error e => log:printError(respErr, err = e) };
+        var result = caller->respond(res);
+        if (result is error) {
+           log:printError(respErr, err = result);
+        }
     }
 
     //Bind the JSON payload to a custom record. The payload's content should match the record.
@@ -78,6 +84,10 @@ service<http:Service> hello bind { port: 9090 } {
             // Since there is no validation error, mark the inputs as trusted data and set to the response.
             res.setPayload({ Name: untaint name, Grade: untaint grade });
         }
-        caller->respond(res) but { error e => log:printError(respErr, err = e) };
+
+        var result = caller->respond(res);
+        if (result is error) {
+           log:printError(respErr, err = result);
+        }
     }
 }

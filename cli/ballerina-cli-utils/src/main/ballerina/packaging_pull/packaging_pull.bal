@@ -82,7 +82,7 @@ public function invokePull (string... args) returns error? {
             http:Client|error result = trap defineEndpointWithProxy(url, host, port, proxyUsername, proxyPassword);
             if (result is http:Client) {
                 httpEndpoint = result;
-            } else if (result is error) {
+            } else {
                 return createError("failed to resolve host : " + host + " with port " + port);
             }
         } else {
@@ -129,10 +129,10 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
     if (statusCode.hasPrefix("5")) {
         return createError("remote registry failed for url :" + url);
     } else if (statusCode != "200") {
-        var jsonResponse = httpResponse.getJsonPayload();
-        if (jsonResponse is json) {
+        var resp = httpResponse.getJsonPayload();
+        if (resp is json) {
             if (!(statusCode == "404" && isBuild)) {
-                return createError(jsonResponse.message.toString());
+                return createError(resp.message.toString());
             } else {
                 // To ignore printing the error
                 return createError("");

@@ -120,7 +120,7 @@ function isValidCoordinationType(string coordinationType) returns boolean {
 
 function protocolCompatible(string coordinationType, Protocol[] participantProtocols) returns boolean {
     boolean participantProtocolIsValid = false;
-    string[] validProtocols = coordinationTypeToProtocolsMap[coordinationType] but { () => [] };
+    string[] validProtocols = coordinationTypeToProtocolsMap[coordinationType] ?: [];
     foreach participantProtocol in participantProtocols {
         foreach validProtocol in validProtocols {
             if (participantProtocol.name == validProtocol) {

@@ -38,7 +38,10 @@ service<http:Service> hello bind { port: 9234 } {
         res.setPayload("Hello, World!");
 
         //Send the response back to the caller.
-        caller->respond(res) but { error e => log:printError(
-                           "Error sending response", err = e) };
+        var result = caller->respond(res);
+
+        if (result is error){
+           log:printError(Error sending response", err = result)
+        };
     }
 }
