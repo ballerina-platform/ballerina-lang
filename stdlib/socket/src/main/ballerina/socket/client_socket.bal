@@ -20,6 +20,7 @@
 # + localPort - the local port number to which this socket is bound
 # + remoteAddress - the remote IP address string in textual presentation to which the socket is connected
 # + localAddress - the local IP address string in textual presentation to which the socket is bound
+# + id - a unique identifier to identify each client
 public type Client client object {
 
     private ClientConfig config;
@@ -27,6 +28,7 @@ public type Client client object {
     public int localPort = 0;
     public string? remoteAddress = ();
     public string? localAddress = ();
+    public int id = 0;
 
     public function __init(ClientConfig? clientConfig) {
         if (clientConfig is ClientConfig) {

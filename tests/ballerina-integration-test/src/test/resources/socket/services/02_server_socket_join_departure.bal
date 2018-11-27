@@ -17,7 +17,7 @@
 import ballerina/io;
 import ballerina/socket;
 
-listener socket:Server server = new ({
+listener socket:Listener server = new ({
     port:61598
 });
 
@@ -37,7 +37,7 @@ service echoServer on server {
         if (str is string) {
             io:println(untaint str);
         } else if (str is error) {
-            io:println("Error: ", str.reason());
+            io:println("Error: ", str.detail().message);
         }
     }
 
@@ -47,6 +47,6 @@ service echoServer on server {
     }
 
     resource function onError(socket:Caller caller, error er) {
-        io:println(er.reason());
+        io:println(er.detail().message);
     }
 }

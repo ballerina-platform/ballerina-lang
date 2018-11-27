@@ -30,6 +30,7 @@ under the License.
     <test name="ballerina-socket-test-suite" preserve-order="true" parallel="false">
         <classes>
             <class name="org.ballerinalang.test.nativeimpl.functions.socket.ServerSocketTest"/>
+            <class name="org.ballerinalang.test.nativeimpl.functions.socket.ClientSocketTest"/>
         </classes>
     </test>
     <!-- Ballerina language Test Cases. -->

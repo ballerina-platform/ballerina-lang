@@ -34,6 +34,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT;
+import static org.ballerinalang.stdlib.socket.SocketConstants.ID;
 import static org.ballerinalang.stdlib.socket.SocketConstants.LOCAL_ADDRESS;
 import static org.ballerinalang.stdlib.socket.SocketConstants.LOCAL_PORT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.REMOTE_ADDRESS;
@@ -86,7 +87,8 @@ public class SocketUtils {
      * @return 'Caller' object
      */
     public static BMap<String, BValue> createClient(ProgramFile programFile, SocketChannel client) {
-        BMap<String, BValue> caller = BLangConnectorSPIUtil.createObject(programFile, SOCKET_PACKAGE, CLIENT, null);
+        BValue[] args = new BValue[] { null };
+        BMap<String, BValue> caller = BLangConnectorSPIUtil.createObject(programFile, SOCKET_PACKAGE, CLIENT, args);
         caller.addNativeData(SOCKET_KEY, client);
         if (client != null) {
             Socket socket = client.socket();
@@ -94,6 +96,7 @@ public class SocketUtils {
             caller.put(LOCAL_PORT, new BInteger(socket.getLocalPort()));
             caller.put(REMOTE_ADDRESS, new BString(socket.getInetAddress().getHostAddress()));
             caller.put(LOCAL_ADDRESS, new BString(socket.getLocalAddress().getHostAddress()));
+            caller.put(ID, new BInteger(client.hashCode()));
         }
         return caller;
     }

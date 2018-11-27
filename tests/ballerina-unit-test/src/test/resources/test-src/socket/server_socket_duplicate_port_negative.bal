@@ -17,11 +17,11 @@
 import ballerina/io;
 import ballerina/socket;
 
-listener socket:Server server1 = new ({
+listener socket:Listener server1 = new ({
     port:60152
 });
 
-listener socket:Server server2 = new ({
+listener socket:Listener server2 = new ({
     port:60152
 });
 
@@ -40,7 +40,7 @@ service echoServer1 on server1 {
     }
 
     resource function onError(socket:Caller caller, error er) {
-        io:println(er.reason());
+        io:println(er.detail().message);
     }
 }
 
@@ -59,6 +59,6 @@ service echoServer2 on server2 {
     }
 
     resource function onError(socket:Caller caller, error er) {
-        io:println(er.reason());
+        io:println(er.detail().message);
     }
 }

@@ -16,70 +16,60 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.socket.endpoint.tcp.calleraction;
+package org.ballerinalang.stdlib.socket.endpoint.tcp.client;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BByteArray;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.socket.SocketConstants;
+import org.ballerinalang.stdlib.socket.tcp.SelectorManager;
 import org.ballerinalang.stdlib.socket.tcp.SocketUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.ClosedChannelException;
-import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.SocketChannel;
 
 import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT;
+import static org.ballerinalang.stdlib.socket.SocketConstants.IS_CLIENT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 
 /**
- * 'Write' method implementation of the socket server listener's caller action.
+ * 'close' method implementation of the socket caller action.
  *
  * @since 0.985.0
  */
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "socket",
-        functionName = "write",
+        functionName = "close",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = CLIENT, structPackage = SOCKET_PACKAGE),
         isPublic = true
 )
-public class Write extends BlockingNativeCallableUnit {
-    private static final Logger log = LoggerFactory.getLogger(Write.class);
+public class Close extends BlockingNativeCallableUnit {
+    private static final Logger log = LoggerFactory.getLogger(Close.class);
 
     @Override
     public void execute(Context context) {
         BMap<String, BValue> clientEndpoint = (BMap<String, BValue>) context.getRefArgument(0);
         final SocketChannel socketChannel = (SocketChannel) clientEndpoint.getNativeData(SocketConstants.SOCKET_KEY);
-        BByteArray content = (BByteArray) context.getRefArgument(1);
-        byte[] byteContent = content.getBytes();
-        if (log.isDebugEnabled()) {
-            log.debug("No of byte going to write[" + socketChannel.hashCode() + "]: " + byteContent.length);
-        }
-        ByteBuffer buffer = ByteBuffer.wrap(byteContent);
-        int write;
         try {
-            write = socketChannel.write(buffer);
-            if (log.isDebugEnabled()) {
-                log.debug("No of byte written for the client[" + socketChannel.hashCode() + "]: " + write);
+            socketChannel.close();
+            SelectorManager.getInstance().unRegisterChannel(socketChannel);
+            final Object client = clientEndpoint.getNativeData(IS_CLIENT);
+            // This need to handle to support multiple client close.
+            if (client != null && Boolean.getBoolean(client.toString())) {
+                SelectorManager.getInstance().stop();
             }
-            context.setReturnValues(new BInteger(write));
-        } catch (ClosedChannelException e) {
-            context.setReturnValues(SocketUtils.createSocketError(context, "Client socket close already."));
         } catch (IOException e) {
-            context.setReturnValues(SocketUtils.createSocketError(context, "Write failed."));
-            log.error("Unable to perform write[" + socketChannel.hashCode() + "]", e);
-        } catch (NotYetConnectedException e) {
-            context.setReturnValues(SocketUtils.createSocketError(context, "Client socket not connected yet."));
+            log.error("Unable to close the connection", e);
+            context.setReturnValues(
+                    SocketUtils.createSocketError(context, "Unable to close the client socket connection"));
         }
+        context.setReturnValues();
     }
 }

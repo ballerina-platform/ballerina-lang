@@ -18,7 +18,7 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/socket;
 
-listener http:MockListener echoEP  = new(9090);
+listener http:Listener echoEP  = new(9090);
 
 @http:ServiceConfig { basePath: "/echo" }
 service echo on echoEP {
@@ -38,12 +38,12 @@ service echo on echoEP {
                 io:println("Number of byte written: ", writeResult);
                 _ = caller -> accepted();
             } else if (writeResult is error) {
-                string errMsg = <string> writeResult.reason();
+                string errMsg = <string> writeResult.detail().message;
                 resp.statusCode = 500;
                 resp.setPayload(errMsg);
                 var responseError = caller->respond(resp);
                 if (responseError is error) {
-                    io:println("Error sending response: ", responseError.reason());
+                    io:println("Error sending response: ", responseError.detail().message);
                 }
             }
         } else if (payload is error) {
@@ -52,7 +52,7 @@ service echo on echoEP {
             resp.setPayload(errMsg);
             var responseError = caller->respond(resp);
             if (responseError is error) {
-                io:println("Error sending response: ", responseError.reason());
+                io:println("Error sending response: ", responseError.detail().message);
             }
         }
     }
@@ -72,9 +72,9 @@ service ClientService = service {
         } else if (str is error) {
             io:println(str.reason());
         }
-        var closeResult =  client->close();
+        var closeResult =  caller->close();
         if (closeResult is error) {
-            io:println(closeResult.reason());
+            io:println(closeResult.detail().message);
         } else {
             io:println("Client connection closed successfully.");
         }
@@ -85,7 +85,7 @@ service ClientService = service {
     }
 
     resource function onError(socket:Caller caller, error er) {
-        io:println(er.reason());
+        io:println(er.detail().message);
     }
 };
 

@@ -54,15 +54,15 @@ class SelectorDispatcher {
      * @param errorMsg      Reason for cause this
      */
     static void invokeOnError(SocketService socketService, String errorMsg) {
-        Resource error = socketService.getResources().get(RESOURCE_ON_ERROR);
-        ProgramFile programFile = error.getResourceInfo().getPackageInfo().getProgramFile();
-        SocketChannel client = null;
-        if (socketService.getSocketChannel() != null) {
-            client = (SocketChannel) socketService.getSocketChannel();
-        }
-        BValue[] params = getOnErrorResourceSignature(client, programFile, errorMsg);
         try {
-            Executor.submit(error, new TCPSocketCallableUnitCallback(), null, null, params);
+            Resource error = socketService.getResources().get(RESOURCE_ON_ERROR);
+            ProgramFile programFile = error.getResourceInfo().getPackageInfo().getProgramFile();
+            SocketChannel client = null;
+            if (socketService.getSocketChannel() != null) {
+                client = (SocketChannel) socketService.getSocketChannel();
+            }
+            BValue[] params = getOnErrorResourceSignature(client, programFile, errorMsg);
+            Executor.submit(error, new TCPSocketCallback(), null, null, params);
         } catch (BallerinaConnectorException e) {
             log.error("Error while executing onError resource", e);
         }
@@ -75,13 +75,13 @@ class SelectorDispatcher {
      * @param buffer        content that receive from client
      */
     static void invokeReadReady(SocketService socketService, ByteBuffer buffer) {
-        final Resource readReady = socketService.getResources().get(RESOURCE_ON_READ_READY);
-        ProgramFile programFile = readReady.getResourceInfo().getPackageInfo().getProgramFile();
-        BMap<String, BValue> caller = SocketUtils
-                .createClient(programFile, (SocketChannel) socketService.getSocketChannel());
-        BValue[] params = { caller, new BByteArray(SocketUtils.getByteArrayFromByteBuffer(buffer)) };
         try {
-            Executor.submit(readReady, new TCPSocketCallableUnitCallback(), null, null, params);
+            final Resource readReady = socketService.getResources().get(RESOURCE_ON_READ_READY);
+            ProgramFile programFile = readReady.getResourceInfo().getPackageInfo().getProgramFile();
+            BMap<String, BValue> caller = SocketUtils
+                    .createClient(programFile, (SocketChannel) socketService.getSocketChannel());
+            BValue[] params = { caller, new BByteArray(SocketUtils.getByteArrayFromByteBuffer(buffer)) };
+            Executor.submit(readReady, new TCPSocketCallback(), null, null, params);
         } catch (BallerinaConnectorException e) {
             invokeOnError(socketService, e.getMessage());
         }
@@ -99,8 +99,7 @@ class SelectorDispatcher {
             ProgramFile programFile = close.getResourceInfo().getPackageInfo().getProgramFile();
             BMap<String, BValue> caller = SocketUtils
                     .createClient(programFile, (SocketChannel) socketService.getSocketChannel());
-            BValue[] params = { caller };
-            Executor.submit(close, new TCPSocketCallableUnitCallback(), null, null, params);
+            Executor.submit(close, new TCPSocketCallback(), null, null, caller);
         } catch (IOException e) {
             String msg = "Unable to close the client connection properly";
             log.error(msg, e);
@@ -117,11 +116,11 @@ class SelectorDispatcher {
      * @param client        Newly accept socketChannel
      */
     static void invokeOnAccept(SocketService socketService, SocketChannel client) {
-        Resource accept = socketService.getResources().get(RESOURCE_ON_ACCEPT);
-        ProgramFile programFile = accept.getResourceInfo().getPackageInfo().getProgramFile();
-        BValue[] params = getAcceptResourceSignature(client, programFile);
         try {
-            Executor.submit(accept, new TCPSocketCallableUnitCallback(), null, null, params);
+            Resource accept = socketService.getResources().get(RESOURCE_ON_ACCEPT);
+            ProgramFile programFile = accept.getResourceInfo().getPackageInfo().getProgramFile();
+            BValue[] params = getAcceptResourceSignature(client, programFile);
+            Executor.submit(accept, new TCPSocketCallback(), null, null, params);
         } catch (BallerinaConnectorException e) {
             invokeOnError(socketService, e.getMessage());
         }
@@ -134,11 +133,7 @@ class SelectorDispatcher {
 
     private static BValue[] getOnErrorResourceSignature(SocketChannel client, ProgramFile programFile, String msg) {
         BMap<String, BValue> caller = SocketUtils.createClient(programFile, client);
-        BError error = createError(programFile, msg);
+        BError error = SocketUtils.createSocketError(programFile, msg);
         return new BValue[] { caller, error };
-    }
-
-    private static BError createError(ProgramFile programFile, String msg) {
-        return SocketUtils.createSocketError(programFile, msg);
     }
 }

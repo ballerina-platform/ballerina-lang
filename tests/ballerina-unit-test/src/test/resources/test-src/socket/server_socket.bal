@@ -17,7 +17,7 @@
 import ballerina/io;
 import ballerina/socket;
 
-listener socket:Server server = new ({
+listener socket:Listener server = new ({
     port:59152
 });
 
@@ -37,6 +37,6 @@ service echoServer on server {
     }
 
     resource function onError(socket:Caller caller, error er) {
-        io:println(er.reason());
+        io:println(er.detail().message);
     }
 }

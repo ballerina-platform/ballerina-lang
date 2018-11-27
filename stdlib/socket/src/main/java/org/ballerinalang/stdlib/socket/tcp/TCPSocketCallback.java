@@ -20,18 +20,27 @@ package org.ballerinalang.stdlib.socket.tcp;
 
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.values.BError;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Socket callback for service resource execution.
  *
  * @since 0.985.0
  */
-public class TCPSocketCallableUnitCallback implements CallableUnitCallback {
+public class TCPSocketCallback implements CallableUnitCallback {
+
+    private static final Logger log = LoggerFactory.getLogger(TCPSocketCallback.class);
+
     @Override
     public void notifySuccess() {
+        log.debug("Socket resource dispatch succeed.");
     }
 
     @Override
     public void notifyFailure(BError error) {
+        if (log.isDebugEnabled()) {
+            log.debug("Socket resource dispatch failed: " + error.getDetails().stringValue());
+        }
     }
 }

@@ -28,7 +28,7 @@ function oneWayWrite(string msg) {
     }
     var closeResult =  socketClient->close();
     if (closeResult is error) {
-        io:println(closeResult.reason());
+        io:println(closeResult.detail().message);
     } else {
         io:println("Client connection closed successfully.");
     }
@@ -54,7 +54,7 @@ function shutdownWrite(string firstMsg, string secondMsg) returns error? {
     } else if (writeResult is error) {
         var closeResult = socketClient->close();
         if (closeResult is error) {
-            io:println(closeResult.reason());
+            io:println(closeResult.detail().message);
         } else {
             io:println("Client connection closed successfully.");
         }
