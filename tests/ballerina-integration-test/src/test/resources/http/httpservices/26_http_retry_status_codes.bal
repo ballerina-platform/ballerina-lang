@@ -32,7 +32,7 @@ http:Client internalErrorEP = new("http://localhost:8080", config = {
 @http:ServiceConfig {
     basePath: "/retry"
 }
-service<http:Service> retryStatusService bind { port: 9225 } {
+service retryStatusService on new http:Listener(9225) {
     @http:ResourceConfig {
         methods: ["GET", "POST"],
         path: "/"
@@ -77,7 +77,7 @@ service<http:Service> retryStatusService bind { port: 9225 } {
 public int retryCounter = 0;
 
 @http:ServiceConfig { basePath: "/status" }
-service<http:Service> mockStatusCodeService bind { port: 8080 } {
+service mockStatusCodeService on new http:Listener(8080) {
     @http:ResourceConfig {
         methods: ["GET", "POST"],
         path: "/recover"

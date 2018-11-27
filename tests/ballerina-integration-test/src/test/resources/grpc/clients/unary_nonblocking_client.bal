@@ -65,7 +65,7 @@ service HelloWorldMessageListener = service {
         io:println("Server Complete Sending Response.");
         total = total + 1;
     }
-}
+};
 
 public type HelloWorldBlockingClient client object {
 
@@ -81,7 +81,7 @@ public type HelloWorldBlockingClient client object {
         } else {
             self.grpcClient = c;
         }
-    };
+    }
 
     remote function hello(string req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
         var unionResp = check grpcClient->blockingExecute("grpcservices.HelloWorld100/hello", req, headers = headers);

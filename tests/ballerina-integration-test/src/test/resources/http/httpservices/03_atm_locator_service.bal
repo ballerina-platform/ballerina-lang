@@ -133,11 +133,9 @@ service Banklocator on serviceEnpoint {
 
 //Keep this until there's a simpler way to get a string value out of a json
 function extractFieldValue2(json fieldValue) returns string {
-    match fieldValue {
-        int i => return "error";
-        string s => return s;
-        boolean b => return "error";
-        ()  => return "error";
-        json j => return "error";
+    if (fieldValue is string) {
+        return fieldValue;
+    } else {
+        return "error";
     }
 }

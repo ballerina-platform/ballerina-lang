@@ -89,7 +89,7 @@ public class ObjectTypeContextResolver extends AbstractItemResolver {
     
     private void fillInitializerSignature(List<CompletionItem> completionItems, boolean snippetCapability) {
         CompletionItem constructorItem = new CompletionItem();
-        Snippet.DEF_NEW_OBJECT_CONSTRUCTOR.get().build(constructorItem, snippetCapability);
+        Snippet.DEF_NEW_OBJECT_INITIALIZER.get().build(constructorItem, snippetCapability);
         completionItems.add(constructorItem);
     }
 }
