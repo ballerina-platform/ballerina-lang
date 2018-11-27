@@ -54,7 +54,15 @@ public type byteServiceBlockingClient client object {
         grpc:Headers resHeaders = new;
         any result = ();
         (result, resHeaders) = unionResp;
-        return (check <byte[]>result, resHeaders);
+        var value = byte[].create(result);
+        if (value is byte[]) {
+            return (value, resHeaders);
+        } else if (value is error) {
+            return value;
+        } else {
+            error err = error("Invalid response message type");
+            return err;
+        }
     }
 };
 
