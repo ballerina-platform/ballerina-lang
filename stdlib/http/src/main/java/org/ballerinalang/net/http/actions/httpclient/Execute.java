@@ -48,8 +48,8 @@ public class Execute extends AbstractHTTPAction {
     protected HttpCarbonMessage createOutboundRequestMsg(Context context) {
         // Extract Argument values
         BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
-        String httpVerb = context.getStringArgument(0);
-        String path = context.getStringArgument(1);
+        String httpVerb = context.getStringArgument(1);
+        String path = context.getStringArgument(2);
         BMap<String, BValue> requestStruct = ((BMap<String, BValue>) context.getRefArgument(1));
 
         HttpCarbonMessage outboundRequestMsg = HttpUtil
