@@ -33,17 +33,9 @@ type Student record {
     !...
 };
 
-type Info record {
-    byte[] infoBlob = [];
+type Person2 record {
+    string name = "";
+    int age = 0;
     !...
 };
 
-function testStructWithIncompatibleTypeToJson () returns json {
-    Info info = {};
-    var j = <json>info;
-    if (j is json) {
-        return j;
-    } else {
-        panic j;
-    }
-}

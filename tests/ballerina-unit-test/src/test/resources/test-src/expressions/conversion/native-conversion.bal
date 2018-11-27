@@ -147,39 +147,28 @@ function testStructToJson () returns json|error {
     return j;
 }
 
-function testStructToJsonConstrained1() returns json|error {
-    Person p = {   name:"Child",
-                   age:25,
-                   parent:{name:"Parent", age:50},
-                   address:{"city":"Colombo", "country":"SriLanka"},
-                   info:{status:"single"},
-                   marks:[87, 94, 72]
-               };
-    json<Person2> j = check json<Person2>.create(p);
-    return j;
-}
 
-function testStructToJsonConstrained2() returns json|error {
-    Person2 p = {   name:"Child",
-                    age:25
-                };
-    json<Person2> j = check json<Person2>.create(p);
-    return j;
-}
-
-function testStructToJsonConstrainedNegative() returns json {
-    Person2 p = {   name:"Child",
-                    age:25
-                };
-    json<Person3> j = ();
-    var result = json<Person3>.create(p);
-    if (result is json<Person3>) {
-        j = result;
-    } else if (result is error) {
-        panic result;
-    }
-    return j;
-}
+//function testStructToJsonConstrained2() returns json|error {
+//    Person2 p = {   name:"Child",
+//                    age:25
+//                };
+//    json<Person2> j = check json<Person2>.create(p);
+//    return j;
+//}
+//
+//function testStructToJsonConstrainedNegative() returns json {
+//    Person2 p = {   name:"Child",
+//                    age:25
+//                };
+//    json<Person3> j = ();
+//    var result = json<Person3>.create(p);
+//    if (result is json<Person3>) {
+//        j = result;
+//    } else if (result is error) {
+//        panic result;
+//    }
+//    return j;
+//}
 
 function testAnyRecordToAnydataMap() returns (map | error) {
     Person4 p = {   name:"Waruna",
@@ -459,6 +448,11 @@ function testJsonArrayToStruct () returns Person {
 
 type Info record {
     map foo;
+    !...
+};
+
+type Info2 record {
+    byte[] infoBlob = [];
     !...
 };
 
@@ -833,6 +827,18 @@ function testComplexMapToJson () returns json|error {
     return j2;
 }
 
+function testStructWithIncompatibleTypeToJson () returns json {
+    Info2 info = {
+        infoBlob : [1, 2, 3, 4, 5]
+    };
+    var j = json.create(info);
+    if (j is json) {
+        return j;
+    } else {
+        panic j;
+    }
+}
+
 function testJsonToMapUnconstrained() returns map|error {
     json jx = {};
     jx.x = 5;
@@ -1051,7 +1057,7 @@ function testAnydataToFloat() returns float|error {
     return check float.create(a);
 }
 
-function testanyToFloat() returns float|error {
+function testAnyToFloat() returns float|error {
     any a = 5;
     return check float.create(a);
 }

@@ -214,24 +214,18 @@ public class NativeConversionTest {
         Assert.assertEquals(marks.get(2), 72);
     }
     
-    @Test
-    public void testStructToJsonConstrained1() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStructToJsonConstrained1");
-        Assert.assertTrue(returns[0] instanceof BMap);
-    }
-    
-    @Test
-    public void testStructToJsonConstrained2() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStructToJsonConstrained2");
-        Assert.assertTrue(returns[0] instanceof BMap);
-    }
-    
-    @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*cannot convert 'Person2' to type 'json<Person3>'.*")
-    public void testStructToJsonConstrainedNegative() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStructToJsonConstrainedNegative");
-        Assert.assertTrue(returns[0] instanceof BMap);
-    }
+//    @Test
+//    public void testStructToJsonConstrained2() {
+//        BValue[] returns = BRunUtil.invoke(compileResult, "testStructToJsonConstrained2");
+//        Assert.assertTrue(returns[0] instanceof BMap);
+//    }
+//    
+//    @Test(expectedExceptions = {BLangRuntimeException.class},
+//            expectedExceptionsMessageRegExp = ".*cannot convert 'Person2' to type 'json<Person3>'.*")
+//    public void testStructToJsonConstrainedNegative() {
+//        BValue[] returns = BRunUtil.invoke(compileResult, "testStructToJsonConstrainedNegative");
+//        Assert.assertTrue(returns[0] instanceof BMap);
+//    }
 
     @Test(description = "Test any type to anydata type at runtime")
     public void testAnyRecordToAnydataMap() {
@@ -245,6 +239,12 @@ public class NativeConversionTest {
         BValue[] result = BRunUtil.invoke(compileResult, "testComplexMapToJson");
         Assert.assertTrue(result[0] instanceof BMap);
         Assert.assertEquals(result[0].toString(), "{\"name\":\"Supun\", \"age\":25, \"gpa\":2.81, \"status\":true}");
+    }
+
+    @Test(description = "Test converting a struct with map of blob to a JSON")
+    public void testStructWithIncompatibleTypeToJson() {
+        BValue[] result = BRunUtil.invoke(compileResult, "testStructWithIncompatibleTypeToJson");
+        Assert.assertTrue(result[0] instanceof BMap);
     }
 
     @Test(description = "Test converting a map to a record, with a map value for a JSON field")
