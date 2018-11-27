@@ -38,6 +38,7 @@
     "awesome-typescript-loader": "^5.2.1",
     "babel-loader": "^8.0.4",
     "css-loader": "^1.0.0",
+    "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "fast-xml-parser": "^3.12.7",
     "glob": "^7.1.3",
     "istanbul-combine": "^0.3.0",
