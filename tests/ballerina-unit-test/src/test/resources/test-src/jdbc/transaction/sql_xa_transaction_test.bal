@@ -241,11 +241,11 @@ function testXATransactonRetryHelper(h2:Client testDB1, h2:Client testDB2) {
     }
 }
 
-function getTableCountValColumn(table|error result) returns int {
+function getTableCountValColumn(table<ResultCount>|error result) returns int {
     int count = -1;
-    if (result is table) {
+    if (result is table<ResultCount>) {
         while (result.hasNext()) {
-            var rs = <ResultCount>result.getNext();
+            var rs = result.getNext();
             if (rs is ResultCount) {
                 count = rs.COUNTVAL;
             }
