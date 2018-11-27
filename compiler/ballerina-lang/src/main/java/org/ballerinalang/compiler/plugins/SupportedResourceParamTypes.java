@@ -39,15 +39,16 @@ public @interface SupportedResourceParamTypes {
      *
      * @return an array of supported Ballerina endpoints names
      */
-    ParamType[] types();
+    Type[] paramTypes();
 
+    Type expectedListenerType();
 
     /**
      * Represents endpoint type.
      *
      * @since 0.985.0
      */
-    @interface ParamType {
+    @interface Type {
 
         /**
          * Name of the param.

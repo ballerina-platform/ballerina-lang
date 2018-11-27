@@ -25,6 +25,7 @@ import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -56,6 +57,7 @@ public class BLangService extends BLangNode implements ServiceNode {
 
     // Cached values.
     public String listenerName;
+    public BType listerType;
 
     // Old values. TODO : Remove this.
     @Deprecated

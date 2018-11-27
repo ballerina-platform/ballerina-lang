@@ -20,11 +20,8 @@ package org.ballerinalang.compiler.plugins;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.ServiceNode;
-import org.wso2.ballerinalang.compiler.tree.BLangService;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -32,33 +29,15 @@ import java.util.Set;
  *
  * @since 0.985.0
  */
-public class ServiceData {
+public interface ServiceData {
 
-    ServiceNode serviceNode;
+    ServiceNode getServiceNode();
 
-    Map<FunctionNode, List<? extends AnnotationAttachmentNode>> resourceAnnotations;
+    void setServiceNode(ServiceNode serviceNode);
 
-    public ServiceData(BLangService serviceNode) {
-        this.resourceAnnotations = new LinkedHashMap<>();
-    }
+    Set<? extends FunctionNode> getResourceNodes();
 
-    public ServiceNode getServiceNode() {
-        return serviceNode;
-    }
+    List<? extends AnnotationAttachmentNode> getResourceAnnotations(FunctionNode functionNode);
 
-    public void setServiceNode(ServiceNode serviceNode) {
-        this.serviceNode = serviceNode;
-    }
-
-    public Set<? extends FunctionNode> getResourceNodes() {
-        return resourceAnnotations.keySet();
-    }
-
-    public List<? extends AnnotationAttachmentNode> getResourceAnnotations(FunctionNode functionNode) {
-        return this.resourceAnnotations.get(functionNode);
-    }
-
-    public void addResource(FunctionNode functionNode, List<? extends AnnotationAttachmentNode> annotationAttachments) {
-        this.resourceAnnotations.put(functionNode, annotationAttachments);
-    }
+    void addResource(FunctionNode functionNode, List<? extends AnnotationAttachmentNode> annotationAttachments);
 }

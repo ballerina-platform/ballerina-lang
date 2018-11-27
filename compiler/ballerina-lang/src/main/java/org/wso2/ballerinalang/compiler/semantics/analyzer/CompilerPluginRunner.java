@@ -29,8 +29,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
@@ -48,6 +50,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -85,6 +88,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     private List<CompilerPlugin> pluginList;
     private Map<DefinitionID, List<CompilerPlugin>> processorMap;
     private Map<DefinitionID, List<CompilerPlugin>> resourceTypeProcessorMap;
+    private Map<DefinitionID, BType> serviceListenerMap;
     private boolean pluginLoaded = false;
 
 
@@ -110,6 +114,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         this.pluginList = new ArrayList<>();
         this.processorMap = new HashMap<>();
         this.resourceTypeProcessorMap = new HashMap<>();
+        this.serviceListenerMap = new HashMap<>();
     }
 
     public BLangPackage runPlugins(BLangPackage pkgNode) {
@@ -171,7 +176,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
 
     public void visit(BLangService serviceNode) {
         List<BLangAnnotationAttachment> attachmentList = serviceNode.getAnnotationAttachments();
-        final ServiceData serviceData = new ServiceData(serviceNode);
+        final ServiceData serviceData = new BLangServiceData(serviceNode);
         final BLangObjectTypeNode typeNode = (BLangObjectTypeNode) serviceNode.serviceTypeDefinition.typeNode;
         typeNode.functions.stream().filter(func -> Symbols.isFlagOn(func.symbol.flags, Flags.RESOURCE))
                 .forEach(func -> serviceData.addResource(func, func.getAnnotationAttachments()));
@@ -295,15 +300,28 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
 
     private void handleServiceTypeProcesses(CompilerPlugin plugin) {
         // Get the list of endpoint of that this particular compiler plugin is interested in.
-        SupportedResourceParamTypes supportEndpointTypes = plugin.getClass()
+        SupportedResourceParamTypes resParamTypes = plugin.getClass()
                 .getAnnotation(SupportedResourceParamTypes.class);
-        if (supportEndpointTypes == null) {
+        if (resParamTypes == null) {
             return;
         }
-        final SupportedResourceParamTypes.ParamType[] supportedTypes = supportEndpointTypes.types();
+        final SupportedResourceParamTypes.Type[] supportedTypes = resParamTypes.paramTypes();
         if (supportedTypes.length == 0) {
             return;
         }
+        // Set Listener type.
+        Name listenerName = names.fromString(resParamTypes.expectedListenerType().name());
+        BPackageSymbol symbol = this.packageCache.getSymbol(resParamTypes.expectedListenerType().packageName());
+        BType listenerType = null;
+        if (symbol != null) {
+            SymbolEnv pkgEnv = symTable.pkgEnvMap.get(symbol);
+            final BSymbol listenerSymbol = symResolver
+                    .lookupSymbolInPackage(defaultPos, pkgEnv, symbol.pkgID.name, listenerName, SymTag.OBJECT);
+            if (listenerSymbol != symTable.notFoundSymbol) {
+                listenerType = listenerSymbol.type;
+            }
+        }
+
         DefinitionID[] definitions = Arrays.stream(supportedTypes)
                 .map(type -> new DefinitionID(type.packageName(), type.name()))
                 .toArray(DefinitionID[]::new);
@@ -311,6 +329,9 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
             List<CompilerPlugin> processorList = resourceTypeProcessorMap
                     .computeIfAbsent(definitionID, k -> new ArrayList<>());
             processorList.add(plugin);
+            if (listenerType != null) {
+                serviceListenerMap.put(definitionID, listenerType);
+            }
         }
     }
 
@@ -324,6 +345,11 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
                         .anyMatch(definitionID -> definitionID.equals(def))) {
                     final List<CompilerPlugin> compilerPlugins = resourceTypeProcessorMap.get(def);
                     compilerPlugins.forEach(proc -> notifier.accept(proc, Collections.unmodifiableList(attachments)));
+                    final BLangService serviceNode = (BLangService) serviceData.getServiceNode();
+                    // Hacking till we figure out service type.
+                    if (serviceNode.listerType == null) {
+                        serviceNode.listerType = serviceListenerMap.get(def);
+                    }
                 }
             }
         }

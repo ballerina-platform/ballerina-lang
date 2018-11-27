@@ -1280,6 +1280,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (!types.checkListenerCompatibility(env, exprType)) {
             dlog.error(serviceNode.attachExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, Names.ABSTRACT_LISTENER,
                     exprType);
+        } else {
+            serviceNode.listerType = exprType;
         }
 
         // TODO : Fix this.
