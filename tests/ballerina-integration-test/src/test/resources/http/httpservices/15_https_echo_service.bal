@@ -1,33 +1,28 @@
 import ballerina/http;
 
-endpoint http:Listener echoDummyEP {
-    port:9109
-};
+listener http:Listener echoDummyEP = new(9109);
 
-endpoint http:Listener echoHttpEP {
-    port: 9110
-};
+//listener http:Listener echoHttpEP = new(9110);
 
-endpoint http:Listener echoEP2 {
-    port:9111,
+listener http:Listener echoEP2 = new(9111, config = {
     secureSocket: {
         keyStore: {
             path:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
             password:"ballerina"
         }
     }
-};
+});
 
 @http:ServiceConfig {
     basePath:"/echo"
 }
 
-service<http:Service> echo2 bind echoEP2 {
+service echo2 on echoEP2 {
     @http:ResourceConfig {
         methods:["POST"],
         path:"/"
     }
-    echo2 (endpoint caller, http:Request req) {
+    resource function echo2(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("hello world");
         _ = caller -> respond(res);
@@ -37,12 +32,12 @@ service<http:Service> echo2 bind echoEP2 {
 @http:ServiceConfig  {
     basePath:"/echoOne"
 }
-service<http:Service> echoOne1 bind echoEP2, echoHttpEP {
+service echoOne1 on echoEP2 {
     @http:ResourceConfig {
         methods:["POST"],
         path:"/abc"
     }
-    echoAbc (endpoint caller, http:Request req) {
+    resource function echoAbc(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("hello world");
         _ = caller -> respond(res);
@@ -52,13 +47,13 @@ service<http:Service> echoOne1 bind echoEP2, echoHttpEP {
 @http:ServiceConfig {
     basePath:"/echoDummy"
 }
-service<http:Service> echoDummy1 bind echoDummyEP {
+service echoDummy1 on echoDummyEP {
 
     @http:ResourceConfig {
         methods:["POST"],
         path:"/"
     }
-    echoDummy1 (endpoint caller, http:Request req) {
+    resource function echoDummy1(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("hello world");
         _ = caller -> respond(res);
