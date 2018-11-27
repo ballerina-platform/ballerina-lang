@@ -28,8 +28,8 @@ public const TOPIC = "topic";
 
 # Destination object
 #
-# + destinationName - name of the destination
-# + destinationType - type of the destination, either queue or topic
+# + destinationName - Name of the destination
+# + destinationType - Type of the destination, either queue or topic
 public type Destination object {
     public string destinationName;
     public string destinationType;

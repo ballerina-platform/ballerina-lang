@@ -18,7 +18,7 @@ import ballerina/log;
 
 # JMS TopicPublisher endpoint
 #
-# + config - Used to store configurations related to a JMS TopicPublisher
+# + config - Used to store configurations related to JMS TopicPublisher
 public type TopicPublisher client object {
 
     public TopicPublisherEndpointConfiguration config = {};
@@ -70,7 +70,7 @@ remote function TopicPublisher.sendTo(Destination destination, Message message) 
 
 # Configuration related to the TopicPublisher endpoint
 #
-# + session - Session object used to create topic publisher
+# + session - Session object used to create TopicPublisher
 # + topicPattern - Topic name pattern
 public type TopicPublisherEndpointConfiguration record {
     Session? session = ();
