@@ -1,7 +1,8 @@
 import ballerina/io;
 
 public function main() {
-    // The implicit initial value of a map is the empty map.
+    // There is no implicit initial value for this map. You must initialize this map before use.
+    // Otherwise compilation error will occur.
     map m;
 
     // You can also declare and initialize a map with a map literal.
@@ -25,14 +26,14 @@ public function main() {
     io:println(addrMap.keys());
 
     // Print the number of keys in the map.
-    io:println(lengthof addrMap);
+    io:println(addrMap.length());
 
     // You can remove a key using the `remove()` function.
     boolean isRemoved = addrMap.remove("postalCode");
     io:println(addrMap);
 
     // Constrained maps can only contain values of the type specified by the type descriptor.
-    map<string> stringMap;
+    map<string> stringMap = {};
 
     // There is no difference in how a value is added or updated in a constrained map
     stringMap["index"] = "100892N";

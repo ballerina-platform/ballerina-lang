@@ -43,9 +43,10 @@ public function main() {
     // This adds the created records to the table.
     foreach (emp in employees) {
         var ret = tb.add(emp);
-        match ret {
-            () => io:println("Adding record to table successful");
-            error e => io:println("Adding to table failed: " + e.message);
+        if (ret is ()) {
+            io:println("Adding record to table successful");
+        } else if (ret is error) {
+            io:println("Adding to table failed: " + ret.reason());
         }
     }
 
@@ -63,10 +64,11 @@ public function main() {
     io:println("Using while loop: ");
     while (tb.hasNext()) {
         var ret = <Employee>tb.getNext();
-        match ret {
-            Employee e => io:println("Name: " + e.name);
-            error e => io:println("Error in get employee from table: "
-                                  + e.message);
+        if (ret is Employee) {
+            io:println("Name: " + ret.name);
+        } else if (ret is error) {
+            io:println("Error in get employee from table: "
+                                  + ret.reason());
         }
     }
 
@@ -84,10 +86,11 @@ public function main() {
 
     // This deletes the rows that match a given criteria.
     var ret = tb.remove(isLowerSalary);
-    match ret {
-        int rowCount => io:println("Deleted row count: " + rowCount);
-        error e => io:println("Error in removing employees from table: "
-                               + e.message);
+    if (ret is int) {
+        io:println("Deleted row count: " + ret);
+    } else if (ret is error) {
+        io:println("Error in removing employees from table: "
+                               + ret.reason());
     }
     io:print("After Delete: ");
     io:println(tb);

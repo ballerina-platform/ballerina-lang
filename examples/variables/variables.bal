@@ -4,7 +4,7 @@ import ballerina/io;
 int total = 99;
 
 // Declare a public module-level variable.
-public int count;
+public int count = 0;
 
 // Declare a public constant.
 @final
