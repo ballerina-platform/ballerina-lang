@@ -25,7 +25,7 @@ function testClientStreaming(string[] args) returns (string) {
         url:"http://localhost:9096"
     });
 
-    grpc:StreamingClient ep;
+    grpc:StreamingClient ep = new;
     // Executing unary non-blocking call registering server message listener.
     var res = helloWorldEp->lotsOfGreetings(HelloWorldMessageListener);
     if (res is error) {
@@ -77,7 +77,7 @@ service HelloWorldMessageListener = service {
         total = 1;
         io:println("Server Complete Sending Responses.");
     }
-}
+};
 
 // Non-blocking client endpoint
 public type HelloWorldClient client object {

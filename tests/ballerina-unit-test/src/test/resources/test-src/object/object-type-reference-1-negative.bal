@@ -137,3 +137,7 @@ type RedecalredFieldObject_2 abstract object {
 type RedecalredFieldObject_3 abstract object {
     *RedecalredFieldObject_2;
 };
+
+type Bar object {
+    *Baz;   // non existing type
+};
