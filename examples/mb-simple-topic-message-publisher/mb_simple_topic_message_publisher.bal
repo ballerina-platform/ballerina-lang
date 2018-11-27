@@ -18,10 +18,10 @@ public function main() {
 
         mb:Message msg => {
             // Send the Ballerina message to the JMS provider.
-            publisher->send(msg) but {
-               error e => log:printError("Error occurred while sending message",
-                                         err = e)
-            };
+            var result = publisher->send(msg);
+            if (result is error) {
+               log:printError("Error occurred while sending message", err = result);
+            }
         }
     }
 }

@@ -9,8 +9,10 @@ service hello bind helloEp {
     hi(endpoint caller, http:Request request) {
         http:Response res;
         res.setPayload("Hello World!");
-        caller->respond(res) but {
-            error e => log:printError("Error when responding", err = e)
-        };
+
+        var result = caller->respond(res);
+        if (result is error) {
+           log:printError("Error when responding", err = result);
+        }
     }
 }
