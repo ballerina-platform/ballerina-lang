@@ -22,6 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
@@ -77,12 +78,14 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         Struct clientEndpointConfig = clientEndpoint.getStructField(HttpConstants.CLIENT_ENDPOINT_CONFIG);
 
         String remoteUrl = clientEndpoint.getStringField(WebSocketConstants.CLIENT_URL_CONFIG);
-        Value clientServiceType = clientEndpointConfig.getTypeField(WebSocketConstants.CLIENT_SERVICE_CONFIG);
+        BMap clientService = (BMap) clientEndpointConfig.getServiceField(WebSocketConstants.CLIENT_SERVICE_CONFIG);
         WebSocketService wsService;
-        if (clientServiceType != null) {
-            Service service = BLangConnectorSPIUtil.getServiceFromType(context.getProgramFile(), clientServiceType);
-            if (!WebSocketConstants.WEBSOCKET_CLIENT_ENDPOINT_NAME.equals(service.getEndpointName())) {
-                throw new BallerinaConnectorException("The callback service should be of type WebSocketClientService");
+        if (clientService != null) {
+            Service service = BLangConnectorSPIUtil.getService(context.getProgramFile(), clientService);
+            ParamDetail param = service.getResources()[0].getParamDetails().get(0);
+            if (param == null || !WebSocketConstants.WEBSOCKET_CLIENT_ENDPOINT_NAME.equals(
+                    param.getVarType().toString())) {
+                throw new BallerinaConnectorException("The callback service should be a WebSocket Client Service");
             }
             wsService = new WebSocketService(service);
         } else {

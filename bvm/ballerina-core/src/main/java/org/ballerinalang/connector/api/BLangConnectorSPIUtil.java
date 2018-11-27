@@ -135,12 +135,11 @@ public final class BLangConnectorSPIUtil {
         return ConnectorSPIModelHelper.createStruct(bStruct);
     }
 
-
-    public static Service getServiceFromType(ProgramFile programFile, Value value) {
-        if (value == null || value.getType() != Value.Type.OBJECT) {
+    public static Service getServiceFromType(ProgramFile programFile, BValue value) {
+        if (value == null || value.getType().getTag() != TypeTags.SERVICE_TAG) {
             throw new BallerinaConnectorException("Can't get service reference");
         }
-        return getService(programFile, (BMap) value.getVMValue());
+        return getService(programFile, (BMap) value);
     }
 
     public static BMap<String, BValue> getPackageEndpoint(ProgramFile programFile, String pkgName, String version,

@@ -371,9 +371,7 @@ matchStatement
     ;
 
 matchPatternClause
-    :   typeName EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
-    |   typeName Identifier EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
-    |   expression EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
+    :   expression EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
     |   VAR bindingPattern (IF expression)? EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
     ;
 
@@ -685,7 +683,6 @@ expression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
     |   awaitExpression                                                     # awaitExprExpression
     |   trapExpr                                                            # trapExpression
-    |	expression matchExpression										    # matchExprExpression
     |   expression ELVIS expression                                         # elvisExpression
     |   typeDescExpr                                                        # typeAccessExpression
     ;
@@ -722,14 +719,6 @@ shiftExpression
     ;
 
 shiftExprPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
-
-matchExpression
-    :   BUT LEFT_BRACE matchExpressionPatternClause (COMMA matchExpressionPatternClause)* RIGHT_BRACE
-    	;
-
-matchExpressionPatternClause
-    :   typeName Identifier? EQUAL_GT expression
-    ;
 
 //reusable productions
 
