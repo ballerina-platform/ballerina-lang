@@ -1278,7 +1278,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangTypeInit cIExpr) {
         analyzeExprs(cIExpr.argsExpr);
-        analyzeExpr(cIExpr.objectInitInvocation);
+        analyzeExpr(cIExpr.initInvocation);
     }
 
     public void visit(BLangTernaryExpr ternaryExpr) {

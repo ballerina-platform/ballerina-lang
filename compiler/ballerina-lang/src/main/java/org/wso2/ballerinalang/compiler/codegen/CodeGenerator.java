@@ -860,8 +860,8 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangStreamLiteral streamLiteral) {
         streamLiteral.regIndex = calcAndGetExprRegIndex(streamLiteral);
         Operand typeCPIndex = getTypeCPIndex(streamLiteral.type);
-        StringCPEntry nameCPEntry = new StringCPEntry(addUTF8CPEntry(currentPkgInfo, streamLiteral.name.value),
-                streamLiteral.name.value);
+        StringCPEntry nameCPEntry =
+                new StringCPEntry(addUTF8CPEntry(currentPkgInfo, streamLiteral.streamName), streamLiteral.streamName);
         Operand nameCPIndex = getOperand(currentPkgInfo.addCPEntry(nameCPEntry));
         emit(InstructionCodes.NEWSTREAM, streamLiteral.regIndex, typeCPIndex, nameCPIndex);
     }
@@ -1284,7 +1284,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         emit(InstructionCodes.NEWSTRUCT, structCPIndex, structRegIndex);
 
         // Invoke the struct initializer here.
-        Operand[] operands = getFuncOperands(cIExpr.objectInitInvocation);
+        Operand[] operands = getFuncOperands(cIExpr.initInvocation);
 
         Operand[] callOperands = new Operand[operands.length + 1];
         callOperands[0] = operands[0];
