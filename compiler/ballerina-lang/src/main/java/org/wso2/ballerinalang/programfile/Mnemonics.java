@@ -249,7 +249,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.NEWSTREAM] = "newstream";
 
         mnemonics[InstructionCodes.ITR_NEW] = "itr_new";
-        mnemonics[InstructionCodes.ITR_HAS_NEXT] = "itr_has_next";
         mnemonics[InstructionCodes.ITR_NEXT] = "itr_next";
         mnemonics[InstructionCodes.INT_RANGE] = "int_range";
 

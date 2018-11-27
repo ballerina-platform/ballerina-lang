@@ -775,7 +775,6 @@ public class CPU {
                         break;
                     case InstructionCodes.ITR_NEW:
                     case InstructionCodes.ITR_NEXT:
-                    case InstructionCodes.ITR_HAS_NEXT:
                         execIteratorOperation(ctx, sf, instruction);
                         break;
                     case InstructionCodes.LOCK:
@@ -2742,12 +2741,6 @@ public class CPU {
                 }
 
                 sf.refRegs[j] = ((BCollection) collection).newIterator();
-                break;
-            case InstructionCodes.ITR_HAS_NEXT:
-                i = instruction.getOperands()[0];   // iterator
-                j = instruction.getOperands()[1];   // boolean variable index to store has next result
-                iterator = (BIterator) sf.refRegs[i];
-                sf.intRegs[j] = Optional.of(iterator).get().hasNext() ? 1 : 0;
                 break;
             case InstructionCodes.ITR_NEXT:
                 nextInstruction = (InstructionIteratorNext) instruction;

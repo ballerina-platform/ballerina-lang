@@ -1154,7 +1154,6 @@ public class PackageInfoReader {
                 case InstructionCodes.TR_END:
                 case InstructionCodes.NEWSTRUCT:
                 case InstructionCodes.ITR_NEW:
-                case InstructionCodes.ITR_HAS_NEXT:
                 case InstructionCodes.IRET:
                 case InstructionCodes.FRET:
                 case InstructionCodes.SRET:

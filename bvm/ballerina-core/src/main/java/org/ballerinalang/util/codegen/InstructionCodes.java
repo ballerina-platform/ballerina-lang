@@ -281,7 +281,6 @@ public interface InstructionCodes {
     int NEWSTREAM = 217;
 
     int ITR_NEW = 219;
-    int ITR_HAS_NEXT = 220;
     int ITR_NEXT = 221;
     int INT_RANGE = 222;
 
