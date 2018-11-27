@@ -558,8 +558,20 @@ function testErrorValueFreeze() returns string {
     return (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
 }
 
+function testFrozenValueUpdatePanicWithCheckTrap() returns boolean|error {
+    json j = { hello: "world "};
+    json[] a = [j, "ballerina", 2, 10.3];
+    _ = a.freeze();
+    return check trap insertElement(a, 4, j);
+}
+
 function isIdTwo(Employee e) returns boolean {
     return e.id == 2;
+}
+
+function insertElement(json[] jArr, int index, json val) returns boolean {
+    jArr[index] = val;
+    return true;
 }
 
 type Employee record {

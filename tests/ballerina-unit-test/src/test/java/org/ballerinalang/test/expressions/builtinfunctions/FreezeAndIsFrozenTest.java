@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BDecimal;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
@@ -53,9 +54,9 @@ public class FreezeAndIsFrozenTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/expressions/builtinfunctions/freeze-and-isfrozen.bal");
+        result = BCompileUtil.compile("test-src/expressions/builtinoperations/freeze-and-isfrozen.bal");
         negativeResult = BCompileUtil.compile(
-                "test-src/expressions/builtinfunctions/freeze-and-isfrozen-negative.bal");
+                "test-src/expressions/builtinoperations/freeze-and-isfrozen-negative.bal");
     }
 
     @Test(dataProvider = "booleanValues")
@@ -530,6 +531,15 @@ public class FreezeAndIsFrozenTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "error occurred on freeze: freeze not allowed on 'error'");
+    }
+
+    @Test
+    public void testFrozenValueUpdatePanicWithCheckTrap() {
+        BValue[] returns = BRunUtil.invoke(result, "testFrozenValueUpdatePanicWithCheckTrap", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BError.class);
+        Assert.assertEquals(((BError) returns[0]).getReason(), "failed to set element to json: modification " +
+                "not allowed on frozen value");
     }
 
     @Test
