@@ -17,6 +17,7 @@ AS          : 'as' ;
 PUBLIC      : 'public' ;
 PRIVATE     : 'private' ;
 EXTERN      : 'extern' ;
+FINAL       : 'final' ;
 SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
 FUNCTION    : 'function' ;
@@ -104,6 +105,7 @@ TYPE_ANYDATA    : 'anydata' ;
 
 VAR         : 'var' ;
 NEW         : 'new' ;
+OBJECT_INIT : '__init' ;
 IF          : 'if' ;
 MATCH       : 'match' ;
 ELSE        : 'else' ;

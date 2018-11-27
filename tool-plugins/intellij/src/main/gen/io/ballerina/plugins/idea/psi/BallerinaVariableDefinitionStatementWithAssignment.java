@@ -39,6 +39,9 @@ public interface BallerinaVariableDefinitionStatementWithAssignment extends Ball
   PsiElement getSemicolon();
 
   @Nullable
+  PsiElement getFinal();
+
+  @Nullable
   PsiElement getVar();
 
 }
