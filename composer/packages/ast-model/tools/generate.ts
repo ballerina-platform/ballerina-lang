@@ -37,6 +37,10 @@ balFiles.forEach((file) => {
 
 const defaultNodesBal = path.join(__dirname, "resources", "top-level-defs.bal");
 const defaultNodesASTPromise = genAST(defaultNodesBal).then((ast: CompilationUnit) => {
+    if (!ast) {
+        return;
+    }
+
     const defaultImportPath = path.join(DEFAULT_NODES_PATH, "import.json");
     fs.writeFileSync(defaultImportPath, JSON.stringify(ast.topLevelNodes[0]));
 

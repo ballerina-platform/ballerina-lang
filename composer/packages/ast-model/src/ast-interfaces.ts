@@ -18,8 +18,8 @@ export interface Annotation extends ASTNode {
   annotationAttachments: any;
   attached: boolean;
   attachmentPoints: string[];
+  client: boolean;
   compensate: boolean;
-  connector: boolean;
   constant: boolean;
   deprecated: boolean;
   deprecatedAttachments: Deprecated[];
@@ -27,6 +27,7 @@ export interface Annotation extends ASTNode {
   function_final: boolean;
   interface: boolean;
   lambda: boolean;
+  listener: boolean;
   markdownDocumentationAttachment?: MarkdownDocumentation;
   name: Identifier;
   native: boolean;
@@ -38,7 +39,10 @@ export interface Annotation extends ASTNode {
   public: boolean;
   readonly: boolean;
   record: boolean;
+  remote: boolean;
   required: boolean;
+  resource: boolean;
+  service: boolean;
   testable: boolean;
   typeNode?: UserDefinedType;
   ws: any[];
@@ -55,7 +59,6 @@ export interface AnnotationAttachment extends ASTNode {
 export interface ArrayLiteralExpr extends ASTNode {
   expressions: Array<
     | ArrayLiteralExpr
-    | BinaryExpr
     | BracedTupleExpr
     | FieldBasedAccessExpr
     | IndexBasedAccessExpr
@@ -63,9 +66,7 @@ export interface ArrayLiteralExpr extends ASTNode {
     | Literal
     | RecordLiteralExpr
     | SimpleVariableRef
-    | TypeConversionExpr
     | TypeInitExpr
-    | XmlElementLiteral
   >;
   isExpression?: boolean;
   position: any;
@@ -77,10 +78,8 @@ export interface ArrayType extends ASTNode {
   dimensionAsString?: string;
   dimensions: number;
   elementType:
-    | ArrayType
     | BuiltInRefType
     | ConstrainedType
-    | ErrorType
     | FunctionType
     | TupleTypeNode
     | UnionTypeNode
@@ -101,11 +100,11 @@ export interface ArrowExpr extends ASTNode {
     | ArrowExpr
     | BinaryExpr
     | BracedTupleExpr
+    | ElvisExpr
     | IndexBasedAccessExpr
     | Invocation
     | Lambda
     | Literal
-    | MatchExpression
     | SimpleVariableRef
     | StringTemplateLiteral
     | TypeConversionExpr
@@ -131,17 +130,13 @@ export interface Assignment extends ASTNode {
     | Invocation
     | Lambda
     | Literal
-    | MatchExpression
     | RecordLiteralExpr
     | SimpleVariableRef
     | StringTemplateLiteral
     | TernaryExpr
-    | TrapExpr
     | TypeConversionExpr
     | TypeInitExpr
-    | TypedescExpression
     | UnaryExpr
-    | XmlAttributeAccessExpr
     | XmlElementLiteral;
   position: any;
   variable:
@@ -154,7 +149,7 @@ export interface Assignment extends ASTNode {
 
 export interface AwaitExpr extends ASTNode {
   expression: SimpleVariableRef;
-  isExpression?: boolean;
+  isExpression: boolean;
   position: any;
   symbolType: string[];
   ws: any[];
@@ -179,7 +174,6 @@ export interface BinaryExpr extends ASTNode {
   operatorKind: string;
   position: any;
   rightExpression:
-    | AwaitExpr
     | BinaryExpr
     | BracedTupleExpr
     | CheckExpr
@@ -209,6 +203,7 @@ export interface Block extends ASTNode {
     | Done
     | ExpressionStatement
     | Foreach
+    | Forever
     | ForkJoin
     | If
     | Lock
@@ -234,20 +229,18 @@ export interface Block extends ASTNode {
 export interface BracedTupleExpr extends ASTNode {
   expressions: Array<
     | ArrayLiteralExpr
+    | ArrowExpr
     | BinaryExpr
     | BracedTupleExpr
-    | CheckExpr
     | ElvisExpr
     | FieldBasedAccessExpr
     | IndexBasedAccessExpr
     | Invocation
     | Literal
-    | MatchExpression
     | RecordLiteralExpr
     | SimpleVariableRef
     | TernaryExpr
     | TypeConversionExpr
-    | TypeInitExpr
     | TypeTestExpr
     | TypedescExpression
     | UnaryExpr
@@ -282,11 +275,7 @@ export interface Catch extends ASTNode {
 }
 
 export interface CheckExpr extends ASTNode {
-  expression:
-    | FieldBasedAccessExpr
-    | Invocation
-    | SimpleVariableRef
-    | TypeConversionExpr;
+  expression: Invocation | SimpleVariableRef | TypeConversionExpr;
   isExpression?: boolean;
   operatorKind: string;
   position: any;
@@ -306,7 +295,6 @@ export interface CompilationUnit extends ASTNode {
   topLevelNodes: Array<
     | Annotation
     | Constant
-    | Endpoint
     | Function
     | Import
     | Service
@@ -343,8 +331,8 @@ export interface Constant extends ASTNode {
   abstract: boolean;
   annotationAttachments: any;
   attached: boolean;
+  client: boolean;
   compensate: boolean;
-  connector: boolean;
   constant: boolean;
   deprecated: boolean;
   deprecatedAttachments: any;
@@ -352,6 +340,7 @@ export interface Constant extends ASTNode {
   function_final: boolean;
   interface: boolean;
   lambda: boolean;
+  listener: boolean;
   markdownDocumentationAttachment?: MarkdownDocumentation;
   native: boolean;
   optional: boolean;
@@ -361,7 +350,10 @@ export interface Constant extends ASTNode {
   public: boolean;
   readonly: boolean;
   record: boolean;
+  remote: boolean;
   required: boolean;
+  resource: boolean;
+  service: boolean;
   testable: boolean;
   value: Literal | RecordLiteralExpr | SimpleVariableRef;
   ws: any[];
@@ -372,7 +364,6 @@ export interface ConstrainedType extends ASTNode {
     | ArrayType
     | BuiltInRefType
     | ConstrainedType
-    | FunctionType
     | TupleTypeNode
     | UnionTypeNode
     | UserDefinedType
@@ -423,46 +414,8 @@ export interface ElvisExpr extends ASTNode {
     | Invocation
     | SimpleVariableRef;
   position: any;
-  rightExpression:
-    | ArrayLiteralExpr
-    | BracedTupleExpr
-    | Literal
-    | SimpleVariableRef;
+  rightExpression: BinaryExpr | BracedTupleExpr | Literal | SimpleVariableRef;
   symbolType: string[];
-  ws: any[];
-}
-
-export interface Endpoint extends ASTNode {
-  abstract: boolean;
-  annotationAttachments: AnnotationAttachment[];
-  attached: boolean;
-  compensate: boolean;
-  configurationExpression?:
-    | FieldBasedAccessExpr
-    | Invocation
-    | RecordLiteralExpr
-    | SimpleVariableRef;
-  connector: boolean;
-  constant: boolean;
-  deprecated: boolean;
-  endPointType: UserDefinedType;
-  final: boolean;
-  function_final: boolean;
-  interface: boolean;
-  isConfigAssignment?: boolean;
-  lambda: boolean;
-  name: Identifier;
-  native: boolean;
-  optional: boolean;
-  parallel: boolean;
-  position: any;
-  private: boolean;
-  public: boolean;
-  readonly: boolean;
-  record: boolean;
-  required: boolean;
-  symbolType: string[];
-  testable: boolean;
   ws: any[];
 }
 
@@ -493,10 +446,8 @@ export interface ErrorType extends ASTNode {
 export interface ExpressionStatement extends ASTNode {
   expression:
     | ArrayLiteralExpr
-    | AwaitExpr
     | CheckExpr
     | Invocation
-    | MatchExpression
     | RecordLiteralExpr
     | SimpleVariableRef
     | TypedescExpression
@@ -537,7 +488,13 @@ export interface Foreach extends ASTNode {
     | SimpleVariableRef;
   position: any;
   variables: Array<FieldBasedAccessExpr | SimpleVariableRef>;
-  withParantheses?: boolean;
+  ws: any[];
+}
+
+export interface Forever extends ASTNode {
+  position: any;
+  siddhiRuntimeEnabled: boolean;
+  streamingQueryStatements: StreamingQuery[];
   ws: any[];
 }
 
@@ -556,25 +513,28 @@ export interface ForkJoin extends ASTNode {
 }
 
 export interface Function extends ASTNode {
+  VisibleEndpoints?: any[];
   abstract: boolean;
   allParams: Array<Variable | VariableDef>;
   annotationAttachments: AnnotationAttachment[];
   attached: boolean;
   body?: Block;
+  client: boolean;
   compensate: boolean;
-  connector: boolean;
   constant: boolean;
   defaultableParameters: VariableDef[];
   deprecated: boolean;
   deprecatedAttachments: Deprecated[];
-  endpointNodes: Endpoint[];
+  endpointNodes: any;
   final: boolean;
   function_final: boolean;
   hasRestParams?: boolean;
   hasReturns?: boolean;
   interface: boolean;
   isConstructor?: boolean;
+  isStreamAction?: boolean;
   lambda: boolean;
+  listener: boolean;
   markdownDocumentationAttachment?: MarkdownDocumentation;
   name: Identifier;
   native: boolean;
@@ -588,7 +548,9 @@ export interface Function extends ASTNode {
   readonly: boolean;
   receiver?: Variable;
   record: boolean;
+  remote: boolean;
   required: boolean;
+  resource: boolean;
   restParameters?: Variable;
   returnTypeAnnotationAttachments: AnnotationAttachment[];
   returnTypeNode:
@@ -601,22 +563,21 @@ export interface Function extends ASTNode {
     | UnionTypeNode
     | UserDefinedType
     | ValueType;
+  service: boolean;
   testable: boolean;
   workers: Worker[];
-  ws?: any[];
+  ws: any[];
 }
 
 export interface FunctionType extends ASTNode {
   grouped: boolean;
   hasReturn?: boolean;
   nullable: boolean;
-  nullableOperatorAvailable?: boolean;
   params: Variable[];
   position: any;
   returnKeywordExists: boolean;
   returnTypeNode:
     | ArrayType
-    | BuiltInRefType
     | ErrorType
     | FunctionType
     | TupleTypeNode
@@ -630,7 +591,13 @@ export interface FunctionType extends ASTNode {
 
 export interface GroupBy extends ASTNode {
   position: any;
-  variables: Array<FieldBasedAccessExpr | SimpleVariableRef>;
+  variables: Array<FieldBasedAccessExpr | Invocation | SimpleVariableRef>;
+  ws: any[];
+}
+
+export interface Having extends ASTNode {
+  expression: BinaryExpr;
+  position: any;
   ws: any[];
 }
 
@@ -659,13 +626,12 @@ export interface If extends ASTNode {
 
 export interface Import extends ASTNode {
   alias: Identifier;
-  isInternal?: boolean;
   orgName: Identifier;
   packageName: Identifier[];
   packageVersion: Identifier;
   position: any;
   userDefinedAlias?: boolean;
-  ws?: any[];
+  ws: any[];
 }
 
 export interface IndexBasedAccessExpr extends ASTNode {
@@ -689,6 +655,14 @@ export interface IndexBasedAccessExpr extends ASTNode {
   ws: any[];
 }
 
+export interface IntRangeExpr extends ASTNode {
+  endExpression?: Literal;
+  isWrappedWithBracket: boolean;
+  position: any;
+  startExpression: Literal;
+  ws: any[];
+}
+
 export interface Invocation extends ASTNode {
   actionInvocation: boolean;
   argumentExpressions: Array<
@@ -703,7 +677,6 @@ export interface Invocation extends ASTNode {
     | Invocation
     | Lambda
     | Literal
-    | MatchExpression
     | NamedArgsExpr
     | RecordLiteralExpr
     | RestArgsExpr
@@ -721,7 +694,8 @@ export interface Invocation extends ASTNode {
     | FieldBasedAccessExpr
     | IndexBasedAccessExpr
     | Invocation
-    | SimpleVariableRef;
+    | SimpleVariableRef
+    | TypedescExpression;
   invocationType?: string;
   isExpression?: boolean;
   iterableOperation: boolean;
@@ -734,7 +708,7 @@ export interface Invocation extends ASTNode {
 
 export interface JoinStreamingInput extends ASTNode {
   joinType: string;
-  onExpression: BinaryExpr;
+  onExpression?: BinaryExpr;
   position: any;
   streamingInput: StreamingInput;
   unidirectionalAfterJoin: boolean;
@@ -747,12 +721,6 @@ export interface Lambda extends ASTNode {
   isExpression?: boolean;
   position: any;
   symbolType?: string[];
-}
-
-export interface Limit extends ASTNode {
-  limitValue: string;
-  position: any;
-  ws: any[];
 }
 
 export interface Literal extends ASTNode {
@@ -788,62 +756,35 @@ export interface MarkdownDocumentation extends ASTNode {
 }
 
 export interface Match extends ASTNode {
-  expression:
-    | BracedTupleExpr
-    | FieldBasedAccessExpr
-    | IndexBasedAccessExpr
-    | Invocation
-    | SimpleVariableRef
-    | TypeConversionExpr;
+  expression: BracedTupleExpr | SimpleVariableRef;
   position: any;
-  typedPatternClauses: MatchTypedPatternClause[];
+  staticPatternClauses: MatchStaticPatternClause[];
+  structuredPatternClauses: MatchStructuredPatternClause[];
   ws: any[];
 }
 
-export interface MatchExpression extends ASTNode {
-  expression:
-    | FieldBasedAccessExpr
-    | IndexBasedAccessExpr
-    | Invocation
-    | SimpleVariableRef
-    | TypeConversionExpr;
-  isExpression?: boolean;
-  patternClauses: MatchExpressionPatternClause[];
-  position: any;
-  symbolType?: string[];
-  ws: any[];
-}
-
-export interface MatchExpressionPatternClause extends ASTNode {
-  position: any;
-  statement:
+export interface MatchStaticPatternClause extends ASTNode {
+  literal:
     | ArrayLiteralExpr
-    | BinaryExpr
-    | FieldBasedAccessExpr
-    | Invocation
+    | BracedTupleExpr
     | Literal
-    | MatchExpression
     | RecordLiteralExpr
-    | SimpleVariableRef
-    | TypeConversionExpr
-    | TypeInitExpr;
-  variableNode: Variable;
-  ws: any[];
-}
-
-export interface MatchTypedPatternClause extends ASTNode {
+    | TypedescExpression;
   position: any;
   statement: Block;
-  variableNode: Variable;
+  ws: any[];
+}
+
+export interface MatchStructuredPatternClause extends ASTNode {
+  position: any;
+  statement: Block;
+  variableNode: RecordVariable | TupleVariable | Variable;
   ws: any[];
 }
 
 export interface NamedArgsExpr extends ASTNode {
   expression:
-    | BinaryExpr
-    | FieldBasedAccessExpr
     | IndexBasedAccessExpr
-    | Invocation
     | Literal
     | RecordLiteralExpr
     | SimpleVariableRef
@@ -868,6 +809,7 @@ export interface ObjectType extends ASTNode {
   position: any;
   symbolType: string[];
   typeReferences: Array<ConstrainedType | UserDefinedType | ValueType>;
+  ws?: any[];
 }
 
 export interface OrderBy extends ASTNode {
@@ -877,22 +819,65 @@ export interface OrderBy extends ASTNode {
 }
 
 export interface OrderByVariable extends ASTNode {
-  noVisibleType: boolean;
+  noVisibleType?: boolean;
   orderByType: string;
   position: any;
-  variableReference: SimpleVariableRef;
+  typeString?: string;
+  variableReference: Invocation | SimpleVariableRef;
+  ws?: any[];
+}
+
+export interface OutputRateLimit extends ASTNode {
+  outputRateType: string;
+  position: any;
+  rateLimitValue: string;
+  snapshot: boolean;
+  timeScale?: string;
+  ws: any[];
 }
 
 export interface Panic extends ASTNode {
-  expressions: Invocation | MatchExpression | SimpleVariableRef;
+  expressions: FieldBasedAccessExpr | SimpleVariableRef;
   position: any;
   ws: any[];
+}
+
+export interface PatternClause extends ASTNode {
+  forAllEvents: boolean;
+  patternStreamingNode: PatternStreamingInput;
+  position: any;
+  withinClause?: Within;
+  ws: any[];
+}
+
+export interface PatternStreamingEdgeInput extends ASTNode {
+  aliasIdentifier?: string;
+  expression?: IntRangeExpr;
+  position: any;
+  streamReference: SimpleVariableRef;
+  whereClause?: Where;
+  ws?: any[];
+}
+
+export interface PatternStreamingInput extends ASTNode {
+  andOnly: boolean;
+  andWithNot: boolean;
+  commaSeparated: boolean;
+  followedBy: boolean;
+  forWithNot: boolean;
+  orOnly: boolean;
+  patternStreamingEdgeInputs: PatternStreamingEdgeInput[];
+  patternStreamingInput?: PatternStreamingInput;
+  position: any;
+  timeDurationValue?: string;
+  timeScale?: string;
+  ws?: any[];
 }
 
 export interface RecordLiteralExpr extends ASTNode {
   isExpression?: boolean;
   keyValuePairs: RecordLiteralKeyValue[];
-  position?: any;
+  position: any;
   symbolType?: string[];
   ws: any[];
 }
@@ -909,6 +894,7 @@ export interface RecordLiteralKeyValue extends ASTNode {
     | ArrayLiteralExpr
     | BinaryExpr
     | BracedTupleExpr
+    | ErrorConstructor
     | FieldBasedAccessExpr
     | IndexBasedAccessExpr
     | Invocation
@@ -918,10 +904,8 @@ export interface RecordLiteralKeyValue extends ASTNode {
     | SimpleVariableRef
     | TernaryExpr
     | TypeConversionExpr
-    | TypeInitExpr
     | TypedescExpression
-    | UnaryExpr
-    | XmlElementLiteral;
+    | UnaryExpr;
   ws?: any[];
 }
 
@@ -931,12 +915,7 @@ export interface RecordType extends ASTNode {
   isRestFieldAvailable?: boolean;
   nullable: boolean;
   position: any;
-  restFieldType?:
-    | BuiltInRefType
-    | TupleTypeNode
-    | UnionTypeNode
-    | UserDefinedType
-    | ValueType;
+  restFieldType?: UnionTypeNode | UserDefinedType | ValueType;
   sealed: boolean;
   symbolType: string[];
   typeReferences: Array<BuiltInRefType | UserDefinedType | ValueType>;
@@ -947,8 +926,8 @@ export interface RecordVariable extends ASTNode {
   abstract: boolean;
   annotationAttachments: any;
   attached: boolean;
+  client: boolean;
   compensate: boolean;
-  connector: boolean;
   constant: boolean;
   deprecated: boolean;
   deprecatedAttachments: any;
@@ -957,6 +936,7 @@ export interface RecordVariable extends ASTNode {
   initialExpression?: Invocation | SimpleVariableRef;
   interface: boolean;
   lambda: boolean;
+  listener: boolean;
   native: boolean;
   optional: boolean;
   parallel: boolean;
@@ -965,53 +945,21 @@ export interface RecordVariable extends ASTNode {
   public: boolean;
   readonly: boolean;
   record: boolean;
+  remote: boolean;
   required: boolean;
+  resource: boolean;
+  service: boolean;
   symbolType: string[];
   testable: boolean;
   typeNode?: UserDefinedType;
   variables: any;
-  ws: any[];
+  ws?: any[];
 }
 
 export interface RecordVariableRef extends ASTNode {
   position: any;
   recordRefFields: any;
   symbolType: string[];
-  ws: any[];
-}
-
-export interface Resource extends ASTNode {
-  abstract: boolean;
-  annotationAttachments: AnnotationAttachment[];
-  attached: boolean;
-  body: Block;
-  compensate: boolean;
-  connector: boolean;
-  constant: boolean;
-  defaultableParameters: any;
-  deprecated: boolean;
-  deprecatedAttachments: any;
-  endpointNodes: Endpoint[];
-  final: boolean;
-  function_final: boolean;
-  interface: boolean;
-  lambda: boolean;
-  markdownDocumentationAttachment?: MarkdownDocumentation;
-  name: Identifier;
-  native: boolean;
-  optional: boolean;
-  parallel: boolean;
-  parameters: Variable[];
-  position: any;
-  private: boolean;
-  public: boolean;
-  readonly: boolean;
-  record: boolean;
-  required: boolean;
-  returnTypeAnnotationAttachments: any;
-  returnTypeNode: ErrorType | ValueType;
-  testable: boolean;
-  workers: Worker[];
   ws: any[];
 }
 
@@ -1031,7 +979,6 @@ export interface Return extends ASTNode {
   expression:
     | ArrayLiteralExpr
     | ArrowExpr
-    | AwaitExpr
     | BinaryExpr
     | BracedTupleExpr
     | CheckExpr
@@ -1042,13 +989,11 @@ export interface Return extends ASTNode {
     | Invocation
     | Lambda
     | Literal
-    | MatchExpression
     | RecordLiteralExpr
     | SimpleVariableRef
     | TernaryExpr
     | TypeConversionExpr
     | TypeInitExpr
-    | TypeTestExpr
     | UnaryExpr
     | XmlAttributeAccessExpr
     | XmlElementLiteral;
@@ -1066,14 +1011,23 @@ export interface Scope extends ASTNode {
 
 export interface SelectClause extends ASTNode {
   groupBy?: GroupBy;
-  position: any;
+  having?: Having;
+  notVisible?: boolean;
+  position?: any;
   selectAll: boolean;
   selectExpressions?: SelectExpression[];
-  ws: any[];
+  ws?: any[];
 }
 
 export interface SelectExpression extends ASTNode {
-  expression: FieldBasedAccessExpr | Invocation | SimpleVariableRef;
+  expression:
+    | BinaryExpr
+    | BracedTupleExpr
+    | FieldBasedAccessExpr
+    | Invocation
+    | Literal
+    | SimpleVariableRef
+    | TernaryExpr;
   identifier?: string;
   identifierAvailable?: boolean;
   position: any;
@@ -1082,20 +1036,24 @@ export interface SelectExpression extends ASTNode {
 
 export interface Service extends ASTNode {
   annotationAttachments: AnnotationAttachment[];
-  anonymousEndpointBind?: RecordLiteralExpr;
-  bindNotAvailable?: boolean;
-  boundEndpoints: SimpleVariableRef[];
+  bindNotAvailable: boolean;
+  boundEndpoints: any;
   deprecatedAttachments: any;
   endpointNodes: any;
-  initFunction: Function;
-  isServiceTypeUnavailable?: boolean;
+  isServiceTypeUnavailable: boolean;
   markdownDocumentationAttachment?: MarkdownDocumentation;
   name: Identifier;
-  namespaceDeclarations: Xmlns[];
+  namespaceDeclarations: any;
   position: any;
-  resources: Resource[];
-  serviceTypeStruct?: UserDefinedType;
-  variables: VariableDef[];
+  resources: any;
+  variables: any;
+  ws: any[];
+}
+
+export interface ServiceConstructor extends ASTNode {
+  isExpression: boolean;
+  position: any;
+  symbolType: string[];
   ws: any[];
 }
 
@@ -1109,14 +1067,35 @@ export interface SimpleVariableRef extends ASTNode {
   ws?: any[];
 }
 
+export interface StreamAction extends ASTNode {
+  invokableBody: Lambda;
+  position: any;
+  ws: any[];
+}
+
 export interface StreamingInput extends ASTNode {
   afterStreamingCondition?: Where;
   alias?: string;
   aliasAvailable?: boolean;
+  beforeStreamingCondition?: Where;
   position: any;
+  postFunctionInvocations?: Invocation[];
   streamReference: SimpleVariableRef;
+  windowClause?: WindowClause;
   windowTraversedAfterWhere: boolean;
   ws?: any[];
+}
+
+export interface StreamingQuery extends ASTNode {
+  joiningInput?: JoinStreamingInput;
+  orderbyClause?: OrderBy;
+  outputRateLimitNode?: OutputRateLimit;
+  patternClause?: PatternClause;
+  position: any;
+  selectClause: SelectClause;
+  streamingAction: StreamAction;
+  streamingInput?: StreamingInput;
+  ws: any[];
 }
 
 export interface StringTemplateLiteral extends ASTNode {
@@ -1127,7 +1106,6 @@ export interface StringTemplateLiteral extends ASTNode {
     | Literal
     | SimpleVariableRef
     | TernaryExpr
-    | UnaryExpr
   >;
   isExpression?: boolean;
   position: any;
@@ -1137,7 +1115,7 @@ export interface StringTemplateLiteral extends ASTNode {
 }
 
 export interface Table extends ASTNode {
-  dataRows: Array<RecordLiteralExpr | SimpleVariableRef>;
+  dataRows: RecordLiteralExpr[];
   isExpression: boolean;
   position: any;
   symbolType: string[];
@@ -1152,47 +1130,29 @@ export interface TableColumn extends ASTNode {
   ws: any[];
 }
 
-export interface TableQuery extends ASTNode {
-  joinStreamingInput?: JoinStreamingInput;
-  limitClause?: Limit;
-  orderByNode?: OrderBy;
-  position: any;
-  selectClauseNode: SelectClause;
-  streamingInput: StreamingInput;
-  ws: any[];
-}
-
-export interface TableQueryExpression extends ASTNode {
-  isExpression: boolean;
-  position: any;
-  symbolType: string[];
-  tableQuery: TableQuery;
-}
-
 export interface TernaryExpr extends ASTNode {
   condition:
     | BinaryExpr
     | BracedTupleExpr
-    | Invocation
     | Literal
     | SimpleVariableRef
     | TypeTestExpr;
   elseExpression:
     | BinaryExpr
     | BracedTupleExpr
+    | FieldBasedAccessExpr
     | IndexBasedAccessExpr
     | Invocation
     | Literal
-    | RecordLiteralExpr
     | SimpleVariableRef
-    | TernaryExpr
-    | XmlTextLiteral;
+    | TernaryExpr;
   isExpression?: boolean;
   position: any;
-  symbolType: string[];
+  symbolType?: string[];
   thenExpression:
     | BinaryExpr
     | BracedTupleExpr
+    | FieldBasedAccessExpr
     | IndexBasedAccessExpr
     | Invocation
     | Literal
@@ -1203,7 +1163,7 @@ export interface TernaryExpr extends ASTNode {
 }
 
 export interface Throw extends ASTNode {
-  expressions: Invocation | SimpleVariableRef;
+  expressions: SimpleVariableRef;
   position: any;
   ws: any[];
 }
@@ -1219,8 +1179,8 @@ export interface Transaction extends ASTNode {
 }
 
 export interface TrapExpr extends ASTNode {
-  expression: Invocation | TypeConversionExpr;
-  isExpression?: boolean;
+  expression: Invocation | Literal | TypeConversionExpr;
+  isExpression: boolean;
   position: any;
   symbolType: string[];
   ws: any[];
@@ -1273,20 +1233,17 @@ export interface TupleVariable extends ASTNode {
   abstract: boolean;
   annotationAttachments: any;
   attached: boolean;
+  client: boolean;
   compensate: boolean;
-  connector: boolean;
   constant: boolean;
   deprecated: boolean;
   deprecatedAttachments: any;
   final: boolean;
   function_final: boolean;
-  initialExpression?:
-    | BracedTupleExpr
-    | CheckExpr
-    | Invocation
-    | SimpleVariableRef;
+  initialExpression?: BracedTupleExpr | Invocation | SimpleVariableRef;
   interface: boolean;
   lambda: boolean;
+  listener: boolean;
   native: boolean;
   optional: boolean;
   parallel: boolean;
@@ -1295,7 +1252,10 @@ export interface TupleVariable extends ASTNode {
   public: boolean;
   readonly: boolean;
   record: boolean;
+  remote: boolean;
   required: boolean;
+  resource: boolean;
+  service: boolean;
   symbolType?: string[];
   testable: boolean;
   typeNode?: TupleTypeNode | UnionTypeNode;
@@ -1320,11 +1280,10 @@ export interface TypeConversionExpr extends ASTNode {
     | Invocation
     | Literal
     | SimpleVariableRef
-    | TypeConversionExpr
-    | XmlAttributeAccessExpr;
+    | TypeConversionExpr;
   isExpression?: boolean;
   position: any;
-  symbolType?: string[];
+  symbolType: string[];
   typeNode:
     | ArrayType
     | BuiltInRefType
@@ -1340,8 +1299,8 @@ export interface TypeDefinition extends ASTNode {
   abstract: boolean;
   annotationAttachments: any;
   attached: boolean;
+  client: boolean;
   compensate: boolean;
-  connector: boolean;
   constant: boolean;
   deprecated: boolean;
   deprecatedAttachments: Deprecated[];
@@ -1353,6 +1312,7 @@ export interface TypeDefinition extends ASTNode {
   isRecordKeywordAvailable?: boolean;
   isRecordType?: boolean;
   lambda: boolean;
+  listener: boolean;
   markdownDocumentationAttachment?: MarkdownDocumentation;
   name: Identifier;
   native: boolean;
@@ -1364,7 +1324,10 @@ export interface TypeDefinition extends ASTNode {
   public: boolean;
   readonly: boolean;
   record: boolean;
+  remote: boolean;
   required: boolean;
+  resource: boolean;
+  service: boolean;
   testable: boolean;
   typeNode:
     | ArrayType
@@ -1381,8 +1344,7 @@ export interface TypeDefinition extends ASTNode {
 export interface TypeInitExpr extends ASTNode {
   expressions: Array<
     | ArrayLiteralExpr
-    | BinaryExpr
-    | BracedTupleExpr
+    | ArrowExpr
     | FieldBasedAccessExpr
     | IndexBasedAccessExpr
     | Invocation
@@ -1398,14 +1360,14 @@ export interface TypeInitExpr extends ASTNode {
   noExpressionAvailable?: boolean;
   noTypeAttached?: boolean;
   position: any;
-  symbolType?: string[];
+  symbolType: string[];
   type?: UserDefinedType;
   typeName?: Identifier;
   ws: any[];
 }
 
 export interface TypeTestExpr extends ASTNode {
-  expression: FieldBasedAccessExpr | SimpleVariableRef;
+  expression: IndexBasedAccessExpr | SimpleVariableRef;
   isExpression?: boolean;
   position: any;
   symbolType: string[];
@@ -1423,24 +1385,21 @@ export interface TypeTestExpr extends ASTNode {
 
 export interface TypedescExpression extends ASTNode {
   isExpression?: boolean;
-  isObject?: boolean;
-  isRecord?: boolean;
   position: any;
   symbolType: string[];
   typeNode:
     | ArrayType
     | BuiltInRefType
     | ConstrainedType
+    | ErrorType
+    | TupleTypeNode
     | UnionTypeNode
-    | UserDefinedType
     | ValueType;
-  ws?: any[];
 }
 
 export interface UnaryExpr extends ASTNode {
   expression:
     | BracedTupleExpr
-    | CheckExpr
     | FieldBasedAccessExpr
     | IndexBasedAccessExpr
     | Invocation
@@ -1449,7 +1408,6 @@ export interface UnaryExpr extends ASTNode {
     | TypeConversionExpr
     | TypeInitExpr
     | UnaryExpr;
-  inTemplateLiteral?: boolean;
   isExpression?: boolean;
   operatorKind: string;
   position: any;
@@ -1470,7 +1428,6 @@ export interface UnionTypeNode extends ASTNode {
     | ValueType
   >;
   nullable: boolean;
-  nullableOperatorAvailable?: boolean;
   position?: any;
   symbolType: string[];
   withParantheses?: boolean;
@@ -1481,8 +1438,8 @@ export interface UserDefinedType extends ASTNode {
   abstract: boolean;
   anonType?: FiniteTypeNode | ObjectType | RecordType;
   attached: boolean;
+  client: boolean;
   compensate: boolean;
-  connector: boolean;
   constant: boolean;
   deprecated: boolean;
   final: boolean;
@@ -1491,6 +1448,7 @@ export interface UserDefinedType extends ASTNode {
   interface: boolean;
   isAnonType?: boolean;
   lambda: boolean;
+  listener: boolean;
   native: boolean;
   nullable: boolean;
   nullableOperatorAvailable?: boolean;
@@ -1502,7 +1460,10 @@ export interface UserDefinedType extends ASTNode {
   public: boolean;
   readonly: boolean;
   record: boolean;
+  remote: boolean;
   required: boolean;
+  resource: boolean;
+  service: boolean;
   symbolType?: string[];
   testable: boolean;
   typeName: Identifier;
@@ -1526,8 +1487,8 @@ export interface Variable extends ASTNode {
   annotationAttachments: AnnotationAttachment[];
   arrowExprParam?: boolean;
   attached: boolean;
+  client: boolean;
   compensate: boolean;
-  connector: boolean;
   constant: boolean;
   defaultable?: boolean;
   deprecated: boolean;
@@ -1551,12 +1512,11 @@ export interface Variable extends ASTNode {
     | Invocation
     | Lambda
     | Literal
-    | MatchExpression
     | RecordLiteralExpr
+    | ServiceConstructor
     | SimpleVariableRef
     | StringTemplateLiteral
     | Table
-    | TableQueryExpression
     | TernaryExpr
     | TrapExpr
     | TypeConversionExpr
@@ -1572,6 +1532,7 @@ export interface Variable extends ASTNode {
   interface: boolean;
   isAnonType?: boolean;
   lambda: boolean;
+  listener: boolean;
   markdownDocumentationAttachment?: MarkdownDocumentation;
   name: Identifier;
   native: boolean;
@@ -1583,9 +1544,11 @@ export interface Variable extends ASTNode {
   public: boolean;
   readonly: boolean;
   record: boolean;
+  remote: boolean;
   required: boolean;
+  resource: boolean;
   rest?: boolean;
-  serviceEndpoint?: boolean;
+  service: boolean;
   symbolType?: string[];
   testable: boolean;
   typeNode?:
@@ -1616,8 +1579,21 @@ export interface Where extends ASTNode {
 
 export interface While extends ASTNode {
   body: Block;
-  condition: BinaryExpr | BracedTupleExpr | Invocation | Literal;
+  condition: BinaryExpr | BracedTupleExpr | Literal;
   position: any;
+  ws: any[];
+}
+
+export interface WindowClause extends ASTNode {
+  functionInvocation: Invocation;
+  position: any;
+  ws: any[];
+}
+
+export interface Within extends ASTNode {
+  position: any;
+  timeDurationValue: string;
+  timeScale: string;
   ws: any[];
 }
 
@@ -1626,8 +1602,8 @@ export interface Worker extends ASTNode {
   annotationAttachments: any;
   attached: boolean;
   body: Block;
+  client: boolean;
   compensate: boolean;
-  connector: boolean;
   constant: boolean;
   defaultableParameters: any;
   deprecated: boolean;
@@ -1637,6 +1613,7 @@ export interface Worker extends ASTNode {
   function_final: boolean;
   interface: boolean;
   lambda: boolean;
+  listener: boolean;
   name: Identifier;
   native: boolean;
   optional: boolean;
@@ -1647,15 +1624,17 @@ export interface Worker extends ASTNode {
   public: boolean;
   readonly: boolean;
   record: boolean;
+  remote: boolean;
   required: boolean;
+  resource: boolean;
   returnTypeAnnotationAttachments: any;
   returnTypeNode?:
     | ArrayType
     | BuiltInRefType
-    | ErrorType
     | TupleTypeNode
     | UnionTypeNode
     | ValueType;
+  service: boolean;
   testable: boolean;
   workers: any;
   ws: any[];
@@ -1718,7 +1697,6 @@ export interface XmlElementLiteral extends ASTNode {
     | BinaryExpr
     | Literal
     | SimpleVariableRef
-    | UnaryExpr
     | XmlCommentLiteral
     | XmlElementLiteral
     | XmlPiLiteral

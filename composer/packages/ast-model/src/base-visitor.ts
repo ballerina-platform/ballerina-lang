@@ -87,9 +87,6 @@ export interface Visitor {
   beginVisitElvisExpr?(node: Ballerina.ElvisExpr): void;
   endVisitElvisExpr?(node: Ballerina.ElvisExpr): void;
 
-  beginVisitEndpoint?(node: Ballerina.Endpoint): void;
-  endVisitEndpoint?(node: Ballerina.Endpoint): void;
-
   beginVisitErrorConstructor?(node: Ballerina.ErrorConstructor): void;
   endVisitErrorConstructor?(node: Ballerina.ErrorConstructor): void;
 
@@ -108,6 +105,9 @@ export interface Visitor {
   beginVisitForeach?(node: Ballerina.Foreach): void;
   endVisitForeach?(node: Ballerina.Foreach): void;
 
+  beginVisitForever?(node: Ballerina.Forever): void;
+  endVisitForever?(node: Ballerina.Forever): void;
+
   beginVisitForkJoin?(node: Ballerina.ForkJoin): void;
   endVisitForkJoin?(node: Ballerina.ForkJoin): void;
 
@@ -119,6 +119,9 @@ export interface Visitor {
 
   beginVisitGroupBy?(node: Ballerina.GroupBy): void;
   endVisitGroupBy?(node: Ballerina.GroupBy): void;
+
+  beginVisitHaving?(node: Ballerina.Having): void;
+  endVisitHaving?(node: Ballerina.Having): void;
 
   beginVisitIdentifier?(node: Ballerina.Identifier): void;
   endVisitIdentifier?(node: Ballerina.Identifier): void;
@@ -132,6 +135,9 @@ export interface Visitor {
   beginVisitIndexBasedAccessExpr?(node: Ballerina.IndexBasedAccessExpr): void;
   endVisitIndexBasedAccessExpr?(node: Ballerina.IndexBasedAccessExpr): void;
 
+  beginVisitIntRangeExpr?(node: Ballerina.IntRangeExpr): void;
+  endVisitIntRangeExpr?(node: Ballerina.IntRangeExpr): void;
+
   beginVisitInvocation?(node: Ballerina.Invocation): void;
   endVisitInvocation?(node: Ballerina.Invocation): void;
 
@@ -140,9 +146,6 @@ export interface Visitor {
 
   beginVisitLambda?(node: Ballerina.Lambda): void;
   endVisitLambda?(node: Ballerina.Lambda): void;
-
-  beginVisitLimit?(node: Ballerina.Limit): void;
-  endVisitLimit?(node: Ballerina.Limit): void;
 
   beginVisitLiteral?(node: Ballerina.Literal): void;
   endVisitLiteral?(node: Ballerina.Literal): void;
@@ -156,21 +159,18 @@ export interface Visitor {
   beginVisitMatch?(node: Ballerina.Match): void;
   endVisitMatch?(node: Ballerina.Match): void;
 
-  beginVisitMatchExpression?(node: Ballerina.MatchExpression): void;
-  endVisitMatchExpression?(node: Ballerina.MatchExpression): void;
-
-  beginVisitMatchExpressionPatternClause?(
-    node: Ballerina.MatchExpressionPatternClause
+  beginVisitMatchStaticPatternClause?(
+    node: Ballerina.MatchStaticPatternClause
   ): void;
-  endVisitMatchExpressionPatternClause?(
-    node: Ballerina.MatchExpressionPatternClause
+  endVisitMatchStaticPatternClause?(
+    node: Ballerina.MatchStaticPatternClause
   ): void;
 
-  beginVisitMatchTypedPatternClause?(
-    node: Ballerina.MatchTypedPatternClause
+  beginVisitMatchStructuredPatternClause?(
+    node: Ballerina.MatchStructuredPatternClause
   ): void;
-  endVisitMatchTypedPatternClause?(
-    node: Ballerina.MatchTypedPatternClause
+  endVisitMatchStructuredPatternClause?(
+    node: Ballerina.MatchStructuredPatternClause
   ): void;
 
   beginVisitNamedArgsExpr?(node: Ballerina.NamedArgsExpr): void;
@@ -188,8 +188,24 @@ export interface Visitor {
   beginVisitOrderByVariable?(node: Ballerina.OrderByVariable): void;
   endVisitOrderByVariable?(node: Ballerina.OrderByVariable): void;
 
+  beginVisitOutputRateLimit?(node: Ballerina.OutputRateLimit): void;
+  endVisitOutputRateLimit?(node: Ballerina.OutputRateLimit): void;
+
   beginVisitPanic?(node: Ballerina.Panic): void;
   endVisitPanic?(node: Ballerina.Panic): void;
+
+  beginVisitPatternClause?(node: Ballerina.PatternClause): void;
+  endVisitPatternClause?(node: Ballerina.PatternClause): void;
+
+  beginVisitPatternStreamingEdgeInput?(
+    node: Ballerina.PatternStreamingEdgeInput
+  ): void;
+  endVisitPatternStreamingEdgeInput?(
+    node: Ballerina.PatternStreamingEdgeInput
+  ): void;
+
+  beginVisitPatternStreamingInput?(node: Ballerina.PatternStreamingInput): void;
+  endVisitPatternStreamingInput?(node: Ballerina.PatternStreamingInput): void;
 
   beginVisitRecordLiteralExpr?(node: Ballerina.RecordLiteralExpr): void;
   endVisitRecordLiteralExpr?(node: Ballerina.RecordLiteralExpr): void;
@@ -205,9 +221,6 @@ export interface Visitor {
 
   beginVisitRecordVariableRef?(node: Ballerina.RecordVariableRef): void;
   endVisitRecordVariableRef?(node: Ballerina.RecordVariableRef): void;
-
-  beginVisitResource?(node: Ballerina.Resource): void;
-  endVisitResource?(node: Ballerina.Resource): void;
 
   beginVisitRestArgsExpr?(node: Ballerina.RestArgsExpr): void;
   endVisitRestArgsExpr?(node: Ballerina.RestArgsExpr): void;
@@ -230,11 +243,20 @@ export interface Visitor {
   beginVisitService?(node: Ballerina.Service): void;
   endVisitService?(node: Ballerina.Service): void;
 
+  beginVisitServiceConstructor?(node: Ballerina.ServiceConstructor): void;
+  endVisitServiceConstructor?(node: Ballerina.ServiceConstructor): void;
+
   beginVisitSimpleVariableRef?(node: Ballerina.SimpleVariableRef): void;
   endVisitSimpleVariableRef?(node: Ballerina.SimpleVariableRef): void;
 
+  beginVisitStreamAction?(node: Ballerina.StreamAction): void;
+  endVisitStreamAction?(node: Ballerina.StreamAction): void;
+
   beginVisitStreamingInput?(node: Ballerina.StreamingInput): void;
   endVisitStreamingInput?(node: Ballerina.StreamingInput): void;
+
+  beginVisitStreamingQuery?(node: Ballerina.StreamingQuery): void;
+  endVisitStreamingQuery?(node: Ballerina.StreamingQuery): void;
 
   beginVisitStringTemplateLiteral?(node: Ballerina.StringTemplateLiteral): void;
   endVisitStringTemplateLiteral?(node: Ballerina.StringTemplateLiteral): void;
@@ -244,12 +266,6 @@ export interface Visitor {
 
   beginVisitTableColumn?(node: Ballerina.TableColumn): void;
   endVisitTableColumn?(node: Ballerina.TableColumn): void;
-
-  beginVisitTableQuery?(node: Ballerina.TableQuery): void;
-  endVisitTableQuery?(node: Ballerina.TableQuery): void;
-
-  beginVisitTableQueryExpression?(node: Ballerina.TableQueryExpression): void;
-  endVisitTableQueryExpression?(node: Ballerina.TableQueryExpression): void;
 
   beginVisitTernaryExpr?(node: Ballerina.TernaryExpr): void;
   endVisitTernaryExpr?(node: Ballerina.TernaryExpr): void;
@@ -316,6 +332,12 @@ export interface Visitor {
 
   beginVisitWhile?(node: Ballerina.While): void;
   endVisitWhile?(node: Ballerina.While): void;
+
+  beginVisitWindowClause?(node: Ballerina.WindowClause): void;
+  endVisitWindowClause?(node: Ballerina.WindowClause): void;
+
+  beginVisitWithin?(node: Ballerina.Within): void;
+  endVisitWithin?(node: Ballerina.Within): void;
 
   beginVisitWorker?(node: Ballerina.Worker): void;
   endVisitWorker?(node: Ballerina.Worker): void;

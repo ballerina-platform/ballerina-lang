@@ -103,10 +103,6 @@ export class ASTKindChecker {
     return node.kind === "ElvisExpr";
   }
 
-  public static isEndpoint(node: ASTNode) {
-    return node.kind === "Endpoint";
-  }
-
   public static isErrorConstructor(node: ASTNode) {
     return node.kind === "ErrorConstructor";
   }
@@ -131,6 +127,10 @@ export class ASTKindChecker {
     return node.kind === "Foreach";
   }
 
+  public static isForever(node: ASTNode) {
+    return node.kind === "Forever";
+  }
+
   public static isForkJoin(node: ASTNode) {
     return node.kind === "ForkJoin";
   }
@@ -145,6 +145,10 @@ export class ASTKindChecker {
 
   public static isGroupBy(node: ASTNode) {
     return node.kind === "GroupBy";
+  }
+
+  public static isHaving(node: ASTNode) {
+    return node.kind === "Having";
   }
 
   public static isIdentifier(node: ASTNode) {
@@ -163,6 +167,10 @@ export class ASTKindChecker {
     return node.kind === "IndexBasedAccessExpr";
   }
 
+  public static isIntRangeExpr(node: ASTNode) {
+    return node.kind === "IntRangeExpr";
+  }
+
   public static isInvocation(node: ASTNode) {
     return node.kind === "Invocation";
   }
@@ -173,10 +181,6 @@ export class ASTKindChecker {
 
   public static isLambda(node: ASTNode) {
     return node.kind === "Lambda";
-  }
-
-  public static isLimit(node: ASTNode) {
-    return node.kind === "Limit";
   }
 
   public static isLiteral(node: ASTNode) {
@@ -195,16 +199,12 @@ export class ASTKindChecker {
     return node.kind === "Match";
   }
 
-  public static isMatchExpression(node: ASTNode) {
-    return node.kind === "MatchExpression";
+  public static isMatchStaticPatternClause(node: ASTNode) {
+    return node.kind === "MatchStaticPatternClause";
   }
 
-  public static isMatchExpressionPatternClause(node: ASTNode) {
-    return node.kind === "MatchExpressionPatternClause";
-  }
-
-  public static isMatchTypedPatternClause(node: ASTNode) {
-    return node.kind === "MatchTypedPatternClause";
+  public static isMatchStructuredPatternClause(node: ASTNode) {
+    return node.kind === "MatchStructuredPatternClause";
   }
 
   public static isNamedArgsExpr(node: ASTNode) {
@@ -227,8 +227,24 @@ export class ASTKindChecker {
     return node.kind === "OrderByVariable";
   }
 
+  public static isOutputRateLimit(node: ASTNode) {
+    return node.kind === "OutputRateLimit";
+  }
+
   public static isPanic(node: ASTNode) {
     return node.kind === "Panic";
+  }
+
+  public static isPatternClause(node: ASTNode) {
+    return node.kind === "PatternClause";
+  }
+
+  public static isPatternStreamingEdgeInput(node: ASTNode) {
+    return node.kind === "PatternStreamingEdgeInput";
+  }
+
+  public static isPatternStreamingInput(node: ASTNode) {
+    return node.kind === "PatternStreamingInput";
   }
 
   public static isRecordLiteralExpr(node: ASTNode) {
@@ -249,10 +265,6 @@ export class ASTKindChecker {
 
   public static isRecordVariableRef(node: ASTNode) {
     return node.kind === "RecordVariableRef";
-  }
-
-  public static isResource(node: ASTNode) {
-    return node.kind === "Resource";
   }
 
   public static isRestArgsExpr(node: ASTNode) {
@@ -283,12 +295,24 @@ export class ASTKindChecker {
     return node.kind === "Service";
   }
 
+  public static isServiceConstructor(node: ASTNode) {
+    return node.kind === "ServiceConstructor";
+  }
+
   public static isSimpleVariableRef(node: ASTNode) {
     return node.kind === "SimpleVariableRef";
   }
 
+  public static isStreamAction(node: ASTNode) {
+    return node.kind === "StreamAction";
+  }
+
   public static isStreamingInput(node: ASTNode) {
     return node.kind === "StreamingInput";
+  }
+
+  public static isStreamingQuery(node: ASTNode) {
+    return node.kind === "StreamingQuery";
   }
 
   public static isStringTemplateLiteral(node: ASTNode) {
@@ -301,14 +325,6 @@ export class ASTKindChecker {
 
   public static isTableColumn(node: ASTNode) {
     return node.kind === "TableColumn";
-  }
-
-  public static isTableQuery(node: ASTNode) {
-    return node.kind === "TableQuery";
-  }
-
-  public static isTableQueryExpression(node: ASTNode) {
-    return node.kind === "TableQueryExpression";
   }
 
   public static isTernaryExpr(node: ASTNode) {
@@ -397,6 +413,14 @@ export class ASTKindChecker {
 
   public static isWhile(node: ASTNode) {
     return node.kind === "While";
+  }
+
+  public static isWindowClause(node: ASTNode) {
+    return node.kind === "WindowClause";
+  }
+
+  public static isWithin(node: ASTNode) {
+    return node.kind === "Within";
   }
 
   public static isWorker(node: ASTNode) {
