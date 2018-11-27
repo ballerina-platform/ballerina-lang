@@ -16,7 +16,7 @@
 import ballerina/grpc;
 import ballerina/io;
 
-listener grpc:Server server5 = new ({
+listener grpc:Listener server5 = new ({
     host:"localhost",
     port:8085,
     secureSocket:{

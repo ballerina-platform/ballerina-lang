@@ -16,7 +16,7 @@
 import ballerina/grpc;
 import ballerina/io;
 
-listener grpc:Server server8 = new ({
+listener grpc:Listener server8 = new ({
     port:9100
 });
 
