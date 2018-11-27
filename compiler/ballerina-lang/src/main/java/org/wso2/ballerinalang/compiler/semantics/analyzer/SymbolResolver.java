@@ -281,7 +281,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public BSymbol resolveTypeConversionOrAssertionOperator(BType sourceType, BType targetType) {
-        return types.getTypeConversionOrAssertionOperator(sourceType, targetType);
+        return types.getTypeAssertionOperator(sourceType, targetType);
     }
 
     public BSymbol resolveBinaryOperator(OperatorKind opKind,
@@ -546,7 +546,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return new BOperatorSymbol(Names.ASSERTION_OP, null, opType, null, InstructionCodes.TYPE_ASSERTION);
     }
 
-    BSymbol getExplicitlySimpleBasicTypedExpressionSymbol(BType sourceType, BType targetType) {
+    BSymbol getExplicitlyTypedExpressionSymbol(BType sourceType, BType targetType) {
         int sourceTypeTag = sourceType.tag;
         if (types.isValueType(sourceType)) {
             if (sourceType == targetType) {
@@ -565,7 +565,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                     return createTypeAssertionSymbol(sourceType, targetType);
                 case TypeTags.UNION:
                     if (((BUnionType) sourceType).memberTypes.stream()
-                            .anyMatch(memType -> getExplicitlySimpleBasicTypedExpressionSymbol(
+                            .anyMatch(memType -> getExplicitlyTypedExpressionSymbol(
                                     memType, targetType) != symTable.notFoundSymbol)) {
                         return createTypeAssertionSymbol(sourceType, targetType);
                     }

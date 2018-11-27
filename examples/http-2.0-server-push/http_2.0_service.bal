@@ -21,24 +21,27 @@ service http2Service bind http2ServiceEP {
 
         // Send a Push Promise.
         http:PushPromise promise1 = new(path = "/resource1", method = "GET");
-        caller->promise(promise1) but {
-            error e => log:printError(
-                           "Error occurred while sending the promise1",
-                           err = e) };
+        var result = caller->promise(promise1);
+
+        if (result is error){
+           log:printError("Error occurred while sending the promise1",err = result);
+        }
 
         // Send another Push Promise.
         http:PushPromise promise2 = new(path = "/resource2", method = "GET");
-        caller->promise(promise2) but {
-            error e => log:printError(
-                           "Error occurred while sending the promise2",
-                           err = e) };
+        var result = caller->promise(promise2);
+
+        if (result is error){
+           log:printError("Error occurred while sending the promise2",err = result);
+        }
 
         // Send one more Push Promise.
         http:PushPromise promise3 = new(path = "/resource3", method = "GET");
-        caller->promise(promise3) but {
-            error e => log:printError(
-                           "Error occurred while sending the promise3",
-                           err = e) };
+        var result = caller->promise(promise3);
+
+        if (result is error){
+           log:printError("Error occurred while sending the promise3",err = result);
+        }
 
         // Construct the requested resource.
         http:Response response = new;
@@ -46,10 +49,11 @@ service http2Service bind http2ServiceEP {
         response.setPayload(msg);
 
         // Send the requested resource.
-        caller->respond(response) but {
-            error e => log:printError(
-                           "Error occurred while sending the response",
-                           err = e) };
+        var result = caller->respond(response);
+
+        if (result is error) {
+            log:printError("Error occurred while sending the response", err = result);
+        }
 
         // Construct promised resource1.
         http:Response push1 = new;
@@ -57,10 +61,11 @@ service http2Service bind http2ServiceEP {
         push1.setPayload(msg);
 
         // Push promised resource1.
-        caller->pushPromisedResponse(promise1, push1) but {
-            error e => log:printError(
-                           "Error occurred while sending the promised response1",
-                           err = e) };
+        var result = caller->pushPromisedResponse(promise1, push1);
+
+        if (result is error) {
+            log:printError("Error occurred while sending the promised response1", err = result);
+        }
 
         // Construct promised resource2.
         http:Response push2 = new;
@@ -68,10 +73,11 @@ service http2Service bind http2ServiceEP {
         push2.setPayload(msg);
 
         // Push promised resource2.
-        caller->pushPromisedResponse(promise2, push2) but {
-            error e => log:printError(
-                           "Error occurred while sending the promised response2",
-                           err = e) };
+        var result = caller->pushPromisedResponse(promise2, push2);
+
+        if (result is error) {
+            log:printError("Error occurred while sending the promised response2", err = result);
+        }
 
         // Construct promised resource3.
         http:Response push3 = new;
@@ -79,10 +85,10 @@ service http2Service bind http2ServiceEP {
         push3.setPayload(msg);
 
         // Push promised resource3.
-        caller->pushPromisedResponse(promise3, push3) but {
-            error e => log:printError(
-                           "Error occurred while sending the promised response3",
-                           err = e) };
+        var result = caller->pushPromisedResponse(promise3, push3);
 
+        if (result is error){
+           log:printError("Error occurred while sending the promised response3",err = result);
+        }
     }
 }

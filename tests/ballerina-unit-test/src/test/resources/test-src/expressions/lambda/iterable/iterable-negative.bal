@@ -27,12 +27,12 @@ function test3(){
 }
 
 function test4() {
-    map z = {a:"1", b:"2"};
+    map<any> z = {a:"1", b:"2"};
     string[] a = z.map(function (any x) returns (string, string) {
                            var s = <string>x;
                            return (s, "value");
                        });
-    map m = z.filter(function (string s) returns boolean {
+    map<any> m = z.filter(function (string s) returns boolean {
           return s == "";
     });
     any x = z.filter(function (string s) returns boolean {
@@ -94,9 +94,9 @@ function test10() {
 }
 
 function test11() {
-    map z = {a:"1", b:"2"};
+    map<any> z = {a:"1", b:"2"};
 
-    map m = z.filter(function (any s) returns boolean {
+    map<any> m = z.filter(function (any s) returns boolean {
           return s == null;
     });
 

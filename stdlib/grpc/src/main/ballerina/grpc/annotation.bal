@@ -63,7 +63,7 @@ public annotation<resource> ResourceConfig GrpcResourceConfig;
 # + descMap - Service dependent descriptor map sets at compile time.
 public type ServiceDescriptorData record {
     string descriptor = "";
-    map descMap = {};
+    map<any> descMap = {};
     !...
 };
 

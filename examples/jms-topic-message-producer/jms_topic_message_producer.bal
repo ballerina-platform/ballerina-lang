@@ -23,12 +23,12 @@ public function main() {
     // This creates a Text message.
     var msg = jmsSession.createTextMessage("Hello from Ballerina");
     if (msg is jms:Message) {
+        // This sends the Ballerina message to the JMS provider.
         var returnVal = topicPublisher->send(msg);
         if (returnVal is error) {
-            log:printError("Error occurred while sending message",
-                err=returnVal);
+            log:printError("Error occurred while sending message", err = returnVal);
         }
     } else {
-        log:printError("Error occurred while creating message", err=msg);
+        log:printError("Error occurred while creating message", err = msg);
     }
 }

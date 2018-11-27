@@ -31,14 +31,14 @@ const string DEFAULT_DB_NAME = "HUB_DB";
 const string DEFAULT_DB_USERNAME = "sa";
 const string DEFAULT_DB_PASSWORD = "";
 
-@readonly string hubHost = DEFAULT_HOST;
-@readonly int hubPort = 0;
-@readonly int hubLeaseSeconds = DEFAULT_LEASE_SECONDS_VALUE;
-@readonly string hubSignatureMethod = DEFAULT_SIGNATURE_METHOD;
-@readonly boolean hubRemotePublishingEnabled = false;
-@readonly RemotePublishMode hubRemotePublishMode = PUBLISH_MODE_DIRECT;
-@readonly boolean hubTopicRegistrationRequired = false;
-@readonly string hubPublicUrl = "";
+string hubHost = DEFAULT_HOST;
+int hubPort = 0;
+int hubLeaseSeconds = DEFAULT_LEASE_SECONDS_VALUE;
+string hubSignatureMethod = DEFAULT_SIGNATURE_METHOD;
+boolean hubRemotePublishingEnabled = false;
+RemotePublishMode hubRemotePublishMode = PUBLISH_MODE_DIRECT;
+boolean hubTopicRegistrationRequired = false;
+string hubPublicUrl = "";
 
 final boolean hubPersistenceEnabled = config:getAsBoolean("b7a.websub.hub.enablepersistence");
 final string hubDatabaseDirectory = config:getAsString("b7a.websub.hub.db.directory", default = DEFAULT_DB_DIRECTORY);
@@ -47,9 +47,9 @@ final string hubDatabaseUsername = config:getAsString("b7a.websub.hub.db.usernam
 final string hubDatabasePassword = config:getAsString("b7a.websub.hub.db.password", default = DEFAULT_DB_PASSWORD);
 //TODO:add pool options
 
-@readonly boolean hubSslEnabled = false;
-@readonly http:ServiceSecureSocket? hubServiceSecureSocket = ();
-@readonly http:SecureSocket? hubClientSecureSocket = ();
+boolean hubSslEnabled = false;
+http:ServiceSecureSocket? hubServiceSecureSocket = ();
+http:SecureSocket? hubClientSecureSocket = ();
 
 # Function to bind and start the Ballerina WebSub Hub service.
 #

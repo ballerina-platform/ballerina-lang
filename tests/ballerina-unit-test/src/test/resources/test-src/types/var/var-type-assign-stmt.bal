@@ -3,7 +3,7 @@ type Person record {
     int age;
     Person? parent;
     json info;
-    map address;
+    map<any> address;
     int[] marks;
     any a;
     float score;
@@ -122,7 +122,7 @@ function testAnyNullToFloatWithErrors() returns (float | error) {
     return b;
 }
 
-function testAnyToMapWithErrors() returns (map | error) {
+function testAnyToMapWithErrors() returns (map<any> | error) {
     any a = "foo";
 
     var b = <map> a;

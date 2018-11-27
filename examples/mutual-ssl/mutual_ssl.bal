@@ -40,8 +40,11 @@ service helloWorld bind helloWorldEP {
         // Set the response payload.
         res.setPayload("Successful");
         // Send response to client.
-        caller->respond(res) but {
-            error e => log:printError("Error in responding", err = e) };
+        var result = caller->respond(res);
+
+        if (result is error) {
+            log:printError("Error in responding", err = result);
+        }
     }
 }
 

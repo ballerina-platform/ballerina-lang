@@ -8,7 +8,7 @@ function testForkJoinWithoutTimeoutExpression() returns (int, float)|error {
         worker W2 {
             1.23 -> fork;
         }
-    } join (all) (map results) {
+    } join (all) (map<any> results) {
         x =check <int> results.W1;
         y =check <float> results.W2;
     }

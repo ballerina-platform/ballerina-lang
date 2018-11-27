@@ -31,8 +31,12 @@ service<http:Service> headerBasedRouting bind { port: 9090 } {
             errorResponse.statusCode = 500;
             json errMsg = { "error": "'x-type' header is not found" };
             errorResponse.setPayload(errMsg);
-            caller->respond(errorResponse) but {
-                error e => log:printError("Error sending response", err = e) };
+
+            var result = caller->respond(errorResponse);
+
+            if (result is error){
+                log:printError("Error sending response", err = result);
+            }
             done;
         }
         //`getHeader()` returns header value of a specified header name.
@@ -55,18 +59,23 @@ service<http:Service> headerBasedRouting bind { port: 9090 } {
         match response {
             http:Response clientResponse => {
                 //`respond()` sends back the inbound clientResponse to the caller if no any error is found.
-                caller->respond(clientResponse)
-                    but { error e => log:printError(
-                                 "Error sending response", err = e) };
+
+                var result = caller->respond(clientResponse);
+
+                if (result is error){
+                    log:printError("Error sending response", err = result);
+                }
 
             }
             error err => {
                 http:Response errorResponse = new;
                 errorResponse.statusCode = 500;
                 errorResponse.setPayload(err.message);
-                caller->respond(errorResponse)
-                    but { error e => log:printError(
-                                 "Error sending response", err = e) };
+                var result = caller->respond(errorResponse);
+
+                if (result is error){
+                    log:printError("Error sending response", err = result);
+                }
             }
         }
     }

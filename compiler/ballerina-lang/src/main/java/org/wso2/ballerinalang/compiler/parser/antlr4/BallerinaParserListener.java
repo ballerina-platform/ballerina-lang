@@ -1838,18 +1838,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitVariableReferenceExpression(BallerinaParser.VariableReferenceExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code matchExprExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterMatchExprExpression(BallerinaParser.MatchExprExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code matchExprExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitMatchExprExpression(BallerinaParser.MatchExprExpressionContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code actionInvocationExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
@@ -2027,26 +2015,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitShiftExprPredicate(BallerinaParser.ShiftExprPredicateContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#matchExpression}.
-	 * @param ctx the parse tree
-	 */
-	void enterMatchExpression(BallerinaParser.MatchExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#matchExpression}.
-	 * @param ctx the parse tree
-	 */
-	void exitMatchExpression(BallerinaParser.MatchExpressionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#matchExpressionPatternClause}.
-	 * @param ctx the parse tree
-	 */
-	void enterMatchExpressionPatternClause(BallerinaParser.MatchExpressionPatternClauseContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#matchExpressionPatternClause}.
-	 * @param ctx the parse tree
-	 */
-	void exitMatchExpressionPatternClause(BallerinaParser.MatchExpressionPatternClauseContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#nameReference}.
 	 * @param ctx the parse tree

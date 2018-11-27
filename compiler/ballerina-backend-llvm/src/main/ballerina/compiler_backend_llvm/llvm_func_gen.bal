@@ -71,10 +71,12 @@ type FuncGenrator object {
     }
 
     function isParamter(bir:VariableDcl localVar) returns boolean {
-        match localVar.kind {
-            bir:ArgVarKind => return true;
-            any => return false;
+        var kind = localVar.kind;
+        if (kind is bir:ArgVarKind) {
+            return true;
         }
+
+        return false;
     }
 
     function genBbBodies() returns map<BbTermGenrator> {
@@ -105,12 +107,13 @@ type FuncGenrator object {
     }
 
     function getLocalVarRefById(string id) returns llvm:LLVMValueRef {
-        match self.localVarRefs[id] {
-            llvm:LLVMValueRef varRef => return varRef;
-            any => {
-                error err = error("Local var by name '" + id + "' dosn't exist in " + self.func.name.value);
-                panic err;
-            }
+        var result = self.localVarRefs[id];
+
+        if (result is llvm:LLVMValueRef) {
+            return result;
+        } else {
+            error err = error("Local var by name '" + id + "' dosn't exist in " + self.func.name.value);
+            panic err;
         }
     }
 

@@ -145,12 +145,12 @@ remote function QueueReceiverCaller.receiveFrom(Destination destination, int tim
 function validateQueue(Destination destination) {
     if (destination.destinationName == "") {
         string errorMessage = "Destination name cannot be empty";
-        map errorDetail = { message: errorMessage };
+        map<any> errorDetail = { message: errorMessage };
         error queueReceiverConfigError = error(JMS_ERROR_CODE, errorDetail);
         panic queueReceiverConfigError;
     } else if (destination.destinationType != "queue") {
         string errorMessage = "Destination should should be a queue";
-        map errorDetail = { message: errorMessage };
+        map<any> errorDetail = { message: errorMessage };
         error queueReceiverConfigError = error(JMS_ERROR_CODE, errorDetail);
         panic queueReceiverConfigError;
     }
