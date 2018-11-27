@@ -45,12 +45,9 @@ service test on new http:Listener(9090) {
         var bodyParts = request.getBodyParts();
         if (bodyParts is mime:Entity[]) {
             string content = "";
-            int i = 0;
              // Iterate through each body part and handle the content.
-            while (i < bodyParts.length()) {
-                mime:Entity part = bodyParts[i];
+            foreach part in bodyParts {
                 content = content + " -- " + handleContent(part);
-                i = i + 1;
             }
             response.setPayload(untaint content);
         } else if (bodyParts is error) {
