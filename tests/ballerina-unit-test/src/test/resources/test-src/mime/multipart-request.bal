@@ -16,7 +16,7 @@ service test on mockEP {
         methods:["POST"],
         path:"/textbodypart"
     }
-    resource function multipart1 (http:Caller caller, http:Request request) {
+    resource function multipart1(http:Caller caller, http:Request request) {
         http:Response response = new;
         var bodyParts = request.getBodyParts();
 
@@ -38,7 +38,7 @@ service test on mockEP {
         methods:["POST"],
         path:"/jsonbodypart"
     }
-    resource function multipart2 (http:Caller caller, http:Request request) {
+    resource function multipart2(http:Caller caller, http:Request request) {
         http:Response response = new;
         var bodyParts = request.getBodyParts();
 
@@ -57,7 +57,7 @@ service test on mockEP {
         methods:["POST"],
         path:"/xmlbodypart"
     }
-    resource function multipart3 (http:Caller caller, http:Request request) {
+    resource function multipart3(http:Caller caller, http:Request request) {
         http:Response response = new;
         var bodyParts = request.getBodyParts();
 
@@ -76,7 +76,7 @@ service test on mockEP {
         methods:["POST"],
         path:"/binarybodypart"
     }
-    resource function multipart4 (http:Caller caller, http:Request request) {
+    resource function multipart4(http:Caller caller, http:Request request) {
         http:Response response = new;
         var bodyParts = request.getBodyParts();
 
@@ -95,7 +95,7 @@ service test on mockEP {
         methods:["POST"],
         path:"/multipleparts"
     }
-    resource function multipart5 (http:Caller caller, http:Request request) {
+    resource function multipart5(http:Caller caller, http:Request request) {
         http:Response response = new;
         var bodyParts = request.getBodyParts();
 
@@ -116,7 +116,7 @@ service test on mockEP {
         methods:["POST"],
         path:"/emptyparts"
     }
-    resource function multipart6 (http:Caller caller, http:Request request) {
+    resource function multipart6(http:Caller caller, http:Request request) {
         http:Response response = new;
         var bodyParts = request.getBodyParts();
 
@@ -132,7 +132,7 @@ service test on mockEP {
         methods:["POST"],
         path:"/nestedparts"
     }
-    resource function multipart7 (http:Caller caller, http:Request request) {
+    resource function multipart7(http:Caller caller, http:Request request) {
         http:Response response = new;
         var bodyParts = request.getBodyParts();
 
@@ -150,7 +150,7 @@ service test on mockEP {
     }
 }
 
-function handleNestedParts (mime:Entity parentPart) returns (string) {
+function handleNestedParts(mime:Entity parentPart) returns (string) {
     string content = "";
     string contentTypeOfParent = parentPart.getContentType();
     if (contentTypeOfParent.hasPrefix("multipart/")) {
@@ -169,7 +169,7 @@ function handleNestedParts (mime:Entity parentPart) returns (string) {
     return content;
 }
 
-function handleContent (mime:Entity bodyPart) returns (string) {
+function handleContent(mime:Entity bodyPart) returns (string) {
     var mediaType = mime:getMediaType(bodyPart.getContentType());
     if (mediaType is mime:MediaType) {
         string baseType = mediaType.getBaseType();

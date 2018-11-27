@@ -10,7 +10,7 @@ service echo on mockEP {
         methods:["POST"],
         path:"/largepayload"
     }
-    resource function getPayloadFromFileChannel (http:Caller caller, http:Request request) {
+    resource function getPayloadFromFileChannel(http:Caller caller, http:Request request) {
         http:Response response = new;
         mime:Entity responseEntity = new;
 

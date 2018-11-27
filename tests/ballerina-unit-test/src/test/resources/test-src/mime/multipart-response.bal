@@ -10,7 +10,7 @@ service test on mockEP {
         methods:["GET"],
         path:"/encode_out_response"
     }
-    resource function multipartOutResponse (http:Caller caller, http:Request request) {
+    resource function multipartOutResponse(http:Caller caller, http:Request request) {
 
         //Create a body part with json content.
         mime:Entity bodyPart1 = new;
@@ -43,7 +43,7 @@ service test on mockEP {
         methods:["POST"],
         path:"/nested_parts_in_outresponse"
     }
-    resource function nestedPartsInOutResponse (http:Caller caller, http:Request request) {
+    resource function nestedPartsInOutResponse(http:Caller caller, http:Request request) {
         string contentType = untaint request.getHeader("content-type");
         http:Response outResponse = new;
         var bodyParts = request.getBodyParts();
