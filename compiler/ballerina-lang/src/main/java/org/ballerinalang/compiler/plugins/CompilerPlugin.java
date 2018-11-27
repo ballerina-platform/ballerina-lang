@@ -20,10 +20,7 @@ package org.ballerinalang.compiler.plugins;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
-import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.FunctionNode;
-import org.ballerinalang.model.tree.ResourceNode;
-import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
@@ -78,18 +75,10 @@ public interface CompilerPlugin {
     /**
      * Processes a list of annotations attached to a service node.
      *
-     * @param serviceNode the service node being annotated
+     * @param serviceData the service node being annotated
      * @param annotations a list of annotations attached to the service node
      */
-    void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations);
-
-    /**
-     * Processes a list of annotations attached to a resource node.
-     *
-     * @param resourceNode the resource node being annotated
-     * @param annotations  a list of annotations attached to the resource node
-     */
-    void process(ResourceNode resourceNode, List<AnnotationAttachmentNode> annotations);
+    void process(ServiceData serviceData, List<AnnotationAttachmentNode> annotations);
 
     /**
      * Processes a list of annotations attached to a object node.
@@ -122,14 +111,6 @@ public interface CompilerPlugin {
      * @param annotations    a list of annotations attached to the annotation node
      */
     void process(AnnotationNode annotationNode, List<AnnotationAttachmentNode> annotations);
-
-    /**
-     * Processes a list of annotations attached to an endpoint node.
-     *
-     * @param endpointNode the endpoint node being annotated
-     * @param annotations  a list of annotations attached to the transformer node
-     */
-    void process(EndpointNode endpointNode, List<AnnotationAttachmentNode> annotations);
 
     /**
      * Notifies when the code generated phase is completed.
