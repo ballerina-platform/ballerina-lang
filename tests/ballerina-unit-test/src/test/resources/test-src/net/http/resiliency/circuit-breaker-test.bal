@@ -350,50 +350,42 @@ public type MockClient client object {
         string scenario = req.getHeader(TEST_SCENARIO_HEADER);
 
         if (scenario == SCENARIO_TYPICAL) {
-            match handleBackendFailureScenario(actualRequestNumber) {
-                http:Response res => {
-                    response = res;
-                }
-                error httpConnectorError => {
-                    string errMessage = httpConnectorError.reason();
-                    response.statusCode = http:INTERNAL_SERVER_ERROR_500;
-                    response.setTextPayload(errMessage);
-                }
+            var result = handleBackendFailureScenario(actualRequestNumber);
+            if (result is http:Response) {
+                response = result;
+            } else {
+                string errMessage = result.reason();
+                response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+                response.setTextPayload(errMessage);
             }
         } else if (scenario == SCENARIO_TRIAL_RUN_FAILURE) {
-            match  handleTrialRunFailureScenario(actualRequestNumber) {
-                http:Response res => {
-                    response = res;
-                }
-                error httpConnectorError => {
-                    string errMessage = httpConnectorError.reason();
-                    response.statusCode = http:INTERNAL_SERVER_ERROR_500;
-                    response.setTextPayload(errMessage);
-                }
+            var result = handleTrialRunFailureScenario(actualRequestNumber);
+            if (result is http:Response) {
+                response = result;
+            } else {
+                string errMessage = result.reason();
+                response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+                response.setTextPayload(errMessage);
             }
         } else if (scenario == SCENARIO_HTTP_SC_FAILURE) {
-            match  handleHTTPStatusCodeErrorScenario(actualRequestNumber) {
-                http:Response res => {
-                    response = res;
-                }
-                error httpConnectorError => {
-                    string errMessage = httpConnectorError.reason();
-                    response.statusCode = http:INTERNAL_SERVER_ERROR_500;
-                    response.setTextPayload(errMessage);
-                }
+            var result = handleHTTPStatusCodeErrorScenario(actualRequestNumber);
+            if (result is http:Response) {
+                response = result;
+            } else {
+                string errMessage = result.reason();
+                response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+                response.setTextPayload(errMessage);
             }
         } else if (scenario == SCENARIO_CB_FORCE_OPEN) {
             response = handleCBForceOpenScenario();
         } else if (scenario == SCENARIO_CB_FORCE_CLOSE) {
-            match  handleCBForceCloseScenario(actualRequestNumber) {
-                http:Response res => {
-                    response = res;
-                }
-                error httpConnectorError => {
-                    string errMessage = httpConnectorError.reason();
-                    response.statusCode = http:INTERNAL_SERVER_ERROR_500;
-                    response.setTextPayload(errMessage);
-                }
+            var result = handleCBForceCloseScenario(actualRequestNumber);
+            if (result is http:Response) {
+                response = result;
+            } else {
+                string errMessage = result.reason();
+                response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+                response.setTextPayload(errMessage);
             }
         } else if (scenario == SCENARIO_REQUEST_VOLUME_THRESHOLD_SUCCESS) {
             response = handleRequestVolumeThresholdSuccessResponseScenario();

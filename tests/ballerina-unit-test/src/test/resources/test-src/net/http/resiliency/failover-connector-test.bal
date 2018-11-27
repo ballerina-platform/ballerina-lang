@@ -131,15 +131,13 @@ public type MockClient client object {
 
     public remote function get(string path, http:Request req) returns http:Response|error {
         http:Response response = new;
-        match  handleFailoverScenario(counter) {
-            http:Response res => {
-                response = res;
-            }
-            error httpConnectorError => {
-                string message = httpConnectorError.reason();
-                response.statusCode = http:INTERNAL_SERVER_ERROR_500;
-                response.setTextPayload(message);
-            }
+        var result = handleFailoverScenario(counter);
+        if (result is http:Response) {
+            response = result;
+        } else {
+            string errMessage = result.reason();
+            response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+            response.setTextPayload(errMessage);
         }
         return response;
     }
