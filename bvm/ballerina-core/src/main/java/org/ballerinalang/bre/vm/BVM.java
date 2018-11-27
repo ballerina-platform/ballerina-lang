@@ -25,6 +25,7 @@ import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.bre.bvm.SignalType;
+import org.ballerinalang.bre.bvm.VarLock;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerDataChannel;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
