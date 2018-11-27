@@ -1716,30 +1716,30 @@
                 <module>stdlib/io</module>
                 <module>stdlib/internal</module>
                 <module>stdlib/log-api</module>
-                <!--<module>stdlib/transactions</module>-->
+                <module>stdlib/transactions</module>
                 <module>stdlib/grpc</module>
                 <module>stdlib/llvm</module>
                 <module>stdlib/bir</module>
                 <module>stdlib/math</module>
-                <!--<module>stdlib/mime</module>-->
+                <module>stdlib/mime</module>
                 <module>stdlib/reflect</module>
                 <module>stdlib/system</module>
                 <module>stdlib/task</module>
                 <module>stdlib/time</module>
-                <!--<module>stdlib/websub</module>-->
-                <!--<module>stdlib/jms</module>-->
-                <!--<module>stdlib/observability</module>-->
-                <!--<module>stdlib/database/h2</module>-->
-                <!--<module>stdlib/database/mysql</module>-->
-                <!--<module>stdlib/database/sql</module>-->
-                <!--<module>stdlib/streams</module>-->
-                <!--<module>stdlib/privacy</module>-->
+                <module>stdlib/websub</module>
+                <module>stdlib/jms</module>
+                <module>stdlib/observability</module>
+                <module>stdlib/database/h2</module>
+                <module>stdlib/database/mysql</module>
+                <module>stdlib/database/sql</module>
+                <module>stdlib/streams</module>
+                <module>stdlib/privacy</module>
 
-                <!--<module>misc/lib-creator</module>-->
+                <module>misc/lib-creator</module>
 
                 <module>bvm/ballerina-config</module>
                 <module>bvm/ballerina-core</module>
-                <!--<module>bvm/ballerina-streaming</module>-->
+                <module>bvm/ballerina-streaming</module>
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
@@ -1752,15 +1752,15 @@
                 <module>tests/ballerina-compiler-plugin-test</module>
                 <module>cli/ballerina-cli-utils</module>
 
-                <!--<module>language-server</module>-->
-                <!--<module>misc/docerina</module>-->
-                <!--<module>misc/ballerina-maven-plugins</module>-->
-                <!--<module>misc/swagger-ballerina</module>-->
-                <!--<module>misc/testerina</module>-->
-                <!--<module>misc/toml-parser</module>-->
-                <!--<module>misc/metrics-extensions</module>-->
-                <!--<module>misc/tracing-extensions</module>-->
-                <!--<module>misc/strip-bouncycastle</module>-->
+                <module>language-server</module>
+                <module>misc/docerina</module>
+                <module>misc/ballerina-maven-plugins</module>
+                <module>misc/swagger-ballerina</module>
+                <module>misc/testerina</module>
+                <module>misc/toml-parser</module>
+                <module>misc/metrics-extensions</module>
+                <module>misc/tracing-extensions</module>
+                <module>misc/strip-bouncycastle</module>
 
                 <module>distribution/zip/ballerina</module>
 
