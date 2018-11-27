@@ -20,11 +20,8 @@ package io.ballerina.plugins.idea.psi;
 import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
-import io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition;
-import com.intellij.psi.StubBasedPsiElement;
-import io.ballerina.plugins.idea.stubs.BallerinaGlobalVariableDefinitionStub;
 
-public interface BallerinaGlobalVariableDefinition extends BallerinaNamedElement, BallerinaTopLevelDefinition, StubBasedPsiElement<BallerinaGlobalVariableDefinitionStub> {
+public interface BallerinaGlobalVariableDefinition extends BallerinaCompositeElement {
 
   @Nullable
   BallerinaExpression getExpression();

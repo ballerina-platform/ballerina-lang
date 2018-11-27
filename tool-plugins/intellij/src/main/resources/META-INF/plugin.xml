@@ -82,7 +82,6 @@
         <lang.syntaxHighlighterFactory language="Ballerina"
                                        implementationClass="io.ballerina.plugins.idea.highlighting.BallerinaSyntaxHighlighterFactory"/>
         <stubIndex implementation="io.ballerina.plugins.idea.stubs.index.BallerinaFunctionIndex"/>
-        <stubIndex implementation="io.ballerina.plugins.idea.stubs.index.BallerinaGlobalVariableIndex"/>
         <stubIndex implementation="io.ballerina.plugins.idea.stubs.index.BallerinaAnnotationIndex"/>
         <stubIndex implementation="io.ballerina.plugins.idea.stubs.index.BallerinaWorkerIndex"/>
         <stubIndex implementation="io.ballerina.plugins.idea.stubs.index.BallerinaNamespaceIndex"/>

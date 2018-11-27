@@ -374,8 +374,7 @@ public class BallerinaVisitor extends PsiElementVisitor {
   }
 
   public void visitGlobalVariableDefinition(@NotNull BallerinaGlobalVariableDefinition o) {
-    visitNamedElement(o);
-    // visitTopLevelDefinition(o);
+    visitCompositeElement(o);
   }
 
   public void visitGroupByClause(@NotNull BallerinaGroupByClause o) {

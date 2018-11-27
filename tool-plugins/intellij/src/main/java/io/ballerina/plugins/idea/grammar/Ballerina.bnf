@@ -115,11 +115,11 @@
     extends("(Simple|Array|Nullable|Union|Group|Tuple|Object|Record)TypeName|BinaryAndExpression") = TypeName
 
     // Each named definition which can be renamed should implement this interface.
-    implements("(Function|GlobalVariable|Annotation|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.psi.BallerinaNamedElement"
+    implements("(Function|Annotation|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.psi.BallerinaNamedElement"
     // This is to identify top level elements in a file.
-    implements("(Function|GlobalVariable|Annotation|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition"
+    implements("(Function|Annotation|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition"
     // Each named definition should extend this class.
-    extends("(Function|GlobalVariable|Annotation|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.psi.impl.BallerinaNamedElementImpl<?>"
+    extends("(Function|Annotation|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.psi.impl.BallerinaNamedElementImpl<?>"
 
     // Each stubbed element should have this element type factory.
     elementTypeFactory("(Function|Struct|Annotation|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.stubs.factory.BallerinaElementTypeFactory.stubFactory"
@@ -145,7 +145,7 @@ CompilationUnit ::=(ImportDeclaration | NamespaceDeclaration)* (DefinitionWithou
 
 DefinitionWithMultipleAnnotationAttachments ::=  documentationString? deprecatedAttachment? AnnotationAttachment AnnotationAttachment+ Definition {pin=4 elementType=Definition}
 DefinitionWithSingleAnnotationAttachment ::= documentationString? deprecatedAttachment? AnnotationAttachment Definition {pin=3 elementType=Definition}
-DefinitionWithoutAnnotationAttachments ::= documentationString? deprecatedAttachment? Definition {elementType=Definition}
+DefinitionWithoutAnnotationAttachments ::= documentationString? deprecatedAttachment? Definition {pin=3 elementType=Definition}
 
 //PackageDeclaration ::= package CompletePackageName PackageVersion? SEMICOLON {
 //    pin=1
@@ -254,9 +254,9 @@ ConstantDefinition ::= PUBLIC? CONST TypeName? identifier ASSIGN Expression SEMI
 GlobalVariableDefinition ::= public? listener? TypeName identifier (ASSIGN Expression)? SEMICOLON
                             | public? final (TypeName | var) identifier ASSIGN Expression SEMICOLON
                             | channelType identifier SEMICOLON
-{
-    stubClass="io.ballerina.plugins.idea.stubs.BallerinaGlobalVariableDefinitionStub"
-}
+//{
+//    stubClass="io.ballerina.plugins.idea.stubs.BallerinaGlobalVariableDefinitionStub"
+//}
 
 //finalVariableDefinition ::= public? final (TypeName | var) identifier ASSIGN Expression SEMICOLON  {pin=2}
 //nonFinalVariableDefinition ::= public? listener? TypeName identifier (ASSIGN Expression)? SEMICOLON {pin=3}
@@ -505,7 +505,7 @@ ContinueStatement ::= continue SEMICOLON {pin=1}
 BreakStatement ::= break SEMICOLON {pin=1}
 
 // typeName is only message
-ForkJoinStatement ::= fork LEFT_BRACE WorkerDeclaration* RIGHT_BRACE {pin=1}
+ForkJoinStatement ::= fork LEFT_BRACE WorkerDefinition* RIGHT_BRACE {pin=1}
 
 // Depricated since 0.983.0, use trap expressoin. Todo - Remove this.
 TryCatchStatement ::= try (LEFT_BRACE Block RIGHT_BRACE CatchClauses) {pin(".*")=1}
