@@ -127,7 +127,7 @@ function protoName(UProtocol p) returns string {
 
 function protocolCompatible(string coordinationType, UProtocol[] participantProtocols) returns boolean {
     boolean participantProtocolIsValid = false;
-    string[] validProtocols = coordinationTypeToProtocolsMap[coordinationType] but { () => [] };
+    string[] validProtocols = coordinationTypeToProtocolsMap[coordinationType] ?: [];
     foreach participantProtocol in participantProtocols {
         foreach validProtocol in validProtocols {
             if (protoName(participantProtocol) == validProtocol) {
@@ -148,7 +148,7 @@ function respondToBadRequest(http:Caller ep, string msg) {
     log:printError(msg);
     http:Response res = new;  res.statusCode = http:BAD_REQUEST_400;
     RequestError requestError = {errorMessage:msg};
-    var resPayload = <json>requestError;
+    var resPayload = json.create(requestError);
     if (resPayload is json) {
         res.setJsonPayload(untaint resPayload);
         var resResult = ep->respond(res);
@@ -237,7 +237,7 @@ function registerLocalParticipantWithInitiator(string transactionId, int transac
             //participatedTxn.coordinatorProtocols = [initiatorProto];
 
             LocalParticipant participant = new(participantId, participatedTxn, [participantProtocol]);
-            initiatedTxn.participants[participantId] = <Participant>participant;
+            initiatedTxn.participants[participantId] = participant;
 
             string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
             participatedTransactions[participatedTxnId] = participatedTxn;
@@ -273,26 +273,11 @@ function removeInitiatedTransaction(string transactionId) {
 function getInitiatorClient(string registerAtURL) returns InitiatorClientEP {
     InitiatorClientEP initiatorEP;
     if (httpClientCache.hasKey(registerAtURL)) {
-        var cacheRes = <InitiatorClientEP>httpClientCache.get(registerAtURL);
-        if (cacheRes is error) {
-            panic cacheRes;
-        } else if (cacheRes is InitiatorClientEP) {
-            return cacheRes;
-        } else {
-            // TODO: Ideally there shouldn't be an `else if` above but else. Once the limitations in type checking are
-            // fixed, this `else` block should be removed and the above `else if` block should be replaced with an else.
-            error e = error("Unreachable code");
-            panic e;
-        }
+        return <InitiatorClientEP>httpClientCache.get(registerAtURL);
     } else {
         lock {
             if (httpClientCache.hasKey(registerAtURL)) {
-                var cacheRes = <InitiatorClientEP>httpClientCache.get(registerAtURL);
-                if (cacheRes is error) {
-                    panic cacheRes;
-                } else if (cacheRes is InitiatorClientEP) {
-                    return cacheRes;
-                }
+                return <InitiatorClientEP>httpClientCache.get(registerAtURL);
             }
             initiatorEP = new({ registerAtURL: registerAtURL, timeoutMillis: 15000,
                 retryConfig: { count: 2, interval: 5000 }
@@ -306,26 +291,11 @@ function getInitiatorClient(string registerAtURL) returns InitiatorClientEP {
 function getParticipant2pcClient(string participantURL) returns Participant2pcClientEP {
     Participant2pcClientEP participantEP;
     if (httpClientCache.hasKey(participantURL)) {
-        var cacheRes = <Participant2pcClientEP>httpClientCache.get(participantURL);
-        if (cacheRes is error) {
-            panic cacheRes;
-        } else if (cacheRes is Participant2pcClientEP) {
-            return cacheRes;
-        } else {
-            // TODO: Ideally there shouldn't be an `else if` above but else. Once the limitations in type checking are
-            // fixed, this `else` block should be removed and the above `else if` block should be replaced with an else.
-            error e = error("Unreachable code");
-            panic e;
-        }
+        return <Participant2pcClientEP>httpClientCache.get(participantURL);
     } else {
         lock {
             if (httpClientCache.hasKey(participantURL)) {
-                var cacheRes = <Participant2pcClientEP>httpClientCache.get(participantURL);
-                if (cacheRes is error) {
-                    panic cacheRes;
-                } else if (cacheRes is Participant2pcClientEP) {
-                    return cacheRes;
-                }
+                return <Participant2pcClientEP>httpClientCache.get(participantURL);
             }
             participantEP = new({ participantURL: participantURL,
                 timeoutMillis: 15000, retryConfig: { count: 2, interval: 5000 }

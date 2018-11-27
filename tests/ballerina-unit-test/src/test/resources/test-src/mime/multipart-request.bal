@@ -7,18 +7,16 @@ function setErrorResponse(http:Response response,  error err) {
     response.setPayload(untaint <string>err.detail().message);
 }
 
-endpoint http:NonListener mockEP {
-    port:9090
-};
+listener http:MockListener mockEP = new(9090);
 
 @http:ServiceConfig {basePath:"/test"}
-service<http:Service> test bind mockEP {
+service test on mockEP {
 
     @http:ResourceConfig {
         methods:["POST"],
         path:"/textbodypart"
     }
-    multipart1 (endpoint caller, http:Request request) {
+    resource function multipart1(http:Caller caller, http:Request request) {
         http:Response response = new;
         var bodyParts = request.getBodyParts();
 
@@ -33,14 +31,14 @@ service<http:Service> test bind mockEP {
             }
         }
 
-        _ = caller -> respond(untaint response);
+        _ = caller->respond(untaint response);
     }
 
     @http:ResourceConfig {
         methods:["POST"],
         path:"/jsonbodypart"
     }
-    multipart2 (endpoint caller, http:Request request) {
+    resource function multipart2(http:Caller caller, http:Request request) {
         http:Response response = new;
         var bodyParts = request.getBodyParts();
 
@@ -52,14 +50,14 @@ service<http:Service> test bind mockEP {
                 setErrorResponse(response, result);
             }
         }
-        _ = caller -> respond(untaint response);
+        _ = caller->respond(untaint response);
     }
 
     @http:ResourceConfig {
         methods:["POST"],
         path:"/xmlbodypart"
     }
-    multipart3 (endpoint caller, http:Request request) {
+    resource function multipart3(http:Caller caller, http:Request request) {
         http:Response response = new;
         var bodyParts = request.getBodyParts();
 
@@ -71,14 +69,14 @@ service<http:Service> test bind mockEP {
                 setErrorResponse(response, result);
             }
         }
-         _ = caller -> respond(untaint response);
+        _ = caller->respond(untaint response);
     }
 
     @http:ResourceConfig {
         methods:["POST"],
         path:"/binarybodypart"
     }
-    multipart4 (endpoint caller, http:Request request) {
+    resource function multipart4(http:Caller caller, http:Request request) {
         http:Response response = new;
         var bodyParts = request.getBodyParts();
 
@@ -90,14 +88,14 @@ service<http:Service> test bind mockEP {
                 setErrorResponse(response, result);
             }
         }
-        _ = caller -> respond(untaint response);
+        _ = caller->respond(untaint response);
     }
 
     @http:ResourceConfig {
         methods:["POST"],
         path:"/multipleparts"
     }
-    multipart5 (endpoint caller, http:Request request) {
+    resource function multipart5(http:Caller caller, http:Request request) {
         http:Response response = new;
         var bodyParts = request.getBodyParts();
 
@@ -111,14 +109,14 @@ service<http:Service> test bind mockEP {
             }
             response.setTextPayload(untaint content);
         }
-        _ = caller -> respond(untaint response);
+        _ = caller->respond(untaint response);
     }
 
     @http:ResourceConfig {
         methods:["POST"],
         path:"/emptyparts"
     }
-    multipart6 (endpoint caller, http:Request request) {
+    resource function multipart6(http:Caller caller, http:Request request) {
         http:Response response = new;
         var bodyParts = request.getBodyParts();
 
@@ -127,14 +125,14 @@ service<http:Service> test bind mockEP {
         } else if (bodyParts is error) {
             response.setPayload(untaint <string>bodyParts.detail().message);
         }
-        _ = caller -> respond(response);
+        _ = caller->respond(response);
     }
 
     @http:ResourceConfig {
         methods:["POST"],
         path:"/nestedparts"
     }
-    multipart7 (endpoint caller, http:Request request) {
+    resource function multipart7(http:Caller caller, http:Request request) {
         http:Response response = new;
         var bodyParts = request.getBodyParts();
 
@@ -148,11 +146,11 @@ service<http:Service> test bind mockEP {
             }
             response.setTextPayload(untaint payload);
         }
-        _ = caller -> respond(untaint response);
+        _ = caller->respond(untaint response);
     }
 }
 
-function handleNestedParts (mime:Entity parentPart) returns (string) {
+function handleNestedParts(mime:Entity parentPart) returns (string) {
     string content = "";
     string contentTypeOfParent = parentPart.getContentType();
     if (contentTypeOfParent.hasPrefix("multipart/")) {
@@ -171,7 +169,7 @@ function handleNestedParts (mime:Entity parentPart) returns (string) {
     return content;
 }
 
-function handleContent (mime:Entity bodyPart) returns (string) {
+function handleContent(mime:Entity bodyPart) returns (string) {
     var mediaType = mime:getMediaType(bodyPart.getContentType());
     if (mediaType is mime:MediaType) {
         string baseType = mediaType.getBaseType();
@@ -212,10 +210,9 @@ function handleContent (mime:Entity bodyPart) returns (string) {
 
 //Keep this until there's a simpler way to get a string value out of a json
 function extractFieldValue(json fieldValue) returns string {
-     match fieldValue {
-        int i => return "error";
-        string s => return s;
-        boolean b => return "error";
-        json j => return "error";
+    if (fieldValue is string) {
+        return fieldValue;
+    } else {
+        return "error";
     }
 }

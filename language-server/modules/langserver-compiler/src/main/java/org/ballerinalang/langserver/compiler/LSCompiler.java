@@ -143,6 +143,10 @@ public class LSCompiler {
         BallerinaFile bfile = new BallerinaFile();
         bfile.setBallerinaProject(isProjectDir);
         bfile.setBLangPackage(bLangPackage);
+        // When needed for secondary tree traversal after compiling a text source,
+        // compiler context can be used when needed. As an example, ast generation to a secondary BLangPackage content
+        // visit to find the visible symbols where we need the compiler context to find the symbols
+        bfile.setCompilerContext(context);
         if (context.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
             List<Diagnostic> diagnostics = ((CollectDiagnosticListener) context.get(DiagnosticListener.class))
                     .getDiagnostics();

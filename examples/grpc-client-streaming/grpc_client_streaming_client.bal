@@ -29,8 +29,7 @@ public function main() {
     var name = "John";
     foreach greet in greets {
         error? connErr = ep->send(greet + " " + name);
-        io:println(connErr.message but { () => "send greeting: " +
-                                                greet + " " + name });
+        io:println(connErr.message ?: "send greeting: " + greet + " " + name);
     }
 
     // Once all the messages are sent, the server notifies the caller with a `complete` message.

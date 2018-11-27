@@ -71,7 +71,7 @@ public class AppointmentTest {
     }
 
     @Test(description = "Tests running an appointment started within workers  where the onTrigger function " +
-            "generates an error")
+            "generates an error", enabled = false)
     public void testAppointmentWithWorkersAndErrFn() {
         CompileResult compileResult = BCompileUtil.compileAndSetup("test-src/task/app-workers.bal");
         printDiagnostics(compileResult);

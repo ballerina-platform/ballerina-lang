@@ -19,7 +19,7 @@ import ballerina/h2;
 import ballerina/io;
 import ballerina/http;
 
-listener http:MockServer testEP = new(9090);
+listener http:MockListener testEP = new(9090);
 
 @http:ServiceConfig { 
     basePath: "/foo" 
@@ -55,7 +55,10 @@ service MyService on testEP {
 
         http:Response res = new;
         res.setPayload(untaint result);
-        caller->respond(res) but { error e => io:println("Error sending response") };
+        var result = caller->respond(res);
+        if (result is error) {
+            io:println("Error sending response");
+        }
     }
 
     @http:ResourceConfig {
@@ -90,6 +93,9 @@ service MyService on testEP {
 
         http:Response res = new;
         res.setPayload(untaint j);
-        caller->respond(res) but { error e => io:println("Error sending response") };
+        var result = caller->respond(res);
+        if (result is error) {
+            io:println("Error sending response");
+        }
     }
 }

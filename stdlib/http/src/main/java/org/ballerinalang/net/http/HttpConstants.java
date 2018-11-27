@@ -48,7 +48,7 @@ public class HttpConstants {
 
     public static final String PROTOCOL_HTTP = "http";
     public static final String PROTOCOL_PACKAGE_HTTP = "ballerina" + ORG_NAME_SEPARATOR + "http";
-    public static final String HTTP_SERVICE_ENDPOINT_NAME = "Tballerina/http:Listener;";
+    public static final String HTTP_CALLER_NAME = "ballerina/http:Caller";
     public static final String HTTP_MOCK_SERVER_ENDPOINT_NAME = "Tballerina/http:MockListener;";
     public static final String PROTOCOL_HTTPS = "https";
     public static final String HTTP_METHOD = "HTTP_METHOD";

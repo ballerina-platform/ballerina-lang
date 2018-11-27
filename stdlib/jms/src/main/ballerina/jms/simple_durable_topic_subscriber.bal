@@ -63,7 +63,7 @@ public type SimpleDurableTopicSubscriber object {
     #
     # + serviceType - type descriptor of the service to bind to
     public function __attach(service serviceType, map<any> data) returns error? {
-        return self.subscriber.registerListener(serviceType, self.subscriber.consumerActions);
+        return self.subscriber.registerListener(serviceType, self.subscriber.consumerActions, data);
     }
 
     # Starts the endpoint. Function is ignored by the subscriber endpoint
@@ -95,7 +95,7 @@ public type SimpleDurableTopicSubscriber object {
             return session.createTextMessage(message);
         } else {
             string errorMessage = "Session cannot be nil";
-            map errorDetail = { message: errorMessage };
+            map<any> errorDetail = { message: errorMessage };
             error e = error(JMS_ERROR_CODE, errorDetail);
             panic e;
         }
@@ -119,7 +119,7 @@ public type SimpleDurableTopicSubscriberEndpointConfiguration record {
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
     string identifier = "";
-    map properties = {};
+    map<any> properties = {};
     string messageSelector = "";
     string topicPattern = "";
     !...

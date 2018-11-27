@@ -17,20 +17,18 @@
 import ballerina/http as network;
 import ballerina/io;
 
-endpoint network:Listener echoEP5 {
-    port:9101
-};
+listener network:Listener echoEP5 = new(9101);
 
 @network:ServiceConfig {
     basePath:"/echo"
 }
-service<network:Service> echo4 bind echoEP5 {
+service echo4 on echoEP5 {
 
     @network:ResourceConfig {
         methods:["POST"],
         path:"/"
     }
-    echo4 (endpoint caller, network:Request req) {
+    resource function echo4(network:Caller caller, network:Request req) {
         var payload = req.getTextPayload();
         network:Response resp = new;
         if (payload is string) {

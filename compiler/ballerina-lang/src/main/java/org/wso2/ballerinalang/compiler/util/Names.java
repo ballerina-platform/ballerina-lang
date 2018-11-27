@@ -42,6 +42,7 @@ public class Names {
     public static final Name INVALID = new Name("><");
     public static final Name GEN_VAR_PREFIX = new Name("_$$_");
     public static final Name DEFAULT_VERSION = new Name("0.0.0");
+    public static final Name ASSERTION_OP = new Name("(<type>)");
     public static final Name CONVERSION_OP = new Name("<<type>>");
     public static final Name SERVICE = new Name("service");
     public static final Name ABSTRACT_LISTENER = new Name("AbstractListener");
@@ -68,8 +69,6 @@ public class Names {
     public static final Name EP_SPI_GET_CALLER_ACTIONS = new Name("getCallerActions");
     public static final Name EP_SPI_START = new Name("start");
     public static final Name EP_SPI_STOP = new Name("stop");
-    // Todo - Remove
-    public static final Name ANNOTATION_READONLY = new Name("readonly");
 
     public CompilerContext context;
 

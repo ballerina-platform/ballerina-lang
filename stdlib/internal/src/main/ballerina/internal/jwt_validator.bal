@@ -131,7 +131,7 @@ function getDecodedJWTComponents(string[] encodedJWTComponents) returns ((json, 
 
 function parseHeader(json jwtHeaderJson) returns (JwtHeader) {
     JwtHeader jwtHeader = {};
-    map customClaims = {};
+    map<any> customClaims = {};
 
     string[] keys = jwtHeaderJson.getKeys();
 
@@ -159,7 +159,7 @@ function parseHeader(json jwtHeaderJson) returns (JwtHeader) {
 function parsePayload(json jwtPayloadJson) returns (JwtPayload) {
     string[] aud = [];
     JwtPayload jwtPayload = { iss: "", sub: "", aud: aud, exp: 0 };
-    map customClaims = {};
+    map<any> customClaims = {};
     string[] keys = jwtPayloadJson.getKeys();
     foreach key in keys {
         if (key == ISS) {
@@ -172,7 +172,7 @@ function parsePayload(json jwtPayloadJson) returns (JwtPayload) {
             jwtPayload.jti = jwtPayloadJson[key].toString();
         } else if (key == EXP) {
             string exp = jwtPayloadJson[key].toString();
-            var value = <int>exp;
+            var value = int.create(exp);
             if (value is int) {
                 jwtPayload.exp = value;
             } else {
@@ -180,7 +180,7 @@ function parsePayload(json jwtPayloadJson) returns (JwtPayload) {
             }
         } else if (key == NBF) {
             string nbf = jwtPayloadJson[key].toString();
-            var value = <int>nbf;
+            var value = int.create(nbf);
             if (value is int) {
                 jwtPayload.nbf = value;
             } else {
@@ -188,7 +188,7 @@ function parsePayload(json jwtPayloadJson) returns (JwtPayload) {
             }
         } else if (key == IAT) {
             string iat = jwtPayloadJson[key].toString();
-            var value = <int>iat;
+            var value = int.create(iat);
             if (value is int) {
                 jwtPayload.iat = value;
             } else {

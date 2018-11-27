@@ -15,7 +15,7 @@ function arrayLengthAccessTestJSONArrayNegativeNullCase(int x, int y) returns (i
 }
 
 function arrayLengthAccessNullMapCase(int x, int y) returns (int) {
-    map m = {};
+    map<any> m = {};
     int length;
     length = (m.length());
     return length;

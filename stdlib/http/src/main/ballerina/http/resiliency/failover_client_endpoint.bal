@@ -412,7 +412,7 @@ function populateGenericFailoverActionError (error[] failoverActionErr, error ht
     failoverActionErr[index] = httpActionErr;
     string lastErrorMsg = <string> httpActionErr.detail().message;
     string failoverMessage = "All the failover endpoints failed. Last error was " + lastErrorMsg;
-    map errorDetail = { message : failoverMessage, failoverErrors : failoverActionErr };
+    map<any> errorDetail = { message : failoverMessage, failoverErrors : failoverActionErr };
     error actionError = error(HTTP_ERROR_CODE, errorDetail);
     return actionError;
 }
@@ -422,7 +422,7 @@ function populateGenericFailoverActionError (error[] failoverActionErr, error ht
 function populateFailoverErrorHttpStatusCodes (Response inResponse, error[] failoverActionErr, int index) {
     string failoverMessage = "Endpoint " + index + " returned response is: " + inResponse.statusCode + " " +
         inResponse.reasonPhrase;
-    map errorDetail = { message : failoverMessage };
+    map<any> errorDetail = { message : failoverMessage };
     error httpActionErr = error(HTTP_ERROR_CODE, errorDetail);
     failoverActionErr[index] = httpActionErr;
 }
@@ -430,12 +430,12 @@ function populateFailoverErrorHttpStatusCodes (Response inResponse, error[] fail
 function populateErrorsFromLastResponse (Response inResponse, error[] failoverActionErr, int index)
                                                                             returns (error) {
     string message = "Last endpoint returned response: " + inResponse.statusCode + " " + inResponse.reasonPhrase;
-    map errorDetail = { message : message };
+    map<any> errorDetail = { message : message };
     error lastHttpConnectorErr = error(HTTP_ERROR_CODE, errorDetail);
     failoverActionErr[index] = lastHttpConnectorErr;
     string failoverMessage = "All the failover endpoints failed. Last endpoint returned response is: "
                                 + inResponse.statusCode + " " + inResponse.reasonPhrase;
-    map finalErrorDetail = { message : failoverMessage, failoverErrors : failoverActionErr };
+    map<any> finalErrorDetail = { message : failoverMessage, failoverErrors : failoverActionErr };
     error actionError = error(HTTP_ERROR_CODE, finalErrorDetail);
     return actionError;
 }

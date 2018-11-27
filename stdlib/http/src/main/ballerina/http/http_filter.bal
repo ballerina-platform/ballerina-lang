@@ -43,10 +43,10 @@ public type Filter abstract object {
 # + attributes - Attributes to share between filters
 public type FilterContext object {
 
-    @readonly public service serviceType;
-    @readonly public string serviceName = "";
-    @readonly public string resourceName = "";
-    @readonly public map attributes = {};
+    public service serviceType;
+    public string serviceName = "";
+    public string resourceName = "";
+    public map<any> attributes = {};
 
     public function __init(service serviceType, string serviceName, string resourceName) {
         self.serviceType = serviceType;

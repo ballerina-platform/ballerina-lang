@@ -87,7 +87,7 @@ function testDifferentTypeCovariance() returns int {
     tuple4[0] = 12;
     tuple4[1] = intern1;
     tuple4[2] = intern1;
-    return tuple4[0] but {string => 0};
+    return tuple4[0] is int ? tuple4[0] : 0;
 }
 
 function testCovarianceIntOrNilTuple() {
@@ -119,7 +119,7 @@ function testComplexTupleTypes() returns (float, json, boolean, json, float) {
     float|json x6 = var3[1][0];
     float|boolean x7 = var4[0][0][0];
 
-    return (x1 but {boolean => 0.0}, x3 but {int => ""}, x5 but {int => false}, x6 but {float => ""}, x7 but {boolean => 0.0});
+    return (x1 is float ? x1 : 0.0, x3 is json ? x3 : "", x5 is boolean ? x5 : false, x6 is json ? x6 : "", x7 is float ? x7 : 0.0);
 }
 
 function testWithTryCatch() returns int {

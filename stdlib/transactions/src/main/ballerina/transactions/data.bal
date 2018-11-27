@@ -15,11 +15,11 @@
 // under the License.
 
 public type TransactionContext record {
-    @readonly string contextVersion = "1.0";
-    @readonly string transactionId = "";
-    @readonly int transactionBlockId = 0;
-    @readonly string coordinationType = "";
-    @readonly string registerAtURL = "";
+    string contextVersion = "1.0";
+    string transactionId = "";
+    int transactionBlockId = 0;
+    string coordinationType = "";
+    string registerAtURL = "";
 };
 
 type RegistrationRequest record {

@@ -17,10 +17,15 @@ function testUsername () returns (boolean) {
 }
 
 function testUserClaims () returns (boolean) {
-    map claims = {email:"tom@ballerina.com", org:"wso2"};
+    map<any> claims = {email:"tom@ballerina.com", org:"wso2"};
     runtime:getInvocationContext().userPrincipal.claims = claims;
     if (runtime:getInvocationContext().userPrincipal.claims.hasKey("email")) {
-        string emailInContext = runtime:getInvocationContext().userPrincipal.claims["email"] but { () => "", any a => <string> a};
+        string emailInContext = "";
+        var result = runtime:getInvocationContext().userPrincipal.claims["email"];
+        if (result is any) {
+            emailInContext = <string> result;
+        }
+
         return "tom@ballerina.com" == emailInContext;
     }
     return false;

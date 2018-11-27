@@ -26,7 +26,10 @@ service hello1 on new http:Listener(9090) {
         http:Response res = new;
         res.setPayload("Hello, World!");
         string abc = check f1();
-        caller->respond(res) but { error e => log:printError("Error sending response", err = e) };
+        var result = caller->respond(res);
+        if (result is error) {
+            log:printError("Error sending response", err = result);
+        }
         return ();
     }
 }

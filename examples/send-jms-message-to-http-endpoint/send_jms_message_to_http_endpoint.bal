@@ -71,10 +71,11 @@ service<http:Service> backend bind { port: 9090 } {
                 // A util method that can be used to set string payload.
                 res.setPayload("Message Received.");
                 // Sends the response back to the client.
-                conn->respond(res) but {
-                    error e => log:printError("Error occurred while"
-                                              + "acknowledging message", err=e)
-                };
+
+                var result = conn->respond(res);
+                if (result is error) {
+                   log:printError("Error occurred while acknowledging message", err = result);
+                }
             }
             error e => log:printError("Error while reading payload", err=e);
         }
