@@ -236,17 +236,30 @@ public class Types {
     }
 
     private boolean isLikeAnydata(BType type) {
+        return isLikeAnydata(type, new HashSet<>());
+    }
+    
+    private boolean isLikeAnydata(BType type, Set<BType> unresolvedTypes) {
         int typeTag = type.tag;
         if (typeTag == TypeTags.ANY) {
             return true;
         }
 
         // check for anydata element/member types as part of recursive calls with structured/union types
-        if (isAnydata(type)) {
+        if (type.tag == TypeTags.RECORD) {
+            if (unresolvedTypes.contains(type)) {
+                return true;
+            } else {
+                unresolvedTypes.add(type);
+                if (isAnydata(type)) {
+                    return true;
+                }
+            }
+        } else if (isAnydata(type)) {
             return true;
         }
 
-        if (type.tag == TypeTags.MAP && isLikeAnydata(((BMapType) type).constraint)) {
+        if (type.tag == TypeTags.MAP && isLikeAnydata(((BMapType) type).constraint, unresolvedTypes)) {
             return true;
         }
 
@@ -254,20 +267,20 @@ public class Types {
             BRecordType recordType = (BRecordType) type;
             return recordType.fields.stream()
                     .noneMatch(field -> !Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
-                            !(isLikeAnydata(field.type)));
+                            !(isLikeAnydata(field.type, unresolvedTypes)));
         }
 
         if (type.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) type;
-            return unionType.memberTypes.stream().anyMatch(this::isLikeAnydata);
+            return unionType.memberTypes.stream().anyMatch(bType -> isLikeAnydata(bType, unresolvedTypes));
         }
 
         if (type.tag == TypeTags.TUPLE) {
             BTupleType tupleType = (BTupleType) type;
-            return tupleType.getTupleTypes().stream().allMatch(this::isLikeAnydata);
+            return tupleType.getTupleTypes().stream().allMatch(bType -> isLikeAnydata(bType, unresolvedTypes));
         }
 
-        return type.tag == TypeTags.ARRAY && isLikeAnydata(((BArrayType) type).eType);
+        return type.tag == TypeTags.ARRAY && isLikeAnydata(((BArrayType) type).eType, unresolvedTypes);
     }
 
     public boolean isBrandedType(BType type) {
@@ -877,6 +890,19 @@ public class Types {
         }
 
         return targetType.accept(conversionVisitor, sourceType);
+    }
+
+    BSymbol getTypeAssertionOperator(BType sourceType, BType targetType) {
+        if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR) {
+            return createConversionOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
+        }
+
+        if (isValueType(targetType)) {
+            return symResolver.getExplicitlyTypedExpressionSymbol(sourceType, targetType);
+        } else if (isAssignable(targetType, sourceType)) {
+            return symResolver.createTypeAssertionSymbol(sourceType, targetType);
+        }
+        return symTable.notFoundSymbol;
     }
 
     public BType getElementType(BType type) {
@@ -1677,14 +1703,14 @@ public class Types {
             BFiniteType expType = (BFiniteType) type;
             boolean foundMember = expType.valueSpace
                     .stream()
-                    .map(memberLiteral -> {
+                    .anyMatch(memberLiteral -> {
                         if (((BLangLiteral) memberLiteral).value == null) {
                             return literalExpr.value == null;
                         } else {
-                            return ((BLangLiteral) memberLiteral).value.equals(literalExpr.value);
+                            return (((BLangLiteral) memberLiteral).value.equals(literalExpr.value) &&
+                                    ((BLangLiteral) memberLiteral).typeTag == literalExpr.typeTag);
                         }
-                    })
-                    .anyMatch(found -> found);
+                    });
             return foundMember;
         }
         return false;

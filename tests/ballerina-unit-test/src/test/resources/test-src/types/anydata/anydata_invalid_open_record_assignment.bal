@@ -74,7 +74,7 @@ type Foo4 record {
 
 type Foo5 record {
     int ca;
-    map m = {};
+    map<any> m = {};
     anydata...
 };
 

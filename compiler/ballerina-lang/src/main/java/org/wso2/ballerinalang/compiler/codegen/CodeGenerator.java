@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -621,6 +622,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
 
             case TypeTags.FLOAT:
+                // TODO:Remove the instanceof check by converting the float literal instance in Semantic analysis phase
                 double doubleVal = literalExpr.value instanceof String ?
                         Double.parseDouble((String) literalExpr.value) :
                         (Double) literalExpr.value;
@@ -1867,7 +1869,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private void emitConversionInstruction(BLangExpression convExpr, BLangExpression expr,
-                                           BConversionOperatorSymbol symbol, BType targetType) {
+                                           BOperatorSymbol symbol, BType targetType) {
         int opcode = symbol.opcode;
         // Figure out the reg index of the result value
         BType castExprType = convExpr.type;
@@ -1891,6 +1893,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             case InstructionCodes.JSON2ARRAY:
             case InstructionCodes.O2JSON:
             case InstructionCodes.CHECKCAST:
+            case InstructionCodes.TYPE_ASSERTION:
                 Operand typeCPIndex = getTypeCPIndex(targetType);
                 emit(opcode, expr.regIndex, typeCPIndex, convExprRegIndex);
                 break;
@@ -2026,7 +2029,8 @@ public class CodeGenerator extends BLangNodeVisitor {
                 defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new ByteCPEntry(defaultValue.byteValue));
                 break;
             case TypeTags.FLOAT:
-                defaultValue.floatValue = (Double) value;
+                // TODO:Remove the instanceof check by converting the float literal instance in Semantic analysis phase
+                defaultValue.floatValue = value instanceof String ? Double.parseDouble((String) value) : (Double) value;
                 defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new FloatCPEntry(defaultValue.floatValue));
                 break;
             case TypeTags.STRING:

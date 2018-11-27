@@ -28,6 +28,7 @@ import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.types.BRecordType;
+import org.ballerinalang.model.types.BServiceType;
 import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BTableType;
@@ -446,8 +447,12 @@ public class PackageInfoReader {
         ObjectTypeInfo objectInfo = new ObjectTypeInfo();
 
         // Set struct type
-        BObjectType objectType = new BObjectType(objectInfo, typeDefInfo.name,
-                packageInfo.getPkgPath(), typeDefInfo.flags);
+        BObjectType objectType;
+        if (Flags.isFlagOn(typeDefInfo.flags, Flags.SERVICE)) {
+            objectType = new BServiceType(objectInfo, typeDefInfo.name, packageInfo.getPkgPath(), typeDefInfo.flags);
+        } else {
+            objectType = new BObjectType(objectInfo, typeDefInfo.name, packageInfo.getPkgPath(), typeDefInfo.flags);
+        }
         objectInfo.setType(objectType);
 
         // Read struct field info entries
@@ -1298,6 +1303,7 @@ public class PackageInfoReader {
                 case InstructionCodes.STAMP:
                 case InstructionCodes.NEWSTREAM:
                 case InstructionCodes.CHECKCAST:
+                case InstructionCodes.TYPE_ASSERTION:
                 case InstructionCodes.MAP2T:
                 case InstructionCodes.JSON2T:
                 case InstructionCodes.ANY2T:
@@ -1881,7 +1887,11 @@ public class PackageInfoReader {
                 case 'X':
                     return BTypes.typeAnyService;
                 default:
-                    return packageInfoOfType.getTypeDefInfo(typeName).typeInfo.getType();
+                    TypeDefInfo typeDefInfo = packageInfoOfType.getTypeDefInfo(typeName);
+                    if (typeDefInfo != null) {
+                        return typeDefInfo.typeInfo.getType();
+                    }
+                    return BTypes.getTypeFromName(typeName);
             }
         }
 

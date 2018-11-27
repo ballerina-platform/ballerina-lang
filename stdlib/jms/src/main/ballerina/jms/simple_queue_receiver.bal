@@ -60,7 +60,7 @@ public type SimpleQueueReceiver object {
     #
     # + serviceType - type descriptor of the service to bind to
     public function __attach(service serviceType, map<any> data) returns error? {
-        return self.queueReceiver.registerListener(serviceType, self.queueReceiver.consumerActions);
+        return self.queueReceiver.registerListener(serviceType, self.queueReceiver.consumerActions, data);
     }
 
     # Starts the endpoint. Function is ignored by the receiver endpoint
@@ -90,7 +90,7 @@ public type SimpleQueueReceiver object {
             return session.createTextMessage(content);
         } else {
             string errorMessage = "Session cannot be nil";
-            map errorDetail = { message: errorMessage };
+            map<any> errorDetail = { message: errorMessage };
             error e = error(JMS_ERROR_CODE, errorDetail);
             panic e;
         }
@@ -113,7 +113,7 @@ public type SimpleQueueReceiverEndpointConfiguration record {
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
     string messageSelector = "";
-    map properties = {};
+    map<any> properties = {};
     string queueName = "";
     !...
 };

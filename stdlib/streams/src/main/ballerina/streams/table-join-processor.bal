@@ -15,7 +15,7 @@
 // under the License.
 
 public type TableJoinProcessor object {
-    private function (StreamEvent s) returns map[] tableQuery;
+    private function (StreamEvent s) returns map<any>[] tableQuery;
     private function (any) nextProcessor;
     public Window? windowInstance;
     public string streamName;
@@ -91,7 +91,7 @@ public type TableJoinProcessor object {
 };
 
 public function createTableJoinProcessor(function (any) nextProcessor, JoinType joinType,
-                                         function (StreamEvent s) returns map[] tableQuery)
+                                         function (StreamEvent s) returns map<any>[] tableQuery)
                     returns TableJoinProcessor {
     TableJoinProcessor tableJoinProcessor = new(nextProcessor, joinType, tableQuery);
     return tableJoinProcessor;

@@ -49,6 +49,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -88,6 +89,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
+import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
@@ -109,6 +111,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -228,6 +231,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Sort type definitions with precedence, before defining their members.
         pkgNode.typeDefinitions.sort(Comparator.comparing(t -> t.precedence));
 
+        // Define error details
+        defineErrorDetails(pkgNode.typeDefinitions, pkgEnv);
+
         // Define type def fields (if any)
         defineFields(pkgNode.typeDefinitions, pkgEnv);
 
@@ -250,18 +256,21 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public void visit(BLangAnnotation annotationNode) {
-        BSymbol annotationSymbol = Symbols.createAnnotationSymbol(Flags.asMask(annotationNode.flagSet),
+        BAnnotationSymbol annotationSymbol = Symbols.createAnnotationSymbol(Flags.asMask(annotationNode.flagSet),
                 AttachPoints.asMask(annotationNode.attachPoints), names.fromIdNode(annotationNode.name),
                 env.enclPkg.symbol.pkgID, null, env.scope.owner);
         annotationSymbol.markdownDocumentation =
                 getMarkdownDocAttachment(annotationNode.markdownDocumentationAttachment);
-        annotationSymbol.type = new BAnnotationType((BAnnotationSymbol) annotationSymbol);
+        annotationSymbol.type = new BAnnotationType(annotationSymbol);
         annotationNode.symbol = annotationSymbol;
         defineSymbol(annotationNode.name.pos, annotationSymbol);
         SymbolEnv annotationEnv = SymbolEnv.createAnnotationEnv(annotationNode, annotationSymbol.scope, env);
         if (annotationNode.typeNode != null) {
-            BType structType = this.symResolver.resolveTypeNode(annotationNode.typeNode, annotationEnv);
-            ((BAnnotationSymbol) annotationSymbol).attachedType = structType.tsymbol;
+            BType recordType = this.symResolver.resolveTypeNode(annotationNode.typeNode, annotationEnv);
+            annotationSymbol.attachedType = recordType.tsymbol;
+            if (recordType != symTable.semanticError && recordType.tag != TypeTags.RECORD) {
+                dlog.error(annotationNode.typeNode.pos, DiagnosticCode.ANNOTATION_REQUIRE_RECORD, recordType);
+            }
         }
     }
 
@@ -828,14 +837,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        // Todo - Remove.
-        //Check annotations attached to the variable
-        if (varNode.annAttachments.size() > 0) {
-            if (hasAnnotation(varNode.annAttachments, Names.ANNOTATION_READONLY.getValue())) {
-                varNode.flagSet.add(Flag.READONLY);
-            }
-        }
-
         BVarSymbol varSymbol = defineVarSymbol(varNode.pos, varNode.flagSet, varNode.type, varName, env);
         varSymbol.markdownDocumentation = getMarkdownDocAttachment(varNode.markdownDocumentationAttachment);
         varNode.symbol = varSymbol;
@@ -1038,10 +1039,37 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
+    private void defineErrorDetails(List<BLangTypeDefinition> typeDefNodes, SymbolEnv pkgEnv) {
+        for (BLangTypeDefinition typeDef : typeDefNodes) {
+            if (typeDef.typeNode.getKind() != NodeKind.ERROR_TYPE) {
+                continue;
+            }
+
+            BLangErrorType errorTypeNode = (BLangErrorType) typeDef.typeNode;
+            SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(errorTypeNode, typeDef.symbol.scope, pkgEnv);
+
+            BType reasonType = Optional.ofNullable(errorTypeNode.reasonType)
+                                        .map(bLangType -> symResolver.resolveTypeNode(bLangType, typeDefEnv))
+                                        .orElse(symTable.stringType);
+            BType detailType = Optional.ofNullable(errorTypeNode.detailType)
+                                        .map(bLangType -> symResolver.resolveTypeNode(bLangType, typeDefEnv))
+                                        .orElse(symTable.mapType);
+
+            if (reasonType == symTable.stringType && detailType == symTable.mapType) {
+                typeDef.symbol.type = symTable.errorType;
+                continue;
+            }
+
+            BErrorType errorType = (BErrorType) typeDef.symbol.type;
+            errorType.reasonType = reasonType;
+            errorType.detailType = detailType;
+        }
+    }
+
     private void defineFields(List<BLangTypeDefinition> typeDefNodes, SymbolEnv pkgEnv) {
         for (BLangTypeDefinition typeDef : typeDefNodes) {
             if (typeDef.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE ||
-                    (typeDef.symbol.kind != SymbolKind.OBJECT && typeDef.symbol.kind != SymbolKind.RECORD)) {
+                    (typeDef.symbol.type.tag != TypeTags.OBJECT && typeDef.symbol.type.tag != TypeTags.RECORD)) {
                 continue;
             }
 
@@ -1465,7 +1493,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void createDummyTypeDefSymbol(BLangTypeDefinition typeDef, SymbolEnv env) {
         // This is only to keep the flow running so that at the end there will be proper semantic errors
         typeDef.symbol = Symbols.createTypeSymbol(SymTag.TYPE_DEF, Flags.asMask(typeDef.flagSet),
-                names.fromIdNode(typeDef.name), env.enclPkg.symbol.pkgID, symTable.semanticError, env.scope.owner);
+                names.fromIdNode(typeDef.name), env.enclPkg.symbol.pkgID, typeDef.typeNode.type, env.scope.owner);
         defineSymbol(typeDef.pos, typeDef.symbol, env);
     }
 

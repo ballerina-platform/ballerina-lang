@@ -16,29 +16,29 @@
 
 # Releases the database connection. If the table data is fully iterated, it will be automatically closed. This explicit
 # close is required only if it is not fully iterated.
-public extern function table.close();
+public extern function table<record {}>.close();
 
 # Checks for a new row in the given table. If a new row is found, moves the cursor to it.
 #
 # + return - True if there is a new row; false otherwise
-public extern function table.hasNext() returns boolean;
+public extern function table<record {}>.hasNext() returns boolean;
 
 # Retrives the current row and return a record with the data in the columns.
 #
 # + return - The resulting row as a record
-public extern function table.getNext() returns any;
+public extern function table<record {}>.getNext() returns any;
 
 # Add record to the table.
 #
 # + data - A record with data
 # + return - An `error` will be returned if there is any error occured during adding data or else nil is returned
-public extern function table.add(any data) returns error|();
+public extern function table<record {}>.add(any data) returns error|();
 
 # Remove data from the table.
 #
 # + func - The function pointer for delete crieteria
 # + return - An `int` the number of deleted record count or `error` if any error occured during removing data
-public extern function table.remove(function (any) returns (boolean) func) returns int|error;
+public extern function table<record {}>.remove(function (any) returns (boolean) func) returns int|error;
 
 # Execute the given sql query to fetch the records and return as a new in memory table.
 #
@@ -47,8 +47,8 @@ public extern function table.remove(function (any) returns (boolean) func) retur
 # + joinTable - The table which is joined with 'fromTable'
 # + parameters - liternal parameters to be passed to prepared statement 'sqlQuery'
 # + retType - return type of the resultant table instance
-extern function queryTableWithJoinClause(string sqlQuery, table fromTable, table joinTable, any parameters,
-                                         any retType) returns table;
+extern function queryTableWithJoinClause(string sqlQuery, table<record {}> fromTable, table<record {}> joinTable, any parameters,
+                                         any retType) returns table<record {}>;
 
 # Execute the given sql query to fetch the records and return as a new in memory table.
 #
@@ -56,8 +56,8 @@ extern function queryTableWithJoinClause(string sqlQuery, table fromTable, table
 # + fromTable - The table on which the query is executed
 # + parameters - literal parameters to be passed to prepared statement 'sqlQuery'
 # + retType - return type of the resultant table instance
-extern function queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters,
-                                            any retType) returns table;
+extern function queryTableWithoutJoinClause(string sqlQuery, table<record {}> fromTable, any parameters,
+                                            any retType) returns table<record {}>;
 
 # TableConfig represents properties used during table initialization.
 #

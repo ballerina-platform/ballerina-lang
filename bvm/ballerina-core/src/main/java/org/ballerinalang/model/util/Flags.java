@@ -28,6 +28,7 @@ public class Flags {
     public static final int NATIVE = 2;
     public static final int ATTACHED = 8;
     public static final int OPTIONAL = 8192;
+    public static final int SERVICE = 524288;
 
     public static boolean isFlagOn(int bitmask, int flag) {
         return (bitmask & flag) == flag;

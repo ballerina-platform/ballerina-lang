@@ -24,7 +24,7 @@ public type Window abstract object {
 
     public function getCandidateEvents(
                         StreamEvent originEvent,
-                        (function (map e1Data, map e2Data) returns boolean)? conditionFunc,
+                        (function (map<any> e1Data, map<any> e2Data) returns boolean)? conditionFunc,
                         boolean isLHSTrigger = true)
                         returns (StreamEvent?, StreamEvent?)[];
 };
@@ -94,7 +94,7 @@ public type LengthWindow object {
 
     public function getCandidateEvents(
                         StreamEvent originEvent,
-                        (function (map e1Data, map e2Data) returns boolean)? conditionFunc,
+                        (function (map<any> e1Data, map<any> e2Data) returns boolean)? conditionFunc,
                         boolean isLHSTrigger = true)
                         returns (StreamEvent?, StreamEvent?)[] {
         (StreamEvent?, StreamEvent?)[] events = [];
@@ -105,7 +105,7 @@ public type LengthWindow object {
                     StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;
                     StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
                     match (conditionFunc) {
-                        function (map e1Data, map e2Data) returns boolean conditionCheckFunc => {
+                        function (map<any> e1Data, map<any> e2Data) returns boolean conditionCheckFunc => {
                             if (conditionCheckFunc(lshEvent.data, rhsEvent.data)) {
                                 events[i] = (lshEvent, rhsEvent);
                                 i += 1;
@@ -238,7 +238,7 @@ public type TimeWindow object {
         timerEventWrapper[0] = timerEvent;
         self.process(timerEventWrapper);
         if (!self.timerQueue.isEmpty()) {
-            task:Timer timer = check <task:Timer>self.timerQueue.removeFirst();
+            task:Timer timer = check trap <task:Timer>self.timerQueue.removeFirst();
             _ = timer.stop();
         }
         return ();
@@ -250,7 +250,7 @@ public type TimeWindow object {
 
     public function getCandidateEvents(
                         StreamEvent originEvent,
-                        (function (map e1Data, map e2Data) returns boolean)? conditionFunc,
+                        (function (map<any> e1Data, map<any> e2Data) returns boolean)? conditionFunc,
                         boolean isLHSTrigger = true)
                         returns (StreamEvent?, StreamEvent?)[] {
         (StreamEvent?, StreamEvent?)[] events = [];
@@ -261,7 +261,7 @@ public type TimeWindow object {
                     StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;
                     StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
                     match (conditionFunc) {
-                        function (map e1Data, map e2Data) returns boolean conditionCheckFunc => {
+                        function (map<any> e1Data, map<any> e2Data) returns boolean conditionCheckFunc => {
                             if (conditionCheckFunc(lshEvent.data, rhsEvent.data)) {
                                 events[i] = (lshEvent, rhsEvent);
                                 i += 1;
@@ -390,7 +390,7 @@ public type LengthBatchWindow object {
 
     public function getCandidateEvents(
                         StreamEvent originEvent,
-                        (function (map e1Data, map e2Data) returns boolean)? conditionFunc,
+                        (function (map<any> e1Data, map<any> e2Data) returns boolean)? conditionFunc,
                         boolean isLHSTrigger = true)
                         returns (StreamEvent?, StreamEvent?)[] {
         (StreamEvent?, StreamEvent?)[] events = [];
@@ -402,7 +402,7 @@ public type LengthBatchWindow object {
                     StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
 
                     match (conditionFunc) {
-                        function (map e1Data, map e2Data) returns boolean conditionCheckFunc => {
+                        function (map<any> e1Data, map<any> e2Data) returns boolean conditionCheckFunc => {
                             if (conditionCheckFunc(lshEvent.data, rhsEvent.data)) {
                                 events[i] = (lshEvent, rhsEvent);
                                 i += 1;
@@ -537,7 +537,7 @@ public type TimeBatchWindow object {
 
     public function getCandidateEvents(
                         StreamEvent originEvent,
-                        (function (map e1Data, map e2Data) returns boolean)? conditionFunc,
+                        (function (map<any> e1Data, map<any> e2Data) returns boolean)? conditionFunc,
                         boolean isLHSTrigger = true)
                         returns (StreamEvent?, StreamEvent?)[] {
         (StreamEvent?, StreamEvent?)[] events = [];
@@ -548,7 +548,7 @@ public type TimeBatchWindow object {
                     StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;
                     StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
                     match (conditionFunc) {
-                        function (map e1Data, map e2Data) returns boolean conditionCheckFunc => {
+                        function (map<any> e1Data, map<any> e2Data) returns boolean conditionCheckFunc => {
                             if (conditionCheckFunc(lshEvent.data, rhsEvent.data)) {
                                 events[i] = (lshEvent, rhsEvent);
                                 i += 1;
@@ -673,7 +673,7 @@ public type ExternalTimeWindow object {
 
     public function getCandidateEvents(
                         StreamEvent originEvent,
-                        (function (map e1Data, map e2Data) returns boolean)? conditionFunc,
+                        (function (map<any> e1Data, map<any> e2Data) returns boolean)? conditionFunc,
                         boolean isLHSTrigger = true)
                         returns (StreamEvent?, StreamEvent?)[] {
         (StreamEvent?, StreamEvent?)[] events = [];
@@ -684,7 +684,7 @@ public type ExternalTimeWindow object {
                     StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;
                     StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
                     match (conditionFunc) {
-                        function (map e1Data, map e2Data) returns boolean conditionCheckFunc => {
+                        function (map<any> e1Data, map<any> e2Data) returns boolean conditionCheckFunc => {
                             if (conditionCheckFunc(lshEvent.data, rhsEvent.data)) {
                                 events[i] = (lshEvent, rhsEvent);
                                 i += 1;
@@ -925,7 +925,7 @@ public type ExternalTimeBatchWindow object {
 
     public function getCandidateEvents(
                         StreamEvent originEvent,
-                        (function (map e1Data, map e2Data) returns boolean)? conditionFunc,
+                        (function (map<any> e1Data, map<any> e2Data) returns boolean)? conditionFunc,
                         boolean isLHSTrigger = true)
                         returns (StreamEvent?, StreamEvent?)[] {
         (StreamEvent?, StreamEvent?)[] events = [];
@@ -936,7 +936,7 @@ public type ExternalTimeBatchWindow object {
                     StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;
                     StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
                     match (conditionFunc) {
-                        function (map e1Data, map e2Data) returns boolean conditionCheckFunc => {
+                        function (map<any> e1Data, map<any> e2Data) returns boolean conditionCheckFunc => {
                             if (conditionCheckFunc(lshEvent.data, rhsEvent.data)) {
                                 events[i] = (lshEvent, rhsEvent);
                                 i += 1;
@@ -1259,7 +1259,7 @@ public type TimeLengthWindow object {
 
     public function getCandidateEvents(
                         StreamEvent originEvent,
-                        (function (map e1Data, map e2Data) returns boolean)? conditionFunc,
+                        (function (map<any> e1Data, map<any> e2Data) returns boolean)? conditionFunc,
                         boolean isLHSTrigger = true)
                         returns (StreamEvent?, StreamEvent?)[] {
         (StreamEvent?, StreamEvent?)[] events = [];
@@ -1270,7 +1270,7 @@ public type TimeLengthWindow object {
                     StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;
                     StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
                     match (conditionFunc) {
-                        function (map e1Data, map e2Data) returns boolean conditionCheckFunc => {
+                        function (map<any> e1Data, map<any> e2Data) returns boolean conditionCheckFunc => {
                             if (conditionCheckFunc(lshEvent.data, rhsEvent.data)) {
                                 events[i] = (lshEvent, rhsEvent);
                                 i += 1;
@@ -1426,7 +1426,7 @@ public type UniqueLengthWindow object {
 
     public function getCandidateEvents(
                         StreamEvent originEvent,
-                        (function (map e1Data, map e2Data) returns boolean)? conditionFunc,
+                        (function (map<any> e1Data, map<any> e2Data) returns boolean)? conditionFunc,
                         boolean isLHSTrigger = true)
                         returns (StreamEvent?, StreamEvent?)[] {
         (StreamEvent?, StreamEvent?)[] events = [];
@@ -1437,7 +1437,7 @@ public type UniqueLengthWindow object {
                     StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;
                     StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
                     match (conditionFunc) {
-                        function (map e1Data, map e2Data) returns boolean conditionCheckFunc => {
+                        function (map<any> e1Data, map<any> e2Data) returns boolean conditionCheckFunc => {
                             if (conditionCheckFunc(lshEvent.data, rhsEvent.data)) {
                                 events[i] = (lshEvent, rhsEvent);
                                 i += 1;
@@ -1575,7 +1575,7 @@ public type DelayWindow object {
 
     public function getCandidateEvents(
                         StreamEvent originEvent,
-                        (function (map e1Data, map e2Data) returns boolean)? conditionFunc,
+                        (function (map<any> e1Data, map<any> e2Data) returns boolean)? conditionFunc,
                         boolean isLHSTrigger = true)
                         returns (StreamEvent?, StreamEvent?)[] {
         (StreamEvent?, StreamEvent?)[] events = [];
@@ -1586,7 +1586,7 @@ public type DelayWindow object {
                     StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;
                     StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
                     match (conditionFunc) {
-                        function (map e1Data, map e2Data) returns boolean conditionCheckFunc => {
+                        function (map<any> e1Data, map<any> e2Data) returns boolean conditionCheckFunc => {
                             if (conditionCheckFunc(lshEvent.data, rhsEvent.data)) {
                                 events[i] = (lshEvent, rhsEvent);
                                 i += 1;

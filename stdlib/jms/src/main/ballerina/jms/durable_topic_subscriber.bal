@@ -45,10 +45,11 @@ public type DurableTopicSubscriber object {
     #
     # + serviceType - Type descriptor of the service
     public function __attach(service serviceType, map<any> data) returns error? {
-        return self.registerListener(serviceType, self.consumerActions);
+        return self.registerListener(serviceType, self.consumerActions, data);
     }
 
-    extern function registerListener(service serviceType, DurableTopicSubscriberCaller actions) returns error?;
+    extern function registerListener(service serviceType, DurableTopicSubscriberCaller actions,
+                                     map<any> data) returns error?;
 
     extern function createSubscriber(Session session, string messageSelector) returns error?;
 

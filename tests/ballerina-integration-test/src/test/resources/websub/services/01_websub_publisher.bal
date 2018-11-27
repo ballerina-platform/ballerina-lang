@@ -88,7 +88,7 @@ service publisher on publisherServiceEP {
         if (req.hasHeader("x-topic")) {
             string topicName = req.getHeader("x-topic");
             websub:SubscriberDetails[] details = webSubHub.getSubscribers(topicName);
-            var j = <json> details[0];
+            var j = json.create(details[0]);
             if (j is json) {
                 var err = caller->respond(j);
                 if (err is error) {
@@ -98,14 +98,14 @@ service publisher on publisherServiceEP {
                 panic j;
             }
         } else {
-            map allTopics = {};
+            map<string> allTopics = {};
             int index=1;
             string [] availableTopics = webSubHub.getAvailableTopics();
             foreach topic in availableTopics {
                 allTopics["Topic_" + index] = topic;
                 index += 1;
             }
-            var j = <json> allTopics;
+            var j = json.create(allTopics);
             if (j is json) {
                 var err = caller->respond(j);
                 if (err is error) {
@@ -114,7 +114,6 @@ service publisher on publisherServiceEP {
             } else {
                 panic j;
             }
-
         }
     }
 }

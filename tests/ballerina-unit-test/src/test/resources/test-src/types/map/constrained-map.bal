@@ -182,7 +182,7 @@ function testConstrainedMapBlobTypeNegative () returns (byte[], byte[]) {
 
 function testConstrainedMapValueTypeCast () returns (string) {
     map<string> testMap = {name:"kevin"};
-    map m = getGenericMap(testMap);
+    map<any> m = getGenericMap(testMap);
     map<string> castMap;
     castMap = check < map<string> > m;
     string val = castMap.name;
@@ -191,11 +191,11 @@ function testConstrainedMapValueTypeCast () returns (string) {
 
 function testConstrainedMapValueTypeCastNegative () returns (map<int>|error) {
     map<string> testMap = {name:"kevin"};
-    map m = getGenericMap(testMap);
+    map<any> m = getGenericMap(testMap);
     return <map<int>>m;
 }
 
-function getGenericMap (map m) returns (map) {
+function getGenericMap (map<any> m) returns (map<any>) {
     return m;
 }
 
@@ -203,7 +203,7 @@ function testConstrainedMapRefTypeCast () returns ((string, int)) {
     map<Person> testMap = {};
     Person jack = {name:"Jack", age:25};
     testMap["item"] = jack;
-    map m = getGenericMap(testMap);
+    map<any> m = getGenericMap(testMap);
     map<Person> castMap;
     castMap = check < map<Person> > m;
     Person p = castMap.item;
@@ -214,46 +214,46 @@ function testConstrainedMapRefTypeCastNegative () returns (map<int>|error) {
     map<Person> testMap = {};
     Person jack = {name:"Jack", age:25};
     testMap["item"] = jack;
-    map m = getGenericMap(testMap);
+    map<any> m = getGenericMap(testMap);
 
     return <map<int>>m;
 }
 
 function testUpdateStringMap () returns (string) {
     map<string> testMap = {};
-    map m = updateGenericMap(testMap);
+    map<any> m = updateGenericMap(testMap);
     map<string> castMap = check < map<string> > m;
     string val = castMap.item;
     return val;
 }
 
-function updateGenericMap (map m) returns (map) {
+function updateGenericMap (map<any> m) returns (map<any>) {
     m["item"] = "update";
     return m;
 }
 
 function testStringMapUpdateWithInvalidTypeNegativeCase () returns (string) {
     map<string> testMap = {};
-    map m = updateGenericMapDifferentType(testMap);
+    map<any> m = updateGenericMapDifferentType(testMap);
     map<string> castMap = check < map<string> > m;
     string val = castMap.item;
     return val;
 }
 
-function updateGenericMapDifferentType (map m) returns (map) {
+function updateGenericMapDifferentType (map<any> m) returns (map<any>) {
     m["item"] = 1;
     return m;
 }
 
 function testStringMapUpdateWithInvalidNullTypeNegativeCase () returns (string) {
     map<string> testMap = {};
-    map m = updateGenericMapWithNullValue(testMap);
+    map<any> m = updateGenericMapWithNullValue(testMap);
     map<string> castMap = check < map<string> > m;
     string val = castMap.item;
     return val;
 }
 
-function updateGenericMapWithNullValue (map m) returns (map) {
+function updateGenericMapWithNullValue (map<any> m) returns (map<any>) {
     m["item"] = null;
     return m;
 }
@@ -275,7 +275,7 @@ function testStructConstrainedMapRuntimeCast () returns ((string, int)) {
     map<Person> testMap = {};
     Person jack = {name:"Jack", age:25, address:"Usa"};
     testMap["item"] = jack;
-    map m = getGenericMap(testMap);
+    map<any> m = getGenericMap(testMap);
     map<Employee> castMap = check < map<Employee> > m;
     Employee p = castMap.item;
     return (p.name, p.age);
@@ -323,13 +323,13 @@ function testStructMapUpdate () returns ((string, int)) {
     map<Person> testMap = {};
     Person jack = {name:"Jack", age:25, address:"Usa"};
     testMap["item"] = jack;
-    map m = updateStructMap(testMap);
+    map<any> m = updateStructMap(testMap);
     map<Employee> castMap = check < map<Employee> > m;
     Employee p = castMap.update;
     return (p.name, p.age);
 }
 
-function updateStructMap (map m) returns (map) {
+function updateStructMap (map<any> m) returns (map<any>) {
     Person k = {name:"Arnold", age:45, address:"UK"};
     m["update"] = k;
     return m;
@@ -339,19 +339,19 @@ function testStructNotEquivalentRuntimeCast () returns (map<Person>|error) {
     map<Employee> testMap = {};
     Employee jack = {name:"Jack", age:25};
     testMap["item"] = jack;
-    map m = getGenericMap(testMap);
+    map<any> m = getGenericMap(testMap);
 
     return <map<Person>>m;
 }
 
 function testAnyMapToValueTypeRuntimeCast () returns (map<int>|error) {
-    map testMap = {};
+    map<any> testMap = {};
     testMap["item"] = 5;
     return <map<int>>testMap;
 }
 
 function testAnyMapToRefTypeRuntimeCast () returns (map<Employee>|error) {
-    map testMap = {};
+    map<any> testMap = {};
     Employee jack = {name:"Jack", age:25};
     testMap["item"] = jack;
     return <map<Employee>>testMap;

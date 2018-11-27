@@ -158,6 +158,10 @@ import java.util.stream.LongStream;
 
 import static org.ballerinalang.util.BLangConstants.BBYTE_MAX_VALUE;
 import static org.ballerinalang.util.BLangConstants.BBYTE_MIN_VALUE;
+import static org.ballerinalang.util.BLangConstants.BINT_MAX_VALUE_BIG_DECIMAL_RANGE_MAX;
+import static org.ballerinalang.util.BLangConstants.BINT_MAX_VALUE_DOUBLE_RANGE_MAX;
+import static org.ballerinalang.util.BLangConstants.BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN;
+import static org.ballerinalang.util.BLangConstants.BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
 import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
 
 /**
@@ -596,6 +600,7 @@ public class BVM {
                     case InstructionCodes.CHECKCAST:
                     case InstructionCodes.IS_ASSIGNABLE:
                     case InstructionCodes.O2JSON:
+                    case InstructionCodes.TYPE_ASSERTION:
                         execTypeCastOpcodes(strand, sf, opcode, operands);
                         break;
 
@@ -868,7 +873,7 @@ public class BVM {
         } else {
             BVMScheduler.schedule(calleeStrand);
         }
-        strand.currentFrame.refRegs[retReg] = new BCallableFuture(callableUnitInfo.getName(), strndCallback);
+        strand.currentFrame.refRegs[retReg] = new BCallableFuture(callableUnitInfo.getName(), calleeStrand);
         return strand;
     }
 
@@ -1043,10 +1048,7 @@ public class BVM {
         }
 
         if (!checkIsLikeType(valueToBeStamped, targetType)) {
-            BError error = BLangVMErrors.createError(ctx,
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_STAMP_OPERATION,
-                            valueToBeStamped.getType(), targetType));
-            sf.refRegs[k] = error;
+            BError error;
             if (valueToBeStamped != null) {
                 error = BLangVMErrors.createError(ctx,
                         BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_STAMP_OPERATION,
@@ -1940,12 +1942,6 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                if (sf.doubleRegs[j] == 0) {
-                    ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
-                    handleError(ctx);
-                    break;
-                }
-
                 sf.doubleRegs[k] = sf.doubleRegs[i] % sf.doubleRegs[j];
                 break;
             case InstructionCodes.DMOD:
@@ -2301,6 +2297,40 @@ public class BVM {
         TypeRefCPEntry typeRefCPEntry;
 
         switch (opcode) {
+            case InstructionCodes.TYPE_ASSERTION:
+                i = operands[0];
+                cpIndex = operands[1];
+                j = operands[2];
+                typeRefCPEntry = (TypeRefCPEntry) sf.constPool[cpIndex];
+                BType expectedType = typeRefCPEntry.getType();
+
+                bRefTypeValue = sf.refRegs[i];
+
+                if (bRefTypeValue == null) {
+                    if (expectedType.getTag() == TypeTags.NULL_TAG) {
+                        sf.refRegs[j] = null;
+                        break;
+                    }
+                    ctx.setError(BLangVMErrors.createError(ctx,
+                                                           BLangExceptionHelper.getErrorMessage(
+                                                                   RuntimeErrors.TYPE_ASSERTION_ERROR, expectedType,
+                                                                   "()")));
+                    handleError(ctx);
+                } else if (isSimpleBasicType(expectedType)) {
+                    execExplicitlyTypedExpressionOpCode(ctx, sf, expectedType, bRefTypeValue, j);
+                } else if (expectedType.equals(bRefTypeValue.getType())) {
+                    sf.refRegs[j] = bRefTypeValue;
+                } else {
+                    ctx.setError(
+                            BLangVMErrors.createError(ctx,
+                                                      BLangExceptionHelper.getErrorMessage(
+                                                              RuntimeErrors.TYPE_ASSERTION_ERROR,
+                                                                   (expectedType.getTag() == TypeTags.NULL_TAG ?
+                                                                            "()" : expectedType),
+                                                                   bRefTypeValue.getType())));
+                    handleError(ctx);
+                }
+                break;
             case InstructionCodes.I2ANY:
                 i = operands[0];
                 j = operands[1];
@@ -2423,6 +2453,42 @@ public class BVM {
         }
     }
 
+    private static void execExplicitlyTypedExpressionOpCode(Strand ctx, StackFrame sf, BType targetType,
+                                                            BRefType bRefTypeValue, int regIndex) {
+        BType sourceType = bRefTypeValue.getType();
+        int targetTag = targetType.getTag();
+        if (!isSimpleBasicType(sourceType) ||
+                (sourceType.getTag() == TypeTags.STRING_TAG && targetTag != TypeTags.STRING_TAG)) {
+            ctx.setError(BLangVMErrors.createError(ctx,  "assertion error: expected '" + targetType + "', found '" +
+                    bRefTypeValue.getType() + "'"));
+            handleError(ctx);
+            return;
+        }
+
+        try {
+            switch (targetTag) {
+                case TypeTags.STRING_TAG:
+                    sf.stringRegs[regIndex] = bRefTypeValue.stringValue();
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    sf.doubleRegs[regIndex] = ((BValueType) bRefTypeValue).floatValue();
+                    break;
+                case TypeTags.DECIMAL_TAG:
+                    sf.refRegs[regIndex] = new BDecimal(((BValueType) bRefTypeValue).decimalValue());
+                    break;
+                case TypeTags.INT_TAG:
+                    sf.longRegs[regIndex] = ((BValueType) bRefTypeValue).intValue();
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    sf.intRegs[regIndex] = ((BValueType) bRefTypeValue).booleanValue() ? 1 : 0;
+                    break;
+            }
+        } catch (BallerinaException e) {
+            ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+            handleError(ctx);
+        }
+    }
+
     private static void execTypeConversionOpcodes(Strand ctx, StackFrame sf, int opcode,
                                                   int[] operands) {
         int i;
@@ -2449,7 +2515,9 @@ public class BVM {
             case InstructionCodes.I2D:
                 i = operands[0];
                 j = operands[1];
-                sf.refRegs[j] = new BDecimal(new BigDecimal(sf.longRegs[i], MathContext.DECIMAL128));
+                sf.refRegs[j] = new BDecimal(
+                        (new BigDecimal(sf.longRegs[i], MathContext.DECIMAL128)).setScale(1,
+                                                                                          BigDecimal.ROUND_HALF_EVEN));
                 break;
             case InstructionCodes.I2BI:
                 i = operands[0];
@@ -2468,7 +2536,22 @@ public class BVM {
             case InstructionCodes.F2I:
                 i = operands[0];
                 j = operands[1];
-                sf.longRegs[j] = (long) sf.doubleRegs[i];
+                double valueToConvert = sf.doubleRegs[i];
+                if (Double.isNaN(valueToConvert) || Double.isInfinite(valueToConvert)) {
+                    ctx.setError(BLangVMErrors.createError(ctx, "'float' value '" + valueToConvert + "' cannot be " +
+                            "converted to 'int'"));
+                    handleError(ctx);
+                    break;
+                }
+
+                if (!isFloatWithinIntRange(valueToConvert)) {
+                    ctx.setError(BLangVMErrors.createError(ctx, "out of range 'float' value '" + valueToConvert + "'" +
+                            " cannot be converted to 'int'"));
+                    handleError(ctx);
+                    break;
+                }
+
+                sf.longRegs[j] = Math.round(valueToConvert);
                 break;
             case InstructionCodes.F2S:
                 i = operands[0];
@@ -2541,12 +2624,20 @@ public class BVM {
             case InstructionCodes.B2D:
                 i = operands[0];
                 j = operands[1];
-                sf.refRegs[j] = sf.intRegs[i] == 1 ? new BDecimal(BigDecimal.ONE) : new BDecimal(BigDecimal.ZERO);
+                sf.refRegs[j] = sf.intRegs[i] == 1 ?
+                        new BDecimal(BigDecimal.ONE.setScale(1, BigDecimal.ROUND_HALF_EVEN)) :
+                        new BDecimal(BigDecimal.ZERO.setScale(1, BigDecimal.ROUND_HALF_EVEN));
                 break;
             case InstructionCodes.D2I:
                 i = operands[0];
                 j = operands[1];
-                sf.longRegs[j] = ((BDecimal) sf.refRegs[i]).intValue();
+                if (!isDecimalWithinIntRange(((BDecimal) sf.refRegs[i]).decimalValue())) {
+                    ctx.setError(BLangVMErrors.createError(ctx, "out of range 'decimal' value '" +
+                            sf.refRegs[i] + "' cannot be converted to 'int'"));
+                    handleError(ctx);
+                    break;
+                }
+                sf.longRegs[j] = Math.round(((BDecimal) sf.refRegs[i]).decimalValue().doubleValue());
                 break;
             case InstructionCodes.D2F:
                 i = operands[0];
@@ -2643,6 +2734,15 @@ public class BVM {
 
     public static boolean isByteLiteral(long longValue) {
         return (longValue >= BBYTE_MIN_VALUE && longValue <= BBYTE_MAX_VALUE);
+    }
+
+    public static boolean isFloatWithinIntRange(double doubleValue) {
+        return doubleValue < BINT_MAX_VALUE_DOUBLE_RANGE_MAX && doubleValue > BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
+    }
+
+    public static boolean isDecimalWithinIntRange(BigDecimal decimalValue) {
+        return decimalValue.compareTo(BINT_MAX_VALUE_BIG_DECIMAL_RANGE_MAX) == -1 &&
+                decimalValue.compareTo(BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN) == 1;
     }
 
     private static void execIteratorOperation(Strand ctx, StackFrame sf, Instruction instruction) {
@@ -2784,6 +2884,7 @@ public class BVM {
             BType paramType = types[i];
             int pkgIndex = pkgRegs[i];
             int regIndex = varRegs[i];
+
             switch (paramType.getTag()) {
                 case TypeTags.INT_TAG:
                     lockAcquired = strand.programFile.globalMemArea.lockIntField(strand, pkgIndex, regIndex);
@@ -4130,7 +4231,7 @@ public class BVM {
         for (int i = 0; i < c; i++) {
             int futureReg = operands[i + 3];
             BFuture future = (BFuture) strand.currentFrame.refRegs[futureReg];
-            callbacks[i] = future.value();
+            callbacks[i] = (SafeStrandCallback) future.value().respCallback;
         }
         strand.createLock();
         strand.waitCompleted = false;
@@ -4153,7 +4254,7 @@ public class BVM {
             // Get the expression followed
             int futureReg = operands[index + 1];
             BFuture future = (BFuture) strand.currentFrame.refRegs[futureReg];
-            callbackHashMap.put(keyRegIndex, future.value());
+            callbackHashMap.put(keyRegIndex, (SafeStrandCallback) future.value().respCallback);
         }
         strand.createLock();
         strand.waitCompleted = false;
@@ -4386,7 +4487,7 @@ public class BVM {
             case TypeTags.RECORD_TYPE_TAG:
             case TypeTags.JSON_TAG:
             case TypeTags.MAP_TAG:
-                return ((BMap) sourceValue).getMap().entrySet().stream()
+                return ((BMap) sourceValue).getMap().values().stream()
                         .allMatch(value -> checkIsLikeType((BValue) value, targetType));
             case TypeTags.ARRAY_TAG:
                 BNewArray arr = (BNewArray) sourceValue;
@@ -4543,6 +4644,7 @@ public class BVM {
             case TypeTags.BYTE_TAG:
             case TypeTags.NULL_TAG:
             case TypeTags.XML_TAG:
+            case TypeTags.SERVICE_TAG:
                 return sourceType.getTag() == targetType.getTag();
             case TypeTags.MAP_TAG:
                 return checkIsMapType(sourceType, (BMapType) targetType, unresolvedTypes);
@@ -4803,6 +4905,8 @@ public class BVM {
             case TypeTags.TUPLE_TAG:
             case TypeTags.ARRAY_TAG:
                 return isListType(rhsValTypeTag) && isEqual((BNewArray) lhsValue, (BNewArray) rhsValue, checkedValues);
+            case TypeTags.SERVICE_TAG:
+                break;
         }
         return false;
     }

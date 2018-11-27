@@ -31,13 +31,8 @@ import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaLambdaFunction;
 import io.ballerina.plugins.idea.psi.BallerinaNameReference;
 import io.ballerina.plugins.idea.psi.BallerinaObjectBody;
-import io.ballerina.plugins.idea.psi.BallerinaObjectDefaultableParameter;
 import io.ballerina.plugins.idea.psi.BallerinaObjectFieldDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaObjectFunctionDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaObjectInitializer;
-import io.ballerina.plugins.idea.psi.BallerinaObjectMember;
-import io.ballerina.plugins.idea.psi.BallerinaObjectParameter;
-import io.ballerina.plugins.idea.psi.BallerinaObjectParameterList;
 import io.ballerina.plugins.idea.psi.BallerinaParameter;
 import io.ballerina.plugins.idea.psi.BallerinaParameterWithType;
 import io.ballerina.plugins.idea.psi.BallerinaRestParameter;
@@ -51,7 +46,6 @@ import io.ballerina.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -179,7 +173,7 @@ public class BallerinaBlockProcessor extends BallerinaScopeProcessorBase {
             }
 
             // Todo - check return value and continue only if needed
-            processObjectInitializer(scopeElement);
+
             if (!isCompletion() && getResult() != null) {
                 return false;
             }
@@ -217,80 +211,6 @@ public class BallerinaBlockProcessor extends BallerinaScopeProcessorBase {
         }
     }
 
-    private void processObjectInitializer(@NotNull PsiElement scopeElement) {
-        BallerinaObjectInitializer ballerinaObjectInitializer = PsiTreeUtil.getParentOfType(scopeElement,
-                BallerinaObjectInitializer.class);
-        if (ballerinaObjectInitializer == null) {
-            return;
-        }
-
-        // Add parameters which are not object parameters to the suggestions
-        BallerinaObjectParameterList ballerinaObjectParameterList =
-                PsiTreeUtil.findChildOfType(ballerinaObjectInitializer, BallerinaObjectParameterList.class);
-        if (ballerinaObjectParameterList != null) {
-            List<BallerinaObjectDefaultableParameter> objectDefaultableParameterList =
-                    ballerinaObjectParameterList.getObjectDefaultableParameterList();
-            for (BallerinaObjectDefaultableParameter parameter : objectDefaultableParameterList) {
-                BallerinaObjectParameter objectParameter = parameter.getObjectParameter();
-                PsiElement identifier = objectParameter.getIdentifier();
-                if (myResult != null) {
-                    myResult.addElement(BallerinaCompletionUtils.createParameterLookupElement(identifier,
-                            BallerinaPsiImplUtil.formatBallerinaTypeName(objectParameter.getTypeName()),
-                            BallerinaPsiImplUtil.formatParameterDefaultValue(parameter.getExpression())));
-                } else if (myElement.getText().equals(identifier.getText())) {
-                    add(identifier);
-                }
-            }
-
-            List<BallerinaObjectParameter> objectParameterList = ballerinaObjectParameterList.getObjectParameterList();
-            for (BallerinaObjectParameter parameter : objectParameterList) {
-                PsiElement identifier = parameter.getIdentifier();
-                if (identifier != null) {
-                    if (myResult != null) {
-                        myResult.addElement(BallerinaCompletionUtils.createParameterLookupElement(identifier,
-                                BallerinaPsiImplUtil.formatBallerinaTypeName(parameter.getTypeName()), ""));
-                    } else if (myElement.getText().equals(identifier.getText())) {
-                        add(identifier);
-                    }
-                }
-            }
-
-            BallerinaRestParameter restParameter = ballerinaObjectParameterList.getRestParameter();
-            if (restParameter != null) {
-                PsiElement identifier = restParameter.getIdentifier();
-                if (identifier != null) {
-                    if (myResult != null) {
-                        myResult.addElement(BallerinaCompletionUtils.createParameterLookupElement(identifier,
-                                BallerinaPsiImplUtil.formatBallerinaTypeName(restParameter.getTypeName()), ""));
-                    } else if (myElement.getText().equals(identifier.getText())) {
-                        add(identifier);
-                    }
-                }
-            }
-        }
-
-        BallerinaRestParameter restParameter = PsiTreeUtil.findChildOfType(ballerinaObjectInitializer,
-                BallerinaRestParameter.class);
-        if (restParameter != null) {
-            PsiElement identifier = restParameter.getIdentifier();
-            if (identifier != null) {
-                if (myResult != null) {
-                    myResult.addElement(BallerinaCompletionUtils.createParameterLookupElement(identifier,
-                            BallerinaPsiImplUtil.formatBallerinaTypeName(restParameter.getTypeName()), null));
-                } else if (myElement.getText().equals(identifier.getText())) {
-                    add(identifier);
-                }
-            }
-        }
-
-        BallerinaObjectBody ballerinaObjectBody = PsiTreeUtil.getParentOfType(ballerinaObjectInitializer,
-                BallerinaObjectBody.class);
-        if (ballerinaObjectBody == null) {
-            return;
-        }
-        processObjectDefinition(ballerinaObjectBody);
-    }
-
     private void processObjectFields(@NotNull PsiElement scopeElement) {
         BallerinaObjectFunctionDefinition ballerinaObjectFunctionDefinition = PsiTreeUtil.getParentOfType(scopeElement,
                 BallerinaObjectFunctionDefinition.class);
@@ -318,17 +238,6 @@ public class BallerinaBlockProcessor extends BallerinaScopeProcessorBase {
         if (ballerinaTypeDefinition == null || ballerinaTypeDefinition.getIdentifier() == null) {
             return;
         }
-
-        List<BallerinaObjectFieldDefinition> objectFieldDefinitionList = new LinkedList<>();
-        List<BallerinaObjectMember> objectMemberList = ballerinaObjectBody.getObjectMemberList();
-        for (BallerinaObjectMember ballerinaObjectMember : objectMemberList) {
-            BallerinaObjectFieldDefinition objectFieldDefinition = ballerinaObjectMember.getObjectFieldDefinition();
-            if (objectFieldDefinition != null) {
-                objectFieldDefinitionList.add(objectFieldDefinition);
-            }
-        }
-
-        processObjectFields(ballerinaTypeDefinition.getIdentifier(), objectFieldDefinitionList);
     }
 
     private void processObjectFields(@Nullable PsiElement typeName,

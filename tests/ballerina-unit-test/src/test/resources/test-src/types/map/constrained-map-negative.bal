@@ -1,5 +1,5 @@
 function testConstrainedMapAssignNegative() returns (map<int>) {
-    map testMap;
+    map<any> testMap;
     return testMap;
 }
 
@@ -41,7 +41,7 @@ function returnMap(map<Person> m) returns (map<Person>) {
 }
 
 function testInvalidAnyMapPassAsArgument() returns (map<Person>) {
-    map testMap;
+    map<any> testMap;
     map<Person> m = returnMap(testMap);
     return m;
 }

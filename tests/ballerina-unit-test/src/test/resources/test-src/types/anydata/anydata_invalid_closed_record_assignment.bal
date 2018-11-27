@@ -74,7 +74,7 @@ type ClosedFoo4 record {
 
 type ClosedFoo5 record {
     int ca;
-    map m = {};
+    map<any> m = {};
     !...
 };
 

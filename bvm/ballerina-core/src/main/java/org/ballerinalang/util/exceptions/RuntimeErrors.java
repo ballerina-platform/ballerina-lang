@@ -56,7 +56,8 @@ public enum RuntimeErrors {
     UNSUPPORTED_CLONE_OPERATION("unsupported.clone.operation", "RUNTIME_0031"),
     INVALID_RECORD_FIELD_ACCESS("invalid.record.field.access", "RUNTIME_0032"),
     INVALID_RECORD_FIELD_ADDITION("invalid.record.field.addition", "RUNTIME_0033"),
-    INVALID_OBJECT_FIELD_ADDITION("invalid.object.field.addition", "RUNTIME_0034");
+    INVALID_OBJECT_FIELD_ADDITION("invalid.object.field.addition", "RUNTIME_0034"),
+    TYPE_ASSERTION_ERROR("type.assertion.error", "RUNTIME_0035");
 
     private String errorMsgKey;
     private String errorCode;

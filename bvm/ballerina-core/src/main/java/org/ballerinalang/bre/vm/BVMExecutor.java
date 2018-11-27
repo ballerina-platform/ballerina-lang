@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.bre.vm;
 
-import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.bre.vm.Strand.State;
@@ -120,6 +119,7 @@ public class BVMExecutor {
      * @param responseCallback  to be used for notifications
      * @param properties        to be passed in the context
      * @param observerContext   to be used
+     * @param serviceInfo       to be used
      * @param args              to be passed to the resource
      */
     public static void executeResource(ProgramFile programFile, FunctionInfo resourceInfo,

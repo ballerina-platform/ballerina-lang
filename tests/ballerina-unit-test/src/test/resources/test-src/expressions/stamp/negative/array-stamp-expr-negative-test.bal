@@ -52,10 +52,10 @@ function stampAnyArrayToObject() returns EmployeeObject {
     return objectValue;
 }
 
-function stampAnyArrayToMap() returns map {
+function stampAnyArrayToMap() returns map<any> {
 
     anydata[] anyArray = ["Mohan", "Single", "LK2014"];
-    map mapValue = map.stamp(anyArray);
+    map<any> mapValue = map.stamp(anyArray);
 
     return mapValue;
 }

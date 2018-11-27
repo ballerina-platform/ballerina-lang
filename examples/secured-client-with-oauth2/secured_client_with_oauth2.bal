@@ -21,7 +21,10 @@ public function main() {
     // Send a `GET` request to the specified endpoint.
     var response = httpEndpoint->get("/users/@me/lists/");
     match response {
-        http:Response resp => log:printInfo(resp.getPayloadAsString() but {error => "Failed to retrieve payload."});
+        http:Response resp => {
+            var result = resp.getPayloadAsString();
+            log:printInfo(result is string ? result : "Failed to retrieve payload.");
+        }
         error err => log:printError("Failed to call the endpoint.");
     }
 }

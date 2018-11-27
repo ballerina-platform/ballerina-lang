@@ -16,11 +16,9 @@
 
 import ballerina/http;
 import ballerina/io;
-import ballerina/mime;
 
 public function main(string... args) {
-    endpoint http:Client clientEP {
-        url: args[0],
+    http:Client clientEP = new(args[0], config = {
         secureSocket: {
             keyStore: {
                 path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -32,7 +30,7 @@ public function main(string... args) {
             },
             ciphers: ["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"]
         }
-    };
+    });
     http:Request req = new;
     var resp = clientEP->get("/echo/");
     if (resp is http:Response) {

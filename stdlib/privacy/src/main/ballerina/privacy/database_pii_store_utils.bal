@@ -99,7 +99,7 @@ function processSelectResult (string id, table<PiiData>|error queryResult) retur
         return queryResult;
     } else {
         if (queryResult.hasNext()) {
-            PiiData piiData = check <PiiData>queryResult.getNext();
+            PiiData piiData = check trap <PiiData>queryResult.getNext();
             queryResult.close();
             return piiData.pii;
         } else {

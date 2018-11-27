@@ -71,6 +71,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.EVENTS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EVERY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EXTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FAIL;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.FINAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FINALLY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FIRST;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FLOAT;
@@ -112,6 +113,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.MONTHS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.NEW;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.NULL_LITERAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.OBJECT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.OBJECT_INIT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.OCTAL_INTEGER_LITERAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ON;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ONABORT;
@@ -185,15 +187,15 @@ public class BallerinaParserDefinition implements ParserDefinition {
     // Todo - Annotate ReservedWord in the runtime to prevent highlighting as keywords.
     public static final TokenSet KEYWORDS = TokenSet
             .create(ABORT, ABSTRACT, ALL, ANNOTATION, ANY, ANYDATA, AWAIT, BOOLEAN, BREAK, BUT, BYTE, CATCH, CHANNEL,
-                    CHECK, CLIENT, CONST, CONTINUE, DEPRECATED, DECIMAL, DONE, ELSE, ENUM, ERROR, EXTERN, FAIL, FINALLY,
-                    FLOAT, FORK, FUNCTION, FUTURE, IF, IMPORT, IN, INT, IS, JOIN, JSON, LENGTHOF, LISTENER, LOCK, MATCH,
-                    NEW, OBJECT, ONABORT, ONCOMMIT, ONRETRY, PARAMETER, PANIC, PRIVATE, PUBLIC, RECORD, REMOTE,
-                    RESOURCE, RETRIES, RETRY, RETURN, RETURNS, SERVICE, SOME, START, STREAM, STRING, TABLE, TIMEOUT,
-                    TRANSACTION, TRY, TYPE, TYPEDESC, TRAP, THROW, UNTAINT, WHILE, WITH, WORKER, VAR, VERSION, XML,
-                    XMLNS, BOOLEAN_LITERAL, NULL_LITERAL, FROM, ON, SELECT, GROUP, BY, HAVING, ORDER, WHERE, FOLLOWED,
-                    SET, FOR, WINDOW, EVENTS, EVERY, WITHIN, LAST, FIRST, SNAPSHOT, OUTPUT, INNER, OUTER, RIGHT, LEFT,
-                    FULL, UNIDIRECTIONAL, SECOND, SECONDS, MINUTE, MINUTES, HOUR, HOURS, DAY, DAYS, MONTH, MONTHS, YEAR,
-                    YEARS, FOREVER, LIMIT, ASCENDING, DESCENDING);
+                    CHECK, CLIENT, CONST, CONTINUE, DEPRECATED, DECIMAL, DONE, ELSE, ENUM, ERROR, EXTERN, FAIL, FINAL,
+                    FINALLY, FLOAT, FORK, FUNCTION, FUTURE, IF, IMPORT, IN, INT, IS, JOIN, JSON, LENGTHOF, LISTENER,
+                    LOCK, MATCH, NEW, OBJECT, OBJECT_INIT, ONABORT, ONCOMMIT, ONRETRY, PARAMETER, PANIC, PRIVATE,
+                    PUBLIC, RECORD, REMOTE, RESOURCE, RETRIES, RETRY, RETURN, RETURNS, SERVICE, SOME, START, STREAM,
+                    STRING, TABLE, TIMEOUT, TRANSACTION, TRY, TYPE, TYPEDESC, TRAP, THROW, UNTAINT, WHILE, WITH, WORKER,
+                    VAR, VERSION, XML, XMLNS, BOOLEAN_LITERAL, NULL_LITERAL, FROM, ON, SELECT, GROUP, BY, HAVING, ORDER,
+                    WHERE, FOLLOWED, SET, FOR, WINDOW, EVENTS, EVERY, WITHIN, LAST, FIRST, SNAPSHOT, OUTPUT, INNER,
+                    OUTER, RIGHT, LEFT, FULL, UNIDIRECTIONAL, SECOND, SECONDS, MINUTE, MINUTES, HOUR, HOURS, DAY, DAYS,
+                    MONTH, MONTHS, YEAR, YEARS, FOREVER, LIMIT, ASCENDING, DESCENDING);
 
     public static final TokenSet OPERATORS = TokenSet.create(DOUBLE_COLON, ELVIS, EQUAL_GT, LARROW, RARROW);
 

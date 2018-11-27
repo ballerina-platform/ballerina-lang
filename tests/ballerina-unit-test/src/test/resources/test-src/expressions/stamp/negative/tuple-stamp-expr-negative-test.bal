@@ -64,10 +64,10 @@ function stampTupleToObject() returns EmployeeObj {
     return objectValue;
 }
 
-function stampTupleToMap() returns map {
+function stampTupleToMap() returns map<any> {
     (string, string, string) tupleValue = ("Mohan", "single", "LK2014");
 
-    map mapValue = map.stamp(tupleValue);
+    map<any> mapValue = map.stamp(tupleValue);
     return mapValue;
 }
 

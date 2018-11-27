@@ -55,7 +55,7 @@ function testInvalidForeachOpWithClosedRecords() {
 }
 
 function testInvalidMapOpWithClosedRecords() {
-    map newp = p.map(function (any entry) returns (string, any) {
+    map<any> newp = p.map(function (any entry) returns (string, any) {
         return ("", "");
     });
 
@@ -77,7 +77,7 @@ function testInvalidMapOpWithClosedRecords() {
 }
 
 function testInvalidFilterOpWithClosedRecords() {
-    map newp = p.filter(function ((string,any) entry) returns boolean {
+    map<any> newp = p.filter(function ((string,any) entry) returns boolean {
         return true;
     });
 

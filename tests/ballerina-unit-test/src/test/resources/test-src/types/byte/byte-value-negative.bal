@@ -31,17 +31,13 @@ function invalidByteLiteral() {
 }
 
 function testUnreachableByteMatchStmt3() {
-    int a = foo(2) but {    int => 333,
-                            byte => 777,
-                            string[] => 666
-                        };
+    var result = foo(2);
+    int a = result is int ? 333 : (result is byte ? 777 : (result is string[] ? 666 : result));
 }
 
 function testUnreachableByteMatchStmt4() {
-    int a = foo(2) but {    int => 333,
-                            string[] => 666,
-                            byte => 777
-                        };
+    var result = foo(2);
+    int a = result is int ? 333 : (result is byte ? 777 : (result is string[] ? 666 : result));
 }
 
 function foo (int a) returns (byte|int|string[]) {

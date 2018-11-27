@@ -103,6 +103,11 @@ public class StructImpl extends AnnotatableNode implements Struct {
     }
 
     @Override
+    public BMap getServiceField(String fieldName) {
+        return (BMap) value.get(fieldName);
+    }
+
+    @Override
     public Value[] getArrayField(String fieldName) {
         final BNewArray refField = (BNewArray) value.get(fieldName);
         if (refField == null) {

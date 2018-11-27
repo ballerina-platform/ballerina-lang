@@ -476,9 +476,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangMatch matchStmt) {
         analyzeExpr(matchStmt.expr);
-        if (!matchStmt.getTypedPatternClauses().isEmpty()) {
-            analyzeTypeMatchPatterns(matchStmt);
-        }
 
         if (!matchStmt.getStaticPatternClauses().isEmpty()) {
             analyzeStaticMatchPatterns(matchStmt);
@@ -809,85 +806,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 break;
         }
         return false;
-    }
-
-    private void analyzeTypeMatchPatterns(BLangMatch matchStmt) {
-        if (matchStmt.exprTypes.isEmpty()) {
-            return;
-        }
-
-        boolean unmatchedExprTypesAvailable = false;
-
-        // TODO Handle **any** as a expr type.. special case it..
-        // TODO Complete the exhaustive tests with any, struct and connector types
-        // TODO Handle the case where there are incompatible types. e.g. input string : pattern int and pattern string
-
-        List<BType> unmatchedExprTypes = new ArrayList<>();
-        for (BType exprType : matchStmt.exprTypes) {
-            boolean assignable = false;
-            for (BLangMatch.BLangMatchTypedBindingPatternClause pattern : matchStmt.getTypedPatternClauses()) {
-                BType patternType = pattern.variable.type;
-                if (exprType.tag == TypeTags.SEMANTIC_ERROR || patternType.tag == TypeTags.SEMANTIC_ERROR) {
-                    return;
-                }
-
-                assignable = this.types.isAssignable(exprType, patternType);
-                if (assignable) {
-                    pattern.matchedTypesDirect.add(exprType);
-                    break;
-                } else if (exprType.tag == TypeTags.ANY) {
-                    pattern.matchedTypesIndirect.add(exprType);
-                } else if (exprType.tag == TypeTags.JSON &&
-                        this.types.isAssignable(patternType, exprType)) {
-                    pattern.matchedTypesIndirect.add(exprType);
-                } else if ((exprType.tag == TypeTags.OBJECT || exprType.tag == TypeTags.RECORD)
-                        && this.types.isAssignable(patternType, exprType)) {
-                    pattern.matchedTypesIndirect.add(exprType);
-                } else if (exprType.tag == TypeTags.BYTE && patternType.tag == TypeTags.INT) {
-                    pattern.matchedTypesDirect.add(exprType);
-                    break;
-                } else {
-                    // TODO Support other assignable types
-                }
-            }
-
-            if (!assignable) {
-                unmatchedExprTypes.add(exprType);
-            }
-        }
-
-        if (!unmatchedExprTypes.isEmpty()) {
-            unmatchedExprTypesAvailable = true;
-            dlog.error(matchStmt.pos, DiagnosticCode.MATCH_STMT_CANNOT_GUARANTEE_A_MATCHING_PATTERN,
-                    unmatchedExprTypes);
-        }
-
-        boolean matchedPatternsAvailable = false;
-        for (int i = matchStmt.getTypedPatternClauses().size() - 1; i >= 0; i--) {
-            BLangMatch.BLangMatchTypedBindingPatternClause pattern = matchStmt.getTypedPatternClauses().get(i);
-            if (pattern.matchedTypesDirect.isEmpty() && pattern.matchedTypesIndirect.isEmpty()) {
-                if (matchedPatternsAvailable) {
-                    dlog.error(pattern.pos, DiagnosticCode.MATCH_STMT_UNMATCHED_PATTERN);
-                } else {
-                    dlog.error(pattern.pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN);
-                }
-            } else {
-                matchedPatternsAvailable = true;
-            }
-        }
-
-        // Execute the following block if there are no unmatched expression types
-        if (!unmatchedExprTypesAvailable) {
-            this.checkStatementExecutionValidity(matchStmt);
-            boolean matchStmtReturns = true;
-            for (BLangMatch.BLangMatchTypedBindingPatternClause patternClause : matchStmt.getTypedPatternClauses()) {
-                analyzeNode(patternClause.body, env);
-                matchStmtReturns = matchStmtReturns && this.statementReturns;
-                this.resetStatementReturns();
-            }
-
-            this.statementReturns = matchStmtReturns;
-        }
     }
 
     @Override

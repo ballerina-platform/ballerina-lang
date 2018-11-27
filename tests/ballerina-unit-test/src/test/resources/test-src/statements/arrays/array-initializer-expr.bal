@@ -30,9 +30,9 @@ function testNestedArrayInit() returns (int[][]) {
 }
 
 function testArrayOfMapsInit() returns (map[]) {
-    map addressOne = {city:"Colombo", "country":"SriLanka"};
-    map addressTwo = {city:"Kandy", "country":"SriLanka"};
-    map addressThree = {city:"Galle", "country":"SriLanka"};
+    map<any> addressOne = {city:"Colombo", "country":"SriLanka"};
+    map<any> addressTwo = {city:"Kandy", "country":"SriLanka"};
+    map<any> addressThree = {city:"Galle", "country":"SriLanka"};
     map[] array = [
                      {address: addressOne},
                      {address: addressTwo},

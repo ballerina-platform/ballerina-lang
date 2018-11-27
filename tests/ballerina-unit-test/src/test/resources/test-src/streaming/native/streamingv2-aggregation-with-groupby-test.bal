@@ -132,7 +132,7 @@ function streamFunc() {
         [function (streams:StreamEvent e) returns string {
             return <string>e.data["inputStream.category"];
         }],
-        function (streams:StreamEvent e, streams:Aggregator[] aggregatorArray) returns map {
+        function (streams:StreamEvent e, streams:Aggregator[] aggregatorArray) returns map<any> {
             streams:Sum iSumAggregator1 = check <streams:Sum>aggregatorArray[0];
             streams:Sum fSumAggregator1 = check <streams:Sum>aggregatorArray[1];
             streams:Count countAggregator1 = check <streams:Count>aggregatorArray[2];
@@ -172,7 +172,7 @@ function streamFunc() {
         }
     );
 
-    streams:Filter filter = streams:createFilter(select.process, function (map m) returns boolean {
+    streams:Filter filter = streams:createFilter(select.process, function (map<any> m) returns boolean {
             // simplify filter
             return check <int>m["inputStream.intVal"] > getValue();
         }
@@ -180,7 +180,7 @@ function streamFunc() {
 
     inputStream.subscribe(function (InputRecord i) {
             // make it type unaware and proceed
-            map keyVal = <map>i;
+            map<any> keyVal = <map>i;
             streams:StreamEvent[] eventArr = streams:buildStreamEvent(keyVal, "inputStream");
             filter.process(eventArr);
         }

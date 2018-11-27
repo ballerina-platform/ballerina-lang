@@ -4,7 +4,7 @@ type Person record {
     string name = "default first name";
     string fname = "";
     string lname = "";
-    map adrs = {};
+    map<any> adrs = {};
     int age = 999;
 
     Family family = {spouse : "Jane"};

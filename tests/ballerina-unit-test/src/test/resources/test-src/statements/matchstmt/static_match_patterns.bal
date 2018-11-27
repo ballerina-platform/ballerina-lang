@@ -96,16 +96,16 @@ type Foo record {
 function testRecordStaticMatch() returns string[] {
 
     Foo f1 = {x: 12, y: "Ballerina"};
-    map m1 = {x: 10, y: "B"};
+    map<any> m1 = {x: 10, y: "B"};
     Foo f2 = {x: 12, y: "Ballerina", z: true};
-    map m2 = {x: 10, z: "Ballerina"};
+    map<any> m2 = {x: 10, z: "Ballerina"};
 
     string[] result = [tar1(f1), tar1(m1), tar1(15), tar1(f2), tar1(m2)];
 
     return result;
 }
 
-function tar1(Foo|map|int f) returns string {
+function tar1(Foo|map<any>|int f) returns string {
 
     match f {
         {x: 12, y: "B"} => return "Value is 'x: 12, y: B'";
@@ -299,9 +299,9 @@ type AnotherFoo record {
 function testStaticMatchOrPatterns3() returns string[] {
 
     Foo f1 = {x: 12, y: "Ballerina"};
-    map m1 = {x: 10, y: "B"};
+    map<any> m1 = {x: 10, y: "B"};
     Foo f2 = {x: 12, y: "Ballerina", z: true};
-    map m2 = {x: 10, z: "Ballerina"};
+    map<any> m2 = {x: 10, z: "Ballerina"};
     AnotherFoo af1 = {x:15, y:("John", {x:12, y:"Ballerina"}, "Snow"), z:15.1};
     AnotherFoo af2 = {x: 15, y: ("Stark", f1, "Sansa"), z: 15.1};
     AnotherFoo af3 = {x: 15, y: ("Stark", {x: 12, y: "Ballerina", z: true}, "Sansa"), z:15.1};
@@ -314,7 +314,7 @@ function testStaticMatchOrPatterns3() returns string[] {
     return result;
 }
 
-function caz2(Foo|AnotherFoo|map|int f) returns string {
+function caz2(Foo|AnotherFoo|map<any>|int f) returns string {
 
     match f {
         {x: 12, y: "B"} | {x: 12, y: "Ballerina"} => return "Value is : 1st pattern - " + io:sprintf("%s", f);
@@ -332,9 +332,9 @@ function caz2(Foo|AnotherFoo|map|int f) returns string {
 function testStaticMatchOrPatterns4() returns string[] {
 
     Foo f1 = {x: 12, y: "Ballerina"};
-    map m1 = {x: 10, y: "B"};
+    map<any> m1 = {x: 10, y: "B"};
     Foo f2 = {x: 12, y: "Ballerina", z: true};
-    map m2 = {x: 10, z: "Ballerina"};
+    map<any> m2 = {x: 10, z: "Ballerina"};
     AnotherFoo af1 = {x:15, y:("John", {x:12, y:"Ballerina"}, "Snow"), z:15.1};
     AnotherFoo af2 = {x: 15, y: ("Stark", f1, "Sansa"), z: 15.1};
     AnotherFoo af3 = {x: 15, y: ("Stark", {x: 12, y: "Ballerina", z: true}, "Sansa"), z:15.1};

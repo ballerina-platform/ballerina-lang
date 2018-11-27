@@ -10,7 +10,7 @@ function testNullInForkJoin () returns (string, string)|error {
             string resp2 = "";
             resp2 -> fork;
         }
-    } join (all) (map allReplies) {
+    } join (all) (map<any> allReplies) {
         any[] temp;
         temp = check <any[]> allReplies.foo;
         string m1;
@@ -19,7 +19,7 @@ function testNullInForkJoin () returns (string, string)|error {
         string m2;
         m2 = <string> temp[0];
         return (m1,m2);
-    } timeout (30000) (map msgs) {
+    } timeout (30000) (map<any> msgs) {
 
     }
 }
