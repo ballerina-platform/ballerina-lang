@@ -389,11 +389,12 @@ public class ObjectInBaloTest {
     public void testObjectNegativeTestForNonInitializable() {
         CompileResult result = BCompileUtil.compile("test-src/balo/test_balo/object" +
                 "/object_with_non_defaultable_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 3);
+        Assert.assertEquals(result.getErrorCount(), 4);
         BAssertUtil.validateError(result, 0, "variable 'pp' is not initialized", 3, 1);
-        BAssertUtil.validateError(result, 1, "variable 'p' is not initialized", 6, 5);
-        BAssertUtil.validateError(result, 2, "undefined function 'attachInterface' in object " +
+        BAssertUtil.validateError(result, 1, "undefined function 'attachInterface' in object " +
                 "'testorg/foo:v1:Architect'", 7, 13);
+        BAssertUtil.validateError(result, 2, "variable 'p' is not initialized", 7, 13);
+        BAssertUtil.validateError(result, 3, "variable 'p' is not initialized", 7, 35);
     }
 
     @Test (description = "Negative test to test returning different type without type name")
@@ -562,9 +563,9 @@ public class ObjectInBaloTest {
                 BCompileUtil.compile("test-src/balo/test_balo/object/test_objects_type_reference_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 3);
         int i = 0;
-        BAssertUtil.validateError(result, i++, "undefined field 'name' in object 'Manager1'", 24, 9);
-        BAssertUtil.validateError(result, i++, "undefined field 'age' in object 'Manager1'", 24, 15);
-        BAssertUtil.validateError(result, i++, "incompatible types: 'foo:Manager1' is not an abstract object", 36, 6);
+        BAssertUtil.validateError(result, i++, "undefined field 'name' in object 'Manager1'", 25, 9);
+        BAssertUtil.validateError(result, i++, "undefined field 'age' in object 'Manager1'", 26, 9);
+        BAssertUtil.validateError(result, i++, "incompatible types: 'foo:Manager1' is not an abstract object", 38, 6);
     }
 
     @AfterClass
