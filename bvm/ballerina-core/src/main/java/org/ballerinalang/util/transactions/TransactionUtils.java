@@ -22,7 +22,6 @@ import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -85,7 +84,7 @@ public class TransactionUtils {
 
     private static void checkTransactionCoordinatorError(BValue value, WorkerExecutionContext ctx, String errMsg) {
         if (value.getType().getTag() == TypeTags.ERROR_TAG) {
-            throw new BallerinaException(errMsg + ((BError) value).details);
+            throw new BallerinaException(errMsg + ((BError) value).getReason());
         }
     }
 

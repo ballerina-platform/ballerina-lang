@@ -102,7 +102,9 @@ public class ResourceExecutor {
             TransactionResourceManager manager = TransactionResourceManager.getInstance();
             BFunctionPointer onAbort = trxCallBack.getTransactionOnAbort();
             BFunctionPointer onCommit = trxCallBack.getTransactionOnCommit();
-            manager.registerParticipation(globalTransactionId, onCommit, onAbort, workerExecutionContext);
+            int transactionBlockId = trxCallBack.getTransactionBlockId();
+            manager.registerParticipation(globalTransactionId, transactionBlockId, onCommit, onAbort,
+                    workerExecutionContext);
         }
     }
 }

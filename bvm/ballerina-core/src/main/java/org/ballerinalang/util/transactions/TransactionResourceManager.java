@@ -115,11 +115,8 @@ public class TransactionResourceManager {
      *
      * @since 0.985.0
      */
-    public void registerParticipation(String gTransactionId, BFunctionPointer committed, BFunctionPointer aborted,
-                                      WorkerExecutionContext workerExecutionContext) {
-        this.participantRegistry.register(gTransactionId, committed, aborted);
-
-        int transactionBlockId = -1; // This participant is registering without a transaction statement.
+    public void registerParticipation(String gTransactionId, int transactionBlockId, BFunctionPointer committed,
+                                      BFunctionPointer aborted, WorkerExecutionContext workerExecutionContext) {
 
         LocalTransactionInfo localTransactionInfo = workerExecutionContext.getLocalTransactionInfo();
         BValue[] bValues = TransactionUtils.notifyTransactionBegin(workerExecutionContext,
@@ -131,16 +128,15 @@ public class TransactionResourceManager {
     /**
      * Register a participant in the local transaction. This is intended for participant function registration.
      *
-     * @param gTransactionId  global transaction id
-     * @param participantName name of the participant to uniquely identify it
-     * @param committed       function pointer to invoke when this transaction committed
-     * @param aborted         function pointer to invoke when this transaction aborted
-     *
+     * @param gTransactionId global transaction id
+     * @param blockId        unique id for this participant
+     * @param committed      function pointer to invoke when this transaction committed
+     * @param aborted        function pointer to invoke when this transaction aborted
      * @since 0.985.0
      */
-    public void registerLocalParticipant(String gTransactionId, String participantName, BFunctionPointer committed,
+    public void registerLocalParticipant(String gTransactionId, String blockId, BFunctionPointer committed,
                                          BFunctionPointer aborted) {
-        participantRegistry.register(gTransactionId, participantName, committed, aborted);
+        participantRegistry.register(gTransactionId, blockId, committed, aborted);
 
     }
 
@@ -363,7 +359,8 @@ public class TransactionResourceManager {
         log.info("Trx infected callable unit excepted id : " + gTransactionId);
     }
 
-    public void notifyFailure(String gTransactionId, String uniqueName) {
+    public void notifyFailure(String gTransactionId, int blockId) {
+        String uniqueName = Integer.toString(blockId);
         participantRegistry.participantFailed(gTransactionId, uniqueName);
     }
 

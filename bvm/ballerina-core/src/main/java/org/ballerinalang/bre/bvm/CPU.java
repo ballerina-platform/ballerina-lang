@@ -2937,7 +2937,7 @@ public class CPU {
 
     private static void beginTransaction(WorkerExecutionContext ctx, int transactionType, int transactionBlockId,
                                          int retryCountRegIndex, int committedFuncIndex, int abortedFuncIndex) {
-        if (transactionType == Transactions.TransactionType.PARTICIPANT.value && transactionBlockId < 0) {
+        if (transactionType == Transactions.TransactionType.PARTICIPANT.value) {
             beginTransactionParticipant(ctx, transactionBlockId, committedFuncIndex, abortedFuncIndex);
             return;
         }
@@ -3000,9 +3000,10 @@ public class CPU {
             transactionResourceManager.registerAbortedFunction(transactionBlockId, fpAborted);
         }
 
-        String uniqueName = TransactionUtils.getUniqueName(ctx.callableUnitInfo);
+        String blockId = Integer.toString(transactionBlockId);
+        localTransactionInfo.beginTransactionBlock(transactionBlockId, 1);
         transactionResourceManager.registerLocalParticipant(localTransactionInfo.getGlobalTransactionId(),
-                uniqueName, fpCommitted, fpAborted);
+                blockId, fpCommitted, fpAborted);
     }
 
     private static LocalTransactionInfo createAndNotifyGlobalTx(WorkerExecutionContext ctx, int transactionBlockId) {

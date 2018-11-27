@@ -121,6 +121,7 @@ service InitiatorService00 on initiatorEP00 {
 
         http:Response res = new;  res.statusCode = 500;
         transaction {
+            testLocalParticipantSuccess_ParticipantTransaction();
             var result = participant1EP00 -> get("/nonInfectable");
             match result {
                 http:Response participant1Res => {
@@ -280,10 +281,12 @@ function testLocalParticipantSuccess_ParticipantTransaction() {
 }
 
 function testLocalParticipantSuccess_committed(string tid) {
+    log:printInfo("testLocalParticipantSuccess_committed");
     state0.localParticipantCommittedFunctionCalled = true;
 }
 
 function testLocalParticipantSuccess_aborted(string tid) {
+    log:printInfo("testLocalParticipantSuccess_aborted");
     state0.localParticipantAbortedFunctionCalled = true;
 }
 

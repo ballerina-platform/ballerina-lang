@@ -76,10 +76,12 @@ service participant2 on participant2EP02 {
         }
     }
 
+    @transactions:Participant {}
     resource function testSaveToDatabaseSuccessfulInParticipant(http:Caller ep, http:Request req) {
         saveToDatabase(ep, req, false);
     }
 
+    @transactions:Participant {}
     resource function testSaveToDatabaseFailedInParticipant(http:Caller ep, http:Request req) {
         saveToDatabase(ep, req, true);
     }

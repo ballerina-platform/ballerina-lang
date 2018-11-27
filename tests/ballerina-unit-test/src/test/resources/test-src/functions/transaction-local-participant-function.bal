@@ -47,6 +47,7 @@ public function erroredFunc() {
     S = S + " in-participantErroredFunc";
     int k = 5;
     if (k == 5) {
+        io:println("throw!!");
         error err = error("TransactionError");
         panic err;
     }

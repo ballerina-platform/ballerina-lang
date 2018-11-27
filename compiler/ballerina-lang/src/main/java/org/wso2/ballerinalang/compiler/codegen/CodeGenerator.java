@@ -1773,6 +1773,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (parent instanceof BLangFunction) {
             Set<Flag> flagSet = ((BLangFunction) parent).flagSet;
             if (flagSet != null && flagSet.contains(Flag.RESOURCE)) {
+                transactionIndex++;
+                List<BLangAnnotationAttachment> annAttachments = ((BLangFunction) parent).annAttachments;
+                if (annAttachments == null || annAttachments.isEmpty()) {
+                    return;
+                }
                 return;
             }
             BLangFunction function = (BLangFunction) parent;
@@ -1782,6 +1787,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             if (participantAnnotation.isEmpty()) {
                 return;
             }
+            transactionIndex++;
             BLangAnnotationAttachment annotation = participantAnnotation.get(0);
             Operand abortedFuncRegIndex = new RegIndex(-1, TypeTags.INVOKABLE);
             Operand committedFuncRegIndex = new RegIndex(-1, TypeTags.INVOKABLE);
@@ -1797,7 +1803,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 }
             }
             // Participate in transaction.
-            Operand transactionIndexOperand = getOperand(-1);
+            Operand transactionIndexOperand = getOperand(transactionIndex);
             Operand transactionType = getOperand(Transactions.TransactionType.PARTICIPANT.value);
             RegIndex retryCountRegIndex = getRegIndex(TypeTags.INT);
             this.emit(InstructionCodes.TR_BEGIN, transactionType, transactionIndexOperand, retryCountRegIndex,

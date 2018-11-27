@@ -122,6 +122,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
                     new TransactableCallableUnitCallback(callback, gTransactionId);
             trxUnitCallback.setTransactionOnCommit(httpResource.getTransactionOnCommitFunc());
             trxUnitCallback.setTransactionOnAbort(httpResource.getTransactionOnAbortFunc());
+            trxUnitCallback.setTransactionBlockId(httpResource.getParticipantBlockId());
             callback = trxUnitCallback;
         }
         //TODO handle BallerinaConnectorException

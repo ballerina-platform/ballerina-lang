@@ -32,6 +32,7 @@ public class TransactableCallableUnitCallback implements CallableUnitCallback {
     private final String transactionId;
     private BFunctionPointer transactionOnCommit;
     private BFunctionPointer transactionOnAbort;
+    private int transactionBlockId;
 
     public TransactableCallableUnitCallback(CallableUnitCallback callableUnitCallback, String globalTransactionId) {
         this.callback = callableUnitCallback;
@@ -64,5 +65,13 @@ public class TransactableCallableUnitCallback implements CallableUnitCallback {
 
     public BFunctionPointer getTransactionOnAbort() {
         return transactionOnAbort;
+    }
+
+    public void setTransactionBlockId(int transactionBlockId) {
+        this.transactionBlockId = transactionBlockId;
+    }
+
+    public int getTransactionBlockId() {
+        return transactionBlockId;
     }
 }

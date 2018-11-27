@@ -125,6 +125,13 @@ service participant1 on participant1EP01 {
                     }
                     http:Response getRes => {
                         log:printInfo("participant1.transaction.before.respondback");
+                        var payload = getRes.getTextPayload();
+                        if (payload is string) {
+                            log:printInfo("payload: " + payload);
+                        } else {
+                            log:printInfo("payload error: " + payload.reason());
+                        }
+
                         var forwardRes2 = conn -> respond(getRes);
                         log:printInfo("participant1.transaction.after.respondback");
                         match forwardRes2 {
@@ -140,6 +147,8 @@ service participant1 on participant1EP01 {
         }
     }
 
+    @transactions:Participant {
+    }
     resource function testSaveToDatabaseSuccessfulInParticipant(http:Caller ep, http:Request req) {
         http:Response res = new;  res.statusCode = 500;
         http:Request newReq = new;
@@ -154,6 +163,8 @@ service participant1 on participant1EP01 {
         }
         _ = ep -> respond(res);
     }
+
+
     @transactions:Participant {
         oncommit:onCommit1,
         onabort:onAbort1
