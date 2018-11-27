@@ -25,8 +25,10 @@ import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStringType;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -214,5 +216,89 @@ public class ArrayStampInbuiltFunctionTest {
         Assert.assertEquals(((BValue) ((BMap) tupleValue1).getMap().get("school")).stringValue(), "Royal College");
         Assert.assertEquals(((BValue) ((BMap) tupleValue1).getMap().get("school")).getType().getClass(),
                 BStringType.class);
+    }
+
+    @Test
+    public void testStampJSONToBasicArray() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampJSONToBasicArray");
+        BValueArray valueArray = (BValueArray) results[0];
+
+        Assert.assertEquals(valueArray.size(), 4);
+        Assert.assertEquals(((BValueArray) results[0]).elementType.getTag(), TypeTags.INT_TAG);
+        Assert.assertEquals(((BValueArray) results[0]).getInt(0), 1);
+        Assert.assertEquals(((BValueArray) results[0]).getInt(1), 2);
+        Assert.assertEquals(((BValueArray) results[0]).getInt(2), 3);
+        Assert.assertEquals(((BValueArray) results[0]).getInt(3), 4);
+    }
+
+    @Test
+    public void testStampAnydataToBasicArray() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampAnydataToBasicArray");
+        BValueArray valueArray = (BValueArray) results[0];
+
+        Assert.assertEquals(valueArray.size(), 4);
+        Assert.assertEquals(((BValueArray) results[0]).elementType.getTag(), TypeTags.INT_TAG);
+        Assert.assertEquals(((BValueArray) results[0]).getInt(0), 1);
+        Assert.assertEquals(((BValueArray) results[0]).getInt(1), 2);
+        Assert.assertEquals(((BValueArray) results[0]).getInt(2), 3);
+        Assert.assertEquals(((BValueArray) results[0]).getInt(3), 4);
+    }
+
+    @Test
+    public void testStampAnydataArrayToBasicArray() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampAnydataArrayToBasicArray");
+        BValueArray valueArray = (BValueArray) results[0];
+
+        Assert.assertEquals(valueArray.size(), 4);
+        Assert.assertEquals(((BValueArray) results[0]).elementType.getTag(), TypeTags.INT_TAG);
+        Assert.assertEquals(((BValueArray) results[0]).getInt(0), 1);
+        Assert.assertEquals(((BValueArray) results[0]).getInt(1), 2);
+        Assert.assertEquals(((BValueArray) results[0]).getInt(2), 3);
+        Assert.assertEquals(((BValueArray) results[0]).getInt(3), 4);
+    }
+
+    @Test
+    public void testStampJSONArrayToBasicArray() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampJSONArrayToBasicArray");
+        BValueArray valueArray = (BValueArray) results[0];
+
+        Assert.assertEquals(valueArray.size(), 4);
+        Assert.assertEquals(((BValueArray) results[0]).elementType.getTag(), TypeTags.INT_TAG);
+        Assert.assertEquals(((BValueArray) results[0]).getInt(0), 1);
+        Assert.assertEquals(((BValueArray) results[0]).getInt(1), 2);
+        Assert.assertEquals(((BValueArray) results[0]).getInt(2), 3);
+        Assert.assertEquals(((BValueArray) results[0]).getInt(3), 4);
+    }
+
+    @Test
+    public void testStampBasicArrayToJSON() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampBasicArrayToJSON");
+        Assert.assertEquals(((BInteger) results[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) results[1]).intValue(), 2);
+        Assert.assertEquals(((BInteger) results[2]).intValue(), 3);
+        Assert.assertEquals(((BInteger) results[3]).intValue(), 4);
+    }
+
+    @Test
+    public void testStampBasicArrayToAnydata() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampBasicArrayToAnydata");
+        Assert.assertEquals(((BInteger) results[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) results[1]).intValue(), 2);
+        Assert.assertEquals(((BInteger) results[2]).intValue(), 3);
+        Assert.assertEquals(((BInteger) results[3]).intValue(), 4);
+    }
+
+    @Test
+    public void testStampBasicArrayToTuple() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampBasicArrayToTuple");
+        Assert.assertEquals(((BInteger) results[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) results[1]).intValue(), 2);
     }
 }

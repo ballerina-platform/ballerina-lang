@@ -126,3 +126,51 @@ function stampArrayValueToTuple() returns (Employee, Student)|error {
     return returnValue;
 }
 
+function stampJSONToBasicArray() returns int[]|error {
+    json jsonValue = [1, 2, 3, 4];
+    int[]|error returnArray = int[].stamp(jsonValue);
+
+    return returnArray;
+}
+
+function stampAnydataToBasicArray() returns int[]|error {
+    anydata anydataValue = [1, 2, 3, 4];
+    int[]|error returnArray = int[].stamp(anydataValue);
+
+    return returnArray;
+}
+
+function stampAnydataArrayToBasicArray() returns int[]|error {
+    anydata[] anydataArray = [1, 2, 3, 4];
+    int[]|error returnArray = int[].stamp(anydataArray);
+
+    return returnArray;
+}
+
+function stampJSONArrayToBasicArray() returns int[]|error {
+    json[] jsonValue = [1, 2, 3, 4];
+    int[]|error returnArray = int[].stamp(jsonValue);
+
+    return returnArray;
+}
+
+function stampBasicArrayToJSON() returns json|error {
+    int[] intArrayValue = [1, 2, 3, 4];
+    json|error returnValue = json.stamp(intArrayValue);
+
+    return returnValue;
+}
+
+function stampBasicArrayToAnydata() returns anydata|error {
+    int[] intArrayValue = [1, 2, 3, 4];
+    anydata|error returnValue = anydata.stamp(intArrayValue);
+
+    return returnValue;
+}
+
+function stampBasicArrayToTuple() returns (int,int)|error {
+    int[] intArrayValue = [1, 2];
+    (int,int)|error returnValue = (int,int).stamp(intArrayValue);
+
+    return returnValue;
+}

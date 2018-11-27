@@ -135,7 +135,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
 import static org.ballerinalang.runtime.Constants.STATE_ID;
@@ -4287,8 +4286,23 @@ public class CPU {
             return false;
         }
 
-        return IntStream.range(0, (int) source.size())
-                .allMatch(i -> checkIsLikeType(source.getRefValue(i), targetType.getTupleTypes().get(i)));
+        if (source.elementType != null) {
+            int bound = (int) source.size();
+            for (int i = 0; i < bound; i++) {
+                if (!checkIsType(source.elementType, targetType.getTupleTypes().get(i), new ArrayList<>())) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        int bound = (int) source.size();
+        for (int i = 0; i < bound; i++) {
+            if (!checkIsLikeType(source.getRefValue(i), targetType.getTupleTypes().get(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static boolean checkIsLikeArrayType(BValue sourceValue, BArrayType targetType) {

@@ -266,6 +266,13 @@ public class BValueArray extends BNewArray implements Serializable {
     public void stamp(BType type) {
         if (type.getTag() == TypeTags.TUPLE_TAG) {
             BRefType<?>[] arrayValues = this.getValues();
+
+            if (elementType != null && isBasicType(elementType)) {
+                moveBasicTypeArrayToRefValueArray();
+                this.arrayType = type;
+                return;
+            }
+
             for (int i = 0; i < this.size(); i++) {
                 if (arrayValues[i] != null) {
                     arrayValues[i].stamp(((BTupleType) type).getTupleTypes().get(i));
@@ -273,6 +280,12 @@ public class BValueArray extends BNewArray implements Serializable {
             }
 
         } else if (type.getTag() == TypeTags.JSON_TAG) {
+            if (elementType != null && isBasicType(elementType) && !isBasicType(type)) {
+                moveBasicTypeArrayToRefValueArray();
+                this.arrayType = type;
+                return;
+            }
+
             BRefType<?>[] arrayValues = this.getValues();
             for (int i = 0; i < this.size(); i++) {
                 if (arrayValues[i] != null) {
@@ -287,8 +300,31 @@ public class BValueArray extends BNewArray implements Serializable {
                     break;
                 }
             }
-        } else if (type.getTag() != TypeTags.ANYDATA_TAG) {
+        } else if (type.getTag() == TypeTags.ANYDATA_TAG) {
+            if (elementType != null && isBasicType(elementType)) {
+                moveBasicTypeArrayToRefValueArray();
+                this.arrayType = type;
+                return;
+            }
+        } else {
             BType arrayElementType = ((BArrayType) type).getElementType();
+
+            if (elementType != null && isBasicType(elementType)) {
+                if (isBasicType(arrayElementType)) {
+                    this.arrayType = type;
+                    return;
+                }
+
+                moveBasicTypeArrayToRefValueArray();
+                this.arrayType = type;
+                return;
+            }
+
+            if (isBasicType(arrayElementType) && elementType == null) {
+                moveRefValueArrayToBasicTypeArray(type, arrayElementType);
+                return;
+            }
+
             BRefType<?>[] arrayValues = this.getValues();
             for (int i = 0; i < this.size(); i++) {
                 if (arrayValues[i] != null) {
@@ -298,6 +334,94 @@ public class BValueArray extends BNewArray implements Serializable {
         }
 
         this.arrayType = type;
+    }
+
+    private boolean isBasicType(BType type) {
+        return type == BTypes.typeString || type == BTypes.typeInt || type == BTypes.typeFloat ||
+                type == BTypes.typeBoolean || type == BTypes.typeByte;
+    }
+
+    private void moveBasicTypeArrayToRefValueArray() {
+        refValues = (BRefType[]) newArrayInstance(BRefType.class);
+        if (elementType == BTypes.typeBoolean) {
+            for (int i = 0; i < this.size(); i++) {
+                refValues[i] = new BBoolean(booleanValues[i] == 1);
+            }
+            booleanValues = null;
+        }
+
+        if (elementType == BTypes.typeInt) {
+            for (int i = 0; i < this.size(); i++) {
+                refValues[i] = new BInteger(intValues[i]);
+            }
+            intValues = null;
+        }
+
+        if (elementType == BTypes.typeString) {
+            for (int i = 0; i < this.size(); i++) {
+                refValues[i] = new BString(stringValues[i]);
+            }
+            stringValues = null;
+        }
+
+        if (elementType == BTypes.typeFloat) {
+            for (int i = 0; i < this.size(); i++) {
+                refValues[i] = new BFloat(floatValues[i]);
+            }
+            floatValues = null;
+        }
+
+        if (elementType == BTypes.typeByte) {
+            for (int i = 0; i < this.size(); i++) {
+                refValues[i] = new BByte(byteValues[i]);
+            }
+            byteValues = null;
+        }
+
+        elementType = null;
+    }
+
+    private void moveRefValueArrayToBasicTypeArray(BType type, BType arrayElementType) {
+        BRefType<?>[] arrayValues = this.getValues();
+
+        if (arrayElementType.getTag() == TypeTags.INT_TAG) {
+            intValues = (long[]) newArrayInstance(Long.TYPE);
+            for (int i = 0; i < this.size(); i++) {
+                intValues[i] = ((BInteger) arrayValues[i]).value();
+            }
+        }
+
+        if (arrayElementType.getTag() == TypeTags.FLOAT_TAG) {
+            floatValues = (double[]) newArrayInstance(Double.TYPE);
+            for (int i = 0; i < this.size(); i++) {
+                floatValues[i] = ((BFloat) arrayValues[i]).value();
+            }
+        }
+
+        if (arrayElementType.getTag() == TypeTags.BOOLEAN_TAG) {
+            booleanValues = (int[]) newArrayInstance(Integer.TYPE);
+            for (int i = 0; i < this.size(); i++) {
+                booleanValues[i] = ((BBoolean) arrayValues[i]).value() ? 1 : 0;
+            }
+        }
+
+        if (arrayElementType.getTag() == TypeTags.STRING_TAG) {
+            stringValues = (String[]) newArrayInstance(String.class);
+            for (int i = 0; i < this.size(); i++) {
+                stringValues[i] = arrayValues[i].stringValue();
+            }
+        }
+
+        if (arrayElementType.getTag() == TypeTags.BYTE_TAG) {
+            byteValues = (byte[]) newArrayInstance(Byte.TYPE);
+            for (int i = 0; i < this.size(); i++) {
+                byteValues[i] = ((BByte) arrayValues[i]).value();
+            }
+        }
+
+        this.elementType = arrayElementType;
+        this.arrayType = type;
+        refValues = null;
     }
 
     @Override
