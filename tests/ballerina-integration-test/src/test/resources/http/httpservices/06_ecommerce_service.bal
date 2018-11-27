@@ -165,7 +165,7 @@ service productmgt on serviceEndpoint5 {
     }
     resource function product(http:Caller caller, http:Request req, string prodId) {
         http:Response res = new;
-        var result = <json>self.productsMap[prodId];
+        var result = json.create(self.productsMap[prodId]);
         if (result is json) {
             res.setPayload(result);
         } else if (result is error) {
@@ -208,11 +208,9 @@ function populateSampleProducts() returns (map<any>) {
 
 //Keep this until there's a simpler way to get a string value out of a json
 function extractFieldValue3(json fieldValue) returns string {
-    match fieldValue {
-        int i => return "error";
-        string s => return s;
-        boolean b => return "error";
-        ()  => return "error";
-        json j => return "error";
+    if (fieldValue is string) {
+        return fieldValue;
+    } else {
+        return "error";
     }
 }
