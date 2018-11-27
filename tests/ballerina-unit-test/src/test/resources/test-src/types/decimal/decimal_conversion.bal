@@ -22,8 +22,8 @@ function testDecimalToOtherTypesConversion() returns (int, float, string, boolea
     float f = <float> d;
     string s = <string> d;
     boolean b = <boolean> d;
-    any a = <any> d;
-    json j = <json> d;
+    any a = d;
+    json j = d;
 
     return (i, f, s, b, a, j);
 }
@@ -37,16 +37,16 @@ function testOtherTypesToDecimalConversion() returns (decimal, decimal, decimal,
     decimal d2 = <decimal> f;
 
     string s = "23.456";
-    decimal d3 = check <decimal> s;
+    decimal d3 = check decimal.create(s);
 
     boolean b = true;
     decimal d4 = <decimal> b;
 
     any a = 12.3;
-    decimal d5 = check <decimal> a;
+    decimal d5 = check decimal.create(a);
 
     json j = 23.4;
-    decimal d6 = check <decimal> j;
+    decimal d6 = check decimal.create(j);
 
     return (d1, d2, d3, d4, d5, d6);
 }
