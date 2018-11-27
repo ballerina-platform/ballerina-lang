@@ -221,12 +221,8 @@ public class TestGenerator {
             // Populate target function's parameters
             Set<String> lookupSet = new HashSet<>();
             for (int i = 0; i < params.size(); i++) {
-<<<<<<< 3e6a21f7eacd137edb0a2db9c2cd8cdc99d2664e
-                String paramType = generateTypeDefinition(importsConsumer, currentPkgId, params.get(i));
-=======
                 String paramType = generateTypeDefinition(importsAcceptor, currentPkgId,
                                                           params.get(i));
->>>>>>> Rename "importsConsumer" into "importsAcceptor"
                 String paramName = CommonUtil.generateName(1, lookupSet);
                 lookupSet.add(paramName);
 
