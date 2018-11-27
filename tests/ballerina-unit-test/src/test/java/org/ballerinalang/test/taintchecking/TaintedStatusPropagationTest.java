@@ -483,13 +483,13 @@ public class TaintedStatusPropagationTest {
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 13, 24);
     }
 
-    @Test
+    @Test (enabled = false)
     public void testForkJoin() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/fork-join.bal");
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
-    @Test
+    @Test (enabled = false)
     public void testForkJoinNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/fork-join-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
