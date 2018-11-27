@@ -19,6 +19,26 @@ type PersonObj object {
     public int age = 10;
 };
 
+type Person record {
+    string name = "";
+    int age = 0;
+    Person? parent = ();
+    json info?;
+    map<anydata>? address?;
+    int[]? marks?;
+    anydata a = ();
+    float score = 0.0;
+    boolean alive = false;
+    Person[]? children?;
+    !...
+};
+
+type Person2 record {
+    string name = "";
+    int age = 0;
+    !...
+};
+
 function testFloatToIntWithMultipleArguments() returns int {
     float a = 5.0;
     return int.create(a, a);
@@ -32,4 +52,16 @@ function testFloatToIntWithNoArguments() {
 function testObjectToJson() returns json|error {
     PersonObj p = new PersonObj();
     return json.create(p);
+}
+
+function testStructToJsonConstrained1() returns json|error {
+    Person p = { name: "Child",
+        age: 25,
+        parent: { name: "Parent", age: 50 },
+        address: { "city": "Colombo", "country": "SriLanka" },
+        info: { status: "single" },
+        marks: [87, 94, 72]
+    };
+    json<Person2> j = json<Person2>.create(p);
+    return j;
 }

@@ -48,13 +48,6 @@ public class NativeConversionNegativeTest {
                 BCompileUtil.compile("test-src/expressions/conversion/native-conversion-taint-negative.bal");
     }
 
-    @Test(description = "Test converting a struct with map of blob to a JSON",
-          expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*cannot convert 'Info' to type 'json'.*")
-    public void testStructWithIncompatibleTypeToJson() {
-        BRunUtil.invoke(negativeResult, "testStructWithIncompatibleTypeToJson");
-    }
-
     @Test(description = "Test passing tainted value with create")
     public void testTaintedValue() {
         Assert.assertEquals(taintCheckResult.getErrorCount(), 1);
@@ -63,19 +56,25 @@ public class NativeConversionNegativeTest {
 
     @Test(description = "Test create function with multiple arguments")
     public void testFloatToIntWithMultipleArguments() {
-        Assert.assertEquals(negativeCompileResult.getErrorCount(), 6);
-        BAssertUtil.validateError(negativeCompileResult, 0, "too many arguments in call to 'create()'", 24, 12);
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 8);
+        BAssertUtil.validateError(negativeCompileResult, 0, "too many arguments in call to 'create()'", 44, 12);
     }
 
     @Test(description = "Test create function with no arguments")
     public void testFloatToIntWithNoArguments() {
-        BAssertUtil.validateError(negativeCompileResult, 2, "not enough arguments in call to 'create()'", 29, 12);
+        BAssertUtil.validateError(negativeCompileResult, 2, "not enough arguments in call to 'create()'", 49, 12);
     }
 
     @Test(description = "Test object conversions not supported")
     public void testObjectToJson() {
         BAssertUtil.validateError(negativeCompileResult, 4, "incompatible types: 'PersonObj' cannot be converted to "
-                + "'json'", 34, 12);
+                + "'json'", 54, 12);
+    }
+
+    @Test
+    public void testStructToJsonConstrained1() {
+        BAssertUtil.validateError(negativeCompileResult, 6, "incompatible types: 'Person' cannot be converted to "
+                + "'json<Person2>'", 65, 23);
     }
 }
 
