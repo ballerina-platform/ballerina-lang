@@ -48,6 +48,7 @@ public abstract class BLangStructureTypeNode extends BLangType implements Struct
     public BLangStructureTypeNode() {
         this.fields = new ArrayList<>();
         this.typeRefs = new ArrayList<>();
+        this.referencedFields = new ArrayList<>();
     }
 
     @Override

@@ -206,7 +206,12 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders = new;
         (result, resHeaders) = payload;
-        return (check <int>result, resHeaders);
+        var value = int.create(result);
+        if (value is int) {
+            return (value, resHeaders);
+        } else {
+            return value;
+        }
     }
 
     remote function testStringArrayInput(TestString req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
@@ -214,7 +219,7 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders = new;
         (result, resHeaders) = payload;
-        return (<string>result, resHeaders);
+        return (string.create(result), resHeaders);
     }
 
     remote function testFloatArrayInput(TestFloat req, grpc:Headers? headers = ()) returns ((float, grpc:Headers)|error) {
@@ -222,7 +227,12 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders = new;
         (result, resHeaders) = payload;
-        return (check <float>result, resHeaders);
+        var value = float.create(result);
+        if (value is float) {
+            return (value, resHeaders);
+        } else {
+            return value;
+        }
     }
 
     remote function testBooleanArrayInput(TestBoolean req, grpc:Headers? headers = ()) returns ((boolean, grpc:Headers)|error) {
@@ -230,7 +240,12 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders = new;
         (result, resHeaders) = payload;
-        return (check <boolean>result, resHeaders);
+        var value = boolean.create(result);
+        if (value is boolean) {
+            return (value, resHeaders);
+        } else {
+            return value;
+        }
     }
 
     remote function testStructArrayInput(TestStruct req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
@@ -238,7 +253,7 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders = new;
         (result, resHeaders) = payload;
-        return (<string>result, resHeaders);
+        return (string.create(result), resHeaders);
     }
 
     remote function testIntArrayOutput(grpc:Headers? headers = ()) returns ((TestInt, grpc:Headers)|error) {
@@ -247,7 +262,12 @@ public type HelloWorldBlockingClient client object {
         any result =();
         grpc:Headers resHeaders = new;
         (result, resHeaders) = payload;
-        return (check <TestInt>result, resHeaders);
+        var value = TestInt.create(result);
+        if (value is TestInt) {
+            return (value, resHeaders);
+        } else {
+            return value;
+        }
     }
 
     remote function testStringArrayOutput(grpc:Headers? headers = ()) returns ((TestString, grpc:Headers)|error) {
@@ -256,7 +276,12 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders = new;
         (result, resHeaders) = payload;
-        return (check <TestString>result, resHeaders);
+        var value = TestString.create(result);
+        if (value is TestString) {
+            return (value, resHeaders);
+        } else {
+            return value;
+        }
     }
 
     remote function testFloatArrayOutput(grpc:Headers? headers = ()) returns ((TestFloat, grpc:Headers)|error) {
@@ -265,7 +290,12 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders = new;
         (result, resHeaders) = payload;
-        return (check <TestFloat>result, resHeaders);
+        var value = TestFloat.create(result);
+        if (value is TestFloat) {
+            return (value, resHeaders);
+        } else {
+            return value;
+        }
     }
 
     remote function testBooleanArrayOutput(grpc:Headers? headers = ()) returns ((TestBoolean, grpc:Headers)|error) {
@@ -274,7 +304,12 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders = new;
         (result, resHeaders) = payload;
-        return (check <TestBoolean>result, resHeaders);
+        var value = TestBoolean.create(result);
+        if (value is TestBoolean) {
+            return (value, resHeaders);
+        } else {
+            return value;
+        }
     }
 
     remote function testStructArrayOutput(grpc:Headers? headers = ()) returns ((TestStruct, grpc:Headers)|error) {
@@ -283,7 +318,12 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders = new;
         (result, resHeaders) = payload;
-        return (check <TestStruct>result, resHeaders);
+        var value = TestStruct.create(result);
+        if (value is TestStruct) {
+            return (value, resHeaders);
+        } else {
+            return value;
+        }
     }
 };
 
