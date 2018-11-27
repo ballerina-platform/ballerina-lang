@@ -21,7 +21,6 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorModificationUtil;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -69,10 +68,6 @@ public class BallerinaEnterBetweenBracesHandler extends EnterBetweenBracesHandle
             EditorModificationUtil.insertStringAtCaret(editor, ";", false, -(caretShift + 1));
             // Commit the document.
             PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
-        } else if (isInDocMode(editor)) {
-            EditorModificationUtil.insertStringAtCaret(editor, "# ", false);
-            // Commit the document.
-            PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
         }
         return Result.Continue;
     }
@@ -83,14 +78,6 @@ public class BallerinaEnterBetweenBracesHandler extends EnterBetweenBracesHandle
         // Check whether the type definition has a semicolon.
         return typeDefinition != null && typeDefinition.getSemicolon() == null;
 
-    }
-
-    private boolean isInDocMode(Editor editor) {
-        // Checks whether the previous line starts with "#".
-        int line = editor.getCaretModel().getLogicalPosition().line - 1;
-        String lineString = editor.getDocument().getText(new TextRange(editor.getDocument().getLineStartOffset(line),
-                editor.getDocument().getLineEndOffset(line)));
-        return lineString.trim().startsWith("#");
     }
 
     @Override
