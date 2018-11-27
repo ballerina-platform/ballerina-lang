@@ -122,9 +122,9 @@ public class CommandExecutionTest {
         Assert.assertEquals(responseJson, expected);
     }
 
-    @Test(description = "Test Create Constructor for object")
-    public void testCreateConstructor() {
-        String configJsonPath = "command" + File.separator + "createConstructor.json";
+    @Test(description = "Test Create Initializer for object")
+    public void testCreateInitializer() {
+        String configJsonPath = "command" + File.separator + "createInitializer.json";
         Path sourcePath = sourcesPath.resolve("source").resolve("commonDocumentation.bal");
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
