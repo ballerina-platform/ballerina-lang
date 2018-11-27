@@ -907,14 +907,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangService serviceNode) {
-        SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.symbol.scope, env);
-        serviceNode.resources.forEach(res -> analyzeNode(res, serviceEnv));
     }
 
     public void visit(BLangResource resourceNode) {
-        SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode,
-                resourceNode.symbol.scope, env);
-        this.visitInvocable(resourceNode, resourceEnv);
     }
 
     public void visit(BLangForever foreverStatement) {

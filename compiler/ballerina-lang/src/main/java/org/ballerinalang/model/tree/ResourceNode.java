@@ -20,5 +20,6 @@ package org.ballerinalang.model.tree;
 /**
  * @since 0.94
  */
+@Deprecated
 public interface ResourceNode extends InvokableNode, AnnotatableNode {
 }

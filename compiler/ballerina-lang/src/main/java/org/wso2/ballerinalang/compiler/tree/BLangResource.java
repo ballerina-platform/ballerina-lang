@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.ResourceNode;
 /**
  * @since 0.94
  */
+@Deprecated
 public class BLangResource extends BLangInvokableNode implements ResourceNode {
 
     @Override

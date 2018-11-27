@@ -69,7 +69,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -547,6 +546,9 @@ public class Desugar extends BLangNodeVisitor {
 
         funcNode.body = rewrite(funcNode.body, fucEnv);
         funcNode.workers = rewrite(funcNode.workers, fucEnv);
+        if (Symbols.isFlagOn(funcNode.symbol.flags, Flags.RESOURCE)) {
+            httpFiltersDesugar.invokeFilters(null, env);
+        }
         result = funcNode;
     }
 
@@ -570,12 +572,6 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangResource resourceNode) {
-        addReturnIfNotPresent(resourceNode);
-        httpFiltersDesugar.invokeFilters(resourceNode, env);
-        SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceNode.symbol.scope, env);
-        resourceNode.body = rewrite(resourceNode.body, resourceEnv);
-        resourceNode.workers = rewrite(resourceNode.workers, resourceEnv);
-        result = resourceNode;
     }
 
     @Override
@@ -584,11 +580,6 @@ public class Desugar extends BLangNodeVisitor {
         workerNode.body = rewrite(workerNode.body, env);
         this.workerStack.pop();
         result = workerNode;
-    }
-
-    @Override
-    public void visit(BLangEndpoint endpoint) {
-        result = endpoint;
     }
 
     @Override
