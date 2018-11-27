@@ -34,7 +34,7 @@ function testFreezeOnMapWithoutAnydata() {
     map<PersonObj> m1 = {};
     _ = m1.freeze();
 
-    map<stream|PersonObj> m2 = {};
+    map<stream<int>|PersonObj> m2 = {};
     _ = m2.freeze();
 }
 

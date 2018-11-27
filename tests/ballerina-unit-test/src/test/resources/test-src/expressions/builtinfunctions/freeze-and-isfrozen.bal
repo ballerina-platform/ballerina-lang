@@ -292,7 +292,7 @@ function testFrozenInnerMapRemoval() returns error? {
     map<any> m2 = { one: "21", two: 22, mapVal: m1 };
 
     _ = m2.freeze();
-    map<any> m3 = check <map> m2.mapVal;
+    map<any> m3 = check trap <map<any>> m2.mapVal;
     _ = m3.remove("one");
     return ();
 }
@@ -324,7 +324,7 @@ function testFrozenAnyArrayUpdate() returns error? {
     int[] i = [1, 2];
     any[] i1 = [i, e1];
     _ = i1.freeze();
-    Employee e2 = check <Employee> i1[1];
+    Employee e2 = check trap <Employee> i1[1];
     i1[1] = 100;
     return ();
 }
@@ -334,7 +334,7 @@ function testFrozenAnyArrayElementUpdate() returns error? {
     int[] i = [1, 2];
     any[] i1 = [i, e1];
     _ = i1.freeze();
-    Employee e2 = check <Employee> i1[1];
+    Employee e2 = check trap <Employee> i1[1];
     e2["name"] = "Zee";
     return ();
 }
