@@ -120,8 +120,6 @@ public type HelloWorldBlockingClient client object {
         grpc:Headers resHeaders = new;
         (result, resHeaders) = unionResp;
         var value = float.create(result);
-        io:println(unionResp);
-        io:println(value);
         if (value is float) {
             return (value, resHeaders);
         } else {
