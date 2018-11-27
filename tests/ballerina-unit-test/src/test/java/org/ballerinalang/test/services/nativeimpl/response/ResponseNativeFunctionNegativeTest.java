@@ -106,7 +106,7 @@ public class ResponseNativeFunctionNegativeTest {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
         Assert.assertNotNull(returnVals[0]);
         Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(),
-                "{\"message\":\"Entity body is not json compatible since the received content-type is : text/plain\"}");
+                "{message:\"Entity body is not json compatible since the received content-type is : text/plain\"}");
     }
 
     @Test(description = "Test getTextPayload method without a paylaod")
@@ -136,7 +136,7 @@ public class ResponseNativeFunctionNegativeTest {
         BValue[] inputArg = { inResponse };
         BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
         Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(),
-                "{\"message\":\"Error occurred while retrieving xml data from entity : Empty xml payload\"}");
+                "{message:\"Error occurred while retrieving xml data from entity : Empty xml payload\"}");
     }
 
     @Test(description = "Test getEntity method on a response without a entity")

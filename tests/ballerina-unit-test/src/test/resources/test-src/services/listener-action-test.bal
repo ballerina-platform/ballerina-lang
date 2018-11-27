@@ -1,6 +1,6 @@
 import ballerina/http;
 
-listener http:MockServer echoEP  = new(9090);
+listener http:MockListener echoEP  = new(9090);
 
 @http:ServiceConfig {basePath:"/listener"}
 service echo on echoEP {
@@ -13,8 +13,8 @@ service echo on echoEP {
     }
     resource function echo(http:Caller caller, http:Request req) {
         http:Response res = new;
-        res.setTextPayload(serviceLevelStringVar);
+        res.setTextPayload(self.serviceLevelStringVar);
         _ = caller->respond(res);
-        serviceLevelStringVar = "done";
+        self.serviceLevelStringVar = "done";
     }
 }

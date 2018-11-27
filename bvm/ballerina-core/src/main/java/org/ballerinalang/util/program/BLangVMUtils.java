@@ -436,15 +436,15 @@ public class BLangVMUtils {
         return (ServiceInfo) ctx.globalProps.get(SERVICE_INFO_KEY);
     }
 
-    public static void setTransactionInfo(WorkerExecutionContext ctx, LocalTransactionInfo localTransactionInfo) {
+    public static void setTransactionInfo(Strand ctx, LocalTransactionInfo localTransactionInfo) {
         ctx.globalProps.put(TRANSACTION_INFO_KEY, localTransactionInfo);
     }
 
-    public static LocalTransactionInfo getTransactionInfo(WorkerExecutionContext ctx) {
+    public static LocalTransactionInfo getTransactionInfo(Strand ctx) {
         return (LocalTransactionInfo) ctx.globalProps.get(TRANSACTION_INFO_KEY);
     }
 
-    public static void removeTransactionInfo(WorkerExecutionContext ctx) {
+    public static void removeTransactionInfo(Strand ctx) {
         ctx.globalProps.remove(TRANSACTION_INFO_KEY);
     }
 
@@ -453,7 +453,7 @@ public class BLangVMUtils {
         ctx.globalProps.put(GLOBAL_TRANSACTION_ENABLED, isGlobalTransactionEnabled);
     }
 
-    public static boolean getGlobalTransactionEnabled(WorkerExecutionContext ctx) {
+    public static boolean getGlobalTransactionEnabled(Strand ctx) {
         return (boolean) ctx.globalProps.get(GLOBAL_TRANSACTION_ENABLED);
     }
 }

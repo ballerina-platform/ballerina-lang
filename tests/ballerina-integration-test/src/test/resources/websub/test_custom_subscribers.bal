@@ -22,7 +22,6 @@ const string MOCK_HEADER = "MockHeader";
 
 public type WebhookListenerConfiguration record {
     string host = "";
-    int port = 0;
 };
 
 public type MockActionEvent record {
@@ -36,7 +35,7 @@ public type MockDomainEvent record {
 @websub:SubscriberServiceConfig {
     path:"/key"
 }
-service keyWebhook on new WebhookServerForPayload({port: 8585}) {
+service keyWebhook on new WebhookServerForPayload(8585) {
     resource function onCreated(websub:Notification notification, MockActionEvent event) {
         io:println("Created Notification Received, action: ", event.action);
     }
@@ -53,7 +52,7 @@ service keyWebhook on new WebhookServerForPayload({port: 8585}) {
 @websub:SubscriberServiceConfig {
     path:"/header"
 }
-service headerWebhook on new WebhookServerForHeader({port: 8686}) {
+service headerWebhook on new WebhookServerForHeader(8686) {
     resource function onIssue(websub:Notification notification, MockActionEvent event) {
         io:println("Issue Notification Received, header value: ", notification.getHeader(MOCK_HEADER),
             " action: ", event.action);
@@ -72,7 +71,7 @@ service headerWebhook on new WebhookServerForHeader({port: 8686}) {
 @websub:SubscriberServiceConfig {
     path:"/headerAndPayload"
 }
-service headerAndPayloadWebhook on new WebhookServerForHeaderAndPayload({port: 8787}) {
+service headerAndPayloadWebhook on new WebhookServerForHeaderAndPayload(8787) {
     resource function onIssueCreated(websub:Notification notification, MockActionEvent event) {
         io:println("Issue Created Notification Received, header value: ", notification.getHeader(MOCK_HEADER),
             " action: ", event.action);
@@ -105,7 +104,7 @@ public type WebhookServerForPayload object {
 
     private websub:Listener websubListener;
 
-    public function __init(WebhookListenerConfiguration config) {
+    public function __init(int port, WebhookListenerConfiguration? config = ()) {
         websub:ExtensionConfig extensionConfig = {
             topicIdentifier: websub:TOPIC_ID_PAYLOAD_KEY,
             payloadKeyResourceMap: {
@@ -120,12 +119,12 @@ public type WebhookServerForPayload object {
                 }
             }
         };
+        string host = config is () ? "" : config.host;
         websub:SubscriberServiceEndpointConfiguration sseConfig = {
-            host: config.host,
-            port: config.port,
+            host: host,
             extensionConfig: extensionConfig
         };
-        self.websubListener = new(sseConfig);
+        self.websubListener = new(port, config = sseConfig);
     }
 
     public function __attach(service serviceType, map<any> data) returns error? {
@@ -148,7 +147,7 @@ public type WebhookServerForHeader object {
 
     private websub:Listener websubListener;
 
-    public function __init(WebhookListenerConfiguration config) {
+    public function __init(int port, WebhookListenerConfiguration? config = ()) {
         websub:ExtensionConfig extensionConfig = {
             topicIdentifier: websub:TOPIC_ID_HEADER,
             topicHeader: MOCK_HEADER,
@@ -158,12 +157,12 @@ public type WebhookServerForHeader object {
                 "status" : ("onStatus", MockActionEvent)
             }
         };
+        string host = config is () ? "" : config.host;
         websub:SubscriberServiceEndpointConfiguration sseConfig = {
-            host: config.host,
-            port: config.port,
+            host: host,
             extensionConfig: extensionConfig
         };
-        self.websubListener = new(sseConfig);
+        self.websubListener = new(port, config = sseConfig);
     }
 
     public function __attach(service serviceType, map<any> data) returns error? {
@@ -186,7 +185,7 @@ public type WebhookServerForHeaderAndPayload object {
 
     private websub:Listener websubListener;
 
-    public function __init(WebhookListenerConfiguration config) {
+    public function __init(int port, WebhookListenerConfiguration? config = ()) {
         websub:ExtensionConfig extensionConfig = {
             topicIdentifier: websub:TOPIC_ID_HEADER_AND_PAYLOAD,
             topicHeader: MOCK_HEADER,
@@ -217,12 +216,12 @@ public type WebhookServerForHeaderAndPayload object {
                 }
             }
         };
+        string host = config is () ? "" : config.host;
         websub:SubscriberServiceEndpointConfiguration sseConfig = {
-            host: config.host,
-            port: config.port,
+            host: host,
             extensionConfig: extensionConfig
         };
-        self.websubListener = new(sseConfig);
+        self.websubListener = new(port, config = sseConfig);
     }
 
     public function __attach(service serviceType, map<any> data) returns error? {

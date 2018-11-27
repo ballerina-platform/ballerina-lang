@@ -122,7 +122,7 @@ public type CircuitBreakerInferredConfig record {
 
 # A Circuit Breaker implementation which can be used to gracefully handle network failures.
 #
-# + serviceUri - The URL of the target service
+# + url - The URL of the target service
 # + config - The configurations of the client endpoint associated with this `CircuitBreaker` instance
 # + circuitBreakerInferredConfig - Configurations derived from `CircuitBreakerConfig`
 # + httpClient - The underlying `HttpActions` instance which will be making the actual network calls
@@ -130,7 +130,7 @@ public type CircuitBreakerInferredConfig record {
 # + currentCircuitState - The current state the cicuit is in
 public type CircuitBreakerClient object {
 
-    public string serviceUri;
+    public string url;
     public ClientEndpointConfig config;
     public CircuitBreakerInferredConfig circuitBreakerInferredConfig;
     public Client httpClient;
@@ -139,14 +139,14 @@ public type CircuitBreakerClient object {
 
     # A Circuit Breaker implementation which can be used to gracefully handle network failures.
     #
-    # + serviceUri - The URL of the target service
+    # + url - The URL of the target service
     # + config - The configurations of the client endpoint associated with this `CircuitBreaker` instance
     # + circuitBreakerInferredConfig - Configurations derived from `CircuitBreakerConfig`
     # + httpClient - The underlying `HttpActions` instance which will be making the actual network calls
     # + circuitHealth - The circuit health monitor
-    public function __init(string serviceUri, ClientEndpointConfig config, CircuitBreakerInferredConfig
+    public function __init(string url, ClientEndpointConfig config, CircuitBreakerInferredConfig
                                         circuitBreakerInferredConfig, Client httpClient, CircuitHealth circuitHealth) {
-        self.serviceUri = serviceUri;
+        self.url = url;
         self.config = config;
         self.circuitBreakerInferredConfig = circuitBreakerInferredConfig;
         self.httpClient = httpClient;

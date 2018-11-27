@@ -1,8 +1,6 @@
 import ballerina/http;
 
-endpoint http:NonListener echoEP {
-    port:9090
-};
+listener http:MockListener echoEP = new(9090);
 
 @http:ServiceConfig {
     basePath:"/signature"

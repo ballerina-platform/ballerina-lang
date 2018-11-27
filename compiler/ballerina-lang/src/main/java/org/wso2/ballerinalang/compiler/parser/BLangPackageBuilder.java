@@ -77,6 +77,7 @@ import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
@@ -235,6 +236,8 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+
+import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
 
 /**
  * This class builds the package AST of a Ballerina source file.
@@ -1500,11 +1503,11 @@ public class BLangPackageBuilder {
         this.startBlock();
     }
 
-    void addWorker(DiagnosticPos pos, Set<Whitespace> ws, String workerName) {
+    void addWorker(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean retParamsAvail) {
         endCallableUnitBody(ws);
-        addLambdaFunctionDef(pos, ws, false, false, false);
-        String workerLambdaName = "0" + workerName;
-        addSimpleVariableDefStatement(pos, ws, workerLambdaName, true, true, false);
+        addLambdaFunctionDef(pos, ws, false, retParamsAvail, false);
+        String workerLambdaName = WORKER_LAMBDA_VAR_PREFIX + workerName;
+        addSimpleVariableDefStatement(pos, ws, workerLambdaName, true, true, true);
 
         // Check if the worker is in a fork. If so add the lambda function to the worker list in fork, else ignore.
         if (!this.forkJoinNodesStack.empty()) {
@@ -1514,11 +1517,11 @@ public class BLangPackageBuilder {
         }
 
         addNameReference(pos, ws, null, workerLambdaName);
+        createSimpleVariableReference(pos, ws);
         startInvocationNode(ws);
-        createFunctionInvocation(pos, ws, false);
+        createInvocationNode(pos, ws, BLangBuiltInMethod.CALL.toString(), false, false);
         markLastInvocationAsAsync(pos);
-
-        addSimpleVariableDefStatement(pos, ws, workerName, true, true, false);
+        addSimpleVariableDefStatement(pos, ws, workerName, true, true, true);
     }
 
     void attachWorkerWS(Set<Whitespace> ws) {

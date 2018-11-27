@@ -15,20 +15,23 @@ jms:Session jmsSession = new(conn, {
 });
 
 // This initializes a topic subscriber using the created session.
-endpoint jms:TopicSubscriber subscriberEndpoint {
+listener jms:TopicSubscriber subscriberEndpoint = new({
     session:jmsSession,
     topicPattern:"BallerinaTopic"
-};
+});
 
 // This binds the created subscriber to the listener service.
-service<jms:Consumer> jmsListener bind subscriberEndpoint {
+service jmsListener on subscriberEndpoint {
 
-    // This resource is invoked when a message is received.
-    onMessage(endpoint subscriber, jms:Message message) {
-        match (message.getTextMessageContent()) {
-            string messageText => log:printInfo("Message : " + messageText);
-            error e => log:printError("Error occurred while reading message",
-                                      err=e);
-        }
+    //This resource is invoked when a message is received.
+    resource function onMessage(jms:TopicSubscriberCaller consumer, jms:Message message) {
+         // Retrieve the text message.
+         var messageText = message.getTextMessageContent();
+         if (messageText is string) {
+             log:printInfo("Message : " + messageText);
+         } else {
+             log:printError("Error occurred while reading message",
+                            err=messageText);
+         }
     }
 }

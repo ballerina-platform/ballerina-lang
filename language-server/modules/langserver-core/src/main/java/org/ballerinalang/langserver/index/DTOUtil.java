@@ -28,15 +28,12 @@ import org.ballerinalang.langserver.index.dto.BRecordTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.OtherTypeSymbolDTO;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.CompletionItem;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
