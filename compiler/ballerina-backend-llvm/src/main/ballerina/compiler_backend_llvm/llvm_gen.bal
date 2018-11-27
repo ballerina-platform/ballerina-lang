@@ -37,16 +37,13 @@ function genFunctions(llvm:LLVMModuleRef mod, bir:Function[] funcs) {
 function createObjectFile(string targetObjectFilePath, llvm:LLVMModuleRef mod) {
     var val = trap createTargetMachine();
     // TODO : Verify this logic.
-    match val {
-        llvm:LLVMTargetMachineRef targetMachine => {
-            var filenameBytes = createNullTermiatedString(targetObjectFilePath);
-            byte[] errorMsg = [];
-            int i = llvm:LLVMTargetMachineEmitToFile(targetMachine, mod, filenameBytes, 1, errorMsg);
-        }
-        error => {
-            llvm:LLVMTargetMachineRef targetMachine = {};
-            llvm:LLVMDisposeTargetMachine(targetMachine);
-        }
+    if (val is llvm:LLVMTargetMachineRef) {
+        var filenameBytes = createNullTermiatedString(targetObjectFilePath);
+        byte[] errorMsg = [];
+        int i = llvm:LLVMTargetMachineEmitToFile(val, mod, filenameBytes, 1, errorMsg);
+    } else {
+        llvm:LLVMTargetMachineRef targetMachine = {};
+        llvm:LLVMDisposeTargetMachine(targetMachine);
     }
 }
 
@@ -113,10 +110,12 @@ function optimize(llvm:LLVMModuleRef mod) {
 
 
 function genBType(bir:BType bType) returns llvm:LLVMTypeRef {
-    match bType {
-        bir:BTypeInt => return llvm:LLVMInt64Type();
-        bir:BTypeBoolean => return llvm:LLVMInt1Type();
-        bir:BTypeNil => return llvm:LLVMVoidType();
+    if (bType is bir:BTypeInt) {
+        return llvm:LLVMInt64Type();
+    } else if (bType is bir:BTypeBoolean) {
+        return llvm:LLVMInt1Type();
+    } else {
+        return llvm:LLVMVoidType();
     }
 }
 

@@ -58,7 +58,7 @@ function testClosedRecordVarRef() {
     string format;
     string extraLetter;
     int extraInt;
-    map theMap;
+    map<any> theMap;
 
     Age age1 = {age:12, format: "Y", three: "three"};
     Person p1 = {name: "Peter", married: true, age: age1, extra: ("extra", 12)};
@@ -103,7 +103,7 @@ function testInvalidTypes() {
     string lName;
     boolean married;
     Person age;
-    map theMap;
+    map<any> theMap;
 
     Person p = {name: "Peter", married: true, age: {age: 12, format: "Y"}};
     {name: fName, age, married, ...theMap} = p; // incompatible types of age field

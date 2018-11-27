@@ -24,7 +24,12 @@ public type Filter13 object {
         http:Response response = new;
         response.statusCode = 401;
         response.setTextPayload("Authentication failure");
-        caller->respond(response) but {error e=> log:printError("Error", err=e)};
+
+        var result = caller->respond(response);
+        if (result is error) {
+           log:printError("Error", err = result);
+        }
+
         return false;
     }
 

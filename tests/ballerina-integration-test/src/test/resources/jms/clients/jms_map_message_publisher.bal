@@ -12,16 +12,16 @@ jms:Session jmsSession = new(jmsConnection, {
         acknowledgementMode: "AUTO_ACKNOWLEDGE"
     });
 
-endpoint jms:TopicPublisher publisher {
+jms:TopicPublisher publisher = new({
     session: jmsSession,
     topicPattern: "testMapMessageSubscriber"
-};
+});
 
 public function main() {
     // Create a Text message.
     string stringValue = "abcde";
     byte[] blobValue = stringValue.toByteArray("UTF-8");
-    map message = { "a": 1, "b": "abc", "c": true, "d": 1.2, "e": blobValue };
+    map<any> message = { "a": 1, "b": "abc", "c": true, "d": 1.2, "e": blobValue };
     var msg = jmsSession.createMapMessage(message);
     if (msg is jms:Message) {
          // Send the Ballerina message to the JMS provider.

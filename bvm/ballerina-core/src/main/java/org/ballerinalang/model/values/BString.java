@@ -86,7 +86,7 @@ public final class BString extends BValueType implements BRefType<String> {
 
     @Override
     public boolean booleanValue() {
-        return false;
+        return Boolean.parseBoolean(value);
     }
 
     @Override

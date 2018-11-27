@@ -19,7 +19,7 @@ public type Select object {
     private function (StreamEvent[]) nextProcessorPointer;
     private Aggregator [] aggregatorArr;
     private ((function(StreamEvent o) returns string) []) groupbyFuncArray;
-    private function(StreamEvent o, Aggregator []  aggregatorArr1) returns map selectFunc;
+    private function(StreamEvent o, Aggregator []  aggregatorArr1) returns map<any> selectFunc;
     private map<Aggregator[]> aggregatorsCloneMap;
 
 
@@ -96,7 +96,7 @@ public type Select object {
 public function createSelect(function (StreamEvent[]) nextProcPointer,
                              Aggregator[] aggregatorArr,
                              ((function (StreamEvent o) returns string)[]) groupbyFuncArray,
-                             function (StreamEvent o, Aggregator[] aggregatorArr1) returns map selectFunc)
+                             function (StreamEvent o, Aggregator[] aggregatorArr1) returns map<any> selectFunc)
                     returns Select {
 
     Select select = new(nextProcPointer, aggregatorArr, groupbyFuncArray, selectFunc);

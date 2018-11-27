@@ -219,6 +219,9 @@ public interface InstructionCodes {
     int F2ANY = 164;
     int S2ANY = 165;
     int B2ANY = 166;
+
+    int TYPE_ASSERTION = 167;
+
     int ANY2I = 168;
     int ANY2F = 169;
     int ANY2S = 170;

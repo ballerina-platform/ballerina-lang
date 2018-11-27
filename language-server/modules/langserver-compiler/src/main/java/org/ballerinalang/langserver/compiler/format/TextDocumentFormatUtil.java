@@ -29,6 +29,7 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
+import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.AttachPoint;
@@ -111,7 +112,7 @@ public class TextDocumentFormatUtil {
                     filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().orElse(null);
         }
 
-        JsonElement modelElement = generateJSON(compilationUnit, new HashMap<>());
+        JsonElement modelElement = generateJSON(compilationUnit, new HashMap<>(), new HashMap<>());
         result.add("model", modelElement);
         return result;
     }
@@ -129,10 +130,13 @@ public class TextDocumentFormatUtil {
      *
      * @param node        Node to get the json representation
      * @param anonStructs Map of anonymous structs
+     * @param symbolMetaInfoMap symbol meta information map
      * @return {@link JsonElement}          Json Representation of the node
      * @throws JSONGenerationException when Json error occurs
      */
-    public static JsonElement generateJSON(Node node, Map<String, Node> anonStructs) throws JSONGenerationException {
+    public static JsonElement generateJSON(Node node, Map<String, Node> anonStructs,
+                                           Map<BLangNode, List<SymbolMetaInfo>> symbolMetaInfoMap)
+            throws JSONGenerationException {
         if (node == null) {
             return JsonNull.INSTANCE;
         }
@@ -168,6 +172,14 @@ public class TextDocumentFormatUtil {
 
         // Add UUID for each node.
         nodeJson.addProperty("id", UUID.randomUUID().toString());
+
+        // Add the visible endpoints for a given node
+        if (symbolMetaInfoMap.containsKey(node)) {
+            List<SymbolMetaInfo> endpointMetaList = symbolMetaInfoMap.get(node);
+            JsonArray endpoints = new JsonArray();
+            endpointMetaList.forEach(symbolMetaInfo -> endpoints.add(symbolMetaInfo.getJson()));
+            nodeJson.add("VisibleEndpoints", endpoints);
+        }
 
         JsonArray type = getType(node);
         if (type != null) {
@@ -234,7 +246,7 @@ public class TextDocumentFormatUtil {
 
             /* Node classes */
             if (prop instanceof Node) {
-                nodeJson.add(jsonName, generateJSON((Node) prop, anonStructs));
+                nodeJson.add(jsonName, generateJSON((Node) prop, anonStructs, symbolMetaInfoMap));
             } else if (prop instanceof List) {
                 List listProp = (List) prop;
                 JsonArray listPropJson = new JsonArray();
@@ -248,7 +260,7 @@ public class TextDocumentFormatUtil {
                                 continue;
                             }
                         }
-                        listPropJson.add(generateJSON((Node) listPropItem, anonStructs));
+                        listPropJson.add(generateJSON((Node) listPropItem, anonStructs, symbolMetaInfoMap));
                     } else if (listPropItem instanceof String) {
                         listPropJson.add((String) listPropItem);
                     } else {

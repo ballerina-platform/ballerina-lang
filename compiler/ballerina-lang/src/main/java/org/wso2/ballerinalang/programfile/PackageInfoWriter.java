@@ -547,9 +547,9 @@ public class PackageInfoWriter {
                 attrDataOutStream.writeShort(taintTableAttributeInfo.columnCount);
                 for (Integer paramIndex : taintTableAttributeInfo.taintTable.keySet()) {
                     attrDataOutStream.writeShort(paramIndex);
-                    List<Boolean> taintRecord = taintTableAttributeInfo.taintTable.get(paramIndex);
-                    for (Boolean taintStatus : taintRecord) {
-                        attrDataOutStream.writeBoolean(taintStatus);
+                    List<Byte> taintRecord = taintTableAttributeInfo.taintTable.get(paramIndex);
+                    for (Byte taintStatus : taintRecord) {
+                        attrDataOutStream.writeByte(taintStatus);
                     }
                 }
                 break;

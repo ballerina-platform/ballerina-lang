@@ -69,7 +69,7 @@ public function invokePull (string... args) returns error? {
     string proxyPassword = args[7];
     string terminalWidth = args[8];
     string versionRange = args[9];
-    isBuild = untaint <boolean>args[10];
+    isBuild = untaint boolean.create(args[10]);
 
     if (isBuild) {
         logFormatter = new BuildLogFormatter();
@@ -77,12 +77,12 @@ public function invokePull (string... args) returns error? {
 
     if (host != "" && strPort != "") {
         // validate port
-        var port = <int> strPort;
+        var port = int.create(strPort);
         if (port is int) {
             http:Client|error result = trap defineEndpointWithProxy(url, host, port, proxyUsername, proxyPassword);
             if (result is http:Client) {
                 httpEndpoint = result;
-            } else if (result is error) {
+            } else {
                 return createError("failed to resolve host : " + host + " with port " + port);
             }
         } else {
@@ -129,10 +129,10 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
     if (statusCode.hasPrefix("5")) {
         return createError("remote registry failed for url :" + url);
     } else if (statusCode != "200") {
-        var jsonResponse = httpResponse.getJsonPayload();
-        if (jsonResponse is json) {
+        var resp = httpResponse.getJsonPayload();
+        if (resp is json) {
             if (!(statusCode == "404" && isBuild)) {
-                return createError(jsonResponse.message.toString());
+                return createError(resp.message.toString());
             } else {
                 // To ignore printing the error
                 return createError("");
@@ -146,7 +146,7 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
 
         if (httpResponse.hasHeader("content-length")) {
             contentLengthHeader = httpResponse.getHeader("content-length");
-            pkgSize = check <int> contentLengthHeader;
+            pkgSize = check int.create(contentLengthHeader);
         } else {
             return createError("module size information is missing from remote repository. please retry.");
         }
@@ -181,7 +181,7 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
 
             string toAndFrom = " [central.ballerina.io -> home repo]";
             int rightMargin = 3;
-            int width = (check <int>terminalWidth) - rightMargin;
+            int width = (check int.create(terminalWidth)) - rightMargin;
             check copy(pkgSize, sourceChannel, wch, fullPkgPath, toAndFrom, width);
 
             var destChannelClose = wch.close();

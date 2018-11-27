@@ -34,7 +34,7 @@ public type ClientEndpointConfig record {
     string username = "";
     string password = "";
     sql:PoolOptions poolOptions = {};
-    map dbOptions = {};
+    map<any> dbOptions = {};
     !...
 };
 
@@ -62,7 +62,7 @@ public type Client client object {
     # + return - A `table[]` if there are tables returned by the call action and else nil,
     #            `error` will be returned if there is any error
     public remote function call(@sensitive string sqlQuery, typedesc[]? recordType, sql:Param... parameters)
-                               returns @tainted table[]|()|error {
+                               returns @tainted table<record {}>[]|()|error {
         return self.sqlClient->call(sqlQuery, recordType, ...parameters);
     }
 
@@ -74,7 +74,7 @@ public type Client client object {
     # + parameters - The parameters to be passed to the select query. The number of parameters is variable
     # + return - A `table` returned by the sql query statement else `error` will be returned if there is any error
     public remote function select(@sensitive string sqlQuery, typedesc? recordType, boolean loadToMemory = false,
-                                  sql:Param... parameters) returns @tainted table|error {
+                                  sql:Param... parameters) returns @tainted table<record {}>|error {
         return self.sqlClient->select(sqlQuery, recordType, loadToMemory = loadToMemory, ...parameters);
     }
 

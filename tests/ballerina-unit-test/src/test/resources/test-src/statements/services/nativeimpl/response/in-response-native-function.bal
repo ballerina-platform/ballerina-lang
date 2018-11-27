@@ -81,65 +81,63 @@ function testSetXmlPayload(xml value) returns http:Response {
     return res;
 }
 
-endpoint http:NonListener mockEP {
-    port:9090
-};
+listener http:MockListener mockEP = new(9090);
 
 @http:ServiceConfig {basePath : "/hello"}
-service<http:Service> hello bind mockEP {
+service hello on mockEP {
 
     @http:ResourceConfig {
         path:"/11"
     }
-    echo1 (endpoint conn, http:Request req) {
+    resource function echo1 (http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         path:"/12/{phase}"
     }
-    echo2 (endpoint conn, http:Request req, string phase) {
+    resource function echo2 (http:Caller caller, http:Request req, string phase) {
         http:Response res = new;
         res.reasonPhrase = phase;
-        _ = conn -> respond(untaint res);
+        _ = caller->respond(untaint res);
     }
 
     @http:ResourceConfig {
         path:"/13"
     }
-    echo3 (endpoint conn, http:Request req) {
+    resource function echo3 (http:Caller caller, http:Request req) {
         http:Response res = new;
         res.statusCode = 203;
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         path:"/addheader/{key}/{value}"
     }
-    addheader (endpoint conn, http:Request req, string key, string value) {
+    resource function addheader (http:Caller caller, http:Request req, string key, string value) {
         http:Response res = new;
         res.addHeader(untaint key, value);
         string result = untaint res.getHeader(untaint key);
         res.setJsonPayload({lang:result});
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         path:"/getHeader/{header}/{value}"
     }
-    getHeader (endpoint conn, http:Request req, string header, string value) {
+    resource function getHeader (http:Caller caller, http:Request req, string header, string value) {
         http:Response res = new;
         res.setHeader(untaint header, value);
         string result = untaint res.getHeader(untaint header);
         res.setJsonPayload({value:result});
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         path:"/getJsonPayload/{value}"
     }
-    GetJsonPayload(endpoint conn, http:Request req, string value) {
+    resource function getJsonPayload(http:Caller caller, http:Request req, string value) {
         http:Response res = new;
         json jsonStr = {lang:value};
         res.setJsonPayload(untaint jsonStr);
@@ -150,13 +148,13 @@ service<http:Service> hello bind mockEP {
         } else if (returnResult is json) {
             res.setJsonPayload(untaint returnResult.lang);
         }
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         path:"/GetTextPayload/{valueStr}"
     }
-    GetTextPayload(endpoint conn, http:Request req, string valueStr) {
+    resource function getTextPayload(http:Caller caller, http:Request req, string valueStr) {
         http:Response res = new;
         res.setTextPayload(untaint valueStr);
         var returnResult = res.getTextPayload();
@@ -166,13 +164,13 @@ service<http:Service> hello bind mockEP {
         } else if (returnResult is string) {
             res.setTextPayload(untaint returnResult);
         }
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         path:"/GetXmlPayload"
     }
-    GetXmlPayload(endpoint conn, http:Request req) {
+    resource function getXmlPayload(http:Caller caller, http:Request req) {
         http:Response res = new;
         xml xmlStr = xml `<name>ballerina</name>`;
         res.setXmlPayload(xmlStr);
@@ -184,13 +182,13 @@ service<http:Service> hello bind mockEP {
             var name = returnResult.getTextValue();
             res.setTextPayload(untaint name);
         }
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         path:"/RemoveHeader/{key}/{value}"
     }
-    RemoveHeader (endpoint conn, http:Request req, string key, string value) {
+    resource function removeHeader (http:Caller caller, http:Request req, string key, string value) {
         http:Response res = new;
         res.setHeader(untaint key, value);
         res.removeHeader(untaint key);
@@ -199,13 +197,13 @@ service<http:Service> hello bind mockEP {
             header = "value is null";
         }
         res.setJsonPayload({value:header});
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         path:"/RemoveAllHeaders"
     }
-    RemoveAllHeaders (endpoint conn, http:Request req) {
+    resource function removeAllHeaders (http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setHeader("Expect", "100-continue");
         res.setHeader("Range", "bytes=500-999");
@@ -215,6 +213,6 @@ service<http:Service> hello bind mockEP {
             header = "value is null";
         }
         res.setJsonPayload({value:header});
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 }

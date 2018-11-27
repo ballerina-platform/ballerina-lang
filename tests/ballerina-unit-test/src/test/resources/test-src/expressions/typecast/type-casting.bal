@@ -126,7 +126,7 @@ function testStringToJson(string s) returns (json) {
 type Person record {
     string name;
     int age;
-    map address;
+    map<any> address;
     int[] marks;
     Person | () parent;
     json info;
@@ -138,7 +138,7 @@ type Person record {
 type Student record {
     string name;
     int age;
-    map address;
+    map<any> address;
     int[] marks;
 };
 
@@ -174,10 +174,10 @@ function testStructAsAnyToStruct() returns (Person|error) {
 
 function testAnyToStruct() returns (Person|error) {
     json address = {"city":"Kandy", "country":"SriLanka"};
-    map parent = {name:"Parent", age:50};
-    map info = {status:"single"};
+    map<any> parent = {name:"Parent", age:50};
+    map<any> info = {status:"single"};
     int[] marks = [24, 81];
-    map a = { name:"Supun",
+    map<any> a = { name:"Supun",
                 age:25,
                 parent:parent,
                 address:address,
@@ -207,7 +207,7 @@ function testStructToAnyExplicit() returns (any) {
 }
 
 function testMapToAnyExplicit() returns (any) {
-    map m = {name:"supun"};
+    map<any> m = {name:"supun"};
     return <any> m;
 }
 
@@ -311,7 +311,7 @@ function testAnyFloatToJson() returns (json|error) {
 }
 
 function testAnyMapToJson() returns (json|error) {
-    map m = {name:"supun"};
+    map<any> m = {name:"supun"};
     any a = m;
     json value;
     value = check <json> a;
@@ -348,9 +348,9 @@ function testAnyArrayToJson() returns (json|error) {
     return value;
 }
 
-function testAnyNullToMap() returns (map|error) {
+function testAnyNullToMap() returns (map<any>|error) {
     any a = ();
-    map value;
+    map<any> value;
     value = check <map> a;
     return value;
 }
@@ -474,9 +474,9 @@ function testAnyNullToFloatWithErrors() returns (float | error) {
     return b;
 }
 
-function testAnyToMapWithErrors() returns (map | error) {
+function testAnyToMapWithErrors() returns (map<any> | error) {
     any a = "foo";
-    map b;
+    map<any> b;
     b = check <map> a;
     //TODO Handle error
 

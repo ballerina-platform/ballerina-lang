@@ -25,6 +25,8 @@ import java.util.Map;
  * Represents A Struct value in runtime.
  *
  * @since 0.965.0
+ *
+ * TODO : Clean this mess.
  */
 public interface Struct {
 
@@ -88,6 +90,14 @@ public interface Struct {
      * @return value
      */
     Struct getStructField(String fieldName);
+
+    /**
+     * Returns value of a Service field.
+     *
+     * @param fieldName given field name
+     * @return value
+     */
+    BValue getServiceField(String fieldName);
 
     /**
      * Returns value of an array field.

@@ -85,7 +85,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -643,25 +642,6 @@ public class TreeVisitor extends LSNodeVisitor {
                 acceptNode(patternClause, symbolEnv);
             });
             this.blockOwnerStack.pop();
-        }
-    }
-
-    @Override
-    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClause) {
-        if (!CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
-                .isCursorBeforeNode(patternClause.getPosition(), this, this.lsContext, patternClause, null)) {
-            blockOwnerStack.push(patternClause);
-            // If the variable is not equal to '_', then define the variable in the block scope
-            if (!patternClause.variable.name.value.endsWith(Names.IGNORE.value)) {
-                SymbolEnv blockEnv = SymbolEnv.createBlockEnv(patternClause.body, symbolEnv);
-                cursorPositionResolver = BlockStatementScopeResolver.class;
-                acceptNode(patternClause.body, blockEnv);
-                blockOwnerStack.pop();
-                return;
-            }
-            // TODO: Check with the semantic analyzer implementation as well.
-            acceptNode(patternClause.body, symbolEnv);
-            blockOwnerStack.pop();
         }
     }
 

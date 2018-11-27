@@ -537,7 +537,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean publicAnnotation = KEYWORD_PUBLIC.equals(ctx.getChild(0).getText());
-        boolean isTypeAttached = ctx.userDefineTypeName() != null;
+        boolean isTypeAttached = ctx.typeName() != null;
         this.pkgBuilder.endAnnotationDef(getWS(ctx), ctx.Identifier().getText(),
                 getCurrentPosFromIdentifier(ctx.Identifier()), publicAnnotation, isTypeAttached);
     }
@@ -1323,12 +1323,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.bindingPattern() != null) {
             boolean isTypeGuardPresent = ctx.IF() != null;
             this.pkgBuilder.addMatchStmtStructuredBindingPattern(getCurrentPos(ctx), getWS(ctx), isTypeGuardPresent);
-        } else if (ctx.expression() != null) {
-            this.pkgBuilder.addMatchStmtStaticBindingPattern(getCurrentPos(ctx), getWS(ctx));
-        } else {
-            String identifier = ctx.Identifier() != null ? ctx.Identifier().getText() : null;
-            this.pkgBuilder.addMatchStmtSimpleBindingPattern(getCurrentPos(ctx), getWS(ctx), identifier);
+            return;
         }
+
+        this.pkgBuilder.addMatchStmtStaticBindingPattern(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override
@@ -3179,43 +3177,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.START() != null) {
             this.pkgBuilder.markLastInvocationAsAsync(getCurrentPos(ctx));
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterMatchExpression(BallerinaParser.MatchExpressionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.startMatchExpression();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitMatchExpression(BallerinaParser.MatchExpressionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.endMatchExpression(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitMatchExpressionPatternClause(BallerinaParser.MatchExpressionPatternClauseContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        String identifier = ctx.Identifier() != null ? ctx.Identifier().getText() : null;
-        this.pkgBuilder.addMatchExprPattern(getCurrentPos(ctx), getWS(ctx), identifier);
     }
 
     /**

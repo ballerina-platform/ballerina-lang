@@ -104,7 +104,7 @@ function createStreamingConstruct() {
         [function (streams:StreamEvent e) returns string {
             return <string>e.data["inputStream.school"];
         }],
-        function (streams:StreamEvent e, streams:Aggregator[] aggregatorArray) returns map {
+        function (streams:StreamEvent e, streams:Aggregator[] aggregatorArray) returns map<any> {
             streams:Sum iSumAggregator1 = check <streams:Sum>aggregatorArray[0];
             // got rid of type casting
             return {
@@ -118,7 +118,7 @@ function createStreamingConstruct() {
         nextProcessPointer = select.process);
 
     inputStream.subscribe(function (Teacher t) {
-            map keyVal = <map>t;
+            map<any> keyVal = <map>t;
             streams:StreamEvent[] eventArr = streams:buildStreamEvent(keyVal, "inputStream");
             tmpWindow.process(eventArr);
         });

@@ -36,9 +36,9 @@ type WebSocketConnector object {
         } else if (data is boolean) {
             text = <string>data;
         } else if (data is string) {
-            text = <string>data;
+            text = data;
         } else if (data is xml) {
-            text = <string>data;
+            text = string.create(data);
         } else if (data is byte[]) {
             text = internal:byteArrayToString(data, "UTF-8");
         } else if (data is json) {

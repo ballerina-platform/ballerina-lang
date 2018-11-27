@@ -12,7 +12,7 @@ service<http:Service> hello bind listener {
         http:Response response = new;
 
         json result = {};
-        map key = { line1: "No. 20", line2: "Palm Grove", city: "Colombo 03", country: "Sri Lanka" };
+        map<any> key = { line1: "No. 20", line2: "Palm Grove", city: "Colombo 03", country: "Sri Lanka" };
         result -> chn,key;
         result <- chn, key;
         // Objects and structs can have function calls

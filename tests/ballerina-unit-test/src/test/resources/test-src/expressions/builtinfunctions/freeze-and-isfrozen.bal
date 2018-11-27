@@ -242,7 +242,7 @@ function testFrozenXmlRemoveAttribute() {
 }
 
 function testFrozenXmlSetAttributes() {
-    map m = { attr1: "one", attr2: "two"};
+    map<any> m = { attr1: "one", attr2: "two"};
     xml x1 = xml `<book>The Lost World</book>`;
     _ = x1.freeze();
     x1.setAttributes(m);
@@ -257,49 +257,49 @@ function testFrozenXmlSetChildren() {
 }
 
 function testFrozenMapUpdate() {
-    map m1 = { one: "1", two: 2 };
-    map m2 = { one: "21", two: 22, mapVal: m1 };
+    map<any> m1 = { one: "1", two: 2 };
+    map<any> m2 = { one: "21", two: 22, mapVal: m1 };
 
     _ = m2.freeze();
     m2.one = 22;
 }
 
 function testFrozenMapRemoval() {
-    map m1 = { one: "1", two: 2 };
-    map m2 = { one: "21", two: 22, mapVal: m1 };
+    map<any> m1 = { one: "1", two: 2 };
+    map<any> m2 = { one: "21", two: 22, mapVal: m1 };
 
     _ = m2.freeze();
     _ = m2.remove("one");
 }
 
 function testFrozenMapClear() {
-    map m1 = { one: "1", two: 2 };
+    map<any> m1 = { one: "1", two: 2 };
 
     _ = m1.freeze();
     m1.clear();
 }
 
 function testFrozenInnerMapUpdate() {
-    map m1 = { one: "1", two: 2 };
-    map m2 = { one: "21", two: 22, mapVal: m1 };
+    map<any> m1 = { one: "1", two: 2 };
+    map<any> m2 = { one: "21", two: 22, mapVal: m1 };
 
     _ = m2.freeze();
     m1["one"] = 12;
 }
 
 function testFrozenInnerMapRemoval() returns error? {
-    map m1 = { one: "1", two: 2 };
-    map m2 = { one: "21", two: 22, mapVal: m1 };
+    map<any> m1 = { one: "1", two: 2 };
+    map<any> m2 = { one: "21", two: 22, mapVal: m1 };
 
     _ = m2.freeze();
-    map m3 = check <map> m2.mapVal;
+    map<any> m3 = check <map> m2.mapVal;
     _ = m3.remove("one");
     return ();
 }
 
 function testFrozenInnerMapClear() {
-    map m1 = { one: "1", two: 2 };
-    map m2 = { one: "21", two: 22, mapVal: m1 };
+    map<any> m1 = { one: "1", two: 2 };
+    map<any> m2 = { one: "21", two: 22, mapVal: m1 };
 
     _ = m2.freeze();
     m1.clear();
@@ -451,15 +451,15 @@ function testInvalidComplexUnionFreeze() returns (string, boolean) {
 }
 
 function testInvalidSelfReferencingValueFreeze() returns (string, boolean) {
-    map m = { one: 1 };
-    map m2 = { two: 2 };
+    map<any> m = { one: 1 };
+    map<any> m2 = { two: 2 };
     m.m2 = m2;
     m2.m = m;
 
     PersonObj p = new("Em");
     m2.p = p;
 
-    map|error res = m.freeze();
+    map<any>|error res = m.freeze();
     string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
     return (errorOrSuccessMsg, m.isFrozen() || m2.isFrozen());
 }
@@ -512,26 +512,26 @@ function testValidComplexUnionFreeze() returns (string, boolean) {
 }
 
 function testValidSelfReferencingValueFreeze() returns (string, boolean) {
-    map m = { one: 1 };
-    map m2 = { two: 2 };
+    map<any> m = { one: 1 };
+    map<any> m2 = { two: 2 };
     m.m2 = m2;
     m2.m = m;
 
-    map|error res = m.freeze();
+    map<any>|error res = m.freeze();
     string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
     return (errorOrSuccessMsg, m.isFrozen() || m2.isFrozen());
 }
 
 function testPreservingInnerMapFrozenStatusOnFailedOuterFreeze() returns (string, boolean, boolean) {
-    map m = { one: 1 };
-    map m2 = { two: 2 };
+    map<any> m = { one: 1 };
+    map<any> m2 = { two: 2 };
     _ = m.freeze();
 
     m2.m = m;
     PersonObj p = new("Em");
     m2.p = p;
 
-    map|error res = m2.freeze();
+    map<any>|error res = m2.freeze();
     string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
     return (errorOrSuccessMsg, m2.isFrozen(), m.isFrozen());
 }

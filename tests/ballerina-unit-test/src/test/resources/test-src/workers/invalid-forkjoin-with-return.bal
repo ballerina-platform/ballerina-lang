@@ -11,6 +11,6 @@ function invalidJoinResultType() returns (int) {
 	     int a = 0;
 	     int b = 15;
 	   }
-	} join (all) (map results) { }
+	} join (all) (map<any> results) { }
 	return x;
 }

@@ -97,7 +97,7 @@ public function main (string... args) {
     string host = args[13];
     string strPort = args[14];
     if (host != "" && strPort != "") {
-        var port = <int> strPort;
+        var port = int.create(strPort);
         if (port is int) {
             http:Client|error result = trap defineEndpointWithProxy(args[9], host, port, args[15], args[16]);
             if (result is http:Client) {

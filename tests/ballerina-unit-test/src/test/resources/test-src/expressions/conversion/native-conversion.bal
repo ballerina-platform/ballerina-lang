@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
 type Person record {
     string name = "";
     int age = 0;
@@ -56,7 +54,7 @@ type Student record {
     !...
 };
 
-function testStructToMap () returns (map | error) {
+function testStructToMap () returns (map<any> | error) {
     Person p = {name:"Child",
                    age:25,
                    parent:{name:"Parent", age:50},
@@ -86,7 +84,7 @@ function testMapToStruct () returns Person|error {
 
     json info = {status:"single"};
     map<string> addr = {"city":"Colombo", "country":"SriLanka"};
-    map m = {name:"Child",
+    map<anydata> m = {name:"Child",
                 age:25,
                 parent:parent,
                 address:addr,
@@ -102,7 +100,7 @@ function testMapToStruct () returns Person|error {
 
 function testNestedMapToNestedStruct() returns Person|error {
     int[] marks = [87, 94, 72];
-    map parent = {
+    map<anydata> parent = {
         name:"Parent",
         age:50,
         parent:null,
@@ -116,7 +114,7 @@ function testNestedMapToNestedStruct() returns Person|error {
 
     json info = {status:"single"};
     map<string> addr = {"city":"Colombo", "country":"SriLanka"};
-    map m = {name:"Child",
+    map<anydata> m = {name:"Child",
         age:25,
         parent:parent,
         address:addr,
@@ -209,7 +207,7 @@ function testMapToStructWithMapValueForJsonField() returns Person|error {
     int[] marks = [87, 94, 72];
     map<string> addr = {"city":"Colombo", "country":"SriLanka"};
     map<string> info = {status:"single"};
-    map m = {name:"Child",
+    map<anydata> m = {name:"Child",
                 parent:(),
                 age:25,
                 address:addr,
@@ -227,7 +225,7 @@ function testMapToStructWithMapValueForJsonField() returns Person|error {
 function testMapWithMissingOptionalFieldsToStruct () returns Person|error {
     int[] marks = [87, 94, 72];
     map<string> addr = {"city":"Colombo", "country":"SriLanka"};
-    map m = {name:"Child",
+    map<anydata> m = {name:"Child",
                 parent:(),
                 age:25,
                 a:"any value",
@@ -255,7 +253,7 @@ function testMapWithIncompatibleArrayToStruct () returns Person {
                     };
     json info = {status:"single"};
     map<string> addr = {"city":"Colombo", "country":"SriLanka"};
-    map m = {name:"Child",
+    map<anydata> m = {name:"Child",
                 age:25,
                 parent:parent,
                 address:addr,
@@ -292,7 +290,7 @@ function testMapWithIncompatibleStructToStruct () returns Employee {
 
     map<string> addr = {"city":"Colombo", "country":"SriLanka"};
     map<string> info = {status:"single"};
-    map m = {name:"Child",
+    map<anydata> m = {name:"Child",
                 age:25,
                 partner:s,
                 address:addr,
@@ -458,7 +456,7 @@ type Info2 record {
 
 function testStructWithIncompatibleTypeMapToJson () returns (json) {
     byte[] b = [];
-    map m = {bar:b};
+    map<anydata> m = {bar:b};
     Info info = {foo:m};
 
     var j = json.create(info);
@@ -609,7 +607,6 @@ function testNonArrayJsonToArray () returns StringArray {
     }
 }
 
-
 function testNullJsonToStruct () returns Person {
     json j = ();
     var p = Person.create(j);
@@ -688,7 +685,7 @@ type movie record {
     !...
 };
 
-function testStructToMapWithRefTypeArray () returns (map, int)|error {
+function testStructToMapWithRefTypeArray () returns (map<any>, int)|error {
     movie theRevenant = {title:"The Revenant",
                             year:2015,
                             released:"08 Jan 2016",
@@ -744,7 +741,7 @@ function testEmptyJSONtoStructWithoutDefaults () returns (StructWithoutDefaults 
 
 
 function testEmptyMaptoStructWithDefaults () returns StructWithDefaults|error {
-    map m = {};
+    map<anydata> m = {};
     var testStruct = check StructWithDefaults.create(m);
 
     return testStruct;
@@ -752,7 +749,7 @@ function testEmptyMaptoStructWithDefaults () returns StructWithDefaults|error {
 
 
 function testEmptyMaptoStructWithoutDefaults () returns StructWithoutDefaults|error {
-    map m = {};
+    map<anydata> m = {};
     var testStruct = check StructWithoutDefaults.create(m);
 
     return testStruct;
@@ -788,7 +785,7 @@ function structWithComplexMapToJson() returns (json | error) {
     map<string> e = {"foo":"bar"};
     PersonA f = {};
     int [] g = [1, 8, 7];
-    map m = {"a":a, "b":b, "c":c, "d":d, "e":e, "f":f, "g":g, "h":null};
+    map<anydata> m = {"a":a, "b":b, "c":c, "d":d, "e":e, "f":f, "g":g, "h":null};
     
     Info info = {foo : m};
     var js = check json.create(info);
@@ -818,7 +815,7 @@ function structWithComplexArraysToJson() returns (json | error) {
 }
 
 function testComplexMapToJson () returns json|error {
-    map m = {name:"Supun",
+    map<anydata> m = {name:"Supun",
                 age:25,
                 gpa:2.81,
                 status:true
@@ -852,7 +849,7 @@ function testJsonToMapUnconstrained() returns map|error {
     return m;
 }
 
-function testJsonToMapConstrained1() returns map|error {
+function testJsonToMapConstrained1() returns map<any>|error {
     json j = {};
     j.x = "A";
     j.y = "B";
@@ -863,9 +860,10 @@ function testJsonToMapConstrained1() returns map|error {
 type T1 record {
     int x = 0;
     int y = 0;
+    !...
 };
 
-function testJsonToMapConstrained2() returns map|error {
+function testJsonToMapConstrained2() returns map<any>|error {
     json j1 = {};
     j1.x = 5;
     j1.y = 10;
@@ -876,7 +874,7 @@ function testJsonToMapConstrained2() returns map|error {
     return m;
 }
 
-function testJsonToMapConstrainedFail() returns map {
+function testJsonToMapConstrainedFail() returns map<any> {
     json j1 = {};
     j1.x = 5;
     j1.y = 10.5;

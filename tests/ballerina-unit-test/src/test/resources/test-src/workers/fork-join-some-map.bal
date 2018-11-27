@@ -20,7 +20,7 @@ function testForkJoinReturnAnyTypeVM()(int, string) {
             float u = 10.23;
             s, u -> fork;
         }
-    } join (some 1) (map results) {
+    } join (some 1) (map<any> results) {
         println("Within join block");
         //any[] t1;
         //t1,_ = (any[]) results["W1"];

@@ -21,19 +21,19 @@ import ballerina/runtime;
 @http:ServiceConfig {
     basePath: "/idle"
 }
-service<http:Service> idleTimeout bind { port: 9112, timeoutMillis: 1000 } {
+service idleTimeout on new http:Listener(9112, config = { timeoutMillis: 1000 }) {
     @http:ResourceConfig {
         methods: ["POST"],
         path: "/timeout408"
     }
-    timeoutTest408(endpoint outboundEP, http:Request req) {
+    resource function timeoutTest408(http:Caller caller, http:Request req) {
         var result = req.getPayloadAsString();
         if (result is string) {
             log:printInfo(result);
         } else if (result is error) {
             log:printError("Error reading request", err = result);
         }
-        var responseError = outboundEP->respond("some");
+        var responseError = caller->respond("some");
         if (responseError is error) {
             log:printError("Error sending response", err = responseError);
         }
@@ -43,9 +43,9 @@ service<http:Service> idleTimeout bind { port: 9112, timeoutMillis: 1000 } {
         methods: ["GET"],
         path: "/timeout500"
     }
-    timeoutTest500(endpoint outboundEP, http:Request req) {
+    resource function timeoutTest500(http:Caller caller, http:Request req) {
         runtime:sleep(3000);
-        var responseError = outboundEP->respond("some");
+        var responseError = caller->respond("some");
         if (responseError is error) {
             log:printError("Error sending response", err = responseError);
         }

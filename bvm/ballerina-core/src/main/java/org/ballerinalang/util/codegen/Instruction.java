@@ -290,7 +290,7 @@ public class Instruction {
     }
 
     /**
-     * {@code {@link InstructionLock}} represents the LOCK/UNLOCK instruction in Ballerina bytecode.
+     * {@code {@link InstructionLock}} represents the LOCK instruction in Ballerina bytecode.
      *
      * @since 0.961.0
      */
@@ -299,12 +299,56 @@ public class Instruction {
         public BType[] types;
         public int[] pkgRefs;
         public int[] varRegs;
+        public int[] fieldRegs;
+        public int varCount;
+        public String uuid;
 
-        InstructionLock(int opcode, BType[] types, int[] pkgRefs, int[] varRegs) {
+        InstructionLock(int opcode, BType[] types, int[] pkgRefs, int[] varRegs, int[] fieldNames, int varCount,
+                        String uuid) {
             super(opcode);
             this.types = types;
             this.pkgRefs = pkgRefs;
             this.varRegs = varRegs;
+            this.fieldRegs = fieldNames;
+            this.varCount = varCount;
+            this.uuid = uuid;
+        }
+
+        @Override
+        public String toString() {
+            StringJoiner sj = new StringJoiner(" ");
+            for (int i = 0; i < varRegs.length; i++) {
+                sj.add(types[i].toString());
+                sj.add(String.valueOf(pkgRefs[i]));
+                sj.add(String.valueOf(varRegs[i]));
+            }
+            return Mnemonics.getMnem(opcode) + " " + sj.toString();
+        }
+    }
+
+    /**
+     * {@code {@link InstructionUnLock}} represents the UNLOCK instruction in Ballerina bytecode.
+     *
+     * @since 0.985.0
+     */
+    public static class InstructionUnLock extends Instruction {
+
+        public BType[] types;
+        public int[] pkgRefs;
+        public int[] varRegs;
+        public int varCount;
+        public String uuid;
+        public boolean hasFieldVar;
+
+        InstructionUnLock(int opcode, BType[] types, int[] pkgRefs, int[] varRegs, int varCount, String uuid,
+                          boolean hasFieldsVar) {
+            super(opcode);
+            this.types = types;
+            this.pkgRefs = pkgRefs;
+            this.varRegs = varRegs;
+            this.varCount = varCount;
+            this.uuid = uuid;
+            this.hasFieldVar = hasFieldsVar;
         }
 
         @Override

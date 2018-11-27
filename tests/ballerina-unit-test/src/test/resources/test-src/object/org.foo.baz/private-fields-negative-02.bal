@@ -11,11 +11,11 @@ public type FooDepartment object {
 public type FooPerson object {
     public string name = "default first name";
     public string lname = "";
-    public map adrs = {};
+    public map<any> adrs = {};
     public int age = 999;
     public FooFamily family = new;
 
-    public function __init (string name, map adrs, int age) {
+    public function __init (string name, map<any> adrs, int age) {
         self.age = age;
         self.name = name;
         self.adrs = adrs;
@@ -61,15 +61,15 @@ public type FooEmployee object {
 };
 
 public function createObj() returns (FooPerson) {
-    map address1 = {};
-    map address = {"country":"USA", "state":"CA"};
+    map<any> address1 = {};
+    map<any> address = {"country":"USA", "state":"CA"};
     FooPerson emp = new("Jack", address, 25);
     return emp;
 }
 
 public function createObjOfObj () returns (FooDepartment) {
 
-    map address = {"country":"USA", "state":"CA"};
+    map<any> address = {"country":"USA", "state":"CA"};
     FooPerson emp1 = new("Jack", address, 25);
     FooPerson emp2 = new ("Bob",  address, 27);
     FooPerson[] emps = [emp1, emp2];

@@ -115,7 +115,7 @@ function testEqualityWithNonAnydataType() returns boolean {
     equals = c == d && !(d != c);
 
     map<int|string> e = { one: 1, two: "two" };
-    map f = { one: 1, two: "two" };
+    map<any> f = { one: 1, two: "two" };
     equals = e == f && !(f != e);
     return equals;
 }

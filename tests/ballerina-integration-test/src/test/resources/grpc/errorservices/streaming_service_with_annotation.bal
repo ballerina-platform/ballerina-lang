@@ -19,7 +19,7 @@ import ballerina/grpc;
 import ballerina/io;
 
 // Server endpoint configuration
-listener grpc:Server server7 = new ({
+listener grpc:Listener server7 = new ({
     port:9095
 });
 

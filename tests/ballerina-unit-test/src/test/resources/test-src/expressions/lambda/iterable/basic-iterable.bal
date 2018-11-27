@@ -149,7 +149,7 @@ function jsonTest () returns (string, string[], int, int, string[])|error {
     return (output, sa, i1, j1.count(), result);
 }
 
-function xmlTest() returns (int, int, map) {
+function xmlTest() returns (int, int, map<any>) {
     xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
         <p:name>bob</p:name>
         <p:address>

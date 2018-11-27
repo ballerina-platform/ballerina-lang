@@ -6,15 +6,15 @@ sql:PoolOptions properties = { maximumPoolSize: 1,
     minimumIdle: 1, validationTimeout: 5000,
     connectionInitSql: "SELECT 1" };
 
-map propertiesMap = { "AUTO_RECONNECT": "TRUE" };
+map<any> propertiesMap = { "AUTO_RECONNECT": "TRUE" };
 sql:PoolOptions properties3 = { dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" };
 
-map propertiesMap2 = { "AUTO_RECONNECT": "TRUE" };
+map<any> propertiesMap2 = { "AUTO_RECONNECT": "TRUE" };
 sql:PoolOptions properties4 = { dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" };
 
 sql:PoolOptions properties5 = { dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" };
 
-map propertiesMap3 = { "AUTO_RECONNECT": "TRUE" };
+map<any> propertiesMap3 = { "AUTO_RECONNECT": "TRUE" };
 sql:PoolOptions properties6 = { dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" };
 
 function testConnectionPoolProperties1() returns (json) {

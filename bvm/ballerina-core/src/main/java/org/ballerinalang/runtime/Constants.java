@@ -46,4 +46,6 @@ public class Constants {
     public static final String DEFAULT = "default";
 
     public static final String COMPENSATION_TABLE = "COMPENSATION_TABLE";
+
+    public static final String LOCK_VARS = "lock.vars";
 }

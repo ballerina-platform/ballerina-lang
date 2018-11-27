@@ -66,7 +66,7 @@ function testFunc2() {
     // invalid remote function invocation, expected an endpoint
     var y = x->foo();
 
-    map m = {};
+    map<any> m = {};
     // invalid remote function invocation, expected an endpoint
     _ = m->keys();
 
