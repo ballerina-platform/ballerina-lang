@@ -25,7 +25,7 @@ import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.bre.bvm.SignalType;
-import org.ballerinalang.bre.bvm.WorkerData;
+import org.ballerinalang.bre.bvm.VarLock;
 import org.ballerinalang.bre.bvm.WorkerDataChannel;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.bvm.WorkerSignal;
@@ -97,7 +97,9 @@ import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
 import org.ballerinalang.util.codegen.Instruction.InstructionLock;
+import org.ballerinalang.util.codegen.Instruction.InstructionUnLock;
 import org.ballerinalang.util.codegen.Instruction.InstructionVCALL;
+import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.ObjectTypeInfo;
@@ -147,6 +149,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Stack;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -459,18 +462,19 @@ public class BVM {
                         endTransaction(strand, i, j);
                         break;
                     case InstructionCodes.WRKSEND:
-//                        InstructionWRKSendReceive wrkSendIns = (InstructionWRKSendReceive) instruction;
-//                        handleWorkerSend(strand, wrkSendIns.dataChannelInfo, wrkSendIns.type, wrkSendIns.reg);
+                        InstructionWRKSendReceive wrkSendIns = (InstructionWRKSendReceive) instruction;
+                        handleWorkerSend(strand, wrkSendIns.dataChannelInfo, wrkSendIns.type, wrkSendIns.reg);
                         break;
                     case InstructionCodes.WRKRECEIVE:
-//                    InstructionWRKSendReceive wrkReceiveIns = (InstructionWRKSendReceive) instruction;
-//                    if (!handleWorkerReceive(ctx, wrkReceiveIns.dataChannelInfo, wrkReceiveIns.type,
-//                            wrkReceiveIns.reg)) {
-//                        return;
-//                    }
+                        InstructionWRKSendReceive wrkReceiveIns = (InstructionWRKSendReceive) instruction;
+                        if (!handleWorkerReceive(strand, wrkReceiveIns.dataChannelInfo, wrkReceiveIns.type,
+                                wrkReceiveIns.reg)) {
+                            return;
+                        }
                         break;
                     case InstructionCodes.CHNRECEIVE:
-                        Instruction.InstructionCHNReceive chnReceiveIns = (Instruction.InstructionCHNReceive) instruction;
+                        Instruction.InstructionCHNReceive chnReceiveIns =
+                                (Instruction.InstructionCHNReceive) instruction;
                         if (!handleCHNReceive(strand, chnReceiveIns.channelName, chnReceiveIns.receiverType,
                                 chnReceiveIns.receiverReg, chnReceiveIns.keyType, chnReceiveIns.keyReg)) {
                             return;
@@ -776,15 +780,17 @@ public class BVM {
                         break;
                     case InstructionCodes.LOCK:
                         InstructionLock instructionLock = (InstructionLock) instruction;
-                        if (!handleVariableLock(strand, instructionLock.types,
-                                instructionLock.pkgRefs, instructionLock.varRegs)) {
+                        if (!handleVariableLock(strand, instructionLock.types, instructionLock.pkgRefs,
+                                instructionLock.varRegs, instructionLock.fieldRegs, instructionLock.varCount,
+                                instructionLock.uuid)) {
                             return;
                         }
                         break;
                     case InstructionCodes.UNLOCK:
-                        InstructionLock instructionUnLock = (InstructionLock) instruction;
-                        handleVariableUnlock(strand, instructionUnLock.types,
-                                instructionUnLock.pkgRefs, instructionUnLock.varRegs);
+                        InstructionUnLock instructionUnLock = (InstructionUnLock) instruction;
+                        handleVariableUnlock(strand, instructionUnLock.types, instructionUnLock.pkgRefs,
+                                instructionUnLock.varRegs, instructionUnLock.varCount, instructionUnLock.uuid,
+                                instructionUnLock.hasFieldVar);
                         break;
                     case InstructionCodes.WAIT:
                         strand = execWait(strand, operands);
@@ -847,7 +853,7 @@ public class BVM {
 
         SafeStrandCallback strndCallback = new SafeStrandCallback(callableUnitInfo.getRetParamTypes()[0]);
         Strand calleeStrand = new Strand(strand.programFile, callableUnitInfo.getName(),
-                strand.globalProps, strndCallback);
+                strand.globalProps, strndCallback, strand.wdChannels);
         calleeStrand.pushFrame(df);
         if (callableUnitInfo.isNative()) {
             Context nativeCtx = new NativeCallContext(calleeStrand, callableUnitInfo, df);
@@ -2771,8 +2777,8 @@ public class BVM {
         }
     }
 
-    private static boolean handleVariableLock(Strand ctx, BType[] types,
-                                              int[] pkgRegs, int[] varRegs) {
+    private static boolean handleVariableLock(Strand strand, BType[] types, int[] pkgRegs, int[] varRegs,
+                                              int[] fieldRegs, int varCount, String uuid) {
         boolean lockAcquired = true;
         for (int i = 0; i < varRegs.length && lockAcquired; i++) {
             BType paramType = types[i];
@@ -2780,51 +2786,76 @@ public class BVM {
             int regIndex = varRegs[i];
             switch (paramType.getTag()) {
                 case TypeTags.INT_TAG:
-                    lockAcquired = ctx.programFile.globalMemArea.lockIntField(ctx, pkgIndex, regIndex);
+                    lockAcquired = strand.programFile.globalMemArea.lockIntField(strand, pkgIndex, regIndex);
                     break;
                 case TypeTags.BYTE_TAG:
-                    lockAcquired = ctx.programFile.globalMemArea.lockBooleanField(ctx, pkgIndex, regIndex);
+                    lockAcquired = strand.programFile.globalMemArea.lockBooleanField(strand, pkgIndex, regIndex);
                     break;
                 case TypeTags.FLOAT_TAG:
-                    lockAcquired = ctx.programFile.globalMemArea.lockFloatField(ctx, pkgIndex, regIndex);
+                    lockAcquired = strand.programFile.globalMemArea.lockFloatField(strand, pkgIndex, regIndex);
                     break;
                 case TypeTags.STRING_TAG:
-                    lockAcquired = ctx.programFile.globalMemArea.lockStringField(ctx, pkgIndex, regIndex);
+                    lockAcquired = strand.programFile.globalMemArea.lockStringField(strand, pkgIndex, regIndex);
                     break;
                 case TypeTags.BOOLEAN_TAG:
-                    lockAcquired = ctx.programFile.globalMemArea.lockBooleanField(ctx, pkgIndex, regIndex);
+                    lockAcquired = strand.programFile.globalMemArea.lockBooleanField(strand, pkgIndex, regIndex);
                     break;
                 default:
-                    lockAcquired = ctx.programFile.globalMemArea.lockRefField(ctx, pkgIndex, regIndex);
+                    lockAcquired = strand.programFile.globalMemArea.lockRefField(strand, pkgIndex, regIndex);
+            }
+        }
+
+        if (varRegs.length <= varCount) {
+            return lockAcquired;
+        }
+
+        //lock on field access
+        strand.currentFrame.localProps.putIfAbsent(uuid, new Stack<VarLock>());
+        Stack lockStack = (Stack) strand.currentFrame.localProps.get(uuid);
+
+        for (int i = 0; (i < varRegs.length - varCount) && lockAcquired; i++) {
+            int regIndex = varRegs[varCount + i];
+            String field = strand.currentFrame.stringRegs[fieldRegs[i]];
+            VarLock lock = ((BMap) strand.currentFrame.refRegs[regIndex]).getFieldLock(field);
+            lockAcquired = lock.lock(strand);
+            if (lockAcquired) {
+                lockStack.push(lock);
             }
         }
         return lockAcquired;
     }
 
-    private static void handleVariableUnlock(Strand ctx, BType[] types,
-                                             int[] pkgRegs, int[] varRegs) {
+    private static void handleVariableUnlock(Strand strand, BType[] types, int[] pkgRegs, int[] varRegs,
+                                             int varCount, String uuid, boolean hasFieldVar) {
+        if (hasFieldVar) {
+            Stack<VarLock> lockStack = (Stack<VarLock>) strand.currentFrame.localProps.get(uuid);
+            while (!lockStack.isEmpty()) {
+                lockStack.pop().unlock();
+            }
+        }
+
         for (int i = varRegs.length - 1; i > -1; i--) {
             BType paramType = types[i];
             int pkgIndex = pkgRegs[i];
             int regIndex = varRegs[i];
             switch (paramType.getTag()) {
                 case TypeTags.INT_TAG:
-                    ctx.programFile.globalMemArea.unlockIntField(pkgIndex, regIndex);
+                    strand.programFile.globalMemArea.unlockIntField(pkgIndex, regIndex);
                     break;
                 case TypeTags.BYTE_TAG:
-                    ctx.programFile.globalMemArea.unlockBooleanField(pkgIndex, regIndex);
+                    strand.programFile.globalMemArea.unlockBooleanField(pkgIndex, regIndex);
                     break;
                 case TypeTags.FLOAT_TAG:
-                    ctx.programFile.globalMemArea.unlockFloatField(pkgIndex, regIndex);
+                    strand.programFile.globalMemArea.unlockFloatField(pkgIndex, regIndex);
                     break;
                 case TypeTags.STRING_TAG:
-                    ctx.programFile.globalMemArea.unlockStringField(pkgIndex, regIndex);
+                    strand.programFile.globalMemArea.unlockStringField(pkgIndex, regIndex);
                     break;
                 case TypeTags.BOOLEAN_TAG:
-                    ctx.programFile.globalMemArea.unlockBooleanField(pkgIndex, regIndex);
+                    strand.programFile.globalMemArea.unlockBooleanField(pkgIndex, regIndex);
                     break;
                 default:
-                    ctx.programFile.globalMemArea.unlockRefField(pkgIndex, regIndex);
+                    strand.programFile.globalMemArea.unlockRefField(pkgIndex, regIndex);
             }
         }
     }
@@ -3103,15 +3134,15 @@ public class BVM {
         return invokeCallable(ctx, attachedFuncInfo, argRegs, retReg, flags);
     }
 
-    private static void handleWorkerSend(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo,
+    private static void handleWorkerSend(Strand ctx, WorkerDataChannelInfo workerDataChannelInfo,
                                          BType type, int reg) {
-//        BRefType val = extractValue(ctx.workerLocal, type, reg);
-//        WorkerDataChannel dataChannel = getWorkerChannel(ctx, workerDataChannelInfo.getChannelName());
-//        dataChannel.putData(val);
+        BRefType val = extractValue(ctx.currentFrame, type, reg);
+        WorkerDataChannel dataChannel = getWorkerChannel(ctx, workerDataChannelInfo.getChannelName());
+        dataChannel.putData(val);
     }
 
-    private static WorkerDataChannel getWorkerChannel(WorkerExecutionContext ctx, String name) {
-        return ctx.respCtx.getWorkerDataChannel(name);
+    private static WorkerDataChannel getWorkerChannel(Strand ctx, String name) {
+        return ctx.parentChannels.getWorkerDataChannel(name);
     }
 
     private static BRefType extractValue(StackFrame data, BType type, int reg) {
@@ -3138,13 +3169,13 @@ public class BVM {
         return result;
     }
 
-    private static boolean handleWorkerReceive(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo,
+    private static boolean handleWorkerReceive(Strand ctx, WorkerDataChannelInfo workerDataChannelInfo,
                                                BType type, int reg) {
         WorkerDataChannel.WorkerResult passedInValue = getWorkerChannel(
                 ctx, workerDataChannelInfo.getChannelName()).tryTakeData(ctx);
         if (passedInValue != null) {
-            WorkerData currentFrame = ctx.workerLocal;
-//            copyArgValueForWorkerReceive(currentFrame, reg, type, passedInValue.value);
+            StackFrame currentFrame = ctx.currentFrame;
+            copyArgValueForWorkerReceive(currentFrame, reg, type, passedInValue.value);
             return true;
         } else {
             return false;

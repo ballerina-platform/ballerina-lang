@@ -1136,10 +1136,10 @@ public class SQLDatasourceUtils {
         String globalTransactionId = localTransactionInfo.getGlobalTransactionId();
         int transactionBlockId = localTransactionInfo.getCurrentTransactionBlockId();
 
-        if (localTransactionInfo.isRetryPossible(context.getParentWorkerExecutionContext(), transactionBlockId)) {
+        if (localTransactionInfo.isRetryPossible(context.getStrand(), transactionBlockId)) {
             return;
         }
-        TransactionUtils.notifyTransactionAbort(context.getParentWorkerExecutionContext(), globalTransactionId,
+        TransactionUtils.notifyTransactionAbort(context.getStrand(), globalTransactionId,
                 transactionBlockId);
     }
 

@@ -79,7 +79,7 @@ function cleanupTransactions() returns error? {
             }
         }
     }
-    worker w2 {
+    worker w2 returns () {
         foreach _, twopcTxn in initiatedTransactions {
             if (time:currentTime().time - twopcTxn.createdTime >= 120000) {
                 if (twopcTxn.state != TXN_STATE_ABORTED) {
@@ -102,6 +102,8 @@ function cleanupTransactions() returns error? {
         }
         return ();
     }
+    var value = wait w2;
+    return value;
 }
 
 

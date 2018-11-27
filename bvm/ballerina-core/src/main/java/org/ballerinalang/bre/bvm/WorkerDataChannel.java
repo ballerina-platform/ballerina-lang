@@ -17,6 +17,9 @@
 */
 package org.ballerinalang.bre.bvm;
 
+import org.ballerinalang.bre.vm.BVMScheduler;
+import org.ballerinalang.bre.vm.Strand;
+import org.ballerinalang.bre.vm.Strand.State;
 import org.ballerinalang.model.values.BRefType;
 
 import java.util.LinkedList;
@@ -28,7 +31,7 @@ import java.util.Queue;
  */
 public class WorkerDataChannel {
 
-    private WorkerExecutionContext pendingCtx;
+    private Strand pendingCtx;
 
     @SuppressWarnings("rawtypes")
     private Queue<WorkerResult> channel = new LinkedList<>();
@@ -37,21 +40,22 @@ public class WorkerDataChannel {
     public synchronized void putData(BRefType data) {
         this.channel.add(new WorkerResult(data));
         if (this.pendingCtx != null) {
-            BLangScheduler.resume(this.pendingCtx);
+            BVMScheduler.stateChange(this.pendingCtx, State.PAUSED, State.RUNNABLE);
+            BVMScheduler.schedule(this.pendingCtx);
             this.pendingCtx = null;
         }
     }
     
     @SuppressWarnings("rawtypes")
-    public synchronized WorkerResult tryTakeData(WorkerExecutionContext ctx) {
+    public synchronized WorkerResult tryTakeData(Strand ctx) {
         WorkerResult result = this.channel.peek();
         if (result != null) {
             this.channel.remove();
             return result;
         } else {
             this.pendingCtx = ctx;
-            ctx.ip--; // we are going to execute the same worker receive operation later
-            BLangScheduler.workerWaitForResponse(ctx);
+            ctx.currentFrame.ip--; // we are going to execute the same worker receive operation later
+            BVMScheduler.stateChange(ctx, State.RUNNABLE, State.PAUSED);
             return null;
         }
     }
