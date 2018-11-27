@@ -50,9 +50,9 @@ import static org.ballerinalang.langserver.command.CommandUtil.applySingleTextEd
  * @since 0.983.0
  */
 @JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
-public class CreateObjectConstructorExecutor implements LSCommandExecutor {
+public class CreateObjectInitializerExecutor implements LSCommandExecutor {
 
-    private static final String COMMAND = "CREATE_CONSTRUCTOR";
+    private static final String COMMAND = "CREATE_INITIALIZER";
 
     /**
      * {@inheritDoc}
@@ -90,7 +90,7 @@ public class CreateObjectConstructorExecutor implements LSCommandExecutor {
                         && ((BLangTypeDefinition) topLevelNode).symbol.kind.equals(SymbolKind.OBJECT)
                         && topLevelNode.getPosition().getStartLine() - 1 == finalLine)
                 .findAny()
-                .orElseThrow(() -> new LSCommandExecutorException("Error Executing Create Constructor Command"));
+                .orElseThrow(() -> new LSCommandExecutorException("Error Executing Create Initializer Command"));
         List<BLangSimpleVariable> fields = ((BLangObjectTypeNode) ((BLangTypeDefinition) objectNode).typeNode).fields;
 
         int lastFieldLine;
