@@ -397,25 +397,6 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClauseNode) {
-        if (patternClauseNode.getVariableNode() != null &&
-                patternClauseNode.getVariableNode().getName() != null &&
-                patternClauseNode.getVariableNode().getName().getValue()
-                        .equals(this.context.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY))) {
-            this.context.put(NodeContextKeys.NODE_KEY, patternClauseNode.getVariableNode());
-            terminateVisitor = true;
-        }
-
-        if (patternClauseNode.variable != null) {
-            this.acceptNode(patternClauseNode.variable);
-        }
-
-        if (patternClauseNode.body != null) {
-            this.acceptNode(patternClauseNode.body);
-        }
-    }
-
-    @Override
     public void visit(BLangMatch.BLangMatchStaticBindingPatternClause patternClauseNode) {
         /*ignore*/
     }

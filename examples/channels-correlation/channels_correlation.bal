@@ -17,9 +17,11 @@ service<http:Service> channelService bind { port: 9090 } {
         // Execution waits here if the message is not available.
         result <- jsonChannel, key;
         // Send the received message as the response.
-        _ = caller->respond(result) but {
-            error e => log:printError("Error sending response", err = e)
-        };
+        var result = caller->respond(result);
+
+        if (result is error) {
+            log:printError("Error sending response", err = result);
+        }
     }
 
     send(endpoint caller, http:Request request) {
@@ -35,8 +37,9 @@ service<http:Service> channelService bind { port: 9090 } {
         // A receiver can arrive later and fetch the message.
         message -> jsonChannel, key;
 
-        _ = caller->respond({ "send": "Success!!" }) but {
-            error e => log:printError("Error sending response", err = e)
-        };
+        var result = caller->respond({ "send": "Success!!" });
+        if (result is error) {
+           log:printError("Error sending response", err = result);
+        }
     }
 }

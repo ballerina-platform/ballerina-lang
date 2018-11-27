@@ -79,17 +79,19 @@ service<http:Service> circuitbreaker bind { port: 9090 } {
         match backendRes {
 
             http:Response res => {
-                caller->respond(res) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+                var result = caller->respond(res);
+                if (result is error) {
+                   log:printError("Error sending response", err = result);
+                }
             }
             error responseError => {
                 http:Response response = new;
                 response.statusCode = 500;
                 response.setPayload(responseError.message);
-                caller->respond(response) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+                var result = caller->respond(response);
+                if (result is error) {
+                   log:printError("Error sending response", err = result);
+                }
             }
         }
     }
@@ -115,28 +117,29 @@ service<http:Service> helloWorld bind { port: 8080 } {
             runtime:sleep(5000);
             http:Response res = new;
             res.setPayload("Hello World!!!");
-            caller->respond(res) but {
-                    error e => log:printError(
-                        "Error sending response from mock service", err = e)
-                    };
+            var result = caller->respond(res);
+            if (result is error) {
+               log:printError("Error sending response from mock service", err = result);
+            }
         } else if (counter % 5 == 3) {
             counter = counter + 1;
             http:Response res = new;
             res.statusCode = 500;
             res.setPayload(
                    "Internal error occurred while processing the request.");
-            caller->respond(res) but {
-                        error e => log:printError(
-                            "Error sending response from mock service", err = e)
-                        };
+            var result = caller->respond(res);
+            if (result is error) {
+               log:printError("Error sending response from mock service", err = result);
+            }
         } else {
             counter = counter + 1;
             http:Response res = new;
             res.setPayload("Hello World!!!");
-            caller->respond(res) but {
-                        error e => log:printError(
-                            "Error sending response from mock service", err = e)
-                        };
+
+            var result = caller->respond(res);
+            if (result is error) {
+               log:printError("Error sending response from mock service", err = result);
+            }
         }
     }
 }
