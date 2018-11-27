@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -67,6 +68,7 @@ public class ServiceDesugar {
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
     private final Names names;
+    private HttpFiltersDesugar httpFiltersDesugar;
 
     public static ServiceDesugar getInstance(CompilerContext context) {
         ServiceDesugar desugar = context.get(SERVICE_DESUGAR_KEY);
@@ -82,6 +84,7 @@ public class ServiceDesugar {
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.names = Names.getInstance(context);
+        this.httpFiltersDesugar = HttpFiltersDesugar.getInstance(context);
     }
 
     void rewriteListeners(List<BLangSimpleVariable> variables, SymbolEnv env) {
@@ -116,13 +119,17 @@ public class ServiceDesugar {
         addMethodInvocation(pos, varRef, methodInvocationSymbol, Collections.emptyList(), lifeCycleFunction.body);
     }
 
-    BLangBlockStmt rewriteServices(List<BLangService> services, SymbolEnv env) {
+    void rewriteServiceAttachments(BLangBlockStmt serviceAttachments, SymbolEnv env) {
+        ASTBuilderUtil.appendStatements(serviceAttachments, env.enclPkg.initFunction.body);
+    }
+
+    BLangBlockStmt rewriteServiceVariables(List<BLangService> services, SymbolEnv env) {
         BLangBlockStmt attachmentsBlock = (BLangBlockStmt) TreeBuilder.createBlockNode();
-        services.forEach(service -> rewriteService(service, env, attachmentsBlock));
+        services.forEach(service -> rewriteServiceVariable(service, env, attachmentsBlock));
         return attachmentsBlock;
     }
 
-    void rewriteService(BLangService service, SymbolEnv env, BLangBlockStmt attachments) {
+    void rewriteServiceVariable(BLangService service, SymbolEnv env, BLangBlockStmt attachments) {
         // service x on y { ... }
         //
         // after desugar :
@@ -198,7 +205,13 @@ public class ServiceDesugar {
         ASTBuilderUtil.appendStatement(assignmentStmt, body);
     }
 
-    void rewriteAttachments(BLangBlockStmt serviceAttachments, SymbolEnv env) {
-        ASTBuilderUtil.appendStatements(serviceAttachments, env.enclPkg.initFunction.body);
+    void engageCustomServiceDesugar(BLangService service, SymbolEnv env) {
+        final BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) service.serviceTypeDefinition.typeNode;
+        objectTypeNode.functions.stream().filter(fun -> Symbols.isFlagOn(fun.symbol.flags, Flags.RESOURCE))
+                .forEach(func -> engageCustomResourceDesugar(service, func, env));
+    }
+
+    private void engageCustomResourceDesugar(BLangService service, BLangFunction functionNode, SymbolEnv env) {
+        httpFiltersDesugar.invokeFilters(service, functionNode, env);
     }
 }

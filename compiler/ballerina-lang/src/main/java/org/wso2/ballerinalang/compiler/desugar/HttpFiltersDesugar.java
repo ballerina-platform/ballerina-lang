@@ -32,8 +32,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
@@ -126,21 +126,21 @@ public class HttpFiltersDesugar {
      * @param resourceNode The resource to apply filter on if it is http
      * @param env          the symbol environment
      */
-    void invokeFilters(BLangResource resourceNode, SymbolEnv env) {
+    void invokeFilters(BLangService service, BLangFunction resourceNode, SymbolEnv env) {
         BLangSimpleVariable endpoint;
         if (resourceNode.requiredParams.size() >= 2) {
             endpoint = resourceNode.requiredParams.get(0);
             if (ORG_NAME.equals(endpoint.type.tsymbol.pkgID.orgName.value) && PACKAGE_NAME.equals(
                     endpoint.type.tsymbol.pkgID.name.value) && ENDPOINT_TYPE_NAME.equals(
                     endpoint.type.tsymbol.name.value)) {
-                addFilterStatements(resourceNode, env);
+                addFilterStatements(service, resourceNode, env);
             }
         }
     }
 
-    private void addFilterStatements(BLangResource resourceNode, SymbolEnv env) {
+    private void addFilterStatements(BLangService service, BLangFunction resourceNode, SymbolEnv env) {
         BLangSimpleVariable filterContextVar = addFilterContextCreation(resourceNode, env);
-        addAssignmentAndForEach(resourceNode, filterContextVar);
+        addAssignmentAndForEach(service, resourceNode, filterContextVar);
     }
 
     /**
@@ -149,7 +149,7 @@ public class HttpFiltersDesugar {
      * @param resourceNode The resource to add the FilterContext creation.
      * @param env          the symbol environment.
      */
-    private BLangSimpleVariable addFilterContextCreation(BLangResource resourceNode, SymbolEnv env) {
+    private BLangSimpleVariable addFilterContextCreation(BLangFunction resourceNode, SymbolEnv env) {
         BLangIdentifier pkgAlias = ASTBuilderUtil.createIdentifier(resourceNode.pos, getPackageAlias(env));
         BLangUserDefinedType filterContextUserDefinedType = new BLangUserDefinedType(
                 pkgAlias, ASTBuilderUtil.createIdentifier(resourceNode.pos, "FilterContext"));
@@ -225,7 +225,8 @@ public class HttpFiltersDesugar {
      *  }
      * </pre></blockquote>
      */
-    private void addAssignmentAndForEach(BLangResource resourceNode, BLangSimpleVariable filterContextVar) {
+    private void addAssignmentAndForEach(BLangService service, BLangFunction resourceNode,
+            BLangSimpleVariable filterContextVar) {
         //Assignment statement START
         BLangSimpleVarRef callerRef = new BLangSimpleVarRef();
         BLangSimpleVariable endpointVar = resourceNode.requiredParams.get(ENDPOINT_PARAM_NUM);
@@ -234,7 +235,7 @@ public class HttpFiltersDesugar {
         callerRef.pos = resourceNode.pos;
         callerRef.symbol = endpointVar.symbol;
 
-        BField connVal = ((BLangService) resourceNode.parent).endpointType.fields.get(CONNECTOR_FIELD_INDEX);
+        BField connVal = ((BObjectType) service.attachExpr.type).fields.get(CONNECTOR_FIELD_INDEX);
         BLangFieldBasedAccess connField = ASTBuilderUtil.createFieldAccessExpr(callerRef, ASTBuilderUtil
                 .createIdentifier(resourceNode.pos, HTTP_CONNECTION_VAR));
         connField.type = connVal.type;
@@ -262,7 +263,7 @@ public class HttpFiltersDesugar {
         //Assignment statement END
 
         //forEach statement START
-        BField configVal = ((BLangService) resourceNode.parent).endpointType.fields.get(ENDPOINT_CONFIG_INDEX);
+        BField configVal = ((BObjectType) service.attachExpr.type).fields.get(ENDPOINT_CONFIG_INDEX);
         BField filtersVal = ((BRecordType) configVal.type).fields.get(FILTERS_CONFIG_INDEX);
         BType filtersType = filtersVal.type;
         BType filterType = ((BArrayType) filtersType).eType;

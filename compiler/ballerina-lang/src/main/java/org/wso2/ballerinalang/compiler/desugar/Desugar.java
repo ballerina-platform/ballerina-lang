@@ -246,7 +246,6 @@ public class Desugar extends BLangNodeVisitor {
     private Types types;
     private Names names;
     private SiddhiQueryBuilder siddhiQueryBuilder;
-    private HttpFiltersDesugar httpFiltersDesugar;
     private ServiceDesugar serviceDesugar;
 
     private BLangNode result;
@@ -287,7 +286,6 @@ public class Desugar extends BLangNodeVisitor {
         this.names = Names.getInstance(context);
         this.siddhiQueryBuilder = SiddhiQueryBuilder.getInstance(context);
         this.names = Names.getInstance(context);
-        httpFiltersDesugar = HttpFiltersDesugar.getInstance(context);
         this.serviceDesugar = ServiceDesugar.getInstance(context);
     }
 
@@ -417,7 +415,7 @@ public class Desugar extends BLangNodeVisitor {
 
         pkgNode.constants.forEach(constant -> pkgNode.typeDefinitions.add(constant.associatedTypeDefinition));
 
-        BLangBlockStmt serviceAttachments = serviceDesugar.rewriteServices(pkgNode.services, env);
+        BLangBlockStmt serviceAttachments = serviceDesugar.rewriteServiceVariables(pkgNode.services, env);
 
         pkgNode.globalVars.forEach(globalVar -> {
             BLangAssignment assignment = createAssignmentStmt(globalVar);
@@ -437,8 +435,10 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
         pkgNode.functions = rewrite(pkgNode.functions, env);
 
+        pkgNode.services.forEach(service -> serviceDesugar.engageCustomServiceDesugar(service, env));
+
         serviceDesugar.rewriteListeners(pkgNode.globalVars, env);
-        serviceDesugar.rewriteAttachments(serviceAttachments, env);
+        serviceDesugar.rewriteServiceAttachments(serviceAttachments, env);
 
         pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
         pkgNode.startFunction = rewrite(pkgNode.startFunction, env);
@@ -546,9 +546,6 @@ public class Desugar extends BLangNodeVisitor {
 
         funcNode.body = rewrite(funcNode.body, fucEnv);
         funcNode.workers = rewrite(funcNode.workers, fucEnv);
-        if (Symbols.isFlagOn(funcNode.symbol.flags, Flags.RESOURCE)) {
-            httpFiltersDesugar.invokeFilters(null, env);
-        }
         result = funcNode;
     }
 
