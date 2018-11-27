@@ -55,7 +55,7 @@ public class BIntRange implements BRefType, BCollection {
     static class BIntRangeIterator implements BIterator {
 
         private BIntRange collection;
-        long cursor = 0, currentValue;
+        long currentValue;
 
         BIntRangeIterator(BIntRange collection) {
             this.collection = collection;
@@ -63,13 +63,12 @@ public class BIntRange implements BRefType, BCollection {
         }
 
         @Override
-        public BValue[] getNext(int arity) {
-            long cursor = this.cursor++;
+        public BValue getNext() {
             long currentValue = this.currentValue++;
-            if (arity == 1) {
-                return new BValue[]{new BInteger(currentValue)};
+            if (hasNext()) {
+                return new BInteger(currentValue);
             }
-            return new BValue[]{new BInteger(cursor), new BInteger(currentValue)};
+            return null;
         }
 
         @Override

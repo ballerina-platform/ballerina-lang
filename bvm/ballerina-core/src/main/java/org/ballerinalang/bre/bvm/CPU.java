@@ -2620,7 +2620,7 @@ public class CPU {
                         }
 
                         @Override
-                        public BValue[] getNext(int arity) {
+                        public BValue getNext() {
                             return null;
                         }
                     };
@@ -2638,13 +2638,12 @@ public class CPU {
             case InstructionCodes.ITR_NEXT:
                 nextInstruction = (InstructionIteratorNext) instruction;
                 iterator = (BIterator) sf.refRegs[nextInstruction.iteratorIndex];
-                BValue[] values = Optional.of(iterator).get().getNext(nextInstruction.arity);
+                BValue value = Optional.of(iterator).get().getNext();
                 BMap<String, BValue> newMap = new BMap<>(nextInstruction.constraintType);
 
-                if (values[0] != null) {
-                    newMap.put("value", values[0]);
-                    values[0] = newMap;
-                    copyValuesToRegistries(nextInstruction.typeTags, nextInstruction.retRegs, values, sf);
+                if (value != null) {
+                    newMap.put("value", value);
+                    sf.refRegs[nextInstruction.retRegs[0]] = (BRefType) newMap;
                 } else {
                     sf.refRegs[nextInstruction.retRegs[0]] = null;
                 }

@@ -149,15 +149,12 @@ public abstract class BNewArray implements BRefType, BCollection {
         }
 
         @Override
-        public BValue[] getNext(int arity) {
+        public BValue getNext() {
             long cursor = this.cursor++;
-            if (array.size == cursor) {
-                return new BValue[]{null};
+            if (hasNext()) {
+                return array.getBValue(cursor);
             }
-            if (arity == 1) {
-                return new BValue[]{array.getBValue(cursor)};
-            }
-            return new BValue[]{new BInteger(cursor), array.getBValue(cursor)};
+            return null;
         }
 
         @Override

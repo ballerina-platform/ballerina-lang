@@ -487,12 +487,11 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
         }
 
         @Override
-        public BValue[] getNext(int arity) {
-            if (arity == 1) {
-                return new BValue[] {value.sequence.get(cursor++)};
+        public BValue getNext() {
+            if (hasNext()) {
+                return value.sequence.get(cursor++);
             }
-            int cursor = this.cursor++;
-            return new BValue[] {new BInteger(cursor), value.sequence.get(cursor)};
+            return null;
         }
 
         @Override

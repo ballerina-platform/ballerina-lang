@@ -111,7 +111,7 @@ public class StructImpl extends AnnotatableNode implements Struct {
         List<Value> list = new ArrayList<>();
         final BIterator bIterator = refField.newIterator();
         while (bIterator.hasNext()) {
-            list.add(ValueImpl.createValue(bIterator.getNext(1)[0]));
+            list.add(ValueImpl.createValue(bIterator.getNext()));
         }
         return list.toArray(new Value[0]);
     }
@@ -130,8 +130,8 @@ public class StructImpl extends AnnotatableNode implements Struct {
         Map<String, Value> valueMap = new LinkedHashMap<>();
         final BIterator bIterator = refField.newIterator();
         while (bIterator.hasNext()) {
-            final BValue[] next = bIterator.getNext(2);
-            valueMap.put(next[0].stringValue(), ValueImpl.createValue(next[1]));
+            final BValue next = bIterator.getNext();
+            valueMap.put(next.stringValue(), ValueImpl.createValue(next));
         }
         return valueMap;
     }

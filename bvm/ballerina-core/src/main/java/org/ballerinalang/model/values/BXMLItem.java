@@ -848,11 +848,11 @@ public final class BXMLItem extends BXML<OMNode> {
         }
 
         @Override
-        public BValue[] getNext(int arity) {
-            if (arity == 1) {
-                return cursor++ == 0 ? new BValue[] {value} : null;
+        public BValue getNext() {
+            if (hasNext()) {
+                return cursor++ == 0 ? value : null;
             }
-            return cursor++ == 0 ? new BValue[] {new BInteger(0), value} : null;
+            return null;
         }
 
         @Override

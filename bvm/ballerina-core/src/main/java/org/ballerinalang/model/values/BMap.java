@@ -434,12 +434,12 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
         }
 
         @Override
-        public BValue[] getNext(int arity) {
+        public BValue getNext() {
             Map.Entry<K, V> next = iterator.next();
-            if (arity == 1) {
-                return new BValue[] {next.getValue()};
+            if (hasNext()) {
+                return next.getValue();
             }
-            return new BValue[] {new BString((String) next.getKey()), next.getValue()};
+            return null;
         }
 
         @Override

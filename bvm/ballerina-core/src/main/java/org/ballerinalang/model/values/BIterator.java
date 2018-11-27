@@ -30,12 +30,11 @@ import java.util.Map;
 public interface BIterator extends BRefType {
 
     /**
-     * Get the array of BValues for next element for given argument arity.
+     * Get the array of BValues for next element.
      *
-     * @param arity Number of arguments
-     * @return array of BValues for next element for given argument arity
+     * @return array of BValues for next element
      */
-    BValue[] getNext(int arity);
+    BValue getNext();
 
     /**
      * Checks collection has a next value.
