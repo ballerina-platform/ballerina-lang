@@ -24,6 +24,7 @@ import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStructureType;
+import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.BUnionType;
@@ -43,6 +44,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -430,6 +433,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
 
         BMap<K, V> collection;
         Iterator<Map.Entry<K, V>> iterator;
+        long cursor = 0;
 
         BMapIterator(BMap<K, V> value) {
             collection = value;
@@ -438,11 +442,27 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
 
         @Override
         public BValue getNext() {
-            Map.Entry<K, V> next = iterator.next();
-            if (hasNext()) {
-                return next.getValue();
+            if (cursor++ == collection.size()) {
+                return null;
             }
-            return null;
+
+            List<BType> types = new LinkedList<>();
+            types.add(BTypes.typeString);
+            types.add(BTypes.typeAny);
+            BTupleType tupleType = new BTupleType(types);
+
+            if (!hasNext()) {
+                return null;
+            }
+
+            Map.Entry<K, V> next = iterator.next();
+            BRefValueArray tuple = new BRefValueArray(tupleType);
+            BString key = new BString((String) next.getKey());
+            tuple.add(0, key);
+            BRefType value = (BRefType<?>) next.getValue();
+            tuple.add(1, value);
+
+            return tuple;
         }
 
         @Override

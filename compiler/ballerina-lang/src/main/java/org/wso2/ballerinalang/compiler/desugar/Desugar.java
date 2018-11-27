@@ -1519,9 +1519,10 @@ public class Desugar extends BLangNodeVisitor {
         switch (foreach.collection.type.tag) {
             case TypeTags.ARRAY:
             case TypeTags.XML:
+            case TypeTags.MAP:
                 blockNode = desugarForeachOfListTypes(foreach, collectionSymbol);
                 break;
-//            case TypeTags.MAP:
+//                blockNode = desugarForeachOfListTypes(foreach, collectionSymbol);
 //                scopeEntry = symTable.rootScope.lookup(names.fromString("map.keys"));
 //                 keysFunctionSymbol = (BInvokableSymbol) scopeEntry.symbol;
 //                blockNode = desugarForeachOfMappingTypes(foreach, collectionSymbol, "keys", keysFunctionSymbol,
@@ -1568,6 +1569,9 @@ public class Desugar extends BLangNodeVisitor {
         // }
         //
         // // After desugaring.
+        //
+        // int[] $data$ = data;
+        //
         // any $iterator$ = $data$.iterate();
         // map<T>? $result$ = $iterator$.next();
         //
@@ -1761,8 +1765,8 @@ public class Desugar extends BLangNodeVisitor {
         // map data = {}; // Unconstrained
         //
         // // Before desugaring.
-        // foreach (int, any)(i, j) in data {
-        //     io:println(i, j);
+        // foreach (string, any)(s, a) in data {
+        //     io:println(s, a);
         // }
         //
         // // After desugaring.
@@ -1772,10 +1776,31 @@ public class Desugar extends BLangNodeVisitor {
         // int $size$ = $keys$.length();
         // while $index$ < $size$ {
         //     string $key$ = $keys$[$index$];
-        //     (int, any)(i, j) = ($index$, $data$[$key$]);
+        //     (string, any)(s, a) = ($key$, $data$[$key$]);
         //     $index$ += 1;
         //     // foreach node’s body.
-        //     io:println(i, j);
+        //     io:println(s, a);
+        // }
+        //
+        // -----------------------------------------------------------------
+        //
+        // // After desugaring.
+        //
+        // map<T> $data$ = data;
+        //
+        // any $iterator$ = $data$.iterate();
+        // map<T>? $result$ = $iterator$.next();
+        //
+        // while $result$ != () {
+        //     if $result$ is () {
+        //         break;
+        //     } else {
+        //         (string, T) (s, a) = $result$.value;
+        //         $result$ = $iterator$.next();
+        //         ....
+        //         [foreach node body]
+        //         ....
+        //     }
         // }
 
         // Get the symbol from the collection.
