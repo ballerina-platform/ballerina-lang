@@ -78,60 +78,50 @@ public class BValueArray extends BNewArray implements Serializable {
     public BValueArray(long[] values) {
         this.intValues = values;
         this.size = values.length;
-        super.arrayType = new BArrayType(BTypes.typeInt);
-        this.elementType = BTypes.typeInt;
+        setArrayElementType(BTypes.typeInt);
     }
 
     public BValueArray(int[] values) {
         this.booleanValues = values;
         this.size = values.length;
-        super.arrayType = new BArrayType(BTypes.typeBoolean);
-        this.elementType = BTypes.typeBoolean;
+        setArrayElementType(BTypes.typeBoolean);
     }
 
     public BValueArray(byte[] values) {
         this.byteValues = values;
         this.size = values.length;
-        super.arrayType = new BArrayType(BTypes.typeByte, size);
-        this.elementType = BTypes.typeByte;
+        setArrayElementType(BTypes.typeByte);
     }
 
     public BValueArray(double[] values) {
         this.floatValues = values;
         this.size = values.length;
-        super.arrayType = new BArrayType(BTypes.typeFloat);
-        this.elementType = BTypes.typeFloat;
+        setArrayElementType(BTypes.typeFloat);
     }
 
     public BValueArray(String[] values) {
         this.stringValues = values;
         this.size = values.length;
-        super.arrayType = new BArrayType(BTypes.typeString);
-        this.elementType = BTypes.typeString;
+        setArrayElementType(BTypes.typeString);
     }
 
     public BValueArray(BType type) {
         if (type.getTag() == TypeTags.INT_TAG) {
             intValues = (long[]) newArrayInstance(Long.TYPE);
-            super.arrayType = new BArrayType(BTypes.typeInt);
-            this.elementType = BTypes.typeInt;
+            setArrayElementType(type);
         } else if (type.getTag() == TypeTags.BOOLEAN_TAG) {
             booleanValues = (int[]) newArrayInstance(Integer.TYPE);
-            super.arrayType = new BArrayType(BTypes.typeBoolean);
-            this.elementType = BTypes.typeBoolean;
+            setArrayElementType(type);
         } else if (type.getTag() == TypeTags.BYTE_TAG) {
             byteValues = (byte[]) newArrayInstance(Byte.TYPE);
-            super.arrayType = new BArrayType(BTypes.typeByte, size);
-            this.elementType = BTypes.typeByte;
+            setArrayElementType(type);
         } else if (type.getTag() == TypeTags.FLOAT_TAG) {
             floatValues = (double[]) newArrayInstance(Double.TYPE);
-            super.arrayType = new BArrayType(BTypes.typeFloat);
-            this.elementType = BTypes.typeFloat;
+            setArrayElementType(type);
         } else if (type.getTag() == TypeTags.STRING_TAG) {
             stringValues = (String[]) newArrayInstance(String.class);
             Arrays.fill(stringValues, BLangConstants.STRING_EMPTY_VALUE);
-            super.arrayType = new BArrayType(BTypes.typeString);
-            this.elementType = BTypes.typeString;
+            setArrayElementType(type);
         } else {
             super.arrayType = type;
             if (type.getTag() == TypeTags.ARRAY_TAG) {
@@ -155,48 +145,35 @@ public class BValueArray extends BNewArray implements Serializable {
         }
     }
 
+    private void setArrayElementType(BType type) {
+        super.arrayType = new BArrayType(type);
+        this.elementType = type;
+    }
+
     public BValueArray() {
         refValues = (BRefType[]) newArrayInstance(BRefType.class);
     }
 
     public BValueArray(BType type, int size) {
+        if (size != -1) {
+            this.size = maxArraySize = size;
+        }
+
         if (type.getTag() == TypeTags.INT_TAG) {
-            if (size != -1) {
-                this.size = maxArraySize = size;
-            }
             intValues = (long[]) newArrayInstance(Long.TYPE);
-            super.arrayType = new BArrayType(BTypes.typeInt, size);
-            this.elementType = BTypes.typeInt;
         } else if (type.getTag() == TypeTags.BOOLEAN_TAG) {
-            if (size != -1) {
-                this.size = maxArraySize = size;
-            }
             booleanValues = (int[]) newArrayInstance(Integer.TYPE);
-            super.arrayType = new BArrayType(BTypes.typeBoolean, size);
-            this.elementType = BTypes.typeBoolean;
         } else if (type.getTag() == TypeTags.BYTE_TAG) {
-            if (size != -1) {
-                this.size = maxArraySize = size;
-            }
             byteValues = (byte[]) newArrayInstance(Byte.TYPE);
-            super.arrayType = new BArrayType(BTypes.typeByte, size);
-            this.elementType = BTypes.typeByte;
         } else if (type.getTag() == TypeTags.FLOAT_TAG) {
-            if (size != -1) {
-                this.size = maxArraySize = size;
-            }
             floatValues = (double[]) newArrayInstance(Double.TYPE);
-            super.arrayType = new BArrayType(BTypes.typeFloat, size);
-            this.elementType = BTypes.typeFloat;
         } else if (type.getTag() == TypeTags.STRING_TAG) {
-            if (size != -1) {
-                this.size = maxArraySize = size;
-            }
             stringValues = (String[]) newArrayInstance(String.class);
             Arrays.fill(stringValues, BLangConstants.STRING_EMPTY_VALUE);
-            super.arrayType = new BArrayType(BTypes.typeString, size);
-            this.elementType = BTypes.typeString;
         }
+
+        super.arrayType = new BArrayType(type, size);
+        this.elementType = type;
     }
 
     // -----------------------  get methods ----------------------------------------------------
@@ -234,23 +211,13 @@ public class BValueArray extends BNewArray implements Serializable {
     // ----------------------------  add methods --------------------------------------------------
 
     public void add(long index, BRefType<?> value) {
-        synchronized (this) {
-            if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
-                handleInvalidUpdate(freezeStatus.getState());
-            }
-        }
-
+        handleFrozenArrayValue();
         prepareForAdd(index, refValues.length);
         refValues[(int) index] = value;
     }
 
     public void add(long index, long value) {
-        synchronized (this) {
-            if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
-                handleInvalidUpdate(freezeStatus.getState());
-            }
-        }
-
+        handleFrozenArrayValue();
         prepareForAdd(index, intValues.length);
         intValues[(int) index] = value;
     }
@@ -261,45 +228,25 @@ public class BValueArray extends BNewArray implements Serializable {
             return;
         }
 
-        synchronized (this) {
-            if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
-                handleInvalidUpdate(freezeStatus.getState());
-            }
-        }
-
+        handleFrozenArrayValue();
         prepareForAdd(index, booleanValues.length);
         booleanValues[(int) index] = value;
     }
 
     public void add(long index, byte value) {
-        synchronized (this) {
-            if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
-                handleInvalidUpdate(freezeStatus.getState());
-            }
-        }
-
+        handleFrozenArrayValue();
         prepareForAdd(index, byteValues.length);
         byteValues[(int) index] = value;
     }
 
     public void add(long index, double value) {
-        synchronized (this) {
-            if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
-                handleInvalidUpdate(freezeStatus.getState());
-            }
-        }
-
+        handleFrozenArrayValue();
         prepareForAdd(index, floatValues.length);
         floatValues[(int) index] = value;
     }
 
     public void add(long index, String value) {
-        synchronized (this) {
-            if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
-                handleInvalidUpdate(freezeStatus.getState());
-            }
-        }
-
+        handleFrozenArrayValue();
         prepareForAdd(index, stringValues.length);
         stringValues[(int) index] = value;
     }
@@ -392,31 +339,24 @@ public class BValueArray extends BNewArray implements Serializable {
         }
 
         if (elementType != null) {
+            BValueArray valueArray = null;
+
             if (elementType.getTag() == TypeTags.INT_TAG) {
-                BValueArray intArray = new BValueArray(Arrays.copyOf(intValues, intValues.length));
-                intArray.size = this.size;
-                refs.put(this, intArray);
-                return intArray;
+                valueArray = new BValueArray(Arrays.copyOf(intValues, intValues.length));
             } else if (elementType.getTag() == TypeTags.BOOLEAN_TAG) {
-                BValueArray booleanArray = new BValueArray(Arrays.copyOf(booleanValues, booleanValues.length));
-                booleanArray.size = this.size;
-                refs.put(this, booleanArray);
-                return booleanArray;
+                valueArray = new BValueArray(Arrays.copyOf(booleanValues, booleanValues.length));
             } else if (elementType.getTag() == TypeTags.BYTE_TAG) {
-                BValueArray byteArray = new BValueArray(Arrays.copyOf(byteValues, byteValues.length));
-                byteArray.size = this.size;
-                refs.put(this, byteArray);
-                return byteArray;
+                valueArray = new BValueArray(Arrays.copyOf(byteValues, byteValues.length));
             } else if (elementType.getTag() == TypeTags.FLOAT_TAG) {
-                BValueArray floatArray = new BValueArray(Arrays.copyOf(floatValues, floatValues.length));
-                floatArray.size = size;
-                refs.put(this, floatArray);
-                return floatArray;
+                valueArray = new BValueArray(Arrays.copyOf(floatValues, floatValues.length));
             } else if (elementType.getTag() == TypeTags.STRING_TAG) {
-                BValueArray stringArray = new BValueArray(Arrays.copyOf(stringValues, stringValues.length));
-                stringArray.size = this.size;
-                refs.put(this, stringArray);
-                return stringArray;
+                valueArray = new BValueArray(Arrays.copyOf(stringValues, stringValues.length));
+            }
+
+            if (valueArray != null) {
+                valueArray.size = this.size;
+                refs.put(this, valueArray);
+                return valueArray;
             }
         }
 
@@ -435,32 +375,28 @@ public class BValueArray extends BNewArray implements Serializable {
     @Override
     public String stringValue() {
         if (elementType != null) {
+            StringJoiner sj = new StringJoiner(", ", "[", "]");
             if (elementType.getTag() == TypeTags.INT_TAG) {
-                StringJoiner sj = new StringJoiner(", ", "[", "]");
                 for (int i = 0; i < size; i++) {
                     sj.add(Long.toString(intValues[i]));
                 }
                 return sj.toString();
             } else if (elementType.getTag() == TypeTags.BOOLEAN_TAG) {
-                StringJoiner sj = new StringJoiner(", ", "[", "]");
                 for (int i = 0; i < size; i++) {
                     sj.add(Boolean.toString(booleanValues[i] == 1));
                 }
                 return sj.toString();
             } else if (elementType.getTag() == TypeTags.BYTE_TAG) {
-                StringJoiner sj = new StringJoiner(", ", "[", "]");
                 for (int i = 0; i < size; i++) {
                     sj.add(Integer.toString(Byte.toUnsignedInt(byteValues[i])));
                 }
                 return sj.toString();
             } else if (elementType.getTag() == TypeTags.FLOAT_TAG) {
-                StringJoiner sj = new StringJoiner(", ", "[", "]");
                 for (int i = 0; i < size; i++) {
                     sj.add(Double.toString(floatValues[i]));
                 }
                 return sj.toString();
             } else if (elementType.getTag() == TypeTags.STRING_TAG) {
-                StringJoiner sj = new StringJoiner(", ", "[", "]");
                 for (int i = 0; i < size; i++) {
                     sj.add("\"" + stringValues[i] + "\"");
                 }
@@ -574,12 +510,25 @@ public class BValueArray extends BNewArray implements Serializable {
      */
     @Override
     public synchronized void attemptFreeze(CPU.FreezeStatus freezeStatus) {
-        if (isOpenForFreeze(this.freezeStatus, freezeStatus)) {
-            this.freezeStatus = freezeStatus;
-            for (int i = 0; i < this.size; i++) {
-                if (this.getRefValue(i) != null) {
-                    this.getRefValue(i).attemptFreeze(freezeStatus);
-                }
+        if (!isOpenForFreeze(this.freezeStatus, freezeStatus)) {
+            return;
+        }
+
+        this.freezeStatus = freezeStatus;
+        for (int i = 0; i < this.size; i++) {
+            if (this.getRefValue(i) != null) {
+                this.getRefValue(i).attemptFreeze(freezeStatus);
+            }
+        }
+    }
+
+    /**
+     * Util method to handle frozen array values.
+     */
+    private void handleFrozenArrayValue() {
+        synchronized (this) {
+            if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
+                handleInvalidUpdate(freezeStatus.getState());
             }
         }
     }
