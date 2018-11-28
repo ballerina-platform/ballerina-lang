@@ -78,9 +78,9 @@ public function main() {
         if (payload is string) {
             log:printInfo(payload);
         } else if (payload is error) {
-            log:printError(<string> payload.detail().message);
+            log:printError(string.create(payload.detail().message));
         }
     } else if (resp is error) {
-        log:printError(<string> resp.detail().message);
+        log:printError(string.create(resp.detail().message));
     }
 }

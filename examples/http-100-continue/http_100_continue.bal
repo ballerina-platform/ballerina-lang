@@ -33,7 +33,7 @@ service helloWorld on new http:Listener(9090) {
             }
         } else if (payload is error) {
             res.statusCode = 500;
-            res.setPayload(<string> payload.detail().message);
+            res.setPayload(string.create(payload.detail().message));
             var result = caller->respond(res);
             if (result is error) {
                 log:printError("Error sending response", err = result);

@@ -44,7 +44,7 @@ service contentBasedRouting on new http:Listener(9090) {
             } else if (clientResponse is error) {
                     http:Response res = new;
                     res.statusCode = 500;
-                    res.setPayload(<string> clientResponse.detail().message);
+                    res.setPayload(string.create(clientResponse.detail().message));
                     var result = outboundEP->respond(res);
                     if (result is error) {
                        log:printError("Error sending response", err = result);
@@ -53,7 +53,7 @@ service contentBasedRouting on new http:Listener(9090) {
         } else if (jsonMsg is error) {
             http:Response res = new;
             res.statusCode = 500;
-            res.setPayload(<string> jsonMsg.detail().message);
+            res.setPayload(string.create(jsonMsg.detail().message));
 
             var result = outboundEP->respond(res);
             if (result is error) {

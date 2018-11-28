@@ -66,7 +66,7 @@ service headerBasedRouting on new http:Listener(9090) {
         } else if (response is error) {
             http:Response errorResponse = new;
             errorResponse.statusCode = 500;
-            errorResponse.setPayload(<string> response.detail().message);
+            errorResponse.setPayload(string.create(response.detail().message));
             var result = caller->respond(errorResponse);
 
             if (result is error){
