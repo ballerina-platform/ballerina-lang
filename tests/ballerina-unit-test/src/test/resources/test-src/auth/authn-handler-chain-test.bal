@@ -13,9 +13,7 @@ function testAuthFailure () returns (boolean) {
     registry.add("basicProvider1", createBasicAuthnHandler());
     http:Request inRequest = createRequest();
     string basicAutheaderValue = "123Basic xxxxx";
-    mime:Entity requestEntity = new;
-    requestEntity.setHeader("123Authorization", basicAutheaderValue);
-    inRequest.setEntity(requestEntity);
+    inRequest.setHeader("123Authorization", basicAutheaderValue);
     http:AuthnHandlerChain authnHandlerChain = new(registry);
     return authnHandlerChain.handle(inRequest);
 }
@@ -25,9 +23,7 @@ function testAuthFailureWithSpecificHandlers () returns (boolean) {
     registry.add("basicProvider1", createBasicAuthnHandler());
     http:Request inRequest = createRequest();
     string basicAutheaderValue = "123Basic xxxxx";
-    mime:Entity requestEntity = new;
-    requestEntity.setHeader("123Authorization", basicAutheaderValue);
-    inRequest.setEntity(requestEntity);
+    inRequest.setHeader("123Authorization", basicAutheaderValue);
     http:AuthnHandlerChain authnHandlerChain = new(registry);
     string[] authProviders = [];
     authProviders[0] = "basicProvider1";
@@ -39,9 +35,7 @@ function testAuthSuccess () returns (boolean) {
     registry.add("basicProvider1", createBasicAuthnHandler());
     http:Request inRequest = createRequest();
     string basicAutheaderValue = "Basic aXN1cnU6eHh4";
-    mime:Entity requestEntity = new;
-    requestEntity.setHeader("Authorization", basicAutheaderValue);
-    inRequest.setEntity(requestEntity);
+    inRequest.setHeader("Authorization", basicAutheaderValue);
     http:AuthnHandlerChain authnHandlerChain = new(registry);
     return authnHandlerChain.handle(inRequest);
 }
@@ -51,9 +45,7 @@ function testAuthSuccessWithSpecificHandlers () returns (boolean) {
     registry.add("basicProvider1", createBasicAuthnHandler());
     http:Request inRequest = createRequest();
     string basicAutheaderValue = "Basic aXN1cnU6eHh4";
-    mime:Entity requestEntity = new;
-    requestEntity.setHeader("Authorization", basicAutheaderValue);
-    inRequest.setEntity(requestEntity);
+    inRequest.setHeader("Authorization", basicAutheaderValue);
     http:AuthnHandlerChain authnHandlerChain = new(registry);
     string[] authProviders = [];
     authProviders[0] = "basicProvider1";
@@ -69,8 +61,8 @@ function createRequest () returns (http:Request) {
 }
 
 function createBasicAuthnHandler () returns (http:HttpAuthnHandler) {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
-    auth:AuthStoreProvider authStoreProvider = <auth:AuthStoreProvider>configAuthStoreProvider;
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new();
+    auth:AuthStoreProvider authStoreProvider = configAuthStoreProvider;
     http:HttpBasicAuthnHandler basicAuthnHandler = new(authStoreProvider);
-    return <http:HttpAuthnHandler> basicAuthnHandler;
+    return basicAuthnHandler;
 }

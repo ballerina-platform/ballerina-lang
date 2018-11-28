@@ -140,8 +140,7 @@ public class StreamingExecute extends AbstractExecute {
                 connStruct.addNativeData(REQUEST_SENDER, requestSender);
                 connStruct.addNativeData(REQUEST_MESSAGE_DEFINITION, methodDescriptor
                         .getInputType());
-                clientEndpoint.addNativeData(STREAMING_CLIENT, connStruct);
-                context.setReturnValues(clientEndpoint);
+                context.setReturnValues(connStruct);
                 callback.notifySuccess();
             } catch (RuntimeException | GrpcClientException e) {
                 notifyErrorReply(context, "gRPC Client Connector Error :" + e.getMessage());

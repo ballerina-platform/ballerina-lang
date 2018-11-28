@@ -29,16 +29,22 @@ public interface BallerinaGlobalVariableDefinition extends BallerinaNamedElement
   @Nullable
   BallerinaExpression getExpression();
 
-  @NotNull
+  @Nullable
   BallerinaTypeName getTypeName();
+
+  @Nullable
+  BallerinaChannelType getChannelType();
 
   @Nullable
   PsiElement getAssign();
 
-  @Nullable
+  @NotNull
   PsiElement getSemicolon();
 
   @Nullable
+  PsiElement getFinal();
+
+  @NotNull
   PsiElement getIdentifier();
 
   @Nullable
@@ -46,5 +52,8 @@ public interface BallerinaGlobalVariableDefinition extends BallerinaNamedElement
 
   @Nullable
   PsiElement getPublic();
+
+  @Nullable
+  PsiElement getVar();
 
 }

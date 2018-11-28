@@ -1,22 +1,32 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import ballerina/http;
 import ballerina/mime;
 
-endpoint http:Listener passthroughEP1 {
-    port: 9113
-};
-
-endpoint http:Client nyseEP1 {
-    url: "http://localhost:9113"
-};
+listener http:Listener passthroughEP1 = new(9113);
 
 @http:ServiceConfig { basePath: "/passthrough" }
-service<http:Service> passthroughService bind passthroughEP1 {
-
+service passthroughService on passthroughEP1 {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/"
     }
-    passthrough(endpoint caller, http:Request clientRequest) {
+    resource function passthrough(http:Caller caller, http:Request clientRequest) {
+        http:Client nyseEP1 = new("http://localhost:9113");
         var response = nyseEP1->get("/nyseStock/stocks", message = untaint clientRequest);
         if (response is http:Response) {
             _ = caller->respond(response);
@@ -29,7 +39,8 @@ service<http:Service> passthroughService bind passthroughEP1 {
         methods: ["POST"],
         path: "/forwardMultipart"
     }
-    forwardMultipart(endpoint caller, http:Request clientRequest) {
+    resource function forwardMultipart(http:Caller caller, http:Request clientRequest) {
+        http:Client nyseEP1 = new("http://localhost:9113");
         var response = nyseEP1->forward("/nyseStock/stocksAsMultiparts", clientRequest);
         if (response is http:Response) {
             _ = caller->respond(response);
@@ -40,13 +51,13 @@ service<http:Service> passthroughService bind passthroughEP1 {
 }
 
 @http:ServiceConfig { basePath: "/nyseStock" }
-service<http:Service> nyseStockQuote1 bind passthroughEP1 {
+service nyseStockQuote1 on passthroughEP1 {
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/stocks"
     }
-    stocks(endpoint caller, http:Request clientRequest) {
+    resource function stocks(http:Caller caller, http:Request clientRequest) {
         _ = caller->respond({ "exchange": "nyse", "name": "IBM", "value": "127.50" });
     }
 
@@ -54,7 +65,7 @@ service<http:Service> nyseStockQuote1 bind passthroughEP1 {
         methods: ["POST"],
         path: "/stocksAsMultiparts"
     }
-    stocksAsMultiparts(endpoint caller, http:Request clientRequest) {
+    resource function stocksAsMultiparts(http:Caller caller, http:Request clientRequest) {
         var bodyParts = clientRequest.getBodyParts();
         if (bodyParts is mime:Entity[]) {
             _ = caller->respond(untaint bodyParts);

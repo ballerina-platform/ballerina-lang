@@ -49,6 +49,7 @@ public enum NodeKind {
     WORKER,
     XMLNS,
     CHANNEL,
+    WAIT_LITERAL_KEY_VALUE,
 
     /* Expressions */
     DOCUMENTATION_ATTRIBUTE,
@@ -72,7 +73,7 @@ public enum NodeKind {
     ERROR_VARIABLE_REF,
     STRING_TEMPLATE_LITERAL,
     TERNARY_EXPR,
-    AWAIT_EXPR,
+    WAIT_EXPR,
     TRAP_EXPR,
     TYPEDESC_EXPRESSION,
     TYPE_CONVERSION_EXPR,
@@ -137,6 +138,8 @@ public enum NodeKind {
     LOCK,
     WORKER_RECEIVE,
     WORKER_SEND,
+    WORKER_SYNC_SEND,
+    WORKER_FLUSH,
     STREAM,
     SCOPE,
     COMPENSATE,

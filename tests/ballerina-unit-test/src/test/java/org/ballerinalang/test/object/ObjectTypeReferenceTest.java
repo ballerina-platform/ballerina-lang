@@ -38,7 +38,7 @@ public class ObjectTypeReferenceTest {
     @Test
     public void testSimpleObjectTypeReferenceNegative_1() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-1-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 20);
+        Assert.assertEquals(negativeResult.getErrorCount(), 21);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 27, 6);
         BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 27, 6);
@@ -65,18 +65,20 @@ public class ObjectTypeReferenceTest {
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'getName': trying to copy a duplicate " +
                 "function through referenced type 'ObjectWithRedeclaredFunction_1'", 125, 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'x'", 134, 6);
+        BAssertUtil.validateError(negativeResult, i++, "unknown type 'Baz'", 142, 6);
     }
 
     @Test
     public void testSimpleObjectTypeReferenceNegative_2() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-2-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 4);
+        Assert.assertEquals(negativeResult.getErrorCount(), 5);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'map<string>' is not an abstract object",
                 18, 6);
         BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'x'", 19, 6);
         BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'y'", 19, 6);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'int' is not an abstract object", 20, 6);
+        BAssertUtil.validateError(negativeResult, i++, "unknown type 'YYY'", 29, 6);
     }
 
     @Test

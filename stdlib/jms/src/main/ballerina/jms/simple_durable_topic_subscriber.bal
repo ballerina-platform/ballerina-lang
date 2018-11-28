@@ -63,7 +63,7 @@ public type SimpleDurableTopicSubscriber object {
     #
     # + serviceType - type descriptor of the service to bind to
     public function __attach(service serviceType, map<any> data) returns error? {
-        return self.subscriber.registerListener(serviceType, self.subscriber.consumerActions);
+        return self.subscriber.registerListener(serviceType, self.subscriber.consumerActions, data);
     }
 
     # Starts the endpoint. Function is ignored by the subscriber endpoint

@@ -106,13 +106,10 @@ service HelloWorld100 on ep7 {
     resource function testResponseInsideMatch(grpc:Caller caller, string msg) {
         io:println("Request: " + msg);
         Response? res = {resp:"Acknowledge " + msg};
-        match res {
-            Response value => {
-                _ = caller->send(value);
-            }
-            () => {
-                _ = caller->sendError(grpc:NOT_FOUND, "No updates from that drone");
-            }
+        if (res is Response) {
+            _ = caller->send(res);
+        } else {
+            _ = caller->sendError(grpc:NOT_FOUND, "No updates from that drone");
         }
         _ = caller->complete();
     }

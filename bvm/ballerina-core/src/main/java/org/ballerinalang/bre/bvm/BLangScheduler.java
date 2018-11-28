@@ -21,23 +21,15 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CPU.HandleErrorException;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.NativeCallableUnit;
-import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BError;
-import org.ballerinalang.persistence.states.RuntimeStates;
-import org.ballerinalang.persistence.states.State;
-import org.ballerinalang.persistence.store.PersistenceStore;
-import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
-import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.observability.CallbackObserver;
 import org.ballerinalang.util.observability.ObservabilityUtils;
 import org.ballerinalang.util.observability.ObserverContext;
-import org.ballerinalang.util.program.BLangVMUtils;
 
 import java.io.PrintStream;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
@@ -100,27 +92,6 @@ public class BLangScheduler {
             workersDoneSemaphore.release();
         }
     }
-
-    private static void handleInterruptibleAfterExecution(WorkerExecutionContext ctx) {
-        if (ctx.interruptible && ctx.parent != null && ctx.parent.isRootContext()) {
-            /* If the context is interruptible and its parent is the root context, means given context is the last
-            worker which is completed. So persisted state will be cleared in memory and storage. */
-            String stateId = (String) ctx.globalProps.get(Constants.STATE_ID);
-            List<State> stateList = RuntimeStates.get(stateId);
-            if (stateList != null && !stateList.isEmpty()) {
-                RuntimeStates.remove(stateId);
-                PersistenceStore.removeStates(stateId);
-            }
-        }
-    }
-
-    public static void handleInterruptibleAfterCallback(WorkerExecutionContext ctx) {
-        if (ctx != null && ctx.markAsCheckPointed) {
-            String stateId = (String) ctx.globalProps.get(Constants.STATE_ID);
-            PersistenceStore.persistState(new State(ctx, stateId, ctx.ip + 1));
-            ctx.markAsCheckPointed = false;
-        }
-    }
     
     public static WorkerExecutionContext schedule(WorkerExecutionContext ctx, boolean runInCaller) {
         workerReady(ctx);
@@ -177,7 +148,6 @@ public class BLangScheduler {
     public static void workerDone(WorkerExecutionContext ctx) {
         schedulerStats.stateTransition(ctx, WorkerState.DONE);
         ctx.state = WorkerState.DONE;
-        handleInterruptibleAfterExecution(ctx);
         workerCountDown();
     }
     
@@ -209,7 +179,6 @@ public class BLangScheduler {
     public static void workerExcepted(WorkerExecutionContext ctx) {
         schedulerStats.stateTransition(ctx, WorkerState.EXCEPTED);
         ctx.state = WorkerState.EXCEPTED;
-        handleInterruptibleAfterExecution(ctx);
         workerCountDown();
     }
     
@@ -309,26 +278,26 @@ public class BLangScheduler {
         
         @Override
         public void run() {
-            WorkerExecutionContext runInCaller = null;
-            CallableUnitInfo cui = this.nativeCtx.getCallableUnitInfo();
-            WorkerData result = BLangVMUtils.createWorkerData(cui.retWorkerIndex);
-            BType[] retTypes = cui.getRetParamTypes();
-            try {
-                this.nativeCallable.execute(this.nativeCtx, null);
-                BLangVMUtils.populateWorkerResultWithValues(result, this.nativeCtx.getReturnValues(), retTypes);
-                runInCaller = this.respCtx.signal(new WorkerSignal(null, SignalType.RETURN, result));
-            } catch (BLangNullReferenceException e) {
-                BError error = BLangVMErrors.createNullRefException(this.nativeCtx);
-                runInCaller = this.respCtx.signal(new WorkerSignal(new WorkerExecutionContext(error), 
-                        SignalType.ERROR, result));
-            } catch (Throwable e) {
-                BError error = BLangVMErrors.createError(this.nativeCtx, e.getMessage());
-                runInCaller = this.respCtx.signal(new WorkerSignal(new WorkerExecutionContext(error), 
-                        SignalType.ERROR, result));
-            } finally {
-                workerCountDown();
-            }
-            executeNow(runInCaller);
+//            WorkerExecutionContext runInCaller = null;
+//            CallableUnitInfo cui = this.nativeCtx.getCallableUnitInfo();
+//            WorkerData result = BLangVMUtils.createWorkerData(cui.retWorkerIndex);
+//            BType[] retTypes = cui.getRetParamTypes();
+//            try {
+//                this.nativeCallable.execute(this.nativeCtx, null);
+//                BLangVMUtils.populateWorkerResultWithValues(result, this.nativeCtx.getReturnValues(), retTypes);
+//                runInCaller = this.respCtx.signal(new WorkerSignal(null, SignalType.RETURN, result));
+//            } catch (BLangNullReferenceException e) {
+//                BError error = BLangVMErrors.createNullRefException(this.nativeCtx);
+//                runInCaller = this.respCtx.signal(new WorkerSignal(new WorkerExecutionContext(error),
+//                        SignalType.ERROR, result));
+//            } catch (Throwable e) {
+//                BError error = BLangVMErrors.createError(this.nativeCtx, e.getMessage());
+//                runInCaller = this.respCtx.signal(new WorkerSignal(new WorkerExecutionContext(error),
+//                        SignalType.ERROR, result));
+//            } finally {
+//                workerCountDown();
+//            }
+//            executeNow(runInCaller);
         }
         
     }
@@ -350,25 +319,25 @@ public class BLangScheduler {
         
         @Override
         public synchronized void notifySuccess() {
-            CallableUnitInfo cui = this.nativeCallCtx.getCallableUnitInfo();
-            WorkerData result = BLangVMUtils.createWorkerData(cui.retWorkerIndex);
-            BType[] retTypes = cui.getRetParamTypes();
-            BLangVMUtils.populateWorkerResultWithValues(result, this.nativeCallCtx.getReturnValues(), retTypes);
-            WorkerExecutionContext ctx = this.respCtx.signal(new WorkerSignal(null, SignalType.RETURN, result));
-            workerCountDown();
-            BLangScheduler.resume(ctx);
+//            CallableUnitInfo cui = this.nativeCallCtx.getCallableUnitInfo();
+//            WorkerData result = BLangVMUtils.createWorkerData(cui.retWorkerIndex);
+//            BType[] retTypes = cui.getRetParamTypes();
+//            BLangVMUtils.populateWorkerResultWithValues(result, this.nativeCallCtx.getReturnValues(), retTypes);
+//            WorkerExecutionContext ctx = this.respCtx.signal(new WorkerSignal(null, SignalType.RETURN, result));
+//            workerCountDown();
+//            BLangScheduler.resume(ctx);
         }
 
         @Override
         public synchronized void notifyFailure(BError error) {
-            CallableUnitInfo cui = this.nativeCallCtx.getCallableUnitInfo();
-            WorkerData result = BLangVMUtils.createWorkerData(cui.retWorkerIndex);
-            BType[] retTypes = cui.getRetParamTypes();
-            BLangVMUtils.populateWorkerResultWithValues(result, this.nativeCallCtx.getReturnValues(), retTypes);
-            WorkerExecutionContext ctx = this.respCtx.signal(new WorkerSignal(
-                    new WorkerExecutionContext(error), SignalType.ERROR, result));
-            workerCountDown();
-            BLangScheduler.resume(ctx);
+//            CallableUnitInfo cui = this.nativeCallCtx.getCallableUnitInfo();
+//            WorkerData result = BLangVMUtils.createWorkerData(cui.retWorkerIndex);
+//            BType[] retTypes = cui.getRetParamTypes();
+//            BLangVMUtils.populateWorkerResultWithValues(result, this.nativeCallCtx.getReturnValues(), retTypes);
+//            WorkerExecutionContext ctx = this.respCtx.signal(new WorkerSignal(
+//                    new WorkerExecutionContext(error), SignalType.ERROR, result));
+//            workerCountDown();
+//            BLangScheduler.resume(ctx);
         }
 
     }

@@ -139,7 +139,7 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders;
         (result, resHeaders) = payload;
-        return (<string>result, resHeaders);
+        return (string.create(result), resHeaders);
     }
 
     remote function testOutputNestedStruct(string req, grpc:Headers? headers = ()) returns ((Person, grpc:Headers)|error) {
@@ -147,7 +147,12 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders;
         (result, resHeaders) = payload;
-        return (check <Person>result, resHeaders);
+        var value = Person.create(result);
+        if (value is Person) {
+            return (value, resHeaders);
+        } else {
+            return value;
+        }
     }
 
     remote function testInputStructOutputStruct(StockRequest req, grpc:Headers? headers = ()) returns ((StockQuote, grpc:Headers)|error) {
@@ -155,7 +160,12 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders;
         (result, resHeaders) = payload;
-        return (check <StockQuote>result, resHeaders);
+        var value = StockQuote.create(result);
+        if (value is StockQuote) {
+            return (value, resHeaders);
+        } else {
+            return value;
+        }
     }
 
     remote function testInputStructNoOutput(StockQuote req, grpc:Headers? headers = ()) returns ((grpc:Headers)|error) {
@@ -172,7 +182,12 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders;
         (result, resHeaders) = payload;
-        return (check <StockQuotes>result, resHeaders);
+        var value = StockQuotes.create(result);
+        if (value is StockQuotes) {
+            return (value, resHeaders);
+        } else {
+            return value;
+        }
     }
 
     remote function testNoInputOutputArray(grpc:Headers? headers = ()) returns ((StockNames, grpc:Headers)|error) {
@@ -181,7 +196,12 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders;
         (result, resHeaders) = payload;
-        return (check <StockNames>result, resHeaders);
+        var value = StockNames.create(result);
+        if (value is StockNames) {
+            return (value, resHeaders);
+        } else {
+            return value;
+        }
     }
 };
 

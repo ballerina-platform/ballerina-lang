@@ -13,13 +13,13 @@ function testSimpleWorkerVM(string msg) returns string {
     worker default {
         "a" -> sampleWorker;
         string result = "";
-        result <- sampleWorker;
+        result = <- sampleWorker;
         return result;
     }
 
     worker sampleWorker {
         string m = "";
-        m <- default;
+        m = <- default;
         msg -> default;
     }
 

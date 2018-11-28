@@ -67,7 +67,7 @@ service HelloWorldMessageListener = service {
         io:println("Server Complete Sending Response.");
         total = total + 1;
     }
-}
+};
 
 // Non-blocking client endpoint
 public type HelloWorldClient client object {

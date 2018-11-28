@@ -26,7 +26,7 @@ public type Appointment object {
     private string taskId;
     // Keeps track whether the appointment is scheduled to ensure that a scheduled appointment cannot be
     // appointment again unless it is cancelled
-    private boolean isRunning;
+    private boolean isRunning = false;
 
     public function __init((function () returns error?) onTrigger, (function (error) returns ())? onError,
                string scheduleCronExpression) {

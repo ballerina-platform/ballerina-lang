@@ -2,21 +2,19 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/mime;
 
-endpoint http:Client clientEndpoint {
-    url: "http://localhost:9224"
-};
+http:Client clientEndpoint = new("http://localhost:9224");
 
 @http:ServiceConfig {
     basePath: "/continue"
 }
-service<http:Service> helloContinue bind { port: 9090 } {
+service helloContinue on new http:Listener(9090) {
     @http:ResourceConfig {
         path: "/"
     }
-    hello(endpoint caller, http:Request request) {
+    resource function hello(http:Caller caller, http:Request request) {
         if (request.expects100Continue()) {
             log:printInfo("Sending 100-Continue response");
-            var responseError = caller-> continue();
+            var responseError = caller->continue();
             if (responseError is error) {
                 log:printError("Error sending response", err = responseError);
             }
@@ -45,7 +43,7 @@ service<http:Service> helloContinue bind { port: 9090 } {
     @http:ResourceConfig {
         methods: ["POST"]
     }
-    getFormParam(endpoint caller, http:Request req) {
+    resource function getFormParam(http:Caller caller, http:Request req) {
         string replyMsg = "Result =";
         var bodyParts = req.getBodyParts();
         if (bodyParts is mime:Entity[]) {
@@ -70,7 +68,7 @@ service<http:Service> helloContinue bind { port: 9090 } {
         }
     }
 
-    testPassthrough (endpoint caller, http:Request req) {
+    resource function testPassthrough(http:Caller caller, http:Request req) {
         if (req.expects100Continue()) {
             req.removeHeader("Expect");
             var responseError = caller->continue();
@@ -90,8 +88,8 @@ service<http:Service> helloContinue bind { port: 9090 } {
     }
 }
 
-service<http:Service> backend bind { port: 9224 } {
-    hello (endpoint caller, http:Request request) {
+service backend on new http:Listener(9224) {
+    resource function hello(http:Caller caller, http:Request request) {
         http:Response response = new;
         var payload = request.getTextPayload();
         if (payload is string) {
