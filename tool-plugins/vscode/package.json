@@ -193,6 +193,10 @@
                 "category": "Ballerina"
             },
             {
+                "command": "ballerina.showTraces",
+                "title": "Ballerina: Show Network logs"
+            },
+            {
                 "command": "ballerina.showAPIEditor",
                 "title": "Show API Designer",
                 "category": "Ballerina"
