@@ -19,7 +19,7 @@
 
 import { createElement } from "react";
 import { render } from "react-dom";
-import OpenApiVisualizer from "./api-designer";
+import OpenApiVisualizer from "./api-designer/index";
 
 export default function renderAPIEditor(renderTarget: HTMLElement,
                                         oasJson: string, onOASChange: () => void , updateView: boolean) {
