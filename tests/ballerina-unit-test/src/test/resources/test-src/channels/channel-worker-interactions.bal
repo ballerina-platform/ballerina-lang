@@ -1,5 +1,5 @@
 
-channel<json> chn;
+channel<json> chn = new;
 
 function workerWithChannels() returns json {
     worker w1 {
@@ -67,7 +67,7 @@ function multipleInteractions() returns json {
     }
 }
 
-channel<json> chn2;
+channel<json> chn2 = new;
 
 function multipleChannels() returns json {
     worker w2 {
@@ -89,7 +89,7 @@ function multipleChannels() returns json {
     }
 }
 
-channel<xml> xmlChn;
+channel<xml> xmlChn = new;
 function xmlChannels() returns xml {
      worker w2 {
             xml msg = xml `<payment>10000</payment>`;
@@ -113,11 +113,11 @@ function xmlChannels() returns xml {
         }
 }
 
-channel<int> intChan;
-channel<string> strChan;
-channel<boolean> boolChan;
-channel<byte> byteChan;
-channel<float> floatChan;
+channel<int> intChan = new;
+channel<string> strChan = new;
+channel<boolean> boolChan = new;
+channel<byte> byteChan = new;
+channel<float> floatChan = new;
 
 function primitiveTypeChannels() returns boolean {
 
