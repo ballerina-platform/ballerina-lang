@@ -19,8 +19,8 @@ package org.ballerinalang.net.grpc.proto;
 
 import com.google.protobuf.DescriptorProtos;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
@@ -174,7 +174,7 @@ public class ServiceProtoUtils {
         return requestType;
     }
 
-    private static ResourceConfiguration getResourceConfiguration(ResourceNode resourceNode) {
+    private static ResourceConfiguration getResourceConfiguration(FunctionNode resourceNode) {
         boolean streaming = false;
         BType requestType = null;
         BType responseType = null;
@@ -217,8 +217,8 @@ public class ServiceProtoUtils {
             GrpcServerException {
         // Protobuf service definition builder.
         Service.Builder serviceBuilder = Service.newBuilder(serviceNode.getName().getValue());
-        
-        for (ResourceNode resourceNode : serviceNode.getResources()) {
+
+        for (FunctionNode resourceNode : serviceNode.getResources()) {
             ResourceConfiguration resourceConfiguration = getResourceConfiguration(resourceNode);
             Message requestMessage;
             if (resourceConfiguration.getRequestType() != null) {
@@ -303,7 +303,7 @@ public class ServiceProtoUtils {
             responseMessage = generateMessageDefinition(serviceConfig.getResponseType());
         }
         if (requestMessage == null || responseMessage == null) {
-            for (ResourceNode resourceNode : serviceNode.getResources()) {
+            for (FunctionNode resourceNode : serviceNode.getResources()) {
                 if (ON_MESSAGE_RESOURCE.equals(resourceNode.getName().getValue())) {
                     requestMessage = requestMessage == null ? getRequestMessage(resourceNode) : requestMessage;
                     Message respMsg = responseMessage == null ? getResponseMessage(resourceNode) : responseMessage;
@@ -369,7 +369,7 @@ public class ServiceProtoUtils {
         }
     }
 
-    private static boolean isServerStreaming(ResourceNode resourceNode) {
+    private static boolean isServerStreaming(FunctionNode resourceNode) {
         boolean serverStreaming = false;
         for (AnnotationAttachmentNode annotationNode : resourceNode.getAnnotationAttachments()) {
             if (!ANN_RESOURCE_CONFIG.equals(annotationNode.getAnnotationName().getValue())) {
@@ -391,8 +391,8 @@ public class ServiceProtoUtils {
         }
         return serverStreaming;
     }
-    
-    private static Message getResponseMessage(ResourceNode resourceNode) throws GrpcServerException {
+
+    private static Message getResponseMessage(FunctionNode resourceNode) throws GrpcServerException {
         org.wso2.ballerinalang.compiler.semantics.model.types.BType responseType;
         BLangInvocation sendExpression = getInvocationExpression(resourceNode.getBody());
         if (sendExpression != null) {
@@ -403,8 +403,8 @@ public class ServiceProtoUtils {
         }
         return generateMessageDefinition(responseType);
     }
-    
-    private static Message getRequestMessage(ResourceNode resourceNode) throws GrpcServerException {
+
+    private static Message getRequestMessage(FunctionNode resourceNode) throws GrpcServerException {
         if (!(!resourceNode.getParameters().isEmpty() || resourceNode.getParameters().size() < 4)) {
             throw new GrpcServerException("Service resource definition should contain more than one and less than " +
                     "four params. but contains " + resourceNode.getParameters().size());

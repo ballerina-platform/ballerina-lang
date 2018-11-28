@@ -55,7 +55,7 @@ public class BLangTypeInit extends BLangExpression implements TypeInitNode {
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.Type_INIT_EXPR;
+        return NodeKind.TYPE_INIT_EXPR;
     }
 
     @Override
