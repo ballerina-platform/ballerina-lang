@@ -18,7 +18,7 @@ service dataService on new http:Listener(9090) {
     resource function getData(http:Caller caller, http:Request req) {
         http:Response res = new;
 
-        // Invoke `select` action on the MySQL database endpoint and obtain a large amount of data.
+        // Invoke `select` operation on the MySQL database client and obtain a large amount of data.
         var selectRet = testDB->select("SELECT * FROM Data", ());
         if (selectRet is table <record {}>) {
             // Convert the obtained data to JSON. Note that this conversion does not load
