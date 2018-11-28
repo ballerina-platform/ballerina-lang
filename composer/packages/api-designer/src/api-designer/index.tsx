@@ -21,7 +21,6 @@ import * as React from "react";
 import { Message } from "semantic-ui-react";
 import { validate } from "swagger-parser";
 import * as Swagger from "swagger-schema-official";
-import uniqid from "uniqid";
 
 import { OpenApiOperation } from "./components/operation/add-operation";
 import { OpenApiParameter } from "./components/parameter/add-parameter";
