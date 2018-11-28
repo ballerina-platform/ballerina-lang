@@ -18,7 +18,7 @@
 
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.bre.bvm.CPU;
+import org.ballerinalang.bre.vm.BVM;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 
@@ -77,7 +77,8 @@ public abstract class BValueType implements BValue {
     /**
      * {@inheritDoc}
      */
-    public void attemptFreeze(CPU.FreezeStatus freezeStatus) {
+    @Override
+    public void attemptFreeze(BVM.FreezeStatus freezeStatus) {
         // do nothing, since value types are always frozen
     }
 
