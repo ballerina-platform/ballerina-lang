@@ -60,8 +60,8 @@ service echo on echoEP {
 
 service ClientService = service {
 
-	resource function onConnect(socket:Caller caller) {
-		io:println("connect: ", caller.remotePort);
+    resource function onConnect(socket:Caller caller) {
+        io:println("connect: ", caller.remotePort);
     }
 
 	resource function onReadReady (socket:Caller caller, byte[] content) {

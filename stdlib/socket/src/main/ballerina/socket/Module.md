@@ -8,7 +8,7 @@ The sample given below shows how a listener is used to listen to the incoming so
 import ballerina/io;
 import ballerina/socket;
 
-listener socket:Server server = new ({ port:61598 });
+listener socket:Listener server = new ({ port:61598 });
 
 service echoServer on server {
     resource function onAccept (socket:Caller caller) {
