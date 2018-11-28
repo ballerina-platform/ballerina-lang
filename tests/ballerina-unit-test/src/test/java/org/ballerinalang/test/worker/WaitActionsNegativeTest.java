@@ -50,16 +50,20 @@ public class WaitActionsNegativeTest {
         BAssertUtil.validateError(result, index, "incompatible types: expected 'future<int>', found 'future<string>'",
                                   47, 31);
         index++;
-        BAssertUtil.validateError(result, index, "incompatible types: expected 'future<int|boolean>', found 'future<string>'",
+        BAssertUtil.validateError(result, index, "incompatible types: expected 'future<int|boolean>', " +
+                        "found 'future<string>'",
                                   48, 36);
         index++;
-        BAssertUtil.validateError(result, index, "incompatible types: expected 'future<map<int|boolean>>', found 'future<int>'",
+        BAssertUtil.validateError(result, index, "incompatible types: expected 'future<map<int|boolean>>', " +
+                        "found 'future<int>'",
                                   49, 37);
         index++;
-        BAssertUtil.validateError(result, index, "incompatible types: expected 'future<map<int|boolean>>', found 'future<string>'",
+        BAssertUtil.validateError(result, index, "incompatible types: expected 'future<map<int|boolean>>', " +
+                        "found 'future<string>'",
                                   49, 41);
         index++;
-        BAssertUtil.validateError(result, index, "incompatible types: expected 'future<map<int|boolean>>', found 'future<boolean>'",
+        BAssertUtil.validateError(result, index, "incompatible types: expected 'future<map<int|boolean>>', " +
+                        "found 'future<boolean>'",
                                   49, 44);
         index++;
         BAssertUtil.validateError(result, index, "operator '|' cannot be applied to type 'future'",
@@ -68,19 +72,23 @@ public class WaitActionsNegativeTest {
         BAssertUtil.validateError(result, index, "operator '|' not defined for 'future<int>' and 'future<string>'",
                                   51, 33);
         index++;
-        BAssertUtil.validateError(result, index, "incompatible types: expected 'future<future<int|string>>', found 'future<int>'",
+        BAssertUtil.validateError(result, index, "incompatible types: expected 'future<future<int|string>>', " +
+                        "found 'future<int>'",
                                   52, 40);
         index++;
-        BAssertUtil.validateError(result, index, "incompatible types: expected 'future<future<int|string>>', found 'future<string>'",
+        BAssertUtil.validateError(result, index, "incompatible types: expected 'future<future<int|string>>', " +
+                        "found 'future<string>'",
                                   52, 43);
         index++;
         BAssertUtil.validateError(result, index, "incompatible types: expected 'future<int>', found 'future<string>'",
                                   76, 34);
         index++;
-        BAssertUtil.validateError(result, index, "incompatible types: expected 'future<boolean|string>', found 'future<int>'",
+        BAssertUtil.validateError(result, index, "incompatible types: expected 'future<boolean|string>', " +
+                        "found 'future<int>'",
                                   77, 41);
         index++;
-        BAssertUtil.validateError(result, index, "incompatible types: expected 'future<boolean|string>', found 'future<int>'",
+        BAssertUtil.validateError(result, index, "incompatible types: expected 'future<boolean|string>', " +
+                        "found 'future<int>'",
                                   77, 45);
         index++;
         BAssertUtil.validateError(result, index, "incompatible types: expected 'future<int>', found 'future<string>'",
