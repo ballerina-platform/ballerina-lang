@@ -513,7 +513,7 @@ export interface ForkJoin extends ASTNode {
 }
 
 export interface Function extends ASTNode {
-  VisibleEndpoints?: any[];
+  VisibleEndpoints?: VisibleEndpoint[];
   abstract: boolean;
   allParams: Array<Variable | VariableDef>;
   annotationAttachments: AnnotationAttachment[];
@@ -1569,6 +1569,14 @@ export interface VariableDef extends ASTNode {
   position: any;
   variable: RecordVariable | TupleVariable | Variable;
   ws: any[];
+}
+
+export interface VisibleEndpoint extends ASTNode {
+  caller: boolean;
+  name: string;
+  pkgAlias: string;
+  pkgName: string;
+  pkgOrgName: string;
 }
 
 export interface Where extends ASTNode {

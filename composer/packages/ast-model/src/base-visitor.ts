@@ -327,6 +327,9 @@ export interface Visitor {
   beginVisitVariableDef?(node: Ballerina.VariableDef): void;
   endVisitVariableDef?(node: Ballerina.VariableDef): void;
 
+  beginVisitVisibleEndpoint?(node: Ballerina.VisibleEndpoint): void;
+  endVisitVisibleEndpoint?(node: Ballerina.VisibleEndpoint): void;
+
   beginVisitWhere?(node: Ballerina.Where): void;
   endVisitWhere?(node: Ballerina.Where): void;
 

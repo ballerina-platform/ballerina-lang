@@ -407,6 +407,10 @@ export class ASTKindChecker {
     return node.kind === "VariableDef";
   }
 
+  public static isVisibleEndpoint(node: ASTNode) {
+    return node.kind === "VisibleEndpoint";
+  }
+
   public static isWhere(node: ASTNode) {
     return node.kind === "Where";
   }
