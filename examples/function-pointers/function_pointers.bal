@@ -2,15 +2,20 @@ import ballerina/io;
 
 // The 'test' function acts as a variable function pointer in the 'main' function
 function test(int x, string s) returns (float) {
-    int y = check <int> s;
-    float f = x * 1.0 * y;
+    int|error y = int.create(s);
+    float f = 0.0;
+    if (y is int) {
+        f = x * 1.0 * y;
+    } else if (y is error) {
+        panic y;
+    }
     return f;
 }
 
-// Function pointer as a parameter.
+// Function pointer as a parameter. And use `call` function to invoke the function using the function pointer.
 function foo(int x, function (int, string) returns (float) bar) 
              returns (float) {
-    return x * bar(10, "2");
+    return x * bar.call(10, "2");
 }
 
 // Function pointer as a return type.
