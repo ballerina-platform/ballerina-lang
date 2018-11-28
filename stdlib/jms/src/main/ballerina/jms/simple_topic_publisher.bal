@@ -16,9 +16,9 @@
 
 import ballerina/log;
 
-# JMS SimpleTopicPublisher endpoint
+# JMS Simplified TopicPublisher endpoint
 #
-# + config - SimpleTopicPublisher enpoint configuration
+# + config - Used to store configurations related to a JMS SimpleTopicPublisher
 public type SimpleTopicPublisher client object {
 
     public SimpleTopicPublisherEndpointConfiguration config = {};
@@ -104,9 +104,9 @@ public type SimpleTopicPublisher client object {
 # + initialContextFactory - JMS provider specific inital context factory
 # + providerUrl - JMS provider specific provider URL used to configure a connection
 # + connectionFactoryName - JMS connection factory to be used in creating JMS connections
-# + acknowledgementMode - specifies the session mode that will be used. Legal values are "AUTO_ACKNOWLEDGE",
+# + acknowledgementMode - Specifies the session mode that will be used. Legal values are "AUTO_ACKNOWLEDGE",
 #                         "CLIENT_ACKNOWLEDGE", "SESSION_TRANSACTED" and "DUPS_OK_ACKNOWLEDGE"
-# + properties - Additional properties use in initializing the initial context
+# + properties - Additional properties used when initializing the initial context
 # + topicPattern - Name of the target queue
 public type SimpleTopicPublisherEndpointConfiguration record {
     string initialContextFactory = "bmbInitialContextFactory";
