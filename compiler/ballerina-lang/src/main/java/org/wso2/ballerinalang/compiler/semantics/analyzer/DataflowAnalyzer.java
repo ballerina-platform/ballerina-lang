@@ -268,15 +268,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangService service) {
-        service.vars.forEach(var -> analyzeNode(var, env));
-        service.resources.forEach(res -> analyzeBranch(res, env));
     }
 
     @Override
     public void visit(BLangResource resource) {
-        SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resource, resource.symbol.scope, env);
-        analyzeBranch(resource.body, resourceEnv);
-        resource.workers.forEach(worker -> analyzeBranch(worker, resourceEnv));
     }
 
     @Override
