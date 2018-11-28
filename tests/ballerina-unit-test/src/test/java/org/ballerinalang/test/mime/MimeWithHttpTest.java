@@ -18,9 +18,12 @@
 
 package org.ballerinalang.test.mime;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.MimeUtil;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
@@ -52,11 +55,13 @@ public class MimeWithHttpTest {
     private static final Logger log = LoggerFactory.getLogger(MimeWithHttpTest.class);
 
     private CompileResult serviceResult;
+    private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
         String sourceFilePath = "test-src/mime/mime-with-http.bal";
         serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
+        compileResult = BCompileUtil.compile(sourceFilePath);
     }
 
     @Test(description = "When the payload exceeds 2MB check whether the response received back matches  " +
@@ -88,5 +93,22 @@ public class MimeWithHttpTest {
         } catch (IOException | URISyntaxException e) {
             log.error("Error occurred in testLargePayload", e.getMessage());
         }
+    }
+
+    @Test(description = "Set header to entity and access it via Request")
+    public void testHeaderWithRequest() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testHeaderWithRequest", args);
+        Assert.assertEquals(returns.length, 1, "One value should be returned from this test");
+        Assert.assertEquals(returns[0].stringValue(), "123Basicxxxxxx");
+    }
+
+
+    @Test(description = "Set header to entity and access it via Response")
+    public void testHeaderWithResponse() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testHeaderWithRequest", args);
+        Assert.assertEquals(returns.length, 1, "One value should be returned from this test");
+        Assert.assertEquals(returns[0].stringValue(), "123Basicxxxxxx");
     }
 }
