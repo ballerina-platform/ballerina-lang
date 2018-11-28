@@ -51,11 +51,11 @@ public class ForeachNegativeTests {
         BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
                 "'string' in type definition", 49, 17);
         BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
-                "'json' in type definition", 58, 21);
-        BAssertUtil.validateError(compile, index++, "unreachable code", 73, 9);
-        BAssertUtil.validateError(compile, index++, "unreachable code", 78, 9);
-        BAssertUtil.validateError(compile, index++, "continue cannot be used outside of a loop", 80, 5);
+                "'json' in type definition", 58, 17);
+        BAssertUtil.validateError(compile, index++, "unreachable code", 71, 9);
+        BAssertUtil.validateError(compile, index++, "unreachable code", 76, 9);
+        BAssertUtil.validateError(compile, index++, "continue cannot be used outside of a loop", 78, 5);
         BAssertUtil.validateError(compile, index, "invalid tuple variable; expecting a tuple type but found " +
-                "'string' in type definition", 86, 17);
+                "'string' in type definition", 84, 17);
     }
 }

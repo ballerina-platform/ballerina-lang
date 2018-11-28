@@ -54,14 +54,12 @@ function test6(){
 function test8() returns error? {
     json j = ["a" , "b", "c"];
     var jsonArray = <json[]> j;
-    if (jsonArray is json[]) {
-        foreach var (x, y) in jsonArray {
-            io:print(x);
-            io:println(y);
-        }
-    } else if (jsonArray is error) {
-        return jsonArray;
+
+    foreach var (x, y) in jsonArray {
+        io:print(x);
+        io:println(y);
     }
+
     return ();
 }
 
