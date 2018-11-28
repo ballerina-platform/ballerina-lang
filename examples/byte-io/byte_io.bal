@@ -1,58 +1,48 @@
 import ballerina/io;
+import ballerina/log;
 
 // Copies content from the source channel to a destination channel.
 function copy(io:ReadableByteChannel src, io:WritableByteChannel dst)
              returns error? {
-    // Specifies the number of bytes that should be read from a single
-    // read operation.
-    int numberOfBytesWritten = 0;
-    int readCount = 0;
+    int readCount = 1;
     byte[] readContent;
-    boolean doneCopying = false;
+    //boolean doneCopying = false;
     // Here is how to read all the content from
     // the source and copy it to the destination.
-    while (!doneCopying) {
-        var result = src.read(1000);
-        if (result is (byte[], int)) {
-            (readContent, readCount) = result;
-            if (readCount == 0) {
-                //If no content is read, the loop is ended.
-                doneCopying = true;
-            }
-            numberOfBytesWritten = check dst.write(readContent, 0);
-        } else if (result is error) {
-            return result;
-        }
+    while (readCount > 0) {
+        //Operation would attempt to read a maximum of 1000 bytes, the
+        //operation would return with the available content which could be
+        //< 1000
+        (byte[], int) result = check src.read(1000);
+        (readContent, readCount) = result;
+        //The operation would write the given content into the channel
+        var writeResult = check dst.write(readContent, 0);
     }
     return;
 }
 
 function close(io:ReadableByteChannel|io:WritableByteChannel ch) {
-    abstract object {public function close() returns error?;} channelResult = ch;
-    var closeResult = channelResult.close();
-    if (channelResult.close() is error) {
-        var reason = closeResult.reason();
-        if (reason is string) {
-            io:println("Error occured while closing the channel: " +
-                    reason);
-        }
+    abstract object { public function close() returns error?; }
+                channelResult = ch;
+    var cr = channelResult.close();
+    if (cr is error) {
+        log:printError("Error occured while closing the channel: ", err = cr);
     }
 }
 
 public function main() {
-    string srcFilePath = "./files/ballerina.jpg";
-    string dstFilePath = "./files/ballerinaCopy.jpg";
-    io:ReadableByteChannel sourceChannel = io:openReadableFile(srcFilePath);
-    io:WritableByteChannel destinationChannel = io:openWritableFile(dstFilePath);
-
-    io:println("Start to copy files from " + srcFilePath + " to " + dstFilePath);
-    var result = copy(sourceChannel, destinationChannel);
+    string srcPath = "./files/ballerina.jpg";
+    string dstPath = "./files/ballerinaCopy.jpg";
+    io:ReadableByteChannel srcCh = io:openReadableFile(srcPath);
+    io:WritableByteChannel dstCh = io:openWritableFile(dstPath);
+    io:println("Start to copy files from " + srcPath + " to " + dstPath);
+    var result = copy(srcCh, dstCh);
     if (result is error) {
-        io:println("error occurred while performing copy " + result.reason());
+        log:printError("error occurred while performing copy ", err = result);
+    } else {
+        io:println("File copy completed. The copied file could be located in " +
+                dstPath);
     }
-    io:println("File copy completed. The copied file could be located in " +
-            dstFilePath);
-
-    close(sourceChannel);
-    close(destinationChannel);
+    close(srcCh);
+    close(dstCh);
 }
