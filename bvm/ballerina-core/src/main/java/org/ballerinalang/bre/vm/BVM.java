@@ -700,9 +700,6 @@ public class BVM {
                         BStream stream = new BStream(typeRefCPEntry.getType(), name.getValue());
                         sf.refRegs[i] = stream;
                         break;
-                    case InstructionCodes.NEW_INT_RANGE:
-                        createNewIntRange(operands, sf);
-                        break;
                     case InstructionCodes.IRET:
                         j = operands[0];
                         if (strand.fp > 0) {
@@ -780,7 +777,6 @@ public class BVM {
                         break;
                     case InstructionCodes.ITR_NEW:
                     case InstructionCodes.ITR_NEXT:
-                    case InstructionCodes.ITR_HAS_NEXT:
                         execIteratorOperation(strand, sf, instruction);
                         break;
                     case InstructionCodes.LOCK:
@@ -2768,7 +2764,7 @@ public class BVM {
                         }
 
                         @Override
-                        public BValue[] getNext(int arity) {
+                        public BValue getNext() {
                             return null;
                         }
                     };
@@ -2777,44 +2773,24 @@ public class BVM {
 
                 sf.refRegs[j] = ((BCollection) collection).newIterator();
                 break;
-            case InstructionCodes.ITR_HAS_NEXT:
-                i = instruction.getOperands()[0];   // iterator
-                j = instruction.getOperands()[1];   // boolean variable index to store has next result
-                iterator = (BIterator) sf.refRegs[i];
-                sf.intRegs[j] = Optional.of(iterator).get().hasNext() ? 1 : 0;
-                break;
             case InstructionCodes.ITR_NEXT:
                 nextInstruction = (InstructionIteratorNext) instruction;
                 iterator = (BIterator) sf.refRegs[nextInstruction.iteratorIndex];
-                BValue[] values = Optional.of(iterator).get().getNext(nextInstruction.arity);
-                copyValuesToRegistries(nextInstruction.typeTags, nextInstruction.retRegs, values, sf);
-                break;
-        }
-    }
 
-    private static void copyValuesToRegistries(int[] typeTags, int[] targetReg, BValue[] values, StackFrame sf) {
-        for (int i = 0; i < typeTags.length; i++) {
-            BValue source = values[i];
-            int target = targetReg[i];
-            switch (typeTags[i]) {
-                case TypeTags.INT_TAG:
-                    sf.longRegs[target] = ((BInteger) source).intValue();
-                    break;
-                case TypeTags.BYTE_TAG:
-                    sf.intRegs[target] = ((BByte) source).byteValue();
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    sf.doubleRegs[target] = ((BFloat) source).floatValue();
-                    break;
-                case TypeTags.STRING_TAG:
-                    sf.stringRegs[target] = source.stringValue();
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    sf.intRegs[target] = ((BBoolean) source).booleanValue() ? 1 : 0;
-                    break;
-                default:
-                    sf.refRegs[target] = (BRefType) source;
-            }
+                // Get the next value.
+                BValue value = Optional.of(iterator).get().getNext();
+                if (value != null) {
+                    // If the value is not null, we create a new map and add the value to the map with the key
+                    // `value`. Then we set this map to the corresponding registry location.
+                    BMap<String, BValue> newMap = new BMap<>(nextInstruction.constraintType);
+                    newMap.put("value", value);
+                    sf.refRegs[nextInstruction.retRegs[0]] = (BRefType) newMap;
+                } else {
+                    // If the value is null, that means we have reached the end of the iterable list. So we set null
+                    // to the corresponding registry location.
+                    sf.refRegs[nextInstruction.retRegs[0]] = null;
+                }
+                break;
         }
     }
 
