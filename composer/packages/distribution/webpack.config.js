@@ -10,11 +10,15 @@ const ExtractVSCodeThemeCSS = new ExtractTextPlugin({
 });
 
 module.exports = {
+    entry: {
+        composer: './src/index.ts',
+        apiEditor: './src/api-editor.ts',
+    },
     output: {
-        path: path.resolve(__dirname, 'build'),
-        filename: 'composer.js',
-        library: 'ballerinaComposer',
-        libraryTarget: 'umd'
+      path: path.resolve(__dirname, 'build'),
+      filename: '[name].js',
+      library: 'ballerinaComposer',
+      libraryTarget: 'umd'
     },
     resolve: {
         alias: {

@@ -19,7 +19,8 @@
     "@ballerina/diagram": "^0.983.1-SNAPSHOT",
     "@ballerina/documentation": "^0.983.1-SNAPSHOT",
     "@ballerina/theme": "^0.983.1-SNAPSHOT",
-    "@ballerina/tracing": "^0.983.1-SNAPSHOT"
+    "@ballerina/tracing": "^0.983.1-SNAPSHOT",
+    "@ballerina/api-designer" : "^0.983.1-SNAPSHOT"
   },
   "devDependencies": {
     "@ballerina/composer-cli": "^0.983.1-SNAPSHOT"
