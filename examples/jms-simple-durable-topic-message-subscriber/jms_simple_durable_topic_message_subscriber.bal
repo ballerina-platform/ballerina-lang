@@ -22,7 +22,7 @@ service jmsListener on subscriberEndpoint {
             log:printInfo("Message : " + messageText);
         } else {
             log:printError("Error occurred while reading message",
-                         err=messageText);
+                         err = messageText);
         }
     }
 }

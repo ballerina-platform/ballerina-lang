@@ -14,32 +14,26 @@ jms:Session jmsSession = new(jmsConnection, {
 });
 
 // This initializes a queue receiver on top of the created sessions.
-endpoint jms:QueueReceiver queueReceiver {
+listener jms:QueueReceiver queueReceiver = new({
     session:jmsSession,
     queueName:"MyQueue"
-};
+});
 
 public function main() {
     // This keeps the JMS session alive until the message is received by the JMS provider. If the message is not received within five
     // seconds, the session times out.
-    var result = queueReceiver->receive(timeoutInMilliSeconds=5000);
+    jms:QueueReceiverCaller caller = queueReceiver.getCallerActions();
+    var result = caller->receive(timeoutInMilliSeconds=5000);
 
-    match result {
-        jms:Message msg => {
-            // This is executed if the message is received.
-            match (msg.getTextMessageContent()) {
-                string messageText => log:printInfo("Message : " + messageText);
-                error e => log:printError("Error occurred while reading"
-                                          + "message", err=e);
-            }
+    if (result is jms:Message) {
+        var messageText = result.getTextMessageContent();
+        if (messageText is string) {
+            log:printInfo("Message : " + messageText);
+        } else {
+            log:printError("Error occurred while reading"
+                         + "message", err=messageText);
         }
-        () => {
-            // This is executed if the message is not received within five seconds.
-            log:printInfo("Message not received");
-        }
-        error err => {
-            // This is executed if an error occurs.
-            log:printInfo("Error receiving message. " + err.message);
-        }
+    } else {
+            log:printInfo("Error receiving message. " + err=result);
     }
 }
