@@ -876,16 +876,6 @@ public class LSNodeVisitor extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangCompensate compensateNode) {
-        // No implementation
-    }
-
-    @Override
-    public void visit(BLangScope scopeNode) {
-        // No implementation
-    }
-
-    @Override
     public void visit(BLangInvocation.BLangBuiltInMethodInvocation builtInMethodInvocation) {
         // No implementation
     }

@@ -850,17 +850,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangScope scopeNode) {
-        setPreviousNode(scopeNode);
-
-        if (scopeNode.scopeBody != null) {
-            acceptNode(scopeNode.scopeBody);
-        }
-
-        acceptNode(scopeNode.compensationFunction);
-    }
-
-    @Override
     public void visit(BLangCompoundAssignment assignment) {
         setPreviousNode(assignment);
 
