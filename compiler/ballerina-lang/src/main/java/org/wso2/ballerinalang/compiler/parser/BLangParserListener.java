@@ -824,7 +824,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitErrorBindingPattern(BallerinaParser.ErrorBindingPatternContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -857,7 +857,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitErrorRefBindingPattern(BallerinaParser.ErrorRefBindingPatternContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -1183,7 +1183,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitErrorDestructuringStatement(BallerinaParser.ErrorDestructuringStatementContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2025,7 +2025,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitStaticMatchOrExpression(BallerinaParser.StaticMatchOrExpressionContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
@@ -2034,7 +2034,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitStaticMatchIdentifierLiteral(BallerinaParser.StaticMatchIdentifierLiteralContext ctx) {
-        if (ctx.exception != null) {
+        if (isInErrorState) {
             return;
         }
 
