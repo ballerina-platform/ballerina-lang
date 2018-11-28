@@ -156,7 +156,7 @@ public type SimpleDurableTopicSubscriberCaller client object {
     # Synchronously receive a message from the JMS provider
     #
     # + timeoutInMilliSeconds - Time to wait until a message is received
-    # + return - Returns a message or nill if the timeout exceededs. Returns an error on jms provider internal error.
+    # + return - Returns a message or nill if the timeout exceededs. Returns an error on JMS provider internal error.
     public remote function receive(int timeoutInMilliSeconds = 0) returns (Message|error)? {
         return self.helper->receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
     }

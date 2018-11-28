@@ -114,14 +114,14 @@ public type TopicSubscriberCaller client object {
     # Synchronously receive a message from the JMS provider
     #
     # + timeoutInMilliSeconds - Time to wait until a message is received
-    # + return - Returns a message or nil if the timeout exceeds, returns an error on jms provider internal error.
+    # + return - Returns a message or nil if the timeout exceeds, returns an error on JMS provider internal error.
     public remote extern function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
 
     # Synchronously receive a message from the JMS provider
     #
     # + destination - Destination to subscribe to
     # + timeoutInMilliSeconds - Time to wait until a message is received
-    # + return - Returns a message or nil if the timeout exceeds, returns an error on jms provider internal error
+    # + return - Returns a message or nil if the timeout exceeds, returns an error on JMS provider internal error
     public remote function receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|error)?;
 };
 

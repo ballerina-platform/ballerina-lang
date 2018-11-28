@@ -23,19 +23,19 @@ public type Message object {
 
     # Gets text content of the JMS message
     #
-    # + return - The string containing this message's data or an JMS error
+    # + return - The string containing this message's data or a JMS error
     public extern function getTextMessageContent() returns @tainted string|error;
 
     # Gets map content of the JMS message
     #
-    # + return - The string containing this message's data or an JMS error
+    # + return - The string containing this message's data or a JMS error
     public extern function getMapMessageContent() returns @tainted map<any>|error;
 
     # Sets a JMS transport string property from the message
     #
     # + key - The string property name
     # + value - The string property value
-    # + return - Nil or an JMS error
+    # + return - Nil or a JMS error
     public extern function setStringProperty(@sensitive string key, string value) returns error?;
 
     # Gets a JMS transport string property from the message
@@ -48,7 +48,7 @@ public type Message object {
     #
     # + key - The integer property name
     # + value - The integer property value
-    # + return - Nil or an JMS error
+    # + return - Nil or a JMS error
     public extern function setIntProperty(@sensitive string key, int value) returns error?;
 
     # Gets a JMS transport integer property from the message
@@ -61,7 +61,7 @@ public type Message object {
     #
     # + key - The boolean property name
     # + value - The boolean property value
-    # + return - Nil or an JMS error
+    # + return - Nil or a JMS error
     public extern function setBooleanProperty(@sensitive string key, boolean value) returns error?;
 
     # Gets a JMS transport boolean property from the message
@@ -74,7 +74,7 @@ public type Message object {
     #
     # + key - The float property name
     # + value - The float property value
-    # + return - Nil or an JMS error
+    # + return - Nil or a JMS error
     public extern function setFloatProperty(@sensitive string key, float value) returns error?;
 
     # Gets a JMS transport float property from the message
@@ -96,7 +96,7 @@ public type Message object {
     # Sets DeliveryMode JMS transport header to the message
     #
     # + mode - The header value
-    # + return - nil or an JMS error
+    # + return - nil or a JMS error
     public extern function setDeliveryMode(int mode) returns error?;
 
     # Get JMS transport header DeliveryMode from the message
@@ -107,7 +107,7 @@ public type Message object {
     # Sets Expiration JMS transport header to the message
     #
     # + value - The header value
-    # + return - nil or an JMS error
+    # + return - nil or a JMS error
     public extern function setExpiration(int value) returns error?;
 
     # Gets JMS transport header Expiration from the message
@@ -133,13 +133,13 @@ public type Message object {
 
     # Clears body of the JMS message
     #
-    # + return - nil or an JMS error
+    # + return - nil or a JMS error
     public extern function clearBody() returns error?;
 
     # Sets priority JMS transport header to the message
     #
     # + value - The header value
-    # + return - nil or an JMS error
+    # + return - nil or a JMS error
     public extern function setPriority(int value) returns error?;
 
     # Gets JMS transport header Priority from the message
@@ -155,7 +155,7 @@ public type Message object {
     # Sets CorrelationID JMS transport header to the message
     #
     # + value - The header value
-    # + return - nil or an JMS error
+    # + return - nil or a JMS error
     public extern function setCorrelationID(string value) returns error?;
 
     # Gets JMS transport header CorrelationID from the message

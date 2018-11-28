@@ -106,7 +106,7 @@ public type SimpleTopicPublisher client object {
 # + connectionFactoryName - JMS connection factory to be used in creating JMS connections
 # + acknowledgementMode - Specifies the session mode that will be used. Legal values are "AUTO_ACKNOWLEDGE",
 #                         "CLIENT_ACKNOWLEDGE", "SESSION_TRANSACTED" and "DUPS_OK_ACKNOWLEDGE"
-# + properties - Additional properties use in initializing the initial context
+# + properties - Additional properties used when initializing the initial context
 # + topicPattern - Name of the target queue
 public type SimpleTopicPublisherEndpointConfiguration record {
     string initialContextFactory = "bmbInitialContextFactory";

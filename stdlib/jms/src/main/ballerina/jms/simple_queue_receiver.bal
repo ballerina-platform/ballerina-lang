@@ -111,7 +111,7 @@ public type SimpleQueueReceiver object {
 # + acknowledgementMode - Specifies the session mode that will be used. Legal values are "AUTO_ACKNOWLEDGE",
 #                         "CLIENT_ACKNOWLEDGE", "SESSION_TRANSACTED" and "DUPS_OK_ACKNOWLEDGE"
 # + messageSelector - Message selector condition to filter messages
-# + properties - Additional properties use in initializing the initial context
+# + properties - Additional properties used when initializing the initial context
 # + queueName - Name of the target queue
 public type SimpleQueueReceiverEndpointConfiguration record {
     string initialContextFactory = "bmbInitialContextFactory";

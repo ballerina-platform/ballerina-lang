@@ -105,6 +105,6 @@ public type DurableTopicSubscriberCaller client object {
     # Synchronously receive a message from the JMS provider
     #
     # + timeoutInMilliSeconds - Time to wait until a message is received
-    # + return - Returns a message or nil if the timeout exceeds, returns an error upon jms provider internal error
+    # + return - Returns a message or nil if the timeout exceeds, returns an error upon JMS provider internal error
     public remote extern function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
 };
